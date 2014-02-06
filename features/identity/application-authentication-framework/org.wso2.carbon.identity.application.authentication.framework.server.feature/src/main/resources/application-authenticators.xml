@@ -1,0 +1,43 @@
+<AuthenticatorSequences>
+	 
+	<AuthenticatorConfigs>
+		
+		<!-- Defines the configurations of Authenticators -->
+		
+		<AuthenticatorConfig name="BasicAuthenticator" enabled="true">
+			<Parameter name="LoginPage">/authenticationendpoint/login.do</Parameter>
+		</AuthenticatorConfig>
+	    
+        <!-- IdP configurations for the SAMLSSOAuthenticator is stored in
+        external-idp-config.xml and refered by the config name. -->	
+		<AuthenticatorConfig name="SAMLSSOAuthenticator" enabled="false">
+            <Parameter name="DefaultIdPConfig">WSO2IS</Parameter>
+		</AuthenticatorConfig>
+		
+		<AuthenticatorConfig name="OpenIDAuthenticator" enabled="false">
+			<Parameter name="LoginPage">/authenticationendpoint/login.do</Parameter>
+			<Parameter name="TrustStorePath">/repository/resources/security/client-truststore.jks</Parameter>
+			<Parameter name="TrustStorePassword">wso2carbon</Parameter>
+		</AuthenticatorConfig>	
+	
+	</AuthenticatorConfigs> 
+	
+	<Sequences>
+		
+		<!-- Defines the various authentication sequences. Sequences can 
+		be created by any name; an entity (e.g SAMLSSO endpoint) SHOULD 
+		refer a sequence by the name when calling the Authentication 
+		Framework. However, "default" sequence is mandatory; it is 
+		executed when the calling entity does not specify any sequence -->
+		
+		<Sequence name="default">
+			<Step order="1" loginPage="/authenticationendpoint/login.do">
+				<Authenticator name="BasicAuthenticator"/>
+				<!--Authenticator name="SAMLSSOAuthenticator"/>
+				<Authenticator name="OpenIDAuthenticator"/-->
+			</Step>
+		</Sequence>	
+		
+	</Sequences>
+
+</AuthenticatorSequences>

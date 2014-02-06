@@ -1,0 +1,593 @@
+
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ax2295="http://utils.common.scim.identity.carbon.wso2.org/xsd" xmlns:ns="http://config.common.scim.identity.carbon.wso2.org" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:ax2297="http://config.common.scim.identity.carbon.wso2.org/xsd" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://config.common.scim.identity.carbon.wso2.org">
+    <wsdl:documentation>SCIMConfigAdminService</wsdl:documentation>
+    <wsdl:types>
+        <xs:schema xmlns:ax2296="http://utils.common.scim.identity.carbon.wso2.org/xsd" xmlns:ax2298="http://config.common.scim.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://config.common.scim.identity.carbon.wso2.org">
+            <xs:import namespace="http://utils.common.scim.identity.carbon.wso2.org/xsd"/>
+            <xs:import namespace="http://config.common.scim.identity.carbon.wso2.org/xsd"/>
+            <xs:element name="SCIMConfigAdminServiceIdentitySCIMException">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="IdentitySCIMException" nillable="true" type="ax2295:IdentitySCIMException"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="updateUserProvider">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="consumerId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="scimProviderDTO" nillable="true" type="ax2297:SCIMProviderDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="updateGlobalProvider">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="consumerId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="scimProviderDTO" nillable="true" type="ax2297:SCIMProviderDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getUserProvider">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="consumerId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="providerId" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getUserProviderResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2297:SCIMProviderDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getGlobalProvider">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="consumerId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="providerId" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getGlobalProviderResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2297:SCIMProviderDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAllUserProviders">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="consumerId" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAllUserProvidersResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2297:SCIMProviderDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAllGlobalProviders">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="consumerId" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAllGlobalProvidersResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2297:SCIMProviderDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="deleteUserProvider">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="consumerId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="providerId" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="deleteGlobalProvider">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="consumerId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="providerId" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addUserProvider">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="consumerId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="scimProviderDTO" nillable="true" type="ax2297:SCIMProviderDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addGlobalProvider">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="consumerId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="scimProviderDTO" nillable="true" type="ax2297:SCIMProviderDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://config.common.scim.identity.carbon.wso2.org/xsd">
+            <xs:complexType name="SCIMProviderDTO">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="bulkEPURL" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="groupEPURL" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="password" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="providerId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="userEPURL" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://utils.common.scim.identity.carbon.wso2.org/xsd">
+            <xs:complexType name="IdentitySCIMException">
+                <xs:sequence/>
+            </xs:complexType>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="updateUserProviderRequest">
+        <wsdl:part name="parameters" element="ns:updateUserProvider"/>
+    </wsdl:message>
+    <wsdl:message name="updateUserProviderResponse"/>
+    <wsdl:message name="SCIMConfigAdminServiceIdentitySCIMException">
+        <wsdl:part name="parameters" element="ns:SCIMConfigAdminServiceIdentitySCIMException"/>
+    </wsdl:message>
+    <wsdl:message name="deleteUserProviderRequest">
+        <wsdl:part name="parameters" element="ns:deleteUserProvider"/>
+    </wsdl:message>
+    <wsdl:message name="deleteUserProviderResponse"/>
+    <wsdl:message name="getGlobalProviderRequest">
+        <wsdl:part name="parameters" element="ns:getGlobalProvider"/>
+    </wsdl:message>
+    <wsdl:message name="getGlobalProviderResponse">
+        <wsdl:part name="parameters" element="ns:getGlobalProviderResponse"/>
+    </wsdl:message>
+    <wsdl:message name="deleteGlobalProviderRequest">
+        <wsdl:part name="parameters" element="ns:deleteGlobalProvider"/>
+    </wsdl:message>
+    <wsdl:message name="deleteGlobalProviderResponse"/>
+    <wsdl:message name="addUserProviderRequest">
+        <wsdl:part name="parameters" element="ns:addUserProvider"/>
+    </wsdl:message>
+    <wsdl:message name="addUserProviderResponse"/>
+    <wsdl:message name="getAllUserProvidersRequest">
+        <wsdl:part name="parameters" element="ns:getAllUserProviders"/>
+    </wsdl:message>
+    <wsdl:message name="getAllUserProvidersResponse">
+        <wsdl:part name="parameters" element="ns:getAllUserProvidersResponse"/>
+    </wsdl:message>
+    <wsdl:message name="addGlobalProviderRequest">
+        <wsdl:part name="parameters" element="ns:addGlobalProvider"/>
+    </wsdl:message>
+    <wsdl:message name="addGlobalProviderResponse"/>
+    <wsdl:message name="updateGlobalProviderRequest">
+        <wsdl:part name="parameters" element="ns:updateGlobalProvider"/>
+    </wsdl:message>
+    <wsdl:message name="updateGlobalProviderResponse"/>
+    <wsdl:message name="getUserProviderRequest">
+        <wsdl:part name="parameters" element="ns:getUserProvider"/>
+    </wsdl:message>
+    <wsdl:message name="getUserProviderResponse">
+        <wsdl:part name="parameters" element="ns:getUserProviderResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getAllGlobalProvidersRequest">
+        <wsdl:part name="parameters" element="ns:getAllGlobalProviders"/>
+    </wsdl:message>
+    <wsdl:message name="getAllGlobalProvidersResponse">
+        <wsdl:part name="parameters" element="ns:getAllGlobalProvidersResponse"/>
+    </wsdl:message>
+    <wsdl:portType name="SCIMConfigAdminServicePortType">
+        <wsdl:operation name="updateUserProvider">
+            <wsdl:input message="ns:updateUserProviderRequest" wsaw:Action="urn:updateUserProvider"/>
+            <wsdl:output message="ns:updateUserProviderResponse" wsaw:Action="urn:updateUserProviderResponse"/>
+            <wsdl:fault message="ns:SCIMConfigAdminServiceIdentitySCIMException" name="SCIMConfigAdminServiceIdentitySCIMException" wsaw:Action="urn:updateUserProviderSCIMConfigAdminServiceIdentitySCIMException"/>
+        </wsdl:operation>
+        <wsdl:operation name="deleteUserProvider">
+            <wsdl:input message="ns:deleteUserProviderRequest" wsaw:Action="urn:deleteUserProvider"/>
+            <wsdl:output message="ns:deleteUserProviderResponse" wsaw:Action="urn:deleteUserProviderResponse"/>
+            <wsdl:fault message="ns:SCIMConfigAdminServiceIdentitySCIMException" name="SCIMConfigAdminServiceIdentitySCIMException" wsaw:Action="urn:deleteUserProviderSCIMConfigAdminServiceIdentitySCIMException"/>
+        </wsdl:operation>
+        <wsdl:operation name="getGlobalProvider">
+            <wsdl:input message="ns:getGlobalProviderRequest" wsaw:Action="urn:getGlobalProvider"/>
+            <wsdl:output message="ns:getGlobalProviderResponse" wsaw:Action="urn:getGlobalProviderResponse"/>
+            <wsdl:fault message="ns:SCIMConfigAdminServiceIdentitySCIMException" name="SCIMConfigAdminServiceIdentitySCIMException" wsaw:Action="urn:getGlobalProviderSCIMConfigAdminServiceIdentitySCIMException"/>
+        </wsdl:operation>
+        <wsdl:operation name="deleteGlobalProvider">
+            <wsdl:input message="ns:deleteGlobalProviderRequest" wsaw:Action="urn:deleteGlobalProvider"/>
+            <wsdl:output message="ns:deleteGlobalProviderResponse" wsaw:Action="urn:deleteGlobalProviderResponse"/>
+            <wsdl:fault message="ns:SCIMConfigAdminServiceIdentitySCIMException" name="SCIMConfigAdminServiceIdentitySCIMException" wsaw:Action="urn:deleteGlobalProviderSCIMConfigAdminServiceIdentitySCIMException"/>
+        </wsdl:operation>
+        <wsdl:operation name="addUserProvider">
+            <wsdl:input message="ns:addUserProviderRequest" wsaw:Action="urn:addUserProvider"/>
+            <wsdl:output message="ns:addUserProviderResponse" wsaw:Action="urn:addUserProviderResponse"/>
+            <wsdl:fault message="ns:SCIMConfigAdminServiceIdentitySCIMException" name="SCIMConfigAdminServiceIdentitySCIMException" wsaw:Action="urn:addUserProviderSCIMConfigAdminServiceIdentitySCIMException"/>
+        </wsdl:operation>
+        <wsdl:operation name="getAllUserProviders">
+            <wsdl:input message="ns:getAllUserProvidersRequest" wsaw:Action="urn:getAllUserProviders"/>
+            <wsdl:output message="ns:getAllUserProvidersResponse" wsaw:Action="urn:getAllUserProvidersResponse"/>
+            <wsdl:fault message="ns:SCIMConfigAdminServiceIdentitySCIMException" name="SCIMConfigAdminServiceIdentitySCIMException" wsaw:Action="urn:getAllUserProvidersSCIMConfigAdminServiceIdentitySCIMException"/>
+        </wsdl:operation>
+        <wsdl:operation name="addGlobalProvider">
+            <wsdl:input message="ns:addGlobalProviderRequest" wsaw:Action="urn:addGlobalProvider"/>
+            <wsdl:output message="ns:addGlobalProviderResponse" wsaw:Action="urn:addGlobalProviderResponse"/>
+            <wsdl:fault message="ns:SCIMConfigAdminServiceIdentitySCIMException" name="SCIMConfigAdminServiceIdentitySCIMException" wsaw:Action="urn:addGlobalProviderSCIMConfigAdminServiceIdentitySCIMException"/>
+        </wsdl:operation>
+        <wsdl:operation name="updateGlobalProvider">
+            <wsdl:input message="ns:updateGlobalProviderRequest" wsaw:Action="urn:updateGlobalProvider"/>
+            <wsdl:output message="ns:updateGlobalProviderResponse" wsaw:Action="urn:updateGlobalProviderResponse"/>
+            <wsdl:fault message="ns:SCIMConfigAdminServiceIdentitySCIMException" name="SCIMConfigAdminServiceIdentitySCIMException" wsaw:Action="urn:updateGlobalProviderSCIMConfigAdminServiceIdentitySCIMException"/>
+        </wsdl:operation>
+        <wsdl:operation name="getUserProvider">
+            <wsdl:input message="ns:getUserProviderRequest" wsaw:Action="urn:getUserProvider"/>
+            <wsdl:output message="ns:getUserProviderResponse" wsaw:Action="urn:getUserProviderResponse"/>
+            <wsdl:fault message="ns:SCIMConfigAdminServiceIdentitySCIMException" name="SCIMConfigAdminServiceIdentitySCIMException" wsaw:Action="urn:getUserProviderSCIMConfigAdminServiceIdentitySCIMException"/>
+        </wsdl:operation>
+        <wsdl:operation name="getAllGlobalProviders">
+            <wsdl:input message="ns:getAllGlobalProvidersRequest" wsaw:Action="urn:getAllGlobalProviders"/>
+            <wsdl:output message="ns:getAllGlobalProvidersResponse" wsaw:Action="urn:getAllGlobalProvidersResponse"/>
+            <wsdl:fault message="ns:SCIMConfigAdminServiceIdentitySCIMException" name="SCIMConfigAdminServiceIdentitySCIMException" wsaw:Action="urn:getAllGlobalProvidersSCIMConfigAdminServiceIdentitySCIMException"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="SCIMConfigAdminServiceSoap11Binding" type="ns:SCIMConfigAdminServicePortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="updateUserProvider">
+            <soap:operation soapAction="urn:updateUserProvider" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SCIMConfigAdminServiceIdentitySCIMException">
+                <soap:fault use="literal" name="SCIMConfigAdminServiceIdentitySCIMException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="deleteUserProvider">
+            <soap:operation soapAction="urn:deleteUserProvider" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SCIMConfigAdminServiceIdentitySCIMException">
+                <soap:fault use="literal" name="SCIMConfigAdminServiceIdentitySCIMException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getGlobalProvider">
+            <soap:operation soapAction="urn:getGlobalProvider" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SCIMConfigAdminServiceIdentitySCIMException">
+                <soap:fault use="literal" name="SCIMConfigAdminServiceIdentitySCIMException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="deleteGlobalProvider">
+            <soap:operation soapAction="urn:deleteGlobalProvider" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SCIMConfigAdminServiceIdentitySCIMException">
+                <soap:fault use="literal" name="SCIMConfigAdminServiceIdentitySCIMException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="addGlobalProvider">
+            <soap:operation soapAction="urn:addGlobalProvider" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SCIMConfigAdminServiceIdentitySCIMException">
+                <soap:fault use="literal" name="SCIMConfigAdminServiceIdentitySCIMException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getAllUserProviders">
+            <soap:operation soapAction="urn:getAllUserProviders" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SCIMConfigAdminServiceIdentitySCIMException">
+                <soap:fault use="literal" name="SCIMConfigAdminServiceIdentitySCIMException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="addUserProvider">
+            <soap:operation soapAction="urn:addUserProvider" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SCIMConfigAdminServiceIdentitySCIMException">
+                <soap:fault use="literal" name="SCIMConfigAdminServiceIdentitySCIMException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="updateGlobalProvider">
+            <soap:operation soapAction="urn:updateGlobalProvider" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SCIMConfigAdminServiceIdentitySCIMException">
+                <soap:fault use="literal" name="SCIMConfigAdminServiceIdentitySCIMException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getAllGlobalProviders">
+            <soap:operation soapAction="urn:getAllGlobalProviders" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SCIMConfigAdminServiceIdentitySCIMException">
+                <soap:fault use="literal" name="SCIMConfigAdminServiceIdentitySCIMException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getUserProvider">
+            <soap:operation soapAction="urn:getUserProvider" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SCIMConfigAdminServiceIdentitySCIMException">
+                <soap:fault use="literal" name="SCIMConfigAdminServiceIdentitySCIMException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="SCIMConfigAdminServiceSoap12Binding" type="ns:SCIMConfigAdminServicePortType">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="updateUserProvider">
+            <soap12:operation soapAction="urn:updateUserProvider" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SCIMConfigAdminServiceIdentitySCIMException">
+                <soap12:fault use="literal" name="SCIMConfigAdminServiceIdentitySCIMException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="deleteUserProvider">
+            <soap12:operation soapAction="urn:deleteUserProvider" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SCIMConfigAdminServiceIdentitySCIMException">
+                <soap12:fault use="literal" name="SCIMConfigAdminServiceIdentitySCIMException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getGlobalProvider">
+            <soap12:operation soapAction="urn:getGlobalProvider" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SCIMConfigAdminServiceIdentitySCIMException">
+                <soap12:fault use="literal" name="SCIMConfigAdminServiceIdentitySCIMException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="deleteGlobalProvider">
+            <soap12:operation soapAction="urn:deleteGlobalProvider" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SCIMConfigAdminServiceIdentitySCIMException">
+                <soap12:fault use="literal" name="SCIMConfigAdminServiceIdentitySCIMException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="addGlobalProvider">
+            <soap12:operation soapAction="urn:addGlobalProvider" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SCIMConfigAdminServiceIdentitySCIMException">
+                <soap12:fault use="literal" name="SCIMConfigAdminServiceIdentitySCIMException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getAllUserProviders">
+            <soap12:operation soapAction="urn:getAllUserProviders" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SCIMConfigAdminServiceIdentitySCIMException">
+                <soap12:fault use="literal" name="SCIMConfigAdminServiceIdentitySCIMException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="addUserProvider">
+            <soap12:operation soapAction="urn:addUserProvider" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SCIMConfigAdminServiceIdentitySCIMException">
+                <soap12:fault use="literal" name="SCIMConfigAdminServiceIdentitySCIMException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="updateGlobalProvider">
+            <soap12:operation soapAction="urn:updateGlobalProvider" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SCIMConfigAdminServiceIdentitySCIMException">
+                <soap12:fault use="literal" name="SCIMConfigAdminServiceIdentitySCIMException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getAllGlobalProviders">
+            <soap12:operation soapAction="urn:getAllGlobalProviders" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SCIMConfigAdminServiceIdentitySCIMException">
+                <soap12:fault use="literal" name="SCIMConfigAdminServiceIdentitySCIMException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getUserProvider">
+            <soap12:operation soapAction="urn:getUserProvider" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="SCIMConfigAdminServiceIdentitySCIMException">
+                <soap12:fault use="literal" name="SCIMConfigAdminServiceIdentitySCIMException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="SCIMConfigAdminServiceHttpBinding" type="ns:SCIMConfigAdminServicePortType">
+        <http:binding verb="POST"/>
+        <wsdl:operation name="updateUserProvider">
+            <http:operation location="updateUserProvider"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="deleteUserProvider">
+            <http:operation location="deleteUserProvider"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getGlobalProvider">
+            <http:operation location="getGlobalProvider"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="deleteGlobalProvider">
+            <http:operation location="deleteGlobalProvider"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="addGlobalProvider">
+            <http:operation location="addGlobalProvider"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getAllUserProviders">
+            <http:operation location="getAllUserProviders"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="addUserProvider">
+            <http:operation location="addUserProvider"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="updateGlobalProvider">
+            <http:operation location="updateGlobalProvider"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getAllGlobalProviders">
+            <http:operation location="getAllGlobalProviders"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getUserProvider">
+            <http:operation location="getUserProvider"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="SCIMConfigAdminService">
+        <wsdl:port name="SCIMConfigAdminServiceHttpsSoap11Endpoint" binding="ns:SCIMConfigAdminServiceSoap11Binding">
+            <soap:address location="https://localhost:9443/services/SCIMConfigAdminService.SCIMConfigAdminServiceHttpsSoap11Endpoint/"/>
+        </wsdl:port>
+        <wsdl:port name="SCIMConfigAdminServiceHttpsSoap12Endpoint" binding="ns:SCIMConfigAdminServiceSoap12Binding">
+            <soap12:address location="https://localhost:9443/services/SCIMConfigAdminService.SCIMConfigAdminServiceHttpsSoap12Endpoint/"/>
+        </wsdl:port>
+        <wsdl:port name="SCIMConfigAdminServiceHttpsEndpoint" binding="ns:SCIMConfigAdminServiceHttpBinding">
+            <http:address location="https://localhost:9443/services/SCIMConfigAdminService.SCIMConfigAdminServiceHttpsEndpoint/"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

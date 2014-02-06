@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2011-2012 WSO2, Inc. (http://wso2.com)
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+         http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
+    <display-name>SCIM-Service-Provider</display-name>
+
+    <servlet>
+        <servlet-name>SCIMServlet</servlet-name>
+        <display-name>SCIMServlet</display-name>
+        <description>SCIM Endpoints</description>
+        <servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>SCIMServlet</servlet-name>
+        <url-pattern>/scim/*</url-pattern>
+    </servlet-mapping>
+
+    <session-config>
+        <session-timeout>60</session-timeout>
+    </session-config>
+
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>secured services</web-resource-name>
+            <url-pattern>/scim/*</url-pattern>
+        </web-resource-collection>
+        <!--we take default name for everyone role.If it is changed in user-mgt.xml,this needs to be changed as well.-->
+        <!--<auth-constraint>
+            <role-name>Internal/everyone</role-name>
+        </auth-constraint>-->
+        <user-data-constraint>
+            <!-- transport-guarantee can be CONFIDENTIAL, INTEGRAL, or NONE -->
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+    <listener>
+        <listener-class>org.wso2.carbon.identity.scim.provider.impl.ApplicationInitializer</listener-class>
+    </listener>
+
+    <!--login-config>
+        <auth-method>BASIC</auth-method>
+    </login-config>
+    <context-param>
+        <param-name>carbon.enable.saas</param-name>
+        <param-value>*</param-value>
+    </context-param-->
+
+</web-app>
+

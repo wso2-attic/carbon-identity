@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ! ! Copyright 2006 The Apache Software Foundation. ! ! Licensed under
+	the Apache License, Version 2.0 (the "License"); ! you may not use this file
+	except in compliance with the License. ! You may obtain a copy of the License
+	at ! ! http://www.apache.org/licenses/LICENSE-2.0 ! ! Unless required by
+	applicable law or agreed to in writing, software ! distributed under the
+	License is distributed on an "AS IS" BASIS, ! WITHOUT WARRANTIES OR CONDITIONS
+	OF ANY KIND, either express or implied. ! See the License for the specific
+	language governing permissions and ! limitations under the License. ! -->
+<serviceGroup>
+
+	<service name="SCIMConfigAdminService" scope="transportsession">
+		<transports>
+			<transport>https</transport>
+		</transports>
+		<parameter name="ServiceClass" locked="true">org.wso2.carbon.identity.scim.common.config.SCIMConfigAdminService</parameter>
+
+		<parameter name="AuthorizationAction" locked="false">/permission/admin/configure/security</parameter>
+        
+		<operation name="getAllGlobalProviders">
+			<parameter name="AuthorizationAction" locked="true">/permission/admin/configure/security</parameter>
+		</operation>
+		<operation name="addGlobalProvider">
+			<parameter name="AuthorizationAction" locked="true">/permission/admin/configure/security</parameter>
+		</operation>
+		<operation name="getGlobalProvider">
+			<parameter name="AuthorizationAction" locked="true">/permission/admin/configure/security</parameter>
+		</operation>
+		<operation name="updateGlobalProvider">
+			<parameter name="AuthorizationAction" locked="true">/permission/admin/configure/security</parameter>
+		</operation>
+		<operation name="deleteGlobalProvider">
+			<parameter name="AuthorizationAction" locked="true">/permission/admin/configure/security</parameter>
+		</operation>
+        
+		<operation name="getAllUserProviders">
+			<parameter name="AuthorizationAction" locked="true">/permission/admin/configure/security/usermgt/provisioning</parameter>
+        </operation>
+		<operation name="addUserProvider">
+			<parameter name="AuthorizationAction" locked="true">/permission/admin/configure/security/usermgt/provisioning</parameter>
+		</operation>
+		<operation name="getUserProvider">
+			<parameter name="AuthorizationAction" locked="true">/permission/admin/configure/security/usermgt/provisioning</parameter>
+		</operation>
+		<operation name="updateUserProvider">
+			<parameter name="AuthorizationAction" locked="true">/permission/admin/configure/security/usermgt/provisioning</parameter>
+		</operation>
+		<operation name="deleteUserProvider">
+			<parameter name="AuthorizationAction" locked="true">/permission/admin/configure/security/usermgt/provisioning</parameter>
+		</operation>
+	</service>
+
+	<parameter name="adminService" locked="true">true</parameter>
+	<parameter name="hiddenService" locked="true">true</parameter>
+
+</serviceGroup>

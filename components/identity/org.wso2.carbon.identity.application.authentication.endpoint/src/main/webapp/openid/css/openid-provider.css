@@ -1,0 +1,80 @@
+.card-box-top{
+background-image:url(../images/card-box02.jpg);
+background-repeat:repeat-x;
+background-position:0 0;
+}
+.card-box-left{
+background-image:url(../images/card-box08.jpg);
+background-repeat:repeat-y;
+background-position:0 0;
+width:15px;
+}
+.card-box-right{
+background-image:url(../images/card-box04.jpg);
+background-repeat:repeat-y;
+background-position:0 0;
+width:18px;
+}
+.card-box-bottom{
+background-image:url(../images/card-box06.jpg);
+background-repeat:repeat-x;
+background-position:0 0;
+}
+.card-box-mid{
+background-color:#ffffff;
+}
+.user-pic{
+margin-bottom:10px;
+}
+.card-box{
+width:400px;
+}
+.openid-box-top{
+background-image:url(../images/openid-box-back.gif);
+background-position:0 0;
+background-repeat:no-repeat;
+width:812px;
+height:123px;
+}
+.openid-box-05{
+background-image:url(../images/openid-box-05.gif);
+}
+.openid-box-07{
+background-image:url(../images/openid-box-07.gif);
+}
+
+.openid-box-06{
+background-image:url(../images/openid-box-06.gif);
+background-position:0 0;
+background-repeat:repeat-x;
+}
+.openid-box-04{
+background-image:url(../images/openid-box-04.gif);
+background-position:0 0;
+background-repeat:repeat-y;
+width:2px;
+}
+.openid-box-08{
+background-image:url(../images/openid-box-08.gif);
+background-position:0 0;
+background-repeat:repeat-y;
+width:2px;
+}
+.openid-box-back{
+background-color:#e3e7ea;
+padding-bottom:50px;
+padding-left:50px;
+font-size:20px;
+}
+.openid-box-05,.openid-box-07{
+background-position:0 0;
+background-repeat:no-repeat;
+width:19px;
+height:31px;
+}
+.openid-box{
+width:812px;
+}
+.openid-box-username{
+color:#569643;
+}

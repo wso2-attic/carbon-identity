@@ -1,0 +1,311 @@
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:tns="http://saml.sso.identity.carbon.wso2.org" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:ax2121="http://base.identity.carbon.wso2.org/xsd" xmlns:ax2123="http://dto.saml.sso.identity.carbon.wso2.org/xsd" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://saml.sso.identity.carbon.wso2.org">
+    <wsdl:documentation>IdentitySAMLSSOConfigService</wsdl:documentation>
+    <wsdl:types>
+        <xs:schema xmlns:ax2124="http://dto.saml.sso.identity.carbon.wso2.org/xsd" xmlns:ns="http://org.apache.axis2/xsd" xmlns:ax2122="http://base.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://org.apache.axis2/xsd">
+            <xs:import namespace="http://base.identity.carbon.wso2.org/xsd" />
+            <xs:import namespace="http://dto.saml.sso.identity.carbon.wso2.org/xsd" />
+            <xs:element name="IdentityException">
+                <xs:complexType>
+                    <xs:sequence>
+
+                        <xs:element minOccurs="0" name="IdentityException" nillable="true" type="ax2121:IdentityException" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="removeServiceProvider">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="issuer" nillable="true" type="xs:string" />
+                    </xs:sequence>
+
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="removeServiceProviderResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="getServiceProvidersResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2124:SAMLSSOServiceProviderInfoDTO" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getCertAliasOfPrimaryKeyStoreResponse">
+                <xs:complexType>
+
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addRPServiceProvider">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="spDto" nillable="true" type="ax2124:SAMLSSOServiceProviderDTO" />
+
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addRPServiceProviderResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean" />
+                    </xs:sequence>
+                </xs:complexType>
+
+            </xs:element>
+        </xs:schema>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://dto.saml.sso.identity.carbon.wso2.org/xsd">
+            <xs:complexType name="SAMLSSOServiceProviderInfoDTO">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="pubCertFilePath" nillable="true" type="xs:string" />
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="serviceProviders" nillable="true" type="ax2123:SAMLSSOServiceProviderDTO" />
+                    <xs:element minOccurs="0" name="tenantZero" type="xs:boolean" />
+                </xs:sequence>
+
+            </xs:complexType>
+            <xs:complexType name="SAMLSSOServiceProviderDTO">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="assertionConsumerUrl" nillable="true" type="xs:string" />
+                    <xs:element minOccurs="0" name="certAlias" nillable="true" type="xs:string" />
+                    <xs:element minOccurs="0" name="doSignAssertions" type="xs:boolean" />
+                    <xs:element minOccurs="0" name="doSingleLogout" type="xs:boolean" />
+                    <xs:element minOccurs="0" name="issuer" nillable="true" type="xs:string" />
+                    <xs:element minOccurs="0" name="logoutURL" nillable="true" type="xs:string" />
+
+                    <xs:element minOccurs="0" name="useFullyQualifiedUsername" type="xs:boolean" />
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://base.identity.carbon.wso2.org/xsd">
+            <xs:complexType name="IdentityException">
+                <xs:sequence />
+            </xs:complexType>
+        </xs:schema>
+
+    </wsdl:types>
+    <wsdl:message name="removeServiceProviderRequest">
+        <wsdl:part name="parameters" element="ns1:removeServiceProvider" />
+    </wsdl:message>
+    <wsdl:message name="removeServiceProviderResponse">
+        <wsdl:part name="parameters" element="ns1:removeServiceProviderResponse" />
+    </wsdl:message>
+    <wsdl:message name="IdentityException">
+        <wsdl:part name="parameters" element="ns1:IdentityException" />
+
+    </wsdl:message>
+    <wsdl:message name="getCertAliasOfPrimaryKeyStoreRequest" />
+    <wsdl:message name="getCertAliasOfPrimaryKeyStoreResponse">
+        <wsdl:part name="parameters" element="ns1:getCertAliasOfPrimaryKeyStoreResponse" />
+    </wsdl:message>
+    <wsdl:message name="getServiceProvidersRequest" />
+    <wsdl:message name="getServiceProvidersResponse">
+        <wsdl:part name="parameters" element="ns1:getServiceProvidersResponse" />
+    </wsdl:message>
+
+    <wsdl:message name="addRPServiceProviderRequest">
+        <wsdl:part name="parameters" element="ns1:addRPServiceProvider" />
+    </wsdl:message>
+    <wsdl:message name="addRPServiceProviderResponse">
+        <wsdl:part name="parameters" element="ns1:addRPServiceProviderResponse" />
+    </wsdl:message>
+    <wsdl:portType name="IdentitySAMLSSOConfigServicePortType">
+        <wsdl:operation name="removeServiceProvider">
+            <wsdl:input message="tns:removeServiceProviderRequest" wsaw:Action="urn:removeServiceProvider" />
+
+            <wsdl:output message="tns:removeServiceProviderResponse" wsaw:Action="urn:removeServiceProviderResponse" />
+            <wsdl:fault message="tns:IdentityException" name="IdentityException" wsaw:Action="urn:removeServiceProviderIdentityException" />
+        </wsdl:operation>
+        <wsdl:operation name="getCertAliasOfPrimaryKeyStore">
+            <wsdl:input message="tns:getCertAliasOfPrimaryKeyStoreRequest" wsaw:Action="urn:getCertAliasOfPrimaryKeyStore" />
+            <wsdl:output message="tns:getCertAliasOfPrimaryKeyStoreResponse" wsaw:Action="urn:getCertAliasOfPrimaryKeyStoreResponse" />
+            <wsdl:fault message="tns:IdentityException" name="IdentityException" wsaw:Action="urn:getCertAliasOfPrimaryKeyStoreIdentityException" />
+        </wsdl:operation>
+        <wsdl:operation name="getServiceProviders">
+
+            <wsdl:input message="tns:getServiceProvidersRequest" wsaw:Action="urn:getServiceProviders" />
+            <wsdl:output message="tns:getServiceProvidersResponse" wsaw:Action="urn:getServiceProvidersResponse" />
+            <wsdl:fault message="tns:IdentityException" name="IdentityException" wsaw:Action="urn:getServiceProvidersIdentityException" />
+        </wsdl:operation>
+        <wsdl:operation name="addRPServiceProvider">
+            <wsdl:input message="tns:addRPServiceProviderRequest" wsaw:Action="urn:addRPServiceProvider" />
+            <wsdl:output message="tns:addRPServiceProviderResponse" wsaw:Action="urn:addRPServiceProviderResponse" />
+            <wsdl:fault message="tns:IdentityException" name="IdentityException" wsaw:Action="urn:addRPServiceProviderIdentityException" />
+        </wsdl:operation>
+
+    </wsdl:portType>
+    <wsdl:binding name="IdentitySAMLSSOConfigServiceSoap11Binding" type="tns:IdentitySAMLSSOConfigServicePortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document" />
+        <wsdl:operation name="getCertAliasOfPrimaryKeyStore">
+            <soap:operation soapAction="urn:getCertAliasOfPrimaryKeyStore" style="document" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+
+                <soap:body use="literal" />
+            </wsdl:output>
+            <wsdl:fault name="IdentityException">
+                <soap:fault use="literal" name="IdentityException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="removeServiceProvider">
+            <soap:operation soapAction="urn:removeServiceProvider" style="document" />
+            <wsdl:input>
+
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+            <wsdl:fault name="IdentityException">
+                <soap:fault use="literal" name="IdentityException" />
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <wsdl:operation name="getServiceProviders">
+            <soap:operation soapAction="urn:getServiceProviders" style="document" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+            <wsdl:fault name="IdentityException">
+
+                <soap:fault use="literal" name="IdentityException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="addRPServiceProvider">
+            <soap:operation soapAction="urn:addRPServiceProvider" style="document" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+
+                <soap:body use="literal" />
+            </wsdl:output>
+            <wsdl:fault name="IdentityException">
+                <soap:fault use="literal" name="IdentityException" />
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="IdentitySAMLSSOConfigServiceSoap12Binding" type="tns:IdentitySAMLSSOConfigServicePortType">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document" />
+
+        <wsdl:operation name="getCertAliasOfPrimaryKeyStore">
+            <soap12:operation soapAction="urn:getCertAliasOfPrimaryKeyStore" style="document" />
+            <wsdl:input>
+                <soap12:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal" />
+            </wsdl:output>
+            <wsdl:fault name="IdentityException">
+
+                <soap12:fault use="literal" name="IdentityException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="removeServiceProvider">
+            <soap12:operation soapAction="urn:removeServiceProvider" style="document" />
+            <wsdl:input>
+                <soap12:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+
+                <soap12:body use="literal" />
+            </wsdl:output>
+            <wsdl:fault name="IdentityException">
+                <soap12:fault use="literal" name="IdentityException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getServiceProviders">
+            <soap12:operation soapAction="urn:getServiceProviders" style="document" />
+            <wsdl:input>
+
+                <soap12:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal" />
+            </wsdl:output>
+            <wsdl:fault name="IdentityException">
+                <soap12:fault use="literal" name="IdentityException" />
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <wsdl:operation name="addRPServiceProvider">
+            <soap12:operation soapAction="urn:addRPServiceProvider" style="document" />
+            <wsdl:input>
+                <soap12:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal" />
+            </wsdl:output>
+            <wsdl:fault name="IdentityException">
+
+                <soap12:fault use="literal" name="IdentityException" />
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="IdentitySAMLSSOConfigServiceHttpBinding" type="tns:IdentitySAMLSSOConfigServicePortType">
+        <http:binding verb="POST" />
+        <wsdl:operation name="getCertAliasOfPrimaryKeyStore">
+            <http:operation location="getCertAliasOfPrimaryKeyStore" />
+            <wsdl:input>
+
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="removeServiceProvider">
+            <http:operation location="removeServiceProvider" />
+            <wsdl:input>
+
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getServiceProviders">
+            <http:operation location="getServiceProviders" />
+            <wsdl:input>
+
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="addRPServiceProvider">
+            <http:operation location="addRPServiceProvider" />
+            <wsdl:input>
+
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="IdentitySAMLSSOConfigService">
+        <wsdl:port name="IdentitySAMLSSOConfigServiceHttpsSoap11Endpoint" binding="tns:IdentitySAMLSSOConfigServiceSoap11Binding">
+
+            <soap:address location="https://localhost:9443/services/IdentitySAMLSSOConfigService.IdentitySAMLSSOConfigServiceHttpsSoap11Endpoint/" />
+        </wsdl:port>
+        <wsdl:port name="IdentitySAMLSSOConfigServiceHttpsSoap12Endpoint" binding="tns:IdentitySAMLSSOConfigServiceSoap12Binding">
+            <soap12:address location="https://localhost:9443/services/IdentitySAMLSSOConfigService.IdentitySAMLSSOConfigServiceHttpsSoap12Endpoint/" />
+        </wsdl:port>
+        <wsdl:port name="IdentitySAMLSSOConfigServiceHttpsEndpoint" binding="tns:IdentitySAMLSSOConfigServiceHttpBinding">
+            <http:address location="https://localhost:9443/services/IdentitySAMLSSOConfigService.IdentitySAMLSSOConfigServiceHttpsEndpoint/" />
+        </wsdl:port>
+    </wsdl:service>
+
+</wsdl:definitions>
