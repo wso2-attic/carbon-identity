@@ -33,7 +33,7 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.wsdl2form</artifactId>
-            <version>${project.version}</version>
+            <!--<version>${project.version}</version>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -46,17 +46,17 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.user.core</artifactId>
-            <version>${project.version}</version>
+            <!--<version>${project.version}</version>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.user.api</artifactId>
-            <version>${project.version}</version>
+            <!--<version>${project.version}</version>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.directory.server.manager.common</artifactId>
-            <version>${project.version}</version>
+            <!--<version>${project.version}</version>-->
         </dependency>
     </dependencies>
     <build>

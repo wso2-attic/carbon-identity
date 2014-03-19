@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.user.cassandra;
 
+import java.lang.Override;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -1369,5 +1370,10 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager implemen
             credentialList.add(getCredentialType(credentialCol.getName()).get(credentialCol.getValue()));
         }
         return credentialList.toArray(new Credential[credentialList.size()]);
+    }
+
+    @Override
+    public String[] doGetSharedRoleNames(String s,String s1,int i){
+
     }
 }

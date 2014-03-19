@@ -50,12 +50,12 @@
         <dependency>
             <groupId>org.apache.synapse</groupId>
             <artifactId>synapse-core</artifactId>
-            <version>${synapse.version.identity}</version>
+            <!--<version>${synapse.version.identity}</version>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.mediator.service</artifactId>
-            <version>${wso2carbon.version.identity}</version>
+            <!--<version>${wso2carbon.version.identity}</version>-->
         </dependency>
     </dependencies>
 

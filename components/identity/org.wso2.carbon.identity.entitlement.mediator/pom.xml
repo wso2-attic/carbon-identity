@@ -37,12 +37,12 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
+            <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.utils</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
+            <!--<version>4.3.0-SNAPSHOT</version>-->
             <exclusions>
                 <exclusion>
                     <groupId>libthrift</groupId>
@@ -57,12 +57,12 @@
         <dependency>
             <groupId>org.apache.synapse</groupId>
             <artifactId>synapse-core</artifactId>
-            <version>${synapse.version.identity}</version>
+            <!--<version>${synapse.version.identity}</version>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.mediator.service</artifactId>
-            <version>${wso2carbon.version.identity}</version>
+            <!--<version>${wso2carbon.version.identity}</version>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -71,7 +71,7 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.entitlement.stub</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
+            <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -88,7 +88,7 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.entitlement.proxy</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
+            <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
     </dependencies>
     <build>

@@ -34,7 +34,7 @@
     <url>http://wso2.org</url>
 
     <modules>
-        <module>org.wso2.carbon.identity.authenticator.iwa</module>
+        <!--<module>org.wso2.carbon.identity.authenticator.iwa</module>-->
         <module>org.wso2.carbon.identity.authenticator.iwa.ui</module>
     </modules>
     

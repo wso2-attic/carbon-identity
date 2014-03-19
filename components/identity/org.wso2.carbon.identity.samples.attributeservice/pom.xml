@@ -34,7 +34,7 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.provider</artifactId>
-            <version>${identity.version}</version>
+            <!--<version>${identity.version}</version>-->
         </dependency>
     </dependencies>
 
