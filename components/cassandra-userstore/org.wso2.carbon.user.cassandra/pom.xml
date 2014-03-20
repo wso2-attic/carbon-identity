@@ -68,7 +68,7 @@
                         <Import-Package>
                             !javax.xml.namespace,
                             org.wso2.carbon.user.core.*,
-                            org.apache.axiom.*; version="${imp.pkg.version.axiom}",
+                            org.apache.axiom.*; version="${axiom.osgi.version.range}",
                             javax.sql.*,
                             org.apache.commons.logging.*,
                             javax.naming.*,

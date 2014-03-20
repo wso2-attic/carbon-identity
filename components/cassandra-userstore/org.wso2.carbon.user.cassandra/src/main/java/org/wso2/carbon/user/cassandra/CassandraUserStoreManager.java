@@ -89,6 +89,7 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager implemen
     protected boolean useOnlyInternalRoles;
     protected Random random = new Random();
     protected Map<String, CredentialType> credentialTypeMap = new HashMap<String, CredentialType>();
+    ProfileConfigurationManager profileManager;
 
 
     public CassandraUserStoreManager(RealmConfiguration realmConfig, int tenantId)
@@ -494,7 +495,7 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager implemen
 
 
 
-    @Override
+//    @Override
     public void doAddUser(String userName, Object credential, String[] roleList,
                           Map<String, String> claims, String profileName)
             throws UserStoreException {
@@ -619,22 +620,22 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager implemen
 
 //    }
 
-    @Override
-    public Claim[] getUserClaimValues(String userName, String profileName)
-            throws UserStoreException {
-    	if(DEBUG) {
-    		log.debug("Getting claims for " + userName);
-    	}
-        String credentialType = CFConstants.DEFAULT_TYPE;
-        if(userName.contains(":")) {
-            String[] cred = userName.split(":");
-            credentialType = cred[0];
-            userName = cred[1];
-        }
-
-        return getUserClaimValues(userName, credentialType, profileName);
-
-    }
+//    @Override
+//    public Claim[] getUserClaimValues(String userName, String profileName)
+//            throws UserStoreException {
+//    	if(DEBUG) {
+//    		log.debug("Getting claims for " + userName);
+//    	}
+//        String credentialType = CFConstants.DEFAULT_TYPE;
+//        if(userName.contains(":")) {
+//            String[] cred = userName.split(":");
+//            credentialType = cred[0];
+//            userName = cred[1];
+//        }
+//
+//        return getUserClaimValues(userName, credentialType, profileName);
+//
+//    }
 
     @Override
     public String[] getAllProfileNames() throws UserStoreException {
@@ -653,10 +654,10 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager implemen
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    @Override
-    public String[] getHybridRoles() throws UserStoreException {
-        return new String[0];  //To change body of implemented methods use File | Settings | File Templates.
-    }
+//    @Override
+//    public String[] getHybridRoles() throws UserStoreException {
+//        return new String[0];  //To change body of implemented methods use File | Settings | File Templates.
+//    }
 
     @Override
     public Date getPasswordExpirationTime(String username) throws UserStoreException {
@@ -711,7 +712,7 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager implemen
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    @Override
+//    @Override
     public RoleDTO[] getRoleNamesWithDomain() throws UserStoreException {
         return new RoleDTO[0];  //To change body of implemented methods use File | Settings | File Templates.
     }
@@ -817,22 +818,22 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager implemen
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    @Override
+//    @Override
     public String[] getInternalRoleListOfUser(String s) throws UserStoreException {
         return new String[0];  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    @Override
+//    @Override
     public List<String> getExternalRoleListOfUser(String s) throws UserStoreException {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    @Override
+//    @Override
     protected void doAddRole(String s, String[] strings, org.wso2.carbon.user.api.Permission[] permissions) throws UserStoreException {
         throw new UserStoreException("doAddRole(String,String[],Permission[]) not implemented for CassandraUserStoreManager");
     }
 
-    @Override
+//    @Override
     public void doAddRole(String roleName, String[] userList, Permission[] permissions)
             throws UserStoreException {
 
@@ -895,10 +896,10 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager implemen
         throw new UserStoreException("doGetDisplayNamesForInternalRole(String[]) not implemented for CassandraUserStoreManager");
     }
 
-    @Override
-    public String[] listUsers(String filter, int maxItemLimit) throws UserStoreException {
-        return new String[0];  //To change body of implemented methods use File | Settings | File Templates.
-    }
+//    @Override
+//    public String[] listUsers(String filter, int maxItemLimit) throws UserStoreException {
+//        return new String[0];  //To change body of implemented methods use File | Settings | File Templates.
+//    }
 
     @Override
     public boolean isExistingUser(String userName) throws UserStoreException {
@@ -918,15 +919,15 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager implemen
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    @Override
-    public String[] getRoleNames() throws UserStoreException {
-        return new String[0];  //To change body of implemented methods use File | Settings | File Templates.
-    }
+//    @Override
+//    public String[] getRoleNames() throws UserStoreException {
+//        return new String[0];  //To change body of implemented methods use File | Settings | File Templates.
+//    }
 
-    @Override
-    public String[] getRoleNames(boolean noHybridRoles) throws UserStoreException {
-        return new String[0];  //To change body of implemented methods use File | Settings | File Templates.
-    }
+//    @Override
+//    public String[] getRoleNames(boolean noHybridRoles) throws UserStoreException {
+//        return new String[0];  //To change body of implemented methods use File | Settings | File Templates.
+//    }
 
     @Override
     protected String[] doGetUserListOfRole(String s, String s2) throws UserStoreException {
@@ -1157,13 +1158,13 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager implemen
         return rolesList.toArray(new String[rolesList.size()]);
     }
 
-    @Override
-    public String[] getUserListOfRole(String roleName) throws UserStoreException {
-
-        List<String> userList = getUserListOfRoleAsList(roleName);
-
-        return userList.toArray(new String[userList.size()]);
-    }
+//    @Override
+//    public String[] getUserListOfRole(String roleName) throws UserStoreException {
+//
+//        List<String> userList = getUserListOfRoleAsList(roleName);
+//
+//        return userList.toArray(new String[userList.size()]);
+//    }
 
     private List<String> getUserListOfRoleAsList(String roleName) {
         SliceQuery<String,String,String> userListQuery = HFactory
@@ -1374,6 +1375,43 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager implemen
 
     @Override
     public String[] doGetSharedRoleNames(String s,String s1,int i){
+     return new String[0];
+    }
+
+    @Override
+    public boolean doCheckIsUserInRole(String s,String s1){
+        return false;
+    }
+
+    @Override
+    public void doAddRole(String s,String[] s1,boolean x) {
 
     }
+
+    @Override
+    public String[] doGetSharedRoleListOfUser(java.lang.String s1,java.lang.String s2,java.lang.String s3){
+        return new String[0];
+
+    }
+
+    @Override
+    public String[] doGetExternalRoleListOfUser(java.lang.String s1,java.lang.String s2){
+        return new String[0];
+
+    }
+
+    @Override
+    public org.wso2.carbon.user.core.common.RoleContext createRoleContext(java.lang.String s) {
+        return null;
+    }
+
+    public org.wso2.carbon.user.api.Properties getDefaultUserStoreProperties() {
+     return null;
+    }
+
+
+
+
 }
+
+

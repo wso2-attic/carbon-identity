@@ -36,12 +36,21 @@
 
     <modules>
 	<module>org.wso2.carbon.identity.application.authentication.endpoint</module>
-    <module>org.wso2.carbon.identity.application.authentication.framework</module>
-    <module>org.wso2.carbon.identity.application.authenticator.basicauth</module>
+        <module>org.wso2.carbon.identity.sso.saml.common</module>
+        <module>org.wso2.carbon.identity.sso.saml</module>
+        <module>org.wso2.carbon.identity.sso.saml.ui</module>
+        <module>org.wso2.carbon.identity.application.mgt</module>
+        <module>org.wso2.carbon.identity.application.mgt.ui</module>
+        <module>org.wso2.carbon.identity.application.authentication.framework</module>
+        <module>org.wso2.carbon.identity.application.authenticator.basicauth</module>
+
+        <module>org.wso2.carbon.identity.application.authenticator.oidc</module>
+        <module>org.wso2.carbon.identity.application.authenticator.openid</module>
+        <module>org.wso2.carbon.identity.application.authenticator.samlsso</module>
         <module>org.wso2.carbon.identity.base</module>
         <module>org.wso2.carbon.identity.core</module>
-	<module>org.wso2.carbon.identity.mgt</module>
-	<module>org.wso2.carbon.identity.mgt.ui</module>
+    	<module>org.wso2.carbon.identity.mgt</module>
+	    <module>org.wso2.carbon.identity.mgt.ui</module>
         <module>org.wso2.carbon.identity.menu.ui</module>
         <module>org.wso2.carbon.identity.provider</module>
         <module>org.wso2.carbon.identity.provider.ui</module>
@@ -63,9 +72,6 @@
         <module>org.wso2.carbon.identity.sts.passive</module>
         <module>org.wso2.carbon.identity.sts.passive.ui</module>
 	<module>org.wso2.carbon.identity.sso.agent</module>
-        <module>org.wso2.carbon.identity.sso.saml.common</module>
-        <module>org.wso2.carbon.identity.sso.saml</module>
-        <module>org.wso2.carbon.identity.sso.saml.ui</module>
         <module>org.wso2.carbon.identity.provider.openid.admin</module>
         <module>org.wso2.carbon.identity.provider.openid.admin.ui</module>
         <module>org.wso2.carbon.identity.oauth.common</module>

@@ -335,4 +335,16 @@ public class TrustedIdPDTO {
         }
         this.tokenEndpointUrl = tokenEndpointUrl;
     }
+
+    public String getIdPIssuerId() {
+     return null;
+    }
+
+    public String[] getAudience() {
+        return new String[0];
+    }
+
+    public String getTokenEPAlias() {
+        return null;
+    }
 }

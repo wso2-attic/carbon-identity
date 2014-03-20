@@ -48,7 +48,7 @@ import org.wso2.carbon.identity.oauth.internal.OAuthComponentServiceHolder;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.token.handlers.grant.AbstractAuthorizationGrantHandler;
-import org.wso2.carbon.idp.mgt.IdPMetadataService;
+//import org.wso2.carbon.idp.mgt.IdPMetadataService;
 import org.wso2.carbon.idp.mgt.dto.TrustedIdPDTO;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -149,11 +149,11 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
         TrustedIdPDTO trustedIdPDTO = null;
         if(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getIdp() != null &&
                 !tokReqMsgCtx.getOauth2AccessTokenReqDTO().getIdp().equals("")){
-            trustedIdPDTO = IdPMetadataService.getInstance().getTenantIdPMetaData(
-                    tokReqMsgCtx.getOauth2AccessTokenReqDTO().getIdp(), tenantDomain);
+//            trustedIdPDTO = IdPMetadataService.getInstance().getTenantIdPMetaData(
+//                    tokReqMsgCtx.getOauth2AccessTokenReqDTO().getIdp(), tenantDomain);
         } else {
-            String idPName = IdPMetadataService.getInstance().getPrimaryIdP(tenantDomain);
-            trustedIdPDTO = IdPMetadataService.getInstance().getTenantIdPMetaData(idPName, tenantDomain);
+//            String idPName = IdPMetadataService.getInstance().getPrimaryIdP(tenantDomain);
+//            trustedIdPDTO = IdPMetadataService.getInstance().getTenantIdPMetaData(idPName, tenantDomain);
         }
         if(trustedIdPDTO == null){
             log.debug("SAML2 Issuer not registered");

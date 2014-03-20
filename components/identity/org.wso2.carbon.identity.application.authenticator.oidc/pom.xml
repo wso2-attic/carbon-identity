@@ -45,7 +45,11 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
             <groupId>org.apache.amber.wso2</groupId>
             <artifactId>amber</artifactId>
             <!--<version>0.22.1358727.wso2v4</version>-->
-		</dependency>   
+		</dependency>
+        <dependency>
+            <groupId>org.apache.amber</groupId>
+            <artifactId>amber-oauth2-client</artifactId>
+        </dependency>
 	</dependencies>
 	<build>
 		<plugins>
