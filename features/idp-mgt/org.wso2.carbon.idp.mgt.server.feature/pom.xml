@@ -73,7 +73,7 @@
 							<importFeatures>
 								<importFeatureDef>org.wso2.carbon.core.server</importFeatureDef>
 								<importFeatureDef>org.wso2.carbon.security.mgt.server</importFeatureDef>
-								<importFeatureDef>org.wso2.carbon.stratos.common.server:2.3.0-SNAPSHOT</importFeatureDef>
+								<!--<importFeatureDef>org.wso2.carbon.stratos.common.server:2.3.0-SNAPSHOT</importFeatureDef>-->
 							</importFeatures>
 						</configuration>
 					</execution>
