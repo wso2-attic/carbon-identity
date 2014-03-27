@@ -135,7 +135,11 @@
             <artifactId>axis2</artifactId>
             <version>${orbit.version.axis2}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.axis2.wso2</groupId>
+            <artifactId>axis2-client</artifactId>
+            <version>${orbit.version.axis2}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.ws.commons.axiom.wso2</groupId>
             <artifactId>axiom</artifactId>
