@@ -1,0 +1,2 @@
+instructions.configure = \
+org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../features/org.wso2.carbon.idp.mgt.server_${feature.version}/trusted-idp-config.xml,target:${installFolder}/../../conf/security/trusted-idp-config.xml,overwrite:true);\
