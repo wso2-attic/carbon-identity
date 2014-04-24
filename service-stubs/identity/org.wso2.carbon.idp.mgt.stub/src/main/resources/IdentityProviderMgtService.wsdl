@@ -1,242 +1,27 @@
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ax2385="http://model.common.application.identity.carbon.wso2.org/xsd" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://mgt.idp.carbon.wso2.org" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ax2383="http://common.application.identity.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://mgt.idp.carbon.wso2.org">
+
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://mgt.idp.carbon.wso2.org" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:ax2362="http://exception.mgt.idp.carbon.wso2.org/xsd" xmlns:ax2364="http://dto.mgt.idp.carbon.wso2.org/xsd" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://mgt.idp.carbon.wso2.org">
     <wsdl:documentation>IdentityProviderMgtService</wsdl:documentation>
     <wsdl:types>
-        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://common.application.identity.carbon.wso2.org/xsd">
-            <xs:complexType name="IdentityApplicationManagementException">
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://exception.mgt.idp.carbon.wso2.org/xsd">
+            <xs:complexType name="IdentityProviderMgtException">
                 <xs:sequence></xs:sequence>
             </xs:complexType>
         </xs:schema>
-        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://model.common.application.identity.carbon.wso2.org/xsd">
-            <xs:complexType name="ResidentIdentityProvider">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="authzEndpointUrl" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="certificate" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="homeRealmId" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="idpEntityId" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="logoutRequestUrl" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="openIDUrl" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="openIdRealm" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="passiveSTSRealm" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="passiveSTSUrl" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="saml2SSOUrl" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="tokenEndpointUrl" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="userInfoEndpointUrl" nillable="true" type="xs:string"></xs:element>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="FederatedIdentityProvider">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="alias" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="certificate" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="claimConfiguration" nillable="true" type="ax2385:ClaimConfiguration"></xs:element>
-                    <xs:element minOccurs="0" name="defaultAuthenticator" nillable="true" type="ax2385:FederatedAuthenticator"></xs:element>
-                    <xs:element minOccurs="0" name="defaultProvisioinongConnector" nillable="true" type="ax2385:ProvisioningConnector"></xs:element>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="federatedAuthenticators" nillable="true" type="ax2385:FederatedAuthenticator"></xs:element>
-                    <xs:element minOccurs="0" name="homeRealmId" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="identityProviderName" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="justInTimeProvisioningConfiguration" nillable="true" type="ax2385:JustInTimeProvisioningConfiguration"></xs:element>
-                    <xs:element minOccurs="0" name="permissionAndRoleConfiguration" nillable="true" type="ax2385:PermissionsAndRoleConfiguration"></xs:element>
-                    <xs:element minOccurs="0" name="primary" type="xs:boolean"></xs:element>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="provisoningConnectors" nillable="true" type="ax2385:ProvisioningConnector"></xs:element>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="ClaimConfiguration">
-                <xs:sequence>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="claimMappings" nillable="true" type="ax2385:ClaimMapping"></xs:element>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="idpClaims" nillable="true" type="ax2385:Claim"></xs:element>
-                    <xs:element minOccurs="0" name="roleClaimURI" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="userClaimURI" nillable="true" type="xs:string"></xs:element>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="ClaimMapping">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="idpClaim" nillable="true" type="ax2385:Claim"></xs:element>
-                    <xs:element minOccurs="0" name="localClaim" nillable="true" type="ax2385:Claim"></xs:element>
-                    <xs:element minOccurs="0" name="spClaim" nillable="true" type="ax2385:Claim"></xs:element>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="Claim">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="claimId" type="xs:int"></xs:element>
-                    <xs:element minOccurs="0" name="claimUri" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="requested" type="xs:boolean"></xs:element>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="LocalAuthenticator">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="enabled" type="xs:boolean"></xs:element>
-                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"></xs:element>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="FederatedAuthenticator">
-                <xs:complexContent>
-                    <xs:extension base="ax2385:LocalAuthenticator">
-                        <xs:sequence>
-                            <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"></xs:element>
-                            <xs:element minOccurs="0" name="usetIdInClaim" type="xs:boolean"></xs:element>
-                            <xs:element minOccurs="0" name="valid" type="xs:boolean"></xs:element>
-                        </xs:sequence>
-                    </xs:extension>
-                </xs:complexContent>
-            </xs:complexType>
-            <xs:complexType name="ProvisioningConnector">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="enabled" type="xs:boolean"></xs:element>
-                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"></xs:element>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="provisioningProperties" nillable="true" type="ax2385:ProvisioningProperty"></xs:element>
-                    <xs:element minOccurs="0" name="valid" type="xs:boolean"></xs:element>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="ProvisioningProperty">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="base64EncodedStringValue" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="confidential" type="xs:boolean"></xs:element>
-                    <xs:element minOccurs="0" name="defaultValue" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="value" nillable="true" type="xs:string"></xs:element>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="InboundProvisioningConfiguration">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="provisioningEnabled" type="xs:boolean"></xs:element>
-                    <xs:element minOccurs="0" name="provisioningUserStore" nillable="true" type="xs:string"></xs:element>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="JustInTimeProvisioningConfiguration">
-                <xs:complexContent>
-                    <xs:extension base="ax2385:InboundProvisioningConfiguration">
-                        <xs:sequence>
-                            <xs:element minOccurs="0" name="userStoreClaimUri" nillable="true" type="xs:string"></xs:element>
-                        </xs:sequence>
-                    </xs:extension>
-                </xs:complexContent>
-            </xs:complexType>
-            <xs:complexType name="PermissionsAndRoleConfiguration">
-                <xs:sequence>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="idpRoles" nillable="true" type="xs:string"></xs:element>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="permissions" nillable="true" type="ax2385:ApplicationPermission"></xs:element>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="roleMappings" nillable="true" type="ax2385:RoleMapping"></xs:element>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="ApplicationPermission">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="value" nillable="true" type="xs:string"></xs:element>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="RoleMapping">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="localRole" nillable="true" type="ax2385:LocalRole"></xs:element>
-                    <xs:element minOccurs="0" name="remoteRole" nillable="true" type="xs:string"></xs:element>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="LocalRole">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="localRoleName" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="userStoreId" nillable="true" type="xs:string"></xs:element>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="OpenIDFederatedAuthenticator">
-                <xs:complexContent>
-                    <xs:extension base="ax2385:FederatedAuthenticator">
-                        <xs:sequence>
-                            <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"></xs:element>
-                            <xs:element minOccurs="0" name="openIDRealm" nillable="true" type="xs:string"></xs:element>
-                            <xs:element minOccurs="0" name="openIDServerUrl" nillable="true" type="xs:string"></xs:element>
-                            <xs:element minOccurs="0" name="valid" type="xs:boolean"></xs:element>
-                        </xs:sequence>
-                    </xs:extension>
-                </xs:complexContent>
-            </xs:complexType>
-            <xs:complexType name="FacebookFederatedAuthenticator">
-                <xs:complexContent>
-                    <xs:extension base="ax2385:FederatedAuthenticator">
-                        <xs:sequence>
-                            <xs:element minOccurs="0" name="clientId" nillable="true" type="xs:string"></xs:element>
-                            <xs:element minOccurs="0" name="clientSecret" nillable="true" type="xs:string"></xs:element>
-                            <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"></xs:element>
-                            <xs:element minOccurs="0" name="valid" type="xs:boolean"></xs:element>
-                        </xs:sequence>
-                    </xs:extension>
-                </xs:complexContent>
-            </xs:complexType>
-            <xs:complexType name="SAMLFederatedAuthenticator">
-                <xs:complexContent>
-                    <xs:extension base="ax2385:FederatedAuthenticator">
-                        <xs:sequence>
-                            <xs:element minOccurs="0" name="authnRequestSigned" type="xs:boolean"></xs:element>
-                            <xs:element minOccurs="0" name="authnResponseSigned" type="xs:boolean"></xs:element>
-                            <xs:element minOccurs="0" name="idpEntityId" nillable="true" type="xs:string"></xs:element>
-                            <xs:element minOccurs="0" name="logoutEnabled" type="xs:boolean"></xs:element>
-                            <xs:element minOccurs="0" name="logoutRequestSigned" type="xs:boolean"></xs:element>
-                            <xs:element minOccurs="0" name="logoutRequestUrl" nillable="true" type="xs:string"></xs:element>
-                            <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"></xs:element>
-                            <xs:element minOccurs="0" name="saml2SSOUrl" nillable="true" type="xs:string"></xs:element>
-                            <xs:element minOccurs="0" name="spEntityId" nillable="true" type="xs:string"></xs:element>
-                            <xs:element minOccurs="0" name="valid" type="xs:boolean"></xs:element>
-                        </xs:sequence>
-                    </xs:extension>
-                </xs:complexContent>
-            </xs:complexType>
-            <xs:complexType name="OpenIDConnectFederatedAuthenticator">
-                <xs:complexContent>
-                    <xs:extension base="ax2385:FederatedAuthenticator">
-                        <xs:sequence>
-                            <xs:element minOccurs="0" name="authzEndpointUrl" nillable="true" type="xs:string"></xs:element>
-                            <xs:element minOccurs="0" name="clientId" nillable="true" type="xs:string"></xs:element>
-                            <xs:element minOccurs="0" name="clientSecret" nillable="true" type="xs:string"></xs:element>
-                            <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"></xs:element>
-                            <xs:element minOccurs="0" name="tokenEndpointUrl" nillable="true" type="xs:string"></xs:element>
-                            <xs:element minOccurs="0" name="valid" type="xs:boolean"></xs:element>
-                        </xs:sequence>
-                    </xs:extension>
-                </xs:complexContent>
-            </xs:complexType>
-            <xs:complexType name="PassiveSTSFederatedAuthenticator">
-                <xs:complexContent>
-                    <xs:extension base="ax2385:FederatedAuthenticator">
-                        <xs:sequence>
-                            <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"></xs:element>
-                            <xs:element minOccurs="0" name="passiveSTSRealm" nillable="true" type="xs:string"></xs:element>
-                            <xs:element minOccurs="0" name="passiveSTSUrl" nillable="true" type="xs:string"></xs:element>
-                            <xs:element minOccurs="0" name="valid" type="xs:boolean"></xs:element>
-                        </xs:sequence>
-                    </xs:extension>
-                </xs:complexContent>
-            </xs:complexType>
-        </xs:schema>
-        <xs:schema xmlns:ax2384="http://common.application.identity.carbon.wso2.org/xsd" xmlns:ax2386="http://model.common.application.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://mgt.idp.carbon.wso2.org">
-            <xs:import namespace="http://common.application.identity.carbon.wso2.org/xsd"></xs:import>
-            <xs:import namespace="http://model.common.application.identity.carbon.wso2.org/xsd"></xs:import>
-            <xs:element name="IdentityProviderMgtServiceIdentityApplicationManagementException">
+        <xs:schema xmlns:ax2363="http://exception.mgt.idp.carbon.wso2.org/xsd" xmlns:ax2365="http://dto.mgt.idp.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://mgt.idp.carbon.wso2.org">
+            <xs:import namespace="http://exception.mgt.idp.carbon.wso2.org/xsd"></xs:import>
+            <xs:import namespace="http://dto.mgt.idp.carbon.wso2.org/xsd"></xs:import>
+            <xs:element name="IdentityProviderMgtServiceIdentityProviderMgtException">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="IdentityApplicationManagementException" nillable="true" type="ax2384:IdentityApplicationManagementException"></xs:element>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="updateResidentIdP">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="identityProvider" nillable="true" type="ax2385:ResidentIdentityProvider"></xs:element>
+                        <xs:element minOccurs="0" name="IdentityProviderMgtException" nillable="true" type="ax2363:IdentityProviderMgtException"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="updateIdP">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="oldIdPName" nillable="true" type="xs:string"></xs:element>
-                        <xs:element minOccurs="0" name="identityProvider" nillable="true" type="ax2385:FederatedIdentityProvider"></xs:element>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getResidentIdP">
-                <xs:complexType>
-                    <xs:sequence></xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getResidentIdPResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2385:ResidentIdentityProvider"></xs:element>
+                        <xs:element minOccurs="0" name="oldTrustedIdP" nillable="true" type="ax2365:TrustedIdPDTO"></xs:element>
+                        <xs:element minOccurs="0" name="newTrustedIdP" nillable="true" type="ax2365:TrustedIdPDTO"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -250,185 +35,89 @@
             <xs:element name="getIdPByNameResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2385:FederatedIdentityProvider"></xs:element>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2365:TrustedIdPDTO"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="getAllLocalClaimUris">
+            <xs:element name="getIdPs">
                 <xs:complexType>
                     <xs:sequence></xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="getAllLocalClaimUrisResponse">
+            <xs:element name="getIdPsResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="xs:string"></xs:element>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getAllIdPs">
-                <xs:complexType>
-                    <xs:sequence></xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getAllIdPsResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2385:FederatedIdentityProvider"></xs:element>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="deleteIdP">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="idPName" nillable="true" type="xs:string"></xs:element>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="bogusOperation">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="openid" nillable="true" type="ax2385:OpenIDFederatedAuthenticator"></xs:element>
-                        <xs:element minOccurs="0" name="fb" nillable="true" type="ax2385:FacebookFederatedAuthenticator"></xs:element>
-                        <xs:element minOccurs="0" name="saml" nillable="true" type="ax2385:SAMLFederatedAuthenticator"></xs:element>
-                        <xs:element minOccurs="0" name="oidc" nillable="true" type="ax2385:OpenIDConnectFederatedAuthenticator"></xs:element>
-                        <xs:element minOccurs="0" name="passive" nillable="true" type="ax2385:PassiveSTSFederatedAuthenticator"></xs:element>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="addIdP">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="identityProvider" nillable="true" type="ax2385:FederatedIdentityProvider"></xs:element>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2365:TrustedIdPDTO"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
         </xs:schema>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://dto.mgt.idp.carbon.wso2.org/xsd">
+            <xs:complexType name="TrustedIdPDTO">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="OIDCEnabled" type="xs:boolean"></xs:element>
+                    <xs:element minOccurs="0" name="SAML2SSOEnabled" type="xs:boolean"></xs:element>
+                    <xs:element minOccurs="0" name="SSOUrl" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="authnRequestSigned" type="xs:boolean"></xs:element>
+                    <xs:element minOccurs="0" name="authnResponseSigned" type="xs:boolean"></xs:element>
+                    <xs:element minOccurs="0" name="authzEndpointUrl" nillable="true" type="xs:string"></xs:element>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="claimMappings" nillable="true" type="xs:string"></xs:element>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="claims" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="clientId" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="clientSecret" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="homeRealmId" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="idPName" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="idpEntityId" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="logoutEnabled" type="xs:boolean"></xs:element>
+                    <xs:element minOccurs="0" name="logoutRequestSigned" type="xs:boolean"></xs:element>
+                    <xs:element minOccurs="0" name="logoutRequestUrl" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="primary" type="xs:boolean"></xs:element>
+                    <xs:element minOccurs="0" name="publicCert" nillable="true" type="xs:string"></xs:element>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="roleMappings" nillable="true" type="xs:string"></xs:element>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="roles" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="spEntityId" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="tokenEndpointAlias" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="tokenEndpointUrl" nillable="true" type="xs:string"></xs:element>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
     </wsdl:types>
-    <wsdl:message name="bogusOperationRequest">
-        <wsdl:part name="parameters" element="ns:bogusOperation"></wsdl:part>
-    </wsdl:message>
-    <wsdl:message name="deleteIdPRequest">
-        <wsdl:part name="parameters" element="ns:deleteIdP"></wsdl:part>
-    </wsdl:message>
-    <wsdl:message name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-        <wsdl:part name="parameters" element="ns:IdentityProviderMgtServiceIdentityApplicationManagementException"></wsdl:part>
-    </wsdl:message>
-    <wsdl:message name="getAllIdPsRequest">
-        <wsdl:part name="parameters" element="ns:getAllIdPs"></wsdl:part>
-    </wsdl:message>
-    <wsdl:message name="getAllIdPsResponse">
-        <wsdl:part name="parameters" element="ns:getAllIdPsResponse"></wsdl:part>
-    </wsdl:message>
-    <wsdl:message name="getAllLocalClaimUrisRequest">
-        <wsdl:part name="parameters" element="ns:getAllLocalClaimUris"></wsdl:part>
-    </wsdl:message>
-    <wsdl:message name="getAllLocalClaimUrisResponse">
-        <wsdl:part name="parameters" element="ns:getAllLocalClaimUrisResponse"></wsdl:part>
-    </wsdl:message>
     <wsdl:message name="getIdPByNameRequest">
         <wsdl:part name="parameters" element="ns:getIdPByName"></wsdl:part>
     </wsdl:message>
     <wsdl:message name="getIdPByNameResponse">
         <wsdl:part name="parameters" element="ns:getIdPByNameResponse"></wsdl:part>
     </wsdl:message>
-    <wsdl:message name="addIdPRequest">
-        <wsdl:part name="parameters" element="ns:addIdP"></wsdl:part>
+    <wsdl:message name="IdentityProviderMgtServiceIdentityProviderMgtException">
+        <wsdl:part name="parameters" element="ns:IdentityProviderMgtServiceIdentityProviderMgtException"></wsdl:part>
     </wsdl:message>
-    <wsdl:message name="updateResidentIdPRequest">
-        <wsdl:part name="parameters" element="ns:updateResidentIdP"></wsdl:part>
+    <wsdl:message name="getIdPsRequest">
+        <wsdl:part name="parameters" element="ns:getIdPs"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getIdPsResponse">
+        <wsdl:part name="parameters" element="ns:getIdPsResponse"></wsdl:part>
     </wsdl:message>
     <wsdl:message name="updateIdPRequest">
         <wsdl:part name="parameters" element="ns:updateIdP"></wsdl:part>
     </wsdl:message>
-    <wsdl:message name="getResidentIdPRequest">
-        <wsdl:part name="parameters" element="ns:getResidentIdP"></wsdl:part>
-    </wsdl:message>
-    <wsdl:message name="getResidentIdPResponse">
-        <wsdl:part name="parameters" element="ns:getResidentIdPResponse"></wsdl:part>
-    </wsdl:message>
     <wsdl:portType name="IdentityProviderMgtServicePortType">
-        <wsdl:operation name="bogusOperation">
-            <wsdl:input message="ns:bogusOperationRequest" wsaw:Action="urn:bogusOperation"></wsdl:input>
-        </wsdl:operation>
-        <wsdl:operation name="deleteIdP">
-            <wsdl:input message="ns:deleteIdPRequest" wsaw:Action="urn:deleteIdP"></wsdl:input>
-            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityApplicationManagementException" name="IdentityProviderMgtServiceIdentityApplicationManagementException" wsaw:Action="urn:deleteIdPIdentityProviderMgtServiceIdentityApplicationManagementException"></wsdl:fault>
-        </wsdl:operation>
-        <wsdl:operation name="getAllIdPs">
-            <wsdl:input message="ns:getAllIdPsRequest" wsaw:Action="urn:getAllIdPs"></wsdl:input>
-            <wsdl:output message="ns:getAllIdPsResponse" wsaw:Action="urn:getAllIdPsResponse"></wsdl:output>
-            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityApplicationManagementException" name="IdentityProviderMgtServiceIdentityApplicationManagementException" wsaw:Action="urn:getAllIdPsIdentityProviderMgtServiceIdentityApplicationManagementException"></wsdl:fault>
-        </wsdl:operation>
-        <wsdl:operation name="getAllLocalClaimUris">
-            <wsdl:input message="ns:getAllLocalClaimUrisRequest" wsaw:Action="urn:getAllLocalClaimUris"></wsdl:input>
-            <wsdl:output message="ns:getAllLocalClaimUrisResponse" wsaw:Action="urn:getAllLocalClaimUrisResponse"></wsdl:output>
-            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityApplicationManagementException" name="IdentityProviderMgtServiceIdentityApplicationManagementException" wsaw:Action="urn:getAllLocalClaimUrisIdentityProviderMgtServiceIdentityApplicationManagementException"></wsdl:fault>
-        </wsdl:operation>
         <wsdl:operation name="getIdPByName">
             <wsdl:input message="ns:getIdPByNameRequest" wsaw:Action="urn:getIdPByName"></wsdl:input>
             <wsdl:output message="ns:getIdPByNameResponse" wsaw:Action="urn:getIdPByNameResponse"></wsdl:output>
-            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityApplicationManagementException" name="IdentityProviderMgtServiceIdentityApplicationManagementException" wsaw:Action="urn:getIdPByNameIdentityProviderMgtServiceIdentityApplicationManagementException"></wsdl:fault>
+            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityProviderMgtException" name="IdentityProviderMgtServiceIdentityProviderMgtException" wsaw:Action="urn:getIdPByNameIdentityProviderMgtServiceIdentityProviderMgtException"></wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="addIdP">
-            <wsdl:input message="ns:addIdPRequest" wsaw:Action="urn:addIdP"></wsdl:input>
-            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityApplicationManagementException" name="IdentityProviderMgtServiceIdentityApplicationManagementException" wsaw:Action="urn:addIdPIdentityProviderMgtServiceIdentityApplicationManagementException"></wsdl:fault>
-        </wsdl:operation>
-        <wsdl:operation name="updateResidentIdP">
-            <wsdl:input message="ns:updateResidentIdPRequest" wsaw:Action="urn:updateResidentIdP"></wsdl:input>
-            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityApplicationManagementException" name="IdentityProviderMgtServiceIdentityApplicationManagementException" wsaw:Action="urn:updateResidentIdPIdentityProviderMgtServiceIdentityApplicationManagementException"></wsdl:fault>
+        <wsdl:operation name="getIdPs">
+            <wsdl:input message="ns:getIdPsRequest" wsaw:Action="urn:getIdPs"></wsdl:input>
+            <wsdl:output message="ns:getIdPsResponse" wsaw:Action="urn:getIdPsResponse"></wsdl:output>
+            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityProviderMgtException" name="IdentityProviderMgtServiceIdentityProviderMgtException" wsaw:Action="urn:getIdPsIdentityProviderMgtServiceIdentityProviderMgtException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="updateIdP">
             <wsdl:input message="ns:updateIdPRequest" wsaw:Action="urn:updateIdP"></wsdl:input>
-            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityApplicationManagementException" name="IdentityProviderMgtServiceIdentityApplicationManagementException" wsaw:Action="urn:updateIdPIdentityProviderMgtServiceIdentityApplicationManagementException"></wsdl:fault>
-        </wsdl:operation>
-        <wsdl:operation name="getResidentIdP">
-            <wsdl:input message="ns:getResidentIdPRequest" wsaw:Action="urn:getResidentIdP"></wsdl:input>
-            <wsdl:output message="ns:getResidentIdPResponse" wsaw:Action="urn:getResidentIdPResponse"></wsdl:output>
-            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityApplicationManagementException" name="IdentityProviderMgtServiceIdentityApplicationManagementException" wsaw:Action="urn:getResidentIdPIdentityProviderMgtServiceIdentityApplicationManagementException"></wsdl:fault>
+            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityProviderMgtException" name="IdentityProviderMgtServiceIdentityProviderMgtException" wsaw:Action="urn:updateIdPIdentityProviderMgtServiceIdentityProviderMgtException"></wsdl:fault>
         </wsdl:operation>
     </wsdl:portType>
     <wsdl:binding name="IdentityProviderMgtServiceSoap11Binding" type="ns:IdentityProviderMgtServicePortType">
         <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"></soap:binding>
-        <wsdl:operation name="bogusOperation">
-            <soap:operation soapAction="urn:bogusOperation" style="document"></soap:operation>
-            <wsdl:input>
-                <soap:body use="literal"></soap:body>
-            </wsdl:input>
-        </wsdl:operation>
-        <wsdl:operation name="deleteIdP">
-            <soap:operation soapAction="urn:deleteIdP" style="document"></soap:operation>
-            <wsdl:input>
-                <soap:body use="literal"></soap:body>
-            </wsdl:input>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap:fault>
-            </wsdl:fault>
-        </wsdl:operation>
-        <wsdl:operation name="getAllIdPs">
-            <soap:operation soapAction="urn:getAllIdPs" style="document"></soap:operation>
-            <wsdl:input>
-                <soap:body use="literal"></soap:body>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"></soap:body>
-            </wsdl:output>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap:fault>
-            </wsdl:fault>
-        </wsdl:operation>
-        <wsdl:operation name="getAllLocalClaimUris">
-            <soap:operation soapAction="urn:getAllLocalClaimUris" style="document"></soap:operation>
-            <wsdl:input>
-                <soap:body use="literal"></soap:body>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"></soap:body>
-            </wsdl:output>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap:fault>
-            </wsdl:fault>
-        </wsdl:operation>
         <wsdl:operation name="getIdPByName">
             <soap:operation soapAction="urn:getIdPByName" style="document"></soap:operation>
             <wsdl:input>
@@ -437,26 +126,20 @@
             <wsdl:output>
                 <soap:body use="literal"></soap:body>
             </wsdl:output>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderMgtException">
+                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderMgtException"></soap:fault>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="addIdP">
-            <soap:operation soapAction="urn:addIdP" style="document"></soap:operation>
+        <wsdl:operation name="getIdPs">
+            <soap:operation soapAction="urn:getIdPs" style="document"></soap:operation>
             <wsdl:input>
                 <soap:body use="literal"></soap:body>
             </wsdl:input>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap:fault>
-            </wsdl:fault>
-        </wsdl:operation>
-        <wsdl:operation name="updateResidentIdP">
-            <soap:operation soapAction="urn:updateResidentIdP" style="document"></soap:operation>
-            <wsdl:input>
+            <wsdl:output>
                 <soap:body use="literal"></soap:body>
-            </wsdl:input>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap:fault>
+            </wsdl:output>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderMgtException">
+                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderMgtException"></soap:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="updateIdP">
@@ -464,64 +147,13 @@
             <wsdl:input>
                 <soap:body use="literal"></soap:body>
             </wsdl:input>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap:fault>
-            </wsdl:fault>
-        </wsdl:operation>
-        <wsdl:operation name="getResidentIdP">
-            <soap:operation soapAction="urn:getResidentIdP" style="document"></soap:operation>
-            <wsdl:input>
-                <soap:body use="literal"></soap:body>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"></soap:body>
-            </wsdl:output>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderMgtException">
+                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderMgtException"></soap:fault>
             </wsdl:fault>
         </wsdl:operation>
     </wsdl:binding>
     <wsdl:binding name="IdentityProviderMgtServiceSoap12Binding" type="ns:IdentityProviderMgtServicePortType">
         <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"></soap12:binding>
-        <wsdl:operation name="bogusOperation">
-            <soap12:operation soapAction="urn:bogusOperation" style="document"></soap12:operation>
-            <wsdl:input>
-                <soap12:body use="literal"></soap12:body>
-            </wsdl:input>
-        </wsdl:operation>
-        <wsdl:operation name="deleteIdP">
-            <soap12:operation soapAction="urn:deleteIdP" style="document"></soap12:operation>
-            <wsdl:input>
-                <soap12:body use="literal"></soap12:body>
-            </wsdl:input>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap12:fault>
-            </wsdl:fault>
-        </wsdl:operation>
-        <wsdl:operation name="getAllIdPs">
-            <soap12:operation soapAction="urn:getAllIdPs" style="document"></soap12:operation>
-            <wsdl:input>
-                <soap12:body use="literal"></soap12:body>
-            </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"></soap12:body>
-            </wsdl:output>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap12:fault>
-            </wsdl:fault>
-        </wsdl:operation>
-        <wsdl:operation name="getAllLocalClaimUris">
-            <soap12:operation soapAction="urn:getAllLocalClaimUris" style="document"></soap12:operation>
-            <wsdl:input>
-                <soap12:body use="literal"></soap12:body>
-            </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"></soap12:body>
-            </wsdl:output>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap12:fault>
-            </wsdl:fault>
-        </wsdl:operation>
         <wsdl:operation name="getIdPByName">
             <soap12:operation soapAction="urn:getIdPByName" style="document"></soap12:operation>
             <wsdl:input>
@@ -530,26 +162,20 @@
             <wsdl:output>
                 <soap12:body use="literal"></soap12:body>
             </wsdl:output>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap12:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderMgtException">
+                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderMgtException"></soap12:fault>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="addIdP">
-            <soap12:operation soapAction="urn:addIdP" style="document"></soap12:operation>
+        <wsdl:operation name="getIdPs">
+            <soap12:operation soapAction="urn:getIdPs" style="document"></soap12:operation>
             <wsdl:input>
                 <soap12:body use="literal"></soap12:body>
             </wsdl:input>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap12:fault>
-            </wsdl:fault>
-        </wsdl:operation>
-        <wsdl:operation name="updateResidentIdP">
-            <soap12:operation soapAction="urn:updateResidentIdP" style="document"></soap12:operation>
-            <wsdl:input>
+            <wsdl:output>
                 <soap12:body use="literal"></soap12:body>
-            </wsdl:input>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap12:fault>
+            </wsdl:output>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderMgtException">
+                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderMgtException"></soap12:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="updateIdP">
@@ -557,55 +183,13 @@
             <wsdl:input>
                 <soap12:body use="literal"></soap12:body>
             </wsdl:input>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap12:fault>
-            </wsdl:fault>
-        </wsdl:operation>
-        <wsdl:operation name="getResidentIdP">
-            <soap12:operation soapAction="urn:getResidentIdP" style="document"></soap12:operation>
-            <wsdl:input>
-                <soap12:body use="literal"></soap12:body>
-            </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"></soap12:body>
-            </wsdl:output>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap12:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderMgtException">
+                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderMgtException"></soap12:fault>
             </wsdl:fault>
         </wsdl:operation>
     </wsdl:binding>
     <wsdl:binding name="IdentityProviderMgtServiceHttpBinding" type="ns:IdentityProviderMgtServicePortType">
         <http:binding verb="POST"></http:binding>
-        <wsdl:operation name="bogusOperation">
-            <http:operation location="bogusOperation"></http:operation>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"></mime:content>
-            </wsdl:input>
-        </wsdl:operation>
-        <wsdl:operation name="deleteIdP">
-            <http:operation location="deleteIdP"></http:operation>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"></mime:content>
-            </wsdl:input>
-        </wsdl:operation>
-        <wsdl:operation name="getAllIdPs">
-            <http:operation location="getAllIdPs"></http:operation>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"></mime:content>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="parameters"></mime:content>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="getAllLocalClaimUris">
-            <http:operation location="getAllLocalClaimUris"></http:operation>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"></mime:content>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="parameters"></mime:content>
-            </wsdl:output>
-        </wsdl:operation>
         <wsdl:operation name="getIdPByName">
             <http:operation location="getIdPByName"></http:operation>
             <wsdl:input>
@@ -615,32 +199,20 @@
                 <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="addIdP">
-            <http:operation location="addIdP"></http:operation>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"></mime:content>
-            </wsdl:input>
-        </wsdl:operation>
-        <wsdl:operation name="updateResidentIdP">
-            <http:operation location="updateResidentIdP"></http:operation>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"></mime:content>
-            </wsdl:input>
-        </wsdl:operation>
-        <wsdl:operation name="updateIdP">
-            <http:operation location="updateIdP"></http:operation>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"></mime:content>
-            </wsdl:input>
-        </wsdl:operation>
-        <wsdl:operation name="getResidentIdP">
-            <http:operation location="getResidentIdP"></http:operation>
+        <wsdl:operation name="getIdPs">
+            <http:operation location="getIdPs"></http:operation>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:input>
             <wsdl:output>
                 <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="updateIdP">
+            <http:operation location="updateIdP"></http:operation>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"></mime:content>
+            </wsdl:input>
         </wsdl:operation>
     </wsdl:binding>
     <wsdl:service name="IdentityProviderMgtService">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
  !
- ! Copyright 2014 The Apache Software Foundation.
+ ! Copyright 2013 The Apache Software Foundation.
  !
  ! Licensed under the Apache License, Version 2.0 (the "License");
  ! you may not use this file except in compliance with the License.
@@ -22,10 +22,20 @@
             <transport>https</transport>
         </transports>
         <parameter name="ServiceClass" locked="true">
-            org.wso2.carbon.idp.mgt.IdentityProviderManagementService
+            org.wso2.carbon.idp.mgt.IdentityProviderMgtService
         </parameter>
         <parameter name="adminService" locked="true">true</parameter>
         <parameter name="AuthorizationAction" locked="true">/permission/admin</parameter>
         <parameter name="hiddenService" locked="true">true</parameter>
+    </service>
+    <service name="IdentityProviderService" scope="transportsession">
+        <transports>
+            <transport>https</transport>
+        </transports>
+        <parameter name="ServiceClass" locked="true">
+            org.wso2.carbon.idp.mgt.IdentityProviderService
+        </parameter>
+        <parameter name="adminService" locked="true">false</parameter>
+        <parameter name="hiddenService" locked="true">false</parameter>
     </service>
 </serviceGroup>

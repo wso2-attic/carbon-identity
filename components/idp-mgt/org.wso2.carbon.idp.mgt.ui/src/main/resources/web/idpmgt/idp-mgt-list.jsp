@@ -1,24 +1,21 @@
-
+<%@ page import="org.wso2.carbon.idp.mgt.stub.dto.TrustedIdPDTO" %>
 <!--
-~ Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+~ Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 ~
 ~ WSO2 Inc. licenses this file to you under the Apache License,
 ~ Version 2.0 (the "License"); you may not use this file except
 ~ in compliance with the License.
 ~ You may obtain a copy of the License at
 ~
-~ http://www.apache.org/licenses/LICENSE-2.0
+~    http://www.apache.org/licenses/LICENSE-2.0
 ~
 ~ Unless required by applicable law or agreed to in writing,
 ~ software distributed under the License is distributed on an
 ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-~ KIND, either express or implied. See the License for the
+~ KIND, either express or implied.  See the License for the
 ~ specific language governing permissions and limitations
 ~ under the License.
 -->
-
-<%@ page import="java.util.List" %>
-<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.*"%>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"%>
@@ -30,8 +27,8 @@
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
-    List<FederatedIdentityProvider> identityProvidersList = (List<FederatedIdentityProvider>)session.getAttribute("identityProviderList");
-    if(identityProvidersList == null){
+    TrustedIdPDTO[] trustedIdPs = (TrustedIdPDTO[])session.getAttribute("tenantIdPList");
+    if(trustedIdPs == null){
 %>
         <script type="text/javascript">
             location.href = "idp-mgt-list-load.jsp?callback=idp-mgt-list.jsp";
@@ -61,17 +58,14 @@
             <fmt:message key='identity.providers'/>
         </h2>
         <div id="workArea">
-            <div style="height:30px;">
-                <a href="idp-mgt-edit-load-local.jsp" class="icon-link" style="background-image:url(images/resident-idp.png);"><fmt:message key='resident.idp'/></a>
-            </div>
             <div class="sectionSub">
             <table class="styledLeft" id="idPsListTable">
                 <thead><tr><th class="leftCol-big"><fmt:message key='registered.idps'/></th><th><fmt:message key='actions'/></th></tr></thead>
                 <tbody>
-                    <% if(identityProvidersList != null && identityProvidersList.size() > 0){ %>
-                        <% for(int i = 0; i < identityProvidersList.size(); i++){ %>
+                    <% if(trustedIdPs != null && trustedIdPs.length > 0){ %>
+                        <% for(int i = 0; i < trustedIdPs.length; i++){ %>
                             <tr>
-                                <td><%=identityProvidersList.get(i).getIdentityProviderName()%></td>
+                                <td><%=trustedIdPs[i].getIdPName()%></td>
                                 <td>
                                     <a title="<fmt:message key='edit.idp.info'/>"
                                        onclick="editIdPName(this);return false;"
