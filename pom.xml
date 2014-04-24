@@ -9,9 +9,8 @@
     <url>http://wso2.org</url>
     
     <modules>
+        <module>components/idp-mgt</module>
         <module>service-stubs/identity</module>
-        
-	<module>components/idp-mgt</module>
         <module>components/authenticators</module>
         <module>components/cassandra-userstore</module>
         <module>components/claim-mgt</module>
