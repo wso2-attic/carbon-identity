@@ -91,7 +91,9 @@
 			
 			for (int i=0;i<attributes.length;i++){
 				int index = 0;
-				if ((index = attributes[i].indexOf("/"))>1){
+				// check for attribute index is temporary fix. This can go away when we have proper
+				// claim management UI to support multiple user stores.
+				if ((index = attributes[i].indexOf("/")) > 1 && attributes[i].indexOf("/") == attributes[i].lastIndexOf("/") ){
 					String domain = attributes[i].substring(0, index);
 					String attrName = attributes[i].substring(index + 1);
 					if (domain!=null){
@@ -99,13 +101,14 @@
 						attr.setAttributeName(attrName);
 						attr.setDomainName(domain);
 						attrList.add(attr);
+					} else {
+						mapping.setMappedAttribute(attributes[i]);
 					}
 				} else {
-					ClaimAttributeDTO attr = new ClaimAttributeDTO();
-					attr.setAttributeName(attributes[i]);
-					attr.setDomainName(null);
-					attrList.add(attr);				}
+
+					mapping.setMappedAttribute(attributes[i]);
 				}
+			}
 			
 			if (attrList.size()>0){
 				mapping.setMappedAttributes(attrList.toArray(new ClaimAttributeDTO[attrList.size()]));

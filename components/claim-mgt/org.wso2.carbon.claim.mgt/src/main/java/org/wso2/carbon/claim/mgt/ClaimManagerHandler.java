@@ -28,7 +28,7 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 
-import java.util.ArrayList;
+import java.util.*;
 
 public class ClaimManagerHandler {
 
@@ -385,6 +385,96 @@ public class ClaimManagerHandler {
     private void getException(String message, Exception e) throws Exception {
         log.error(message, e);
         throw new Exception(message, e);
+    }
+
+    public Set<org.wso2.carbon.claim.mgt.ClaimMapping> getMappingsFromCarbonDialectToOther(String otherDialectURI,
+                                                                    Set<String> carbonClaimURIs) throws Exception {
+
+        Set<org.wso2.carbon.claim.mgt.ClaimMapping> returnSet =
+                new HashSet<org.wso2.carbon.claim.mgt.ClaimMapping>();
+
+        ClaimMapping[] claimMappingsInOtherDialect = getAllSupportedClaimMappings(otherDialectURI);
+        ClaimMapping[] allClaimMappingsInCarbonDialect = getAllSupportedClaimMappings();
+        if(otherDialectURI == null){
+            String message = "Invalid argument: \'otherDialectURI\' is \'NULL\'";
+            log.error(message);
+            throw new Exception(message);
+        }
+        if(carbonClaimURIs == null || carbonClaimURIs.size() < 1){
+            String message = "Invalid argument: \'carbonClaimURIs\' is \'NULL\' or of zero length";
+            log.error(message);
+            throw new Exception(message);
+        }
+        for(String requestedClaimURI:carbonClaimURIs){
+            if(allClaimMappingsInCarbonDialect != null && allClaimMappingsInCarbonDialect.length > 0){
+                for(ClaimMapping claimMapping : allClaimMappingsInCarbonDialect){
+                    if(requestedClaimURI.equals(claimMapping.getClaim().getClaimUri())){
+                        String mappedAttr = claimMapping.getMappedAttribute();
+                        for(ClaimMapping carbonClaimMapping : claimMappingsInOtherDialect){
+                            if(mappedAttr.equals(carbonClaimMapping.getMappedAttribute())){
+                                returnSet.add(new org.wso2.carbon.claim.mgt.ClaimMapping(
+                                        otherDialectURI, requestedClaimURI, carbonClaimMapping.getClaim().getClaimUri()));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return returnSet;
+    }
+
+    public Set<org.wso2.carbon.claim.mgt.ClaimMapping> getMappingsFromOtherDialectToCarbon(
+            String otherDialectURI, Set<String> otherClaimURIs) throws Exception {
+
+        Set<org.wso2.carbon.claim.mgt.ClaimMapping> returnSet =
+                new HashSet<org.wso2.carbon.claim.mgt.ClaimMapping>();
+
+        ClaimMapping[] allClaimMappingsInOtherDialect = getAllSupportedClaimMappings(otherDialectURI);
+        ClaimMapping[] allClaimMappingsInCarbonDialect = getAllSupportedClaimMappings();
+        if(otherDialectURI == null){
+            String message = "Invalid argument: \'otherDialectURI\' is \'NULL\'";
+            log.error(message);
+            throw new Exception(message);
+        }
+        if(otherClaimURIs == null || otherClaimURIs.size() < 1){
+            String message = "Invalid argument: \'otherClaimURIs\' is \'NULL\' or of zero length";
+            log.error(message);
+            throw new Exception(message);
+        }
+        for(String requestedClaimURI:otherClaimURIs){
+            if(allClaimMappingsInOtherDialect != null && allClaimMappingsInOtherDialect.length > 0){
+                for(ClaimMapping claimMapping : allClaimMappingsInOtherDialect){
+                    if(requestedClaimURI.equals(claimMapping.getClaim().getClaimUri())){
+                        String mappedAttr = claimMapping.getMappedAttribute();
+                        for(ClaimMapping carbonClaimMapping : allClaimMappingsInCarbonDialect){
+                            if(mappedAttr.equals(carbonClaimMapping.getMappedAttribute())){
+                                returnSet.add(new org.wso2.carbon.claim.mgt.ClaimMapping(
+                                        otherDialectURI, requestedClaimURI, carbonClaimMapping.getClaim().getClaimUri()));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return returnSet;
+    }
+
+    public Set<String> getAllClaimDialects() throws Exception {
+
+        Set<String> dialects = new HashSet<String>();
+
+        List<ClaimMapping> claimMappings = new ArrayList<ClaimMapping>(
+                Arrays.asList(ClaimManagerHandler.getInstance().getAllClaimMappings()));
+
+        if (claimMappings == null || claimMappings.size() == 0) {
+            return new HashSet<String>();
+        }
+
+        for (int i = 0; i < claimMappings.size(); i++) {
+            String dialectUri = claimMappings.get(i).getClaim().getDialectURI();
+            dialects.add(dialectUri);
+        }
+        return dialects;
     }
 
 }

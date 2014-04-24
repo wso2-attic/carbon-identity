@@ -255,7 +255,11 @@
 
 			<tr>
 				<td class="leftCol-small"><fmt:message key='regular.expression'/></td>
-				<td class="leftCol-big"><%=claims[j].getClaim().getRegEx()%></td>
+				<% if((claims[j].getClaim().getRegEx()) == null){ %>
+				<td class="leftCol-big"><%="" %></td>
+				<% } else {%>
+				<td class="leftCol-big"><%=claims[j].getClaim().getRegEx() %></td>
+				<% } %>
 			</tr>
             <tr>
 				<td class="leftCol-small"><fmt:message key='display.order'/></td>

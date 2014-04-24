@@ -254,25 +254,27 @@ public class ClaimAdminService {
 		return claimMappingDTO;
 	}
 
-	private ClaimMapping convertClaimMappingDTOToClaimMapping(ClaimMappingDTO claimMappingDTO) {
-		ClaimMapping claimMapping = new ClaimMapping();
-		claimMapping.setClaim(convertClaimDTOToClaim(claimMappingDTO.getClaim()));
-		claimMapping.setMappedAttribute(claimMappingDTO.getMappedAttribute());
+    private ClaimMapping convertClaimMappingDTOToClaimMapping(ClaimMappingDTO claimMappingDTO) {
+        ClaimMapping claimMapping = new ClaimMapping(
+                convertClaimDTOToClaim(claimMappingDTO.getClaim()),
+                claimMappingDTO.getMappedAttribute());
+        // claimMapping.setClaim(convertClaimDTOToClaim(claimMappingDTO.getClaim()));
+        // claimMapping.setMappedAttribute(claimMappingDTO.getMappedAttribute());
 
-		ClaimAttributeDTO[] attributes = claimMappingDTO.getMappedAttributes();
+        ClaimAttributeDTO[] attributes = claimMappingDTO.getMappedAttributes();
 
-		if (attributes != null) {
-			for (int i = 0; i < attributes.length; i++) {
-				if (attributes[i].getDomainName()==null){
-					claimMapping.setMappedAttribute(attributes[i].getAttributeName());
-				}else {
-				claimMapping.setMappedAttribute(attributes[i].getDomainName(),
-						attributes[i].getAttributeName());
-				}
-			}
-		}
-		return claimMapping;
-	}
+        if (attributes != null) {
+            for (int i = 0; i < attributes.length; i++) {
+                if (attributes[i].getDomainName() == null) {
+                    //claimMapping.setMappedAttribute(attributes[i].getAttributeName());
+                } else {
+                    claimMapping.setMappedAttribute(attributes[i].getDomainName(),
+                            attributes[i].getAttributeName());
+                }
+            }
+        }
+        return claimMapping;
+    }
 
     private ClaimDTO convertClaimToClaimDTO(Claim claim) {
         ClaimDTO claimDTO = new ClaimDTO();
