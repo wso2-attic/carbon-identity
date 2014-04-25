@@ -34,7 +34,7 @@
 				<module>org.wso2.carbon.identity.authenticator.saml2.sso.feature</module>
 			</modules>
 
-	<!--dependencyManagement>
+	<dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>org.wso2.carbon</groupId>
@@ -57,7 +57,7 @@
                 <version>${opensaml2.version}</version>
             </dependency>
 		</dependencies>
-	</dependencyManagement-->
+	</dependencyManagement>
 
 	<properties>
 		<wso2carbon.version.identity.authenticator.saml2.sso>${wso2carbon.version.identity.authenticator}</wso2carbon.version.identity.authenticator.saml2.sso>

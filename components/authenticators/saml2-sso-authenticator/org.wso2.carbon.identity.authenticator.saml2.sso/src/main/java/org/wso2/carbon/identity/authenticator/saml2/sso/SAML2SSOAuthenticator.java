@@ -17,20 +17,39 @@
 */
 package org.wso2.carbon.identity.authenticator.saml2.sso;
 
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.Attribute;
+import org.opensaml.saml2.core.AttributeStatement;
 import org.opensaml.saml2.core.Audience;
 import org.opensaml.saml2.core.AudienceRestriction;
 import org.opensaml.saml2.core.Conditions;
 import org.opensaml.saml2.core.Response;
+import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.signature.Signature;
 import org.opensaml.xml.signature.SignatureValidator;
 import org.opensaml.xml.validation.ValidationException;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
+import org.w3c.dom.Element;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.core.common.AuthenticationException;
 import org.wso2.carbon.core.security.AuthenticatorsConfiguration;
@@ -43,24 +62,18 @@ import org.wso2.carbon.identity.authenticator.saml2.sso.internal.SAML2SSOAuthBED
 import org.wso2.carbon.identity.authenticator.saml2.sso.util.Util;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.AuthenticationObserver;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import org.opensaml.xml.XMLObject;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
 public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
 
     private static final int DEFAULT_PRIORITY_LEVEL = 3;
     private static final String AUTHENTICATOR_NAME = SAML2SSOAuthenticatorBEConstants.SAML2_SSO_AUTHENTICATOR_NAME;
+    private SecureRandom random = new SecureRandom();
 
     public static final Log log = LogFactory.getLog(SAML2SSOAuthenticator.class);
 
@@ -103,10 +116,17 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
     			handleAuthenticationCompleted(tenantId, false);
     			return false;
     		}
-
+    		
     		username = MultitenantUtils.getTenantAwareUsername(username);
     		UserRealm realm = AnonymousSessionUtil.getRealmByTenantDomain(registryService,
     				realmService, tenantDomain);
+    		// Authentication is done
+    		
+    		// Starting user provisioning
+    		provisionUser(username, realm, xmlObject);
+	    	// End user provisioning
+    		
+    		// Starting Authorization   		
 
     		PermissionUpdateUtil.updatePermissionTree(tenantId);
     		boolean isAuthorized = realm.getAuthorizationManager().isUserAuthorized(username,
@@ -130,7 +150,7 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
     	}
     }
 
-    private void handleAuthenticationStarted(int tenantId) {
+	private void handleAuthenticationStarted(int tenantId) {
         BundleContext bundleContext = SAML2SSOAuthBEDataHolder.getInstance().getBundleContext();
         if (bundleContext != null) {
             ServiceTracker tracker =
@@ -447,5 +467,202 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
         }
         return httpSession;
     }
+    
+    /**
+     * Provision/Create user on the server(SP) and update roles accordingly
+     * @param username
+     * @param realm
+     * @param xmlObject
+     * @throws UserStoreException
+     * @throws SAML2SSOAuthenticatorException 
+     */
+    private void provisionUser(String username, UserRealm realm, XMLObject xmlObject) throws UserStoreException, SAML2SSOAuthenticatorException {
+        AuthenticatorsConfiguration authenticatorsConfiguration = AuthenticatorsConfiguration.getInstance();
+        AuthenticatorsConfiguration.AuthenticatorConfig authenticatorConfig =
+                authenticatorsConfiguration.getAuthenticatorConfig(AUTHENTICATOR_NAME);
+        
+        if (authenticatorConfig != null) {
+            Map<String,String> configParameters = authenticatorConfig.getParameters();
+        
+    		boolean isProvisioningEnable = false;
+    		if(configParameters.containsKey(SAML2SSOAuthenticatorBEConstants.PropertyConfig.IS_USER_PROVISIONING)) {
+    			isProvisioningEnable = Boolean.parseBoolean(configParameters.get(SAML2SSOAuthenticatorBEConstants.PropertyConfig.IS_USER_PROVISIONING));
+    		}
+    		
+    		if(isProvisioningEnable) {
+    			String userstoreDomain = null;
+    			if(configParameters.containsKey(SAML2SSOAuthenticatorBEConstants.PropertyConfig.PROVISIONING_DEFAULT_USERSTORE)) {
+    				userstoreDomain = configParameters.get(SAML2SSOAuthenticatorBEConstants.PropertyConfig.PROVISIONING_DEFAULT_USERSTORE);
+    			}
+    			
+    			UserStoreManager userstore = null;
+    			
+    			// TODO : Get userstore from asserstion
+    			// TODO : remove user store domain name from username
+    			
+    			if(userstoreDomain != null && !userstoreDomain.isEmpty()) {
+    				userstore = realm.getUserStoreManager().getSecondaryUserStoreManager(userstoreDomain);
+    			}
+    			
+    			// If default user store is invalid or not specified use primary user store
+    			if(userstore == null) {
+    				userstore = realm.getUserStoreManager();
+    			}
+    			
+    			String[] newRoles = getRoles(xmlObject);
+    			// Load default role if asserstion didnt specify roles
+    			if(newRoles == null || newRoles.length == 0) {
+    				if(configParameters.containsKey(SAML2SSOAuthenticatorBEConstants.PropertyConfig.PROVISIONING_DEFAULT_ROLE)) {
+    					newRoles = new String[] {configParameters.get(SAML2SSOAuthenticatorBEConstants.PropertyConfig.PROVISIONING_DEFAULT_ROLE)};
+    				}
+    			}
+    			if(newRoles == null) {
+    				newRoles = new String[] {};
+    			}
+    			
 
+				if(log.isDebugEnabled()) {
+	            	log.debug("User "+username+" contains roles : " + Arrays.toString(newRoles) + " as per response and (default role) config");
+	            }
+
+    			// addingRoles = newRoles AND allExistingRoles
+				Collection<String> addingRoles = new ArrayList<String>();
+				Collections.addAll(addingRoles, newRoles);
+				Collection<String> allExistingRoles = Arrays.asList(userstore.getRoleNames());
+				addingRoles.retainAll(allExistingRoles);
+				
+    			if(userstore.isExistingUser(username)) {
+    				// Update user
+    				Collection<String> currentRolesList = Arrays.asList(userstore.getRoleListOfUser(username));
+    				// addingRoles = (newRoles AND existingRoles) - currentRolesList)
+    				addingRoles.removeAll(currentRolesList);
+    				
+    				
+    				Collection<String> deletingRoles = new ArrayList<String>();
+    				deletingRoles.addAll(currentRolesList);
+    				// deletingRoles = currentRolesList - newRoles
+    				deletingRoles.removeAll(Arrays.asList(newRoles));
+    				
+    				// Exclude Internal/everyonerole from deleting role since its cannot be deleted
+    				deletingRoles.remove(realm.getRealmConfiguration().getEveryOneRoleName());
+    				
+    				// Check for case whether superadmin login
+    				if(userstore.getRealmConfiguration().isPrimary() && username.equals(realm.getRealmConfiguration().getAdminUserName())) {
+    					boolean isSuperAdminRoleRequired = false;
+        	    		if(configParameters.containsKey(SAML2SSOAuthenticatorBEConstants.PropertyConfig.IS_SUPER_ADMIN_ROLE_REQUIRED)) {
+        	    			isSuperAdminRoleRequired = Boolean.parseBoolean(configParameters.get(SAML2SSOAuthenticatorBEConstants.PropertyConfig.IS_SUPER_ADMIN_ROLE_REQUIRED));
+        	    		}
+
+        				// Whether superadmin login without superadmin role is permitted
+        	    		if (!isSuperAdminRoleRequired && deletingRoles.contains(realm.getRealmConfiguration().getAdminRoleName())) {
+            				// Avoid removing superadmin role from superadmin user.
+        	    			deletingRoles.remove(realm.getRealmConfiguration().getAdminRoleName());
+        					log.warn("Proceeding with allowing super admin to be logged in, eventhough response doesn't include superadmin role assiged for the superadmin user.");
+        	    		}
+    				}
+    				
+    	            if(log.isDebugEnabled()) {
+    	            	log.debug("Deleting roles : " + Arrays.toString(deletingRoles.toArray(new String[0])) + " and Adding roles : " + Arrays.toString(addingRoles.toArray(new String[0])));
+    	            }
+    				userstore.updateRoleListOfUser(username, deletingRoles.toArray(new String[0]), addingRoles.toArray(new String[0]));
+    	            if(log.isDebugEnabled()) {
+    	            	log.debug("User: " + username + " is updated via SAML authenticator with roles : " + Arrays.toString(newRoles));
+    	            }
+    			}
+    			else {
+    	    		userstore.addUser(username, generatePassword(username), addingRoles.toArray(new String[0]), null, null);
+    	            if(log.isDebugEnabled()) {
+    	            	log.debug("User: " + username + " is provisioned via SAML authenticator with roles : " + Arrays.toString(addingRoles.toArray(new String[0])));
+    	            }
+    			}
+    		}
+    		else {
+	            if(log.isDebugEnabled()) {
+	            	log.debug("User provisioning diabled");
+	            }
+    		}
+        }
+		else {
+            if(log.isDebugEnabled()) {
+            	log.debug("Cannot find authenticator config for authenticator : " + AUTHENTICATOR_NAME);
+            }
+            throw new SAML2SSOAuthenticatorException("Cannot find authenticator config for authenticator : " + AUTHENTICATOR_NAME);
+		}
+    }
+    
+    /**
+     * Generates (random) password for user to be provisioned
+     * @param username
+     * @return
+     */
+    private String generatePassword(String username) {
+    	return new BigInteger(130, random).toString(32);
+	}
+    
+    /**
+     * Get roles from the SAML2 XMLObject
+     *
+     * @param xmlObject SAML2 XMLObject
+     * @return String array of roles
+     */
+    private String[] getRoles(XMLObject xmlObject) {
+    	if(xmlObject instanceof Response) {
+    		return getRolesFromResponse((Response) xmlObject);
+    	} else if (xmlObject instanceof Assertion){
+    		return getRolesFromAssertion((Assertion) xmlObject);
+    	} else {
+    		return null;
+    	}
+    }
+
+    /**
+     * Get roles from the SAML2 Response
+     *
+     * @param response SAML2 Response
+     * @return roles array
+     */
+    private String[] getRolesFromResponse(Response response) {
+    	List<Assertion> assertions = response.getAssertions();
+    	Assertion assertion = null;
+    	if (assertions != null && assertions.size() > 0) {
+    		assertion = assertions.get(0);
+    		return getRolesFromAssertion(assertion);
+    	}
+    	return null;
+    }
+
+    /**
+     * Get the username from the SAML2 Assertion
+     *
+     * @param assertion SAML2 assertion
+     * @return username
+     */
+    private String[] getRolesFromAssertion(Assertion assertion) {
+    	String[] roles = null;
+		List<AttributeStatement> attributeStatementList = assertion.getAttributeStatements();
+
+		if (attributeStatementList != null) {
+            for (AttributeStatement statement : attributeStatementList) {
+                List<Attribute> attributesList = statement.getAttributes();
+                for (Attribute attribute : attributesList) {
+        			String attributeName = attribute.getName();
+        			if( attributeName != null &&  SAML2SSOAuthenticatorBEConstants.ROLE_ATTRIBUTE_NAME.equals(attributeName)) {
+        				// Assumes role claim appear only once
+                        Element value = attribute.getAttributeValues().get(0).getDOM();
+                        String attributeValue = value.getTextContent();
+
+            			if(log.isDebugEnabled()) {
+            				log.debug("AttributeName : " + attributeName + ", AttributeValue : " + attributeValue);
+            			}
+            			
+            			roles =  attributeValue.split(SAML2SSOAuthenticatorBEConstants.ATTRIBUTE_VALUE_SEPERATER);
+            			if(log.isDebugEnabled()) {
+            				log.debug("Role list : " + Arrays.toString(roles));
+            			}
+        			}
+                }
+            }
+		}
+    	return roles;
+    }
 }
