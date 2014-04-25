@@ -101,7 +101,7 @@
         <wss4j.version.security>${wss4j.version}</wss4j.version.security>
         <axis2.osgi.version.range.security>${axis2.osgi.version.range}</axis2.osgi.version.range.security>
         <axiom.osgi.version.range.security>${axiom.osgi.version.range}</axiom.osgi.version.range.security>
-	<neethi.osgi.version.range.security>${neethi.osgi.version.range}</neethi.osgi.version.range.security>
+	<neethi.osgi.version.range.security>${neethi.osgi.version}</neethi.osgi.version.range.security>
 	<orbit.version.backport.util>3.1.0.wso2v1</orbit.version.backport.util>
         <neethi.osgi.version.security>${neethi.osgi.version}</neethi.osgi.version.security>
     </properties>
