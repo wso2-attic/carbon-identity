@@ -34,25 +34,25 @@
 				<module>org.wso2.carbon.identity.authenticator.token.feature</module>
 			</modules>
 
-	<!--dependencyManagement>
+	<dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>org.wso2.carbon</groupId>
 				<artifactId>org.wso2.carbon.identity.authenticator.token</artifactId>
-				<version>${wso2carbon.version.identity.authenticator.token}</version>
+				<!--version>${wso2carbon.version.identity.authenticator.token}</version-->
 			</dependency>
 			<dependency>
 				<groupId>org.wso2.carbon</groupId>
 				<artifactId>org.wso2.carbon.identity.authenticator.token.ui</artifactId>
-				<version>${wso2carbon.version.identity.authenticator.token}</version>
+				<!--version>${wso2carbon.version.identity.authenticator.token}</version-->
 			</dependency>
 			<dependency>
 				<groupId>org.wso2.carbon</groupId>
 				<artifactId>org.wso2.carbon.identity.authenticator.token.stub</artifactId>
-				<version>${wso2carbon.version.identity.authenticator.token}</version>
+				<!--version>${wso2carbon.version.identity.authenticator.token}</version-->
 			</dependency>
 		</dependencies>
-	</dependencyManagement-->
+	</dependencyManagement>
 
 	<properties>
 		<wso2carbon.version.identity.authenticator.token>${wso2carbon.version.identity.authenticator}</wso2carbon.version.identity.authenticator.token>
