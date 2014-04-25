@@ -9,8 +9,8 @@
     <url>http://wso2.org</url>
     
     <modules>
-        <module>components/idp-mgt</module>
         <module>service-stubs/identity</module>
+	<module>components/idp-mgt</module>
         <module>components/authenticators</module>
         <module>components/cassandra-userstore</module>
         <module>components/claim-mgt</module>
@@ -23,11 +23,12 @@
         <module>components/sts</module>
         <module>components/user-manager</module>
 
+	<module>features/security-mgt</module>
         <module>features/authenticators</module>
     	<module>features/claim-management</module>
-	    <module>features/identity</module>
-	    <module>features/idp-mgt</module>
-	    <module>features/ldap-server</module>
+	<module>features/identity</module>
+	<module>features/idp-mgt</module>
+	<module>features/ldap-server</module>
     	<module>features/remote-usermgt</module>
     	<module>features/user-manager</module>
         <module>features/ldap-server-manager</module>
@@ -283,6 +284,29 @@
             <artifactId>org.wso2.carbon.security.mgt</artifactId>
             <version>${project.version}</version>
         </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.security.mgt.ui</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.security.mgt.feature</artifactId>
+                <version>${project.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.security.mgt.server.feature</artifactId>
+                <version>${project.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.security.mgt.ui.feature</artifactId>
+                <version>${project.version}</version>
+                <type>zip</type>
+            </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.service.mgt</artifactId>
