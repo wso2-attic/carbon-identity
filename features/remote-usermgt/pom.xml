@@ -34,7 +34,7 @@
 				<module>org.wso2.carbon.um.ws.service.feature</module>
 			</modules>
 
-	<dependencyManagement>
+	<!--dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>org.wso2.carbon</groupId>
@@ -52,7 +52,7 @@
 				<version>${wso2carbon.version.remote.user}</version>
 			</dependency>
 		</dependencies>
-	</dependencyManagement>
+	</dependencyManagement-->
 
 	<properties>
 		<wso2carbon.version.remote.user>${wso2carbon.version}</wso2carbon.version.remote.user>

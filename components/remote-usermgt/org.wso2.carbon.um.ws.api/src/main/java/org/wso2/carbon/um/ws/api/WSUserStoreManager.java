@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 /*
  * Copyright - WSO, Inc. (http://wso.com)
  *
@@ -37,6 +37,7 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
+import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.um.ws.api.stub.ClaimValue;
@@ -61,15 +62,40 @@ public class WSUserStoreManager implements UserStoreManager {
     private static Log log = LogFactory.getLog(WSUserStoreManager.class);
 
     public WSUserStoreManager(String serverUrl, String cookie, ConfigurationContext configCtxt)
-                                                                                               throws UserStoreException {
+            throws UserStoreException {
         try {
-            stub =
-                   new RemoteUserStoreManagerServiceStub(configCtxt, serverUrl +
-                                                                     "RemoteUserStoreManagerService");
+            stub = new RemoteUserStoreManagerServiceStub(configCtxt, serverUrl
+                    + "RemoteUserStoreManagerService");
             ServiceClient client = stub._getServiceClient();
             Options option = client.getOptions();
             option.setManageSession(true);
             option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
+        } catch (AxisFault e) {
+            handleException(e.getMessage(), e);
+        }
+    }
+
+    public WSUserStoreManager(String userName, String password, String serverUrl,
+            ConfigurationContext configCtxt) throws UserStoreException {
+        try {
+
+            if (serverUrl != null && !serverUrl.endsWith("/")) {
+                serverUrl += "/";
+            }
+
+            stub = new RemoteUserStoreManagerServiceStub(configCtxt, serverUrl
+                    + "RemoteUserStoreManagerService");
+
+            HttpTransportProperties.Authenticator authenticator = new HttpTransportProperties.Authenticator();
+            authenticator.setUsername(userName);
+            authenticator.setPassword(password);
+            authenticator.setPreemptiveAuthentication(true);
+
+            ServiceClient client = stub._getServiceClient();
+            Options option = client.getOptions();
+            option.setManageSession(true);
+            option.setProperty(org.apache.axis2.transport.http.HTTPConstants.AUTHENTICATE,
+                    authenticator);
         } catch (AxisFault e) {
             handleException(e.getMessage(), e);
         }
@@ -107,8 +133,8 @@ public class WSUserStoreManager implements UserStoreManager {
             throw new UserStoreException("Unsupported type of password");
         }
         try {
-            stub.addUser(userName, (String) credential, roleList, WSRealmUtil
-                    .convertMapToClaimValue(claims), profileName, false);
+            stub.addUser(userName, (String) credential, roleList,
+                    WSRealmUtil.convertMapToClaimValue(claims), profileName, false);
         } catch (Exception e) {
             handleException(e.getMessage(), e);
         }
@@ -182,13 +208,14 @@ public class WSUserStoreManager implements UserStoreManager {
     }
 
     public String[] getAllSecondaryRoles() throws UserStoreException {
-        return new String[0];  //To change body of implemented methods use File | Settings | File Templates.
+        return new String[0]; // To change body of implemented methods use File | Settings | File
+                              // Templates.
     }
 
     public Date getPasswordExpirationTime(String username) throws UserStoreException {
         try {
             long time = stub.getPasswordExpirationTime(username);
-            if(time != -1) {
+            if (time != -1) {
                 return new Date(time);
             }
         } catch (Exception e) {
@@ -225,7 +252,8 @@ public class WSUserStoreManager implements UserStoreManager {
     }
 
     public String[] getRoleNames(boolean b) throws UserStoreException {
-        return new String[0];  //To change body of implemented methods use File | Settings | File Templates.
+        return new String[0]; // To change body of implemented methods use File | Settings | File
+                              // Templates.
     }
 
     public int getTenantId() throws UserStoreException {
@@ -269,8 +297,8 @@ public class WSUserStoreManager implements UserStoreManager {
     public Map<String, String> getUserClaimValues(String userName, String[] claims,
             String profileName) throws UserStoreException {
         try {
-            return WSRealmUtil.
-                convertClaimValuesToMap(stub.getUserClaimValuesForClaims(userName, claims, profileName));
+            return WSRealmUtil.convertClaimValuesToMap(stub.getUserClaimValuesForClaims(userName,
+                    claims, profileName));
         } catch (Exception e) {
             handleException(e.getMessage(), e);
         }
@@ -356,7 +384,7 @@ public class WSUserStoreManager implements UserStoreManager {
     }
 
     public void addUserClaimValue(String userName, String claimURI, String claimValue,
-                                  String profileName) throws UserStoreException {
+            String profileName) throws UserStoreException {
 
         try {
             stub.addUserClaimValue(userName, claimURI, claimValue, profileName);
@@ -431,6 +459,7 @@ public class WSUserStoreManager implements UserStoreManager {
      * This method is to check whether multiple profiles are allowed with a particular user-store.
      * For an example, currently, JDBC user store supports multiple profiles and where as ApacheDS
      * does not allow.
+     * 
      * @return
      */
     public boolean isMultipleProfilesAllowed() {
@@ -462,11 +491,24 @@ public class WSUserStoreManager implements UserStoreManager {
     }
 
     public void addRole(String roleName, String[] userList,
-                        org.wso2.carbon.user.api.Permission[] permissions, boolean isSharedRole)
+            org.wso2.carbon.user.api.Permission[] permissions, boolean isSharedRole)
             throws org.wso2.carbon.user.core.UserStoreException {
-        addRole(roleName, userList, Permission[].class.cast(permissions));
+        addRole(roleName, userList, getUseCorePermission(permissions));
 
     }
+    
+    private Permission[] getUseCorePermission(org.wso2.carbon.user.api.Permission[] permissions) {
+        if (permissions != null && permissions.length > 0) {
+            Permission[] perm = new Permission[permissions.length];
+            for (int i = 0; i < permissions.length; i++) {
+                perm[i] = new Permission(permissions[i].getResourceId(), permissions[i].getAction());
+            }
+            return perm;
+        } else {
+            return new Permission[0];
+        }
+    }
+    
 
     public Map<String, String> getProperties(org.wso2.carbon.user.api.Tenant tenant)
             throws org.wso2.carbon.user.core.UserStoreException {
@@ -476,7 +518,7 @@ public class WSUserStoreManager implements UserStoreManager {
     public void addRememberMe(String userName, String token)
             throws org.wso2.carbon.user.api.UserStoreException {
         // TODO Auto-generated method stub
-        
+
     }
 
     public boolean isValidRememberMeToken(String userName, String token)
@@ -486,11 +528,11 @@ public class WSUserStoreManager implements UserStoreManager {
     }
 
     public ClaimManager getClaimManager() throws org.wso2.carbon.user.api.UserStoreException {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null; // To change body of implemented methods use File | Settings | File Templates.
     }
 
     public boolean isSCIMEnabled() throws org.wso2.carbon.user.api.UserStoreException {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return false; // To change body of implemented methods use File | Settings | File Templates.
     }
 
     public boolean isBulkImportSupported() throws UserStoreException {
@@ -500,30 +542,30 @@ public class WSUserStoreManager implements UserStoreManager {
 
     @Override
     public String[] getUserList(String claim, String claimValue, String profileName)
-                                                                        throws UserStoreException {
+            throws UserStoreException {
         try {
             return stub.getUserList(claim, claimValue, profileName);
         } catch (Exception e) {
             handleException(e.getMessage(), e);
         }
-        
+
         return null;
     }
 
     public UserStoreManager getSecondaryUserStoreManager() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null; // To change body of implemented methods use File | Settings | File Templates.
     }
 
     public UserStoreManager getSecondaryUserStoreManager(String s) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null; // To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void addSecondaryUserStoreManager(String s, UserStoreManager userStoreManager) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        // To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void setSecondaryUserStoreManager(UserStoreManager userStoreManager) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        // To change body of implemented methods use File | Settings | File Templates.
     }
 
     public RealmConfiguration getRealmConfiguration() {
@@ -531,23 +573,23 @@ public class WSUserStoreManager implements UserStoreManager {
     }
 
     public Properties getDefaultUserStoreProperties() {
-	    return null;
+        return null;
     }
 
-	@Override
+    @Override
     public void addRole(String roleName, String[] userList,
-                        org.wso2.carbon.user.api.Permission[] permissions)
-                                                                          throws org.wso2.carbon.user.api.UserStoreException {
-		addRole(roleName, userList, permissions, false);
+            org.wso2.carbon.user.api.Permission[] permissions)
+            throws org.wso2.carbon.user.api.UserStoreException {
+        addRole(roleName, userList, permissions, false);
     }
 
-	@Override
+    @Override
     public boolean isExistingRole(String roleName) throws UserStoreException {
-	    return isExistingRole(roleName, false);
+        return isExistingRole(roleName, false);
     }
 
     public boolean isSharedGroupEnabled() {
-	    return false;
+        return false;
     }
 
 }
