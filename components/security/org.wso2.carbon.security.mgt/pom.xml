@@ -26,6 +26,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.wso2.carbon</groupId>
     <artifactId>org.wso2.carbon.security.mgt</artifactId>
+    <version>4.3.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Security BE</name>
     <description>A custom wso2 products or solution</description>
@@ -81,11 +82,11 @@
             <artifactId>javax.cache.wso2</artifactId>
             <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>javax.cache.wso2</artifactId>
-            <!--<version>4.3.0-SNAPSHOT</version>-->
-        </dependency>
+            <version>4.3.0-SNAPSHOT</version>
+        </dependency-->
 		<dependency>
 			<groupId>backport-util-concurrent.wso2</groupId>
 			<artifactId>backport-util-concurrent</artifactId>
@@ -117,7 +118,7 @@
                             org.apache.axiom.*; version="${axiom.osgi.version.range.security}",
                             org.apache.neethi.*; version="${neethi.osgi.version.range.security}",
                             org.apache.commons.logging.*; version="1.0.4",
-                            org.apache.rampart.*; version="[1.6.1.wso2v12, 2)",
+                            org.apache.rampart.*; version="[${rampart.wso2.version}, 2)",
                             org.apache.rahas.*; version="[1.6.1.wso2v12, 2)",
                             org.apache.ws.security.*; version="[${wss4j.version}, 2)",
                             org.wso2.carbon.core.*; version="0.0.0",

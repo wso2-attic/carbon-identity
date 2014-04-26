@@ -50,6 +50,10 @@ public class RahasUtil {
                                                      SCTIssuerConfig.SCT_ISSUER_CONFIG.
                                                              getLocalPart()));
 
+        paramElem.addAttribute(fac.createOMAttribute("type",
+                                                     null, new Integer(Parameter.OM_PARAMETER).
+                                                        toString()));
+
         OMElement elem = fac.createOMElement(
                 SCTIssuerConfig.SCT_ISSUER_CONFIG, paramElem);
 
@@ -99,6 +103,8 @@ public class RahasUtil {
 
         Parameter param = new Parameter();
         param.setName(SCTIssuerConfig.SCT_ISSUER_CONFIG.getLocalPart());
+        param.setParameterType(Parameter.OM_PARAMETER);
+        param.setValue(paramElem);
         param.setParameterElement(paramElem);
         return param;
     }
@@ -111,11 +117,17 @@ public class RahasUtil {
                                                      null,
                                                      TokenCancelerConfig.TOKEN_CANCELER_CONFIG.
                                                              getLocalPart()));
+        paramElem.addAttribute(fac.createOMAttribute("type",
+                                                        null, new Integer(Parameter.OM_PARAMETER).
+                                                        toString()));
+
         fac.createOMElement(TokenCancelerConfig.TOKEN_CANCELER_CONFIG,
                             paramElem);
         Parameter param = new Parameter();
         param.setName(TokenCancelerConfig.TOKEN_CANCELER_CONFIG.getLocalPart());
         param.setParameterElement(paramElem);
+        param.setValue(paramElem);
+        param.setParameterType(Parameter.OM_PARAMETER);
         return param;
     }
 }

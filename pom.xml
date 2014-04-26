@@ -1848,6 +1848,7 @@
 	<orbit.version.wsdl4j>1.6.2.wso2v4</orbit.version.wsdl4j>
 	<orbit.version.neethi>2.0.4.wso2v4</orbit.version.neethi>
 	<rampart.wso2.version>1.6.1.wso2v9</rampart.wso2.version>
+	<!--rampart.wso2.version>1.6.1-wso2v13-SNAPSHOT</rampart.wso2.version-->
 
 	<!-- Axiom Version -->
         <axiom.version>1.2.11-wso2v5-SNAPSHOT</axiom.version>
