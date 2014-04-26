@@ -35,7 +35,7 @@
 		<module>org.wso2.carbon.sts.feature</module>
 	</modules>
 
-	<dependencyManagement>
+	<!--dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>org.wso2.carbon</groupId>
@@ -48,7 +48,7 @@
 				<version>${wso2carbon.version.sts}</version>
 			</dependency>
 		</dependencies>
-	</dependencyManagement>
+	</dependencyManagement-->
 
 	<properties>
 		<wso2carbon.version.sts>${wso2carbon.version}</wso2carbon.version.sts>
