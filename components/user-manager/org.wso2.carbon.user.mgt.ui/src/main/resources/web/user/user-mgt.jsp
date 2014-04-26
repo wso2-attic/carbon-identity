@@ -395,11 +395,21 @@
                                 CarbonUIUtil.isUserAuthorized(request,
                                          "/permission/admin/configure/security/usermgt/passwords") &&
                                     users[i].getEditable()) { //if passwords are managed externally do not allow to change passwords.
+                            	if(userName.equals(currentUser)){
                         %>
+                        <a href="change-passwd.jsp?isUserChange=true&returnPath=user-mgt.jsp" class="icon-link"
+                           style="background-image:url(../admin/images/edit.gif);"><fmt:message
+                                key="change.password"/></a>
+                                
+                        <% 
+                            	}else{
+                        %>
+                        
                         <a href="change-passwd.jsp?username=<%=userName%>&disPlayName=<%=disPlayName%>" class="icon-link"
                            style="background-image:url(../admin/images/edit.gif);"><fmt:message
                                 key="change.password"/></a>
                         <%
+                            	}
                             }
                         %>
 

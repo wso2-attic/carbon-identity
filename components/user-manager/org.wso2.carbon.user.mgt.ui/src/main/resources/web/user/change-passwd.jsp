@@ -156,7 +156,7 @@
                     } else if (reason == "Password Mismatch") {
                         CARBON.showWarningDialog("<fmt:message key="password.mismatch"/>");
                     } else if (reason == "No conformance") {
-                        CARBON.showWarningDialog("<fmt:message key="password.conformance"/>");
+                        CARBON.showWarningDialog("<fmt:message key="password.conformance"/>"  + pwdRegEX);
                     }
                     return false;
                 }
