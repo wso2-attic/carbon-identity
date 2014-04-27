@@ -32,82 +32,36 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.CarbonConfigurationContextFactory;
-import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 
 /**
- * default email sending implementation
+ * Default email sending implementation
  */
 public class DefaultEmailSendingModule extends AbstractEmailSendingModule {
 
 	public static final String CONF_STRING = "confirmation";
 	private static Log log = LogFactory.getLog(DefaultEmailSendingModule.class);
+	private Notification notification;
 
-	public void sendEmail(EmailConfig emailConfig) {
-
-		Map<String, String> userParameters = new HashMap<String, String>();
+	public void sendEmail(){
+		
 		Map<String, String> headerMap = new HashMap<String, String>();
-
-		String emailAddress = notificationData.getNotificationAddress();
-		userParameters.put("user-id", notificationData.getUserId());
-		if (notificationData.getFirstName() == null) {
-			userParameters.put("first-name", notificationData.getUserId());
-		} else {
-			userParameters.put("first-name", notificationData.getFirstName());
-		}
-		String notification = notificationData.getNotification();
-		if (IdentityMgtConstants.Notification.TEMPORARY_PASSWORD.equals(notification)) {
-			userParameters.put("temporary-password", notificationData.getNotificationCode());
-
-		} else if (IdentityMgtConstants.Notification.OTP_PASSWORD.equals(notification)) {
-			userParameters.put("otp-password", notificationData.getNotificationCode());
-
-		} else if (IdentityMgtConstants.Notification.PASSWORD_RESET_RECOVERY.equals(notification)) {
-			String resetLink = emailConfig.getTargetEpr() + "?" + CONF_STRING + "="
-					+ notificationData.getNotificationCode();
-			userParameters.put("password-reset-link", resetLink);
-			userParameters.put("user-name", notificationData.getUserId());
-
-		} else if (IdentityMgtConstants.Notification.ASK_PASSWORD.equals(notification)) {
-			String resetLink = emailConfig.getTargetEpr() + "?" + CONF_STRING + "="
-					+ notificationData.getNotificationCode();
-			userParameters.put("password-reset-link", resetLink);
-			userParameters.put("user-name", notificationData.getUserId());
-
-		} else if (IdentityMgtConstants.Notification.ACCOUNT_ID_RECOVERY.equals(notification)) {
-			userParameters.put("user-name", notificationData.getNotificationCode());
-
-		} else if (IdentityMgtConstants.Notification.ACCOUNT_CONFORM.equals(notification)) {
-			String confirmationLink = emailConfig.getTargetEpr() + "?" + CONF_STRING + "="
-					+ notificationData.getNotificationCode() + "&" + "userName="
-					+ notificationData.getUserId();
-			userParameters.put("user-name", notificationData.getUserId());
-			userParameters.put("confirmation-link", confirmationLink);
-			
-		} else if (IdentityMgtConstants.Notification.ACCOUNT_UNLOCK.equals(notification)) {
-			userParameters.put("user-name", notificationData.getUserId());			
-		}
-
+		
 		try {
+			if(this.notification == null) {
+				throw new NullPointerException("Notification not set. Please set the notification before sending messages");
+			}
 			PrivilegedCarbonContext.startTenantFlow();
 
-			if (notificationData.getNotificationSubject() == null) {
-				if (emailConfig.getSubject() != null) {
-					headerMap.put(MailConstants.MAIL_HEADER_SUBJECT, emailConfig.getSubject());
-				} else {
-					headerMap.put(MailConstants.MAIL_HEADER_SUBJECT,
-							EmailConfig.DEFAULT_VALUE_SUBJECT);
-				}
-			} else {
-				headerMap.put(MailConstants.MAIL_HEADER_SUBJECT,
-						notificationData.getNotificationSubject());
-			}
-
-			String requestMessage = replacePlaceHolders(getRequestMessage(emailConfig),
-					userParameters);
-
+			headerMap.put(MailConstants.MAIL_HEADER_SUBJECT, this.notification.getSubject());
+			
 			OMElement payload = OMAbstractFactory.getOMFactory().createOMElement(
 					BaseConstants.DEFAULT_TEXT_WRAPPER, null);
-			payload.setText(requestMessage);
+			StringBuilder contents = new StringBuilder();
+			contents.append(this.notification.getBody())
+					.append(System.getProperty("line.separator"))
+					.append(System.getProperty("line.separator"))
+					.append(this.notification.getFooter());
+			payload.setText(contents.toString());
 			ServiceClient serviceClient;
 			ConfigurationContext configContext = CarbonConfigurationContextFactory
 					.getConfigurationContext();
@@ -121,17 +75,19 @@ public class DefaultEmailSendingModule extends AbstractEmailSendingModule {
 			options.setProperty(MessageContext.TRANSPORT_HEADERS, headerMap);
 			options.setProperty(MailConstants.TRANSPORT_MAIL_FORMAT,
 					MailConstants.TRANSPORT_FORMAT_TEXT);
-			options.setTo(new EndpointReference("mailto:" + emailAddress));
+			options.setTo(new EndpointReference("mailto:" + this.notification.getSendTo()));
 			serviceClient.setOptions(options);
+			log.debug("Sending " + "user credentials configuration mail to " + this.notification.getSendTo());
 			serviceClient.fireAndForget(payload);
-			log.debug("Sending " + "user credentials configuration mail to " + emailAddress);
-			log.debug("Verification url : " + requestMessage);
-			log.info("User credentials configuration mail has been sent to " + emailAddress);
+			
+			log.debug("Email content : " + this.notification.getBody());
+			log.info("User credentials configuration mail has been sent to " + this.notification.getSendTo());
 		} catch (Exception e) {
 			log.error("Failed Sending Email" + e.getMessage());
 		} finally {
 			PrivilegedCarbonContext.endTenantFlow();
 		}
+		
 	}
 
 	/**
@@ -139,13 +95,13 @@ public class DefaultEmailSendingModule extends AbstractEmailSendingModule {
 	 * @param userParameters
 	 * @return
 	 */
-	private String getEmailMessage(Map<String, String> userParameters) {
-		StringBuffer message = new StringBuffer();
-		for (Map.Entry<String, String> entry : userParameters.entrySet()) {
-			message.append("\n" + entry.getKey() + " : " + entry.getValue());
-		}
-		return message.toString();
-	}
+//	private String getEmailMessage(Map<String, String> userParameters) {
+//		StringBuffer message = new StringBuffer();
+//		for (Map.Entry<String, String> entry : userParameters.entrySet()) {
+//			message.append("\n" + entry.getKey() + " : " + entry.getValue());
+//		}
+//		return message.toString();
+//	}
 
 	public String getRequestMessage(EmailConfig emailConfig) {
 
@@ -192,6 +148,16 @@ public class DefaultEmailSendingModule extends AbstractEmailSendingModule {
 			}
 		}
 		return text;
+	}
+
+	@Override
+	public void setNotification(Notification notification) {
+		this.notification = notification;		
+	}
+
+	@Override
+	public Notification getNotification() {
+		return this.notification;
 	}
 
 }

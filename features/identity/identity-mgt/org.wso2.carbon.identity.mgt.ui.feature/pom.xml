@@ -68,10 +68,10 @@
                             </adviceFile>
 							<bundles>
 								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.mgt.ui</bundleDef>
-								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.mgt.stub:4.3.0-SNAPSHOT</bundleDef>
+								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.mgt.stub</bundleDef>
 							</bundles>
 							<importFeatures>
-								<importFeatureDef>org.wso2.carbon.core.ui:4.3.0-SNAPSHOT</importFeatureDef>
+								<importFeatureDef>org.wso2.carbon.core.ui</importFeatureDef>
 							</importFeatures>
 						</configuration>
 					</execution>

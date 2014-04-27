@@ -28,16 +28,24 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.beans.UserIdentityMgtBean;
 import org.wso2.carbon.identity.mgt.beans.VerificationBean;
+import org.wso2.carbon.identity.mgt.config.Config;
+import org.wso2.carbon.identity.mgt.config.ConfigBuilder;
+import org.wso2.carbon.identity.mgt.config.ConfigType;
+import org.wso2.carbon.identity.mgt.config.StorageType;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.dto.NotificationDataDTO;
 import org.wso2.carbon.identity.mgt.dto.UserIdentityClaimsDO;
 import org.wso2.carbon.identity.mgt.dto.UserRecoveryDTO;
 import org.wso2.carbon.identity.mgt.dto.UserRecoveryDataDO;
 import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
+import org.wso2.carbon.identity.mgt.mail.Notification;
+import org.wso2.carbon.identity.mgt.mail.NotificationBuilder;
+import org.wso2.carbon.identity.mgt.mail.NotificationData;
 import org.wso2.carbon.identity.mgt.policy.PolicyRegistry;
 import org.wso2.carbon.identity.mgt.policy.PolicyViolationException;
 import org.wso2.carbon.identity.mgt.store.UserIdentityDataStore;
 import org.wso2.carbon.identity.mgt.util.UserIdentityManagementUtil;
+import org.wso2.carbon.identity.mgt.util.Utils;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.session.UserRegistry;
@@ -184,14 +192,15 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 		}
 
 		UserIdentityClaimsDO userIdentityDTO = module.load(userName, userStoreManager);
-        if(userIdentityDTO == null){
-            userIdentityDTO = new UserIdentityClaimsDO(userName);
-        }
-        
-        boolean userOTPEnabled = userIdentityDTO.getOneTimeLogin();
-        
-        // One time password check
-		if (authenticated && config.isAuthPolicyOneTimePasswordCheck() && (!userStoreManager.isReadOnly())) {
+		if (userIdentityDTO == null) {
+			userIdentityDTO = new UserIdentityClaimsDO(userName);
+		}
+
+		boolean userOTPEnabled = userIdentityDTO.getOneTimeLogin();
+
+		// One time password check
+		if (authenticated && config.isAuthPolicyOneTimePasswordCheck() &&
+		    (!userStoreManager.isReadOnly())) {
 
 			// reset password of the user and notify user of the new password
 			if (userOTPEnabled) {
@@ -202,29 +211,70 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 				// Get email user claim value
 				String email =
 				               userStoreManager.getUserClaimValue(userName,
-				                                                  UserCoreConstants.ClaimTypeURIs.EMAIL_ADDRESS, null);
+				                                                  UserCoreConstants.ClaimTypeURIs.EMAIL_ADDRESS,
+				                                                  null);
 
 				if (email == null) {
 					throw new UserStoreException("No user email provided for user " + userName);
 				}
 
-				List<NotificationSendingModule> notificationModules = config.getNotificationSendingModules();
+				List<NotificationSendingModule> notificationModules =
+				                                                      config.getNotificationSendingModules();
 
 				if (notificationModules != null) {
 
 					NotificationDataDTO notificationData = new NotificationDataDTO();
-					notificationData.setUserId(userName);
-					notificationData.setNotificationAddress(email);
-					notificationData.setFirstName(userName);
-					notificationData.setNotification("otp");
-					notificationData.setNotificationType("EMAIL");
-					notificationData.setNotificationCode(password);
-//					notificationData.setNotificationSubject("Your next time login password");
+
+					NotificationData emailNotificationData = new NotificationData();
+					String emailTemplate = null;
+					int tenantId = userStoreManager.getTenantId();
+					String firstName = null;
+					try {
+						firstName =
+						            Utils.getClaimFromUserStoreManager(userName, tenantId,
+						                                               "http://wso2.org/claims/givenname");
+					} catch (IdentityException e2) {
+						throw new UserStoreException("Could not load user given name");
+					}
+					emailNotificationData.setTagData("first-name", firstName);
+					emailNotificationData.setTagData("user-name", userName);
+					emailNotificationData.setTagData("otp-password", password);
+
+					emailNotificationData.setSendTo(email);
+
+					Config emailConfig = null;
+					ConfigBuilder configBuilder = ConfigBuilder.getInstance();
+					try {
+						emailConfig =
+						              configBuilder.loadConfiguration(ConfigType.EMAIL,
+						                                              StorageType.REGISTRY,
+						                                              tenantId);
+					} catch (Exception e1) {
+						throw new UserStoreException(
+						                             "Could not load the email template configuration");
+					}
+
+					emailTemplate = emailConfig.getProperty("otp");
+
+					Notification emailNotification = null;
+					try {
+						emailNotification =
+						                    NotificationBuilder.createNotification("EMAIL",
+						                                                           emailTemplate,
+						                                                           emailNotificationData);
+					} catch (Exception e) {
+						throw new UserStoreException("Could not create the email notification");
+					}
 					NotificationSender sender = new NotificationSender();
 
 					for (NotificationSendingModule notificationSendingModule : notificationModules) {
-						notificationSendingModule.setNotificationData(notificationData);
-						sender.sendNotification(notificationSendingModule);
+
+						if (IdentityMgtConfig.getInstance().isNotificationInternallyManaged()) {
+							notificationSendingModule.setNotificationData(notificationData);
+							notificationSendingModule.setNotification(emailNotification);
+							sender.sendNotification(notificationSendingModule);
+							notificationData.setNotificationSent(true);
+						}
 					}
 
 				} else {

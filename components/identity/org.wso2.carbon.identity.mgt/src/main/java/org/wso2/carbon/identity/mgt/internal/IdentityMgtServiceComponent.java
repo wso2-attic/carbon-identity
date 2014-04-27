@@ -29,7 +29,6 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
 import org.wso2.carbon.identity.mgt.IdentityMgtEventListener;
-import org.wso2.carbon.identity.mgt.IdentityMgtServiceException;
 import org.wso2.carbon.identity.mgt.RecoveryProcessor;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.dto.ChallengeQuestionDTO;
@@ -153,20 +152,24 @@ public class IdentityMgtServiceComponent {
     }
 
     private static void init(){
-
-        Registry registry;
-        IdentityMgtConfig.getInstance(realmService.getBootstrapRealmConfiguration());
-        recoveryProcessor = new RecoveryProcessor();
-        try {
-            registry = IdentityMgtServiceComponent.getRegistryService().getConfigSystemRegistry();
-            if(!registry.resourceExists(IdentityMgtConstants.IDENTITY_MANAGEMENT_PATH)){
-                Collection questionCollection = registry.newCollection();
-                registry.put(IdentityMgtConstants.IDENTITY_MANAGEMENT_PATH, questionCollection);
-                loadDefaultChallenges();
-            }
-        } catch (RegistryException e) {
-            log.error("Error while creating registry collection for org.wso2.carbon.identity.mgt component");
-        }                  
+				
+		Registry registry;
+		IdentityMgtConfig.getInstance(realmService.getBootstrapRealmConfiguration());
+		recoveryProcessor = new RecoveryProcessor();
+		try {
+			registry = IdentityMgtServiceComponent.getRegistryService()
+					.getConfigSystemRegistry();
+			if (!registry
+					.resourceExists(IdentityMgtConstants.IDENTITY_MANAGEMENT_PATH)) {
+				Collection questionCollection = registry.newCollection();
+				registry.put(IdentityMgtConstants.IDENTITY_MANAGEMENT_PATH,
+						questionCollection);
+				loadDefaultChallenges();
+			}
+		} catch (RegistryException e) {
+			log.error("Error while creating registry collection for org.wso2.carbon.identity.mgt component");
+		}
+               
     }
 
 

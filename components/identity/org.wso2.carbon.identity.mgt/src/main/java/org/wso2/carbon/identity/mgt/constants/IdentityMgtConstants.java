@@ -182,10 +182,11 @@ public class IdentityMgtConstants {
 
         public static  final String ACCOUNT_CONFORM = "accountConfirmation";
 
-        public static  final String ACCOUNT_UNLOCK = "accountLock";
+        public static  final String ACCOUNT_UNLOCK = "accountUnLock";
         
         public static final String OTP_PASSWORD = "otp";
         
         public static final String ASK_PASSWORD = "askPassword";
+        
     }
 }
