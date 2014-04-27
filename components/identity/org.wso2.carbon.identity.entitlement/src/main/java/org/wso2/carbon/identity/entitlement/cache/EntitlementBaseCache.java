@@ -100,7 +100,7 @@ public class EntitlementBaseCache<K extends IdentityCacheKey, V extends Serializ
                             ": " + cacheTimeout + " for tenant domain : " + tenantDomain);
                 }
             } else {
-                cache = cacheBuilder.build();
+            	cache = cacheManager.getCache(Entitlement_CACHE_NAME);
             }
 		} else {
 			cache = cacheManager.getCache(Entitlement_CACHE_NAME);
@@ -184,12 +184,17 @@ public class EntitlementBaseCache<K extends IdentityCacheKey, V extends Serializ
 	public void clear() {
 		Cache<K,V> cache = getEntitlementCache();
 		if (cache != null) {
-			cache.removeAll();
-            if(log.isDebugEnabled()){
-                String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-                log.debug("Cache : " + Entitlement_CACHE_NAME + " is cleared " +
-                        "in tenant domain : " + tenantDomain);
-            }
+			try {
+				cache.removeAll();
+				if (log.isDebugEnabled()) {
+					String tenantDomain = CarbonContext
+							.getThreadLocalCarbonContext().getTenantDomain();
+					log.debug("Cache : " + Entitlement_CACHE_NAME + " is cleared " + 
+							"in tenant domain : " + tenantDomain);
+				}
+			} catch (Exception e) {
+				//TODO - Handle the IdentityCacheKey exception in cluster env.
+			}
 		}
 	}
 }

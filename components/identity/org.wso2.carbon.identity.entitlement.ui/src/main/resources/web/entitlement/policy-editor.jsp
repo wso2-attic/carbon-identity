@@ -1455,11 +1455,10 @@ function preSubmit(){
         </tr>
 <%
 
-        if(ruleDTO != null && ruleDTO.getObligationDTOs() != null && ruleDTO.getObligationDTOs().size() > 0){
+        if(ruleDTO != null && ruleDTO.getObligationDTOs() != null && ruleDTO.getObligationDTOs().size() > 1){
             List<ObligationDTO> ruleObligationDTOs = ruleDTO.getObligationDTOs();
-            //ruleObligationDTOs.remove(0);
-            for(int i = 1; i < obligationDTOs.size(); i++){
-                ObligationDTO dto = obligationDTOs.get(i);
+            for(int i = 1; i < ruleObligationDTOs.size(); i++){
+                ObligationDTO dto = ruleObligationDTOs.get(i);
                 currentRuleObligationType = dto.getType();
                 currentRuleObligationId = dto.getObligationId();
                 currentRuleObligationAttributeValue = dto.getAttributeValue();
@@ -1482,8 +1481,7 @@ function preSubmit(){
             <%
             }
         }
-
-%>
+        %>
         <tr>
             <td colspan="2" class="buttonRow">
                 <%

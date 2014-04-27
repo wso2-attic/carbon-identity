@@ -49,6 +49,7 @@
     String publishAction = request.getParameter("publishAction");
     String publishVersion = request.getParameter("policyVersion");
     String policyOrderString = request.getParameter("policyOrder");
+    boolean policyEnable = Boolean.parseBoolean(request.getParameter("policyEnable"));
     int policyOrder = 0;
     if(policyOrderString != null && policyOrderString.trim().length() > 0){
         try{
@@ -72,14 +73,15 @@
         EntitlementPolicyAdminServiceClient client = new EntitlementPolicyAdminServiceClient(cookie,
                 serverURL, configContext);
         if(publishAllPolicies && publishToAllSubscribers){
-            client.publishAll(null, null, publishAction, policyOrder, null);
+            client.publish(null, null, publishAction, null, policyEnable, policyOrder);
         } else if(publishAllPolicies && selectedSubscribers != null && selectedSubscribers.length > 0){
-            client.publishAll(null, null, publishAction, policyOrder, selectedSubscribers);
+            client.publish(null, selectedSubscribers, publishAction, null, policyEnable, policyOrder);
         } else if(selectedPolicies != null && selectedPolicies.length > 0 && publishToAllSubscribers){
-            client.publishAll(selectedPolicies, null, publishAction, policyOrder, null);
+            client.publish(selectedPolicies, null, publishAction, null, policyEnable, policyOrder);
         } else if(selectedPolicies != null && selectedPolicies.length > 0 && selectedSubscribers != null &&
                             selectedSubscribers.length > 0){
-            client.publishAll(selectedPolicies, publishVersion, publishAction, policyOrder, selectedSubscribers);
+            client.publish(selectedPolicies, selectedSubscribers, publishAction, publishVersion,
+                                                                                        policyEnable, policyOrder);
         }
     } catch (Exception e) {
     	String message = resourceBundle.getString("error.while.publishing.policies");

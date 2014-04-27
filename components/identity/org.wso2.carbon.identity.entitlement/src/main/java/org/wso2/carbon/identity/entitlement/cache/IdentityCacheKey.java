@@ -19,7 +19,6 @@
 package org.wso2.carbon.identity.entitlement.cache;
 
 import java.io.Serializable;
-import org.wso2.carbon.base.MultitenantConstants;
 
 /**
  * Identity Cache key which wraps the identity related cache key values
@@ -57,9 +56,7 @@ public class IdentityCacheKey implements Serializable {
 
     @Override
     public int hashCode() {
-        int hash = Integer.valueOf( (tenantId == MultitenantConstants.SUPER_TENANT_ID) 
-        		? 0 : tenantId).hashCode();
-        hash += hash + key.hashCode();
+    	int hash = key.hashCode();
         return hash;
     }
 }

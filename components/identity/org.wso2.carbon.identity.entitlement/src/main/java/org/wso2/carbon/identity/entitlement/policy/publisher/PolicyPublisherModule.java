@@ -60,11 +60,13 @@ public interface PolicyPublisherModule {
     /**
      * publishes policy to given subscriber
      *
+     *
      * @param policyDTO policy as PolicyDTO
-     * @param action
+     * @param action publishing action
+     * @param enable enable
      * @param order
-     * @throws EntitlementException throws, if any error is occurred.
+     * @throws EntitlementException
      */
-    public void publish(PolicyDTO policyDTO , String action, int order) throws EntitlementException;
+    public void publish(PolicyDTO policyDTO, String action, boolean enable, int order) throws EntitlementException;
 
 }

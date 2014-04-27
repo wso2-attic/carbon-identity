@@ -95,8 +95,8 @@
 								<bundleDef>org.wso2.balana:org.wso2.balana.utils</bundleDef>
 							</bundles>
 							<importFeatures>
-								<importFeatureDef>org.wso2.carbon.core.ui:4.3.0-SNAPSHOT</importFeatureDef>
-								<importFeatureDef>org.wso2.carbon.claim.mgt.ui:4.3.0-SNAPSHOT</importFeatureDef>	
+								<importFeatureDef>org.wso2.carbon.core.ui</importFeatureDef>
+								<importFeatureDef>org.wso2.carbon.claim.mgt.ui</importFeatureDef>	
 							</importFeatures>
 						</configuration>
 					</execution>

@@ -454,10 +454,14 @@ public class EntitlementPolicyAdminService {
      *
      * @param policyIds policy ids to publish,  if null or empty, all policies are published
      * @param subscriberIds subscriber ids to publish,  if null or empty, all policies are published
+     * @param action publishing action
+     * @param version version
+     * @param enabled whether policy must be enabled or not
+     * @param order order of the policy
      * @throws EntitlementException throws, if fails
      */
-    public void publishPolicies(String[] policyIds, String version,
-                    String action, int order, String[] subscriberIds) throws EntitlementException {
+    public void publishPolicies(String[] policyIds, String[] subscriberIds,  String action, String version,
+                                                            boolean enabled, int order) throws EntitlementException {
 
         PolicyPublisher publisher = EntitlementAdminEngine.getInstance().getPolicyPublisher();
         if(policyIds == null || policyIds.length < 1){
@@ -475,7 +479,7 @@ public class EntitlementPolicyAdminService {
             throw new EntitlementException("There are no subscribers to publish");
         }
 
-        publisher.publishPolicy(policyIds, version, action, order, subscriberIds, null);
+        publisher.publishPolicy(policyIds, version, action, enabled, order, subscriberIds, null);
     }
 
     /**
@@ -487,7 +491,7 @@ public class EntitlementPolicyAdminService {
     public void publish(String verificationCode)  throws EntitlementException {
 
         PolicyPublisher publisher = EntitlementAdminEngine.getInstance().getPolicyPublisher();
-        publisher.publishPolicy(null, null, null, 0, null, verificationCode);
+        publisher.publishPolicy(null, null, null, false, 0, null, verificationCode);
         
     }
 
@@ -501,7 +505,7 @@ public class EntitlementPolicyAdminService {
 
         PolicyPublisher publisher = EntitlementAdminEngine.getInstance().getPolicyPublisher();
         String[] subscribers = new String[]{EntitlementConstants.PDP_SUBSCRIBER_ID};
-        publisher.publishPolicy(policyIds, version, action, 0, subscribers, null);
+        publisher.publishPolicy(policyIds, version, action, false, 0, subscribers, null);
     }
 
     /**
@@ -509,12 +513,12 @@ public class EntitlementPolicyAdminService {
      * @param policyIds
      * @throws EntitlementException
      */
-    public void publishToPDP(String[] policyIds, String version, String action,
+    public void publishToPDP(String[] policyIds, String action, String version, boolean enabled,
                               int order) throws EntitlementException {
 
         PolicyPublisher publisher = EntitlementAdminEngine.getInstance().getPolicyPublisher();
         String[] subscribers = new String[]{EntitlementConstants.PDP_SUBSCRIBER_ID};
-        publisher.publishPolicy(policyIds, version, action, order, subscribers, null);
+        publisher.publishPolicy(policyIds, version, action, enabled, order, subscribers, null);
     }
 
     /**
@@ -624,7 +628,7 @@ public class EntitlementPolicyAdminService {
             storeManager.addOrUpdatePolicy(policyDTO);
         }
         publishToPDP(new String[] {policyDTO.getPolicyId()}, null,
-                EntitlementConstants.PolicyPublish.ACTION_ORDER, newOrder);
+                EntitlementConstants.PolicyPublish.ACTION_ORDER, false, newOrder);
     }
 
     public void enableDisablePolicy(String policyId, boolean enable) throws EntitlementException {
@@ -709,18 +713,15 @@ public class EntitlementPolicyAdminService {
                     // All the policies wont be active at the time been added.
                     policyDTO.setActive(policyDTO.isActive());
 
-                    // this is special case to handle policy id with "/". policy id is a URI.
-                    if(policyId.contains("://")){
-                        policyId = policyId.replace("://", ":");
-                    }
                     if(policyId.contains("/")){
-                        policyId = policyId.replace("/", ":");
+                    	throw new EntitlementException(
+                                " Policy Id cannot contain / characters. Please correct and upload again");
                     }
-
                     if(!policyId.matches(regString)) {
                         throw new EntitlementException(
                                 "An Entitlement Policy Id is not valid. It contains illegal characters");
                     }
+                    
                     policyDTO.setPolicyId(policyId);
                     if(isAdd){
                         if (policyAdmin.isExistPolicy(policyId)) {
@@ -751,10 +752,10 @@ public class EntitlementPolicyAdminService {
         if(policyDTO.isPromote()){
             if(isAdd){
                 publishToPDP(new String[] {policyDTO.getPolicyId()}, null,
-                        EntitlementConstants.PolicyPublish.ACTION_CREATE, policyDTO.getPolicyOrder());
+                        EntitlementConstants.PolicyPublish.ACTION_CREATE, policyDTO.isActive(), policyDTO.getPolicyOrder());
             } else {
                 publishToPDP(new String[] {policyDTO.getPolicyId()}, null,
-                        EntitlementConstants.PolicyPublish.ACTION_UPDATE, policyDTO.getPolicyOrder());
+                        EntitlementConstants.PolicyPublish.ACTION_UPDATE, policyDTO.isActive(), policyDTO.getPolicyOrder());
             }
         }
     }

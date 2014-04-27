@@ -401,42 +401,22 @@ public class EntitlementPolicyAdminServiceClient {
      *
      *
      * @param policies policy ids as String array, if null or empty, all policies are published
+     * @param subscriberId subscriber ids as String array, if null or empty, publish to all subscribers
      * @param version
      * @param action
+     * @param enabled
      * @param order
-     * @param subscriberId subscriber ids as String array, if null or empty, publish to all subscribers
      * @throws AxisFault throws
      */
-    public void publishAll(String[] policies, String version, String action, int order,
-                                                        String[] subscriberId) throws AxisFault {
-
+    public void publish(String[] policies, String[] subscriberId, String action, String version,
+                                                                    boolean enabled, int order ) throws AxisFault {
         try {
-            stub.publishPolicies(policies, version, action, order, subscriberId);
+            stub.publishPolicies(policies, subscriberId, action, version, enabled, order);
         } catch (Exception e) {
             handleException(e);
         }
     }
 
-    /**
-     * Publishes given set of policies to given set of subscribers
-     *
-     *
-     * @param policies policy ids as String array, if null or empty, all policies are published
-     * @param version
-     * @param action
-     * @param order
-     * @param subscriberId subscriber ids as String array, if null or empty, publish to all subscribers
-     * @throws AxisFault throws
-     */
-    public void publishAll(String[] policies, String version, String action, String order,
-                           String[] subscriberId) throws AxisFault {
-
-        try {
-            stub.publishPolicies(policies, version, action, 0, subscriberId);
-        } catch (Exception e) {
-            handleException(e);
-        }
-    }
 
     /**
      * Get all publisher modules properties that is needed to configure

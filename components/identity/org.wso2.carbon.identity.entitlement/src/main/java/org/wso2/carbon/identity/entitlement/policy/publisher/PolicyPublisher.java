@@ -126,11 +126,13 @@ public class PolicyPublisher{
      * @param policyIds policy ids to publish,
      * @param version
      * @param action
+     * @param enabled
+     * @param order
      * @param subscriberIds subscriber ids to publish,
      * @param verificationCode verificationCode as String
      * @throws EntitlementException throws if can not be created PolicyPublishExecutor instant
      */
-    public void publishPolicy(String[] policyIds, String version, String action, int order,
+    public void publishPolicy(String[] policyIds, String version, String action, boolean  enabled, int order,
                       String[] subscriberIds, String verificationCode) throws EntitlementException {
 
         boolean toPDP = false;
@@ -139,7 +141,7 @@ public class PolicyPublisher{
             toPDP = true;
         }
 
-        PolicyPublishExecutor executor = new PolicyPublishExecutor(policyIds, version, action, order,
+        PolicyPublishExecutor executor = new PolicyPublishExecutor(policyIds, version, action, enabled, order,
                 subscriberIds, this, toPDP, verificationCode);
         executor.setTenantDomain(CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
         executor.setTenantId(CarbonContext.getThreadLocalCarbonContext().getTenantId());

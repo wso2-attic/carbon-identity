@@ -47,6 +47,7 @@
     String publishAction = request.getParameter("publishAction");
     String policyVersion = request.getParameter("policyVersion");
     String policyOrder = request.getParameter("policyOrder");
+    String policyEnable = request.getParameter("policyEnable");
     String versionSelector = request.getParameter("versionSelector");
     String orderSelector = request.getParameter("orderSelector");
     String BUNDLE = "org.wso2.carbon.identity.entitlement.ui.i18n.Resources";
@@ -65,6 +66,10 @@
 
     if(policyOrder == null){
         policyOrder = "";
+    }
+
+    if(policyEnable == null){
+        policyEnable = "";
     }
 
     int numberOfPages = 0;
@@ -285,26 +290,32 @@
         if(jQuery('#addPolicy').is(':checked')) {
             jQuery('#showPolicyVersion').show();
             jQuery('#showPolicyOrder').show();
+            jQuery('#showPolicyEnable').show();
         }
         if(jQuery('#updatePolicy').is(':checked')) {
             jQuery('#showPolicyVersion').show();
             jQuery('#showPolicyOrder').hide();
+            jQuery('#showPolicyEnable').hide();
         }
         if(jQuery('#orderPolicy').is(':checked')) {
             jQuery('#showPolicyVersion').hide();
             jQuery('#showPolicyOrder').show();
+            jQuery('#showPolicyEnable').hide();
         }
         if(jQuery('#enablePolicy').is(':checked')) {
             jQuery('#showPolicyVersion').hide();
             jQuery('#showPolicyOrder').hide();
+            jQuery('#showPolicyEnable').hide();
         }
         if(jQuery('#disablePolicy').is(':checked')) {
             jQuery('#showPolicyVersion').hide();
             jQuery('#showPolicyOrder').hide();
+            jQuery('#showPolicyEnable').hide();
         }
         if(jQuery('#deletePolicy').is(':checked')) {
             jQuery('#showPolicyVersion').hide();
             jQuery('#showPolicyOrder').hide();
+            jQuery('#showPolicyEnable').hide();
         }
     }
 
@@ -314,7 +325,12 @@
     <h2><fmt:message key="publish.policy"/></h2>
     <div id="workArea">
         <form action="start-publish.jsp" name="publishForm" method="post">
-            <table class="styledLeft" style="width: 100%;margin-top:10px;">
+
+        <%
+            if(policyId != null){
+
+        %>
+        <table class="styledLeft" style="width: 100%;margin-top:10px;">
             <thead>
             <tr>
                 <th  colspan="6"> <fmt:message key="select.publish.actions"/></th>
@@ -373,10 +389,151 @@
         </table>
 
         <%
+            }  else {
+        %>
+
+        <table class="styledLeft" style="width: 100%;margin-top:10px;">
+            <thead>
+            <tr>
+                <th  colspan="6"> <fmt:message key="select.publish.actions"/></th>
+            </tr>
+            </thead>
+            <tr>
+                <td style="width: 20%;margin-top:10px;">
+                    <label>
+                        <input id="addPolicy" name="publishAction" type="radio"   onchange="showOnChange()"
+                                <% if(EntitlementConstants.PolicyPublish.ACTION_CREATE.equals(publishAction)){%> checked="checked" <% }%>
+                               value="<%=EntitlementConstants.PolicyPublish.ACTION_CREATE%>">
+                        <fmt:message key="select.publish.actions.add.policies"/>
+                    </label>
+                </td>
+                <td style="width: 20%;margin-top:10px;">
+                    <label>
+                        <input id="updatePolicy" name="publishAction" type="radio" onchange="showOnChange()"
+                                <% if(EntitlementConstants.PolicyPublish.ACTION_UPDATE.equals(publishAction)){%> checked="checked" <% }%>
+                               value="<%=EntitlementConstants.PolicyPublish.ACTION_UPDATE%>">
+                        <fmt:message key="select.publish.actions.update.policies"/>
+                    </label>
+                </td>
+                <td style="width: 20%;margin-top:10px;">
+                    <label>
+                        <input id="enablePolicy" name="publishAction" type="radio" onchange="showOnChange()"
+                                <% if(EntitlementConstants.PolicyPublish.ACTION_ENABLE.equals(publishAction)){%> checked="checked" <% }%>
+                               value="<%=EntitlementConstants.PolicyPublish.ACTION_ENABLE%>">
+                        <fmt:message key="select.publish.actions.enable.policies"/>
+                    </label>
+                </td>
+                <td style="width: 20%;margin-top:10px;">
+                    <label>
+                        <input id="disablePolicy" name="publishAction" type="radio"   onchange="showOnChange()"
+                                <% if(EntitlementConstants.PolicyPublish.ACTION_DISABLE.equals(publishAction)){%> checked="checked" <% }%>
+                               value="<%=EntitlementConstants.PolicyPublish.ACTION_DISABLE%>">
+                        <fmt:message key="select.publish.actions.disable.policies"/>
+                    </label>
+                </td>
+                <td style="width: 20%;margin-top:10px;">
+                    <label>
+                        <input id="deletePolicy" name="publishAction" type="radio"   onchange="showOnChange()"
+                                <% if(EntitlementConstants.PolicyPublish.ACTION_DELETE.equals(publishAction)){%> checked="checked" <% }%>
+                               value="<%=EntitlementConstants.PolicyPublish.ACTION_DELETE%>">
+                        <fmt:message key="select.publish.actions.delete.policies"/>
+                    </label>
+                </td>
+            </tr>
+        </table>
+
+        <%
+            }
+        %>
+
+        <%
+            if(EntitlementConstants.PolicyPublish.ACTION_CREATE.equals(publishAction)){
+        %>
+            <%
+                if(policyId != null){
+            %>
+                <table id="showPolicyEnable"  class="styledLeft" style="width: 100%;margin-top:10px;">
+                    <thead>
+                    <tr>
+                        <th colspan="3"><fmt:message key="select.publish.enable.disable"/></th>
+                    </tr>
+                    </thead>
+                    <tr>
+                        <td style="width: 33%;margin-top:10px;">
+                            <label>
+                                <input name="policyEnable" type="radio" value="true"
+                                        <%if(policyEnable == null || policyEnable.trim().length() == 0) { %>
+                                       checked="checked"
+                                        <% } %>
+                                        >
+                                <fmt:message key="select.publish.enable"/>
+                            </label>
+                        </td>
+                        <td style="width: 33%;margin-top:10px;">
+                            <label>
+                                <input name="policyEnable" type="radio"
+                                        <%if(policyEnable != null && policyEnable.trim().length() > 0) { %>
+                                       checked="checked"
+                                        <% } %>
+                                        >
+                                <fmt:message key="select.publish.disable"/>
+                            </label>
+                        </td>
+                        <td style="width: 33%;margin-top:10px;" >
+                        </td>
+                    </tr>
+                </table>
+            <%
+                }  else {
+            %>
+                <table id="showPolicyEnable"  class="styledLeft" style="width: 100%;margin-top:10px;">
+                    <thead>
+                    <tr>
+                        <th colspan="3"><fmt:message key="select.publish.enable.disable"/></th>
+                    </tr>
+                    </thead>
+                    <tr>
+                        <td style="width: 33%;margin-top:10px;">
+                            <label>
+                                <input name="policyEnable" type="radio" value="true"
+                                        <%if(policyEnable == null || policyEnable.trim().length() == 0) { %>
+                                       checked="checked"
+                                        <% } %>
+                                        >
+                                <fmt:message key="select.publish.enable.policies"/>
+                            </label>
+                        </td>
+                        <td style="width: 33%;margin-top:10px;">
+                            <label>
+                                <input name="policyEnable" type="radio"
+                                        <%if(policyEnable != null && policyEnable.trim().length() > 0) { %>
+                                       checked="checked"
+                                        <% } %>
+                                        >
+                                <fmt:message key="select.publish.disable.policies"/>
+                            </label>
+                        </td>
+                        <td style="width: 33%;margin-top:10px;" >
+                        </td>
+                    </tr>
+                </table>
+            <%
+                }
+            %>
+
+        <%
+            }
+        %>
+
+
+        <%
             if(policyId != null){
+        %>
+            <%
+
                 if(EntitlementConstants.PolicyPublish.ACTION_CREATE.equals(publishAction) ||
                         EntitlementConstants.PolicyPublish.ACTION_UPDATE.equals(publishAction)){
-        %>
+            %>
         <table id="showPolicyVersion" class="styledLeft" style="width: 100%;margin-top:10px;">
             <thead>
             <tr>
@@ -447,9 +604,10 @@
             </td>
         </tr>
         </table>
-            <%
-                }
-            %>
+        <%
+            }
+        %>
+
         <%
             }
         %>

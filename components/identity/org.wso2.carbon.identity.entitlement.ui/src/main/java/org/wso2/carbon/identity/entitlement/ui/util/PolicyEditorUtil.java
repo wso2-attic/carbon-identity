@@ -2341,7 +2341,7 @@ public class PolicyEditorUtil {
                             obligationList.add(data.substring(data.indexOf("|") + 1));
                         }
                     } else if(identifier.startsWith("ruleRow")){
-                        String ruleId = identifier.substring(4);
+                        String ruleId = identifier.substring(7);
                         if(ruleId != null && ruleId.equals(ruleDTO.getRuleId())){
                             ruleList.add(data.substring(data.indexOf("|") + 1));
                         }

@@ -388,6 +388,20 @@ public class EntitlementUtil {
             }
         }
     }
+    
+    /**
+     * This method checks whether there is a policy having the same policyId as the given policyId is in the registry
+     * 
+     * @param policyId
+     * @param registry
+     * @return
+     * @throws EntitlementException
+     */
+    public static boolean isPolicyExists(String policyId, Registry registry) throws EntitlementException {
+        PAPPolicyStoreReader policyReader = null;
+        policyReader = new PAPPolicyStoreReader(new PAPPolicyStore(registry));
+        return policyReader.isExistPolicy(policyId);
+    }
 
     /**
      * This method persists a new XACML policy, which was read from filesystem,
@@ -418,8 +432,8 @@ public class EntitlementUtil {
             policyAdmin = new PAPPolicyStoreManager();
             policyDTO.setPolicyId(policyObj.getId().toASCIIString());
             policyDTO.setActive(true);
-
-            if (getPolicy(policyDTO.getPolicyId(), registry) != null) {
+            
+            if (isPolicyExists(policyDTO.getPolicyId(), registry)) {
                 throw new EntitlementException(
                         "An Entitlement Policy with the given ID already exists");
             }

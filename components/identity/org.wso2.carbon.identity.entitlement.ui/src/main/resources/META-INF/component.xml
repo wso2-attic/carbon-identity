@@ -92,13 +92,25 @@
             <icon>../entitlement/images/config.gif</icon>
             <require-permission>/permission/admin/configure</require-permission>
         </menu>
+         <menu>
+            <id>policy_search_menu</id>
+            <i18n-key>identity.policy.search</i18n-key>
+            <i18n-bundle>org.wso2.carbon.identity.entitlement.ui.i18n.Resources</i18n-bundle>
+            <parent-menu>my_pdp_menu</parent-menu>
+            <link>../entitlement/advance-search.jsp</link>
+            <region>region1</region>
+            <order>10</order>
+            <style-class>manage</style-class>
+            <icon>../entitlement/images/search-top.png</icon>
+            <require-permission>/permission/admin/configure</require-permission>
+        </menu>
 
-        <!--  PEP -->
+        <!--  Tools -->
         <menu>
             <id>my_pep_menu</id>
-            <i18n-key>my.pep</i18n-key>
+            <i18n-key>xacml</i18n-key>
             <i18n-bundle>org.wso2.carbon.identity.entitlement.ui.i18n.Resources</i18n-bundle>
-            <parent-menu>identity_entitlement_menu</parent-menu>
+			<parent-menu>tools_menu</parent-menu>
             <link>#</link>
             <region>region1</region>
             <order>80</order>
@@ -118,18 +130,7 @@
             <icon>../entitlement/images/evaluate.png</icon>
             <require-permission>/permission/admin/configure</require-permission>
         </menu>
-        <menu>
-            <id>policy_search_menu</id>
-            <i18n-key>identity.policy.search</i18n-key>
-            <i18n-bundle>org.wso2.carbon.identity.entitlement.ui.i18n.Resources</i18n-bundle>
-            <parent-menu>my_pep_menu</parent-menu>
-            <link>../entitlement/advance-search.jsp</link>
-            <region>region1</region>
-            <order>10</order>
-            <style-class>manage</style-class>
-            <icon>../entitlement/images/search-top.png</icon>
-            <require-permission>/permission/admin/configure</require-permission>
-        </menu>
+       
 	</menus>
 
     <FileUploadConfig>

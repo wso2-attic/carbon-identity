@@ -46,12 +46,13 @@ public class CarbonPDPPublisher implements PolicyPublisherModule{
     }
 
     @Override
-    public void publish(PolicyDTO policyDTO, String action,  int order) throws EntitlementException {
+    public void publish(PolicyDTO policyDTO, String action, boolean enabled, int order) throws EntitlementException {
 
         PolicyStoreManager manager = EntitlementAdminEngine.getInstance().getPolicyStoreManager();
 
         if(EntitlementConstants.PolicyPublish.ACTION_CREATE.equals(action)){
             policyDTO.setPolicyOrder(order);
+            policyDTO.setActive(enabled);
             manager.addPolicy(policyDTO);
         } else if(EntitlementConstants.PolicyPublish.ACTION_DELETE.equals(action)){
             manager.removePolicy(policyDTO);
