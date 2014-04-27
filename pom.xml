@@ -771,6 +771,18 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.relying.party.server.feature</artifactId>
+            <version>4.3.0-SNAPSHOT</version>
+            <type>zip</type>
+	    </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.relying.party.ui.feature</artifactId>
+            <version>4.3.0-SNAPSHOT</version>
+            <type>zip</type>
+	    </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.user.profile.stub</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -1340,11 +1352,6 @@
 		</dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.relyingparty.stub</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.sso.saml.stub</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -1660,11 +1667,6 @@
             <artifactId>org.wso2.carbon.identity.provider.openid.ui</artifactId>
             <version>4.3.0-SNAPSHOT</version>
         </dependency-->
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.relyingparty.stub</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
         <!--dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.provider.openid.stub</artifactId>
