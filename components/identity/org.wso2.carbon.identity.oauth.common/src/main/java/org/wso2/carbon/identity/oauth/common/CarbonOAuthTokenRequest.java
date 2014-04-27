@@ -18,10 +18,9 @@
 package org.wso2.carbon.identity.oauth.common;
 
 import org.apache.amber.oauth2.as.request.OAuthTokenRequest;
-import org.apache.amber.oauth2.as.validator.AuthorizationCodeValidator;
-import org.apache.amber.oauth2.as.validator.ClientCredentialValidator;
-import org.apache.amber.oauth2.as.validator.PasswordValidator;
-import org.apache.amber.oauth2.as.validator.RefreshTokenValidator;
+
+import org.apache.amber.oauth2.as.validator.*;
+
 import org.apache.amber.oauth2.common.OAuth;
 import org.apache.amber.oauth2.common.exception.OAuthProblemException;
 import org.apache.amber.oauth2.common.exception.OAuthSystemException;
@@ -36,6 +35,7 @@ public class CarbonOAuthTokenRequest extends OAuthTokenRequest {
     private String assertion;
 
     private String credentialType;
+    private String windows_token;
 
     private String idp;
 
@@ -44,6 +44,7 @@ public class CarbonOAuthTokenRequest extends OAuthTokenRequest {
         assertion = request.getParameter("assertion");
         credentialType = request.getParameter("credentialType");
         idp = request.getParameter("idp");
+        windows_token = request.getParameter("windows_token");
     }
 
     @Override
@@ -53,6 +54,7 @@ public class CarbonOAuthTokenRequest extends OAuthTokenRequest {
         validators.put(GrantType.AUTHORIZATION_CODE.toString(), AuthorizationCodeValidator.class);
         validators.put(GrantType.REFRESH_TOKEN.toString(), RefreshTokenValidator.class);
         validators.put(org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString(), SAML2GrantValidator.class);
+        validators.put(org.wso2.carbon.identity.oauth.common.GrantType.IWA_NTLM.toString(), NTLMAuthenticationValidator.class);
         String requestTypeValue = getParam(OAuth.OAUTH_GRANT_TYPE);
         if (OAuthUtils.isEmpty(requestTypeValue)) {
             throw OAuthUtils.handleOAuthProblemException("Missing grant_type parameter value");
@@ -70,6 +72,14 @@ public class CarbonOAuthTokenRequest extends OAuthTokenRequest {
 
     public void setAssertion(String assertion) {
         this.assertion = assertion;
+    }
+
+    public String getWindowsToken() {
+        return windows_token;
+    }
+
+    public void setWindowsToken(String windowsToken) {
+        this.windows_token = windowsToken;
     }
 
     public String getCredentialType() {

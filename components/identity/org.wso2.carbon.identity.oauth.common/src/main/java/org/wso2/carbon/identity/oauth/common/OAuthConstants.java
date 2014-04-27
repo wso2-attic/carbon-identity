@@ -118,6 +118,7 @@ public final class OAuthConstants {
     // SAML2 Bearer Assertion Profile constants
     public static String OAUTH_SAML2_BEARER_METHOD = "urn:oasis:names:tc:SAML:2.0:cm:bearer";
     public static String OAUTH_SAML2_BEARER_GRANT_ENUM = "SAML20_BEARER";
+    public static String OAUTH_IWA_NTLM_GRANT_ENUM = "IWA_NTLM";
 
     public static class TokenStates {
         public final static String TOKEN_STATE_ACTIVE = "ACTIVE";

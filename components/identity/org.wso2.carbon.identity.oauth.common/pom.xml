@@ -39,6 +39,7 @@
 		</dependency>
 		<dependency>
             <groupId>org.apache.amber.wso2</groupId>
+            <!--groupId>org.apache.amber</groupId-->
             <artifactId>amber</artifactId>
             <!--<version>0.22.1358727.wso2v2</version>-->
         </dependency>

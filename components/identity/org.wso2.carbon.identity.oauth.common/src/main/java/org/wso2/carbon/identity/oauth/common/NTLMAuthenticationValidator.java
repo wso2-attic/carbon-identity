@@ -17,19 +17,15 @@
 */
 package org.wso2.carbon.identity.oauth.common;
 
-public enum GrantType {
+import org.apache.amber.oauth2.common.OAuth;
+import org.apache.amber.oauth2.common.validators.AbstractValidator;
 
-    SAML20_BEARER("urn:ietf:params:oauth:grant-type:saml2-bearer"),
-    IWA_NTLM("iwa:ntlm");
+import javax.servlet.http.HttpServletRequest;
 
-    private String grantType;
-
-    GrantType(String grantType) {
-        this.grantType = grantType;
+public class NTLMAuthenticationValidator extends AbstractValidator<HttpServletRequest> {
+    public NTLMAuthenticationValidator(){
+        requiredParams.add(OAuth.OAUTH_GRANT_TYPE);
+        requiredParams.add(OAuth.OAUTH_WINDOWS_TOKEN);
     }
 
-    @Override
-    public String toString() {
-        return grantType;
-    }
 }
