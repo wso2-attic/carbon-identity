@@ -555,6 +555,18 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.core.server.feature</artifactId>
+            <version>4.3.0-SNAPSHOT</version>
+            <type>zip</type>
+	</dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.core.ui.feature</artifactId>
+            <version>4.3.0-SNAPSHOT</version>
+            <type>zip</type>
+	</dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.ui</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -1080,16 +1092,16 @@
         </dependency>
 
 
-        <dependency>
+        <!--dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.base</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
+        </dependency-->
+        <!--dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.core</artifactId>
             <version>${project.version}</version>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.menu.ui</artifactId>

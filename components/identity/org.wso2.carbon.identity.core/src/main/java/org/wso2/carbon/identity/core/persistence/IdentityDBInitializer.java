@@ -281,6 +281,8 @@ public class IdentityDBInitializer {
         }
 
         ResultSet resultSet = null;
+        Connection conn = null;
+        
         try {
             if (log.isDebugEnabled()) {
                 log.debug("SQL : " + sql);
@@ -307,7 +309,7 @@ public class IdentityDBInitializer {
             if (log.isDebugEnabled()) {
                 log.debug(sql + " : " + updateCountTotal + " rows affected");
             }
-            Connection conn = dataSource.getConnection();
+            conn = dataSource.getConnection();
             SQLWarning warning = conn.getWarnings();
             while (warning != null) {
                 log.debug(warning + " sql warning");
@@ -331,6 +333,13 @@ public class IdentityDBInitializer {
                     log.error("Error occurred while closing result set.", e);
                 }
             }
+            if (conn != null) {
+                try {
+                	conn.close();
+                } catch (SQLException e) {
+                    log.error("Error occurred while closing sql connection.", e);
+                }
+            }   
         }
     }
 

@@ -36,13 +36,11 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.core.server.feature</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
             <type>zip</type>
 	    </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.core.ui.feature</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
             <type>zip</type>
 	    </dependency>
     </dependencies>
@@ -69,11 +67,11 @@
                                 </properties>
                             </adviceFile-->
                             <importFeatures>
-                                <importFeatureDef>org.wso2.carbon.core:4.3.0-SNAPSHOT</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.core</importFeatureDef>
                             </importFeatures>
                             <includedFeatures>
-                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.core.server.feature:4.3.0-SNAPSHOT</includedFeatureDef>
-                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.core.ui.feature:4.3.0-SNAPSHOT</includedFeatureDef>
+                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.core.server.feature</includedFeatureDef>
+                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.core.ui.feature</includedFeatureDef>
                             </includedFeatures>
 						</configuration>
 					</execution>
