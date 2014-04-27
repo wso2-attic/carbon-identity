@@ -23,7 +23,6 @@ import java.net.URLEncoder;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletOutputStream;
-import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,6 +32,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openid4java.message.DirectError;
 import org.openid4java.message.ParameterList;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheKey;
+import org.wso2.carbon.identity.application.common.cache.CacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityConstants.OpenId;
 import org.wso2.carbon.identity.base.IdentityException;
@@ -47,7 +52,6 @@ import org.wso2.carbon.identity.provider.openid.OpenIDConstants;
 import org.wso2.carbon.identity.provider.openid.client.OpenIDAdminClient;
 import org.wso2.carbon.identity.provider.openid.util.OpenIDUtil;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
-import org.wso2.carbon.ui.CarbonUIUtil;
 
 /**
  * Handles functionality related OpenID association,
@@ -132,9 +136,7 @@ public class OpenIDHandler {
 		}
 		
 	    // check if a request from the login page 
-		if((request.getAttribute("nonlogin") == null && 
-				request.getParameter(OpenIDConstants.RequestParameter.PASSWORD) != null) 
-					|| request.getAttribute("commonAuthAuthenticated") != null){
+        if((request.getAttribute("nonlogin") == null && request.getParameter("sessionDataKey") != null )){
 		    
 	        handleRequestFromLoginPage(request, response, null);
 	        
@@ -372,6 +374,13 @@ public class OpenIDHandler {
 		openIDAuthRequest.setAuthenticated(authenticated);
 		openIDAuthRequest.setOpenID(claimedID);
 		openIDAuthRequest.setProfileName(profileName);
+		
+		// setting the user claims received from the framework 
+		if(session.getAttribute(OpenIDConstants.AUTHENTICATION_RESULT) != null) {
+			AuthenticationResult authResult = (AuthenticationResult) session.getAttribute(OpenIDConstants.AUTHENTICATION_RESULT);
+			openIDAuthRequest.setResponseClaims(authResult.getUserAttributes());
+		}
+		
 		OpenIDAuthResponseDTO openIDAuthResponse = client.getOpenIDAuthResponse(openIDAuthRequest);
 
 		if (openIDAuthResponse != null) {
@@ -460,15 +469,24 @@ public class OpenIDHandler {
         
 		String commonAuthURL = OpenIDUtil.getAdminConsoleURL(request);
 	    commonAuthURL = commonAuthURL.replace("carbon/", "commonauth");
-	    String selfPath = URLEncoder.encode("../../openidserver", "UTF-8");
+	    String selfPath = URLEncoder.encode("/openidserver", "UTF-8");
 	    String sessionDataKey = UUIDGenerator.generateUUID();
 
-	    String queryParams = OpenIDUtil.getLoginPageQueryParams(params) + 
+	    String queryParams = "?" + request.getQueryString() +
 	    		"&sessionDataKey=" + sessionDataKey + 
 	    		"&type=openid" + "&commonAuthCallerPath=" + selfPath + 
 	    		"&forceAuthenticate=false";
 	    
+	    String username = null;
+		if(params.getParameterValue("openid.identity") != null){
+			username = OpenIDUtil.getUserName(params.getParameterValue("openid.identity"));
+			queryParams = queryParams + "&username=" + username;
+		}
+	    
 	    loginPageUrl = commonAuthURL + queryParams;
+	    
+	    // reading the authorization header for request path authentication
+        FrameworkUtils.setRequestPathCredentials(request);
         
 		return loginPageUrl;
 	}
@@ -525,11 +543,20 @@ public class OpenIDHandler {
             }
 
             String userName = null;
+            AuthenticationResult authnResult = null;
+            
+            if (req.getParameter("sessionDataKey") != null) {
+            	authnResult = getAuthenticationResultFromCache(req.getParameter("sessionDataKey"));
+            }
             
             // Directed Identity handling
             if (claimedID.endsWith("/openid/")) {
-
-                userName = req.getParameter(OpenIDConstants.SessionAttribute.USERNAME);
+                	
+            	if (authnResult != null && authnResult.isAuthenticated()) {
+            		userName = authnResult.getSubject();
+            		session.setAttribute(OpenIDConstants.AUTHENTICATION_RESULT, authnResult);
+            	}
+                
                 String authenticatedUserName = (String) session
                         .getAttribute(OpenIDConstants.SessionAttribute.USERNAME);
                 
@@ -577,8 +604,8 @@ public class OpenIDHandler {
 				
 				if (!isAuthenticated) {
 					
-					if (req.getAttribute("commonAuthAuthenticated") != null) {
-						isAuthenticated = (Boolean)req.getAttribute("commonAuthAuthenticated");
+					if (authnResult != null) {
+						isAuthenticated = authnResult.isAuthenticated();
 						
 						if (isAuthenticated && isRemembered) {
 							rememberMeDTO = openIDProviderService.handleRememberMe(claimedID.trim(), req.getRemoteAddr());
@@ -724,6 +751,11 @@ public class OpenIDHandler {
         String selectedProfile = req.getParameter("selectedProfile") == null ? "default" : req
                 .getParameter("selectedProfile");
 		out.println("<input type='hidden' name='selectedProfile' value='" + selectedProfile + "'>");
+        out.println("<input type='hidden' name='openid.identity' value='" +
+                session.getAttribute(OpenIDConstants.SessionAttribute.AUTHENTICATED_OPENID) + "'>");
+        out.println("<input type='hidden' name='openid.return_to' value='" +
+                ((ParameterList) session.getAttribute(OpenId.PARAM_LIST)).getParameterValue(OpenId.ATTR_RETURN_TO) + "'>");
+
 
 		for (int i = 0; i < profiles.length; i++) {
 			OpenIDUserProfileDTO profile = profiles[i];
@@ -753,4 +785,20 @@ public class OpenIDHandler {
 		
 		return;
 	}
+	
+	private AuthenticationResult getAuthenticationResultFromCache(String sessionDataKey) {
+		    	
+    	AuthenticationResultCacheKey authResultCacheKey = new AuthenticationResultCacheKey(sessionDataKey);
+		CacheEntry cacheEntry = AuthenticationResultCache.getInstance(0).getValueFromCache(authResultCacheKey);
+		AuthenticationResult authResult = null;
+		
+		if (cacheEntry != null) {
+			AuthenticationResultCacheEntry authResultCacheEntry = (AuthenticationResultCacheEntry)cacheEntry;
+			authResult = authResultCacheEntry.getResult();
+		} else {
+			log.error("Cannot find AuthenticationResult from the cache");
+		}
+		
+		return authResult;
+    }
 }

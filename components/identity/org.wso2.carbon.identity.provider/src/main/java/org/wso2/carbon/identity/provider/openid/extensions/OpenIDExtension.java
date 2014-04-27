@@ -16,21 +16,24 @@
 
 package org.wso2.carbon.identity.provider.openid.extensions;
 
-import org.openid4java.message.MessageExtension;
-import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.base.IdentityConstants;
-import org.wso2.carbon.identity.core.IdentityClaimManager;
-import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.identity.provider.dto.OpenIDClaimDTO;
-import org.wso2.carbon.identity.provider.openid.OpenIDUtil;
-import org.wso2.carbon.identity.provider.openid.claims.ClaimsRetriever;
-import org.wso2.carbon.user.core.claim.Claim;
-import org.wso2.carbon.utils.TenantUtils;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.openid4java.message.MessageExtension;
+import org.wso2.carbon.identity.base.IdentityConstants;
+import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.IdentityClaimManager;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.provider.IdentityProviderException;
+import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
+import org.wso2.carbon.identity.provider.dto.OpenIDClaimDTO;
+import org.wso2.carbon.identity.provider.openid.OpenIDUtil;
+import org.wso2.carbon.identity.provider.openid.claims.ClaimsRetriever;
+import org.wso2.carbon.identity.relyingparty.RelyingPartyException;
+import org.wso2.carbon.user.core.claim.Claim;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 /**
  * Base class for all OpenID extensions. Any OpenID extension added should
@@ -44,13 +47,14 @@ public abstract class OpenIDExtension {
 	/**
 	 * Creates an instance of MessageExtension for the OpenID authentication
 	 * response
+	 * @param requestDTO 
 	 * 
-	 * @param request
+	 * @param requestDTO
 	 *            OpenID authentication request
 	 * @return An instance of MessageExtension
 	 * @throws RelyingPartyException
 	 */
-	public abstract MessageExtension getMessageExtension(String userId, String profileName)
+	public abstract MessageExtension getMessageExtension(String userId, String profileName, OpenIDAuthRequestDTO requestDTO)
 	                                                                                       throws IdentityException;
 
 	/**
@@ -68,6 +72,7 @@ public abstract class OpenIDExtension {
 	 * 
 	 * @param requiredClaims
 	 *            Required claims as requested by the RP.
+	 * @param requestDTO 
 	 * @param userId
 	 *            User ID.
 	 * @return A map, populated with ClaimDO objects which have OpenIDTag, that
@@ -76,14 +81,14 @@ public abstract class OpenIDExtension {
 	 * @throws IdentityProviderException
 	 */
 	protected Map<String, OpenIDClaimDTO> populateAttributeValues(List<String> requiredClaims,
-	                                                              String openId, String profileName)
+	                                                              String openId, String profileName, OpenIDAuthRequestDTO requestDTO)
 	                                                                                                throws IdentityException {
 		Map<String, OpenIDClaimDTO> map = null;
 		map = new HashMap<String, OpenIDClaimDTO>();
 		OpenIDClaimDTO[] claims = null;
 
 		try {
-			claims = getClaimValues(openId, profileName, requiredClaims);
+			claims = getClaimValues(openId, profileName, requiredClaims, requestDTO.getResponseClaims());
 
 			if (claims != null) {
 				for (int i = 0; i < claims.length; i++) {
@@ -100,7 +105,7 @@ public abstract class OpenIDExtension {
 	}
 
 	private OpenIDClaimDTO[] getClaimValues(String openId, String profileId,
-	                                        List<String> requiredClaims) throws Exception {
+	                                        List<String> requiredClaims, Map<String, String> receivedClaims) throws Exception {
 		Map<String, String> claimValues = null;
 		OpenIDClaimDTO[] claims = null;
 		OpenIDClaimDTO dto = null;
@@ -120,11 +125,10 @@ public abstract class OpenIDExtension {
 
         String userName = null;
         userName = OpenIDUtil.getUserName(openId);
-        String domainName = TenantUtils.getDomainNameFromOpenId(openId);
+        String domainName = MultitenantUtils.getDomainNameFromOpenId(openId);
 
 		claimValues =
-		              claimsRetriever.getUserClaimValues(openId, requiredClaims.toArray(claimArray),
-		                                           profileId);
+		              claimsRetriever.getUserClaimValues(openId, requiredClaims.toArray(claimArray), profileId, receivedClaims);
 
 		claims = new OpenIDClaimDTO[claimValues.size()];
 		int i = 0;

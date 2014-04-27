@@ -33,6 +33,7 @@ import org.openid4java.message.ax.FetchResponse;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.base.IdentityConstants.OpenId.ExchangeAttributes;
+import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
 import org.wso2.carbon.identity.provider.dto.OpenIDClaimDTO;
 import org.wso2.carbon.identity.provider.openid.handlers.OpenIDAuthenticationRequest;
 
@@ -43,7 +44,7 @@ import org.wso2.carbon.identity.provider.openid.handlers.OpenIDAuthenticationReq
  */
 public class OpenIDAttributeExchange extends OpenIDExtension {
 
-	private OpenIDAuthenticationRequest request;
+	private OpenIDAuthenticationRequest openidAuthnRequest;
 	private static Log log = LogFactory.getLog(OpenIDAttributeExchange.class);
 
 	/**
@@ -55,7 +56,7 @@ public class OpenIDAttributeExchange extends OpenIDExtension {
 			throw new IdentityException(
 					"Request cannot be null while initializing OpenIDAttributeExchange");
 		}
-		this.request = request;
+		this.openidAuthnRequest = request;
 	}
 
 	/**
@@ -66,7 +67,7 @@ public class OpenIDAttributeExchange extends OpenIDExtension {
 		AuthRequest authRequest = null;
 
 		try {
-			authRequest = request.getAuthRequest();
+			authRequest = openidAuthnRequest.getAuthRequest();
 
 			if (authRequest != null) {
 				if (authRequest.hasExtension(FetchRequest.OPENID_NS_AX)) {
@@ -118,14 +119,14 @@ public class OpenIDAttributeExchange extends OpenIDExtension {
 	/**
 	 * {@inheritDoc}
 	 */
-	public MessageExtension getMessageExtension(String userId, String profileName)
+	public MessageExtension getMessageExtension(String userId, String profileName, OpenIDAuthRequestDTO requestDTO)
 			throws IdentityException {
 		MessageExtension extensions = null;
 		AuthRequest authRequest = null;
 		FetchResponse fetchResponse = null;
 
 		try {
-			authRequest = request.getAuthRequest();
+			authRequest = openidAuthnRequest.getAuthRequest();
 			if (authRequest.hasExtension(FetchRequest.OPENID_NS_AX)) {
 				extensions = authRequest.getExtension(FetchRequest.OPENID_NS_AX);
 			} else if (authRequest.hasExtension(IdentityConstants.OpenId.ExchangeAttributes.NS_AX)) {
@@ -170,7 +171,7 @@ public class OpenIDAttributeExchange extends OpenIDExtension {
 				}
 
 				fetchResponse = FetchResponse.createFetchResponse(fetchRequest, new HashMap());
-				claimValues = populateAttributeValues(requiredAttributes, userId, profileName);
+				claimValues = populateAttributeValues(requiredAttributes, userId, profileName, requestDTO);
 				setAttributeExchangeValues(fetchResponse, claimValues);
 			}
 

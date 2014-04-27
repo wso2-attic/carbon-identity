@@ -30,6 +30,7 @@ import org.openid4java.message.pape.PapeResponse;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.provider.openid.handlers.OpenIDAuthenticationRequest;
+import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
 import org.wso2.carbon.identity.provider.dto.PapeInfoResponseDTO;
 import org.wso2.carbon.identity.provider.dto.OpenIDParameterDTO;
 
@@ -70,7 +71,7 @@ public class OpenIDPape extends OpenIDExtension {
 	/**
 	 * {@inheritDoc}
 	 */
-	public MessageExtension getMessageExtension(String userId, String profileName)
+	public MessageExtension getMessageExtension(String userId, String profileName, OpenIDAuthRequestDTO requestDTO)
 			throws IdentityException {
 
 		MessageExtension message = null;

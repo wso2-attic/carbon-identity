@@ -77,13 +77,13 @@
                                 </properties>
                             </adviceFile>
 							<bundles>
-								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.sts.mgt.ui:4.3.0-SNAPSHOT</bundleDef>
-								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.sts.mgt.stub:4.3.0-SNAPSHOT</bundleDef>
+								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.sts.mgt.ui</bundleDef>
+								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.sts.mgt.stub</bundleDef>
 								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.provider.ui</bundleDef>
-								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.provider.stub:4.3.0-SNAPSHOT</bundleDef>
+								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.provider.stub</bundleDef>
 							</bundles>
 							<importFeatures>
-								<importFeatureDef>org.wso2.carbon.core.ui:4.3.0-SNAPSHOT</importFeatureDef>
+								<importFeatureDef>org.wso2.carbon.core.ui</importFeatureDef>
 							</importFeatures>
 						</configuration>
 					</execution>

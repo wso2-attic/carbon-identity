@@ -32,6 +32,7 @@ import org.openid4java.message.ax.AxMessage;
 import org.openid4java.message.sreg.SRegRequest;
 import org.openid4java.message.sreg.SRegResponse;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
 import org.wso2.carbon.identity.provider.dto.OpenIDClaimDTO;
 import org.wso2.carbon.identity.provider.openid.handlers.OpenIDAuthenticationRequest;
 
@@ -111,7 +112,7 @@ public class OpenIDSimpleReg extends OpenIDExtension {
     /**
      * {@inheritDoc}
      */
-    public MessageExtension getMessageExtension(String userId, String profileName)
+    public MessageExtension getMessageExtension(String userId, String profileName, OpenIDAuthRequestDTO requestDTO)
             throws IdentityException {
 
         MessageExtension extension = null;
@@ -163,7 +164,7 @@ public class OpenIDSimpleReg extends OpenIDExtension {
 
                 userDataSReg = new HashMap();
                 response = SRegResponse.createSRegResponse(sregReq, userDataSReg);
-                claimValues = populateAttributeValues(required, userId, profileName);
+                claimValues = populateAttributeValues(required, userId, profileName, requestDTO);
                 setSimpleAttributeRegistrationValues(response, claimValues);
             }
 

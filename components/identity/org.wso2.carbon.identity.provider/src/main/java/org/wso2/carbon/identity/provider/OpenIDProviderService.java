@@ -422,15 +422,15 @@ public class OpenIDProviderService {
 	}
 
 	/**
-	 * @param request
+	 * @param requestDTO
 	 * @return
 	 * @throws Exception
 	 */
-	public OpenIDAuthResponseDTO getOpenIDAuthResponse(OpenIDAuthRequestDTO request)
+	public OpenIDAuthResponseDTO getOpenIDAuthResponse(OpenIDAuthRequestDTO requestDTO)
 	                                                                                throws Exception {
 		ParameterList paramList = null;
 		Message message = null;
-		paramList = getParameterList(request.getParams());
+		paramList = getParameterList(requestDTO.getParams());
 		String destinationUrl = null;
 		AuthRequest authReq = null;
 		ServerManager manager = null;
@@ -440,9 +440,9 @@ public class OpenIDProviderService {
 		manager = OpenIDProvider.getInstance().getManager();
 		authReq = AuthRequest.createAuthRequest(paramList, manager.getRealmVerifier());
 		message =
-		          manager.authResponse(paramList, request.getOpLocalId(),
-		                               request.getUserSelectedClaimedId(),
-		                               request.isAuthenticated());
+		          manager.authResponse(paramList, requestDTO.getOpLocalId(),
+		                               requestDTO.getUserSelectedClaimedId(),
+		                               requestDTO.isAuthenticated());
 
 		if (message instanceof DirectError || message instanceof AuthFailure) {
 			// Validation fails - returns 'cancel'.
@@ -454,11 +454,11 @@ public class OpenIDProviderService {
 			OpenIDAuthenticationRequest req = null;
 			req = new OpenIDAuthenticationRequest();
 
-			if (request.isPhishiingResistanceAuthRequest()) {
+			if (requestDTO.isPhishiingResistanceAuthRequest()) {
 				// Relying party requests phishing-resistant login.
 				req.setPhishingResistanceLogin(true);
 			}
-			if (request.isMultiFactorAuthRequested()) {
+			if (requestDTO.isMultiFactorAuthRequested()) {
 				// Relying party requests phishing-resistant login.
 				req.setMultifactorLogin(true);
 			}
@@ -479,8 +479,8 @@ public class OpenIDProviderService {
 				if (extension != null) {
 					MessageExtension messageExtension = null;
 					messageExtension =
-					                   extension.getMessageExtension(request.getOpenID(),
-					                                                 request.getProfileName());
+					                   extension.getMessageExtension(requestDTO.getOpenID(),
+					                                                 requestDTO.getProfileName(), requestDTO);
 					if (messageExtension != null) {
 						message.addExtension(messageExtension);
 						AuthSuccess authSuccess = (AuthSuccess) message;

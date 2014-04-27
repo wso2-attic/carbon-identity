@@ -25,5 +25,5 @@ public interface ClaimsRetriever {
 
     public void init() throws IdentityException;
 
-    public Map<String,String> getUserClaimValues(String openId, String[] requiredClaims, String profile) throws IdentityException;
+    public Map<String,String> getUserClaimValues(String openId, String[] requiredClaims, String profile, Map<String, String> federatedClaims) throws IdentityException;
 }

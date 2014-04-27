@@ -148,4 +148,6 @@ public class OpenIDConstants {
 		public final static String TIMEZONE_NS = NS + "/pref/timezone";
 
 	}
+
+    public static final String AUTHENTICATION_RESULT = "AuthenticationResult";
 }
