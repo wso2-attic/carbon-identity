@@ -1,5 +1,5 @@
 <!--
-~ Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+~ Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 ~
 ~ WSO2 Inc. licenses this file to you under the Apache License,
 ~ Version 2.0 (the "License"); you may not use this file except
@@ -18,7 +18,6 @@
 
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.idp.mgt.stub.dto.TrustedIdPDTO" %>
 <%@ page import="org.wso2.carbon.idp.mgt.ui.client.IdentityProviderMgtServiceClient" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
@@ -36,9 +35,7 @@
                 (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         IdentityProviderMgtServiceClient client = new IdentityProviderMgtServiceClient(cookie, backendServerURL, configContext);
         if(request.getParameter("idPName") != null && !request.getParameter("idPName").equals("")){
-            TrustedIdPDTO deleteDTO = new TrustedIdPDTO();
-            deleteDTO.setIdPName(request.getParameter("idPName"));
-            client.updateIdP(deleteDTO, null);
+            client.deleteIdP(request.getParameter("idPName"));
             String message = MessageFormat.format(resourceBundle.getString("success.deleting.idp"),null);
             CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
         }
@@ -47,9 +44,8 @@
                 new Object[]{e.getMessage()});
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
     } finally {
-        session.removeAttribute("tenantIdPList");
-        session.removeAttribute("trustedIdPDTO");
-        session.removeAttribute("trustedIdPBean");
+        session.removeAttribute("identityProvider");
+        session.removeAttribute("identityProviderList");
     }
 %>
 <script type="text/javascript">

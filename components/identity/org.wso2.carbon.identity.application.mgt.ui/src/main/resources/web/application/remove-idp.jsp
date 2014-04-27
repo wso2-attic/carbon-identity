@@ -22,15 +22,16 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants"%>
 <%@ page import="java.util.ResourceBundle"%>
-<%@ page import="org.wso2.carbon.identity.application.mgt.ui.ApplicationConfigBean"%>
-<%@ page import="org.wso2.carbon.identity.application.mgt.ui.TrustedIDPConfig"%>
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"%>
+<%@ page import="org.wso2.carbon.identity.application.common.model.xsd.*"%>
+
 <%@ page 	import="org.wso2.carbon.identity.application.mgt.ui.client.ApplicationManagementServiceClient"%>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon"%>
 
 <jsp:useBean id="appBean"
-	class="org.wso2.carbon.identity.application.mgt.ui.ApplicationConfigBean"
+	class="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"
 	scope="session" />
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
@@ -50,27 +51,26 @@
 	<script type="text/javascript" src="../carbon/admin/js/main.js"></script>
 
 	<%
-			String idp = request.getParameter("idp");
-			String appid = (String) request.getParameter("appid");
-			appBean.setApplicationIdentifier(appid);
-			
-			TrustedIDPConfig[] idpConfigs = appBean.getTrustedIdpConfig();
-			if(idpConfigs != null && idpConfigs.length > 0) {
-				TrustedIDPConfig[] newIdpConfigs = new TrustedIDPConfig[idpConfigs.length - 1];
-				int i = 0;
-				for(TrustedIDPConfig idpconfig : idpConfigs) {
-					if(!idpconfig.getIdpName().equals(idp)) {
-						newIdpConfigs[i++] = idpconfig;	
-					}
+		String idp = request.getParameter("idp");
+		String appid = (String) request.getParameter("appid");
+		appBean.setServiceProviderName(appid);
+		
+		TrustedIDPConfig[] idpConfigs = appBean.getTrustedIdpConfig();
+		if(idpConfigs != null && idpConfigs.length > 0) {
+			TrustedIDPConfig[] newIdpConfigs = new TrustedIDPConfig[idpConfigs.length - 1];
+			int i = 0;
+			for(TrustedIDPConfig idpconfig : idpConfigs) {
+				if(!idpconfig.getIdpName().equals(idp)) {
+					newIdpConfigs[i++] = idpconfig;	
 				}
-				appBean.setTrustedIdpConfig(newIdpConfigs);
-			
-				String BUNDLE = "org.wso2.carbon.identity.application.mgt.ui.i18n.Resources";
-				ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
-				String message = resourceBundle.getString("application.info.trustedidp") + " " + idp + " " + resourceBundle.getString("application.idp.removed");
-				CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.WARNING,	request, new Exception());
 			}
-				
+			appBean.setTrustedIdpConfig(newIdpConfigs);
+		
+			String BUNDLE = "org.wso2.carbon.identity.application.mgt.ui.i18n.Resources";
+			ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
+			String message = resourceBundle.getString("application.info.trustedidp") + " " + idp + " " + resourceBundle.getString("application.idp.removed");
+			CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.WARNING,	request, new Exception());
+		}
 	%>
 
 	<script>

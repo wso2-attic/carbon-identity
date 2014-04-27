@@ -349,9 +349,28 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.oauth.server.feature</artifactId>
+            <version>4.3.0-SNAPSHOT</version>
+            <type>zip</type>
+	</dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.oauth.ui.feature</artifactId>
+            <version>4.3.0-SNAPSHOT</version>
+            <type>zip</type>
+	</dependency>
+	<dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.oauth.common.feature</artifactId>
+            <version>4.3.0-SNAPSHOT</version>
+            <type>zip</type>
+	</dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.entitlement.stub</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.authenticator.stub</artifactId>
@@ -708,6 +727,21 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.application.authenticator.basicauth.server.feature</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.application.authenticator.oidc.server.feature</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.application.authenticator.samlsso.server.feature</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.mgt.stub</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -818,6 +852,18 @@
             <artifactId>org.wso2.carbon.identity.application.mgt.stub</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.application.mgt.server.feature</artifactId>
+            <version>4.3.0-SNAPSHOT</version>
+            <type>zip</type>
+	</dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.application.mgt.ui.feature</artifactId>
+            <version>4.3.0-SNAPSHOT</version>
+            <type>zip</type>
+	</dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.sso.saml</artifactId>
@@ -1336,11 +1382,11 @@
             <version>${project.version}</version>
         </dependency>
 
-        <dependency>
+        <!--dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
             <version>4.3.0-SNAPSHOT</version>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -1349,7 +1395,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
+            <artifactId>org.wso2.carbon.identity.application.authenticator.openid.server.feature</artifactId>
             <version>4.3.0-SNAPSHOT</version>
         </dependency>
 
@@ -1359,22 +1405,22 @@
             <artifactId>org.wso2.carbon.identity.application.authenticator.iwa</artifactId>
             <version>4.3.0-SNAPSHOT</version>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
             <version>4.3.0-SNAPSHOT</version>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.authenticator.oidc</artifactId>
             <version>4.3.0-SNAPSHOT</version>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
             <version>4.3.0-SNAPSHOT</version>
-        </dependency>
+        </dependency-->
         <!--dependency>
             <groupId>org.apache.amber.wso2</groupId>
             <artifactId>amber</artifactId>
@@ -1386,21 +1432,21 @@
             <artifactId>org.wso2.carbon.identity.application.authenticator.openid</artifactId>
             <version>4.3.0-SNAPSHOT</version>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
             <version>4.3.0-SNAPSHOT</version>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.authenticator.samlsso</artifactId>
             <version>4.3.0-SNAPSHOT</version>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
             <version>4.3.0-SNAPSHOT</version>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.mgt</artifactId>
@@ -1756,7 +1802,28 @@
             <artifactId>org.wso2.carbon.idp.mgt.ui</artifactId>
             <version>4.3.0-SNAPSHOT</version>
         </dependency>
-
+      	<dependency>
+ 		<groupId>org.wso2.carbon</groupId>
+       		<artifactId>org.wso2.carbon.idp.mgt.server.feature</artifactId>
+                <version>4.3.0-SNAPSHOT</version>
+      		<type>zip</type>
+ 	</dependency>
+       	<dependency>
+       		<groupId>org.wso2.carbon</groupId>
+      		<artifactId>org.wso2.carbon.idp.mgt.ui.feature</artifactId>
+       		<version>4.3.0-SNAPSHOT</version>
+       		<type>zip</type>
+ 	</dependency>
+        <dependency>
+           <groupId>tomcat</groupId>
+           <artifactId>tomcat-util</artifactId>
+           <version>3.3.2</version>
+       </dependency>
+        <dependency>
+            <groupId>com.github.dblock.waffle.wso2</groupId>
+            <artifactId>waffle-jna</artifactId>
+            <version>1.6.wso2v1</version>
+        </dependency>
 
         <dependency>
             <groupId>org.wso2.carbon</groupId>

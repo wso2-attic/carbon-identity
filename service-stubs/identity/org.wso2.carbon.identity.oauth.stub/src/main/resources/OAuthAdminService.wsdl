@@ -1,8 +1,7 @@
-
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:tns="http://oauth.identity.carbon.wso2.org" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ax2325="http://oauth.identity.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ax2323="http://dto.oauth.identity.carbon.wso2.org/xsd" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:ax2326="http://base.identity.carbon.wso2.org/xsd" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://oauth.identity.carbon.wso2.org">
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:tns="http://oauth.identity.carbon.wso2.org" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ax2334="http://base.identity.carbon.wso2.org/xsd" xmlns:ax2333="http://oauth.identity.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ax2331="http://dto.oauth.identity.carbon.wso2.org/xsd" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://oauth.identity.carbon.wso2.org">
     <wsdl:documentation>OAuthAdminService</wsdl:documentation>
     <wsdl:types>
-        <xs:schema xmlns:ax2324="http://dto.oauth.identity.carbon.wso2.org/xsd" xmlns:ns="http://org.apache.axis2/xsd" xmlns:ax2328="http://oauth.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://org.apache.axis2/xsd">
+        <xs:schema xmlns:ax2332="http://dto.oauth.identity.carbon.wso2.org/xsd" xmlns:ns="http://org.apache.axis2/xsd" xmlns:ax2336="http://oauth.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://org.apache.axis2/xsd">
             <xs:import namespace="http://dto.oauth.identity.carbon.wso2.org/xsd"></xs:import>
             <xs:import namespace="http://oauth.identity.carbon.wso2.org/xsd"></xs:import>
             <xs:element name="OAuthAdminServiceException">
@@ -20,28 +19,28 @@
             <xs:element name="updateConsumerApplication">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="consumerAppDTO" nillable="true" type="ax2324:OAuthConsumerAppDTO"></xs:element>
+                        <xs:element minOccurs="0" name="consumerAppDTO" nillable="true" type="ax2332:OAuthConsumerAppDTO"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="OAuthAdminServiceIdentityOAuthAdminException">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="IdentityOAuthAdminException" nillable="true" type="ax2325:IdentityOAuthAdminException"></xs:element>
+                        <xs:element minOccurs="0" name="IdentityOAuthAdminException" nillable="true" type="ax2336:IdentityOAuthAdminException"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="revokeAuthzForAppsByResoureOwner">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="revokeRequestDTO" nillable="true" type="ax2324:OAuthRevocationRequestDTO"></xs:element>
+                        <xs:element minOccurs="0" name="revokeRequestDTO" nillable="true" type="ax2332:OAuthRevocationRequestDTO"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="revokeAuthzForAppsByResoureOwnerResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2324:OAuthRevocationResponseDTO"></xs:element>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2332:OAuthRevocationResponseDTO"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -67,7 +66,21 @@
             <xs:element name="registerOAuthApplicationData">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="application" nillable="true" type="ax2324:OAuthConsumerAppDTO"></xs:element>
+                        <xs:element minOccurs="0" name="application" nillable="true" type="ax2332:OAuthConsumerAppDTO"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getOAuthApplicationDataByAppName">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="appName" nillable="true" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getOAuthApplicationDataByAppNameResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2332:OAuthConsumerAppDTO"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -81,7 +94,7 @@
             <xs:element name="getOAuthApplicationDataResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2324:OAuthConsumerAppDTO"></xs:element>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2332:OAuthConsumerAppDTO"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -93,7 +106,7 @@
             <xs:element name="getAppsAuthorizedByUserResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2324:OAuthConsumerAppDTO"></xs:element>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2332:OAuthConsumerAppDTO"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -117,7 +130,7 @@
             <xs:element name="getAllOAuthApplicationDataResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2324:OAuthConsumerAppDTO"></xs:element>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2332:OAuthConsumerAppDTO"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -127,11 +140,11 @@
                 <xs:sequence></xs:sequence>
             </xs:complexType>
         </xs:schema>
-        <xs:schema xmlns:ax2327="http://base.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://oauth.identity.carbon.wso2.org/xsd">
+        <xs:schema xmlns:ax2335="http://base.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://oauth.identity.carbon.wso2.org/xsd">
             <xs:import namespace="http://base.identity.carbon.wso2.org/xsd"></xs:import>
             <xs:complexType name="IdentityOAuthAdminException">
                 <xs:complexContent>
-                    <xs:extension base="ax2326:IdentityException">
+                    <xs:extension base="ax2335:IdentityException">
                         <xs:sequence></xs:sequence>
                     </xs:extension>
                 </xs:complexContent>
@@ -174,6 +187,12 @@
     </wsdl:message>
     <wsdl:message name="OAuthAdminServiceException">
         <wsdl:part name="parameters" element="ns1:OAuthAdminServiceException"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getOAuthApplicationDataByAppNameRequest">
+        <wsdl:part name="parameters" element="ns1:getOAuthApplicationDataByAppName"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getOAuthApplicationDataByAppNameResponse">
+        <wsdl:part name="parameters" element="ns1:getOAuthApplicationDataByAppNameResponse"></wsdl:part>
     </wsdl:message>
     <wsdl:message name="getOAuthApplicationDataRequest">
         <wsdl:part name="parameters" element="ns1:getOAuthApplicationData"></wsdl:part>
@@ -223,6 +242,11 @@
             <wsdl:output message="tns:registerOAuthConsumerResponse" wsaw:Action="urn:registerOAuthConsumerResponse"></wsdl:output>
             <wsdl:fault message="tns:OAuthAdminServiceException" name="OAuthAdminServiceException" wsaw:Action="urn:registerOAuthConsumerOAuthAdminServiceException"></wsdl:fault>
         </wsdl:operation>
+        <wsdl:operation name="getOAuthApplicationDataByAppName">
+            <wsdl:input message="tns:getOAuthApplicationDataByAppNameRequest" wsaw:Action="urn:getOAuthApplicationDataByAppName"></wsdl:input>
+            <wsdl:output message="tns:getOAuthApplicationDataByAppNameResponse" wsaw:Action="urn:getOAuthApplicationDataByAppNameResponse"></wsdl:output>
+            <wsdl:fault message="tns:OAuthAdminServiceException" name="OAuthAdminServiceException" wsaw:Action="urn:getOAuthApplicationDataByAppNameOAuthAdminServiceException"></wsdl:fault>
+        </wsdl:operation>
         <wsdl:operation name="getOAuthApplicationData">
             <wsdl:input message="tns:getOAuthApplicationDataRequest" wsaw:Action="urn:getOAuthApplicationData"></wsdl:input>
             <wsdl:output message="tns:getOAuthApplicationDataResponse" wsaw:Action="urn:getOAuthApplicationDataResponse"></wsdl:output>
@@ -264,6 +288,18 @@
         <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"></soap:binding>
         <wsdl:operation name="registerOAuthConsumer">
             <soap:operation soapAction="urn:registerOAuthConsumer" style="document"></soap:operation>
+            <wsdl:input>
+                <soap:body use="literal"></soap:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"></soap:body>
+            </wsdl:output>
+            <wsdl:fault name="OAuthAdminServiceException">
+                <soap:fault use="literal" name="OAuthAdminServiceException"></soap:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getOAuthApplicationDataByAppName">
+            <soap:operation soapAction="urn:getOAuthApplicationDataByAppName" style="document"></soap:operation>
             <wsdl:input>
                 <soap:body use="literal"></soap:body>
             </wsdl:input>
@@ -373,6 +409,18 @@
                 <soap12:fault use="literal" name="OAuthAdminServiceException"></soap12:fault>
             </wsdl:fault>
         </wsdl:operation>
+        <wsdl:operation name="getOAuthApplicationDataByAppName">
+            <soap12:operation soapAction="urn:getOAuthApplicationDataByAppName" style="document"></soap12:operation>
+            <wsdl:input>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:output>
+            <wsdl:fault name="OAuthAdminServiceException">
+                <soap12:fault use="literal" name="OAuthAdminServiceException"></soap12:fault>
+            </wsdl:fault>
+        </wsdl:operation>
         <wsdl:operation name="getOAuthApplicationData">
             <soap12:operation soapAction="urn:getOAuthApplicationData" style="document"></soap12:operation>
             <wsdl:input>
@@ -462,6 +510,15 @@
         <http:binding verb="POST"></http:binding>
         <wsdl:operation name="registerOAuthConsumer">
             <http:operation location="registerOAuthConsumer"></http:operation>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"></mime:content>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"></mime:content>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getOAuthApplicationDataByAppName">
+            <http:operation location="getOAuthApplicationDataByAppName"></http:operation>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:input>

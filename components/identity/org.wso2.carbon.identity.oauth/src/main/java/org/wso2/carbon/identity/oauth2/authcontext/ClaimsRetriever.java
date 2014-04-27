@@ -50,4 +50,12 @@ public interface ClaimsRetriever {
      */
     public SortedMap<String,String> getClaims(String endUserName, String[] requestedClaims) throws IdentityOAuth2Exception;
 
+    /**
+     * Method that retrieves user defaultClaims
+     *
+     * @return a String[]
+     * @throws IdentityOAuth2Exception
+     */
+    public String[] getDefaultClaims(String endUserName) throws IdentityOAuth2Exception;
+
 }

@@ -1,6 +1,7 @@
 package org.wso2.carbon.identity.application.authenticator.basicauth;
 
 import java.io.IOException;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -8,9 +9,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
+import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorStateInfo;
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorStatus;
+import org.wso2.carbon.identity.application.authentication.framework.LocalApplicationAuthenticator;
+import org.wso2.carbon.identity.application.authentication.framework.RequestPathApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
-import org.wso2.carbon.identity.application.authentication.framework.context.ApplicationAuthenticationContext;
+import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authenticator.basicauth.internal.BasicAuthenticatorServiceComponent;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
@@ -21,8 +25,10 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
  * Username Password based Authenticator
  *
  */
-public class BasicAuthenticator extends AbstractApplicationAuthenticator {
+public class BasicAuthenticator extends AbstractApplicationAuthenticator implements LocalApplicationAuthenticator,RequestPathApplicationAuthenticator {
 
+	private static final long serialVersionUID = 4438354156955223654L;
+	
 	private static Log log = LogFactory.getLog(BasicAuthenticator.class);
 	
 	/*
@@ -56,7 +62,7 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator {
 	 * #authenticate(javax.servlet.http.HttpServletRequest)
 	 */
     @Override
-    public AuthenticatorStatus authenticate(HttpServletRequest request, HttpServletResponse response, ApplicationAuthenticationContext context) {
+    public AuthenticatorStatus authenticate(HttpServletRequest request, HttpServletResponse response, AuthenticationContext context) {
     	
     	if (log.isTraceEnabled()) {
     		log.trace("Inside authenticate()");
@@ -93,6 +99,12 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator {
         
         request.getSession().setAttribute("username", username);
         
+        String rememberMe = request.getParameter("chkRemember");
+        
+        if (rememberMe != null && "on".equals(rememberMe)) {
+        	context.setRememberMe(true);
+        }
+        
         return AuthenticatorStatus.PASS;
     }
     
@@ -121,7 +133,7 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator {
 	 * javax.servlet.http.HttpServletResponse)
 	 */
 	@Override
-    public void sendInitialRequest(HttpServletRequest request, HttpServletResponse response, ApplicationAuthenticationContext context) {
+    public void sendInitialRequest(HttpServletRequest request, HttpServletResponse response, AuthenticationContext context) {
 		
 		if (log.isTraceEnabled()) {
     		log.trace("Inside sendInitialRequest()");
@@ -130,7 +142,7 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator {
 		sendToLoginPage(request, response, context.getQueryParams());
     }
 	
-	public void sendToLoginPage(HttpServletRequest request, HttpServletResponse response, String queryParams) {
+	private void sendToLoginPage(HttpServletRequest request, HttpServletResponse response, String queryParams) {
 
 		if (log.isTraceEnabled()) {
     		log.trace("Inside sendToLoginPage()");
@@ -147,7 +159,8 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator {
 	}
 
     @Override
-    public AuthenticatorStatus logout(HttpServletRequest request, HttpServletResponse response, ApplicationAuthenticationContext context) {
+    public AuthenticatorStatus logout(HttpServletRequest request, HttpServletResponse response, 
+    		AuthenticationContext context, AuthenticatorStateInfo stateInfo) {
     	
     	if (log.isTraceEnabled()) {
     		log.trace("Inside logout()");
@@ -168,7 +181,7 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator {
 	}
 	
 	@Override
-	public String getResponseAttributes(HttpServletRequest arg0) {
+	public Map<String, String> getResponseAttributes(HttpServletRequest arg0, AuthenticationContext context) {
 		return null;
 	}
 
@@ -180,5 +193,10 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator {
     	}
 		
 		return request.getParameter("sessionDataKey");
+	}
+
+	@Override
+	public AuthenticatorStateInfo getStateInfo(HttpServletRequest request) {
+		return null;
 	}
 }

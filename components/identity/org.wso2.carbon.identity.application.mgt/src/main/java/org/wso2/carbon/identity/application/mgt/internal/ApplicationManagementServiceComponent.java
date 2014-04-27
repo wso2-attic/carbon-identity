@@ -23,11 +23,12 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
+import org.wso2.carbon.identity.application.mgt.ApplicationMgtSystemConfig;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
 
 /**
- * @scr.component name="identity.oauth.component" immediate="true"
+ * @scr.component name="identity.application.management.component" immediate="true"
  * @scr.reference name="registry.service"
  * interface="org.wso2.carbon.registry.core.service.RegistryService"
  * cardinality="1..1" policy="dynamic" bind="setRegistryService"
@@ -44,6 +45,7 @@ public class ApplicationManagementServiceComponent {
     	//Registering OAuth2Service as a OSGIService
         bundleContext = context.getBundleContext();
         bundleContext.registerService(ApplicationManagementService.class.getName(), new ApplicationManagementService(), null);
+        ApplicationMgtSystemConfig.getInstance();
         log.info("Identity ApplicationManagementComponent bundle is activated");
     }
 

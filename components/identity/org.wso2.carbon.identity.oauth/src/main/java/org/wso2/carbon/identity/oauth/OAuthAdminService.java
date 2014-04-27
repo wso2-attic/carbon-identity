@@ -142,6 +142,28 @@ public class OAuthAdminService extends AbstractAdmin {
         }
         return dto;
     }
+    
+    /**
+     * Get OAuth application data by the application name.
+     *
+     * @param consumerKey Consumer Key
+     * @return  <code>OAuthConsumerAppDTO</code> with application information
+     * @throws Exception Error when reading application information from persistence store.
+     */
+    public OAuthConsumerAppDTO getOAuthApplicationDataByAppName(String appName) throws Exception {
+        OAuthConsumerAppDTO dto = new OAuthConsumerAppDTO();
+        OAuthAppDAO dao = new OAuthAppDAO();
+        OAuthAppDO app = dao.getAppInformationByAppName(appName);
+        if (app != null) {
+            dto.setApplicationName(app.getApplicationName());
+            dto.setCallbackUrl(app.getCallbackUrl());
+            dto.setOauthConsumerKey(app.getOauthConsumerKey());
+            dto.setOauthConsumerSecret(app.getOauthConsumerSecret());
+            dto.setOAuthVersion(app.getOauthVersion());
+            dto.setGrantTypes(app.getGrantTypes());
+        }
+        return dto;
+    }
 
     /**
      * Registers an OAuth consumer application.

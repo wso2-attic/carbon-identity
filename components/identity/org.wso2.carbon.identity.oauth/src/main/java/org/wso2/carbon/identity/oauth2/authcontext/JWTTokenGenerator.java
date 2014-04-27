@@ -194,14 +194,19 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
         if(claimsRetriever != null){
 
             //check in local cache
-            CacheKey cacheKey = new ClaimCacheKey(authzUser, messageContext.getRequestDTO().getRequiredClaimURIs());
+            String[] requestedClaims = messageContext.getRequestDTO().getRequiredClaimURIs();
+            if(requestedClaims == null)  {
+                // if no claims were requested, return all
+                requestedClaims = claimsRetriever.getDefaultClaims(authzUser);
+            }
+            CacheKey cacheKey = new ClaimCacheKey(authzUser, requestedClaims);
             Object result = claimsLocalCache.getValueFromCache(cacheKey);
 
             SortedMap<String,String> claimValues = null;
             if (result != null) {
                 claimValues = ((UserClaims) result).getClaimValues();
             } else {
-                claimValues = claimsRetriever.getClaims(authzUser, messageContext.getRequestDTO().getRequiredClaimURIs());
+                claimValues = claimsRetriever.getClaims(authzUser, requestedClaims);
                 UserClaims userClaims = new UserClaims(claimValues);
                 claimsLocalCache.addToCache(cacheKey, userClaims);
             }

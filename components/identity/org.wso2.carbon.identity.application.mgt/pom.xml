@@ -60,11 +60,8 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.sso.saml</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.oauth</artifactId>
+            <artifactId>org.wso2.carbon.identity.application.common</artifactId>
+            <!--version>4.2.0</version-->
         </dependency>
     </dependencies>
 

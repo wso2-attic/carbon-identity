@@ -205,6 +205,16 @@ public class AccessTokenIssuer {
         tokenRespDTO = authzGrantHandler.issue(tokReqMsgCtx);
         tokenRespDTO.setCallbackURI(oAuthAppDO.getCallbackUrl());
 
+        String[] scopes = tokReqMsgCtx.getScope();
+        if(scopes != null && scopes.length > 0){
+            StringBuilder scopeString = new StringBuilder("");
+            for(String scope : scopes){
+                scopeString.append(scope);
+                scopeString.append(" ");
+            }
+            tokenRespDTO.setAuthorizedScopes(scopeString.toString().trim());
+        }
+
         if(tokReqMsgCtx.getProperty("RESPONSE_HEADERS") != null){
             tokenRespDTO.setResponseHeaders((ResponseHeader[]) tokReqMsgCtx.getProperty("RESPONSE_HEADERS"));
         }

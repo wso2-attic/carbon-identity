@@ -26,164 +26,187 @@ import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.application.mgt.dto.xsd.ApplicationConfigDTO;
-import org.wso2.carbon.identity.application.mgt.dto.xsd.TrustedIDPConfigDTO;
+import org.wso2.carbon.identity.application.common.model.xsd.ApplicationBasicInfo;
+import org.wso2.carbon.identity.application.common.model.xsd.FederatedIdentityProvider;
+import org.wso2.carbon.identity.application.common.model.xsd.LocalAuthenticator;
+import org.wso2.carbon.identity.application.common.model.xsd.RequestPathAuthenticator;
+import org.wso2.carbon.identity.application.common.model.xsd.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.stub.ApplicationManagementServiceIdentityException;
 import org.wso2.carbon.identity.application.mgt.stub.ApplicationManagementServiceStub;
-import org.wso2.carbon.identity.application.mgt.ui.ApplicationConfigBean;
-import org.wso2.carbon.identity.application.mgt.ui.TrustedIDPConfig;
 
 public class ApplicationManagementServiceClient {
 
-	ApplicationManagementServiceStub stub = null;
+    ApplicationManagementServiceStub stub = null;
 
-	Log log = LogFactory.getLog(ApplicationManagementServiceClient.class);
+    Log log = LogFactory.getLog(ApplicationManagementServiceClient.class);
+    boolean debugEnabled = log.isErrorEnabled();
 
-	/**
-	 * Instantiates OAuthAdminClient
-	 * 
-	 * @param cookie
-	 *            For session management
-	 * @param backendServerURL
-	 *            URL of the back end server where OAuthAdminService is running.
-	 * @param configCtx
-	 *            ConfigurationContext
-	 * @throws org.apache.axis2.AxisFault
-	 */
-	public ApplicationManagementServiceClient(String cookie, String backendServerURL,
-			ConfigurationContext configCtx) throws AxisFault {
-		String serviceURL = backendServerURL + "ApplicationManagementService";
-		stub = new ApplicationManagementServiceStub(configCtx, serviceURL);
-		ServiceClient client = stub._getServiceClient();
-		Options option = client.getOptions();
-		option.setManageSession(true);
-		option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
-	}
+    /**
+     * 
+     * @param cookie
+     * @param backendServerURL
+     * @param configCtx
+     * @throws AxisFault
+     */
+    public ApplicationManagementServiceClient(String cookie, String backendServerURL,
+            ConfigurationContext configCtx) throws AxisFault {
 
-	public void storeApplicationData(ApplicationConfigBean bean) throws Exception {
+        String serviceURL = backendServerURL + "ApplicationManagementService";
+        stub = new ApplicationManagementServiceStub(configCtx, serviceURL);
+        ServiceClient client = stub._getServiceClient();
+        Options option = client.getOptions();
+        option.setManageSession(true);
+        option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
 
-		ApplicationConfigDTO appConfigDTO = ClientUtil.getApplicationConfigDTO(bean);
-		try {
-			stub.storeApplicationData(appConfigDTO);
-		} catch (RemoteException e) {
-			log.error(e.getMessage(), e);
-			throw new Exception(e.getMessage());
-		} catch (ApplicationManagementServiceIdentityException e) {
-			log.error(e.getMessage(), e);
-			throw new Exception(e.getMessage());
-		}
+        if (debugEnabled) {
+            log.debug("Invoking service " + serviceURL);
+        }
 
-	}
+    }
 
-	public ApplicationConfigBean getApplicationData(String applicationID) throws Exception {
-		try {
-			ApplicationConfigDTO applicationDTO = stub.getApplicationDataFromID(applicationID);
-			if (applicationDTO != null) {
-				return ClientUtil.getApplicationConfigBean(applicationDTO);
-			}
-			return null;
-		} catch (RemoteException e) {
-			log.error(e.getMessage(), e);
-			throw new Exception(e.getMessage());
-		} catch (ApplicationManagementServiceIdentityException e) {
-			log.error(e.getMessage(), e);
-			throw new Exception(e.getMessage());
-		}
-	}
+    /**
+     * 
+     * @param serviceProvider
+     * @throws Exception
+     */
+    public void createApplication(ServiceProvider serviceProvider) throws Exception {
+        try {
+            if (debugEnabled) {
+                log.debug("Registering Service Provider " + serviceProvider.getApplicationName());
+            }
+            stub.createApplication(serviceProvider);
+        } catch (RemoteException e) {
+            log.error(e.getMessage(), e);
+            throw new Exception(e.getMessage());
+        } catch (ApplicationManagementServiceIdentityException e) {
+            log.error(e.getMessage(), e);
+            throw new Exception(e.getMessage());
+        }
 
-	public ApplicationConfigBean[] getAllApplicationData() throws Exception {
-		ApplicationConfigBean[] appConfigBean = null;
-		try {
-			ApplicationConfigDTO[] allAppData = stub.getAllApplicationData();
-			if (allAppData != null && allAppData.length > 0) {
-				appConfigBean = new ApplicationConfigBean[allAppData.length];
-				int i = 0;
-				for (ApplicationConfigDTO dto : allAppData) {
-					appConfigBean[i++] = ClientUtil.getApplicationConfigBean(dto);
-				}
-			}
-			return appConfigBean;
+    }
 
-		} catch (RemoteException e) {
-			log.error(e.getMessage(), e);
-			throw new Exception(e.getMessage());
-		} catch (ApplicationManagementServiceIdentityException e) {
-			log.error(e.getMessage(), e);
-			throw new Exception(e.getMessage());
-		}
-	}
+    /**
+     * 
+     * @param applicationName
+     * @return
+     * @throws Exception
+     */
+    public ServiceProvider getApplication(String applicationName) throws Exception {
+        try {
+            if (debugEnabled) {
+                log.debug("Loading Service Provider " + applicationName);
+            }
+            return stub.getApplication(applicationName);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new Exception(e.getMessage());
+        }
 
-	public ApplicationConfigBean updateApplicationData(ApplicationConfigBean bean) throws Exception {
-		ApplicationConfigDTO appConfigDTO = ClientUtil.getApplicationConfigDTO(bean);
-		try {
-			ApplicationConfigDTO applicationDTO = stub.updateApplication(appConfigDTO);
-			return ClientUtil.getApplicationConfigBean(applicationDTO);
-		} catch (RemoteException e) {
-			log.error(e.getMessage(), e);
-			throw new Exception(e.getMessage());
-		} catch (ApplicationManagementServiceIdentityException e) {
-			log.error(e.getMessage(), e);
-			throw new Exception(e.getMessage());
-		}
-	}
+    }
 
-	public void deleteApplication(String applicationID) throws Exception {
-		try {
-			stub.deleteApplication(applicationID);
-		} catch (RemoteException e) {
-			log.error(e.getMessage(), e);
-			throw new Exception(e.getMessage());
-		} catch (ApplicationManagementServiceIdentityException e) {
-			log.error(e.getMessage(), e);
-			throw new Exception(e.getMessage());
-		}
+    /**
+     * 
+     * @return
+     * @throws Exception
+     */
+    public ApplicationBasicInfo[] getAllApplicationBasicInfo() throws Exception {
+        try {
+            return stub.getAllApplicationBasicInfo();
+        } catch (RemoteException e) {
+            log.error(e.getMessage(), e);
+            throw new Exception(e.getMessage());
+        } catch (ApplicationManagementServiceIdentityException e) {
+            log.error(e.getMessage(), e);
+            throw new Exception(e.getMessage());
+        }
+    }
 
-	}
+    /**
+     * 
+     * @param serviceProvider
+     * @throws Exception
+     */
+    public void updateApplicationData(ServiceProvider serviceProvider) throws Exception {
+        try {
+            stub.updateApplication(serviceProvider);
+        } catch (RemoteException e) {
+            log.error(e.getMessage(), e);
+            throw new Exception(e.getMessage());
+        } catch (ApplicationManagementServiceIdentityException e) {
+            log.error(e.getMessage(), e);
+            throw new Exception(e.getMessage());
+        }
+    }
 
-	public String[] getIDPList() throws Exception {
-		TrustedIDPConfigDTO[] idps = null;
-		try {
-			idps = stub.getAllIDPData();
-		} catch (RemoteException e) {
-			log.error(e.getMessage(), e);
-			throw new Exception(e.getMessage());
-		} catch (ApplicationManagementServiceIdentityException e) {
-			log.error(e.getMessage(), e);
-			throw new Exception(e.getMessage());
-		}
+    /**
+     * 
+     * @param applicationID
+     * @throws Exception
+     */
+    public void deleteApplication(String applicationID) throws Exception {
+        try {
+            stub.deleteApplication(applicationID);
+        } catch (RemoteException e) {
+            log.error(e.getMessage(), e);
+            throw new Exception(e.getMessage());
+        } catch (ApplicationManagementServiceIdentityException e) {
+            log.error(e.getMessage(), e);
+            throw new Exception(e.getMessage());
+        }
 
-		if (idps != null) {
-			String[] idpList = new String[idps.length];
-			int i = 0;
-			for (TrustedIDPConfigDTO dto : idps) {
-				idpList[i] = dto.getIdpIdentifier();
-				i++;
-			}
-			return idpList;
-		}
-		return null;
-	}
+    }
 
-	public TrustedIDPConfig getIDPData(String idpID) throws Exception {
-		TrustedIDPConfigDTO idpconf = null;
-		try {
-			idpconf = stub.getIDPData(idpID);
-		} catch (RemoteException e) {
-			log.error(e.getMessage(), e);
-			throw new Exception(e.getMessage());
-		} catch (ApplicationManagementServiceIdentityException e) {
-			log.error(e.getMessage(), e);
-			throw new Exception(e.getMessage());
-		}
+    /**
+     * 
+     * @param identityProviderName
+     * @throws Exception
+     */
+    public FederatedIdentityProvider getFederatedIdentityProvider(String identityProviderName)
+            throws Exception {
+        return stub.getFederatedIdentityProvider(identityProviderName);
+    }
 
-		TrustedIDPConfig idpconfig = new TrustedIDPConfig();
+    /**
+     * 
+     * @return
+     * @throws Exception
+     */
+    public RequestPathAuthenticator[] getAllRequestPathAuthenticators() throws Exception {
+        return stub.getAllRequestPathAuthenticators();
+    }
 
-		if (idpconf != null) {
-			idpconfig.setIdpName(idpconf.getIdpIdentifier());
-			idpconfig.setEndpointUrl(idpconf.getEndpointsString());
-			idpconfig.setProtocols(idpconf.getTypes());
-		}
-		return idpconfig;
-	}
+    /**
+     * 
+     * @return
+     * @throws Exception
+     */
+    public LocalAuthenticator[] getAllLocalAuthenticators() throws Exception {
+        return stub.getAllLocalAuthenticators();
+    }
+
+    /**
+     * 
+     * @return
+     * @throws Exception
+     */
+    public FederatedIdentityProvider[] getAllFederatedIdentityProvider() throws Exception {
+        FederatedIdentityProvider[] idps = null;
+
+        try {
+            idps = stub.getAllFederatedIdentityProviders();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return idps;
+    }
+
+    /**
+     * 
+     * @return
+     * @throws Exception
+     */
+    public String[] getAllClaimUris() throws Exception {
+        return stub.getAllLocalClaimUris();
+    }
 
 }

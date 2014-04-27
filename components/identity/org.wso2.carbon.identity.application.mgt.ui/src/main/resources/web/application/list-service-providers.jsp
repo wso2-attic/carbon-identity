@@ -15,7 +15,7 @@
 ~ specific language governing permissions and limitations
 ~ under the License.
 -->
-
+<%@ page import="org.wso2.carbon.identity.application.common.model.xsd.*"%>
 <%@page import="org.wso2.carbon.identity.application.mgt.ui.client.ApplicationManagementServiceClient"%>
 <%@ page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
@@ -23,7 +23,7 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants"%>
 <%@ page import="org.wso2.carbon.identity.application.mgt.ui.client.ApplicationManagementServiceClient" %>
-<%@ page import="org.wso2.carbon.identity.application.mgt.ui.ApplicationConfigBean" %>
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean" %>
 
 <%@ page import="java.util.ResourceBundle"%>
 
@@ -58,83 +58,78 @@
 <script type="text/javascript">
 		
 	function removeItem(appid) {
-    	//CARBON.showConfirmationDialog('<fmt:message key="applicaiton.delete.about"/>'), function () { location.href = "remove-app.jsp?appid="+ appid;}, null);
 		location.href = "remove-service-provider.jsp?appid="+ appid;
 	}
 </script>
 		
 		<%
-		
-		ApplicationConfigBean[] applications = null;
-	    String BUNDLE = "org.wso2.carbon.identity.application.mgt.ui.i18n.Resources";
-	    ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
-	    
-		try {
-			String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
-			String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
-			ConfigurationContext configContext = (ConfigurationContext) config.getServletContext()
-					                                                                  .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-					
-			ApplicationManagementServiceClient serviceClient = new ApplicationManagementServiceClient(cookie, backendServerURL, configContext);
-			applications = serviceClient.getAllApplicationData();
+					ApplicationBasicInfo[] applications = null;
+					    String BUNDLE = "org.wso2.carbon.identity.application.mgt.ui.i18n.Resources";
+					    ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
+					    
+						try {
+					String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+					String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
+					ConfigurationContext configContext = (ConfigurationContext) config.getServletContext()
+							                                                                  .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+							
+					ApplicationManagementServiceClient serviceClient = new ApplicationManagementServiceClient(cookie, backendServerURL, configContext);
+					applications = serviceClient.getAllApplicationBasicInfo();
 
-			} catch (Exception e) {
-				String message = resourceBundle.getString("error.while.reading.app.info") + " : " + e.getMessage();
-				CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request, e);
-			}
-		
-		%>
+					} catch (Exception e) {
+						String message = resourceBundle.getString("error.while.reading.app.info") + " : " + e.getMessage();
+						CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request, e);
+					}
+				%>
 
+            <div style="height:30px;">
+                <a href="load-service-provider.jsp?spName=wso2carbon-local-sp" class="icon-link" style="background-image:url(images/local-sp.png);"><fmt:message key='local.sp'/></a>
+            </div>
+            <br/>
 			<table style="width: 100%" class="styledLeft">
 				<tbody>
 					<tr>
 					<td style="border:none !important">
 						<!-- SAML SSO -->
-						<!-- div
-							style="border: solid 1px #ccc; background-color: #e3f2db; padding: 5px; margin-bottom: 10px;">
-							<label><fmt:message
-									key="application.list.application.applications" /></label>
-						</div-->
 						<table class="styledLeft" width="100%" id="ServiceProviders">
 							<thead>
 								<tr style="white-space: nowrap">
 									<th style="width: 25%"><fmt:message
 											key="field.service.provider.id" /></th>
-									<th style="width: 20%"><fmt:message
-											key="application.list.application.protocols" /></th>
-									<th style="width: 30%"><fmt:message
-											key="application.list.application.idps" /></th>
+									<th style="width: 45%"><fmt:message
+											key="application.list.application.desc" /></th>
 									<th style="width: 200px"><fmt:message
 											key="application.list.application.action" /></th>
 								</tr>
 							</thead>
-							<% if(applications != null && applications.length > 0) { %>
+							<%
+								if(applications != null && applications.length > 0) {
+							%>
 							<tbody>
-							<% for(ApplicationConfigBean appBean : applications) { %>
+							<%
+								for(ApplicationBasicInfo app : applications) {
+							%>
 								<tr>
-									<td><%=appBean.getApplicationIdentifier()%></td>
-									<td><%=appBean.getProtocolsString()%></td>
-									<td><%=appBean.getTrustedIDPsString() %></td>
+									<td><%=app.getApplicationName()%></td>
+									<td><%=app.getDescription()%></td>
 									<td style="width: 100px; white-space: nowrap;"><a
-										title="Edit Service Providers" href="edit-service-provider.jsp?appid=<%=appBean.getApplicationIdentifier()%>" class="icon-link"
+										title="Edit Service Providers" href="load-service-provider.jsp?spName=<%=app.getApplicationName()%>" class="icon-link"
 										style="background-image: url(../admin/images/edit.gif)">Edit</a>
 
-										<a title="Remove Service Providers" onclick="removeItem('<%=appBean.getApplicationIdentifier()%>');return false;" href="#" class="icon-link"
+										<a title="Remove Service Providers" onclick="removeItem('<%=app.getApplicationName()%>');return false;" href="#" class="icon-link"
 										style="background-image: url(../admin/images/delete.gif)">Delete
 									</a></td>
 								</tr>
 								<% } %>
 							</tbody>
+							<% } else { %>
+							<tbody>
+							<tr><td colspan="3"><i>No Service Providers registered</i></td></tr>
+							</tbody>
 							<% } %>
 						</table>
 						</td>
 					</tr>
-					<!-- tr>
-						<td class="buttonRow" style="padding-right: 0 !important; width: 30px;"><input
-							name="update" type="button" class="button"
-							value="<fmt:message key='application.list.application.done'/>"
-							onclick="validate();" /></td>
-					</tr-->
 				</tbody>
 			</table>
 			<carbon:paginator pageNumber="0"

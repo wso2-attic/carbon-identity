@@ -22,9 +22,8 @@ package org.wso2.carbon.identity.application.authenticator.samlsso.manager;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
-import java.util.Map;
 
-import org.wso2.carbon.identity.application.authentication.framework.config.ExternalIdPConfig;
+import org.wso2.carbon.identity.application.authentication.framework.config.dto.ExternalIdPConfig;
 import org.wso2.carbon.identity.application.authenticator.samlsso.exception.SAMLSSOException;
 
 public interface SSOAgentCredential {

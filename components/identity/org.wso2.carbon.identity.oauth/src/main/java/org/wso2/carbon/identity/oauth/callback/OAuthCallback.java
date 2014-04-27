@@ -62,6 +62,7 @@ public class OAuthCallback implements Callback {
      * OAuth2 grant type
      */
     private org.wso2.carbon.identity.oauth.common.GrantType carbonGrantType;
+
     /**
      * Client who will be accessing the resource
      */
@@ -248,6 +249,7 @@ public class OAuthCallback implements Callback {
     public void setCarbonGrantType(org.wso2.carbon.identity.oauth.common.GrantType carbonGrantType) {
         this.carbonGrantType = carbonGrantType;
     }
+
 
     /**
      * Get the validity period

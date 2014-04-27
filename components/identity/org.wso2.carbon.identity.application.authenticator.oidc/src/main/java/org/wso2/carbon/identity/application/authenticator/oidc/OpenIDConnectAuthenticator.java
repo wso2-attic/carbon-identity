@@ -1,3 +1,20 @@
+/*
+*Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*WSO2 Inc. licenses this file to you under the Apache License,
+*Version 2.0 (the "License"); you may not use this file except
+*in compliance with the License.
+*You may obtain a copy of the License at
+*
+*http://www.apache.org/licenses/LICENSE-2.0
+*
+*Unless required by applicable law or agreed to in writing,
+*software distributed under the License is distributed on an
+*"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*KIND, either express or implied.  See the License for the
+*specific language governing permissions and limitations
+*under the License.
+*/
 package org.wso2.carbon.identity.application.authenticator.oidc;
 
 import java.io.IOException;
@@ -11,25 +28,25 @@ import org.apache.amber.oauth2.client.URLConnectionClient;
 import org.apache.amber.oauth2.client.request.OAuthClientRequest;
 import org.apache.amber.oauth2.client.response.OAuthAuthzResponse;
 import org.apache.amber.oauth2.client.response.OAuthClientResponse;
-import org.apache.amber.oauth2.common.OAuth;
-import org.apache.amber.oauth2.common.error.OAuthError;
 import org.apache.amber.oauth2.common.exception.OAuthProblemException;
 import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.amber.oauth2.common.message.types.GrantType;
-import org.apache.amber.oauth2.common.utils.JSONUtils;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jettison.json.JSONException;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
+import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorStateInfo;
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorStatus;
-import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
-import org.wso2.carbon.identity.application.authentication.framework.config.ExternalIdPConfig;
-import org.wso2.carbon.identity.application.authentication.framework.context.ApplicationAuthenticationContext;
+import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
+import org.wso2.carbon.identity.application.authentication.framework.config.dto.ExternalIdPConfig;
+import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.ui.CarbonUIUtil;
 
-public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator {
-
+public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator implements FederatedApplicationAuthenticator {
+	
+	private static final long serialVersionUID = -4154255583070524018L;
+	private static final String IDTOKEN_HANDLER = "IDTokenHandler";
+	private static final String CLAIMS_RETRIEVER = "ClaimsRetriever";
+	
 	private static Log log = LogFactory.getLog(OpenIDConnectAuthenticator.class);
 	private String authenticatedUser;
 	
@@ -40,21 +57,17 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 		}
     	
     	// From login page asking for OIDC login
-		if (request.getParameter("loginType") != null
-				&& OpenIDConnectAuthenticatorConstants.LOGIN_TYPE.equals(request.getParameter("loginType"))) {
-			return true;
-		}
+        if (request.getParameter("authenticator") != null &&
+                getAuthenticatorName().equalsIgnoreCase(request.getParameter("authenticator"))) {
+            return true;
+        }
     	
     	// Check commonauth got an OIDC response
-    	if (request.getParameter(OpenIDConnectAuthenticatorConstants.OAUTH2_GRANT_TYPE_CODE) != null 
-    			&& request.getParameter(OpenIDConnectAuthenticatorConstants.OAUTH2_PARAM_STATE) != null) {
+    	if (request.getParameter(OIDCAuthenticatorConstants.OAUTH2_GRANT_TYPE_CODE) != null 
+    			&& request.getParameter(OIDCAuthenticatorConstants.OAUTH2_PARAM_STATE) != null) {
         	return true;
         }
 		// TODO : What if IdP failed?
-//    	if (request.getParameter(OpenIDConnectAuthenticatorConstants.OAUTH2_GRANT_TYPE_CODE) != null 
-//    			&& request.getParameter(OpenIDConnectAuthenticatorConstants.OAUTH2_PARAM_STATE) != null) {
-//        	return true;
-//        }
 
         return false;
     }
@@ -62,23 +75,21 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 	@Override
 	public AuthenticatorStatus authenticate(HttpServletRequest request,
 			HttpServletResponse response,
-			ApplicationAuthenticationContext context) {
+			AuthenticationContext context) {
     	
     	if (log.isTraceEnabled()) {
 			log.trace("Inside OpenIDConnectAuthenticator.authenticate()");
 		}
-    	
-		
-    	
+
     	// From login page asking for OIDC login
-    	if (request.getParameter("loginType") != null 
-    			&& OpenIDConnectAuthenticatorConstants.LOGIN_TYPE.equals(request.getParameter("loginType"))) {
-    		sendInitialRequest(request, response, null);
+    	if (request.getParameter("authenticator") != null &&
+                getAuthenticatorName().equalsIgnoreCase(request.getParameter("authenticator"))) {
+            sendInitialRequest(request, response, context);
     		return AuthenticatorStatus.CONTINUE;
     	}
     	
     	try {
-        	ExternalIdPConfig externalIdPConfig = getIdPConfigs(request, context);
+        	ExternalIdPConfig externalIdPConfig = context.getExternalIdP();
     		String clientId = externalIdPConfig.getClientId();
     		String clientSecret = externalIdPConfig.getClientSecret();
     		String tokenEndPoint = externalIdPConfig.getTokenEndpointUrl();
@@ -98,6 +109,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 						.setRedirectURI(callbackurl)
 						.setCode(code)
 						.buildBodyMessage();
+				
 			} catch (OAuthSystemException e) {
 	        	if (log.isDebugEnabled()) {
 	    			log.debug("Exception while building request for request access token", e);
@@ -118,35 +130,33 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 			}
 
 			// TODO : return access token and id token to framework
-			String accessToken = oAuthResponse.getParam(OpenIDConnectAuthenticatorConstants.ACCESS_TOKEN);
-			String idToken = oAuthResponse.getParam(OpenIDConnectAuthenticatorConstants.ID_TOKEN);
+			String accessToken = oAuthResponse.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN);
+			String idToken = oAuthResponse.getParam(OIDCAuthenticatorConstants.ID_TOKEN);
 
-            if (accessToken != null && idToken != null) { 
-    				String base64Body = idToken.split("\\.")[1];
-    				byte[] decoded = Base64.decodeBase64(base64Body.getBytes());
-    				String json = new String(decoded);
-    				Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
-    				authenticatedUser = (String) jsonObject.get("sub");
-    		        request.getSession().setAttribute("username", authenticatedUser); // set the subject
-    		    	return AuthenticatorStatus.PASS;
-            }
+			if (accessToken != null && idToken != null) {
+				
+				context.setProperty(OIDCAuthenticatorConstants.ACCESS_TOKEN, accessToken);
+				context.setProperty(OIDCAuthenticatorConstants.ID_TOKEN, idToken);
+				
+				// validates the IDToken
+				if(!getIDTokenHanlder().handle(idToken, context)) {
+					 return AuthenticatorStatus.FAIL;
+				}
+				return AuthenticatorStatus.PASS;
+			}
 			
         } catch (OAuthProblemException e) {
         	if (log.isDebugEnabled()) {
     			log.debug("Exception while processing OpenID Connect response", e);
     		}
-	    } catch (JSONException e) {
-        	if (log.isDebugEnabled()) {
-    			log.debug("Exception while parsing idToken", e);
-    		}
-	    }
+	    } 
         return AuthenticatorStatus.FAIL;
 	}
 
 	@Override
 	public AuthenticatorStatus logout(HttpServletRequest request,
-			HttpServletResponse response,
-			ApplicationAuthenticationContext context) {
+			HttpServletResponse response, AuthenticationContext context,
+			AuthenticatorStateInfo stateInfo) {
 		
     	if (log.isTraceEnabled()) {
 			log.trace("Inside OpenIDConnectAuthenticator.logout()");
@@ -158,14 +168,14 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 	@Override
 	public void sendInitialRequest(HttpServletRequest request,
 			HttpServletResponse response,
-			ApplicationAuthenticationContext context) {
+			AuthenticationContext context) {
     	
     	if (log.isTraceEnabled()) {
 			log.trace("Inside OpenIDConnectAuthenticator.sendInitialRequest()");
 		}
         
 		try {
-        	ExternalIdPConfig externalIdPConfig = getIdPConfigs(request, context);
+        	ExternalIdPConfig externalIdPConfig = context.getExternalIdP();
     		String clientId = externalIdPConfig.getClientId();
     		String authorizationEP = externalIdPConfig.getAuthzEndpointUrl();
 			
@@ -179,11 +189,13 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 		            .authorizationLocation(authorizationEP)
 		            .setClientId(clientId)
 		            .setRedirectURI(callbackurl)
-		            .setResponseType(OpenIDConnectAuthenticatorConstants.OAUTH2_GRANT_TYPE_CODE)
-		            .setScope(OpenIDConnectAuthenticatorConstants.OAUTH_OIDC_SCOPE)
+		            .setResponseType(OIDCAuthenticatorConstants.OAUTH2_GRANT_TYPE_CODE)
+		            .setScope(OIDCAuthenticatorConstants.OAUTH_OIDC_SCOPE)
 		            .setState(state)
 		            .buildQueryMessage();
+			
 		    response.sendRedirect(authzRequest.getLocationUri());
+		    
         } catch (IOException e) {
         	log.error("Exception while sending to the login page", e);
         } catch (OAuthSystemException e) {
@@ -209,7 +221,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 			log.trace("Inside OpenIDConnectAuthenticator.getContextIdentifier()");
 		}
     	
-		return request.getParameter(OpenIDConnectAuthenticatorConstants.OAUTH2_PARAM_STATE);
+		return request.getParameter(OIDCAuthenticatorConstants.OAUTH2_PARAM_STATE);
 	}
     
 	@Override
@@ -219,41 +231,81 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 			log.trace("Inside OpenIDConnectAuthenticator.getAuthenticatorName()");
 		}
     	
-	    return OpenIDConnectAuthenticatorConstants.AUTHENTICATOR_NAME;
+	    return OIDCAuthenticatorConstants.AUTHENTICATOR_NAME;
 	}
 
 	@Override
-	public String getResponseAttributes(HttpServletRequest request) {
+	public Map<String, String> getResponseAttributes(HttpServletRequest request, AuthenticationContext context) {
 		
     	if (log.isTraceEnabled()) {
 			log.trace("Inside OpenIDConnectAuthenticator.getResponseAttributes()");
 		}
-		return null;
+    	
+    	String accessToken = (String) context.getProperty(OIDCAuthenticatorConstants.ACCESS_TOKEN);
+    	ExternalIdPConfig externalIdPConfig = context.getExternalIdP();
+    	
+    	ClaimsRetriever retriever = getClaimsRetriever();
+    	Map<String, String> claims = retriever.retrieveClaims(accessToken, externalIdPConfig, context);
+    	context.setSubjectAttributes(claims);
+		return claims;
 	}
 
-    
-    public ExternalIdPConfig getIdPConfigs(HttpServletRequest request, ApplicationAuthenticationContext context) {
-    	
-    	if (log.isTraceEnabled()) {
-			log.trace("Inside OpenIDConnectAuthenticator.getIdPConfigs()");
+	@Override
+	public AuthenticatorStateInfo getStateInfo(HttpServletRequest request) {
+		return null;
+	}
+	
+	private IDTokenHandler getIDTokenHanlder() {
+		
+		IDTokenHandler handler = null;
+		String handlerClassName = getAuthenticatorConfig().getParameterMap().get(IDTOKEN_HANDLER);
+		if (handlerClassName != null) {
+			try {
+				// Bundle class loader will cache the loaded class and returned
+				// the already loaded instance, hence calling this method
+				// multiple times doesn't cost.
+				Class clazz = Thread.currentThread().getContextClassLoader()
+						.loadClass(handlerClassName);
+				handler = (IDTokenHandler) clazz.newInstance();
+
+			} catch (ClassNotFoundException e) {
+				log.error("Error while instantiating the OpenIDManager ", e);
+			} catch (InstantiationException e) {
+				log.error("Error while instantiating the OpenIDManager ", e);
+			} catch (IllegalAccessException e) {
+				log.error("Error while instantiating the OpenIDManager ", e);
+			}
+		} else {
+			handler = new DefaultIDTokenHandler();
 		}
-    	
-//    	String hrdIdP = null;
-//    	
-//    	if (request.getSession().getAttribute("federated-idp-domain") != null) {
-//    		hrdIdP = (String)request.getSession().getAttribute("federated-idp-domain");
-//    	} else {
-//    		hrdIdP = request.getParameter("fid");
-//    	}
-    	
-//    	if (hrdIdP != null && !hrdIdP.equals("null") && !hrdIdP.isEmpty()) {
-//    		request.getSession().setAttribute("federated-idp-domain", hrdIdP);
-//    		return ExternalIdPConfigurationReader.getInstance().getIdPConfigs(hrdIdP);
-//    	} else {
-//    		String defaultIdP = getAuthenticatorConfig().getParameterMap().get(OpenIDConnectAuthenticatorConstants.AuthenticatorConfParams.DEFAULT_IDP_CONFIG);
-//    		return ConfigurationFacade.getInstance().getIdPConfig(context.getCurrentStep(), getAuthenticatorName(), defaultIdP);
-    		
-    		return ConfigurationFacade.getInstance().getIdPConfig(context.getCurrentStep(), getAuthenticatorName(), context.getExternalIdP());
-//    	}
-    }
+		
+		return handler;
+	}
+	
+	private ClaimsRetriever getClaimsRetriever() {
+		
+		ClaimsRetriever retriever = null;
+		String retrieverClassName = getAuthenticatorConfig().getParameterMap().get(CLAIMS_RETRIEVER);
+		if (retrieverClassName != null) {
+			try {
+				// Bundle class loader will cache the loaded class and returned
+				// the already loaded instance, hence calling this method
+				// multiple times doesn't cost.
+				Class clazz = Thread.currentThread().getContextClassLoader()
+						.loadClass(retrieverClassName);
+				retriever = (ClaimsRetriever) clazz.newInstance();
+
+			} catch (ClassNotFoundException e) {
+				log.error("Error while instantiating the OpenIDManager ", e);
+			} catch (InstantiationException e) {
+				log.error("Error while instantiating the OpenIDManager ", e);
+			} catch (IllegalAccessException e) {
+				log.error("Error while instantiating the OpenIDManager ", e);
+			}
+		} else {
+			retriever = new OIDCUserInfoClaimsRetriever();
+		}
+		
+		return retriever;
+	}
 }

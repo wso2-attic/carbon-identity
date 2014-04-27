@@ -106,6 +106,16 @@
             <groupId>org.apache.amber</groupId>
             <artifactId>openidconnect-authzserver</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.dblock.waffle.wso2</groupId>
+            <artifactId>waffle-jna</artifactId>
+            <!--version>1.6.wso2v1</version-->
+        </dependency>
+
+
+
+
+
     </dependencies>
 
 	<build>

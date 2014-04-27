@@ -16,6 +16,7 @@
 ~ under the License.
 -->
 
+<%@ page import="org.wso2.carbon.identity.application.common.model.xsd.*"%>
 <%@ page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
@@ -24,14 +25,14 @@
 <%@ page import="org.wso2.carbon.identity.application.mgt.ui.client.ApplicationManagementServiceClient"%>
 <%@ page import="java.util.ResourceBundle"%>
 <%@ page
-	import="org.wso2.carbon.identity.application.mgt.ui.ApplicationConfigBean"%>
+	import="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"%>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
 	prefix="carbon"%>
 
 <jsp:useBean id="appBean"
-	class="org.wso2.carbon.identity.application.mgt.ui.ApplicationConfigBean"
+	class="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"
 	scope="session" />
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
@@ -51,36 +52,37 @@
 	<script type="text/javascript" src="../carbon/admin/js/main.js"></script>
 
 	<%
-		String appid = (String) request.getParameter("appid");
+		String appid = (String) request.getParameter("spName");
+		String description = (String) request.getParameter("sp-description");
+
 	    String BUNDLE = "org.wso2.carbon.identity.application.mgt.ui.i18n.Resources";
 	    ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
-	    
-			if (appid != null && !"".equals(appid)) {
-				appBean.setApplicationIdentifier(appid);
-				
-				try {
-
-					String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
-					String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
-					ConfigurationContext configContext =
-					                                     (ConfigurationContext) config.getServletContext()
-					                                                                  .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+			    
+	    if (appid != null && !"".equals(appid)) {
+		
+		ServiceProvider serviceProvider = new ServiceProvider();
+		serviceProvider.setApplicationName(appid);
+		serviceProvider.setDescription(description);
 					
-					ApplicationManagementServiceClient serviceClient = new ApplicationManagementServiceClient(cookie, backendServerURL, configContext);
-					serviceClient.storeApplicationData(appBean);
-					session.removeAttribute("appBean");
+		try {
 
-				} catch (Exception e) {
-					String message = resourceBundle.getString("alert.error.while.adding.service.provider") + " : " + e.getMessage();
-					CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request, e);
-				}
+			String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+			String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
+			ConfigurationContext configContext =
+			                                     (ConfigurationContext) config.getServletContext()
+			                                                                  .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);				
+			ApplicationManagementServiceClient serviceClient = new ApplicationManagementServiceClient(cookie, backendServerURL, configContext);
+			serviceClient.createApplication(serviceProvider);
+		} catch (Exception e) {
+			String message = resourceBundle.getString("alert.error.while.adding.service.provider") + " : " + e.getMessage();
+			CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request, e);
+		}
 			} else {
-				session.removeAttribute("appBean");
 			}
 	%>
 
 	<script>
-		location.href = 'list-service-providers.jsp';
+		location.href = 'load-service-provider.jsp?spName=<%=appid%>';
 	</script>
 
 

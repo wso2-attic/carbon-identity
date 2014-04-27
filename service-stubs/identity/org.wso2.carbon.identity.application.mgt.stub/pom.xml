@@ -97,7 +97,8 @@
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
                             org.wso2.carbon.identity.application.mgt.stub.*;version="${carbon.platform.package.export.version}",
-							org.wso2.carbon.identity.application.mgt.dto.*;version="${carbon.platform.package.export.version}",
+			      org.wso2.carbon.identity.application.mgt.dto.*;version="${carbon.platform.package.export.version}",
+                            org.wso2.carbon.identity.application.common.model.xsd.*;version="${carbon.platform.package.export.version}",
                         </Export-Package>
                         <Import-Package>
                             !org.wso2.carbon.identity.application.mgt.stub.*,

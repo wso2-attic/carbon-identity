@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.oauth.dao;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
@@ -69,7 +70,7 @@ public class OAuthAppDAO {
                 prepStmt = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.ADD_OAUTH_APP);
                 prepStmt.setString(1, persistenceProcessor.getProcessedClientId(consumerAppDO.getOauthConsumerKey()));
                 prepStmt.setString(2, persistenceProcessor.getProcessedClientSecret(consumerAppDO.getOauthConsumerSecret()));
-                prepStmt.setString(3, consumerAppDO.getUserName());
+                prepStmt.setString(3, consumerAppDO.getUserName().toLowerCase());
                 prepStmt.setInt(4, consumerAppDO.getTenantId());
                 prepStmt.setString(5, consumerAppDO.getApplicationName());
                 prepStmt.setString(6, consumerAppDO.getOauthVersion());
@@ -113,7 +114,7 @@ public class OAuthAppDAO {
             prepStmt = connection.prepareStatement(sqlStmt);
             prepStmt.setString(1, consumerKey);
             prepStmt.setString(2, consumerSecret);
-            prepStmt.setString(3, username);
+            prepStmt.setString(3, username.toLowerCase());
             prepStmt.setInt(4, tenantId);
             // it is assumed that the OAuth version is 1.0a because this is required with OAuth 1.0a
             prepStmt.setString(5, OAuthConstants.OAuthVersions.VERSION_1A);
@@ -151,7 +152,7 @@ public class OAuthAppDAO {
             while (rSet.next()) {
                 if (rSet.getString(3) != null && rSet.getString(3).length() > 0) {
                     OAuthAppDO oauthApp = new OAuthAppDO();
-                    oauthApp.setUserName(username);
+                    oauthApp.setUserName(username.toLowerCase());
                     oauthApp.setTenantId(tenantId);
                     oauthApp.setOauthConsumerKey(persistenceProcessor.getPreprocessedClientId(rSet.getString(1)));
                     oauthApp.setOauthConsumerSecret(persistenceProcessor.getPreprocessedClientSecret(rSet.getString(2)));
@@ -219,6 +220,69 @@ public class OAuthAppDAO {
                  * a null values not supported error when it tries to cache this info
                  */
                 String message = "Cannot find an application associated with the given consumer key : " + consumerKey;
+                log.debug(message);
+                throw new InvalidOAuthClientException(message);
+            }
+        } catch (IdentityException e) {
+            log.debug(e.getMessage(), e);
+            throw new IdentityOAuth2Exception(e.getMessage());
+        } catch (SQLException e) {
+            log.debug(e.getMessage(), e);
+            throw new IdentityOAuth2Exception(e.getMessage());
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
+        }
+        return oauthApp;
+    }
+    
+    public OAuthAppDO getAppInformationByAppName(String appName) throws InvalidOAuthClientException, IdentityOAuth2Exception {
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rSet = null;
+        OAuthAppDO oauthApp = null;
+
+        try {
+            int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+            connection = JDBCPersistenceManager.getInstance().getDBConnection();
+            prepStmt = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.GET_APP_INFO_BY_APP_NAME);
+            prepStmt.setString(1, persistenceProcessor.getProcessedClientId(appName));
+            prepStmt.setInt(2, tenantID);
+
+            
+            //"SELECT CONSUMER_SECRET,USERNAME,CONSUMER_KEY, OAUTH_VERSION, CALLBACK_URL,GRANT_TYPES FROM " +
+            //"IDN_OAUTH_CONSUMER_APPS WHERE APP_NAME=? AND TENANT_ID=? ";
+
+            rSet = prepStmt.executeQuery();
+            List<OAuthAppDO> oauthApps = new ArrayList<OAuthAppDO>();
+            oauthApp = new OAuthAppDO();
+            oauthApp.setApplicationName(appName);
+            oauthApp.setTenantId(tenantID);
+            /**
+             * We need to determine whether the result set has more than 1 row. Meaning, we found an application for
+             * the given consumer key. There can be situations where a user passed a key which doesn't yet have an
+             * associated application. We need to barf with a meaningful error message for this case
+             */
+            boolean rSetHasRows = false;
+            while (rSet.next()) {
+                // There is at least one application associated with a given key
+                rSetHasRows = true;
+                if (rSet.getString(4) != null && rSet.getString(4).length() > 0) {
+                    oauthApp.setOauthConsumerSecret(persistenceProcessor.getPreprocessedClientSecret(rSet.getString(1)));
+                    oauthApp.setUserName(rSet.getString(2));
+                    oauthApp.setOauthConsumerKey(rSet.getString(3));
+                    oauthApp.setOauthVersion(rSet.getString(4));
+                    oauthApp.setCallbackUrl(rSet.getString(5));
+                    oauthApp.setGrantTypes(rSet.getString(6));
+                    oauthApps.add(oauthApp);
+                }
+            }
+            if (!rSetHasRows) {
+         /**
+                 * We come here because user submitted a key that doesn't have any associated application with it.
+                 * We're throwing an error here because we cannot continue without this info. Otherwise it'll throw
+                 * a null values not supported error when it tries to cache this info
+                 */
+                String message = "Cannot find an application associated with the given consumer key : " + appName;
                 log.debug(message);
                 throw new InvalidOAuthClientException(message);
             }
@@ -301,7 +365,7 @@ public class OAuthAppDAO {
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
             prepStmt = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.CHECK_EXISTING_APPLICATION);
-            prepStmt.setString(1, username);
+            prepStmt.setString(1, username.toLowerCase());
             prepStmt.setInt(2, tenantId);
             prepStmt.setString(3, consumerAppDTO.getApplicationName());
 

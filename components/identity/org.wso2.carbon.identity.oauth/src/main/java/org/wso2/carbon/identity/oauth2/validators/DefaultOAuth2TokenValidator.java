@@ -18,7 +18,10 @@
 
 package org.wso2.carbon.identity.oauth2.validators;
 
+import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
+import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationRequestDTO;
+import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 
 /**
  * Default OAuth2 access token validator that supports "bearer" token type.
@@ -38,7 +41,27 @@ public class DefaultOAuth2TokenValidator implements OAuth2TokenValidator {
     public boolean validateScope(OAuth2TokenValidationMessageContext messageContext)
             throws IdentityOAuth2Exception {
 
-        // By default we don't validate scopes
+        OAuth2ScopeValidator scopeValidator = OAuthServerConfiguration.getInstance().getoAuth2ScopeValidator();
+
+        //If a scope validator is engaged through the configuration
+        if(scopeValidator instanceof OAuth2ScopeValidator){
+            String resource = null;
+
+            //Iterate the array of context params to find the 'resource' context param.
+            for(OAuth2TokenValidationRequestDTO.TokenValidationContextParam resourceParam :
+                    messageContext.getRequestDTO().getContext()){
+                //If the context param is the resource that is being accessed
+                if(resourceParam != null && "resource".equals(resourceParam.getKey())){
+                    resource = resourceParam.getValue();
+                    break;
+                }
+            }
+
+            //Return True if there is no resource to validate the token against
+            //OR if the token has a valid scope to access the resource. False otherwise.
+            return resource == null ||
+                   scopeValidator.validateScope((AccessTokenDO)messageContext.getProperty("AccessTokenDO"),resource);
+        }
         return true;
     }
 

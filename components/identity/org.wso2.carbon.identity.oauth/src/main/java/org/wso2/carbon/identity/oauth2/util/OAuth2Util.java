@@ -33,6 +33,7 @@ import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.model.ClientCredentialDO;
 
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -54,6 +55,7 @@ public class OAuth2Util {
 	public static String buildScopeString(String[] scopes) {
 		StringBuilder scopeString = new StringBuilder("");
 		if (scopes != null) {
+            Arrays.sort(scopes);
 			for (int i=0; i<scopes.length; i++) {
 				scopeString.append(scopes[i].trim());
 				if(i != scopes.length-1){

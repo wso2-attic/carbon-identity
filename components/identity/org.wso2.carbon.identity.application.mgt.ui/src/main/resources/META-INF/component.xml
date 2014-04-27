@@ -21,7 +21,7 @@
             <id>service_providers_menu</id>
             <i18n-key>menu.service.providers</i18n-key>
             <i18n-bundle>org.wso2.carbon.identity.application.mgt.ui.i18n.Resources</i18n-bundle>
-            <parent-menu>manage_menu</parent-menu>
+            <parent-menu>identity_menu</parent-menu>
             <link>#</link>
             <region>region1</region>
             <order>1</order>
@@ -29,6 +29,10 @@
             <icon>../application/images/service-provider.png</icon>
             <require-permission>/permission/admin/manage</require-permission>
             <require-not-logged-in>false</require-not-logged-in>
+            <hide-menu-id>manage_saml_sso</hide-menu-id>
+            <hide-menu-id>generic_sts_menu</hide-menu-id>
+            <hide-menu-id>oauth_menu</hide-menu-id>
+            <hide-menu-id>scim_menu</hide-menu-id>
 	    </menu>
 		<menu>
             <id>add_service_providers_menu</id>

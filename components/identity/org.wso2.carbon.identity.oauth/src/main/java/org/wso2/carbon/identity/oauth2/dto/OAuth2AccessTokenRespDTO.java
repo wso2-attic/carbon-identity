@@ -33,6 +33,7 @@ public class OAuth2AccessTokenRespDTO {
     long expiresInMillis;
     ResponseHeader[] responseHeaders;
 
+    String authorizedScopes;
 
     public ResponseHeader[] getResponseHeaders() {
         if (responseHeaders ==null){
@@ -129,5 +130,13 @@ public class OAuth2AccessTokenRespDTO {
 	 */
     public void setIDToken(String idToken) {
 	    this.idToken = idToken;
+    }
+
+    public String getAuthorizedScopes() {
+        return authorizedScopes;
+    }
+
+    public void setAuthorizedScopes(String authorizedScopes) {
+        this.authorizedScopes = authorizedScopes;
     }
 }

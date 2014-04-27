@@ -56,7 +56,11 @@
             <artifactId>org.wso2.carbon.keystore.mgt</artifactId>
             <!--<version>2.2.0</version>-->
         </dependency>
-
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.application.common</artifactId>
+            <!--version>4.2.0</version-->
+        </dependency>
     </dependencies>
 
     <build>
@@ -90,8 +94,6 @@
                             !org.wso2.carbon.idp.mgt.internal,
                             org.wso2.carbon.idp.mgt.*,
                             org.wso2.carbon.idp.mgt.dto.*,
-                            org.wso2.carbon.idp.mgt.exception.*,
-                            org.wso2.carbon.idp.mgt.model.*,
                             org.wso2.carbon.idp.mgt.util.*
                         </Export-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>

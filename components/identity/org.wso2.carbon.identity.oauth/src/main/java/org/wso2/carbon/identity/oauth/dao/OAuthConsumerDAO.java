@@ -248,7 +248,7 @@ public class OAuthConsumerDAO {
             prepStmt = connection.prepareStatement(SQLQueries.OAuthConsumerDAOSQLQueries.AUTHORIZE_REQ_TOKEN);
             prepStmt.setString(1, Boolean.toString(true));
             prepStmt.setString(2, oauthVerifier);
-            prepStmt.setString(3, userName);
+            prepStmt.setString(3, userName.toLowerCase());
             prepStmt.setString(4, oauthToken);
 
             prepStmt.execute();
@@ -332,7 +332,7 @@ public class OAuthConsumerDAO {
             issueAccessTokStmt.setString(2, accessTokenSecret);
             issueAccessTokStmt.setString(3, consumerKey);
             issueAccessTokStmt.setString(4, scope);
-            issueAccessTokStmt.setString(5, authorizedUser);
+            issueAccessTokStmt.setString(5, authorizedUser.toLowerCase());
             issueAccessTokStmt.execute();
 
             connection.commit();

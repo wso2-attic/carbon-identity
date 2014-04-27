@@ -22,7 +22,6 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants"%>
 <%@ page import="java.util.ResourceBundle"%>
-<%@ page import="org.wso2.carbon.identity.application.mgt.ui.TrustedIDPConfig"%>
 <%@ page 	import="org.wso2.carbon.identity.application.mgt.ui.client.ApplicationManagementServiceClient"%>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>

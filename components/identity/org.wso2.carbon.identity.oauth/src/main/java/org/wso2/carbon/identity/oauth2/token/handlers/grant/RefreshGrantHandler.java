@@ -95,6 +95,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
             throws IdentityOAuth2Exception {
         OAuth2AccessTokenRespDTO tokenRespDTO = new OAuth2AccessTokenRespDTO();
         OAuth2AccessTokenReqDTO oauth2AccessTokenReqDTO = tokReqMsgCtx.getOauth2AccessTokenReqDTO();
+        String scope = OAuth2Util.buildScopeString(tokReqMsgCtx.getScope());
 
         String accessToken;
         String refreshToken;
@@ -162,7 +163,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
         String authorizedUser = tokReqMsgCtx.getAuthorizedUser();
         // set the previous access token state to "INACTIVE"
         tokenMgtDAO.setAccessTokenState(consumerKey, authorizedUser, "INACTIVE",
-                UUID.randomUUID().toString(), userStoreDomain);
+                UUID.randomUUID().toString(), userStoreDomain, scope);
 
         // store the new access token
         tokenMgtDAO.storeAccessToken(accessToken, clientId, accessTokenDO, userStoreDomain);
@@ -173,7 +174,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
         //remove the previous access token from cache and add the access token info to the cache,
         // if it's enabled.
         if(cacheEnabled){
-            CacheKey cacheKey = new OAuthCacheKey(consumerKey + ":" + authorizedUser);
+            CacheKey cacheKey = new OAuthCacheKey(consumerKey + ":" + authorizedUser + ":" + scope);
             // Remove the old access token from the cache
             oauthCache.clearCacheEntry(cacheKey);
             // Add new access token to the cache

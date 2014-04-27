@@ -48,10 +48,11 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
 
         OAuth2AuthorizeRespDTO respDTO = new OAuth2AuthorizeRespDTO();
         OAuth2AuthorizeReqDTO authorizationReqDTO = oauthAuthzMsgCtx.getAuthorizationReqDTO();
+        String scope = OAuth2Util.buildScopeString(oauthAuthzMsgCtx.getApprovedScope());
         respDTO.setCallbackURI(authorizationReqDTO.getCallbackUrl());
         String consumerKey = authorizationReqDTO.getConsumerKey();
         String authorizedUser = authorizationReqDTO.getUsername();
-        CacheKey cacheKey = new OAuthCacheKey(consumerKey + ":" + authorizedUser);
+        CacheKey cacheKey = new OAuthCacheKey(consumerKey + ":" + authorizedUser + ":" + scope);
         String userStoreDomain = null;
 
         //select the user store domain when multiple user stores are configured.
@@ -60,7 +61,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
             userStoreDomain = OAuth2Util.getUserStoreDomainFromUserId(authorizedUser);
         }
 
-        synchronized ((consumerKey + ":" + authorizedUser).intern()) {
+        synchronized ((consumerKey + ":" + authorizedUser + ":" + scope).intern()) {
             try {
                 //TODO Need to refactor this logic
                 //First serve from the cache
@@ -83,13 +84,13 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                             //TODO : Read token state from a constant
                             tokenMgtDAO.setAccessTokenState(consumerKey, authorizedUser, "EXPIRED",
                                     UUID.randomUUID().toString(),
-                                    userStoreDomain);
+                                    userStoreDomain, scope);
                         }
                     }
                 }
 
                 //Check if previously issued token exists in database
-                OAuth2AccessTokenRespDTO tokenRespDTO = tokenMgtDAO.getValidAccessTokenIfExist(consumerKey,authorizedUser,userStoreDomain);
+                OAuth2AccessTokenRespDTO tokenRespDTO = tokenMgtDAO.getValidAccessTokenIfExist(consumerKey,authorizedUser,userStoreDomain, scope);
                 if (tokenRespDTO != null) {
                     if (log.isDebugEnabled()) {
                         log.debug("Retrieving existing valid access token for client ID" + consumerKey);
@@ -118,7 +119,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                     //TODO : This should move to validation check of getValidAccessTokenIfExist() method
                     tokenMgtDAO.setAccessTokenState(consumerKey, authorizedUser, "EXPIRED",
                             UUID.randomUUID().toString(),
-                            userStoreDomain);
+                            userStoreDomain, scope);
                 }
             } catch (Exception e) {
                 if (log.isDebugEnabled()) {

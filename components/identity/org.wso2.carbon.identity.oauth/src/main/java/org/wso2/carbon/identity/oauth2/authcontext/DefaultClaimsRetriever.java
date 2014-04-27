@@ -27,6 +27,7 @@ import org.wso2.carbon.user.api.ClaimManager;
 import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -64,17 +65,10 @@ public class DefaultClaimsRetriever implements ClaimsRetriever {
         SortedMap<String, String> claimValues;
         try {
             int tenantId = JWTTokenGenerator.getTenantId(endUserName);
-            // if no claims were requested, return all
-	        if (requestedClaims == null) {
-			    log.debug("No claims set requested. Returning all claims in the dialect");
-			    ClaimManager claimManager =
-                    OAuthComponentServiceHolder.getRealmService().getTenantUserRealm(tenantId).getClaimManager();
-			    ClaimMapping[] claims = claimManager.getAllClaimMappings(dialectURI);
-				requestedClaims = claimToString(claims);
-		    }
+            String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(endUserName);
             UserStoreManager userStoreManager = OAuthComponentServiceHolder.getRealmService()
                     .getTenantUserRealm(tenantId).getUserStoreManager();
-            claimValues = new TreeMap(userStoreManager.getUserClaimValues(endUserName, requestedClaims, null));
+            claimValues = new TreeMap(userStoreManager.getUserClaimValues(tenantAwareUsername, requestedClaims, null));
         } catch (UserStoreException e) {
         	log.debug("Error while reading user claims ", e);
             throw new IdentityOAuth2Exception("Error while retrieving user claim values from "
@@ -83,6 +77,25 @@ public class DefaultClaimsRetriever implements ClaimsRetriever {
         return claimValues;
     }
 
+    @Override
+    public String[] getDefaultClaims(String endUserName) throws IdentityOAuth2Exception {
+        int tenantId = 0;
+        String[] requestedClaims;
+        try {
+            tenantId = JWTTokenGenerator.getTenantId(endUserName);
+            String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(endUserName);
+            // if no claims were requested, return all
+            log.debug("No claims set requested. Returning all claims in the dialect");
+            ClaimManager claimManager =
+                    OAuthComponentServiceHolder.getRealmService().getTenantUserRealm(tenantId).getClaimManager();
+            ClaimMapping[] claims = claimManager.getAllClaimMappings(dialectURI);
+            return requestedClaims = claimToString(claims);
+        } catch (UserStoreException e) {
+            log.debug("Error while reading user claims ", e);
+            throw new IdentityOAuth2Exception("Error while retrieving user claim values from "
+                    + "user store: " + e.getMessage());
+        }
+    }
     /**
      * Helper method to convert array of <code>Claim</code> object to
      * array of <code>String</code> objects corresponding to the ClaimURI values.

@@ -82,10 +82,11 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
 
         OAuth2AccessTokenRespDTO tokenRespDTO;
         OAuth2AccessTokenReqDTO oAuth2AccessTokenReqDTO = tokReqMsgCtx.getOauth2AccessTokenReqDTO();
+        String scope = OAuth2Util.buildScopeString(tokReqMsgCtx.getScope());
 
         String consumerKey = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientId();
         String authorizedUser = tokReqMsgCtx.getAuthorizedUser();
-        CacheKey cacheKey = new OAuthCacheKey(consumerKey + ":" + authorizedUser.toLowerCase());
+        CacheKey cacheKey = new OAuthCacheKey(consumerKey + ":" + authorizedUser.toLowerCase() + ":" + scope);
         String userStoreDomain = null;
 
         //select the user store domain when multiple user stores are configured.
@@ -102,7 +103,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
             tokenType = OAuthConstants.USER_TYPE_FOR_APPLICATION_TOKEN;
         }
 
-        synchronized ((consumerKey + ":" + authorizedUser).intern()) {
+        synchronized ((consumerKey + ":" + authorizedUser + ":" + scope).intern()) {
             try {
                 //TODO Need to refactor this logic
                 //First serve from the cache
@@ -129,12 +130,12 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                             oauthCache.clearCacheEntry(cacheKey);
                             //Token is expired. Mark it as expired on database
                             //TODO : Read token state from a constant
-                            String tokenState = tokenMgtDAO.getAccessTokenState(consumerKey, authorizedUser);
+                            String tokenState = tokenMgtDAO.getAccessTokenState(consumerKey, authorizedUser, scope);
                             if (tokenState.equals("REVOKED")) {
-                                tokenMgtDAO.setAccessTokenState(consumerKey, authorizedUser,"REVOKED", UUID.randomUUID().toString(),userStoreDomain);
+                                tokenMgtDAO.setAccessTokenState(consumerKey, authorizedUser,"REVOKED", UUID.randomUUID().toString(),userStoreDomain, scope);
                             } else {//Token is expired. Mark it as expired on database
                                 tokenMgtDAO.setAccessTokenState(consumerKey, authorizedUser, "EXPIRED",
-                                        UUID.randomUUID().toString(), userStoreDomain);
+                                        UUID.randomUUID().toString(), userStoreDomain, scope);
                             }
                         }
                     }
@@ -142,7 +143,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
 
                 //Check if previously issued token exists in database
                 tokenRespDTO = tokenMgtDAO.getValidAccessTokenIfExist(oAuth2AccessTokenReqDTO.getClientId(),
-                        tokReqMsgCtx.getAuthorizedUser(), userStoreDomain);
+                        tokReqMsgCtx.getAuthorizedUser(), userStoreDomain, scope);
                 if (tokenRespDTO != null) {
                     if (log.isDebugEnabled()) {
                         log.debug("Retrieving existing valid access token for client ID" + oAuth2AccessTokenReqDTO.getClientId());
@@ -172,13 +173,13 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                     }
                     //TODO : Read token state from a constant
                     //TODO : This should move to validation check of getValidAccessTokenIfExist() method
-                    String tokenState = tokenMgtDAO.getAccessTokenState(consumerKey, authorizedUser);
+                    String tokenState = tokenMgtDAO.getAccessTokenState(consumerKey, authorizedUser, scope);
                     if (tokenState != null){
                         if(tokenState.equals("REVOKED")) {
-                            tokenMgtDAO.setAccessTokenState(consumerKey, authorizedUser, "REVOKED", UUID.randomUUID().toString(), userStoreDomain);
+                            tokenMgtDAO.setAccessTokenState(consumerKey, authorizedUser, "REVOKED", UUID.randomUUID().toString(), userStoreDomain, scope);
                         } else { // Token is expired. Mark it as expired on database
                             tokenMgtDAO.setAccessTokenState(consumerKey, authorizedUser, "EXPIRED",
-                                    UUID.randomUUID().toString(), userStoreDomain);
+                                    UUID.randomUUID().toString(), userStoreDomain,scope);
                         }
                     }
                 }
@@ -281,6 +282,10 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                 org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString())){
             authzCallback.setCarbonGrantType(org.wso2.carbon.identity.oauth.common.GrantType.valueOf(
                     OAuthConstants.OAUTH_SAML2_BEARER_GRANT_ENUM.toString()));
+        }else if(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType().equals(
+                org.wso2.carbon.identity.oauth.common.GrantType.IWA_NTLM.toString())){
+            authzCallback.setCarbonGrantType(org.wso2.carbon.identity.oauth.common.GrantType.valueOf(
+                    OAuthConstants.OAUTH_IWA_NTLM_GRANT_ENUM.toString()));
         }else{
             authzCallback.setGrantType(GrantType.valueOf(
                     tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType().toUpperCase()));
@@ -301,6 +306,10 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                 org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString())){
             scopeValidationCallback.setCarbonGrantType(org.wso2.carbon.identity.oauth.common.GrantType.valueOf(
                     OAuthConstants.OAUTH_SAML2_BEARER_GRANT_ENUM.toString()));
+        } else if(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType().equals(
+                org.wso2.carbon.identity.oauth.common.GrantType.IWA_NTLM.toString())){
+            scopeValidationCallback.setCarbonGrantType(org.wso2.carbon.identity.oauth.common.GrantType.valueOf(
+                    OAuthConstants.OAUTH_IWA_NTLM_GRANT_ENUM.toString()));
         }else{
             scopeValidationCallback.setGrantType(GrantType.valueOf(
                     tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType().toUpperCase()));

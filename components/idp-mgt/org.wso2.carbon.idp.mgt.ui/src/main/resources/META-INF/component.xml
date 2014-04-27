@@ -21,7 +21,7 @@
             <id>identity_providers_menu</id>
             <i18n-key>identity.providers</i18n-key>
             <i18n-bundle>org.wso2.carbon.idp.mgt.ui.i18n.Resources</i18n-bundle>
-            <parent-menu>manage_menu</parent-menu>
+            <parent-menu>identity_menu</parent-menu>
             <link>#</link>
             <region>region1</region>
             <order>2</order>

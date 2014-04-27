@@ -32,6 +32,7 @@ public class OAuth2AccessTokenReqDTO {
     private String clientAssertionType;
     private String clientAssertion;
     private String idp;
+    private String windows_token;
 
     public String getClientId() {
         return clientId;
@@ -111,6 +112,14 @@ public class OAuth2AccessTokenReqDTO {
 
     public void setAssertion(String assertion) {
         this.assertion = assertion;
+    }
+
+    public String getWindowsToken() {
+        return windows_token;
+    }
+
+    public void setWindowsToken(String windowsToken) {
+        this.windows_token = windowsToken;
     }
 
     public String getClientAssertionType() {

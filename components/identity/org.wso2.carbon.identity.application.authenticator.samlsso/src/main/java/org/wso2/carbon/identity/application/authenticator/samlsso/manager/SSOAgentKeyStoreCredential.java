@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.core.util.KeyStoreManager;
-import org.wso2.carbon.identity.application.authentication.framework.config.ExternalIdPConfig;
+import org.wso2.carbon.identity.application.authentication.framework.config.dto.ExternalIdPConfig;
 import org.wso2.carbon.identity.application.authenticator.samlsso.exception.SAMLSSOException;
 import org.wso2.carbon.identity.application.authenticator.samlsso.util.SSOConstants;
 

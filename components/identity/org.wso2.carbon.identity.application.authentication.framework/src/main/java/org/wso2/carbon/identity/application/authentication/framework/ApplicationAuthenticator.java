@@ -18,16 +18,18 @@
 
 package org.wso2.carbon.identity.application.authentication.framework;
 
+import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.wso2.carbon.identity.application.authentication.framework.context.ApplicationAuthenticationContext;
+import java.io.Serializable;
+import java.util.Map;
 
 /**
  * API of the Application Authenticators.
  *
  */
-public interface ApplicationAuthenticator {
+public interface ApplicationAuthenticator extends Serializable {
 
 	/**
 	 * Check whether the request can be handled by the authenticator
@@ -44,7 +46,7 @@ public interface ApplicationAuthenticator {
 	 */
 	public AuthenticatorStatus authenticate(HttpServletRequest request, 
 											HttpServletResponse response, 
-											ApplicationAuthenticationContext context);
+											AuthenticationContext context);
 	
 	/**
 	 * Do logout
@@ -54,7 +56,8 @@ public interface ApplicationAuthenticator {
 	 */
 	public AuthenticatorStatus logout(HttpServletRequest request, 
 									  HttpServletResponse response, 
-									  ApplicationAuthenticationContext context);
+									  AuthenticationContext context,
+									  AuthenticatorStateInfo stateInfoDTO);
 	
 	/**
 	 * Common Servlet will call this if a common login page is not defined.
@@ -63,7 +66,7 @@ public interface ApplicationAuthenticator {
 	 */
 	public void sendInitialRequest(HttpServletRequest request, 
 								   HttpServletResponse response, 
-								   ApplicationAuthenticationContext context);
+								   AuthenticationContext context);
 	
 	/**
 	 * Get the authenticated subject
@@ -71,13 +74,26 @@ public interface ApplicationAuthenticator {
 	 * @return
 	 */
 	public String getAuthenticatedSubject(HttpServletRequest request);
-	
+
 	/**
 	 * Get the attributes sent in the response
 	 * @param request
 	 * @return
 	 */
-	public String getResponseAttributes(HttpServletRequest request);
+	public Map<String, String> getResponseAttributes(HttpServletRequest request, AuthenticationContext context);
+
+	/**
+	 * Get any (state) information that would be required by the authenticator
+	 * for later processing.
+	 * E.g. sessionIndex for SAMLSSOAuthenticator in SLO.
+	 * Each authenticator should have an internal DTO that extends the
+	 * AuthenticatorStateInfoDTO and set all the required state info in it.
+	 * Framework will call this method after successful authentication and
+	 * that DTO should be returned from this method.
+	 *
+	 * @return
+	 */
+	public AuthenticatorStateInfo getStateInfo(HttpServletRequest request);
 	
 	/**
      * Get the Context identifier sent with the request
@@ -97,4 +113,11 @@ public interface ApplicationAuthenticator {
 	 * @return boolean
 	 */
 	public boolean isEnabled();
+
+    /**
+     * Get the claim dialect URI if this authenticator receives claims in a standard dialect
+     * and needs to be mapped to the Carbon dialect http://wso2.org/claims
+     * @return boolean
+     */
+    public String getClaimDialectURIIfStandard();
 }

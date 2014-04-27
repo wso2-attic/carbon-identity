@@ -18,9 +18,9 @@
 
 package org.wso2.carbon.identity.application.authentication.framework;
 
-import org.wso2.carbon.identity.application.authentication.framework.config.FileBasedConfigurationBuilder;
-import org.wso2.carbon.identity.application.authentication.framework.config.AuthenticatorConfig;
-
+import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
+import org.wso2.carbon.identity.application.authentication.framework.config.dto.AuthenticatorConfig;
+import org.wso2.carbon.identity.application.authentication.framework.config.dto.ExternalIdPConfig;
 
 /**
  * This is the super class of all the Application Authenticators.
@@ -28,6 +28,11 @@ import org.wso2.carbon.identity.application.authentication.framework.config.Auth
  */
 public abstract class AbstractApplicationAuthenticator implements ApplicationAuthenticator {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	/* (non-Javadoc)
 	 * @see org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator#isDisabled()
 	 */
@@ -38,8 +43,18 @@ public abstract class AbstractApplicationAuthenticator implements ApplicationAut
 		}
 		return true;
 	}
-	
+
+    public String getClaimDialectURIIfStandard(){
+        return null;
+    }
+
 	protected AuthenticatorConfig getAuthenticatorConfig() {
 		return FileBasedConfigurationBuilder.getInstance().getAuthenticatorBean(getAuthenticatorName());
     }
+	
+	protected ExternalIdPConfig getIdPConfig(String idpName) {
+		ExternalIdPConfig externalIdPConfig = null;
+		
+		return externalIdPConfig;
+	}
 } 

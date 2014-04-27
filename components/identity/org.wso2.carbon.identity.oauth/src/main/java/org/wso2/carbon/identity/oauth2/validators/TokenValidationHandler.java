@@ -153,6 +153,13 @@ public class TokenValidationHandler {
         // Cache miss, load the access token info from the database.
         if (accessTokenDO == null) {
             accessTokenDO = tokenMgtDAO.retrieveAccessToken(accessTokenIdentifier);
+            
+            // No data retrieved due to invalid input.
+            if(accessTokenDO == null) {
+            	responseDTO.setValid(false);
+            	responseDTO.setErrorMsg("Invalid input. Access token validation failed");
+            	return responseDTO;
+            }
         }
 
         // Check whether the grant is expired
@@ -186,7 +193,9 @@ public class TokenValidationHandler {
             }
         }
 
-        responseDTO.setExpiryTime(validityPeriodInMillis / 1000);
+        // Set the token expiry time
+        long expiryTime = (issuedTimeInMillis + validityPeriodInMillis) - (currentTimeInMillis + timestampSkew);
+        responseDTO.setExpiryTime(expiryTime / 1000);
 
         // Adding the AccessTokenDO as a context property for further use
         messageContext.addProperty("AccessTokenDO", accessTokenDO);

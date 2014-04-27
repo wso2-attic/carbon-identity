@@ -34,6 +34,7 @@ import org.wso2.carbon.identity.oauth2.authz.handlers.ResponseTypeHandler;
 import org.wso2.carbon.identity.oauth2.token.handlers.clientauth.ClientAuthenticationHandler;
 import org.wso2.carbon.identity.oauth2.token.handlers.grant.AuthorizationGrantHandler;
 import org.wso2.carbon.identity.oauth2.token.handlers.grant.saml.SAML2TokenCallbackHandler;
+import org.wso2.carbon.identity.oauth2.validators.OAuth2ScopeValidator;
 import org.wso2.carbon.identity.oauth2.validators.OAuth2TokenValidator;
 import org.wso2.carbon.identity.oauth2.validators.TokenValidationHandler;
 import org.wso2.carbon.identity.openidconnect.CustomClaimsCallbackHandler;
@@ -70,6 +71,9 @@ public class OAuthServerConfiguration {
 		private static final String TOKEN_VALIDATOR = "TokenValidator";
 		private static final String TOKEN_TYPE_ATTR = "type";
 		private static final String TOKEN_CLASS_ATTR = "class";
+        private static final String SCOPE_VALIDATOR = "OAuthScopeValidator";
+        private static final String SCOPE_CLASS_ATTR = "class";
+        private static final String SKIP_SCOPE_ATTR = "scopesToSkip";
 
 		// Default timestamp skew
 		private static final String TIMESTAMP_SKEW = "TimestampSkew";
@@ -217,6 +221,8 @@ public class OAuthServerConfiguration {
 	
 	private String openIDConnectUserInfoEndpointResponseBuilder = "org.wso2.carbon.identity.oauth.endpoint.user.impl.UserInfoJSONResponseBuilder";
 
+    private OAuth2ScopeValidator oAuth2ScopeValidator;
+
 	private OAuthServerConfiguration() {
 		buildOAuthServerConfiguration();
 	}
@@ -249,6 +255,12 @@ public class OAuthServerConfiguration {
 
 			// get the token validators by type
 			parseTokenValidators(oauthElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.TOKEN_VALIDATORS)));
+
+            // Get the configured scope validator
+            OMElement scopeValidatorElem = oauthElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.SCOPE_VALIDATOR));
+            if(scopeValidatorElem != null){
+                parseScopeValidator(scopeValidatorElem);
+            }
 
 			// read default timeout periods
 			parseDefaultValidityPeriods(oauthElem);
@@ -656,6 +668,29 @@ public class OAuthServerConfiguration {
 		}
 	}
 
+    private void parseScopeValidator(OMElement scopeValidatorElem){
+
+        String scopeValidatorClazz = scopeValidatorElem.getAttributeValue(new QName(ConfigElements.SCOPE_CLASS_ATTR));
+
+        String scopesToSkipAttr = scopeValidatorElem.getAttributeValue(new QName(ConfigElements.SKIP_SCOPE_ATTR));
+        try {
+            Class clazz = Thread.currentThread().getContextClassLoader().loadClass(scopeValidatorClazz);
+            OAuth2ScopeValidator scopeValidator = (OAuth2ScopeValidator)clazz.newInstance();
+            if(scopesToSkipAttr != null && !"".equals(scopesToSkipAttr)){
+                //Split the scopes attr by a -space- character and create the set (avoid duplicates).
+                Set<String> scopesToSkip = new HashSet<String>(Arrays.asList(scopesToSkipAttr.split(" ")));
+                scopeValidator.setScopesToSkip(scopesToSkip);
+            }
+            setoAuth2ScopeValidator(scopeValidator);
+        } catch (ClassNotFoundException e) {
+            log.error("Class not found in build path " + scopeValidatorClazz, e);
+        } catch (InstantiationException e) {
+            log.error("Class initialization error " + scopeValidatorClazz, e);
+        } catch (IllegalAccessException e) {
+            log.error("Class access error " + scopeValidatorClazz, e);
+        }
+    }
+
 	private void warnOnFaultyConfiguration(String logMsg) {
 		log.warn("Error in OAuth Configuration. " + logMsg);
 	}
@@ -868,6 +903,7 @@ public class OAuthServerConfiguration {
             defaultGrantTypes.put(GrantType.PASSWORD.toString(), "org.wso2.carbon.identity.oauth2.token.handlers.grant.PasswordGrantHandler");
             defaultGrantTypes.put(GrantType.REFRESH_TOKEN.toString(), "org.wso2.carbon.identity.oauth2.token.handlers.grant.RefreshGrantHandler");
             defaultGrantTypes.put(org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString(), "org.wso2.carbon.identity.oauth2.token.handlers.grant.saml.SAML2BearerGrantHandler");
+            defaultGrantTypes.put(org.wso2.carbon.identity.oauth.common.GrantType.IWA_NTLM.toString(),"org.wso2.carbon.identity.oauth2.token.handlers.grant.iwa.ntlm.NTLMAuthenticationGrantHandler");
             supportedGrantTypeClassNames.putAll(defaultGrantTypes);
 		}
         if(log.isDebugEnabled()){
@@ -1089,5 +1125,13 @@ public class OAuthServerConfiguration {
             }
 		}
 	}
+
+    public OAuth2ScopeValidator getoAuth2ScopeValidator() {
+        return oAuth2ScopeValidator;
+    }
+
+    public void setoAuth2ScopeValidator(OAuth2ScopeValidator oAuth2ScopeValidator) {
+        this.oAuth2ScopeValidator = oAuth2ScopeValidator;
+    }
 
 }
