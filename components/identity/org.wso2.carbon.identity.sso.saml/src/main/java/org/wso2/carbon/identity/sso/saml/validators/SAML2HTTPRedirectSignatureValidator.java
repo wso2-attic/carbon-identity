@@ -1,13 +1,13 @@
 /*
  * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
+ *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,14 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.identity.sso.saml.builders;
+package org.wso2.carbon.identity.sso.saml.validators;
 
-import org.opensaml.saml2.core.Response;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
+import org.wso2.carbon.identity.sso.saml.exception.IdentitySAML2SSOException;
 
-public interface ResponseBuilder {
+public interface SAML2HTTPRedirectSignatureValidator {
 
-	Response buildResponse(SAMLSSOAuthnReqDTO authnReqDTO, String sessionIndexId) throws IdentityException;
+    public void init() throws IdentityException;
 
+    public boolean validateSignature(String queryString, String issuer, String alias,
+                                            String domainName) throws org.opensaml.xml.security.SecurityException,IdentitySAML2SSOException;
 }

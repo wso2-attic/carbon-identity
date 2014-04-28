@@ -25,16 +25,12 @@
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.wso2.carbon.identity.sso.saml.ui.SAMLSSOUIUtil" %>
-<%@ page import="org.wso2.carbon.identity.application.mgt.ui.ApplicationConfigBean"%>
-<%@ page import="org.wso2.carbon.identity.application.mgt.ui.SAMLSSOAppConfig"%>
 
 <jsp:useBean id="samlSsoServuceProviderConfigBean"
              type="org.wso2.carbon.identity.sso.saml.ui.SAMLSSOProviderConfigBean"
              class="org.wso2.carbon.identity.sso.saml.ui.SAMLSSOProviderConfigBean"
              scope="session"/>
 <jsp:setProperty name="samlSsoServuceProviderConfigBean" property="*"/>
-
-<jsp:useBean id="appBean" class="org.wso2.carbon.identity.application.mgt.ui.ApplicationConfigBean" scope="session"/>
 
 <script type="text/javascript" src="global-params.js"></script>
 <script type="text/javascript" src="../carbon/admin/js/breadcrumbs.js"></script>
@@ -49,17 +45,20 @@
     String user = null;
     SAMLSSOConfigServiceClient client;
     session.setAttribute(SAMLSSOUIConstants.CONFIG_CLIENT, null);
+    String spName = (String) session.getAttribute("application-sp-name");
+    session.removeAttribute("application-sp-name");
+    boolean status = false;
 
     backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
     configContext = (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
     cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
     String BUNDLE = "org.wso2.carbon.identity.sso.saml.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
-
+    SAMLSSOServiceProviderDTO serviceProviderDTO = null;
     try {
         client = new SAMLSSOConfigServiceClient(cookie, backendServerURL, configContext);
 
-        SAMLSSOServiceProviderDTO serviceProviderDTO = new SAMLSSOServiceProviderDTO();
+        serviceProviderDTO = new SAMLSSOServiceProviderDTO();
         boolean isEditingSP = false; 
         if ("editServiceProvider".equals(SAMLSSOUIUtil.getSafeInput(request, "SPAction"))) {
             isEditingSP = true;
@@ -69,7 +68,6 @@
         }
 
         serviceProviderDTO.setAssertionConsumerUrl(SAMLSSOUIUtil.getSafeInput(request, "assrtConsumerURL"));
-        serviceProviderDTO.setCertAlias(SAMLSSOUIUtil.getSafeInput(request, "alias"));
 
         if ("true".equals(request.getParameter("useFullQualifiedUsername"))) {
             serviceProviderDTO.setUseFullyQualifiedUsername(true);
@@ -179,25 +177,27 @@
             serviceProviderDTO.setIdPInitSSOEnabled(true);
         }
 
+
+
+        if ("true".equals(request.getParameter("enableEncAssertion"))) {
+            serviceProviderDTO.setDoEnableEncryptedAssertion(true);
+            serviceProviderDTO.setCertAlias(SAMLSSOUIUtil.getSafeInput(request, "alias"));
+        }
+
+        if("true".equals(request.getParameter("enableSigValidation"))){
+            serviceProviderDTO.setDoValidateSignatureInRequests(true);
+            serviceProviderDTO.setCertAlias(SAMLSSOUIUtil.getSafeInput(request, "alias"));
+        }
+
         if (isEditingSP) {
             client.removeServiceProvier(serviceProviderDTO.getIssuer());
         }
-        boolean status = client.addServiceProvider(serviceProviderDTO);
+        status = client.addServiceProvider(serviceProviderDTO);
 
         samlSsoServuceProviderConfigBean.clearBean();
 
         String message;
-        if (status) {
-        	// setting app bean
-        	SAMLSSOServiceProviderDTO dto = client.getServiceProvider(serviceProviderDTO.getIssuer());
-        	if (dto != null) {
-				SAMLSSOAppConfig ssoConfig = new SAMLSSOAppConfig();
-				ssoConfig.setIssuer(dto.getIssuer());
-				ssoConfig.setConsumerIndex(dto.getAttributeConsumingServiceIndex());
-				ssoConfig.setAcsUrl(dto.getAssertionConsumerUrl());
-				appBean.setSamlssoConfig(ssoConfig);
-			}
-
+        if (status) {     	
 			if (isEditingSP) {
 				message = resourceBundle.getString("sp.updated.successfully");
 			} else {
@@ -214,7 +214,19 @@
 		}
 %>
 <script>
-    location.href = '../application/add-service-provider.jsp';
+<%
+boolean applicationComponentFound = CarbonUIUtil.isContextRegistered(config, "/application/");
+
+if (applicationComponentFound) {
+	if (status) {
+%>
+    location.href = '../application/configure-service-provider.jsp?action=update&display=samlIssuer&spName=<%=spName%>&samlIssuer=<%=serviceProviderDTO.getIssuer()%>';
+<% } else { %>
+location.href = '../application/configure-service-provider.jsp?action=delete&display=samlIssuer&spName=<%=spName%>&samlIssuer=<%=serviceProviderDTO.getIssuer()%>';
+
+<% } } else { %>
+    location.href = 'manage_service_providers.jsp?region=region1&item=manage_saml_sso';
+<% } %>
 </script>
 <%
 

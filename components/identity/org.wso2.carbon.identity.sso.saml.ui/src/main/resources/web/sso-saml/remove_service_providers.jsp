@@ -23,8 +23,6 @@
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
-<%@ page import="org.wso2.carbon.identity.application.mgt.ui.ApplicationConfigBean"%>
-<jsp:useBean id="appBean" class="org.wso2.carbon.identity.application.mgt.ui.ApplicationConfigBean" scope="session"/>
 
 <script type="text/javascript" src="global-params.js"></script>
 <script type="text/javascript" src="../carbon/admin/js/breadcrumbs.js"></script>
@@ -52,14 +50,20 @@
         if (!status){
             String message = resourceBundle.getString("error.removing.sp");
             CarbonUIMessage.sendCarbonUIMessage(message,CarbonUIMessage.ERROR, request);
-        } else {
-        	appBean.setSamlssoConfig(null);
-        }
+        } 
 
 %>
+<%
+boolean applicationComponentFound = CarbonUIUtil.isContextRegistered(config, "/application/");
+
+if (applicationComponentFound) {
+%>
+
 <script>
-    location.href = '../application/add-service-provider.jsp';
+    location.href = '../application/configure-service-provider.jsp?action=delete&samlissuer=<%=request.getParameter("issuer")%>';
 </script>
+<%}%>
+
 <%
 
 } catch (Exception e) {

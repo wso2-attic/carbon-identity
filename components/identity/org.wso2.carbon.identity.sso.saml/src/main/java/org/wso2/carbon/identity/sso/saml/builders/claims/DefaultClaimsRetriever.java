@@ -19,14 +19,10 @@ package org.wso2.carbon.identity.sso.saml.builders.claims;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonException;
-import org.wso2.carbon.core.util.AnonymousSessionUtil;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
-import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.user.core.UserStoreManager;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class DefaultClaimsRetriever implements ClaimsRetriever {
@@ -38,26 +34,33 @@ public class DefaultClaimsRetriever implements ClaimsRetriever {
 
     }
 
-    @Override
-    public Map<String, String> getUserClaimValues(String username, String[] requestedClaims, String profile)
-            throws IdentityException {
-        try {
-            UserStoreManager userStroreManager =
-                    AnonymousSessionUtil.getRealmByUserName(SAMLSSOUtil.getRegistryService(),
-                            SAMLSSOUtil.getRealmService(),
-                            username).getUserStoreManager();
-            username = MultitenantUtils.getTenantAwareUsername(username);
-            return userStroreManager.getUserClaimValues(username, requestedClaims, profile);
-        } catch (UserStoreException e) {
-            log.error("Error while retrieving claims values", e);
-            throw new IdentityException(
-                    "Error while retrieving claims values", e);
-        } catch (CarbonException e) {
-            log.error("Error while retrieving claims values", e);
-            throw new IdentityException(
-                    "Error while retrieving claim values",
-                    e);
-        }
-    }
+	@Override
+	public Map<String, String> getUserClaimValues(SAMLSSOAuthnReqDTO authnReqDTO,
+			String[] requestedClaims, String profile) throws IdentityException {
+		
+		Map<String, String> userAttributes = authnReqDTO.getUserAttributes();
+		Map<String, String> returnAttibutes = null;
+		
+		if(requestedClaims != null) {
+			
+			if(userAttributes == null) {
+				log.debug("No attributes found.");
+				return null;
+			}
+			
+			returnAttibutes = new HashMap<String, String>();
+			
+			for(String reqClaim : requestedClaims) {
+				String value = userAttributes.get(reqClaim);
+				returnAttibutes.put(reqClaim, value);
+				if(log.isDebugEnabled()) {
+					log.debug("Setting up claim " + reqClaim + " : " + value);
+				}
+			}
+		}
+		
+		return returnAttibutes;
+	}
+
 
 }

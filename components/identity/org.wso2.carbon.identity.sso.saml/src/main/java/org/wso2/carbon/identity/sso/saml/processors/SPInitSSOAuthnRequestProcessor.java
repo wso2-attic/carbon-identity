@@ -17,13 +17,12 @@
 */
 package org.wso2.carbon.identity.sso.saml.processors;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml2.core.Response;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.util.AnonymousSessionUtil;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
@@ -40,12 +39,19 @@ import org.wso2.carbon.identity.sso.saml.dto.SAMLSSORespDTO;
 import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
 import org.wso2.carbon.identity.sso.saml.session.SessionInfoData;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
+import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
+import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.utils.TenantUtils;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SPInitSSOAuthnRequestProcessor {
 
@@ -89,7 +95,7 @@ public class SPInitSSOAuthnRequestProcessor {
             // reading the service provider configs
             populateServiceProviderConfigs(serviceProviderConfigs, authnReqDTO);
 
-            if (authnReqDTO.getCertAlias() != null) {
+            if (authnReqDTO.isDoValidateSignatureInRequests()) {
 
                 // Validate 'Destination'
                 String idpUrl = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_IDP_URL);
@@ -147,10 +153,11 @@ public class SPInitSSOAuthnRequestProcessor {
                     spDO.setCertAlias(authnReqDTO.getCertAlias());
                     spDO.setLogoutURL(authnReqDTO.getLogoutURL());
                     sessionPersistenceManager.persistSession(sessionId, sessionIndexId, authnReqDTO.getUsername(),
-                            spDO, authnReqDTO.getRpSessionId(), authenticators);
+                            spDO, authnReqDTO.getRpSessionId(), authenticators, authnReqDTO.getUserAttributes());
 
                     SessionInfoData sessionInfo = sessionPersistenceManager.getSessionInfo(sessionIndexId);
                     authnReqDTO.setUsername(sessionInfo.getSubject());
+                    authnReqDTO.setUserAttributes(sessionInfo.getAttributes());
                     sessionPersistenceManager.persistSession(sessionId, sessionIndexId, authnReqDTO.getIssuer(),
                             authnReqDTO.getAssertionConsumerURL(),
                             authnReqDTO.getRpSessionId());
@@ -163,11 +170,11 @@ public class SPInitSSOAuthnRequestProcessor {
                     spDO.setCertAlias(authnReqDTO.getCertAlias());
                     spDO.setLogoutURL(authnReqDTO.getLogoutURL());
                     sessionPersistenceManager.persistSession(sessionId, sessionIndexId, authnReqDTO.getUsername(),
-                            spDO, authnReqDTO.getRpSessionId(), authenticators);
+                            spDO, authnReqDTO.getRpSessionId(), authenticators, authnReqDTO.getUserAttributes());
                 }
 
                 // Build the response for the successful scenario
-                ResponseBuilder respBuilder = new ResponseBuilder();
+                ResponseBuilder respBuilder = SAMLSSOUtil.getResponseBuilder();
                 Response response = respBuilder.buildResponse(authnReqDTO, sessionIndexId);
                 samlssoRespDTO = new SAMLSSORespDTO();
                 String samlResp = SAMLSSOUtil.marshall(response);
@@ -220,8 +227,7 @@ public class SPInitSSOAuthnRequestProcessor {
             if (ssoIdpConfigs == null) {
                 IdentityPersistenceManager persistenceManager = IdentityPersistenceManager
                         .getPersistanceManager();
-                UserRegistry registry = SAMLSSOUtil.getRegistryService().getConfigSystemRegistry(
-                        IdentityUtil.getTenantIdOFUser(authnReqDTO.getUsername()));
+                Registry registry = (Registry)PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_CONFIGURATION);
                 ssoIdpConfigs = persistenceManager.getServiceProvider(registry,
                         authnReqDTO.getIssuer());
                 authnReqDTO.setStratosDeployment(false); // not stratos
@@ -230,7 +236,7 @@ public class SPInitSSOAuthnRequestProcessor {
             }
             return ssoIdpConfigs;
         } catch (Exception e) {
-            throw new IdentityException("Error while reading Service Provider configurations");
+            throw new IdentityException("Error while reading Service Provider configurations", e);
         }
     }
 
@@ -256,6 +262,8 @@ public class SPInitSSOAuthnRequestProcessor {
         authnReqDTO.setDoSignAssertions(ssoIdpConfigs.isDoSignAssertions());
         authnReqDTO.setRequestedClaims((ssoIdpConfigs.getRequestedClaims()));
         authnReqDTO.setRequestedAudiences((ssoIdpConfigs.getRequestedAudiences()));
+        authnReqDTO.setDoEnableEncryptedAssertion(ssoIdpConfigs.isDoEnableEncryptedAssertion());
+        authnReqDTO.setDoValidateSignatureInRequests(ssoIdpConfigs.isDoValidateSignatureInRequests());
     }
 
     /**
@@ -292,6 +300,7 @@ public class SPInitSSOAuthnRequestProcessor {
                 SessionInfoData sessionInfo = sessionPersistenceManager.
                         getSessionInfo(sessionPersistenceManager.getSessionIndexFromTokenId(sessionId));
                 authReqDTO.setUsername(sessionInfo.getSubject());
+                authReqDTO.setUserAttributes(sessionInfo.getAttributes());
             }
         } else {
             authReqDTO.setUsername(valiationDTO.getSubject());

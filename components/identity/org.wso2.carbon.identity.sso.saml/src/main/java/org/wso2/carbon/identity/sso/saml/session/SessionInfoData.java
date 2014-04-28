@@ -19,6 +19,7 @@ package org.wso2.carbon.identity.sso.saml.session;
 
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -28,8 +29,9 @@ public class SessionInfoData {
     private Map<String, String> rpSessionList = new ConcurrentHashMap<String,  String>();
     private Map<String, SAMLSSOServiceProviderDO> serviceProviderList = new ConcurrentHashMap<String, SAMLSSOServiceProviderDO>();
     private String authenticators;
+    private Map<String, String> attributes = new HashMap<String, String>();
 
-    public SessionInfoData(String subject){
+	public SessionInfoData(String subject){
         this.subject = subject;
     }
 
@@ -63,6 +65,14 @@ public class SessionInfoData {
 
 	public void setAuthenticators(String authenticators) {
 		this.authenticators = authenticators;
+	}
+	
+	public Map<String, String> getAttributes() {
+		return attributes;
+	}
+
+	public void setAttributes(Map<String, String> attributes) {
+		this.attributes = attributes;
 	}
 }
 

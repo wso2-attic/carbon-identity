@@ -17,11 +17,6 @@
  */
 package org.wso2.carbon.identity.sso.saml.validators;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.opensaml.ws.security.SecurityPolicyException;
 import org.opensaml.ws.transport.http.HTTPTransportUtils;
 import org.opensaml.xml.security.CriteriaSet;
@@ -39,15 +34,25 @@ import org.opensaml.xml.util.Base64;
 import org.opensaml.xml.util.DatatypeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.sso.saml.builders.X509CredentialImpl;
 import org.wso2.carbon.identity.sso.saml.exception.IdentitySAML2SSOException;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 
-public class SAML2HTTPRedirectDeflateSignatureValidator {
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
+
+public class SAML2HTTPRedirectDeflateSignatureValidator implements SAML2HTTPRedirectSignatureValidator {
 	
 	private final static Logger log = LoggerFactory.getLogger(SAML2HTTPRedirectDeflateSignatureValidator.class);
-	
-	/**
+
+    @Override
+    public void init() throws IdentityException {
+    }
+
+    /**
 	 * 
 	 * @param queryString
 	 * @param issuer
@@ -57,7 +62,7 @@ public class SAML2HTTPRedirectDeflateSignatureValidator {
 	 * @throws SecurityException
 	 * @throws IdentitySAML2SSOException
 	 */
-	public static boolean validateSignature(String queryString, String issuer, String alias,
+	public boolean validateSignature(String queryString, String issuer, String alias,
 	                                               String domainName) throws SecurityException,
 	                                                                 IdentitySAML2SSOException {
 		byte[] signature = getSignature(queryString);

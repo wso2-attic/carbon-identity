@@ -21,15 +21,10 @@ package org.wso2.carbon.identity.sso.agent.saml;
 import org.wso2.carbon.identity.sso.agent.exception.SSOAgentException;
 import org.wso2.carbon.identity.sso.agent.util.SSOAgentConfigs;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.security.*;
 import java.security.cert.X509Certificate;
-import java.util.logging.Logger;
 
 public class SSOAgentKeyStoreCredential implements SSOAgentCredential {
-
-    private static Logger LOGGER = Logger.getLogger("InfoLogging");
 
     private static PublicKey publicKey = null;
     private static PrivateKey privateKey = null;
@@ -57,13 +52,11 @@ public class SSOAgentKeyStoreCredential implements SSOAgentCredential {
 
     private static void readX509Credentials() throws SSOAgentException {
 
-        InputStream keyStoreFile = SSOAgentConfigs.getKeyStore();
-        String keyStorePassword = SSOAgentConfigs.getKeyStorePassword();
         String privateKeyAlias = SSOAgentConfigs.getPrivateKeyAlias();
         String privateKeyPassword = SSOAgentConfigs.getPrivateKeyPassword();
         String idpCertAlias = SSOAgentConfigs.getIdPCertAlias();
         
-        KeyStore keyStore = readKeyStore(keyStoreFile, keyStorePassword, "JKS");
+        KeyStore keyStore = SSOAgentConfigs.getKeyStore();
         X509Certificate cert = null;
         PrivateKey privateKey = null;
         
@@ -94,41 +87,5 @@ public class SSOAgentKeyStoreCredential implements SSOAgentCredential {
         publicKey = cert.getPublicKey();
         SSOAgentKeyStoreCredential.privateKey = privateKey;
         entityCertificate = cert;
-    }
-
-    /**
-     * get the key store instance
-     *
-     * @param is KeyStore InputStream
-     * @param storePassword password of key store
-     * @param storeType     key store type
-     * @return KeyStore instant
-     * @throws SSOAgentException if fails to load key store
-     */
-    private static KeyStore readKeyStore(InputStream is, String storePassword,
-                                        String storeType) throws SSOAgentException {
-
-        if (storePassword == null) {
-            throw new SSOAgentException("KeyStore password can not be null");
-        }
-        if (storeType == null) {
-            throw new SSOAgentException ("KeyStore Type can not be null");
-        }
-
-        try {
-            KeyStore keyStore = KeyStore.getInstance(storeType);
-            keyStore.load(is, storePassword.toCharArray());
-            return keyStore;
-        } catch (Exception e) {
-            throw new SSOAgentException("Error while loading key store file" , e);
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException ignored) {
-                    throw new SSOAgentException("Error while closing input stream of key store");
-                }
-            }
-        }
     }
 }

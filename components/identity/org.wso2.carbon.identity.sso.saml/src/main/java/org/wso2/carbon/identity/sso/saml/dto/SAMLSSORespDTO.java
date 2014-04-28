@@ -17,8 +17,6 @@
 */
 package org.wso2.carbon.identity.sso.saml.dto;
 
-import java.util.Map;
-
 public class SAMLSSORespDTO {
 
     private String respString;

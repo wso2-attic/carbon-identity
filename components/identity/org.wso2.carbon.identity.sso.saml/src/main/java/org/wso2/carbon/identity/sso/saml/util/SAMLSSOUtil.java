@@ -17,34 +17,11 @@
  */
 package org.wso2.carbon.identity.sso.saml.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.*;
-import java.security.KeyStore;
-import java.security.cert.CertificateEncodingException;
-import java.util.*;
-import java.util.zip.DataFormatException;
-import java.util.zip.Inflater;
-import java.util.zip.InflaterInputStream;
-
-import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xml.security.c14n.Canonicalizer;
 import org.opensaml.Configuration;
 import org.opensaml.DefaultBootstrap;
-import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.Issuer;
-import org.opensaml.saml2.core.LogoutRequest;
-import org.opensaml.saml2.core.RequestAbstractType;
-import org.opensaml.saml2.core.Response;
-import org.opensaml.saml2.core.StatusResponseType;
-import org.opensaml.saml2.core.LogoutResponse;
+import org.opensaml.saml2.core.*;
 import org.opensaml.saml2.core.impl.AuthnRequestImpl;
 import org.opensaml.saml2.core.impl.IssuerBuilder;
 import org.opensaml.xml.ConfigurationException;
@@ -56,15 +33,9 @@ import org.opensaml.xml.io.Unmarshaller;
 import org.opensaml.xml.io.UnmarshallerFactory;
 import org.opensaml.xml.security.SecurityException;
 import org.opensaml.xml.security.x509.X509Credential;
-import org.opensaml.xml.signature.KeyInfo;
-import org.opensaml.xml.signature.Signature;
-import org.opensaml.xml.signature.SignatureValidator;
-import org.opensaml.xml.signature.Signer;
-import org.opensaml.xml.signature.X509Certificate;
-import org.opensaml.xml.signature.X509Data;
 import org.opensaml.xml.util.Base64;
-import org.opensaml.xml.validation.ValidationException;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.http.HttpService;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
@@ -72,6 +43,8 @@ import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 import org.wso2.carbon.CarbonException;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.util.AnonymousSessionUtil;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.base.IdentityConstants;
@@ -81,18 +54,38 @@ import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
+import org.wso2.carbon.identity.sso.saml.builders.DefaultResponseBuilder;
 import org.wso2.carbon.identity.sso.saml.builders.ErrorResponseBuilder;
+import org.wso2.carbon.identity.sso.saml.builders.ResponseBuilder;
 import org.wso2.carbon.identity.sso.saml.builders.X509CredentialImpl;
 import org.wso2.carbon.identity.sso.saml.builders.claims.ClaimsRetriever;
+import org.wso2.carbon.identity.sso.saml.builders.encryption.SSOEncrypter;
+import org.wso2.carbon.identity.sso.saml.builders.signature.SSOSigner;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
 import org.wso2.carbon.identity.sso.saml.exception.IdentitySAML2SSOException;
-import org.wso2.carbon.identity.sso.saml.validators.SAML2HTTPRedirectDeflateSignatureValidator;
+import org.wso2.carbon.identity.sso.saml.session.SSOSessionCommand;
+import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
+import org.wso2.carbon.identity.sso.saml.validators.SAML2HTTPRedirectSignatureValidator;
+import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
-import org.osgi.service.http.HttpService;
+
+import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.*;
+import java.security.KeyStore;
+import java.util.*;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
 
 public class SAMLSSOUtil {
 
@@ -111,6 +104,11 @@ public class SAMLSSOUtil {
     private static int singleLogoutRetryCount = 5;
     private static long singleLogoutRetryInterval = 60000;
     private static final Set<Character> UNRESERVED_CHARACTERS = new HashSet<Character>();
+    private static String responseBuilderClassName = null;
+
+    private static SSOEncrypter ssoEncrypter = null;
+    private static SSOSigner ssoSigner = null;
+    private static SAML2HTTPRedirectSignatureValidator samlHTTPRedirectSignatureValidator = null;
 
     static {
         for (char c = 'a'; c <= 'z'; c++)
@@ -210,8 +208,7 @@ public class SAMLSSOUtil {
             System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
                     "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl");
 
-            MarshallerFactory marshallerFactory =
-                    org.opensaml.xml.Configuration.getMarshallerFactory();
+            MarshallerFactory marshallerFactory = org.opensaml.xml.Configuration.getMarshallerFactory();
             Marshaller marshaller = marshallerFactory.getMarshaller(xmlObject);
             Element element = marshaller.marshall(xmlObject);
 
@@ -385,43 +382,24 @@ public class SAMLSSOUtil {
 
         doBootstrap();
         try {
-            Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
-            signature.setSigningCredential(cred);
-            signature.setSignatureAlgorithm(signatureAlgorithm);
-            signature.setCanonicalizationAlgorithm(Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
 
-            try {
-                KeyInfo keyInfo = (KeyInfo) buildXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
-                X509Data data = (X509Data) buildXMLObject(X509Data.DEFAULT_ELEMENT_NAME);
-                X509Certificate cert =
-                        (X509Certificate) buildXMLObject(X509Certificate.DEFAULT_ELEMENT_NAME);
-                String value =
-                        org.apache.xml.security.utils.Base64.encode(cred.getEntityCertificate()
-                                .getEncoded());
-                cert.setValue(value);
-                data.getX509Certificates().add(cert);
-                keyInfo.getX509Datas().add(data);
-                signature.setKeyInfo(keyInfo);
-            } catch (CertificateEncodingException e) {
-                throw new IdentityException("errorGettingCert");
+            synchronized (Runtime.getRuntime().getClass()){
+                ssoSigner = (SSOSigner)Class.forName(IdentityUtil.getProperty(
+                        "SSOService.SAMLSSOSigner").trim()).newInstance();
+                ssoSigner.init();
             }
 
-            response.setSignature(signature);
+            return ssoSigner.doSignResponse(response, signatureAlgorithm, cred);
 
-            List<Signature> signatureList = new ArrayList<Signature>();
-            signatureList.add(signature);
-
-            // Marshall and Sign
-            MarshallerFactory marshallerFactory =
-                    org.opensaml.xml.Configuration.getMarshallerFactory();
-            Marshaller marshaller = marshallerFactory.getMarshaller(response);
-
-            marshaller.marshall(response);
-
-            org.apache.xml.security.Init.init();
-            Signer.signObjects(signatureList);
-            return response;
-
+        } catch (ClassNotFoundException e) {
+            throw new IdentityException("Class not found: "
+                    + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
+        } catch (InstantiationException e) {
+            throw new IdentityException("Error while instantiating class: "
+                    + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
+        } catch (IllegalAccessException e) {
+            throw new IdentityException("Illegal access to class: "
+                    + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
         } catch (Exception e) {
             throw new IdentityException("Error while signing the SAML Response message.", e);
         }
@@ -432,45 +410,106 @@ public class SAMLSSOUtil {
                                          X509Credential cred) throws IdentityException {
         doBootstrap();
         try {
-            Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
-            signature.setSigningCredential(cred);
-            signature.setSignatureAlgorithm(signatureAlgorithm);
-            signature.setCanonicalizationAlgorithm(Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
 
-            try {
-                KeyInfo keyInfo = (KeyInfo) buildXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
-                X509Data data = (X509Data) buildXMLObject(X509Data.DEFAULT_ELEMENT_NAME);
-                X509Certificate cert = (X509Certificate) buildXMLObject(X509Certificate.DEFAULT_ELEMENT_NAME);
-                String value = org.apache.xml.security.utils.Base64.encode(cred
-                        .getEntityCertificate().getEncoded());
-                cert.setValue(value);
-                data.getX509Certificates().add(cert);
-                keyInfo.getX509Datas().add(data);
-                signature.setKeyInfo(keyInfo);
-            } catch (CertificateEncodingException e) {
-                throw new IdentityException("errorGettingCert");
+            synchronized (Runtime.getRuntime().getClass()){
+                ssoSigner = (SSOSigner)Class.forName(IdentityUtil.getProperty(
+                        "SSOService.SAMLSSOSigner").trim()).newInstance();
+                ssoSigner.init();
             }
 
-            assertion.setSignature(signature);
-
-            List<Signature> signatureList = new ArrayList<Signature>();
-            signatureList.add(signature);
-
-            // Marshall and Sign
-            MarshallerFactory marshallerFactory = org.opensaml.xml.Configuration
-                    .getMarshallerFactory();
-            Marshaller marshaller = marshallerFactory.getMarshaller(assertion);
-
-            marshaller.marshall(assertion);
-
-            org.apache.xml.security.Init.init();
-            Signer.signObjects(signatureList);
-            return assertion;
-
+            return ssoSigner.doSetSignature(assertion, signatureAlgorithm,cred);
+//            Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
+//            signature.setSigningCredential(cred);
+//            signature.setSignatureAlgorithm(signatureAlgorithm);
+//            signature.setCanonicalizationAlgorithm(Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
+//
+//            try {
+//                KeyInfo keyInfo = (KeyInfo) buildXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
+//                X509Data data = (X509Data) buildXMLObject(X509Data.DEFAULT_ELEMENT_NAME);
+//                X509Certificate cert = (X509Certificate) buildXMLObject(X509Certificate.DEFAULT_ELEMENT_NAME);
+//                String value = org.apache.xml.security.utils.Base64.encode(cred
+//                        .getEntityCertificate().getEncoded());
+//                cert.setValue(value);
+//                data.getX509Certificates().add(cert);
+//                keyInfo.getX509Datas().add(data);
+//                signature.setKeyInfo(keyInfo);
+//            } catch (CertificateEncodingException e) {
+//                throw new IdentityException("errorGettingCert");
+//            }
+//
+//            assertion.setSignature(signature);
+//
+//            List<Signature> signatureList = new ArrayList<Signature>();
+//            signatureList.add(signature);
+//
+//            // Marshall and Sign
+//            MarshallerFactory marshallerFactory = org.opensaml.xml.Configuration
+//                    .getMarshallerFactory();
+//            Marshaller marshaller = marshallerFactory.getMarshaller(assertion);
+//
+//            marshaller.marshall(assertion);
+//
+//            org.apache.xml.security.Init.init();
+//            Signer.signObjects(signatureList);
+//            return assertion;
+        } catch (ClassNotFoundException e) {
+            throw new IdentityException("Class not found: "
+                    + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
+        } catch (InstantiationException e) {
+            throw new IdentityException("Error while instantiating class: "
+                    + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
+        } catch (IllegalAccessException e) {
+            throw new IdentityException("Illegal access to class: "
+                    + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
         } catch (Exception e) {
             throw new IdentityException("Error while signing the SAML Response message.", e);
         }
     }
+
+    public static EncryptedAssertion setEncryptedAssertion(Assertion assertion, String encryptionAlgorithm,
+                                                           String alias, String domainName) throws IdentityException {
+        doBootstrap();
+        try {
+            X509Credential cred = SAMLSSOUtil.getX509CredentialImplForTenant(domainName, alias);
+
+                synchronized (Runtime.getRuntime().getClass()){
+                            ssoEncrypter = (SSOEncrypter)Class.forName(IdentityUtil.getProperty(
+                                    "SSOService.SAMLSSOEncrypter").trim()).newInstance();
+                            ssoEncrypter.init();
+                }
+                return  ssoEncrypter.doEncryptedAssertion(assertion, cred, alias, encryptionAlgorithm);
+//
+//            Credential symmetricCredential = SecurityHelper.getSimpleCredential(
+//                    SecurityHelper.generateSymmetricKey(EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256));
+//
+//            EncryptionParameters encParams = new EncryptionParameters();
+//            encParams.setAlgorithm(EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256);
+//            encParams.setEncryptionCredential(symmetricCredential);
+//
+//            KeyEncryptionParameters keyEncryptionParameters = new KeyEncryptionParameters();
+//            keyEncryptionParameters.setAlgorithm(EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSA15);
+//            keyEncryptionParameters.setEncryptionCredential(cred);
+//
+//            Encrypter encrypter = new Encrypter(encParams, keyEncryptionParameters);
+//            encrypter.setKeyPlacement(Encrypter.KeyPlacement.INLINE);
+//
+//            EncryptedAssertion encrypted = encrypter.encrypt(assertion);
+////            response.getEncryptedAssertions().add(encrypted);
+//            return encrypted;
+        } catch (ClassNotFoundException e) {
+            throw new IdentityException("Class not found: "
+                    + IdentityUtil.getProperty("SSOService.SAMLSSOEncrypter"), e);
+        } catch (InstantiationException e) {
+            throw new IdentityException("Error while instantiating class: "
+                    + IdentityUtil.getProperty("SSOService.SAMLSSOEncrypter"), e);
+        } catch (IllegalAccessException e) {
+            throw new IdentityException("Illegal access to class: "
+                    + IdentityUtil.getProperty("SSOService.SAMLSSOEncrypter"), e);
+        } catch (Exception e) {
+            throw new IdentityException("Error while signing the SAML Response message.", e);
+        }
+    }
+
 
     /**
      * Builds SAML Elements
@@ -605,6 +644,7 @@ public class SAMLSSOUtil {
             log.debug(e);
         }
 
+        try{
         if (authnReqDTO.getQueryString() != null) {
             // DEFLATE signature in Redirect Binding
             return validateDeflateSignature(authnReqDTO.getQueryString(), authnReqDTO.getIssuer(), alias,
@@ -612,6 +652,11 @@ public class SAMLSSOUtil {
         } else {
             // XML signature in SAML Request message for POST Binding
             return validateXMLSignature(request, alias, domainName);
+        }
+        } catch (IdentityException e) {
+            log.warn("Signature Validation failed for the SAMLRequest : Failed to validate the SAML Assertion");
+            log.debug(e);
+            return false;
         }
     }
 
@@ -634,12 +679,18 @@ public class SAMLSSOUtil {
 		 * domainName = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
 		 * }
 		 */
+        try{
         if (queryString != null) {
             return validateDeflateSignature(queryString, logoutRequest.getIssuer().getValue(), alias,
                     domainName);
         } else {
             return validateXMLSignature(logoutRequest, alias, domainName);
         }
+    } catch (IdentityException e) {
+        log.warn("Failed to validate login request signature ");
+        log.debug(e);
+            return false;
+    }
     }
 
     /**
@@ -651,11 +702,19 @@ public class SAMLSSOUtil {
      * @param domainName
      * @return
      */
-    private static boolean validateDeflateSignature(String queryString, String issuer,
-                                                    String alias, String domainName) {
+    public static boolean validateDeflateSignature(String queryString, String issuer,
+                                                    String alias, String domainName) throws IdentityException{
         try {
-            return SAML2HTTPRedirectDeflateSignatureValidator.validateSignature(queryString, issuer,
-                    alias, domainName);
+
+                synchronized (Runtime.getRuntime().getClass()){
+                    samlHTTPRedirectSignatureValidator = (SAML2HTTPRedirectSignatureValidator)Class.forName(IdentityUtil.getProperty(
+                            "SSOService.SAML2HTTPRedirectSignatureValidator").trim()).newInstance();
+                    samlHTTPRedirectSignatureValidator.init();
+                }
+
+                return samlHTTPRedirectSignatureValidator.validateSignature(queryString, issuer,
+                        alias, domainName);
+
         } catch (SecurityException e) {
             log.error("Error validating deflate signature", e);
             return false;
@@ -663,6 +722,15 @@ public class SAMLSSOUtil {
             log.warn("Signature validation failed for the SAML Message : Failed to construct the X509CredentialImpl for the alias " +
                     alias);
             return false;
+        } catch (ClassNotFoundException e) {
+            throw new IdentityException("Class not found: "
+                    + IdentityUtil.getProperty("SSOService.SAML2HTTPRedirectSignatureValidator"), e);
+        } catch (InstantiationException e) {
+            throw new IdentityException("Error while instantiating class: "
+                    + IdentityUtil.getProperty("SSOService.SAML2HTTPRedirectSignatureValidator"), e);
+        } catch (IllegalAccessException e) {
+            throw new IdentityException("Illegal access to class: "
+                    + IdentityUtil.getProperty("SSOService.SAML2HTTPRedirectSignatureValidator"), e);
         }
     }
 
@@ -678,25 +746,40 @@ public class SAMLSSOUtil {
      *            domain name of the subject
      * @return true, if the signature is valid.
      */
-    private static boolean validateXMLSignature(RequestAbstractType request, String alias,
-                                                String domainName) {
+    public static boolean validateXMLSignature(RequestAbstractType request, String alias,
+                                                String domainName) throws IdentityException{
+
         boolean isSignatureValid = false;
 
         if (request.getSignature() != null) {
             try {
-                SignatureValidator validator =
-                        new SignatureValidator(
-                                SAMLSSOUtil.getX509CredentialImplForTenant(domainName,
-                                        alias));
-                validator.validate(request.getSignature());
-                isSignatureValid = true;
+                X509Credential cred = SAMLSSOUtil.getX509CredentialImplForTenant(domainName, alias);
+
+                synchronized (Runtime.getRuntime().getClass()){
+                    ssoSigner = (SSOSigner)Class.forName(IdentityUtil.getProperty(
+                            "SSOService.SAMLSSOSigner").trim()).newInstance();
+                    ssoSigner.init();
+                }
+
+                return ssoSigner.doValidateXMLSignature(request, cred, alias);
             } catch (IdentitySAML2SSOException ignore) {
                 log.warn("Signature validation failed for the SAML Message : Failed to construct the X509CredentialImpl for the alias " +
                         alias);
                 log.debug(ignore);
-            } catch (ValidationException ignore) {
+            } catch (IdentityException ignore) {
                 log.warn("Signature Validation Failed for the SAML Assertion : Signature is invalid.");
                 log.debug(ignore);
+        } catch (ClassNotFoundException e) {
+            throw new IdentityException("Class not found: "
+                    + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
+        } catch (InstantiationException e) {
+            throw new IdentityException("Error while instantiating class: "
+                    + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
+        } catch (IllegalAccessException e) {
+            throw new IdentityException("Illegal access to class: "
+                    + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
+        }catch (Exception e){
+
             }
         }
         return isSignatureValid;
@@ -722,16 +805,8 @@ public class SAMLSSOUtil {
             IdentityPersistenceManager persistenceManager =
                     IdentityPersistenceManager.getPersistanceManager();
 
-            try {
-                spDO =
-                        persistenceManager.getServiceProvider(AnonymousSessionUtil.getSystemRegistryByUserName(SAMLSSOUtil.getRegistryService(),
-                                SAMLSSOUtil.getRealmService(),
-                                authnReqDTO.getUsername()),
-                                authnReqDTO.getIssuer());
-            } catch (CarbonException e) {
-                log.error("Error while setting attributes. Unable to retrieve consumer info", e);
-                return null;
-            }
+        	Registry registry = (Registry)PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_CONFIGURATION);
+        	spDO = persistenceManager.getServiceProvider(registry,authnReqDTO.getIssuer());
         }
 
         if(!authnReqDTO.isIdPInitSSO()){
@@ -791,16 +866,31 @@ public class SAMLSSOUtil {
             throws IdentityException {
         try {
             String[] requestedClaims = (String[]) authnReqDTO.getRequestedClaims();
-            synchronized (Runtime.getRuntime().getClass()){
-                if(claimsRetriever == null){
-                    synchronized (Runtime.getRuntime().getClass()){
-                        claimsRetriever = (ClaimsRetriever)Class.forName(IdentityUtil.getProperty("SSOService.ClaimsRetrieverImplClass").trim()).newInstance();
-                        claimsRetriever.init();
+            
+            Map<String, String> attrsFromAuthFramework = authnReqDTO.getUserAttributes();
+            
+            if (attrsFromAuthFramework != null && !attrsFromAuthFramework.isEmpty()) {
+            	Map<String, String> returnMap = new HashMap<String, String>();
+            	for (String requestedClaim : requestedClaims) {
+            		for (Map.Entry<String, String> entry : attrsFromAuthFramework.entrySet()) {
+            			if (entry.getKey().equals(requestedClaim)) {
+            				returnMap.put(entry.getKey(), entry.getValue());
+            				break;
+            			}
+            		}
+            	}
+            	return returnMap;
+            } else {
+            	synchronized (Runtime.getRuntime().getClass()){
+                    if(claimsRetriever == null){
+                        synchronized (Runtime.getRuntime().getClass()){
+                            claimsRetriever = (ClaimsRetriever)Class.forName(IdentityUtil.getProperty("SSOService.ClaimsRetrieverImplClass").trim()).newInstance();
+                            claimsRetriever.init();
+                        }
                     }
                 }
+                return claimsRetriever.getUserClaimValues(authnReqDTO, requestedClaims, null);
             }
-            return claimsRetriever.getUserClaimValues(authnReqDTO.getUsername(), requestedClaims, null);
-
         } catch (ClassNotFoundException e) {
             throw new IdentityException(
                     "Class not found: " +  IdentityUtil.getProperty("SSOService.ClaimsRetrieverImplClass"),
@@ -822,7 +912,7 @@ public class SAMLSSOUtil {
      * @return
      * @throws IdentityException
      */
-    public static String getClaimValue(String userName, String claimUri) throws IdentityException {
+    public static String getClaimValue(SAMLSSOAuthnReqDTO authReqDTO, String claimUri) throws IdentityException {
         try {
             synchronized (Runtime.getRuntime().getClass()) {
                 if (claimsRetriever == null) {
@@ -834,8 +924,7 @@ public class SAMLSSOUtil {
                     }
                 }
             }
-            Map<String, String> claims = claimsRetriever.getUserClaimValues(userName,
-                    new String[] { claimUri }, null);
+            Map<String, String> claims = claimsRetriever.getUserClaimValues(authReqDTO,   new String[] { claimUri }, null);
             return claims.get(claimUri);
         } catch (ClassNotFoundException e) {
             throw new IdentityException("Class not found: "
@@ -887,6 +976,33 @@ public class SAMLSSOUtil {
 
     public static void setSingleLogoutRetryInterval(long singleLogoutRetryInterval) {
         SAMLSSOUtil.singleLogoutRetryInterval = singleLogoutRetryInterval;
+    }
+    
+    public static ResponseBuilder getResponseBuilder() {
+    	if(responseBuilderClassName == null || "".equals(responseBuilderClassName)) {
+    		return new DefaultResponseBuilder();
+    	} else {
+    		try {
+				// Bundle class loader will cache the loaded class and returned
+				// the already loaded instance, hence calling this method
+				// multiple times doesn't cost.
+				Class clazz = Thread.currentThread().getContextClassLoader()
+						.loadClass(responseBuilderClassName);
+				return (ResponseBuilder) clazz.newInstance();
+
+			} catch (ClassNotFoundException e) {
+				log.error("Error while instantiating the SAMLResponseBuilder ", e);
+			} catch (InstantiationException e) {
+				log.error("Error while instantiating the SAMLResponseBuilder ", e);
+			} catch (IllegalAccessException e) {
+				log.error("Error while instantiating the SAMLResponseBuilder ", e);
+			}
+    	}
+		return null;
+    }
+    
+    public static void setResponseBuilder(String responseBuilder) {
+    	responseBuilderClassName = responseBuilder;
     }
 
     /**
@@ -989,5 +1105,33 @@ public class SAMLSSOUtil {
         }
         return normalized.toString();
     }
+    
+    public static void removeSession(String sessionId, String issuer) {
+		SSOSessionPersistenceManager ssoSessionPersistenceManager = SSOSessionPersistenceManager
+				.getPersistenceManager();
+		String sessionIndex = ssoSessionPersistenceManager.getSessionIndexFromTokenId(sessionId);
+		
+		ssoSessionPersistenceManager.removeSession(sessionIndex);
+		ssoSessionPersistenceManager.removeTokenId(sessionId);
+		replicateSessionInfo(sessionId, sessionIndex, issuer);
+	}
+    
+    public static void replicateSessionInfo(String sessionId, String sessionIndex, String issuer) {
+		SSOSessionCommand sessionCommand = new SSOSessionCommand();
+		sessionCommand.setSessionId(sessionId);
+		sessionCommand.setSessionIndex(sessionIndex);
+		sessionCommand.setIssuer(issuer);
+		sessionCommand.setSignOut(true);
+
+		if (log.isDebugEnabled()) {
+			log.info("Starting to replicate sign-out session Info for SessionIndex : " + sessionIndex);
+		}
+		SSOSessionPersistenceManager ssoSessionPersistenceManager = SSOSessionPersistenceManager
+				.getPersistenceManager();
+		ssoSessionPersistenceManager.sendClusterSyncMessage(sessionCommand);
+		if (log.isDebugEnabled()) {
+			log.info("Completed replicating sign-out Session Info for SessionIndex : " + sessionIndex);
+		}
+	}
 
 }

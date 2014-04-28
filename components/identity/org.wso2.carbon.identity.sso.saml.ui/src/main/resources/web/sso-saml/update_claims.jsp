@@ -80,5 +80,5 @@
 %>
 
 <script type="text/javascript">
-        location.href = "../application/add-service-provider.jsp";
+        location.href = "../application/configure-service-provider.jsp";
 </script>

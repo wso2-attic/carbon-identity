@@ -4,10 +4,12 @@ import org.openid4java.association.AssociationException;
 import org.openid4java.consumer.ConsumerException;
 import org.openid4java.consumer.ConsumerManager;
 import org.openid4java.consumer.VerificationResult;
+import org.openid4java.discovery.Discovery;
 import org.openid4java.discovery.DiscoveryException;
 import org.openid4java.discovery.DiscoveryInformation;
 import org.openid4java.discovery.Identifier;
 import org.openid4java.discovery.yadis.YadisException;
+import org.openid4java.discovery.yadis.YadisResolver;
 import org.openid4java.message.AuthRequest;
 import org.openid4java.message.AuthSuccess;
 import org.openid4java.message.MessageException;
@@ -15,12 +17,20 @@ import org.openid4java.message.ParameterList;
 import org.openid4java.message.ax.AxMessage;
 import org.openid4java.message.ax.FetchRequest;
 import org.openid4java.message.ax.FetchResponse;
+import org.openid4java.server.RealmVerifierFactory;
+import org.openid4java.util.HttpFetcherFactory;
 import org.wso2.carbon.identity.sso.agent.bean.SSOAgentSessionBean;
 import org.wso2.carbon.identity.sso.agent.exception.SSOAgentException;
 import org.wso2.carbon.identity.sso.agent.util.SSOAgentConfigs;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,8 +38,20 @@ import java.util.Map;
 public class OpenIDManager {
 
     // Smart OpenID Consumer Manager
-    private static ConsumerManager consumerManager = new ConsumerManager();
+    private static ConsumerManager consumerManager = null;
+
     AttributesRequestor attributesRequestor = null;
+
+    public OpenIDManager() throws SSOAgentException{
+        consumerManager = getConsumerManagerInstance();
+    }
+
+    private ConsumerManager getConsumerManagerInstance() throws SSOAgentException{
+        HttpFetcherFactory  httpFetcherFactory = new HttpFetcherFactory(loadSSLContext(),null);
+        return new ConsumerManager(
+                new RealmVerifierFactory(new YadisResolver(httpFetcherFactory)),
+                new Discovery(), httpFetcherFactory);
+    }
 
     public String doOpenIDLogin(HttpServletRequest request, HttpServletResponse response) throws SSOAgentException {
 
@@ -169,6 +191,28 @@ public class OpenIDManager {
             throw new SSOAgentException("Error while verifying OpenID response", e);
         }
 
+    }
+
+    private SSLContext loadSSLContext() throws SSOAgentException {
+        KeyStore trustStore = null;
+        try {
+            trustStore = SSOAgentConfigs.getKeyStore();
+
+            TrustManagerFactory tmf = TrustManagerFactory
+                    .getInstance(TrustManagerFactory.getDefaultAlgorithm());
+
+            tmf.init(trustStore);
+
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, tmf.getTrustManagers(), null);
+            return sslContext;
+        } catch (NoSuchAlgorithmException e) {
+            throw new SSOAgentException("Error when reading keystore", e);
+        } catch (KeyManagementException e) {
+            throw new SSOAgentException("Error when reading keystore", e);
+        } catch (KeyStoreException e) {
+            throw new SSOAgentException("Error when reading keystore", e);
+        }
     }
 
 }

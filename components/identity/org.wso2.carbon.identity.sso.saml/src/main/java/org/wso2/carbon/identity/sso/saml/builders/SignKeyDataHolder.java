@@ -25,11 +25,11 @@ import org.opensaml.xml.security.x509.X509Credential;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 import org.wso2.carbon.security.keystore.KeyStoreAdmin;
-import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.AuthenticationObserver;
 import org.wso2.carbon.utils.TenantUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -79,10 +79,10 @@ public class SignKeyDataHolder implements X509Credential {
         Certificate[] certificates ;
 
         try {
-             String tenantDomain = TenantUtils.getTenantDomain(username);
-            int tenantID = SAMLSSOUtil.getRealmService().getTenantManager().
-                    getTenantId(tenantDomain);
+            String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            int tenantID = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
             initializeRegistry(tenantID);
+            
             if (tenantID != MultitenantConstants.SUPER_TENANT_ID) {
                 String keyStoreName = SAMLSSOUtil.generateKSNameFromDomainName(tenantDomain);
                 keyAlias = tenantDomain;

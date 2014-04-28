@@ -17,10 +17,6 @@
  */
 package org.wso2.carbon.identity.sso.saml.processors;
 
-import java.util.Map;
-
-import org.apache.axis2.AxisFault;
-import org.apache.axis2.clustering.state.Replicator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml2.core.LogoutRequest;
@@ -35,10 +31,11 @@ import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.builders.SingleLogoutMessageBuilder;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOReqValidationResponseDTO;
 import org.wso2.carbon.identity.sso.saml.dto.SingleLogoutRequestDTO;
-import org.wso2.carbon.identity.sso.saml.session.SSOSessionCommand;
 import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
 import org.wso2.carbon.identity.sso.saml.session.SessionInfoData;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
+
+import java.util.Map;
 
 public class LogoutRequestProcessor {
 
@@ -113,7 +110,7 @@ public class LogoutRequestProcessor {
 					//validate session index
 					SessionIndex requestSessionIndex = logoutRequest.getSessionIndexes().get(0);
 					
-					if(requestSessionIndex == null || !requestSessionIndex.getSessionIndex().equals(sessionIndex)){
+					if(requestSessionIndex == null || !sessionIndex.equals(requestSessionIndex.getSessionIndex())){
 						String message = "Session Index validation for Logout Request failed. " +
 		                         "Received: [" + requestSessionIndex == null ? "null" : requestSessionIndex.getSessionIndex() +
 		                         "]." + " Expected: [" + sessionIndex + "]";
@@ -124,7 +121,7 @@ public class LogoutRequestProcessor {
 					}
 				}
 				
-				if (logoutReqIssuer.getCertAlias() != null) {
+				if (logoutReqIssuer.isDoValidateSignatureInRequests()) {
 
 					// Validate 'Destination'
 					String idpUrl = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_IDP_URL);
@@ -202,16 +199,6 @@ public class LogoutRequestProcessor {
 		}
 	}
 	
-	public void removeSession(String sessionId, String issuer) {
-		SSOSessionPersistenceManager ssoSessionPersistenceManager = SSOSessionPersistenceManager
-				.getPersistenceManager();
-		String sessionIndex = ssoSessionPersistenceManager.getSessionIndexFromTokenId(sessionId);
-		
-		ssoSessionPersistenceManager.removeSession(sessionIndex);
-		ssoSessionPersistenceManager.removeTokenId(sessionId);
-		replicateSessionInfo(sessionId, sessionIndex, issuer);
-	}
-
 	private SAMLSSOReqValidationResponseDTO buildErrorResponse(String id, String status,
 			String statMsg) throws Exception {
 		SAMLSSOReqValidationResponseDTO reqValidationResponseDTO = new SAMLSSOReqValidationResponseDTO();
@@ -222,23 +209,4 @@ public class LogoutRequestProcessor {
 		reqValidationResponseDTO.setResponse(SAMLSSOUtil.encode(SAMLSSOUtil.marshall(logoutResp)));
 		return reqValidationResponseDTO;
 	}
-
-	private void replicateSessionInfo(String sessionId, String sessionIndex, String issuer) {
-		SSOSessionCommand sessionCommand = new SSOSessionCommand();
-		sessionCommand.setSessionId(sessionId);
-		sessionCommand.setSessionIndex(sessionIndex);
-		sessionCommand.setIssuer(issuer);
-		sessionCommand.setSignOut(true);
-
-		if (log.isDebugEnabled()) {
-			log.info("Starting to replicate sign-out session Info for SessionIndex : " + sessionIndex);
-		}
-		SSOSessionPersistenceManager ssoSessionPersistenceManager = SSOSessionPersistenceManager
-				.getPersistenceManager();
-		ssoSessionPersistenceManager.sendClusterSyncMessage(sessionCommand);
-		if (log.isDebugEnabled()) {
-			log.info("Completed replicating sign-out Session Info for SessionIndex : " + sessionIndex);
-		}
-	}
-
 }

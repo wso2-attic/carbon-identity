@@ -18,6 +18,7 @@
 package org.wso2.carbon.identity.sso.saml.builders.claims;
 
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
 
 import java.util.Map;
 
@@ -25,7 +26,7 @@ public interface ClaimsRetriever {
 
     public void init() throws IdentityException;
 
-    public Map<String, String> getUserClaimValues(String username, String[] requestedClaims, String profile)
+    public Map<String, String> getUserClaimValues(SAMLSSOAuthnReqDTO authnReqDTO, String[] requestedClaims, String profile)
             throws IdentityException;
 
 }

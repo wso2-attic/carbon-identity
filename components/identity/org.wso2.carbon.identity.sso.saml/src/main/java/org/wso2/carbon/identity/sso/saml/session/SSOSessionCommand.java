@@ -18,14 +18,14 @@
 
 package org.wso2.carbon.identity.sso.saml.session;
 
-import java.util.UUID;
-
 import org.apache.axis2.clustering.ClusteringCommand;
 import org.apache.axis2.clustering.ClusteringFault;
 import org.apache.axis2.clustering.ClusteringMessage;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
+
+import java.util.UUID;
 
 public class SSOSessionCommand extends ClusteringMessage {
     private static Log log = org.apache.commons.logging.LogFactory.getLog(SSOSessionCommand.class);

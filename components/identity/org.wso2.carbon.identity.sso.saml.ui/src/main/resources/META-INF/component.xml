@@ -17,15 +17,15 @@
  -->
 <component xmlns="http://products.wso2.org/carbon">
 	<menus>
-        <menu>
+        <!-- menu>
             <id>saml_sso_auth</id>
             <i18n-key>saml.sso.menu</i18n-key>
             <i18n-bundle>org.wso2.carbon.identity.sso.saml.ui.i18n.Resources</i18n-bundle>
             <skip-authentication>
                 <skip-link>../sso-saml/notification_page.jsp</skip-link>
 			</skip-authentication>
-        </menu>
-        <!--menu>
+        </menu-->
+        <menu>
             <id>manage_saml_sso</id>
             <i18n-key>saml.sso.menu</i18n-key>
             <i18n-bundle>org.wso2.carbon.identity.sso.saml.ui.i18n.Resources</i18n-bundle>
@@ -36,7 +36,7 @@
             <style-class>manage</style-class>
             <icon>../sso-saml/images/sso.gif</icon>
             <require-permission>/permission/admin/manage</require-permission>
-         </menu-->
+         </menu>
 	</menus>
 </component>
  

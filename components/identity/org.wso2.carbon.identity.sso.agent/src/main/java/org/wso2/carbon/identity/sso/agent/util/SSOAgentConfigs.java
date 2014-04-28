@@ -25,6 +25,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.KeyStore;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -50,10 +51,12 @@ public class SSOAgentConfigs {
     private static String logoutUrl;
     private static Boolean isResponseSigned;
     private static Boolean isAssertionSigned;
+    private static Boolean isAssertionEncrypted;
     private static Boolean isRequestSigned;
     private static String ssoAgentCredentialImplClass;
-    private static InputStream keyStore;
+    private static InputStream keyStoreStream;
     private static String keyStorePassword;
+    private static KeyStore keyStore;
     private static String idPCertAlias;
     private static String privateKeyAlias;
     private static String privateKeyPassword;
@@ -65,7 +68,8 @@ public class SSOAgentConfigs {
     private static String returnTo;
     private static String claimedIdParameterName;
     private static String attributesRequestorImplClass;
-
+    
+    private static String requestQueryParameters;
 
     public static void initConfig(FilterConfig fConfigs) throws SSOAgentException {
         
@@ -161,6 +165,13 @@ public class SSOAgentConfigs {
             isAssertionSigned = true;
         }
 
+        if(properties.getProperty("SAML.EnableAssertionEncryption") != null){
+        	isAssertionEncrypted = Boolean.parseBoolean(properties.getProperty("SAML.EnableAssertionEncryption"));
+        } else {
+            LOGGER.info("\'SAML.EnableAssertionEncryption\' not configured. Defaulting to \'false\'");
+            isAssertionEncrypted = false;
+        }
+        
         if(properties.getProperty("SAML.EnableRequestSigning") != null){
             isRequestSigned = Boolean.parseBoolean(properties.getProperty("SAML.EnableRequestSigning"));
         } else {
@@ -169,14 +180,14 @@ public class SSOAgentConfigs {
         }
 
         ssoAgentCredentialImplClass = properties.getProperty("SAML.SSOAgentCredentialImplClass");
-        if(properties.getProperty("SAML.KeyStore") != null){
+        if(properties.getProperty("KeyStore") != null){
             try {
-                keyStore = new FileInputStream(properties.getProperty("SAML.KeyStore"));
+                keyStoreStream = new FileInputStream(properties.getProperty("KeyStore"));
             } catch (FileNotFoundException e) {
-                throw new SSOAgentException("Cannot find file " + properties.getProperty("SAML.KeyStore"));
+                throw new SSOAgentException("Cannot find file " + properties.getProperty("KeyStore"));
             }
         }
-        keyStorePassword = properties.getProperty("SAML.KeyStorePassword");
+        keyStorePassword = properties.getProperty("KeyStorePassword");
         idPCertAlias = properties.getProperty("SAML.IdPCertAlias");
         privateKeyAlias =  properties.getProperty("SAML.PrivateKeyAlias");
         privateKeyPassword = properties.getProperty("SAML.PrivateKeyPassword");
@@ -189,6 +200,9 @@ public class SSOAgentConfigs {
         returnTo = properties.getProperty("OpenID.ReturnToUrl");
         claimedIdParameterName = properties.getProperty("OpenID.ClaimedIDParameterName");
         attributesRequestorImplClass = properties.getProperty("OpenID.AttributesRequestorImplClass");
+
+        requestQueryParameters = properties.getProperty("SAML.Request.Query.Param");
+
     }
 
     public static void initCheck() throws SSOAgentException{
@@ -230,7 +244,7 @@ public class SSOAgentConfigs {
         }
 
         if(SSOAgentConfigs.isSAMLSSOLoginEnabled() &&
-                (SSOAgentConfigs.isResponseSigned() || SSOAgentConfigs.isAssertionSigned()|| SSOAgentConfigs.isRequestSigned()) &&
+                (SSOAgentConfigs.isResponseSigned() || SSOAgentConfigs.isAssertionSigned() || SSOAgentConfigs.isAssertionEncripted() || SSOAgentConfigs.isRequestSigned()) &&
                 SSOAgentConfigs.getSSOAgentCredentialImplClass() == null){
             LOGGER.info("SAML.SSOAgentCredentialImplClass not configured." +
                     " Defaulting to \'org.wso2.carbon.identity.sso.agent.saml.SSOAgentKeyStoreCredential\'");
@@ -238,16 +252,16 @@ public class SSOAgentConfigs {
         }
 
         if(SSOAgentConfigs.isSAMLSSOLoginEnabled() &&
-                (SSOAgentConfigs.isResponseSigned() || SSOAgentConfigs.isAssertionSigned() || SSOAgentConfigs.isRequestSigned()) &&
-                SSOAgentConfigs.getSSOAgentCredentialImplClass() != null && SSOAgentConfigs.getKeyStore() == null){
-            throw new SSOAgentException("SAML.KeyStore not configured");
+                (SSOAgentConfigs.isResponseSigned() || SSOAgentConfigs.isAssertionSigned() || SSOAgentConfigs.isAssertionEncripted() || SSOAgentConfigs.isRequestSigned()) &&
+                SSOAgentConfigs.getSSOAgentCredentialImplClass() != null && SSOAgentConfigs.getKeyStoreStream() == null){
+            throw new SSOAgentException("KeyStore not configured");
         }
 
         if(SSOAgentConfigs.isSAMLSSOLoginEnabled() &&
-                (SSOAgentConfigs.isResponseSigned() || SSOAgentConfigs.isAssertionSigned() || SSOAgentConfigs.isRequestSigned()) &&
-                SSOAgentConfigs.getSSOAgentCredentialImplClass() != null && SSOAgentConfigs.getKeyStore() != null &&
+                (SSOAgentConfigs.isResponseSigned() || SSOAgentConfigs.isAssertionSigned() || SSOAgentConfigs.isAssertionEncripted() || SSOAgentConfigs.isRequestSigned()) &&
+                SSOAgentConfigs.getSSOAgentCredentialImplClass() != null && SSOAgentConfigs.getKeyStoreStream() != null &&
                 SSOAgentConfigs.getKeyStorePassword() == null){
-            LOGGER.info("SAML.KeyStorePassword not configured." +
+            LOGGER.info("KeyStorePassword not configured." +
                     " Defaulting to \'wso2carbon\'");
             SSOAgentConfigs.setKeyStorePassword("wso2carbon");
         }
@@ -257,20 +271,14 @@ public class SSOAgentConfigs {
                 SSOAgentConfigs.getSSOAgentCredentialImplClass() != null && SSOAgentConfigs.getIdPCertAlias() == null){
             LOGGER.info("\'SAML.IdPCertAlias\' not configured. Defaulting to \'wso2carbon\'");
         }
-        
-        if(SSOAgentConfigs.isSAMLSSOLoginEnabled() && SSOAgentConfigs.isRequestSigned() &&
+
+        if(SSOAgentConfigs.isSAMLSSOLoginEnabled() && (SSOAgentConfigs.isRequestSigned() || SSOAgentConfigs.isAssertionEncripted()) &&
                 SSOAgentConfigs.getSSOAgentCredentialImplClass() != null && SSOAgentConfigs.getPrivateKeyAlias() == null){
             LOGGER.info("SAML.PrivateKeyAlias not configured. Defaulting to \'wso2carbon\'");
             SSOAgentConfigs.setPrivateKeyAlias("wso2carbon");
         }
 
-        if(SSOAgentConfigs.isSAMLSSOLoginEnabled() && SSOAgentConfigs.isRequestSigned() &&
-                SSOAgentConfigs.getSSOAgentCredentialImplClass() != null && SSOAgentConfigs.getPrivateKeyPassword() == null){
-            LOGGER.info("SAML.PrivateKeyPassword not configured. Defaulting to \'wso2carbon\'");
-            SSOAgentConfigs.setPrivateKeyPassword("wso2carbon");
-        }
-
-        if(SSOAgentConfigs.isSAMLSSOLoginEnabled() && SSOAgentConfigs.isRequestSigned() &&
+        if(SSOAgentConfigs.isSAMLSSOLoginEnabled() && (SSOAgentConfigs.isRequestSigned() || SSOAgentConfigs.isAssertionEncripted()) &&
                 SSOAgentConfigs.getSSOAgentCredentialImplClass() != null && SSOAgentConfigs.getPrivateKeyPassword() == null){
             LOGGER.info("SAML.PrivateKeyPassword not configured. Defaulting to \'wso2carbon\'");
             SSOAgentConfigs.setPrivateKeyPassword("wso2carbon");
@@ -384,6 +392,11 @@ public class SSOAgentConfigs {
     public static boolean isAssertionSigned() {
         return isAssertionSigned;
     }
+    
+    public static boolean isAssertionEncripted()
+    {
+    	return isAssertionEncrypted;
+    }
 
     public static boolean isRequestSigned() {
         return isRequestSigned;
@@ -393,12 +406,20 @@ public class SSOAgentConfigs {
         return ssoAgentCredentialImplClass;
     }
 
-    public static InputStream getKeyStore() {
-        return keyStore;
+    private static InputStream getKeyStoreStream() {
+        return keyStoreStream;
     }
 
-    public static String getKeyStorePassword() {
+    private static String getKeyStorePassword() {
         return keyStorePassword;
+    }
+
+    public static KeyStore getKeyStore() throws SSOAgentException{
+        if(keyStore == null)
+        {
+            setKeyStore(readKeyStore(getKeyStoreStream(), getKeyStorePassword())); 
+        }
+        return keyStore;
     }
 
     public static String getIdPCertAlias() {
@@ -504,6 +525,10 @@ public class SSOAgentConfigs {
     public static void setAssertionSigned(Boolean assertionSigned) {
         isAssertionSigned = assertionSigned;
     }
+    
+    public static void setAssertionEncrypted(Boolean assertionEncrypted) {
+        isAssertionEncrypted = assertionEncrypted;
+    }
 
     public static void setRequestSigned(Boolean requestSigned) {
         isRequestSigned = requestSigned;
@@ -513,15 +538,21 @@ public class SSOAgentConfigs {
         SSOAgentConfigs.ssoAgentCredentialImplClass = ssoAgentCredentialImplClass;
     }
 
-    public static void setKeyStore(String keyStore) throws SSOAgentException{
+    public static void setKeyStoreStream(String keyStore) throws SSOAgentException{
         try {
-            SSOAgentConfigs.keyStore = new FileInputStream(keyStore);
+            SSOAgentConfigs.keyStoreStream = new FileInputStream(keyStore);
         } catch (FileNotFoundException e) {
             throw new SSOAgentException("Cannot find file " + keyStore);
         }
     }
 
-    public static void setKeyStore(InputStream keyStore) {
+    public static void setKeyStoreStream(InputStream keyStoreStream) {
+        if (SSOAgentConfigs.keyStoreStream == null) {
+            SSOAgentConfigs.keyStoreStream = keyStoreStream;
+        }
+    }
+
+    public static void setKeyStore(KeyStore keyStore) {
         SSOAgentConfigs.keyStore = keyStore;
     }
 
@@ -567,5 +598,40 @@ public class SSOAgentConfigs {
 
     public static void setAttributesRequestorImplClass(String attributesRequestorImplClass) {
         SSOAgentConfigs.attributesRequestorImplClass = attributesRequestorImplClass;
+    }
+
+    public static String getRequestQueryParameters() {
+        return requestQueryParameters;
+    }
+
+    /**
+     * get the key store instance
+     *
+     * @param is KeyStore InputStream
+     * @param storePassword password of key store
+     * @return KeyStore instant
+     * @throws SSOAgentException if fails to load key store
+     */
+    private static KeyStore readKeyStore(InputStream is, String storePassword) throws SSOAgentException {
+
+        if (storePassword == null) {
+            throw new SSOAgentException("KeyStore password can not be null");
+        }
+
+        try {
+            KeyStore keyStore = KeyStore.getInstance("JKS");
+            keyStore.load(is, storePassword.toCharArray());
+            return keyStore;
+        } catch (Exception e) {
+            throw new SSOAgentException("Error while loading key store file" , e);
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException ignored) {
+                    throw new SSOAgentException("Error while closing input stream of key store");
+                }
+            }
+        }
     }
 }

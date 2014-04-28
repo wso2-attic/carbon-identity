@@ -75,7 +75,7 @@
                                 <bundleDef>org.apache.httpcomponents.wso2:httpcore</bundleDef>
 							</bundles>
 							<importFeatures>
-								<importFeatureDef>org.wso2.carbon.core.ui:4.3.0-SNAPSHOT</importFeatureDef>
+								<importFeatureDef>org.wso2.carbon.core.ui</importFeatureDef>
 							</importFeatures>
 						</configuration>
 					</execution>

@@ -30,7 +30,7 @@
 <%@ page
         import="java.util.ArrayList" %>
 <%@ page import="java.util.Collections" %>
-<%@ page import="org.wso2.carbon.identity.application.mgt.ui.ApplicationConfigBean"%>
+<%@ page import="org.wso2.carbon.security.keystore.service.CertData" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
@@ -38,7 +38,6 @@
              type="org.wso2.carbon.identity.sso.saml.ui.SAMLSSOProviderConfigBean"
              class="org.wso2.carbon.identity.sso.saml.ui.SAMLSSOProviderConfigBean"
              scope="session"/>
-<jsp:useBean id="appBean" class="org.wso2.carbon.identity.application.mgt.ui.ApplicationConfigBean" scope="session"/>
 <jsp:setProperty name="samlSsoServuceProviderConfigBean" property="*"/>
 <jsp:include page="../dialog/display_messages.jsp"/>
 
@@ -54,275 +53,280 @@
 <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
 
 <script type="text/javascript">
-    function doValidation() {
-        var fld = document.getElementsByName("assrtConsumerURL")[0];
-        var value = fld.value;
-        var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
-        if (value.length == 0) {
-                CARBON.showWarningDialog(
-                        "<fmt:message key='sp.enter.valid.endpoint.address'/>",
-                        null, null);
-                return false;
-
-        }
-
-        if (!regexp.test(value)) {
-            CARBON.showWarningDialog(
-                    "<fmt:message key='sp.enter.valid.endpoint.address'/>",
-                    null, null);
-            return false;
-        }
-
-        value = value.replace(/^\s+/, "");
-        if (value.length == 0) {
-                CARBON.showWarningDialog(
-                        "<fmt:message key='sp.enter.valid.endpoint.address'/>",
-                        null, null);
-                return false;
-
-        }
-        
-        var fld = document.getElementsByName("logoutURL")[0];
-        var value = fld.value;
-        var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
-        if (value.length != 0) {
-        	 value = value.replace(/^\s+/, "");
-        	 if (value.length != 0) {
-        		 if (!regexp.test(value)) {
-        	            CARBON.showWarningDialog(
-        	                    "<fmt:message key='sp.enter.valid.logout.endpoint.address'/>",
-        	                    null, null);
-        	            return false;
-        	     }
-         	}
-         }		
-        
-        
-
-        var fld = document.getElementsByName("issuer")[0];
-        var value = fld.value;
-        if (value.length == 0) {
-            CARBON.showWarningDialog(
-                    "<fmt:message key='sp.enter.valid.issuer'/>", null,
-                    null);
-            return false;
-        }
-
-        if (document.getElementsByName("subjectType")[1].checked) {
-            var claimVal = document.getElementsByName("claimID")[0].value;
-            if (claimVal.length == 0) {
-                CARBON.showWarningDialog(
-                        "<fmt:message key='sp.enter.valid.claimID'/>",
-                        null, null);
-                return false;
-            }
-        }
-        return true;
-    }
-
-    function edit(issuer) {
-        location.href = "manage_service_providers.jsp?region=region1&item=manage_saml_sso&SPAction=editServiceProvider&issuer=" + issuer;
-    }
-
-    function removeItem(issuer) {
-        CARBON.showConfirmationDialog(
-                "<fmt:message key='remove.message1'/>" + " " + issuer
-                        + "<fmt:message key='remove.message2'/>",
-                function () {
-                    location.href = "remove_service_providers.jsp?issuer="
-                            + issuer;
-                }, null);
-    }
-    function showHideTxtBox(radioBtn) {
-        var claimIdRow = document.getElementById('claimIdRow');
-        var nameIdRow = document.getElementById('nameIdRow');
-        if (radioBtn.checked && radioBtn.value == "useClaimId") {
-            claimIdRow.style.display = "";
-            nameIdRow.style.display = "";
-        } else {
-            claimIdRow.style.display = "none";
-            nameIdRow.style.display = "none";
-        }
-    }
-    function disableCertAlias(chkbx) {
-        document.addServiceProvider.alias.disabled = (chkbx.checked) ? false
-                : true;
-    }
-    function disableLogoutUrl(chkbx) {
-        document.addServiceProvider.logoutURL.disabled = (chkbx.checked) ? false
-                : true;
-    }
-    
-    function disableFullQualifiedUsername(chkbx) {
-        document.addServiceProvider.useFullQualifiedUsername.value = (chkbx.checked) ? true
-                : false;
-        document.addServiceProvider.enableNameIdClaimUriHidden.value  =  (chkbx.checked) ? false
-                : true;
-        
-        if (chkbx.checked) {
-        	document.getElementById("enableNameIdClaimUri").checked = 'false';
-        }
+function doValidation() {
+    var fld = document.getElementsByName("assrtConsumerURL")[0];
+    var value = fld.value;
+    var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
+    if (value.length == 0) {
+        CARBON.showWarningDialog(
+                "<fmt:message key='sp.enter.valid.endpoint.address'/>",
+                null, null);
+        return false;
 
     }
-    
-    function disableResponseSignature(chkbx) {
-        document.addServiceProvider.enableResponseSignature.value = (chkbx.checked) ? true
-                : false;
-    }
-    function disableAssertionSignature(chkbx) {
-        document.addServiceProvider.enableAssertionSignature.value = (chkbx.checked) ? true
-                : false;
-    }
-    
-    function disableAttributeProfile(chkbx) {
-        document.addServiceProvider.claim.disabled = (chkbx.checked) ? false
-                : true;
-        document.addServiceProvider.addClaims.disabled = (chkbx.checked) ? false
-                : true;
-        
-        document.addServiceProvider.enableDefaultAttributeProfile.disabled = (chkbx.checked) ? false
-                : true;
 
-    }
-      
-    function disableNameIdClaimUri(chkbx) {
-    	if (chkbx.checked) {
-        document.addServiceProvider.enableNameIdClaimUriHidden.value = "true";
-        document.addServiceProvider.useFullQualifiedUsername.value = "false";
-        document.getElementById("useFullQualifiedUsername").checked = 'false';
-        } else {
-        document.addServiceProvider.enableNameIdClaimUriHidden.value = "false";
-        }
-
-    }
-    
-    function disableDefaultAttributeProfile(chkbx) {
-    	if (chkbx.checked) {
-        document.addServiceProvider.enableDefaultAttributeProfileHidden.value = "true";
-        } else {
-        document.addServiceProvider.enableDefaultAttributeProfileHidden.value = "false";
-        }
-
-    }
-    function disableAudienceRestriction(chkbx) {
-        document.addServiceProvider.audience.disabled = (chkbx.checked) ? false
-                : true;
-        document.addServiceProvider.addAudience.disabled = (chkbx.checked) ? false
-                : true;
-    }
-    function addClaim() {
-        var propertyCount = document.getElementById("claimPropertyCounter");
-
-        var i = propertyCount.value;
-        var currentCount = parseInt(i);
-
-        currentCount = currentCount + 1;
-        propertyCount.value = currentCount;
-
-        document.getElementById('claimTableId').style.display = '';
-        var claimTableTBody = document.getElementById('claimTableTbody');
-
-        var claimRow = document.createElement('tr');
-        claimRow.setAttribute('id', 'claimRow' + i);
-
-        var claim = document.getElementById('claim').value;
-        var claimPropertyTD = document.createElement('td');
-        claimPropertyTD.setAttribute('style', 'padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;');
-        claimPropertyTD.innerHTML = "" + claim + "<input type='hidden' name='claimPropertyName" + i + "' id='claimPropertyName" + i + "'  value='" + claim + "'/> ";
-
-        var claimRemoveTD = document.createElement('td');
-        claimRemoveTD.innerHTML = "<a href='#' class='icon-link' style='background-image: url(../admin/images/delete.gif)' onclick='removeClaim(" + i + ");return false;'>" + "Delete" + "</a>";
-
-        claimRow.appendChild(claimPropertyTD);
-        claimRow.appendChild(claimRemoveTD);
-
-        claimTableTBody.appendChild(claimRow);
-    }
-    function addAudienceFunc() {
-        var propertyCount = document.getElementById("audiencePropertyCounter");
-
-        var i = propertyCount.value;
-        var currentCount = parseInt(i);
-
-        currentCount = currentCount + 1;
-        propertyCount.value = currentCount;
-
-        document.getElementById('audienceTableId').style.display = '';
-        var audienceTableTBody = document.getElementById('audienceTableTbody');
-
-        var audienceRow = document.createElement('tr');
-        audienceRow.setAttribute('id', 'audienceRow' + i);
-
-        var audience = document.getElementById('audience').value;
-        var audiencePropertyTD = document.createElement('td');
-        audiencePropertyTD.setAttribute('style', 'padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;');
-        audiencePropertyTD.innerHTML = "" + audience + "<input type='hidden' name='audiencePropertyName" + i + "' id='audiencePropertyName" + i + "'  value='" + audience + "'/> ";
-
-        var audienceRemoveTD = document.createElement('td');
-        audienceRemoveTD.innerHTML = "<a href='#' class='icon-link' style='background-image: url(../admin/images/delete.gif)' onclick='removeAudience(" + i + ");return false;'>" + "Delete" + "</a>";
-
-        audienceRow.appendChild(audiencePropertyTD);
-        audienceRow.appendChild(audienceRemoveTD);
-
-        audienceTableTBody.appendChild(audienceRow);
-    }
-
-
-    function removeClaim(i) {
-        var propRow = document.getElementById("claimRow" + i);
-        if (propRow != undefined && propRow != null) {
-            var parentTBody = propRow.parentNode;
-            if (parentTBody != undefined && parentTBody != null) {
-                parentTBody.removeChild(propRow);
-                if (!isContainRaw(parentTBody)) {
-                    var propertyTable = document.getElementById("claimTableId");
-                    propertyTable.style.display = "none";
-
-                }
-            }
-        }
-    }
-
-    function removeAudience(i) {
-        var propRow = document.getElementById("audienceRow" + i);
-        if (propRow != undefined && propRow != null) {
-            var parentTBody = propRow.parentNode;
-            if (parentTBody != undefined && parentTBody != null) {
-                parentTBody.removeChild(propRow);
-                if (!isContainRaw(parentTBody)) {
-                    var propertyTable = document.getElementById("audienceTableId");
-                    propertyTable.style.display = "none";
-
-                }
-            }
-        }
-    }
-
-    function disableIdPInitSSO(chkbx) {
-        document.addServiceProvider.disableIdPInitSSO.value = (chkbx.checked) ? true
-                : false;
-    }
-
-    function isContainRaw(tbody) {
-        if (tbody.childNodes == null || tbody.childNodes.length == 0) {
-            return false;
-        } else {
-            for (var i = 0; i < tbody.childNodes.length; i++) {
-                var child = tbody.childNodes[i];
-                if (child != undefined && child != null) {
-                    if (child.nodeName == "tr" || child.nodeName == "TR") {
-                        return true;
-                    }
-                }
-            }
-        }
+    if (!regexp.test(value)) {
+        CARBON.showWarningDialog(
+                "<fmt:message key='sp.enter.valid.endpoint.address'/>",
+                null, null);
         return false;
     }
 
-    function clearAll() {
-        document.addServiceProvider.action = "update_claims.jsp?action=clear";
-        document.addServiceProvider.submit();
+    value = value.replace(/^\s+/, "");
+    if (value.length == 0) {
+        CARBON.showWarningDialog(
+                "<fmt:message key='sp.enter.valid.endpoint.address'/>",
+                null, null);
+        return false;
+
     }
+
+    var fld = document.getElementsByName("logoutURL")[0];
+    var value = fld.value;
+    var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
+    if (value.length != 0) {
+        value = value.replace(/^\s+/, "");
+        if (value.length != 0) {
+            if (!regexp.test(value)) {
+                CARBON.showWarningDialog(
+                        "<fmt:message key='sp.enter.valid.logout.endpoint.address'/>",
+                        null, null);
+                return false;
+            }
+        }
+    }
+
+
+
+    var fld = document.getElementsByName("issuer")[0];
+    var value = fld.value;
+    if (value.length == 0) {
+        CARBON.showWarningDialog(
+                "<fmt:message key='sp.enter.valid.issuer'/>", null,
+                null);
+        return false;
+    }
+
+    if (document.getElementsByName("subjectType")[1].checked) {
+        var claimVal = document.getElementsByName("claimID")[0].value;
+        if (claimVal.length == 0) {
+            CARBON.showWarningDialog(
+                    "<fmt:message key='sp.enter.valid.claimID'/>",
+                    null, null);
+            return false;
+        }
+    }
+    return true;
+}
+
+function edit(issuer) {
+    location.href = "manage_service_providers.jsp?region=region1&item=manage_saml_sso&SPAction=editServiceProvider&issuer=" + issuer;
+}
+
+function removeItem(issuer) {
+    CARBON.showConfirmationDialog(
+            "<fmt:message key='remove.message1'/>" + " " + issuer
+                    + "<fmt:message key='remove.message2'/>",
+            function () {
+                location.href = "remove_service_providers.jsp?issuer="
+                        + issuer;
+            }, null);
+}
+function showHideTxtBox(radioBtn) {
+    var claimIdRow = document.getElementById('claimIdRow');
+    var nameIdRow = document.getElementById('nameIdRow');
+    if (radioBtn.checked && radioBtn.value == "useClaimId") {
+        claimIdRow.style.display = "";
+        nameIdRow.style.display = "";
+    } else {
+        claimIdRow.style.display = "none";
+        nameIdRow.style.display = "none";
+    }
+}
+function disableCertAlias(chkbx) {
+    document.addServiceProvider.alias.disabled = (chkbx.checked||document.addServiceProvider.enableEncAssertion.checked) ? false
+            : true;
+}
+function disableEncCertAlias(chkbx) {
+    document.addServiceProvider.alias.disabled = (chkbx.checked||document.addServiceProvider.enableSigValidation.checked) ? false
+            : true;
+}
+
+function disableLogoutUrl(chkbx) {
+    document.addServiceProvider.logoutURL.disabled = (chkbx.checked) ? false
+            : true;
+}
+
+function disableFullQualifiedUsername(chkbx) {
+    document.addServiceProvider.useFullQualifiedUsername.value = (chkbx.checked) ? true
+            : false;
+    document.addServiceProvider.enableNameIdClaimUriHidden.value  =  (chkbx.checked) ? false
+            : true;
+
+    if (chkbx.checked) {
+        document.getElementById("enableNameIdClaimUri").checked = 'false';
+    }
+
+}
+
+function disableResponseSignature(chkbx) {
+    document.addServiceProvider.enableResponseSignature.value = (chkbx.checked) ? true
+            : false;
+}
+function disableAssertionSignature(chkbx) {
+    document.addServiceProvider.enableAssertionSignature.value = (chkbx.checked) ? true
+            : false;
+}
+
+function disableAttributeProfile(chkbx) {
+    document.addServiceProvider.claim.disabled = (chkbx.checked) ? false
+            : true;
+    document.addServiceProvider.addClaims.disabled = (chkbx.checked) ? false
+            : true;
+
+    document.addServiceProvider.enableDefaultAttributeProfile.disabled = (chkbx.checked) ? false
+            : true;
+
+}
+
+function disableNameIdClaimUri(chkbx) {
+    if (chkbx.checked) {
+        document.addServiceProvider.enableNameIdClaimUriHidden.value = "true";
+        document.addServiceProvider.useFullQualifiedUsername.value = "false";
+        document.getElementById("useFullQualifiedUsername").checked = 'false';
+    } else {
+        document.addServiceProvider.enableNameIdClaimUriHidden.value = "false";
+    }
+
+}
+
+function disableDefaultAttributeProfile(chkbx) {
+    if (chkbx.checked) {
+        document.addServiceProvider.enableDefaultAttributeProfileHidden.value = "true";
+    } else {
+        document.addServiceProvider.enableDefaultAttributeProfileHidden.value = "false";
+    }
+
+}
+function disableAudienceRestriction(chkbx) {
+    document.addServiceProvider.audience.disabled = (chkbx.checked) ? false
+            : true;
+    document.addServiceProvider.addAudience.disabled = (chkbx.checked) ? false
+            : true;
+}
+function addClaim() {
+    var propertyCount = document.getElementById("claimPropertyCounter");
+
+    var i = propertyCount.value;
+    var currentCount = parseInt(i);
+
+    currentCount = currentCount + 1;
+    propertyCount.value = currentCount;
+
+    document.getElementById('claimTableId').style.display = '';
+    var claimTableTBody = document.getElementById('claimTableTbody');
+
+    var claimRow = document.createElement('tr');
+    claimRow.setAttribute('id', 'claimRow' + i);
+
+    var claim = document.getElementById('claim').value;
+    var claimPropertyTD = document.createElement('td');
+    claimPropertyTD.setAttribute('style', 'padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;');
+    claimPropertyTD.innerHTML = "" + claim + "<input type='hidden' name='claimPropertyName" + i + "' id='claimPropertyName" + i + "'  value='" + claim + "'/> ";
+
+    var claimRemoveTD = document.createElement('td');
+    claimRemoveTD.innerHTML = "<a href='#' class='icon-link' style='background-image: url(../admin/images/delete.gif)' onclick='removeClaim(" + i + ");return false;'>" + "Delete" + "</a>";
+
+    claimRow.appendChild(claimPropertyTD);
+    claimRow.appendChild(claimRemoveTD);
+
+    claimTableTBody.appendChild(claimRow);
+}
+function addAudienceFunc() {
+    var propertyCount = document.getElementById("audiencePropertyCounter");
+
+    var i = propertyCount.value;
+    var currentCount = parseInt(i);
+
+    currentCount = currentCount + 1;
+    propertyCount.value = currentCount;
+
+    document.getElementById('audienceTableId').style.display = '';
+    var audienceTableTBody = document.getElementById('audienceTableTbody');
+
+    var audienceRow = document.createElement('tr');
+    audienceRow.setAttribute('id', 'audienceRow' + i);
+
+    var audience = document.getElementById('audience').value;
+    var audiencePropertyTD = document.createElement('td');
+    audiencePropertyTD.setAttribute('style', 'padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;');
+    audiencePropertyTD.innerHTML = "" + audience + "<input type='hidden' name='audiencePropertyName" + i + "' id='audiencePropertyName" + i + "'  value='" + audience + "'/> ";
+
+    var audienceRemoveTD = document.createElement('td');
+    audienceRemoveTD.innerHTML = "<a href='#' class='icon-link' style='background-image: url(../admin/images/delete.gif)' onclick='removeAudience(" + i + ");return false;'>" + "Delete" + "</a>";
+
+    audienceRow.appendChild(audiencePropertyTD);
+    audienceRow.appendChild(audienceRemoveTD);
+
+    audienceTableTBody.appendChild(audienceRow);
+}
+
+
+function removeClaim(i) {
+    var propRow = document.getElementById("claimRow" + i);
+    if (propRow != undefined && propRow != null) {
+        var parentTBody = propRow.parentNode;
+        if (parentTBody != undefined && parentTBody != null) {
+            parentTBody.removeChild(propRow);
+            if (!isContainRaw(parentTBody)) {
+                var propertyTable = document.getElementById("claimTableId");
+                propertyTable.style.display = "none";
+
+            }
+        }
+    }
+}
+
+function removeAudience(i) {
+    var propRow = document.getElementById("audienceRow" + i);
+    if (propRow != undefined && propRow != null) {
+        var parentTBody = propRow.parentNode;
+        if (parentTBody != undefined && parentTBody != null) {
+            parentTBody.removeChild(propRow);
+            if (!isContainRaw(parentTBody)) {
+                var propertyTable = document.getElementById("audienceTableId");
+                propertyTable.style.display = "none";
+
+            }
+        }
+    }
+}
+
+function disableIdPInitSSO(chkbx) {
+    document.addServiceProvider.disableIdPInitSSO.value = (chkbx.checked) ? true
+            : false;
+}
+
+function isContainRaw(tbody) {
+    if (tbody.childNodes == null || tbody.childNodes.length == 0) {
+        return false;
+    } else {
+        for (var i = 0; i < tbody.childNodes.length; i++) {
+            var child = tbody.childNodes[i];
+            if (child != undefined && child != null) {
+                if (child.nodeName == "tr" || child.nodeName == "TR") {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+function clearAll() {
+    document.addServiceProvider.action = "update_claims.jsp?action=clear";
+    document.addServiceProvider.submit();
+}
 </script>
 
 <%
@@ -333,14 +337,15 @@
     ArrayList<String> aliasSet = null;
     String[] claimUris = null;
     String configPath = null;
+    CertData certData = null;
+    
+    String applicationSPName = request.getParameter("spName");
+    session.setAttribute("application-sp-name", applicationSPName);
 
     SAMLSSOServiceProviderInfoDTO serviceProviderInfoDTO = null;
     ArrayList<SAMLSSOServiceProviderDTO> providers =
             new ArrayList<SAMLSSOServiceProviderDTO>();
     String reload = null;
-    
-    String appid = (String) request.getParameter("appid");
-    appBean.setApplicationIdentifier(appid);
 
     try {
         reload = request.getParameter("reload");
@@ -354,7 +359,7 @@
 
             spConfigClient =
                     new SAMLSSOConfigServiceClient(cookie, serverURL,
-                                                   configContext);
+                            configContext);
             if (spConfigClient.getRegisteredServiceProviders().getServiceProviders() != null) {
                 session.setAttribute(SAMLSSOUIConstants.CONFIG_CLIENT, spConfigClient);
             }
@@ -368,7 +373,7 @@
         }
         aliasSet = spConfigClient.getCertAlias();
         claimUris = spConfigClient.getClaimURIs();
-        
+
     } catch (AxisFault e) {
         CarbonError error = new CarbonError();
         error.addError(e.getMessage());
@@ -476,9 +481,9 @@
 <!-- UseFullQualifiedUsername -->
 
 <tr>
-    <td colspan="2">
+    <td colspan="2" style="padding-top: 25px">
         <input type="checkbox" name="useFullQualifiedUsername" value="true"
-                onclick="disableFullQualifiedUsername(this);"
+               onclick="disableFullQualifiedUsername(this);"
                 <%=(isEditSP && provider.getUseFullyQualifiedUsername() ? "checked=\"checked\"" : "")%> />
         <fmt:message key="use.fullqualified.username"/>
     </td>
@@ -493,27 +498,27 @@
         <input type="checkbox"
                name="enableNameIdClaimUri" value="true" checked="checked"
                onclick="disableNameIdClaimUri(this);"/>
-        <input type="hidden" id="enableNameIdClaimUriHidden" name="enableNameIdClaimUriHidden" value="true" />       
-               
+        <input type="hidden" id="enableNameIdClaimUriHidden" name="enableNameIdClaimUriHidden" value="true" />
+
         <fmt:message
                 key='define.nameid'/>
     </td>
 </tr>
 <tr>
     <td style="padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;">
-    <select id="nameIdClaim" name="nameIdClaim">
+        <select id="nameIdClaim" name="nameIdClaim">
             <%
                 if (claimUris != null) {
                     for (String claimUri : claimUris) {
                         if (claimUri != null) {
-                        	if (claimUri.equals(provider.getNameIdClaimUri())) {
-                        	
+                            if (claimUri.equals(provider.getNameIdClaimUri())) {
+
             %>
-             <option selected="selected" value="<%=claimUri%>"><%=claimUri%></option>
+            <option selected="selected" value="<%=claimUri%>"><%=claimUri%></option>
             <% } else { %>
-             <option value="<%=claimUri%>"><%=claimUri%></option>
+            <option value="<%=claimUri%>"><%=claimUri%></option>
             <%
-                        }
+                            }
                         }
                     }
                 }
@@ -529,19 +534,19 @@
                onclick="disableNameIdClaimUri(this);"/>
         <fmt:message
                 key='define.nameid'/>
-        <input type="hidden" id="enableNameIdClaimUriHidden" name="enableNameIdClaimUriHidden" />       
-                
+        <input type="hidden" id="enableNameIdClaimUriHidden" name="enableNameIdClaimUriHidden" />
+
     </td>
 </tr>
 <tr>
     <td style="padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;">
-    <select id="nameIdClaim" name="nameIdClaim">
+        <select id="nameIdClaim" name="nameIdClaim">
             <%
                 if (claimUris != null) {
                     for (String claimUri : claimUris) {
-                        if (claimUri != null) {                        	
+                        if (claimUri != null) {
             %>
-             <option value="<%=claimUri%>"><%=claimUri%></option>
+            <option value="<%=claimUri%>"><%=claimUri%></option>
             <%
                         }
                     }
@@ -571,24 +576,67 @@
         <fmt:message key="do.assertion.signature"/>
     </td>
 </tr>
-
 <!-- enableSigValidation -->
-<% if (isEditSP && provider.isCertAliasSpecified()) {
+<%
+    if (isEditSP && provider.isDoValidateSignatureInRequestsSpecified() && provider.getDoValidateSignatureInRequests()) {
 %>
 <tr>
-    <td colspan="2">
-        <input type="checkbox"
+    <td colspan="2"  style="padding-top: 25px">
+        <input type="checkbox" id="enableSigValidation"
                name="enableSigValidation" value="true" checked="checked"
                onclick="disableCertAlias(this);"/>
         <fmt:message
                 key='validate.signature'/>
     </td>
 </tr>
+<% } else {%>
 <tr>
-    <td style="padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;">
+    <td colspan="2"  style="padding-top: 25px">
+        <input type="checkbox" id="enableSigValidation"
+               name="enableSigValidation" value="true"
+               onclick="disableCertAlias(this);"/>
+        <fmt:message
+                key='validate.signature'/>
+    </td>
+</tr>
+<%}%>
+
+<!-- Enable Encrypted assertion -->
+<% if (isEditSP && provider.isDoEnableEncryptedAssertionSpecified() && provider.getDoEnableEncryptedAssertion()) {
+%>
+<tr>
+    <td colspan="2">
+        <input type="checkbox" id="enableEncAssertion"
+               name="enableEncAssertion" value="true" checked="checked"
+               onclick="disableEncCertAlias(this);"/>
+        <fmt:message
+                key='encrypted.assertion'/>
+    </td>
+</tr>
+<% } else {%>
+<tr>
+    <td colspan="2">
+        <input type="checkbox" id="enableEncAssertion"
+               name="enableEncAssertion" value="true"
+               onclick="disableEncCertAlias(this);"/>
+        <fmt:message
+                key='encrypted.assertion'/>
+    </td>
+</tr>
+<%}%>
+
+<!-- Certificate Alias -->
+
+<% if (isEditSP && 
+		((provider.isDoEnableEncryptedAssertionSpecified() && provider.getDoEnableEncryptedAssertion())
+		||(provider.isDoValidateSignatureInRequestsSpecified() && provider.getDoValidateSignatureInRequests()))) {
+%>
+<tr>
+    <td  style="padding-left: 33px ! important;padding-bottom: 25px">
         <fmt:message key="sp.certAlias"/>
     </td>
-    <td><select id="alias" name="alias">
+    <td style="padding-left: 33px ! important;padding-bottom: 25px">
+    <select id="alias" name="alias">
         <%
             if (aliasSet != null) {
                 for (String alias : aliasSet) {
@@ -612,19 +660,11 @@
 </tr>
 <% } else {%>
 <tr>
-    <td colspan="2">
-        <input type="checkbox"
-               name="enableSigValidation" value="true"
-               onclick="disableCertAlias(this);"/>
-        <fmt:message
-                key='validate.signature'/>
-    </td>
-</tr>
-<tr>
-    <td style="padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;">
+    <td  style="padding-left: 33px ! important;padding-bottom: 25px">
         <fmt:message key="sp.certAlias"/>
     </td>
-    <td><select id="alias" name="alias" disabled="disabled">
+    <td style="padding-left: 33px ! important;padding-bottom: 25px">
+    <select id="alias" name="alias" disabled="disabled">
         <%
             if (aliasSet != null) {
                 for (String alias : aliasSet) {
@@ -647,7 +687,6 @@
     </select></td>
 </tr>
 <%}%>
-
 <!-- EnableSingleLogout -->
 <%
     if (isEditSP && provider.getDoSingleLogout()) {
@@ -721,15 +760,15 @@
 </tr>
 <tr>
     <td style="padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;" colspan="2">
-       <% if (provider.getEnableAttributesByDefault()) { %>
+        <% if (provider.getEnableAttributesByDefault()) { %>
         <input type="checkbox"
                name="enableDefaultAttributeProfile" id="enableDefaultAttributeProfile"  checked="checked" value="true" onclick="disableDefaultAttributeProfile(this);"/>
-        <input type="hidden" id="enableDefaultAttributeProfileHidden" name="enableDefaultAttributeProfileHidden" value="true" />       
-       <% } else { %>
-       <input type="hidden" id="enableDefaultAttributeProfileHidden" name="enableDefaultAttributeProfileHidden" />
-       <input type="checkbox"
+        <input type="hidden" id="enableDefaultAttributeProfileHidden" name="enableDefaultAttributeProfileHidden" value="true" />
+        <% } else { %>
+        <input type="hidden" id="enableDefaultAttributeProfileHidden" name="enableDefaultAttributeProfileHidden" />
+        <input type="checkbox"
                name="enableDefaultAttributeProfile" id="enableDefaultAttributeProfile" onclick="disableDefaultAttributeProfile(this);" />
-       <% } %>
+        <% } %>
         <fmt:message key="enable.default.attribute.profile"/>
     </td>
 </tr>
@@ -767,7 +806,7 @@
     </td>
 </tr>
 <tr>
-     <td style="padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;" colspan="2">
+    <td style="padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;" colspan="2">
         <input type="hidden" id="enableDefaultAttributeProfileHidden" name="enableDefaultAttributeProfileHidden" />
         <input type="checkbox"
                name="enableDefaultAttributeProfile" id="enableDefaultAttributeProfile"  onclick="disableDefaultAttributeProfile(this);" />

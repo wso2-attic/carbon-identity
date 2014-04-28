@@ -17,9 +17,6 @@
 */
 package org.wso2.carbon.identity.sso.saml;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.opensaml.saml2.core.AuthnRequest;
 import org.opensaml.saml2.core.LogoutRequest;
 import org.opensaml.xml.XMLObject;
@@ -39,6 +36,8 @@ import org.wso2.carbon.identity.sso.saml.validators.SPInitSSOAuthnRequestValidat
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SAMLSSOService {
 
@@ -80,6 +79,13 @@ public class SAMLSSOService {
             if (validationResp.isValid()) {
                 SSOSessionPersistenceManager sessionPersistenceManager = SSOSessionPersistenceManager.getPersistenceManager();
                 boolean isExistingSession = sessionPersistenceManager.isExistingTokenId(sessionId);
+                
+                //Remove the existing session if forceAuthn attribute is true
+                if (isExistingSession && validationResp.isForceAuthn()) {
+                	// TODO send SLO requests?
+                	SAMLSSOUtil.removeSession(sessionId, validationResp.getIssuer());
+                	isExistingSession = false;
+                }
 
                 if (authnMode.equals(SAMLSSOConstants.AuthnModes.OPENID) && !isExistingSession) {
                     SPInitSSOAuthnRequestProcessor authnRequestProcessor = new SPInitSSOAuthnRequestProcessor();

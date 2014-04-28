@@ -33,6 +33,7 @@ public class SAMLSSOReqValidationResponseDTO {
     private String requestMessageString;
     private String queryString;
     private boolean isPassive;
+    private boolean isForceAuthn;
     private String destination;
     private SingleLogoutRequestDTO[] logoutRespDTO;
     private boolean isIdPInitSSO;
@@ -198,4 +199,12 @@ public class SAMLSSOReqValidationResponseDTO {
     public void setIdPInitSSO(boolean isIdPInitSSO) {
         this.isIdPInitSSO = isIdPInitSSO;
     }
+
+	public boolean isForceAuthn() {
+		return isForceAuthn;
+	}
+
+	public void setForceAuthn(boolean isForceAuthn) {
+		this.isForceAuthn = isForceAuthn;
+	}
 }

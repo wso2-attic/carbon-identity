@@ -89,7 +89,7 @@ public class SPInitSSOAuthnRequestValidator {
 
 			// Issuer Format attribute
 			if ((issuer.getFormat() != null) &&
-			    (issuer.getFormat().equals(SAMLSSOConstants.Attribute.ISSUER_FORMAT))) {
+			    !(issuer.getFormat().equals(SAMLSSOConstants.Attribute.ISSUER_FORMAT))) {
 				validationResponse.setValid(false);
 				String errorResp =
 				                   buildErrorResponse(SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
@@ -152,6 +152,7 @@ public class SPInitSSOAuthnRequestValidator {
             validationResponse.setDestination(authnReq.getDestination());
             validationResponse.setValid(true);
             validationResponse.setPassive(authnReq.isPassive());
+            validationResponse.setForceAuthn(authnReq.isForceAuthn());
 
             if (log.isDebugEnabled()) {
             	log.debug("Authentication Request Validation is successful..");

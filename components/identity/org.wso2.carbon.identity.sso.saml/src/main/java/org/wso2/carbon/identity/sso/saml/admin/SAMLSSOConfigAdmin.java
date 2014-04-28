@@ -87,6 +87,8 @@ public class SAMLSSOConfigAdmin {
             serviceProviderDO.setRequestedAudiences(serviceProviderDTO.getRequestedAudiences());
         }
         serviceProviderDO.setIdPInitSSOEnabled(serviceProviderDTO.isIdPInitSSOEnabled());
+        serviceProviderDO.setDoEnableEncryptedAssertion(serviceProviderDTO.isDoEnableEncryptedAssertion());
+        serviceProviderDO.setDoValidateSignatureInRequests(serviceProviderDTO.isDoValidateSignatureInRequests());
         IdentityPersistenceManager persistenceManager = IdentityPersistenceManager
                 .getPersistanceManager();
         try {
@@ -147,6 +149,8 @@ public class SAMLSSOConfigAdmin {
                 providerDTO.setNameIDFormat(providerDTO.getNameIDFormat().replace(":", "/"));
 
                 providerDTO.setIdPInitSSOEnabled(providerDO.isIdPInitSSOEnabled());
+                providerDTO.setDoEnableEncryptedAssertion(providerDO.isDoEnableEncryptedAssertion());
+                providerDTO.setDoValidateSignatureInRequests(providerDO.isDoValidateSignatureInRequests());
                 serviceProviders[i] = providerDTO;
             }
         } catch (IdentityException e) {

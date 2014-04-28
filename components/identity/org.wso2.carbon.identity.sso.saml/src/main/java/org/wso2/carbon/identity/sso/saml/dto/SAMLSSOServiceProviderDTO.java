@@ -35,6 +35,8 @@ public class SAMLSSOServiceProviderDTO {
     private String nameIdClaimUri;
     private String nameIDFormat;
     private boolean idPInitSSOEnabled;
+    private boolean doEnableEncryptedAssertion;
+    private boolean doValidateSignatureInRequests;
 
     public String getNameIDFormat() {
         return nameIDFormat;
@@ -190,4 +192,19 @@ public class SAMLSSOServiceProviderDTO {
         this.idPInitSSOEnabled = idPInitSSOEnabled;
     }
 
+    public boolean isDoEnableEncryptedAssertion() {
+        return doEnableEncryptedAssertion;
+    }
+
+    public void setDoEnableEncryptedAssertion(boolean doEnableEncryptedAssertion) {
+        this.doEnableEncryptedAssertion = doEnableEncryptedAssertion;
+    }
+
+    public boolean isDoValidateSignatureInRequests() {
+        return doValidateSignatureInRequests;
+    }
+
+    public void setDoValidateSignatureInRequests(boolean doValidateSignatureInRequests) {
+        this.doValidateSignatureInRequests = doValidateSignatureInRequests;
+    }
 }

@@ -17,23 +17,25 @@
 */
 package org.wso2.carbon.identity.sso.saml.session;
 
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.axis2.AxisFault;
 import org.apache.axis2.clustering.ClusteringAgent;
 import org.apache.axis2.clustering.ClusteringFault;
-import org.apache.axis2.clustering.state.Replicator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.util.AnonymousSessionUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
+import org.wso2.carbon.registry.core.Registry;
+import org.wso2.carbon.registry.core.session.UserRegistry;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class is used to persist the sessions established with Service providers
@@ -78,12 +80,13 @@ public class SSOSessionPersistenceManager {
      * @param spDO
      */
     public void persistSession(String sessionId, String sessionIndex, String subject, SAMLSSOServiceProviderDO spDO,
-                               String rpSessionId, String authenticators)
+                               String rpSessionId, String authenticators, Map<String, String> userAttributes)
             throws IdentityException {
         if (!sessionParticipantMap.containsKey(sessionIndex)) {
             SessionInfoData sessionInfoData = new SessionInfoData(subject);
             sessionInfoData.addServiceProvider(spDO.getIssuer(), spDO, rpSessionId);
             sessionInfoData.setAuthenticators(authenticators);
+            sessionInfoData.setAttributes(userAttributes);
             sessionParticipantMap.put(sessionIndex, sessionInfoData);
             replicateSessionInfo(sessionId, sessionIndex, subject, spDO, rpSessionId);
         }
@@ -103,9 +106,8 @@ public class SSOSessionPersistenceManager {
                     if (spDO == null) {
                         IdentityPersistenceManager identityPersistenceManager = IdentityPersistenceManager
                                 .getPersistanceManager();
-                        spDO = identityPersistenceManager.getServiceProvider(
-                                AnonymousSessionUtil.getSystemRegistryByUserName(SAMLSSOUtil.getRegistryService(),
-                                        SAMLSSOUtil.getRealmService(), subject), issuer);
+                        Registry registry = (Registry)PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_CONFIGURATION);
+                        spDO = identityPersistenceManager.getServiceProvider(registry, issuer);
                     }
                     //give priority to assertion consuming URL if specified in the request
                     if (assertionConsumerURL != null) {

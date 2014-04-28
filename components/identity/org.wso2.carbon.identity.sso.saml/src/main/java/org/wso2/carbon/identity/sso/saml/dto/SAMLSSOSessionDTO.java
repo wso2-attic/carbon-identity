@@ -15,6 +15,8 @@ public class SAMLSSOSessionDTO {
     private boolean isIdPInitSSO;
     private SAMLSSOReqValidationResponseDTO validationRespDTO;
     private String sessionId;
+    private boolean logoutReq;
+    private String tenantDomain;
 
     public String getHttpQueryString() {
         return httpQueryString;
@@ -119,5 +121,21 @@ public class SAMLSSOSessionDTO {
 
 	public void setSessionId(String sessionId) {
 		this.sessionId = sessionId;
+	}
+
+	public boolean isLogoutReq() {
+		return logoutReq;
+	}
+
+	public void setLogoutReq(boolean logoutReq) {
+		this.logoutReq = logoutReq;
+	}
+
+	public String getTenantDomain() {
+		return tenantDomain;
+	}
+
+	public void setTenantDomain(String tenantDomain) {
+		this.tenantDomain = tenantDomain;
 	}
 }

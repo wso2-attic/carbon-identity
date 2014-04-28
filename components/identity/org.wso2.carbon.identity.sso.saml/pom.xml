@@ -76,7 +76,11 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.common</artifactId>
-            <!--<version>4.3.0-SNAPSHOT</version>-->
+            <!--version>4.2.0</version-->
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
         </dependency>
 	</dependencies>
 	<build>
@@ -116,6 +120,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 							org.apache.commons.logging.*; version="1.0.4",
 							org.osgi.framework,
 							org.wso2.carbon.identity.sso.saml.common.*,
+                            org.wso2.carbon.identity.application.authentication.framework.*,
                             javax.servlet;version="${imp.pkg.version.javax.servlet}",
                             javax.servlet.http;version="${imp.pkg.version.javax.servlet}",
 							*;resolution:=optional</Import-Package>

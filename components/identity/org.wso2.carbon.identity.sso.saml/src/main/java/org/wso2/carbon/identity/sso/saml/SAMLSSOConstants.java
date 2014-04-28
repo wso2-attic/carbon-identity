@@ -80,6 +80,8 @@ public class SAMLSSOConstants {
 
     public static final String SESSION_DATA_KEY = "sessionDataKey";
 
+    public static final String AUTHENTICATION_RESULT = "AuthenticationResult";
+
     public static final String LOGIN_PAGE = "customLoginPage";
 
     public class Notification {

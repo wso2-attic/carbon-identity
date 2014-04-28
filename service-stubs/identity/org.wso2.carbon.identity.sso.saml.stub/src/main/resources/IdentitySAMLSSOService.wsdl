@@ -11,26 +11,47 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="validateRequest">
+            <xs:element name="validateSPInitSSORequest">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="samlReq" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="queryString" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="sessionId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="rpSessionId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="authnMode" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="samlReq" nillable="true" type="xs:string"></xs:element>
+                        <xs:element minOccurs="0" name="queryString" nillable="true" type="xs:string"></xs:element>
+                        <xs:element minOccurs="0" name="sessionId" nillable="true" type="xs:string"></xs:element>
+                        <xs:element minOccurs="0" name="rpSessionId" nillable="true" type="xs:string"></xs:element>
+                        <xs:element minOccurs="0" name="authnMode" nillable="true" type="xs:string"></xs:element>
                         <xs:element minOccurs="0" name="isPost" type="xs:boolean"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="validateRequestResponse">
+            <xs:element name="validateSPInitSSORequestResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2308:SAMLSSOReqValidationResponseDTO"/>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2306:SAMLSSOReqValidationResponseDTO"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="isSAMLSSOLoginAccepted">
+            <xs:element name="validateIdPInitSSORequest">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="httpServletRequest" nillable="true" type="xs:anyType"></xs:element>
+                        <xs:element minOccurs="0" name="httpServletResponse" nillable="true" type="xs:anyType"></xs:element>
+                        <xs:element minOccurs="0" name="spEntityID" nillable="true" type="xs:string"></xs:element>
+                        <xs:element minOccurs="0" name="relayState" nillable="true" type="xs:string"></xs:element>
+                        <xs:element minOccurs="0" name="queryString" nillable="true" type="xs:string"></xs:element>
+                        <xs:element minOccurs="0" name="sessionId" nillable="true" type="xs:string"></xs:element>
+                        <xs:element minOccurs="0" name="rpSessionId" nillable="true" type="xs:string"></xs:element>
+                        <xs:element minOccurs="0" name="authnMode" nillable="true" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="validateIdPInitSSORequestResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2306:SAMLSSOReqValidationResponseDTO"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+	    <xs:element name="isSAMLSSOLoginAccepted">
                 <xs:complexType>
                     <xs:sequence/>
                 </xs:complexType>
@@ -42,7 +63,7 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="isOpenIDLoginAccepted">
+	    <xs:element name="isOpenIDLoginAccepted">
                 <xs:complexType>
                     <xs:sequence/>
                 </xs:complexType>
@@ -102,12 +123,13 @@
                     <xs:element minOccurs="0" name="assertionConsumerURL" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="doSingleLogout" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="id" nillable="true" type="xs:string"/>
+		    <xs:element minOccurs="0" name="idPInitSSO" type="xs:boolean"></xs:element>
                     <xs:element minOccurs="0" name="issuer" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="logOutReq" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="loginPageURL" nillable="true" type="xs:string"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="logoutRespDTO" nillable="true" type="ax2307:SingleLogoutRequestDTO"/>
                     <xs:element minOccurs="0" name="logoutResponse" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="passive" type="xs:boolean"/>
+		    <xs:element minOccurs="0" name="passive" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="queryString" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="requestMessageString" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="response" nillable="true" type="xs:string"/>
@@ -134,6 +156,7 @@
                     <xs:element minOccurs="0" name="doSignResponse" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="doSingleLogout" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="id" nillable="true" type="xs:string"/>
+		    <xs:element minOccurs="0" name="idPInitSSO" type="xs:boolean"></xs:element>
                     <xs:element minOccurs="0" name="issuer" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="loginPageURL" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="logoutURL" nillable="true" type="xs:string"/>
@@ -189,11 +212,17 @@
     <wsdl:message name="getSSOSessionTimeoutResponse">
         <wsdl:part name="parameters" element="ns1:getSSOSessionTimeoutResponse"/>
     </wsdl:message>
-    <wsdl:message name="validateRequestRequest">
-        <wsdl:part name="parameters" element="ns1:validateRequest"/>
+    <wsdl:message name="validateSPInitSSORequestRequest">
+        <wsdl:part name="parameters" element="ns1:validateSPInitSSORequest"></wsdl:part>
     </wsdl:message>
-    <wsdl:message name="validateRequestResponse">
-        <wsdl:part name="parameters" element="ns1:validateRequestResponse"/>
+    <wsdl:message name="validateSPInitSSORequestResponse">
+        <wsdl:part name="parameters" element="ns1:validateSPInitSSORequestResponse"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="validateIdPInitSSORequestRequest">
+        <wsdl:part name="parameters" element="ns1:validateIdPInitSSORequest"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="validateIdPInitSSORequestResponse">
+        <wsdl:part name="parameters" element="ns1:validateIdPInitSSORequestResponse"></wsdl:part>
     </wsdl:message>
     <wsdl:message name="doSingleLogoutRequest">
         <wsdl:part name="parameters" element="ns1:doSingleLogout"/>
@@ -213,7 +242,7 @@
             <wsdl:output message="tns:authenticateResponse" wsaw:Action="urn:authenticateResponse"/>
             <wsdl:fault message="tns:IdentityException" name="IdentityException" wsaw:Action="urn:authenticateIdentityException"/>
         </wsdl:operation>
-        <wsdl:operation name="isOpenIDLoginAccepted">
+	<wsdl:operation name="isOpenIDLoginAccepted">
             <wsdl:input message="tns:isOpenIDLoginAcceptedRequest" wsaw:Action="urn:isOpenIDLoginAccepted"/>
             <wsdl:output message="tns:isOpenIDLoginAcceptedResponse" wsaw:Action="urn:isOpenIDLoginAcceptedResponse"/>
         </wsdl:operation>
@@ -221,17 +250,22 @@
             <wsdl:input message="tns:getSSOSessionTimeoutRequest" wsaw:Action="urn:getSSOSessionTimeout"/>
             <wsdl:output message="tns:getSSOSessionTimeoutResponse" wsaw:Action="urn:getSSOSessionTimeoutResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="validateRequest">
-            <wsdl:input message="tns:validateRequestRequest" wsaw:Action="urn:validateRequest"/>
-            <wsdl:output message="tns:validateRequestResponse" wsaw:Action="urn:validateRequestResponse"/>
-            <wsdl:fault message="tns:IdentityException" name="IdentityException" wsaw:Action="urn:validateRequestIdentityException"/>
+        <wsdl:operation name="validateSPInitSSORequest">
+            <wsdl:input message="tns:validateSPInitSSORequestRequest" wsaw:Action="urn:validateSPInitSSORequest"></wsdl:input>
+            <wsdl:output message="tns:validateSPInitSSORequestResponse" wsaw:Action="urn:validateSPInitSSORequestResponse"></wsdl:output>
+            <wsdl:fault message="tns:IdentityException" name="IdentityException" wsaw:Action="urn:validateSPInitSSORequestIdentityException"></wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="validateIdPInitSSORequest">
+            <wsdl:input message="tns:validateIdPInitSSORequestRequest" wsaw:Action="urn:validateIdPInitSSORequest"></wsdl:input>
+            <wsdl:output message="tns:validateIdPInitSSORequestResponse" wsaw:Action="urn:validateIdPInitSSORequestResponse"></wsdl:output>
+            <wsdl:fault message="tns:IdentityException" name="IdentityException" wsaw:Action="urn:validateIdPInitSSORequestIdentityException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="doSingleLogout">
             <wsdl:input message="tns:doSingleLogoutRequest" wsaw:Action="urn:doSingleLogout"/>
             <wsdl:output message="tns:doSingleLogoutResponse" wsaw:Action="urn:doSingleLogoutResponse"/>
             <wsdl:fault message="tns:IdentityException" name="IdentityException" wsaw:Action="urn:doSingleLogoutIdentityException"/>
         </wsdl:operation>
-        <wsdl:operation name="isSAMLSSOLoginAccepted">
+	<wsdl:operation name="isSAMLSSOLoginAccepted">
             <wsdl:input message="tns:isSAMLSSOLoginAcceptedRequest" wsaw:Action="urn:isSAMLSSOLoginAccepted"/>
             <wsdl:output message="tns:isSAMLSSOLoginAcceptedResponse" wsaw:Action="urn:isSAMLSSOLoginAcceptedResponse"/>
         </wsdl:operation>
@@ -250,7 +284,7 @@
                 <soap:fault use="literal" name="IdentityException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="isOpenIDLoginAccepted">
+	<wsdl:operation name="isOpenIDLoginAccepted">
             <soap:operation soapAction="urn:isOpenIDLoginAccepted" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
@@ -268,16 +302,28 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="validateRequest">
-            <soap:operation soapAction="urn:validateRequest" style="document"/>
+        <wsdl:operation name="validateIdPInitSSORequest">
+            <soap:operation soapAction="urn:validateIdPInitSSORequest" style="document"></soap:operation>
             <wsdl:input>
-                <soap:body use="literal"/>
+                <soap:body use="literal"></soap:body>
             </wsdl:input>
             <wsdl:output>
-                <soap:body use="literal"/>
+                <soap:body use="literal"></soap:body>
             </wsdl:output>
             <wsdl:fault name="IdentityException">
-                <soap:fault use="literal" name="IdentityException"/>
+                <soap:fault use="literal" name="IdentityException"></soap:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="validateSPInitSSORequest">
+            <soap:operation soapAction="urn:validateSPInitSSORequest" style="document"></soap:operation>
+            <wsdl:input>
+                <soap:body use="literal"></soap:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"></soap:body>
+            </wsdl:output>
+            <wsdl:fault name="IdentityException">
+                <soap:fault use="literal" name="IdentityException"></soap:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="doSingleLogout">
@@ -292,7 +338,7 @@
                 <soap:fault use="literal" name="IdentityException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="isSAMLSSOLoginAccepted">
+	<wsdl:operation name="isSAMLSSOLoginAccepted">
             <soap:operation soapAction="urn:isSAMLSSOLoginAccepted" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
@@ -316,7 +362,7 @@
                 <soap12:fault use="literal" name="IdentityException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="isOpenIDLoginAccepted">
+	<wsdl:operation name="isOpenIDLoginAccepted">
             <soap12:operation soapAction="urn:isOpenIDLoginAccepted" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
@@ -334,16 +380,28 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="validateRequest">
-            <soap12:operation soapAction="urn:validateRequest" style="document"/>
+        <wsdl:operation name="validateIdPInitSSORequest">
+            <soap12:operation soapAction="urn:validateIdPInitSSORequest" style="document"></soap12:operation>
             <wsdl:input>
-                <soap12:body use="literal"/>
+                <soap12:body use="literal"></soap12:body>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal"/>
+                <soap12:body use="literal"></soap12:body>
             </wsdl:output>
             <wsdl:fault name="IdentityException">
-                <soap12:fault use="literal" name="IdentityException"/>
+                <soap12:fault use="literal" name="IdentityException"></soap12:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="validateSPInitSSORequest">
+            <soap12:operation soapAction="urn:validateSPInitSSORequest" style="document"></soap12:operation>
+            <wsdl:input>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:output>
+            <wsdl:fault name="IdentityException">
+                <soap12:fault use="literal" name="IdentityException"></soap12:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="doSingleLogout">
@@ -358,7 +416,7 @@
                 <soap12:fault use="literal" name="IdentityException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="isSAMLSSOLoginAccepted">
+	<wsdl:operation name="isSAMLSSOLoginAccepted">
             <soap12:operation soapAction="urn:isSAMLSSOLoginAccepted" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
@@ -379,7 +437,7 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="isOpenIDLoginAccepted">
+	 <wsdl:operation name="isOpenIDLoginAccepted">
             <http:operation location="isOpenIDLoginAccepted"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
@@ -397,13 +455,22 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="validateRequest">
-            <http:operation location="validateRequest"/>
+        <wsdl:operation name="validateIdPInitSSORequest">
+            <http:operation location="validateIdPInitSSORequest"></http:operation>
             <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
+                <mime:content type="text/xml" part="parameters"></mime:content>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="validateSPInitSSORequest">
+            <http:operation location="validateSPInitSSORequest"></http:operation>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"></mime:content>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="doSingleLogout">
@@ -415,7 +482,7 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="isSAMLSSOLoginAccepted">
+	<wsdl:operation name="isSAMLSSOLoginAccepted">
             <http:operation location="isSAMLSSOLoginAccepted"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>

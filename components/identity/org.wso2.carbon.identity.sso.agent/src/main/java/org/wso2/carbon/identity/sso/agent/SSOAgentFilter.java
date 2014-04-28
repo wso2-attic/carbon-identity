@@ -54,7 +54,7 @@ public class SSOAgentFilter implements Filter {
             // initialize ssomanager and openidmanager
             samlSSOManager = new SAML2SSOManager();
             openIdManager = new OpenIDManager();
-//            fConfig.getServletContext().addListener("org.wso2.carbon.identity.sso.agent.saml.SSOAgentHttpSessionListener");
+ //           fConfig.getServletContext().addListener("org.wso2.carbon.identity.sso.agent.saml.SSOAgentHttpSessionListener");
         }  catch (SSOAgentException e) {
             LOGGER.log(Level.SEVERE, "An error has occurred", e);
             throw e;

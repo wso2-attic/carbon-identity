@@ -17,41 +17,46 @@
  */
 package org.wso2.carbon.identity.sso.saml.servlet;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.application.common.cache.CacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheKey;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
+import org.wso2.carbon.identity.base.IdentityConstants;
+import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
+import org.wso2.carbon.identity.sso.saml.SAMLSSOService;
+import org.wso2.carbon.identity.sso.saml.cache.SessionDataCache;
+import org.wso2.carbon.identity.sso.saml.cache.SessionDataCacheEntry;
+import org.wso2.carbon.identity.sso.saml.cache.SessionDataCacheKey;
+import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
+import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOReqValidationResponseDTO;
+import org.wso2.carbon.identity.sso.saml.dto.SAMLSSORespDTO;
+import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOSessionDTO;
+import org.wso2.carbon.identity.sso.saml.logout.LogoutRequestSender;
+import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
+import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
+import org.wso2.carbon.registry.core.utils.UUIDGenerator;
+import org.wso2.carbon.ui.CarbonUIUtil;
+import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.opensaml.saml2.core.AuthnRequest;
-import org.opensaml.saml2.core.LogoutRequest;
-import org.opensaml.xml.XMLObject;
-import org.wso2.carbon.identity.base.IdentityConstants;
-import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
-import org.wso2.carbon.identity.sso.saml.SAMLSSOService;
-import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
-import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOReqValidationResponseDTO;
-import org.wso2.carbon.identity.sso.saml.dto.SAMLSSORespDTO;
-import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOSessionDTO;
-import org.wso2.carbon.identity.sso.saml.logout.LogoutRequestSender;
-import org.wso2.carbon.identity.sso.saml.processors.LogoutRequestProcessor;
-import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
-import org.wso2.carbon.identity.sso.saml.session.SessionInfoData;
-import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
-import org.wso2.carbon.registry.core.utils.UUIDGenerator;
-import org.wso2.carbon.ui.CarbonUIUtil;
-import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 /**
  * This is the entry point for authentication process in an SSO scenario. This servlet is registered
@@ -101,7 +106,6 @@ public class SAMLSSOProviderServlet extends HttpServlet {
      */
     private void handleRequest(HttpServletRequest req, HttpServletResponse resp, boolean isPost)
             throws ServletException, IOException {
-
         String sessionId = null;
         Cookie ssoTokenIdCookie = getTokenIdCookie(req);
 
@@ -126,14 +130,26 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         String relayState = req.getParameter(SAMLSSOConstants.RELAY_STATE);
         String spEntityID = req.getParameter("spEntityID");
         String samlRequest = req.getParameter("SAMLRequest");
+        String sessionDataKey = req.getParameter("sessionDataKey");
 
         try {
-            if (req.getAttribute("commonAuthAuthenticated") != null) { //Response from common authentication framework.
-                sessionId = UUIDGenerator.generateUUID();
-                handleRequestFromLoginPage(req, resp, sessionId,
-                        (String)req.getAttribute(SAMLSSOConstants.SESSION_DATA_KEY));
-            } else if (req.getAttribute("commonAuthLoggedOut") != null) {
-            	handleLogoutReponseFromAuthenFramework(req, resp);
+            if (sessionDataKey != null) { //Response from common authentication framework.
+            	SAMLSSOSessionDTO sessionDTO = getSessionDataFromCache(sessionDataKey);
+            	
+            	if (sessionDTO != null) {
+            		
+            		if (sessionDTO.isLogoutReq()) {
+            			handleLogoutReponseFromAuthenFramework(req, resp, sessionDTO);
+                	} else {
+                		sessionId = UUIDGenerator.generateUUID();
+    					handleRequestFromLoginPage(req, resp, sessionId, sessionDTO);
+                	}
+            	} else {
+		            sendNotification(SAMLSSOConstants.Notification.EXCEPTION_STATUS,
+		                    SAMLSSOConstants.Notification.INVALID_MESSAGE_MESSAGE, req, resp);
+		            log.error("Failed to retrieve sessionDTO from the cache.");
+		            return;
+            	}
             } else if (spEntityID != null) { // idp initiated SSO
                 handleIdPInitSSO(req, resp, spEntityID, relayState, queryString, authMode, sessionId);
             } else if (samlRequest != null) {// SAMLRequest received. SP initiated SSO
@@ -237,7 +253,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         SAMLSSOReqValidationResponseDTO signInRespDTO = samlSSOService.validateSPInitSSORequest(
                 samlRequest, queryString, sessionId, rpSessionId, authMode, isPost);
         if (!signInRespDTO.isLogOutReq()) { // an <AuthnRequest> received
-            if (signInRespDTO.isValid() && signInRespDTO.getResponse() != null && !signInRespDTO.isPassive()) {
+        	if (signInRespDTO.isValid() && signInRespDTO.getResponse() != null && !signInRespDTO.isPassive()) {
                 // user already has an existing SSO session, redirect
                 if (SAMLSSOConstants.AuthnModes.OPENID.equals(authMode)) {
 
@@ -256,7 +272,9 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                 sendResponse(req, resp, relayState, signInRespDTO.getResponse(),
                         signInRespDTO.getAssertionConsumerURL(), signInRespDTO.getSubject());
             } else if (signInRespDTO.isValid() && signInRespDTO.getResponse() == null && !signInRespDTO.isPassive()) {
-                // user doesn't have an existing SSO session, so authenticate
+                // user doesn't have an existing SSO session or this is a forceAuthn request, so authenticate
+            	removeRememberMeCookie(req, resp);
+            	removeTokenIdCookie(req, resp);
                 sendToAuthenticate(req, resp, signInRespDTO, relayState);
             } else {
                 log.debug("Invalid SAML SSO Request");
@@ -281,6 +299,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                                     SAMLSSOReqValidationResponseDTO signInRespDTO, String relayState)
             throws ServletException, IOException {
 
+    	
+    	
         SAMLSSOSessionDTO sessionDTO = new SAMLSSOSessionDTO();
         sessionDTO.setHttpQueryString(req.getQueryString());
         sessionDTO.setDestination(signInRespDTO.getDestination());
@@ -291,6 +311,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         sessionDTO.setSubject(signInRespDTO.getSubject());
         sessionDTO.setRelyingPartySessionId(signInRespDTO.getRpSessionId());
         sessionDTO.setAssertionConsumerURL(signInRespDTO.getAssertionConsumerURL());
+        sessionDTO.setTenantDomain(req.getParameter("tenantDomain"));
+        
         if(signInRespDTO.isIdPInitSSO()) {
             sessionDTO.setIdPInitSSO(true);
         } else {
@@ -298,19 +320,25 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         }
 
         String sessionDataKey = UUIDGenerator.generateUUID();
-        HttpSession session = req.getSession();
-        session.setAttribute(sessionDataKey, sessionDTO);
+        addSessionDataToCache(sessionDataKey, sessionDTO, req.getSession().getMaxInactiveInterval());
 
         String commonAuthURL = CarbonUIUtil.getAdminConsoleURL(req);
         commonAuthURL = commonAuthURL.replace("samlsso/carbon/", "commonauth");
 
-        String selfPath = URLEncoder.encode("../../samlsso","UTF-8");
-
-        String queryParams = "?" + req.getQueryString() + "&issuer=" + signInRespDTO.getIssuer() +
+        String selfPath = URLEncoder.encode("/samlsso","UTF-8");
+        String forceAuthenticate = "false";
+        
+        if (signInRespDTO.isForceAuthn()) {
+        	forceAuthenticate = "true";
+        }
+        
+        String queryParams = "?" + req.getQueryString() + "&relyingParty=" + signInRespDTO.getIssuer() +
                 "&" + SAMLSSOConstants.SESSION_DATA_KEY + "=" + sessionDataKey +
                 "&type=samlsso" +
                 "&commonAuthCallerPath=" + selfPath +
-                "&forceAuthenticate=false";
+                "&forceAuthenticate=" + forceAuthenticate;
+        
+        FrameworkUtils.setRequestPathCredentials(req);
 
         resp.sendRedirect(commonAuthURL + queryParams);
     }
@@ -325,6 +353,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             sessionDTO.setHttpQueryString(request.getQueryString());
             sessionDTO.setRelayState(relayState);
             sessionDTO.setSessionId(sessionId);
+            sessionDTO.setLogoutReq(true);
             
             if (signInRespDTO != null) {
             	sessionDTO.setDestination(signInRespDTO.getDestination());
@@ -338,24 +367,20 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             }
             
         	String sessionDataKey = UUIDGenerator.generateUUID();
-            request.getSession().setAttribute(sessionDataKey, sessionDTO);
+        	addSessionDataToCache(sessionDataKey, sessionDTO, request.getSession().getMaxInactiveInterval());
 
             String commonAuthURL = CarbonUIUtil.getAdminConsoleURL(request);
             commonAuthURL = commonAuthURL.replace("samlsso/carbon/", "commonauth");
 
-            String selfPath = URLEncoder.encode("../../samlsso","UTF-8");
+            String selfPath = URLEncoder.encode("/samlsso","UTF-8");
             
             SSOSessionPersistenceManager sessionPersistenceManager = SSOSessionPersistenceManager.getPersistenceManager();
-            SessionInfoData sessionInfo = sessionPersistenceManager.
-                    getSessionInfo(sessionPersistenceManager.getSessionIndexFromTokenId(sessionId));
-            String authenticators = sessionInfo.getAuthenticators();
             
             String queryParams = "?" + request.getQueryString() +
                     "&" + SAMLSSOConstants.SESSION_DATA_KEY + "=" + sessionDataKey +
                     "&type=samlsso" +
                     "&commonAuthCallerPath=" + selfPath +
-                    "&commonAuthLogout=true" + 
-                    "&authenticatedAuthenticators=" + authenticators;
+                    "&commonAuthLogout=true";
             
             if (signInRespDTO != null) {
             	queryParams = queryParams + "&issuer=" + signInRespDTO.getIssuer();
@@ -379,9 +404,6 @@ public class SAMLSSOProviderServlet extends HttpServlet {
      */
     private void sendResponse(HttpServletRequest req, HttpServletResponse resp, String relayState,
                               String response, String acUrl, String subject) throws ServletException, IOException {
-
-        HttpSession session = req.getSession();
-        session.removeAttribute(SAMLSSOConstants.SESSION_DATA_KEY);
 
         if(relayState != null){
             relayState = URLDecoder.decode(relayState, "UTF-8");
@@ -423,11 +445,12 @@ public class SAMLSSOProviderServlet extends HttpServlet {
      * @throws ServletException
      */
     private void handleRequestFromLoginPage(HttpServletRequest req, HttpServletResponse resp,
-                                            String sessionId, String sessionDataKey) throws IdentityException, IOException, ServletException {
+                                            String sessionId, SAMLSSOSessionDTO sessionDTO) throws IdentityException, IOException, ServletException {
 
-    	if (req.getAttribute("commonAuthAuthenticated") != null &&
-    			!((Boolean)req.getAttribute("commonAuthAuthenticated")).booleanValue()) {
-    		if (log.isDebugEnabled()) {
+    	AuthenticationResult authResult = getAuthenticationResultFromCache(req.getParameter("sessionDataKey"));
+    	
+    	if (authResult == null || !authResult.isAuthenticated() ) {
+    		if (log.isDebugEnabled() && authResult != null) {
     			log.debug("Unauthenticated User");
     		}
     		//TODO send a saml response with a status message.
@@ -436,14 +459,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
     		return;
     	}
     	
-        SAMLSSOSessionDTO sessionDTO = (SAMLSSOSessionDTO)req.getSession().getAttribute(sessionDataKey);
-
-        if (sessionDTO==null){
-            sendNotification(SAMLSSOConstants.Notification.EXCEPTION_STATUS,
-                    SAMLSSOConstants.Notification.INVALID_MESSAGE_MESSAGE, req, resp);
-            log.error("The value of sessionDTO is null. This could be due to the hostname settings");
-            return;
-        }
+    	req.setAttribute(SAMLSSOConstants.AUTHENTICATION_RESULT, authResult);
 
         String relayState = null;
 
@@ -455,22 +471,32 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
         SAMLSSOAuthnReqDTO authnReqDTO = new SAMLSSOAuthnReqDTO();
 
-        populateAuthnReqDTO(req, authnReqDTO, sessionDTO);
+        populateAuthnReqDTO(req, authnReqDTO, sessionDTO, authResult);
+        
+        String tenantDomainParam = authnReqDTO.getTenantDomain();
+        String tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+        int tenantId = MultitenantConstants.SUPER_TENANT_ID;
+        
+        if (tenantDomainParam != null && tenantDomainParam.trim().length() > 0) {
+        	try {
+				tenantId = SAMLSSOUtil.getRealmService().getTenantManager().getTenantId(tenantDomain);
+			} catch (UserStoreException e) {
+				log.error("while getting tenantId from tenantDomain query param", e);
+			}
+        } 
+        
+        PrivilegedCarbonContext.startTenantFlow();
+        PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+        carbonContext.setTenantId(tenantId);
+        carbonContext.setTenantDomain(tenantDomain);
 
         SAMLSSOService samlSSOService = new SAMLSSOService();
-        SAMLSSORespDTO authRespDTO = null;
-        if(samlSSOService.isOpenIDLoginAccepted() && req.getSession().getAttribute("authenticatedOpenID") != null){
-            authnReqDTO.setUsername(SAMLSSOUtil.getUserNameFromOpenID(
-                    (String)req.getSession().getAttribute("authenticatedOpenID")));
-            authRespDTO = samlSSOService.authenticate(authnReqDTO, sessionId, true, null, SAMLSSOConstants.AuthnModes.OPENID);
-        } else {
-            authRespDTO = samlSSOService.authenticate(authnReqDTO, sessionId, (Boolean)req.getAttribute("commonAuthAuthenticated"), 
-            		(String)req.getAttribute("authenticatedAuthenticators"), SAMLSSOConstants.AuthnModes.USERNAME_PASSWORD);
-        }
-
+        SAMLSSORespDTO authRespDTO = samlSSOService.authenticate(authnReqDTO, sessionId, authResult.isAuthenticated(), 
+            		authResult.getAuthenticatedAuthenticators(), SAMLSSOConstants.AuthnModes.USERNAME_PASSWORD);
+        
         if (authRespDTO.isSessionEstablished()) { // authenticated
             if(req.getParameter("chkRemember") != null && req.getParameter("chkRemember").equals("on")){
-                storeRememberMeCookie(sessionId, req, resp, samlSSOService.getSSOSessionTimeout());
+                storeRememberMeCookie(sessionId, req, resp, SAMLSSOService.getSSOSessionTimeout());
             }
 
             storeTokenIdCookie(sessionId, req, resp);
@@ -479,6 +505,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                 req.getSession().setAttribute("authenticatedOpenID",SAMLSSOUtil.getOpenID(authRespDTO.getSubject()));
                 req.getSession().setAttribute("openId",SAMLSSOUtil.getOpenID(authRespDTO.getSubject()));
             }
+            
+            removeSessionDataFromCache(req.getParameter("sessionDataKey"));
             sendResponse(req, resp, relayState, authRespDTO.getRespString(),
                     authRespDTO.getAssertionConsumerURL(), authRespDTO.getSubject());
         } else { // authentication FAILURE
@@ -487,18 +515,9 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         }
     }
     
-    private void handleLogoutReponseFromAuthenFramework(HttpServletRequest request, HttpServletResponse response) 
+    private void handleLogoutReponseFromAuthenFramework(HttpServletRequest request, 
+    		HttpServletResponse response, SAMLSSOSessionDTO sessionDTO) 
     					throws ServletException, IOException{
-    	
-    	String sessionDataKey = (String)request.getAttribute(SAMLSSOConstants.SESSION_DATA_KEY);
-    	SAMLSSOSessionDTO sessionDTO = (SAMLSSOSessionDTO)request.getSession().getAttribute(sessionDataKey);
-    	
-    	if (sessionDTO == null){
-            log.error("The value of sessionDTO is null. This could be due to the hostname settings");
-            sendNotification(SAMLSSOConstants.Notification.EXCEPTION_STATUS,
-                    SAMLSSOConstants.Notification.INVALID_MESSAGE_MESSAGE, request, response);
-            return;
-        }
     	
     	SAMLSSOReqValidationResponseDTO validatonResponseDTO = sessionDTO.getValidationRespDTO();
     	
@@ -513,8 +532,9 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             	request.getSession().removeAttribute("openId");
             }
             
-            new LogoutRequestProcessor().removeSession(sessionDTO.getSessionId(), validatonResponseDTO.getIssuer());
+            SAMLSSOUtil.removeSession(sessionDTO.getSessionId(), validatonResponseDTO.getIssuer());
             
+            removeSessionDataFromCache(request.getParameter("sessionDataKey"));
             // sending LogoutResponse back to the initiator
             sendResponse(request, response, sessionDTO.getRelayState(), validatonResponseDTO.getLogoutResponse(),
             		validatonResponseDTO.getAssertionConsumerURL(), validatonResponseDTO.getSubject());
@@ -539,7 +559,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
      * @param authnReqDTO
      */
     private void populateAuthnReqDTO(HttpServletRequest req, SAMLSSOAuthnReqDTO authnReqDTO,
-                                     SAMLSSOSessionDTO sessionDTO) {
+                                     SAMLSSOSessionDTO sessionDTO, AuthenticationResult authResult) {
         authnReqDTO.setAssertionConsumerURL(sessionDTO.getAssertionConsumerURL());
         authnReqDTO.setId(sessionDTO.getRequestID());
         authnReqDTO.setIssuer(sessionDTO.getIssuer());
@@ -548,8 +568,11 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         authnReqDTO.setRequestMessageString(sessionDTO.getRequestMessageString());
         authnReqDTO.setQueryString(sessionDTO.getHttpQueryString());
         authnReqDTO.setDestination(sessionDTO.getDestination());
-        authnReqDTO.setUsername((String)req.getAttribute("authenticatedUser"));
+        authnReqDTO.setUsername(authResult.getSubject());
         authnReqDTO.setIdPInitSSO(sessionDTO.isIdPInitSSO());
+        authnReqDTO.setUserAttributes(authResult.getUserAttributes());
+        authnReqDTO.setClaimMapping(authResult.getClaimMapping());
+        authnReqDTO.setTenantDomain(sessionDTO.getTenantDomain());
     }
 
     /**
@@ -584,6 +607,20 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         rememberMeCookie.setMaxAge(sessionTimeout);
         resp.addCookie(rememberMeCookie);
     }
+    
+    public void removeRememberMeCookie(HttpServletRequest req, HttpServletResponse resp) {
+		
+		Cookie[] cookies = req.getCookies();
+        if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if (cookie.getName().equals("samlssoRememberMe")) {
+					cookie.setMaxAge(0);
+					resp.addCookie(cookie);
+					break;
+				}
+			}
+        }
+	}
 
     private Cookie getTokenIdCookie(HttpServletRequest req) {
         Cookie[] cookies = req.getCookies();
@@ -610,6 +647,20 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         }
         resp.addCookie(rememberMeCookie);
     }
+    
+    public void removeTokenIdCookie(HttpServletRequest req, HttpServletResponse resp) {
+		
+		Cookie[] cookies = req.getCookies();
+        if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if (cookie.getName().equals("samlssoTokenId")) {
+					cookie.setMaxAge(0);
+					resp.addCookie(cookie);
+					break;
+				}
+			}
+        }
+	}
 
     /**
      *
@@ -657,10 +708,9 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         sessionDTO.setAssertionConsumerURL(signInRespDTO.getAssertionConsumerURL());
 
         String sessionDataKey = UUIDGenerator.generateUUID();
-        HttpSession session = req.getSession();
-        session.setAttribute(sessionDataKey, sessionDTO);
+        addSessionDataToCache(sessionDataKey, sessionDTO, req.getSession().getMaxInactiveInterval());
 
-        handleRequestFromLoginPage(req,resp,sessionId, sessionDataKey);
+        handleRequestFromLoginPage(req,resp,sessionId, sessionDTO);
     }
 
     private String getACSUrlWithTenantPartitioning(String acsUrl, String subject) {
@@ -676,5 +726,45 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                             MultitenantConstants.TENANT_DOMAIN + "=" + domain;
         }
         return acsUrlWithTenantDomain;
+    }
+    
+    private void addSessionDataToCache(String sessionDataKey, SAMLSSOSessionDTO sessionDTO, int cacheTimeout) {
+    	SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
+    	SessionDataCacheEntry cacheEntry = new SessionDataCacheEntry();
+		cacheEntry.setSessionDTO(sessionDTO);
+		SessionDataCache.getInstance(cacheTimeout).addToCache(cacheKey, cacheEntry);
+    }
+    
+    private SAMLSSOSessionDTO getSessionDataFromCache(String sessionDataKey) {
+    	SAMLSSOSessionDTO sessionDTO = null;
+    	SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
+		Object cacheEntryObj = SessionDataCache.getInstance(0).getValueFromCache(cacheKey);
+		
+		if (cacheEntryObj != null) {
+			sessionDTO = ((SessionDataCacheEntry)cacheEntryObj).getSessionDTO();
+    	}
+		
+		return sessionDTO;
+    }
+    
+    private void removeSessionDataFromCache(String sessionDataKey) {
+    	SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
+		SessionDataCache.getInstance(0).clearCacheEntry(cacheKey);
+    }
+    
+    private AuthenticationResult getAuthenticationResultFromCache(String sessionDataKey) {
+    	
+    	AuthenticationResultCacheKey authResultCacheKey = new AuthenticationResultCacheKey(sessionDataKey);
+		CacheEntry cacheEntry = AuthenticationResultCache.getInstance(0).getValueFromCache(authResultCacheKey);
+		AuthenticationResult authResult = null;
+		
+		if (cacheEntry != null) {
+			AuthenticationResultCacheEntry authResultCacheEntry = (AuthenticationResultCacheEntry)cacheEntry;
+			authResult = authResultCacheEntry.getResult();
+		} else {
+			log.error("Cannot find AuthenticationResult from the cache");
+		}
+		
+		return authResult;
     }
 }

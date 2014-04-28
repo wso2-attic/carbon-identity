@@ -19,26 +19,14 @@ package org.wso2.carbon.identity.sso.saml.builders;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.joda.time.DateTime;
-import org.opensaml.saml2.core.LogoutRequest;
-import org.opensaml.saml2.core.LogoutResponse;
-import org.opensaml.saml2.core.NameID;
-import org.opensaml.saml2.core.SessionIndex;
-import org.opensaml.saml2.core.Status;
-import org.opensaml.saml2.core.StatusCode;
-import org.opensaml.saml2.core.StatusMessage;
-import org.opensaml.saml2.core.impl.LogoutRequestBuilder;
-import org.opensaml.saml2.core.impl.LogoutResponseBuilder;
-import org.opensaml.saml2.core.impl.NameIDBuilder;
-import org.opensaml.saml2.core.impl.SessionIndexBuilder;
-import org.opensaml.saml2.core.impl.StatusBuilder;
-import org.opensaml.saml2.core.impl.StatusCodeBuilder;
-import org.opensaml.saml2.core.impl.StatusMessageBuilder;
-import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
-import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
-import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.sso.saml.session.SessionInfoData;
 import org.apache.xml.security.signature.XMLSignature;
+import org.joda.time.DateTime;
+import org.opensaml.saml2.core.*;
+import org.opensaml.saml2.core.impl.*;
+import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
+import org.wso2.carbon.identity.sso.saml.session.SessionInfoData;
+import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 
 public class SingleLogoutMessageBuilder {
 

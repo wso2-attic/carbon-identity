@@ -103,9 +103,11 @@
                     <xs:element minOccurs="0" name="assertionConsumerUrl" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="attributeConsumingServiceIndex" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="certAlias" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="doEnableEncryptedAssertion" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="doSignAssertions" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="doSignResponse" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="doSingleLogout" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="doValidateSignatureInRequests" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="enableAttributesByDefault" type="xs:boolean"/>
 		    <xs:element minOccurs="0" name="idPInitSSOEnabled" type="xs:boolean"></xs:element>
                     <xs:element minOccurs="0" name="issuer" nillable="true" type="xs:string"/>

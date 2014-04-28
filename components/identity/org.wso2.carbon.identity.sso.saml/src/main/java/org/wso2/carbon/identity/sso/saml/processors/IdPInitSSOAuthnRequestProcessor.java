@@ -17,15 +17,11 @@
 */
 package org.wso2.carbon.identity.sso.saml.processors;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml2.core.Response;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.core.util.AnonymousSessionUtil;
-import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
@@ -46,6 +42,9 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class IdPInitSSOAuthnRequestProcessor {
 
@@ -117,10 +116,11 @@ public class IdPInitSSOAuthnRequestProcessor {
                     spDO.setCertAlias(authnReqDTO.getCertAlias());
                     spDO.setLogoutURL(authnReqDTO.getLogoutURL());
                     sessionPersistenceManager.persistSession(sessionId, sessionIndexId, authnReqDTO.getUsername(),
-                            spDO, authnReqDTO.getRpSessionId(), authenticators);
+                            spDO, authnReqDTO.getRpSessionId(), authenticators, authnReqDTO.getUserAttributes());
 
                     SessionInfoData sessionInfo = sessionPersistenceManager.getSessionInfo(sessionIndexId);
                     authnReqDTO.setUsername(sessionInfo.getSubject());
+                    authnReqDTO.setUserAttributes(sessionInfo.getAttributes());
                     sessionPersistenceManager.persistSession(sessionId, sessionIndexId, authnReqDTO.getIssuer(),
                             authnReqDTO.getAssertionConsumerURL(),
                             authnReqDTO.getRpSessionId());
@@ -133,11 +133,11 @@ public class IdPInitSSOAuthnRequestProcessor {
                     spDO.setCertAlias(authnReqDTO.getCertAlias());
                     spDO.setLogoutURL(authnReqDTO.getLogoutURL());
                     sessionPersistenceManager.persistSession(sessionId, sessionIndexId, authnReqDTO.getUsername(),
-                            spDO, authnReqDTO.getRpSessionId(), authenticators);
+                            spDO, authnReqDTO.getRpSessionId(), authenticators, authnReqDTO.getUserAttributes());
                 }
 
                 // Build the response for the successful scenario
-                ResponseBuilder respBuilder = new ResponseBuilder();
+                ResponseBuilder respBuilder = SAMLSSOUtil.getResponseBuilder();
                 Response response = respBuilder.buildResponse(authnReqDTO, sessionIndexId);
                 samlssoRespDTO = new SAMLSSORespDTO();
                 String samlResp = SAMLSSOUtil.marshall(response);
@@ -229,6 +229,7 @@ public class IdPInitSSOAuthnRequestProcessor {
         authnReqDTO.setDoSignAssertions(ssoIdpConfigs.isDoSignAssertions());
         authnReqDTO.setRequestedClaims((ssoIdpConfigs.getRequestedClaims()));
         authnReqDTO.setRequestedAudiences((ssoIdpConfigs.getRequestedAudiences()));
+        authnReqDTO.setDoEnableEncryptedAssertion(ssoIdpConfigs.isDoEnableEncryptedAssertion());
     }
 
     /**
@@ -265,6 +266,7 @@ public class IdPInitSSOAuthnRequestProcessor {
                 SessionInfoData sessionInfo = sessionPersistenceManager.
                         getSessionInfo(sessionPersistenceManager.getSessionIndexFromTokenId(sessionId));
                 authReqDTO.setUsername(sessionInfo.getSubject());
+                authReqDTO.setUserAttributes(sessionInfo.getAttributes());
             }
         } else {
             authReqDTO.setUsername(valiationDTO.getSubject());

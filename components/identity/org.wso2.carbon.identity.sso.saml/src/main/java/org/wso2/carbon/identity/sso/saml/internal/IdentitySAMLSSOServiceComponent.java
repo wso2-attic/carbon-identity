@@ -16,8 +16,6 @@
 
 package org.wso2.carbon.identity.sso.saml.internal;
 
-import javax.servlet.Servlet;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.equinox.http.helper.ContextPathServletAdaptor;
@@ -32,6 +30,8 @@ import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
+
+import javax.servlet.Servlet;
 
 /**
  * @scr.component name="identity.sso.saml.component" immediate="true"
@@ -84,6 +84,9 @@ public class IdentitySAMLSSOServiceComponent{
                     IdentityUtil.getProperty(IdentityConstants.ServerConfig.SINGLE_LOGOUT_RETRY_COUNT)));
             SAMLSSOUtil.setSingleLogoutRetryInterval(Long.parseLong(IdentityUtil.getProperty(
                     IdentityConstants.ServerConfig.SINGLE_LOGOUT_RETRY_INTERVAL)));
+            
+            SAMLSSOUtil.setResponseBuilder(IdentityUtil.getProperty("SSOService.SAMLSSOResponseBuilder"));
+            
             log.debug("Single logout retry count is set to " + SAMLSSOUtil.getSingleLogoutRetryCount());
             log.debug("Single logout retry interval is set to " +
                     SAMLSSOUtil.getSingleLogoutRetryInterval() + " in seconds.");
