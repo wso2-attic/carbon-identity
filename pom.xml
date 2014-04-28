@@ -11,7 +11,7 @@
     <modules>
         <module>service-stubs/identity</module>
 
-		<module>components/idp-mgt</module>
+	<module>components/idp-mgt</module>
         <module>components/authenticators</module>
         <module>components/cassandra-userstore</module>
         <module>components/claim-mgt</module>
@@ -24,12 +24,12 @@
         <module>components/sts</module>
         <module>components/user-manager</module>
 
-		<module>features/security-mgt</module>
+	<module>features/security-mgt</module>
         <module>features/authenticators</module>
     	<module>features/claim-management</module>
-		<module>features/identity</module>
-		<module>features/idp-mgt</module>
-		<module>features/ldap-server</module>
+	<module>features/identity</module>
+	<module>features/idp-mgt</module>
+	<module>features/ldap-server</module>
     	<module>features/remote-usermgt</module>
     	<module>features/user-manager</module>
         <module>features/ldap-server-manager</module>
@@ -177,17 +177,12 @@
             <artifactId>org.wso2.charon.core</artifactId>
             <version>${charon.wso2.version.identity}</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.openid4java.wso2</groupId>-->
-            <!--<artifactId>openid4java-nodeps</artifactId>-->
-            <!--<version>${openid4java.wso2.version}</version>-->
-        <!--</dependency>-->
 
-        <dependency>
+        <!--dependency>
             <groupId>opensaml.wso2</groupId>
             <artifactId>opensaml2</artifactId>
             <version>${opensaml2.version}</version>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>opensaml.wso2</groupId>
@@ -237,12 +232,6 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.user.mgt.ui</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.authentication</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -320,17 +309,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.claim.mgt.ui</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.ui</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.oauth.stub</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -351,17 +330,6 @@
             <version>4.3.0-SNAPSHOT</version>
             <type>zip</type>
 	</dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.entitlement.stub</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.authenticator.stub</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>javax.cache.wso2</artifactId>
@@ -515,12 +483,6 @@
 
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.claim.mgt.stub</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.wsdl2form</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -587,12 +549,6 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.application.mgt</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.captcha.mgt</artifactId>
             <version>4.2.0</version>
         </dependency>
@@ -601,18 +557,6 @@
             <artifactId>org.wso2.carbon.identity.provider</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.relyingparty</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.user.registration.stub</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.ws.commons.axiom</groupId>
             <artifactId>axiom-impl</artifactId>
@@ -725,20 +669,10 @@
             <artifactId>org.wso2.carbon.identity.relying.party.ui.feature</artifactId>
             <version>4.3.0-SNAPSHOT</version>
             <type>zip</type>
-	    </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.user.profile.stub</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+	</dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.authorization.stub</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.thrift.authentication</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -758,11 +692,11 @@
             <version>4.3.0-SNAPSHOT</version>
             <type>zip</type>
 	    </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.wso2.balana</groupId>
             <artifactId>org.wso2.balana.utils</artifactId>
             <version>1.0.0-wso2v6</version>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>org.apache.synapse</groupId>
             <artifactId>synapse-core</artifactId>
@@ -772,11 +706,6 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.mediator.service</artifactId>
             <version>${wso2carbon.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.sts.passive.stub</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openid4java</groupId>
@@ -801,11 +730,6 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.application.mgt.stub</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.mgt.server.feature</artifactId>
             <version>4.3.0-SNAPSHOT</version>
             <type>zip</type>
@@ -818,11 +742,6 @@
 	</dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.sso.saml</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.sso.saml.stub</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -830,11 +749,6 @@
             <groupId>bouncycastle</groupId>
             <artifactId>bcprov-jdk15</artifactId>
             <version>${bcprov-jdk15.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.application.mgt.ui</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -848,21 +762,6 @@
             <version>${amber.version}</version>
         </dependency-->
 
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.oauth.common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.entitlement</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.oauth</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.thetransactioncompany.wso2</groupId>
             <artifactId>cors-filter</artifactId>
@@ -878,23 +777,6 @@
             <artifactId>jsr311-api</artifactId>
             <version>1.1.1</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.scim.common</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.scim.common.stub</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.sts.mgt.stub</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
@@ -1070,7 +952,7 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.claim.mgt.stub</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -1163,16 +1045,13 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.scim.common.stub</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.scim.common</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.scim.provider</artifactId>
-            <version>${project.version}</version>
+           <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -1185,16 +1064,11 @@
             <artifactId>org.wso2.carbon.identity.scim.ui</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.wso2.charon</groupId>
             <artifactId>org.wso2.charon.core</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.scim.provider</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.entitlement.mediator</artifactId>
@@ -1208,11 +1082,6 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.entitlement.stub</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.oauth.stub</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -1320,18 +1189,18 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.mgt</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.mgt.ui</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.mgt.stub</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -1366,11 +1235,11 @@
             <version>4.3.0-SNAPSHOT</version>
             <type>zip</type>
 	</dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.captcha.mgt</artifactId>
             <version>4.3.0-SNAPSHOT</version>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.mgt.ui</artifactId>
@@ -1378,22 +1247,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.sts.mgt</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.sts.store</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.service.mgt</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.sts</artifactId>
             <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
@@ -1409,50 +1263,10 @@
             <type>zip</type>
 	</dependency>
         <dependency>
-            <groupId>org.openid4java.wso2</groupId>
-            <artifactId>openid4java-nodeps</artifactId>
-            <version>0.9.6.wso2v2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.igniterealtime.smack.wso2</groupId>
-            <artifactId>smack</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.authentication.endpoint</artifactId>
             <version>4.3.0-SNAPSHOT</version>
             <type>war</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.provider.ui</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.sts.mgt.stub</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.sts.mgt.ui</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.oauth.mediator</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.oauth.stub</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.oauth.ui</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -1471,99 +1285,21 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.provider.openid.admin.stub</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.sts.passive</artifactId>
             <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.application.authentication.endpoint</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-            <type>war</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.sts.passive.ui</artifactId>
             <version>${project.version}</version>
-
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.sts.passive.stub</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.relyingparty.ui</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.scim.common</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.wso2.charon</groupId>
             <artifactId>org.wso2.charon.core</artifactId>
             <version>4.3.0-SNAPSHOT</version>
-        </dependency>
+        </dependency-->
 
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.scim.ui</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.scim.common.stub</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.user.registration</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.user.registration.ui</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.user.registration.stub</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.sso.saml.ui</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.user.profile</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.user.profile.ui</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.user.profile.stub</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.entitlement.filter</artifactId>
@@ -1572,39 +1308,6 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.entitlement.proxy</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.entitlement.stub</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.authenticator.stub</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.entitlement</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.authentication</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.thrift.authentication</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.entitlement.ui</artifactId>
             <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
@@ -1618,24 +1321,9 @@
             <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.entitlement.stub</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.entitlement.common</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.balana</groupId>
             <artifactId>org.wso2.balana.utils</artifactId>
             <version>1.0.0-wso2v7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.idp.mgt.stub</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -1704,12 +1392,6 @@
             <artifactId>org.wso2.carbon.identity.user.store.remote</artifactId>
             <version>4.3.0-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.sts</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-
 
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -1721,38 +1403,13 @@
             <artifactId>org.wso2.carbon.sts.stub</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.user.mgt</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.user.mgt.common</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
 
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.user.store.configuration</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.user.store.configuration.deployer</artifactId>
             <version>4.3.0-SNAPSHOT</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.user.mgt.ui</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.user.mgt.common</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.user.mgt.stub</artifactId>
@@ -1762,16 +1419,6 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.user.store.configuration.ui</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.user.store.configuration</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.user.store.configuration.stub</artifactId>
             <version>4.3.0-SNAPSHOT</version>
         </dependency>
          <dependency>
