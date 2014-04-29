@@ -28,7 +28,7 @@ public class PassiveSTSLogin extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,
             IOException {
 
-        request.getRequestDispatcher("passivests/passivests_login.jsp").forward(request, response);
+        request.getRequestDispatcher("login.jsp").forward(request, response);
 
     }
 

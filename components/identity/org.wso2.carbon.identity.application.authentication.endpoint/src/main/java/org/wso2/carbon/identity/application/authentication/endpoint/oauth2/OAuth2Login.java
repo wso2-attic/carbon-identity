@@ -90,7 +90,7 @@ public class OAuth2Login extends HttpServlet {
 			} else if (pages.get("Global-LoginPage") != null) {
 				response.sendRedirect(pages.get("Global-LoginPage") + "?" + queryString);
 			} else {
-				request.getRequestDispatcher("oauth2/oauth2_login.jsp").forward(request, response);
+				request.getRequestDispatcher("login.jsp").forward(request, response);
 			}
 
         // setting the authorization page
@@ -101,7 +101,7 @@ public class OAuth2Login extends HttpServlet {
             } else if (pages.get("Global-AuthzPage") != null) {
                 response.sendRedirect(pages.get("Global-AuthzPage") + "?" + queryString);
             } else {
-                request.getRequestDispatcher("oauth2/oauth2_authz.jsp").forward(request, response);
+                request.getRequestDispatcher("oauth2_authz.jsp").forward(request, response);
             }
 
 		// setting the error page	
@@ -112,7 +112,7 @@ public class OAuth2Login extends HttpServlet {
 			} else if (pages.get("Global-ErrorPage") != null) {
 				response.sendRedirect(pages.get("Global-ErrorPage") + "?" + queryString);
 			} else {
-				request.getRequestDispatcher("oauth2/oauth2_error.jsp").forward(request, response);
+				request.getRequestDispatcher("oauth2_error.jsp").forward(request, response);
 			}
 
 		// setting the consent page	
@@ -123,11 +123,11 @@ public class OAuth2Login extends HttpServlet {
 			} else if (pages.get("Global-ConsentPage") != null) {
 				response.sendRedirect(pages.get("Global-ConsentPage") + "?" + queryString);
 			} else {
-				request.getRequestDispatcher("oauth2/oauth2_consent.jsp").forward(request, response);
+				request.getRequestDispatcher("oauth2_consent.jsp").forward(request, response);
 			}
 
 		} else {
-			request.getRequestDispatcher("oauth2/oauth2_error.jsp").forward(request, response);
+			request.getRequestDispatcher("oauth2_error.jsp").forward(request, response);
 
 		}
 

@@ -17,11 +17,14 @@
  */
 package org.wso2.carbon.identity.application.authentication.endpoint;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 public class AuthenticationEndpoint extends HttpServlet {
 
@@ -30,24 +33,38 @@ public class AuthenticationEndpoint extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         String loadPage = null;
-
-        String authenticatorsParam = request.getParameter("authenticators");
+        String hrdParam = request.getParameter("hrd");
+        Map<String, String> idpAuthenticatorMapping = new HashMap<String, String>();
         
-        if (authenticatorsParam != null && !authenticatorsParam.isEmpty()) {
-        	String[] authenticators = authenticatorsParam.split(",");
-        	
-        	for (String authenticator : authenticators) {
-        		if (!authenticator.equalsIgnoreCase("BasicAuthenticator")) {
-        			request.getRequestDispatcher("phone-number/phone-number.jsp").forward(request, response);
-        			break;
-        		}
+        String authenticators = request.getParameter("authenticators");
+        
+        if (authenticators != null) {
+
+        	String[] authenticatorIdPMappings = authenticators.split(";");
+        	for (String authenticatorIdPMapping : authenticatorIdPMappings) {
+        		String[] authenticatorIdPMapArr = authenticatorIdPMapping.split(":");
+                for(int i = 1; i < authenticatorIdPMapArr.length; i++){
+                    if(idpAuthenticatorMapping.containsKey(authenticatorIdPMapArr[i])){
+                        idpAuthenticatorMapping.put(authenticatorIdPMapArr[i],
+                                idpAuthenticatorMapping.get(authenticatorIdPMapArr[i]) + "," + authenticatorIdPMapArr[0]);
+                    } else {
+                        idpAuthenticatorMapping.put(authenticatorIdPMapArr[i],authenticatorIdPMapArr[0]);
+                    }
+                }
         	}
-        	
+        }
+        
+        if (idpAuthenticatorMapping != null) {
+        	request.setAttribute("idpAuthenticatorMap", idpAuthenticatorMapping);
+        }
+        
+        if (hrdParam != null && "true".equalsIgnoreCase(hrdParam)) {
+        	request.getRequestDispatcher("domain.jsp").forward(request, response);
         	return;
         }
         
         if (request.getRequestURI().contains("retry.do")) {
-        	request.getRequestDispatcher("error-pages/retry.jsp").forward(request, response);
+        	request.getRequestDispatcher("retry.jsp").forward(request, response);
         	return;
         }
 

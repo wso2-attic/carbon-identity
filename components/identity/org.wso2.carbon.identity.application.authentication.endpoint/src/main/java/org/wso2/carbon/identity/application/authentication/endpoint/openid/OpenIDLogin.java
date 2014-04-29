@@ -19,9 +19,9 @@ public class OpenIDLogin extends HttpServlet {
             IOException {
 
     	if (request.getRequestURI().contains("/openid_login.do")) {
-    		request.getRequestDispatcher("openid/openid_login.jsp").forward(request, response);
+    		request.getRequestDispatcher("login.jsp").forward(request, response);
     	} else if (request.getRequestURI().contains("/openid_profile.do")) {
-    		request.getRequestDispatcher("openid/openid_profile.jsp").forward(request, response);
+    		request.getRequestDispatcher("openid_profile.jsp").forward(request, response);
     	}
     }
 }
