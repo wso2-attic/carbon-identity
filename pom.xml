@@ -1147,6 +1147,18 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.user.profile.server.feature</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+	    </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.user.profile.ui.feature</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+	    </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.sts.passive.server.feature</artifactId>
             <version>${project.version}</version>
             <type>zip</type>

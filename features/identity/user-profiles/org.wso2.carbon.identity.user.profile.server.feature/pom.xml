@@ -67,7 +67,7 @@
 								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.user.profile</bundleDef>
 							</bundles>
 							<importFeatures>
-								<importFeatureDef>org.wso2.carbon.identity.core.server:4.3.0-SNAPSHOT</importFeatureDef>
+								<importFeatureDef>org.wso2.carbon.identity.core.server</importFeatureDef>
 							</importFeatures>
 						</configuration>
 					</execution>

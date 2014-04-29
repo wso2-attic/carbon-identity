@@ -70,10 +70,10 @@
                             </adviceFile>
 							<bundles>
 								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.user.profile.ui</bundleDef>
-								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.user.profile.stub:4.3.0-SNAPSHOT</bundleDef>
+								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.user.profile.stub</bundleDef>
 							</bundles>
 							<importFeatures>
-								<importFeatureDef>org.wso2.carbon.identity.core.ui:4.3.0-SNAPSHOT</importFeatureDef>
+								<importFeatureDef>org.wso2.carbon.identity.core.ui</importFeatureDef>
 							</importFeatures>
 						</configuration>
 					</execution>
