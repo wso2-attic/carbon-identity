@@ -66,8 +66,8 @@
 							<propertiesFile>../../../etc/feature.properties</propertiesFile>
 		
                            				 <includedFeatures>
-								 <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.user.mgt.server.feature:${project.version}</includedFeatureDef>
-								 <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.user.mgt.ui.feature:4.3.0-SNAPSHOT</includedFeatureDef>
+								 <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.user.mgt.server.feature</includedFeatureDef>
+								 <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.user.mgt.ui.feature</includedFeatureDef>
 							 </includedFeatures>
 						</configuration>
 					</execution>

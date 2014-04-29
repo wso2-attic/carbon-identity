@@ -27,6 +27,7 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.user.store.configuration.dto.PropertyDTO;
 import org.wso2.carbon.identity.user.store.configuration.dto.UserStoreDTO;
+import org.wso2.carbon.identity.user.store.configuration.utils.IdentityUserStoreMgtException;
 import org.wso2.carbon.user.api.Properties;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -39,6 +40,9 @@ import org.wso2.carbon.user.core.tracker.UserStoreManagerRegistry;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -48,11 +52,20 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
+
+import org.wso2.carbon.ndatasource.common.DataSourceException;
+import org.wso2.carbon.ndatasource.core.DataSourceManager;
+import org.wso2.carbon.ndatasource.core.services.WSDataSourceMetaInfo;
+import org.wso2.carbon.ndatasource.core.services.WSDataSourceMetaInfo.WSDataSourceDefinition;
+import org.wso2.carbon.ndatasource.rdbms.RDBMSConfiguration;
 
 public class UserStoreConfigAdminService extends AbstractAdmin {
     public static final Log log = LogFactory.getLog(UserStoreConfigAdminService.class);
@@ -145,17 +158,18 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      * @return : list of default properties(mandatory+optional)
      */
     public Properties getUserStoreManagerProperties(String className) throws UserStoreException {
-        return UserStoreManagerRegistry.getUserStoreProperties(className);
+        return (Properties) UserStoreManagerRegistry.getUserStoreProperties(className);
     }
 
     /**
      * Save the sent configuration to xml file
      *
      * @param userStoreDTO: Represent the configuration of user store
+     * @throws DataSourceException 
      * @throws TransformerException
      * @throws ParserConfigurationException
      */
-    public void addUserStore(UserStoreDTO userStoreDTO) throws UserStoreException {
+    public void addUserStore(UserStoreDTO userStoreDTO) throws UserStoreException, DataSourceException {
         String domainName = userStoreDTO.getDomainId();
         xmlProcessorUtils.isValidDomain(domainName,true);
         
@@ -177,12 +191,14 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      * Edit currently existing user store
      *
      * @param userStoreDTO: Represent the configuration of user store
+     * @throws DataSourceException 
      * @throws TransformerException
      * @throws ParserConfigurationException
      */
-    public void editUserStore(UserStoreDTO userStoreDTO) throws UserStoreException {
+    public void editUserStore(UserStoreDTO userStoreDTO) throws UserStoreException, DataSourceException {
         String domainName = userStoreDTO.getDomainId();
         if (xmlProcessorUtils.isValidDomain(domainName, false)) {
+        	
             File userStoreConfigFile = createConfigurationFile(domainName);
             if (!userStoreConfigFile.exists()) {
                 String msg = "Cannot edit user store " + domainName + ". User store cannot be edited.";
@@ -204,13 +220,14 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      *
      * @param userStoreDTO:      Represent the configuration of new user store
      * @param previousDomainName
+     * @throws DataSourceException 
      * @throws TransformerException
      * @throws ParserConfigurationException
      */
-    public void editUserStoreWithDomainName(String previousDomainName, UserStoreDTO userStoreDTO) throws UserStoreException {
+    public void editUserStoreWithDomainName(String previousDomainName, UserStoreDTO userStoreDTO) throws UserStoreException, DataSourceException {
         boolean isDebugEnabled = log.isDebugEnabled();
         String domainName = userStoreDTO.getDomainId();
-
+        
         if (isDebugEnabled) {
             log.debug("Changing user store " + previousDomainName + " to " + domainName);
         }
@@ -412,7 +429,41 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
             log.debug("New state :" + isDisable + " of the user store \'" + domain + "\' successfully written to the file system");
         }
     }
-
+    
+    public boolean testRDBMSConnection(String domainName, String driverName, String connectionURL, String username, String connectionPassword) throws DataSourceException{
+    	
+    	WSDataSourceMetaInfo wSDataSourceMetaInfo = new WSDataSourceMetaInfo();
+    	
+    	RDBMSConfiguration rdbmsConfiguration = new RDBMSConfiguration();
+    	rdbmsConfiguration.setUrl(connectionURL);
+    	rdbmsConfiguration.setUsername(username);
+    	rdbmsConfiguration.setPassword(connectionPassword);
+    	rdbmsConfiguration.setDriverClassName(driverName);
+    	
+    	WSDataSourceDefinition wSDataSourceDefinition = new WSDataSourceDefinition();
+    	ByteArrayOutputStream out = new ByteArrayOutputStream();
+		JAXBContext context;
+		try {
+			context = JAXBContext.newInstance(RDBMSConfiguration.class);
+			Marshaller m = context.createMarshaller();
+			m.marshal(rdbmsConfiguration, out);			
+			
+		} catch (JAXBException e) {
+			log.error("Error in marshelling User Store Configuration info");
+		}
+		wSDataSourceDefinition.setDsXMLConfiguration(out.toString());
+		wSDataSourceDefinition.setType("RDBMS");
+		
+		wSDataSourceMetaInfo.setName(domainName);
+		wSDataSourceMetaInfo.setDefinition(wSDataSourceDefinition);
+		try {
+			return DataSourceManager.getInstance().getDataSourceRepository().testDataSourceConnection(wSDataSourceMetaInfo.extractDataSourceMetaInfo());
+		} catch (DataSourceException e) {
+			throw e;
+		}
+		
+    }
+    
     private boolean isAuthorized() throws UserStoreException {
         String loggeduser = CarbonContext.getThreadLocalCarbonContext().getUsername();
         String admin = CarbonContext.getThreadLocalCarbonContext().getUserRealm().getRealmConfiguration().getAdminUserName();

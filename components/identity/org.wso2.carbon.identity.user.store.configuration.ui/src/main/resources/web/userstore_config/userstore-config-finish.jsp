@@ -15,6 +15,7 @@
 * limitations under the License.
 */
 -->
+<%@page import="org.wso2.carbon.ndatasource.common.DataSourceException"%>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.stub.dto.PropertyDTO" %>
@@ -103,6 +104,10 @@
                         forwardTo = "index.jsp?region=region1&item=userstores_mgt_menu";
                     }
 
+            }catch(DataSourceException dse){
+            	String message = dse.getMessage();
+                CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+                forwardTo = "index.jsp?region=region1&item=userstores_mgt_menu";
             } catch (Exception e) {
                 String message = resourceBundle.getString("error.update");
                 CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);

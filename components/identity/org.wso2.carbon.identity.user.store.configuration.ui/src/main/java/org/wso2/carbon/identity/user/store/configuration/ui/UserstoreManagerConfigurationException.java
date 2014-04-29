@@ -19,7 +19,7 @@ package org.wso2.carbon.identity.user.store.configuration.ui;
 
 public class UserstoreManagerConfigurationException extends Exception{
 
-    public UserstoreManagerConfigurationException(String message) {
+	public UserstoreManagerConfigurationException(String message) {
         super(message);
     }
 

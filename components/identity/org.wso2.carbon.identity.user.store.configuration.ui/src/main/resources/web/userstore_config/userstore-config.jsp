@@ -16,10 +16,10 @@
 */
 -->
 
+<%@page import="org.wso2.carbon.identity.user.store.configuration.stub.api.Property"%>
+<%@page import="org.wso2.carbon.identity.user.store.configuration.stub.api.Properties"%>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.identity.user.store.configuration.stub.api.Properties" %>
-<%@ page import="org.wso2.carbon.identity.user.store.configuration.stub.api.Property" %>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.ui.UserStoreUIConstants" %>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.ui.client.UserStoreConfigAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.ui.utils.UserStoreMgtDataKeeper" %>
@@ -417,7 +417,7 @@
 <div class="sectionSeperator" id="userStoreTypeSub"><%="Define Properties For "%><strong></strong></div>
 <div class="sectionSub">
         <%--MandatoryProperties--%>
-    <%if (mandatories[0] != null) {%>
+    <%if (mandatories != null && mandatories[0] != null) {%>
     <table id="mandatoryPropertiesTable" style="width: 100%;margin-top:10px;">
         <tr data-value="0">
             <td>
@@ -441,10 +441,22 @@
 
                         isBoolean = -123;
                         for (int j = 0; j < mandatories.length; j++) {
-                            propertyName = mandatories[j].getName();
+                        	String displayName = mandatories[j].getValue();
+                            String propDescription = mandatories[j].getDescription();
+                            int index = 0;
+                            if ((index=propDescription.indexOf("#")) > -1){
+                            	displayName = propDescription.substring(0,index);
+                            	propDescription = propDescription.substring(index+1);
+                            }
+
+                            propertyName = displayName;
                             propertyValue = mandatories[j].getValue();
-                            if (mandatories[j].getDescription() != null) {
-                                description = mandatories[j].getDescription();
+                            if (propDescription != null) {
+                                description = propDescription;
+                            }
+                            
+                            if (propertyName==null || propertyName.trim().length()==0){
+                            	propertyName = mandatories[j].getName();
                             }
 
                             if (propertyValue != null) {
@@ -461,7 +473,7 @@
                         %>
                         <td class="leftCol-med" width="50%" style="text-align:left;"><%=propertyName%><span
                                 class="required">*</span></td>
-                        <input type="hidden" name=<%=name%> id=<%=name%> value="<%=propertyName%>"/>
+                        <input type="hidden" name=<%=name%> id=<%=name%> value="<%=mandatories[j].getName()%>"/>
 
                         <%
                         } else {
@@ -553,7 +565,7 @@
 <div class="toggle_container" style="padding:0;margin-bottom:10px;width: 100%" id="optionalPropertyRow">
 
         <%--Optional properties--%>
-    <%if (optionals[0] != null) {%>
+    <%if (optionals != null && optionals[0] != null) {%>
     <table id="propertiesTable" style="width: 100%;margin-top:10px;">
         <tr data-value="0">
             <td>
@@ -573,11 +585,29 @@
                         isBoolean = -123;
 
                         for (int x = 0; x < optionals.length; x++) {
-                            propertyName = optionals[x].getName();
+                        	
+                        	String displayName = optionals[x].getValue();
+                            String propDescription = optionals[x].getDescription();
+                            int index = 0;
+                            if ((index=propDescription.indexOf("#")) > -1){
+                            	displayName = propDescription.substring(0,index);
+                            	propDescription = propDescription.substring(index+1);
+                            }
+
+                        	
+                            propertyName = displayName;
                             propertyValue = optionals[x].getValue();
+                            
+                            if (propertyName==null || propertyName.trim().length()==0){
+                            	propertyName = optionals[x].getName();
+                            }
 
                             if (optionals[x].getDescription() != null) {
-                                description = optionals[x].getDescription();
+                                description = propDescription;
+                            }
+                            
+                            if (propertyName==null || propertyName.trim().length()==0){
+                            	propertyName = optionals[x].getName();
                             }
 
                             if (propertyValue != null) {
@@ -593,7 +623,7 @@
                         %>
                         <td class="leftCol-med" width="50%" style="text-align:left;" id="<%=name%>"><%=propertyName%>
                         </td>
-                        <input type="hidden" name=<%=name%> id=<%=name%> value="<%=propertyName%>"/>
+                        <input type="hidden" name=<%=name%> id=<%=name%> value="<%=optionals[x].getName()%>"/>
                         </td>
                         <td style="width:30%" style="text-align:left;">
                             <%
@@ -646,7 +676,7 @@
 </div>
 
     <%--Advanced properties--%>
-<%if (advancedProperties[0] != null) {%>
+<%if (advancedProperties != null && advancedProperties[0] != null) {%>
 <h2 class="trigger  active"><a
         href="#"><fmt:message key="advanced"/></a></h2>
 
@@ -671,11 +701,24 @@
                         isBoolean = -123;
 
                         for (int x = 0; x < advancedProperties.length; x++) {
-                            propertyName = advancedProperties[x].getName();
+                        	
+                        	String displayName = advancedProperties[x].getValue();
+                            String propDescription = advancedProperties[x].getDescription();
+                            int index = 0;
+                            if ((index=propDescription.indexOf("#")) > -1){
+                            	displayName = propDescription.substring(0,index);
+                            	propDescription = propDescription.substring(index+1);
+                            }
+
+                            propertyName = displayName;
                             propertyValue = advancedProperties[x].getValue();
 
                             if (advancedProperties[x].getDescription() != null) {
-                                description = advancedProperties[x].getDescription();
+                                description = propDescription;
+                            }
+                            
+                            if (propertyName==null || propertyName.trim().length()==0){
+                            	propertyName = advancedProperties[x].getName();
                             }
 
                             if (propertyValue != null) {
@@ -691,7 +734,7 @@
                         %>
                         <td class="leftCol-med" width="50%" style="text-align:left;" id="<%=name%>"><%=propertyName%>
                         </td>
-                        <input type="hidden" name=<%=name%> id=<%=name%> value="<%=propertyName%>"/>
+                        <input type="hidden" name=<%=name%> id=<%=name%> value="<%=advancedProperties[x].getName()%>"/>
                         </td>
                         <td style="width:30%" style="text-align:left;">
                             <%
@@ -751,6 +794,42 @@
 
 </form>
 <div class="buttonRow">
+	<%
+		if (selectedClassApplied.matches(".*jdbc.*")) 
+	{ %>
+	<input type="button" onclick="testConnection();" value="<fmt:message key="test.connection"/>"
+           class="button"/>
+           
+    <script type="text/javascript">
+		function testConnection() {
+			var domainName = document.getElementById("domainId").value;
+			var driverName = document.getElementById("propertyValue_1").value;
+			var connectionURL = document.getElementById("propertyValue_2").value;
+			var username = document.getElementById("propertyValue_3").value;
+			var connectionPassword = document.getElementById("propertyValue_4").value;
+			
+			var url = 'validateconnection-ajaxprocessor.jsp?&domainName=' + domainName+'&driverName='+driverName+
+           	'&connectionURL='+encodeURIComponent(connectionURL)+'&username='+username+'&connectionPassword=' + connectionPassword;
+		
+			$.ajax({
+				  url: url,
+				  context: document.body
+				}).done(function(msg) {
+					var successMsg  =  new RegExp("true");
+		        	if (msg.search(successMsg)==-1) //if match failed
+		        	{
+		        		CARBON.showErrorDialog(msg);
+		        	} else {
+		        		CARBON.showInfoDialog("Connection is healthy");
+		        	}
+				}).fail(function(){
+					CARBON.showErrorDialog("Error while testing the connection");
+				});
+		}
+		
+		
+	</script>
+           <%} %>
     <%if (isEditing) { %>
     <input type="button" onclick="doUpdate();" value="<fmt:message key="update"/>"
            class="button"/>
@@ -761,6 +840,8 @@
     <input type="button" onclick="doCancel();" value="<fmt:message key="cancel" />"
            class="button"/>
 </div>
+
+
 
 
 </div>
