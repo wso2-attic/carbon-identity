@@ -43,6 +43,11 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.sts.passive.stub</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
+            <!--version>4.2.2</version-->
+        </dependency>
 	</dependencies>
 
 	<build>
@@ -60,6 +65,7 @@
 							!javax.xml.namespace,
 							javax.xml.namespace; version=0.0.0,
 							org.apache.commons.logging.*; version="1.0.4",
+                            org.wso2.carbon.identity.application.authentication.common.*,
 							javax.servlet;version="${imp.pkg.version.javax.servlet}",
 							javax.servlet.http;version="${imp.pkg.version.javax.servlet}",
 							javax.xml.stream.*; version=1.0.1,

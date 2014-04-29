@@ -80,7 +80,7 @@
                                 </bundleDef>
                             </bundles>
                             <importFeatures>
-                                <importFeatureDef>org.wso2.carbon.core.ui:4.3.0-SNAPSHOT
+                                <importFeatureDef>org.wso2.carbon.core.ui
                                 </importFeatureDef>
                             </importFeatures>
                         </configuration>

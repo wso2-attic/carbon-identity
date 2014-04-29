@@ -94,6 +94,11 @@
     String keyAlias = null;
     String cookie = null;
     String serverUrl = null;
+    String spName = request.getParameter("spName");
+    String action = request.getParameter("spAction");
+    String spAudience = request.getParameter("spAudience");
+
+
     ConfigurationContext configurationContext = (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
     try {
     	
@@ -126,10 +131,33 @@
 
         try {
             sts.addTrustedService(address, keyAlias);
+            if (spName != null && action!=null && "returnToSp".equals(action) ) {
+            	
+            	boolean qpplicationComponentFound = CarbonUIUtil.isContextRegistered(config, "/application/");
+            	if (qpplicationComponentFound) {
+%> 
+<script>
+   location.href = '../application/configure-service-provider.jsp?action=update&display=serviceName&spName=<%=spName%>&serviceName=<%=address%>';
+</script>
+<% 
+            }
+            }
         } catch (Exception e) {
         }
         aliases = sts.getAliasFromPrimaryKeystore();
         services = sts.getTrustedServices();
+        
+        if (action != null && "spEdit".equals(action)) {
+        	if (services != null && services.length > 0) {
+                for (TrustedServiceData service : services) {
+                	if (service!=null && service.getServiceAddress().equals(spAudience)){
+                		keyAlias = service.getCertAlias();
+                		break;
+                	}
+                }
+        	}
+        }
+        
     } catch (Exception e) {
 %>
 <script>
@@ -144,6 +172,7 @@
     <h2><fmt:message key="sts.configuration"/></h2>
 
     <div id="workArea">
+       <%if(spName==null) {%>
         <table>
             <tr>
                 <td>
@@ -214,12 +243,14 @@
         </form>
 
         <br/>
+        <%} %>
 
         <form method="get" action="sts.jsp" name="trustedservice" onsubmit="return doValidation();">
             <table class="styledLeft" width="100%">
                 <thead>
                 <tr>
                     <th><fmt:message key="sts.trusted.services.new"/></th>
+                    
                 </tr>
                 </thead>
                 <tbody>
@@ -229,23 +260,37 @@
                             <tr>
                                 <td><fmt:message key="sts.endpoint.address"/><font
                                         color="red">*</font></td>
-                                <td><input type="text" id="endpointaddrs" name="endpointaddrs"
+                            <%if (spAudience!=null) { %>
+                             <td><input type="text" id="endpointaddrs" name="endpointaddrs"
+                                           class="text-box-big" value="<%=spAudience %>"  /></td>
+                            <% } else { %>
+                             <td><input type="text" id="endpointaddrs" name="endpointaddrs"
                                            class="text-box-big"/></td>
+                            <% } %>
+                               
                             </tr>
                             <tr>
-                                <td><fmt:message key="sts.certificate.alias"/></td>
+                                <td><fmt:message key="sts.certificate.alias"/>
+                                <input type="hidden" name="spName" value="<%=spName%>" >
+                                <input type="hidden" name="spAction" value="returnToSp" >
+                                
+                                </td>
                                 <td>
                                     <select id="alias" name="alias">
                                         <%
                                             if (aliases != null) {
                                                 for (String alias : aliases) {
                                                     if (alias != null) {
+                                                    	if (keyAlias != null && keyAlias.equals(alias)){
                                         %>
-                                        <option value="<%=alias%>"><%=alias%>
-                                        </option>
+                                                          <option value="<%=alias%>" selected="selected"><%=alias%></option>
+                                        
+                                                       <%} else { %>
+                                                          <option value="<%=alias%>"><%=alias%></option>
                                         <%
-                                                    }
-                                                }
+                                                         }
+                                                     }
+                                                 }
                                             }
                                         %>
                                     </select>

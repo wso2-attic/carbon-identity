@@ -35,17 +35,36 @@
     String keyAlias = null;   
     String cookie = null;
     String serverUrl = null;
+    String spName = null;
+    String action = null;
+
       
     try {    	
+    	spName = request.getParameter("spName");
+    	action = request.getParameter("action");
     	serverUrl = CarbonUIUtil.getServerURL(config.getServletContext(), session)+"wso2carbon-sts";
     	cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
         sts = new CarbonSTSClient(config, session,cookie);
         address = (String)request.getParameter("endpointaddrs");        
         sts.removeTrustedService(address);
 %>
+
 <script>
-        location.href = 'sts.jsp';
+
+<%
+
+boolean qpplicationComponentFound = CarbonUIUtil.isContextRegistered(config, "/application/");
+if (qpplicationComponentFound) {
+%>
+    location.href = '../application/configure-service-provider.jsp?spName=<%=spName%>&action=<%=action%>';
+<% } else { %>
+    location.href = 'sts.jsp';
+<% } %>
+
 </script>
+
+
+
 <%
 
       }catch (Exception e) {

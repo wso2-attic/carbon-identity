@@ -132,7 +132,7 @@
                                 </bundleDef>
                             </bundles>
                              <importFeatures>
-                                <importFeatureDef>org.wso2.carbon.identity.application.authentication.framework.server:4.3.0-SNAPSHOT</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.application.authentication.framework.server</importFeatureDef>
                             </importFeatures>
                         </configuration>
                     </execution>
