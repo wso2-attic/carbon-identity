@@ -37,13 +37,11 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.provider.openid.admin.server.feature</artifactId>
-            <version>${project.version}</version>
             <type>zip</type>
 	    </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.provider.openid.admin.ui.feature</artifactId>
-            <version>${project.version}</version>
             <type>zip</type>
 	    </dependency>
     </dependencies>
