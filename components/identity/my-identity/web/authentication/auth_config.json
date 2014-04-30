@@ -1,8 +1,8 @@
 {
 	"EnableSAMLSSOLogin" : "true",
 	"saml_config" : {
-		"SAML.IdPUrl" = "samlsso",
-		"SAML.IssuerID" = "wso2.my.identity",
+		"SAML.IdPUrl" : "samlsso",
+		"SAML.IssuerID" : "wso2.my.identity",
 		"SAML.LogoutUrl" : "logout",
 		"SAML.EnableResponseSigning" : "true",
 		"SAML.EnableAssertionSigning" : "true",

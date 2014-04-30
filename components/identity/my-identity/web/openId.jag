@@ -47,12 +47,23 @@ function doRender(){
 	        //this is an array. So no need to do any
 	    	openIdJsonArray = openIdJson;
 	    }
+	    
+	    primaryOpenId = primaryOpenId.return;
+	    var openIdJsons = [];
+	    for each( var id in openIdJsonArray){
+	    		var obj = {};
+				if(primaryOpenId === id){
+					obj['primary'] = true;
+				}	    		
+	    		obj['id'] = id;
+	    		openIdJsons.push(obj);
+	    }
 
 		
-		log.debug(openIdJsonArray);
+		log.info(openIdJsons);
 		
 		caramel.render({
-		    openIds: openIdJsonArray,
+		    openIds: openIdJsons,
 		    messages : i18n.localize("messages"),
 		    error: util.getSuccessErrorJson(request, i18n)
 		    
