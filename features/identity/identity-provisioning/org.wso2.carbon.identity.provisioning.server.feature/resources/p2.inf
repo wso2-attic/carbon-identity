@@ -1,0 +1,5 @@
+instructions.configure = \
+org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../features/org.wso2.carbon.identity.provisioning.server_${feature.version}/identity-provision.properties,target:${installFolder}/../../conf/security/identity-provision.properties,overwrite:true); \
+org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../features/org.wso2.carbon.identity.provisioning.server_${feature.version}/salesforce-rolemapping.csv,target:${installFolder}/../../conf/security/salesforce-rolemapping.csv,overwrite:true);
+
+

@@ -46,6 +46,9 @@
                 <module>application-authentication-framework</module>
                 <module>application-authenticators</module>
 		<module>scim</module>
+		<module>application-mgt</module>
+		<module>identity-provisioning</module>
+		<module>tools-saml</module>
             </modules>
 
     <!--dependencyManagement>
