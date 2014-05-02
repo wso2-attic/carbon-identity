@@ -987,11 +987,11 @@
             <artifactId>org.wso2.carbon.authenticator.proxy</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--dependency>
+        <dependency>
             <groupId>org.wso2.xkms.wso2</groupId>
             <artifactId>xkms</artifactId>
             <version>2.4.0.wso2v1</version>
-        </dependency-->
+        </dependency>
         <dependency>
             <groupId>backport-util-concurrent.wso2</groupId>
             <artifactId>backport-util-concurrent</artifactId>

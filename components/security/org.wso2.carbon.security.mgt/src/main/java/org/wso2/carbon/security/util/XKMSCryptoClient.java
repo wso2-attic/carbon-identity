@@ -16,62 +16,60 @@
 
 package org.wso2.carbon.security.util;
 
-//import org.apache.axiom.om.OMElement;
-//import org.apache.axiom.om.OMFactory;
-//import org.apache.axiom.om.impl.builder.StAXOMBuilder;
-//import org.apache.axiom.om.impl.dom.DOOMAbstractFactory;
-//import org.apache.axiom.om.util.Base64;
-//import org.apache.axiom.soap.SOAP12Constants;
-//import org.apache.axis2.AxisFault;
-//import org.apache.axis2.addressing.EndpointReference;
-//import org.apache.axis2.client.Options;
-//import org.apache.axis2.client.ServiceClient;
-//import org.apache.axis2.context.ConfigurationContext;
-//import org.apache.axis2.context.ConfigurationContextFactory;
-//import org.apache.axis2.transport.http.HTTPConstants;
-//import org.apache.commons.logging.Log;
-//import org.apache.commons.logging.LogFactory;
-//import org.apache.xml.security.keys.KeyInfo;
-//import org.apache.xml.security.keys.content.KeyName;
-//import org.wso2.xkms2.Authentication;
-//import org.wso2.xkms2.KeyBinding;
-//import org.wso2.xkms2.LocateRequest;
-//import org.wso2.xkms2.LocateResult;
-//import org.wso2.xkms2.PrototypeKeyBinding;
-//import org.wso2.xkms2.QueryKeyBinding;
-//import org.wso2.xkms2.RecoverKeyBinding;
-//import org.wso2.xkms2.RecoverRequest;
-//import org.wso2.xkms2.RecoverResult;
-//import org.wso2.xkms2.RegisterRequest;
-//import org.wso2.xkms2.ReissueKeyBinding;
-//import org.wso2.xkms2.ReissueRequest;
-//import org.wso2.xkms2.RespondWith;
-//import org.wso2.xkms2.ResultMinor;
-//import org.wso2.xkms2.Status;
-//import org.wso2.xkms2.StatusValue;
-//import org.wso2.xkms2.UnverifiedKeyBinding;
-//import org.wso2.xkms2.UseKeyWith;
-//import org.wso2.xkms2.ValidateRequest;
-//import org.wso2.xkms2.ValidateResult;
-//import org.wso2.xkms2.XKMSException;
-//import org.wso2.xkms2.builder.LocateResultBuilder;
-//import org.wso2.xkms2.builder.RecoverResultBuilder;
-//import org.wso2.xkms2.builder.ValidateResultBuilder;
-//import org.wso2.xkms2.util.XKMSKeyUtil;
-//import org.wso2.xkms2.util.XKMSUtil;
-//
-//import javax.xml.stream.XMLInputFactory;
-//import java.io.ByteArrayInputStream;
-//import java.security.Key;
-//import java.security.KeyPair;
-//import java.security.PrivateKey;
-//import java.security.cert.Certificate;
-//import java.security.cert.X509Certificate;
-//import java.util.List;
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMFactory;
+import org.apache.axiom.om.impl.builder.StAXOMBuilder;
+import org.apache.axiom.om.impl.dom.DOOMAbstractFactory;
+import org.apache.axiom.om.util.Base64;
+import org.apache.axiom.soap.SOAP12Constants;
+import org.apache.axis2.AxisFault;
+import org.apache.axis2.addressing.EndpointReference;
+import org.apache.axis2.client.Options;
+import org.apache.axis2.client.ServiceClient;
+import org.apache.axis2.context.ConfigurationContext;
+import org.apache.axis2.context.ConfigurationContextFactory;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.xml.security.keys.KeyInfo;
+import org.apache.xml.security.keys.content.KeyName;
+import org.wso2.xkms2.Authentication;
+import org.wso2.xkms2.KeyBinding;
+import org.wso2.xkms2.LocateRequest;
+import org.wso2.xkms2.LocateResult;
+import org.wso2.xkms2.PrototypeKeyBinding;
+import org.wso2.xkms2.QueryKeyBinding;
+import org.wso2.xkms2.RecoverKeyBinding;
+import org.wso2.xkms2.RecoverRequest;
+import org.wso2.xkms2.RecoverResult;
+import org.wso2.xkms2.RegisterRequest;
+import org.wso2.xkms2.ReissueKeyBinding;
+import org.wso2.xkms2.ReissueRequest;
+import org.wso2.xkms2.RespondWith;
+import org.wso2.xkms2.ResultMinor;
+import org.wso2.xkms2.Status;
+import org.wso2.xkms2.StatusValue;
+import org.wso2.xkms2.UnverifiedKeyBinding;
+import org.wso2.xkms2.UseKeyWith;
+import org.wso2.xkms2.ValidateRequest;
+import org.wso2.xkms2.ValidateResult;
+import org.wso2.xkms2.XKMSException;
+import org.wso2.xkms2.builder.LocateResultBuilder;
+import org.wso2.xkms2.builder.RecoverResultBuilder;
+import org.wso2.xkms2.builder.ValidateResultBuilder;
+import org.wso2.xkms2.util.XKMSKeyUtil;
+import org.wso2.xkms2.util.XKMSUtil;
+
+import javax.xml.stream.XMLInputFactory;
+import java.io.ByteArrayInputStream;
+import java.security.Key;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.util.List;
 
 public class XKMSCryptoClient {
-//	TODO -remove xkms
-	/*
     private static final Log LOG = LogFactory.getLog(XKMSCryptoClient.class
             .getName());
 
@@ -469,6 +467,5 @@ public class XKMSCryptoClient {
                 .buildElement(element);
 
     }
-    */
 }
 
