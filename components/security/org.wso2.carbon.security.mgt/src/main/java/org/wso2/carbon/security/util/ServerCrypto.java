@@ -69,11 +69,11 @@ public class ServerCrypto implements Crypto {
 
     public final static String PROP_ID_CACERT_PASS = "org.wso2.carbon.security.crypto.cacert.pass";
 
-    public final static String PROP_ID_XKMS_SERVICE_PASS_PHRASE = "org.wso2.wsas.security.wso2wsas.crypto.xkms.pass";
+//    public final static String PROP_ID_XKMS_SERVICE_PASS_PHRASE = "org.wso2.wsas.security.wso2wsas.crypto.xkms.pass";
 
     public final static String PROP_ID_TENANT_ID = "org.wso2.stratos.tenant.id";
     
-    public final static String PROP_ID_XKMS_SERVICE_URL = "org.wso2.carbon.security.crypto.xkms.url";
+//    public final static String PROP_ID_XKMS_SERVICE_URL = "org.wso2.carbon.security.crypto.xkms.url";
     
     private static final String SKI_OID = "2.5.29.14";
 
@@ -83,7 +83,7 @@ public class ServerCrypto implements Crypto {
     private List<KeyStore> trustStores = new ArrayList<KeyStore>();
     private static CertificateFactory certFact = null;
     private Registry registry = null;
-    private Boolean useXkms;
+//    private Boolean useXkms;
 
     public ServerCrypto(Properties prop) throws CredentialException, IOException {
         this(prop, ServerCrypto.class.getClassLoader());
@@ -226,18 +226,18 @@ public class ServerCrypto implements Crypto {
         }
         boolean b = keystore.isKeyEntry(alias);
 
-        if (!b && useXKMS()) {
-            PrivateKey privateKey = XKMSCryptoClient.getPrivateKey(alias,
-                    properties.getProperty(PROP_ID_XKMS_SERVICE_URL),
-                    properties.getProperty(PROP_ID_XKMS_SERVICE_PASS_PHRASE));
-            if (privateKey == null) {
-                log.error("Cannot find key for alias" + alias);
-                throw new Exception("Cannot find key for alias: " + alias);
-            }
-
-            return privateKey;
-
-         } else {
+//        if (!b && useXKMS()) {
+//            PrivateKey privateKey = XKMSCryptoClient.getPrivateKey(alias,
+//                    properties.getProperty(PROP_ID_XKMS_SERVICE_URL),
+//                    properties.getProperty(PROP_ID_XKMS_SERVICE_PASS_PHRASE));
+//            if (privateKey == null) {
+//                log.error("Cannot find key for alias" + alias);
+//                throw new Exception("Cannot find key for alias: " + alias);
+//            }
+//
+//            return privateKey;
+//
+//         } else {
 
              if (!b) {
                  log.error("Cannot find key for alias: " + alias);
@@ -251,7 +251,7 @@ public class ServerCrypto implements Crypto {
              }
         
              return (PrivateKey) keyTmp;
-        }
+//        }
     }
 
     /**
@@ -302,10 +302,10 @@ public class ServerCrypto implements Crypto {
                 certs = new Certificate[] { cert };
             } else if (certs == null) {
 
-            if (useXKMS()) {
-                return XKMSCryptoClient.getCertificates(alias, properties
-                        .getProperty(PROP_ID_XKMS_SERVICE_URL));
-            }
+//            if (useXKMS()) {
+//                return XKMSCryptoClient.getCertificates(alias, properties
+//                        .getProperty(PROP_ID_XKMS_SERVICE_URL));
+//            }
 
                 // At this pont we don't have certs or a cert
                 return null;
@@ -381,11 +381,11 @@ public class ServerCrypto implements Crypto {
             throw new WSSecurityException(WSSecurityException.FAILURE, "keystore");
         }
         
-        if (useXKMS()) {
-            return XKMSCryptoClient.getAliasForX509Certificate(
-                    (X509Certificate) cert, properties
-                    .getProperty(PROP_ID_XKMS_SERVICE_URL));
-        }
+//        if (useXKMS()) {
+//            return XKMSCryptoClient.getAliasForX509Certificate(
+//                    (X509Certificate) cert, properties
+//                    .getProperty(PROP_ID_XKMS_SERVICE_URL));
+//        }
         
         return null;
     }
@@ -472,10 +472,10 @@ public class ServerCrypto implements Crypto {
             throw new WSSecurityException(WSSecurityException.FAILURE, "keystore");
         }
         
-        if (useXKMS()) {
-            return XKMSCryptoClient.getAliasForX509Certificate(skiBytes,
-                    properties.getProperty(PROP_ID_XKMS_SERVICE_URL));
-        }
+//        if (useXKMS()) {
+//            return XKMSCryptoClient.getAliasForX509Certificate(skiBytes,
+//                    properties.getProperty(PROP_ID_XKMS_SERVICE_URL));
+//        }
          
         return null;
     }
@@ -610,13 +610,13 @@ public class ServerCrypto implements Crypto {
 
         boolean result;
         
-        if (useXKMS()) {
-            result = XKMSCryptoClient.validateCertPath(certs, properties
-                    .getProperty(PROP_ID_XKMS_SERVICE_URL));            
-            if (result) {
-                return true;
-             }
-        }
+//        if (useXKMS()) {
+//            result = XKMSCryptoClient.validateCertPath(certs, properties
+//                    .getProperty(PROP_ID_XKMS_SERVICE_URL));            
+//            if (result) {
+//                return true;
+//             }
+//        }
 
         result = this.validateCertPath(this.keystore, certs);
 
@@ -670,15 +670,15 @@ public class ServerCrypto implements Crypto {
             throw new WSSecurityException(WSSecurityException.FAILURE, "keystore");
         }
        
-        if (aliases.isEmpty() && useXKMS()) {
-            String[] xkmsAliases = XKMSCryptoClient.getAliasesForDN(subjectDN,
-                    properties.getProperty(PROP_ID_XKMS_SERVICE_URL));
-            if (xkmsAliases != null) {
-                for (int i = 0; i < xkmsAliases.length; i++) {
-                    aliases.add(xkmsAliases[i]);
-                }
-            }
-        }
+//        if (aliases.isEmpty() && useXKMS()) {
+//            String[] xkmsAliases = XKMSCryptoClient.getAliasesForDN(subjectDN,
+//                    properties.getProperty(PROP_ID_XKMS_SERVICE_URL));
+//            if (xkmsAliases != null) {
+//                for (int i = 0; i < xkmsAliases.length; i++) {
+//                    aliases.add(xkmsAliases[i]);
+//                }
+//            }
+//        }
         
         
         // Convert the vector into an array
@@ -816,37 +816,39 @@ public class ServerCrypto implements Crypto {
 
     private boolean useXKMS() {
         
-         if (useXkms != null) {
-             return useXkms.booleanValue();
-         }
-
-         AxisConfiguration axisConfiguration =
-                 SecurityMgtServiceComponent.getServerConfigurationContext().getAxisConfiguration();
-         Parameter parameter = axisConfiguration.getParameter("XKMSConfig");
-
-         if (parameter == null) {
-             useXkms = Boolean.FALSE;
-             return useXkms.booleanValue();
-         }
-
-         OMElement parameterElement = parameter.getParameterElement();
-         OMAttribute attribute = parameterElement.getAttribute(new QName("enabled"));
-
-         if (attribute != null) {
-             String value = attribute.getAttributeValue();
-             useXkms = Boolean.valueOf(value);
-         }
-
-         OMElement urlElement = parameterElement
-                 .getFirstChildWithName(new QName("URL"));
-         properties.setProperty(PROP_ID_XKMS_SERVICE_URL, urlElement.getText());
-
-         OMElement passPhraseElement = parameterElement
-                 .getFirstChildWithName(new QName("PassPhrase"));
-         properties.setProperty(PROP_ID_XKMS_SERVICE_PASS_PHRASE,
-                                passPhraseElement.getText());
-
-         return useXkms.booleanValue();
+//         if (useXkms != null) {
+//             return useXkms.booleanValue();
+//         }
+//
+//         AxisConfiguration axisConfiguration =
+//                 SecurityMgtServiceComponent.getServerConfigurationContext().getAxisConfiguration();
+//         Parameter parameter = axisConfiguration.getParameter("XKMSConfig");
+//
+//         if (parameter == null) {
+//             useXkms = Boolean.FALSE;
+//             return useXkms.booleanValue();
+//         }
+//
+//         OMElement parameterElement = parameter.getParameterElement();
+//         OMAttribute attribute = parameterElement.getAttribute(new QName("enabled"));
+//
+//         if (attribute != null) {
+//             String value = attribute.getAttributeValue();
+//             useXkms = Boolean.valueOf(value);
+//         }
+//
+//         OMElement urlElement = parameterElement
+//                 .getFirstChildWithName(new QName("URL"));
+//         properties.setProperty(PROP_ID_XKMS_SERVICE_URL, urlElement.getText());
+//
+//         OMElement passPhraseElement = parameterElement
+//                 .getFirstChildWithName(new QName("PassPhrase"));
+//         properties.setProperty(PROP_ID_XKMS_SERVICE_PASS_PHRASE,
+//                                passPhraseElement.getText());
+//
+//         return useXkms.booleanValue();
+         
+         return false;
     }
 
 }

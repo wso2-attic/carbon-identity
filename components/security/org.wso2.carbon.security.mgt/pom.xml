@@ -72,11 +72,10 @@
             <artifactId>rampart-trust</artifactId>
             <!--<version>1.6.1.wso2v12</version>-->
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.wso2.xkms.wso2</groupId>
             <artifactId>xkms</artifactId>
-            <!--<version>2.4.0.wso2v1</version>-->
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>javax.cache.wso2</artifactId>
@@ -130,7 +129,6 @@
                             javax.security.auth.callback,
                             javax.servlet.http;version="${imp.pkg.version.javax.servlet}",
                             org.apache.xml.security.keys,
-                            !org.wso2.xkms2.*,
                             org.osgi.framework.*,
                             org.osgi.util.tracker.*,
                             org.jaxen.*,
