@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.identity.oauth;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
@@ -46,6 +45,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class OAuthAdminService extends AbstractAdmin {
