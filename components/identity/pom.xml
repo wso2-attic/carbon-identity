@@ -36,6 +36,8 @@
 
     <modules>
 	<module>org.wso2.carbon.identity.application.authentication.endpoint</module>
+        <module>org.wso2.carbon.identity.sts.passive</module>
+        <module>org.wso2.carbon.identity.sts.passive.ui</module>
         <module>org.wso2.carbon.identity.sso.saml.common</module>
         <module>org.wso2.carbon.identity.sso.saml</module>
         <module>org.wso2.carbon.identity.sso.saml.ui</module>
@@ -70,8 +72,6 @@
 	<module>org.wso2.carbon.identity.entitlement.common</module>
         <module>org.wso2.carbon.identity.entitlement.ui</module>
         <module>org.wso2.carbon.identity.entitlement.mediator</module>
-        <module>org.wso2.carbon.identity.sts.passive</module>
-        <module>org.wso2.carbon.identity.sts.passive.ui</module>
 	<module>org.wso2.carbon.identity.sso.agent</module>
         <module>org.wso2.carbon.identity.provider.openid.admin</module>
         <module>org.wso2.carbon.identity.provider.openid.admin.ui</module>
@@ -83,6 +83,7 @@
 	<module>org.wso2.carbon.identity.scim.provider</module>
         <module>org.wso2.carbon.identity.authentication</module>
         <module>org.wso2.carbon.identity.thrift.authentication</module>
+        <!--module>org.wso2.carbon.identity.sts</module-->
         <module>org.wso2.carbon.identity.sts.mgt</module>
         <module>org.wso2.carbon.identity.sts.mgt.ui</module>
         <module>org.wso2.carbon.identity.scim.common</module>
