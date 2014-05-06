@@ -27,7 +27,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
+import java.util.Arrays;
 
 public class GoogleProvisioningConnectorConfig {
 	
