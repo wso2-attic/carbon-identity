@@ -16,7 +16,7 @@
 
 package org.wso2.carbon.security.config;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
+import java.util.Arrays;
 import javax.cache.Cache;
 //import javax.cache.Cache;
 import javax.cache.CacheManager;
