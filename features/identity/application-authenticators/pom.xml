@@ -32,6 +32,8 @@
 			<modules>
 				<module>basic-auth</module>
 				<module>oidc</module>
+				<module>samlsso</module>
+				<module>openid</module>
 			</modules>
 </project>
 
