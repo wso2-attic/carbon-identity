@@ -82,7 +82,6 @@
                                     <directory>resources</directory>
                                     <includes>
                                         <include>entitlement.properties</include>
-                                        <include>thrift-authentication.xml</include>
                                         <include>p2.inf</include>
                                     </includes>
                                 </resource>
