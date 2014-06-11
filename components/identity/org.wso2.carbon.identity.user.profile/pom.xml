@@ -101,7 +101,7 @@
 							org.wso2.carbon.registry.core.*,
 							javax.xml.namespace.*;version="0.0.0",
 							javax.xml.stream.*;version="1.0.1",
-							org.apache.commons.logging.*;version="[${version.commons.logging}, 2.0)", javax.sql.*,
+							org.apache.commons.logging.*;version="[${commons-logging.version}, 2.0)", javax.sql.*,
 							org.apache.commons.dbcp.*,
 							*;resolution:=optional
 						</Import-Package>
