@@ -54,6 +54,7 @@ public final class SAML2SSOAuthenticatorConstants {
     public static final String FEDERATION_CONFIG = "FederationConfig";
     public static final String FEDERATION_CONFIG_USER = "FederationConfigUser";
     public static final String FEDERATION_CONFIG_PASSWORD = "FederationConfigPassword";
+    public static final String LOGIN_ATTRIBUTE_NAME = "LoginAttributeName";
 
 
 

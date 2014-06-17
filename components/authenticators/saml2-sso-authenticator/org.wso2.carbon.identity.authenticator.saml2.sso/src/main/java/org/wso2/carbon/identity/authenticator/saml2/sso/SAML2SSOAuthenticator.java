@@ -51,6 +51,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 import org.w3c.dom.Element;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.core.common.AuthenticationException;
 import org.wso2.carbon.core.security.AuthenticatorsConfiguration;
 import org.wso2.carbon.core.services.authentication.CarbonServerAuthenticator;
@@ -82,7 +83,7 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
     	try {
     		XMLObject xmlObject = Util.unmarshall(org.wso2.carbon.identity.authenticator.saml2.sso.common.Util.decode(authDto.getResponse()));
 
-    		String username = getUsername(xmlObject);
+    		String username = org.wso2.carbon.identity.authenticator.saml2.sso.common.Util.getUsername(xmlObject);
 
     		if ((username == null) || username.trim().equals("")) {
     			log.error("Authentication Request is rejected. " +
@@ -107,15 +108,18 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
     		String tenantDomain = MultitenantUtils.getTenantDomain(username);
     		int tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
     		handleAuthenticationStarted(tenantId);
-    		boolean isSignatureValid = validateSignature(xmlObject, tenantDomain);
-    		if(!isSignatureValid){
-    			log.error("Authentication Request is rejected. " +
-    					" Signature validation failed.");
-    			CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, username, tenantId,
-    					"SAML2 SSO Authentication", "Invalid Signature");
-    			handleAuthenticationCompleted(tenantId, false);
-    			return false;
-    		}
+			if (isResponseSignatureValidationEnabled()) {
+				boolean isSignatureValid = validateSignature(xmlObject, tenantDomain);
+				if (!isSignatureValid) {
+					log.error("Authentication Request is rejected. "
+					          + " Signature validation failed.");
+					CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, username, tenantId,
+					                                            "SAML2 SSO Authentication",
+					                                            "Invalid Signature");
+					handleAuthenticationCompleted(tenantId, false);
+					return false;
+				}
+			}
     		
     		username = MultitenantUtils.getTenantAwareUsername(username);
     		UserRealm realm = AnonymousSessionUtil.getRealmByTenantDomain(registryService,
@@ -247,6 +251,67 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
     }
     
     /**
+     * Check whether signature validation is enabled in the authenticators.xml configuration file
+     * 
+     * @return false only if SSOAuthenticator configuration has the parameter
+     * <Parameter name="ResponseSignatureValidationEnabled">false</Parameter>, true otherwise
+     * 
+     */
+	private boolean isResponseSignatureValidationEnabled() {
+		AuthenticatorsConfiguration authenticatorsConfiguration = AuthenticatorsConfiguration
+				.getInstance();
+		AuthenticatorsConfiguration.AuthenticatorConfig authenticatorConfig = authenticatorsConfiguration
+				.getAuthenticatorConfig(AUTHENTICATOR_NAME);
+		if (authenticatorConfig != null) {
+			String responseSignatureValidation = authenticatorConfig
+					.getParameters()
+					.get(SAML2SSOAuthenticatorBEConstants.PropertyConfig.RESPONSE_SIGNATURE_VALIDATION_ENABLED);
+			if (responseSignatureValidation != null
+					&& responseSignatureValidation.equalsIgnoreCase("false")) {
+				if(log.isDebugEnabled()) {
+					log.debug("Signature validation is disabled in the configuration");
+				}
+				return false;
+			}
+		}
+		if(log.isDebugEnabled()) {
+			log.debug("Signature validation is enabled in the configuration");
+		}
+		return true;
+	}
+
+
+
+    /**
+     * Check whether signature validation is enabled in the authenticators.xml configuration file
+     *
+     * @return false only if SSOAuthenticator configuration has the parameter
+     * <Parameter name="ResponseSignatureValidationEnabled">false</Parameter>, true otherwise
+     *
+     */
+    private boolean isVerifySignWithUserDomain() {
+        AuthenticatorsConfiguration authenticatorsConfiguration = AuthenticatorsConfiguration
+                .getInstance();
+        AuthenticatorsConfiguration.AuthenticatorConfig authenticatorConfig = authenticatorsConfiguration
+                .getAuthenticatorConfig(AUTHENTICATOR_NAME);
+        if (authenticatorConfig != null) {
+            String responseSignatureValidation = authenticatorConfig
+                    .getParameters()
+                    .get(SAML2SSOAuthenticatorBEConstants.PropertyConfig.VALIDATE_SIGNATURE_WITH_USER_DOMAIN);
+            if ("true".equalsIgnoreCase(responseSignatureValidation)) {
+                if(log.isDebugEnabled()) {
+                    log.debug("Signature validation is done based on user tenant domain");
+                }
+                return true;
+            }
+        }
+        if(log.isDebugEnabled()) {
+            log.debug("Signature validation is done with super tenant domain");
+        }
+        return false;
+    }
+    
+    /**
      * Validate the signature of a SAML2 XMLObject
      *
      * @param xmlObject   SAML2 XMLObject
@@ -314,7 +379,12 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
     private boolean validateSignature(Signature signature, String domainName){
     	boolean isSignatureValid = false;
     	try {
-    		SignatureValidator validator = new SignatureValidator(Util.getX509CredentialImplForTenant(domainName));
+            SignatureValidator validator = null;
+            if(isVerifySignWithUserDomain()){
+    		    validator = new SignatureValidator(Util.getX509CredentialImplForTenant(domainName));
+            } else {
+                validator = new SignatureValidator(Util.getX509CredentialImplForTenant(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME));
+            }
     		validator.validate(signature);
     		isSignatureValid = true;
     	} catch (SAML2SSOAuthenticatorException e) {
@@ -324,48 +394,6 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
     		log.warn("Signature validation failed for a SAML2 Reposnse from domain : " + domainName);
     	}
     	return isSignatureValid;
-    }
-
-    /**
-     * Get the username from the SAML2 XMLObject
-     *
-     * @param xmlObject SAML2 XMLObject
-     * @return username
-     */
-    private String getUsername(XMLObject xmlObject) {
-    	if(xmlObject instanceof Response){
-    		return getUsernameFromResponse((Response) xmlObject);
-    	} else if (xmlObject instanceof Assertion){
-    		return getUsernameFromAssertion((Assertion) xmlObject);
-    	} else {
-    		return null;
-    	}
-    }
-
-    /**
-     * Get the username from the SAML2 Response
-     *
-     * @param response SAML2 Response
-     * @return username
-     */
-    private String getUsernameFromResponse(Response response) {
-    	List<Assertion> assertions = response.getAssertions();
-    	Assertion assertion = null;
-    	if (assertions != null && assertions.size() > 0) {
-    		assertion = assertions.get(0);
-    		return getUsernameFromAssertion(assertion);
-    	}
-    	return null;
-    }
-
-    /**
-     * Get the username from the SAML2 Assertion
-     *
-     * @param assertion SAML2 assertion
-     * @return username
-     */
-    private String getUsernameFromAssertion(Assertion assertion) {
-    	return assertion.getSubject().getNameID().getValue();
     }
 
     /**
@@ -484,12 +512,12 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
         if (authenticatorConfig != null) {
             Map<String,String> configParameters = authenticatorConfig.getParameters();
         
-    		boolean isProvisioningEnable = false;
-    		if(configParameters.containsKey(SAML2SSOAuthenticatorBEConstants.PropertyConfig.IS_USER_PROVISIONING)) {
-    			isProvisioningEnable = Boolean.parseBoolean(configParameters.get(SAML2SSOAuthenticatorBEConstants.PropertyConfig.IS_USER_PROVISIONING));
+    		boolean isJITProvisioningEnabled = false;
+    		if(configParameters.containsKey(SAML2SSOAuthenticatorBEConstants.PropertyConfig.JIT_USER_PROVISIONING_ENABLED)) {
+    			isJITProvisioningEnabled = Boolean.parseBoolean(configParameters.get(SAML2SSOAuthenticatorBEConstants.PropertyConfig.JIT_USER_PROVISIONING_ENABLED));
     		}
     		
-    		if(isProvisioningEnable) {
+    		if(isJITProvisioningEnabled) {
     			String userstoreDomain = null;
     			if(configParameters.containsKey(SAML2SSOAuthenticatorBEConstants.PropertyConfig.PROVISIONING_DEFAULT_USERSTORE)) {
     				userstoreDomain = configParameters.get(SAML2SSOAuthenticatorBEConstants.PropertyConfig.PROVISIONING_DEFAULT_USERSTORE);
@@ -639,6 +667,7 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
      */
     private String[] getRolesFromAssertion(Assertion assertion) {
     	String[] roles = null;
+    	String roleClaim = getRoleClaim();
 		List<AttributeStatement> attributeStatementList = assertion.getAttributeStatements();
 
 		if (attributeStatementList != null) {
@@ -646,7 +675,7 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
                 List<Attribute> attributesList = statement.getAttributes();
                 for (Attribute attribute : attributesList) {
         			String attributeName = attribute.getName();
-        			if( attributeName != null &&  SAML2SSOAuthenticatorBEConstants.ROLE_ATTRIBUTE_NAME.equals(attributeName)) {
+        			if( attributeName != null &&  roleClaim.equals(attributeName)) {
         				// Assumes role claim appear only once
                         Element value = attribute.getAttributeValues().get(0).getDOM();
                         String attributeValue = value.getTextContent();
@@ -655,7 +684,7 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
             				log.debug("AttributeName : " + attributeName + ", AttributeValue : " + attributeValue);
             			}
             			
-            			roles =  attributeValue.split(SAML2SSOAuthenticatorBEConstants.ATTRIBUTE_VALUE_SEPERATER);
+            			roles =  attributeValue.split(getAttributeSeperator());
             			if(log.isDebugEnabled()) {
             				log.debug("Role list : " + Arrays.toString(roles));
             			}
@@ -665,4 +694,40 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
 		}
     	return roles;
     }
+    
+    /**
+     * Role claim attribute value from configuration file or from constants
+     * @return
+     */
+    private String getRoleClaim() {
+		AuthenticatorsConfiguration authenticatorsConfiguration = AuthenticatorsConfiguration.getInstance();
+		AuthenticatorsConfiguration.AuthenticatorConfig authenticatorConfig = authenticatorsConfiguration.getAuthenticatorConfig(AUTHENTICATOR_NAME);
+
+		if (authenticatorConfig != null) {
+			Map<String, String> configParameters = authenticatorConfig.getParameters();
+			if (configParameters.containsKey(SAML2SSOAuthenticatorBEConstants.PropertyConfig.ROLE_CLAIM_ATTRIBUTE)) {
+				return configParameters.get(SAML2SSOAuthenticatorBEConstants.PropertyConfig.ROLE_CLAIM_ATTRIBUTE);
+			}
+		}
+
+		return SAML2SSOAuthenticatorBEConstants.ROLE_ATTRIBUTE_NAME;
+	}
+    
+    /**
+     * Get attribute separator from configuration or from the constants 
+     * @return
+     */
+    private String getAttributeSeperator() {
+		AuthenticatorsConfiguration authenticatorsConfiguration = AuthenticatorsConfiguration.getInstance();
+		AuthenticatorsConfiguration.AuthenticatorConfig authenticatorConfig = authenticatorsConfiguration.getAuthenticatorConfig(AUTHENTICATOR_NAME);
+
+		if (authenticatorConfig != null) {
+			Map<String, String> configParameters = authenticatorConfig.getParameters();
+			if (configParameters.containsKey(SAML2SSOAuthenticatorBEConstants.PropertyConfig.ATTRIBUTE_VALUE_SEPARATOR)) {
+				return configParameters.get(SAML2SSOAuthenticatorBEConstants.PropertyConfig.ATTRIBUTE_VALUE_SEPARATOR);
+			}
+		}
+
+		return SAML2SSOAuthenticatorBEConstants.ATTRIBUTE_VALUE_SEPERATER;
+	}
 }

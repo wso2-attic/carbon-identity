@@ -21,14 +21,19 @@ package org.wso2.carbon.identity.authenticator.saml2.sso;
 public class SAML2SSOAuthenticatorBEConstants {
 
     public static final String SAML2_SSO_AUTHENTICATOR_NAME = "SAML2SSOAuthenticator";
-    public static final String AUTH_CONFIG_PARAM_IDP_CERT_ALIAS = "IdPCertAlias";
 
     public static final String ROLE_ATTRIBUTE_NAME = "http://wso2.org/claims/role";
     public static final String ATTRIBUTE_VALUE_SEPERATER = ",";
     
 
     public class PropertyConfig {
-    	public static final String IS_USER_PROVISIONING = "IsUserProvisioning";
+        public static final String AUTH_CONFIG_PARAM_IDP_CERT_ALIAS = "IdPCertAlias";
+    	public static final String RESPONSE_SIGNATURE_VALIDATION_ENABLED = "ResponseSignatureValidationEnabled";
+    	public static final String VALIDATE_SIGNATURE_WITH_USER_DOMAIN = "VerifySignatureWithUserDomain";
+        public static final String ROLE_CLAIM_ATTRIBUTE = "RoleClaimAttribute";
+        public static final String ATTRIBUTE_VALUE_SEPARATOR = "AttributeValueSeparator";
+        
+    	public static final String JIT_USER_PROVISIONING_ENABLED = "JITUserProvisioningEnabled";
     	public static final String PROVISIONING_DEFAULT_USERSTORE = "ProvisioningDefaultUserstore";
     	public static final String PROVISIONING_DEFAULT_ROLE = "ProvisioningDefaultRole";
     	public static final String IS_SUPER_ADMIN_ROLE_REQUIRED = "IsSuperAdminRoleRequired";

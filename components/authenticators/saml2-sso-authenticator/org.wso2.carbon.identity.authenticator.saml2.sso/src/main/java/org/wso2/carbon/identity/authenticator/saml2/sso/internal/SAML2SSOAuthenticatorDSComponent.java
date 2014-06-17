@@ -92,9 +92,9 @@ public class SAML2SSOAuthenticatorDSComponent {
         if(authenticatorConfig != null){
             Map<String,String> authenticatorParams = authenticatorConfig.getParameters();
             // if this parameter is set, then use it with tenant 0. Otherwise use the default cert.
-            if(authenticatorParams.containsKey(SAML2SSOAuthenticatorBEConstants.AUTH_CONFIG_PARAM_IDP_CERT_ALIAS)){
+            if(authenticatorParams.containsKey(SAML2SSOAuthenticatorBEConstants.PropertyConfig.AUTH_CONFIG_PARAM_IDP_CERT_ALIAS)){
                 SAML2SSOAuthBEDataHolder.getInstance().setIdPCertAlias(authenticatorParams.get(
-                        SAML2SSOAuthenticatorBEConstants.AUTH_CONFIG_PARAM_IDP_CERT_ALIAS));
+                        SAML2SSOAuthenticatorBEConstants.PropertyConfig.AUTH_CONFIG_PARAM_IDP_CERT_ALIAS));
             }
         }
 

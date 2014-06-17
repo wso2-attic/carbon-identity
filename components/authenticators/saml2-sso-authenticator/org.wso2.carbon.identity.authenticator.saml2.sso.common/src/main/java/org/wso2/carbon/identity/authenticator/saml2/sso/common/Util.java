@@ -38,8 +38,12 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.opensaml.Configuration;
 import org.opensaml.DefaultBootstrap;
+import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.Attribute;
+import org.opensaml.saml2.core.AttributeStatement;
 import org.opensaml.saml2.core.AuthnRequest;
 import org.opensaml.saml2.core.LogoutRequest;
+import org.opensaml.saml2.core.Response;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.XMLObjectBuilder;
@@ -442,4 +446,90 @@ public class Util {
 	public static String getExternalLogoutPage() {
 		return externalLogoutPage;
 	}
+	
+    /**
+     * Returns the login attribute name which use to get the username from the SAML2 Response.
+     * @return Name of the login attribute
+     */
+    public static String getLoginAttributeName() {
+        if (!initSuccess) {
+            initSSOConfigParams();
+        }
+        return parameters.get(SAML2SSOAuthenticatorConstants.LOGIN_ATTRIBUTE_NAME);		
+	}
+
+    /**
+     * Get the username from the SAML2 XMLObject
+     *
+     * @param xmlObject SAML2 XMLObject
+     * @return username
+     */
+    public static String getUsername(XMLObject xmlObject) {
+    	if(xmlObject instanceof Response){
+    		return getUsernameFromResponse((Response) xmlObject);
+    	} else if (xmlObject instanceof Assertion){
+    		return getUsernameFromAssertion((Assertion) xmlObject);
+    	} else {
+    		return null;
+    	}
+    }
+
+    /**
+     * Get the username from the SAML2 Response
+     *
+     * @param response SAML2 Response
+     * @return username username contained in the SAML Response
+     */
+	public static String getUsernameFromResponse(Response response) {
+		List<Assertion> assertions = response.getAssertions();
+		Assertion assertion = null;
+		if (assertions != null && assertions.size() > 0) {
+			// There can be only one assertion in a SAML Response, so get the
+			// first one
+			assertion = assertions.get(0);
+    		return getUsernameFromAssertion(assertion);
+			
+		}
+		return null;
+	}
+	
+    /**
+     * Get the username from the SAML2 Assertion
+     *
+     * @param assertion SAML2 assertion
+     * @return username
+     */
+    public static String getUsernameFromAssertion(Assertion assertion) {
+		String loginAttributeName = getLoginAttributeName();
+
+		if (loginAttributeName != null) {
+			// There can be multiple AttributeStatements in Assertion
+			List<AttributeStatement> attributeStatements = assertion
+					.getAttributeStatements();
+			if (attributeStatements != null) {
+				for (AttributeStatement attributeStatement : attributeStatements) {
+					// There can be multiple Attributes in a
+					// attributeStatement
+					List<Attribute> attributes = attributeStatement
+							.getAttributes();
+					if (attributes != null) {
+						for (Attribute attribute : attributes) {
+							String attributeName = attribute.getDOM()
+									.getAttribute("Name");
+							if (attributeName.equals(loginAttributeName)) {
+								List<XMLObject> attributeValues = attribute
+										.getAttributeValues();
+								// There can be multiple attribute values in
+								// a attribute, but get the first one
+								return attributeValues.get(0).getDOM()
+										.getTextContent();
+							}
+						}
+					}
+				}
+			}
+		}
+		return assertion.getSubject().getNameID().getValue();
+    }
+
 }

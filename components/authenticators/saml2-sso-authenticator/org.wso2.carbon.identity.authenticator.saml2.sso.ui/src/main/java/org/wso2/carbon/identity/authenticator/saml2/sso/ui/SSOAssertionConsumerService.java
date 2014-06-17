@@ -166,7 +166,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
         // Get the subject name from the Response Object and forward it to login_action.jsp
         String username = null;
         if(assertion.getSubject() != null && assertion.getSubject().getNameID() != null){
-            username = assertion.getSubject().getNameID().getValue();
+        	username = Util.getUsernameFromResponse(samlResponse);
         }
         
         if(log.isDebugEnabled()){
