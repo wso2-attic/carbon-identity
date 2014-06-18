@@ -87,7 +87,7 @@ public class WSClaimManager implements ClaimManager {
 
     public String getAttributeName(String claimURI) throws UserStoreException {
         try {
-            return stub.getAttributeName(null, claimURI);
+            return stub.getAttributeName(claimURI);
         } catch (Exception e) {
             this.handleException(e.getMessage(), e);
         }
@@ -129,7 +129,7 @@ public class WSClaimManager implements ClaimManager {
     public String getAttributeName(String domainName, String claimURI)
             throws org.wso2.carbon.user.api.UserStoreException {
         try {
-            return stub.getAttributeName(domainName, claimURI);
+            return stub.getAttributeNameFromDomain(domainName, claimURI);
         } catch (RemoteException e) {
             this.handleException(e.getMessage(), e);
         } catch (RemoteClaimManagerServiceUserStoreExceptionException e) {
