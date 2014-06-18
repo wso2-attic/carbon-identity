@@ -22,6 +22,7 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.tenant.Tenant;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
@@ -93,7 +94,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                 "",
                 "Remote Server URL(s)#Remote server URLs. e.g.: https://ca-datacenter/services,https://va-datacenter/services",
                 null);
-        Property disabled = new Property("Disabled", "false", "Remote Server URL(s)#", null);
+        Property disabled = new Property("Disabled", "false", "Disabled#Check to disable the user store", null);
 
         Property passwordJavaScriptRegEx = new Property(
                 UserStoreConfigConstants.passwordJavaScriptRegEx, "^[\\S]{5,30}$",
@@ -777,6 +778,9 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
     @Override
     public void deleteUser(String userName) throws UserStoreException {
+        
+        userName = UserCoreUtil.removeDomainFromName(userName);
+
         for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
                 .iterator(); iterator.hasNext();) {
             Entry<String, WSUserStoreManager> remoteStore = iterator.next();
@@ -793,6 +797,9 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
     @Override
     public void deleteRole(String roleName) throws UserStoreException {
+        
+        roleName = UserCoreUtil.removeDomainFromName(roleName);
+
         for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
                 .iterator(); iterator.hasNext();) {
             Entry<String, WSUserStoreManager> remoteStore = iterator.next();
