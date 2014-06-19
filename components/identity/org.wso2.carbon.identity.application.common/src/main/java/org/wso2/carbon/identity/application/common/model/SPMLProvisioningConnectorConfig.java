@@ -18,48 +18,21 @@
 
 package org.wso2.carbon.identity.application.common.model;
 
-import java.io.Serializable;
-
-public class ApplicationBasicInfo implements Serializable {
+public class SPMLProvisioningConnectorConfig extends ProvisioningConnectorConfig {
 
     /**
      * 
      */
-    private static final long serialVersionUID = -16127229981193883L;
+    private static final long serialVersionUID = -8336211694205008436L;
 
-    private String applicationName;
-    private String description;
-
-    /**
-     * 
-     * @return
-     */
-    public String getApplicationName() {
-        return applicationName;
+    @Override
+    public String getName() {
+        return "spml";
     }
 
-    /**
-     * 
-     * @param applicationName
-     */
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public String getDescription() {
-        return description;
-    }
-
-    /**
-     * 
-     * @param description
-     */
-    public void setDescription(String description) {
-        this.description = description;
+    @Override
+    public boolean isValid() {
+        return false;
     }
 
 }

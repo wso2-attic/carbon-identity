@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -15,41 +15,75 @@
  *specific language governing permissions and limitations
  *under the License.
  */
+
 package org.wso2.carbon.identity.application.common.model;
 
-public class RoleMapping {
+import java.io.Serializable;
+import java.util.Iterator;
 
-	private LocalRole localRole = null;
-	private String remoteRole = null;
+import org.apache.axiom.om.OMElement;
 
-	public RoleMapping() {
+public class RoleMapping implements Serializable {
 
-	}
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -2116444950898503844L;
 
-	/**
-	 * 
-	 * @param localRole
-	 * @param remoteRole
-	 */
-	public RoleMapping(LocalRole localRole, String remoteRole) {
-		this.localRole = localRole;
-		this.remoteRole = remoteRole;
-	}
+    private LocalRole localRole = null;
+    private String remoteRole = null;
 
-	public String getRemoteRole() {
-		return remoteRole;
-	}
+    public RoleMapping() {
 
-	public void setRemoteRole(String remoteRole) {
-		this.remoteRole = remoteRole;
-	}
+    }
 
-	public LocalRole getLocalRole() {
-		return localRole;
-	}
+    /**
+     * 
+     * @param localRole
+     * @param remoteRole
+     */
+    public RoleMapping(LocalRole localRole, String remoteRole) {
+        this.localRole = localRole;
+        this.remoteRole = remoteRole;
+    }
 
-	public void setLocalRole(LocalRole localRole) {
-		this.localRole = localRole;
-	}
+    public String getRemoteRole() {
+        return remoteRole;
+    }
+
+    public void setRemoteRole(String remoteRole) {
+        this.remoteRole = remoteRole;
+    }
+
+    public LocalRole getLocalRole() {
+        return localRole;
+    }
+
+    public void setLocalRole(LocalRole localRole) {
+        this.localRole = localRole;
+    }
+
+    /*
+     * <RoleMapping> <localRole></localRole> <remoteRole></remoteRole> </RoleMapping>
+     */
+    public static RoleMapping build(OMElement roleMappingOM) {
+        RoleMapping roleMapping = new RoleMapping();
+
+        Iterator<?> iter = roleMappingOM.getChildElements();
+
+        while (iter.hasNext()) {
+            OMElement element = (OMElement) (iter.next());
+            String elementName = element.getLocalName();
+
+            if (elementName.equals("localRole")) {
+                roleMapping.setLocalRole(LocalRole.build(element));
+            }
+            if (elementName.equals("remoteRole")) {
+                roleMapping.setRemoteRole(element.getText());
+            }
+        }
+
+        return roleMapping;
+    }
 
 }

@@ -18,9 +18,11 @@
 
 package org.wso2.carbon.identity.application.common.model;
 
+import org.apache.axiom.om.OMElement;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.io.Serializable;
+import java.util.Iterator;
 
 public class LocalRole implements Serializable {
 
@@ -36,16 +38,16 @@ public class LocalRole implements Serializable {
      */
     private String userStoreId;
 
-    public LocalRole(){
+    public LocalRole() {
 
     }
 
-    public LocalRole(String userStoreId, String localRoleName){
+    public LocalRole(String userStoreId, String localRoleName) {
         this.userStoreId = userStoreId;
         this.localRoleName = localRoleName;
     }
 
-    public LocalRole(String combinedRoleName){
+    public LocalRole(String combinedRoleName) {
         this.userStoreId = UserCoreUtil.extractDomainFromName(combinedRoleName);
         this.localRoleName = UserCoreUtil.removeDomainFromName(combinedRoleName);
     }
@@ -68,13 +70,17 @@ public class LocalRole implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         LocalRole localRole1 = (LocalRole) o;
 
-        if (!localRoleName.equals(localRole1.localRoleName)) return false;
-        if (userStoreId != null ? !userStoreId.equals(localRole1.userStoreId) : localRole1.userStoreId != null)
+        if (!localRoleName.equals(localRole1.localRoleName))
+            return false;
+        if (userStoreId != null ? !userStoreId.equals(localRole1.userStoreId)
+                : localRole1.userStoreId != null)
             return false;
 
         return true;
@@ -85,5 +91,28 @@ public class LocalRole implements Serializable {
         int result = localRoleName.hashCode();
         result = 31 * result + (userStoreId != null ? userStoreId.hashCode() : 0);
         return result;
+    }
+
+    /*
+     * <LocalRole> <LocalRoleName></LocalRoleName> <UserStoreId></UserStoreId> </LocalRole>
+     */
+    public static LocalRole build(OMElement localRoleOM) {
+        LocalRole localRole = new LocalRole();
+
+        Iterator<?> iter = localRoleOM.getChildElements();
+
+        while (iter.hasNext()) {
+            OMElement element = (OMElement) (iter.next());
+            String elementName = element.getLocalName();
+
+            if (elementName.equals("LocalRoleName")) {
+                localRole.setLocalRoleName(element.getText());
+            } else if (elementName.equals("UserStoreId")) {
+                localRole.setUserStoreId(element.getText());
+            }
+
+        }
+
+        return localRole;
     }
 }
