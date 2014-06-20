@@ -16,20 +16,28 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.application.authenticator.samlsso.exception;
+package org.wso2.carbon.identity.application.authenticator.samlsso.model;
 
-import javax.servlet.ServletException;
+import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorStateInfo;
 
-/**
- *  This class is used to denote exceptions thrown from the SAML2 SSO Authenticator module
- */
-public class SAMLSSOException extends ServletException {
+public class StateInfo extends AuthenticatorStateInfo {
+	
+	private String sessionIndex;
+	private String subject;
 
-    public SAMLSSOException(String message) {
-        super(message);
-    }
+	public String getSessionIndex() {
+		return sessionIndex;
+	}
 
-    public SAMLSSOException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public void setSessionIndex(String sessionIndex) {
+		this.sessionIndex = sessionIndex;
+	}
+
+	public String getSubject() {
+		return subject;
+	}
+
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
 }

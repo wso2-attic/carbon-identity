@@ -1,23 +1,40 @@
 /*
-*  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.application.authenticator.samlsso.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.security.cert.CertificateEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
+
+import javax.xml.namespace.QName;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.signature.XMLSignature;
 import org.opensaml.saml2.core.AuthnRequest;
@@ -35,18 +52,11 @@ import org.opensaml.xml.util.Base64;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.application.authenticator.samlsso.exception.SAMLSSOException;
-
-import javax.xml.namespace.QName;
-import java.net.URLEncoder;
-import java.security.cert.CertificateEncodingException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.logging.Logger;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 
 public class SSOUtils {
 
-    private static Logger LOGGER = Logger.getLogger("InfoLogging");
+    private static Log log = LogFactory.getLog(SSOUtils.class);
 
 	/**
      * Generates a unique Id for Authentication Requests
@@ -218,4 +228,140 @@ public class SSOUtils {
                 objectQName.getPrefix());
     }
 
+    /**
+     * Decoding and deflating the encoded AuthReq
+     *
+     * @param encodedStr
+     *            encoded AuthReq
+     * @return decoded AuthReq
+     */
+    public static String decode(String encodedStr) throws SAMLSSOException {
+        try {
+            encodedStr = java.net.URLDecoder.decode(encodedStr, "UTF-8");
+            
+            org.apache.commons.codec.binary.Base64 base64Decoder =
+                    new org.apache.commons.codec.binary.Base64();
+            byte[] xmlBytes = encodedStr.getBytes("UTF-8");
+            byte[] base64DecodedByteArray = base64Decoder.decode(xmlBytes);
+
+            try {
+                //TODO if the request came in POST, inflating is wrong
+                Inflater inflater = new Inflater(true);
+                inflater.setInput(base64DecodedByteArray);
+                byte[] xmlMessageBytes = new byte[5000];
+                int resultLength = inflater.inflate(xmlMessageBytes);
+
+                if (inflater.getRemaining() > 0) {
+                    throw new RuntimeException("didn't allocate enough space to hold "
+                            + "decompressed data");
+                }
+
+                inflater.end();
+                String decodedString = new String(xmlMessageBytes, 0, resultLength, "UTF-8");
+                if(log.isDebugEnabled()) {
+                    log.debug("Request message " + decodedString);
+                }
+                return decodedString;
+
+            } catch (DataFormatException e) {
+                ByteArrayInputStream bais = new ByteArrayInputStream(base64DecodedByteArray);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                InflaterInputStream iis = new InflaterInputStream(bais);
+                byte[] buf = new byte[1024];
+                int count = iis.read(buf);
+                while (count != -1) {
+                    baos.write(buf, 0, count);
+                    count = iis.read(buf);
+                }
+                iis.close();
+                String decodedStr = new String(baos.toByteArray());
+                if(log.isDebugEnabled()) {
+                    log.debug("Request message " + decodedStr);
+                }
+                return decodedStr;
+            }
+        } catch (IOException e) {
+            throw new SAMLSSOException("Error when decoding the SAML Request.", e);
+        }
+
+    }
+
+    public static String decodeForPost(String encodedStr)
+            throws SAMLSSOException {
+        try {
+            org.apache.commons.codec.binary.Base64 base64Decoder = new org.apache.commons.codec.binary.Base64();
+            byte[] xmlBytes = encodedStr.getBytes("UTF-8");
+            byte[] base64DecodedByteArray = base64Decoder.decode(xmlBytes);
+
+            String decodedString = new String(base64DecodedByteArray, "UTF-8");
+            if (log.isDebugEnabled()) {
+                log.debug("Request message " + decodedString);
+            }
+            return decodedString;
+
+        } catch (IOException e) {
+            throw new SAMLSSOException(
+                    "Error when decoding the SAML Request.", e);
+        }
+    }
+
+    public static boolean isAuthnRequestSigned(Map<String,String> properties) {
+        if (properties != null) {
+            String prop = properties.get(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_REQ_SIGNED);
+            if(prop != null){
+                return Boolean.parseBoolean(prop);
+            }
+        }
+        return false;
+    }
+
+    public static boolean isLogoutEnabled(Map<String,String> properties) {
+        if (properties != null) {
+        	String prop = properties.get(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_LOGOUT_ENABLED);
+            if(prop != null){
+                return Boolean.parseBoolean(prop);
+            }
+        }
+        return false;
+    }
+
+    public static boolean isLogoutRequestSigned(Map<String,String> properties) {
+        if (properties != null) {
+        	String prop = properties.get(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_LOGOUT_REQ_SIGNED);
+            if(prop != null){
+                return Boolean.parseBoolean(prop);
+            }
+        }
+        return false;
+    }
+
+    public static boolean isAuthnResponseSigned(Map<String,String> properties) {
+        if (properties != null) {
+        	String prop = properties.get(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_RESP_SIGNED);
+            if(prop != null){
+                return Boolean.parseBoolean(prop);
+            }
+        }
+        return false;
+    }
+    
+    public static boolean isAssertionSigningEnabled(Map<String,String> properties) {
+        if (properties != null) {
+        	String prop = properties.get(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_ENABLE_ASSERTION_SIGNING);
+            if(prop != null){
+                return Boolean.parseBoolean(prop);
+            }
+        }
+        return false;
+    }
+    
+    public static boolean isAssertionEncryptionEnabled(Map<String, String> properties) {
+        if (properties != null) {
+        	String prop = properties.get(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_ENABLE_ASSERTION_ENCRYPTION);
+            if(prop != null){
+                return Boolean.parseBoolean(prop);
+            }
+        }
+        return false;
+    }
 }
