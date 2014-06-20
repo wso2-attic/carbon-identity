@@ -21,6 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openid4java.association.Association;
@@ -29,7 +30,6 @@ import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.provider.openid.OpenIDServerConstants;
 
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 /**
  * The DAO used to access the identity database. This basically store, load and
