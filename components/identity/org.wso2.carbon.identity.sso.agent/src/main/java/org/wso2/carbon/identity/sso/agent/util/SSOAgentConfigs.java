@@ -53,6 +53,7 @@ public class SSOAgentConfigs {
     private static Boolean isAssertionSigned;
     private static Boolean isAssertionEncrypted;
     private static Boolean isRequestSigned;
+    private static Boolean isForceAuthn;
     private static String ssoAgentCredentialImplClass;
     private static InputStream keyStoreStream;
     private static String keyStorePassword;
@@ -70,6 +71,8 @@ public class SSOAgentConfigs {
     private static String attributesRequestorImplClass;
     
     private static String requestQueryParameters;
+    
+    private static String addExtension;
 
     public static void initConfig(FilterConfig fConfigs) throws SSOAgentException {
         
@@ -178,6 +181,13 @@ public class SSOAgentConfigs {
             LOGGER.info("\'SAML.EnableRequestSigning\' not configured. Defaulting to \'false\'");
             isRequestSigned = false;
         }
+        
+        if(properties.getProperty("SAML.EnableForceAuthentication") != null){
+            isForceAuthn = Boolean.parseBoolean(properties.getProperty("SAML.EnableForceAuthentication"));
+        } else {
+            LOGGER.info("\'SAML.EnableForceAuthentication\' not configured. Defaulting to \'false\'");
+            isForceAuthn = false;
+        }
 
         ssoAgentCredentialImplClass = properties.getProperty("SAML.SSOAgentCredentialImplClass");
         if(properties.getProperty("KeyStore") != null){
@@ -202,6 +212,8 @@ public class SSOAgentConfigs {
         attributesRequestorImplClass = properties.getProperty("OpenID.AttributesRequestorImplClass");
 
         requestQueryParameters = properties.getProperty("SAML.Request.Query.Param");
+
+        addExtension = properties.getProperty("SAML.Request.Add.Extension");
 
     }
 
@@ -401,6 +413,10 @@ public class SSOAgentConfigs {
     public static boolean isRequestSigned() {
         return isRequestSigned;
     }
+    
+    public static boolean isForceAuthn() {
+        return isForceAuthn;
+    }
 
     public static String getSSOAgentCredentialImplClass() {
         return ssoAgentCredentialImplClass;
@@ -533,6 +549,10 @@ public class SSOAgentConfigs {
     public static void setRequestSigned(Boolean requestSigned) {
         isRequestSigned = requestSigned;
     }
+    
+    public static void setForceAuthn(Boolean forceAuthn) {
+        isForceAuthn = forceAuthn;
+    }
 
     public static void setSSOAgentCredentialImplClass(String ssoAgentCredentialImplClass) {
         SSOAgentConfigs.ssoAgentCredentialImplClass = ssoAgentCredentialImplClass;
@@ -602,6 +622,14 @@ public class SSOAgentConfigs {
 
     public static String getRequestQueryParameters() {
         return requestQueryParameters;
+    }
+
+    public static String getAddExtension() {
+        return addExtension;
+    }
+
+    public static void setAddExtension(String addExtension) {
+        SSOAgentConfigs.addExtension = addExtension;
     }
 
     /**
