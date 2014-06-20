@@ -48,7 +48,7 @@
 		else if($('#isPost').val() == "false" && ($("#samlReqest").val().indexOf('http') == -1 || $("#samlReqest").val().indexOf('SAMLRequest') == -1))
 		{
 	        CARBON.showWarningDialog(
-	               	"SAML Request format is invlid.",
+	               	"SAML Request format is invalid.",
 	                null, null);
 			return false;
 		}

@@ -41,9 +41,9 @@
 <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
 <script type="text/javascript">
 	function doValidation(){
-		if($("#issuer").val()== null || $("#issuer").val().length == 0){
+		if($("#issuer").length == 0 && $("#issuer").val() == null || $("#issuer").val().length == 0){
 	        CARBON.showWarningDialog(
-	               	"Please register at least one Service Provider.",
+	               	"Please register at least one SAML2 SSO enabled Service Provider.",
 	                null, null);
 			return false;
 		}
@@ -111,7 +111,7 @@
 							<div style="width: 100%;">
 								<div style="width: 100%;"><textarea type="text"
 								name="samlResponse" id="samlResponse" class="text-box-big"
-								style="width: 99%; height: 250px; background: #FFFFFF;" autocomplete="off" disabled><%=responseDTO.getXmlResponse()%></textarea></div>
+								style="width: 99%; height: 250px; background: #FFFFFF;" autocomplete="off" readonly><%=responseDTO.getXmlResponse()%></textarea></div>
 							</div>
 						</div>
 					<h2 style="padding-top: 20px" >Encoded SAML Response</h2>
@@ -119,7 +119,7 @@
 							<div style="width: 100%;">
 								<div style="width: 100%;"><textarea type="text"
 								name="samlResponse" id="samlResponse" class="text-box-big"
-								style="width: 99%; height: 250px; background: #FFFFFF;" autocomplete="off" disabled><%=responseDTO.getEncodedResponse()%></textarea></div>
+								style="width: 99%; height: 250px; background: #FFFFFF;" autocomplete="off" readonly><%=responseDTO.getEncodedResponse()%></textarea></div>
 							</div>
 						</div>
 			<%
@@ -137,7 +137,7 @@
 						<td>Issuer <span class="required">*</span></td>
 						<td>
 							<%
-								if (issuers != null && issuers.length > 0) {
+								if (issuers != null && issuers.length > 0 && issuers[0] != null) {
 							%> 
 							<select id="issuer" name="issuer" class="text-box-big">
 							<% for(String issuerItem : issuers){ 
@@ -149,8 +149,10 @@
  							%> 
 							</select> 
 							<%
- 								}
+ 								} else {
  							%> 
+ 								There are no SAML2 SSO enabled Service Providers in the system.
+ 							<%  } %>
  							<input type="hidden" id="buildResponse" name="buildResponse" value="true">
 						</td>
 					</tr>

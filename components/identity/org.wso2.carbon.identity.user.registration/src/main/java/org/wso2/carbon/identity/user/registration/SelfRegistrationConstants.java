@@ -26,4 +26,11 @@ package org.wso2.carbon.identity.user.registration;
     public final static String ROLE_NAME_PROPERTY = "SelfSignUp.SignUpRole.Name";
 
     public final static String ROLE_EXTERNAL_PROPERTY = "SelfSignUp.SignUpRole.External";
- }
+    public static final String SIGN_UP_CONFIG_REG_PATH = "/repository/identity/sign-up-config";
+    public static final String SELF_SIGN_UP_ELEMENT = "SelfSignUp";
+    public static final String SIGN_UP_DOMAIN_ELEMENT = "SignUpDomain";
+    public static final String IS_EXTERNAL_ELEMENT = "IsExternalRole";
+    public static final String ROLE_NAME_ELEMENT = "RoleName";
+    public static final String SIGN_UP_ROLE_ELEMENT = "SignUpRole";
+    public static final String SIGN_UP_ROLE_CLAIM_URI = "http://wso2.org/claims/signuprole";
+}

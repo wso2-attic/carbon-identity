@@ -1,8 +1,14 @@
 package org.wso2.carbon.identity.sts.passive.ui.dto;
 
+import java.io.Serializable;
 
-public class SessionDTO {
-	//wa
+
+public class SessionDTO implements Serializable{
+	/**
+     * 
+     */
+    private static final long serialVersionUID = -7913481758803777374L;
+    //wa
 	private String action;
 	//wattr
 	private String attributes;

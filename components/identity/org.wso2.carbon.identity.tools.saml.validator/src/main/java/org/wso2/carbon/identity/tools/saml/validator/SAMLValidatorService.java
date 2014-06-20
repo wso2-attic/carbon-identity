@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2007 WSO2, Inc. (http://wso2.com)
+ * Copyright 2005-2014 WSO2, Inc. (http://wso2.com)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,6 @@
 
 package org.wso2.carbon.identity.tools.saml.validator;
 
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml2.core.AuthnRequest;
@@ -35,8 +31,13 @@ import org.wso2.carbon.identity.tools.saml.validator.processors.SAMLResponseBuil
 import org.wso2.carbon.identity.tools.saml.validator.util.SAMLValidatorConstants;
 import org.wso2.carbon.identity.tools.saml.validator.util.SAMLValidatorUtil;
 
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class SAMLValidatorService {
-	private static Log log = LogFactory.getLog(SAMLValidatorService.class);
+
+    private static Log log = LogFactory.getLog(SAMLValidatorService.class);
 
 	public ValidatedItemDTO[] validateAuthnRequest(String samlRequest, boolean isPost) {
 		List<ValidatedItemDTO> validatedItems = new ArrayList<ValidatedItemDTO>();

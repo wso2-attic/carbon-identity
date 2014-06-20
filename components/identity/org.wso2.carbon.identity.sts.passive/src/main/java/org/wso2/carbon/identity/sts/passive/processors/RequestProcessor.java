@@ -75,9 +75,13 @@ public abstract class RequestProcessor {
             dialect = UserCoreConstants.DEFAULT_CARBON_DIALECT;
         }
 
-        if (attrs != null) {
-            attributes = attrs.split(",");
-        }
+		if (attrs != null) {
+			if (attrs.contains("#CODE#")) {
+				attributes = attrs.split("#CODE#");
+			} else {
+				attributes = attrs.split(",");
+			}
+		}
 
         requestType = TrustUtil.getWSTNamespaceForRSTRequestTye(RahasConstants.VERSION_05_12)
                       + RahasConstants.REQ_TYPE_ISSUE;
