@@ -24,7 +24,6 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.scim.common.config.SCIMProvisioningConfigManager;
 import org.wso2.carbon.identity.scim.common.group.SCIMGroupHandler;
-import org.wso2.carbon.identity.scim.common.impl.DefaultSCIMProvisioningHandler;
 import org.wso2.carbon.identity.scim.common.utils.AttributeMapper;
 import org.wso2.carbon.identity.scim.common.utils.IdentitySCIMException;
 import org.wso2.carbon.identity.scim.common.utils.SCIMCommonConstants;
@@ -43,15 +42,13 @@ import org.wso2.charon.core.exceptions.CharonException;
 import org.wso2.charon.core.exceptions.NotFoundException;
 import org.wso2.charon.core.objects.Group;
 import org.wso2.charon.core.objects.User;
+import org.wso2.charon.core.provisioning.ProvisioningHandler;
 import org.wso2.charon.core.schema.SCIMConstants;
 import org.wso2.charon.core.util.AttributeUtil;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -66,6 +63,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
 
     //to make provisioning to other providers asynchronously happen.
     private ExecutorService provisioningThreadPool = Executors.newCachedThreadPool();
+    private String provisioningHandlerImplClass= SCIMProvisioningConfigManager.getProvisioningHandlers()[0];
 
     public int getExecutionOrderId() {
         return 1;
@@ -182,11 +180,11 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
 
                 //TODO if groups are set (through) carbon APIs, then need to send a update group provisioning request as well.
                 //but for the moment, do group-mgt operations through group resource.
-                
+
                 //create a map with provisioning data
                 Map<String, Object> provisioningData = new HashMap<String, Object>();
-                
-                provisioningThreadPool.submit(new DefaultSCIMProvisioningHandler(
+
+                provisioningThreadPool.submit(getProvisioningHandlerFromUser(
                         consumerUserId, user, SCIMConstants.POST, null));
             }
         } catch (NotFoundException e) {
@@ -199,8 +197,6 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException(e);
         }
-
-
 
     }
 
@@ -268,9 +264,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
 						user.setUserName(userName);
 						user.setPassword((String) credential);
 						provisioningThreadPool
-								.submit(new DefaultSCIMProvisioningHandler(
-										consumerUserId, user,
-										SCIMConstants.PUT, null));
+								.submit(getProvisioningHandlerFromUser(consumerUserId, user, SCIMConstants.PUT, null));
 					}
 				}
 			} catch (CharonException e) {
@@ -302,8 +296,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
             if (isProvisioningActionAuthorized(false, null) && isSCIMConsumerEnabled(consumerUserId)) {
                 user = new User();
                 user.setUserName(userName);
-                provisioningThreadPool.submit(new DefaultSCIMProvisioningHandler(
-                        consumerUserId, user, SCIMConstants.DELETE, null));
+                provisioningThreadPool.submit(getProvisioningHandlerFromUser(consumerUserId, user, SCIMConstants.DELETE, null));
             }
         } catch (CharonException e) {
             throw new UserStoreException("Error in provisioning delete operation");
@@ -389,7 +382,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
 									}
                                 user = (User) AttributeMapper.constructSCIMObjectFromAttributes(
                                         attributes, SCIMConstants.USER_INT);
-                                provisioningThreadPool.submit(new DefaultSCIMProvisioningHandler(
+                                provisioningThreadPool.submit(getProvisioningHandlerFromUser(
                                         consumerUserId, user, SCIMConstants.PUT, null));
                             }
                         }
@@ -487,7 +480,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                         group.setMember(members);
                     }
                 }
-                provisioningThreadPool.submit(new DefaultSCIMProvisioningHandler(
+                provisioningThreadPool.submit(getProvisioningHandlerFromGroup(
                         consumerUserId, group, SCIMConstants.POST, null));
             }
         } catch (CharonException e) {
@@ -535,8 +528,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
             if (isProvisioningActionAuthorized(false, null) && isSCIMConsumerEnabled(consumerUserId)) {
                 group = new Group();
                 group.setDisplayName(roleName);
-                provisioningThreadPool.submit(new DefaultSCIMProvisioningHandler(
-                        consumerUserId, group, SCIMConstants.DELETE, null));
+                provisioningThreadPool.submit(getProvisioningHandlerFromGroup(consumerUserId, group, SCIMConstants.DELETE, null));
             }
         } catch (CharonException e) {
             throw new UserStoreException("Error in provisioning delete operation");
@@ -600,7 +592,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                 Group group = new Group();
                 group.setDisplayName(newRoleName);
 
-                provisioningThreadPool.submit(new DefaultSCIMProvisioningHandler(
+                provisioningThreadPool.submit(getProvisioningHandlerFromGroup(
                         consumerUserId, group, SCIMConstants.PUT, additionalInformation));
             }
         } catch (CharonException e) {
@@ -648,7 +640,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                         group.setMember(members);
                     }
                 }
-                provisioningThreadPool.submit(new DefaultSCIMProvisioningHandler(
+                provisioningThreadPool.submit(getProvisioningHandlerFromGroup(
                         consumerUserId, group, SCIMConstants.PUT, null));
             }
         } catch (CharonException e) {
@@ -778,4 +770,58 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
         return false;
     }
 
+    /**
+     * Provides an instance of the configured provisioning handler
+     * @param consumerUserId
+     * @param user
+     * @param httpMethod
+     * @param additionalInformation
+     * @return
+     */
+    private ProvisioningHandler getProvisioningHandlerFromUser(String consumerUserId, User user, int httpMethod,
+                                                       Map<String, Object> additionalInformation){
+        ProvisioningHandler provisioningHandler = null;
+        try {
+            Class<?> c = Class.forName(provisioningHandlerImplClass);
+            Constructor<?> cons = c.getConstructor(String.class, User.class, int.class, Map.class);
+            provisioningHandler = (ProvisioningHandler) cons.newInstance(consumerUserId,user,httpMethod,additionalInformation);
+
+        } catch (ClassNotFoundException e) {
+            log.error("Cannot find class: " + provisioningHandlerImplClass);
+        } catch (InstantiationException e) {
+            log.error("Error instantiating: " + provisioningHandlerImplClass);
+        } catch (IllegalAccessException e) {
+            log.error("Error while initializing " + provisioningHandlerImplClass);
+        } catch (NoSuchMethodException e) {
+            log.error("Error while initializing " + provisioningHandlerImplClass);
+        } catch (InvocationTargetException e) {
+            log.error("Error while initializing " + provisioningHandlerImplClass);
+        }
+
+        return provisioningHandler;
+    }
+
+    private ProvisioningHandler getProvisioningHandlerFromGroup(String consumerUserId, Group group, int httpMethod,
+                                                               Map<String, Object> additionalInformation){
+        ProvisioningHandler provisioningHandler = null;
+        try {
+
+            Class<?> c = Class.forName(provisioningHandlerImplClass);
+            Constructor<?> cons = c.getConstructor(String.class, Group.class, int.class, Map.class);
+            provisioningHandler = (ProvisioningHandler) cons.newInstance(consumerUserId,group,httpMethod,additionalInformation);
+
+        } catch (ClassNotFoundException e) {
+            log.error("Cannot find class: " + provisioningHandlerImplClass);
+        } catch (InstantiationException e) {
+            log.error("Error instantiating: " + provisioningHandlerImplClass);
+        } catch (IllegalAccessException e) {
+            log.error("Error while initializing " + provisioningHandlerImplClass);
+        } catch (NoSuchMethodException e) {
+            log.error("Error while initializing " + provisioningHandlerImplClass);
+        } catch (InvocationTargetException e) {
+            log.error("Error while initializing " + provisioningHandlerImplClass);
+        }
+
+        return provisioningHandler;
+    }
 }

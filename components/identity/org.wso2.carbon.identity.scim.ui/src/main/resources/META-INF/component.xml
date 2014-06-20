@@ -17,7 +17,7 @@
  -->
 <component xmlns="http://products.wso2.org/carbon">
 	<menus>
-		<menu>
+	<menu>
             <id>scim_menu</id>
             <i18n-key>identity.scim</i18n-key>
             <i18n-bundle>org.wso2.carbon.identity.scim.ui.i18n.Resources</i18n-bundle>

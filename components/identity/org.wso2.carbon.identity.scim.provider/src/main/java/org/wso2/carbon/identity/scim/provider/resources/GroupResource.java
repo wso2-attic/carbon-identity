@@ -17,24 +17,6 @@
 */
 package org.wso2.carbon.identity.scim.provider.resources;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.scim.provider.impl.IdentitySCIMManager;
-import org.wso2.carbon.identity.scim.provider.util.JAXRSResponseBuilder;
-import org.wso2.charon.core.encoder.Encoder;
-import org.wso2.charon.core.exceptions.BadRequestException;
-import org.wso2.charon.core.exceptions.CharonException;
-import org.wso2.charon.core.exceptions.FormatNotSupportedException;
-import org.wso2.charon.core.exceptions.UnauthorizedException;
-import org.wso2.charon.core.extensions.AuthenticationInfo;
-import org.wso2.charon.core.extensions.UserManager;
-import org.wso2.charon.core.protocol.ResponseCodeConstants;
-import org.wso2.charon.core.protocol.SCIMResponse;
-import org.wso2.charon.core.protocol.endpoints.AbstractResourceEndpoint;
-import org.wso2.charon.core.protocol.endpoints.GroupResourceEndpoint;
-import org.wso2.charon.core.protocol.endpoints.UserResourceEndpoint;
-import org.wso2.charon.core.schema.SCIMConstants;
-
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -46,8 +28,21 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.HashMap;
-import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.scim.provider.impl.IdentitySCIMManager;
+import org.wso2.carbon.identity.scim.provider.util.JAXRSResponseBuilder;
+import org.wso2.charon.core.encoder.Encoder;
+import org.wso2.charon.core.exceptions.BadRequestException;
+import org.wso2.charon.core.exceptions.CharonException;
+import org.wso2.charon.core.exceptions.FormatNotSupportedException;
+import org.wso2.charon.core.extensions.UserManager;
+import org.wso2.charon.core.protocol.ResponseCodeConstants;
+import org.wso2.charon.core.protocol.SCIMResponse;
+import org.wso2.charon.core.protocol.endpoints.AbstractResourceEndpoint;
+import org.wso2.charon.core.protocol.endpoints.GroupResourceEndpoint;
+import org.wso2.charon.core.schema.SCIMConstants;
 
 @Path("/")
 public class GroupResource extends AbstractResource {
@@ -90,7 +85,9 @@ public class GroupResource extends AbstractResource {
             return new JAXRSResponseBuilder().buildResponse(scimResponse);
 
         } catch (CharonException e) {
-            e.printStackTrace();
+            if (logger.isDebugEnabled()) {
+                logger.debug(e.getMessage(), e);
+            }
             //create SCIM response with code as the same of exception and message as error message of the exception
             if (e.getCode() == -1) {
                 e.setCode(ResponseCodeConstants.CODE_INTERNAL_SERVER_ERROR);
@@ -98,7 +95,9 @@ public class GroupResource extends AbstractResource {
             return new JAXRSResponseBuilder().buildResponse(
                     AbstractResourceEndpoint.encodeSCIMException(encoder, e));
         } catch (FormatNotSupportedException e) {
-            e.printStackTrace();
+            if (logger.isDebugEnabled()) {
+                logger.debug(e.getMessage(), e);
+            }
             return new JAXRSResponseBuilder().buildResponse(
                     AbstractResourceEndpoint.encodeSCIMException(encoder, e));
         }
@@ -146,7 +145,9 @@ public class GroupResource extends AbstractResource {
             return new JAXRSResponseBuilder().buildResponse(response);
 
         } catch (CharonException e) {
-            e.printStackTrace();
+            if (logger.isDebugEnabled()) {
+                logger.debug(e.getMessage(), e);
+            }
             //create SCIM response with code as the same of exception and message as error message of the exception
             if (e.getCode() == -1) {
                 e.setCode(ResponseCodeConstants.CODE_INTERNAL_SERVER_ERROR);
@@ -154,7 +155,9 @@ public class GroupResource extends AbstractResource {
             return new JAXRSResponseBuilder().buildResponse(
                     AbstractResourceEndpoint.encodeSCIMException(encoder, e));
         } catch (FormatNotSupportedException e) {
-            e.printStackTrace();
+            if (logger.isDebugEnabled()) {
+                logger.debug(e.getMessage(), e);
+            }
             return new JAXRSResponseBuilder().buildResponse(
                     AbstractResourceEndpoint.encodeSCIMException(encoder, e));
         }
@@ -197,7 +200,9 @@ public class GroupResource extends AbstractResource {
             return new JAXRSResponseBuilder().buildResponse(scimResponse);
 
         } catch (CharonException e) {
-            e.printStackTrace();
+            if (logger.isDebugEnabled()) {
+                logger.debug(e.getMessage(), e);
+            }
             //create SCIM response with code as the same of exception and message as error message of the exception
             if (e.getCode() == -1) {
                 e.setCode(ResponseCodeConstants.CODE_INTERNAL_SERVER_ERROR);
@@ -261,7 +266,9 @@ public class GroupResource extends AbstractResource {
             return new JAXRSResponseBuilder().buildResponse(scimResponse);
 
         } catch (CharonException e) {
-            e.printStackTrace();
+            if (logger.isDebugEnabled()) {
+                logger.debug(e.getMessage(), e);
+            }
             //create SCIM response with code as the same of exception and message as error message of the exception
             if (e.getCode() == -1) {
                 e.setCode(ResponseCodeConstants.CODE_INTERNAL_SERVER_ERROR);
@@ -269,11 +276,15 @@ public class GroupResource extends AbstractResource {
             return new JAXRSResponseBuilder().buildResponse(
                     AbstractResourceEndpoint.encodeSCIMException(encoder, e));
         } catch (FormatNotSupportedException e) {
-            e.printStackTrace();
+            if (logger.isDebugEnabled()) {
+                logger.debug(e.getMessage(), e);
+            }
             return new JAXRSResponseBuilder().buildResponse(
                     AbstractResourceEndpoint.encodeSCIMException(encoder, e));
         } catch (BadRequestException e) {
-            e.printStackTrace();
+            if (logger.isDebugEnabled()) {
+                logger.debug(e.getMessage(), e);
+            }
             return new JAXRSResponseBuilder().buildResponse(
                     AbstractResourceEndpoint.encodeSCIMException(encoder, e));
         }
@@ -317,7 +328,9 @@ public class GroupResource extends AbstractResource {
             return new JAXRSResponseBuilder().buildResponse(response);
 
         } catch (CharonException e) {
-            e.printStackTrace();
+            if (logger.isDebugEnabled()) {
+                logger.debug(e.getMessage(), e);
+            }
             //create SCIM response with code as the same of exception and message as error message of the exception
             if (e.getCode() == -1) {
                 e.setCode(ResponseCodeConstants.CODE_INTERNAL_SERVER_ERROR);
@@ -325,7 +338,9 @@ public class GroupResource extends AbstractResource {
             return new JAXRSResponseBuilder().buildResponse(
                     AbstractResourceEndpoint.encodeSCIMException(encoder, e));
         } catch (FormatNotSupportedException e) {
-            e.printStackTrace();
+            if (logger.isDebugEnabled()) {
+                logger.debug(e.getMessage(), e);
+            }
             return new JAXRSResponseBuilder().buildResponse(
                     AbstractResourceEndpoint.encodeSCIMException(encoder, e));
         }

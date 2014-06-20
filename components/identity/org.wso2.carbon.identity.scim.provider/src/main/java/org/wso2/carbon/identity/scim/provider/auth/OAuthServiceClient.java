@@ -17,17 +17,18 @@
 */
 package org.wso2.carbon.identity.scim.provider.auth;
 
+import java.rmi.RemoteException;
+
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.oauth2.stub.OAuth2TokenValidationServiceStub;
+import org.wso2.carbon.identity.oauth2.stub.dto.OAuth2ClientApplicationDTO;
 import org.wso2.carbon.identity.oauth2.stub.dto.OAuth2TokenValidationRequestDTO;
 import org.wso2.carbon.identity.oauth2.stub.dto.OAuth2TokenValidationRequestDTO_OAuth2AccessToken;
 import org.wso2.carbon.identity.oauth2.stub.dto.OAuth2TokenValidationResponseDTO;
 import org.wso2.carbon.utils.CarbonUtils;
-
-import java.rmi.RemoteException;
 
 public class OAuthServiceClient {
     private OAuth2TokenValidationServiceStub stub = null;
@@ -72,6 +73,28 @@ public class OAuthServiceClient {
         oauthReq.setAccessToken(accessToken);
         try {
             return stub.validate(oauthReq);
+        } catch (RemoteException e) {
+            log.error("Error while validating OAuth2 request");
+            throw new Exception("Error while validating OAuth2 request", e);
+        }
+    }
+    
+    /**
+     * 
+     * @param accessTokenIdentifier
+     * @return
+     * @throws Exception
+     */
+    public OAuth2ClientApplicationDTO findOAuthConsumerIfTokenIsValid(String accessTokenIdentifier)
+            throws Exception {
+        OAuth2TokenValidationRequestDTO oauthReq = new OAuth2TokenValidationRequestDTO();
+        OAuth2TokenValidationRequestDTO_OAuth2AccessToken accessToken =
+                new OAuth2TokenValidationRequestDTO_OAuth2AccessToken ();
+        accessToken.setTokenType(BEARER_TOKEN_TYPE);
+        accessToken.setIdentifier(accessTokenIdentifier);
+        oauthReq.setAccessToken(accessToken);
+        try {
+            return stub.findOAuthConsumerIfTokenIsValid(oauthReq);
         } catch (RemoteException e) {
             log.error("Error while validating OAuth2 request");
             throw new Exception("Error while validating OAuth2 request", e);

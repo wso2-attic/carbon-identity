@@ -273,7 +273,10 @@ public class GroupDAO {
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }
-        return SCIMCommonUtils.getPrimaryFreeGroupName(roleName);
+        if (roleName != null && roleName.length() > 0) {
+            return SCIMCommonUtils.getPrimaryFreeGroupName(roleName);
+        }
+        return null;
     }
 
     public void updateRoleName(int tenantId, String oldRoleName, String newRoleName)

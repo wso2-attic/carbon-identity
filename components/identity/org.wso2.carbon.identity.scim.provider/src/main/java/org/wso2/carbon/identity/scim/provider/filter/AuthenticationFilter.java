@@ -17,11 +17,14 @@
 */
 package org.wso2.carbon.identity.scim.provider.filter;
 
+import javax.ws.rs.core.Response;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.jaxrs.ext.RequestHandler;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.message.Message;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.scim.provider.auth.SCIMAuthenticationHandler;
 import org.wso2.carbon.identity.scim.provider.auth.SCIMAuthenticatorRegistry;
 import org.wso2.carbon.identity.scim.provider.util.JAXRSResponseBuilder;
@@ -29,13 +32,15 @@ import org.wso2.charon.core.encoder.json.JSONEncoder;
 import org.wso2.charon.core.exceptions.UnauthorizedException;
 import org.wso2.charon.core.protocol.endpoints.AbstractResourceEndpoint;
 
-import javax.ws.rs.core.Response;
-
 public class AuthenticationFilter implements RequestHandler {
 
     private static Log log = LogFactory.getLog(AuthenticationFilter.class);
 
     public Response handleRequest(Message message, ClassResourceInfo classResourceInfo) {
+        
+        // reset anything set on provisioning thread local.
+        IdentityApplicationManagementUtil.resetThreadLocalProvisioningServiceProvider();
+        
         if (log.isDebugEnabled()) {
             log.debug("Authenticating SCIM request..");
         }
