@@ -23,7 +23,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 
-import org.wso2.carbon.identity.application.authentication.framework.config.dto.ExternalIdPConfig;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
 import org.wso2.carbon.identity.application.authenticator.passive.sts.exception.PassiveSTSException;
 
 public interface STSAgentCredential {
