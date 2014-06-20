@@ -18,15 +18,17 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.context;
 
-import org.wso2.carbon.identity.application.authentication.framework.config.dto.ExternalIdPConfig;
-import org.wso2.carbon.identity.application.authentication.framework.config.dto.SequenceConfig;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorStateInfo;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.SequenceConfig;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedIdPData;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 
 /**
  * This class is used for holding data about the
@@ -41,20 +43,47 @@ public class AuthenticationContext implements Serializable {
 	private String sessionIdentifier;
 	private String callerPath;
 	private String callerSessionKey;
+	private String relyingParty;
 	private String queryParams;
 	private String requestType;
 	private boolean isLogoutRequest;
-	private List<String> authenticatedAuthenticators = new ArrayList<String>();
 	private int currentStep;
 	private SequenceConfig sequenceConfig;
-	private String subject;
 	private HttpServletRequest currentRequest;
 	private ExternalIdPConfig externalIdP; 
 	private Map<String, Object> properties = new HashMap<String, Object>();
-	private boolean requestAuthenticated;
-	private boolean sequenceComplete;
-	private Map<String, String> subjectAttributes = new HashMap<String, String>();
 	private boolean rememberMe;
+    private String tenantDomain;
+    private int retryCount;
+    private Map<String, String> authenticatorProperties = new HashMap<String, String>();
+    private String serviceProviderName;
+    private String contextIdIncludedQueryParams;
+    private String currentAuthenticator;
+    
+    private boolean forceAuthenticate;
+    private boolean reAuthenticate;
+    private boolean passiveAuthenticate;
+    
+    private Map<String, AuthenticatedIdPData> previousAuthenticatedIdPs = new HashMap<String, AuthenticatedIdPData>();
+    private Map<String, AuthenticatedIdPData> currentAuthenticatedIdPs = new HashMap<String, AuthenticatedIdPData>();
+    
+    //flow controller flags
+    private boolean requestAuthenticated = true;
+	private boolean returning;
+	private boolean retrying;
+	private boolean previousSessionFound;
+    
+    //subject and subjectAttributes should be set by each authenticator
+    private String subject;
+    private Map<ClaimMapping, String> subjectAttributes = new HashMap<ClaimMapping, String>();
+    
+    /* Holds any (state) information that would be required by the authenticator
+	 * for later processing.
+	 * E.g. sessionIndex for SAMLSSOAuthenticator in SLO.
+	 * Each authenticator should have an internal DTO that extends the
+	 * AuthenticatorStateInfoDTO and set all the required state info in it.
+	 */
+    private AuthenticatorStateInfo stateInfo;
 	
 	public String getCallerPath() {
 		return callerPath;
@@ -95,14 +124,6 @@ public class AuthenticationContext implements Serializable {
 	public void setLogoutRequest(boolean isLogoutRequest) {
 		this.isLogoutRequest = isLogoutRequest;
 	}
-
-    public List<String> getAuthenticatedAuthenticators() {
-        return authenticatedAuthenticators;
-    }
-
-    public void setAuthenticatedAuthenticators(List<String> authenticatedAuthenticators) {
-        this.authenticatedAuthenticators = authenticatedAuthenticators;
-    }
 
     public int getCurrentStep() {
         return currentStep;
@@ -152,19 +173,11 @@ public class AuthenticationContext implements Serializable {
 		this.requestAuthenticated = requestAuthenticated;
 	}
 
-	public boolean isSequenceComplete() {
-		return sequenceComplete;
-	}
-
-	public void setSequenceComplete(boolean sequenceComplete) {
-		this.sequenceComplete = sequenceComplete;
-	}
-
-	public Map<String, String> getSubjectAttributes() {
+	public Map<ClaimMapping, String> getSubjectAttributes() {
 		return subjectAttributes;
 	}
 
-	public void setSubjectAttributes(Map<String, String> subjectAttributes) {
+	public void setSubjectAttributes(Map<ClaimMapping, String> subjectAttributes) {
 		this.subjectAttributes = subjectAttributes;
 	}
 
@@ -208,4 +221,136 @@ public class AuthenticationContext implements Serializable {
 		this.externalIdP = externalIdP;
 	}
 
+    public String getTenantDomain(){
+        return tenantDomain;
+    }
+
+    public void setTenantDomain(String tenantDomain){
+        this.tenantDomain = tenantDomain;
+    }
+
+	public AuthenticatorStateInfo getStateInfo() {
+		return stateInfo;
+	}
+
+	public void setStateInfo(AuthenticatorStateInfo stateInfo) {
+		this.stateInfo = stateInfo;
+	}
+
+	public int getRetryCount() {
+		return retryCount;
+	}
+
+	public void setRetryCount(int retryCount) {
+		this.retryCount = retryCount;
+	}
+
+	public Map<String, String> getAuthenticatorProperties() {
+		return authenticatorProperties;
+	}
+
+	public void setAuthenticatorProperties(
+			Map<String, String> authenticatorProperties) {
+		this.authenticatorProperties = authenticatorProperties;
+	}
+
+	public String getServiceProviderName() {
+		return serviceProviderName;
+	}
+
+	public void setServiceProviderName(String serviceProviderName) {
+		this.serviceProviderName = serviceProviderName;
+	}
+
+    public boolean isForceAuthenticate() {
+        return forceAuthenticate;
+    }
+
+    public boolean isPassiveAuthenticate() {
+        return passiveAuthenticate;
+    }
+
+    public void setQueryParams(String queryParams) {
+        this.queryParams = queryParams;
+    }
+
+    public void setForceAuthenticate(boolean forceAuthenticate) {
+        this.forceAuthenticate = forceAuthenticate;
+    }
+
+    public void setPassiveAuthenticate(boolean passiveAuthenticate) {
+        this.passiveAuthenticate = passiveAuthenticate;
+    }
+
+    public boolean isReAuthenticate() {
+        return reAuthenticate;
+    }
+
+    public void setReAuthenticate(boolean reAuthenticate) {
+        this.reAuthenticate = reAuthenticate;
+    }
+
+    public String getContextIdIncludedQueryParams() {
+        return contextIdIncludedQueryParams;
+    }
+
+    public void setContextIdIncludedQueryParams(String contextIdIncludedQueryParams) {
+        this.contextIdIncludedQueryParams = contextIdIncludedQueryParams;
+    }
+
+    public boolean isReturning() {
+        return returning;
+    }
+
+    public void setReturning(boolean returning) {
+        this.returning = returning;
+    }
+
+    public Map<String, AuthenticatedIdPData> getCurrentAuthenticatedIdPs() {
+        return currentAuthenticatedIdPs;
+    }
+
+    public void setCurrentAuthenticatedIdPs(Map<String, AuthenticatedIdPData> currentAuthenticatedIdPs) {
+        this.currentAuthenticatedIdPs = currentAuthenticatedIdPs;
+    }
+
+    public Map<String, AuthenticatedIdPData> getPreviousAuthenticatedIdPs() {
+        return previousAuthenticatedIdPs;
+    }
+
+    public void setPreviousAuthenticatedIdPs(Map<String, AuthenticatedIdPData> previousAuthenticatedIdPs) {
+        this.previousAuthenticatedIdPs = previousAuthenticatedIdPs;
+    }
+
+    public boolean isRetrying() {
+        return retrying;
+    }
+
+    public void setRetrying(boolean retrying) {
+        this.retrying = retrying;
+    }
+
+    public String getCurrentAuthenticator() {
+        return currentAuthenticator;
+    }
+
+    public void setCurrentAuthenticator(String currentAuthenticator) {
+        this.currentAuthenticator = currentAuthenticator;
+    }
+
+    public boolean isPreviousSessionFound() {
+        return previousSessionFound;
+    }
+
+    public void setPreviousSessionFound(boolean previousSessionFound) {
+        this.previousSessionFound = previousSessionFound;
+    }
+
+    public String getRelyingParty() {
+        return relyingParty;
+    }
+
+    public void setRelyingParty(String relyingParty) {
+        this.relyingParty = relyingParty;
+    }
 }

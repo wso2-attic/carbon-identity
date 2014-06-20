@@ -1,396 +1,422 @@
 /*
-*  Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *  Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.application.authentication.framework.handler.claims.impl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.claim.mgt.ClaimManagerHandler;
-import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
-import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
-import org.wso2.carbon.identity.application.authentication.framework.config.dto.ApplicationConfig;
-import org.wso2.carbon.identity.application.authentication.framework.config.dto.AuthenticatorConfig;
-import org.wso2.carbon.identity.application.authentication.framework.config.dto.ExternalIdPConfig;
-import org.wso2.carbon.identity.application.authentication.framework.config.dto.StepConfig;
+import org.wso2.carbon.core.util.AnonymousSessionUtil;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.ApplicationConfig;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.StepConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
 import org.wso2.carbon.identity.application.authentication.framework.handler.claims.ClaimHandler;
+import org.wso2.carbon.identity.application.authentication.framework.internal.FrameworkServiceComponent;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
-import org.wso2.carbon.identity.application.common.model.RoleMapping;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.user.api.ClaimManager;
-import org.wso2.carbon.user.api.ClaimMapping;
-import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
+import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 public class DefaultClaimHandler implements ClaimHandler {
-	
-	private static Log log = LogFactory.getLog(DefaultClaimHandler.class);
-	private static volatile DefaultClaimHandler instance;
-	
-	public static DefaultClaimHandler getInstance() {
-		if (instance == null) {
-			synchronized (DefaultClaimHandler.class) {
-				if (instance == null) {
-					instance = new DefaultClaimHandler();
-				}
-			}
-		}
-		return instance;
-	}
 
-	public Map<String, String> handle(AuthenticationContext context, ExternalIdPConfig externalIdPConfig, Map<String, String> extAttributes)
-							throws FrameworkException {
-		
-		if (extAttributes == null || extAttributes.isEmpty()) {
-			if (log.isDebugEnabled()) {
-				log.debug("No attributes given. Returning");
-			}
-			return null;
-		}
-		
-		ApplicationConfig appConfig = context.getSequenceConfig().getApplicationConfig();
+    private static Log log = LogFactory.getLog(DefaultClaimHandler.class);
+    private static volatile DefaultClaimHandler instance;
 
-		String requestingClientType = context.getRequestType();
-
-        String idPDialect = null;
-        Map<Integer,StepConfig> stepConfigs = context.getSequenceConfig().getStepMap();
-        for(Map.Entry<Integer,StepConfig> entry : stepConfigs.entrySet()){
-            StepConfig stepConfig = entry.getValue();
-            List<AuthenticatorConfig> authnConfigList = stepConfig.getAuthenticatorList();
-            for(AuthenticatorConfig authnConfig : authnConfigList){
-                ApplicationAuthenticator appAuthn = authnConfig.getApplicationAuthenticator();
-                if(appAuthn instanceof FederatedApplicationAuthenticator){
-                    idPDialect = appAuthn.getClaimDialectURIIfStandard();
+    public static DefaultClaimHandler getInstance() {
+        if (instance == null) {
+            synchronized (DefaultClaimHandler.class) {
+                if (instance == null) {
+                    instance = new DefaultClaimHandler();
                 }
             }
         }
+        return instance;
+    }
 
-        Set<String> standardDialects = null;
+    /**
+     * 
+     */
+    public Map<String, String> handleClaimMappings(StepConfig stepConfig,
+            AuthenticationContext context, Map<String, String> remoteAttributes,
+            boolean isFederatedClaims) throws FrameworkException {
+
+        if (isFederatedClaims) {
+
+            String requestingClientType = context.getRequestType();
+            ExternalIdPConfig externalIdPConfig = context.getExternalIdP();
+
+            ApplicationConfig appConfig = context.getSequenceConfig().getApplicationConfig();
+            String remoteIdpClaimDialect = stepConfig.getAuthenticatedAutenticator()
+                    .getApplicationAuthenticator().getClaimDialectURI();
+
+            String spDialect = getDialectUri(requestingClientType,
+                    appConfig.getRequestedClaimMappings() != null
+                            && appConfig.getRequestedClaimMappings().size() > 0);
+
+            return handleFederatedClaims(spDialect, appConfig.getClaimMappings(),
+                    remoteIdpClaimDialect, externalIdPConfig.getClaimMappings(), remoteAttributes,
+                    externalIdPConfig.useDefaultLocalIdpDialect(),
+                    appConfig.getRequestedClaimMappings(), context.getTenantDomain(), context);
+        } else {
+
+            String authenticatedUser = null;
+            
+            if (stepConfig != null) { 
+                //calling from StepBasedSequenceHandler
+                authenticatedUser = stepConfig.getAuthenticatedUser();
+            } else { 
+                //calling from RequestPathBasedSequenceHandler
+                authenticatedUser = context.getSequenceConfig().getAuthenticatedUser();
+            }
+            
+            return handleLocalClaims(authenticatedUser, context);
+        }
+    }
+
+    /**
+     * 
+     * @param allAttributes
+     * @param requestedClaimMappings
+     * @return
+     */
+    private Map<String, String> getFilteredAttributes(Map<String, String> allAttributes,
+            Map<String, String> requestedClaimMappings, boolean isStandardDialect) {
+
+        boolean hasClaimsRequested = false;
+
+        if (requestedClaimMappings != null && requestedClaimMappings.size() > 0) {
+            hasClaimsRequested = true;
+        }
+
+        Map<String, String> filteredAttributes = new HashMap<String, String>();
+
+        for (Iterator<Entry<String, String>> iterator = allAttributes.entrySet().iterator(); iterator
+                .hasNext();) {
+            Entry<String, String> entry = iterator.next();
+            if (!isStandardDialect && entry.getKey() != null && hasClaimsRequested
+                    && requestedClaimMappings.containsKey((entry.getKey()))) {
+                filteredAttributes.put(entry.getKey(), entry.getValue());
+            } else {
+                filteredAttributes.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        return filteredAttributes;
+
+    }
+
+    /**
+     * 
+     * @param spDialect
+     * @param spClaimMapping
+     * @param remoteIdpClaimDialect
+     * @param remoteIdpClaimMapping
+     * @param remoteAttributes
+     * @param useDefaultLocalIdpDialect
+     * @param spRequestedClaimMappings
+     * @param tenantName
+     * @param context
+     * @return
+     * @throws FrameworkException
+     */
+    protected Map<String, String> handleFederatedClaims(String spDialect,
+            Map<String, String> spClaimMapping, String remoteIdpClaimDialect,
+            ClaimMapping[] remoteIdpClaimMapping, Map<String, String> remoteAttributes,
+            boolean useDefaultLocalIdpDialect, Map<String, String> spRequestedClaimMappings,
+            String tenantName, AuthenticationContext context) throws FrameworkException {
+
+        Map<String, String> mappedAppClaims = new HashMap<String, String>();
+
         try {
-            standardDialects = ClaimManagerHandler.getInstance().getAllClaimDialects();
-        } catch (Exception e) {
-            throw new FrameworkException("Error occurred while retrieving all claim dialects");
-        }
 
-        // Do NOT do any conversion if the external IDP and Application speak the same language
-        String spDialect = getDialectUri(requestingClientType);
-        if(idPDialect != null && standardDialects.contains(idPDialect) && spDialect != null && spDialect != null &&
-                standardDialects.contains(spDialect) && spDialect.equals(idPDialect)){
-            log.debug("Federated IDP and SP are using common dialect. NO claim mapping required. Continuing!");
-            return extAttributes;
-        }
-
-		// ---------- Starting IDP to IDP Mapping ---------------------//
-		
-		// first role mapping from External IDP to local IDP
-		mapRolesOfExtIdpToLocalIdp(extAttributes, externalIdPConfig);
-		
-		// Claim Mapping from External IDP to local IDP
-
-		Map<String, String> mappedWso2Claims = getMappedWSO2Claims(context, extAttributes, idPDialect, standardDialects);
-
-
-		// add the metadata as claims 
-		mappedWso2Claims.put(FrameworkConstants.CLAIM_URI_WSO2_EXT_IDP, context.getExternalIdP().getIdPName());
-		
-		// ----------- END IDP to IDP Mapping ----------------------- //
-		
-		// ---------- Starting IDP to App Mappings -------------------//
-		
-		// first do the claims mapping
-		Map<String, String> appClaimMappings = appConfig.getClaimMappings();
-		Map<String, String> mappedAppClaims = getMappedAppClaims(mappedWso2Claims, appClaimMappings, requestingClientType);
-		
-		// then we do the IDP to App Role mapping
-		mapRolesOfLocalIdpToApp(mappedAppClaims, appConfig);
-		
-		// ----------- END IDP to IDP Mapping ----------------------- //
-		
-		return mappedAppClaims;
-	}
-	
-	@Override
-	public Map<String, String> handle(AuthenticationContext context) throws FrameworkException {
-		
-		try {
-			
-			ClaimManager claimManager = CarbonContext.getThreadLocalCarbonContext().getUserRealm()
-					.getClaimManager();
-			ClaimMapping[] mappings = claimManager.getAllClaimMappings("http://wso2.org/claims");
-			
-			List<String> allClaims = new ArrayList<String>();
-			for (ClaimMapping map : mappings) {
-				allClaims.add(map.getClaim().getClaimUri());
-			}
-
-			UserStoreManager userstore = CarbonContext.getThreadLocalCarbonContext().getUserRealm()
-					.getUserStoreManager();
-			
-			Map<String, String> wso2Claims = userstore.getUserClaimValues(context.getSubject(),
-					allClaims.toArray(new String[allClaims.size()]), null);
-			
-			// first do the claims mapping
-			ApplicationConfig appConfig = context.getSequenceConfig().getApplicationConfig();
-			Map<String, String> appClaimDialect = new HashMap<String,String> ();
-			if(appConfig != null) {
-				appClaimDialect = appConfig.getClaimMappings();
-			}
-			Map<String, String> mappedAppClaims = getMappedAppClaims(wso2Claims, appClaimDialect, context.getRequestType());
-			if(mappedAppClaims == null || mappedAppClaims.size() == 0){
-                mappedAppClaims = wso2Claims;
-            }
-
-			// then we do the IDP to App Role mapping
-			if(appConfig != null) {
-				mapRolesOfLocalIdpToApp(mappedAppClaims, appConfig);
-			}
-			
-			return mappedAppClaims;
-
-		} catch (UserStoreException e) {
-			throw new FrameworkException(e.getMessage(), e);
-		}
-	}
-
-    /**
-     * Returns the claims in the WSO2 Dialect
-     *
-     * @param extClaims
-     * @param idPDialect
-     * @param standardDialects
-     * @return
-     */
-    private Map<String, String> getMappedWSO2Claims(AuthenticationContext context, Map<String, String> extClaims,
-                                                    String idPDialect, Set<String> standardDialects)
-            throws FrameworkException {
-
-        Set<org.wso2.carbon.claim.mgt.ClaimMapping> standardToCarbonMappings = null;
-        if(idPDialect != null && standardDialects.contains(idPDialect)){
-            try {
-                standardToCarbonMappings = ClaimManagerHandler.getInstance()
-                        .getMappingsFromOtherDialectToCarbon(idPDialect, extClaims.keySet());
-            } catch (Exception e) {
-                throw new FrameworkException("Error occurred while mapping claims from other dialect to Carbon dialect");
-            }
-        }
-        Set<org.wso2.carbon.identity.application.common.model.ClaimMapping> idPToCarbonClaimMappings = null;
-        if(standardToCarbonMappings == null){
-            idPToCarbonClaimMappings = new HashSet<org.wso2.carbon.identity.application.common.model.ClaimMapping>(
-                    Arrays.asList(context.getExternalIdP().getClaimMappings()));
-        }
-
-        Map<String, String> mappedWso2Claims = null;
-        Map<String,String> claimMappings = null;
-        if(standardToCarbonMappings != null){
-            claimMappings = new HashMap<String, String>();
-            for(org.wso2.carbon.claim.mgt.ClaimMapping claimMapping : standardToCarbonMappings){
-                claimMappings.put(claimMapping.getNonCarbonClaimURI(), claimMapping.getCarbonClaimURI());
-            }
-        } else if(idPToCarbonClaimMappings != null){
-            claimMappings = new HashMap<String, String>();
-            for(org.wso2.carbon.identity.application.common.model.ClaimMapping claimMapping : idPToCarbonClaimMappings){
-                claimMappings.put(claimMapping.getIdpClaim().getClaimUri(), claimMapping.getLocalClaim().getClaimUri());
-            }
-        }
-
-        Map<String, String> wso2Claims = new HashMap<String, String>();
-        for (Map.Entry<String, String> entry : extClaims.entrySet()) {
-            String extClaimUri = entry.getKey();
-            String claimValue = entry.getValue();
-            if(claimMappings.containsKey(extClaimUri)){
-                wso2Claims.put(claimMappings.get(extClaimUri), claimValue);
-            }
-            if(log.isDebugEnabled()) {
-                log.debug("Claim Mapping: ExtIDPClaimUri-" + extClaimUri +
-                        " WSO2ClaimUri-" + claimMappings.get(extClaimUri));
-            }
-        }
-        return wso2Claims;
-    }
-
-    /**
-     * Returns received claims in the application's dialect.
-     *
-     * @param mappedWso2Claims
-     * @param appClaimDialect
-     * @param requestingClientType
-     * @return
-     */
-    private Map<String, String> getMappedAppClaims(Map<String, String> mappedWso2Claims, Map<String, String> appClaimDialect,
-                                                   String requestingClientType) throws FrameworkException {
-
-        Map<String, String> appClaims = new HashMap<String, String>();
-
-        String requestingDialect = getDialectUri(requestingClientType);
-        Set<String> standardDialects = null;
-        if(requestingDialect != null){
-            try {
-                standardDialects = ClaimManagerHandler.getInstance().getAllClaimDialects();
-            } catch (Exception e) {
-                throw new FrameworkException("Error occurred while retrieving standard claim dialects");
-            }
-        }
-        if(requestingClientType != null && standardDialects.contains(requestingDialect)){ // the application is using a standard dialect
-
-            Set<org.wso2.carbon.claim.mgt.ClaimMapping> claimMappings = null;
-            try {
-                claimMappings = ClaimManagerHandler.getInstance().getMappingsFromCarbonDialectToOther(
-                        requestingDialect, mappedWso2Claims.keySet());
-            } catch (Exception e) {
-                throw new FrameworkException("Error occurred while mapping carbon claim URIs to non carbon claim URIs");
-            }
-            Map<String,String> claimMappingsMap = new HashMap<String, String>();
-            for(org.wso2.carbon.claim.mgt.ClaimMapping claimMapping:claimMappings){
-                claimMappingsMap.put(claimMapping.getCarbonClaimURI(), claimMapping.getNonCarbonClaimURI());
-            }
-            for(Map.Entry<String, String> claim : mappedWso2Claims.entrySet()) {
-                appClaims.put(claimMappingsMap.get(claim.getKey()), claim.getValue());
-            }
-        } else { // the application has its own custom dialect
-            if(appClaimDialect != null){
-                for(Map.Entry<String, String> claim : mappedWso2Claims.entrySet()) {
-                    String appClaimUri = appClaimDialect.get(claim.getKey());
-                    appClaims.put(appClaimUri, claim.getValue());
+            if (remoteAttributes == null || remoteAttributes.isEmpty()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("No attributes given. Returning");
                 }
+                return null;
             }
 
-        }
-        return appClaims;
-    }
+            if (remoteIdpClaimDialect != null && spDialect != null
+                    && spDialect.equals(remoteIdpClaimDialect)) {
+                log.debug("Federated IDP and SP are using common dialect. NO claim mapping required. Continuing!");
 
-    /**
-     * Returns the claim dialect URI based on the client type
-     * @param clientType
-     * @return
-     */
-    private String getDialectUri(String clientType) {
+                // now we need to service provider requested attributes out of this.
 
-        if(FrameworkConstants.RequestType.CLAIM_TYPE_OIDC.equals(clientType)) {
-            return "http://wso2.org/claims";
-        } else if(FrameworkConstants.RequestType.CLAIM_TYPE_STS.equals(clientType)) {
-            return "http://schemas.xmlsoap.org/ws/2005/05/identity";
-        } else if(FrameworkConstants.RequestType.CLAIM_TYPE_OPENID.equals(clientType)) {
-            return "http://axschema.org";
-        } else if(FrameworkConstants.RequestType.CLAIM_TYPE_SCIM.equals(clientType)) {
-            return "urn:scim:schemas:core:1.0";
-        } else if(FrameworkConstants.RequestType.CLAIM_TYPE_WSO2.equals(clientType)){
-            return "http://wso2.org/claims";
-        } else if(FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO.equals(clientType)){
-            return "http://wso2.org/claims";
-        }
-        return null;
-    }
-
-    /**
-     * Mapped the Local IDP WSO2 Claims to the Applications claim dialect.
-     *
-     * @param claims
-     * @param appConfig
-     */
-    private void mapRolesOfLocalIdpToApp(Map<String, String> claims, ApplicationConfig appConfig) {
-
-        String roleClaim = appConfig.getRoleClaim();
-        Map<String, String> roleMapping = appConfig.getRoleMappings();
-
-        if(roleClaim != null && roleMapping != null) {
-            String roles = claims.get(roleClaim);
-            List<String> appRoles = new ArrayList<String>();
-
-            if(roles != null) {
-                String[] roleArray = roles.split(",");
-                for(String idpRole : roleArray) {
-                    appRoles.add(roleMapping.get(idpRole));
-
-                    if(log.isDebugEnabled()) {
-                        log.debug("Local IDP to Application Claim mapping: " + idpRole + " to " + roleMapping.get(idpRole));
-                    }
-                }
+                return getFilteredAttributes(remoteAttributes, spRequestedClaimMappings,
+                        spDialect != null);
             }
 
-            StringBuffer appRoleClaimValue = null;
-            for(String role : appRoles) {
-                if(appRoleClaimValue == null) {
-                    appRoleClaimValue = new StringBuffer(role);
-                } else {
-                    appRoleClaimValue.append("," + appRoleClaimValue);
-                }
+            // claim mapping from external IDP to local IDP
+
+            // local-claim-uri / idp-claim-uri
+            Map<String, String> localToIdpClaimMap = null;
+
+            if (remoteIdpClaimDialect == null && useDefaultLocalIdpDialect) {
+                remoteIdpClaimDialect = ApplicationConstants.LOCAL_IDP_DEFAULT_CLAIM_DIALECT;
             }
 
-            // *** Important *** setting back the value
-            if(appRoleClaimValue != null) {
-                claims.put(roleClaim, appRoleClaimValue.toString());
+            if (remoteIdpClaimDialect != null) {
+                localToIdpClaimMap = getClaimMappings(remoteIdpClaimDialect,
+                        remoteAttributes.keySet(), tenantName, true);
+            } else if (remoteIdpClaimMapping != null && remoteIdpClaimMapping.length > 0) {
+                localToIdpClaimMap = FrameworkUtils.getClaimMappings(remoteIdpClaimMapping, false);
+            } else {
+                // we do not know how to map remote idp claims to local claims.
+                return remoteAttributes;
+
             }
-        }
 
-    }
+            // claim mapping from local service provider to remote service provider.
+            Map<String, String> spToLocalClaimMap = null;
 
-    /**
-     * Maps the external IDP roles to local IDPs roles. The external IDP sends
-     * its roles as a claim with comma separated values. Here we read the Role
-     * mappings and find out the mapped local Role and re-construct the value of
-     * the role claim.
-     *
-     * @param extAttributes
-     * @param externalIdPConfig
-     */
-    private void mapRolesOfExtIdpToLocalIdp(Map<String, String> extAttributes, ExternalIdPConfig externalIdPConfig) {
+            if (spDialect == null && (spClaimMapping == null || spClaimMapping.size() == 0)) {
+                spDialect = ApplicationConstants.LOCAL_IDP_DEFAULT_CLAIM_DIALECT;
+            }
 
-        String roleClaimUri = externalIdPConfig.getRoleClaimUri();
-        RoleMapping[] roleMappings = externalIdPConfig.getRoleMappings();
+            if (spDialect != null) {
+                spToLocalClaimMap = getClaimMappings(spDialect, null, tenantName, false);
+            } else if (spClaimMapping != null && spClaimMapping.size() > 0) {
+                spToLocalClaimMap = spClaimMapping;
+            } else {
+                // we do not know how to map remote service provider claims to local claims.
+                return remoteAttributes;
 
-        if (roleClaimUri != null && roleMappings != null) {
-            List<String> internalRoles = new ArrayList<String>();
+            }
 
-            // the values comes as a comma separated list
-            String externalRoles = extAttributes.get(roleClaimUri);
-            if (externalRoles != null) {
-                String[] externalRole = externalRoles.split(",");
+            Map<String, String> unfilteredLocalClaimValues = new HashMap<String, String>();
 
-                for (String role : externalRole) {
-                    for (RoleMapping map : roleMappings) {
-                        if (role.equals(map.getRemoteRole())) { // if role has a mapping
-                            internalRoles.add(map.getLocalRole().getLocalRoleName());
-
-                            if (log.isDebugEnabled()) {
-                                log.debug("External IDP to Local IDP role mapping: " + role
-                                        + " to " + map.getLocalRole().getLocalRoleName());
-                            }
+            for (Iterator<Entry<String, String>> iterator = spToLocalClaimMap.entrySet().iterator(); iterator
+                    .hasNext();) {
+                Entry<String, String> entry = iterator.next();
+                if (entry.getValue() != null) {
+                    String idpClaimUri = localToIdpClaimMap.get(entry.getValue());
+                    if (idpClaimUri != null) {
+                        String claimValue = remoteAttributes.get(idpClaimUri);
+                        if(claimValue != null){
+                            mappedAppClaims.put(entry.getKey(), claimValue);
+                            unfilteredLocalClaimValues.put(entry.getValue(), claimValue);
                         }
                     }
                 }
             }
-            // constructing the converted roles string
-            StringBuffer finalInternalRoles = null;
-            for (String internalRole : internalRoles) {
-                if (finalInternalRoles == null) {
-                    finalInternalRoles = new StringBuffer(internalRole);
+
+            // set as a property.
+            context.setProperty(FrameworkConstants.UNFILTERED_LOCAL_CLAIM_VALUES,
+                    unfilteredLocalClaimValues);
+
+        } catch (Exception e) {
+            throw new FrameworkException("Error while claim mapping", e);
+        }
+
+        return getFilteredAttributes(mappedAppClaims, spRequestedClaimMappings, spDialect != null);
+    }
+
+    /**
+     * 
+     * @param remoteIdpClaimDialect
+     * @param keySet
+     * @param tenantName
+     * @param userLocalDialectAsKey
+     * @return
+     * @throws Exception
+     */
+    private Map<String, String> getClaimMappings(String remoteIdpClaimDialect, Set<String> keySet,
+            String tenantName, boolean userLocalDialectAsKey) throws Exception {
+
+        Map<String, String> claimMApping = ClaimManagerHandler.getInstance()
+                .getMappingsMapFromOtherDialectToCarbon(remoteIdpClaimDialect, keySet, tenantName,
+                        userLocalDialectAsKey);
+        if (claimMApping == null) {
+            claimMApping = new HashMap<String, String>();
+        }
+
+        return claimMApping;
+    }
+
+    /**
+     * 
+     * @param context
+     * @return
+     * @throws FrameworkException
+     */
+    protected Map<String, String> handleLocalClaims(String authenticatedUser,
+            AuthenticationContext context) throws FrameworkException {
+
+        try {
+
+            String tenantDomain = MultitenantUtils.getTenantDomain(context.getSequenceConfig()
+                    .getAuthenticatedUser());
+            UserRealm realm = AnonymousSessionUtil.getRealmByTenantDomain(
+                    FrameworkServiceComponent.getRegistryService(),
+                    FrameworkServiceComponent.getRealmService(), tenantDomain);
+
+            if (realm == null) {
+                log.warn("No valid tenant domain provider. Empty claim returned back");
+                return new HashMap<String, String>();
+            }
+
+            ClaimManager claimManager = realm.getClaimManager();
+
+            String requestingClientType = context.getRequestType();
+            ApplicationConfig appConfig = context.getSequenceConfig().getApplicationConfig();
+            Map<String, String> spToLocalClaimMappings = appConfig.getClaimMappings();
+            Map<String, String> requestedClaimMappings = appConfig.getRequestedClaimMappings();
+            String spDialect = getDialectUri(requestingClientType, requestedClaimMappings != null
+                    && requestedClaimMappings.size() > 0);
+
+            UserStoreManager userstore = realm.getUserStoreManager();
+
+            List<String> claimURIList = new ArrayList<String>();
+
+            if (spDialect == null) {
+                // if claim dialect is null then there must be a claim mapping.
+                // there must be a requested claim list - otherwise ignore.
+                if (requestedClaimMappings != null && requestedClaimMappings.size() > 0) {
+                    for (Iterator<Entry<String, String>> iterator = requestedClaimMappings
+                            .entrySet().iterator(); iterator.hasNext();) {
+                        Entry<String, String> entry = iterator.next();
+                        if (entry.getValue() != null) {
+                            claimURIList.add(entry.getValue());
+                        }
+
+                    }
+                }
+
+            } else {
+                if (ApplicationConstants.LOCAL_IDP_DEFAULT_CLAIM_DIALECT.equals(spDialect)
+                        && requestedClaimMappings != null && requestedClaimMappings.size() > 0) {
+                    for (Iterator<String> iterator = requestedClaimMappings.keySet().iterator(); iterator
+                            .hasNext();) {
+                        // in local idp dialect
+                        claimURIList.add(iterator.next());
+                    }
+                } else if (FrameworkConstants.RequestType.CLAIM_TYPE_OPENID
+                        .equals(requestingClientType)) {
+                    org.wso2.carbon.user.api.ClaimMapping[] claimMappings = claimManager
+                            .getAllClaimMappings(ApplicationConstants.LOCAL_IDP_DEFAULT_CLAIM_DIALECT);
+                    for (org.wso2.carbon.user.api.ClaimMapping mapping : claimMappings) {
+                        claimURIList.add(mapping.getClaim().getClaimUri());
+                    }
+
                 } else {
-                    finalInternalRoles.append("," + internalRole);
+                    Map<String, String> requestedLocalClaimMap = null;
+
+                    // need to get all the requested claims
+                    requestedLocalClaimMap = ClaimManagerHandler.getInstance()
+                            .getMappingsMapFromOtherDialectToCarbon(spDialect,
+                                    requestedClaimMappings.keySet(), context.getTenantDomain(),
+                                    true);
+                    if (requestedLocalClaimMap != null && requestedLocalClaimMap.size() > 0) {
+                        for (Iterator<String> iterator = requestedLocalClaimMap.keySet().iterator(); iterator
+                                .hasNext();) {
+                            // in local idp dialect
+                            claimURIList.add(iterator.next());
+                        }
+                    }
+                }
+
+                spToLocalClaimMappings = ClaimManagerHandler.getInstance()
+                        .getMappingsMapFromOtherDialectToCarbon(spDialect, null,
+                                context.getTenantDomain(), false);
+
+            }
+
+            // user claim values against local claim uris.
+            Map<String, String> userClaims = userstore.getUserClaimValues(
+                    MultitenantUtils.getTenantAwareUsername(authenticatedUser),
+                    claimURIList.toArray(new String[claimURIList.size()]), null);
+
+            if (userClaims == null
+                    || userClaims.size() == 0
+                    || (spToLocalClaimMappings == null || spToLocalClaimMappings.size() == 0
+                            && spDialect == null)) {
+                return new HashMap<String, String>();
+            }
+
+            HashMap<String, String> mappedAppClaims = new HashMap<String, String>();
+            HashMap<String, String> filteredClaims = new HashMap<String, String>();
+
+            for (Iterator<Entry<String, String>> iterator = spToLocalClaimMappings.entrySet()
+                    .iterator(); iterator.hasNext();) {
+                Entry<String, String> entry = iterator.next();
+                String value = userClaims.get(entry.getValue());
+                if (value != null) {
+                    mappedAppClaims.put(entry.getKey(), value);
+                    if (spDialect != null && requestedClaimMappings != null
+                            && requestedClaimMappings.containsValue(entry.getValue())) {
+                        filteredClaims.put(entry.getKey(), value);
+                    }
                 }
             }
 
-            // *important* Setting back the mapped claims
-            if(finalInternalRoles != null) {
-                extAttributes.put(roleClaimUri, finalInternalRoles.toString());
+            // set as a property.
+            context.setProperty(FrameworkConstants.UNFILTERED_LOCAL_CLAIM_VALUES, mappedAppClaims);
+
+            if (spDialect == null) {
+                return getFilteredAttributes(mappedAppClaims, requestedClaimMappings, false);
+            } else if(requestedClaimMappings.size() > 0) {
+                return filteredClaims;
+            } else {
+            	return mappedAppClaims;
+            }
+
+        } catch (Exception e) {
+            throw new FrameworkException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Returns the claim dialect URI based on the client type
+     * 
+     * @param clientType
+     * @return
+     */
+    protected String getDialectUri(String clientType, boolean claimMappingDefined) {
+
+        if (FrameworkConstants.RequestType.CLAIM_TYPE_OIDC.equals(clientType)) {
+            return "http://wso2.org/oidc/claim";
+        } else if (FrameworkConstants.RequestType.CLAIM_TYPE_STS.equals(clientType)) {
+            return "http://schemas.xmlsoap.org/ws/2005/05/identity";
+        } else if (FrameworkConstants.RequestType.CLAIM_TYPE_OPENID.equals(clientType)) {
+            return "http://axschema.org";
+        } else if (FrameworkConstants.RequestType.CLAIM_TYPE_SCIM.equals(clientType)) {
+            return "urn:scim:schemas:core:1.0";
+        } else if (FrameworkConstants.RequestType.CLAIM_TYPE_WSO2.equals(clientType)) {
+            return "http://wso2.org/claims";
+        } else if (FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO.equals(clientType)) {
+            if (!claimMappingDefined) {
+                return "http://wso2.org/claims";
             }
         }
+        return null;
     }
 }

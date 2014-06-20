@@ -1,60 +1,144 @@
 /*
-*  Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *  Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.application.authentication.framework;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
-import org.wso2.carbon.identity.application.authentication.framework.config.dto.AuthenticatorConfig;
-import org.wso2.carbon.identity.application.authentication.framework.config.dto.ExternalIdPConfig;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.StepConfig;
+import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
+import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
+import org.wso2.carbon.identity.application.authentication.framework.exception.LogoutFailedException;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
+import org.wso2.carbon.identity.application.common.model.Property;
 
 /**
- * This is the super class of all the Application Authenticators.
- * Authenticator writers must extend this.
+ * This is the super class of all the Application Authenticators. Authenticator writers must extend
+ * this.
  */
 public abstract class AbstractApplicationAuthenticator implements ApplicationAuthenticator {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 
-	/* (non-Javadoc)
-	 * @see org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator#isDisabled()
-	 */
-	@Override
-	public boolean isEnabled() {
-		if (getAuthenticatorConfig() != null){
-			return getAuthenticatorConfig().isEnabled();
-		}
-		return true;
-	}
+    @Override
+    public AuthenticatorFlowStatus process(HttpServletRequest request,
+            HttpServletResponse response, AuthenticationContext context)
+            throws AuthenticationFailedException, LogoutFailedException {
 
-    public String getClaimDialectURIIfStandard(){
+        // if an authentication flow
+        if (!context.isLogoutRequest()) {
+            if (!canHandle(request)
+                    || (request.getAttribute(FrameworkConstants.REQ_ATTR_HANDLED) != null && ((Boolean) request
+                            .getAttribute(FrameworkConstants.REQ_ATTR_HANDLED)))) {
+                initiateAuthenticationRequest(request, response, context);
+                context.setCurrentAuthenticator(getName());
+                return AuthenticatorFlowStatus.INCOMPLETE;
+            } else {
+                try {
+                    processAuthenticationResponse(request, response, context);
+                    request.setAttribute(FrameworkConstants.REQ_ATTR_HANDLED, true);
+                    return AuthenticatorFlowStatus.SUCCESS_COMPLETED;
+                } catch (AuthenticationFailedException e) {
+                    Map<Integer, StepConfig> stepMap = context.getSequenceConfig().getStepMap();
+                    boolean stepHasMultiOption = false;
+
+                    if (stepMap != null && !stepMap.isEmpty()) {
+                        StepConfig stepConfig = stepMap.get(context.getCurrentStep());
+
+                        if (stepConfig != null) {
+                            stepHasMultiOption = stepConfig.isMultiOption();
+                        }
+                    }
+
+                    if (retryAuthenticationEnabled() && !stepHasMultiOption) {
+                        context.setRetrying(true);
+                        context.setCurrentAuthenticator(getName());
+                        initiateAuthenticationRequest(request, response, context);
+                        return AuthenticatorFlowStatus.INCOMPLETE;
+                    } else {
+                        throw e;
+                    }
+                }
+            }
+            // if a logout flow
+        } else {
+            try {
+                if (!canHandle(request)) {
+                    context.setCurrentAuthenticator(getName());
+                    initiateLogoutRequest(request, response, context);
+                    return AuthenticatorFlowStatus.INCOMPLETE;
+                } else {
+                    processLogoutResponse(request, response, context);
+                    return AuthenticatorFlowStatus.SUCCESS_COMPLETED;
+                }
+            } catch (UnsupportedOperationException e) {
+                return AuthenticatorFlowStatus.SUCCESS_COMPLETED;
+            }
+        }
+    }
+
+    protected void initiateAuthenticationRequest(HttpServletRequest request,
+            HttpServletResponse response, AuthenticationContext context)
+            throws AuthenticationFailedException {
+    }
+
+    protected abstract void processAuthenticationResponse(HttpServletRequest request,
+            HttpServletResponse response, AuthenticationContext context)
+            throws AuthenticationFailedException;
+
+    protected void initiateLogoutRequest(HttpServletRequest request, HttpServletResponse response,
+            AuthenticationContext context) throws LogoutFailedException {
+        throw new UnsupportedOperationException();
+    }
+
+    protected void processLogoutResponse(HttpServletRequest request, HttpServletResponse response,
+            AuthenticationContext context) throws LogoutFailedException {
+        throw new UnsupportedOperationException();
+    }
+
+    protected AuthenticatorConfig getAuthenticatorConfig() {
+        AuthenticatorConfig authConfig = FileBasedConfigurationBuilder.getInstance()
+                .getAuthenticatorBean(getName());
+        if (authConfig == null) {
+            authConfig = new AuthenticatorConfig();
+            authConfig.setParameterMap(new HashMap<String, String>());
+        }
+        return authConfig;
+    }
+
+    protected boolean retryAuthenticationEnabled() {
+        return false;
+    }
+
+    @Override
+    public String getClaimDialectURI() {
         return null;
     }
 
-	protected AuthenticatorConfig getAuthenticatorConfig() {
-		return FileBasedConfigurationBuilder.getInstance().getAuthenticatorBean(getAuthenticatorName());
+    @Override
+    public List<Property> getConfigurationProperties() {
+        return new ArrayList<Property>();
     }
-	
-	protected ExternalIdPConfig getIdPConfig(String idpName) {
-		ExternalIdPConfig externalIdPConfig = null;
-		
-		return externalIdPConfig;
-	}
-} 
+}

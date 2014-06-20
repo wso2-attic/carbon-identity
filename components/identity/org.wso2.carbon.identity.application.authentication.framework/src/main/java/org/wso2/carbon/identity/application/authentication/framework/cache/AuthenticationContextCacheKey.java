@@ -34,12 +34,17 @@ public class AuthenticationContextCacheKey extends CacheKey {
 		return contextId;
 	}
 
-	@Override
+    @Override
     public boolean equals(Object o) {
-        if(!(o instanceof AuthenticationContextCacheKey)){
-            return false;
-        }
-        return this.contextId.equals(((AuthenticationContextCacheKey)o).getContextId());
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        AuthenticationContextCacheKey that = (AuthenticationContextCacheKey) o;
+
+        if (!contextId.equals(that.contextId)) return false;
+
+        return true;
     }
 
     @Override

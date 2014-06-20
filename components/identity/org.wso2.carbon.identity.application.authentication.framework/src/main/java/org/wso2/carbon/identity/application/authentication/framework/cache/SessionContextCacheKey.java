@@ -34,12 +34,17 @@ public class SessionContextCacheKey extends CacheKey {
 		return contextId;
 	}
 
-	@Override
+    @Override
     public boolean equals(Object o) {
-        if(!(o instanceof SessionContextCacheKey)){
-            return false;
-        }
-        return this.contextId.equals(((SessionContextCacheKey)o).getContextId());
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        SessionContextCacheKey that = (SessionContextCacheKey) o;
+
+        if (!contextId.equals(that.contextId)) return false;
+
+        return true;
     }
 
     @Override

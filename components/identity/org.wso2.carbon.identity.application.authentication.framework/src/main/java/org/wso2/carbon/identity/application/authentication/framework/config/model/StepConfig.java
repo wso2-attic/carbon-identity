@@ -16,11 +16,15 @@
 * under the License.
 */
 
-package org.wso2.carbon.identity.application.authentication.framework.config.dto;
+package org.wso2.carbon.identity.application.authentication.framework.config.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 
 /**
  * Holds the login page and the authenticator objects 
@@ -34,67 +38,203 @@ public class StepConfig implements Serializable {
 	private int order;
 	private String loginPage;
 	private String authenticatedUser;
+	private boolean subjectIdentifierStep;
+	private boolean subjectAttributeStep;
+	private Map<ClaimMapping, String> authenticatedUserAttributes = new HashMap<ClaimMapping, String>();
 	private String authenticatedIdP;
 	private AuthenticatorConfig authenticatedAutenticator;
 	private List<AuthenticatorConfig> authenticatorList = new ArrayList<AuthenticatorConfig>();
 	private List<String> authenticatorMappings = new ArrayList<String>();
+	
+	private boolean completed;
+	private boolean multiOption;
+	private boolean retrying;
 
 	public StepConfig() {}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public String getLoginPage() {
 		return loginPage;
 	}
 	
+	/**
+	 * 
+	 * @param loginPage
+	 */
 	public void setLoginPage(String loginPage) {
 		this.loginPage = loginPage;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public List<String> getAuthenticatorMappings() {
 		return authenticatorMappings;
 	}
 
+	/**
+	 * 
+	 * @param authenticatorMappings
+	 */
 	public void setAuthenticatorMappings(List<String> authenticatorMappings) {
 		this.authenticatorMappings = authenticatorMappings;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public int getOrder() {
 		return order;
 	}
 
+	/**
+	 * 
+	 * @param order
+	 */
 	public void setOrder(int order) {
 		this.order = order;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public List<AuthenticatorConfig> getAuthenticatorList() {
 		return authenticatorList;
 	}
 
+	/**
+	 * 
+	 * @param authenticatorList
+	 */
 	public void setAuthenticatorList(List<AuthenticatorConfig> authenticatorList) {
 		this.authenticatorList = authenticatorList;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getAuthenticatedUser() {
 		return authenticatedUser;
 	}
 
+	/**
+	 * 
+	 * @param authenticatedUser
+	 */
 	public void setAuthenticatedUser(String authenticatedUser) {
 		this.authenticatedUser = authenticatedUser;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getAuthenticatedIdP() {
 		return authenticatedIdP;
 	}
 
+	/**
+	 * 
+	 * @param authenticatedIdP
+	 */
 	public void setAuthenticatedIdP(String authenticatedIdP) {
 		this.authenticatedIdP = authenticatedIdP;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public AuthenticatorConfig getAuthenticatedAutenticator() {
 		return authenticatedAutenticator;
 	}
 
+	/**
+	 * 
+	 * @param authenticatedAutenticator
+	 */
 	public void setAuthenticatedAutenticator(
 			AuthenticatorConfig authenticatedAutenticator) {
 		this.authenticatedAutenticator = authenticatedAutenticator;
 	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public Map<ClaimMapping, String> getAuthenticatedUserAttributes() {
+		return authenticatedUserAttributes;
+	}
+
+	/**
+	 * 
+	 * @param authenticatedUserAttributes
+	 */
+	public void setAuthenticatedUserAttributes(
+			Map<ClaimMapping, String> authenticatedUserAttributes) {
+		this.authenticatedUserAttributes = authenticatedUserAttributes;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+    public boolean isSubjectAttributeStep() {
+        return subjectAttributeStep;
+    }
+
+    /**
+     * 
+     * @param subjectAttributeStep
+     */
+    public void setSubjectAttributeStep(boolean subjectAttributeStep) {
+        this.subjectAttributeStep = subjectAttributeStep;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public boolean isSubjectIdentifierStep() {
+        return subjectIdentifierStep;
+    }
+
+    /**
+     * 
+     * @param subjectIdentifierStep
+     */
+    public void setSubjectIdentifierStep(boolean subjectIdentifierStep) {
+        this.subjectIdentifierStep = subjectIdentifierStep;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+
+    public boolean isMultiOption() {
+        return multiOption;
+    }
+
+    public void setMultiOption(boolean multiOption) {
+        this.multiOption = multiOption;
+    }
+
+    public boolean isRetrying() {
+        return retrying;
+    }
+
+    public void setRetrying(boolean retrying) {
+        this.retrying = retrying;
+    }
 }

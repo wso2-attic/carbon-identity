@@ -18,17 +18,25 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.handler.claims;
 
-import org.wso2.carbon.identity.application.authentication.framework.config.dto.ExternalIdPConfig;
+import java.util.Map;
+
+import org.wso2.carbon.identity.application.authentication.framework.config.model.StepConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
 
-import java.util.Map;
-
 public interface ClaimHandler {
 
-	public Map<String, String> handle(AuthenticationContext context,
-			ExternalIdPConfig externalIdPConfig, Map<String, String> attributes)
-			throws FrameworkException;
+    /**
+     * 
+     * @param stepConfig
+     * @param context
+     * @param extAttrs
+     * @param isFederatedClaims
+     * @return
+     * @throws FrameworkException
+     */
+    public Map<String, String> handleClaimMappings(StepConfig stepConfig,
+            AuthenticationContext context, Map<String, String> extAttrs,
+            boolean isFederatedClaims) throws FrameworkException;
 
-	public Map<String, String> handle(AuthenticationContext context) throws FrameworkException;
 }

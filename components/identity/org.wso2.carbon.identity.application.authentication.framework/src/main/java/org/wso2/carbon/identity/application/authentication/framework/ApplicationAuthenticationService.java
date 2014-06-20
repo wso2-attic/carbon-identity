@@ -42,7 +42,7 @@ public class ApplicationAuthenticationService {
 		
 		for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.authenticators) {
 			
-			if (authenticator.getAuthenticatorName().equals(name)) {
+			if (authenticator.getName().equals(name)) {
 				appAuthenticator = authenticator;
 			}
 		}

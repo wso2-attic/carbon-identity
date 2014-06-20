@@ -78,6 +78,10 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
             <artifactId>org.wso2.carbon.claim.mgt</artifactId>
             <!--version>4.2.1</version-->
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.user.profile</artifactId>
+        </dependency>
     </dependencies>
 	<build>
 		<plugins>

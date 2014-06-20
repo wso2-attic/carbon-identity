@@ -16,10 +16,11 @@
 * under the License.
 */
 
-package org.wso2.carbon.identity.application.authentication.framework.config.dto;
+package org.wso2.carbon.identity.application.authentication.framework.config.model;
 
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorStateInfo;
+import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -40,8 +41,8 @@ public class AuthenticatorConfig implements Serializable {
     private ApplicationAuthenticator applicationAuthenticator;
     private AuthenticatorStateInfo authenticatorStateInfo;
     private Map<String, String> parameterMap;
-    //private Map<String, ExternalIdPConfig> idps = new HashMap<String, ExternalIdPConfig>();
-    private List<String> idps = new ArrayList<String>();
+    private Map<String, IdentityProvider> idps = new HashMap<String, IdentityProvider>();
+    private List<String> idpNames = new ArrayList<String>();
     
     public AuthenticatorConfig() {
     }
@@ -103,11 +104,12 @@ public class AuthenticatorConfig implements Serializable {
 		this.authenticatorStateInfo = authenticatorStateInfo;
 	}
 
-	public List<String> getIdps() {
-		return idps;
+	public List<String> getIdpNames() {
+		return idpNames;
 	}
 
-	public void setIdps(List<String> idps) {
-		this.idps = idps;
-	}
+    public Map<String, IdentityProvider> getIdps() {
+        return idps;
+    }
+
 }

@@ -34,12 +34,17 @@ public class AuthenticationResultCacheKey extends CacheKey {
 		return resultId;
 	}
 
-	@Override
+    @Override
     public boolean equals(Object o) {
-        if(!(o instanceof AuthenticationResultCacheKey)){
-            return false;
-        }
-        return this.resultId.equals(((AuthenticationResultCacheKey)o).getResultId());
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        AuthenticationResultCacheKey that = (AuthenticationResultCacheKey) o;
+
+        if (!resultId.equals(that.resultId)) return false;
+        
+        return true;
     }
 
     @Override

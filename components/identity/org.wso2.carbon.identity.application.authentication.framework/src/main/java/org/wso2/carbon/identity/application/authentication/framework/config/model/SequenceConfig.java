@@ -16,13 +16,16 @@
 * under the License.
 */
 
-package org.wso2.carbon.identity.application.authentication.framework.config.dto;
+package org.wso2.carbon.identity.application.authentication.framework.config.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 
 /**
  * Configuration holder for an application
@@ -38,9 +41,14 @@ public class SequenceConfig implements Serializable {
 	private String applicationId;
 	private Map <Integer, StepConfig> stepMap = new Hashtable<Integer, StepConfig>();
 	private List<AuthenticatorConfig> reqPathAuthenticators = new ArrayList<AuthenticatorConfig>();
-	private String authenticatedUser;
-	private boolean authenticated;
 	private ApplicationConfig applicationConfig = null;
+	private boolean completed;
+	
+	private String authenticatedUser;
+    private Map<ClaimMapping, String> userAttributes = new HashMap<ClaimMapping, String>();
+	private String authenticatedIdPs;
+	
+	private AuthenticatorConfig authenticatedReqPathAuthenticator;
 	
 	public SequenceConfig() {}
 	
@@ -85,22 +93,6 @@ public class SequenceConfig implements Serializable {
 		this.reqPathAuthenticators = reqPathAuthenticators;
 	}
 
-	public boolean isAuthenticated() {
-		return authenticated;
-	}
-
-	public void setAuthenticated(boolean authenticated) {
-		this.authenticated = authenticated;
-	}
-
-	public String getAuthenticatedUser() {
-		return authenticatedUser;
-	}
-
-	public void setAuthenticatedUser(String authenticatedUser) {
-		this.authenticatedUser = authenticatedUser;
-	}
-
 	public ApplicationConfig getApplicationConfig() {
 		return applicationConfig;
 	}
@@ -116,4 +108,45 @@ public class SequenceConfig implements Serializable {
 	public void setApplicationId(String applicationId) {
 		this.applicationId = applicationId;
 	}
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+
+    public String getAuthenticatedUser() {
+        return authenticatedUser;
+    }
+
+    public Map<ClaimMapping, String> getUserAttributes() {
+        return userAttributes;
+    }
+
+    public void setAuthenticatedUser(String authenticatedUser) {
+        this.authenticatedUser = authenticatedUser;
+    }
+
+    public void setUserAttributes(Map<ClaimMapping, String> userAttributes) {
+        this.userAttributes = userAttributes;
+    }
+
+    public void setAuthenticatedIdPs(String authenticatedIdPs) {
+        this.authenticatedIdPs = authenticatedIdPs;
+    }
+
+    public String getAuthenticatedIdPs() {
+        return authenticatedIdPs;
+    }
+
+    public AuthenticatorConfig getAuthenticatedReqPathAuthenticator() {
+        return authenticatedReqPathAuthenticator;
+    }
+
+    public void setAuthenticatedReqPathAuthenticator(
+            AuthenticatorConfig authenticatedReqPathAuthenticator) {
+        this.authenticatedReqPathAuthenticator = authenticatedReqPathAuthenticator;
+    }
 }
