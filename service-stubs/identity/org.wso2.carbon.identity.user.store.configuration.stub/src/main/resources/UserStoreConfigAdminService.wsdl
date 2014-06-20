@@ -16,6 +16,7 @@
                 <xs:sequence>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="childProperties" nillable="true" type="ax2379:Property"></xs:element>
                     <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="displayName" nillable="true" type="xs:string"></xs:element>
                     <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"></xs:element>
                     <xs:element minOccurs="0" name="value" nillable="true" type="xs:string"></xs:element>
                 </xs:sequence>

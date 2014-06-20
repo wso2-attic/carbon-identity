@@ -65,6 +65,10 @@
 					<arg line="-uri src/main/resources/UserIdentityManagementAdminService.wsdl -u -uw -o target/generated-code   -p org.wso2.carbon.identity.mgt.stub -ns2p http://services.mgt.identity.carbon.wso2.org=org.wso2.carbon.identity.mgt.stub,http://dto.mgt.identity.carbon.wso2.org/xsd=org.wso2.carbon.identity.mgt.stub.dto,http://beans.mgt.identity.carbon.wso2.org/xsd=org.wso2.carbon.identity.mgt.stub.beans"/>
 		                        <classpath refid="wsdl2java.classpath"/>
 				</java>
+				<java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
+					<arg line="-uri src/main/resources/AccountCredentialMgtConfigService.wsdl -u -uw -o target/generated-code   -p org.wso2.carbon.identity.mgt.stub -ns2p http://services.mgt.identity.carbon.wso2.org=org.wso2.carbon.identity.mgt.stub,http://dto.mgt.identity.carbon.wso2.org/xsd=org.wso2.carbon.identity.mgt.stub.dto,http://beans.mgt.identity.carbon.wso2.org/xsd=org.wso2.carbon.identity.mgt.stub.beans"/>
+		                        <classpath refid="wsdl2java.classpath"/>
+				</java>
                             </tasks>
                         </configuration>
                     </execution>
