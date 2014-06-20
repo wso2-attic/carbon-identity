@@ -19,7 +19,12 @@ package org.wso2.carbon.identity.user.registration;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.IdentityClaimManager;
@@ -27,22 +32,37 @@ import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.user.registration.dto.PasswordRegExDTO;
+import org.wso2.carbon.identity.user.registration.dto.TenantRegistrationConfig;
 import org.wso2.carbon.identity.user.registration.dto.UserDTO;
 import org.wso2.carbon.identity.user.registration.dto.UserFieldDTO;
 import org.wso2.carbon.registry.core.Registry;
-import org.wso2.carbon.user.core.*;
+import org.wso2.carbon.registry.core.Resource;
+import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.user.core.Permission;
+import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class UserRegistrationService {
-	
+
     private static Log log = LogFactory.getLog(UserRegistrationService.class);
 
 	/**
@@ -189,38 +209,61 @@ public class UserRegistrationService {
         UserStoreManager admin = null;
         Permission permission = null;
         try {
-            if(realm != null){
-                admin = realm.getUserStoreManager();
+            // get config from tenant registry
+            TenantRegistrationConfig tenantConfig = getTenantSignUpConfig(realm.getUserStoreManager().getTenantId());
+            // set tenant config specific sign up domain
+            if (tenantConfig != null && tenantConfig.getSignUpDomain() != "") {
+                int index = userName.indexOf(UserCoreConstants.DOMAIN_SEPARATOR);
+                if (index > 0) {
+                    userName = tenantConfig.getSignUpDomain().toUpperCase() + UserCoreConstants.DOMAIN_SEPARATOR + userName.substring(index + 1);
+                } else {
+                    userName = tenantConfig.getSignUpDomain().toUpperCase() + UserCoreConstants.DOMAIN_SEPARATOR + userName;
+                }
+            }
 
-                if (!isUserNameWithAllowedDomainName(userName,realm)){
+            // add user to the relevant user store
+            if (realm != null) {
+                admin = realm.getUserStoreManager();
+                if (!isUserNameWithAllowedDomainName(userName, realm)) {
                     throw new IdentityException("Domain does not permit self registration");
                 }
-
                 // add user
                 admin.addUser(userName, password, null, claimList, profileName);
 
-            }else{
+            } else {
                 throw new IdentityException("Domain is inactive.");
             }
-            String identityRoleName = getRoleName(userName);
-            
-            // if this is the first time a user signs up, needs to create role
-            try {
-				if (!admin.isExistingRole(identityRoleName, false)) {
-				    permission = new Permission("/permission/admin/login",
-				            UserMgtConstants.EXECUTE_ACTION);     
-				    admin.addRole(identityRoleName, new String[] { userName },
-				            new Permission[] { permission }, false);
-				} else {
-				    // if role already exists, just add user to role
-				    admin.updateUserListOfRole(identityRoleName,
-				            new String[] {}, new String[] { userName });
-				}
-			} catch (org.wso2.carbon.user.api.UserStoreException e) {
-				// If something goes wrong here - them remove the already added user.
-				admin.deleteUser(userName);
-	            throw new IdentityException("Error occurred while adding user : " + userName, e);
-			}
+
+            // after adding the user, assign specif roles
+            List<String> roleNamesArr = getRoleName(userName, tenantConfig);
+            if (claimList.get(SelfRegistrationConstants.SIGN_UP_ROLE_CLAIM_URI) != null) {
+                // check is a user role is specified as a claim by the client, if so add it to the roles list
+                if (tenantConfig != null) {
+                    roleNamesArr.add(tenantConfig.getSignUpDomain().toUpperCase() +
+                                     UserCoreConstants.DOMAIN_SEPARATOR + claimList.get(SelfRegistrationConstants.SIGN_UP_ROLE_CLAIM_URI));
+                } else {
+                    roleNamesArr.add(UserCoreConstants.INTERNAL_DOMAIN +
+                                     UserCoreConstants.DOMAIN_SEPARATOR + claimList.get(SelfRegistrationConstants.SIGN_UP_ROLE_CLAIM_URI));
+                }
+            }
+            String[] identityRoleNames = roleNamesArr.toArray(new String[roleNamesArr.size()]);
+
+            for (int i = 0; i < identityRoleNames.length; i++) {
+                // if this is the first time a user signs up, needs to create role
+                try {
+                    if (!admin.isExistingRole(identityRoleNames[i], false)) {
+                        permission = new Permission("/permission/admin/login", UserMgtConstants.EXECUTE_ACTION);
+                        admin.addRole(identityRoleNames[i], new String[]{userName}, new Permission[]{permission}, false);
+                    } else {
+                        // if role already exists, just add user to role
+                        admin.updateUserListOfRole(identityRoleNames[i], new String[]{}, new String[]{userName});
+                    }
+                } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                    // If something goes wrong here - then remove the already added user.
+                    admin.deleteUser(userName);
+                    throw new IdentityException("Error occurred while adding user : " + userName, e);
+                }
+            }
         } catch (UserStoreException e) {
             throw new IdentityException("Error occurred while adding user : " + userName, e);
         }
@@ -245,7 +288,25 @@ public class UserRegistrationService {
 		return true;
 	}
 
-    private String getRoleName(String userName){
+    private List<String> getRoleName(String userName, TenantRegistrationConfig tenantConfig){
+        // check for tenant config, if available return roles specified in tenant config
+        if (tenantConfig != null) {
+            ArrayList<String> roleNamesArr = new ArrayList<String>();
+            Map<String, Boolean> roles = tenantConfig.getRoles();
+            for (Map.Entry<String, Boolean> entry : roles.entrySet()) {
+                String roleName;
+                if (entry.getValue()) {
+                    // external role
+                    roleName = tenantConfig.getSignUpDomain().toUpperCase() + UserCoreConstants.DOMAIN_SEPARATOR + entry.getKey();
+                } else {
+                    // internal role
+                    roleName = UserCoreConstants.INTERNAL_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + entry.getKey();
+                }
+                roleNamesArr.add(roleName);
+            }
+            // return, don't need to worry about roles specified in identity.xml
+            return roleNamesArr;
+        }
 
         String roleName = IdentityUtil.getProperty(SelfRegistrationConstants.ROLE_NAME_PROPERTY);
         boolean externalRole = Boolean.parseBoolean(IdentityUtil.getProperty(SelfRegistrationConstants.ROLE_EXTERNAL_PROPERTY));
@@ -260,10 +321,63 @@ public class UserRegistrationService {
         }
 
         if(domainName != null && domainName.trim().length() > 0){
-            roleName = UserCoreUtil.addDomainToName(roleName, domainName);
+            //roleName = UserCoreUtil.addDomainToName(roleName, domainName);
+            roleName = domainName.toUpperCase() + CarbonConstants.DOMAIN_SEPARATOR + roleName;
         }
 
-        return roleName;
+        return new ArrayList<String>(Arrays.asList(roleName));
+    }
+
+    private TenantRegistrationConfig getTenantSignUpConfig(int tenantId) throws IdentityException {
+        TenantRegistrationConfig config;
+        NodeList nodes;
+        try {
+            // start tenant flow to load tenant registry
+            PrivilegedCarbonContext.startTenantFlow();
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            Registry registry = (Registry) PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_GOVERNANCE);
+            if (registry.resourceExists(SelfRegistrationConstants.SIGN_UP_CONFIG_REG_PATH)) {
+                Resource resource = registry.get(SelfRegistrationConstants.SIGN_UP_CONFIG_REG_PATH);
+                // build config from tenant registry resource
+                DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                String configXml = new String((byte[]) resource.getContent());
+                InputSource configInputSource = new InputSource();
+                configInputSource.setCharacterStream(new StringReader(configXml.trim()));
+                //ByteArrayInputStream configInput = new ByteArrayInputStream(configXml.getBytes("utf-8"));
+                Document doc = builder.parse(configInputSource);
+                nodes = doc.getElementsByTagName(SelfRegistrationConstants.SELF_SIGN_UP_ELEMENT);
+                if (nodes.getLength() > 0) {
+                    config = new TenantRegistrationConfig();
+                    config.setSignUpDomain(((Element) nodes.item(0)).getElementsByTagName(SelfRegistrationConstants.SIGN_UP_DOMAIN_ELEMENT).
+                            item(0).getTextContent());
+                    // there can be more than one <SignUpRole> elements, iterate through all elements
+                    NodeList rolesEl = ((Element) nodes.item(0)).getElementsByTagName(SelfRegistrationConstants.SIGN_UP_ROLE_ELEMENT);
+                    for (int i = 0; i < rolesEl.getLength(); i++) {
+                        Element tmpEl = (Element) rolesEl.item(i);
+                        String tmpRole = tmpEl.getElementsByTagName(SelfRegistrationConstants.ROLE_NAME_ELEMENT).item(0).getTextContent();
+                        boolean tmpIsExternal = Boolean.parseBoolean(tmpEl.getElementsByTagName(SelfRegistrationConstants.IS_EXTERNAL_ELEMENT).
+                                item(0).getTextContent());
+                        config.getRoles().put(tmpRole, tmpIsExternal);
+                    }
+                    return config;
+                } else {
+                    return null;
+                }
+            }
+        } catch (RegistryException e) {
+            throw new IdentityException("Error retrieving sign up config from registry " + e.getMessage(), e);
+        } catch (ParserConfigurationException e) {
+            throw new IdentityException("Error parsing tenant sign up configuration " + e.getMessage(), e);
+        } catch (SAXException e) {
+            throw new IdentityException("Error parsing tenant sign up configuration " + e.getMessage(), e);
+        } catch (IOException e) {
+            throw new IdentityException("Error parsing tenant sign up configuration " + e.getMessage(), e);
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
+
+        return null;
     }
 
 }
