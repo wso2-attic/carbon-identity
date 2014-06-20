@@ -16,11 +16,13 @@
 
 package org.wso2.carbon.identity.provider.openid.extensions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.openid4java.message.MessageExtension;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.IdentityClaimManager;
@@ -30,7 +32,6 @@ import org.wso2.carbon.identity.provider.IdentityProviderException;
 import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
 import org.wso2.carbon.identity.provider.dto.OpenIDClaimDTO;
 import org.wso2.carbon.identity.provider.openid.OpenIDUtil;
-import org.wso2.carbon.identity.provider.openid.claims.ClaimsRetriever;
 import org.wso2.carbon.identity.relyingparty.RelyingPartyException;
 import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -41,8 +42,6 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
  */
 
 public abstract class OpenIDExtension {
-
-    private static ClaimsRetriever claimsRetriever = null;
 
 	/**
 	 * Creates an instance of MessageExtension for the OpenID authentication
@@ -87,76 +86,63 @@ public abstract class OpenIDExtension {
 		map = new HashMap<String, OpenIDClaimDTO>();
 		OpenIDClaimDTO[] claims = null;
 
-		try {
-			claims = getClaimValues(openId, profileName, requiredClaims, requestDTO.getResponseClaims());
+        try {
+            if (requestDTO.getResponseClaims() == null || requestDTO.getResponseClaims().size() == 0) {
+                return map;
+            }
 
-			if (claims != null) {
-				for (int i = 0; i < claims.length; i++) {
-					if (claims[i] != null) {
-						map.put(claims[i].getClaimUri(), claims[i]);
-					}
-				}
-			}
-			return map;
+            claims = getClaimValues(openId, profileName, requiredClaims, requestDTO.getResponseClaims());
 
-		} catch (Exception e) {
-			throw new IdentityException(e.getLocalizedMessage(), e);
-		}
-	}
+            if (claims != null) {
+                for (int i = 0; i < claims.length; i++) {
+                    if (claims[i] != null) {
+                        map.put(claims[i].getClaimUri(), claims[i]);
+                    }
+                }
+            }
+            return map;
 
-	private OpenIDClaimDTO[] getClaimValues(String openId, String profileId,
-	                                        List<String> requiredClaims, Map<String, String> receivedClaims) throws Exception {
-		Map<String, String> claimValues = null;
-		OpenIDClaimDTO[] claims = null;
-		OpenIDClaimDTO dto = null;
-		IdentityClaimManager claimManager = null;
-		Claim[] claimData = null;
-		String[] claimArray = new String[requiredClaims.size()];
+        } catch (Exception e) {
+            throw new IdentityException(e.getLocalizedMessage(), e);
+        }
+    }
 
-        synchronized (this){
-            if(claimsRetriever == null){
-                synchronized (this){
-                    claimsRetriever = (ClaimsRetriever)Class.forName(
-                            IdentityUtil.getProperty("OpenID.ClaimsRetrieverImplClass").trim()).newInstance();
-                    claimsRetriever.init();
+	private OpenIDClaimDTO[] getClaimValues(String openId, String profileId, List<String> requiredClaims,
+                                            Map<ClaimMapping, String> receivedClaims) throws Exception {
+
+		List<OpenIDClaimDTO> claims = new ArrayList<OpenIDClaimDTO>();
+
+        if(requiredClaims.isEmpty()){
+            for(Map.Entry<ClaimMapping, String> entry : receivedClaims.entrySet()){
+                OpenIDClaimDTO openIDClaimDTO = new OpenIDClaimDTO();
+                openIDClaimDTO.setClaimUri(entry.getKey().getRemoteClaim().getClaimUri());
+                openIDClaimDTO.setClaimValue(entry.getValue());
+                claims.add(openIDClaimDTO);
+            }
+        } else {
+            for(String requiredClaim:requiredClaims){
+                ClaimMapping mapping = getClaimMappingFromMap(receivedClaims, requiredClaim);
+                if(mapping != null){
+                    OpenIDClaimDTO openIDClaimDTO = new OpenIDClaimDTO();
+                    openIDClaimDTO.setClaimUri(mapping.getRemoteClaim().getClaimUri());
+                    openIDClaimDTO.setClaimValue(receivedClaims.get(mapping));
+                    claims.add(openIDClaimDTO);
                 }
             }
         }
-
-        String userName = null;
-        userName = OpenIDUtil.getUserName(openId);
-        String domainName = MultitenantUtils.getDomainNameFromOpenId(openId);
-
-		claimValues =
-		              claimsRetriever.getUserClaimValues(openId, requiredClaims.toArray(claimArray), profileId, receivedClaims);
-
-		claims = new OpenIDClaimDTO[claimValues.size()];
-		int i = 0;
-		claimManager = IdentityClaimManager.getInstance();
-
-		if (!requiredClaims.isEmpty() && requiredClaims.get(0).startsWith("http://axschema.org")) {
-			claimData =
-			            claimManager.getAllSupportedClaims(IdentityConstants.OPENID_AX_DIALECT,
-			                                               IdentityTenantUtil.getRealm(domainName,
-			                                                                           userName));
-		} else {
-			claimData =
-			            claimManager.getAllSupportedClaims(IdentityConstants.OPENID_SREG_DIALECT,
-			                                               IdentityTenantUtil.getRealm(domainName,
-			                                                                           userName));
-		}
-
-		for (int j = 0; j < claimData.length; j++) {
-			if (claimValues.containsKey(claimData[j].getClaimUri())) {
-				dto = new OpenIDClaimDTO();
-				dto.setClaimUri(claimData[j].getClaimUri());
-				dto.setClaimValue(claimValues.get(claimData[j].getClaimUri()));
-				dto.setDisplayTag(claimData[j].getDisplayTag());
-				dto.setDescription(claimData[j].getDescription());
-				claims[i++] = dto;
-			}
-		}
-
-		return claims;
+        return claims.toArray(new OpenIDClaimDTO[claims.size()]);
 	}
+
+    private ClaimMapping getClaimMappingFromMap(Map<ClaimMapping, String> claimMappings, String requiredClaimURI){
+        
+        ClaimMapping mapping = null;
+        
+        for(ClaimMapping claimMapping : claimMappings.keySet()){
+            if(claimMapping.getRemoteClaim().getClaimUri().equals(requiredClaimURI)){
+                mapping = claimMapping;
+                break;
+            }
+        }
+        return mapping;
+    }
 }

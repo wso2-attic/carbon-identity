@@ -83,4 +83,24 @@ public final class OAuthUtil {
         }
     }
 
+    public static void clearOAuthCache(String consumerKey, String authorizedUser, String scope) {
+        OAuthCache oauthCache;
+
+        try {
+            PrivilegedCarbonContext.startTenantFlow();
+            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
+                    .getThreadLocalCarbonContext();
+            carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
+            carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+
+            CacheKey cacheKey = new OAuthCacheKey(consumerKey + ":" + authorizedUser+":"+scope);
+            if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
+                oauthCache = OAuthCache.getInstance();
+                oauthCache.clearCacheEntry(cacheKey);
+            }
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
+    }
+
 }

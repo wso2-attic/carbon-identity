@@ -37,13 +37,13 @@ public class CarbonOAuthTokenRequest extends OAuthTokenRequest {
     private String credentialType;
     private String windows_token;
 
-    private String idp;
+    private String tenantDomain;
 
     public CarbonOAuthTokenRequest(HttpServletRequest request) throws OAuthSystemException, OAuthProblemException {
         super(request);
         assertion = request.getParameter("assertion");
         credentialType = request.getParameter("credentialType");
-        idp = request.getParameter("idp");
+        tenantDomain = request.getParameter("tenantDomain");
         windows_token = request.getParameter("windows_token");
     }
 
@@ -90,12 +90,11 @@ public class CarbonOAuthTokenRequest extends OAuthTokenRequest {
         this.credentialType = credentialType;
     }
 
-    public String getIdP() {
-        return idp;
+    public String getTenantDomain() {
+        return tenantDomain;
     }
 
-    public void setIdP(String idp) {
-        this.idp = idp;
+    public void setTenantDomain(String tenantDomain) {
+        this.tenantDomain = tenantDomain;
     }
-
 }

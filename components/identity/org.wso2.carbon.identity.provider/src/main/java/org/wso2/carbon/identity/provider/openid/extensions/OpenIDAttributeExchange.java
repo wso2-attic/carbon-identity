@@ -172,8 +172,10 @@ public class OpenIDAttributeExchange extends OpenIDExtension {
 
 				fetchResponse = FetchResponse.createFetchResponse(fetchRequest, new HashMap());
 				claimValues = populateAttributeValues(requiredAttributes, userId, profileName, requestDTO);
-				setAttributeExchangeValues(fetchResponse, claimValues);
-			}
+                if (claimValues != null && claimValues.size() != 0) {
+                    setAttributeExchangeValues(fetchResponse, claimValues);
+                }
+            }
 
 			return fetchResponse;
 		} catch (MessageException e) {

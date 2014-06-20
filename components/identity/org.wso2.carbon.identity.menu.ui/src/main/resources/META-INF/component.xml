@@ -58,16 +58,5 @@
 			<order>2</order>
 			<style-class>home</style-class>
         	</menu>
-        	<menu>
-			<id>tools_menu</id>
-			<i18n-key>component.tools</i18n-key>
-			<i18n-bundle>org.wso2.carbon.identity.menu.ui.i18n.Resources</i18n-bundle>
-			<parent-menu></parent-menu>
-			<link>#</link>
-			<region>region1</region>
-			<order>3</order>
-			<style-class>home</style-class>
-			<skip-authentication>false</skip-authentication>
-		</menu>
 	</menus>
 </component>

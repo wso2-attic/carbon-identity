@@ -66,6 +66,8 @@ public class UserInfoISAccessTokenValidator implements UserInfoAccessTokenValida
 			throw new UserInfoEndpointException(OAuthError.ResourceResponse.INVALID_TOKEN,
 			                                    "Access token is not valid. No authorized user found. Invalid grant");
 		}
+        OAuth2TokenValidationResponseDTO.AuthorizationContextToken authorizationContextToken = response.new AuthorizationContextToken(accessToken.getTokenType(),accessToken.getIdentifier());
+        response.setAuthorizationContextToken(authorizationContextToken);
 		return response;
 	}
 

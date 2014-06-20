@@ -135,4 +135,5 @@ public final class OAuthConstants {
     }
 
     public static final int OAUTH_AUTHZ_CB_HANDLER_DEFAULT_PRIORITY = 1;
+    public static final String DEFAULT_KEY_ALIAS = "Security.KeyStore.KeyAlias";
 }

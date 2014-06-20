@@ -28,6 +28,7 @@ import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.authcontext.AuthorizationContextTokenGenerator;
 import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
+import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientApplicationDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationRequestDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
@@ -46,63 +47,99 @@ public class TokenValidationHandler {
     private Map<String, OAuth2TokenValidator> tokenValidators =
             new Hashtable<String, OAuth2TokenValidator>();
 
-    private static TokenValidationHandler instance = new TokenValidationHandler();
+    private static TokenValidationHandler instance = null;
 
     private TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
 
     AuthorizationContextTokenGenerator tokenGenerator = null;
 
     private TokenValidationHandler() {
-        if(instance == null){
-            synchronized (this) {
-                if(instance == null){
-                    tokenValidators.put(DefaultOAuth2TokenValidator.TOKEN_TYPE, new DefaultOAuth2TokenValidator());
-                    // setting up the JWT if required
-                    if (OAuthServerConfiguration.getInstance().isAuthContextTokGenEnabled()) {
-                        try {
-                            Class clazz = this.getClass().getClassLoader().loadClass(OAuthServerConfiguration.getInstance().
-                                    getTokenGeneratorImplClass());
-                            tokenGenerator = (AuthorizationContextTokenGenerator)clazz.newInstance();
-                            tokenGenerator.init();
-                            if (log.isDebugEnabled()) {
-                                log.debug("An instance of " + OAuthServerConfiguration.getInstance().getTokenGeneratorImplClass() +
-                                    " is created for OAuthServerConfiguration.");
-                            }
-                        } catch (ClassNotFoundException e){
-                            String errorMsg = "Class not found: " +
-                                    OAuthServerConfiguration.getInstance().getTokenGeneratorImplClass();
-                            log.error(errorMsg,e);
-                        } catch (InstantiationException e) {
-                            String errorMsg = "Error while instantiating: " +
-                                    OAuthServerConfiguration.getInstance().getTokenGeneratorImplClass();
-                            log.error(errorMsg, e);
-                        } catch (IllegalAccessException e) {
-                            String errorMsg = "Illegal access to: " +
-                                    OAuthServerConfiguration.getInstance().getTokenGeneratorImplClass();
-                            log.error(errorMsg, e);
-                        } catch (IdentityOAuth2Exception e){
-                            String errorMsg = "Error while initializing: " +
-                                    OAuthServerConfiguration.getInstance().getTokenGeneratorImplClass();
-                            log.error(errorMsg, e);
-                        }
+        tokenValidators.put(DefaultOAuth2TokenValidator.TOKEN_TYPE, new DefaultOAuth2TokenValidator());
+        for(Map.Entry<String,String> entry : OAuthServerConfiguration.getInstance().getTokenValidatorClassNames().entrySet()) {
+            String className = null;
+            try {
+                String type = entry.getKey();
+                className = entry.getValue();
+                Class clazz = Thread.currentThread().getContextClassLoader().loadClass(entry.getValue());
+                OAuth2TokenValidator tokenValidator = (OAuth2TokenValidator) clazz.newInstance();
+                tokenValidators.put(type, tokenValidator);
+            } catch (ClassNotFoundException e) {
+                log.error("Class not in build path " + className, e);
+            } catch (InstantiationException e) {
+                log.error("Class initialization error " + className, e);
+            } catch (IllegalAccessException e) {
+                log.error("Class access error " + className, e);
+            }
+        }
 
-                    }
+        // setting up the JWT if required
+        if (OAuthServerConfiguration.getInstance().isAuthContextTokGenEnabled()) {
+            try {
+                Class clazz = this.getClass().getClassLoader().loadClass(OAuthServerConfiguration.getInstance().getTokenGeneratorImplClass());
+                tokenGenerator = (AuthorizationContextTokenGenerator)clazz.newInstance();
+                tokenGenerator.init();
+                if (log.isDebugEnabled()) {
+                    log.debug("An instance of " + OAuthServerConfiguration.getInstance().getTokenGeneratorImplClass() +
+                        " is created for OAuthServerConfiguration.");
                 }
+             } catch (ClassNotFoundException e){
+                String errorMsg = "Class not found: " +
+                    OAuthServerConfiguration.getInstance().getTokenGeneratorImplClass();
+                    log.error(errorMsg,e);
+            } catch (InstantiationException e) {
+                String errorMsg = "Error while instantiating: " +
+                OAuthServerConfiguration.getInstance().getTokenGeneratorImplClass();
+                log.error(errorMsg, e);
+            } catch (IllegalAccessException e) {
+                String errorMsg = "Illegal access to: " +
+                OAuthServerConfiguration.getInstance().getTokenGeneratorImplClass();
+                log.error(errorMsg, e);
+            } catch (IdentityOAuth2Exception e){
+                String errorMsg = "Error while initializing: " +
+                OAuthServerConfiguration.getInstance().getTokenGeneratorImplClass();
+                log.error(errorMsg, e);
             }
         }
     }
 
     public static TokenValidationHandler getInstance() {
+        if(instance == null){
+            synchronized (TokenValidationHandler.class) {
+                if(instance == null){
+                    instance = new TokenValidationHandler();
+                }
+            }
+        }
         return instance;
     }
     
     public void addTokenValidator(String type, OAuth2TokenValidator handler) {
         tokenValidators.put(type, handler);
     }
-
+    
+    /**
+     * 
+     * @param requestDTO
+     * @return
+     * @throws IdentityOAuth2Exception
+     */
     public OAuth2TokenValidationResponseDTO validate(OAuth2TokenValidationRequestDTO requestDTO)
             throws IdentityOAuth2Exception {
+    	
+    	OAuth2ClientApplicationDTO appToken = findOAuthConsumerIfTokenIsValid(requestDTO);
+    	return appToken.getAccessTokenValidationResponse();
+    }
 
+    /**
+     * 
+     * @param requestDTO
+     * @return
+     * @throws IdentityOAuth2Exception
+     */
+    public OAuth2ClientApplicationDTO findOAuthConsumerIfTokenIsValid(OAuth2TokenValidationRequestDTO requestDTO)
+            throws IdentityOAuth2Exception {
+
+    	OAuth2ClientApplicationDTO clientApp = new OAuth2ClientApplicationDTO();
         OAuth2TokenValidationResponseDTO responseDTO = new OAuth2TokenValidationResponseDTO();
         OAuth2TokenValidationMessageContext messageContext =
                 new OAuth2TokenValidationMessageContext(requestDTO, responseDTO);
@@ -114,7 +151,8 @@ public class TokenValidationHandler {
             log.debug("Access Token is not present in the validation request");
             responseDTO.setValid(false);
             responseDTO.setErrorMsg("Access Token is not present in the validation request");
-            return responseDTO;
+            clientApp.setAccessTokenValidationResponse(responseDTO);
+            return clientApp;
         }
 
         String accessTokenIdentifier = accessToken.getIdentifier();
@@ -123,7 +161,8 @@ public class TokenValidationHandler {
             log.debug("Access token identifier is not present in the validation request");
             responseDTO.setValid(false);
             responseDTO.setErrorMsg("Access token identifier is not present in the validation request");
-            return responseDTO;
+            clientApp.setAccessTokenValidationResponse(responseDTO);
+            return clientApp;
         }
 
 		OAuth2TokenValidator tokenValidator = tokenValidators.get(requestDTO.getAccessToken().getTokenType());
@@ -133,7 +172,8 @@ public class TokenValidationHandler {
 			log.debug("Unsupported access token type");
 			responseDTO.setValid(false);
 			responseDTO.setErrorMsg("Unsupported access token type");
-			return responseDTO;
+			clientApp.setAccessTokenValidationResponse(responseDTO);
+            return clientApp;
 		}
 
         AccessTokenDO accessTokenDO = null;
@@ -153,12 +193,13 @@ public class TokenValidationHandler {
         // Cache miss, load the access token info from the database.
         if (accessTokenDO == null) {
             accessTokenDO = tokenMgtDAO.retrieveAccessToken(accessTokenIdentifier);
-            
+
             // No data retrieved due to invalid input.
             if(accessTokenDO == null) {
             	responseDTO.setValid(false);
             	responseDTO.setErrorMsg("Invalid input. Access token validation failed");
-            	return responseDTO;
+            	clientApp.setAccessTokenValidationResponse(responseDTO);
+                return clientApp;
             }
         }
 
@@ -180,7 +221,8 @@ public class TokenValidationHandler {
             }
             responseDTO.setValid(false);
             responseDTO.setErrorMsg("Access token has expired");
-            return responseDTO;
+            clientApp.setAccessTokenValidationResponse(responseDTO);
+            return clientApp;
         }
 
         // Add the token back to the cache in the case of a cache miss
@@ -208,21 +250,24 @@ public class TokenValidationHandler {
             log.debug("Invalid access delegation");
             responseDTO.setValid(false);
             responseDTO.setErrorMsg("Invalid access delegation");
-            return responseDTO;
+            clientApp.setAccessTokenValidationResponse(responseDTO);
+            return clientApp;
         }
 
         if(!isValidScope){
             log.debug("Scope validation failed");
             responseDTO.setValid(false);
             responseDTO.setErrorMsg("Scope validation failed");
-            return responseDTO;
+            clientApp.setAccessTokenValidationResponse(responseDTO);
+            return clientApp;
         }
 
         if(!isValidAccessToken){
             log.debug("OAuth2 access token validation failed");
             responseDTO.setValid(false);
             responseDTO.setErrorMsg("OAuth2 access token validation failed");
-            return responseDTO;
+            clientApp.setAccessTokenValidationResponse(responseDTO);
+            return clientApp;
         }
 
         if(responseDTO.getAuthorizedUser() == null ||
@@ -243,6 +288,8 @@ public class TokenValidationHandler {
             }
         }
 
-        return responseDTO;
+        clientApp.setAccessTokenValidationResponse(responseDTO);
+        clientApp.setConsumerKey(accessTokenDO.getConsumerKey());
+        return clientApp;
     }
 }

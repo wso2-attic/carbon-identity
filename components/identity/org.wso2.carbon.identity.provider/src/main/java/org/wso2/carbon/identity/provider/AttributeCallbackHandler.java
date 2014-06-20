@@ -50,6 +50,8 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
 
     private static Log log = LogFactory.getLog(AttributeCallbackHandler.class);
     protected Map<String, RequestedClaimData> requestedClaims = new HashMap<String, RequestedClaimData>();
+    protected Map<String, String> requestedClaimValues = new HashMap<String, String>();
+
     protected Map<String, Claim> supportedClaims = new HashMap<String, Claim>();
 
     public void handle(SAMLCallback callback) throws SAMLException {
@@ -230,6 +232,15 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
                 throw new IdentityProviderException(
                         "Empty claim uri found while procession claim data");
             }
+            
+            if (uriClaim.startsWith("{") && uriClaim.endsWith("}")
+                    && uriClaim.lastIndexOf("|") == uriClaim.indexOf("|")) {
+                String tmpUri = uriClaim;
+                uriClaim = uriClaim.substring(1, uriClaim.indexOf("|"));
+                String claimValue = tmpUri.substring(tmpUri.indexOf("|") + 1, tmpUri.length() - 1);
+                requestedClaimValues.put(uriClaim, claimValue);
+            }
+            
             claim.setUri(uriClaim);
             optional = (omElem.getAttributeValue(new QName(null, "Optional")));
             if (optional != null) {
@@ -279,8 +290,14 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
         Map<String, String> mapValues = null;
 
         try {
-            mapValues = connector.getUserClaimValues(MultitenantUtils.getTenantAwareUsername(userId),
-                                                                claimList.toArray(claimArray), null);
+            if (requestedClaimValues.size() == 0) {
+                mapValues = connector.getUserClaimValues(
+                        MultitenantUtils.getTenantAwareUsername(userId),
+                        claimList.toArray(claimArray), null);
+            } else {
+                mapValues = requestedClaimValues;
+            }
+			
             ite = requestedClaims.values().iterator();
             while (ite.hasNext()) {
                 SAMLAttribute attribute = null;

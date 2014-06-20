@@ -16,14 +16,13 @@
  ~ under the License.
  -->
 
+<%@page import="org.wso2.carbon.identity.oauth.stub.dto.OAuthConsumerAppDTO"%>
 <%@ page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
 <%@ page import="org.wso2.carbon.identity.oauth.ui.client.OAuthAdminClient"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants"%>
-<%@ page import="org.wso2.carbon.identity.application.mgt.ui.ApplicationConfigBean"%>
-<jsp:useBean id="appBean" class="org.wso2.carbon.identity.application.mgt.ui.ApplicationConfigBean" scope="session"/>
 
 <%@ page import="java.util.ResourceBundle"%>
 
@@ -38,7 +37,16 @@
 
 <%
 	String consumerkey = request.getParameter("consumerkey");
-	String forwardTo = "../application/add-service-provider.jsp";
+    String appName = request.getParameter("appName");
+    String spName = request.getParameter("spName");
+
+	String forwardTo = "index.jsp";
+	
+	boolean qpplicationComponentFound = CarbonUIUtil.isContextRegistered(config, "/application/");
+	if (qpplicationComponentFound) {
+		forwardTo = "../application/configure-service-provider.jsp?action=delete&spName="+spName+"&oauthapp="+consumerkey;
+	}
+	
     String BUNDLE = "org.wso2.carbon.identity.oauth.ui.i18n.Resources";
 	ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
 	
@@ -48,10 +56,15 @@
         ConfigurationContext configContext =
                 (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         OAuthAdminClient client = new OAuthAdminClient(cookie, backendServerURL, configContext);
+        
+        if (appName!=null){
+			OAuthConsumerAppDTO app = client.getOAuthApplicationDataByAppName(appName);
+			consumerkey = app.getOauthConsumerKey();
+        }
+        
         client.removeOAuthApplicationData(consumerkey);
         String message = resourceBundle.getString("app.removed.successfully");
         CarbonUIMessage.sendCarbonUIMessage(message,CarbonUIMessage.INFO, request);
-        appBean.setOauthoidcConfig(null);
     } catch (Exception e) {
     	String message = resourceBundle.getString("error.while.removing.app");
     	CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request,e);

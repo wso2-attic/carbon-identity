@@ -21,12 +21,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.openidconnect.as.messages.IDTokenBuilder;
 import org.apache.oltu.openidconnect.as.messages.IDTokenException;
-import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenRespDTO;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.Calendar;
 
@@ -48,22 +46,6 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         int curTime = (int) Calendar.getInstance().getTimeInMillis();
         // setting subject
         String subject = request.getAuthorizedUser();
-        String claim = config.getOpenIDConnectIDTokenSubjectClaim();
-        if (claim != null) {
-            String username = request.getAuthorizedUser();
-            String tenantUser = MultitenantUtils.getTenantAwareUsername(username);
-            String domainName = MultitenantUtils.getTenantDomain(request.getAuthorizedUser());
-            try {
-                subject =
-                        IdentityTenantUtil.getRealm(domainName, username).getUserStoreManager()
-                                .getUserClaimValue(tenantUser, claim, null);
-                if (subject==null){
-                    subject = request.getAuthorizedUser();
-                }
-            } catch (Exception e) {
-                throw new IdentityOAuth2Exception("Error while generating the IDToken", e);
-            }
-        }
 
         if (DEBUG) {
             log.debug("Using issuer " + issuer);

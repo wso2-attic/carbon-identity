@@ -15,12 +15,7 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
-
-
-
-
-
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://service.ws.um.carbon.wso2.org" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ax2571="http://api.user.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:ax2570="http://core.user.carbon.wso2.org/xsd" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://service.ws.um.carbon.wso2.org">
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://service.ws.um.carbon.wso2.org" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ax2623="http://core.user.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ax2624="http://api.user.carbon.wso2.org/xsd" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://service.ws.um.carbon.wso2.org">
     <wsdl:documentation>RemoteClaimManagerService</wsdl:documentation>
     <wsdl:types>
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://api.user.carbon.wso2.org/xsd">
@@ -29,7 +24,7 @@
             </xs:complexType>
             <xs:complexType name="ClaimMapping">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="claim" nillable="true" type="ax2571:Claim"/>
+                    <xs:element minOccurs="0" name="claim" nillable="true" type="ax2624:Claim"/>
                     <xs:element minOccurs="0" name="mappedAttribute" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="mappedAttributeWithNoDomain" nillable="true" type="xs:string"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="mappedAttributes" nillable="true" type="xs:string"/>
@@ -51,20 +46,20 @@
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
-        <xs:schema xmlns:ax2573="http://core.user.carbon.wso2.org/xsd" xmlns:ax2574="http://api.user.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://service.ws.um.carbon.wso2.org">
+        <xs:schema xmlns:ax2626="http://core.user.carbon.wso2.org/xsd" xmlns:ax2627="http://api.user.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://service.ws.um.carbon.wso2.org">
             <xs:import namespace="http://core.user.carbon.wso2.org/xsd"/>
             <xs:import namespace="http://api.user.carbon.wso2.org/xsd"/>
             <xs:element name="RemoteClaimManagerServiceUserStoreException">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="UserStoreException" nillable="true" type="ax2573:UserStoreException"/>
+                        <xs:element minOccurs="0" name="UserStoreException" nillable="true" type="ax2623:UserStoreException"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="updateClaimMapping">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="mapping" nillable="true" type="ax2571:ClaimMapping"/>
+                        <xs:element minOccurs="0" name="mapping" nillable="true" type="ax2627:ClaimMapping"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -78,7 +73,7 @@
             <xs:element name="getClaimMappingResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2571:ClaimMapping"/>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2627:ClaimMapping"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -92,14 +87,28 @@
             <xs:element name="getClaimResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2571:Claim"/>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2627:Claim"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAttributeNameFromDomain">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="domainName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="claimURI" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAttributeNameFromDomainResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="getAttributeName">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="domainName" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="claimURI" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -119,7 +128,7 @@
             <xs:element name="getAllSupportClaimMappingsByDefaultResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2571:ClaimMapping"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2627:ClaimMapping"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -131,7 +140,7 @@
             <xs:element name="getAllRequiredClaimMappingsResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2571:ClaimMapping"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2627:ClaimMapping"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -157,30 +166,30 @@
             <xs:element name="getAllClaimMappingsResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2571:ClaimMapping"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2627:ClaimMapping"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="deleteClaimMapping">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="mapping" nillable="true" type="ax2571:ClaimMapping"/>
+                        <xs:element minOccurs="0" name="mapping" nillable="true" type="ax2627:ClaimMapping"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="addNewClaimMapping">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="mapping" nillable="true" type="ax2571:ClaimMapping"/>
+                        <xs:element minOccurs="0" name="mapping" nillable="true" type="ax2627:ClaimMapping"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
         </xs:schema>
-        <xs:schema xmlns:ax2572="http://api.user.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://core.user.carbon.wso2.org/xsd">
+        <xs:schema xmlns:ax2625="http://api.user.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://core.user.carbon.wso2.org/xsd">
             <xs:import namespace="http://api.user.carbon.wso2.org/xsd"/>
             <xs:complexType name="UserStoreException">
                 <xs:complexContent>
-                    <xs:extension base="ax2571:UserStoreException">
+                    <xs:extension base="ax2624:UserStoreException">
                         <xs:sequence/>
                     </xs:extension>
                 </xs:complexContent>
@@ -222,6 +231,12 @@
     </wsdl:message>
     <wsdl:message name="getAllClaimUrisResponse">
         <wsdl:part name="parameters" element="ns:getAllClaimUrisResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getAttributeNameFromDomainRequest">
+        <wsdl:part name="parameters" element="ns:getAttributeNameFromDomain"/>
+    </wsdl:message>
+    <wsdl:message name="getAttributeNameFromDomainResponse">
+        <wsdl:part name="parameters" element="ns:getAttributeNameFromDomainResponse"/>
     </wsdl:message>
     <wsdl:message name="updateClaimMappingRequest">
         <wsdl:part name="parameters" element="ns:updateClaimMapping"/>
@@ -270,6 +285,11 @@
             <wsdl:input message="ns:getAllClaimUrisRequest" wsaw:Action="urn:getAllClaimUris"/>
             <wsdl:output message="ns:getAllClaimUrisResponse" wsaw:Action="urn:getAllClaimUrisResponse"/>
             <wsdl:fault message="ns:RemoteClaimManagerServiceUserStoreException" name="RemoteClaimManagerServiceUserStoreException" wsaw:Action="urn:getAllClaimUrisRemoteClaimManagerServiceUserStoreException"/>
+        </wsdl:operation>
+        <wsdl:operation name="getAttributeNameFromDomain">
+            <wsdl:input message="ns:getAttributeNameFromDomainRequest" wsaw:Action="urn:getAttributeNameFromDomain"/>
+            <wsdl:output message="ns:getAttributeNameFromDomainResponse" wsaw:Action="urn:getAttributeNameFromDomainResponse"/>
+            <wsdl:fault message="ns:RemoteClaimManagerServiceUserStoreException" name="RemoteClaimManagerServiceUserStoreException" wsaw:Action="urn:getAttributeNameFromDomainRemoteClaimManagerServiceUserStoreException"/>
         </wsdl:operation>
         <wsdl:operation name="updateClaimMapping">
             <wsdl:input message="ns:updateClaimMappingRequest" wsaw:Action="urn:updateClaimMapping"/>
@@ -351,6 +371,18 @@
         </wsdl:operation>
         <wsdl:operation name="getAllClaimUris">
             <soap:operation soapAction="urn:getAllClaimUris" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="RemoteClaimManagerServiceUserStoreException">
+                <soap:fault use="literal" name="RemoteClaimManagerServiceUserStoreException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getAttributeNameFromDomain">
+            <soap:operation soapAction="urn:getAttributeNameFromDomain" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -475,6 +507,18 @@
                 <soap12:fault use="literal" name="RemoteClaimManagerServiceUserStoreException"/>
             </wsdl:fault>
         </wsdl:operation>
+        <wsdl:operation name="getAttributeNameFromDomain">
+            <soap12:operation soapAction="urn:getAttributeNameFromDomain" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="RemoteClaimManagerServiceUserStoreException">
+                <soap12:fault use="literal" name="RemoteClaimManagerServiceUserStoreException"/>
+            </wsdl:fault>
+        </wsdl:operation>
         <wsdl:operation name="updateClaimMapping">
             <soap12:operation soapAction="urn:updateClaimMapping" style="document"/>
             <wsdl:input>
@@ -564,6 +608,15 @@
         </wsdl:operation>
         <wsdl:operation name="getAllClaimUris">
             <http:operation location="getAllClaimUris"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getAttributeNameFromDomain">
+            <http:operation location="getAttributeNameFromDomain"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>

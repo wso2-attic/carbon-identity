@@ -126,6 +126,7 @@ public class EntitlementEngine {
 
         setUpAttributeFinders();
         setUpResourceFinders();
+        setUPPolicyFinder();
 
 		this.tenantId = tenantId;
 
@@ -166,22 +167,21 @@ public class EntitlementEngine {
             pdpTest = new PDP(pdpConfig);
         }
 
-        if(isPDP){
-             // Actual PDP with all finders but policy finder is different
-            Set<PolicyFinderModule> policyModules = new HashSet<PolicyFinderModule>();
-            CarbonPolicyFinder policyFinder = new CarbonPolicyFinder();
-            policyModules.add(policyFinder);
-            balana.getPdpConfig().getPolicyFinder().setModules(policyModules);
-            carbonPolicyFinder = balana.getPdpConfig().getPolicyFinder();
-            policyFinder.init(carbonPolicyFinder);
-            if(pdpMultipleDecision){
-                PDPConfig pdpConfig = new PDPConfig (balana.getPdpConfig().getAttributeFinder(),
-                    balana.getPdpConfig().getPolicyFinder(),  balana.getPdpConfig().getResourceFinder(), true);
-                balana.setPdpConfig(pdpConfig);
-                pdp = new PDP(pdpConfig);
-            } else {
-                pdp = new PDP(balana.getPdpConfig());
-            }
+        if (isPDP) {
+            // Actual PDP with all finders but policy finder is different
+            AttributeFinder attributeFinder = new AttributeFinder();
+            List<AttributeFinderModule> attributeFinderModules = new ArrayList<AttributeFinderModule>();
+            attributeFinderModules.add(carbonAttributeFinder);
+            attributeFinder.setModules(attributeFinderModules);
+
+            ResourceFinder resourceFinder = new ResourceFinder();
+            List<ResourceFinderModule> resourceFinderModules = new ArrayList<ResourceFinderModule>();
+            resourceFinderModules.add(carbonResourceFinder);
+            resourceFinder.setModules(resourceFinderModules);
+            PDPConfig pdpConfig = new PDPConfig(attributeFinder, carbonPolicyFinder, resourceFinder, pdpMultipleDecision);
+            pdp = new PDP(pdpConfig);
+
+
         }
     }
 
@@ -371,6 +371,7 @@ public class EntitlementEngine {
 
 		if (pdpDecisionCacheEnable) {
 
+            String tenantRequest = tenantId + "+" + request;
             String decision;
 
             if (DecisionInvalidationCache.getInstance().isInvalidate()) {
@@ -379,9 +380,9 @@ public class EntitlementEngine {
             }
 
             if(simpleCache){
-			    decision = simpleDecisionCache.getFromCache(request);
+			    decision = simpleDecisionCache.getFromCache(tenantRequest);
             } else {
-                decision = decisionCache.getFromCache(request);
+                decision = decisionCache.getFromCache(tenantRequest);
             }
             return decision;
 		}
@@ -400,10 +401,11 @@ public class EntitlementEngine {
      */
 	private void addToCache(String request, String response, boolean simpleCache) {
 		if (pdpDecisionCacheEnable) {
+            String tenantRequest = tenantId + "+"+request;
             if(simpleCache){
-                simpleDecisionCache.addToCache(request, response);
+                simpleDecisionCache.addToCache(tenantRequest, response);
             } else {
-			    decisionCache.addToCache(request, response);
+			    decisionCache.addToCache(tenantRequest, response);
             }
 		} else {
 			if (log.isDebugEnabled()) {
@@ -454,6 +456,17 @@ public class EntitlementEngine {
      */
     public PolicySearch getPolicySearch() {
         return policySearch;
+    }
+
+    private void setUPPolicyFinder() {
+
+        carbonPolicyFinder = new PolicyFinder();
+        Set<PolicyFinderModule> policyModules = new HashSet<PolicyFinderModule>();
+        CarbonPolicyFinder tmpCarbonPolicyFinder = new CarbonPolicyFinder();
+        policyModules.add(tmpCarbonPolicyFinder);
+        carbonPolicyFinder.setModules(policyModules);
+        carbonPolicyFinder.init();
+
     }
 
 }

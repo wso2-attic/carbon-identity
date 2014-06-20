@@ -17,14 +17,10 @@
 */
 package org.wso2.carbon.identity.provider;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.core.util.AdminServicesUtil;
@@ -33,8 +29,10 @@ import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.utils.ServerConstants;
-import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 /**
  * This services has the functionality related to Information Cards / OpenID dash-board
@@ -100,6 +98,19 @@ public class IdentityProviderService extends AbstractAdmin {
         }
     }
 
+    public void addOpenID(String openID) {
+        try {
+
+            IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
+            String userName = CarbonContext.getThreadLocalCarbonContext().getUsername();
+            persistenceManager.doOpenIdSignUp(IdentityTenantUtil.getRegistry()
+                    ,AdminServicesUtil.getUserRealm(),openID, userName);
+
+        } catch (Exception e) {
+            log.error("Error instantiating a Persistence Manager.", e);
+        }
+    }
+
     /**
      * @param ppid
      * @return
@@ -122,7 +133,12 @@ public class IdentityProviderService extends AbstractAdmin {
         HttpSession httpSession = request.getSession(false);
         
         if (username.contains("@")) {
-            username = username.substring(0, username.indexOf("@"));
+            if (MultitenantUtils.isEmailUserName()) {
+                String[] partitionedUserName = username.trim().split("@");
+                username = partitionedUserName[0]+"@"+partitionedUserName[1];
+            } else {
+                username = username.substring(0, username.indexOf("@"));
+            }
         }
         
         if (httpSession != null) {

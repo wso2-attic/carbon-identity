@@ -18,24 +18,24 @@
 
 package org.wso2.carbon.identity.oauth2.util;
 
+import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.TreeMap;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.oauth.IdentityOAuthAdminException;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
-import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
+import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth.dao.OAuthConsumerDAO;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.model.ClientCredentialDO;
-
-import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * Utility methods for OAuth 2.0 implementation
@@ -45,8 +45,39 @@ public class OAuth2Util {
 	private static Log log = LogFactory.getLog(OAuth2Util.class);
 	private static boolean cacheEnabled = OAuthServerConfiguration.getInstance().isCacheEnabled();
 	private static OAuthCache cache = OAuthCache.getInstance();
+    private static long timestampSkew = OAuthServerConfiguration.getInstance().getTimeStampSkewInSeconds() * 1000;
+    private static ThreadLocal<Integer> clientTenatId = new ThreadLocal<Integer>();
+    
+    
 
-	/**
+    /**
+     * 
+     * @return
+     */
+    public static int getClientTenatId() {
+        if (clientTenatId.get() == null) {
+            return -1;
+        }
+        return clientTenatId.get().intValue();
+    }
+
+    /**
+     * 
+     * @param tenantId
+     */
+    public static void setClientTenatId(int tenantId) {
+        Integer id = new Integer(tenantId);
+        clientTenatId.set(id);
+    }
+    
+    /**
+     * 
+     */
+    public static void clearClientTenantId(){
+        clientTenatId.remove();
+    }
+
+    /**
 	 * Build a comma separated list of scopes passed as a String set by Amber.
 	 *
 	 * @param scopes set of scopes
@@ -207,21 +238,25 @@ public class OAuth2Util {
 	}
 
 	public static AccessTokenDO validateAccessTokenDO(AccessTokenDO accessTokenDO) {
-		long currentTime;
+
 		//long validityPeriod = accessTokenDO.getValidityPeriod() * 1000;
 		long validityPeriodMillis = accessTokenDO.getValidityPeriodInMillis();
 		long issuedTime = accessTokenDO.getIssuedTime().getTime();
-		currentTime = System.currentTimeMillis();
+        long currentTime = System.currentTimeMillis();
 
 		//check the validity of cached OAuth2AccessToken Response
-		if (issuedTime + validityPeriodMillis - currentTime > 1000) {
-			//Set new validity period to response object
-			accessTokenDO.setValidityPeriod((issuedTime + validityPeriodMillis - currentTime) / 1000);
-			accessTokenDO.setValidityPeriodInMillis(issuedTime + validityPeriodMillis - currentTime);
-			//Set issued time period to response object
-			accessTokenDO.setIssuedTime(new Timestamp(currentTime));
-
-			return accessTokenDO;
+        long skew = OAuthServerConfiguration.getInstance().getTimeStampSkewInSeconds() * 1000;
+        if (issuedTime + validityPeriodMillis - (currentTime + skew) > 1000) {
+            long refreshValidity = OAuthServerConfiguration.getInstance()
+                    .getRefreshTokenValidityPeriodInSeconds() * 1000;
+            if(issuedTime +  refreshValidity - currentTime + skew > 1000){
+                //Set new validity period to response object
+                accessTokenDO.setValidityPeriod((issuedTime + validityPeriodMillis - (currentTime + skew)) / 1000);
+                accessTokenDO.setValidityPeriodInMillis(issuedTime + validityPeriodMillis - (currentTime + skew));
+                //Set issued time period to response object
+                accessTokenDO.setIssuedTime(new Timestamp(currentTime));
+                return accessTokenDO;
+            }
 		}
 		//returns null if cached OAuth2AccessToken response object is expired
 		return null;
@@ -337,5 +372,21 @@ public class OAuth2Util {
         }
         return text;
     }
+
+	public static long getTokenExpireTimeMillis(AccessTokenDO accessTokenDO) {
+		long currentTime;
+		long validityPeriodMillis = accessTokenDO.getValidityPeriodInMillis();
+		long issuedTime = accessTokenDO.getIssuedTime().getTime();
+		currentTime = System.currentTimeMillis();
+		if ((issuedTime + validityPeriodMillis) - (currentTime + timestampSkew) > 1000) {
+            long refreshValidity = OAuthServerConfiguration.getInstance()
+                    .getRefreshTokenValidityPeriodInSeconds() * 1000;
+            if(issuedTime + refreshValidity - (currentTime + timestampSkew) > 1000){
+                return (issuedTime + validityPeriodMillis) - (currentTime + timestampSkew);
+            }
+		}
+		return -1;
+	}
+    
 
 }

@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.oauth2;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.core.AbstractAdmin;
+import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientApplicationDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationRequestDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 import org.wso2.carbon.identity.oauth2.validators.TokenValidationHandler;
@@ -50,6 +51,28 @@ public class OAuth2TokenValidationService extends AbstractAdmin {
 			errRespDTO.setValid(false);
 			errRespDTO.setErrorMsg("Server error occurred while validating the OAuth2 access token");
 			return errRespDTO;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param validationReqDTO
+	 * @return
+	 */
+	public OAuth2ClientApplicationDTO findOAuthConsumerIfTokenIsValid(OAuth2TokenValidationRequestDTO validationReqDTO) {
+
+		TokenValidationHandler validationHandler = TokenValidationHandler.getInstance();
+
+		try {
+			return validationHandler.findOAuthConsumerIfTokenIsValid(validationReqDTO);
+		} catch (IdentityOAuth2Exception e) {
+			log.error("Error occurred while validating the OAuth2 access token", e);
+			OAuth2ClientApplicationDTO appDTO = new OAuth2ClientApplicationDTO();
+			OAuth2TokenValidationResponseDTO errRespDTO = new OAuth2TokenValidationResponseDTO();
+			errRespDTO.setValid(false);
+			errRespDTO.setErrorMsg("Server error occurred while validating the OAuth2 access token");
+			appDTO.setAccessTokenValidationResponse(errRespDTO);
+			return appDTO;
 		}
 	}
 }

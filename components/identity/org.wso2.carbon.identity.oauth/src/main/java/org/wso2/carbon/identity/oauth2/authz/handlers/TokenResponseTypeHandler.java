@@ -28,7 +28,6 @@ import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.authz.OAuthAuthzReqMessageContext;
-import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenRespDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeReqDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeRespDTO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
@@ -66,12 +65,12 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                 //TODO Need to refactor this logic
                 //First serve from the cache
                 if (cacheEnabled) {
-                    AccessTokenDO newAccessTokenDO = (AccessTokenDO) oauthCache.getValueFromCache(cacheKey);
-                    if (newAccessTokenDO != null) {
-                        AccessTokenDO accessTokenDO = OAuth2Util.validateAccessTokenDO(newAccessTokenDO);
-                        if (accessTokenDO != null) {
-                            respDTO.setAccessToken(accessTokenDO.getAccessToken());
-                            respDTO.setValidityPeriod(accessTokenDO.getValidityPeriod());
+					AccessTokenDO accessTokenDO = (AccessTokenDO) oauthCache.getValueFromCache(cacheKey);
+					if (accessTokenDO != null) {
+						long expireTime = OAuth2Util.getTokenExpireTimeMillis(accessTokenDO);
+						if (expireTime > 0) {
+							respDTO.setAccessToken(accessTokenDO.getAccessToken());
+							respDTO.setValidityPeriod(accessTokenDO.getValidityPeriod());
                             if (log.isDebugEnabled()) {
                                 log.debug("Access Token info retrieved from the cache and served to client with client id : " +
                                         consumerKey);
@@ -90,24 +89,21 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                 }
 
                 //Check if previously issued token exists in database
-                OAuth2AccessTokenRespDTO tokenRespDTO = tokenMgtDAO.getValidAccessTokenIfExist(consumerKey,authorizedUser,userStoreDomain, scope);
-                if (tokenRespDTO != null) {
+				AccessTokenDO accessTokenDO = tokenMgtDAO.getValidAccessTokenIfExist(consumerKey, authorizedUser,
+						userStoreDomain, scope);
+				if (accessTokenDO != null) {
                     if (log.isDebugEnabled()) {
                         log.debug("Retrieving existing valid access token for client ID" + consumerKey);
                     }
                     if (cacheEnabled) {
-                        AccessTokenDO accessTokenDO = new AccessTokenDO(consumerKey, authorizedUser,
-                                oauthAuthzMsgCtx.getApprovedScope(), new Timestamp(System.currentTimeMillis()), tokenRespDTO.getExpiresIn(), OAuthConstants.USER_TYPE_FOR_USER_TOKEN);
-                        accessTokenDO.setTokenState(OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE);
-                        accessTokenDO.setAccessToken(tokenRespDTO.getAccessToken());
                         if (log.isDebugEnabled()) {
                             log.debug("Access Token info was added to the cache for the client id : " +
                                     consumerKey);
                         }
                         oauthCache.addToCache(cacheKey, accessTokenDO);
                     }
-                    respDTO.setAccessToken(tokenRespDTO.getAccessToken());
-                    respDTO.setValidityPeriod(tokenRespDTO.getExpiresIn());
+                    respDTO.setAccessToken(accessTokenDO.getAccessToken());
+                    respDTO.setValidityPeriod(OAuth2Util.getTokenExpireTimeMillis(accessTokenDO)/1000);
                     return respDTO;
                 } else {
                     if (log.isDebugEnabled()) {

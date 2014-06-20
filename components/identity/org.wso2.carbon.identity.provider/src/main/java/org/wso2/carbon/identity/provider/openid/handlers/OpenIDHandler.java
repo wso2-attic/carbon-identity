@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.provider.openid.handlers;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
+import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletOutputStream;
@@ -38,16 +39,15 @@ import org.wso2.carbon.identity.application.authentication.framework.cache.Authe
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityConstants.OpenId;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.provider.OpenIDProviderService;
 import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
 import org.wso2.carbon.identity.provider.dto.OpenIDAuthResponseDTO;
-import org.wso2.carbon.identity.provider.dto.OpenIDClaimDTO;
 import org.wso2.carbon.identity.provider.dto.OpenIDParameterDTO;
 import org.wso2.carbon.identity.provider.dto.OpenIDRememberMeDTO;
-import org.wso2.carbon.identity.provider.dto.OpenIDUserProfileDTO;
 import org.wso2.carbon.identity.provider.openid.OpenIDConstants;
 import org.wso2.carbon.identity.provider.openid.client.OpenIDAdminClient;
 import org.wso2.carbon.identity.provider.openid.util.OpenIDUtil;
@@ -375,16 +375,24 @@ public class OpenIDHandler {
 		openIDAuthRequest.setOpenID(claimedID);
 		openIDAuthRequest.setProfileName(profileName);
 		
+		String authenticatedIdPsParam = "";
+		
 		// setting the user claims received from the framework 
 		if(session.getAttribute(OpenIDConstants.AUTHENTICATION_RESULT) != null) {
 			AuthenticationResult authResult = (AuthenticationResult) session.getAttribute(OpenIDConstants.AUTHENTICATION_RESULT);
 			openIDAuthRequest.setResponseClaims(authResult.getUserAttributes());
+			String authenticatedIdPs = authResult.getAuthenticatedIdPs();
+			
+	        if (authenticatedIdPs != null && !authenticatedIdPs.isEmpty()) {
+	            authenticatedIdPsParam = "&AuthenticatedIdPs=" + URLEncoder.encode(authenticatedIdPs, "UTF-8");
+	        }
 		}
 		
+		session.removeAttribute(OpenIDConstants.SessionAttribute.OPENID);
 		OpenIDAuthResponseDTO openIDAuthResponse = client.getOpenIDAuthResponse(openIDAuthRequest);
-
+		
 		if (openIDAuthResponse != null) {
-			return openIDAuthResponse.getDestinationUrl();
+			return openIDAuthResponse.getDestinationUrl() + authenticatedIdPsParam;
 		}
 		return null;
 	}
@@ -431,35 +439,35 @@ public class OpenIDHandler {
 		String loginPageUrl = frontEndUrl;
 		
 		// checking for the OpenID remember me cookie
-		Cookie[] cookies = request.getCookies();
-		String token = null;
-		if (cookies != null) {
-			Cookie curCookie = null;
-			for (Cookie cookie : cookies) {
-				curCookie = cookie;
-				params.getParameterValue(IdentityConstants.OpenId.ATTR_RETURN_TO);
-				if (curCookie.getName().equalsIgnoreCase(OpenIDConstants.Cookie.OPENID_TOKEN)) {
-					token = curCookie.getValue();
-					break;
-				}
-			}
-		}
+//		Cookie[] cookies = request.getCookies();
+//		String token = null;
+//		if (cookies != null) {
+//			Cookie curCookie = null;
+//			for (Cookie cookie : cookies) {
+//				curCookie = cookie;
+//				params.getParameterValue(IdentityConstants.OpenId.ATTR_RETURN_TO);
+//				if (curCookie.getName().equalsIgnoreCase(OpenIDConstants.Cookie.OPENID_TOKEN)) {
+//					token = curCookie.getValue();
+//					break;
+//				}
+//			}
+//		}
 		
         // if cookie found
-        if (token != null
-                && !NULL.equals(token)
-                || (claimedID.equals(request.getSession(false).getAttribute(
-                        OpenIDConstants.SessionAttribute.AUTHENTICATED_OPENID)))) {
-
-            /*
-             * We are setting the request's openid identifier to the session
-             * here.
-             */
-            request.getSession(false).setAttribute(OpenIDConstants.SessionAttribute.OPENID, claimedID);
-            handleRequestFromLoginPage(request, response, token);
-            return null;
-
-        } 
+//        if (token != null
+//                && !NULL.equals(token)
+//                || (claimedID.equals(request.getSession(false).getAttribute(
+//                        OpenIDConstants.SessionAttribute.AUTHENTICATED_OPENID)))) {
+//
+//            /*
+//             * We are setting the request's openid identifier to the session
+//             * here.
+//             */
+//            request.getSession(false).setAttribute(OpenIDConstants.SessionAttribute.OPENID, claimedID);
+//            handleRequestFromLoginPage(request, response, token);
+//            return null;
+//
+//        } 
             
         /*
          * We are setting the request's openid identifier to the session
@@ -472,10 +480,9 @@ public class OpenIDHandler {
 	    String selfPath = URLEncoder.encode("/openidserver", "UTF-8");
 	    String sessionDataKey = UUIDGenerator.generateUUID();
 
-	    String queryParams = "?" + request.getQueryString() +
+	    String queryParams = "?" + request.getQueryString()  + "&relyingParty=" + getRelyingParty(request) +
 	    		"&sessionDataKey=" + sessionDataKey + 
-	    		"&type=openid" + "&commonAuthCallerPath=" + selfPath + 
-	    		"&forceAuthenticate=false";
+	    		"&type=openid" + "&commonAuthCallerPath=" + selfPath;
 	    
 	    String username = null;
 		if(params.getParameterValue("openid.identity") != null){
@@ -529,7 +536,7 @@ public class OpenIDHandler {
 
 		try {
 			HttpSession session = req.getSession();
-			
+
 			boolean isRemembered = false;
 			
 			if(req.getParameter("chkRemember") != null && req.getParameter("chkRemember").equals("on")){
@@ -593,23 +600,23 @@ public class OpenIDHandler {
 			
 			OpenIDAdminClient client = OpenIDUtil.getOpenIDAdminClient(session);
 			
-			OpenIDRememberMeDTO rememberMeDTO = new OpenIDRememberMeDTO();
+			/*OpenIDRememberMeDTO rememberMeDTO = new OpenIDRememberMeDTO();*/
 			
 			if (!isAuthenticated) {
 				
-				if (rememberMeCookie != null) {
+				/*if (rememberMeCookie != null) {
 					rememberMeDTO = openIDProviderService.authenticateWithRememberMeCookie(claimedID.trim(), req.getRemoteAddr(), rememberMeCookie);
 					isAuthenticated = rememberMeDTO.isAuthenticated();
-				}
+				}*/
 				
 				if (!isAuthenticated) {
 					
 					if (authnResult != null) {
 						isAuthenticated = authnResult.isAuthenticated();
 						
-						if (isAuthenticated && isRemembered) {
+						/*if (isAuthenticated && isRemembered) {
 							rememberMeDTO = openIDProviderService.handleRememberMe(claimedID.trim(), req.getRemoteAddr());
-						}
+						}*/
 					}
 					
 				}
@@ -627,10 +634,10 @@ public class OpenIDHandler {
 				    session.setAttribute(OpenIDConstants.SessionAttribute.USER_APPROVED, "true");
 					session.setAttribute(OpenIDConstants.SessionAttribute.SELECTED_PROFILE, "default");
 
-                    if (rememberMeDTO.getNewCookieValue() != null) {
+                    /*if (rememberMeDTO.getNewCookieValue() != null) {
                         OpenIDUtil.setCookie(OpenIDConstants.Cookie.OPENID_TOKEN, rememberMeDTO.getNewCookieValue(),
                                 client.getOpenIDSessionTimeout(), "/", "", true, resp);
-                    }
+                    }*/
 
 					req.setAttribute("nonlogin", "true");
 					RequestDispatcher dispatcher = req.getRequestDispatcher("../../openidserver");
@@ -647,11 +654,11 @@ public class OpenIDHandler {
 						session.setAttribute(OpenIDConstants.SessionAttribute.USER_APPROVED_ALWAYS, "true");
 						session.setAttribute(OpenIDConstants.SessionAttribute.SELECTED_PROFILE, rpInfo[1]);
 
-                        if (rememberMeDTO.getNewCookieValue() != null) {
+                        /*if (rememberMeDTO.getNewCookieValue() != null) {
                             OpenIDUtil.setCookie(OpenIDConstants.Cookie.OPENID_TOKEN,
                                     rememberMeDTO.getNewCookieValue(), client.getOpenIDSessionTimeout(), "/", "",
                                     true, resp);
-                        }
+                        }*/
 						
 						req.setAttribute("nonlogin", "true");
 						RequestDispatcher dispatcher = req.getRequestDispatcher("../../openidserver");
@@ -662,11 +669,11 @@ public class OpenIDHandler {
 					    
 					    session.setAttribute(OpenIDConstants.SessionAttribute.ACTION, IdentityConstants.OpenId.AUTHENTICATED);
 					    
-					    if (rememberMeDTO.getNewCookieValue() != null) {
+					    /*if (rememberMeDTO.getNewCookieValue() != null) {
                             OpenIDUtil.setCookie(OpenIDConstants.Cookie.OPENID_TOKEN,
                                     rememberMeDTO.getNewCookieValue(), client.getOpenIDSessionTimeout(), "/", "",
                                     true, resp);
-                        }
+                        }*/
 
 						sendToApprovalPage(req, resp);
 					}
@@ -698,82 +705,34 @@ public class OpenIDHandler {
 		PrintWriter out = resp.getWriter();
 		out.println("<html>");
 		out.println("<body>");
-		out.println("<p>You are now redirected back to Profile Approval Page.");
+		out.println("<p>You are now redirected back to Approval Page.");
 		out.println(" If the redirection fails, please click the post button.</p>");
 		out.println("<form method='post' action='authenticationendpoint/openid_profile.do'>");
 		out.println("<p>");
 		
-		OpenIDUserProfileDTO[] profiles = null;
+        AuthenticationResult authnResult = null;
 
-		if (session.getAttribute("profiles") == null) {
-		    
-			ParameterList requestedClaims = null;
-			String isPhishingResistance = (String) session.getAttribute("papePhishingResistance");
-			String isMultiFactorAuthEnabled = (String) session.getAttribute("multiFactorAuth");
+        if (req.getParameter("sessionDataKey") != null) {
+            authnResult = getAuthenticationResultFromCache(req.getParameter("sessionDataKey"));
+        }
 
-            String openid = (String) session.getAttribute("openId");
-            
-            try {
-                // we get the openid admin client from the session. This is
-                // created once per session
-                OpenIDAdminClient client = OpenIDUtil.getOpenIDAdminClient(session);
+        Map<ClaimMapping, String> userAttributes = authnResult.getUserAttributes();
 
-                requestedClaims = (ParameterList) session.getAttribute(IdentityConstants.OpenId.PARAM_LIST);
-                profiles = client.getUserProfiles(openid, requestedClaims);
-                session.setAttribute("profiles", profiles);
-                session.setAttribute("selectedProfile", "default");
-
-                if (isPhishingResistance != null && isPhishingResistance.equals("true")) {
-                    session.setAttribute(IdentityConstants.PHISHING_RESISTANCE, IdentityConstants.TRUE);
-                }
-
-                if (isMultiFactorAuthEnabled != null && isMultiFactorAuthEnabled.equals("true")) {
-                    session.setAttribute(IdentityConstants.MULTI_FACTOR_AUTH, IdentityConstants.TRUE);
-                }
-
-            } catch (Exception e) {
-                String frontEndUrl = OpenIDUtil.getAdminConsoleURL(req);
-                resp.sendRedirect(frontEndUrl + "admin/login.jsp");
-                return;
-
-            } finally {
-                session.removeAttribute("papePhishingResistance");
-                session.removeAttribute("multiFactorAuth");
-                session.removeAttribute("infoCardBasedMultiFacotrAuth");
-                session.removeAttribute("xmppBasedMultiFacotrAuth");
-                session.removeAttribute("infoCardAuthenticated");
-            }
-			
-		} else {
-			profiles = (OpenIDUserProfileDTO[]) session.getAttribute("profiles");
-		}
-
-        String selectedProfile = req.getParameter("selectedProfile") == null ? "default" : req
-                .getParameter("selectedProfile");
-		out.println("<input type='hidden' name='selectedProfile' value='" + selectedProfile + "'>");
         out.println("<input type='hidden' name='openid.identity' value='" +
                 session.getAttribute(OpenIDConstants.SessionAttribute.AUTHENTICATED_OPENID) + "'>");
         out.println("<input type='hidden' name='openid.return_to' value='" +
                 ((ParameterList) session.getAttribute(OpenId.PARAM_LIST)).getParameterValue(OpenId.ATTR_RETURN_TO) + "'>");
 
-
-		for (int i = 0; i < profiles.length; i++) {
-			OpenIDUserProfileDTO profile = profiles[i];
-			out.println("<input type='hidden' name='profile' value='" + profile.getProfileName() + "'>");
-
-			if (profile.getProfileName().equals(selectedProfile)) {
-				OpenIDClaimDTO[] claimSet = profile.getClaimSet();
-
-				if (claimSet != null) {
-					for (int j = 0; j < claimSet.length; j++) {
-                        OpenIDClaimDTO claimDto = claimSet[j];
-                        out.println("<input type='hidden' name='claimTag' value='" + claimDto.getDisplayTag() + "'>");
-                        out.println("<input type='hidden' name='claimValue' value='" + claimDto.getClaimValue() + "'>");
-                    }
+        if (userAttributes != null) {
+            for (ClaimMapping claimMapping : userAttributes.keySet()) {
+                String value = userAttributes.get(claimMapping);
+                if (value != null) {
+                    out.println("<input type='hidden' name='claimTag' value='" + claimMapping.getLocalClaim().getClaimUri() + "'>");
+                    out.println("<input type='hidden' name='claimValue' value='" + userAttributes.get(claimMapping) + "'>");
                 }
             }
         }
-	    
+
 		out.println("<button type='submit'>POST</button>");
 		out.println("</p>");
 		out.println("</form>");
@@ -800,5 +759,9 @@ public class OpenIDHandler {
 		}
 		
 		return authResult;
+    }
+
+    private String getRelyingParty(HttpServletRequest request) {
+        return request.getParameter("openid.realm");
     }
 }
