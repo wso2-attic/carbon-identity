@@ -66,23 +66,25 @@ public class IdentityCoreServiceComponent {
             ctxt.getBundleContext().registerService(UserStoreManagerListener.class.getName(), userMgtListener, null);
             bundleContext = ctxt.getBundleContext();
 
-            // initialize the identity persistence manager, if it is not already initialized.
-            JDBCPersistenceManager jdbcPersistenceManager = JDBCPersistenceManager.getInstance();
-
             // Identity database schema creation can be avoided by setting
             // JDBCPersistenceManager.SkipDBSchemaCreation property to "true".
             String skipSchemaCreation = IdentityUtil.getProperty(
                     IdentityConstants.ServerConfig.SKIP_DB_SCHEMA_CREATION);
 
-            if (!("true".equals(skipSchemaCreation))) {
+            // initialize the identity persistence manager, if it is not already initialized.
+            JDBCPersistenceManager jdbcPersistenceManager = JDBCPersistenceManager.getInstance();
+            if (("true".equals(skipSchemaCreation))) {
+                // This ideally should be an info log but in API Manager it could be confusing to say
+                // DB initialization was skipped, because DB initialization is done by apimgt components
+                log.debug("Identity Provider Database initialization attempt was skipped since '" +
+                        IdentityConstants.ServerConfig.SKIP_DB_SCHEMA_CREATION + "' property has been set to \'true\'");
+            } else if (System.getProperty("setup") == null){
+                 log.info("Identity Database schema initialization check was skipped since " +
+                         "\'setup\' variable was not given during startup");
+            } else {
                 jdbcPersistenceManager.initializeDatabase();
             }
 
-            if(log.isDebugEnabled()){
-                if("true".equals(skipSchemaCreation)){
-                    log.debug("Identity Database schema initialization check was skipped.");
-                }
-            }
             //taking the service registration after DB initialization.
             ctxt.getBundleContext().registerService(IdentityUtil.class.getName(),
                     new IdentityUtil(), null);

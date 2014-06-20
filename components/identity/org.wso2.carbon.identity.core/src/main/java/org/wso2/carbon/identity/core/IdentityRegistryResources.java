@@ -135,6 +135,7 @@ public class IdentityRegistryResources {
     public static final String PROP_SAML_SSO_ATTRIB_CONSUMING_SERVICE_INDEX = "AttributeConsumingServiceIndex";
     public static final String PROP_SAML_SSO_REQUESTED_CLAIMS = "RequestedClaims";
     public static final String PROP_SAML_SSO_REQUESTED_AUDIENCES = "RequestedAudiences";
+    public static final String PROP_SAML_SSO_REQUESTED_RECIPIENTS = "RequestedRecipients";
     public static final String PROP_SAML_SSO_ENABLE_ATTRIBUTES_BY_DEFAULT = "EnableAttributesByDefault";
     public static final String PROP_SAML_SSO_ENABLE_NAMEID_CLAIMURI = "EnableNameIDClaimUri";
     public static final String PROP_SAML_SSO_NAMEID_CLAIMURI = "NameIDClaimUri";
