@@ -18,44 +18,40 @@
  */
 package org.wso2.carbon.identity.provisioning.connector.spml;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.provisioning.IdentityProvisioningConnectorFactory;
+import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.provisioning.AbstractOutboundProvisioningConnector;
+import org.wso2.carbon.identity.provisioning.AbstractProvisioningConnectorFactory;
+import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
 
-public class SPMLProvisioningConnectorFactory implements
-		IdentityProvisioningConnectorFactory {
+public class SPMLProvisioningConnectorFactory extends AbstractProvisioningConnectorFactory {
 
-	private static final Log log = LogFactory
-			.getLog(SPMLProvisioningConnectorFactory.class);
-	private static Map<String, SPMLProvisioningConnector> connectorList = new HashMap<String, SPMLProvisioningConnector>();
+    private static final Log log = LogFactory.getLog(SPMLProvisioningConnectorFactory.class);
+    private static final String SPML = "spml";
 
-	public SPMLProvisioningConnector buildConnector(String connectorName,
-			boolean isEnabled, Properties configs) {
-		if (!connectorList.containsKey(connectorName)) {
-			connectorList.put(connectorName, new SPMLProvisioningConnector(
-					connectorName, isEnabled, configs));
-			if (log.isDebugEnabled()) {
-				log.debug("Created new connector : " + connectorName
-						+ " of type : "
-						+ SPMLProvisioningConnector.class.toString());
-			}
-		}
-		return connectorList.get(connectorName);
-	}
+    @Override
+    /**
+     * 
+     */
+    protected AbstractOutboundProvisioningConnector buildConnector(
+            Property[] provisioningProperties) throws IdentityProvisioningException {
 
-	public SPMLProvisioningConnector getConnector(String connectorName) {
-		if (connectorName != null && connectorList.containsKey(connectorName)) {
-			return connectorList.get(connectorName);
-		}
-		return null;
-	}
+        SPMLProvisioningConnector spmlConnector = new SPMLProvisioningConnector();
+        spmlConnector.init(provisioningProperties);
 
-	public String getConnectorType() {
-		return SPMLProvisioningConnector.class.getName();
-	}
+        if (log.isDebugEnabled()) {
+            log.debug("Provisioning connector created of type " + getConnectorType());
+        }
+
+        return spmlConnector;
+    }
+
+    /**
+     * 
+     */
+    public String getConnectorType() {
+        return SPML;
+    }
 
 }

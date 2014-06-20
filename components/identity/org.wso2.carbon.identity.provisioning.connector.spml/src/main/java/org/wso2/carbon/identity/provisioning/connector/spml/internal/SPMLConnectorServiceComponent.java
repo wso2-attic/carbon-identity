@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.provisioning.connector.spml.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.identity.provisioning.IdentityProvisioningConnectorFactory;
+import org.wso2.carbon.identity.provisioning.AbstractProvisioningConnectorFactory;
 import org.wso2.carbon.identity.provisioning.connector.spml.SPMLProvisioningConnectorFactory;
 
 /**
@@ -41,7 +41,7 @@ public class SPMLConnectorServiceComponent {
     	try {
     		SPMLProvisioningConnectorFactory spmlProvisioningConnectorFactory = new SPMLProvisioningConnectorFactory();
     	
-    		context.getBundleContext().registerService(IdentityProvisioningConnectorFactory.class.getName(), spmlProvisioningConnectorFactory, null);
+    		context.getBundleContext().registerService(AbstractProvisioningConnectorFactory.class.getName(), spmlProvisioningConnectorFactory, null);
     		if(log.isDebugEnabled()) {
     			log.debug("SPML Provisioning Connector bundle is activated");
     		}

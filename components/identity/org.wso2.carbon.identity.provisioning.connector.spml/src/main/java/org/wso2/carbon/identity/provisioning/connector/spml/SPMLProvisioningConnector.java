@@ -1,302 +1,284 @@
-/*
- *  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- *
- */
 package org.wso2.carbon.identity.provisioning.connector.spml;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openspml.v2.client.Spml2Client;
-import org.openspml.v2.msg.spml.AddRequest;
-import org.openspml.v2.msg.spml.AddResponse;
-import org.openspml.v2.msg.spml.DeleteRequest;
-import org.openspml.v2.msg.spml.DeleteResponse;
-import org.openspml.v2.msg.spml.Extensible;
-import org.openspml.v2.msg.spml.PSO;
-import org.openspml.v2.msg.spml.PSOIdentifier;
-import org.openspml.v2.msg.spml.ReturnData;
-import org.openspml.v2.msg.spml.StatusCode;
+import org.openspml.v2.msg.spml.*;
 import org.openspml.v2.profiles.dsml.DSMLAttr;
 import org.openspml.v2.util.Spml2Exception;
-import org.wso2.carbon.identity.provisioning.AbstractIdentityProvisioningConnector;
+import org.openspml.v2.util.xml.ReflectiveXMLMarshaller;
+import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.provisioning.AbstractOutboundProvisioningConnector;
+import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
-import org.wso2.carbon.user.api.Permission;
-import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
+import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
+import org.wso2.carbon.identity.provisioning.ProvisioningEntityType;
+import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
 
-public class SPMLProvisioningConnector extends
-		AbstractIdentityProvisioningConnector {
+public class SPMLProvisioningConnector extends AbstractOutboundProvisioningConnector {
 
-	private SPMLProvisioningConnectorConfig configBuilder;
-	private static final Log log = LogFactory
-			.getLog(SPMLProvisioningConnector.class);
+    private static final long serialVersionUID = -1046148327813739881L;
+    
+    private static final Log log = LogFactory.getLog(SPMLProvisioningConnector.class);
+    private SPMLProvisioningConnectorConfig configHolder;
 
-	public SPMLProvisioningConnector(String name, boolean isEnabled,
-			Properties configs) {
-		super(name, isEnabled, configs);
-		this.configBuilder = new SPMLProvisioningConnectorConfig(configs);
-	}
+    @Override
+    /**
+     * 
+     */
+    public void init(Property[] provisioningProperties) throws IdentityProvisioningException {
 
-	@Override
-	public String createUser(String userName, Object credential,
-			String[] roleList, Map<String, String> claims, String profile,
-			UserStoreManager userStoreManager) throws UserStoreException {
+        Properties configs = new Properties();
 
-		if (log.isTraceEnabled()) {
-			log.trace("Starting createUser() of "
-					+ SPMLProvisioningConnector.class);
-		}
+        if (provisioningProperties != null && provisioningProperties.length > 0) {
+            for (Property property : provisioningProperties) {
+                configs.put(property.getName(), property.getValue());
 
-		boolean isDebugEnabled = log.isDebugEnabled();
+                if (IdentityProvisioningConstants.JIT_PROVISIONING_ENABLED.equals(property
+                        .getName())) {
+                    if ("1".equals(property.getValue())) {
+                        jitProvisioningEnabled = true;
+                    }
+                }
+            }
 
-		String spmlRoleName = "spml";
-		// Check whether spml role assigned to the user
-		boolean isUserHavingSpmlRole = false;
+        }
 
-		if (roleList != null) {
-			for (String role : roleList) {
-				if (role != null && role.equals(spmlRoleName)) {
-					isUserHavingSpmlRole = true;
-					break;
-				}
-			}
-		}
+        configHolder = new SPMLProvisioningConnectorConfig(configs);
+    }
 
-		String psoIdString = "";
-		if (isUserHavingSpmlRole) {
+    @Override
+    /**
+     * 
+     */
+    public ProvisionedIdentifier provision(ProvisioningEntity provisioningEntity)
+            throws IdentityProvisioningException {
 
-			if (userName.length() > 15) {
-				if (isDebugEnabled) {
-					log.debug("Username Should be less than 16 charaters lenght "
-							+ SPMLProvisioningConnector.class);
-				}
-			}
+        String provisionedId = null;
 
-			 Map<String, String> requiredAttributes = getRequiredAttributes(userName, credential, roleList, claims, profile, userStoreManager);
-			 if (isDebugEnabled) {
-					log.debug("Required Attributes for createUser "+requiredAttributes);
-				}
-			try {
-				Spml2Client spml2Client = new Spml2Client(
-						SPMLConnectorConstants.SPML_PROVIDER_ENDPOINT);
-				AddRequest req = new AddRequest();
-				req.setReturnData(ReturnData.EVERYTHING);
-				Extensible attrs = new Extensible();
-				attrs.addOpenContentElement(new DSMLAttr("objectclass",
-						SPMLConnectorConstants.SPML_SERVICE_OBJECT_CLASS));
-				attrs.addOpenContentElement(new DSMLAttr("accountId", userName));
-				attrs.addOpenContentElement(new DSMLAttr("credentials",
-						credential.toString()));
-				req.setData(attrs);
+        if (provisioningEntity.isJitProvisioning() && !isJitProvisioningEnabled()) {
+            log.debug("JIT provisioning disabled for SPML connector");
+            return null;
+        }
 
-				AddResponse res = (AddResponse) spml2Client.send(req);
-				if (res.getStatus().equals(StatusCode.SUCCESS)) {
-					System.out.println("Received positive add response.");
-					if (isDebugEnabled) {
-						log.debug("Recived positive add response of  "	+ userName);
-					}
+        if (provisioningEntity != null) {
+            if (provisioningEntity.getEntityType() == ProvisioningEntityType.USER) {
+                if (provisioningEntity.getOperation() == ProvisioningOperation.DELETE) {
+                    deleteUser(provisioningEntity);
+                } else if (provisioningEntity.getOperation() == ProvisioningOperation.PUT) {
+                    updateUser(provisioningEntity);
+                } else if (provisioningEntity.getOperation() == ProvisioningOperation.POST) {
+                    provisionedId = createUser(provisioningEntity);
+                } else {
+                    log.warn("Unsupported provisioning opertaion.");
+                }
+            } else {
+                log.warn("Unsupported provisioning opertaion.");
+            }
+        }
 
-					PSO pso = res.getPso();
-					PSOIdentifier psoId = pso.getPsoID();
-					psoIdString = psoId.getID();
+        // creates a provisioned identifier for the provisioned user.
+        ProvisionedIdentifier identifier = new ProvisionedIdentifier();
+        identifier.setIdentifier(provisionedId);
+        return identifier;
+    }
 
-				}
-			} catch (Spml2Exception e) {
-				if (isDebugEnabled) {
-					log.debug("Spml2Exception occured in"
-							+ SPMLProvisioningConnector.class, e);
-				}
+    /**
+     * 
+     * @param provisioningEntity
+     */
+    private void updateUser(ProvisioningEntity provisioningEntity) {
+        boolean isDebugEnabled = log.isDebugEnabled();
+        String provisioningIdentifier = null;
 
-			}
+        try {
+            ReflectiveXMLMarshaller marshaller = new ReflectiveXMLMarshaller();
+            Spml2Client spml2Client = new Spml2Client(configHolder.getValue("spml-ep"));
+            spml2Client.setTrace(log.isDebugEnabled());
+            spml2Client.setSOAPAction("SPMLModifyRequest");
 
-		} else {
-			if (isDebugEnabled) {
-				log.debug("User does not have spml role, hence proceed with not provisioning");
-			}
-		}
+            if(provisioningEntity != null && provisioningEntity.getIdentifier() != null) {
+                provisioningIdentifier = provisioningEntity.getIdentifier().getIdentifier();
+            } else {
+                if (isDebugEnabled) {
+                    log.debug("User updating faild. No provisioning identifier");
+                }
+                return;
+            }
+            PSOIdentifier psoId = new PSOIdentifier(provisioningIdentifier, null, null);
 
-		if (log.isTraceEnabled()) {
-			log.trace("Ending createUser() of "	+ SPMLProvisioningConnector.class);
-		}
-		return psoIdString;
-	}
+            ModifyRequest modifyRequest = new ModifyRequest();
+            modifyRequest.setPsoID(psoId);
+            Modification modification = new Modification();
 
-	@Override
-	public String deleteUser(String userName, UserStoreManager userStoreManager)
-			throws UserStoreException {
+            Map<String, String> claims = getSingleValuedClaims(provisioningEntity.getAttributes());
+            Iterator claimsKeySet = claims.entrySet().iterator();
 
-		if (log.isTraceEnabled()) {
-			log.trace("Starting deleteUser() of "
-					+ SPMLProvisioningConnector.class);
-		}
-		
-		String result = null;
-		boolean isDebugEnabled = log.isDebugEnabled();
+            while (claimsKeySet.hasNext()) {
+                Map.Entry pairs = (Map.Entry)claimsKeySet.next();
+                modification.addOpenContentElement(new DSMLAttr(pairs.getKey().toString(), pairs.getValue().toString()));
+            }
 
-		String[] roleList = userStoreManager.getRoleListOfUser(userName);
-		String spmlRoleName = "spml";
+            modifyRequest.addModification(modification);
 
-		boolean isUserHavingSpmlRole = false;
+            if (isDebugEnabled) {
+                log.debug("Sent SPML request:" + modifyRequest.toXML(marshaller));
 
-		if (roleList != null) {
-			for (String role : roleList) {
-				if (role != null && role.equals(spmlRoleName)) {
-					isUserHavingSpmlRole = true;
-					break;
-				}
-			}
-		}
+            }
 
-		if (isUserHavingSpmlRole) {
-			try {
-				Spml2Client spml2Client = new Spml2Client(
-						SPMLConnectorConstants.SPML_PROVIDER_ENDPOINT);
-				PSOIdentifier psoId = new PSOIdentifier(userName, null, null);
-				DeleteRequest deleteRequest = new DeleteRequest();
-				deleteRequest.setPsoID(psoId);
-				DeleteResponse deleteResponse = (DeleteResponse) spml2Client
-						.send(deleteRequest);
+            ModifyResponse modifyResponse = (ModifyResponse) spml2Client.send(modifyRequest);
 
-				if (deleteResponse.getStatus().equals(StatusCode.SUCCESS)) {
-					result = "Deleted user :" + userName;
-					if (isDebugEnabled) {
-						log.debug(result);
-					}
-				}
-			} catch (Spml2Exception e) {
-				if (isDebugEnabled) {
-					log.debug("Spml2Exception occured in"
-							+ SPMLProvisioningConnector.class, e);
-				}
-			}
-		} else {
-			if (isDebugEnabled) {
-				log.debug("User does not have spml role, hence proceed without de-provisioning of "+ SPMLProvisioningConnector.class);
-			}
-		}
-		
-		if (log.isTraceEnabled()) {
-			log.trace("Ending DeleteUser() of "	+ SPMLProvisioningConnector.class);
-		}
-		return result;
-	}
+            if (modifyResponse.getStatus().equals(StatusCode.SUCCESS)) {
+                if (isDebugEnabled) {
+                    log.debug("User updated successfully.");
+                }
+            } else {
+                log.warn("SPML user update failed.");
+            }
+        } catch (Spml2Exception e) {
+            log.error("Error while SPML user updating", e);
+        }
 
-	@Override
-	public boolean updateUserListOfRole(String roleName, String[] deletedUsers,
-			String[] newUsers, UserStoreManager userStoreManager)
-			throws UserStoreException {
-		// TODO Auto-generated method stub
-		return false;
-	}
+        if (log.isTraceEnabled()) {
+            log.trace("SPML user updated.");
+        }
+    }
 
-	@Override
-	public boolean updateRoleListOfUser(String userName, String[] deletedRoles,
-			String[] newRoles, UserStoreManager userStoreManager)
-			throws UserStoreException {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    /**
+     * 
+     * @param provisioningEntity
+     * @return
+     * @throws IdentityProvisioningException
+     */
+    private String createUser(ProvisioningEntity provisioningEntity)
+            throws IdentityProvisioningException {
 
-	@Override
-	public boolean addRole(String roleName, String[] userList,
-			Permission[] permissions, UserStoreManager userStoreManager)
-			throws UserStoreException {
-		// TODO Auto-generated method stub
-		return false;
-	}
+        boolean isDebugEnabled = log.isDebugEnabled();
 
-	@Override
-	public boolean deleteRole(String roleName, UserStoreManager userStoreManager)
-			throws UserStoreException {
-		// TODO Auto-generated method stub
-		return false;
-	}
+        String psoIdString = null;
+        List<String> userNames = getUserNames(provisioningEntity.getAttributes());
+        String userName = null;
 
-	private Map<String, String> getRequiredAttributes(String userName,
-			Object credential, String[] roleList, Map<String, String> claims,
-			String profile, UserStoreManager userStoreManager)
-			throws UserStoreException {
+        if (userNames != null && userNames.size() > 0) {
+            // first element must be the user name.
+            userName = userNames.get(0);
+        }
 
-		if (log.isTraceEnabled()) {
-			log.trace("Starting getRequiredAttributes() of "
-					+ SPMLProvisioningConnector.class);
-		}
-		boolean isDebugEnabled = log.isDebugEnabled();
+        try {
 
-		List<String> requiredAttributeNameList = configBuilder
-				.getRequiredAttributeNames();
-		if (isDebugEnabled) {
-			log.debug(" Required attributes for spml connector : "
-					+ requiredAttributeNameList.toString());
-		}
+            ReflectiveXMLMarshaller marshaller = new ReflectiveXMLMarshaller();
 
-		Map<String, String> requiredAttributeValueMap = new HashMap<String, String>();
-		for (String attribute : requiredAttributeNameList) {
-			String value = null;
-			// Find from claims
-			String claim = this
-					.getProperty(SPMLConnectorConstants.PropertyConfig.REQUIRED_CLAIM_PREFIX
-							+ attribute);
-			if (claim != null && !claim.isEmpty()) {
-				if (claims != null && !claims.isEmpty()
-						&& claims.containsKey(claim)) {
-					value = claims.get(claim);
-				} else {
-					// Search for claim from user store
-					try {
-						String clamValue = userStoreManager.getUserClaimValue(
-								userName, claim, null);
-						if (clamValue != null && !clamValue.isEmpty()) {
-							value = clamValue;
-						}
-					} catch (org.wso2.carbon.user.api.UserStoreException e) {
-						throw new UserStoreException(e);
-					}
-				}
+            Spml2Client spml2Client = new Spml2Client(configHolder.getValue("spml-ep"));
+            spml2Client.setTrace(log.isDebugEnabled());
 
-			} 
+            AddRequest req = new AddRequest();
+            req.setReturnData(ReturnData.IDENTIFIER);
 
-			// Still attribute doesn't has a value
-			if (value == null) {
-				log.error("Required attribute : "
-						+ attribute
-						+ " cannot mapped to a value. Either required claim doesn't specified' or dont have a default value to attribute.");
-				throw new IdentityProvisioningException("Required attribute : "
-						+ attribute + " cannot mapped to a value.");
-			}
+            Extensible attrs = new Extensible();
+            attrs.addOpenContentElement(new DSMLAttr("objectclass", configHolder
+                    .getValue("spml-oc")));
+            attrs.addOpenContentElement(new DSMLAttr("accountId", userName));
+            attrs.addOpenContentElement(new DSMLAttr("credentials", UUID.randomUUID().toString()));
 
-			requiredAttributeValueMap.put(attribute, value);
-			if (isDebugEnabled) {
-				log.debug("Required attribute : " + attribute
-						+ " mapped to value : " + value);
-			}
-		}
+            ArrayList<String> extractAttributes = configHolder.extractAttributes();
 
-		if (log.isTraceEnabled()) {
-			log.trace("Ending getRequiredAttributes() of "
-					+ SPMLProvisioningConnector.class);
-		}
+            // get user attributes.
+            Map<String, String> claims = getSingleValuedClaims(provisioningEntity.getAttributes());
+            Iterator claimsKeySet = claims.entrySet().iterator();
 
-		return requiredAttributeValueMap;
-	}
+            while (claimsKeySet.hasNext()) {
+                Map.Entry pairs = (Map.Entry)claimsKeySet.next();
+                attrs.addOpenContentElement(new DSMLAttr(pairs.getKey().toString(), pairs.getValue().toString()));
+            }
+
+            req.setData(attrs);
+
+            if (isDebugEnabled) {
+                log.debug("Sent SPML request:" + req.toXML(marshaller));
+            }
+
+            spml2Client.setSOAPAction("SPMLAddRequest");
+
+            AddResponse res = (AddResponse) spml2Client.send(req);
+
+            if (res != null && res.getStatus().equals(StatusCode.SUCCESS)) {
+
+                if (isDebugEnabled) {
+                    log.debug("Recived positive add response of  " + userName);
+                }
+
+                PSO pso = res.getPso();
+                PSOIdentifier psoId = pso.getPsoID();
+                psoIdString = psoId.getID();
+
+            } else {
+                throw new IdentityProvisioningException(
+                        "SPML provisioning failed. Invalid Response.");
+            }
+
+        } catch (Spml2Exception e) {
+            log.error("Error while SPML provisioning", e);
+
+        }
+
+        if (log.isTraceEnabled()) {
+            log.trace("SPML user provisioned.");
+        }
+
+        return psoIdString;
+    }
+
+    /**
+     * 
+     * @param provisioningEntity
+     */
+    private void deleteUser(ProvisioningEntity provisioningEntity) {
+
+        boolean isDebugEnabled = log.isDebugEnabled();
+        String provisioningIdentifier = null;
+
+        try {
+            ReflectiveXMLMarshaller marshaller = new ReflectiveXMLMarshaller();
+            Spml2Client spml2Client = new Spml2Client(configHolder.getValue("spml-ep"));
+            spml2Client.setTrace(log.isDebugEnabled());
+            spml2Client.setSOAPAction("SPMLDeleteRequest");
+
+            if(provisioningEntity != null && provisioningEntity.getIdentifier() != null) {
+                provisioningIdentifier = provisioningEntity.getIdentifier().getIdentifier();
+            } else {
+                if (isDebugEnabled) {
+                    log.debug("User de-provisioned faild. No provisioning identifier");
+                }
+                return;
+            }
+            PSOIdentifier psoId = new PSOIdentifier(provisioningIdentifier, null, null);
+            DeleteRequest deleteRequest = new DeleteRequest();
+            deleteRequest.setPsoID(psoId);
+
+            if (isDebugEnabled) {
+                log.debug("Sent SPML request:" + deleteRequest.toXML(marshaller));
+
+            }
+
+            DeleteResponse deleteResponse = (DeleteResponse) spml2Client.send(deleteRequest);
+
+            if (deleteResponse.getStatus().equals(StatusCode.SUCCESS)) {
+                if (isDebugEnabled) {
+                    log.debug("User de-provisioned successfully.");
+                }
+            } else {
+                log.warn("SPML user provisioning failed.");
+            }
+        } catch (Spml2Exception e) {
+            log.error("Error while SPML de-provisioning", e);
+        }
+
+        if (log.isTraceEnabled()) {
+            log.trace("SPML user de-provisioned.");
+        }
+    }
 
 }

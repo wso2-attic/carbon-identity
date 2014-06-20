@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+    xmlns:wh="urn:oasis:names:tc:ws:header:1:0"
+    targetNamespace="urn:oasis:names:tc:ws:header:1:0">            
+    <xs:import namespace="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+         schemaLocation=" http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd " />
+    <xs:complexType name="serviceHeaderType">
+        <xs:sequence>
+            <xs:element  ref="wsse:Security" />
+            <xs:element name="serviceId"  type="xs:string" />
+    <xs:any namespace="##other" minOccurs="0" maxOccurs="unbounded" processContents="lax"/>
+        </xs:sequence>
+    </xs:complexType>	
+    <xs:element name="ServiceHeader" type="wh:serviceHeaderType"  />
+</xs:schema >
