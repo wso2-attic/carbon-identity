@@ -17,51 +17,43 @@
 <html>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/>
-    <title>Trusted Identity Providers - User Guide</title>
+    <title>Identity Providers - User Guide</title>
     <link href="../../admin/css/documentation.css" rel="stylesheet" type="text/css" media="all" />
 </head>
 
 <body style="font-family: Times New Roman,Times,serif; font-size: 12pt;">
 
-<h1>Trusted Identity Providers</h1>
-<p>This user guide describes the user identity management related options and configurations available in the WSO2 Identity Server.</p>
+<h1>Identity Providers</h1>
+<p>This user guide describes the Identity Providers Management related configurations available in the WSO2 Identity Server.</p>
 
-<p>You can use the left hand side &quot;Configure&quot; menu to complete the below mentioned configuration and options details.</p>
+<p>You can use the left hand side &quot;Main&quot; -> &quot;Identity&quot; -> &quot;Identity Providers&quot; menu to complete the below mentioned configuration details.</p>
 
-<h2>Trusted Identity Providers Management</h2>
 <p>
-    Trusted Identity Providers are the Identity Providers that are trusted by that tenant.
-    These Identity Providers can be configured by tenant admins. These Trusted Identity Providers can be used for many different use cases.
-    E.g. The SAML2 Assertion Profile for OAuth2 uses the trusted Identity providers to verify the SAML Assertion.
+    External Identity Providers that are trusted for various purposes are registered here by Administrators.
+    These Identity Providers can be used for many different use cases.
+    E.g. Federated login with an Identity Provider.
 </p>
 <p>
-    Following  section describes adding Trusted Identity Providers to the system by Administrator. Click on Configure tab &gt; Trusted IdPs.
-    The Trusted Identity Providers Management page will be shown which is depicted in the Figure 1.
-    From here you can add new Trusted Identity Providers for the tenant by clicking on the Add New Trusted Identity Provider link at the top.
-    You can also edit and delete registered Trusted Identity Providers by clicking the corresponding links against them.
+    Following  section describes adding and modifying Identity Providers in the system by an Administrator.
+    Click on Main &gt; Identity &gt; Identity Providers &gt; Add to add Identity Providers to the system.
+    You can also edit and delete registered Identity Providers by going to Main &gt; Identity &gt; Identity Providers
+    &gt; List and clicking the corresponding links against them.
 </p>
 <br/><br/>
-<img alt="" src="../images/idp-mgt-list.png"/><br/>
-<p>Figure 1 : Trusted Identity Providers Management</p>
-
-<h2>Adding/Editing Trusted Identity Providers</h2>
-<p>You can add or edit Trusted Identity Providers using the form shown in Figure 2.</p>
-<p>Following is a short description of the fields.
-    <ol>
-        <li>Identity Provider Name - This is the unique name of this Identity Provider across this tenant.</li>
-        <li>Identity Provider Issuer - The Issuer name of this Identity Provider. This will be used for validating Issuer name of the SAML token when using the validation APIs.</li>
-        <li>Primary Identity Provider - Indicates if this is the primary Identity Provider for this tenant.  The first Identity Provider registered would be primary by default.</li>
-        <li>Identity Provider URL - The URL of this Identity Provider.</li>
-        <li>Identity Provider Public Certificate - The public certificate of this Identity Provider. This will be used for validating SAML token signatures when using the validation APIs.</li>
-        <li>Identity Provider Roles - The roles that are registered for this tenant at the Identity Provider.</li>
-        <li>Role Mappings - Map Identity Provider Roles to tenant roles in the Identity Server.</li>
-        <li>Identity Provider Audience - Mandatory audience restriction elements that need to be present in the SAML token when it is to be used by this tenant for any purpose. This will be used for validating SAML token Audience Restriction when using the validation APIs.</li>
-        <li>OAuth2 Token Endpoint Name - The OAuth2 Token Endpoint URL or any alias used to refer to it uniquely within the tenant. This will be used when validating Audience Restriction of the SAML token under the SAML2 Assertion Profile for OAuth2.</li>
-    </ol>
-</p>
-<br/><br/>
-<img alt="" src="../images/idp-mgt-edit.png"/>
-<p>Figure 2 : Add/Edit Trusted Identity Providers</p>
+<img alt="" src="../images/idp-list.png"/><br/><br/>
+<img alt="" src="../images/idp-mgt-1.png"/><br/><br/>
+<img alt="" src="../images/idp-mgt-2.png"/><br/><br/>
+<img alt="" src="../images/idp-mgt-3.png"/><br/><br/>
+<img alt="" src="../images/idp-mgt-4.png"/><br/><br/>
+<img alt="" src="../images/idp-mgt-5.png"/><br/><br/>
+<img alt="" src="../images/idp-mgt-6.png"/><br/><br/>
+<img alt="" src="../images/idp-mgt-7.png"/><br/><br/>
+<img alt="" src="../images/idp-mgt-8.png"/><br/><br/>
+<img alt="" src="../images/idp-mgt-9.png"/><br/><br/>
+<img alt="" src="../images/idp-mgt-10.png"/><br/><br/>
+<img alt="" src="../images/res-idp-1.png"/><br/><br/>
+<img alt="" src="../images/res-idp-2.png"/><br/><br/>
+<p><a href="https://docs.wso2.org/display/IS500/Working+with+the+Identity+Provider">Trusted Identity Providers Management</a></p>
 
 </body>
 </html>

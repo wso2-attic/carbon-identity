@@ -16,21 +16,33 @@
 ~ under the License.
 -->
 
-<%@page import="com.sun.org.apache.bcel.internal.generic.INSTANCEOF"%>
-<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.*"%>
+<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.HashMap"%>
+<%@page import="java.util.Map"%>
+<%@page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@page import="org.wso2.carbon.CarbonConstants"%>
 
-<%@page import="org.wso2.carbon.identity.application.common.model.CertData"%>
-<%@page import="org.wso2.carbon.identity.application.common.IdentityApplicationManagementUtil"%>
+<%@page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"%>
+<%@ page import="org.wso2.carbon.idp.mgt.ui.client.IdentityProviderMgtServiceClient" %>
 <%@ page import="org.wso2.carbon.idp.mgt.ui.util.IdPManagementUIUtil" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.Set" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
-<%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.idp.mgt.ui.client.IdentityProviderMgtServiceClient" %>
+<%@ page import="java.util.List" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.*" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.*" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.Claim" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ClaimMapping" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.RoleMapping" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.Property" %>
+<%@ page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants" %>
+<%@ page import="org.apache.axis2.jaxws.utility.JavaUtils" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig" %>
+<link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
 
 <carbon:breadcrumb label="identity.providers" resourceBundle="org.wso2.carbon.idp.mgt.ui.i18n.Resources"
                     topPage="true" request="<%=request%>" />
@@ -39,12 +51,14 @@
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
-	String idPName = request.getParameter("idPName");
+	String idPName = CharacterEncoder.getSafeText(request.getParameter("idPName"));
     if(idPName != null && idPName.equals("")){
         idPName = null;
     }
-    boolean primary = false;
     String realmId = null;
+    String idpDisplayName = null;
+    String description = null;
+    boolean federationHubIdp = false;
     CertData certData = null;
     Claim[] identityProviderClaims = null;
     String userIdClaimURI = null;
@@ -53,11 +67,14 @@
     ClaimMapping[] claimMappings = null;
     String[] roles = null;
     RoleMapping[] roleMappings = null;
-    String tokenEndpointAlias = null;
+    String idPAlias = null;
     boolean isProvisioningEnabled = false;
+    boolean isCustomClaimEnabled = false;
+
     String provisioningUserStoreId = null;
     boolean isOpenIdEnabled = false;
     boolean isOpenIdDefault = false;
+    boolean isAdvancedClaimConfigEnable = false;
     String openIdUrl = null;
     boolean isOpenIdUserIdInClaims = false;
     boolean isSAML2SSOEnabled = false;
@@ -66,6 +83,9 @@
     String spEntityId = null;
     String ssoUrl = null;
     boolean isAuthnRequestSigned = false;
+    boolean isEnableAssertionEncription = false;
+    boolean isEnableAssertionSigning = true;
+
     boolean isSLOEnabled = false;
     boolean isLogoutRequestSigned = false;
     String logoutUrl = null;
@@ -90,6 +110,7 @@
     String fbClientSecret = null;
     boolean isFBUserIdInClaims = false;
     
+
     // Claims
     String[] claimUris = new String[0];
 
@@ -110,11 +131,58 @@
     String googleProvServiceAccEmail = null;
     String googleProvAdminEmail = null;
     String googleProvApplicationName = null;
-    CertData googleProvPrivateKeyData = null;
+    String googleProvPrivateKeyData = null;
+    
+    boolean isSfProvEnabled = false;
+    boolean isSfProvDefault = false;
+    String sfApiVersion = null;
+    String sfDomainName = null;
+    String sfClientId = null;
+    String sfClientSecret = null;
+    String sfUserName = null;
+    String sfPassword = null;
+    
+    boolean isScimProvEnabled = false;
+    boolean isScimProvDefault = false;
+    String scimUserName = null;
+    String scimPassword = null;
+	String scimGroupEp = null;
+	String scimUserEp = null;
+	String scimUserStoreDomain=null;
+	
+	boolean isSpmlProvEnabled = false;
+	boolean isSpmlProvDefault = false;
+	String spmlUserName = null;
+	String spmlPassword = null;
+	String spmlEndpoint = null;
+	String spmlObjectClass = null;
+	
+	String oidcQueryParam = "";
+	String samlQueryParam = "";
+	String passiveSTSQueryParam = "";
+	String openidQueryParam = "";
+	
+	String provisioningRole = null;
+	Map<String, ProvisioningConnectorConfig> customProvisioningConnectors = null;
+	
+	
+	
     String[] idpClaims = new String[]{"admin", "Internal/everyone"};//appBean.getSystemClaims();
 
-    FederatedIdentityProvider identityProvider = (FederatedIdentityProvider)session.getAttribute("identityProvider");
-    List<FederatedIdentityProvider> identityProvidersList = (List<FederatedIdentityProvider>)session.getAttribute("identityProviderList");
+    IdentityProvider identityProvider = (IdentityProvider)session.getAttribute("identityProvider");
+    List<IdentityProvider> identityProvidersList = (List<IdentityProvider>)session.getAttribute("identityProviderList");
+    
+    Map<String,FederatedAuthenticatorConfig> allFedAuthConfigs = new HashMap<String,FederatedAuthenticatorConfig>();
+    
+    String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+    String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
+    ConfigurationContext configContext =
+            (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+    IdentityProviderMgtServiceClient client = new IdentityProviderMgtServiceClient(cookie, backendServerURL, configContext);
+    
+    allFedAuthConfigs = client.getAllFederatedAuthenticators();
+    customProvisioningConnectors = client.getCustomProvisioningConnectors();
+    
     if(identityProvidersList == null){
 %>
         <script type="text/javascript">
@@ -125,115 +193,365 @@
         }
         if(idPName != null && identityProvider != null){
             idPName = identityProvider.getIdentityProviderName();
-            primary = identityProvider.getPrimary();
+            federationHubIdp =identityProvider.getFederationHub();	
             realmId = identityProvider.getHomeRealmId();
+            idpDisplayName = identityProvider.getDisplayName();
+            description = identityProvider.getIdentityProviderDescription();
+            provisioningRole = identityProvider.getProvisioningRole();
             if(identityProvider.getCertificate() != null){
                 certData = IdentityApplicationManagementUtil.getCertData(identityProvider.getCertificate());
             }
             
-            identityProviderClaims = identityProvider.getClaimConfiguration().getIdpClaims();
+            identityProviderClaims = identityProvider.getClaimConfig().getIdpClaims();
             
-            userIdClaimURI = identityProvider.getClaimConfiguration().getUserClaimURI();
-            roleClaimURI = identityProvider.getClaimConfiguration().getRoleClaimURI();
-            provisioningUserStoreIdClaimURI = identityProvider.getJustInTimeProvisioningConfiguration().getUserStoreClaimUri();
+            userIdClaimURI = identityProvider.getClaimConfig().getUserClaimURI();
+            roleClaimURI = identityProvider.getClaimConfig().getRoleClaimURI();
+            provisioningUserStoreIdClaimURI = identityProvider.getJustInTimeProvisioningConfig().getUserStoreClaimUri();
 
-            claimMappings = identityProvider.getClaimConfiguration().getClaimMappings();
-            roles = identityProvider.getPermissionAndRoleConfiguration().getIdpRoles();
-            roleMappings = identityProvider.getPermissionAndRoleConfiguration().getRoleMappings();
+            claimMappings = identityProvider.getClaimConfig().getClaimMappings();
             
-            FederatedAuthenticator[] federatedAuthenticators = identityProvider.getFederatedAuthenticators();
+            if(identityProviderClaims != null && identityProviderClaims.length != 0){
+            	isCustomClaimEnabled = true;
+            } else {
+            	isCustomClaimEnabled = false;
+            }
             
-            OpenIDFederatedAuthenticator openidAuthenticator = new OpenIDFederatedAuthenticator();
-            FacebookFederatedAuthenticator facebookAuthenticator = new FacebookFederatedAuthenticator();
-            PassiveSTSFederatedAuthenticator passiveSTS = new PassiveSTSFederatedAuthenticator();
-            OpenIDConnectFederatedAuthenticator oidc = new OpenIDConnectFederatedAuthenticator();
-            SAMLFederatedAuthenticator saml = new SAMLFederatedAuthenticator();
             
-            if (federatedAuthenticators!= null && federatedAuthenticators.length>0){
-            	for(FederatedAuthenticator federatedAuthenticator: federatedAuthenticators){
-            		if (federatedAuthenticator instanceof OpenIDFederatedAuthenticator){
-            			openidAuthenticator = (OpenIDFederatedAuthenticator)federatedAuthenticator;
-            		}else if(federatedAuthenticator instanceof FacebookFederatedAuthenticator){
-            			facebookAuthenticator = (FacebookFederatedAuthenticator)federatedAuthenticator;
-            		}else if(federatedAuthenticator instanceof PassiveSTSFederatedAuthenticator){
-            			passiveSTS = (PassiveSTSFederatedAuthenticator)federatedAuthenticator;
-            		}else if(federatedAuthenticator instanceof OpenIDConnectFederatedAuthenticator){
-            			oidc = (OpenIDConnectFederatedAuthenticator)federatedAuthenticator;
-            		}else if(federatedAuthenticator instanceof SAMLFederatedAuthenticator){
-            			saml = (SAMLFederatedAuthenticator)federatedAuthenticator;
-            		}             		
+            
+            roles = identityProvider.getPermissionAndRoleConfig().getIdpRoles();
+            roleMappings = identityProvider.getPermissionAndRoleConfig().getRoleMappings();
+            
+            FederatedAuthenticatorConfig[] fedAuthnConfigs = identityProvider.getFederatedAuthenticatorConfigs();
+            
+            if (fedAuthnConfigs != null && fedAuthnConfigs.length > 0){
+            	for(FederatedAuthenticatorConfig fedAuthnConfig: fedAuthnConfigs){
+                    if(fedAuthnConfig.getProperties() == null){
+                        fedAuthnConfig.setProperties(new Property[0]);
+                    }
+            		if (fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.OpenID.NAME)){
+            			allFedAuthConfigs.remove(fedAuthnConfig.getName());
+            			isOpenIdEnabled = fedAuthnConfig.getEnabled();                  
+            			
+            	        Property openIdUrlProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.OpenID.OPEN_ID_URL);
+                        if(openIdUrlProp != null){
+                            openIdUrl = openIdUrlProp.getValue();
+                        }
+                        
+                        Property queryParamProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),"commonAuthQueryParams");
+                        if (queryParamProp!=null){
+                        	openidQueryParam = queryParamProp.getValue();
+                        }
+                        
+                        if(openIdUrlProp != null){
+                            openIdUrl = openIdUrlProp.getValue();
+                        }
+                        
+                        Property isOpenIdUserIdInClaimsProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.OpenID.REALM_ID);
+                        if(isOpenIdUserIdInClaimsProp != null){
+                            isOpenIdUserIdInClaims = Boolean.parseBoolean(isOpenIdUserIdInClaimsProp.getValue());
+                        }
+            		}else if(fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.Facebook.NAME)){
+            			allFedAuthConfigs.remove(fedAuthnConfig.getName());
+            			isFBAuthEnabled = fedAuthnConfig.getEnabled();
+                        Property fbClientIdProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.Facebook.CLIENT_ID);
+                        if(fbClientIdProp != null){
+                            fbClientId = fbClientIdProp.getValue();
+                        }
+                        Property fbClientSecretProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.Facebook.CLIENT_SECRET);
+                        if(fbClientSecretProp != null){
+                            fbClientSecret = fbClientSecretProp.getValue();
+                        }
+            		}else if(fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME)){
+            			allFedAuthConfigs.remove(fedAuthnConfig.getName());
+            			isPassiveSTSEnabled = fedAuthnConfig.getEnabled();
+                        Property passiveSTSRealmProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.PassiveSTS.REALM_ID);
+                        if(passiveSTSRealmProp != null){
+                            passiveSTSRealm = passiveSTSRealmProp.getValue();
+                        }
+                        Property passiveSTSUrlProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.PassiveSTS.PASSIVE_STS_URL);
+                        if(passiveSTSUrlProp != null){
+                            passiveSTSUrl = passiveSTSUrlProp.getValue();
+                        }
+                        Property isPassiveSTSUserIdInClaimsProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.PassiveSTS.IS_USER_ID_IN_CLAIMS);
+                        if(isPassiveSTSUserIdInClaimsProp != null){
+                            isPassiveSTSUserIdInClaims = Boolean.parseBoolean(isPassiveSTSUserIdInClaimsProp.getValue());
+                        }
+                        
+                        Property queryParamProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),"commonAuthQueryParams");
+                        if (queryParamProp!=null){
+                        	passiveSTSQueryParam = queryParamProp.getValue();
+                        }
+                        
+            		}else if(fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.OIDC.NAME)){
+            			allFedAuthConfigs.remove(fedAuthnConfig.getName());
+            			isOIDCEnabled = fedAuthnConfig.getEnabled();
+                        Property authzUrlProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_AUTHZ_URL);
+                        if(authzUrlProp != null){
+                            authzUrl = authzUrlProp.getValue();
+                        }
+                        Property tokenUrlProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_TOKEN_URL);
+                        if(tokenUrlProp != null){
+                            tokenUrl = tokenUrlProp.getValue();
+                        }
+                        Property clientIdProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.OIDC.CLIENT_ID);
+                        if(clientIdProp != null){
+                            clientId = clientIdProp.getValue();
+                        }
+                        Property clientSecretProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.OIDC.CLIENT_SECRET);
+                        if(clientSecretProp != null){
+                            clientSecret = clientSecretProp.getValue();
+                        }
+                        Property isOIDCUserIdInClaimsProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.OIDC.IS_USER_ID_IN_CLAIMS);
+                        if(isOIDCUserIdInClaimsProp != null){
+                            isOIDCUserIdInClaims = Boolean.parseBoolean(isOIDCUserIdInClaimsProp.getValue());
+                        }
+                        
+                        Property queryParamProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),"commonAuthQueryParams");
+                        if (queryParamProp!=null){
+                        	oidcQueryParam = queryParamProp.getValue();
+                        }
+                        
+            		}else if(fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.SAML2SSO.NAME)){
+            			allFedAuthConfigs.remove(fedAuthnConfig.getName());
+                        isSAML2SSOEnabled =  fedAuthnConfig.getEnabled();
+                        Property idPEntityIdProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
+                        if(idPEntityIdProp != null){
+                            idPEntityId = idPEntityIdProp.getValue();
+                        }
+                        Property spEntityIdProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.SAML2SSO.SP_ENTITY_ID);
+                        if(spEntityIdProp != null){
+                            spEntityId = spEntityIdProp.getValue();
+                        }
+                        Property ssoUrlProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL);
+                        if(spEntityIdProp != null){
+                            ssoUrl = ssoUrlProp.getValue();
+                        }
+                        Property isAuthnRequestSignedProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_REQ_SIGNED);
+                        if(isAuthnRequestSignedProp != null){
+                            isAuthnRequestSigned = Boolean.parseBoolean(isAuthnRequestSignedProp.getValue());
+                        }
+
+                        Property isEnableAssertionSigningProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.SAML2SSO.IS_ENABLE_ASSERTION_SIGNING);
+                        if(isEnableAssertionSigningProp != null){
+                            isEnableAssertionSigning = Boolean.parseBoolean(isEnableAssertionSigningProp.getValue());
+                        }
+                        
+                        Property isEnableAssersionEncriptionProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.SAML2SSO.IS_ENABLE_ASSERTION_ENCRYPTION);
+                        if(isEnableAssersionEncriptionProp != null){
+                        	isEnableAssertionEncription = Boolean.parseBoolean(isEnableAssersionEncriptionProp.getValue());
+                        }
+                        
+                        Property isSLOEnabledProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.SAML2SSO.IS_LOGOUT_ENABLED);
+                        if(isSLOEnabledProp != null){
+                            isSLOEnabled = Boolean.parseBoolean(isSLOEnabledProp.getValue());
+                        }
+                        Property logoutUrlProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.SAML2SSO.LOGOUT_REQ_URL);
+                        if(logoutUrlProp != null){
+                            logoutUrl = logoutUrlProp.getValue();
+                        }
+                        Property isLogoutRequestSignedProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.SAML2SSO.IS_LOGOUT_REQ_SIGNED);
+                        if(isLogoutRequestSignedProp != null){
+                            isLogoutRequestSigned = Boolean.parseBoolean(isLogoutRequestSignedProp.getValue());
+                        }
+                        Property isAuthnResponseSignedProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_RESP_SIGNED);
+                        if(isAuthnResponseSignedProp != null){
+                            isAuthnResponseSigned = Boolean.parseBoolean(isAuthnResponseSignedProp.getValue());
+                        }
+                        Property isSAMLSSOUserIdInClaimsProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.SAML2SSO.IS_USER_ID_IN_CLAIMS);
+                        if(isSAMLSSOUserIdInClaimsProp != null){
+                            isSAMLSSOUserIdInClaims = Boolean.parseBoolean(isSAMLSSOUserIdInClaimsProp.getValue());
+                        }
+                        
+                        Property queryParamProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),"commonAuthQueryParams");
+                        if (queryParamProp!=null){
+                        	samlQueryParam = queryParamProp.getValue();
+                        }
+                        
+            		} else {
+            			FederatedAuthenticatorConfig customConfig = allFedAuthConfigs.get(fedAuthnConfig.getName());
+            			if (customConfig!=null){
+            				Property[] properties = fedAuthnConfig.getProperties();
+            				Property[] customProperties = customConfig.getProperties();
+
+            				if (properties!=null && properties.length > 0 && customProperties != null && customProperties.length>0) {
+            					for (Property property : properties) {
+            						for (Property customProperty : customProperties) {
+            							if (property.getName().equals(customProperty.getName())){
+            								customProperty.setValue(property.getValue());
+            								break;
+            							}
+            						}
+            					}
+            				}
+            				
+            				customConfig.setEnabled(fedAuthnConfig.getEnabled());
+            				allFedAuthConfigs.put(fedAuthnConfig.getName(),customConfig);
+            			}
+            			
+            		}
             	}
             }
             
             
-            tokenEndpointAlias = identityProvider.getAlias();
-            isProvisioningEnabled = identityProvider.getJustInTimeProvisioningConfiguration().getProvisioningEnabled();
-            provisioningUserStoreId = identityProvider.getJustInTimeProvisioningConfiguration().getProvisioningUserStore();
-           
-            isOpenIdEnabled = openidAuthenticator.getEnabled();
+            idPAlias = identityProvider.getAlias();
+            isProvisioningEnabled = identityProvider.getJustInTimeProvisioningConfig().getProvisioningEnabled();
+            provisioningUserStoreId = identityProvider.getJustInTimeProvisioningConfig().getProvisioningUserStore();
             
-            if (identityProvider.getDefaultAuthenticator()!=null 
-            		&& identityProvider.getDefaultAuthenticator().getName()!=null) {
-            	isOpenIdDefault = identityProvider.getDefaultAuthenticator().getName().equals(openidAuthenticator.getName());
-            }else{
-            	isOpenIdDefault = false;
+            if (identityProvider.getDefaultAuthenticatorConfig() != null
+            		&& identityProvider.getDefaultAuthenticatorConfig().getName()!=null) {
+            	isOpenIdDefault = identityProvider.getDefaultAuthenticatorConfig().getDisplayName().equals(
+                        IdentityApplicationConstants.Authenticator.OpenID.NAME);
             }
             
-            openIdUrl = openidAuthenticator.getOpenIDServerUrl();
-            isOpenIdUserIdInClaims = openidAuthenticator.getUsetIdInClaim();
-            
-            
-            isSAML2SSOEnabled = saml.getEnabled();
-            
-            if (identityProvider.getDefaultAuthenticator()!=null 
-            		&& identityProvider.getDefaultAuthenticator().getName()!=null) {
-            	isSAMLSSODefault = identityProvider.getDefaultAuthenticator().getName().equals(saml.getName());
+            if (identityProvider.getDefaultAuthenticatorConfig()!=null
+            		&& identityProvider.getDefaultAuthenticatorConfig().getName()!=null) {
+            	isSAMLSSODefault = identityProvider.getDefaultAuthenticatorConfig().getDisplayName().equals(
+                        IdentityApplicationConstants.Authenticator.SAML2SSO.NAME);
             }
-            
-            idPEntityId = saml.getIdpEntityId();
-            spEntityId = saml.getSpEntityId();
-            ssoUrl = saml.getSaml2SSOUrl();
-            isAuthnRequestSigned = saml.getAuthnRequestSigned();
-            isSLOEnabled = saml.getLogoutEnabled();
-            logoutUrl = saml.getLogoutRequestUrl();
-            isLogoutRequestSigned = saml.getLogoutRequestSigned();
-            isAuthnResponseSigned = saml.getAuthnResponseSigned();
-            isSAMLSSOUserIdInClaims = saml.getUsetIdInClaim();
-            
-            isOIDCEnabled = oidc.getEnabled();
-            
-            if (identityProvider.getDefaultAuthenticator()!=null 
-            		&& identityProvider.getDefaultAuthenticator().getName()!=null) {
-            	isOIDCDefault = identityProvider.getDefaultAuthenticator().getName().equals(oidc.getName());
+
+            if (identityProvider.getDefaultAuthenticatorConfig()!=null
+            		&& identityProvider.getDefaultAuthenticatorConfig().getName()!=null) {
+            	isOIDCDefault = identityProvider.getDefaultAuthenticatorConfig().getDisplayName().equals(
+                        IdentityApplicationConstants.Authenticator.OIDC.NAME);
             }
-            
-            authzUrl = oidc.getAuthzEndpointUrl();
-            tokenUrl = oidc.getTokenEndpointUrl();
-            clientId = oidc.getClientId();
-            clientSecret = oidc.getClientSecret();
-            isOIDCUserIdInClaims = oidc.isUsetIdInClaimSpecified();
-            
-            isPassiveSTSEnabled = passiveSTS.getEnabled();
-            
-            if (identityProvider.getDefaultAuthenticator()!=null 
-            		&& identityProvider.getDefaultAuthenticator().getName()!=null) {
-            	isPassiveSTSDefault = identityProvider.getDefaultAuthenticator().getName().equals(passiveSTS.getName());
+
+            if (identityProvider.getDefaultAuthenticatorConfig()!=null
+            		&& identityProvider.getDefaultAuthenticatorConfig().getName()!=null) {
+            	isPassiveSTSDefault = identityProvider.getDefaultAuthenticatorConfig().getDisplayName().equals(
+                        IdentityApplicationConstants.Authenticator.PassiveSTS.NAME);
             }
-            
-            passiveSTSRealm = passiveSTS.getPassiveSTSRealm();
-            passiveSTSUrl = passiveSTS.getPassiveSTSUrl();
-            isPassiveSTSUserIdInClaims = passiveSTS.getUsetIdInClaim();
-            
-    		isFBAuthEnabled = facebookAuthenticator.getEnabled();
-    		
-    		if (identityProvider.getDefaultAuthenticator()!=null 
-            		&& identityProvider.getDefaultAuthenticator().getName()!=null) {
-            	isFBAuthDefault = identityProvider.getDefaultAuthenticator().getName().equals(facebookAuthenticator.getName());
+
+    		if (identityProvider.getDefaultAuthenticatorConfig()!=null
+            		&& identityProvider.getDefaultAuthenticatorConfig().getName()!=null) {
+            	isFBAuthDefault = identityProvider.getDefaultAuthenticatorConfig().getDisplayName().equals(
+                        IdentityApplicationConstants.Authenticator.Facebook.NAME);
     		}
+
+            ProvisioningConnectorConfig[] provisioningConnectors = identityProvider.getProvisioningConnectorConfigs();
             
-            fbClientId = facebookAuthenticator.getClientId();
-            fbClientSecret = facebookAuthenticator.getClientSecret();
-            isFBUserIdInClaims = facebookAuthenticator.getUsetIdInClaim();
+            ProvisioningConnectorConfig googleApps = null;
+            ProvisioningConnectorConfig salesforce = null;
+            ProvisioningConnectorConfig scim = null;
+            ProvisioningConnectorConfig spml = null;
+
+            if (provisioningConnectors!=null){
+            	for (ProvisioningConnectorConfig provisioningConnector: provisioningConnectors){
+            		if (provisioningConnector!=null && "scim".equals(provisioningConnector.getName())){
+            			scim = provisioningConnector;
+            		} else if (provisioningConnector!=null && "spml".equals(provisioningConnector.getName())){
+            			spml = provisioningConnector;
+            		} else if (provisioningConnector!=null && "salesforce".equals(provisioningConnector.getName())){
+            			salesforce = provisioningConnector;
+            		}else if (provisioningConnector!=null && "googleapps".equals(provisioningConnector.getName())){
+            			googleApps = provisioningConnector;
+            		} else {
+            			if (customProvisioningConnectors.containsKey(provisioningConnector.getName()))
+            			{
+            				
+            				ProvisioningConnectorConfig customConfig = customProvisioningConnectors.get(provisioningConnector.getName());
+            				Property[] properties = provisioningConnector.getProvisioningProperties();
+            				Property[] customProperties = customConfig.getProvisioningProperties();
+            				
+            				customConfig.setEnabled(provisioningConnector.getEnabled());
+
+            				if (properties!=null && properties.length > 0 && customProperties != null && customProperties.length>0) {
+            					for (Property property : properties) {
+            						for (Property customProperty : customProperties) {
+            							if (property.getName().equals(customProperty.getName())){
+            								customProperty.setValue(property.getValue());
+            								break;
+            							}
+            						}
+            					}
+            				}
+            			}
+            		}
+            	}
+            }
+            
+            if (salesforce != null){
+                
+                if (identityProvider.getDefaultProvisioningConnectorConfig()!=null
+                        && identityProvider.getDefaultProvisioningConnectorConfig().getName()!=null) {
+                    isSfProvDefault = identityProvider.getDefaultProvisioningConnectorConfig().getName().equals(salesforce.getName());
+                }
+
+                Property[] sfProperties = salesforce.getProvisioningProperties();
+                if (sfProperties!=null && sfProperties.length>0) {
+                    for (Property sfProperty: sfProperties){
+                        if ("sf-api-version".equals(sfProperty.getName())){
+                            sfApiVersion = sfProperty.getValue();
+                        } else if ("sf-domain-name".equals(sfProperty.getName())){
+                            sfDomainName = sfProperty.getValue();
+                        } else if ("sf-clientid".equals(sfProperty.getName())){
+                            sfClientId = sfProperty.getValue();
+                        } else if ("sf-client-secret".equals(sfProperty.getName())){
+                            sfClientSecret = sfProperty.getValue();
+                        } else if ("sf-username".equals(sfProperty.getName())){
+                            sfUserName = sfProperty.getValue();
+                        } else if ("sf-password".equals(sfProperty.getName())){
+                            sfPassword = sfProperty.getValue();
+                        } 
+                    }
+                }
+                if(salesforce.getEnabled()){
+                    isSfProvEnabled = true;
+                }
+
+            }
+            
+            if (scim != null){
+                
+                if (identityProvider.getDefaultProvisioningConnectorConfig()!=null
+                        && identityProvider.getDefaultProvisioningConnectorConfig().getName()!=null) {
+                    isScimProvDefault = identityProvider.getDefaultProvisioningConnectorConfig().getName().equals(scim.getName());
+                }
+                
+            	Property[] scimProperties = scim.getProvisioningProperties();
+            	if (scimProperties!=null && scimProperties.length>0) {
+            		for (Property scimProperty: scimProperties){
+            			if ("scim-username".equals(scimProperty.getName())){
+            				scimUserName = scimProperty.getValue();
+            			} else if ("scim-password".equals(scimProperty.getName())){
+            				scimPassword = scimProperty.getValue();
+            			} else if ("scim-user-ep".equals(scimProperty.getName())){
+            				scimUserEp = scimProperty.getValue();
+            			} else if ("scim-group-ep".equals(scimProperty.getName())){
+            				scimGroupEp = scimProperty.getValue();
+            			} else if ("scim-user-store-domain".equals(scimProperty.getName())){
+            				scimUserStoreDomain = scimProperty.getValue();
+            			}
+            		}
+            	}
+
+                if(scim.getEnabled()){
+                    isScimProvEnabled = true;
+                }
+
+            }
             
             // Provisioning
             isGoogleProvEnabled = false;
@@ -256,32 +574,108 @@
             //    googleProvPrivateKeyData = IdPMgtUtil.getCertData(identityProvider.getCertificate());
             //}
             //idpClaims = identityProvider.getSystemClaims();
+            
+            
+            if (googleApps != null){
+                
+                if (identityProvider.getDefaultProvisioningConnectorConfig()!=null
+                        && identityProvider.getDefaultProvisioningConnectorConfig().getName()!=null) {
+                    isGoogleProvDefault = identityProvider.getDefaultProvisioningConnectorConfig().getName().equals(googleApps.getName());
+                }
+                
+            	Property[] googleProperties = googleApps.getProvisioningProperties();
+            	if (googleProperties!=null && googleProperties.length>0) {
+            		for (Property googleProperty: googleProperties){
+            			if ("google_prov_domain_name".equals(googleProperty.getName())){
+            				googleDomainName = googleProperty.getValue();
+            			} else if ("google_prov_givenname".equals(googleProperty.getName())){
+            				googleGivenNameDefaultValue = googleProperty.getValue();
+            			}else if ("google_prov_familyname".equals(googleProperty.getName())){
+            				googleFamilyNameDefaultValue = googleProperty.getValue();
+            			}else if ("google_prov_service_acc_email".equals(googleProperty.getName())){
+            				googleProvServiceAccEmail = googleProperty.getValue();
+            			}else if ("google_prov_admin_email".equals(googleProperty.getName())){
+            				googleProvAdminEmail = googleProperty.getValue();
+            			}else if ("google_prov_application_name".equals(googleProperty.getName())){
+            				googleProvApplicationName = googleProperty.getValue();
+            			} else if ("google_prov_email_claim_dropdown".equals(googleProperty.getName())){
+            				googlePrimaryEmailClaim = googleProperty.getValue();
+            			} else if ("google_prov_givenname_claim_dropdown".equals(googleProperty.getName())){
+            				googleGivenNameClaim = googleProperty.getValue();
+            			}else if ("google_prov_familyname_claim_dropdown".equals(googleProperty.getName())){
+            				googleFamilyNameClaim = googleProperty.getValue();
+            			}else if ("google_prov_private_key".equals(googleProperty.getName())){
+                            googleProvPrivateKeyData = googleProperty.getValue();
+                        }
+            			
+            			
+            		}
+            	}
+
+            	if(googleApps.getEnabled()){
+                    isGoogleProvEnabled = true;
+                }
+
+            }
+
+            if (spml != null){
+                
+                if (identityProvider.getDefaultProvisioningConnectorConfig()!=null
+                        && identityProvider.getDefaultProvisioningConnectorConfig().getName()!=null) {
+                    isSpmlProvDefault = identityProvider.getDefaultProvisioningConnectorConfig().getName().equals(spml.getName());
+                }
+
+                Property[] spmlProperties = spml.getProvisioningProperties();
+                if (spmlProperties!=null && spmlProperties.length>0) {
+                    for (Property spmlProperty: spmlProperties){
+                        if ("spml-username".equals(spmlProperty.getName())){
+                            spmlUserName = spmlProperty.getValue();
+                        } else if ("spml-password".equals(spmlProperty.getName())){
+                            spmlPassword = spmlProperty.getValue();
+                        } else if ("spml-ep".equals(spmlProperty.getName())){
+                            spmlEndpoint = spmlProperty.getValue();
+                        }else if ("spml-oc".equals(spmlProperty.getName())){
+                            spmlObjectClass = spmlProperty.getValue();
+                        } 
+                    }
+                }
+
+                if(spml.getEnabled()){
+                    isSpmlProvEnabled = true;
+                }
+
+            }
+
         }
+
         if(idPName == null){
             idPName = "";
         }
-        String primaryDisabled = "", primaryChecked = "";
-        if(identityProvider != null){
-            if(primary){
-                primaryChecked = "checked=\'checked\'";
-                primaryDisabled = "disabled=\'disabled\'";
-            }
-        } else {
-            if(identityProvidersList.size() > 0){
-                if(primary){
-                    primaryDisabled = "disabled=\'disabled\'";
-                    primaryChecked = "checked=\'checked\'";
-                }
-            } else {
-                primaryDisabled = "disabled=\'disabled\'";
-                primaryChecked = "checked=\'checked\'";
-            }
-        }
+ 
         if(realmId == null){
             realmId = "";
         }
-        if(tokenEndpointAlias == null){
-            tokenEndpointAlias = IdPManagementUIUtil.getOAuth2TokenEPURL(request);;
+        
+        if(idpDisplayName == null) {
+        	idpDisplayName = "";
+        }
+        if(description == null){
+        	description = "";
+        }
+        
+        if(provisioningRole == null) {
+        	provisioningRole = "";
+        }
+        
+        if(passiveSTSQueryParam == null){
+        	passiveSTSQueryParam = "";
+        }
+        
+        if(oidcQueryParam == null) {
+        	oidcQueryParam = "";
+        }
+        if(idPAlias == null){
+            idPAlias = IdPManagementUIUtil.getOAuth2TokenEPURL(request);;
         }
         String provisionStaticDropdownDisabled = "";
         String provisionDynamicDropdownDisabled = "";
@@ -293,15 +687,11 @@
         } else if(isProvisioningEnabled && provisioningUserStoreId == null){
             provisionStaticDropdownDisabled = "disabled=\'disabled\'";
         }
-        String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
-        String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
-        ConfigurationContext configContext =
-                (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-        IdentityProviderMgtServiceClient client = new IdentityProviderMgtServiceClient(cookie, backendServerURL, configContext);
+       
         userStoreDomains = client.getUserStoreDomains();
         
         claimUris = client.getAllLocalClaimUris();
-        
+                
         String openIdEnabledChecked = "";
         String openIdDefaultDisabled = "";
         if(identityProvider != null){
@@ -353,6 +743,21 @@
                 authnRequestSignedChecked = "checked=\'checked\'";
             }
         }
+        
+        String enableAssertinEncriptionChecked = "";
+        if(identityProvider != null){
+            if(isEnableAssertionEncription){
+            	enableAssertinEncriptionChecked = "checked=\'checked\'";
+            }
+        }
+
+        String enableAssertionSigningChecked = "";
+        if(identityProvider != null){
+            if(isEnableAssertionSigning){
+            	enableAssertionSigningChecked = "checked=\'checked\'";
+            }
+        }
+        
         String sloEnabledChecked = "";
         if(identityProvider != null){
             if(isSLOEnabled){
@@ -427,6 +832,7 @@
         }
     	String fbAuthEnabledChecked = "";
         String fbAuthDefaultDisabled = "";
+        
         if(identityProvider != null){
             if(isFBAuthEnabled){
             	fbAuthEnabledChecked = "checked=\'checked\'";
@@ -453,20 +859,13 @@
             	fbUserIdInClaims = "checked=\'checked\'";
             }
         }
-        if(openIdEnabledChecked.equals("") && saml2SSOEnabledChecked.equals("") && oidcEnabledChecked.equals("") &&
-                passiveSTSEnabledChecked.equals("") && fbAuthEnabledChecked.equals("")){
-            openIdEnabledChecked = "checked=\'checked\'";
-        }
-        if(openIdDefaultChecked.equals("") && saml2SSODefaultChecked.equals("") && oidcDefaultChecked.equals("") &&
-                passiveSTSDefaultChecked.equals("") && fbAuthDefaultChecked.equals("")){
-            openIdDefaultChecked = "checked=\'checked\'";
-            openIdDefaultDisabled = "disabled=\'disabled\'";
-        }
+
         
         // Out-bound Provisioning    
         String googleProvEnabledChecked = "";
         String googleProvDefaultDisabled = "";
         String googleProvDefaultChecked = "disabled=\'disabled\'";
+
         if(identityProvider != null){
             if(isGoogleProvEnabled){
                 googleProvEnabledChecked = "checked=\'checked\'";
@@ -516,49 +915,170 @@
         if(googleProvApplicationName == null){
             googleProvApplicationName = "";
         }
+        
+        String spmlProvEnabledChecked = "";
+        String spmlProvDefaultDisabled = "";
+        String spmlProvDefaultChecked = "disabled=\'disabled\'";
+
+        
+        if(identityProvider != null){
+            if(isSpmlProvEnabled){
+                spmlProvEnabledChecked = "checked=\'checked\'";
+                spmlProvDefaultChecked = "";
+                if(isSpmlProvDefault){
+                    spmlProvDefaultChecked = "checked=\'checked\'";
+                }
+            }
+        }
+                 
+        if(spmlUserName == null){
+            spmlUserName = "";
+        }        
+        if(spmlPassword == null){
+            spmlPassword = "";
+        }
+        if(spmlEndpoint == null){
+            spmlEndpoint = "";
+        }        
+        if(spmlObjectClass == null){
+            spmlObjectClass = "";
+        }
+        
+        String scimProvEnabledChecked = "";
+        String scimProvDefaultDisabled = "";
+        String scimProvDefaultChecked = "disabled=\'disabled\'";
+        if(identityProvider != null){
+            if(isScimProvEnabled){
+                scimProvEnabledChecked = "checked=\'checked\'";
+                scimProvDefaultChecked = "";
+                if(isScimProvDefault){
+                    scimProvDefaultChecked = "checked=\'checked\'";
+                }
+            }
+        }        
+    
+        if(scimUserName == null){
+            scimUserName = "";
+        }        
+        if(scimPassword == null){
+            scimPassword = "";
+        }
+        if(scimGroupEp == null){
+            scimGroupEp = "";
+        }        
+        if(scimUserEp == null){
+            scimUserEp = "";
+        }
+        if(scimUserStoreDomain == null){
+            scimUserStoreDomain = "";
+        }
+        
+        String sfProvEnabledChecked = "";
+        String sfProvDefaultDisabled = "";
+        String sfProvDefaultChecked = "disabled=\'disabled\'";    
+
+        if(identityProvider != null){
+            if(isSfProvEnabled){
+                sfProvEnabledChecked = "checked=\'checked\'";
+                sfProvDefaultChecked = "";
+                if(isSfProvDefault){
+                    sfProvDefaultChecked = "checked=\'checked\'";
+                }
+            }
+        }        
+    
+        if(sfApiVersion == null){
+            sfApiVersion = "";
+        }        
+        if(sfDomainName == null){
+            sfDomainName = "";
+        }
+        if(sfClientId == null){
+            sfClientId = "";
+        }        
+        if(sfClientSecret == null){
+            sfClientSecret = "";
+        }
+        if(sfUserName == null){
+            sfUserName = "";
+        }
+        if(sfPassword == null){
+            sfPassword = "";
+        }
     %>
 
 <script>
 
     var claimMappinRowID = -1;
+    var claimMappinRowIDSPML = -1;
+    var advancedClaimMappinRowID = -1;
     var roleRowId = -1;
-    
-    <% if(identityProviderClaims != null){ %>
-    var claimRowId = <%=identityProviderClaims.length-1%>;
-    <% } else { %>
     var claimRowId = -1;
+
+    <% if(identityProviderClaims != null){ %>
+    	 claimRowId = <%=identityProviderClaims.length-1%>;
     <% } %>
+  
     <% if(roles != null){ %>
         roleRowId = <%=roles.length-1%>;
     <% } %>
+    
+    <% if(claimMappings != null){ %>
+    	advancedClaimMappinRowID = <%=claimMappings.length-1%>;
+	<% } %>
+	
 
     var claimURIDropdownPopulator = function(){
         var $user_id_claim_dropdown = jQuery('#user_id_claim_dropdown');
         var $role_claim_dropdown = jQuery('#role_claim_dropdown');
-        var $provision_dynamic_dropdown = jQuery('#provision_dynamic_dropdown');
+        var $google_prov_email_claim_dropdown = jQuery('#google_prov_email_claim_dropdown');
+        var $google_prov_familyname_claim_dropdown = jQuery('#google_prov_familyname_claim_dropdown');
+        var $google_prov_givenname_claim_dropdown = jQuery('#google_prov_givenname_claim_dropdown');
+        var $idpClaimsList2 = jQuery('#idpClaimsList2');
+
 
         $user_id_claim_dropdown.empty();
         $role_claim_dropdown.empty();
-        $provision_dynamic_dropdown.empty();
+        $google_prov_email_claim_dropdown.empty();
+        $google_prov_familyname_claim_dropdown.empty();
+        $google_prov_givenname_claim_dropdown.empty();
+        $idpClaimsList2.empty();
+
+
 
         if('<%=userIdClaimURI%>' == ''){
-            $user_id_claim_dropdown.append('<option>--- Select Claim URI ---</option>');
+            $user_id_claim_dropdown.append('<option value = "">--- Select Claim URI ---</option>');
         } else {
-            $user_id_claim_dropdown.append('<option selected="selected">--- Select Claim URI ---</option>');
+            $user_id_claim_dropdown.append('<option selected="selected" value = "">--- Select Claim URI ---</option>');
         }
 
         if('<%=roleClaimURI%>' == ''){
-            $role_claim_dropdown.append('<option>--- Select Claim URI ---</option>');
+            $role_claim_dropdown.append('<option value = "">--- Select Claim URI ---</option>');
         } else {
-            $role_claim_dropdown.append('<option selected="selected">--- Select Claim URI ---</option>');
+            $role_claim_dropdown.append('<option selected="selected" value = "">--- Select Claim URI ---</option>');
         }
 
-        if('<%=provisioningUserStoreIdClaimURI%>' == ''){
-            $provision_dynamic_dropdown.append('<option>--- Select Claim URI ---</option>');
+        
+        if('<%=googlePrimaryEmailClaim%>' == ''){
+            $google_prov_email_claim_dropdown.append('<option value = "">--- Select Claim URI ---</option>');
         } else {
-            $provision_dynamic_dropdown.append('<option selected="selected">--- Select Claim URI ---</option>');
+            $google_prov_email_claim_dropdown.append('<option selected="selected" value = "">--- Select Claim URI ---</option>');
         }
-
+        
+        if('<%=googleFamilyNameClaim%>' == ''){
+            $google_prov_familyname_claim_dropdown.append('<option value = "">--- Select Claim URI ---</option>');
+        } else {
+            $google_prov_familyname_claim_dropdown.append('<option selected="selected" value = "">--- Select Claim URI ---</option>');
+        }
+        
+        if('<%=googleGivenNameClaim%>' == ''){
+            $google_prov_givenname_claim_dropdown.append('<option value = "">--- Select Claim URI ---</option>');
+        } else {
+            $google_prov_givenname_claim_dropdown.append('<option selected="selected" value = "">--- Select Claim URI ---</option>');
+        }
+        
+        $idpClaimsList2.append('<option value = "" >--- Select Claim URI ---</option>');           
+        
         jQuery('#claimAddTable .claimrow').each(function(){
             if($(this).val().trim() != ""){
                 var val =  $(this).val();
@@ -572,13 +1092,147 @@
                 } else {
                     $role_claim_dropdown.append('<option>'+val+'</option>');
                 }
-                if(val == '<%=provisioningUserStoreIdClaimURI%>'){
-                    $provision_dynamic_dropdown.append('<option selected="selected">'+val+'</option>');
+
+                if(val == '<%=googlePrimaryEmailClaim%>'){
+                    $google_prov_email_claim_dropdown.append('<option selected="selected">'+val+'</option>');
                 } else {
-                    $provision_dynamic_dropdown.append('<option>'+val+'</option>');
+                    $google_prov_email_claim_dropdown.append('<option>'+val+'</option>');
                 }
+                
+                if(val == '<%=googleFamilyNameClaim%>'){
+                    $google_prov_familyname_claim_dropdown.append('<option selected="selected">'+val+'</option>');
+                } else {
+                    $google_prov_familyname_claim_dropdown.append('<option>'+val+'</option>');
+                }
+                
+                if(val == '<%=googleGivenNameClaim%>'){
+                    $google_prov_givenname_claim_dropdown.append('<option selected="selected">'+val+'</option>');
+                } else {
+                    $google_prov_givenname_claim_dropdown.append('<option>'+val+'</option>');
+                }
+                
+                $idpClaimsList2.append('<option>'+val+'</option>');           
+
             }
         })
+        
+		var selectedVal = "";
+		var selected = $("input[type='radio'][name='choose_dialet_type_group']:checked");
+		if (selected.length > 0) {
+    		selectedVal = selected.val();
+		}  
+
+		if(selectedVal == "choose_dialet_type1"){
+        	$(".customClaim").hide();
+        	var option = '<option value="">---Select Claim URI ---</option>';
+			$user_id_claim_dropdown.empty();
+			$role_claim_dropdown.empty();
+	        $google_prov_email_claim_dropdown.empty();
+	        $google_prov_familyname_claim_dropdown.empty();
+	        $google_prov_givenname_claim_dropdown.empty();
+	        $idpClaimsList2.empty();	
+
+	        
+            var user_id_option = '<option value="">---Select Claim URI ---</option>';
+
+            <% for(int i =0 ; i< claimUris.length ; i++){
+
+           		 if(claimUris[i].equals(userIdClaimURI)){  %>
+           			user_id_option += '<option  selected="selected" value="'+ "<%=claimUris[i]%>" + '">' + "<%=claimUris[i]%>" + '</option>';
+            <% 	 } else {  %>
+            		user_id_option += '<option value="'+ "<%=claimUris[i]%>" + '">' + "<%=claimUris[i]%>" + '</option>';
+            <%	 }
+            }%>
+            
+            
+            var google_prov_email_option = '<option value="">---Select Claim URI ---</option>';
+
+            <% for(int i =0 ; i< claimUris.length ; i++){
+
+           		 if(claimUris[i].equals(googlePrimaryEmailClaim)){  %>
+           			google_prov_email_option += '<option  selected="selected" value="'+ "<%=claimUris[i]%>" + '">' + "<%=claimUris[i]%>" + '</option>';
+            <% 	 } else {  %>
+            		google_prov_email_option += '<option value="'+ "<%=claimUris[i]%>" + '">' + "<%=claimUris[i]%>" + '</option>';
+            <%	 }
+            }%>
+
+            
+            
+            var google_prov_family_email_option = '<option value="">---Select Claim URI ---</option>';
+
+            <% for(int i =0 ; i< claimUris.length ; i++){
+
+           		 if(claimUris[i].equals(googleFamilyNameClaim)){  %>
+           			google_prov_family_email_option += '<option  selected="selected" value="'+ "<%=claimUris[i]%>" + '">' + "<%=claimUris[i]%>" + '</option>';
+            <% 	 } else {  %>
+           		 	google_prov_family_email_option += '<option value="'+ "<%=claimUris[i]%>" + '">' + "<%=claimUris[i]%>" + '</option>';
+            <%	 }
+            }%>
+            
+            
+            var google_prov_givenname_option = '<option value="">---Select Claim URI ---</option>';
+
+            <% for(int i =0 ; i< claimUris.length ; i++){
+
+           		 if(claimUris[i].equals(googleGivenNameClaim)){  %>
+           			google_prov_givenname_option += '<option  selected="selected" value="'+ "<%=claimUris[i]%>" + '">' + "<%=claimUris[i]%>" + '</option>';
+            <% 	 } else {  %>
+            		google_prov_givenname_option += '<option value="'+ "<%=claimUris[i]%>" + '">' + "<%=claimUris[i]%>" + '</option>';
+            <%	 }
+            }%>
+
+
+        	<% for(int i =0 ; i< claimUris.length ; i++){%>
+        		option += '<option value="'+ "<%=claimUris[i]%>" + '">' + "<%=claimUris[i]%>" + '</option>';
+        	
+        	<%}%>
+        	
+        	
+        	$user_id_claim_dropdown.append(user_id_option);
+        	$role_claim_dropdown.append('<option value="http://wso2.org/claims/role">http://wso2.org/claims/role</option>');
+        	$google_prov_email_claim_dropdown.append(google_prov_email_option);
+        	$google_prov_familyname_claim_dropdown.append(google_prov_family_email_option);
+        	$google_prov_givenname_claim_dropdown.append(google_prov_givenname_option);
+        	$idpClaimsList2.append(option);
+      	
+
+
+            $(".role_claim").hide();
+            $(jQuery('#claimAddTable')).hide();
+
+            if($(jQuery('#advancedClaimMappingAddTable tr')).length > 1){
+                $(jQuery('#advancedClaimMappingAddTable')).show();
+            }
+		}
+		
+		if(selectedVal == "choose_dialet_type2"){
+			var option = '';
+
+        	<% for(int i =0 ; i< claimUris.length ; i++){%>
+        		option += '<option value="'+ "<%=claimUris[i]%>" + '">' + "<%=claimUris[i]%>" + '</option>';
+        	
+        	<%}%>
+        	
+        	$user_id_claim_dropdown.replace($option, "");  
+        	$role_claim_dropdown.replace('<option value="http://wso2.org/claims/role">http://wso2.org/claims/role</option>', "");
+        	$google_prov_email_claim_dropdown.replace($option, "");
+        	$google_prov_familyname_claim_dropdown.replace($option, "");       	
+        	$google_prov_givenname_claim_dropdown.replace($option, "");     
+        	$idpClaimsList2.replace($option, "");   
+
+        	
+
+            $(".role_claim").show();
+            
+            if($(jQuery('#claimAddTable tr')).length == 2){
+                $(jQuery('#claimAddTable')).toggle();
+            }
+            
+            if($(jQuery('#advancedClaimMappingAddTable tr')).length > 1){
+                $(jQuery('#advancedClaimMappingAddTable')).show();
+            }
+            
+		}
     };
     
     function deleteRow(obj){
@@ -593,11 +1247,91 @@
     	 jQuery('#outBoundProvisioning').hide();
     	 jQuery('#roleConfig').hide();
     	 jQuery('#claimConfig').hide(); 
-        jQuery('#openIdLinkRow').hide();
-        jQuery('#saml2SSOLinkRow').hide();
-        jQuery('#oauth2LinkRow').hide();
-        jQuery('#passiveSTSLinkRow').hide();
-		jQuery('#fbAuthLinkRow').hide();
+         jQuery('#openIdLinkRow').hide();
+         jQuery('#saml2SSOLinkRow').hide();
+         jQuery('#oauth2LinkRow').hide();
+         jQuery('#passiveSTSLinkRow').hide();
+		 jQuery('#fbAuthLinkRow').hide();
+		 jQuery('#baisClaimLinkRow').hide();
+		 jQuery('#advancedClaimLinkRow').hide();
+         jQuery('#openIdDefault').attr('disabled','disabled');
+         jQuery('#saml2SSODefault').attr('disabled','disabled');
+         jQuery('#oidcDefault').attr('disabled','disabled');
+         jQuery('#passiveSTSDefault').attr('disabled','disabled');
+         jQuery('#fbAuthDefault').attr('disabled','disabled');
+         jQuery('#googleProvDefault').attr('disabled','disabled');
+         jQuery('#sfProvDefault').attr('disabled','disabled');
+         jQuery('#scimProvDefault').attr('disabled','disabled');
+         jQuery('#spmlProvDefault').attr('disabled','disabled');
+        jQuery('#openIdDefault').attr('disabled','disabled');
+        jQuery('#saml2SSODefault').attr('disabled','disabled');
+        jQuery('#oidcDefault').attr('disabled','disabled');
+        jQuery('#passiveSTSDefault').attr('disabled','disabled');
+        jQuery('#fbAuthDefault').attr('disabled','disabled');
+		
+        if($(jQuery('#claimMappingAddTable tr')).length < 2){
+            $(jQuery('#claimMappingAddTable')).hide();
+        }
+        
+        if($(jQuery('#claimMappingAddTableSPML tr')).length < 2){
+            $(jQuery('#claimMappingAddTableSPML')).hide();
+        }
+        
+
+		if(<%=isOpenIdEnabled%>){
+		    jQuery('#openid_enable_logo').show();
+		} else {
+		    jQuery('#openid_enable_logo').hide();
+		}
+
+		if(<%=isSAML2SSOEnabled%>){
+            jQuery('#sampl2sso_enable_logo').show();
+        } else {
+        	jQuery('#sampl2sso_enable_logo').hide();
+        }
+
+        if(<%=isOIDCEnabled%>){
+            jQuery('#oAuth2_enable_logo').show();
+        } else {
+            jQuery('#oAuth2_enable_logo').hide();
+        }
+
+        if(<%=isPassiveSTSEnabled%>){
+            jQuery('#wsfederation_enable_logo').show();
+        } else {
+            jQuery('#wsfederation_enable_logo').hide();
+        }
+
+        if(<%=isFBAuthEnabled%>){
+            jQuery('#fecebook_enable_logo').show();
+        } else {
+            jQuery('#fecebook_enable_logo').hide();
+        }
+
+		if(<%=isGoogleProvEnabled%>){
+		    jQuery('#google_enable_logo').show();
+		} else {
+		    jQuery('#google_enable_logo').hide();
+		}
+
+		if(<%=isSfProvEnabled%>){
+		    jQuery('#sf_enable_logo').show();
+		} else {
+		    jQuery('#sf_enable_logo').hide();
+		}
+
+		if(<%=isScimProvEnabled%>){
+		    jQuery('#scim_enable_logo').show();
+		} else {
+		    jQuery('#scim_enable_logo').hide();
+		}
+
+		if(<%=isSpmlProvEnabled%>){
+		    jQuery('#spml_enable_logo').show();
+		} else {
+		    jQuery('#spml_enable_logo').hide();
+		}
+
         jQuery('h2.trigger').click(function(){
             if (jQuery(this).next().is(":visible")) {
                 this.className = "active trigger";
@@ -617,8 +1351,20 @@
             document.forms['idp-mgt-edit-form'].appendChild(input);
         })
         jQuery('#claimAddLink').click(function(){
+        	
             claimRowId++;
-            var newrow = jQuery('<tr><td><input class="claimrow" type="text" id="claimrowid_'+claimRowId+'" name="claimrowname_'+claimRowId+'"/></td>' +
+        	var option = '<option value="">---Select Claim URI ---</option>';
+
+        	<% for(int i =0 ; i< claimUris.length ; i++){%>
+        		option += '<option value="'+ "<%=claimUris[i]%>" + '">' + "<%=claimUris[i]%>" + '</option>';
+        	
+        	<%}%>
+        	
+            $("#claimrow_id_count").val(claimRowId+1);
+
+        	
+            var newrow = jQuery('<tr><td><input class="claimrow" style=" width: 90%; " type="text" id="claimrowid_'+claimRowId+'" name="claimrowname_'+claimRowId+'"/></td>' +
+        			'<td><select class="claimrow_wso2" name="claimrow_name_wso2_' + claimRowId + '">'+option+'</select></td> '+
                     '<td><a onclick="deleteClaimRow(this)" class="icon-link" '+
                     'style="background-image: url(images/delete.gif)">'+
                     'Delete'+
@@ -626,7 +1372,7 @@
             jQuery('.claimrow',newrow).blur(function(){
                 claimURIDropdownPopulator();
             });
-            jQuery('#claimAddTable').append(newrow);;
+            jQuery('#claimAddTable').append(newrow);
             if($(jQuery('#claimAddTable tr')).length == 2){
                 $(jQuery('#claimAddTable')).toggle();
             }
@@ -643,15 +1389,22 @@
             input.id = "deleteClaimMappings";
             input.value = "true";
             document.forms['idp-mgt-edit-form'].appendChild(input);
-        })
+        });
         jQuery('#roleAddLink').click(function(){
             roleRowId++;
-            jQuery('#roleAddTable').append(jQuery('<tr><td><input type="text" id="rolerowid_'+roleRowId+'" name="rolerowname_'+roleRowId+'"/></td>' +
+            $("#rolemappingrow_id_count").val(roleRowId+1);
+            jQuery('#roleAddTable').append(jQuery('<tr><td><input type="text" id="rolerowname_'+roleRowId+'" name="rolerowname_'+roleRowId+'"/></td>' +
+                    '<td><input type="text" id="localrowname_'+roleRowId+'" name="localrowname_'+roleRowId+'"/></td>' +
                     '<td><a onclick="deleteRoleRow(this)" class="icon-link" '+
                     'style="background-image: url(images/delete.gif)">'+
                     'Delete'+
                     '</a></td></tr>'));
-        })
+            if($(jQuery('#roleAddTable tr')).length == 2){
+                $(jQuery('#roleAddTable')).toggle();
+            }
+        });
+
+
         jQuery('#roleMappingDeleteLink').click(function(){
             $(jQuery('#roleMappingDiv')).toggle();
             var input = document.createElement('input');
@@ -660,31 +1413,54 @@
             input.id = "deleteRoleMappings";
             input.value = "true";
             document.forms['idp-mgt-edit-form'].appendChild(input);
-        })
+        });
         jQuery('#provision_disabled').click(function(){
             jQuery('#provision_static_dropdown').attr('disabled','disabled');
-            jQuery('#provision_dynamic_dropdown').attr('disabled','disabled');
         });
         jQuery('#provision_static').click(function(){
             jQuery('#provision_static_dropdown').removeAttr('disabled');
-            jQuery('#provision_dynamic_dropdown').attr('disabled','disabled');
         });
-        jQuery('#provision_dynamic').click(function(){
-            jQuery('#provision_dynamic_dropdown').removeAttr('disabled');
-            jQuery('#provision_static_dropdown').attr('disabled','disabled');
-        });
-        jQuery('#claimMappingAddLink').click(function(){
-        	var selectedIDPClaimName = $('select[name=idpClaimsList]').val();
-        	claimMappinRowID++;
-        	jQuery('#claimMappingAddTable').append(jQuery('<tr>'+
-        	        '<td><input type="text" value="' + selectedIDPClaimName + '" id="idpClaim_'+ claimMappinRowID +'" name="idpClaim_'+ claimMappinRowID +'" readonly="readonly"/></td>' +
-                    '<td><input type="text" id="spClaim_' + claimMappinRowID + '" name="spClaim_' + claimMappinRowID + '"/></td> '+
-                    '<td><input type="text" id="def_val_' + claimMappinRowID + '" name="def_val_' + claimMappinRowID + '"/></td> '+
+
+
+        
+        jQuery('#advancedClaimMappingAddLink').click(function(){
+        	var selectedIDPClaimName = $('select[name=idpClaimsList2]').val();
+        	if(selectedIDPClaimName == "" || selectedIDPClaimName == null ){
+       			CARBON.showWarningDialog('Add valied attribute');
+       			return false;
+        	}
+        	advancedClaimMappinRowID++;
+            $("#advanced_claim_id_count").val(advancedClaimMappinRowID+1);
+        	jQuery('#advancedClaimMappingAddTable').append(jQuery('<tr>'+
+        	        '<td><input type="text" style="width: 99%;" value="' + selectedIDPClaimName + '" id="advancnedIdpClaim_'+ advancedClaimMappinRowID +'" name="advancnedIdpClaim_'+ advancedClaimMappinRowID +'" readonly="readonly" /></td>' +
+                    '<td><input type="text" style="width: 99%;" id="advancedDefault_' + advancedClaimMappinRowID + '" name="advancedDefault_' + advancedClaimMappinRowID + '"/></td> '+
                     '<td><a onclick="deleteRow(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif)"> Delete</a></td>' + 
 
                     '</tr>'));
+        	
+                $(jQuery('#advancedClaimMappingAddTable')).show();
 
         });
+        
+        
+        jQuery('#choose_dialet_type1').click(function(){
+        	$(".customClaim").hide();
+        	$(".role_claim").hide();
+            deleteRows();
+            claimURIDropdownPopulator();
+        	$("#advancedClaimMappingAddTable tbody > tr").remove();
+        	$('#advancedClaimMappingAddTable').hide();
+
+        });
+        
+        jQuery('#choose_dialet_type2').click(function(){
+        	$(".customClaim").show();
+        	$(".role_claim").show();
+        	$("#advancedClaimMappingAddTable tbody > tr").remove();    
+        	$('#advancedClaimMappingAddTable').hide();
+        	claimURIDropdownPopulator();
+		});
+
         claimURIDropdownPopulator();
     })
     var deleteClaimRows = [];
@@ -707,82 +1483,263 @@
 
     }
 
+
+    function deleteRows(){
+         $.each($('.claimrow'), function(){
+            $(this).parent().parent().remove();
+         });
+    }
+    		
+    function checkEnabledLogo(obj, name){
+    	 if(jQuery(obj).attr('checked')) {
+             jQuery('#custom_auth_head_enable_logo_'+name).show();
+    	 } else {
+             jQuery('#custom_auth_head_enable_logo_'+name).hide();
+    	 }
+    	
+    }
+    
+    function getEnabledCustomAuth(){
+        var textMap = {};
+        
+        jQuery("input[name$='_Enabled']").each(function(){
+            textMap[this.id] = $(this).text();
+        });
+        
+        return textMap;
+    }
+    
+    function isCustomAuthEnabled(){
+        var enable=false;
+        for(id in getEnabledCustomAuth()) {
+        	if(jQuery('#'+id).attr('checked')) {
+        		enable = true;
+        	}
+        }
+        return enable;
+    }
+    
+    
+    function isOtherCustomAuthEnabled(selectedId) {
+        var enable=false;
+        for(id in getEnabledCustomAuth()) {
+        	if(id == selectedId){
+				//other than selected 
+        	} else {
+	        	if(jQuery('#'+id).attr('checked')) {
+	        		enable = true;
+	        	}
+        	}    	
+        }
+        return enable;
+    }
+    
     function checkEnabled(obj){
 
         if(jQuery(obj).attr('checked')) {
             if(jQuery(obj).attr('id') == 'openIdEnabled'){
-                jQuery('#openIdDefault').removeAttr('disabled');
-            } else if(jQuery(obj).attr('id') == 'saml2SSOEnabled'){
-                jQuery('#saml2SSODefault').removeAttr('disabled');
-            } else if(jQuery(obj).attr('id') == 'oidcEnabled'){
-                jQuery('#oidcDefault').removeAttr('disabled');
-            } else if(jQuery(obj).attr('id') == 'passiveSTSEnabled'){
-                jQuery('#passiveSTSDefault').removeAttr('disabled');
-            } else if(jQuery(obj).attr('id') == 'fbAuthEnabled'){
-                jQuery('#fbAuthDefault').removeAttr('disabled');
-            }
-        } else {
-            if(jQuery(obj).attr('id') == 'openIdEnabled'){
                 if(!jQuery('#saml2SSOEnabled').attr('checked') &&
                         !jQuery('#oidcEnabled').attr('checked') &&
                         !jQuery('#passiveSTSEnabled').attr('checked') &&
-                        !jQuery('#fbAuthEnabled').attr('checked')){
-                    CARBON.showWarningDialog("At least one authentication protocol must be enabled. Enable another authentication protocol before disabling OpenID");
-                    jQuery(obj).attr('checked','checked');
-                } else if(jQuery('#openIdDefault').attr('checked')){
-                    CARBON.showWarningDialog("Cannot disable OpenID authentication protocol since it is set as default. Change default protocol before disabling");
-                    jQuery(obj).attr('checked','checked');
+                        !jQuery('#fbAuthEnabled').attr('checked') && !isCustomAuthEnabled()){
+                    jQuery('#openIdDefault').attr('checked','checked');
+                    jQuery('#openIdDefault').attr('disabled','disabled');
+
+
+                } else {
+                	 jQuery('#openIdDefault').removeAttr('disabled');
                 }
-                jQuery('#openIdDefault').attr('disabled','disabled');
+               
+                jQuery('#openid_enable_logo').show();
             } else if(jQuery(obj).attr('id') == 'saml2SSOEnabled'){
                 if(!jQuery('#openIdEnabled').attr('checked') &&
                         !jQuery('#oidcEnabled').attr('checked') &&
                         !jQuery('#passiveSTSEnabled').attr('checked') &&
-                        !jQuery('#fbAuthEnabled').attr('checked')){
-                    CARBON.showWarningDialog("At least one authentication protocol must be enabled. Enable another authentication protocol before disabling SAML2 Web SSO");
-                    jQuery(obj).attr('checked','checked');
-                } else if(jQuery('#saml2SSODefault').attr('checked')){
-                    CARBON.showWarningDialog("Cannot disable SAML2 Web SSO authentication protocol since it is set as default. Change default protocol before disabling");
-                    jQuery(obj).attr('checked','checked');
-                }
-                jQuery('#saml2SSODefault').attr('disabled','disabled');
+                        !jQuery('#fbAuthEnabled').attr('checked')&& !isCustomAuthEnabled()){
+                    jQuery('#saml2SSODefault').attr('checked','checked');
+                    jQuery('#saml2SSODefault').attr('disabled','disabled');
+                } else {
+                	 jQuery('#saml2SSODefault').removeAttr('disabled');
+                }              
+    	        jQuery('#sampl2sso_enable_logo').show();
             } else if(jQuery(obj).attr('id') == 'oidcEnabled'){
                 if(!jQuery('#openIdEnabled').attr('checked') &&
                         !jQuery('#saml2SSOEnabled').attr('checked') &&
                         !jQuery('#passiveSTSEnabled').attr('checked') &&
-                        !jQuery('#fbAuthEnabled').attr('checked')){
-                    CARBON.showWarningDialog("At least one authentication protocol must be enabled. Enable another authentication protocol before disabling OpenID Connect");
-                    jQuery(obj).attr('checked','checked');
-                } else if(jQuery('#oidcDefault').attr('checked')){
-                    CARBON.showWarningDialog("Cannot disable OpenID Connect authentication protocol since it is set as default. Change default protocol before disabling");
-                    jQuery(obj).attr('checked','checked');
-                }
-                jQuery('#oidcDefault').attr('disabled','disabled');
+                        !jQuery('#fbAuthEnabled').attr('checked')&& !isCustomAuthEnabled()){
+                    jQuery('#oidcDefault').attr('checked','checked');
+                    jQuery('#oidcDefault').attr('disabled','disabled');
+                } else {
+                	 jQuery('#oidcDefault').removeAttr('disabled');
+                } 
+                jQuery('#oAuth2_enable_logo').show();
             } else if(jQuery(obj).attr('id') == 'passiveSTSEnabled'){
-                if(!jQuery('#openIdEnabled').attr('checked') &&
-                        !jQuery('#saml2SSOEnabled').attr('checked') &&
+                if(!jQuery('#saml2SSOEnabled').attr('checked') &&
                         !jQuery('#oidcEnabled').attr('checked') &&
-                        !jQuery('#fbAuthEnabled').attr('checked')){
-                    CARBON.showWarningDialog("At least one authentication protocol must be enabled. Enable another authentication protocol before disabling Passive STS");
-                    jQuery(obj).attr('checked','checked');
-                } else if(jQuery('#passiveSTSDefault').attr('checked')){
-                    CARBON.showWarningDialog("Cannot disable Passive STS authentication protocol since it is set as default. Change default protocol before disabling");
-                    jQuery(obj).attr('checked','checked');
+                        !jQuery('#openIdEnabled').attr('checked') &&
+                        !jQuery('#fbAuthEnabled').attr('checked')&& !isCustomAuthEnabled()){
+                    jQuery('#passiveSTSDefault').attr('checked','checked');
+                    jQuery('#passiveSTSDefault').attr('disabled','disabled');
+                } else {
+                	 jQuery('#passiveSTSDefault').removeAttr('disabled');
                 }
-                jQuery('#passiveSTSDefault').attr('disabled','disabled');
+                jQuery('#wsfederation_enable_logo').show();
             } else if(jQuery(obj).attr('id') == 'fbAuthEnabled'){
-                if(!jQuery('#openIdEnabled').attr('checked') &&
-                        !jQuery('#saml2SSOEnabled').attr('checked') &&
+                if(!jQuery('#saml2SSOEnabled').attr('checked') &&
                         !jQuery('#oidcEnabled').attr('checked') &&
-                        !jQuery('#passiveSTSEnabled').attr('checked')){
-                    CARBON.showWarningDialog("At least one authentication protocol must be enabled. Enable another authentication protocol before disabling FaceBook authentication");
-                    jQuery(obj).attr('checked','checked');
-                } else if(jQuery('#fbAuthDefault').attr('checked')){
-                    CARBON.showWarningDialog("Cannot disable FaceBook authentication protocol since it is set as default. Change default protocol before disabling");
-                    jQuery(obj).attr('checked','checked');
+                        !jQuery('#passiveSTSEnabled').attr('checked') &&
+                        !jQuery('#openIdEnabled').attr('checked')&& !isCustomAuthEnabled()){
+                    jQuery('#fbAuthDefault').attr('checked','checked');
+                    jQuery('#fbAuthDefault').attr('disabled','disabled');
+                } else {
+                	 jQuery('#fbAuthDefault').removeAttr('disabled');
                 }
-                jQuery('#fbAuthDefault').attr('disabled','disabled');
+                jQuery('#fecebook_enable_logo').show();
+            } else {
+                for(id in getEnabledCustomAuth()) {
+                	if(jQuery(obj).attr('id') == id){
+                		var defId = '#'+id.replace("_Enabled","_Default");
+	                	if(!jQuery('#saml2SSOEnabled').attr('checked') &&
+	                            !jQuery('#oidcEnabled').attr('checked') &&
+	                            !jQuery('#passiveSTSEnabled').attr('checked') &&
+	                            !jQuery('#openIdEnabled').attr('checked')&&
+	                            !jQuery('#fbAuthEnabled').attr('checked') && !isOtherCustomAuthEnabled(id)){
+	                        jQuery(defId).attr('checked','checked');
+	                        jQuery(defId).attr('disabled','disabled');
+	                    } else {
+	                    	jQuery(defId).removeAttr('disabled');
+	                    }
+                	}
+                }
             }
+        } else {
+            if(jQuery(obj).attr('id') == 'openIdEnabled'){
+            	if(jQuery('#saml2SSOEnabled').attr('checked') ||
+                        jQuery('#passiveSTSEnabled').attr('checked') ||
+                        jQuery('#oidcEnabled').attr('checked') ||
+                        jQuery('#fbAuthEnabled').attr('checked') || isCustomAuthEnabled()){
+            		
+		            		 if(jQuery('#openIdDefault').attr('checked')){
+		            			 jQuery('#openIdEnabled').attr('checked','checked');
+		                         CARBON.showWarningDialog("Make other enabled authenticator to default before disabling default authenticator");
+		            		 } else {
+		                         jQuery('#openIdDefault').attr('disabled','disabled');
+		                         jQuery('#openIdDefault').removeAttr('checked');
+		                         jQuery('#openid_enable_logo').hide();
+		            		 }
+                } else {
+                    jQuery('#openIdDefault').attr('disabled','disabled');
+                	jQuery('#openIdDefault').removeAttr('checked');
+                	jQuery('#openid_enable_logo').hide();
+                } 
+
+       	        
+            } else if(jQuery(obj).attr('id') == 'saml2SSOEnabled'){
+            	
+            	if(jQuery('#openIdEnabled').attr('checked') ||
+                        jQuery('#passiveSTSEnabled').attr('checked') ||
+                        jQuery('#oidcEnabled').attr('checked') ||
+                        jQuery('#fbAuthEnabled').attr('checked')|| isCustomAuthEnabled()){
+            		
+		            		 if(jQuery('#saml2SSODefault').attr('checked')){
+		            			 jQuery('#saml2SSOEnabled').attr('checked','checked');
+		                         CARBON.showWarningDialog("Make other enabled authenticator to default before disabling default authenticator");
+		            		 } else {
+		                         jQuery('#saml2SSODefault').attr('disabled','disabled');
+		                         jQuery('#saml2SSODefault').removeAttr('checked');
+		                         jQuery('#sampl2sso_enable_logo').hide();
+		            		 }
+                } else {
+                    jQuery('#saml2SSODefault').attr('disabled','disabled');
+                	jQuery('#saml2SSODefault').removeAttr('checked');
+                	jQuery('#sampl2sso_enable_logo').hide();
+                } 
+
+            } else if(jQuery(obj).attr('id') == 'oidcEnabled'){
+            	
+            	if(jQuery('#saml2SSOEnabled').attr('checked') ||
+                        jQuery('#passiveSTSEnabled').attr('checked') ||
+                        jQuery('#openIdEnabled').attr('checked') ||
+                        jQuery('#fbAuthEnabled').attr('checked')|| isCustomAuthEnabled()){
+            		
+		            		 if(jQuery('#oidcDefault').attr('checked')){
+		            			 jQuery('#oidcEnabled').attr('checked','checked');
+		                         CARBON.showWarningDialog("Make other enabled authenticator to default before disabling default authenticator");
+		            		 } else {
+		                         jQuery('#oidcDefault').attr('disabled','disabled');
+		                         jQuery('#oidcDefault').removeAttr('checked');
+		                         jQuery('#oAuth2_enable_logo').hide();
+		            		 }
+                } else {
+                    jQuery('#oidcDefault').attr('disabled','disabled');
+                	jQuery('#oidcDefault').removeAttr('checked');
+                	jQuery('#oAuth2_enable_logo').hide();
+                } 
+            } else if(jQuery(obj).attr('id') == 'passiveSTSEnabled'){
+            	
+            	if(jQuery('#saml2SSOEnabled').attr('checked') ||
+                        jQuery('#oidcEnabled').attr('checked') ||
+                        jQuery('#openIdEnabled').attr('checked') ||
+                        jQuery('#fbAuthEnabled').attr('checked')|| isCustomAuthEnabled()){
+            		
+		            		 if(jQuery('#passiveSTSDefault').attr('checked')){
+		            			 jQuery('#passiveSTSEnabled').attr('checked','checked');
+		                         CARBON.showWarningDialog("Make other enabled authenticator to default before disabling default authenticator");
+		            		 } else {
+		                         jQuery('#passiveSTSDefault').attr('disabled','disabled');
+		                         jQuery('#passiveSTSDefault').removeAttr('checked');
+		                         jQuery('#wsfederation_enable_logo').hide();
+		            		 }
+                } else {
+                    jQuery('#passiveSTSDefault').attr('disabled','disabled');
+                	jQuery('#passiveSTSDefault').removeAttr('checked');
+                	jQuery('#wsfederation_enable_logo').hide();
+                } 
+
+            } else if(jQuery(obj).attr('id') == 'fbAuthEnabled'){
+            	
+            	if(jQuery('#saml2SSOEnabled').attr('checked') ||
+                        jQuery('#oidcEnabled').attr('checked') ||
+                        jQuery('#openIdEnabled').attr('checked') ||
+                        jQuery('#passiveSTSEnabled').attr('checked')|| isCustomAuthEnabled()){
+            		
+		            		 if(jQuery('#fbAuthDefault').attr('checked')){
+		            			 jQuery('#fbAuthEnabled').attr('checked','checked');
+		                         CARBON.showWarningDialog("Make other enabled authenticator to default before disabling default authenticator");
+		            		 } else {
+		                         jQuery('#fbAuthDefault').attr('disabled','disabled');
+		                         jQuery('#fbAuthDefault').removeAttr('checked');
+		                         jQuery('#fecebook_enable_logo').hide();
+		            		 }
+                } else {
+                    jQuery('#fbAuthDefault').attr('disabled','disabled');
+                	jQuery('#fbAuthDefault').removeAttr('checked');
+                	jQuery('#fecebook_enable_logo').hide();
+                }
+            } else {
+                for(id in getEnabledCustomAuth()) {
+                	if(jQuery(obj).attr('id') == id){
+                		var defId = '#'+id.replace("_Enabled","_Default");
+	                	if(jQuery('#saml2SSOEnabled').attr('checked') ||
+	                            jQuery('#oidcEnabled').attr('checked') ||
+	                            jQuery('#passiveSTSEnabled').attr('checked') ||
+	                            jQuery('#openIdEnabled').attr('checked')||
+	                            jQuery('#fbAuthEnabled').attr('checked') || isOtherCustomAuthEnabled(id)){
+	                		
+	                		if(jQuery(defId).attr('checked')){
+	                			jQuery('#'+id).attr('checked','checked');
+	                			CARBON.showWarningDialog("Make other enabled authenticator to default before disabling default authenticator");
+	                		} else {
+	                			jQuery(defId).attr('disabled','disabled');
+		                        jQuery(defId).removeAttr('checked');
+	                		}
+	                    } else {
+	                        jQuery(defId).attr('disabled','disabled');
+	                    	jQuery(defId).removeAttr('checked');	                    
+	                    }
+                	}
+                }
+            } 
         }
     }
 
@@ -804,6 +1761,15 @@
             if(jQuery('#fbAuthEnabled').attr('checked')){
                 jQuery('#fbAuthDefault').removeAttr('disabled');
             }
+            
+            for(id in getEnabledCustomAuth()) {
+            	var defId = '#'+id.replace("_Enabled","_Default");
+            	jQuery(defId).removeAttr('checked');
+            	
+                if(jQuery('#'+id).attr('checked')){
+                    jQuery(defId).removeAttr('disabled');
+                }
+            }
             jQuery('#openIdDefault').attr('disabled','disabled');
         } else if(jQuery(obj).attr('id') == 'saml2SSODefault'){
             jQuery('#openIdDefault').removeAttr('checked');
@@ -821,6 +1787,14 @@
             }
             if(jQuery('#fbAuthEnabled').attr('checked')){
                 jQuery('#fbAuthDefault').removeAttr('disabled');
+            }
+            for(id in getEnabledCustomAuth()) {
+            	var defId = '#'+id.replace("_Enabled","_Default");
+            	jQuery(defId).removeAttr('checked');
+            	
+                if(jQuery('#'+id).attr('checked')){
+                    jQuery(defId).removeAttr('disabled');
+                }
             }
             jQuery('#saml2SSODefault').attr('disabled','disabled');
         } else if(jQuery(obj).attr('id') == 'oidcDefault'){
@@ -840,6 +1814,14 @@
             if(jQuery('#fbAuthEnabled').attr('checked')){
                 jQuery('#fbAuthDefault').removeAttr('disabled');
             }
+            for(id in getEnabledCustomAuth()) {
+            	var defId = '#'+id.replace("_Enabled","_Default");
+            	jQuery(defId).removeAttr('checked');
+            	
+                if(jQuery('#'+id).attr('checked')){
+                    jQuery(defId).removeAttr('disabled');
+                }
+            }
             jQuery('#oidcDefault').attr('disabled','disabled');
         } else if(jQuery(obj).attr('id') == 'passiveSTSDefault'){
             jQuery('#openIdDefault').removeAttr('checked');
@@ -857,6 +1839,14 @@
             }
             if(jQuery('#fbAuthEnabled').attr('checked')){
                 jQuery('#fbAuthDefault').removeAttr('disabled');
+            }
+            for(id in getEnabledCustomAuth()) {
+            	var defId = '#'+id.replace("_Enabled","_Default");
+            	jQuery(defId).removeAttr('checked');
+            	
+                if(jQuery('#'+id).attr('checked')){
+                    jQuery(defId).removeAttr('disabled');
+                }
             }
             jQuery('#passiveSTSDefault').attr('disabled','disabled');
         } else if(jQuery(obj).attr('id') == 'fbAuthDefault'){
@@ -876,7 +1866,58 @@
             if(jQuery('#passiveSTSEnabled').attr('checked')){
                 jQuery('#passiveSTSDefault').removeAttr('disabled');
             }
+            for(id in getEnabledCustomAuth()) {
+            	var defId = '#'+id.replace("_Enabled","_Default");
+            	jQuery(defId).removeAttr('checked');
+            	
+                if(jQuery('#'+id).attr('checked')){
+                    jQuery(defId).removeAttr('disabled');
+                }
+            }
             jQuery('#fbAuthDefault').attr('disabled','disabled');
+        } else {
+        	for(id in getEnabledCustomAuth()) {
+    			var defId = id.replace("_Enabled","_Default");
+        		if(jQuery(obj).attr('id') == defId){
+        			jQuery('#openIdDefault').removeAttr('checked');
+                    jQuery('#saml2SSODefault').removeAttr('checked');
+                    jQuery('#oidcDefault').removeAttr('checked');
+                    jQuery('#passiveSTSDefault').removeAttr('checked');
+                    jQuery('#fbAuthDefault').removeAttr('checked');
+
+                    if(jQuery('#openIdEnabled').attr('checked')){
+                        jQuery('#openIdDefault').removeAttr('disabled');
+                    }
+                    if(jQuery('#saml2SSOEnabled').attr('checked')){
+                        jQuery('#saml2SSODefault').removeAttr('disabled');
+                    }
+                    if(jQuery('#oidcEnabled').attr('checked')){
+                        jQuery('#oidcDefault').removeAttr('disabled');
+                    }
+                    if(jQuery('#passiveSTSEnabled').attr('checked')){
+                        jQuery('#passiveSTSDefault').removeAttr('disabled');
+                    }
+                    if(jQuery('#fbAuthEnabled').attr('checked')){
+                        jQuery('#fbAuthDefault').removeAttr('disabled');
+                    }
+                    
+                    for(idE in getEnabledCustomAuth()) {
+                    	var defIdE = idE.replace("_Enabled","_Default");
+                    	
+                    	if(jQuery(obj).attr('id') == defIdE) {
+                    		//Nothing do
+                    	} 
+                    	else {    
+                    		jQuery('#'+defIdE).removeAttr('checked');
+                    	    if(jQuery('#'+idE).attr('checked')){
+                        	    jQuery('#'+defIdE).removeAttr('disabled');
+                        	}
+                    	}
+                    }
+                    
+                    jQuery('#'+defId).attr('disabled','disabled');
+        		}
+        	}
         }
     }
 
@@ -884,52 +1925,199 @@
 
         if(jQuery(obj).attr('checked')) {
             if(jQuery(obj).attr('id') == 'googleProvEnabled'){
-                jQuery('#googleProvDefault').removeAttr('disabled');
-            } else if(jQuery(obj).attr('id') == 'salesforceProvEnabled'){
-                jQuery('#salesforceProvDefault').removeAttr('disabled');
+            	
+            	if(!jQuery('#sfProvEnabled').attr('checked') &&  !jQuery('#scimProvEnabled').attr('checked') &&
+                           !jQuery('#spmlProvEnabled').attr('checked')){
+            		
+                    jQuery('#googleProvDefault').attr('checked','checked');
+                    jQuery('#googleProvDefault').attr('disabled','disabled');
+                   } else {
+                   	 jQuery('#googleProvDefault').removeAttr('disabled');
+                   }
+                  
+                   jQuery('#google_enable_logo').show();
+                   
+            } else if(jQuery(obj).attr('id') == 'sfProvEnabled'){
+            	
+            	if(!jQuery('#googleProvEnabled').attr('checked') &&  !jQuery('#scimProvEnabled').attr('checked') &&
+                           !jQuery('#spmlProvEnabled').attr('checked')){
+            		
+                    jQuery('#sfProvDefault').attr('checked','checked');
+                    jQuery('#sfProvDefault').attr('disabled','disabled');
+                   } else {
+                   	 jQuery('#sfProvDefault').removeAttr('disabled');
+                   }
+
+    	        jQuery('#sf_enable_logo').show();
+    	        
             } else if(jQuery(obj).attr('id') == 'scimProvEnabled'){
-                jQuery('#scimProvDefault').removeAttr('disabled');
+            	
+            	if(!jQuery('#googleProvEnabled').attr('checked') &&  !jQuery('#sfProvEnabled').attr('checked') &&
+                        !jQuery('#spmlProvEnabled').attr('checked')){
+         		
+                 jQuery('#scimProvDefault').attr('checked','checked');
+                 jQuery('#scimProvDefault').attr('disabled','disabled');
+                } else {
+                	 jQuery('#scimProvDefault').removeAttr('disabled');
+                }
+
+ 	        	jQuery('#scim_enable_logo').show();
+ 	        	
             } else if(jQuery(obj).attr('id') == 'spmlProvEnabled'){
-                jQuery('#spmlProvDefault').removeAttr('disabled');
+            	
+            	if(!jQuery('#googleProvEnabled').attr('checked') &&  !jQuery('#sfProvEnabled').attr('checked') &&
+                        !jQuery('#scimProvEnabled').attr('checked')){
+         		
+                 jQuery('#spmlProvDefault').attr('checked','checked');
+                 jQuery('#spmlProvDefault').attr('disabled','disabled');
+                } else {
+                	 jQuery('#spmlProvDefault').removeAttr('disabled');
+                }
+
+ 	        	jQuery('#spml_enable_logo').show();
             }
         } else {
             if(jQuery(obj).attr('id') == 'googleProvEnabled'){
-                if(jQuery('#googleProvDefault').attr('checked')){
-                    CARBON.showWarningDialog("Cannot disable default provisioning connector.");
-                    jQuery(obj).attr('checked','checked');
-                }
-                else {
+            	
+            	if(jQuery('#sfProvEnabled').attr('checked') ||
+                        jQuery('#spmlProvEnabled').attr('checked') ||
+                        jQuery('#scimProvEnabled').attr('checked')){
+            		
+		            		 if(jQuery('#googleProvDefault').attr('checked')){
+		            			 //jQuery('#googleProvEnabled').attr('checked','checked');
+		                        // CARBON.showWarningDialog("Make other enabled authenticator to default before disabling default authenticator");
+		            		 } else {
+		                         jQuery('#googleProvDefault').attr('disabled','disabled');
+		                         jQuery('#googleProvDefault').removeAttr('checked');
+		                         jQuery('#google_enable_logo').hide();
+		            		 }
+                } else {
                     jQuery('#googleProvDefault').attr('disabled','disabled');
+                	jQuery('#googleProvDefault').removeAttr('checked');
+                	jQuery('#google_enable_logo').hide();
                 }
-            } else if(jQuery(obj).attr('id') == 'salesforceProvEnabled'){
-                if(jQuery('#salesforceProvDefault').attr('checked')){
-                    CARBON.showWarningDialog("Cannot disable default provisioning connector.");
-                    jQuery(obj).attr('checked','checked');
+            	
+            } else if(jQuery(obj).attr('id') == 'sfProvEnabled'){
+            	
+               	if(jQuery('#googleProvEnabled').attr('checked') ||
+                        jQuery('#spmlProvEnabled').attr('checked') ||
+                        jQuery('#scimProvEnabled').attr('checked')){
+            		
+		            		 if(jQuery('#sfProvDefault').attr('checked')){
+		            			// jQuery('#sfProvEnabled').attr('checked','checked');
+		                        // CARBON.showWarningDialog("Make other enabled authenticator to default before disabling default authenticator");
+		            		 } else {
+		                         jQuery('#sfProvDefault').attr('disabled','disabled');
+		                         jQuery('#sfProvDefault').removeAttr('checked');
+		                         jQuery('#sf_enable_logo').hide();
+		            		 }
+                } else {
+                    jQuery('#sfProvDefault').attr('disabled','disabled');
+                	jQuery('#sfProvDefault').removeAttr('checked');
+                	jQuery('#sf_enable_logo').hide();
                 }
-                else {
-                    jQuery('#salesforceProvDefault').attr('disabled','disabled');
-                }
+            	
             } else if(jQuery(obj).attr('id') == 'scimProvEnabled'){
-                if(jQuery('#scimProvDefault').attr('checked')){
-                    CARBON.showWarningDialog("Cannot disable default provisioning connector.");
-                    jQuery(obj).attr('checked','checked');
-                }
-                else {
+            	
+            	if(jQuery('#sfProvEnabled').attr('checked') ||
+                        jQuery('#spmlProvEnabled').attr('checked') ||
+                        jQuery('#googleProvEnabled').attr('checked')){
+            		
+		            		 if(jQuery('#scimProvDefault').attr('checked')){
+		            			// jQuery('#scimProvEnabled').attr('checked','checked');
+		                        // CARBON.showWarningDialog("Make other enabled authenticator to default before disabling default authenticator");
+		            		 } else {
+		                         jQuery('#scimProvDefault').attr('disabled','disabled');
+		                         jQuery('#scimProvDefault').removeAttr('checked');
+		                         jQuery('#scim_enable_logo').hide();
+		            		 }
+                } else {
                     jQuery('#scimProvDefault').attr('disabled','disabled');
+                	jQuery('#scimProvDefault').removeAttr('checked');
+                	jQuery('#scim_enable_logo').hide();
                 }
+    
             } else if(jQuery(obj).attr('id') == 'spmlProvEnabled'){
-                if(jQuery('#spmlProvDefault').attr('checked')){
-                    CARBON.showWarningDialog("Cannot disable default provisioning connector.");
-                    jQuery(obj).attr('checked','checked');
-                }
-                else {
+            	
+            	if(jQuery('#sfProvEnabled').attr('checked') ||
+                        jQuery('#scimProvEnabled').attr('checked') ||
+                        jQuery('#googleProvEnabled').attr('checked')){
+            		
+		            		 if(jQuery('#spmlProvDefault').attr('checked')){
+		            			// jQuery('#spmlProvEnabled').attr('checked','checked');
+		                        // CARBON.showWarningDialog("Make other enabled authenticator to default before disabling default authenticator");
+		            		 } else {
+		                         jQuery('#spmlProvDefault').attr('disabled','disabled');
+		                         jQuery('#spmlProvDefault').removeAttr('checked');
+		                         jQuery('#spml_enable_logo').hide();
+		            		 }
+                } else {
                     jQuery('#spmlProvDefault').attr('disabled','disabled');
+                	jQuery('#spmlProvDefault').removeAttr('checked');
+                	jQuery('#spml_enable_logo').hide();
                 }
             }
         }
     }
 
     function checkProvDefault(obj){
+    	if(jQuery(obj).attr('id') == 'googleProvDefault'){
+            jQuery('#sfProvDefault').removeAttr('checked');
+            jQuery('#scimProvDefault').removeAttr('checked');
+            jQuery('#spmlProvDefault').removeAttr('checked');
+            if(jQuery('#sfProvEnabled').attr('checked')){
+                jQuery('#sfProvDefault').removeAttr('disabled');
+            }
+            if(jQuery('#scimProvEnabled').attr('checked')){
+                jQuery('#scimProvDefault').removeAttr('disabled');
+            }
+            if(jQuery('#spmlProvEnabled').attr('checked')){
+                jQuery('#spmlProvDefault').removeAttr('disabled');
+            }
+            jQuery('#googleProvDefault').attr('disabled','disabled');
+        } else if(jQuery(obj).attr('id') == 'sfProvDefault'){
+            jQuery('#googleProvDefault').removeAttr('checked');
+            jQuery('#scimProvDefault').removeAttr('checked');
+            jQuery('#spmlProvDefault').removeAttr('checked');
+            if(jQuery('#googleProvEnabled').attr('checked')){
+                jQuery('#googleProvDefault').removeAttr('disabled');
+            }
+            if(jQuery('#scimProvEnabled').attr('checked')){
+                jQuery('#scimProvDefault').removeAttr('disabled');
+            }
+            if(jQuery('#spmlProvEnabled').attr('checked')){
+                jQuery('#spmlProvDefault').removeAttr('disabled');
+            }
+            jQuery('#sfProvDefault').attr('disabled','disabled');
+        } else if(jQuery(obj).attr('id') == 'scimProvDefault'){
+            jQuery('#googleProvDefault').removeAttr('checked');
+            jQuery('#sfProvDefault').removeAttr('checked');
+            jQuery('#spmlProvDefault').removeAttr('checked');
+            if(jQuery('#googleProvEnabled').attr('checked')){
+                jQuery('#googleProvDefault').removeAttr('disabled');
+            }
+            if(jQuery('#spmlProvEnabled').attr('checked')){
+                jQuery('#spmlProvDefault').removeAttr('disabled');
+            }
+            if(jQuery('#sfProvEnabled').attr('checked')){
+                jQuery('#sfProvDefault').removeAttr('disabled');
+            }            
+            jQuery('#scimProvDefault').attr('disabled','disabled');
+        } else if(jQuery(obj).attr('id') == 'spmlProvDefault'){
+            jQuery('#googleProvDefault').removeAttr('checked');
+            jQuery('#sfProvDefault').removeAttr('checked');
+            jQuery('#scimProvDefault').removeAttr('checked');
+            if(jQuery('#openIdEnabled').attr('checked')){
+                jQuery('#googleProvDefault').removeAttr('disabled');
+            }
+            if(jQuery('#googleProvEnabled').attr('checked')){
+                jQuery('#sfProvDefault').removeAttr('disabled');
+            }
+            if(jQuery('#scimProvEnabled').attr('checked')){
+                jQuery('#scimProvDefault').removeAttr('disabled');
+            }
+            jQuery('#spmlProvDefault').attr('disabled','disabled');
+        } 
     }
 
     function idpMgtUpdate(){
@@ -1384,6 +2572,15 @@
         jQuery('#oidcDefault').removeAttr('disabled');
         jQuery('#passiveSTSDefault').removeAttr('disabled');
         jQuery('#fbAuthDefault').removeAttr('disabled');
+        jQuery('#googleProvDefault').removeAttr('disabled');
+        jQuery('#spmlProvDefault').removeAttr('disabled');
+        jQuery('#sfProvDefault').removeAttr('disabled');
+        jQuery('#scimProvDefault').removeAttr('disabled');
+
+        for(id in getEnabledCustomAuth()) {
+            var defId = '#'+id.replace("_Enabled","_Default");
+            jQuery(defId).removeAttr('disabled');
+        }
         <% if(idPName == null || idPName.equals("")){ %>
         jQuery('#idp-mgt-edit-form').attr('action','idp-mgt-add-finish.jsp');
         <% } %>
@@ -1392,6 +2589,28 @@
     function idpMgtCancel(){
         location.href = "idp-mgt-list.jsp"
     }
+    
+	function showHidePassword(element, inputId){
+		if($(element).text()=='Show'){
+			document.getElementById(inputId).type = 'text';
+			$(element).text('Hide');
+		}else{
+			document.getElementById(inputId).type = 'password';
+			$(element).text('Show');
+		}
+	}
+    
+    function emailValidator(name){
+    	var errorMsg = "";
+    	var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;    
+    	if(name == ""){
+    		errorMsg = "null";
+        } else if (!name.match(new RegExp(emailPattern))){
+        	errorMsg = "notValied";
+        }
+		return errorMsg;
+    }
+    
     function doValidation() {
         var reason = "";
         reason = validateEmpty("idPName");
@@ -1399,6 +2618,201 @@
             CARBON.showWarningDialog("Name of IdP cannot be empty");
             return false;
         }
+        
+   	 if(jQuery('#openIdEnabled').attr('checked')) {
+    	 
+    	 if($('#openIdUrl').val() == ""){
+    		 CARBON.showWarningDialog('OpenID Server URL cannot be empty');
+    		 return false;
+    	 }
+     }
+   	 
+ 	 if(jQuery('#saml2SSOEnabled').attr('checked')) {
+    	 
+    	 if($('#idPEntityId').val() == ""){
+    		 CARBON.showWarningDialog('Identity Provider Entity Id cannot be empty');
+    		 return false;
+    	 }
+    	 
+    	 if($('#spEntityId').val() == ""){
+    		 CARBON.showWarningDialog('Service Provider Entity Id cannot be empty');
+    		 return false;
+    	 }
+    	 
+    	 if($('#ssoUrl').val() == ""){
+    		 CARBON.showWarningDialog('SSO URL cannot be empty');
+    		 return false;
+    	 } 	 
+    	 
+     }
+ 	 
+ 	if(jQuery('#oidcEnabled').attr('checked')) {
+    	 
+    	 if($('#authzUrl').val() == ""){
+    		 CARBON.showWarningDialog('OAuth2/OpenId  Authorization Endpoint URL cannot be empty');
+    		 return false;
+    	 }
+    	 
+    	 if($('#tokenUrl').val() == ""){
+    		 CARBON.showWarningDialog('OAuth2/OpenId Token Endpoint URL cannot be empty');
+    		 return false;
+    	 }
+    	 
+    	 if($('#clientId').val() == ""){
+    		 CARBON.showWarningDialog('OAuth2/OpenId Client Id cannot be empty');
+    		 return false;
+    	 } 	
+    	 
+    	 if($('#clientSecret').val() == ""){
+    		 CARBON.showWarningDialog('OAuth2/OpenId Client Secret cannot be empty');
+    		 return false;
+    	 } 
+    	 
+     }
+ 	
+   	 if(jQuery('#passiveSTSEnabled').attr('checked')) {
+    	 
+    	 if($('#passiveSTSRealm').val() == ""){
+    		 CARBON.showWarningDialog('Passive STS Realm cannot be empty');
+    		 return false;
+    	 }
+    	 
+    	 if($('#passiveSTSUrl').val() == ""){
+    		 CARBON.showWarningDialog('Passive STS URL cannot be empty');
+    		 return false;
+    	 }
+     }
+   	 
+   	 if(jQuery('#fbAuthEnabled').attr('checked')) {
+    	 
+    	 if($('#fbClientId').val() == ""){
+    		 CARBON.showWarningDialog('Facebook Client Id cannot be empty');
+    		 return false;
+    	 }
+    	 
+    	 if($('#fbClientSecret').val() == ""){
+    		 CARBON.showWarningDialog('Facebook Client Secret cannot be empty');
+    		 return false;
+    	 }
+     }
+   	
+   	 
+   	 if(jQuery('#googleProvEnabled').attr('checked')) {
+    	 
+    	 if($('#google_prov_domain_name').val() == ""){
+    		 CARBON.showWarningDialog('Google Domain cannot be empty');
+    		 return false;
+    	 }
+    	 
+    
+    	 var errorMsg = emailValidator($('#google_prov_service_acc_email').val());    
+    	 if(errorMsg == "null"){
+       		 CARBON.showWarningDialog('Google connector Service Account Email cannot be empty');
+    		 return false;
+    	 } else if(errorMsg == "notValied") {
+       		 CARBON.showWarningDialog('Google connector Service Account Email is not valied');
+    		 return false;
+    	 }
+    	 
+    	 var errorMsgAdmin = emailValidator($('#google_prov_admin_email').val());    
+    	 if(errorMsgAdmin == "null"){
+       		 CARBON.showWarningDialog('Google connector Administrator\'s Email cannot be empty');
+    		 return false;
+    	 } else if(errorMsgAdmin == "notValied") {
+       		 CARBON.showWarningDialog('Google connector Administrator\'s Email is not valied');
+    		 return false;
+    	 }
+    	    	 
+    	 
+    	 if($('#google_prov_application_name').val() == ""){
+    		 CARBON.showWarningDialog('Google connector Application Name cannot be empty');
+    		 return false;
+    	 }
+    	 
+    	 
+    	 if($('#google_prov_email_claim_dropdown').val() == ""){
+    		 CARBON.showWarningDialog('Google connector Primary Email claim URI should be selected ');
+    		 return false;
+    	 }
+    	 
+    	 if($('#google_prov_givenname_claim_dropdown').val() == ""){
+    		 CARBON.showWarningDialog('Google connector Given Name claim URI should be selected ');
+    		 return false;
+    	 }
+    	 
+    	 if($('#google_prov_familyname_claim_dropdown').val() == ""){
+    		 CARBON.showWarningDialog('Google connector Family Name claim URI should be selected ');
+    		 return false;
+    	 }
+    	 
+     }
+   	 
+   	 if(jQuery('#sfProvEnabled').attr('checked')) {
+    	 
+    	 if($('#sf-api-version').val() == ""){
+    		 CARBON.showWarningDialog('Salesforce Provisioning Configuration API version cannot be empty');
+    		 return false;
+    	 }
+    	 
+    	 if($('#sf-domain-name').val() == ""){
+    		 CARBON.showWarningDialog('Salesforce Provisioning Configuration Domain Name cannot be empty');
+    		 return false;
+    	 }
+    	 
+    	 if($('#sf-clientid').val() == ""){
+    		 CARBON.showWarningDialog('Salesforce Provisioning Configuration Client Id cannot be empty');
+    		 return false;
+    	 }
+    	 
+    	 if($('#sf-client-secret').val() == ""){
+    		 CARBON.showWarningDialog('Salesforce Provisioning Configuration Client Secret cannot be empty');
+    		 return false;
+    	 }
+    	 
+    	 if($('#sf-username').val() == ""){
+    		 CARBON.showWarningDialog('Salesforce Provisioning Configuration Username cannot be empty');
+    		 return false;
+    	 }
+    	 
+    	 if($('#sf-password').val() == ""){
+    		 CARBON.showWarningDialog('Salesforce Provisioning Configuration Password cannot be empty');
+    		 return false;
+    	 }
+     }
+   	 
+   	 
+   	 if(jQuery('#scimProvEnabled').attr('checked')) {
+    	 
+    	 if($('#scim-username').val() == ""){
+    		 CARBON.showWarningDialog('Scim Configuration username cannot be empty');
+    		 return false;
+    	 }
+    	 
+    	 if($('#scim-password').val() == ""){
+    		 CARBON.showWarningDialog('Scim Configuration password cannot be empty');
+    		 return false;
+    	 }
+    	 
+    	 if($('#scim-user-ep').val() == ""){
+    		 CARBON.showWarningDialog('Scim Configuration User endpoint cannot be empty');
+    		 return false;
+    	 }
+     }
+   	 
+   	 if(jQuery('#spmlProvEnabled').attr('checked')) {
+    	 
+    	 if($('#spml-ep').val() == ""){
+    		 CARBON.showWarningDialog('SPML Endpoint cannot be empty');
+    		 return false;
+    	 }
+    	 
+    	 if($('#spml-oc').val() == ""){
+    		 CARBON.showWarningDialog('SPML Object class cannot be empty');
+    		 return false;
+    	 }
+    	 
+     }
+   	  	 
         for(var i=0; i <= claimRowId; i++){
             if(document.getElementsByName('claimrowname_'+i)[0] != null){
                 reason = validateEmpty('claimrowname_'+i);
@@ -1408,6 +2822,7 @@
                 }
             }
         }
+        
         for(var i=0; i <= roleRowId; i++){
             if(document.getElementsByName('rolerowname_'+i)[0] != null){
                 reason = validateEmpty('rolerowname_'+i);
@@ -1417,6 +2832,7 @@
                 }
             }
         }
+
         return true;
     }
 </script>
@@ -1424,7 +2840,7 @@
 <fmt:bundle basename="org.wso2.carbon.idp.mgt.ui.i18n.Resources">
     <div id="middle">
         <h2>
-            <fmt:message key='identity.providers'/>
+            <fmt:message key='add.identity.provider'/>
         </h2>
         <div id="workArea">
         <form id="idp-mgt-edit-form" name="idp-mgt-edit-form" method="post" action="idp-mgt-edit-finish.jsp" enctype="multipart/form-data" >
@@ -1435,24 +2851,51 @@
                         <td class="leftCol-med labelField"><fmt:message key='name'/>:<span class="required">*</span></td>
                         <td>
                             <input id="idPName" name="idPName" type="text" value="<%=idPName%>" autofocus/>
+                            <%if (identityProvider != null && identityProvider.getEnable()) { %>
+                            <input id="enable" name="enable" type="hidden" value="1">
+                            <%} %>
+                            
                             <div class="sectionHelp">
                                 <fmt:message key='name.help'/>
                             </div>
                         </td>
                     </tr>
+                    
                     <tr>
+                        <td class="leftCol-med labelField"><fmt:message key='idp.display.name'/>:</td>
+                        <td>
+                            <input id="idpDisplayName" name="idpDisplayName" type="text" value="<%=idpDisplayName%>" autofocus/>
+                            <div class="sectionHelp">
+                                <fmt:message key='idp.display.name.help'/>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="leftCol-med labelField"><fmt:message key='description'/></td>
+                        <td>
+                            <input id="idPDescription" name="idPDescription" type="text" value="<%=description%>" autofocus/>
+                                <div class="sectionHelp">
+                                    <fmt:message key='description.help'/>
+                                </div>
+                        </td>
+                    </tr>
+                    
+                   <tr>
                         <td class="leftCol-med labelField">
-                            <label for="primary"><fmt:message key='primary'/></label>
+                            <label for="federationHub"><fmt:message key='federation.hub.identity.proider'/></label>
                         </td>
                         <td>
                             <div class="sectionCheckbox">
-                                <input id="primary" name="primary" type="checkbox" <%=primaryDisabled%> <%=primaryChecked%>/>
+                                <input type="checkbox" id="federation_hub_idp" name="federation_hub_idp" <%=federationHubIdp ? "checked" : "" %>>
                                 <span style="display:inline-block" class="sectionHelp">
-                                    <fmt:message key='primary.help'/>
+                                    <fmt:message key='federation.hub.identity.proider.help'/>
                                 </span>
                             </div>
                         </td>
                     </tr>
+                    
+                    
                     <tr>
                         <td class="leftCol-med labelField"><fmt:message key='home.realm.id'/>:</td>
                         <td>
@@ -1498,17 +2941,324 @@
                     
                  
                     <tr>
-                        <td class="leftCol-med labelField"><fmt:message key='token.endpoint.alias'/>:</td>
+                        <td class="leftCol-med labelField"><fmt:message key='resident.idp.alias'/>:</td>
                         <td>
-                            <input id="tokenEndpointAlias" name="tokenEndpointAlias" type="text" value="<%=tokenEndpointAlias%>" autofocus/>
+                            <input id="tokenEndpointAlias" name="tokenEndpointAlias" type="text" value="<%=idPAlias%>" autofocus/>
                             <div class="sectionHelp">
-                                <fmt:message key='token.endpoint.alias.help'/>
+                                <fmt:message key='resident.idp.alias.help'/>
                             </div>
                         </td>
                     </tr>
                     
                 </table>
             </div>
+            
+            
+            
+            
+            
+            <h2 id="claim_config_head"  class="sectionSeperator trigger active">  <a href="#"><fmt:message key="claim.config.head"/></a>
+            </h2>
+            <div class="toggle_container sectionSub" style="margin-bottom:10px;" id="claimConfig">
+            
+            <h2 id="basic_claim_config_head" class="sectionSeperator trigger active" style="background-color: beige;">
+            	<a href="#"><fmt:message key="basic.cliam.config"/></a>
+            </h2>
+            <div class="toggle_container sectionSub" style="margin-bottom:10px;" id="baisClaimLinkRow">
+            
+            <table>
+            
+            
+                      <tr>
+                        <td class="leftCol-med labelField"><fmt:message key='select_dialet_type'/>:</td>
+                        <td> 	
+								<label style="display:block">
+                              		<input type="radio" id="choose_dialet_type1" name="choose_dialet_type_group" value="choose_dialet_type1" <% if(!isCustomClaimEnabled){ %> checked="checked" <% } %> />
+                                	Use Local Claim Dialect
+                              	</label>
+                            	<label style="display:block">                               
+                                 	<input type="radio" id="choose_dialet_type2" name="choose_dialet_type_group" value="choose_dialet_type2"  <% if(isCustomClaimEnabled){ %> checked="checked" <% } %> />
+                                Define Custom Claim Dialect
+                         		</label>
+                        </td>
+                    </tr>
+                   	<tr> 
+		
+	            	
+	                        <td class="leftCol-med labelField customClaim"><fmt:message key='claimURIs'/>:</td>
+	                            
+	                        <td class="customClaim">
+	                            <a id="claimAddLink" class="icon-link" style="margin-left:0;background-image:url(images/add.gif);"><fmt:message key='add.claim'/></a>
+	                            <div style="clear:both"></div>
+	                            <div class="sectionHelp">
+	                                <fmt:message key='claimURIs.help'/>
+	                            </div>
+	                            <table class="styledLeft" id="claimAddTable" style="display:none">
+	                                <thead><tr><th class="leftCol-big"><fmt:message key='idp.claim'/></th><th><fmt:message key='wso2.claim'/></th><th><fmt:message key='actions'/></th></tr></thead>
+	                                <tbody>
+	                                <%
+	                                	if(claimMappings != null && claimMappings.length>0){
+	                                %>
+	                                <script>
+																																		$(
+																																				jQuery('#claimAddTable'))
+																																				.toggle();
+																																	</script>
+	                                <% for(int i = 0; i < claimMappings.length; i++){ %>
+	                                <tr>
+	                                    <td><input type="text" style=" width: 90%; " class="claimrow" value="<%=claimMappings[i].getRemoteClaim().getClaimUri()%>" id="claimrowid_<%=i%>" name="claimrowname_<%=i%>"/></td>
+	                                 	<td>
+	                                 	<select id="claimrow_id_wso2_<%=i%>" class="claimrow_wso2"	name="claimrow_name_wso2_<%=i%>">
+											<option value="">--- Select Claim URI ---</option>
+											<% for(String wso2ClaimName : claimUris) { 
+													if(claimMappings[i].getLocalClaim().getClaimUri() != null && claimMappings[i].getLocalClaim().getClaimUri().equals(wso2ClaimName)){	%>			
+														 <option  selected="selected" value="<%=wso2ClaimName%>"> <%=wso2ClaimName%></option> <%
+													} else{ %>			
+												 		<option  value="<%=wso2ClaimName%>"> <%=wso2ClaimName%></option>
+													<%}
+												}%>	
+																							
+	                                 	
+	                                 	</td>
+	                                 
+	                                    <td>
+	                                        <a title="<fmt:message key='delete.claim'/>"
+	                                           onclick="deleteClaimRow(this);return false;"
+	                                           href="#"
+	                                           class="icon-link"
+	                                           style="background-image: url(images/delete.gif)">
+	                                            <fmt:message key='delete'/>
+	                                        </a>
+	                                    </td>
+	                                </tr>
+	                                
+	                                <% } %>
+	                                <% } %>
+	                                
+	                                </tbody>
+	                            </table>
+	                        </td>
+	                </tr>
+	                
+                  	<tr>	
+                  		<td>
+
+                  		<% if(claimMappings != null){  %>
+                  		    <input type="hidden" id="claimrow_id_count"	name="claimrow_name_count" value="<%=claimMappings.length%>">
+                  		<% 	} else { %>
+                  		    <input type="hidden" id="claimrow_id_count"	name="claimrow_name_count" value="0">
+                  		<%  } 	%>
+
+                  		</td>  
+                  	</tr>
+                  
+                    <tr>
+                        <td class="leftCol-med labelField"><fmt:message key='user.id.claim.uri'/>:</td>
+                        <td>
+                            <select id="user_id_claim_dropdown" name="user_id_claim_dropdown"></select>
+                            <div class="sectionHelp">
+                                <fmt:message key='user.id.claim.uri.help'/>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="role_claim">
+                        <td class="leftCol-med labelField"><fmt:message key='role.claim.uri'/>:</td>
+                        <td>
+                            <select id="role_claim_dropdown" name="role_claim_dropdown"></select>
+                            <div class="sectionHelp">
+                                <fmt:message key='role.claim.uri.help'/>
+                            </div>
+                        </td>
+                    </tr>
+            </table>
+            </div>
+            
+            <h2 id="advanced_claim_config_head" class="sectionSeperator trigger active" style="background-color: beige;">
+            	<a href="#"><fmt:message key="advanced.cliam.config"/></a>
+            </h2>
+            <div class="toggle_container sectionSub" style="margin-bottom:10px;" id="advancedClaimLinkRow">
+            <table style="width: 100%">
+      			<tr>				
+	                            
+					<td colspan="2">
+					<table>
+						<tr>
+						    <td class="leftCol-med labelField"><fmt:message key='role.claim.filter'/>:</td>
+							<td>
+								<select id="idpClaimsList2" name="idpClaimsList2"	style="float: left;"></select> 
+								<a id="advancedClaimMappingAddLink" class="icon-link" style="background-image: url(images/add.gif);"><fmt:message	key='button.add.advanced.claim' /></a>
+												<div style="clear: both" />
+								<div class="sectionHelp">
+                                	<fmt:message key='help.advanced.claim.mapping'/>
+                            	</div>
+							</td>
+						</tr>
+					</table>
+					<table class="styledLeft" id="advancedClaimMappingAddTable" style="display:none" >
+						<thead>
+							<tr>
+								<th class="leftCol-big">Claim URI</th>
+								<th class="leftCol-big">Default Value</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+						
+						 <%
+	                                	if(claimMappings != null && claimMappings.length>0){
+	                                %>
+	                                <script>
+																																		$(
+																																				jQuery('#advancedClaimMappingAddTable'))
+																																				.show();
+																																	</script>
+	                                <% for(int i = 0; i < claimMappings.length; i++){ 
+	                                 	if(!isCustomClaimEnabled){
+	                                %>
+	                                <tr>
+	                                    <td><input type="text" style="width: 99%;" class="claimrow" value="<%=claimMappings[i].getLocalClaim().getClaimUri()%>" id="advancnedIdpClaim_<%=i%>" name="advancnedIdpClaim_<%=i%>"/></td>
+	      	                            <td><input type="text" style="width: 99%;" class="claimrow" value="<%=claimMappings[i].getDefaultValue() != null ? claimMappings[i].getDefaultValue() : "" %>" id="advancedDefault_<%=i%>" name="advancedDefault_<%=i%>"/></td>	                                 
+	                                    <td>
+	                                        <a title="<fmt:message key='delete.claim'/>"
+	                                           onclick="deleteClaimRow(this);return false;"
+	                                           href="#"
+	                                           class="icon-link"
+	                                           style="background-image: url(images/delete.gif)">
+	                                            <fmt:message key='delete'/>
+	                                        </a>
+	                                    </td>
+	                                </tr>
+	                                
+	                                <% 	} else {
+	                                
+	                                	if(claimMappings[i].getRequested()){
+	                                		  %>
+	      	                         <tr>
+	      	                              <td><input type="text" style="width: 99%;" class="claimrow" value="<%=claimMappings[i].getRemoteClaim().getClaimUri()%>" id="advancnedIdpClaim_<%=i%>" name="advancnedIdpClaim_<%=i%>"/></td>
+	      	      	                      <td><input type="text" style="width: 99%;" class="claimrow" value="<%=claimMappings[i].getDefaultValue() != null ? claimMappings[i].getDefaultValue() : "" %>" id="advancedDefault_<%=i%>" name="advancedDefault_<%=i%>"/></td>	                                 
+	      	                              <td>
+	      	                               		<a title="<fmt:message key='delete.claim'/>"
+	      	                                           onclick="deleteClaimRow(this);return false;"
+	      	                                           href="#"
+	      	                                           class="icon-link"
+	      	                                           style="background-image: url(images/delete.gif)">
+	      	                                            <fmt:message key='delete'/>
+	      	                                    </a>
+	      	                                    </td>
+	      	                                </tr>
+	      	                                
+	      	                                <%        		
+	                                	}
+	                                	
+	                                } 
+	                                 	
+	                                	}%>
+	                                <% 	} %>
+	                                
+						</tbody>
+					</table>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>
+						<%
+						if (claimMappings != null) {
+						%> <input type="hidden"	id="advanced_claim_id_count" name="advanced_claim_id_count"
+						value="<%=claimMappings.length%>"> <% 	} else { %> <input
+						type="hidden" id="advanced_claim_id_count"	name="advanced_claim_id_count" value="0"> 
+						<% 	} %>
+
+					</td>
+				</tr>
+				</table>
+				</div>
+				
+            
+            </div>
+            
+            
+            
+            	<h2 id="role_permission_config_head"  class="sectionSeperator trigger active">
+                <a href="#"><fmt:message key="role.config.head"/></a>
+            </h2>
+            <div class="toggle_container sectionSub" style="margin-bottom:10px;" id="roleConfig">
+            <table>
+               <tr>
+                        <td class="leftCol-med labelField"><fmt:message key='roles'/>:</td>
+                        <td>
+                            <a id="roleAddLink" class="icon-link" style="margin-left:0;background-image:url(images/add.gif);"><fmt:message key='add.role.mapping'/></a>
+                            <div style="clear:both"/>
+                            <div class="sectionHelp">
+                                <fmt:message key='roles.mapping.help'/>
+                            </div>
+                            <table class="styledLeft" id="roleAddTable" style="display:none" >
+                                <thead><tr><th class="leftCol-big"><fmt:message key='idp.role'/></th><th class="leftCol-big"><fmt:message key='local.role'/></th>
+                                <th><fmt:message key='actions'/></th></tr></thead>
+                                <tbody>
+                                <%
+                                	if(roleMappings != null && roleMappings.length>0){
+                                %>
+                                    <script>
+																																					$(
+																																							jQuery('#roleAddTable'))
+																																							.toggle();
+																																				</script>
+                                    <%
+                                    	for(int i = 0; i < roleMappings.length; i++){
+                                    %>
+                                        <tr>
+                                            <td><input type="text" value="<%=roleMappings[i].getRemoteRole()%>" id="rolerowname_<%=i%>" name="rolerowname_<%=i%>"/></td>
+											<td><input type="text" value="<%=roleMappings[i].getLocalRole().getLocalRoleName()%>" id="localrowname_<%=i%>" name="localrowname_<%=i%>"/></td>                                            
+                                            <td>
+                                                <a title="<fmt:message key='delete.role'/>"
+                                                   onclick="deleteRoleRow(this);return false;"
+                                                   href="#"
+                                                   class="icon-link"
+                                                   style="background-image: url(images/delete.gif)">
+                                                    <fmt:message key='delete'/>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <%
+                                    	}
+                                    %>
+                                <%
+                                	}
+                                %>
+
+
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+
+					<tr>
+						<td>
+							<%
+							if (roleMappings != null) {
+							%> <input type="hidden"	id="rolemappingrow_id_count" name="rolemappingrow_name_count"
+							value="<%=roleMappings.length%>"> <% 	} else { %> <input
+							type="hidden" id="rolemappingrow_id_count"
+							name="rolemappingrow_name_count" value="0"> <% 	} %>
+
+						</td>
+					</tr>
+						
+                    <tr>
+                        <td class="leftCol-med labelField"><fmt:message key='provisioning.role'/>:</td>
+                        <td>
+                            <input id="idpProvisioningRole" class="leftCol-med" name="idpProvisioningRole" type="text" value="<%=provisioningRole%>"/>
+                            <div class="sectionHelp">
+                                <fmt:message key='provisioning.role.help'/>
+                            </div>
+                        </td>
+                    </tr>						
+
+			</table>
+            </div>
+            
+            
             
             <h2 id="out_bound_auth_head"  class="sectionSeperator trigger active">
                 <a href="#"><fmt:message key="out.bound.auth.config"/></a>
@@ -1517,6 +3267,7 @@
 
             <h2 id="openid_head" class="sectionSeperator trigger active" style="background-color: beige;">
                 <a href="#"><fmt:message key="openid.config"/></a>
+                <div id="openid_enable_logo" class="enablelogo" style="float:right;padding-right: 5px;padding-top: 5px;"><img src="images/ok.png" alt="enable" width="16" height="16"></div>
             </h2>
             <div class="toggle_container sectionSub" style="margin-bottom:10px;" id="openIdLinkRow">
                 <table class="carbonFormTable">
@@ -1547,7 +3298,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td class="leftCol-med labelField"><fmt:message key='openid.url'/>:</td>
+                        <td class="leftCol-med labelField" ><fmt:message key='openid.url'/>:<span class="required">*</span></td>
                         <td>
                             <input id="openIdUrl" name="openIdUrl" type="text" value="<%=openIdUrl%>"/>
                             <div class="sectionHelp">
@@ -1571,11 +3322,25 @@
                             </div>
                         </td>
                     </tr>
+                    <tr>
+                        <td class="leftCol-med labelField" ><fmt:message key='query.param'/>:</td>
+                        <td>
+                            <%if (openidQueryParam!=null) {  %>
+                            <input id="openidQueryParam" name="openidQueryParam" type="text" value=<%=openidQueryParam%>>
+                            <% } else { %>
+                               <input id="openidQueryParam" name="openidQueryParam" type="text"/>                            
+                            <% } %>
+                            <div class="sectionHelp">
+                                <fmt:message key='query.param.help'/>
+                            </div>
+                        </td>
+                    </tr>
                 </table>
             </div>
 
             <h2 id="saml2_sso_head"  class="sectionSeperator trigger active" style="background-color: beige;">
                 <a href="#"><fmt:message key="saml2.web.sso.config"/></a>
+                <div id="sampl2sso_enable_logo" class="enablelogo" style="float:right;padding-right: 5px;padding-top: 5px;"><img src="images/ok.png" alt="enable" width="16" height="16"></div>
             </h2>
             <div class="toggle_container sectionSub" style="margin-bottom:10px;" id="saml2SSOLinkRow">
                 <table class="carbonFormTable">
@@ -1606,27 +3371,27 @@
                         </td>
                     </tr>
                     <tr>
-                        <td class="leftCol-med labelField"><fmt:message key='idp.entity.id'/>:</td>
+                        <td class="leftCol-med labelField"><fmt:message key='idp.entity.id'/>:<span class="required">*</span></td>
                         <td>
-                            <input id="idPEntityId" name="idPEntityId" type="text" value="<%=idPEntityId%>"/>
+                            <input id="idPEntityId" name="idPEntityId" type="text" value=<%=idPEntityId%>>
                             <div class="sectionHelp">
                                 <fmt:message key='idp.entity.id.help'/>
                             </div>
                         </td>
                     </tr>
                     <tr>
-                        <td class="leftCol-med labelField"><fmt:message key='sp.entity.id'/>:</td>
+                        <td class="leftCol-med labelField"><fmt:message key='sp.entity.id'/>:<span class="required">*</span></td>
                         <td>
-                            <input id="spEntityId" name="spEntityId" type="text" value="<%=spEntityId%>"/>
+                            <input id="spEntityId" name="spEntityId" type="text" value=<%=spEntityId%>>
                             <div class="sectionHelp">
                                 <fmt:message key='sp.entity.id.help'/>
                             </div>
                         </td>
                     </tr>
                     <tr>
-                        <td class="leftCol-med labelField"><fmt:message key='sso.url'/>:</td>
+                        <td class="leftCol-med labelField"><fmt:message key='sso.url'/>:<span class="required">*</span></td>
                         <td>
-                            <input id="ssoUrl" name="ssoUrl" type="text" value="<%=ssoUrl%>"/>
+                            <input id="ssoUrl" name="ssoUrl" type="text" value=<%=ssoUrl%>>
                             <div class="sectionHelp">
                                 <fmt:message key='sso.url.help'/>
                             </div>
@@ -1645,6 +3410,36 @@
                             </div>
                         </td>
                     </tr>
+                    
+                    <tr>
+                        <td class="leftCol-med labelField">
+                            <label for="enableAssersionEncryption"><fmt:message key='authn.enable.assertion.encryption'/></label>
+                        </td>
+                        <td>
+                            <div class="sectionCheckbox">
+                                <input id="IsEnableAssetionEncription" name="IsEnableAssetionEncription" type="checkbox" <%=enableAssertinEncriptionChecked%>/>
+                                <span style="display:inline-block" class="sectionHelp">
+                                    <fmt:message key='authn.enable.assertion.encryption.help'/>
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+
+
+                    <tr>
+                        <td class="leftCol-med labelField">
+                            <label for="enableAssersionSigning"><fmt:message key='authn.enable.assertion.signing'/></label>
+                        </td>
+                        <td>
+                            <div class="sectionCheckbox">
+                                <input id="isEnableAssertionSigning" name="isEnableAssertionSigning" type="checkbox" <%=enableAssertionSigningChecked%>/>
+                                <span style="display:inline-block" class="sectionHelp">
+                                    <fmt:message key='authn.enable.assertion.signing.help'/>
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+
                     <tr>
                         <td class="leftCol-med labelField">
                             <label for="sloEnabled"><fmt:message key='logout.enabled'/></label>
@@ -1661,7 +3456,7 @@
                     <tr>
                         <td class="leftCol-med labelField"><fmt:message key='logout.url'/>:</td>
                         <td>
-                            <input id="logoutUrl" name="logoutUrl" type="text" value="<%=logoutUrl%>"/>
+                            <input id="logoutUrl" name="logoutUrl" type="text" value=<%=logoutUrl%>>
                             <div class="sectionHelp">
                                 <fmt:message key='logout.url.help'/>
                             </div>
@@ -1709,11 +3504,26 @@
                             </div>
                         </td>
                     </tr>
+                    <tr>
+                        <td class="leftCol-med labelField" ><fmt:message key='query.param'/>:</td>
+                        <td>
+                            <%if (samlQueryParam==null) { 
+                            	samlQueryParam="";
+                            }
+                            %>
+                            
+                            <input id="samlQueryParam" name="samlQueryParam" type="text" value=<%=samlQueryParam%>>
+                            <div class="sectionHelp">
+                                <fmt:message key='query.param.help'/>
+                            </div>
+                        </td>
+                    </tr>
                 </table>
             </div>
 
             <h2 id="oauth2_head" class="sectionSeperator trigger active" style="background-color: beige;">
                 <a href="#"><fmt:message key="oidc.config"/></a>
+                <div id="oAuth2_enable_logo" class="enablelogo" style="float:right;padding-right: 5px;padding-top: 5px;"><img src="images/ok.png" alt="enable" width="16" height="16"></div>
             </h2>
             <div class="toggle_container sectionSub" style="margin-bottom:10px;" id="oauth2LinkRow">
                 <table class="carbonFormTable">
@@ -1744,41 +3554,47 @@
                         </td>
                     </tr>
                     <tr>
-                        <td class="leftCol-med labelField"><fmt:message key='authz.endpoint'/>:</td>
+                        <td class="leftCol-med labelField"><fmt:message key='authz.endpoint'/>:<span class="required">*</span></td>
                         <td>
-                            <input id="authzUrl" name="authzUrl" type="text" value="<%=authzUrl%>"/>
+                            <input id="authzUrl" name="authzUrl" type="text" value=<%=authzUrl%>>
                             <div class="sectionHelp">
                                 <fmt:message key='authz.endpoint.help'/>
                             </div>
                         </td>
                     </tr>
                     <tr>
-                        <td class="leftCol-med labelField"><fmt:message key='token.endpoint'/>:</td>
+                        <td class="leftCol-med labelField"><fmt:message key='token.endpoint'/>:<span class="required">*</span></td>
                         <td>
-                            <input id="tokenUrl" name="tokenUrl" type="text" value="<%=tokenUrl%>"/>
+                            <input id="tokenUrl" name="tokenUrl" type="text" value=<%=tokenUrl%>>
                             <div class="sectionHelp">
                                 <fmt:message key='token.endpoint.help'/>
                             </div>
                         </td>
                     </tr>
                     <tr>
-                        <td class="leftCol-med labelField"><fmt:message key='client.id'/>:</td>
+                        <td class="leftCol-med labelField"><fmt:message key='client.id'/>:<span class="required">*</span></td>
                         <td>
-                            <input id="clientId" name="clientId" type="text" value="<%=clientId%>"/>
+                            <input id="clientId" name="clientId" type="text" value=<%=clientId%>>
                             <div class="sectionHelp">
                                 <fmt:message key='client.id.help'/>
                             </div>
                         </td>
                     </tr>
                     <tr>
-                        <td class="leftCol-med labelField"><fmt:message key='client.secret'/>:</td>
+                        <td class="leftCol-med labelField"><fmt:message key='client.secret'/>:<span class="required">*</span></td>
                         <td>
-                            <input id="clientSecret" name="clientSecret" type="text" value="<%=clientSecret%>"/>
+	                        <div id="showHideButtonDivIdOauth" style="border:1px solid rgb(88, 105, 125);" class="leftCol-med">
+	                            <input id="clientSecret" name="clientSecret" type="password" value="<%=clientSecret%>" style="  outline: none; border: none; min-width: 175px; max-width: 180px;"/>
+	                            <span id="showHideButtonIdOauth" style=" float: right; padding-right: 5px;">
+	                        		<a style="margin-top: 5px;" class="showHideBtn" onclick="showHidePassword(this, 'clientSecret')">Show</a>
+	                       		</span>
+	                       	</div>
                             <div class="sectionHelp">
                                 <fmt:message key='client.secret.help'/>
                             </div>
                         </td>
                     </tr>
+                    
                     <tr>
                         <td class="leftCol-med labelField"><fmt:message key='oidc.user.id.location'/>:</td>
                         <td>
@@ -1795,11 +3611,21 @@
                             </div>
                         </td>
                     </tr>
+                     <tr>
+                        <td class="leftCol-med labelField" ><fmt:message key='query.param'/>:</td>
+                        <td>
+                            <input id="oidcQueryParam" name="oidcQueryParam" type="text" value=<%=oidcQueryParam%>>
+                            <div class="sectionHelp">
+                                <fmt:message key='query.param.help'/>
+                            </div>
+                        </td>
+                    </tr>
                 </table>
             </div>
 
             <h2 id="passive_sts_head" class="sectionSeperator trigger active" style="background-color: beige;">
                 <a href="#"><fmt:message key="passive.sts.config"/></a>
+                <div id="wsfederation_enable_logo" class="enablelogo" style="float:right;padding-right: 5px;padding-top: 5px;"><img src="images/ok.png" alt="enable" width="16" height="16"></div>
             </h2>
             <div class="toggle_container sectionSub" style="margin-bottom:10px;" id="passiveSTSLinkRow">
                 <table class="carbonFormTable">
@@ -1830,7 +3656,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td class="leftCol-med labelField"><fmt:message key='passive.sts.realm'/>:</td>
+                        <td class="leftCol-med labelField"><fmt:message key='passive.sts.realm'/>:<span class="required">*</span></td>
                         <td>
                             <input id="passiveSTSRealm" name="passiveSTSRealm" type="text" value="<%=passiveSTSRealm%>"/>
                             <div class="sectionHelp">
@@ -1839,7 +3665,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td class="leftCol-med labelField"><fmt:message key='passive.sts.url'/>:</td>
+                        <td class="leftCol-med labelField"><fmt:message key='passive.sts.url'/>:<span class="required">*</span></td>
                         <td>
                             <input id="passiveSTSUrl" name="passiveSTSUrl" type="text" value="<%=passiveSTSUrl%>"/>
                             <div class="sectionHelp">
@@ -1863,11 +3689,21 @@
                             </div>
                         </td>
                     </tr>
+                      <tr>
+                        <td class="leftCol-med labelField" ><fmt:message key='query.param'/>:</td>
+                        <td>
+                            <input id="passiveSTSQueryParam" name="passiveSTSQueryParam" type="text" value=<%=passiveSTSQueryParam%>>
+                            <div class="sectionHelp">
+                                <fmt:message key='query.param.help'/>
+                            </div>
+                        </td>
+                    </tr>
                 </table>
             </div>
 			
 			<h2 id="fb_auth_head" class="sectionSeperator trigger active" style="background-color: beige;">
                 <a href="#"><fmt:message key="fbauth.config"/></a>
+                <div id="fecebook_enable_logo" class="enablelogo" style="float:right;padding-right: 5px;padding-top: 5px;"><img src="images/ok.png" alt="enable" width="16" height="16"></div>
             </h2>
             <div class="toggle_container sectionSub" style="margin-bottom:10px;" id="fbAuthLinkRow">
                 <table class="carbonFormTable">
@@ -1898,7 +3734,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td class="leftCol-med labelField"><fmt:message key='client.id'/>:</td>
+                        <td class="leftCol-med labelField"><fmt:message key='client.id'/>:<span class="required">*</span></td>
                         <td>
                             <input id="fbClientId" name="fbClientId" type="text" value="<%=fbClientId%>"/>
                             <div class="sectionHelp">
@@ -1907,29 +3743,157 @@
                         </td>
                     </tr>
                     <tr>
-                            <td class="leftCol-med labelField"><fmt:message
-                                    key='client.secret' />:</td>
-                            <td>
-                                <table>
-                                    <tr>
-                                        <td><input id="fbClientSecret"
-                                            name="fbClientSecret" type="password"
-                                            value="<%=fbClientSecret%>" /></td>
-                                        <td style="vertical-align: middle;"><input
-                                            type="checkbox"
-                                            onchange="document.getElementById('fbClientSecret').type = this.checked ? 'text' : 'password'">
-                                            Show password</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="2"><div class="sectionHelp">
-                                                <fmt:message key='fbauth.client.secret.help' />
-                                            </div></td>
-                                    </tr>
-                                </table>
-                            </td>
-                        </tr>
+                    	<td class="leftCol-med labelField"><fmt:message key='client.secret' />:<span class="required">*</span></td>
+                        <td>
+                            <div id="showHideButtonDivId" style="border:1px solid rgb(88, 105, 125);" class="leftCol-med">
+                            	<input id="fbClientSecret"  name="fbClientSecret" type="password"  value="<%=fbClientSecret%>"  style="  outline: none; border: none; min-width: 175px; max-width: 180px;"/>
+       							<span id="showHideButtonId" style=" float: right; padding-right: 5px;"> 
+       								<a style="margin-top: 5px;" class="showHideBtn" onclick="showHidePassword(this, 'fbClientSecret')">Show</a> 
+       							</span>
+			                </div>
+			                   
+			                <div class="sectionHelp"> <fmt:message key='fbauth.client.secret.help' /> </div>
+                        </td>
+                            
+                    </tr>
                 </table>
             </div>
+            
+            <%  
+                
+                if (allFedAuthConfigs != null && allFedAuthConfigs.size() > 0 ) {
+                	
+                for (Map.Entry<String, FederatedAuthenticatorConfig> entry : allFedAuthConfigs.entrySet()) {
+                 FederatedAuthenticatorConfig fedConfig = entry.getValue();
+                 if (fedConfig!= null) {
+                 boolean isEnabled = fedConfig.getEnabled();  
+              	
+                 boolean isDefault = false;
+                 
+                 if(identityProvider != null && identityProvider.getDefaultAuthenticatorConfig()!=null && identityProvider.getDefaultAuthenticatorConfig().getDisplayName()!=null
+                		 && identityProvider.getDefaultAuthenticatorConfig().getName().equals(fedConfig.getName())){
+                	 isDefault = true;
+                 }
+           
+           	    
+                String valueChecked = "";
+                String 	valueDefaultDisabled = "";	
+                
+                String enableChecked = "";
+                String 	enableDefaultDisabled = "";
+                
+                if(isDefault){
+                    valueChecked = "checked=\'checked\'";
+                    valueDefaultDisabled = "disabled=\'disabled\'";
+                }
+                
+                if(isEnabled){
+                	enableChecked = "checked=\'checked\'";
+                	enableDefaultDisabled = "disabled=\'disabled\'";
+                }
+                
+                if (fedConfig.getDisplayName() != null && fedConfig.getDisplayName().trim().length()>0) {
+
+            %>
+            
+            <h2 id="custom_auth_head_"<%=fedConfig.getDisplayName() %> class="sectionSeperator trigger active" style="background-color: beige;">
+                <a href="#" style="text-transform:capitalize;"><%=fedConfig.getDisplayName() %> Configuration</a>
+                <% if(isEnabled){ %>
+               		<div id="custom_auth_head_enable_logo_<%=fedConfig.getName()%>" class="enablelogo" style="float:right;padding-right: 5px;padding-top: 5px;"><img src="images/ok.png" alt="enable" width="16" height="16"></div>
+           		<%} else {%>	
+           			<div id="custom_auth_head_enable_logo_<%=fedConfig.getName()%>" class="enablelogo" style="float:right;padding-right: 5px;padding-top: 5px; display: none"><img src="images/ok.png" alt="enable" width="16" height="16"></div>
+           		<%}%>
+            </h2>
+            <div class="toggle_container sectionSub" style="margin-bottom:10px;display: none;" id="custom_auth_<%=fedConfig.getName()%>">
+                <table class="carbonFormTable">
+                    <tr>
+                        <td class="leftCol-med labelField">
+                            <input type="hidden" name="custom_auth_name" value=<%=fedConfig.getName()%>>
+                             <input type="hidden" name="<%=fedConfig.getName()%>_DisplayName" value=<%=fedConfig.getDisplayName()%>>
+                            
+                            <label for="<%=fedConfig.getName()%>Enabled">Enable</label>
+                        </td>
+                        <td>
+                            <div class="sectionCheckbox">
+                                <input id="<%=fedConfig.getName()%>_Enabled" name="<%=fedConfig.getName()%>_Enabled" type="checkbox" <%=enableChecked%>  onclick="checkEnabled(this); checkEnabledLogo(this, '<%=fedConfig.getName()%>')"/>
+                                <span style="display:inline-block" class="sectionHelp">Specifies if custom authenticator is enabled for this Identity Provider
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="leftCol-med labelField">
+                            <label for="<%=fedConfig.getName()%>_Default">Default</label>
+                        </td>
+                        <td>
+                            <div class="sectionCheckbox">
+                                <input id="<%=fedConfig.getName()%>_Default" name="<%=fedConfig.getName()%>_Default" type="checkbox" <%=valueChecked%> <%=valueDefaultDisabled%> onclick="checkDefault(this);"/>
+                                 <span style="display:inline-block" class="sectionHelp">Specifies if custom authenticator is the default
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <% Property[] properties =  fedConfig.getProperties(); 
+                       if (properties!=null && properties.length>0 ) {
+                    	   for (Property prop : properties) {
+                    		   if (prop != null && prop.getDisplayName() != null ) {
+                    			   %>
+                    			   
+                    			   <tr>
+                    			        <%if (prop.getRequired()) { %> 
+                        				<td class="leftCol-med labelField"><%=prop.getDisplayName()%>:<span class="required">*</span></td>
+                        				<% } else { %>
+                        				<td class="leftCol-med labelField"><%=prop.getDisplayName()%>:</td>                        				
+                        				<%} %>
+                        			    <td>
+                        			       <% if (prop.getConfidential()) { %>
+                        			       
+                        			       <% if (prop.getValue() != null ) { %>     
+                        			       	<div id="showHideButtonDivId" style="border:1px solid rgb(88, 105, 125);" class="leftCol-med">
+                            					<input id="cust_auth_prop_<%=fedConfig.getName()%>#<%=prop.getName()%>"  name="cust_auth_prop_<%=fedConfig.getName()%>#<%=prop.getName()%>" type="password"  value="<%=prop.getValue()%>"  style="  outline: none; border: none; min-width: 175px; max-width: 180px;"/>
+       												<span id="showHideButtonId" style=" float: right; padding-right: 5px;"> 
+       													<a style="margin-top: 5px;" class="showHideBtn" onclick="showHidePassword(this, 'cust_auth_prop_<%=fedConfig.getName()%>#<%=prop.getName()%>')">Show</a> 
+       												</span>
+			                				</div>                  			    
+                                           <% } else { %> 
+                                           
+                                            <div id="showHideButtonDivId" style="border:1px solid rgb(88, 105, 125);" class="leftCol-med">
+                            					<input id="cust_auth_prop_<%=fedConfig.getName()%>#<%=prop.getName()%>"  name="cust_auth_prop_<%=fedConfig.getName()%>#<%=prop.getName()%>" type="password"   style="  outline: none; border: none; min-width: 175px; max-width: 180px;"/>
+       												<span id="showHideButtonId" style=" float: right; padding-right: 5px;"> 
+       													<a style="margin-top: 5px;" class="showHideBtn" onclick="showHidePassword(this, 'cust_auth_prop_<%=fedConfig.getName()%>#<%=prop.getName()%>')">Show</a> 
+       												</span>
+			                				</div> 
+			                				
+                                           <% } %>
+                                           
+                                           <% } else { %>
+                                           
+                                           <% if (prop.getValue() != null ) { %>                       			    
+                                            <input id="cust_auth_prop_<%=fedConfig.getName()%>#<%=prop.getName()%>" name="cust_auth_prop_<%=fedConfig.getName()%>#<%=prop.getName()%>" type="text" value="<%=prop.getValue()%>"/>
+                                           <% } else { %> 
+                                            <input id="cust_auth_prop_<%=fedConfig.getName()%>#<%=prop.getName()%>" name="cust_auth_prop_<%=fedConfig.getName()%>#<%=prop.getName()%>" type="text" >                                          
+                                           <% } %>
+                                           
+                                           <% } %>
+                                           
+                                           <% 
+                        			         if (prop.getDescription()!=null) { %>
+                        			         <div class="sectionHelp"><%=prop.getDescription()%></div>
+                        			       <%} %>
+                                        </td>
+                                   </tr>                   			   
+                    			   <% 
+                    		   }                   		   
+                    	   }                      
+                       }                    
+                    %>                   
+                    
+                   </table>
+            </div>
+            
+            <%} }}} %>
+            
             </div>
             
             <h2 id="in_bound_provisioning_head"  class="sectionSeperator trigger active">
@@ -1967,13 +3931,7 @@
                                 </select>
 
                             </div>
-                            <div>
-                                <label>
-                                    <input type="radio" id="provision_dynamic" name="provisioning" value="provision_dynamic" <% if(isProvisioningEnabled && provisioningUserStoreIdClaimURI != null){ %> checked="checked" <% } %> />
-                                    Provision dynamically to the User Store identified by
-                                </label>
-                                <select id="provision_dynamic_dropdown" name="provision_dynamic_dropdown" <%=provisionDynamicDropdownDisabled%>></select>
-                            </div>
+
                             <div class="sectionHelp">
                                 <fmt:message key='provisioning.enabled.help'/>
                             </div>
@@ -2041,484 +3999,536 @@
             <h2 id="out_bound_provisioning_head"  class="sectionSeperator trigger active" >
                 <a href="#"><fmt:message key="out.bound.provisioning.config"/></a>
             </h2>
-            
-            
-            <div class="toggle_container sectionSub" style="margin-bottom:10px;display: none;" id="outBoundProv">
-                
-                <!-- Google Connector -->
-                <h2 id="google_prov_head" class="sectionSeperator trigger active" style="background-color: beige;">
-                    <a href="#"><fmt:message key="google.provisioning.connector"/></a>
-                </h2>
-                <div class="toggle_container sectionSub" style="margin-bottom:10px;display: none;" id="googleProvRow">
-                    <table class="carbonFormTable">
-                        <tr>
-                            <td class="leftCol-med labelField">
-                                <label for="googleProvEnabled"><fmt:message key='google.provisioning.enabled'/>:</label>
-                            </td>
-                            <td>
-                                <div class="sectionCheckbox">
-<!-- -->                                    <input id="googleProvEnabled" name="googleProvEnabled" type="checkbox" <%=googleProvEnabledChecked%> onclick="checkProvEnabled(this);"/>
-                                    <span style="display:inline-block" class="sectionHelp">
-                                        <fmt:message key='google.provisioning.enabled.help'/>
-                                    </span>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="leftCol-med labelField">
-                                <label for="googleProvDefault"><fmt:message key='google.provisioning.default'/>:</label>
-                            </td>
-                            <td>
-                                <div class="sectionCheckbox">
-<!-- -->                                    <input id="googleProvDefault" name="googleProvDefault" type="checkbox" <%=googleProvDefaultChecked%> <%=googleProvDefaultDisabled%> onclick="checkProvDefault(this);"/>
-                                    <span style="display:inline-block" class="sectionHelp">
-                                        <fmt:message key='google.provisioning.default.help'/>
-                                    </span>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="leftCol-med labelField"><fmt:message key='google.provisioning.domain.name'/>:</td>
-                            <td>
-                                <input id="google_prov_domain_name" name="google_prov_domain_name" type="text" value="<%=googleDomainName%>"/>
-                                <div class="sectionHelp">
-                                    <fmt:message key='google.provisioning.domain.name.help'/>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="leftCol-med labelField"><fmt:message key='google.provisioning.attribute.primary.email'/>:</td>
-                            <td>                                
-	                            <div>
-                                    <select id="google_prov_email_claim_dropdown" name="google_prov_email_claim_dropdown">
-                                        <option selected="selected">--- Select Claim URI ---</option>
-                                        <% for(String idpClaimName : claimUris) { %>
-                                            <option value="<%=idpClaimName%>"> <%=idpClaimName%></option>
-                                        <% } %>
-                                    </select>
-                                    <!--a id="claimMappingAddLink" class="icon-link" style="background-image: url(images/add.gif);"><fmt:message key='button.add.claim.mapping' /></a-->
-	                            </div>
-	                            <div class="sectionHelp">
-	                                <fmt:message key='google.provisioning.attribute.primary.email.help'/>
-	                            </div>
-                            </td>
-                        </tr>
-  
-                        <tr>
-                            <td class="leftCol-med labelField"><fmt:message key='google.provisioning.attribute.given.name'/>:</td>
-                            <td>                                
-	                            <div>
-	                                <label>
-<!-- -->	                          Pick given name from Claim : 
-	                                </label>
-                                    <select id="google_prov_givenname_claim_dropdown" name="google_prov_givenname_claim_dropdown">
-                                        <option selected="selected">--- Select Claim URI ---</option>
-                                        <% for(String idpClaimName : claimUris) { %>
-                                        <option value="<%=idpClaimName%>"> <%=idpClaimName%></option>
-                                        <% } %>
-                                    </select>
-	                            </div>
-	                            <div>
-	                                <label>
-	                                    Given name default value : 
-	                                </label>
-                                    <input id="google_prov_givenname" name="google_prov_givenname" type="text" value="<%=googleGivenNameDefaultValue%>"/>
-	                            </div>
-	                            <div class="sectionHelp">
-	                                <fmt:message key='google.provisioning.attribute.given.name.help'/>
-	                            </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="leftCol-med labelField"><fmt:message key='google.provisioning.attribute.family.name'/>:</td>
-                            <td>                                
-	                            <div>
-	                                <label>
-	                                    Pick family name from Claim : 
-	                                </label>
-                                    <select id="google_prov_familyname_claim_dropdown" name="google_prov_familyname_role_claim_dropdown">
-                                        <option selected="selected">--- Select Claim URI ---</option>
-                                        <% for(String idpClaimName : claimUris) { %>
-                                        <option value="<%=idpClaimName%>"> <%=idpClaimName%></option>
-                                        <% } %>
-                                    </select>
-	                            </div>
-	                            <div>
-	                                <label>
-	                                    Family name default value : 
-	                                </label>
-                                    <input id="google_prov_familyname" name="google_prov_familyname" type="text" value="<%=googleFamilyNameDefaultValue%>"/>
-	                            </div>
-	                            <div class="sectionHelp">
-	                                <fmt:message key='google.provisioning.attribute.family.name.help'/>
-	                            </div>
-                            </td>
-                        </tr>
 
-                        <tr>
-                            <td class="leftCol-med labelField"><fmt:message key='google.provisioning.service.accont.email'/>:</td>
-                            <td>                                
-	                            <div>
-                                    <input id="google_prov_service_acc_email" name="google_prov_service_acc_email" type="text" value="<%=googleProvServiceAccEmail%>"/>
-	                            </div>
-	                            <div class="sectionHelp">
-	                                <fmt:message key='google.provisioning.service.accont.email.help'/>
-	                            </div>
-                            </td>
-                        </tr>
-	                    <tr>
-	                        <td class="leftCol-med labelField"><fmt:message key='google.provisioning.service.account.private.key'/>:</td>
-	                        <td>
-                                <input id="google_prov_private_key" name="google_prov_private_key" type="file" />
-	                            <div class="sectionHelp">
-	                                <fmt:message key='google.provisioning.service.account.private.key.help'/>
-	                            </div>
-                                <div id="google_prov_privatekey_div">
-	                                <% if(googleProvPrivateKeyData != null) { %>
-<!-- -->	                                <a id="google_prov_privatekey_deletelink" class="icon-link" style="margin-left:0;background-image:url(images/delete.gif);"><fmt:message key='google.provisioning.service.account.private.key.delete'/></a>
-	                                <div style="clear:both"></div>
-<!--	                                    <table class="styledLeft">
-	                                        <thead><tr><th><fmt:message key='issuerdn'/></th>
-	                                            <th><fmt:message key='subjectdn'/></th>
-	                                            <th><fmt:message key='notafter'/></th>
-	                                            <th><fmt:message key='notbefore'/></th>
-	                                            <th><fmt:message key='serialno'/></th>
-	                                            <th><fmt:message key='version'/></th>
-	                                        </tr></thead>
-	                                        <tbody>
-	                                            <tr><td><%=certData.getIssuerDN()%></td>
-	                                                <td><%=certData.getSubjectDN()%></td>
-	                                                <td><%=certData.getNotAfter()%></td>
-	                                                <td><%=certData.getNotBefore()%></td>
-	                                                <td><%=certData.getSerialNumber()%></td>
-	                                                <td><%=certData.getVersion()%></td>
-	                                            </tr>
-	                                        </tbody>
-	                                    </table>
- -->	                                <% } %>
-	                            </div>
-	                        </td>
-	                    </tr>
-                        <tr>
-                            <td class="leftCol-med labelField"><fmt:message key='google.provisioning.admin.email'/>:</td>
-                            <td>                                
-	                            <div>
-	                                <input id="google_prov_admin_email" name="google_prov_admin_email" type="text" value="<%=googleProvAdminEmail%>"/>
-	                            </div>
-	                            <div class="sectionHelp">
-	                                <fmt:message key='google.provisioning.admin.email.help'/>
-	                            </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="leftCol-med labelField"><fmt:message key='google.provisioning.application.name'/>:</td>
-                            <td>                                
-	                            <div>
-                                    <input id="google_prov_application_name" name="google_prov_application_name" type="text" value="<%=googleProvApplicationName%>"/>
-	                            </div>
-	                            <div class="sectionHelp">
-	                                <fmt:message key='google.provisioning.application.name.help'/>
-	                            </div>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                
-                <h2 id="sf_prov_head" class="sectionSeperator trigger active" style="background-color: beige;">
-                    <a href="#"><fmt:message key="sf.provisioning.connector"/></a>
-                </h2>
-                <div class="toggle_container sectionSub" style="margin-bottom:10px;display: none;" id="sfProvRow">
-                                 
-                <table class="carbonFormTable">
-                            <tr>
-		                        <td  class="leftCol-med labelField">API version:<span class="required">*</span></td>
-		                        <td><input class="text-box-big" id="sf-api-version" name="sf-api-version"
-		                                   type="text" /></td>
-		                    </tr>
-		                    <tr>
-		                        <td  class="leftCol-med labelField">Domain Name:<span class="required">*</span></td>
-		                        <td><input class="text-box-big" id="sf-domain-name" name="sf-domain-name"
-		                                   type="text" /></td>
-		                    </tr>
-                			<tr>
-		                        <td  class="leftCol-med labelField">Client ID:<span class="required">*</span></td>
-		                        <td><input class="text-box-big" id="sf-clientid" name="sf-clientid"
-		                                   type="text" /></td>
-		                    </tr>
-                            <tr>
-		                        <td  class="leftCol-med labelField">CLient Secret:<span class="required">*</span></td>
-		                        <td><input class="text-box-big" id="sf-client-secret" name="sf-client-secret"
-		                                   type="password" /></td>
-		                    </tr>
-		                    <tr>
-		                        <td  class="leftCol-med labelField">Username:<span class="required">*</span></td>
-		                        <td><input class="text-box-big" id="sf-username" name="sf-username"
-		                                   type="text" /></td>
-		                    </tr>
-                            <tr>
-		                        <td  class="leftCol-med labelField">Password:<span class="required">*</span></td>
-		                        <td><input class="text-box-big" id="sf-password" name="sf-password"
-		                                   type="password" /></td>
-		                    </tr>
-		                    
-		                    <tr>
-		                    <td colspan="2">
-		                    <hr/>
-		                     	<table>
-		                     	    <tr><td><fmt:message key='help.sf.claim.mapping'/></td></tr>
-									<tr>
-										<td>
-											<select id="idpClaimsList" name="idpClaimsList" style="float:left;">							
-													<% for(String localClaimName : claimUris) { %>
-																<option value="<%=localClaimName%>"> <%=localClaimName%></option>
-													<% } %>
-											</select>
-											<a id="claimMappingAddLink" class="icon-link" style="background-image: url(images/add.gif);"><fmt:message key='button.add.claim.mapping' /></a>
-											<div style="clear:both"/>
-                            				
-							</td>
+
+				<div class="toggle_container sectionSub"
+					style="margin-bottom: 10px; display: none;" id="outBoundProv">
+
+					<!-- Google Connector -->
+					<h2 id="google_prov_head" class="sectionSeperator trigger active"
+						style="background-color: beige;">
+						<a href="#"><fmt:message key="google.provisioning.connector" /></a>
+                        <div id="google_enable_logo" class="enablelogo" style="float:right;padding-right: 5px;padding-top: 5px;"><img src="images/ok.png" alt="enable" width="16" height="16"></div>
+					</h2>
+					<div class="toggle_container sectionSub"
+						style="margin-bottom: 10px; display: none;" id="googleProvRow">
+						<table class="carbonFormTable">
+							<tr>
+								<td class="leftCol-med labelField"><label
+									for="googleProvEnabled"><fmt:message
+											key='google.provisioning.enabled' />:</label></td>
+								<td>
+									<div class="sectionCheckbox">
+										<!-- -->
+										<input id="googleProvEnabled" name="googleProvEnabled"
+											type="checkbox" <%=googleProvEnabledChecked%>
+											onclick="checkProvEnabled(this);" /> <span
+											style="display: inline-block" class="sectionHelp"> <fmt:message
+												key='google.provisioning.enabled.help' />
+										</span>
+									</div>
+								</td>
 							</tr>
-					       </table>
-		                    <table class="styledLeft" id="claimMappingAddTable" >
-                              <thead><tr>
-                              <th class="leftCol-med">Local Claim</th>
-                              <th class="leftCol-big">Salesforce Attribute</th>
-                              <th class="leftCol-mid">Default Value</th>
-                              
-                              <th>Actions</th></tr></thead>
-                              <tbody>
-                       
-                              </tbody>
-                             </table>
-		                    
-		                    </td>
-		                    </tr>
+							<tr style="display:none;">
+								<td class="leftCol-med labelField"><label
+									for="googleProvDefault"><fmt:message
+											key='google.provisioning.default' />:</label></td>
+								<td>
+									<div class="sectionCheckbox">
+										<!-- -->
+										<input id="googleProvDefault" name="googleProvDefault"
+											type="checkbox" <%=googleProvDefaultChecked%>
+											<%=googleProvDefaultDisabled%>
+											onclick="checkProvDefault(this);" /> <span
+											style="display: inline-block" class="sectionHelp"> <fmt:message
+												key='google.provisioning.default.help' />
+										</span>
+									</div>
+								</td>
+							</tr>
 
-				</table>
-                
-                </div>
-                 
-                 <h2 id="scim_prov_head" class="sectionSeperator trigger active" style="background-color: beige;">
-                    <a href="#"><fmt:message key="scim.provisioning.connector"/></a>
-                </h2>
-                <div class="toggle_container sectionSub" style="margin-bottom:10px;display: none;" id="scimProvRow">
-                 
-                 <table class="carbonFormTable">
-		                    <tr>
-		                        <td  class="leftCol-med labelField">Username:<span class="required">*</span></td>
-		                        <td><input class="text-box-big" id="scim-username" name="scim-username"
-		                                   type="text" /></td>
-		                    </tr>
-                            <tr>
-		                        <td  class="leftCol-med labelField">Password:<span class="required">*</span></td>
-		                        <td><input class="text-box-big" id="scim-password" name="scim-password"
-		                                   type="password" /></td>
-		                    </tr>
-                            <tr>
-		                        <td  class="leftCol-med labelField">User Endpoint:<span class="required">*</span></td>
-		                        <td><input class="text-box-big" id="scim-user-ep" name="scim-user-ep"
-		                                   type="text" /></td>
-		                    </tr>
-                            <tr>
-		                        <td  class="leftCol-med labelField">Group Endpoint:</td>
-		                        <td><input class="text-box-big" id="scim-group-ep" name="scim-group-ep"
-		                                   type="text" /></td>
-		                    </tr>
-				</table>
-                 
-                 </div>
-                 
-                 <h2 id="spml_prov_head" class="sectionSeperator trigger active" style="background-color: beige;">
-                    <a href="#"><fmt:message key="spml.provisioning.connector"/></a>
-                </h2>
-                <div class="toggle_container sectionSub" style="margin-bottom:10px;display: none;" id="spmlProvRow">
-                 
-                         <table class="carbonFormTable">
-		                    <tr>
-		                        <td  class="leftCol-med labelField">Username:<span class="required">*</span></td>
-		                        <td><input class="text-box-big" id="spml-username" name="spml-username"
-		                                   type="text" /></td>
-		                    </tr>
-                            <tr>
-		                        <td  class="leftCol-med labelField">Password:<span class="required">*</span></td>
-		                        <td><input class="text-box-big" id="spml-password" name="spml-password"
-		                                   type="password" /></td>
-		                    </tr>
-                            <tr>
-		                        <td  class="leftCol-med labelField">SPML Endpoint:<span class="required">*</span></td>
-		                        <td><input class="text-box-big" id="spml-ep" name="spml-ep"
-		                                   type="text" /></td>
-		                    </tr>
-				</table>
-                 </div>
-                
-            </div>
-     
-            
-            
-            <h2 id="role_permission_config_head"  class="sectionSeperator trigger active">
-                <a href="#"><fmt:message key="role.permission.config.head"/></a>
-            </h2>
-            <div class="toggle_container sectionSub" style="margin-bottom:10px;" id="roleConfig">
-            <table>
-               <tr>
-                        <td class="leftCol-med labelField"><fmt:message key='roles'/>:</td>
-                        <td>
-                            <a id="roleAddLink" class="icon-link" style="margin-left:0;background-image:url(images/add.gif);"><fmt:message key='add.role'/></a>
-                            <div style="clear:both"/>
-                            <div class="sectionHelp">
-                                <fmt:message key='roles.help'/>
-                            </div>
-                            <table class="styledLeft" id="roleAddTable" style="display:none" >
-                                <thead><tr><th class="leftCol-big"><fmt:message key='idp.role'/></th><th><fmt:message key='actions'/></th></tr></thead>
-                                <tbody>
-                                <% if(roles != null && roles.length>0){ %>
-                                    <script>
-                                        $(jQuery('#roleAddTable')).toggle();
-                                    </script>
-                                    <% for(int i = 0; i < roles.length; i++){ %>
-                                        <tr>
-                                            <td><input type="text" value="<%=roles[i]%>" id="rolerowname_<%=i%>" name="rolerowname_<%=i%>"/></td>
-                                            <td>
-                                                <a title="<fmt:message key='delete.role'/>"
-                                                   onclick="deleteRoleRow(this);return false;"
-                                                   href="#"
-                                                   class="icon-link"
-                                                   style="background-image: url(images/delete.gif)">
-                                                    <fmt:message key='delete'/>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    <% } %>
-                                <% } %>
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="leftCol-med labelField"><fmt:message key='role.mappings'/>:</td>
-                        <td>
-                            <input id="roleMappingFile" name="roleMappingFile" type="file" />
-                            <div class="sectionHelp">
-                                <fmt:message key='role.mappings.help'/>
-                            </div>
-                            <% if(roleMappings != null && roleMappings.length > 0){ %>
-                                <div id="roleMappingDiv">
-                                    <a id="roleMappingDeleteLink" class="icon-link" style="background-image:url(images/delete.gif);"><fmt:message key='role.mapping.delete'/></a>
-                                    <table class="styledLeft">
-                                        <thead><tr><th class="leftCol-big"><fmt:message key='idp.role'/></th><th><fmt:message key='user.store.id'/></th><th><fmt:message key='tenant.role'/></th></tr></thead>
-                                        <tbody>
-                                        <%
-                                            for(RoleMapping roleMapping:roleMappings){
-                                                    if(roleMapping.getLocalRole().getUserStoreId() != null){
-                                        %>
-                                                        <tr><td><%=roleMapping.getRemoteRole()%></td><td><%=roleMapping.getLocalRole().getUserStoreId()%></td><td><%=roleMapping.getLocalRole().getLocalRoleName()%></td></tr>
-                                        <%
-                                                    } else {
-                                        %>
-                                                        <tr><td><%=roleMapping.getRemoteRole()%></td><td>PRIMARY</td><td><%=roleMapping.getLocalRole().getLocalRoleName()%></td></tr>
-                                        <%
-                                                    }
-                                            }
-                                        %>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            <% } %>
-                        </td>
-                    </tr>
-            
-            </table>
-            </div>
-            
-            
-            <h2 id="claim_config_head"  class="sectionSeperator trigger active">
-                <a href="#"><fmt:message key="claim.config.head"/></a>
-            </h2>
-            <div class="toggle_container sectionSub" style="margin-bottom:10px;" id="claimConfig">
-            <table>
-            <tr>
-                        <td class="leftCol-med labelField"><fmt:message key='claimURIs'/>:</td>
-                        <td>
-                            <a id="claimAddLink" class="icon-link" style="margin-left:0;background-image:url(images/add.gif);"><fmt:message key='add.claim'/></a>
-                            <div style="clear:both"/>
-                            <div class="sectionHelp">
-                                <fmt:message key='claimURIs.help'/>
-                            </div>
-                            <table class="styledLeft" id="claimAddTable" style="display:none">
-                                <thead><tr><th class="leftCol-big"><fmt:message key='idp.claim'/></th><th><fmt:message key='actions'/></th></tr></thead>
-                                <tbody>
-                                <% if(identityProviderClaims != null && identityProviderClaims.length>0){ %>
-                                <script>
-                                    $(jQuery('#claimAddTable')).toggle();
-                                </script>
-                                <% for(int i = 0; i < identityProviderClaims.length; i++){ %>
-                                <tr>
-                                    <td><input type="text" class="claimrow" value="<%=identityProviderClaims[i].getClaimUri()%>" id="claimrowid_<%=i%>" name="claimrowname_<%=i%>"/></td>
-                                    <td>
-                                        <a title="<fmt:message key='delete.claim'/>"
-                                           onclick="deleteClaimRow(this);return false;"
-                                           href="#"
-                                           class="icon-link"
-                                           style="background-image: url(images/delete.gif)">
-                                            <fmt:message key='delete'/>
-                                        </a>
-                                    </td>
-                                </tr>
-                                <% } %>
-                                <% } %>
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="leftCol-med labelField"><fmt:message key='user.id.claim.uri'/>:</td>
-                        <td>
-                            <select id="user_id_claim_dropdown" name="user_id_claim_dropdown"></select>
-                            <div class="sectionHelp">
-                                <fmt:message key='user.id.claim.uri.help'/>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="leftCol-med labelField"><fmt:message key='role.claim.uri'/>:</td>
-                        <td>
-                            <select id="role_claim_dropdown" name="role_claim_dropdown"></select>
-                            <div class="sectionHelp">
-                                <fmt:message key='role.claim.uri.help'/>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="leftCol-med labelField"><fmt:message key='claim.mappings'/>:</td>
-                        <td>
-                            <input id="cliamMappingFile" name="claimMappingFile" type="file" />
-                            <div class="sectionHelp">
-                                <fmt:message key='claim.mappings.help'/>
-                            </div>
-                            <% if(claimMappings != null && claimMappings.length > 0){ %>
-                            <div id="claimMappingDiv">
-                                <a id="claimMappingDeleteLink" class="icon-link" style="background-image:url(images/delete.gif);"><fmt:message key='claim.mapping.delete'/></a>
-                                <table class="styledLeft">
-                                    <thead><tr><th class="leftCol-big"><fmt:message key='idp.claim'/></th><th><fmt:message key='tenant.claim'/></th></tr></thead>
-                                    <tbody>
-                                    <%
-                                        for(ClaimMapping claimMapping:claimMappings){
+							<tr>
+								<td class="leftCol-med labelField"><fmt:message
+										key='google.provisioning.domain.name' />:<span class="required">*</span></td>
+								<td><input id="google_prov_domain_name"
+									name="google_prov_domain_name" type="text"
+									value="<%=googleDomainName%>" />
+									<div class="sectionHelp">
+										<fmt:message key='google.provisioning.domain.name.help' />
+									</div></td>
+							</tr>
+							<tr>
+								<td class="leftCol-med labelField"><fmt:message
+										key='google.provisioning.attribute.primary.email' />:<span class="required">*</span></td>
+								<td>
+									<div>
+										<select id="google_prov_email_claim_dropdown"
+											name="google_prov_email_claim_dropdown">
+										</select>
+										<!--a id="claimMappingAddLink" class="icon-link" style="background-image: url(images/add.gif);"><fmt:message key='button.add.claim.mapping' /></a-->
+									</div>
+									<div class="sectionHelp">
+										<fmt:message
+											key='google.provisioning.attribute.primary.email.help' />
+									</div>
+								</td>
+							</tr>
 
-                                    %>
-                                            <tr><td><%=claimMapping.getIdpClaim().getClaimUri()%></td><td><%=claimMapping.getLocalClaim().getClaimUri()%></td></tr>
-                                    <%
-                                        }
-                                    %>
-                                    </tbody>
-                                </table>
+							<tr>
+								<td class="leftCol-med labelField"><fmt:message
+										key='google.provisioning.attribute.given.name' />:<span class="required">*</span></td>
+								<td>
+									<div>
+										<label> <!-- --> Pick given name from Claim :
+										</label> <select id="google_prov_givenname_claim_dropdown"
+											name="google_prov_givenname_claim_dropdown">
+										</select>
+									</div>
+									<div style=" display: none; ">
+										<label> Given name default value : </label> <input
+											id="google_prov_givenname" name="google_prov_givenname"
+											type="text" value="<%=googleGivenNameDefaultValue%>" />
+									</div>
+									<div class="sectionHelp">
+										<fmt:message
+											key='google.provisioning.attribute.given.name.help' />
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="leftCol-med labelField"><fmt:message
+										key='google.provisioning.attribute.family.name' />:<span class="required">*</span></td>
+								<td>
+									<div>
+										<label> Pick family name from Claim : </label> <select
+											id="google_prov_familyname_claim_dropdown"
+											name="google_prov_familyname_claim_dropdown">
+										</select>
+									</div>
+									<div style=" display: none;">
+										<label> Family name default value : </label> <input
+											id="google_prov_familyname" name="google_prov_familyname"
+											type="text" value="<%=googleFamilyNameDefaultValue%>" />
+									</div>
+									<div class="sectionHelp">
+										<fmt:message
+											key='google.provisioning.attribute.family.name.help' />
+									</div>
+								</td>
+							</tr>
+
+							<tr>
+								<td class="leftCol-med labelField"><fmt:message
+										key='google.provisioning.service.accont.email' />:<span class="required">*</span></td>
+								<td>
+									<div>
+										<input id="google_prov_service_acc_email"
+											name="google_prov_service_acc_email" type="text"
+											value="<%=googleProvServiceAccEmail%>" />
+									</div>
+									<div class="sectionHelp">
+										<fmt:message
+											key='google.provisioning.service.accont.email.help' />
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="leftCol-med labelField"><fmt:message
+										key='google.provisioning.service.account.private.key' />:</td>
+								<td><span><input id="google_prov_private_key"
+									name="google_prov_private_key" type="file" />
+									<% if(googleProvPrivateKeyData != null) { %>
+                                         <img src="images/key.png" alt="key" width="14" height="14" style=" padding-right: 5px; "><label>Private Key attached</label>
+									<% } %></span>
+									<div class="sectionHelp">
+										<fmt:message
+											key='google.provisioning.service.account.private.key.help' />
+									</div>
+									<div id="google_prov_privatekey_div">
+
+									</div></td>
+							</tr>
+							<tr>
+								<td class="leftCol-med labelField"><fmt:message
+										key='google.provisioning.admin.email' />:<span class="required">*</span></td>
+								<td>
+									<div>
+										<input id="google_prov_admin_email"
+											name="google_prov_admin_email" type="text"
+											value="<%=googleProvAdminEmail%>" />
+									</div>
+									<div class="sectionHelp">
+										<fmt:message key='google.provisioning.admin.email.help' />
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="leftCol-med labelField"><fmt:message
+										key='google.provisioning.application.name' />:<span class="required">*</span></td>
+								<td>
+									<div>
+										<input id="google_prov_application_name"
+											name="google_prov_application_name" type="text"
+											value="<%=googleProvApplicationName%>" />
+									</div>
+									<div class="sectionHelp">
+										<fmt:message key='google.provisioning.application.name.help' />
+									</div>
+								</td>
+							</tr>
+						</table>
+					</div>
+
+					<h2 id="sf_prov_head" class="sectionSeperator trigger active"
+						style="background-color: beige;">
+						<a href="#"><fmt:message key="sf.provisioning.connector" /></a>
+                        <div id="sf_enable_logo" class="enablelogo" style="float:right;padding-right: 5px;padding-top: 5px;"><img src="images/ok.png" alt="enable" width="16" height="16"></div>
+					</h2>
+					<div class="toggle_container sectionSub"
+						style="margin-bottom: 10px; display: none;" id="sfProvRow">
+
+						<table class="carbonFormTable">
+						    <tr>
+                                <td class="leftCol-med labelField"><label
+                                    for="sfProvEnabled"><fmt:message
+                                            key='sf.provisioning.enabled' />:</label></td>
+                                <td>
+                                    <div class="sectionCheckbox">
+                                        <!-- -->
+                                        <input id="sfProvEnabled" name="sfProvEnabled"
+                                            type="checkbox" <%=sfProvEnabledChecked%>
+                                            onclick="checkProvEnabled(this);" /> <span
+                                            style="display: inline-block" class="sectionHelp"> <fmt:message
+                                                key='sf.provisioning.enabled.help' />
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr style="display:none;">
+                                <td class="leftCol-med labelField"><label
+                                    for="sfProvDefault"><fmt:message
+                                            key='sf.provisioning.default' />:</label></td>
+                                <td>
+                                    <div class="sectionCheckbox">
+                                        <!-- -->
+                                        <input id="sfProvDefault" name="sfProvDefault"
+                                            type="checkbox" <%=sfProvDefaultChecked%>
+                                            <%=sfProvDefaultDisabled%>
+                                            onclick="checkProvDefault(this);" /> <span
+                                            style="display: inline-block" class="sectionHelp"> <fmt:message
+                                                key='sf.provisioning.default.help' />
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+
+							<tr>
+								<td class="leftCol-med labelField">API version:<span
+									class="required">*</span></td>
+								<td><input class="text-box-big" id="sf-api-version"
+									name="sf-api-version" type="text" value=<%=sfApiVersion %>></td>
+							</tr>
+							<tr>
+								<td class="leftCol-med labelField">Domain Name:<span
+									class="required">*</span></td>
+								<td><input class="text-box-big" id="sf-domain-name"
+									name="sf-domain-name" type="text" value=<%=sfDomainName %>></td>
+							</tr>
+							<tr>
+								<td class="leftCol-med labelField">Client ID:<span
+									class="required">*</span></td>
+								<td><input class="text-box-big" id="sf-clientid"
+									name="sf-clientid" type="text" value=<%=sfClientId %>></td>
+							</tr>
+							<tr>
+								<td class="leftCol-med labelField">Client Secret:<span
+									class="required">*</span></td>
+								<td><input class="text-box-big" id="sf-client-secret"
+									name="sf-client-secret" type="password" value=<%=sfClientSecret %>></td>
+							</tr>
+							<tr>
+								<td class="leftCol-med labelField">Username:<span
+									class="required">*</span></td>
+								<td><input class="text-box-big" id="sf-username"
+									name="sf-username" type="text" value=<%=sfUserName %>></td>
+							</tr>
+							<tr>
+								<td class="leftCol-med labelField">Password:<span
+									class="required">*</span></td>
+								<td><input class="text-box-big" id="sf-password"
+									name="sf-password" type="password" value=<%=sfPassword %>></td>
+							</tr>
+
+						</table>
+
+					</div>
+
+					<h2 id="scim_prov_head" class="sectionSeperator trigger active"
+						style="background-color: beige;">
+						<a href="#"><fmt:message key="scim.provisioning.connector" /></a>
+                        <div id="scim_enable_logo" class="enablelogo" style="float:right;padding-right: 5px;padding-top: 5px;"><img src="images/ok.png" alt="enable" width="16" height="16"></div>
+
+					</h2>
+					<div class="toggle_container sectionSub"
+						style="margin-bottom: 10px; display: none;" id="scimProvRow">
+
+						<table class="carbonFormTable">
+						    <tr>
+                                <td class="leftCol-med labelField"><label
+                                    for="scimProvEnabled"><fmt:message
+                                            key='scim.provisioning.enabled' />:</label></td>
+                                <td>
+                                    <div class="sectionCheckbox">
+                                        <!-- -->
+                                        <input id="scimProvEnabled" name="scimProvEnabled"
+                                            type="checkbox" <%=scimProvEnabledChecked%>
+                                            onclick="checkProvEnabled(this);" /> <span
+                                            style="display: inline-block" class="sectionHelp"> <fmt:message
+                                                key='scim.provisioning.enabled.help' />
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr style="display:none;">
+                                <td class="leftCol-med labelField"><label
+                                    for="scimProvDefault"><fmt:message
+                                            key='scim.provisioning.default' />:</label></td>
+                                <td>
+                                    <div class="sectionCheckbox">
+                                        <!-- -->
+                                        <input id="scimProvDefault" name="scimProvDefault"
+                                            type="checkbox" <%=scimProvDefaultChecked%>
+                                            <%=scimProvDefaultDisabled%>
+                                            onclick="checkProvDefault(this);" /> <span
+                                            style="display: inline-block" class="sectionHelp"> <fmt:message
+                                                key='scim.provisioning.default.help' />
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+
+							<tr>
+								<td class="leftCol-med labelField">Username:<span
+									class="required">*</span></td>
+								<td><input class="text-box-big" id="scim-username"
+									name="scim-username" type="text" value=<%=scimUserName %> ></td>
+							</tr>
+							<tr>
+								<td class="leftCol-med labelField">Password:<span
+									class="required">*</span></td>
+								<td><input class="text-box-big" id="scim-password"
+									name="scim-password" type="password" value=<%=scimPassword %>></td>
+							</tr>
+							<tr>
+								<td class="leftCol-med labelField">User Endpoint:<span
+									class="required">*</span></td>
+								<td><input class="text-box-big" id="scim-user-ep"
+									name="scim-user-ep" type="text" value=<%=scimUserEp %>></td>
+							</tr>
+							<tr>
+								<td class="leftCol-med labelField">Group Endpoint:</td>
+								<td><input class="text-box-big" id="scim-group-ep"
+									name="scim-group-ep" type="text" value=<%=scimGroupEp %>></td>
+							</tr>
+							<tr>
+                                 <td class="leftCol-med labelField">User Store Domain:</td>
+                                 <td><input class="text-box-big" id="scim-user-store-domain"   name="scim-user-store-domain" type="text" value=<%=scimUserStoreDomain%>></td>
+                           </tr>
+						</table>
+
+					</div>
+
+					<h2 id="spml_prov_head" class="sectionSeperator trigger active"
+						style="background-color: beige;">
+						<a href="#"><fmt:message key="spml.provisioning.connector" /></a>
+                        <div id="spml_enable_logo" class="enablelogo" style="float:right;padding-right: 5px;padding-top: 5px;"><img src="images/ok.png" alt="enable" width="16" height="16"></div>
+
+					</h2>
+					<div class="toggle_container sectionSub"
+						style="margin-bottom: 10px; display: none;" id="spmlProvRow">
+
+						<table class="carbonFormTable">
+
+							<tr>
+                                <td class="leftCol-med labelField"><label
+                                    for="spmlProvEnabled"><fmt:message
+                                            key='spml.provisioning.enabled' />:</label></td>
+                                <td>
+                                    <div class="sectionCheckbox">
+                                        <!-- -->
+                                        <input id="spmlProvEnabled" name="spmlProvEnabled"
+                                            type="checkbox" <%=spmlProvEnabledChecked%>
+                                            onclick="checkProvEnabled(this);" /> <span
+                                            style="display: inline-block" class="sectionHelp"> <fmt:message
+                                                key='spml.provisioning.enabled.help' />
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr style="display:none;">
+                                <td class="leftCol-med labelField"><label
+                                    for="spmlProvDefault"><fmt:message
+                                            key='spml.provisioning.default' />:</label></td>
+                                <td>
+                                    <div class="sectionCheckbox">
+                                        <!-- -->
+                                        <input id="spmlProvDefault" name="spmlProvDefault"
+                                            type="checkbox" <%=spmlProvDefaultChecked%>
+                                            <%=spmlProvDefaultDisabled%>
+                                            onclick="checkProvDefault(this);" /> <span
+                                            style="display: inline-block" class="sectionHelp"> <fmt:message
+                                                key='spml.provisioning.default.help' />
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+
+							<tr>
+								<td class="leftCol-med labelField">Username:</td>
+								<td><input class="text-box-big" id="spml-username"
+									name="spml-username" type="text" value=<%=spmlUserName %>></td>
+							</tr>
+							<tr>
+								<td class="leftCol-med labelField">Password:</td>
+								<td><input class="text-box-big" id="spml-password"
+									name="spml-password" type="password" value=<%=spmlPassword %>></td>
+							</tr>
+							<tr>
+								<td class="leftCol-med labelField">SPML Endpoint:<span
+									class="required">*</span></td>
+								<td><input class="text-box-big" id="spml-ep" name="spml-ep"
+									type="text" value=<%=spmlEndpoint %>></td>
+							</tr>
+
+							<tr>
+								<td class="leftCol-med labelField">SPML ObjectClass:<span
+									class="required">*</span></td>
+								<td><input class="text-box-big" id="spml-oc" name="spml-oc"
+									type="text" value=<%=spmlObjectClass %>></td>
+							</tr>							
+
+						</table>
+					</div>					
+					  
+            <%  
+                
+                if (customProvisioningConnectors != null && customProvisioningConnectors.size() > 0 ) {
+                	
+                for (Map.Entry<String, ProvisioningConnectorConfig> entry : customProvisioningConnectors.entrySet()) {
+                	ProvisioningConnectorConfig fedConfig = entry.getValue();
+                 if (fedConfig!= null) {
+                 boolean isEnabled = fedConfig.getEnabled();  
+              	
+
+                String enableChecked = "";
+
+                if(isEnabled){
+                	enableChecked = "checked=\'checked\'";
+                }
+                
+                if (fedConfig.getName() != null && fedConfig.getName().trim().length()>0) {
+
+            %>
+            
+            <h2 id="custom_pro_head_"<%=fedConfig.getName() %> class="sectionSeperator trigger active" style="background-color: beige;">
+                <a href="#" style="text-transform:capitalize;"><%=fedConfig.getName()%> Provisioning Configuration</a>
+                <% if(isEnabled){ %>
+               		<div id="custom_pro_head_enable_logo_<%=fedConfig.getName()%>" class="enablelogo" style="float:right;padding-right: 5px;padding-top: 5px;"><img src="images/ok.png" alt="enable" width="16" height="16"></div>
+           		<%} else {%>	
+           			<div id="custom_pro_head_enable_logo_<%=fedConfig.getName()%>" class="enablelogo" style="float:right;padding-right: 5px;padding-top: 5px; display: none"><img src="images/ok.png" alt="enable" width="16" height="16"></div>
+           		<%}%>
+            </h2>
+            <div class="toggle_container sectionSub" style="margin-bottom:10px;display: none;" id="custom_pro_<%=fedConfig.getName()%>">
+                <table class="carbonFormTable">
+                    <tr>
+                        <td class="leftCol-med labelField">
+                            <input type="hidden" name="custom_pro_name" value=<%=fedConfig.getName()%>>
+                            
+                            <label for="<%=fedConfig.getName()%>Enabled">Enable</label>
+                        </td>
+                        <td>
+                            <div class="sectionCheckbox">
+                                <input id="<%=fedConfig.getName()%>_PEnabled" name="<%=fedConfig.getName()%>_PEnabled" type="checkbox" <%=enableChecked%> onclick="checkEnabledLogo(this, '<%=fedConfig.getName()%>')"/>
+                                <span style="display:inline-block" class="sectionHelp">Specifies if custom provisioning connector is enabled for this Identity Provider
+                                </span>
                             </div>
-                            <% } %>
                         </td>
                     </tr>
-            
-            </table>
+
+                    
+                    <% 
+                       Property[] properties =  fedConfig.getProvisioningProperties();
+                       if (properties!=null && properties.length>0 ) {
+                    	   for (Property prop : properties) {
+                    		   if (prop != null && prop.getDisplayName() != null ) {
+                    			   %>
+                    			   
+                    			   <tr>
+                    			        <%if (prop.getRequired()) { %> 
+                        				<td class="leftCol-med labelField"><%=prop.getDisplayName()%>:<span class="required">*</span></td>
+                        				<% } else { %>
+                        				<td class="leftCol-med labelField"><%=prop.getDisplayName()%>:</td>                        				
+                        				<%} %>
+                        			    <td>
+                        			       <% if (prop.getConfidential()) { %>
+                        			       
+                        			       <% if (prop.getValue() != null ) { %>     
+                        			        <div id="showHideButtonDivId" style="border:1px solid rgb(88, 105, 125);" class="leftCol-med">
+                            					<input id="cust_pro_prop_<%=fedConfig.getName()%>#<%=prop.getName()%>"  name="cust_pro_prop_<%=fedConfig.getName()%>#<%=prop.getName()%>" type="password"  value="<%=prop.getValue()%>"  style="  outline: none; border: none; min-width: 175px; max-width: 180px;"/>
+       												<span id="showHideButtonId" style=" float: right; padding-right: 5px;"> 
+       													<a style="margin-top: 5px;" class="showHideBtn" onclick="showHidePassword(this, 'cust_pro_prop_<%=fedConfig.getName()%>#<%=prop.getName()%>')">Show</a> 
+       												</span>
+			                				</div>                     			    
+                                           <% } else { %> 
+                                           
+                                            <div id="showHideButtonDivId" style="border:1px solid rgb(88, 105, 125);" class="leftCol-med">
+                            					<input id="cust_pro_prop_<%=fedConfig.getName()%>#<%=prop.getName()%>"  name="cust_pro_prop_<%=fedConfig.getName()%>#<%=prop.getName()%>" type="password"  style="  outline: none; border: none; min-width: 175px; max-width: 180px;"/>
+       												<span id="showHideButtonId" style=" float: right; padding-right: 5px;"> 
+       													<a style="margin-top: 5px;" class="showHideBtn" onclick="showHidePassword(this, 'cust_pro_prop_<%=fedConfig.getName()%>#<%=prop.getName()%>')">Show</a> 
+       												</span>
+			                				</div>
+			                				
+                                           <% } %>
+                                           
+                                           <% } else { %>
+                                           
+                                           <% if (prop.getValue() != null ) { %>                       			    
+                                            <input id="cust_pro_prop_<%=fedConfig.getName()%>#<%=prop.getName()%>" name="cust_pro_prop_<%=fedConfig.getName()%>#<%=prop.getName()%>" type="text" value="<%=prop.getValue()%>"/>
+                                           <% } else { %> 
+                                            <input id="cust_pro_prop_<%=fedConfig.getName()%>#<%=prop.getName()%>" name="cust_pro_prop_<%=fedConfig.getName()%>#<%=prop.getName()%>" type="text" >                                          
+                                           <% } %>
+                                           
+                                           <% } %>
+                                           
+                                           <% 
+                        			         if (prop.getDescription()!=null) { %>
+                        			         <div class="sectionHelp"><%=prop.getDescription()%></div>
+                        			       <%} %>
+                                        </td>
+                                   </tr>                   			   
+                    			   <% 
+                    		   }                   		   
+                    	   }                      
+                       }                    
+                    %>                   
+                    
+                   </table>
             </div>
+            
+            <%} }}} %>
+            
+            </div>
+					
+					
+					
+					
+					
+					
+				</div>
+
+
+			
+          
 
             <!-- sectionSub Div -->
             <div class="buttonRow">

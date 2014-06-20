@@ -16,21 +16,22 @@
 ~ under the License.
 -->
 
-<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.*"%>
-<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
+<%@page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.idp.mgt.ui.client.IdentityProviderMgtServiceClient" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
-<%@ page import="java.util.ResourceBundle" %>
 <%@ page import="java.util.List" %>
+<%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
 
 <%
     String BUNDLE = "org.wso2.carbon.idp.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
-    String callback = request.getParameter("callback");
+    String callback = CharacterEncoder.getSafeText(request.getParameter("callback"));
     if(callback == null || callback != null && callback.equals("")){
         callback = "idp-mgt-list.jsp";
     }
@@ -40,7 +41,7 @@
         ConfigurationContext configContext =
                 (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         IdentityProviderMgtServiceClient client = new IdentityProviderMgtServiceClient(cookie, backendServerURL, configContext);
-        List<FederatedIdentityProvider> identityProviders = client.getIdPs();
+        List<IdentityProvider> identityProviders = client.getIdPs();
         session.setAttribute("identityProviderList", identityProviders);
     } catch (Exception e) {
         String message = MessageFormat.format(resourceBundle.getString("error.loading.idps"),

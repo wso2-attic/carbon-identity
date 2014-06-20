@@ -18,31 +18,53 @@
 
 package org.wso2.carbon.idp.mgt.cache;
 
-public class IdPTenantDomainCacheKey extends CacheKey {
+import org.wso2.carbon.identity.application.common.cache.CacheKey;
 
-    private String tenantDomain;
+public class IdPAuthPropertyCacheKey extends CacheKey {
 
-    public IdPTenantDomainCacheKey(String tenantDomain) {
-        this.tenantDomain = tenantDomain;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
+    private String name;
+    private String value;
+
+    public IdPAuthPropertyCacheKey(String name, String value, String tenantDomain) {
+        this.name = name;
+        this.value = value;
+        this.tenantDomain = tenantDomain.toLowerCase();
     }
-    public String getTenantDomain(){
-        return tenantDomain;
+
+    public String getName(){
+        return name;
+    }
+
+    public String getValue(){
+        return value;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
-        IdPTenantDomainCacheKey that = (IdPTenantDomainCacheKey) o;
+        IdPAuthPropertyCacheKey that = (IdPAuthPropertyCacheKey) o;
 
+        if (!name.equals(that.name)) return false;
         if (!tenantDomain.equals(that.tenantDomain)) return false;
+        if (!value.equals(that.value)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return tenantDomain.hashCode();
+        int result = super.hashCode();
+        result = 31 * result + name.hashCode();
+        result = 31 * result + value.hashCode();
+        result = 31 * result + tenantDomain.hashCode();
+        return result;
     }
 }

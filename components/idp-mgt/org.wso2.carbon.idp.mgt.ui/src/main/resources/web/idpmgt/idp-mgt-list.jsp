@@ -18,7 +18,7 @@
 -->
 
 <%@ page import="java.util.List" %>
-<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.*"%>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"%>
@@ -30,7 +30,7 @@
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
-    List<FederatedIdentityProvider> identityProvidersList = (List<FederatedIdentityProvider>)session.getAttribute("identityProviderList");
+    List<IdentityProvider> identityProvidersList = (List<IdentityProvider>)session.getAttribute("identityProviderList");
     if(identityProvidersList == null){
 %>
         <script type="text/javascript">
@@ -43,15 +43,25 @@
 <script>
 
     function editIdPName(obj){
-        location.href = "idp-mgt-edit-load.jsp?idPName=" + encodeURIComponent(jQuery(obj).parent().prev().text());
+        location.href = "idp-mgt-edit-load.jsp?idPName=" + encodeURIComponent(jQuery(obj).parent().prev().prev().text());
     }
     function deleteIdPName(obj){
-        CARBON.showConfirmationDialog('Are you sure you want to delete "'  + jQuery(obj).parent().prev().text() + '" IdP information?',
+        CARBON.showConfirmationDialog('Are you sure you want to delete "'  + jQuery(obj).parent().prev().prev().text() + '" IdP information?',
                 function (){
-                    location.href = "idp-mgt-delete-finish.jsp?idPName=" + encodeURIComponent(jQuery(obj).parent().prev().text());
+                    location.href = "idp-mgt-delete-finish.jsp?idPName=" + encodeURIComponent(jQuery(obj).parent().prev().prev().text());
                 },
                 null);
     }
+    
+
+    function enable(idpName) {
+        location.href = "idp-mgt-edit-finish.jsp?idPName="+idpName+"&enable=1";
+    }
+
+    function disable(idpName) {
+        location.href = "idp-mgt-edit-finish.jsp?idPName="+idpName+"&enable=0";
+    }
+
 
 </script>
 
@@ -66,13 +76,31 @@
             </div>
             <div class="sectionSub">
             <table class="styledLeft" id="idPsListTable">
-                <thead><tr><th class="leftCol-big"><fmt:message key='registered.idps'/></th><th><fmt:message key='actions'/></th></tr></thead>
+                <thead><tr><th class="leftCol-med"><fmt:message key='registered.idps'/></th><th class="leftCol-big"><fmt:message key='description'/></th><th style="width: 30% ;" ><fmt:message key='actions'/></th></tr></thead>
                 <tbody>
                     <% if(identityProvidersList != null && identityProvidersList.size() > 0){ %>
-                        <% for(int i = 0; i < identityProvidersList.size(); i++){ %>
+                        <% for(int i = 0; i < identityProvidersList.size(); i++){
+                         String description = identityProvidersList.get(i).getIdentityProviderDescription();
+                         boolean enable = identityProvidersList.get(i).getEnable();
+                         if(description == null){
+                            description = "";
+                         }
+                         %>
                             <tr>
                                 <td><%=identityProvidersList.get(i).getIdentityProviderName()%></td>
+                                <td><%=description%></td>
                                 <td>
+                                 	<% if (enable) { %>
+                    						<a title="<fmt:message key='disable.policy'/>"
+                       						onclick="disable('<%=identityProvidersList.get(i).getIdentityProviderName()%>');return false;"
+                       						href="#" style="background-image: url(images/disable.gif);" class="icon-link">
+                        					<fmt:message key='disable.policy'/></a>
+                    				<% } else { %>
+                    						<a title="<fmt:message key='enable.policy'/>"
+                       						onclick="enable('<%=identityProvidersList.get(i).getIdentityProviderName()%>');return false;"
+                       						href="#" style="background-image: url(images/enable2.gif);" class="icon-link">
+                       						 <fmt:message key='enable.policy'/></a>
+                   				   <% } %>
                                     <a title="<fmt:message key='edit.idp.info'/>"
                                        onclick="editIdPName(this);return false;"
                                        href="#"
@@ -92,7 +120,7 @@
                         <% } %>
                     <% } else { %>
                         <tr>
-                            <td colspan="2"><i><fmt:message key='no.idp'/></i></td>
+                            <td colspan="3"><i><fmt:message key='no.idp'/></i></td>
                         </tr>
                     <% } %>
                 </tbody>

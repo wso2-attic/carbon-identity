@@ -27,7 +27,7 @@
     <artifactId>org.wso2.carbon.idp.mgt.ui</artifactId>
     <version>4.3.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>WSO2 Carbon - Tenant Identity Provider Management UI</name>
+    <name>WSO2 Carbon - Identity Provider Management UI Bundle</name>
 
     <dependencies>
 
