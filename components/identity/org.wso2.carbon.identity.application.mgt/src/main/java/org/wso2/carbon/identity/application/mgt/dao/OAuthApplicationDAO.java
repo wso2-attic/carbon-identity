@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -15,17 +15,18 @@
  *specific language governing permissions and limitations
  *under the License.
  */
+
 package org.wso2.carbon.identity.application.mgt.dao;
 
-import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 
 public interface OAuthApplicationDAO {
 
     /**
      * 
      * @param clientIdentifier
-     * @throws IdentityException
+     * @throws IdentityApplicationManagementException
      */
-    public void removeOAuthApplication(String clientIdentifier) throws IdentityException;
+    public void removeOAuthApplication(String clientIdentifier) throws IdentityApplicationManagementException;
 
 }

@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -15,26 +15,23 @@
  *specific language governing permissions and limitations
  *under the License.
  */
+
 package org.wso2.carbon.identity.application.mgt.dao.impl;
+
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.application.common.ApplicationAuthenticatorService;
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.identity.application.common.model.*;
+import org.wso2.carbon.identity.application.mgt.dao.IdentityProviderDAO;
+import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-
-import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
-import org.wso2.carbon.identity.application.common.model.FederatedAuthenticator;
-import org.wso2.carbon.identity.application.common.model.FederatedIdentityProvider;
-import org.wso2.carbon.identity.application.common.model.LocalAuthenticator;
-import org.wso2.carbon.identity.application.common.model.ProvisioningConnector;
-import org.wso2.carbon.identity.application.common.model.RequestPathAuthenticator;
-import org.wso2.carbon.identity.application.mgt.dao.IdentityProviderDAO;
-import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 
 public class IdentityProviderDAOImpl implements IdentityProviderDAO {
 
     public static final String BASIC = "basic";
+    public static final String IWA = "iwa";
     public static final String OAUTH_BEARER = "oauth-bearer";
     public static final String BASIC_AUTH = "basic-auth";
     public static final String SAML_SSO = "samlsso";
@@ -45,55 +42,20 @@ public class IdentityProviderDAOImpl implements IdentityProviderDAO {
 
     /**
      * 
-     * @param identityProvider
+     * @param idpName
      * @return
+     * @throws IdentityApplicationManagementException
      */
-    private String[] getFederatedAuthenticatorNames(FederatedIdentityProvider identityProvider) {
-        List<String> authns = new ArrayList<String>();
-
-        authns.add(FACEBOOK_AUTH);
-        authns.add(OPENID_CONNECT);
-        authns.add(OPENID);
-        authns.add(SAML_SSO);
-
-        return authns.toArray(new String[authns.size()]);
-    }
-
-    /**
-     * 
-     * @return
-     */
-    private String[] getLocalAuthenticatorNames() {
-        List<String> authns = new ArrayList<String>();
-        authns.add(BASIC);
-        return authns.toArray(new String[authns.size()]);
-    }
-
-    /**
-     * 
-     * @return
-     */
-    private String[] getRequestPathAuthenticatorNames() {
-        List<String> authns = new ArrayList<String>();
-        authns.add(BASIC_AUTH);
-        authns.add(OAUTH_BEARER);
-        return authns.toArray(new String[authns.size()]);
-    }
-
-    /**
-     * 
-     * @param idp
-     * @return
-     * @throws IdentityException
-     */
-    public String getDefaultAuthenticator(String idpName) throws IdentityException {
+    public String getDefaultAuthenticator(String idpName)
+            throws IdentityApplicationManagementException {
         IdentityProviderManager idpManager = IdentityProviderManager.getInstance();
         try {
-            FederatedIdentityProvider idp = idpManager.getIdPByName(idpName, CarbonContext
+            IdentityProvider idp = idpManager.getIdPByName(idpName, CarbonContext
                     .getThreadLocalCarbonContext().getTenantDomain());
-            return idp.getDefaultAuthenticator().getName();
+            return idp.getDefaultAuthenticatorConfig() != null ? idp
+                    .getDefaultAuthenticatorConfig().getName() : null;
         } catch (IdentityApplicationManagementException e) {
-            throw new IdentityException(e.getMessage(), e);
+            throw new IdentityApplicationManagementException(e.getMessage(), e);
         }
     }
 
@@ -101,46 +63,58 @@ public class IdentityProviderDAOImpl implements IdentityProviderDAO {
     /**
      *
      */
-    public FederatedIdentityProvider getFederatedIdentityProvider(String idpName)
-            throws IdentityException {
+    public IdentityProvider getIdentityProvider(String idpName)
+            throws IdentityApplicationManagementException {
         IdentityProviderManager idpManager = IdentityProviderManager.getInstance();
         try {
-            FederatedIdentityProvider idp = idpManager
-                    .getIdPByName(idpName, CarbonContext.getThreadLocalCarbonContext()
-                            .getTenantDomain());
+            IdentityProvider idp = idpManager.getIdPByName(idpName, CarbonContext
+                    .getThreadLocalCarbonContext().getTenantDomain());
 
-            FederatedIdentityProvider identityProvider = new FederatedIdentityProvider();
+            IdentityProvider identityProvider = new IdentityProvider();
             identityProvider.setIdentityProviderName(idp.getIdentityProviderName());
 
-            FederatedAuthenticator defaultAuthenticator = new FederatedAuthenticator();
+            FederatedAuthenticatorConfig defaultAuthenticator = new FederatedAuthenticatorConfig();
             defaultAuthenticator.setName(getDefaultAuthenticator(idp.getIdentityProviderName()));
 
-            List<FederatedAuthenticator> federatedAuthenticators = new ArrayList<FederatedAuthenticator>();
-            String[] authenticators = getFederatedAuthenticatorNames(idp);
-            for (int i = 0; i < authenticators.length; i++) {
-                FederatedAuthenticator fedAuthenticator = new FederatedAuthenticator();
-                fedAuthenticator.setName(authenticators[i]);
-                federatedAuthenticators.add(fedAuthenticator);
-            }
-            identityProvider.setFederatedAuthenticators(federatedAuthenticators
-                    .toArray(new FederatedAuthenticator[federatedAuthenticators.size()]));
+            List<FederatedAuthenticatorConfig> federatedAuthenticators = new ArrayList<FederatedAuthenticatorConfig>();
 
-            // TODO:
-            ProvisioningConnector google = new ProvisioningConnector();
-            google.setName("googleapps");
-            ProvisioningConnector spml = new ProvisioningConnector();
-            spml.setName("spml");
-            ProvisioningConnector salesforce = new ProvisioningConnector();
-            salesforce.setName("salesforce");
-            ProvisioningConnector scim = new ProvisioningConnector();
-            scim.setName("scim");
-            identityProvider.setProvisoningConnectors(new ProvisioningConnector[] { google, spml,
-                    salesforce, scim });
+            FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs = idp
+                    .getFederatedAuthenticatorConfigs();
+            if (federatedAuthenticatorConfigs != null && federatedAuthenticatorConfigs.length > 0) {
+                for (FederatedAuthenticatorConfig config : federatedAuthenticatorConfigs) {
+                    if (config.isEnabled()) {
+                        federatedAuthenticators.add(config);
+                    }
+                }
+            }
+
+            if (federatedAuthenticators.size() > 0) {
+                identityProvider.setFederatedAuthenticatorConfigs(federatedAuthenticators
+                        .toArray(new FederatedAuthenticatorConfig[federatedAuthenticators.size()]));
+            }
+
+			List<ProvisioningConnectorConfig> provisioningConnectors = new ArrayList<ProvisioningConnectorConfig>();
+
+			ProvisioningConnectorConfig[] provisioningConnectorConfigs = idp.getProvisioningConnectorConfigs();
+			if (provisioningConnectorConfigs != null && provisioningConnectorConfigs.length > 0) {
+				for (ProvisioningConnectorConfig config : provisioningConnectorConfigs) {
+					if (config.isEnabled()) {
+						provisioningConnectors.add(config);
+					}
+				}
+			}
+
+			if (provisioningConnectors.size() > 0) {
+				identityProvider.setProvisioningConnectorConfigs(provisioningConnectors
+				                                                 .toArray(new ProvisioningConnectorConfig[provisioningConnectors.size()]));
+			}
+
+			identityProvider.setEnable(idp.isEnable());
 
             return identityProvider;
 
         } catch (IdentityApplicationManagementException e) {
-            throw new IdentityException(e.getMessage(), e);
+            throw new IdentityApplicationManagementException(e.getMessage(), e);
         }
     }
 
@@ -148,24 +122,24 @@ public class IdentityProviderDAOImpl implements IdentityProviderDAO {
     /**
      *
      */
-    public List<FederatedIdentityProvider> getAllFederatedIdentityProviders()
-            throws IdentityException {
+    public List<IdentityProvider> getAllIdentityProviders()
+            throws IdentityApplicationManagementException {
 
         IdentityProviderManager idpManager = IdentityProviderManager.getInstance();
 
-        List<FederatedIdentityProvider> idps;
+        List<IdentityProvider> idps;
         try {
             idps = idpManager
                     .getIdPs(CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
         } catch (IdentityApplicationManagementException e) {
-            throw new IdentityException(e.getMessage(), e);
+            throw new IdentityApplicationManagementException(e.getMessage(), e);
         }
 
-        List<FederatedIdentityProvider> federatedIdentityProviders = new ArrayList<FederatedIdentityProvider>();
+        List<IdentityProvider> federatedIdentityProviders = new ArrayList<IdentityProvider>();
 
         if (idps.size() > 0) {
-            for (FederatedIdentityProvider idp : idps) {
-                federatedIdentityProviders.add(getFederatedIdentityProvider(idp.getIdentityProviderName()));
+            for (IdentityProvider idp : idps) {
+                federatedIdentityProviders.add(getIdentityProvider(idp.getIdentityProviderName()));
             }
         }
 
@@ -174,34 +148,22 @@ public class IdentityProviderDAOImpl implements IdentityProviderDAO {
 
     @Override
     /**
-     * 
+     *
      */
-    public List<LocalAuthenticator> getAllLocalAuthenticators() throws IdentityException {
+    public List<LocalAuthenticatorConfig> getAllLocalAuthenticators()
+            throws IdentityApplicationManagementException {
 
-        List<LocalAuthenticator> localAuthenticatorList = new ArrayList<LocalAuthenticator>();
-        String[] localAuthenticators = getLocalAuthenticatorNames();
-        for (int i = 0; i < localAuthenticators.length; i++) {
-            LocalAuthenticator localAuthenticator = new LocalAuthenticator();
-            localAuthenticator.setName(localAuthenticators[i]);
-            localAuthenticatorList.add(localAuthenticator);
-        }
-        return localAuthenticatorList;
+        return ApplicationAuthenticatorService.getInstance().getLocalAuthenticators();
     }
 
     @Override
     /**
      * 
      */
-    public List<RequestPathAuthenticator> getAllRequestPathAuthenticators()
-            throws IdentityException {
-        List<RequestPathAuthenticator> reqPathAuthenticatorList = new ArrayList<RequestPathAuthenticator>();
-        String[] reqPathAuthenticators = getRequestPathAuthenticatorNames();
-        for (int i = 0; i < reqPathAuthenticators.length; i++) {
-            RequestPathAuthenticator reqPathAuthenticator = new RequestPathAuthenticator();
-            reqPathAuthenticator.setName(reqPathAuthenticators[i]);
-            reqPathAuthenticatorList.add(reqPathAuthenticator);
-        }
-        return reqPathAuthenticatorList;
+    public List<RequestPathAuthenticatorConfig> getAllRequestPathAuthenticators()
+            throws IdentityApplicationManagementException {
+        return ApplicationAuthenticatorService.getInstance().getRequestPathAuthenticators();
+
     }
 
 }
