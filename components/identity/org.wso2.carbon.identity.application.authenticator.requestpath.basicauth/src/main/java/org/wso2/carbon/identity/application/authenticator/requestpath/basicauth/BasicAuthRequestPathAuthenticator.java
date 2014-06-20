@@ -17,8 +17,6 @@
  */
 package org.wso2.carbon.identity.application.authenticator.requestpath.basicauth;
 
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,10 +24,9 @@ import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
-import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorStateInfo;
-import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorStatus;
 import org.wso2.carbon.identity.application.authentication.framework.RequestPathApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
+import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.application.authenticator.requestpath.basicauth.internal.BasicAuthRequestPathAuthenticatorServiceComponent;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.user.core.UserStoreManager;
@@ -60,21 +57,27 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
 			if (BASIC_AUTH_SCHEMA.equals(headerPart[0])) {
 				return true;
 			}
+		} else if(request.getParameter("sectoken") != null) {
+			return true;
 		}
 		
 		return false;
 	}
-
+	
 	@Override
-	public AuthenticatorStatus authenticate(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationContext context) {
+	protected void processAuthenticationResponse(HttpServletRequest request,
+			HttpServletResponse response, AuthenticationContext context)
+			throws AuthenticationFailedException {
 		
-		if (log.isTraceEnabled()) {
-    		log.trace("Inside authenticate()");
-    	}
-		
+		// if this was set by the relevant servlet
 		String headerValue =(String) request.getSession().getAttribute(AUTHORIZATION_HEADER_NAME);
-		String credential = headerValue.trim().split(" ")[1];
+		String credential = null;
+		
+		if(headerValue != null) {
+			credential = headerValue.trim().split(" ")[1];
+		} else {
+			credential = request.getParameter("sectoken");
+		}
 		
 		try {
 			String[] cred = new String(Base64.decode(credential)).split(":");
@@ -84,80 +87,30 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
 			
 			if(!isAuthenticated) {
 				log.error("Authentication failed for user " + cred[0]);
-				return AuthenticatorStatus.FAIL;
+				throw new AuthenticationFailedException("Authentication Failed");
 			}
 			if(log.isDebugEnabled()) {
 				log.debug("Authenticated user " + cred[0]);
 			}
-			
-			request.getSession().setAttribute("username", cred[0]);
-			
+			context.setSubject(cred[0]);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
-			return AuthenticatorStatus.FAIL;
+			throw new AuthenticationFailedException("Authentication Failed");
 		}
-		
-		return AuthenticatorStatus.PASS;
-	}
-
-	@Override
-	public AuthenticatorStatus logout(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationContext context, AuthenticatorStateInfo stateInfo) {
-		if (log.isTraceEnabled()) {
-    		log.trace("Inside logout()");
-    	}
-    	
-    	// We cannot invalidate the session in case session is used by the calling servlet
-        return AuthenticatorStatus.PASS;
-	}
-
-	@Override
-	public void sendInitialRequest(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationContext context) {
-		
-		if (log.isTraceEnabled()) {
-    		log.trace("Inside sendInitialRequest()");
-    	}
-
-	}
-
-
-	@Override
-	public Map<String, String> getResponseAttributes(HttpServletRequest request,
-			AuthenticationContext context) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AuthenticatorStateInfo getStateInfo(HttpServletRequest request) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
 	public String getContextIdentifier(HttpServletRequest request) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getAuthenticatorName() {
-		
-		if (log.isTraceEnabled()) {
-    		log.trace("Inside getAuthenticatorName()");
-    	}
-    	
-		return AUTHENTICATOR_NAME;
+	public String getFriendlyName() {
+		return "basic-auth";
 	}
 
 	@Override
-	public String getAuthenticatedSubject(HttpServletRequest request) {
-		if (log.isTraceEnabled()) {
-    		log.trace("Inside getAuthenticatedSubject()");
-    	}
-		
-		return (String)request.getSession().getAttribute("username");
+	public String getName() {
+		return AUTHENTICATOR_NAME;
 	}
-
 }

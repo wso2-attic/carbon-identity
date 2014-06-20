@@ -42,8 +42,12 @@ import org.openid4java.message.ax.AxMessage;
 import org.openid4java.message.ax.FetchRequest;
 import org.openid4java.message.ax.FetchResponse;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authenticator.openid.exception.OpenIDException;
+import org.wso2.carbon.identity.application.authenticator.openid.util.OpenIDConstants;
+import org.wso2.carbon.identity.application.common.model.Claim;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.ui.CarbonUIUtil;
 
 public class DefaultOpenIDManager implements OpenIDManager {
@@ -58,7 +62,7 @@ public class DefaultOpenIDManager implements OpenIDManager {
         String claimed_id = request.getParameter("claimed_id");
         
         if (claimed_id == null) {
-        	claimed_id = context.getExternalIdP().getOpenIDURL();
+        	claimed_id = context.getAuthenticatorProperties().get(OpenIDConstants.OPEN_ID_URL);
         }
 
         try {
@@ -75,9 +79,11 @@ public class DefaultOpenIDManager implements OpenIDManager {
             //consumerManager.setImmediateAuth(true);
             
             String returnToURL = CarbonUIUtil.getAdminConsoleURL(request);
-            returnToURL = returnToURL.replace("commonauth/carbon/", "commonauth") + "?sessionDataKey=" + context.getContextIdentifier();
+            String realm = returnToURL.replace("commonauth/carbon/", "commonauth");
+            returnToURL = realm + "?sessionDataKey=" + context.getContextIdentifier();
             
             AuthRequest authReq = consumerManager.authenticate(discovered, returnToURL);
+            authReq.setRealm(realm);
 
             // Request subject attributes using Attribute Exchange extension specification
             AttributesRequestor attributesRequestor = getAttributeRequestor();
@@ -144,20 +150,19 @@ public class DefaultOpenIDManager implements OpenIDManager {
 
                 AuthSuccess authSuccess = (AuthSuccess) verificationResult.getAuthResponse();
 
-                request.getSession().setAttribute("username", authSuccess.getIdentity());
-
                 AttributesRequestor attributesRequestor = getAttributeRequestor();
                 
                 // Get requested attributes using AX extension
                 if (authSuccess.hasExtension(AxMessage.OPENID_NS_AX)) {
                 	
-                    Map<String,String> externalIDPClaims = new HashMap<String,String>();
+                    Map<ClaimMapping,String> externalIDPClaims = new HashMap<ClaimMapping,String>();
                     
                     String[] attrArray = attributesRequestor.getRequestedAttributes(authSuccess.getIdentity());
                     FetchResponse fetchResp = (FetchResponse) authSuccess.getExtension(AxMessage.OPENID_NS_AX);
                     
                     for(String attr : attrArray){
-                        List attributeValues = fetchResp.getAttributeValuesByTypeUri(attributesRequestor.getTypeURI(authSuccess.getIdentity(), attr));
+                        String claimUri = attributesRequestor.getTypeURI(authSuccess.getIdentity(), attr);
+                        List attributeValues = fetchResp.getAttributeValuesByTypeUri(claimUri);
                         
                         if(attributeValues.get(0) instanceof String && ((String)attributeValues.get(0)).split(",").length > 1){
                             String[] splitString = ((String)attributeValues.get(0)).split(",");
@@ -166,11 +171,24 @@ public class DefaultOpenIDManager implements OpenIDManager {
                             }
                         }
                         if(attributeValues.get(0) != null){
-                        	externalIDPClaims.put(attr,getCommaSeperatedValue(attributeValues));
+                            Claim claim = new Claim();
+                            claim.setClaimUri(claimUri);
+                            ClaimMapping claimMapping = new ClaimMapping();
+                            claimMapping.setRemoteClaim(claim);
+                        	externalIDPClaims.put(claimMapping,getCommaSeperatedValue(attributeValues));
                         }
                     }
                     
                     context.setSubjectAttributes(externalIDPClaims);
+                }
+
+                Map<String,String> authenticatorProperties = context.getAuthenticatorProperties();
+                if ("1".equals(authenticatorProperties.get(OpenIDConstants.IS_USER_ID_IN_CLAIMS))) {
+                    ExternalIdPConfig externalIdPConfig = context.getExternalIdP();
+                    String userIdClaimUri = externalIdPConfig.getUserIdClaimUri();
+                    context.setSubject((String)context.getSubjectAttributes().get(userIdClaimUri));
+                } else {
+                    context.setSubject(authSuccess.getClaimed());
                 }
 
             } else {
@@ -214,6 +232,8 @@ public class DefaultOpenIDManager implements OpenIDManager {
 		} else {
 			attribRequestor = new SampleAttributesRequestor();
 		}
+
+        attribRequestor.init();
 		
 		return attribRequestor;
 	}

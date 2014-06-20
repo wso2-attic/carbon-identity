@@ -21,7 +21,8 @@ package org.wso2.carbon.identity.application.authenticator.passive.sts.util;
 public class PassiveSTSConstants {
 
 	public static final String AUTHENTICATOR_NAME = "PassiveSTSAuthenticator";
-
 	public static final String HTTP_PARAM_PASSIVE_STS_RESULT = "wresult";
+    public static final String PASSIVE_STS_URL = "PassiveSTSUrl";
+    public static final String REALM_ID = "RealmId";
 
 }

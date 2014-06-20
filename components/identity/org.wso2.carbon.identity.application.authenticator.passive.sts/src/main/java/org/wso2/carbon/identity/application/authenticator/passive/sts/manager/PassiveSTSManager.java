@@ -55,7 +55,8 @@ import org.opensaml.xml.validation.ValidationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.wso2.carbon.identity.application.authentication.framework.config.dto.ExternalIdPConfig;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
+import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authenticator.passive.sts.exception.PassiveSTSException;
 import org.wso2.carbon.identity.application.authenticator.passive.sts.util.PassiveSTSConstants;
 import org.wso2.carbon.ui.CarbonUIUtil;
@@ -112,13 +113,13 @@ public class PassiveSTSManager {
      * @return redirectionUrl
      * @throws PassiveSTSException
 	 */
-	public String buildRequest(HttpServletRequest request, String loginPage, ExternalIdPConfig externalIdPConfig, String contextIdentifier)
+	public String buildRequest(HttpServletRequest request, String loginPage, ExternalIdPConfig externalIdPConfig, String contextIdentifier, Map<String,String> authenticationProperties)
 	                                                                              throws PassiveSTSException {
 
         String replyUrl = CarbonUIUtil.getAdminConsoleURL(request);
         replyUrl = replyUrl.replace("commonauth/carbon/", "commonauth");
         String action = "wsignin1.0";
-        String realm = externalIdPConfig.getPassiveSTSRealm();
+        String realm = authenticationProperties.get(PassiveSTSConstants.REALM_ID);
         String redirectUrl =  loginPage + "?wa=" + action + "&wreply=" + replyUrl + "&wtrealm=" + realm ;
         try {
             redirectUrl = redirectUrl + "&wctx=" + URLEncoder.encode(contextIdentifier, "UTF-8").trim();
@@ -134,7 +135,7 @@ public class PassiveSTSManager {
      * @param externalIdPConfig
      * @throws PassiveSTSException
      */
-    public void processResponse(HttpServletRequest request, ExternalIdPConfig externalIdPConfig) throws PassiveSTSException {
+    public void processResponse(HttpServletRequest request, AuthenticationContext context) throws PassiveSTSException {
 
         doBootstrap();
 
@@ -220,7 +221,8 @@ public class PassiveSTSManager {
         if(subject == null){
             throw new PassiveSTSException("SAML Response does not contain the name of the subject");
         }
-        request.getSession().setAttribute("username", subject); 
+        
+        context.setSubject(subject);
         request.getSession().setAttribute("userAttributes", attributeMap);
     }
 

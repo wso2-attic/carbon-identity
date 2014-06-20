@@ -29,10 +29,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
-import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorStateInfo;
-import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorStatus;
-import org.wso2.carbon.identity.application.authentication.framework.config.dto.ExternalIdPConfig;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
+import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authenticator.passive.sts.exception.PassiveSTSException;
 import org.wso2.carbon.identity.application.authenticator.passive.sts.manager.PassiveSTSManager;
 import org.wso2.carbon.identity.application.authenticator.passive.sts.util.PassiveSTSConstants;
@@ -43,110 +43,88 @@ public class PassiveSTSAuthenticator extends AbstractApplicationAuthenticator {
 	
 	private static Log log = LogFactory.getLog(PassiveSTSAuthenticator.class);
 	
+	@Override
     public boolean canHandle(HttpServletRequest request) {
     	
     	if (log.isTraceEnabled()) {
 			log.trace("Inside canHandle()");
 		}
 
-        if ((request.getParameter(PassiveSTSConstants.HTTP_PARAM_PASSIVE_STS_RESULT) != null) ||
-        		(request.getParameter("authenticator") != null 
-        		&& getAuthenticatorName().equalsIgnoreCase(request.getParameter("authenticator")))) {
+        if (request.getParameter(PassiveSTSConstants.HTTP_PARAM_PASSIVE_STS_RESULT) != null) {
         	return true;
         }
 
         return false;
     }
-    
-    public AuthenticatorStatus authenticate(HttpServletRequest request, HttpServletResponse response, AuthenticationContext context) {
-    	
-    	if (log.isTraceEnabled()) {
-			log.trace("Inside authenticate()");
-		}
-    	
-    	if (request.getParameter("authenticator") != null 
-        		&& getAuthenticatorName().equalsIgnoreCase(request.getParameter("authenticator"))) {
-    		sendInitialRequest(request, response, context);
-    		return AuthenticatorStatus.CONTINUE;
-    	}
-    	
-    	ExternalIdPConfig externalIdPConfig = context.getExternalIdP();
 
-        if(request.getParameter(PassiveSTSConstants.HTTP_PARAM_PASSIVE_STS_RESULT) != null){
-            try {
-                new PassiveSTSManager(externalIdPConfig).processResponse(request, externalIdPConfig);
-            } catch (PassiveSTSException e) {
-                log.error("Exception while processing WS-Federation response", e);
-                return AuthenticatorStatus.FAIL;
-            }
-        } else {
-            log.error("wresult can not be found in request");
-            return AuthenticatorStatus.FAIL;
-        }
-    	return AuthenticatorStatus.PASS;
-    }
-    
-    @Override
-	public void sendInitialRequest(HttpServletRequest request, HttpServletResponse response, AuthenticationContext context) {
-    	
-    	if (log.isTraceEnabled()) {
-			log.trace("Inside sendInitialRequest()");
-		}
-    	
-    	ExternalIdPConfig externalIdPConfig = context.getExternalIdP();
-    	
-		String idpURL = externalIdPConfig.getPassiveSTSUrl();
+	@Override
+	protected void initiateAuthenticationRequest(HttpServletRequest request,
+			HttpServletResponse response, AuthenticationContext context)
+			throws AuthenticationFailedException {
+
+
+        ExternalIdPConfig externalIdPConfig = context.getExternalIdP();
+		String idpURL = context.getAuthenticatorProperties().get(PassiveSTSConstants.PASSIVE_STS_URL);
 		String loginPage = "";
 
         try {
-	        loginPage = new PassiveSTSManager(externalIdPConfig).buildRequest(request, idpURL, externalIdPConfig, context.getContextIdentifier());
+	        loginPage = new PassiveSTSManager(externalIdPConfig).buildRequest(request, idpURL, externalIdPConfig, context.getContextIdentifier(), context.getAuthenticatorProperties());
         } catch (PassiveSTSException e) {
         	log.error("Exception while building the WS-Federation request", e);
+        	throw new AuthenticationFailedException(e.getMessage(), e);
         }
         
 		try {
-	        response.sendRedirect(response.encodeRedirectURL(loginPage));
+			String domain = request.getParameter("domain");
+			
+			if (domain != null) {
+				loginPage = loginPage + "&fidp=" + domain;
+			}
+			
+			Map<String, String> authenticatorProperties = context
+					.getAuthenticatorProperties();
+
+			if (authenticatorProperties != null) {
+				String queryString = authenticatorProperties
+						.get(FrameworkConstants.QUERY_PARAMS);
+				if (queryString != null) {
+					if (!queryString.startsWith("&")) {
+						loginPage = loginPage + "&" + queryString;
+					} else {
+						loginPage = loginPage + queryString;
+					}
+				}
+			}
+			
+	        response.sendRedirect(loginPage);
         } catch (IOException e) {
         	log.error("Exception while sending to the login page", e);
+        	throw new AuthenticationFailedException(e.getMessage(), e);
         }
 		return;
 	}
     
 	@Override
-    public String getAuthenticatorName() {
+	protected void processAuthenticationResponse(HttpServletRequest request,
+			HttpServletResponse response, AuthenticationContext context)
+			throws AuthenticationFailedException {
 		
-		if (log.isTraceEnabled()) {
-			log.trace("Inside getAuthenticatorName()");
-		}
-		
-	    return PassiveSTSConstants.AUTHENTICATOR_NAME;
-	}
+    	ExternalIdPConfig externalIdPConfig = context.getExternalIdP();
 
-	@Override
-    public AuthenticatorStatus logout(HttpServletRequest request, HttpServletResponse response, 
-    		AuthenticationContext context, AuthenticatorStateInfo stateInfo) {
+        if(request.getParameter(PassiveSTSConstants.HTTP_PARAM_PASSIVE_STS_RESULT) != null){
+            try {
+                new PassiveSTSManager(externalIdPConfig).processResponse(request, context);
+            } catch (PassiveSTSException e) {
+                log.error("Exception while processing WS-Federation response", e);
+                throw new AuthenticationFailedException(e.getMessage(), e);
+            }
+        } else {
+            log.error("wresult can not be found in request");
+            throw new AuthenticationFailedException("wresult can not be found in request");
+        }
 		
-		if (log.isTraceEnabled()) {
-			log.trace("Inside logout()");
-		}
-	    return AuthenticatorStatus.PASS;
-    }
-	
-	@Override
-	public String getAuthenticatedSubject(HttpServletRequest request) {
-		
-		if (log.isTraceEnabled()) {
-			log.trace("Inside getAuthenticatedSubject()");
-		}
-		
-		return (String)request.getSession().getAttribute("username");
 	}
-	
-	@Override
-	public Map<String, String> getResponseAttributes(HttpServletRequest arg0, AuthenticationContext context) {
-		return null;
-	}
-	
+    
 	@Override
 	public String getContextIdentifier(HttpServletRequest request) {
 		
@@ -173,7 +151,12 @@ public class PassiveSTSAuthenticator extends AbstractApplicationAuthenticator {
 	}
 
 	@Override
-	public AuthenticatorStateInfo getStateInfo(HttpServletRequest request) {
-		return null;
+	public String getFriendlyName() {
+		return "passivests";
+	}
+
+	@Override
+	public String getName() {
+		return PassiveSTSConstants.AUTHENTICATOR_NAME;
 	}
 }

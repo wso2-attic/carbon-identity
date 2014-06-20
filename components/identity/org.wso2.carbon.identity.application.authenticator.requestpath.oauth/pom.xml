@@ -60,6 +60,10 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
         	<groupId>org.wso2.carbon</groupId>
         	<artifactId>org.wso2.carbon.identity.oauth</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.application.common</artifactId>
+        </dependency> 
 	</dependencies>
 	<build>
 		<plugins>
