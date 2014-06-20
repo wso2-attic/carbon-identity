@@ -18,25 +18,49 @@
  */
 package org.wso2.carbon.identity.provisioning;
 
+import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
+
 /**
- *  Identity provision related constants
+ * Identity provision related constants
  */
 public class IdentityProvisioningConstants {
 
-    public static final String IDENTITY_PROVISIONING_REG_PATH =
-            "/repository/components/org.wso2.carbon.identity.provisioning";
+    public static final String USERNAME_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:username";
+    public static final String USER_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:user";
+    public static final String NEW_USER_CLAIM_URI = "org:wso2:carbon:identity:provisioning:new:claim:user";
+    public static final String DELETED_USER_CLAIM_URI = "org:wso2:carbon:identity:provisioning:deleted:claim:user";
+    public static final String GROUP_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:group";
+    public static final String NEW_GROUP_CLAIM_URI = "org:wso2:carbon:identity:provisioning:new:claim:group";
+    public static final String DELETED_GROUP_CLAIM_URI = "org:wso2:carbon:identity:provisioning:deleted:claim:group";
+    public static final String PASSWORD_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:password";
+    public static final String LOCAL_SP = ApplicationConstants.LOCAL_SP;
+    public static final String JIT_PROVISIONING_ENABLED = "jitProvisioningEnabled";
 
-    public class PropertyConfig{
+    public class PropertyConfig {
         public static final String CONFIG_FILE_NAME = "identity-provision.properties";
-        public static final String IDENTITY_PROVISION_ENABLE = "Identity.Provisioning.Enable";
-        
+
         public static final String IDENTITY_PROVISIONING_REGISTORED_CONNECTORS = "Identity.Provisioning.Registored.Connectors";
         public static final String IDENTITY_PROVISIONING_CONNECTOR_NAME = "Identity.Provisioning.Connector.Name";
-        
+
         public static final String PREFIX_IDENTITY_PROVISIONING_CONNECTOR = "Identity.Provisioning.Connector.";
         public static final String PREFIX_IDENTITY_PROVISIONING_CONNECTOR_ENABLE = "Identity.Provisioning.Connector.Enable.";
         public static final String PREFIX_IDENTITY_PROVISIONING_CONNECTOR_CLASS = "Identity.Provisioning.Connector.Class.";
-        
+
         public static final String DELIMATOR = ",";
     }
+
+	public static class SQLQueries {
+
+        public static final String ADD_PROVISIONING_ENTITY_SQL = "INSERT INTO IDP_PROVISIONING_ENTITY (PROVISIONING_CONFIG_ID, ENTITY_TYPE, "
+                + "ENTITY_LOCAL_USERSTORE, ENTITY_NAME, ENTITY_VALUE, TENANT_ID) VALUES (?, ?, ?, ?, ?, ?)";
+
+		public static final String DELETE_PROVISIONING_ENTITY_SQL = "DELETE FROM IDP_PROVISIONING_ENTITY WHERE (PROVISIONING_CONFIG_ID=? "
+				+ "AND ENTITY_TYPE=? AND ENTITY_LOCAL_USERSTORE=? AND ENTITY_NAME=? AND TENANT_ID=?)";
+
+        public static final String GET_PROVISIONING_ENTITY_SQL = "SELECT ENTITY_VALUE "
+                + "FROM IDP_PROVISIONING_ENTITY WHERE PROVISIONING_CONFIG_ID=? AND ENTITY_TYPE=? AND "
+        		+ "ENTITY_LOCAL_USERSTORE=? AND ENTITY_NAME=? AND TENANT_ID=?";
+        
+        public static final String GET_IDP_PROVISIONING_CONFIG_ID_SQL = "SELECT ID FROM IDP_PROVISIONING_CONFIG WHERE IDP_ID=? AND PROVISIONING_CONNECTOR_TYPE=?";
+	}
 }

@@ -18,8 +18,8 @@
  */
 package org.wso2.carbon.identity.provisioning.internal;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,18 +28,19 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
-import org.wso2.carbon.identity.provisioning.IdentityProvisioningConfig;
-import org.wso2.carbon.identity.provisioning.IdentityProvisioningConnectorFactory;
-import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
-import org.wso2.carbon.identity.provisioning.IdentityProvisioningEventListener;
+import org.wso2.carbon.identity.application.common.ProvisioningConnectorService;
+import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
+import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener;
+import org.wso2.carbon.identity.provisioning.AbstractProvisioningConnectorFactory;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
-import org.wso2.carbon.registry.core.Registry;
-import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.identity.provisioning.listener.ApplicationMgtProvisioningListener;
+import org.wso2.carbon.identity.provisioning.listener.DefaultInboundUserProvisioningListener;
+import org.wso2.carbon.identity.provisioning.listener.IdentityProviderMgtProvisioningListener;
+import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtLister;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
-
-//TODO : Add dependency to IdP MetadataService
 
 /**
  * @scr.component name=
@@ -49,171 +50,199 @@ import org.wso2.carbon.user.core.service.RealmService;
  *                interface="org.wso2.carbon.registry.core.service.RegistryService"
  *                cardinality="1..1" policy="dynamic" bind="setRegistryService"
  *                unbind="unsetRegistryService"
- * @scr.reference name="realm.service"
- *                interface="org.wso2.carbon.user.core.service.RealmService"
+ * @scr.reference name="realm.service" interface="org.wso2.carbon.user.core.service.RealmService"
  *                cardinality="1..1" policy="dynamic" bind="setRealmService"
  *                unbind="unsetRealmService"
  */
 public class IdentityProvisionServiceComponent {
 
-	private static Log log = LogFactory
-			.getLog(IdentityProvisionServiceComponent.class);
+    private static Log log = LogFactory.getLog(IdentityProvisionServiceComponent.class);
 
-	private static RealmService realmService;
-	private static RegistryService registryService;
+    private static RealmService realmService;
+    private static RegistryService registryService;
+    private static BundleContext bundleContext;
+    private static Map<String, AbstractProvisioningConnectorFactory> connectorFactories = new HashMap<String, AbstractProvisioningConnectorFactory>();
 
-	private static IdentityProvisioningEventListener listener = null;
-	private static BundleContext bundleContext;
-	public static List<IdentityProvisioningConnectorFactory> connectors = new ArrayList<IdentityProvisioningConnectorFactory>();
+    /**
+     * 
+     * @param context
+     */
+    protected void activate(ComponentContext context) {
 
-	protected void activate(ComponentContext context) {
-
-		if (log.isDebugEnabled()) {
-			log.debug("Activating IdentityProvisionServiceComponent");
-		}
-		try {
-			bundleContext = context.getBundleContext();
-			init();
-			if (IdentityProvisioningConfig.getInstance().isProvisioningEnable()) {
-
-				try {
-					listener = new IdentityProvisioningEventListener();
-					bundleContext.registerService(
-							UserOperationEventListener.class.getName(), listener,
-							null);
-					if (log.isDebugEnabled()) {
-						log.debug("Identity Provision Event listener registered successfully");
-					}
-					
-					ServiceTracker<IdentityProvisioningConnectorFactory, IdentityProvisioningConnectorFactory> authServiceTracker = new ServiceTracker<IdentityProvisioningConnectorFactory, IdentityProvisioningConnectorFactory>(
-							bundleContext,
-							IdentityProvisioningConnectorFactory.class
-									.getName(),
-							new ServiceTrackerCustomizer<IdentityProvisioningConnectorFactory, IdentityProvisioningConnectorFactory>() {
-
-								@Override
-								public IdentityProvisioningConnectorFactory addingService(
-										ServiceReference<IdentityProvisioningConnectorFactory> serviceReference) {
-									IdentityProvisioningConnectorFactory connector = serviceReference
-											.getBundle().getBundleContext()
-											.getService(serviceReference);
-									connectors.add(connector);
-									if (log.isDebugEnabled()) {
-										log.debug("Added application authenticator : "
-												+ connector.getConnectorType());
-									}
-									return connector;
-								}
-
-								@Override
-								public void modifiedService(
-										ServiceReference<IdentityProvisioningConnectorFactory> serviceReference,
-										IdentityProvisioningConnectorFactory service) {
-									if (log.isDebugEnabled()) {
-										log.debug("Modified connector : "
-												+ service.getConnectorType());
-									}
-								}
-
-								@Override
-								public void removedService(
-										ServiceReference<IdentityProvisioningConnectorFactory> serviceReference,
-										IdentityProvisioningConnectorFactory service) {
-									connectors.remove(service);
-									serviceReference.getBundle()
-											.getBundleContext()
-											.ungetService(serviceReference);
-									if (log.isDebugEnabled()) {
-										log.debug("Removed connector : "
-												+ service.getConnectorType());
-									}
-								}
-
-							});
-					authServiceTracker.open();
-
-					if (log.isDebugEnabled()) {
-						log.debug("IdentityProvisioningConnector service tracker started successfully");
-					}
-					
-//					IdentityProvisioningManagementService provisioningService = new IdentityProvisioningManagementService();
-//
-//					bundleContext.registerService(
-//							IdentityProvisioningManagementService.class.getName(), provisioningService,
-//							null);
-//					if (log.isDebugEnabled()) {
-//						log.debug("Identity Provisioning service registered successfully");
-//					}
-				}
-				catch (IdentityProvisioningException e) {
-					log.error("Error while initiating identity provisioning connector framework", e);
-				}
-			} else {
-				if (log.isDebugEnabled()) {
-					log.debug("Identity Provisioning framework is disabled");
-				}
-			}
-			if(log.isDebugEnabled()) {
-				log.debug("Identity Provisioning framework bundle is activated");
-			}
-		} catch (Exception e) {
-			log.error("Error while activating Identity Provision bundle", e);
-		}
-	}
-	
-
-    private static void init(){
-
-        Registry registry;
         try {
-            registry = IdentityProvisionServiceComponent.getRegistryService().getConfigSystemRegistry();
-            if(!registry.resourceExists(IdentityProvisioningConstants.IDENTITY_PROVISIONING_REG_PATH)){
-                registry.put(IdentityProvisioningConstants.IDENTITY_PROVISIONING_REG_PATH, registry.newCollection());
+            bundleContext = context.getBundleContext();
+
+            try {
+                bundleContext.registerService(UserOperationEventListener.class.getName(), new DefaultInboundUserProvisioningListener(), null);
+                if (log.isDebugEnabled()) {
+                	log.debug("Identity Provision Event listener registered successfully");
+                }
+                bundleContext.registerService(ApplicationMgtListener.class.getName(), new ApplicationMgtProvisioningListener(), null);
+                if (log.isDebugEnabled()) {
+                	log.debug("Application Management Event listener registered successfully");
+                }
+                bundleContext.registerService(IdentityProviderMgtLister.class.getName(), new IdentityProviderMgtProvisioningListener(), null);
+                if (log.isDebugEnabled()) {
+                	log.debug("Identity Provider Management Event listener registered successfully");
+                }
+
+                ServiceTracker<AbstractProvisioningConnectorFactory, AbstractProvisioningConnectorFactory> authServiceTracker;
+
+                authServiceTracker = new ServiceTracker<AbstractProvisioningConnectorFactory, AbstractProvisioningConnectorFactory>(
+                        bundleContext,
+                        AbstractProvisioningConnectorFactory.class.getName(),
+                        new ServiceTrackerCustomizer<AbstractProvisioningConnectorFactory, AbstractProvisioningConnectorFactory>() {
+
+                            @Override
+                            public AbstractProvisioningConnectorFactory addingService(
+                                    ServiceReference<AbstractProvisioningConnectorFactory> serviceReference) {
+                                AbstractProvisioningConnectorFactory connectorFactory = serviceReference
+                                        .getBundle().getBundleContext()
+                                        .getService(serviceReference);
+                                connectorFactories.put(connectorFactory.getConnectorType(),
+                                        connectorFactory);
+                                if (log.isDebugEnabled()) {
+                                    log.debug("Added provisioning connector : "
+                                            + connectorFactory.getConnectorType());
+                                }
+                                
+                                ProvisioningConnectorConfig provisioningConnectorConfig = new ProvisioningConnectorConfig();
+                                provisioningConnectorConfig.setName(connectorFactory
+                                        .getConnectorType());
+                                provisioningConnectorConfig
+                                        .setProvisioningProperties(connectorFactory
+                                                .getConfigurationProperties().toArray(
+                                                        new Property[connectorFactory
+                                                                .getConfigurationProperties()
+                                                                .size()]));
+                                ProvisioningConnectorService.getInstance()
+                                        .addProvisioningConnectorConfigs(
+                                                provisioningConnectorConfig);
+
+                                return connectorFactory;
+                            }
+
+                            @Override
+                            public void modifiedService(
+                                    ServiceReference<AbstractProvisioningConnectorFactory> serviceReference,
+                                    AbstractProvisioningConnectorFactory service) {
+                                if (log.isDebugEnabled()) {
+                                    log.debug("Modified provisioning connector : "
+                                            + service.getConnectorType());
+                                }
+                            }
+
+                            @Override
+                            public void removedService(
+                                    ServiceReference<AbstractProvisioningConnectorFactory> serviceReference,
+                                    AbstractProvisioningConnectorFactory service) {
+                                connectorFactories.remove(service);
+                                serviceReference.getBundle().getBundleContext()
+                                        .ungetService(serviceReference);
+                                
+                                ProvisioningConnectorConfig provisioningConnectorConfig = ProvisioningConnectorService.getInstance().getProvisioningConnectorByName(service.getConnectorType());
+                                ProvisioningConnectorService.getInstance().removeProvisioningConnectorConfigs(provisioningConnectorConfig);
+                                
+                                if (log.isDebugEnabled()) {
+                                    log.debug("Removed provisioning connector : "
+                                            + service.getConnectorType());
+                                }
+                            }
+
+                        });
+                authServiceTracker.open();
+
+                if (log.isDebugEnabled()) {
+                    log.debug("IdentityProvisioningConnector service tracker started successfully");
+                }
+
+            } catch (IdentityProvisioningException e) {
+                log.error("Error while initiating identity provisioning connector framework", e);
             }
-        } catch (RegistryException e) {
-            log.error("Error while creating registry collection for org.wso2.carbon.identity.mgt component");
-        }                  
+
+            if (log.isDebugEnabled()) {
+                log.debug("Identity Provisioning framework bundle is activated");
+            }
+        } catch (Exception e) {
+            log.error("Error while activating Identity Provision bundle", e);
+        }
     }
 
-	public static RealmService getRealmService() {
-		return realmService;
-	}
+    /**
+     * 
+     * @return
+     */
+    public static RealmService getRealmService() {
+        return realmService;
+    }
 
-	public static RegistryService getRegistryService() {
-		return registryService;
-	}
+    /**
+     * 
+     * @return
+     */
+    public static RegistryService getRegistryService() {
+        return registryService;
+    }
 
-	protected void deactivate(ComponentContext context) {
-		if (log.isDebugEnabled()) {
-			log.debug("Identity Provision bundle is de-activated");
-		}
-	}
+    /**
+     * 
+     * @return
+     */
+    public static Map<String, AbstractProvisioningConnectorFactory> getConnectorFactories() {
+        return connectorFactories;
+    }
 
-	protected void setRegistryService(RegistryService registryService) {
-		if (log.isDebugEnabled()) {
-			log.debug("Setting the Registry Service");
-		}
-		IdentityProvisionServiceComponent.registryService = registryService;
-	}
+    /**
+     * 
+     * @param context
+     */
+    protected void deactivate(ComponentContext context) {
+        if (log.isDebugEnabled()) {
+            log.debug("Identity Provision bundle is de-activated");
+        }
+    }
 
-	protected void unsetRegistryService(RegistryService registryService) {
-		if (log.isDebugEnabled()) {
-			log.debug("UnSetting the Registry Service");
-		}
-		IdentityProvisionServiceComponent.registryService = null;
-	}
+    /**
+     * 
+     * @param registryService
+     */
+    protected void setRegistryService(RegistryService registryService) {
+        if (log.isDebugEnabled()) {
+            log.debug("Setting the Registry Service");
+        }
+        IdentityProvisionServiceComponent.registryService = registryService;
+    }
 
-	protected void setRealmService(RealmService realmService) {
-		if (log.isDebugEnabled()) {
-			log.debug("Setting the Realm Service");
-		}
-		IdentityProvisionServiceComponent.realmService = realmService;
-	}
+    /**
+     * 
+     * @param registryService
+     */
+    protected void unsetRegistryService(RegistryService registryService) {
+        if (log.isDebugEnabled()) {
+            log.debug("UnSetting the Registry Service");
+        }
+        IdentityProvisionServiceComponent.registryService = null;
+    }
 
-	protected void unsetRealmService(RealmService realmService) {
-		if (log.isDebugEnabled()) {
-			log.debug("UnSetting the Realm Service");
-		}
-		IdentityProvisionServiceComponent.realmService = null;
-	}
+    /**
+     * 
+     * @param realmService
+     */
+    protected void setRealmService(RealmService realmService) {
+        if (log.isDebugEnabled()) {
+            log.debug("Setting the Realm Service");
+        }
+        IdentityProvisionServiceComponent.realmService = realmService;
+    }
+
+    /**
+     * 
+     * @param realmService
+     */
+    protected void unsetRealmService(RealmService realmService) {
+        if (log.isDebugEnabled()) {
+            log.debug("UnSetting the Realm Service");
+        }
+        IdentityProvisionServiceComponent.realmService = null;
+    }
 }
