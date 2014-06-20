@@ -16,9 +16,9 @@
 			</i18n-bundle>
 			<parent-menu>tools_menu</parent-menu>
 			<link>#</link>
-			<region>region1</region>
+			<region>region5</region>
 			<order>1</order>
-			<style-class>manage</style-class>
+			<style-class>tools</style-class>
 			<icon>../tools-saml/images/lock_blue.png</icon>
 			<require-permission>/permission/admin/manage</require-permission>
 			<require-not-logged-in>false</require-not-logged-in>
@@ -30,9 +30,9 @@
 			</i18n-bundle>
 			<parent-menu>tools_saml_menu</parent-menu>
 			<link>../tools-saml/saml_request_validate.jsp</link>
-			<region>region1</region>
-			<order>1</order>
-			<style-class>manage</style-class>
+			<region>region5</region>
+			<order>2</order>
+			<style-class>tools</style-class>
 			<icon>../tools-saml/images/validate_r.png</icon>
 			<require-permission>/permission/admin/manage</require-permission>
 			<require-not-logged-in>false</require-not-logged-in>
@@ -44,9 +44,9 @@
 			</i18n-bundle>
 			<parent-menu>tools_saml_menu</parent-menu>
 			<link>../tools-saml/saml_response_builder.jsp</link>
-			<region>region1</region>
-			<order>2</order>
-			<style-class>manage</style-class>
+			<region>region5</region>
+			<order>3</order>
+			<style-class>tools</style-class>
 			<icon>../tools-saml/images/response_gen.gif</icon>
 			<require-permission>/permission/admin/manage</require-permission>
 			<require-not-logged-in>false</require-not-logged-in>
