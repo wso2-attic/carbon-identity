@@ -18,24 +18,17 @@
 package org.wso2.carbon.identity.sts.passive.ui;
 
 
-import org.apache.axis2.context.ConfigurationContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheKey;
-import org.wso2.carbon.identity.application.common.cache.CacheEntry;
-import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
-import org.wso2.carbon.identity.sts.passive.stub.types.RequestToken;
-import org.wso2.carbon.identity.sts.passive.stub.types.ResponseToken;
-import org.wso2.carbon.identity.sts.passive.ui.cache.SessionDataCache;
-import org.wso2.carbon.identity.sts.passive.ui.cache.SessionDataCacheEntry;
-import org.wso2.carbon.identity.sts.passive.ui.cache.SessionDataCacheKey;
-import org.wso2.carbon.identity.sts.passive.ui.client.IdentityPassiveSTSClient;
-import org.wso2.carbon.identity.sts.passive.ui.dto.SessionDTO;
-import org.wso2.carbon.registry.core.utils.UUIDGenerator;
-import org.wso2.carbon.ui.CarbonUIUtil;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -50,15 +43,25 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import org.apache.axis2.context.ConfigurationContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheKey;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
+import org.wso2.carbon.identity.application.common.cache.CacheEntry;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.sts.passive.stub.types.RequestToken;
+import org.wso2.carbon.identity.sts.passive.stub.types.ResponseToken;
+import org.wso2.carbon.identity.sts.passive.ui.cache.SessionDataCache;
+import org.wso2.carbon.identity.sts.passive.ui.cache.SessionDataCacheEntry;
+import org.wso2.carbon.identity.sts.passive.ui.cache.SessionDataCacheKey;
+import org.wso2.carbon.identity.sts.passive.ui.client.IdentityPassiveSTSClient;
+import org.wso2.carbon.identity.sts.passive.ui.dto.SessionDTO;
+import org.wso2.carbon.registry.core.utils.UUIDGenerator;
+import org.wso2.carbon.ui.CarbonUIUtil;
 
 public class PassiveSTS extends HttpServlet {
 
@@ -82,9 +85,8 @@ public class PassiveSTS extends HttpServlet {
     }
 
     private void sendData(HttpServletRequest httpReq, HttpServletResponse httpResp,
-                          ResponseToken respToken, String action)
-            throws ServletException,
-                   IOException {
+            ResponseToken respToken, String action, String authenticatedIdPs)
+            throws ServletException, IOException {
 
 //        String responseTokenResult = respToken.getResults();
 //        
@@ -101,6 +103,12 @@ public class PassiveSTS extends HttpServlet {
 		out.println("<input type='hidden' name='wa' value='" + action + "'>");
 		out.println("<input type='hidden' name='wresult' value='" + respToken.getResults() + "'>");
 		out.println("<input type='hidden' name='wctx' value='" + respToken.getContext() + "'>");
+		
+        if (authenticatedIdPs != null && !authenticatedIdPs.isEmpty()) {
+            out.println("<input type='hidden' name='AuthenticatedIdPs' value='"
+                    + URLEncoder.encode(authenticatedIdPs, "UTF-8") + "'>");
+        }
+		
 		out.println("<button type='submit'>POST</button>");
 		out.println("</p>");
 		out.println("</form>");
@@ -237,8 +245,25 @@ public class PassiveSTS extends HttpServlet {
 
     	RequestToken reqToken = new RequestToken();
     	
+    	Map<ClaimMapping, String>  attrMap = authnResult.getUserAttributes();
+    	StringBuffer buffer = null;
+    	
+        if (attrMap != null && attrMap.size() > 0) {
+            buffer = new StringBuffer();
+            for (Iterator<Entry<ClaimMapping, String>> iterator = attrMap.entrySet().iterator(); iterator
+                    .hasNext();) {
+                Entry<ClaimMapping, String> entry = iterator.next();
+                buffer.append("{" + entry.getKey().getRemoteClaim().getClaimUri() + "|"
+                        + entry.getValue() + "}#CODE#");
+            }
+        }
+    	
         reqToken.setAction(sessionDTO.getAction());
-        reqToken.setAttributes(sessionDTO.getAttributes());
+        if (buffer!=null){
+            reqToken.setAttributes(buffer.toString());
+        }else{
+            reqToken.setAttributes(sessionDTO.getAttributes());
+        }
         reqToken.setContext(sessionDTO.getContext());
         reqToken.setReplyTo(sessionDTO.getReplyTo());
         reqToken.setPseudo(sessionDTO.getPseudo());
@@ -260,7 +285,8 @@ public class PassiveSTS extends HttpServlet {
         if (respToken != null/* && respToken.getAuthenticated() */&& respToken.getResults() != null) {
 //        	session.setAttribute("username", userName);
             persistRealms(reqToken, request.getSession());
-            sendData(request, response, respToken, reqToken.getAction());
+            sendData(request, response, respToken, reqToken.getAction(),
+                    authnResult.getAuthenticatedIdPs());
         } /*else {
                 resp.sendRedirect(frontEndUrl + "passivests_login.do");
                 return;
