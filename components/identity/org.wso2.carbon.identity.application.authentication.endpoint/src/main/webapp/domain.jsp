@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
- ~ Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ ~ Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  ~
  ~ WSO2 Inc. licenses this file to you under the Apache License,
  ~ Version 2.0 (the "License"); you may not use this file except
@@ -54,8 +54,8 @@
         <meta name="author" content="">
 
         <!-- Le styles -->
-        <link href="/authenticationendpoint/realm-disc/assets/css/bootstrap.min.css" rel="stylesheet">
-        <link href="/authenticationendpoint/realm-disc/css/localstyles.css" rel="stylesheet">
+        <link href="/authenticationendpoint/assets/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/authenticationendpoint/css/localstyles.css" rel="stylesheet">
         <!--[if lt IE 8]>
         <link href="samlsso/css/localstyles-ie7.css" rel="stylesheet">
         <![endif]-->
@@ -76,7 +76,7 @@
     <div class="header-back">
         <div class="container">
             <div class="row">
-                <div class="span4 offset3">
+                <div class="span12">
                     <a class="logo">&nbsp</a>
                 </div>
             </div>
@@ -86,11 +86,21 @@
     <div class="header-text">
             <!-- put the info you want to display in the black strip here -->
     </div>
+     <div class="container">
+	<div class="row">
+		<div class="span12">
+			<h1>Enter your domain</h1>
+		</div>
+	</div>
+    </div>
 
-    <div class="container">
-        <div class="row">
-            <div class="span6 offset3 content-section" style="margin-left:230px">
-				<form action="../../commonauth" method="post" id="loginForm" class="well form-horizontal" >
+
+
+
+    <div class="container main-login-container" style="margin-top:10px;">
+	<div class="row">
+                <div class="span12">
+<form action="../../commonauth" method="post" id="loginForm" class="form-horizontal" >
 				<div id="loginTable1" class="identity-box">
 					<div class="control-group">
 					   <% if (loginFailed) { %>
@@ -112,10 +122,12 @@
 					</div>
 				</div>
 			</form>			
-            </div>
-        </div>
+		</div>
+	</div>
     </div>
+
     <!-- /container -->
     
     </body>
 </html>
+

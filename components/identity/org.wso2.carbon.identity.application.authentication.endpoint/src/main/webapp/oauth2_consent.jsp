@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-~ Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+~ Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 ~
 ~ WSO2 Inc. licenses this file to you under the Apache License,
 ~ Version 2.0 (the "License"); you may not use this file except
@@ -52,62 +52,65 @@
 <div class="header-back">
     <div class="container">
         <div class="row">
-            <div class="span4 offset3">
+            <div class="span12">
                 <a class="logo">&nbsp</a>
             </div>
         </div>
     </div>
 </div>
-
-    <div id="middle">
-       <div class="header-text">
-    		<strong><%=app%></strong> <fmt:message key='request.access.profile'/>
-		</div>
-        <div id="workArea"  class="container">
-         <div class="row">
-        <div class="span5 offset3 content-section">
-            <script type="text/javascript">
-                function approved() {
-                	 document.getElementById('consent').value="approve";
-                	 document.getElementById("profile").submit();
-                }
-                function approvedAlways() {
-                	 document.getElementById('consent').value="approveAlways";
-                	 document.getElementById("profile").submit();     	
-                }  
-                function deny() {
-                	 document.getElementById('consent').value="deny";
-                	 document.getElementById("profile").submit();
-                }
-            </script>
-
-            <form id="profile" name="profile" method="post" action="../oauth2/authorize">
-                <table width="100%" class="styledLeft">
-                    <tbody>
-                    <tr>
-                        <td class="buttonRow" colspan="2">
-                        	<input type="button" class="btn btn-primary btn-large" id="approve" name="approve"
-                                             onclick="javascript: approved(); return false;"
-                                             value="Approve"/>
-                       		<input type="button" class="btn btn-primary btn-large" id="approveAlways" name="approveAlways"
-                                             onclick="javascript: approvedAlways(); return false;"
-                                             value="Approve Always"/>
-                       		<input class="btn btn-large" type="reset"
-										value="Deny" onclick="javascript: deny(); return false;" /> 
-										
-							<input type="hidden" name="<%=Constants.SESSION_DATA_KEY_CONSENT%>"
-										value="<%=request.getParameter(Constants.SESSION_DATA_KEY_CONSENT)%>" />
-							<input type="hidden" name="consent" id="consent"
-										value="deny" />											
-					   </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </form>
-			</div>
+    <div class="header-text">
+	    <div class="container">
+	        <div class="row">
+	            <div class="span12 content-section">
+	            	<strong><%=app%></strong> application requests access to your profile information
+	            </div>
+	        </div>
+	   </div>
+    </div>
+    
+    <div class="container main-login-container" style="margin-top:10px;">
+        <div class="row">
+            <div class="span12 content-section">
+                <h3 style="text-align:left;margin-bottom:10px;">OpenID User Claims</h3>
+                <script type="text/javascript">
+	                function approved() {
+	                	 document.getElementById('consent').value="approve";
+	                	 document.getElementById("profile").submit();
+	                }
+	                function approvedAlways() {
+	                	 document.getElementById('consent').value="approveAlways";
+	                	 document.getElementById("profile").submit();     	
+	                }  
+	                function deny() {
+	                	 document.getElementById('consent').value="deny";
+	                	 document.getElementById("profile").submit();
+	                }
+	            </script>
+	
+	            <form id="profile" name="profile" method="post" action="../oauth2/authorize">
+              
+                     <input type="button" class="btn btn-primary btn-large" id="approve" name="approve"
+                                           onclick="javascript: approved(); return false;"
+                                           value="Approve"/>
+                     <input type="button" class="btn btn-primary btn-large" id="approveAlways" name="approveAlways"
+                                           onclick="javascript: approvedAlways(); return false;"
+                                           value="Approve Always"/>
+                     <input class="btn btn-primary-deny btn-large" type="reset"
+								value="Deny" onclick="javascript: deny(); return false;" /> 
+								
+					<input type="hidden" name="<%=Constants.SESSION_DATA_KEY_CONSENT%>"
+								value="<%=request.getParameter(Constants.SESSION_DATA_KEY_CONSENT)%>" />
+					<input type="hidden" name="consent" id="consent"
+								value="deny" />											
+						  
+	            </form>
+            </div>
         </div>
     </div>
-</div>
+    
+    
+    
+    
 </body>
 </html>
 

@@ -15,22 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.wso2.carbon.identity.application.authentication.endpoint;
 
-package org.wso2.carbon.identity.application.authentication.endpoint.passivests;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class PassiveSTSLogin extends HttpServlet {
-
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,
-            IOException {
-
-        request.getRequestDispatcher("login.jsp").forward(request, response);
-
+public class AuthenticationException extends IOException {
+    public AuthenticationException(){
+        super();
     }
 
+    public AuthenticationException(Exception e){
+        super(e);
+    }
+
+    public AuthenticationException(String message){
+        super(message);
+    }
 }
