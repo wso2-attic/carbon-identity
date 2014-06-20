@@ -27,7 +27,11 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.user.store.configuration.dto.PropertyDTO;
 import org.wso2.carbon.identity.user.store.configuration.dto.UserStoreDTO;
-import org.wso2.carbon.identity.user.store.configuration.utils.IdentityUserStoreMgtException;
+import org.wso2.carbon.ndatasource.common.DataSourceException;
+import org.wso2.carbon.ndatasource.core.DataSourceManager;
+import org.wso2.carbon.ndatasource.core.services.WSDataSourceMetaInfo;
+import org.wso2.carbon.ndatasource.core.services.WSDataSourceMetaInfo.WSDataSourceDefinition;
+import org.wso2.carbon.ndatasource.rdbms.RDBMSConfiguration;
 import org.wso2.carbon.user.api.Properties;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -36,7 +40,10 @@ import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.config.XMLProcessorUtils;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
+import org.wso2.carbon.user.core.tenant.TenantCache;
+import org.wso2.carbon.user.core.tenant.TenantIdKey;
 import org.wso2.carbon.user.core.tracker.UserStoreManagerRegistry;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -52,20 +59,12 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
-
-import org.wso2.carbon.ndatasource.common.DataSourceException;
-import org.wso2.carbon.ndatasource.core.DataSourceManager;
-import org.wso2.carbon.ndatasource.core.services.WSDataSourceMetaInfo;
-import org.wso2.carbon.ndatasource.core.services.WSDataSourceMetaInfo.WSDataSourceDefinition;
-import org.wso2.carbon.ndatasource.rdbms.RDBMSConfiguration;
 
 public class UserStoreConfigAdminService extends AbstractAdmin {
     public static final Log log = LogFactory.getLog(UserStoreConfigAdminService.class);
@@ -331,6 +330,9 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
                 log.debug("Removed persisted domain name: " + domainName
                         + " of tenant:" + tenantId + " from UM_DOMAIN.");
             }
+            //clear cache to make the modification effective
+            UserCoreUtil.getRealmService().clearCachedUserRealm(tenantId);
+            TenantCache.getInstance().clearCacheEntry(new TenantIdKey(tenantId));
 
             // Delete file
             deleteFile(file, domainName.replace(".", "_").concat(".xml"));
