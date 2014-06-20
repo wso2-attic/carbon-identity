@@ -16,8 +16,8 @@
 ~ under the License.
 -->
 
-<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.*"%>
-<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
+<%@page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.idp.mgt.ui.client.IdentityProviderMgtServiceClient" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
@@ -25,6 +25,10 @@
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.Property" %>
+<%@ page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants" %>
 
 <%
     String BUNDLE = "org.wso2.carbon.idp.mgt.ui.i18n.Resources";
@@ -36,11 +40,20 @@
                 (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         IdentityProviderMgtServiceClient client = new IdentityProviderMgtServiceClient(cookie, backendServerURL, configContext);
 
-        ResidentIdentityProvider identityProvider = new ResidentIdentityProvider();
-        identityProvider.setHomeRealmId(request.getParameter("homeRealmId"));
-        identityProvider.setOpenIdRealm(request.getParameter("openIdRealm"));
-        identityProvider.setIdpEntityId(request.getParameter("idPEntityId"));
-        identityProvider.setPassiveSTSRealm(request.getParameter("passiveSTSRealm"));
+        IdentityProvider identityProvider = new IdentityProvider();
+        identityProvider.setIdentityProviderName(IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME);
+        identityProvider.setHomeRealmId(CharacterEncoder.getSafeText(request.getParameter("homeRealmId")));
+        FederatedAuthenticatorConfig samlFedAuthn = new FederatedAuthenticatorConfig();
+        samlFedAuthn.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.NAME);
+        Property[] properties = new Property[1];
+        Property property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
+        property.setValue(CharacterEncoder.getSafeText(request.getParameter("idPEntityId")));
+        properties[0] = property;
+        samlFedAuthn.setProperties(properties);
+        FederatedAuthenticatorConfig[] federatedAuthenticators = new FederatedAuthenticatorConfig[1];
+        federatedAuthenticators[0] = samlFedAuthn;
+        identityProvider.setFederatedAuthenticatorConfigs(federatedAuthenticators);
         client.updateResidentIdP(identityProvider);
         String message = MessageFormat.format(resourceBundle.getString("success.updating.resident.idp"),null);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);

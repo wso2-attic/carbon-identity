@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.idp.mgt.cache;
 
+import org.wso2.carbon.identity.application.common.cache.CacheKey;
+
 public class IdPHomeRealmIdCacheKey extends CacheKey {
 
     /**
@@ -26,8 +28,9 @@ public class IdPHomeRealmIdCacheKey extends CacheKey {
     private static final long serialVersionUID = 1L;
     private String homeRealmId;
 
-    public IdPHomeRealmIdCacheKey(String homeRealmId) {
+    public IdPHomeRealmIdCacheKey(String homeRealmId, String tenantDomain) {
         this.homeRealmId = homeRealmId;
+        this.tenantDomain = tenantDomain.toLowerCase();
     }
     public String getHomeRealmId(){
         return homeRealmId;
@@ -37,16 +40,21 @@ public class IdPHomeRealmIdCacheKey extends CacheKey {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
         IdPHomeRealmIdCacheKey that = (IdPHomeRealmIdCacheKey) o;
 
         if (!homeRealmId.equals(that.homeRealmId)) return false;
+        if (!tenantDomain.equals(that.tenantDomain)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return homeRealmId.hashCode();
+        int result = super.hashCode();
+        result = 31 * result + homeRealmId.hashCode();
+        result = 31 * result + tenantDomain.hashCode();
+        return result;
     }
 }

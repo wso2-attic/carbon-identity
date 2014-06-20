@@ -16,8 +16,8 @@
 ~ under the License.
 -->
 
-<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.*"%>
-<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
+<%@page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.idp.mgt.ui.client.IdentityProviderMgtServiceClient" %>
 <%@ page import="org.wso2.carbon.idp.mgt.ui.util.IdPManagementUIUtil" %>
@@ -26,6 +26,7 @@
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
 
 <%
 	String BUNDLE = "org.wso2.carbon.idp.mgt.ui.i18n.Resources";
@@ -37,18 +38,40 @@
                 (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         IdentityProviderMgtServiceClient client = new IdentityProviderMgtServiceClient(cookie, backendServerURL, configContext);
 
-        FederatedIdentityProvider identityProvider = IdPManagementUIUtil.buildeFederatedIdentityProvider(request);
-        client.updateIdP(((FederatedIdentityProvider) session.getAttribute("identityProvider")).getIdentityProviderName(), identityProvider);
-        String message = MessageFormat.format(resourceBundle.getString("success.updating.idp"),null);
-        CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
-    } catch (Exception e) {
-        String message = MessageFormat.format(resourceBundle.getString("error.updating.idp"),
-                new Object[]{e.getMessage()});
-        CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-    } finally {
-        session.removeAttribute("identityProvider");
-        session.removeAttribute("identityProviderList");
-    }
+        IdentityProvider identityProvider = null;
+        String oldIdpName = null;
+        
+      	if (request.getParameter("idPName") != null	&& request.getParameter("idPName").length() != 0 && request.getParameter("enable") != null) {
+
+			identityProvider = client.getIdPByName(CharacterEncoder.getSafeText(request.getParameter("idPName")));
+
+    		if (request.getParameter("enable").equals("1")) {
+    			identityProvider.setEnable(true);
+    		} else {
+    			identityProvider.setEnable(false);
+    		}
+    		
+			oldIdpName = CharacterEncoder.getSafeText(request.getParameter("idPName"));
+		} else {
+	        identityProvider = IdPManagementUIUtil.buildeFederatedIdentityProvider(request);
+	        oldIdpName = ((IdentityProvider) session.getAttribute("identityProvider")).getIdentityProviderName();
+		}
+      		
+		client.updateIdP(oldIdpName, identityProvider);
+
+      	
+		String message = MessageFormat.format(resourceBundle.getString("success.updating.idp"),	null);
+		CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
+	} catch (Exception e) {
+		String message = MessageFormat.format(
+				resourceBundle.getString("error.updating.idp"),
+				new Object[] { e.getMessage() });
+		CarbonUIMessage.sendCarbonUIMessage(message,
+				CarbonUIMessage.ERROR, request);
+	} finally {
+		session.removeAttribute("identityProvider");
+		session.removeAttribute("identityProviderList");
+	}
 %>
 <script type="text/javascript">
     location.href = "idp-mgt-list-load.jsp";

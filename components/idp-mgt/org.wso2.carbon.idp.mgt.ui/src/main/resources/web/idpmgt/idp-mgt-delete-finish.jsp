@@ -16,6 +16,7 @@
 ~ under the License.
 -->
 
+<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.idp.mgt.ui.client.IdentityProviderMgtServiceClient" %>
@@ -34,14 +35,14 @@
         ConfigurationContext configContext =
                 (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         IdentityProviderMgtServiceClient client = new IdentityProviderMgtServiceClient(cookie, backendServerURL, configContext);
-        if(request.getParameter("idPName") != null && !request.getParameter("idPName").equals("")){
-            client.deleteIdP(request.getParameter("idPName"));
+        String idPName = CharacterEncoder.getSafeText(request.getParameter("idPName"));
+        if(idPName != null && !idPName.isEmpty()){
+            client.deleteIdP(idPName);
             String message = MessageFormat.format(resourceBundle.getString("success.deleting.idp"),null);
             CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
         }
     } catch (Exception e) {
-        String message = MessageFormat.format(resourceBundle.getString("error.deleting.idp"),
-                new Object[]{e.getMessage()});
+        String message = e.getMessage(); //MessageFormat.format(resourceBundle.getString("error.deleting.idp"),new Object[]{e.getMessage()});
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
     } finally {
         session.removeAttribute("identityProvider");

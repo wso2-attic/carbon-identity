@@ -1,3 +1,4 @@
+
 /*
  *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -15,7 +16,6 @@
  *specific language governing permissions and limitations
  *under the License.
  */
-
 package org.wso2.carbon.idp.mgt.cache;
 
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
@@ -23,17 +23,17 @@ import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.application.common.cache.CacheKey;
 import org.wso2.carbon.utils.CarbonUtils;
 
-public class IdPCacheByName extends BaseCache<CacheKey, CacheEntry> {
+public class IdPCacheByAuthProperty extends BaseCache<CacheKey, CacheEntry> {
 
-    private static final String CACHE_NAME = "IdPCacheByName";
+    private static final String CACHE_NAME = "IdPCacheByAuthProperty";
 
-    private static final IdPCacheByName instance = new IdPCacheByName(CACHE_NAME);
+    private static final IdPCacheByAuthProperty instance = new IdPCacheByAuthProperty(CACHE_NAME);
 
-    private IdPCacheByName(String cacheName) {
+    public IdPCacheByAuthProperty(String cacheName) {
         super(cacheName);
     }
 
-    public static IdPCacheByName getInstance() {
+    public static IdPCacheByAuthProperty getInstance() {
         CarbonUtils.checkSecurity();
         return instance;
     }

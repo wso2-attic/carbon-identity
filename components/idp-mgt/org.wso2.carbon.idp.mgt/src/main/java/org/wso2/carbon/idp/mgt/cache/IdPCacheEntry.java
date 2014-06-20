@@ -18,22 +18,25 @@
 
 package org.wso2.carbon.idp.mgt.cache;
 
-import org.wso2.carbon.identity.application.common.model.FederatedIdentityProvider;
+import org.wso2.carbon.identity.application.common.cache.CacheEntry;
+import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+
+import java.io.Serializable;
 
 
 public class IdPCacheEntry extends CacheEntry {
 
-    private FederatedIdentityProvider identityProvider;
+    private IdentityProvider identityProvider;
 
-    public IdPCacheEntry(FederatedIdentityProvider identityProvider) {
+    public IdPCacheEntry(IdentityProvider identityProvider) {
         this.identityProvider = identityProvider;
     }
 
-    public FederatedIdentityProvider getIdentityProvider() {
+    public IdentityProvider getIdentityProvider() {
         return identityProvider;
     }
 
-    public void setIdentityProvider(FederatedIdentityProvider identityProvider){
+    public void setIdentityProvider(IdentityProvider identityProvider){
         this.identityProvider = identityProvider;
     }
 

@@ -16,18 +16,6 @@
 
 package org.wso2.carbon.idp.mgt.ui.util;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItem;
@@ -37,23 +25,27 @@ import org.apache.commons.fileupload.servlet.ServletRequestContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.identity.application.common.model.*;
+import org.wso2.carbon.identity.application.common.model.idp.xsd.*;
 import org.wso2.carbon.identity.application.common.model.idp.xsd.Claim;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.ClaimConfiguration;
+import org.wso2.carbon.identity.application.common.model.idp.xsd.ClaimConfig;
 import org.wso2.carbon.identity.application.common.model.idp.xsd.ClaimMapping;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.FacebookFederatedAuthenticator;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticator;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedIdentityProvider;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.JustInTimeProvisioningConfiguration;
+import org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.idp.xsd.JustInTimeProvisioningConfig;
 import org.wso2.carbon.identity.application.common.model.idp.xsd.LocalRole;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.OpenIDConnectFederatedAuthenticator;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.OpenIDFederatedAuthenticator;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.PassiveSTSFederatedAuthenticator;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.PermissionsAndRoleConfiguration;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnector;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningProperty;
+import org.wso2.carbon.identity.application.common.model.idp.xsd.PermissionsAndRoleConfig;
+import org.wso2.carbon.identity.application.common.model.idp.xsd.Property;
+import org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig;
 import org.wso2.carbon.identity.application.common.model.idp.xsd.RoleMapping;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.SAMLFederatedAuthenticator;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.ui.CarbonUIUtil;
+
+import javax.servlet.http.HttpServletRequest;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
 
 public class IdPManagementUIUtil {
 
@@ -85,31 +77,31 @@ public class IdPManagementUIUtil {
     public static String getOpenIDUrl(HttpServletRequest request) {
         String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(request);
         String endpointURL = adminConsoleURL.substring(0, adminConsoleURL.indexOf("/carbon"));
-        return (endpointURL + "/openid");
+        return (endpointURL + "/openid/");
     }
 
     public static String getSAML2SSOUrl(HttpServletRequest request) {
         String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(request);
         String endpointURL = adminConsoleURL.substring(0, adminConsoleURL.indexOf("/carbon"));
-        return (endpointURL + "/samlsso");
+        return (endpointURL + "/samlsso/");
     }
 
     public static String getOAuth2AuthzEPURL(HttpServletRequest request) {
         String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(request);
         String endpointURL = adminConsoleURL.substring(0, adminConsoleURL.indexOf("/carbon"));
-        return (endpointURL + "/oauth2/authorize");
+        return (endpointURL + "/oauth2/authorize/");
     }
 
     public static String getOAuth2TokenEPURL(HttpServletRequest request) {
         String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(request);
         String endpointURL = adminConsoleURL.substring(0, adminConsoleURL.indexOf("/carbon"));
-        return (endpointURL + "/oauth2/token");
+        return (endpointURL + "/oauth2/token/");
     }
 
     public static String getPassiveSTSURL(HttpServletRequest request) {
         String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(request);
         String endpointURL = adminConsoleURL.substring(0, adminConsoleURL.indexOf("/carbon"));
-        return (endpointURL + "/services/wso2carbon-sts");
+        return (endpointURL + "/passivests/");
     }
 
     /**
@@ -118,10 +110,10 @@ public class IdPManagementUIUtil {
      * @return
      * @throws Exception
      */
-    public static FederatedIdentityProvider buildeFederatedIdentityProvider(
-            HttpServletRequest request) throws Exception {
+    public static IdentityProvider buildeFederatedIdentityProvider(HttpServletRequest request)
+            throws Exception {
 
-        FederatedIdentityProvider fedIdp = new FederatedIdentityProvider();
+        IdentityProvider fedIdp = new IdentityProvider();
 
         if (ServletFileUpload.isMultipartContent(request)) {
             ServletRequestContext servletContext = new ServletRequestContext(request);
@@ -131,9 +123,14 @@ public class IdPManagementUIUtil {
             Map<String, String> paramMap = new HashMap<String, String>();
             List<String> idpClaims = new ArrayList<String>();
             List<String> idpRoles = new ArrayList<String>();
+            List<String> customAuthenticatorNames = new ArrayList<String>();
+            List<String> proConnectorNames = new ArrayList<String>();
 
-            FederatedIdentityProvider oldIdentityProvider = (FederatedIdentityProvider) request
-                    .getSession().getAttribute("identityProvider");
+            Map<String, List<Property>> customAuthenticatorProperties = new HashMap<String, List<Property>>();
+            Map<String, List<Property>> customProProperties = new HashMap<String, List<Property>>();
+
+            IdentityProvider oldIdentityProvider = (IdentityProvider) request.getSession()
+                    .getAttribute("identityProvider");
 
             if (ServletFileUpload.isMultipartContent(request)) {
 
@@ -148,8 +145,61 @@ public class IdPManagementUIUtil {
                             paramMap.put(key, Base64.encode(value));
                         } else if (key.startsWith("claimrowname_")) {
                             idpClaims.add(new String(value));
+                            paramMap.put(key, new String(value));
                         } else if (key.startsWith("rolerowname_")) {
                             idpRoles.add(new String(value));
+                            paramMap.put(key, new String(value));
+                        } else if (key.startsWith("custom_auth_name")) {
+                            customAuthenticatorNames.add(new String(value));
+                        } else if (key.startsWith("custom_pro_name")) {
+                            proConnectorNames.add(new String(value));
+                        } else if (key.startsWith("cust_auth_prop_")) {
+                            int length = "cust_auth_prop_".length();
+                            String authPropString = new String(key).substring(length);
+                            if (authPropString.indexOf("#") > 0) {
+                                String authName = authPropString.substring(0,
+                                        authPropString.indexOf("#"));
+                                String propName = authPropString.substring(authPropString
+                                        .indexOf("#") + 1);
+                                String propVal = new String(value);
+                                Property prop = new Property();
+                                prop.setName(propName);
+                                prop.setValue(propVal);
+
+                                List<Property> propList = null;
+
+                                if (customAuthenticatorProperties.get(authName) == null) {
+                                    customAuthenticatorProperties.put(authName,
+                                            new ArrayList<Property>());
+                                }
+
+                                propList = customAuthenticatorProperties.get(authName);
+                                propList.add(prop);
+                                customAuthenticatorProperties.put(authName, propList);
+                            }
+                        } else if (key.startsWith("cust_pro_prop_")) {
+                            int length = "cust_pro_prop_".length();
+                            String provPropString = new String(key).substring(length);
+                            if (provPropString.indexOf("#") > 0) {
+                                String proConName = provPropString.substring(0,
+                                        provPropString.indexOf("#"));
+                                String propName = provPropString.substring(provPropString
+                                        .indexOf("#") + 1);
+                                String propVal = new String(value);
+                                Property prop = new Property();
+                                prop.setName(propName);
+                                prop.setValue(propVal);
+
+                                List<Property> propList = null;
+
+                                if (customProProperties.get(proConName) == null) {
+                                    customProProperties.put(proConName, new ArrayList<Property>());
+                                }
+
+                                propList = customProProperties.get(proConName);
+                                propList.add(prop);
+                                customProProperties.put(proConName, propList);
+                            }
                         } else {
                             paramMap.put(key, new String(value));
                         }
@@ -167,27 +217,51 @@ public class IdPManagementUIUtil {
                 paramMap.put("oldCertFile", oldIdentityProvider.getCertificate());
             }
 
+            if (oldIdentityProvider != null
+                    && oldIdentityProvider.getProvisioningConnectorConfigs() != null) {
+
+                ProvisioningConnectorConfig[] provisioningConnectorConfig = oldIdentityProvider
+                        .getProvisioningConnectorConfigs();
+                for (ProvisioningConnectorConfig provisioningConnector : provisioningConnectorConfig) {
+                    if (provisioningConnector.getName().equals("googleapps")) {
+                        Property[] googleProperties = provisioningConnector
+                                .getProvisioningProperties();
+                        for (Property property : googleProperties) {
+                            if (property.getName().equals("google_prov_private_key")) {
+                                paramMap.put("old_google_prov_private_key", property.getValue());
+                            }
+                        }
+
+                    }
+                }
+
+            }
+
             // build identity provider basic information.
             buildBasicInformation(fedIdp, paramMap);
 
             // build out-bound authentication configuration.
             buildOutboundAuthenticationConfiguration(fedIdp, paramMap);
 
+            // build custom authenticator configuration.
+            buildCustomAuthenticationConfiguration(fedIdp, customAuthenticatorNames,
+                    customAuthenticatorProperties, paramMap);
+
             // build claim configuration.
             if (oldIdentityProvider != null
-                    && oldIdentityProvider.getClaimConfiguration().getClaimMappings() != null) {
+                    && oldIdentityProvider.getClaimConfig().getClaimMappings() != null) {
                 buildClaimConfiguration(fedIdp, paramMap, idpClaims, oldIdentityProvider
-                        .getClaimConfiguration().getClaimMappings());
+                        .getClaimConfig().getClaimMappings());
             } else {
                 buildClaimConfiguration(fedIdp, paramMap, idpClaims, null);
             }
 
             // build role configuration.
             if (oldIdentityProvider != null
-                    && oldIdentityProvider.getPermissionAndRoleConfiguration() != null
-                    && oldIdentityProvider.getPermissionAndRoleConfiguration().getRoleMappings() != null) {
+                    && oldIdentityProvider.getPermissionAndRoleConfig() != null
+                    && oldIdentityProvider.getPermissionAndRoleConfig().getRoleMappings() != null) {
                 buildRoleConfiguration(fedIdp, paramMap, idpRoles, oldIdentityProvider
-                        .getPermissionAndRoleConfiguration().getRoleMappings());
+                        .getPermissionAndRoleConfig().getRoleMappings());
             } else {
                 buildRoleConfiguration(fedIdp, paramMap, idpRoles, null);
             }
@@ -197,6 +271,10 @@ public class IdPManagementUIUtil {
 
             // build out-bound provisioning configuration.
             buildOutboundProvisioningConfiguration(fedIdp, paramMap);
+
+            // build custom provisioning connectors.
+            buildCustomProvisioningConfiguration(fedIdp, proConnectorNames, customProProperties,
+                    paramMap);
 
         } else {
             throw new Exception("Invalid Content Type: Not multipart/form-data");
@@ -209,9 +287,9 @@ public class IdPManagementUIUtil {
      * 
      * @param fedIdp
      * @param paramMap
-     * @throws IdentityProviderMgtException
+     * @throws IdentityApplicationManagementException
      */
-    private static void buildOutboundProvisioningConfiguration(FederatedIdentityProvider fedIdp,
+    private static void buildOutboundProvisioningConfiguration(IdentityProvider fedIdp,
             Map<String, String> paramMap) throws IdentityApplicationManagementException {
 
         // build SPML provisioning configuration.
@@ -225,56 +303,74 @@ public class IdPManagementUIUtil {
 
         // build Salesforce provisioning configuration.
         buildSalesforceProvisioningConfiguration(fedIdp, paramMap);
+
     }
 
     /**
      * 
      * @param fedIdp
      * @param paramMap
-     * @throws IdentityProviderMgtException
+     * @throws IdentityApplicationManagementException
      */
-    private static void buildSPMLProvisioningConfiguration(FederatedIdentityProvider fedIdp,
+    private static void buildSPMLProvisioningConfiguration(IdentityProvider fedIdp,
             Map<String, String> paramMap) throws IdentityApplicationManagementException {
 
-        ProvisioningConnector proConnector = new ProvisioningConnector();
+        ProvisioningConnectorConfig proConnector = new ProvisioningConnectorConfig();
         proConnector.setName("spml");
 
-        ProvisioningProperty userNameProp = null;
-        ProvisioningProperty passwordProp = null;
-        ProvisioningProperty endPointProp = null;
+        Property userNameProp = null;
+        Property passwordProp = null;
+        Property endPointProp = null;
+        Property objectClass = null;
+
+        if (paramMap.get("spmlProvEnabled") != null && "on".equals(paramMap.get("spmlProvEnabled"))) {
+            proConnector.setEnabled(true);
+        } else {
+            proConnector.setEnabled(false);
+        }
+
+        if (paramMap.get("spmlProvDefault") != null && "on".equals(paramMap.get("spmlProvDefault"))) {
+            fedIdp.setDefaultProvisioningConnectorConfig(proConnector);
+        }
 
         if (paramMap.get("spml-username") != null) {
-            userNameProp = new ProvisioningProperty();
+            userNameProp = new Property();
             userNameProp.setName("spml-username");
             userNameProp.setValue(paramMap.get("spml-username"));
         }
 
         if (paramMap.get("spml-password") != null) {
-            passwordProp = new ProvisioningProperty();
+            passwordProp = new Property();
             passwordProp.setConfidential(true);
             passwordProp.setName("spml-password");
             passwordProp.setValue(paramMap.get("spml-password"));
         }
 
         if (paramMap.get("spml-ep") != null) {
-            endPointProp = new ProvisioningProperty();
+            endPointProp = new Property();
             endPointProp.setName("spml-ep");
             endPointProp.setValue(paramMap.get("spml-ep"));
         }
 
-        ProvisioningProperty[] proProperties = new ProvisioningProperty[] { userNameProp,
-                passwordProp, endPointProp };
+        if (paramMap.get("spml-oc") != null) {
+            objectClass = new Property();
+            objectClass.setName("spml-oc");
+            objectClass.setValue(paramMap.get("spml-oc"));
+        }
+
+        Property[] proProperties = new Property[] { userNameProp, passwordProp, endPointProp,
+                objectClass };
 
         proConnector.setProvisioningProperties(proProperties);
 
-        ProvisioningConnector[] proConnectors = fedIdp.getProvisoningConnectors();
+        ProvisioningConnectorConfig[] proConnectors = fedIdp.getProvisioningConnectorConfigs();
 
         if (proConnector.getName() != null) {
             if (proConnectors == null || proConnectors.length == 0) {
-                fedIdp.setProvisoningConnectors((new ProvisioningConnector[] { proConnector }));
+                fedIdp.setProvisioningConnectorConfigs((new ProvisioningConnectorConfig[] { proConnector }));
             } else {
-                fedIdp.setProvisoningConnectors(concatArrays(
-                        new ProvisioningConnector[] { proConnector }, proConnectors));
+                fedIdp.setProvisioningConnectorConfigs(concatArrays(
+                        new ProvisioningConnectorConfig[] { proConnector }, proConnectors));
             }
         }
 
@@ -284,23 +380,25 @@ public class IdPManagementUIUtil {
      * 
      * @param fedIdp
      * @param paramMap
-     * @throws IdentityProviderMgtException
+     * @throws IdentityApplicationManagementException
      */
-    private static void buildGoogleProvisioningConfiguration(FederatedIdentityProvider fedIdp,
+    private static void buildGoogleProvisioningConfiguration(IdentityProvider fedIdp,
             Map<String, String> paramMap) throws IdentityApplicationManagementException {
-        ProvisioningConnector proConnector = new ProvisioningConnector();
+        ProvisioningConnectorConfig proConnector = new ProvisioningConnectorConfig();
         proConnector.setName("googleapps");
 
-        ProvisioningProperty domainName = null;
-        ProvisioningProperty emailClaim = null;
-        ProvisioningProperty givenNameClaim = null;
-        ProvisioningProperty givenNameDefaultVal = null;
-        ProvisioningProperty familyNameClaim = null;
-        ProvisioningProperty familyNameDefault = null;
-        ProvisioningProperty serviceAccEmail = null;
-        ProvisioningProperty privateKey = null;
-        ProvisioningProperty adminEmail = null;
-        ProvisioningProperty appName = null;
+        Property domainName = null;
+        Property emailClaim = null;
+        Property givenNameClaim = null;
+        Property givenNameDefaultVal = null;
+        Property familyNameClaim = null;
+        Property familyNameDefault = null;
+        Property serviceAccEmail = null;
+        Property privateKey = null;
+        Property adminEmail = null;
+        Property appName = null;
+        String oldGooglePvtKey = null;
+        String newGooglePvtKey = null;
 
         if (paramMap.get("googleProvEnabled") != null
                 && "on".equals(paramMap.get("googleProvEnabled"))) {
@@ -311,84 +409,97 @@ public class IdPManagementUIUtil {
 
         if (paramMap.get("googleProvDefault") != null
                 && "on".equals(paramMap.get("googleProvDefault"))) {
-            fedIdp.setDefaultProvisioinongConnector(proConnector);
+            fedIdp.setDefaultProvisioningConnectorConfig(proConnector);
         }
 
-        if (paramMap.get("google_prov_domain_nam") != null) {
-            domainName = new ProvisioningProperty();
-            domainName.setName("google_prov_domain_nam");
-            domainName.setValue(paramMap.get("google_prov_domain_nam"));
+        if (paramMap.get("google_prov_domain_name") != null) {
+            domainName = new Property();
+            domainName.setName("google_prov_domain_name");
+            domainName.setValue(paramMap.get("google_prov_domain_name"));
         }
 
         if (paramMap.get("google_prov_email_claim_dropdown") != null) {
-            emailClaim = new ProvisioningProperty();
+            emailClaim = new Property();
             emailClaim.setName("google_prov_email_claim_dropdown");
             emailClaim.setValue(paramMap.get("google_prov_email_claim_dropdown"));
         }
 
         if (paramMap.get("google_prov_givenname_claim_dropdown") != null) {
-            givenNameClaim = new ProvisioningProperty();
+            givenNameClaim = new Property();
             givenNameClaim.setName("google_prov_givenname_claim_dropdown");
             givenNameClaim.setValue(paramMap.get("google_prov_givenname_claim_dropdown"));
         }
 
         if (paramMap.get("google_prov_givenname") != null) {
-            givenNameDefaultVal = new ProvisioningProperty();
+            givenNameDefaultVal = new Property();
             givenNameDefaultVal.setName("google_prov_givenname");
             givenNameDefaultVal.setValue(paramMap.get("google_prov_givenname"));
         }
 
         if (paramMap.get("google_prov_familyname_claim_dropdown") != null) {
-            familyNameClaim = new ProvisioningProperty();
+            familyNameClaim = new Property();
             familyNameClaim.setName("google_prov_familyname_claim_dropdown");
             familyNameClaim.setValue(paramMap.get("google_prov_familyname_claim_dropdown"));
         }
 
         if (paramMap.get("google_prov_familyname") != null) {
-            familyNameDefault = new ProvisioningProperty();
+            familyNameDefault = new Property();
             familyNameDefault.setName("google_prov_familyname");
             familyNameDefault.setValue(paramMap.get("google_prov_familyname"));
         }
 
         if (paramMap.get("google_prov_service_acc_email") != null) {
-            serviceAccEmail = new ProvisioningProperty();
+            serviceAccEmail = new Property();
             serviceAccEmail.setName("google_prov_service_acc_email");
             serviceAccEmail.setValue(paramMap.get("google_prov_service_acc_email"));
         }
 
-        if (paramMap.get("google_prov_private_key") != null) {
-            privateKey = new ProvisioningProperty();
-            privateKey.setName("google_prov_private_key");
-            privateKey.setValue(paramMap.get("google_prov_private_key"));
+        if (paramMap.get("old_google_prov_private_key") != null) {
+            oldGooglePvtKey = paramMap.get("old_google_prov_private_key");
+        }
 
+        // get the value of the uploaded certificate.
+        if (paramMap.get("google_prov_private_key") != null) {
+            newGooglePvtKey = paramMap.get("google_prov_private_key");
+        }
+
+        if (newGooglePvtKey == null && oldGooglePvtKey != null) {
+            newGooglePvtKey = oldGooglePvtKey;
+        }
+
+        if (newGooglePvtKey != null) {
+            privateKey = new Property();
+            privateKey.setName("google_prov_private_key");
+            privateKey.setValue(newGooglePvtKey);
+            privateKey.setType(IdentityApplicationConstants.ConfigElements.PROPERTY_TYPE_BLOB);
         }
 
         if (paramMap.get("google_prov_admin_email") != null) {
-            adminEmail = new ProvisioningProperty();
+            adminEmail = new Property();
             adminEmail.setName("google_prov_admin_email");
             adminEmail.setValue(paramMap.get("google_prov_admin_email"));
         }
 
         if (paramMap.get("google_prov_application_name") != null) {
-            appName = new ProvisioningProperty();
+            appName = new Property();
             appName.setName("google_prov_application_name");
             appName.setValue(paramMap.get("google_prov_application_name"));
         }
 
-        ProvisioningProperty[] proProperties = new ProvisioningProperty[] { appName, adminEmail,
-                privateKey, serviceAccEmail, familyNameDefault, familyNameClaim,
-                givenNameDefaultVal, givenNameClaim, emailClaim, domainName };
+        Property[] proProperties = new Property[] { appName, adminEmail, privateKey,
+                serviceAccEmail, familyNameDefault, familyNameClaim, givenNameDefaultVal,
+                givenNameClaim, emailClaim, domainName };
 
         proConnector.setProvisioningProperties(proProperties);
 
-        ProvisioningConnector[] proConnectors = fedIdp.getProvisoningConnectors();
+        ProvisioningConnectorConfig[] proConnectors = fedIdp.getProvisioningConnectorConfigs();
 
         if (proConnector.getName() != null) {
             if (proConnectors == null || proConnectors.length == 0) {
-                fedIdp.setProvisoningConnectors(new ProvisioningConnector[] { proConnector });
+                fedIdp.setProvisioningConnectorConfigs(new ProvisioningConnectorConfig[] { proConnector });
             } else {
-                fedIdp.setProvisoningConnectors(concatArrays(
-                        new ProvisioningConnector[] { proConnector }, proConnectors));
+                fedIdp.setProvisioningConnectorConfigs(concatArrays(
+                        new ProvisioningConnectorConfig[] { proConnector }, proConnectors));
             }
         }
     }
@@ -397,56 +508,73 @@ public class IdPManagementUIUtil {
      * 
      * @param fedIdp
      * @param paramMap
-     * @throws IdentityProviderMgtException
+     * @throws IdentityApplicationManagementException
      */
-    private static void buildSCIMProvisioningConfiguration(FederatedIdentityProvider fedIdp,
+    private static void buildSCIMProvisioningConfiguration(IdentityProvider fedIdp,
             Map<String, String> paramMap) throws IdentityApplicationManagementException {
-        ProvisioningConnector proConnector = new ProvisioningConnector();
+        ProvisioningConnectorConfig proConnector = new ProvisioningConnectorConfig();
         proConnector.setName("scim");
 
-        ProvisioningProperty userNameProp = null;
-        ProvisioningProperty passwordProp = null;
-        ProvisioningProperty userEpProp = null;
-        ProvisioningProperty groupEpProp = null;
+        Property userNameProp = null;
+        Property passwordProp = null;
+        Property userEpProp = null;
+        Property groupEpProp = null;
+        Property scimUserStoreDomain = null;
+
+        if (paramMap.get("scimProvEnabled") != null && "on".equals(paramMap.get("scimProvEnabled"))) {
+            proConnector.setEnabled(true);
+        } else {
+            proConnector.setEnabled(false);
+        }
+
+        if (paramMap.get("scimProvDefault") != null && "on".equals(paramMap.get("scimProvDefault"))) {
+            fedIdp.setDefaultProvisioningConnectorConfig(proConnector);
+        }
 
         if (paramMap.get("scim-username") != null) {
-            userNameProp = new ProvisioningProperty();
+            userNameProp = new Property();
             userNameProp.setName("scim-username");
             userNameProp.setValue(paramMap.get("scim-username"));
         }
 
         if (paramMap.get("scim-password") != null) {
-            passwordProp = new ProvisioningProperty();
+            passwordProp = new Property();
             passwordProp.setConfidential(true);
             passwordProp.setName("scim-password");
             passwordProp.setValue(paramMap.get("scim-password"));
         }
 
         if (paramMap.get("scim-user-ep") != null) {
-            userEpProp = new ProvisioningProperty();
+            userEpProp = new Property();
             userEpProp.setName("scim-user-ep");
             userEpProp.setValue(paramMap.get("scim-user-ep"));
         }
 
-        if (paramMap.get("scim-user-ep") != null) {
-            groupEpProp = new ProvisioningProperty();
-            groupEpProp.setName("scim-user-ep");
-            groupEpProp.setValue(paramMap.get("scim-user-ep"));
+        if (paramMap.get("scim-group-ep") != null) {
+            groupEpProp = new Property();
+            groupEpProp.setName("scim-group-ep");
+            groupEpProp.setValue(paramMap.get("scim-group-ep"));
         }
 
-        ProvisioningProperty[] proProperties = new ProvisioningProperty[] { userNameProp,
-                passwordProp, userEpProp, groupEpProp };
+        if (paramMap.get("scim-user-store-domain") != null) {
+            scimUserStoreDomain = new Property();
+            scimUserStoreDomain.setName("scim-user-store-domain");
+            scimUserStoreDomain.setValue(paramMap.get("scim-user-store-domain"));
+        }
+
+        Property[] proProperties = new Property[] { userNameProp, passwordProp, userEpProp,
+                groupEpProp, scimUserStoreDomain };
 
         proConnector.setProvisioningProperties(proProperties);
 
-        ProvisioningConnector[] proConnectors = fedIdp.getProvisoningConnectors();
+        ProvisioningConnectorConfig[] proConnectors = fedIdp.getProvisioningConnectorConfigs();
 
         if (proConnector.getName() != null) {
             if (proConnectors == null || proConnectors.length == 0) {
-                fedIdp.setProvisoningConnectors(new ProvisioningConnector[] { proConnector });
+                fedIdp.setProvisioningConnectorConfigs(new ProvisioningConnectorConfig[] { proConnector });
             } else {
-                fedIdp.setProvisoningConnectors(concatArrays(
-                        new ProvisioningConnector[] { proConnector }, proConnectors));
+                fedIdp.setProvisioningConnectorConfigs(concatArrays(
+                        new ProvisioningConnectorConfig[] { proConnector }, proConnectors));
             }
         }
 
@@ -456,78 +584,88 @@ public class IdPManagementUIUtil {
      * 
      * @param fedIdp
      * @param paramMap
-     * @throws IdentityProviderMgtException
+     * @throws IdentityApplicationManagementException
      */
-    private static void buildSalesforceProvisioningConfiguration(FederatedIdentityProvider fedIdp,
+    private static void buildSalesforceProvisioningConfiguration(IdentityProvider fedIdp,
             Map<String, String> paramMap) throws IdentityApplicationManagementException {
 
-        ProvisioningConnector proConnector = new ProvisioningConnector();
+        ProvisioningConnectorConfig proConnector = new ProvisioningConnectorConfig();
         proConnector.setName("salesforce");
 
-        ProvisioningProperty userNameProp = null;
-        ProvisioningProperty passwordProp = null;
-        ProvisioningProperty clentIdProp = null;
-        ProvisioningProperty clientSecretProp = null;
-        ProvisioningProperty apiVersionProp = null;
-        ProvisioningProperty domainNameProp = null;
+        Property userNameProp = null;
+        Property passwordProp = null;
+        Property clentIdProp = null;
+        Property clientSecretProp = null;
+        Property apiVersionProp = null;
+        Property domainNameProp = null;
+
+        if (paramMap.get("sfProvEnabled") != null && "on".equals(paramMap.get("sfProvEnabled"))) {
+            proConnector.setEnabled(true);
+        } else {
+            proConnector.setEnabled(false);
+        }
+
+        if (paramMap.get("sfProvDefault") != null && "on".equals(paramMap.get("sfProvDefault"))) {
+            fedIdp.setDefaultProvisioningConnectorConfig(proConnector);
+        }
 
         if (paramMap.get("sf-username") != null) {
-            userNameProp = new ProvisioningProperty();
+            userNameProp = new Property();
             userNameProp.setName("sf-username");
             userNameProp.setValue(paramMap.get("sf-username"));
         }
 
         if (paramMap.get("sf-password") != null) {
-            passwordProp = new ProvisioningProperty();
+            passwordProp = new Property();
             passwordProp.setConfidential(true);
             passwordProp.setName("sf-password");
             passwordProp.setValue(paramMap.get("sf-password"));
         }
 
         if (paramMap.get("sf-clientid") != null) {
-            clentIdProp = new ProvisioningProperty();
+            clentIdProp = new Property();
             clentIdProp.setName("sf-clientid");
             clentIdProp.setValue(paramMap.get("sf-clientid"));
         }
 
         if (paramMap.get("sf-client-secret") != null) {
-            clientSecretProp = new ProvisioningProperty();
+            clientSecretProp = new Property();
             clientSecretProp.setConfidential(true);
             clientSecretProp.setName("sf-client-secret");
             clientSecretProp.setValue(paramMap.get("sf-client-secret"));
         }
 
         if (paramMap.get("sf-clientid") != null) {
-            clentIdProp = new ProvisioningProperty();
+            clentIdProp = new Property();
             clentIdProp.setName("sf-clientid");
             clentIdProp.setValue(paramMap.get("sf-clientid"));
         }
 
         if (paramMap.get("sf-api-version") != null) {
-            apiVersionProp = new ProvisioningProperty();
+            apiVersionProp = new Property();
             apiVersionProp.setName("sf-api-version");
             apiVersionProp.setValue(paramMap.get("sf-api-version"));
         }
 
         if (paramMap.get("sf-domain-name") != null) {
-            domainNameProp = new ProvisioningProperty();
+            domainNameProp = new Property();
             domainNameProp.setName("sf-domain-name");
             domainNameProp.setValue(paramMap.get("sf-domain-name"));
         }
 
-        ProvisioningProperty[] proProperties = new ProvisioningProperty[] { userNameProp,
-                passwordProp, clentIdProp, clientSecretProp, apiVersionProp, domainNameProp };
+        Property[] proProperties = new Property[] { userNameProp, passwordProp, clentIdProp,
+                clientSecretProp, apiVersionProp, domainNameProp };
 
         proConnector.setProvisioningProperties(proProperties);
 
-        ProvisioningConnector[] proConnectors = fedIdp.getProvisoningConnectors();
+        ProvisioningConnectorConfig[] proConnectors = fedIdp.getProvisioningConnectorConfigs();
 
         if (proConnector.getName() != null) {
             if (proConnectors == null || proConnectors.length == 0) {
-                fedIdp.setProvisoningConnectors(new ProvisioningConnector[] { proConnector });
+                fedIdp.setProvisioningConnectorConfigs(new ProvisioningConnectorConfig[] { proConnector });
             } else {
-                fedIdp.setProvisoningConnectors(concatArrays(
-                        new ProvisioningConnector[] { proConnector }, proConnectors));
+                fedIdp.setProvisioningConnectorConfigs(concatArrays(
+                        new ProvisioningConnectorConfig[] { proConnector }, proConnectors));
             }
         }
     }
@@ -536,13 +674,13 @@ public class IdPManagementUIUtil {
      * 
      * @param fedIdp
      * @param paramMap
-     * @throws IdentityProviderMgtException
+     * @throws IdentityApplicationManagementException
      */
-    private static void buildClaimConfiguration(FederatedIdentityProvider fedIdp,
+    private static void buildClaimConfiguration(IdentityProvider fedIdp,
             Map<String, String> paramMap, List<String> idpClaims, ClaimMapping[] currentClaimMapping)
             throws IdentityApplicationManagementException {
 
-        ClaimConfiguration claimConfiguration = new ClaimConfiguration();
+        ClaimConfig claimConfiguration = new ClaimConfig();
 
         if (idpClaims != null && idpClaims.size() > 0) {
             List<Claim> idPClaimList = new ArrayList<Claim>();
@@ -558,45 +696,132 @@ public class IdPManagementUIUtil {
         claimConfiguration.setUserClaimURI(paramMap.get("user_id_claim_dropdown"));
         claimConfiguration.setRoleClaimURI(paramMap.get("role_claim_dropdown"));
 
-        String claimMappingFromFile = paramMap.get("claimMappingFile");
+        ClaimConfig claimConfigurationUpdated = claimMappingFromUI(claimConfiguration, paramMap);
 
-        if (claimMappingFromFile != null) {
-            String[] claimMappings;
-            claimMappings = claimMappingFromFile.replaceAll("\\s", "").split(",");
+        fedIdp.setClaimConfig(claimConfigurationUpdated);
+    }
 
-            if (claimMappings != null && claimMappings.length > 0) {
-                Set<ClaimMapping> claimMappingList = new HashSet<ClaimMapping>();
-                for (int i = 0; i < claimMappings.length; i++) {
-                    String claimMappingString = claimMappings[i];
-                    if (claimMappingString != null) {
-                        String[] splitClaimMapping = claimMappingString.split("-");
-                        if (splitClaimMapping != null && splitClaimMapping.length == 2) {
-                            String idPClaimURI = splitClaimMapping[0];
-                            String localClaimURI = splitClaimMapping[1];
+    private static ClaimConfig claimMappingFromUI(ClaimConfig claimConfiguration,
+            Map<String, String> paramMap) {
+        Set<ClaimMapping> claimMappingList = new HashSet<ClaimMapping>();
+        HashMap<String, String> advancedMapping = new HashMap<String, String>();
 
-                            ClaimMapping mapping = new ClaimMapping();
+        int mappedClaimCount = 0;
+        int advancedClaimCount = 0;
 
-                            Claim providerClaim = new Claim();
-                            providerClaim.setClaimUri(idPClaimURI);
+        if (paramMap.get("advanced_claim_id_count") != null) {
+            advancedClaimCount = Integer.parseInt(paramMap.get("advanced_claim_id_count"));
+        }
 
-                            Claim localClaim = new Claim();
-                            localClaim.setClaimUri(localClaimURI);
-
-                            mapping.setIdpClaim(providerClaim);
-                            mapping.setLocalClaim(localClaim);
-                            claimMappingList.add(mapping);
-                        }
-                    }
+        for (int i = 0; i < advancedClaimCount; i++) {
+            if (paramMap.get("advancnedIdpClaim_" + i) != null) {
+                if (paramMap.get("advancedDefault_" + i) != null) {
+                    advancedMapping.put(paramMap.get("advancnedIdpClaim_" + i),
+                            paramMap.get("advancedDefault_" + i));
+                } else { // if default valiu is not set. But still it is under advanced claim
+                         // mapping
+                    advancedMapping.put(paramMap.get("advancnedIdpClaim_" + i), "");
                 }
-
-                claimConfiguration.setClaimMappings(claimMappingList
-                        .toArray(new ClaimMapping[claimMappingList.size()]));
             }
         }
 
-        // String deleteClaimMapping = paramMap.get("deleteClaimMappings");
+        if (paramMap.get("claimrow_name_count") != null) {
+            mappedClaimCount = Integer.parseInt(paramMap.get("claimrow_name_count"));
+        }
 
-        fedIdp.setClaimConfiguration(claimConfiguration);
+        if (paramMap.get("choose_dialet_type_group").equals("choose_dialet_type1")) {
+            claimConfiguration.setLocalClaimDialect(true);
+            for (int i = 0; i < advancedClaimCount; i++) {
+                String idPClaimURI = paramMap.get("advancnedIdpClaim_" + i);
+                String defaultValue = paramMap.get("advancedDefault_" + i);
+                ClaimMapping mapping = new ClaimMapping();
+                Claim providerClaim = new Claim();
+                providerClaim.setClaimUri(idPClaimURI);
+                Claim localClaim = new Claim();
+                localClaim.setClaimUri(idPClaimURI);
+                mapping.setLocalClaim(localClaim);
+
+                if (defaultValue != null) {
+                    mapping.setDefaultValue(defaultValue);
+                } else {
+                    mapping.setDefaultValue("");
+                }
+
+                mapping.setRequested(true);
+                claimMappingList.add(mapping);
+            }
+
+        } else if (paramMap.get("choose_dialet_type_group").equals("choose_dialet_type2")) {
+            claimConfiguration.setLocalClaimDialect(false);
+            for (int i = 0; i < mappedClaimCount; i++) {
+                String idPClaimURI = paramMap.get("claimrowname_" + i);
+                if (idPClaimURI != null) {
+                    String localClaimURI = paramMap.get("claimrow_name_wso2_" + i);
+
+                    ClaimMapping mapping = new ClaimMapping();
+                    Claim providerClaim = new Claim();
+
+                    providerClaim.setClaimUri(idPClaimURI);
+
+                    Claim localClaim = new Claim();
+                    localClaim.setClaimUri(localClaimURI);
+
+                    mapping.setRemoteClaim(providerClaim);
+                    mapping.setLocalClaim(localClaim);
+
+                    if (advancedMapping.get(idPClaimURI) != null) {
+                        if (!advancedMapping.get(idPClaimURI).equals("")) {
+                            mapping.setDefaultValue(advancedMapping.get(idPClaimURI));
+                        }
+                        mapping.setRequested(true);
+                    }
+                    claimMappingList.add(mapping);
+
+                }
+
+            }
+        }
+
+        claimConfiguration.setClaimMappings(claimMappingList
+                .toArray(new ClaimMapping[claimMappingList.size()]));
+
+        return claimConfiguration;
+
+    }
+
+    private static void claimMappingFromFile(ClaimConfig claimConfiguration,
+            String claimMappingFromFile) {
+        String[] claimMappings;
+        claimMappings = claimMappingFromFile.replaceAll("\\s", "").split(",");
+
+        if (claimMappings != null && claimMappings.length > 0) {
+            Set<ClaimMapping> claimMappingList = new HashSet<ClaimMapping>();
+            for (int i = 0; i < claimMappings.length; i++) {
+                String claimMappingString = claimMappings[i];
+                if (claimMappingString != null) {
+                    String[] splitClaimMapping = claimMappingString.split("-");
+                    if (splitClaimMapping != null && splitClaimMapping.length == 2) {
+                        String idPClaimURI = splitClaimMapping[0];
+                        String localClaimURI = splitClaimMapping[1];
+
+                        ClaimMapping mapping = new ClaimMapping();
+
+                        Claim providerClaim = new Claim();
+                        providerClaim.setClaimUri(idPClaimURI);
+
+                        Claim localClaim = new Claim();
+                        localClaim.setClaimUri(localClaimURI);
+
+                        mapping.setRemoteClaim(providerClaim);
+                        mapping.setLocalClaim(localClaim);
+                        claimMappingList.add(mapping);
+                    }
+                }
+            }
+
+            claimConfiguration.setClaimMappings(claimMappingList
+                    .toArray(new ClaimMapping[claimMappingList.size()]));
+        }
     }
 
     /**
@@ -604,8 +829,7 @@ public class IdPManagementUIUtil {
      * @param fedIdp
      * @param paramMap
      */
-    private static void buildBasicInformation(FederatedIdentityProvider fedIdp,
-            Map<String, String> paramMap) {
+    private static void buildBasicInformation(IdentityProvider fedIdp, Map<String, String> paramMap) {
 
         String oldCertFile = null;
         String certFile = null;
@@ -614,11 +838,22 @@ public class IdPManagementUIUtil {
         // set identity provider name.
         fedIdp.setIdentityProviderName(paramMap.get("idPName"));
 
-        // if this primary - then - true
-        if ("on".equals(paramMap.get("primary"))) {
-            fedIdp.setPrimary(true);
+        // set identity provider display name.
+        fedIdp.setDisplayName(paramMap.get("idpDisplayName"));
+
+        if (paramMap.get("enable") != null && paramMap.get("enable").equals("1")) {
+            fedIdp.setEnable(true);
         } else {
-            fedIdp.setPrimary(false);
+            fedIdp.setEnable(false);
+        }
+
+        // set identity provider description.
+        fedIdp.setIdentityProviderDescription(paramMap.get("idPDescription"));
+
+        if ("on".equals(paramMap.get("federation_hub_idp"))) {
+            fedIdp.setFederationHub(true);
+        } else {
+            fedIdp.setFederationHub(false);
         }
 
         // set the home realm identifier of the identity provider.
@@ -656,9 +891,9 @@ public class IdPManagementUIUtil {
      * 
      * @param fedIdp
      * @param paramMap
-     * @throws IdentityProviderMgtException
+     * @throws IdentityApplicationManagementException
      */
-    private static void buildOutboundAuthenticationConfiguration(FederatedIdentityProvider fedIdp,
+    private static void buildOutboundAuthenticationConfiguration(IdentityProvider fedIdp,
             Map<String, String> paramMap) throws IdentityApplicationManagementException {
         // build OpenID authentication configuration.
         buildOpenIDAuthenticationConfiguration(fedIdp, paramMap);
@@ -681,41 +916,64 @@ public class IdPManagementUIUtil {
      * 
      * @param fedIdp
      * @param paramMap
-     * @throws IdentityProviderMgtException
+     * @throws IdentityApplicationManagementException
      */
-    private static void buildOpenIDAuthenticationConfiguration(FederatedIdentityProvider fedIdp,
+    private static void buildOpenIDAuthenticationConfiguration(IdentityProvider fedIdp,
             Map<String, String> paramMap) throws IdentityApplicationManagementException {
 
-        OpenIDFederatedAuthenticator openidAuthenticator = new OpenIDFederatedAuthenticator();
-        openidAuthenticator.setName("openid");
+        FederatedAuthenticatorConfig openIdAuthnConfig = new FederatedAuthenticatorConfig();
+        openIdAuthnConfig.setName("OpenIDAuthenticator");
+        openIdAuthnConfig.setDisplayName("openid");
 
         if ("on".equals(paramMap.get("openIdEnabled"))) {
-            openidAuthenticator.setEnabled(true);
+            openIdAuthnConfig.setEnabled(true);
         }
 
         if ("on".equals(paramMap.get("openIdDefault"))) {
-            fedIdp.setDefaultAuthenticator(openidAuthenticator);
-            ;
+            fedIdp.setDefaultAuthenticatorConfig(openIdAuthnConfig);
         }
 
-        if ("1".equals(paramMap.get("open_id_user_id_location"))) {
-            openidAuthenticator.setUsetIdInClaim(true);
+        Property[] properties = new Property[4];
+
+        Property property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.OpenID.OPEN_ID_URL);
+        property.setValue(paramMap.get("openIdUrl"));
+        properties[0] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.OpenID.REALM_ID);
+        property.setValue(paramMap.get("realmId"));
+        properties[1] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.OpenID.IS_USER_ID_IN_CLAIMS);
+        if ("on".equals(paramMap.get("open_id_user_id_location"))) {
+            property.setValue("true");
         } else {
-            openidAuthenticator.setUsetIdInClaim(false);
+            property.setValue("false");
+        }
+        properties[2] = property;
+
+        property = new Property();
+        property.setName("commonAuthQueryParams");
+
+        if (paramMap.get("openidQueryParam") != null
+                && paramMap.get("openidQueryParam").trim().length() > 0) {
+            property.setValue(paramMap.get("openidQueryParam"));
         }
 
-        openidAuthenticator.setOpenIDServerUrl(paramMap.get("openIdUrl"));
-        openidAuthenticator.setOpenIDRealm(paramMap.get("realmId"));
+        properties[3] = property;
 
-        FederatedAuthenticator[] authenticators = fedIdp.getFederatedAuthenticators();
+        openIdAuthnConfig.setProperties(properties);
 
-        if (openidAuthenticator.getOpenIDServerUrl() != null) {
+        FederatedAuthenticatorConfig[] authenticators = fedIdp.getFederatedAuthenticatorConfigs();
+        if (paramMap.get("openIdUrl") != null && !"".equals(paramMap.get("openIdUrl"))) {
             // openIdUrl is mandatory for out-bound openid configuration.
             if (authenticators == null || authenticators.length == 0) {
-                fedIdp.setFederatedAuthenticators(new FederatedAuthenticator[] { openidAuthenticator });
+                fedIdp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[] { openIdAuthnConfig });
             } else {
-                fedIdp.setFederatedAuthenticators(concatArrays(
-                        new FederatedAuthenticator[] { openidAuthenticator }, authenticators));
+                fedIdp.setFederatedAuthenticatorConfigs(concatArrays(
+                        new FederatedAuthenticatorConfig[] { openIdAuthnConfig }, authenticators));
             }
         }
     }
@@ -724,41 +982,48 @@ public class IdPManagementUIUtil {
      * 
      * @param fedIdp
      * @param paramMap
-     * @throws IdentityProviderMgtException
+     * @throws IdentityApplicationManagementException
      */
-    private static void buildFacebookAuthenticationConfiguration(FederatedIdentityProvider fedIdp,
+    private static void buildFacebookAuthenticationConfiguration(IdentityProvider fedIdp,
             Map<String, String> paramMap) throws IdentityApplicationManagementException {
 
-        FacebookFederatedAuthenticator facebookAuthenticator = new FacebookFederatedAuthenticator();
-        facebookAuthenticator.setName("facebook");
+        FederatedAuthenticatorConfig facebookAuthnConfig = new FederatedAuthenticatorConfig();
+        facebookAuthnConfig.setName("FacebookAuthenticator");
+        facebookAuthnConfig.setDisplayName("facebook");
 
         if ("on".equals(paramMap.get("fbAuthEnabled"))) {
-            facebookAuthenticator.setEnabled(true);
+            facebookAuthnConfig.setEnabled(true);
         }
 
         if ("on".equals(paramMap.get("fbAuthDefault"))) {
-            fedIdp.setDefaultAuthenticator(facebookAuthenticator);
+            fedIdp.setDefaultAuthenticatorConfig(facebookAuthnConfig);
         }
 
-        facebookAuthenticator.setClientId(paramMap.get("fbClientId"));
-        facebookAuthenticator.setClientSecret(paramMap.get("fbClientSecret"));
+        Property[] properties = new Property[2];
+        Property property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.Facebook.CLIENT_ID);
+        property.setValue(paramMap.get("fbClientId"));
+        properties[0] = property;
 
-        if ("on".equals(paramMap.get("fbUserIdInClaims"))) {
-            facebookAuthenticator.setUsetIdInClaim(true);
-        } else {
-            facebookAuthenticator.setUsetIdInClaim(false);
-        }
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.Facebook.CLIENT_SECRET);
+        property.setValue(paramMap.get("fbClientSecret"));
+        property.setConfidential(true);
+        properties[1] = property;
 
-        FederatedAuthenticator[] authenticators = fedIdp.getFederatedAuthenticators();
+        facebookAuthnConfig.setProperties(properties);
 
-        if (facebookAuthenticator.getClientId() != null
-                && facebookAuthenticator.getClientSecret() != null) {
+        FederatedAuthenticatorConfig[] authenticators = fedIdp.getFederatedAuthenticatorConfigs();
+
+        if (paramMap.get("fbClientId") != null && !"".equals(paramMap.get("fbClientId"))
+                && paramMap.get("fbClientSecret") != null
+                && !"".equals(paramMap.get("fbClientSecret"))) {
             // facebook authenticator cannot exist without client id and client secret.
             if (authenticators == null || authenticators.length == 0) {
-                fedIdp.setFederatedAuthenticators(new FederatedAuthenticator[] { facebookAuthenticator });
+                fedIdp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[] { facebookAuthnConfig });
             } else {
-                fedIdp.setFederatedAuthenticators(concatArrays(
-                        new FederatedAuthenticator[] { facebookAuthenticator }, authenticators));
+                fedIdp.setFederatedAuthenticatorConfigs(concatArrays(
+                        new FederatedAuthenticatorConfig[] { facebookAuthnConfig }, authenticators));
             }
         }
     }
@@ -767,46 +1032,76 @@ public class IdPManagementUIUtil {
      * 
      * @param fedIdp
      * @param paramMap
-     * @throws IdentityProviderMgtException
+     * @throws IdentityApplicationManagementException
      */
-    private static void buildOpenIDConnectAuthenticationConfiguration(
-            FederatedIdentityProvider fedIdp, Map<String, String> paramMap)
-            throws IdentityApplicationManagementException {
+    private static void buildOpenIDConnectAuthenticationConfiguration(IdentityProvider fedIdp,
+            Map<String, String> paramMap) throws IdentityApplicationManagementException {
 
-        OpenIDConnectFederatedAuthenticator oidcAuthenticator = new OpenIDConnectFederatedAuthenticator();
-        oidcAuthenticator.setName("openidconnect");
+        FederatedAuthenticatorConfig oidcAuthnConfig = new FederatedAuthenticatorConfig();
+        oidcAuthnConfig.setName("OpenIDConnectAuthenticator");
+        oidcAuthnConfig.setDisplayName("openidconnect");
 
         if ("on".equals(paramMap.get("oidcEnabled"))) {
-            oidcAuthenticator.setEnabled(true);
+            oidcAuthnConfig.setEnabled(true);
         }
 
         if ("on".equals(paramMap.get("oidcDefault"))) {
-            fedIdp.setDefaultAuthenticator(oidcAuthenticator);
+            fedIdp.setDefaultAuthenticatorConfig(oidcAuthnConfig);
         }
 
-        oidcAuthenticator.setAuthzEndpointUrl(paramMap.get("authzUrl"));
-        oidcAuthenticator.setTokenEndpointUrl(paramMap.get("tokenUrl"));
-        oidcAuthenticator.setClientId(paramMap.get("clientId"));
-        oidcAuthenticator.setClientSecret(paramMap.get("clientSecret"));
+        Property[] properties = new Property[6];
+        Property property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.Facebook.CLIENT_ID);
+        property.setValue(paramMap.get("clientId"));
+        properties[0] = property;
 
-        if ("1".equals(paramMap.get("oidc_user_id_location"))) {
-            oidcAuthenticator.setUsetIdInClaim(true);
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_AUTHZ_URL);
+        property.setValue(paramMap.get("authzUrl"));
+        properties[1] = property;
 
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_TOKEN_URL);
+        property.setValue(paramMap.get("tokenUrl"));
+        properties[2] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.OIDC.CLIENT_SECRET);
+        property.setValue(paramMap.get("clientSecret"));
+        property.setConfidential(true);
+        properties[3] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.OIDC.IS_USER_ID_IN_CLAIMS);
+        properties[4] = property;
+        if ("on".equals(paramMap.get("oidc_user_id_location"))) {
+            property.setValue("true");
+            ;
         } else {
-            oidcAuthenticator.setUsetIdInClaim(true);
+            property.setValue("false");
         }
 
-        FederatedAuthenticator[] authenticators = fedIdp.getFederatedAuthenticators();
+        property = new Property();
+        property.setName("commonAuthQueryParams");
 
-        if (oidcAuthenticator.getAuthzEndpointUrl() != null
-                && oidcAuthenticator.getTokenEndpointUrl() != null
-                && oidcAuthenticator.getClientId() != null
-                && oidcAuthenticator.getClientSecret() != null) {
+        if (paramMap.get("oidcQueryParam") != null
+                && paramMap.get("oidcQueryParam").trim().length() > 0) {
+            property.setValue(paramMap.get("oidcQueryParam"));
+        }
+        properties[5] = property;
+
+        oidcAuthnConfig.setProperties(properties);
+        FederatedAuthenticatorConfig[] authenticators = fedIdp.getFederatedAuthenticatorConfigs();
+
+        if (paramMap.get("authzUrl") != null && !"".equals(paramMap.get("authzUrl"))
+                && paramMap.get("tokenUrl") != null && !"".equals(paramMap.get("tokenUrl"))
+                && paramMap.get("clientId") != null && !"".equals(paramMap.get("clientId"))
+                && paramMap.get("clientSecret") != null && !"".equals(paramMap.get("clientSecret"))) {
             if (authenticators == null || authenticators.length == 0) {
-                fedIdp.setFederatedAuthenticators(new FederatedAuthenticator[] { oidcAuthenticator });
+                fedIdp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[] { oidcAuthnConfig });
             } else {
-                fedIdp.setFederatedAuthenticators(concatArrays(
-                        new FederatedAuthenticator[] { oidcAuthenticator }, authenticators));
+                fedIdp.setFederatedAuthenticatorConfigs(concatArrays(
+                        new FederatedAuthenticatorConfig[] { oidcAuthnConfig }, authenticators));
             }
         }
     }
@@ -815,41 +1110,107 @@ public class IdPManagementUIUtil {
      * 
      * @param fedIdp
      * @param paramMap
-     * @throws IdentityProviderMgtException
+     * @throws IdentityApplicationManagementException
      */
-    private static void buildPassiveSTSAuthenticationConfiguration(
-            FederatedIdentityProvider fedIdp, Map<String, String> paramMap)
-            throws IdentityApplicationManagementException {
+    private static void buildPassiveSTSAuthenticationConfiguration(IdentityProvider fedIdp,
+            Map<String, String> paramMap) throws IdentityApplicationManagementException {
 
-        PassiveSTSFederatedAuthenticator passiveSTS = new PassiveSTSFederatedAuthenticator();
-        passiveSTS.setName("passivests");
+        FederatedAuthenticatorConfig passiveSTSAuthnConfig = new FederatedAuthenticatorConfig();
+        passiveSTSAuthnConfig.setName("PassiveSTSAuthenticator");
+        passiveSTSAuthnConfig.setDisplayName("passivests");
 
         if ("on".equals(paramMap.get("passiveSTSEnabled"))) {
-            passiveSTS.setEnabled(true);
+            passiveSTSAuthnConfig.setEnabled(true);
         }
 
         if ("on".equals(paramMap.get("passiveSTSDefault"))) {
-            fedIdp.setDefaultAuthenticator(passiveSTS);
+            fedIdp.setDefaultAuthenticatorConfig(passiveSTSAuthnConfig);
         }
 
-        passiveSTS.setPassiveSTSRealm(paramMap.get("passiveSTSRealm"));
+        Property[] properties = new Property[4];
+        Property property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.PassiveSTS.REALM_ID);
+        property.setValue(paramMap.get("passiveSTSRealm"));
+        properties[0] = property;
 
-        passiveSTS.setPassiveSTSUrl(paramMap.get("passiveSTSUrl"));
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.PassiveSTS.PASSIVE_STS_URL);
+        property.setValue(paramMap.get("passiveSTSUrl"));
+        properties[1] = property;
 
-        if ("1".equals(paramMap.get("passive_sts_user_id_location"))) {
-            passiveSTS.setUsetIdInClaim(true);
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.OIDC.IS_USER_ID_IN_CLAIMS);
+        properties[2] = property;
+        if ("on".equals(paramMap.get("passive_sts_user_id_location"))) {
+            property.setValue("true");
+            ;
         } else {
-            passiveSTS.setUsetIdInClaim(true);
+            property.setValue("false");
         }
 
-        FederatedAuthenticator[] authenticators = fedIdp.getFederatedAuthenticators();
+        property = new Property();
+        property.setName("commonAuthQueryParams");
 
-        if (passiveSTS.getPassiveSTSRealm() != null && passiveSTS.getPassiveSTSUrl() != null) {
+        if (paramMap.get("passiveSTSQueryParam") != null
+                && paramMap.get("passiveSTSQueryParam").trim().length() > 0) {
+            property.setValue(paramMap.get("passiveSTSQueryParam"));
+        }
+        properties[3] = property;
+
+        passiveSTSAuthnConfig.setProperties(properties);
+
+        FederatedAuthenticatorConfig[] authenticators = fedIdp.getFederatedAuthenticatorConfigs();
+
+        if (paramMap.get("passiveSTSUrl") != null && !"".equals(paramMap.get("passiveSTSUrl"))) {
             if (authenticators == null || authenticators.length == 0) {
-                fedIdp.setFederatedAuthenticators(new FederatedAuthenticator[] { passiveSTS });
+                fedIdp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[] { passiveSTSAuthnConfig });
             } else {
-                fedIdp.setFederatedAuthenticators(concatArrays(
-                        new FederatedAuthenticator[] { passiveSTS }, authenticators));
+                fedIdp.setFederatedAuthenticatorConfigs(concatArrays(
+                        new FederatedAuthenticatorConfig[] { passiveSTSAuthnConfig },
+                        authenticators));
+            }
+        }
+
+    }
+
+    private static void buildCustomProvisioningConfiguration(IdentityProvider fedIdp,
+            List<String> proConnectorNames, Map<String, List<Property>> customProProperties,
+            Map<String, String> paramMap) throws IdentityApplicationManagementException {
+
+        if (proConnectorNames != null && proConnectorNames.size() > 0) {
+
+            ProvisioningConnectorConfig[] proConfigConnList = new ProvisioningConnectorConfig[proConnectorNames
+                    .size()];
+            int j = 0;
+            for (String conName : proConnectorNames) {
+                ProvisioningConnectorConfig customConfig = new ProvisioningConnectorConfig();
+                customConfig.setName(conName);
+
+                if ("on".equals(paramMap.get(conName + "_PEnabled"))) {
+                    customConfig.setEnabled(true);
+                }
+
+                if ("on".equals(paramMap.get(conName + "_Default"))) {
+                    fedIdp.setDefaultProvisioningConnectorConfig(customConfig);
+                }
+
+                List<Property> customProps = customProProperties.get(conName);
+
+                if (customProps != null && customProps.size() > 0) {
+                    customConfig.setProvisioningProperties(customProps
+                            .toArray(new Property[customProps.size()]));
+                }
+
+                proConfigConnList[j++] = customConfig;
+            }
+
+            ProvisioningConnectorConfig[] provConnectors = fedIdp.getProvisioningConnectorConfigs();
+
+            if (provConnectors == null || provConnectors.length == 0) {
+                fedIdp.setProvisioningConnectorConfigs(proConfigConnList);
+            } else {
+                fedIdp.setProvisioningConnectorConfigs(concatArrays(proConfigConnList,
+                        provConnectors));
             }
         }
 
@@ -859,66 +1220,181 @@ public class IdPManagementUIUtil {
      * 
      * @param fedIdp
      * @param paramMap
-     * @throws IdentityProviderMgtException
+     * @throws IdentityApplicationManagementException
      */
-    private static void buildSAMLAuthenticationConfiguration(FederatedIdentityProvider fedIdp,
+    private static void buildCustomAuthenticationConfiguration(IdentityProvider fedIdp,
+            List<String> authenticatorNames,
+            Map<String, List<Property>> customAuthenticatorProperties, Map<String, String> paramMap)
+            throws IdentityApplicationManagementException {
+
+        if (authenticatorNames != null && authenticatorNames.size() > 0) {
+
+            FederatedAuthenticatorConfig[] fedAuthConfigList = new FederatedAuthenticatorConfig[authenticatorNames
+                    .size()];
+            int j = 0;
+            for (String authName : authenticatorNames) {
+                FederatedAuthenticatorConfig customConfig = new FederatedAuthenticatorConfig();
+                customConfig.setName(authName);
+
+                if ("on".equals(paramMap.get(authName + "_Enabled"))) {
+                    customConfig.setEnabled(true);
+                }
+
+                if ("on".equals(paramMap.get(authName + "_Default"))) {
+                    fedIdp.setDefaultAuthenticatorConfig(customConfig);
+                }
+
+                customConfig.setDisplayName(paramMap.get(authName + "_DisplayName"));
+
+                List<Property> customProps = customAuthenticatorProperties.get(authName);
+
+                if (customProps != null && customProps.size() > 0) {
+                    customConfig
+                            .setProperties(customProps.toArray(new Property[customProps.size()]));
+                }
+
+                fedAuthConfigList[j++] = customConfig;
+            }
+
+            FederatedAuthenticatorConfig[] authenticators = fedIdp
+                    .getFederatedAuthenticatorConfigs();
+
+            if (authenticators == null || authenticators.length == 0) {
+                fedIdp.setFederatedAuthenticatorConfigs(fedAuthConfigList);
+            } else {
+                fedIdp.setFederatedAuthenticatorConfigs(concatArrays(fedAuthConfigList,
+                        authenticators));
+            }
+        }
+
+    }
+
+    /**
+     * 
+     * @param fedIdp
+     * @param paramMap
+     * @throws IdentityApplicationManagementException
+     */
+    private static void buildSAMLAuthenticationConfiguration(IdentityProvider fedIdp,
             Map<String, String> paramMap) throws IdentityApplicationManagementException {
 
-        SAMLFederatedAuthenticator samlAuthenticator = new SAMLFederatedAuthenticator();
-        samlAuthenticator.setName("samlsso");
+        FederatedAuthenticatorConfig saml2SSOAuthnConfig = new FederatedAuthenticatorConfig();
+        saml2SSOAuthnConfig.setName("SAMLSSOAuthenticator");
+        saml2SSOAuthnConfig.setDisplayName("samlsso");
 
         if ("on".equals(paramMap.get("saml2SSOEnabled"))) {
-            samlAuthenticator.setEnabled(true);
+            saml2SSOAuthnConfig.setEnabled(true);
         }
 
         if ("on".equals(paramMap.get("saml2SSODefault"))) {
-            fedIdp.setDefaultAuthenticator(samlAuthenticator);
+            fedIdp.setDefaultAuthenticatorConfig(saml2SSOAuthnConfig);
         }
 
+        Property[] properties = new Property[12];
+        Property property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
+        property.setValue(paramMap.get("idPEntityId"));
+        properties[0] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.SP_ENTITY_ID);
+        property.setValue(paramMap.get("spEntityId"));
+        properties[1] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL);
+        property.setValue(paramMap.get("ssoUrl"));
+        properties[2] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_REQ_SIGNED);
         if ("on".equals(paramMap.get("authnRequestSigned"))) {
-            samlAuthenticator.setAuthnRequestSigned(true);
+            property.setValue("true");
         } else {
-            samlAuthenticator.setAuthnRequestSigned(false);
+            property.setValue("false");
         }
+        properties[3] = property;
 
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_LOGOUT_ENABLED);
         if ("on".equals(paramMap.get("sloEnabled"))) {
-            samlAuthenticator.setLogoutEnabled(true);
+            property.setValue("true");
         } else {
-            samlAuthenticator.setLogoutEnabled(false);
+            property.setValue("false");
         }
+        properties[4] = property;
 
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.LOGOUT_REQ_URL);
+        property.setValue(paramMap.get("logoutUrl"));
+        properties[5] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_LOGOUT_REQ_SIGNED);
         if ("on".equals(paramMap.get("logoutRequestSigned"))) {
-            samlAuthenticator.setLogoutRequestSigned(true);
+            property.setValue("true");
         } else {
-            samlAuthenticator.setLogoutRequestSigned(false);
+            property.setValue("false");
         }
+        properties[6] = property;
 
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_RESP_SIGNED);
         if ("on".equals(paramMap.get("authnResponseSigned"))) {
-            samlAuthenticator.setAuthnResponseSigned(true);
+            property.setValue("true");
         } else {
-            samlAuthenticator.setAuthnResponseSigned(false);
+            property.setValue("false");
+        }
+        properties[7] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_USER_ID_IN_CLAIMS);
+        if ("on".equals(paramMap.get("saml2_sso_user_id_location"))) {
+            property.setValue("true");
+        } else {
+            property.setValue("false");
+        }
+        properties[8] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_ENABLE_ASSERTION_ENCRYPTION);
+        if ("on".equals(paramMap.get("IsEnableAssetionEncription"))) {
+            property.setValue("true");
+        } else {
+            property.setValue("false");
+        }
+        properties[9] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_ENABLE_ASSERTION_SIGNING);
+        if ("on".equals(paramMap.get("isEnableAssertionSigning"))) {
+            property.setValue("true");
+        } else {
+            property.setValue("false");
+        }
+        properties[10] = property;
+
+        property = new Property();
+        property.setName("commonAuthQueryParams");
+
+        if (paramMap.get("samlQueryParam") != null
+                && paramMap.get("samlQueryParam").trim().length() > 0) {
+            property.setValue(paramMap.get("samlQueryParam"));
         }
 
-        if ("1".equals(paramMap.get("saml2_sso_user_id_location"))) {
-            samlAuthenticator.setUsetIdInClaim(true);
-        } else {
-            samlAuthenticator.setUsetIdInClaim(false);
-        }
+        properties[11] = property;
 
-        samlAuthenticator.setIdpEntityId(paramMap.get("idPEntityId"));
-        samlAuthenticator.setSpEntityId(paramMap.get("spEntityId"));
-        samlAuthenticator.setSaml2SSOUrl(paramMap.get("ssoUrl"));
-        samlAuthenticator.setLogoutRequestUrl(paramMap.get("logoutUrl"));
+        saml2SSOAuthnConfig.setProperties(properties);
 
-        FederatedAuthenticator[] authenticators = fedIdp.getFederatedAuthenticators();
+        FederatedAuthenticatorConfig[] authenticators = fedIdp.getFederatedAuthenticatorConfigs();
 
-        if (samlAuthenticator.getSaml2SSOUrl() != null && samlAuthenticator.getSpEntityId() != null
-                && samlAuthenticator.getIdpEntityId() != null) {
+        if (paramMap.get("ssoUrl") != null && !"".equals(paramMap.get("ssoUrl"))
+                && paramMap.get("idPEntityId") != null && !"".equals(paramMap.get("idPEntityId"))) {
             if (authenticators == null || authenticators.length == 0) {
-                fedIdp.setFederatedAuthenticators(new FederatedAuthenticator[] { samlAuthenticator });
+                fedIdp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[] { saml2SSOAuthnConfig });
             } else {
-                fedIdp.setFederatedAuthenticators(concatArrays(
-                        new FederatedAuthenticator[] { samlAuthenticator }, authenticators));
+                fedIdp.setFederatedAuthenticatorConfigs(concatArrays(
+                        new FederatedAuthenticatorConfig[] { saml2SSOAuthnConfig }, authenticators));
             }
         }
     }
@@ -929,66 +1405,59 @@ public class IdPManagementUIUtil {
      * @param paramMap
      * @param idpRoles
      * @param currentRoleMapping
-     * @throws IdentityProviderMgtException
+     * @throws IdentityApplicationManagementException
      */
-    private static void buildRoleConfiguration(FederatedIdentityProvider fedIdp,
+
+    private static void buildRoleConfiguration(IdentityProvider fedIdp,
             Map<String, String> paramMap, List<String> idpRoles, RoleMapping[] currentRoleMapping)
             throws IdentityApplicationManagementException {
 
-        PermissionsAndRoleConfiguration roleConfiguration = new PermissionsAndRoleConfiguration();
+        PermissionsAndRoleConfig roleConfiguration = new PermissionsAndRoleConfig();
 
         roleConfiguration.setIdpRoles(idpRoles.toArray(new String[idpRoles.size()]));
 
-        String roleMappingFromFile = paramMap.get("roleMappingFile");
+        Set<RoleMapping> roleMappingList = new HashSet<RoleMapping>();
+        String idpProvisioningRole = paramMap.get("idpProvisioningRole");
+        fedIdp.setProvisioningRole(idpProvisioningRole);
 
-        if (roleMappingFromFile != null) {
-            String[] roleMappings;
-            roleMappings = roleMappingFromFile.replaceAll("\\s", "").split(",");
+        int attributesCount = 0;
 
-            if (roleMappings != null && roleMappings.length > 0) {
-                Set<RoleMapping> roleMappingList = new HashSet<RoleMapping>();
-                for (int i = 0; i < roleMappings.length; i++) {
-                    String roleMappingString = roleMappings[i];
-                    String[] splitRoleMapping = roleMappingString.split(":");
-                    if (splitRoleMapping != null && splitRoleMapping.length == 2) {
-                        String idPRoleName = splitRoleMapping[0];
-                        String localRoleString = splitRoleMapping[1];
-                        String[] splitLocalRole = localRoleString.split("/");
-                        String userStoreId = null;
-                        String localRoleName = null;
-                        LocalRole localRole = null;
-                        if (splitLocalRole != null && splitLocalRole.length == 2) {
-                            userStoreId = splitLocalRole[0];
-                            localRoleName = splitLocalRole[1];
-                            localRole = new LocalRole();
-                            localRole.setUserStoreId(userStoreId);
-                            localRole.setLocalRoleName(localRoleName);
-                        } else {
-                            localRoleName = localRoleString;
-                            localRole = new LocalRole();
-                            localRole.setLocalRoleName(localRoleName);
-                        }
+        if (paramMap.get("rolemappingrow_name_count") != null) {
+            attributesCount = Integer.parseInt(paramMap.get("rolemappingrow_name_count"));
+        }
 
-                        RoleMapping roleMapping = new RoleMapping();
-                        roleMapping.setLocalRole(localRole);
-                        roleMapping.setRemoteRole(idPRoleName);
-
-                        roleMappingList.add(roleMapping);
-                    }
+        for (int i = 0; i < attributesCount; i++) {
+            String idPRoleName = paramMap.get("rolerowname_" + i);
+            String localRoleString = paramMap.get("localrowname_" + i);
+            if (idPRoleName != null && localRoleString != null) {
+                String[] splitLocalRole = localRoleString.split("/");
+                String userStoreId = null;
+                String localRoleName = null;
+                LocalRole localRole = null;
+                if (splitLocalRole != null && splitLocalRole.length == 2) {
+                    userStoreId = splitLocalRole[0];
+                    localRoleName = splitLocalRole[1];
+                    localRole = new LocalRole();
+                    localRole.setUserStoreId(userStoreId);
+                    localRole.setLocalRoleName(localRoleName);
+                } else {
+                    localRoleName = localRoleString;
+                    localRole = new LocalRole();
+                    localRole.setLocalRoleName(localRoleName);
                 }
-                roleConfiguration.setRoleMappings(roleMappingList
-                        .toArray(new RoleMapping[roleMappingList.size()]));
+
+                RoleMapping roleMapping = new RoleMapping();
+                roleMapping.setLocalRole(localRole);
+                roleMapping.setRemoteRole(idPRoleName);
+
+                roleMappingList.add(roleMapping);
             }
         }
 
-        String deleteRoleMapping = paramMap.get("deleteRoleMappings");
+        roleConfiguration.setRoleMappings(roleMappingList.toArray(new RoleMapping[roleMappingList
+                .size()]));
 
-        if (currentRoleMapping != null && fedIdp.getPermissionAndRoleConfiguration() == null
-                && (deleteRoleMapping == null || "false".equals(deleteRoleMapping))) {
-            roleConfiguration.setRoleMappings(currentRoleMapping);
-        }
-
-        fedIdp.setPermissionAndRoleConfiguration(roleConfiguration);
+        fedIdp.setPermissionAndRoleConfig(roleConfiguration);
 
     }
 
@@ -996,13 +1465,13 @@ public class IdPManagementUIUtil {
      * 
      * @param fedIdp
      * @param paramMap
-     * @throws IdentityProviderMgtException
+     * @throws IdentityApplicationManagementException
      */
-    private static void buildInboundProvisioningConfiguration(FederatedIdentityProvider fedIdp,
+    private static void buildInboundProvisioningConfiguration(IdentityProvider fedIdp,
             Map<String, String> paramMap) throws IdentityApplicationManagementException {
 
         String provisioning = paramMap.get("provisioning");
-        JustInTimeProvisioningConfiguration jitProvisioningConfiguration = new JustInTimeProvisioningConfiguration();
+        JustInTimeProvisioningConfig jitProvisioningConfiguration = new JustInTimeProvisioningConfig();
 
         if ("provision_disabled".equals(provisioning)) {
             jitProvisioningConfiguration.setProvisioningEnabled(false);
@@ -1021,7 +1490,7 @@ public class IdPManagementUIUtil {
             }
         }
 
-        fedIdp.setJustInTimeProvisioningConfiguration(jitProvisioningConfiguration);
+        fedIdp.setJustInTimeProvisioningConfig(jitProvisioningConfiguration);
 
     }
 
@@ -1031,9 +1500,9 @@ public class IdPManagementUIUtil {
      * @param o2
      * @return
      */
-    private static ProvisioningConnector[] concatArrays(ProvisioningConnector[] o1,
-            ProvisioningConnector[] o2) {
-        ProvisioningConnector[] ret = new ProvisioningConnector[o1.length + o2.length];
+    private static ProvisioningConnectorConfig[] concatArrays(ProvisioningConnectorConfig[] o1,
+            ProvisioningConnectorConfig[] o2) {
+        ProvisioningConnectorConfig[] ret = new ProvisioningConnectorConfig[o1.length + o2.length];
 
         System.arraycopy(o1, 0, ret, 0, o1.length);
         System.arraycopy(o2, 0, ret, o1.length, o2.length);
@@ -1047,13 +1516,37 @@ public class IdPManagementUIUtil {
      * @param o2
      * @return
      */
-    private static FederatedAuthenticator[] concatArrays(FederatedAuthenticator[] o1,
-            FederatedAuthenticator[] o2) {
-        FederatedAuthenticator[] ret = new FederatedAuthenticator[o1.length + o2.length];
+    private static FederatedAuthenticatorConfig[] concatArrays(FederatedAuthenticatorConfig[] o1,
+            FederatedAuthenticatorConfig[] o2) {
+        FederatedAuthenticatorConfig[] ret = new FederatedAuthenticatorConfig[o1.length + o2.length];
 
         System.arraycopy(o1, 0, ret, 0, o1.length);
         System.arraycopy(o2, 0, ret, o1.length, o2.length);
 
         return ret;
+    }
+
+    public static org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig getFederatedAuthenticator(
+            org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig[] federatedAuthenticators,
+            String authenticatorName) {
+
+        for (FederatedAuthenticatorConfig authenticator : federatedAuthenticators) {
+            if (authenticator.getName().equals(authenticatorName)) {
+                return authenticator;
+            }
+        }
+        return null;
+    }
+
+    public static org.wso2.carbon.identity.application.common.model.idp.xsd.Property getProperty(
+            org.wso2.carbon.identity.application.common.model.idp.xsd.Property[] properties,
+            String propertyName) {
+
+        for (org.wso2.carbon.identity.application.common.model.idp.xsd.Property property : properties) {
+            if (property.getName().equals(propertyName)) {
+                return property;
+            }
+        }
+        return null;
     }
 }

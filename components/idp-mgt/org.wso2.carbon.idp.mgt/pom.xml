@@ -1,5 +1,5 @@
 <!--
-# Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+# Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
     <artifactId>org.wso2.carbon.idp.mgt</artifactId>
     <version>4.3.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>WSO2 Carbon - Tenant Identity Provider Management</name>
+    <name>WSO2 Carbon - Identity Provider Management Bundle</name>
 
     <dependencies>
         <dependency>
@@ -95,6 +95,7 @@
                             org.wso2.carbon.idp.mgt.*,
                             org.wso2.carbon.idp.mgt.dto.*,
                             org.wso2.carbon.idp.mgt.util.*
+                            org.wso2.carbon.idp.mgt.listener.*
                         </Export-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
