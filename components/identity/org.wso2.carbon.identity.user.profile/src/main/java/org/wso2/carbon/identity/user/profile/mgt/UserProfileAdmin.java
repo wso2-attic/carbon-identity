@@ -22,8 +22,10 @@ import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonException;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.base.IdentityConstants;
+import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserCoreConstants;
@@ -34,18 +36,32 @@ import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.profile.ProfileConfiguration;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
+import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ServerConstants;
+import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
+import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class UserProfileAdmin extends AbstractAdmin {
 
     private static Log log = LogFactory.getLog(UserProfileAdmin.class);
-    
+    private static UserProfileAdmin userProfileAdmin= new  UserProfileAdmin();
+
+    public static UserProfileAdmin getInstance(){
+        return userProfileAdmin;
+    }
+
     public boolean isReadOnlyUserStore() throws UserProfileException {
         try {
             UserRealm realm = getUserRealm();
@@ -538,4 +554,155 @@ public class UserProfileAdmin extends AbstractAdmin {
 
         return profileNames;
     }
+
+    public void associateID(String idpID, String associatedID) throws UserProfileException{
+
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet;
+        String sql = null;
+        int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        String userName =  CarbonContext.getThreadLocalCarbonContext().getUsername();
+
+        try {
+        connection = JDBCPersistenceManager.getInstance().getDBConnection();
+            sql = "INSERT INTO IDN_ASSOCIATED_ID (TENANT_ID, IDP_ID, IDP_USER_ID, USER_NAME) VALUES (?,?,?,?) ";
+            prepStmt = connection.prepareStatement(sql);
+            prepStmt.setInt(1, tenantID);
+            prepStmt.setString(2, idpID);
+            prepStmt.setString(3, associatedID);
+            prepStmt.setString(4, userName);
+
+            prepStmt.execute();
+            connection.commit();
+        } catch (IdentityException e) {
+            String errorMsg = "Error when getting an Identity Persistence Store instance.";
+            log.error(errorMsg, e);
+            throw new UserProfileException(errorMsg, e);
+        } catch (SQLException e) {
+        log.error("Error when executing the SQL : " + sql);
+        log.error(e.getMessage(), e);
+        }finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+
+    }
+
+    public String getNameAssociatedWith(String idpID, String associatedID) throws UserProfileException{
+
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet;
+        String sql = null;
+        String username = "";
+        int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+
+        try {
+            connection = JDBCPersistenceManager.getInstance().getDBConnection();
+               sql = "SELECT USER_NAME FROM IDN_ASSOCIATED_ID WHERE TENANT_ID = ? AND IDP_ID = ? And IDP_USER_ID = ? ";
+            prepStmt = connection.prepareStatement(sql);
+            prepStmt.setInt(1, tenantID);
+            prepStmt.setString(2, idpID);
+            prepStmt.setString(3, associatedID);
+
+            resultSet = prepStmt.executeQuery();
+            if (resultSet.next()) {
+                username = resultSet.getString(1);
+                return username;
+            }
+
+        } catch (IdentityException e) {
+            String errorMsg = "Error when getting an Identity Persistence Store instance.";
+            log.error(errorMsg, e);
+            throw new UserProfileException(errorMsg, e);
+        } catch (SQLException e) {
+            log.error("Error when executing the SQL : " + sql);
+            log.error(e.getMessage(), e);
+        }finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+        return null;
+    }
+
+    public String[] getAssociatedIDs(String userName) throws UserProfileException{
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet;
+        String sql = null;
+        userName = MultitenantUtils.getTenantAwareUsername(userName);
+        List<String> associatedIDs = new ArrayList<String>();
+        int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+
+        try {
+            connection = JDBCPersistenceManager.getInstance().getDBConnection();
+            sql = "SELECT IDP_ID, IDP_USER_ID FROM IDN_ASSOCIATED_ID WHERE TENANT_ID = ? AND USER_NAME = ?  ";
+            prepStmt = connection.prepareStatement(sql);
+            prepStmt.setInt(1, tenantID);
+            prepStmt.setString(2, userName);
+
+            resultSet = prepStmt.executeQuery();
+            while (resultSet.next()) {
+                associatedIDs.add(resultSet.getString(1) + ":"+ resultSet.getString(2));
+            }
+         return associatedIDs.toArray(new String[associatedIDs.size()]);
+
+        } catch (IdentityException e) {
+            String errorMsg = "Error when getting an Identity Persistence Store instance.";
+            log.error(errorMsg, e);
+            throw new UserProfileException(errorMsg, e);
+        } catch (SQLException e) {
+            log.error("Error when executing the SQL : " + sql);
+            log.error(e.getMessage(), e);
+        }finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+        return null;
+    }
+
+    public void removeAssociateID(String idpID, String associatedID) throws UserProfileException{
+
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet;
+        String sql = null;
+        int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        String userName =  CarbonContext.getThreadLocalCarbonContext().getUsername();
+
+        try {
+            connection = JDBCPersistenceManager.getInstance().getDBConnection();
+
+            sql = "DELETE FROM IDN_ASSOCIATED_ID  WHERE TENANT_ID = ? AND IDP_ID = ? AND IDP_USER_ID = ? AND USER_NAME = ?";
+            prepStmt = connection.prepareStatement(sql);
+            prepStmt.setInt(1, tenantID);
+            prepStmt.setString(2, idpID);
+            prepStmt.setString(3, associatedID);
+            prepStmt.setString(4, userName);
+
+            prepStmt.executeUpdate();
+            connection.commit();
+        } catch (IdentityException e) {
+            String errorMsg = "Error when getting an Identity Persistence Store instance.";
+            log.error(errorMsg, e);
+            throw new UserProfileException(errorMsg, e);
+        } catch (SQLException e) {
+            log.error("Error when executing the SQL : " + sql);
+            log.error(e.getMessage(), e);
+        }finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+
+    }
+
+//    private String getUserNameWithDomain(String userName){
+//        if(userName == null){
+//            userName = CarbonContext.getThreadLocalCarbonContext().getUsername();
+//        }
+//        if(MultitenantUtils.getTenantDomain(userName) == null){
+//            if(CarbonContext.getThreadLocalCarbonContext().getTenantDomain() != null){
+//                userName = userName + "@" + CarbonContext.getThreadLocalCarbonContext().getTenantDomain(); //TODO no constant for @
+//            }
+//        }
+//
+//        return userName;
+//    }
 }
