@@ -15,17 +15,14 @@
 ~ specific language governing permissions and limitations
 ~ under the License.
 -->
-<%@ page import="org.wso2.carbon.identity.application.common.model.xsd.*"%>
-<%@page import="org.wso2.carbon.identity.application.mgt.ui.client.ApplicationManagementServiceClient"%>
 <%@ page import="org.apache.axis2.context.ConfigurationContext"%>
-<%@ page import="org.wso2.carbon.CarbonConstants"%>
+<%@page import="org.wso2.carbon.CarbonConstants"%>
+<%@ page import="org.wso2.carbon.identity.application.common.model.xsd.ApplicationBasicInfo"%>
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.client.ApplicationManagementServiceClient"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants"%>
-<%@ page import="org.wso2.carbon.identity.application.mgt.ui.client.ApplicationManagementServiceClient" %>
-<%@ page import="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean" %>
-
-<%@ page import="java.util.ResourceBundle"%>
+<%@ page import="java.util.ResourceBundle" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
@@ -58,7 +55,11 @@
 <script type="text/javascript">
 		
 	function removeItem(appid) {
-		location.href = "remove-service-provider.jsp?appid="+ appid;
+        CARBON.showConfirmationDialog('Are you sure you want to delete "'  + appid + '" SP information?',
+                function (){
+        			location.href = "remove-service-provider.jsp?appid="+ appid;
+                },
+                null);
 	}
 </script>
 		
@@ -94,11 +95,11 @@
 						<table class="styledLeft" width="100%" id="ServiceProviders">
 							<thead>
 								<tr style="white-space: nowrap">
-									<th style="width: 25%"><fmt:message
+									<th class="leftCol-med"><fmt:message
 											key="field.service.provider.id" /></th>
-									<th style="width: 45%"><fmt:message
+									<th class="leftCol-big"><fmt:message
 											key="application.list.application.desc" /></th>
-									<th style="width: 200px"><fmt:message
+									<th style="width: 30%"><fmt:message
 											key="application.list.application.action" /></th>
 								</tr>
 							</thead>
@@ -111,7 +112,7 @@
 							%>
 								<tr>
 									<td><%=app.getApplicationName()%></td>
-									<td><%=app.getDescription()%></td>
+									<td><%=app.getDescription() != null ? app.getDescription() : ""%></td>
 									<td style="width: 100px; white-space: nowrap;"><a
 										title="Edit Service Providers" href="load-service-provider.jsp?spName=<%=app.getApplicationName()%>" class="icon-link"
 										style="background-image: url(../admin/images/edit.gif)">Edit</a>

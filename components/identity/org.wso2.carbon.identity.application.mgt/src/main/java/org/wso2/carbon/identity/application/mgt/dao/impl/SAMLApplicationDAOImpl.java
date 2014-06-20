@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -15,13 +15,17 @@
  *specific language governing permissions and limitations
  *under the License.
  */
+
 package org.wso2.carbon.identity.application.mgt.dao.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.mgt.dao.SAMLApplicationDAO;
+import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementServiceComponentHolder;
 import org.wso2.carbon.identity.base.IdentityException;
-/*import org.wso2.carbon.identity.sso.saml.SAMLSSOConfigService;*/
+import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
+import org.wso2.carbon.registry.api.RegistryException;
 
 public class SAMLApplicationDAOImpl implements SAMLApplicationDAO {
 
@@ -29,9 +33,15 @@ public class SAMLApplicationDAOImpl implements SAMLApplicationDAO {
 
     /*SAMLSSOConfigService samlService = new SAMLSSOConfigService();*/
 
-    public void removeServiceProviderConfiguration(String issuer) throws IdentityException {
-        /*samlService.removeServiceProvider(issuer);
-        log.info("SAML SP " + issuer + " removed successfully");*/
+    public void removeServiceProviderConfiguration(String issuer) throws IdentityApplicationManagementException {
+         try {
+        	IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
+	        persistenceManager.removeServiceProvider((org.wso2.carbon.registry.core.Registry) ApplicationManagementServiceComponentHolder.getRegistryService().getConfigSystemRegistry(), issuer);
+        } catch (IdentityException e) {
+	        throw new IdentityApplicationManagementException("Error while deleting SAML issuer "+ e.getMessage());
+        } catch (RegistryException e) {
+        	throw new IdentityApplicationManagementException("Error while deleting SAML issuer "+ e.getMessage());
+        }
     }
 
 }

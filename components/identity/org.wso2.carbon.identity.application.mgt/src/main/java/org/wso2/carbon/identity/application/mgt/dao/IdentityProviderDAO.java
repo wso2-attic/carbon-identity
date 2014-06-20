@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -15,25 +15,26 @@
  *specific language governing permissions and limitations
  *under the License.
  */
+
 package org.wso2.carbon.identity.application.mgt.dao;
+
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.LocalAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.RequestPathAuthenticatorConfig;
 
 import java.util.List;
 
-import org.wso2.carbon.identity.application.common.model.FederatedIdentityProvider;
-import org.wso2.carbon.identity.application.common.model.LocalAuthenticator;
-import org.wso2.carbon.identity.application.common.model.RequestPathAuthenticator;
-import org.wso2.carbon.identity.base.IdentityException;
-
 public interface IdentityProviderDAO {
 
-    FederatedIdentityProvider getFederatedIdentityProvider(String idpName) throws IdentityException;
+    IdentityProvider getIdentityProvider(String idpName) throws IdentityApplicationManagementException;
 
-    List<FederatedIdentityProvider> getAllFederatedIdentityProviders() throws IdentityException;
+    List<IdentityProvider> getAllIdentityProviders() throws IdentityApplicationManagementException;
 
-    List<LocalAuthenticator> getAllLocalAuthenticators() throws IdentityException;
+    List<LocalAuthenticatorConfig> getAllLocalAuthenticators() throws IdentityApplicationManagementException;
 
-    List<RequestPathAuthenticator> getAllRequestPathAuthenticators() throws IdentityException;
+    List<RequestPathAuthenticatorConfig> getAllRequestPathAuthenticators() throws IdentityApplicationManagementException;
 
-    String getDefaultAuthenticator(String idpName) throws IdentityException;
+    String getDefaultAuthenticator(String idpName) throws IdentityApplicationManagementException;
 
 }

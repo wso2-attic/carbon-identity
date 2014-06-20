@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2013 WSO2, Inc. (http://wso2.com)
+  ~ Copyright 2008-2013 WSO2, Inc. (http://wso2.com)
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,41 +16,36 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-  <meta http-equiv="content-type" content="text/html; charset=iso-8859-1"></meta>
-  <title>OAuth - User Guide</title>
-  <link href="../../admin/css/documentation.css" rel="stylesheet" type="text/css" media="all" />
+    <meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/>
+    <title>Service Providers - User Guide</title>
+    <link href="../../admin/css/documentation.css" rel="stylesheet" type="text/css" media="all" />
 </head>
 
 <body style="font-family: Times New Roman,Times,serif; font-size: 12pt;">
-<h1>OAuth</h1>
 
- <p>WSO2 Identity Server 4.0.0 supports OAuth 1.0a and OAuth 2.0 specifications.</p>
- 
- <P><h3>To enable OAuth support to your application, you need to register your application first.</h3></P>
- <p><img alt="" src="../images/doc_register_oauthapp.png"/></p>
- <p><caption align="bottom">Figure 1: Register New OAuth Application</caption></p>
- <br /><br /> 
- 
- <p><h3>To register your application, you need to provide the OAuth protocol version, application name and the Callback URL of your web application.</h3></p>
- <p><img alt="" src="../images/doc_add_oauthapp.png"/></p>
- <p><caption align="bottom">Figure 2: Add New OAuth Application</caption></p>
- <br /><br />
- 
- <p><h3>To view your application configurations, click on the application name.</h3></p>
- <p><img alt="" src="../images/doc_view_oauthapp.png"/></p>
- <p><caption align="bottom">Figure 3: View OAuth Application Configurations</caption></p>
- <br /><br />
- 
- <p><h3>You can view application configurations.</h3></p>
- <p><img alt="" src="../images/doc_edit_oauthapp.png"/></p>
- <p><caption align="bottom">Figure 4: OAuth Application Configurations</caption></p>
- <br /><br />
- 
- <p><h3>To remove applications.</h3></p>
- <p><img alt="" src="../images/doc_delete_oauthapp.png"/></p>
- <p><caption align="bottom">Figure 5: Delete OAuth Application</caption></p>
- <br /><br />
- 
- 
+<h1>Service Providers</h1>
+<p>This user guide describes the Service Providers Management related configurations available in the WSO2 Identity Server.</p>
+
+<p>You can use the left hand side &quot;Main&quot; -> &quot;Identity&quot; -> &quot;Service Providers&quot; menu to complete the below mentioned configuration details.</p>
+
+<p>
+    Service Providers that are application that depend on WSO2 Identity Server for various functionality and are typically registered by application developers.
+    These Service Providers can be selectively associated to a set of Identity Providers available in the system for many different use cases.
+    E.g. Outbound Provisioning to an external Identity Provider.
+</p>
+<p>
+    Following  section describes adding and modifying Service Providers in the system by an application developer.
+    Click on Main &gt; Identity &gt; Service Providers &gt; Add to add Service Providers to the system.
+    You can also edit and delete registered Service Providers by going to Main &gt; Identity &gt; Service Providers
+    &gt; List and clicking the corresponding links against them.
+</p>
+<br/><br/>
+<img alt="" src="../images/sp-list.png"/><br/><br/>
+<img alt="" src="../images/sp-2.png"/><br/><br/>
+<img alt="" src="../images/sp-3.png"/><br/><br/>
+<img alt="" src="../images/sp-4.png"/><br/><br/>
+<img alt="" src="../images/res-sp-1.png"/><br/><br/>
+<p><a href="https://docs.wso2.org/display/IS500/Working+with+the+Service+Provider">Service Providers Management</a></p>
+
 </body>
 </html>
