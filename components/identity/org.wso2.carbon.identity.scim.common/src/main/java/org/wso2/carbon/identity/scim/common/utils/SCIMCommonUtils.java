@@ -136,6 +136,11 @@ public class SCIMCommonUtils {
     }
     
 	public static String getGroupNameWithDomain(String groupName) {
+	    
+	    if (groupName == null) {
+            return groupName;
+        }
+	    
 		if (groupName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
 			return groupName;
 		} else {
@@ -145,6 +150,11 @@ public class SCIMCommonUtils {
 	}
 	
 	public static String getPrimaryFreeGroupName(String groupName){
+	    
+        if (groupName == null) {
+            return groupName;
+        }
+
 	    int index = groupName.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
 
         // Check whether we have a secondary UserStoreManager setup.

@@ -123,31 +123,18 @@ public class DefaultResponseBuilder implements ResponseBuilder{
             Subject subject = new SubjectBuilder().buildObject();
 
             NameID nameId = new NameIDBuilder().buildObject();
-            String claimValue = null;
 
-            if (authReqDTO.getNameIdClaimUri() != null) {
-                claimValue = SAMLSSOUtil.getClaimValue(authReqDTO, authReqDTO.getNameIdClaimUri());
-                nameId.setValue(claimValue);
-                if (authReqDTO.getNameIDFormat()!=null) {
+            if (authReqDTO.getUseFullyQualifiedUsernameAsSubject()) {
+                nameId.setValue(authReqDTO.getUsername());
+                if (authReqDTO.getNameIDFormat() != null) {
                     nameId.setFormat(authReqDTO.getNameIDFormat());
                 } else {
                     nameId.setFormat(NameIdentifier.EMAIL);
                 }
-            }
-
-            if (claimValue == null) {
-                if (authReqDTO.getUseFullyQualifiedUsernameAsSubject()) {
-                    nameId.setValue(authReqDTO.getUsername());
-                    if (authReqDTO.getNameIDFormat() != null) {
-                        nameId.setFormat(authReqDTO.getNameIDFormat());
-                    } else {
-                        nameId.setFormat(NameIdentifier.EMAIL);
-                    }
-                } else {
-                    nameId.setValue(MultitenantUtils.getTenantAwareUsername(authReqDTO
-                            .getUsername()));
-                    nameId.setFormat(authReqDTO.getNameIDFormat());
-                }
+            } else {
+                nameId.setValue(MultitenantUtils.getTenantAwareUsername(authReqDTO
+                        .getUsername()));
+                nameId.setFormat(authReqDTO.getNameIDFormat());
             }
 
             subject.setNameID(nameId);
@@ -155,7 +142,6 @@ public class DefaultResponseBuilder implements ResponseBuilder{
             SubjectConfirmation subjectConfirmation = new SubjectConfirmationBuilder()
                     .buildObject();
             subjectConfirmation.setMethod(SAMLSSOConstants.SUBJECT_CONFIRM_BEARER);
-
             SubjectConfirmationData scData = new SubjectConfirmationDataBuilder().buildObject();
             scData.setRecipient(authReqDTO.getAssertionConsumerURL());
             scData.setNotOnOrAfter(notOnOrAfter);
@@ -163,8 +149,23 @@ public class DefaultResponseBuilder implements ResponseBuilder{
                 scData.setInResponseTo(authReqDTO.getId());
             }
             subjectConfirmation.setSubjectConfirmationData(scData);
-
             subject.getSubjectConfirmations().add(subjectConfirmation);
+
+            if(authReqDTO.getRequestedRecipients() != null && authReqDTO.getRequestedRecipients().length > 0){
+                for(String recipient : authReqDTO.getRequestedRecipients()){
+                    subjectConfirmation = new SubjectConfirmationBuilder()
+                            .buildObject();
+                    subjectConfirmation.setMethod(SAMLSSOConstants.SUBJECT_CONFIRM_BEARER);
+                    scData = new SubjectConfirmationDataBuilder().buildObject();
+                    scData.setRecipient(recipient);
+                    scData.setNotOnOrAfter(notOnOrAfter);
+                    if(!authReqDTO.isIdPInitSSO()){
+                        scData.setInResponseTo(authReqDTO.getId());
+                    }
+                    subjectConfirmation.setSubjectConfirmationData(scData);
+                    subject.getSubjectConfirmations().add(subjectConfirmation);
+                }
+            }
 
             samlAssertion.setSubject(subject);
 
@@ -193,7 +194,7 @@ public class DefaultResponseBuilder implements ResponseBuilder{
             AudienceRestriction audienceRestriction = new AudienceRestrictionBuilder()
                     .buildObject();
             Audience issuerAudience = new AudienceBuilder().buildObject();
-            issuerAudience.setAudienceURI(authReqDTO.getIssuer());
+            issuerAudience.setAudienceURI(authReqDTO.getIssuerWithDomain());
             audienceRestriction.getAudiences().add(issuerAudience);
             if (authReqDTO.getRequestedAudiences() != null) {
                 for (String requestedAudience : authReqDTO.getRequestedAudiences()) {
@@ -250,6 +251,8 @@ public class DefaultResponseBuilder implements ResponseBuilder{
                 Attribute attrib = new AttributeBuilder().buildObject();
                 String claimUri = ite.next();
                 attrib.setName(claimUri);
+		//setting NAMEFORMAT attribute value to basic attribute profile
+                attrib.setNameFormat(SAMLSSOConstants.NAME_FORMAT_BASIC);
                 // look
                 // https://wiki.shibboleth.net/confluence/display/OpenSAML/OSTwoUsrManJavaAnyTypes
                 XSStringBuilder stringBuilder = (XSStringBuilder) Configuration.getBuilderFactory()

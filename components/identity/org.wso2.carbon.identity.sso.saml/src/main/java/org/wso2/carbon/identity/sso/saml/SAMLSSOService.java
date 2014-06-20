@@ -75,44 +75,6 @@ public class SAMLSSOService {
             SAMLSSOReqValidationResponseDTO validationResp = authnRequestValidator.validate();
             validationResp.setRequestMessageString(samlReq);
             validationResp.setQueryString(queryString);
-
-            if (validationResp.isValid()) {
-                SSOSessionPersistenceManager sessionPersistenceManager = SSOSessionPersistenceManager.getPersistenceManager();
-                boolean isExistingSession = sessionPersistenceManager.isExistingTokenId(sessionId);
-                
-                //Remove the existing session if forceAuthn attribute is true
-                if (isExistingSession && validationResp.isForceAuthn()) {
-                	// TODO send SLO requests?
-                	SAMLSSOUtil.removeSession(sessionId, validationResp.getIssuer());
-                	isExistingSession = false;
-                }
-
-                if (authnMode.equals(SAMLSSOConstants.AuthnModes.OPENID) && !isExistingSession) {
-                    SPInitSSOAuthnRequestProcessor authnRequestProcessor = new SPInitSSOAuthnRequestProcessor();
-                    try {
-                        return authnRequestProcessor.process(validationResp, sessionId,
-                                rpSessionId, authnMode);
-                    } catch (Exception e) {
-                        throw new IdentityException("Error processing the Authentication Request",
-                                e);
-                    }
-                } else if (!isExistingSession && validationResp.isPassive()){
-                    List<String> statusCodes = new ArrayList<String>();
-                    statusCodes.add(SAMLSSOConstants.StatusCodes.NO_PASSIVE);
-                    statusCodes.add(SAMLSSOConstants.StatusCodes.IDENTITY_PROVIDER_ERROR);
-                    validationResp.setResponse(SAMLSSOUtil.buildErrorResponse(
-                            validationResp.getId(), statusCodes,"Cannot authenticate Subject in Passive Mode"));
-                } else if (isExistingSession) { // now should send the Response
-                    SPInitSSOAuthnRequestProcessor authnRequestProcessor = new SPInitSSOAuthnRequestProcessor();
-                    try {
-                        return authnRequestProcessor.process(validationResp, sessionId,
-                                rpSessionId, authnMode);
-                    } catch (Exception e) {
-                        throw new IdentityException("Error processing the Authentication Request",
-                                e);
-                    }
-                }
-            }
             validationResp.setRpSessionId(rpSessionId);
             validationResp.setIdPInitSSO(false);
             return validationResp;
@@ -150,29 +112,9 @@ public class SAMLSSOService {
         IdPInitSSOAuthnRequestValidator authnRequestValidator = new IdPInitSSOAuthnRequestValidator(httpServletRequest, httpServletResponse, spEntityID, relayState);
         SAMLSSOReqValidationResponseDTO validationResp = authnRequestValidator.validate();
         validationResp.setQueryString(queryString);
-
-        if (validationResp.isValid()) {
-            SSOSessionPersistenceManager sessionPersistenceManager = SSOSessionPersistenceManager.getPersistenceManager();
-            boolean isExistingSession = sessionPersistenceManager.isExistingTokenId(sessionId);
-
-            if (authnMode.equals(SAMLSSOConstants.AuthnModes.OPENID) && !isExistingSession) {
-                IdPInitSSOAuthnRequestProcessor authnRequestProcessor = new IdPInitSSOAuthnRequestProcessor();
-                try {
-                    return authnRequestProcessor.process(validationResp, sessionId, rpSessionId, authnMode);
-                } catch (Exception e) {
-                    throw new IdentityException("Error processing the Authentication Request", e);
-                }
-            } else if (isExistingSession) { // now should send the Response
-                IdPInitSSOAuthnRequestProcessor authnRequestProcessor = new IdPInitSSOAuthnRequestProcessor();
-                try {
-                    return authnRequestProcessor.process(validationResp, sessionId, rpSessionId, authnMode);
-                } catch (Exception e) {
-                    throw new IdentityException("Error processing the Authentication Request", e);
-                }
-            }
-        }
         validationResp.setRpSessionId(rpSessionId);
         validationResp.setIdPInitSSO(true);
+        
         return validationResp;
     }
 

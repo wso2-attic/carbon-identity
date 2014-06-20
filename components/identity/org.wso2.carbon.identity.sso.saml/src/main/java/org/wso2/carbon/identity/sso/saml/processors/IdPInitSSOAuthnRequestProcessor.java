@@ -116,24 +116,15 @@ public class IdPInitSSOAuthnRequestProcessor {
                     spDO.setCertAlias(authnReqDTO.getCertAlias());
                     spDO.setLogoutURL(authnReqDTO.getLogoutURL());
                     sessionPersistenceManager.persistSession(sessionId, sessionIndexId, authnReqDTO.getUsername(),
-                            spDO, authnReqDTO.getRpSessionId(), authenticators, authnReqDTO.getUserAttributes());
+                            spDO, authnReqDTO.getRpSessionId(), authenticators, authnReqDTO.getUserAttributes(),
+                            authnReqDTO.getTenantDomain());
 
                     SessionInfoData sessionInfo = sessionPersistenceManager.getSessionInfo(sessionIndexId);
                     authnReqDTO.setUsername(sessionInfo.getSubject());
-                    authnReqDTO.setUserAttributes(sessionInfo.getAttributes());
+                    /*authnReqDTO.setUserAttributes(sessionInfo.getAttributes());*/
                     sessionPersistenceManager.persistSession(sessionId, sessionIndexId, authnReqDTO.getIssuer(),
                             authnReqDTO.getAssertionConsumerURL(),
                             authnReqDTO.getRpSessionId());
-                }
-
-                if (authMode.equals(SAMLSSOConstants.AuthnModes.OPENID)) {
-                    SAMLSSOServiceProviderDO spDO = new SAMLSSOServiceProviderDO();
-                    spDO.setIssuer(authnReqDTO.getIssuer());
-                    spDO.setAssertionConsumerUrl(authnReqDTO.getAssertionConsumerURL());
-                    spDO.setCertAlias(authnReqDTO.getCertAlias());
-                    spDO.setLogoutURL(authnReqDTO.getLogoutURL());
-                    sessionPersistenceManager.persistSession(sessionId, sessionIndexId, authnReqDTO.getUsername(),
-                            spDO, authnReqDTO.getRpSessionId(), authenticators, authnReqDTO.getUserAttributes());
                 }
 
                 // Build the response for the successful scenario
@@ -229,64 +220,8 @@ public class IdPInitSSOAuthnRequestProcessor {
         authnReqDTO.setDoSignAssertions(ssoIdpConfigs.isDoSignAssertions());
         authnReqDTO.setRequestedClaims((ssoIdpConfigs.getRequestedClaims()));
         authnReqDTO.setRequestedAudiences((ssoIdpConfigs.getRequestedAudiences()));
+        authnReqDTO.setRequestedRecipients((ssoIdpConfigs.getRequestedRecipients()));
         authnReqDTO.setDoEnableEncryptedAssertion(ssoIdpConfigs.isDoEnableEncryptedAssertion());
-    }
-
-    /**
-     * Creates a <code>SAMLSSOAuthnReqDTO</code> object using the
-     * <code>SAMLSSOReqValidationResponseDTO</code> object parameters. Then the
-     * <code>SAMLSSOAuthnReqDTO</code> is fed into the process method for
-     * further processing of the request message.
-     *
-     * @param valiationDTO
-     * @param sessionId
-     * @param rpSessionId
-     * @param authMode
-     * @return
-     * @throws Exception
-     */
-    public SAMLSSOReqValidationResponseDTO process(SAMLSSOReqValidationResponseDTO valiationDTO,
-                                                   String sessionId, String rpSessionId,
-                                                   String authMode) throws Exception {
-        SAMLSSOAuthnReqDTO authReqDTO = new SAMLSSOAuthnReqDTO();
-        authReqDTO.setIssuer(valiationDTO.getIssuer());
-        authReqDTO.setAssertionConsumerURL(valiationDTO.getAssertionConsumerURL());
-        authReqDTO.setSubject(valiationDTO.getSubject());
-        authReqDTO.setId(valiationDTO.getId());
-        authReqDTO.setRpSessionId(rpSessionId);
-        authReqDTO.setRequestMessageString(valiationDTO.getRequestMessageString());
-        authReqDTO.setQueryString(valiationDTO.getQueryString());
-        authReqDTO.setDestination(valiationDTO.getDestination());
-        authReqDTO.setIdPInitSSO(true);
-
-        if (authMode.equals(SAMLSSOConstants.AuthnModes.USERNAME_PASSWORD)) {
-            SSOSessionPersistenceManager sessionPersistenceManager = SSOSessionPersistenceManager.getPersistenceManager();
-
-            if (sessionId != null) {
-                SessionInfoData sessionInfo = sessionPersistenceManager.
-                        getSessionInfo(sessionPersistenceManager.getSessionIndexFromTokenId(sessionId));
-                authReqDTO.setUsername(sessionInfo.getSubject());
-                authReqDTO.setUserAttributes(sessionInfo.getAttributes());
-            }
-        } else {
-            authReqDTO.setUsername(valiationDTO.getSubject());
-        }
-
-        SAMLSSOReqValidationResponseDTO responseDTO = new SAMLSSOReqValidationResponseDTO();
-        SAMLSSORespDTO respDTO = process(authReqDTO, sessionId, true, authMode, null);
-
-        if (respDTO.isSessionEstablished()) {
-            responseDTO.setValid(true);
-        } else {
-            responseDTO.setValid(false);
-        }
-
-        responseDTO.setResponse(respDTO.getRespString());
-        responseDTO.setAssertionConsumerURL(respDTO.getAssertionConsumerURL());
-        responseDTO.setLoginPageURL(respDTO.getLoginPageURL());
-        responseDTO.setSubject(respDTO.getSubject());
-
-        return responseDTO;
     }
 
     /**
@@ -307,62 +242,5 @@ public class IdPInitSSOAuthnRequestProcessor {
         samlSSORespDTO.setRespString(SAMLSSOUtil.encode(SAMLSSOUtil.marshall(resp)));
         samlSSORespDTO.setSessionEstablished(false);
         return samlSSORespDTO;
-    }
-
-    private boolean authenticate(String username, String password) throws IdentityException {
-        boolean isAuthenticated = false;
-        try {
-            UserRealm realm = AnonymousSessionUtil.getRealmByUserName(
-                    SAMLSSOUtil.getRegistryService(), SAMLSSOUtil.getRealmService(), username);
-
-            if (realm == null) {
-                log.warn("Realm creation failed. Tenant may be inactive or invalid.");
-                return false;
-            }
-
-            UserStoreManager userStoreManager = realm.getUserStoreManager();
-
-//            //update the permission tree before authentication
-//            String tenantDomain = MultitenantUtils.getTenantDomain(username);
-//            int tenantId = SAMLSSOUtil.getRealmService().getTenantManager().getTenantId(tenantDomain);
-//            PermissionUpdateUtil.updatePermissionTree(tenantId);
-
-            // Check the authentication
-            isAuthenticated = userStoreManager.authenticate(
-                    MultitenantUtils.getTenantAwareUsername(username), password);
-            if (!isAuthenticated) {
-                if (log.isDebugEnabled()) {
-                    log.debug("user authentication failed due to invalid credentials.");
-                }
-                return false;
-            }
-
-            int index = username.indexOf("/");
-            if (index < 0) {
-                String domain = UserCoreUtil.getDomainFromThreadLocal();
-                if (domain != null) {
-                    username = domain + "/" + username;
-                }
-            }
-
-            // Check the authorization
-            boolean isAuthorized = realm.getAuthorizationManager().
-                    isUserAuthorized(MultitenantUtils.getTenantAwareUsername(username),
-                            "/permission/admin/login",
-                            CarbonConstants.UI_PERMISSION_ACTION);
-            if (!isAuthorized) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Authorization Failure when performing log-in action");
-                }
-                return false;
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("User is successfully authenticated.");
-            }
-            return true;
-        } catch (Exception e) {
-            String msg = "Error obtaining user realm for authenticating the user";
-            throw new IdentityException(msg, e);
-        }
     }
 }

@@ -53,6 +53,19 @@ public class SAMLSSOConfigAdmin {
     public boolean addRelyingPartyServiceProvider(SAMLSSOServiceProviderDTO serviceProviderDTO) throws IdentityException {
 
         SAMLSSOServiceProviderDO serviceProviderDO = new SAMLSSOServiceProviderDO();
+        
+        if(serviceProviderDTO.getIssuer() == null || serviceProviderDTO.getIssuer().equals("")){
+            String message = "A value for the Issuer is mandatory";
+            log.error(message);
+            throw new IdentityException(message);
+        }
+        
+        if(serviceProviderDTO.getIssuer().contains("@")){
+            String message = "\'@\' is a reserved character. Cannot be used for Service Provider Entity ID";
+            log.error(message);
+            throw new IdentityException(message);
+        }
+        
         serviceProviderDO.setIssuer(serviceProviderDTO.getIssuer());
         serviceProviderDO.setAssertionConsumerUrl(serviceProviderDTO.getAssertionConsumerUrl());
         serviceProviderDO.setCertAlias(serviceProviderDTO.getCertAlias());
@@ -74,17 +87,28 @@ public class SAMLSSOConfigAdmin {
 
         serviceProviderDO.setNameIDFormat(serviceProviderDTO.getNameIDFormat());
 
-        if(serviceProviderDTO.getRequestedClaims() != null && serviceProviderDTO.getRequestedClaims().length != 0){
-            if(serviceProviderDTO.getAttributeConsumingServiceIndex() != null &&
-                    !serviceProviderDTO.getAttributeConsumingServiceIndex().equals("")){
-                serviceProviderDO.setAttributeConsumingServiceIndex(serviceProviderDTO.getAttributeConsumingServiceIndex());
-            } else {
-                serviceProviderDO.setAttributeConsumingServiceIndex(Integer.toString(IdentityUtil.getRandomInteger()));
-            }
-            serviceProviderDO.setRequestedClaims(serviceProviderDTO.getRequestedClaims());
-        }
+		if (serviceProviderDTO.getRequestedClaims() != null &&serviceProviderDTO.getRequestedClaims().length != 0) {
+			if (serviceProviderDTO.getAttributeConsumingServiceIndex() != null &&
+			    !serviceProviderDTO.getAttributeConsumingServiceIndex().equals("")) {
+				serviceProviderDO.setAttributeConsumingServiceIndex(serviceProviderDTO.getAttributeConsumingServiceIndex());
+			} else {
+				serviceProviderDO.setAttributeConsumingServiceIndex(Integer.toString(IdentityUtil.getRandomInteger()));
+			}
+			serviceProviderDO.setRequestedClaims(serviceProviderDTO.getRequestedClaims());
+		} else {
+			if (serviceProviderDTO.getAttributeConsumingServiceIndex() == null ||
+			    serviceProviderDTO.getAttributeConsumingServiceIndex().isEmpty()) {
+				serviceProviderDO.setAttributeConsumingServiceIndex(Integer.toString(IdentityUtil.getRandomInteger()));
+			} else {
+				serviceProviderDO.setAttributeConsumingServiceIndex(serviceProviderDTO.getAttributeConsumingServiceIndex());
+			}
+		}
+        
         if(serviceProviderDTO.getRequestedAudiences() != null && serviceProviderDTO.getRequestedAudiences().length != 0){
             serviceProviderDO.setRequestedAudiences(serviceProviderDTO.getRequestedAudiences());
+        }
+        if(serviceProviderDTO.getRequestedRecipients() != null && serviceProviderDTO.getRequestedRecipients().length != 0){
+            serviceProviderDO.setRequestedRecipients(serviceProviderDTO.getRequestedRecipients());
         }
         serviceProviderDO.setIdPInitSSOEnabled(serviceProviderDTO.isIdPInitSSOEnabled());
         serviceProviderDO.setDoEnableEncryptedAssertion(serviceProviderDTO.isDoEnableEncryptedAssertion());
@@ -139,6 +163,7 @@ public class SAMLSSOConfigAdmin {
                 
                 providerDTO.setRequestedClaims(providerDO.getRequestedClaims());
                 providerDTO.setRequestedAudiences(providerDO.getRequestedAudiences());
+                providerDTO.setRequestedRecipients(providerDO.getRequestedRecipients());
                 providerDTO.setEnableAttributesByDefault(providerDO.isEnableAttributesByDefault());
                 providerDTO.setNameIdClaimUri(providerDO.getNameIdClaimUri());
                 providerDTO.setNameIDFormat(providerDO.getNameIDFormat());

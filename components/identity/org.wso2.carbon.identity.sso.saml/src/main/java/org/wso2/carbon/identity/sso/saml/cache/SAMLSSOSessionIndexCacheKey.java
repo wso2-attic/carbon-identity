@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -18,25 +18,25 @@
 
 package org.wso2.carbon.identity.sso.saml.cache;
 
-public class SessionDataCacheKey extends CacheKey {
+public class SAMLSSOSessionIndexCacheKey extends CacheKey {
 
-    private static final long serialVersionUID = -1414485745666304223L;
+    private static final long serialVersionUID = 2102638240841113093L;
 
-    private String sessionDataKey;
+    private String tokenId;
 
-    public SessionDataCacheKey(String sessionDataKey) {
-        this.sessionDataKey = sessionDataKey;
+    public SAMLSSOSessionIndexCacheKey(String tokenId) {
+        this.tokenId = tokenId;
     }
 
-    public String getSessionDataKey() {
-        return sessionDataKey;
+    public String getTokenId() {
+        return tokenId;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((sessionDataKey == null) ? 0 : sessionDataKey.hashCode());
+        result = prime * result + ((tokenId == null) ? 0 : tokenId.hashCode());
         return result;
     }
 
@@ -48,13 +48,12 @@ public class SessionDataCacheKey extends CacheKey {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        SessionDataCacheKey other = (SessionDataCacheKey) obj;
-        if (sessionDataKey == null) {
-            if (other.sessionDataKey != null)
+        SAMLSSOSessionIndexCacheKey other = (SAMLSSOSessionIndexCacheKey) obj;
+        if (tokenId == null) {
+            if (other.tokenId != null)
                 return false;
-        } else if (!sessionDataKey.equals(other.sessionDataKey))
+        } else if (!tokenId.equals(other.tokenId))
             return false;
         return true;
     }
-
 }

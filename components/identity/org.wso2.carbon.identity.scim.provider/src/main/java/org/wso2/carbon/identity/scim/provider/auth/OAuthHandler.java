@@ -1,21 +1,25 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.scim.provider.auth;
+
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.ConfigurationContext;
@@ -24,36 +28,37 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.message.Message;
+import org.wso2.carbon.identity.application.common.model.ProvisioningServiceProviderType;
+import org.wso2.carbon.identity.application.common.model.ThreadLocalProvisioningServiceProvider;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.oauth2.OAuth2TokenValidationService;
+import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientApplicationDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationRequestDTO;
-import org.wso2.carbon.identity.oauth2.stub.dto.OAuth2TokenValidationResponseDTO;
+import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 import org.wso2.carbon.identity.scim.provider.util.SCIMProviderConstants;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import org.wso2.charon.core.schema.SCIMConstants;
-
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.TreeMap;
 
 public class OAuthHandler implements SCIMAuthenticationHandler {
 
     private static Log log = LogFactory.getLog(BasicAuthHandler.class);
 
-    /*properties map to be initialized*/
+    /* properties map to be initialized */
     private Map<String, String> properties;
 
-    /*properties specific to this authenticator*/
+    /* properties specific to this authenticator */
     private String remoteServiceURL;
     private int priority;
     private String userName;
     private String password;
 
-    /*constants specific to this authenticator*/
+    /* constants specific to this authenticator */
     private final String BEARER_AUTH_HEADER = "Bearer";
     private final String LOCAL_PREFIX = "local";
     private final int DEFAULT_PRIORITY = 10;
     private final String LOCAL_AUTH_SERVER = "local://services";
 
-    //Ideally this should be configurable. For the moment, hard code the priority.
+    // Ideally this should be configurable. For the moment, hard code the priority.
 
     public int getPriority() {
         return priority;
@@ -72,14 +77,15 @@ public class OAuthHandler implements SCIMAuthenticationHandler {
     }
 
     public boolean canHandle(Message message, ClassResourceInfo classResourceInfo) {
-        //check the "Authorization" header and if "Bearer" is there, can be handled.
+        // check the "Authorization" header and if "Bearer" is there, can be handled.
 
-        //get the map of protocol headers
+        // get the map of protocol headers
         TreeMap protocolHeaders = (TreeMap) message.get(Message.PROTOCOL_HEADERS);
-        //get the value for Authorization Header
-        ArrayList authzHeaders = (ArrayList) protocolHeaders.get(SCIMConstants.AUTHORIZATION_HEADER);
+        // get the value for Authorization Header
+        ArrayList authzHeaders = (ArrayList) protocolHeaders
+                .get(SCIMConstants.AUTHORIZATION_HEADER);
         if (authzHeaders != null) {
-            //get the authorization header value, if provided
+            // get the authorization header value, if provided
             String authzHeader = (String) authzHeaders.get(0);
             if (authzHeader != null && authzHeader.contains(BEARER_AUTH_HEADER)) {
                 return true;
@@ -89,23 +95,41 @@ public class OAuthHandler implements SCIMAuthenticationHandler {
     }
 
     public boolean isAuthenticated(Message message, ClassResourceInfo classResourceInfo) {
-        //get the map of protocol headers
+        // get the map of protocol headers
         TreeMap protocolHeaders = (TreeMap) message.get(Message.PROTOCOL_HEADERS);
-        //get the value for Authorization Header
-        ArrayList authzHeaders = (ArrayList) protocolHeaders.get(SCIMConstants.AUTHORIZATION_HEADER);
+        // get the value for Authorization Header
+        ArrayList authzHeaders = (ArrayList) protocolHeaders
+                .get(SCIMConstants.AUTHORIZATION_HEADER);
         if (authzHeaders != null) {
-            //get the authorization header value, if provided
+            // get the authorization header value, if provided
             String authzHeader = (String) authzHeaders.get(0);
 
-            //extract access token
-            String accessToken = authzHeader.substring(7).trim();
-            //validate access token
+            // extract access token
+            String accessToken = authzHeader.trim().substring(7).trim();
+            // validate access token
             try {
-                OAuth2TokenValidationResponseDTO validationResponse = this.validateAccessToken(accessToken);
+                OAuth2ClientApplicationDTO validationApp = this.validateAccessToken(accessToken);
+                OAuth2TokenValidationResponseDTO validationResponse = null;
+
+                if (validationApp != null) {
+                    validationResponse = validationApp.getAccessTokenValidationResponse();
+                }
+
                 if (validationResponse != null) {
-                    if (validationResponse.getValid()) {
+                    if (validationResponse.isValid()) {
                         String userName = validationResponse.getAuthorizedUser();
                         authzHeaders.set(0, userName);
+
+                        // setup thread local variable to be consumed by the provisioning framework.
+                        ThreadLocalProvisioningServiceProvider serviceProvider = new ThreadLocalProvisioningServiceProvider();
+                        serviceProvider.setServiceProviderName(validationApp.getConsumerKey());
+                        serviceProvider
+                                .setServiceProviderType(ProvisioningServiceProviderType.OAUTH);
+                        serviceProvider.setClaimDialect(SCIMProviderConstants.DEFAULT_SCIM_DIALECT);
+                        serviceProvider.setTenantDomain(MultitenantUtils.getTenantDomain(userName));
+                        IdentityApplicationManagementUtil
+                                .setThreadLocalProvisioningServiceProvider(serviceProvider);
+
                         return true;
                     }
                 }
@@ -119,7 +143,7 @@ public class OAuthHandler implements SCIMAuthenticationHandler {
 
     /**
      * To set the properties specific to each authenticator
-     *
+     * 
      * @param authenticatorProperties
      */
     public void setProperties(Map<String, String> authenticatorProperties) {
@@ -149,36 +173,42 @@ public class OAuthHandler implements SCIMAuthenticationHandler {
         return remoteServiceURL;
     }
 
-    private OAuth2TokenValidationResponseDTO validateAccessToken(String accessTokenIdentifier)
+    private OAuth2ClientApplicationDTO validateAccessToken(String accessTokenIdentifier)
             throws Exception {
-        //if it is specified to use local authz server (i.e: local://services)
+
+        // if it is specified to use local authz server (i.e: local://services)
         if (remoteServiceURL.startsWith(LOCAL_PREFIX)) {
             OAuth2TokenValidationRequestDTO oauthValidationRequest = new OAuth2TokenValidationRequestDTO();
-            OAuth2TokenValidationRequestDTO.OAuth2AccessToken accessToken =
-                    oauthValidationRequest.new OAuth2AccessToken();
+            OAuth2TokenValidationRequestDTO.OAuth2AccessToken accessToken = oauthValidationRequest.new OAuth2AccessToken();
             accessToken.setTokenType(OAuthServiceClient.BEARER_TOKEN_TYPE);
             accessToken.setIdentifier(accessTokenIdentifier);
             oauthValidationRequest.setAccessToken(accessToken);
 
-
             OAuth2TokenValidationService oauthValidationService = new OAuth2TokenValidationService();
-            org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO oauthValidationResponse =
-                    oauthValidationService.validate(oauthValidationRequest);
+            OAuth2ClientApplicationDTO oauthValidationResponse = oauthValidationService
+                    .findOAuthConsumerIfTokenIsValid(oauthValidationRequest);
 
-            //need to convert to stub.dto
-            OAuth2TokenValidationResponseDTO oauthValidationResp = new OAuth2TokenValidationResponseDTO();
-            oauthValidationResp.setAuthorizedUser(oauthValidationResponse.getAuthorizedUser());
-            oauthValidationResp.setValid(oauthValidationResponse.isValid());
-            return oauthValidationResp;
+            return oauthValidationResponse;
         }
-        //else do a web service call to the remote authz server
+        // else do a web service call to the remote authz server
         try {
-            ConfigurationContext configContext =
-                    ConfigurationContextFactory.createConfigurationContextFromFileSystem(null, null);
+            ConfigurationContext configContext = ConfigurationContextFactory
+                    .createConfigurationContextFromFileSystem(null, null);
             OAuthServiceClient oauthClient = new OAuthServiceClient(getOAuthAuthzServerURL(),
-                                                                    userName, password, configContext);
-            OAuth2TokenValidationResponseDTO validationResponse = oauthClient.validateAccessToken(accessTokenIdentifier);
-            return validationResponse;
+                    userName, password, configContext);
+            org.wso2.carbon.identity.oauth2.stub.dto.OAuth2ClientApplicationDTO validationResponse;
+            validationResponse = oauthClient.findOAuthConsumerIfTokenIsValid(accessTokenIdentifier);
+
+            OAuth2ClientApplicationDTO appDTO = new OAuth2ClientApplicationDTO();
+            appDTO.setConsumerKey(validationResponse.getConsumerKey());
+
+            OAuth2TokenValidationResponseDTO validationDto = new OAuth2TokenValidationResponseDTO();
+            validationDto.setAuthorizedUser(validationResponse.getAccessTokenValidationResponse()
+                    .getAuthorizedUser());
+            validationDto
+                    .setValid(validationResponse.getAccessTokenValidationResponse().getValid());
+            appDTO.setAccessTokenValidationResponse(validationDto);
+            return appDTO;
         } catch (AxisFault axisFault) {
             throw axisFault;
         } catch (Exception exception) {
@@ -186,4 +216,3 @@ public class OAuthHandler implements SCIMAuthenticationHandler {
         }
     }
 }
-

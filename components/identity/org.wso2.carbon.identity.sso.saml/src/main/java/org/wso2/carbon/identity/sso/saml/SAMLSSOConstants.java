@@ -21,6 +21,7 @@ public class SAMLSSOConstants {
 
     public static final String NAME_ID_POLICY_ENTITY = "urn:oasis:names:tc:SAML:2.0:nameid-format:entity";
     public static final String SUBJECT_CONFIRM_BEARER = "urn:oasis:names:tc:SAML:2.0:cm:bearer";
+    public static final String NAME_FORMAT_BASIC = "urn:oasis:names:tc:SAML:2.0:attrname-format:basic";
 
     public class StatusCodes {
         public static final String SUCCESS_CODE = "urn:oasis:names:tc:SAML:2.0:status:Success";    
@@ -92,5 +93,37 @@ public class SAMLSSOConstants {
         public static final String INVALID_MESSAGE_STATUS = "Not a valid SAML 2.0 Request Message!";
         public static final String INVALID_MESSAGE_MESSAGE = "The message was not recognized by the SAML 2.0 SSO Provider. Please check the logs for more details";
     }
+
+    public static class FileBasedSPConfig {
+
+        public static final String SERVICE_PROVIDERS = "ServiceProviders";
+        public static final String SERVICE_PROVIDER = "ServiceProvider";
+        public static final String ISSUER = "Issuer";
+        public static final String ASSERTION_CONSUMER_URL = "AssertionConsumerService";
+        public static final String CUSTOM_LOGIN_PAGE = "CustomLoginPage";
+        public static final String SIGN_RESPONSE = "SignResponse";
+        public static final String SIGN_ASSERTION = "SignAssertion";
+        public static final String ENCRYPT_ASSERTION = "EncryptAssertion";
+        public static final String SIG_VALIDATION = "ValidateSignatures";
+        public static final String SINGLE_LOGOUT = "EnableSingleLogout";
+        public static final String ATTRIBUTE_PROFILE = "EnableAttributeProfile";
+        public static final String AUDIENCE_RESTRICTION = "EnableAudienceRestriction";
+        public static final String RECIPIENT_VALIDATION = "EnableRecipients";
+        public static final String IDP_INIT = "EnableIdPInitiatedSSO";
+        public static final String USE_FULLY_QUALIFY_USER_NAME = "UseFullyQualifiedUsernameInNameID";
+
+        public static final String CERT_ALIAS = "CertAlias";
+        public static final String LOGOUT_URL = "LogoutURL";
+        public static final String CLAIMS = "Claims";
+        public static final String CLAIM = "Claim";
+        public static final String INCLUDE_ATTRIBUTE = "IncludeAttributeByDefault";
+        public static final String AUDIENCE_LIST = "AudiencesList";
+        public static final String AUDIENCE = "Audience";
+        public static final String RECIPIENT_LIST = "RecipientList";
+        public static final String RECIPIENT = "Recipient";
+        public static final String CONSUMING_SERVICE_INDEX= "ConsumingServiceIndex";
+        public static final String USE_AUTHENTICATED_USER_DOMAIN_CRYPTO= "SSOService.UseAuthenticatedUserDomainCrypto";
+    }
+
 }
 

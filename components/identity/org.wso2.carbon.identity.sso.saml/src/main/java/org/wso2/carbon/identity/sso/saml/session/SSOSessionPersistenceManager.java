@@ -17,25 +17,24 @@
 */
 package org.wso2.carbon.identity.sso.saml.session;
 
-import org.apache.axis2.clustering.ClusteringAgent;
-import org.apache.axis2.clustering.ClusteringFault;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
-import org.wso2.carbon.core.util.AnonymousSessionUtil;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
-import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
+import org.wso2.carbon.identity.sso.saml.cache.SAMLSSOParticipantCache;
+import org.wso2.carbon.identity.sso.saml.cache.SAMLSSOParticipantCacheEntry;
+import org.wso2.carbon.identity.sso.saml.cache.SAMLSSOParticipantCacheKey;
+import org.wso2.carbon.identity.sso.saml.cache.SAMLSSOSessionIndexCache;
+import org.wso2.carbon.identity.sso.saml.cache.SAMLSSOSessionIndexCacheEntry;
+import org.wso2.carbon.identity.sso.saml.cache.SAMLSSOSessionIndexCacheKey;
 import org.wso2.carbon.registry.core.Registry;
-import org.wso2.carbon.registry.core.session.UserRegistry;
-import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
-
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class is used to persist the sessions established with Service providers
@@ -44,18 +43,8 @@ public class SSOSessionPersistenceManager {
 
     private static Log log = LogFactory.getLog(SSOSessionPersistenceManager.class);
     private static SSOSessionPersistenceManager sessionPersistenceManager;
+    private static final int CACHE_TIME_OUT = 157680000;
     
-    /**
-     * Holds sessionIds (i.e. values of samlssoTokenId/samlssoRememberMe cookies) 
-     * and SessionIndexes created for each of them
-     */
-    private Map<String, String> sessionMap = new ConcurrentHashMap<String, String>();
-    
-    /**
-     * Holds session related info mapped by SessionIndexes 
-     */
-    private Map<String, SessionInfoData> sessionParticipantMap = new ConcurrentHashMap<String, SessionInfoData>();
-
     public static SSOSessionPersistenceManager getPersistenceManager() {
         if (sessionPersistenceManager == null) {
             sessionPersistenceManager = new SSOSessionPersistenceManager();
@@ -63,14 +52,6 @@ public class SSOSessionPersistenceManager {
         return sessionPersistenceManager;
     }
 
-    /**
-     * Get the session map
-     *
-     * @return
-     */
-    public Map<String, SessionInfoData> getSessionParticipantMap() {
-        return sessionParticipantMap;
-    }
 
     /**
      * Persist session in memory
@@ -80,15 +61,19 @@ public class SSOSessionPersistenceManager {
      * @param spDO
      */
     public void persistSession(String sessionId, String sessionIndex, String subject, SAMLSSOServiceProviderDO spDO,
-                               String rpSessionId, String authenticators, Map<String, String> userAttributes)
+                               String rpSessionId, String authenticators, Map<ClaimMapping, String> userAttributes,
+                               String tenantDomain)
             throws IdentityException {
-        if (!sessionParticipantMap.containsKey(sessionIndex)) {
-            SessionInfoData sessionInfoData = new SessionInfoData(subject);
+        
+        SessionInfoData sessionInfoData = getSessionInfoDataFromCache(sessionIndex);
+        
+        if (sessionInfoData == null) {
+            
+            sessionInfoData = new SessionInfoData(subject,tenantDomain);
             sessionInfoData.addServiceProvider(spDO.getIssuer(), spDO, rpSessionId);
-            sessionInfoData.setAuthenticators(authenticators);
-            sessionInfoData.setAttributes(userAttributes);
-            sessionParticipantMap.put(sessionIndex, sessionInfoData);
-            replicateSessionInfo(sessionId, sessionIndex, subject, spDO, rpSessionId);
+            /*sessionInfoData.setAuthenticators(authenticators);
+            sessionInfoData.setAttributes(userAttributes);*/
+            addSessionInfoDataToCache(sessionIndex, sessionInfoData, CACHE_TIME_OUT);
         }
         else{
             persistSession(sessionId, sessionIndex, spDO.getIssuer(), spDO.getAssertionConsumerUrl(), rpSessionId);
@@ -99,8 +84,10 @@ public class SSOSessionPersistenceManager {
             throws IdentityException {
         try {
             if (sessionIndex != null) {
-                if (sessionParticipantMap.containsKey(sessionIndex)) {
-                    SessionInfoData sessionInfoData = sessionParticipantMap.get(sessionIndex);
+                
+                SessionInfoData sessionInfoData = getSessionInfoDataFromCache(sessionIndex);
+                
+                if (sessionInfoData != null) {
                     String subject = sessionInfoData.getSubject();
                     SAMLSSOServiceProviderDO spDO = SSOServiceProviderConfigManager.getInstance().getServiceProvider(issuer);
                     if (spDO == null) {
@@ -114,7 +101,7 @@ public class SSOSessionPersistenceManager {
                         spDO.setAssertionConsumerUrl(assertionConsumerURL);
                     }
                     sessionInfoData.addServiceProvider(spDO.getIssuer(), spDO, rpSessionId);
-                    replicateSessionInfo(sessionId, sessionIndex, subject, spDO, rpSessionId);
+                    addSessionInfoDataToCache(sessionIndex, sessionInfoData, CACHE_TIME_OUT);
                     return true;
                 } else {
                     log.error("Error persisting the new session, there is no previously established session for this " +
@@ -136,10 +123,7 @@ public class SSOSessionPersistenceManager {
      * @return
      */
     public SessionInfoData getSessionInfo(String sessionIndex) {
-        if (sessionIndex != null) {
-            return sessionParticipantMap.get(sessionIndex);
-        }
-        return null;
+        return getSessionInfoDataFromCache(sessionIndex);
     }
 
     /**
@@ -148,9 +132,7 @@ public class SSOSessionPersistenceManager {
      * @param sessionIndex
      */
     public void removeSession(String sessionIndex) {
-        if (sessionIndex != null) {
-            sessionParticipantMap.remove(sessionIndex);
-        }
+        removeSessionInfoDataFromCache(sessionIndex);
     }
 
     /**
@@ -159,102 +141,100 @@ public class SSOSessionPersistenceManager {
      * @return
      */
     public boolean isExistingSession(String sessionIndex) {
-        if (sessionParticipantMap.containsKey(sessionIndex)) {
+        SessionInfoData sessionInfoData = getSessionInfoDataFromCache(sessionIndex);
+        if (sessionInfoData != null) {
             return true;
         }
         return false;
     }
 
-    private void replicateSessionInfo(String sessionId, String sessionIndex, String subject,
-                                      SAMLSSOServiceProviderDO spDO, String rpSessionId) {
-        SSOSessionCommand sessionCommand = new SSOSessionCommand();
-        sessionCommand.setUsername(subject);
-        sessionCommand.setAssertionConsumerURL(spDO.getAssertionConsumerUrl());
-        sessionCommand.setIssuer(spDO.getIssuer());
-        sessionCommand.setRpSessionID(rpSessionId);
-        sessionCommand.setSessionIndex(sessionIndex);
-        sessionCommand.setSessionId(sessionId);
-        sessionCommand.setSignOut(false);
-
-        if (log.isDebugEnabled()) {
-            log.debug("Starting to replicate Session Info for TokenID : " + sessionIndex);
-        }
-        
-        sendClusterSyncMessage(sessionCommand);
-        
-        if (log.isDebugEnabled()) {
-            log.debug("Completed replicating Session Info for TokenID : " + sessionIndex);
-        }
-    }
-
-    public Map<String, String> getSessionMap() {
-		return sessionMap;
-	}
-    
     public void persistSession(String tokenId, String sessionIndex){
-    	sessionMap.put(tokenId, sessionIndex);
+        if(tokenId == null){
+            log.debug("SSO Token Id is null.");
+            return;
+        }
+        if(sessionIndex == null){
+            log.debug("SessionIndex is null.");
+            return;
+        }
+    	addSessionIndexToCache(tokenId, sessionIndex, CACHE_TIME_OUT);
     }
     
-    public boolean isExistingTokenId(String tokenId){
-    	if (tokenId != null) {
-    		return sessionMap.containsKey(tokenId);
-    	}
-    	return false;
+    public boolean isExistingTokenId(String tokenId) {
+
+        String sessionIndex = getSessionIndexFromCache(tokenId);
+
+        if (sessionIndex != null) {
+            return true;
+        }
+        return false;
     }
-    
-    public String getSessionIndexFromTokenId(String tokenId){
-    	if (isExistingTokenId(tokenId)){
-    		return sessionMap.get(tokenId);
-    	}
-    	return null;
+
+    public String getSessionIndexFromTokenId(String tokenId) {
+        return getSessionIndexFromCache(tokenId);
     }
     
     public void removeTokenId(String sessionId) {
-        if (sessionId != null) {
-            sessionMap.remove(sessionId);
+        removeSessionIndexFromCache(sessionId);
+    }
+    
+    public static void addSessionInfoDataToCache(String key, SessionInfoData sessionInfoData,
+            int cacheTimeout) {
+
+        SAMLSSOParticipantCacheKey cacheKey = new SAMLSSOParticipantCacheKey(key);
+        SAMLSSOParticipantCacheEntry cacheEntry = new SAMLSSOParticipantCacheEntry();
+        cacheEntry.setSessionInfoData(sessionInfoData);
+        SAMLSSOParticipantCache.getInstance(cacheTimeout).addToCache(cacheKey, cacheEntry);
+    }
+    
+    public static void addSessionIndexToCache(String key, String sessionIndex,
+            int cacheTimeout) {
+
+        SAMLSSOSessionIndexCacheKey cacheKey = new SAMLSSOSessionIndexCacheKey(key);
+        SAMLSSOSessionIndexCacheEntry cacheEntry = new SAMLSSOSessionIndexCacheEntry();
+        cacheEntry.setSessionIndex(sessionIndex);
+        SAMLSSOSessionIndexCache.getInstance(cacheTimeout).addToCache(cacheKey, cacheEntry);
+    }
+    
+    public static SessionInfoData getSessionInfoDataFromCache(String key) {
+
+        SessionInfoData sessionInfoData = null;
+        SAMLSSOParticipantCacheKey cacheKey = new SAMLSSOParticipantCacheKey(key);
+        Object cacheEntryObj = SAMLSSOParticipantCache.getInstance(0).getValueFromCache(cacheKey);
+
+        if (cacheEntryObj != null) {
+            sessionInfoData = ((SAMLSSOParticipantCacheEntry) cacheEntryObj).getSessionInfoData();
+        }
+
+        return sessionInfoData;
+    }
+    
+    public static String getSessionIndexFromCache(String key) {
+
+        String sessionIndex = null;
+        SAMLSSOSessionIndexCacheKey cacheKey = new SAMLSSOSessionIndexCacheKey(key);
+        Object cacheEntryObj = SAMLSSOSessionIndexCache.getInstance(0).getValueFromCache(cacheKey);
+
+        if (cacheEntryObj != null) {
+            sessionIndex = ((SAMLSSOSessionIndexCacheEntry) cacheEntryObj).getSessionIndex();
+        }
+
+        return sessionIndex;
+    }
+
+    public static void removeSessionInfoDataFromCache(String key) {
+        
+        if (key != null) {
+            SAMLSSOParticipantCacheKey cacheKey = new SAMLSSOParticipantCacheKey(key);
+            SAMLSSOParticipantCache.getInstance(0).clearCacheEntry(cacheKey);
         }
     }
     
-    public void sendClusterSyncMessage(SSOSessionCommand sessionCommand) {
-        // For sending clustering messages we need to use the super-tenant's AxisConfig (Main Server
-        // AxisConfiguration) because we are using the clustering facility offered by the ST in the
-        // tenants
-        int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
-        String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        UUID messageId = UUID.randomUUID();
+    public static void removeSessionIndexFromCache(String key) {
         
-        sessionCommand.setTenantId(tenantId);
-        sessionCommand.setTenantDomain(tenantDomain);
-        sessionCommand.setMessageId(messageId);
-
-        ClusteringAgent clusteringAgent =
-        		SAMLSSOUtil.getConfigCtxService().getServerConfigContext().getAxisConfiguration().getClusteringAgent();
-        
-        if (clusteringAgent != null) {
-            int numberOfRetries = 0;
-            
-            while (numberOfRetries < 60) {
-                try {
-                    clusteringAgent.sendMessage(sessionCommand, true);
-                    log.info("Sent [" + sessionCommand + "]");
-                    break;
-                } catch (ClusteringFault e) {
-                    numberOfRetries++;
-                    
-                    if (numberOfRetries < 60) {
-                        log.warn("Could not send SSOSessionSynchronizeRequest for tenant " +
-                                tenantId + ". Retry will be attempted in 2s. Request: " + sessionCommand, e);
-                    } else {
-                        log.error("Could not send SSOSessionSynchronizeRequest for tenant " +
-                                tenantId + ". Several retries failed. Request:" + sessionCommand, e);
-                    }
-                    
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException ignored) {
-                    }
-                }
-            }
+        if (key != null) {
+            SAMLSSOSessionIndexCacheKey cacheKey = new SAMLSSOSessionIndexCacheKey(key);
+            SAMLSSOSessionIndexCache.getInstance(0).clearCacheEntry(cacheKey);
         }
     }
 }

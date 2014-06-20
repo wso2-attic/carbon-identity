@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.scim.provider.resources;
 
 import org.apache.commons.logging.Log;
@@ -52,9 +52,9 @@ public class UserResource extends AbstractResource {
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUser(@PathParam(SCIMConstants.CommonSchemaConstants.ID) String id,
-                            @HeaderParam(SCIMConstants.ACCEPT_HEADER) String format,
-                            @HeaderParam(SCIMConstants.AUTHENTICATION_TYPE_HEADER) String authMechanism,
-                            @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization) {
+            @HeaderParam(SCIMConstants.ACCEPT_HEADER) String format,
+            @HeaderParam(SCIMConstants.AUTHENTICATION_TYPE_HEADER) String authMechanism,
+            @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization) {
 
         Encoder encoder = null;
         try {
@@ -62,103 +62,116 @@ public class UserResource extends AbstractResource {
 
             // defaults to application/json.
             format = identifyOutputFormat(format);
-            //obtain the encoder at this layer in case exceptions needs to be encoded.
+            // obtain the encoder at this layer in case exceptions needs to be encoded.
             encoder = identitySCIMManager.getEncoder(SCIMConstants.identifyFormat(format));
-            //perform authentication
-            /*Map<String, String> headerMap = new HashMap<String, String>();
-            headerMap.put(SCIMConstants.AUTHORIZATION_HEADER, authorization);
-            headerMap.put(SCIMConstants.AUTHENTICATION_TYPE_HEADER, authMechanism);*/
-            //authenticate the request
-            //AuthenticationInfo authInfo = identitySCIMManager.handleAuthentication(headerMap);
-            //obtain the user store manager
+            // perform authentication
+            /*
+             * Map<String, String> headerMap = new HashMap<String, String>();
+             * headerMap.put(SCIMConstants.AUTHORIZATION_HEADER, authorization);
+             * headerMap.put(SCIMConstants.AUTHENTICATION_TYPE_HEADER, authMechanism);
+             */
+            // authenticate the request
+            // AuthenticationInfo authInfo = identitySCIMManager.handleAuthentication(headerMap);
+            // obtain the user store manager
             UserManager userManager = IdentitySCIMManager.getInstance().getUserManager(
                     authorization);
 
-            //create charon-SCIM user endpoint and hand-over the request.
+            // create charon-SCIM user endpoint and hand-over the request.
             UserResourceEndpoint userResourceEndpoint = new UserResourceEndpoint();
 
             SCIMResponse scimResponse = userResourceEndpoint.get(id, format, userManager);
-            //needs to check the code of the response and return 200 0k or other error codes
+            // needs to check the code of the response and return 200 0k or other error codes
             // appropriately.
             return new JAXRSResponseBuilder().buildResponse(scimResponse);
 
         } catch (CharonException e) {
-            e.printStackTrace();
-            //create SCIM response with code as the same of exception and message as error message of the exception
+            if (logger.isDebugEnabled()) {
+                logger.debug(e.getMessage(), e);
+            }
+            // create SCIM response with code as the same of exception and message as error message
+            // of the exception
             if (e.getCode() == -1) {
                 e.setCode(ResponseCodeConstants.CODE_INTERNAL_SERVER_ERROR);
             }
-            return new JAXRSResponseBuilder().buildResponse(
-                    AbstractResourceEndpoint.encodeSCIMException(encoder, e));
+            return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
+                    .encodeSCIMException(encoder, e));
         } catch (FormatNotSupportedException e) {
             e.printStackTrace();
-            return new JAXRSResponseBuilder().buildResponse(
-                    AbstractResourceEndpoint.encodeSCIMException(encoder, e));
+            return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
+                    .encodeSCIMException(encoder, e));
         }
     }
 
     @POST
     public Response createUser(@HeaderParam(SCIMConstants.CONTENT_TYPE_HEADER) String inputFormat,
-                               @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
-                               @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
-                               String resourceString) {
+            @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
+            @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
+            String resourceString) {
 
         Encoder encoder = null;
         try {
-            //obtain default charon manager
+            // obtain default charon manager
             IdentitySCIMManager identitySCIMManager = IdentitySCIMManager.getInstance();
 
-            //content-type header is compulsory in post request.
+            // content-type header is compulsory in post request.
             if (inputFormat == null) {
-                String error = SCIMConstants.CONTENT_TYPE_HEADER + " not present in the request header";
+                String error = SCIMConstants.CONTENT_TYPE_HEADER
+                        + " not present in the request header";
                 throw new FormatNotSupportedException(error);
             }
-            //identify input format
+            // identify input format
             inputFormat = identifyInputFormat(inputFormat);
-            //set the format in which the response should be encoded, if not specified in the request,
+            // set the format in which the response should be encoded, if not specified in the
+            // request,
             // defaults to application/json.
             outputFormat = identifyOutputFormat(outputFormat);
-            //obtain the encoder at this layer in case exceptions needs to be encoded.
+            // obtain the encoder at this layer in case exceptions needs to be encoded.
             encoder = identitySCIMManager.getEncoder(SCIMConstants.identifyFormat(outputFormat));
-            /*//perform authentication
-            Map<String, String> headerMap = new HashMap<String, String>();
-            headerMap.put(SCIMConstants.AUTHORIZATION_HEADER, authorization);
-            //authenticate the request
-            //AuthenticationInfo authInfo = identitySCIMManager.handleAuthentication(headerMap);
-            System.out.println("user name at user resource: " + authorization);*/
+            /*
+             * //perform authentication Map<String, String> headerMap = new HashMap<String,
+             * String>(); headerMap.put(SCIMConstants.AUTHORIZATION_HEADER, authorization);
+             * //authenticate the request //AuthenticationInfo authInfo =
+             * identitySCIMManager.handleAuthentication(headerMap);
+             * System.out.println("user name at user resource: " + authorization);
+             */
 
-            //obtain the user store manager
+            // obtain the user store manager
             UserManager userManager = IdentitySCIMManager.getInstance().getUserManager(
                     authorization);
 
-            //create charon-SCIM user endpoint and hand-over the request.
+            // create charon-SCIM user endpoint and hand-over the request.
             UserResourceEndpoint userResourceEndpoint = new UserResourceEndpoint();
 
             SCIMResponse response = userResourceEndpoint.create(resourceString, inputFormat,
-                                                                outputFormat, userManager);
+                    outputFormat, userManager);
 
             return new JAXRSResponseBuilder().buildResponse(response);
 
         } catch (CharonException e) {
-            e.printStackTrace();
-            //create SCIM response with code as the same of exception and message as error message of the exception
+            if (logger.isDebugEnabled()) {
+                logger.debug(e.getMessage(), e);
+            }
+            // create SCIM response with code as the same of exception and message as error message
+            // of the exception
             if (e.getCode() == -1) {
                 e.setCode(ResponseCodeConstants.CODE_INTERNAL_SERVER_ERROR);
             }
-            return new JAXRSResponseBuilder().buildResponse(
-                    AbstractResourceEndpoint.encodeSCIMException(encoder, e));
+            return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
+                    .encodeSCIMException(encoder, e));
         } catch (FormatNotSupportedException e) {
-            e.printStackTrace();
-            return new JAXRSResponseBuilder().buildResponse(
-                    AbstractResourceEndpoint.encodeSCIMException(encoder, e));
+            if (logger.isDebugEnabled()) {
+                logger.debug(e.getMessage(), e);
+            }
+            return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
+                    .encodeSCIMException(encoder, e));
         }
     }
 
     @DELETE
     @Path("{id}")
     public Response deleteUser(@PathParam(SCIMConstants.CommonSchemaConstants.ID) String id,
-                               @HeaderParam(SCIMConstants.ACCEPT_HEADER) String format,
-                               @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization) {
+            @HeaderParam(SCIMConstants.ACCEPT_HEADER) String format,
+            @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization) {
         Encoder encoder = null;
         try {
             IdentitySCIMManager identitySCIMManager = IdentitySCIMManager.getInstance();
@@ -167,167 +180,192 @@ public class UserResource extends AbstractResource {
             if (format == null) {
                 format = SCIMConstants.APPLICATION_JSON;
             }
-            //set the format in which the response should be encoded, if not specified in the request,
+            // set the format in which the response should be encoded, if not specified in the
+            // request,
             // defaults to application/json.
             format = identifyOutputFormat(format);
-            //obtain the encoder at this layer in case exceptions needs to be encoded.
+            // obtain the encoder at this layer in case exceptions needs to be encoded.
             encoder = identitySCIMManager.getEncoder(SCIMConstants.identifyFormat(format));
-            //perform authentication
-            /*Map<String, String> headerMap = new HashMap<String, String>();
-            headerMap.put(SCIMConstants.AUTHORIZATION_HEADER, authorization);
-            //authenticate the request
-            AuthenticationInfo authInfo = identitySCIMManager.handleAuthentication(headerMap);*/
+            // perform authentication
+            /*
+             * Map<String, String> headerMap = new HashMap<String, String>();
+             * headerMap.put(SCIMConstants.AUTHORIZATION_HEADER, authorization); //authenticate the
+             * request AuthenticationInfo authInfo =
+             * identitySCIMManager.handleAuthentication(headerMap);
+             */
 
-            //obtain the user store manager
+            // obtain the user store manager
             UserManager userManager = IdentitySCIMManager.getInstance().getUserManager(
                     authorization);
 
-            //create charon-SCIM user endpoint and hand-over the request.
+            // create charon-SCIM user endpoint and hand-over the request.
             UserResourceEndpoint userResourceEndpoint = new UserResourceEndpoint();
 
             SCIMResponse scimResponse = userResourceEndpoint.delete(id, userManager, format);
-            //needs to check the code of the response and return 200 0k or other error codes
+            // needs to check the code of the response and return 200 0k or other error codes
             // appropriately.
             return new JAXRSResponseBuilder().buildResponse(scimResponse);
 
         } catch (CharonException e) {
-            e.printStackTrace();
-            //create SCIM response with code as the same of exception and message as error message of the exception
+            if (logger.isDebugEnabled()) {
+                logger.debug(e.getMessage(), e);
+            }
+            // create SCIM response with code as the same of exception and message as error message
+            // of the exception
             if (e.getCode() == -1) {
                 e.setCode(ResponseCodeConstants.CODE_INTERNAL_SERVER_ERROR);
             }
-            return new JAXRSResponseBuilder().buildResponse(
-                    AbstractResourceEndpoint.encodeSCIMException(encoder, e));
+            return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
+                    .encodeSCIMException(encoder, e));
         } catch (FormatNotSupportedException e) {
-            e.printStackTrace();
-            return new JAXRSResponseBuilder().buildResponse(
-                    AbstractResourceEndpoint.encodeSCIMException(encoder, e));
+            if (logger.isDebugEnabled()) {
+                logger.debug(e.getMessage(), e);
+            }
+            return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
+                    .encodeSCIMException(encoder, e));
         }
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUser(@HeaderParam(SCIMConstants.ACCEPT_HEADER) String format,
-                            @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
-                            @QueryParam("attributes") String searchAttribute,
-                            @QueryParam("filter") String filter,
-                            @QueryParam("startIndex") String startIndex,
-                            @QueryParam("count") String count, @QueryParam("sortBy") String sortBy,
-                            @QueryParam("sortOrder") String sortOrder) {
+            @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
+            @QueryParam("attributes") String searchAttribute, @QueryParam("filter") String filter,
+            @QueryParam("startIndex") String startIndex, @QueryParam("count") String count,
+            @QueryParam("sortBy") String sortBy, @QueryParam("sortOrder") String sortOrder) {
         Encoder encoder = null;
         try {
             IdentitySCIMManager identitySCIMManager = IdentitySCIMManager.getInstance();
 
             // defaults to application/json.
             format = identifyOutputFormat(format);
-            //obtain the encoder at this layer in case exceptions needs to be encoded.
+            // obtain the encoder at this layer in case exceptions needs to be encoded.
             encoder = identitySCIMManager.getEncoder(SCIMConstants.identifyFormat(format));
-            //perform authentication
-            /*Map<String, String> headerMap = new HashMap<String, String>();
-            headerMap.put(SCIMConstants.AUTHORIZATION_HEADER, authorization);
-            //authenticate the request
-            AuthenticationInfo authInfo = identitySCIMManager.handleAuthentication(headerMap);*/
+            // perform authentication
+            /*
+             * Map<String, String> headerMap = new HashMap<String, String>();
+             * headerMap.put(SCIMConstants.AUTHORIZATION_HEADER, authorization); //authenticate the
+             * request AuthenticationInfo authInfo =
+             * identitySCIMManager.handleAuthentication(headerMap);
+             */
 
-            //obtain the user store manager
+            // obtain the user store manager
             UserManager userManager = IdentitySCIMManager.getInstance().getUserManager(
                     authorization);
 
-            //create charon-SCIM user endpoint and hand-over the request.
+            // create charon-SCIM user endpoint and hand-over the request.
             UserResourceEndpoint userResourceEndpoint = new UserResourceEndpoint();
             SCIMResponse scimResponse = null;
             if (searchAttribute != null) {
-                scimResponse = userResourceEndpoint.listByAttribute(searchAttribute, userManager, format);
+                scimResponse = userResourceEndpoint.listByAttribute(searchAttribute, userManager,
+                        format);
             } else if (filter != null) {
                 scimResponse = userResourceEndpoint.listByFilter(filter, userManager, format);
             } else if (startIndex != null && count != null) {
                 scimResponse = userResourceEndpoint.listWithPagination(Integer.valueOf(startIndex),
-                                                                       Integer.valueOf(count),
-                                                                       userManager, format);
+                        Integer.valueOf(count), userManager, format);
             } else if (sortBy != null) {
-                scimResponse = userResourceEndpoint.listBySort(sortBy, sortOrder, userManager, format);
-            } else if (searchAttribute == null && filter == null && startIndex == null &&
-                       count == null && sortBy == null) {
+                scimResponse = userResourceEndpoint.listBySort(sortBy, sortOrder, userManager,
+                        format);
+            } else if (searchAttribute == null && filter == null && startIndex == null
+                    && count == null && sortBy == null) {
                 scimResponse = userResourceEndpoint.list(userManager, format);
             } else {
-                //bad request
+                // bad request
                 throw new BadRequestException(ResponseCodeConstants.DESC_BAD_REQUEST_GET);
             }
 
             return new JAXRSResponseBuilder().buildResponse(scimResponse);
 
         } catch (CharonException e) {
-            e.printStackTrace();
-            //create SCIM response with code as the same of exception and message as error message of the exception
+            if (logger.isDebugEnabled()) {
+                logger.debug(e.getMessage(), e);
+            }
+            // create SCIM response with code as the same of exception and message as error message
+            // of the exception
             if (e.getCode() == -1) {
                 e.setCode(ResponseCodeConstants.CODE_INTERNAL_SERVER_ERROR);
             }
-            return new JAXRSResponseBuilder().buildResponse(
-                    AbstractResourceEndpoint.encodeSCIMException(encoder, e));
+            return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
+                    .encodeSCIMException(encoder, e));
         } catch (FormatNotSupportedException e) {
-            e.printStackTrace();
-            return new JAXRSResponseBuilder().buildResponse(
-                    AbstractResourceEndpoint.encodeSCIMException(encoder, e));
+            if (logger.isDebugEnabled()) {
+                logger.debug(e.getMessage(), e);
+            }
+            return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
+                    .encodeSCIMException(encoder, e));
         } catch (BadRequestException e) {
-            e.printStackTrace();
-            return new JAXRSResponseBuilder().buildResponse(
-                    AbstractResourceEndpoint.encodeSCIMException(encoder, e));
+            if (logger.isDebugEnabled()) {
+                logger.debug(e.getMessage(), e);
+            }
+            return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
+                    .encodeSCIMException(encoder, e));
         }
     }
 
     @PUT
     @Path("{id}")
     public Response updateUser(@PathParam(SCIMConstants.CommonSchemaConstants.ID) String id,
-                               @HeaderParam(SCIMConstants.CONTENT_TYPE_HEADER) String inputFormat,
-                               @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
-                               @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
-                               String resourceString) {
+            @HeaderParam(SCIMConstants.CONTENT_TYPE_HEADER) String inputFormat,
+            @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
+            @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
+            String resourceString) {
         Encoder encoder = null;
         try {
-            //obtain default charon manager
+            // obtain default charon manager
             IdentitySCIMManager identitySCIMManager = IdentitySCIMManager.getInstance();
 
-            //content-type header is compulsory in post request.
+            // content-type header is compulsory in post request.
             if (inputFormat == null) {
-                String error = SCIMConstants.CONTENT_TYPE_HEADER + " not present in the request header";
+                String error = SCIMConstants.CONTENT_TYPE_HEADER
+                        + " not present in the request header";
                 throw new FormatNotSupportedException(error);
             }
-            //identify input format
+            // identify input format
             inputFormat = identifyInputFormat(inputFormat);
-            //set the format in which the response should be encoded, if not specified in the request,
+            // set the format in which the response should be encoded, if not specified in the
+            // request,
             // defaults to application/json.
             outputFormat = identifyOutputFormat(outputFormat);
-            //obtain the encoder at this layer in case exceptions needs to be encoded.
+            // obtain the encoder at this layer in case exceptions needs to be encoded.
             encoder = identitySCIMManager.getEncoder(SCIMConstants.identifyFormat(outputFormat));
-            //perform authentication
-            /*Map<String, String> headerMap = new HashMap<String, String>();
-            headerMap.put(SCIMConstants.AUTHORIZATION_HEADER, authorization);
-            //authenticate the request
-            AuthenticationInfo authInfo = identitySCIMManager.handleAuthentication(headerMap);*/
+            // perform authentication
+            /*
+             * Map<String, String> headerMap = new HashMap<String, String>();
+             * headerMap.put(SCIMConstants.AUTHORIZATION_HEADER, authorization); //authenticate the
+             * request AuthenticationInfo authInfo =
+             * identitySCIMManager.handleAuthentication(headerMap);
+             */
 
-            //obtain the user store manager
+            // obtain the user store manager
             UserManager userManager = IdentitySCIMManager.getInstance().getUserManager(
                     authorization);
 
-            //create charon-SCIM user endpoint and hand-over the request.
+            // create charon-SCIM user endpoint and hand-over the request.
             UserResourceEndpoint userResourceEndpoint = new UserResourceEndpoint();
 
-            SCIMResponse response = userResourceEndpoint.updateWithPUT(id, resourceString, inputFormat,
-                                                                       outputFormat, userManager);
+            SCIMResponse response = userResourceEndpoint.updateWithPUT(id, resourceString,
+                    inputFormat, outputFormat, userManager);
 
             return new JAXRSResponseBuilder().buildResponse(response);
 
         } catch (CharonException e) {
-            e.printStackTrace();
-            //create SCIM response with code as the same of exception and message as error message of the exception
+            if (logger.isDebugEnabled()) {
+                logger.debug(e.getMessage(), e);
+            }
+            // create SCIM response with code as the same of exception and message as error message
+            // of the exception
             if (e.getCode() == -1) {
                 e.setCode(ResponseCodeConstants.CODE_INTERNAL_SERVER_ERROR);
             }
-            return new JAXRSResponseBuilder().buildResponse(
-                    AbstractResourceEndpoint.encodeSCIMException(encoder, e));
+            return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
+                    .encodeSCIMException(encoder, e));
         } catch (FormatNotSupportedException e) {
-            e.printStackTrace();
-            return new JAXRSResponseBuilder().buildResponse(
-                    AbstractResourceEndpoint.encodeSCIMException(encoder, e));
+            if (logger.isDebugEnabled()) {
+                logger.debug(e.getMessage(), e);
+            }
+            return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
+                    .encodeSCIMException(encoder, e));
         }
     }
 

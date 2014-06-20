@@ -17,11 +17,13 @@
 */
 package org.wso2.carbon.identity.sso.saml.dto;
 
+import java.io.Serializable;
+
 /**
  * This class is used as the DTO to send  the SSO Service Provider info + file path  of the
  * generated public cert. 
  */
-public class SAMLSSOServiceProviderInfoDTO {
+public class SAMLSSOServiceProviderInfoDTO implements Serializable {
 
     private SAMLSSOServiceProviderDTO[] serviceProviders;
     private String pubCertFilePath;

@@ -32,8 +32,10 @@ public class SAMLSSOProviderConfigBean {
 	private String singleLogoutUrl = "";
 	private String enableClaims = "false";
     private String enableAudiences = "false";
+    private String enableRecipients = "false";
 	private List<String> selectedClaims = new ArrayList<String>();
     private List<String> selectedAudiences = new ArrayList<String>();
+    private List<String> selectedRecipients = new ArrayList<String>();
     private String attributeConsumingServiceIndex = null;
     private String isIdPInitSSOEnabled;
 
@@ -51,6 +53,7 @@ public class SAMLSSOProviderConfigBean {
 		singleLogoutUrl = "";
 		enableClaims = "false";
         enableAudiences = "false";
+        enableRecipients = "false";
         attributeConsumingServiceIndex = "";
 		selectedClaims.clear();
 	}
@@ -279,6 +282,55 @@ public class SAMLSSOProviderConfigBean {
      */
     public void removeAudienceFromList(String audience) {
         selectedAudiences.remove(audience);
+    }
+
+    /**
+     * @return the enableRecipients
+     */
+    public String getEnableRecipients() {
+        return enableRecipients;
+    }
+
+    /**
+     * @param enableRecipients
+     *            the enableRecipients to set
+     */
+    public void setEnableRecipients(String enableRecipients) {
+        this.enableRecipients = enableRecipients;
+    }
+
+    /**
+     * @return the selectedRecipients
+     */
+    public List<String> getSelectedRecipients() {
+        return selectedRecipients;
+    }
+
+    public String[] getSelectedRecipientsArray() {
+        return selectedRecipients.toArray(new String[selectedRecipients.size()]);
+    }
+
+    /**
+     * add an recipient to the required recipients list
+     *
+     * @param recipient
+     * @return
+     */
+    public boolean addRecipientToList(String recipient) {
+        if(selectedRecipients.contains(recipient)){
+            return false;
+        }
+        selectedRecipients.add(recipient);
+        return true;
+    }
+
+    /**
+     * remove a recipient from the required recipients list
+     *
+     * @param recipient
+     */
+    public void removeRecipientFromList(String recipient) {
+        selectedRecipients.remove(recipient);
     }
 
     /**
