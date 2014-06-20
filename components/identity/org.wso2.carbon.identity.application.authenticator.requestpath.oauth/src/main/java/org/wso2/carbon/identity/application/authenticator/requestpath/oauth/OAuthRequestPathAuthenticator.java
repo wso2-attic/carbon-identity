@@ -17,22 +17,22 @@
  */
 package org.wso2.carbon.identity.application.authenticator.requestpath.oauth;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
-import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorStateInfo;
-import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorStatus;
 import org.wso2.carbon.identity.application.authentication.framework.RequestPathApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
+import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.oauth2.OAuth2TokenValidationService;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationRequestDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationRequestDTO.OAuth2AccessToken;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Enumeration;
-import java.util.Map;
 
 public class OAuthRequestPathAuthenticator extends AbstractApplicationAuthenticator implements RequestPathApplicationAuthenticator {
 
@@ -52,33 +52,36 @@ public class OAuthRequestPathAuthenticator extends AbstractApplicationAuthentica
     		log.trace("Inside canHandle()");
     	}
 		
-		Enumeration<String> authHeader = request.getHeaders(AUTHORIZATION_HEADER_NAME);
-		if(authHeader != null && authHeader.hasMoreElements()) {
-			String headerValue = authHeader.nextElement();
-			if(headerValue != null && "".equals(headerValue.trim())) {
-				String[] headerPart = headerValue.trim().split(" ");
-				if(BEARER_SCHEMA.equals(headerPart[0])) {
-					return true;
-				}
+		String headerValue = (String) request.getSession().getAttribute(AUTHORIZATION_HEADER_NAME);
+		
+		if (headerValue != null && !"".equals(headerValue.trim())) {
+			String[] headerPart = headerValue.trim().split(" ");
+			if (BEARER_SCHEMA.equals(headerPart[0])) {
+				return true;
 			}
+		} else if(request.getParameter("token") != null) {
+			return true;
 		}
+		
 		return false;
 	}
-
+	
 	@Override
-	public AuthenticatorStatus authenticate(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationContext context) {
+	protected void processAuthenticationResponse(HttpServletRequest request,
+			HttpServletResponse response, AuthenticationContext context)
+			throws AuthenticationFailedException {
+
+		String headerValue = (String) request.getSession().getAttribute(AUTHORIZATION_HEADER_NAME);
 		
-		if (log.isTraceEnabled()) {
-    		log.trace("Inside authenticate()");
-    	}
+		String token = null;
+		if(headerValue != null) {
+			token = headerValue.trim().split(" ")[1];
+		} else {
+			token = request.getParameter("token");
+		}
 		
-		Enumeration<String> authHeader = request.getHeaders(AUTHORIZATION_HEADER_NAME);
-		String headerValue = authHeader.nextElement().trim();
-		String token = headerValue.trim().split(" ")[1];
 		
 		try {
-			
 			OAuth2TokenValidationService validationService = new OAuth2TokenValidationService();
 			OAuth2TokenValidationRequestDTO validationReqDTO = new OAuth2TokenValidationRequestDTO();
 			OAuth2AccessToken accessToken = validationReqDTO.new OAuth2AccessToken();
@@ -87,96 +90,41 @@ public class OAuthRequestPathAuthenticator extends AbstractApplicationAuthentica
 			validationReqDTO.setAccessToken(accessToken);
 			OAuth2TokenValidationResponseDTO validationResponse = validationService.validate(validationReqDTO);
 			
-			if(validationResponse.isValid()) {
+			if(!validationResponse.isValid()) {
 				log.error("RequestPath OAuth authentication failed");
-				return AuthenticatorStatus.CONTINUE;
+				throw new AuthenticationFailedException("Authentication Failed");
 			}
 			
 			String user = validationResponse.getAuthorizedUser();
+			
+			if(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(MultitenantUtils.getTenantDomain(user))) {
+				user = MultitenantUtils.getTenantAwareUsername(user);
+			}
 			context.setSubject(user);
 			
 			if(log.isDebugEnabled()) {
 				log.debug("Authenticated user " + user);
 			}
 			
-			request.getSession().setAttribute("username", user);
-			
+			context.setSubject(user);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
-			return AuthenticatorStatus.FAIL;
+			throw new AuthenticationFailedException(e.getMessage(), e);
 		}
-		
-		return AuthenticatorStatus.PASS;
-	}
-
-	@Override
-	public AuthenticatorStatus logout(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationContext context, AuthenticatorStateInfo stateInfo) {
-		if (log.isTraceEnabled()) {
-    		log.trace("Inside logout()");
-    	}
-    	
-    	// We cannot invalidate the session in case session is used by the calling servlet
-        return AuthenticatorStatus.PASS;
-	}
-
-	@Override
-	public void sendInitialRequest(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationContext context) {
-		
-		if (log.isTraceEnabled()) {
-    		log.trace("Inside sendInitialRequest()");
-    	}
-
-	}
-
-	@Override
-	public String getAuthenticatedSubject(HttpServletRequest request) {
-		if (log.isTraceEnabled()) {
-    		log.trace("Inside getAuthenticatedSubject()");
-    	}
-		
-		return (String)request.getSession().getAttribute("username");
-	}
-
-	@Override
-	public Map<String, String> getResponseAttributes(HttpServletRequest request,
-			AuthenticationContext context) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AuthenticatorStateInfo getStateInfo(HttpServletRequest request) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
 	public String getContextIdentifier(HttpServletRequest request) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getAuthenticatorName() {
-		
-		if (log.isTraceEnabled()) {
-    		log.trace("Inside getAuthenticatorName()");
-    	}
-    	
+	public String getFriendlyName() {
+		return "oauth-bearer";
+	}
+
+	@Override
+	public String getName() {
 		return AUTHENTICATOR_NAME;
 	}
-
-	@Override
-	public boolean isEnabled() {
-		return true;
-	}
-
-	@Override
-	public String getClaimDialectURIIfStandard() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }
