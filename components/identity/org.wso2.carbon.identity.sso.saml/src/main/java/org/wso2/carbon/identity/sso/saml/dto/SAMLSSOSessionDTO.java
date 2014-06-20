@@ -1,7 +1,11 @@
 package org.wso2.carbon.identity.sso.saml.dto;
 
-public class SAMLSSOSessionDTO {
+import java.io.Serializable;
 
+public class SAMLSSOSessionDTO implements Serializable {
+
+    private static final long serialVersionUID = 3806660562465698477L;
+    
     private String httpQueryString;
     private String destination;
     private String relayState;
@@ -17,6 +21,9 @@ public class SAMLSSOSessionDTO {
     private String sessionId;
     private boolean logoutReq;
     private String tenantDomain;
+    private boolean invalidLogout;
+    private boolean passiveAuth;
+    private boolean forceAuth;
 
     public String getHttpQueryString() {
         return httpQueryString;
@@ -138,4 +145,28 @@ public class SAMLSSOSessionDTO {
 	public void setTenantDomain(String tenantDomain) {
 		this.tenantDomain = tenantDomain;
 	}
+
+    public boolean isInvalidLogout() {
+        return invalidLogout;
+    }
+
+    public void setInvalidLogout(boolean invalidLogout) {
+        this.invalidLogout = invalidLogout;
+    }
+
+    public boolean isPassiveAuth() {
+        return passiveAuth;
+    }
+
+    public void setPassiveAuth(boolean passiveAuth) {
+        this.passiveAuth = passiveAuth;
+    }
+
+    public boolean isForceAuth() {
+        return forceAuth;
+    }
+
+    public void setForceAuth(boolean forceAuth) {
+        this.forceAuth = forceAuth;
+    }
 }

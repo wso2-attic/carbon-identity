@@ -53,9 +53,46 @@
 <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
 
 <script type="text/javascript">
+/* function validateAndSubmit(){
+	if($('#existingIssuers').length > 0 && $('#existingIssuers').val().length > 0 && $('#issuer').val().length > 0){
+		var existingIssuers = $('#existingIssuers').val().split(",");
+		var issuer = $('#issuer').val();
+		if(existingIssuers.length > 0){
+			var isValid = true;
+			$.each(existingIssuers, function(){
+				if(this.length > 0 && this == issuer){
+					isValid = false;
+					return false;
+				}
+			});
+			if(!isValid){
+		        CARBON.showWarningDialog('Service Provider with Issuer "'+issuer+'" is already registered.', null, null);
+		        return false;
+			}
+		}
+	}
+	if(doValidation()){
+		document.getElementById("addServiceProvider").submit();
+	}
+} */
+
 function doValidation() {
-    var fld = document.getElementsByName("assrtConsumerURL")[0];
+    var fld = document.getElementsByName("issuer")[0];
     var value = fld.value;
+    if (value.length == 0) {
+        CARBON.showWarningDialog(
+                "<fmt:message key='sp.enter.valid.issuer'/>", null,
+                null);
+        return false;
+    } else if(value.indexOf("@") > -1){
+        CARBON.showWarningDialog(
+                "<fmt:message key='sp.entity.id.cannot.have.at'/>", null,
+                null);
+        return false;
+    }
+	
+    var fld2 = document.getElementsByName("assrtConsumerURL")[0];
+    var value = fld2.value;
     var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
     if (value.length == 0) {
         CARBON.showWarningDialog(
@@ -81,8 +118,8 @@ function doValidation() {
 
     }
 
-    var fld = document.getElementsByName("logoutURL")[0];
-    var value = fld.value;
+    var fld3 = document.getElementsByName("logoutURL")[0];
+    var value = fld3.value;
     var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
     if (value.length != 0) {
         value = value.replace(/^\s+/, "");
@@ -96,26 +133,15 @@ function doValidation() {
         }
     }
 
-
-
-    var fld = document.getElementsByName("issuer")[0];
-    var value = fld.value;
-    if (value.length == 0) {
-        CARBON.showWarningDialog(
-                "<fmt:message key='sp.enter.valid.issuer'/>", null,
-                null);
-        return false;
-    }
-
-    if (document.getElementsByName("subjectType")[1].checked) {
-        var claimVal = document.getElementsByName("claimID")[0].value;
-        if (claimVal.length == 0) {
-            CARBON.showWarningDialog(
-                    "<fmt:message key='sp.enter.valid.claimID'/>",
-                    null, null);
-            return false;
-        }
-    }
+    //if (document.getElementsByName("subjectType")[1].checked) {
+    //    var claimVal = document.getElementsByName("claimID")[0].value;
+    //    if (claimVal.length == 0) {
+    //        CARBON.showWarningDialog(
+    //                "<fmt:message key='sp.enter.valid.claimID'/>",
+    //                null, null);
+    //        return false;
+    //    }
+    //}
     return true;
 }
 
@@ -132,6 +158,7 @@ function removeItem(issuer) {
                         + issuer;
             }, null);
 }
+
 function showHideTxtBox(radioBtn) {
     var claimIdRow = document.getElementById('claimIdRow');
     var nameIdRow = document.getElementById('nameIdRow');
@@ -177,7 +204,6 @@ function disableAssertionSignature(chkbx) {
     document.addServiceProvider.enableAssertionSignature.value = (chkbx.checked) ? true
             : false;
 }
-
 function disableAttributeProfile(chkbx) {
     document.addServiceProvider.claim.disabled = (chkbx.checked) ? false
             : true;
@@ -212,6 +238,12 @@ function disableAudienceRestriction(chkbx) {
     document.addServiceProvider.audience.disabled = (chkbx.checked) ? false
             : true;
     document.addServiceProvider.addAudience.disabled = (chkbx.checked) ? false
+            : true;
+}
+function disableRecipients(chkbx) {
+    document.addServiceProvider.recipient.disabled = (chkbx.checked) ? false
+            : true;
+    document.addServiceProvider.addRecipient.disabled = (chkbx.checked) ? false
             : true;
 }
 function addClaim() {
@@ -270,7 +302,34 @@ function addAudienceFunc() {
 
     audienceTableTBody.appendChild(audienceRow);
 }
+function addRecipientFunc() {
+    var propertyCount = document.getElementById("recipientPropertyCounter");
 
+    var i = propertyCount.value;
+    var currentCount = parseInt(i);
+
+    currentCount = currentCount + 1;
+    propertyCount.value = currentCount;
+
+    document.getElementById('recipientTableId').style.display = '';
+    var recipientTableTBody = document.getElementById('recipientTableTbody');
+
+    var recipientRow = document.createElement('tr');
+    recipientRow.setAttribute('id', 'recipientRow' + i);
+
+    var recipient = document.getElementById('recipient').value;
+    var recipientPropertyTD = document.createElement('td');
+    recipientPropertyTD.setAttribute('style', 'padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;');
+    recipientPropertyTD.innerHTML = "" + recipient + "<input type='hidden' name='recipientPropertyName" + i + "' id='recipientPropertyName" + i + "'  value='" + recipient + "'/> ";
+
+    var recipientRemoveTD = document.createElement('td');
+    recipientRemoveTD.innerHTML = "<a href='#' class='icon-link' style='background-image: url(../admin/images/delete.gif)' onclick='removeRecipient(" + i + ");return false;'>" + "Delete" + "</a>";
+
+    recipientRow.appendChild(recipientPropertyTD);
+    recipientRow.appendChild(recipientRemoveTD);
+
+    recipientTableTBody.appendChild(recipientRow);
+}
 
 function removeClaim(i) {
     var propRow = document.getElementById("claimRow" + i);
@@ -296,7 +355,20 @@ function removeAudience(i) {
             if (!isContainRaw(parentTBody)) {
                 var propertyTable = document.getElementById("audienceTableId");
                 propertyTable.style.display = "none";
+            }
+        }
+    }
+}
 
+function removeRecipient(i) {
+    var propRow = document.getElementById("recipientRow" + i);
+    if (propRow != undefined && propRow != null) {
+        var parentTBody = propRow.parentNode;
+        if (parentTBody != undefined && parentTBody != null) {
+            parentTBody.removeChild(propRow);
+            if (!isContainRaw(parentTBody)) {
+                var propertyTable = document.getElementById("recipientTableId");
+                propertyTable.style.display = "none";
             }
         }
     }
@@ -373,7 +445,6 @@ function clearAll() {
         }
         aliasSet = spConfigClient.getCertAlias();
         claimUris = spConfigClient.getClaimURIs();
-
     } catch (AxisFault e) {
         CarbonError error = new CarbonError();
         error.addError(e.getMessage());
@@ -397,6 +468,7 @@ function clearAll() {
     String spAction = request.getParameter("SPAction");
     String claimTableStyle = "display:none";
     String audienceTableStyle = "display:none";
+    String recipientTableStyle = "display:none";
     String issuer = request.getParameter("issuer");
     String attributeConsumingServiceIndex = "";
     boolean isEditSP = false;
@@ -408,6 +480,7 @@ function clearAll() {
                     provider = sp;
                     claimTableStyle = provider.getRequestedClaims().length > 0 ? "" : "display:none";
                     audienceTableStyle = provider.getRequestedAudiences().length > 0 ? "" : "display:none";
+                    recipientTableStyle = provider.getRequestedRecipients().length > 0 ? "" : "display:none";
                     if(provider.getAttributeConsumingServiceIndex() != null){
                         attributeConsumingServiceIndex = provider.getAttributeConsumingServiceIndex();
                     }
@@ -415,11 +488,27 @@ function clearAll() {
             }
         }
     }
+
+/*     String existingIssuers = "";
+    if (!isEditSP) {
+    	if (providers.size() > 0) {
+    		for (SAMLSSOServiceProviderDTO sp : providers) {
+    			existingIssuers += sp.getIssuer()+",";
+    		}
+    	}
+    } */
 %>
 
 <form method="POST" action="add_service_provider_finish.jsp?SPAction=<%=spAction%>"
       id="addServiceProvider" name="addServiceProvider" target="_self"
       onsubmit="return doValidation();">
+<%--     <%
+        if (!isEditSP) {
+    %>
+		<input type="hidden" id="existingIssuers" value="<%=existingIssuers%>">
+	<%
+        }
+	%> --%>
 <table class="styledLeft" width="100%">
 <thead>
 <tr>
@@ -477,9 +566,7 @@ function clearAll() {
     </td>
 </tr>
 
-
 <!-- UseFullQualifiedUsername -->
-
 <tr>
     <td colspan="2" style="padding-top: 25px">
         <input type="checkbox" name="useFullQualifiedUsername" value="true"
@@ -488,6 +575,8 @@ function clearAll() {
         <fmt:message key="use.fullqualified.username"/>
     </td>
 </tr>
+
+<% if(applicationSPName == null || applicationSPName.isEmpty()){ %>
 
 <!-- UseUserClaimValueInNameID -->
 
@@ -555,7 +644,8 @@ function clearAll() {
         </select>
     </td>
 </tr>
-<%}%>
+<%		}
+	}%>
 
 <tr>
     <td colspan="2">
@@ -725,7 +815,15 @@ function clearAll() {
 <% } %>
 
 <!-- EnableAttributeProfile -->
-<% if (isEditSP && provider.getRequestedClaims().length > 0 && provider.getRequestedClaims()[0] != null) {
+<% 
+boolean show = false;
+if (applicationSPName == null || applicationSPName.isEmpty()) {
+	show = provider.getRequestedClaims().length > 0 && provider.getRequestedClaims()[0] != null;
+} else {
+	show = true;
+}
+
+if (isEditSP && show) {
 %>
 <tr>
     <td colspan="2"><input type="checkbox"
@@ -734,6 +832,7 @@ function clearAll() {
                            onclick="disableAttributeProfile(this);"/> <fmt:message
             key="enable.attribute.profile"/></td>
 </tr>
+<% if(applicationSPName == null || applicationSPName.isEmpty()){ %>
 <tr>
     <td
             style="padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;">
@@ -758,6 +857,7 @@ function clearAll() {
                          onclick="addClaim()"/>
     </td>
 </tr>
+<% 		} %>
 <tr>
     <td style="padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;" colspan="2">
         <% if (provider.getEnableAttributesByDefault()) { %>
@@ -772,6 +872,7 @@ function clearAll() {
         <fmt:message key="enable.default.attribute.profile"/>
     </td>
 </tr>
+
 <% } else {%>
 <tr>
     <td colspan="2">
@@ -781,6 +882,7 @@ function clearAll() {
         <fmt:message key="enable.attribute.profile"/>
     </td>
 </tr>
+<% if(applicationSPName == null || applicationSPName.isEmpty()){ %>
 <tr>
     <td
             style="padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;">
@@ -805,6 +907,7 @@ function clearAll() {
                          onclick="addClaim()"/>
     </td>
 </tr>
+<%		} %>
 <tr>
     <td style="padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;" colspan="2">
         <input type="hidden" id="enableDefaultAttributeProfileHidden" name="enableDefaultAttributeProfileHidden" />
@@ -813,6 +916,7 @@ function clearAll() {
         <fmt:message key="enable.default.attribute.profile"/>
     </td>
 </tr>
+
 <%} %>
 <tr>
     <td>
@@ -938,8 +1042,92 @@ function clearAll() {
     </td>
 </tr>
 
-<!-- IdP-Initiated SSO -->
+<!-- EnableRecipientValidation -->
+<% if (isEditSP && provider.getRequestedRecipients().length > 0 && provider.getRequestedRecipients()[0] != null) {
+%>
+<tr>
+    <td colspan="2"><input type="checkbox"
+                           name="enableRecipients" id="enableRecipients"
+                           value="true" checked="checked"
+                           onclick="disableRecipients(this);"/> <fmt:message
+            key="enable.recipient.validation"/></td>
+</tr>
+<tr>
+    <td
+            style="padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;">
+        <fmt:message key="sp.recipient"/>
+    </td>
+    <td>
+        <input type="text" id="recipient" name="recipient"
+               class="text-box-big"/>
+        <input id="addRecipient" name="addRecipient" type="button"
+               value="<fmt:message key="saml.sso.add.recipient"/>"
+               onclick="addRecipientFunc()"/>
+    </td>
+</tr>
+<% } else {%>
+<tr>
+    <td colspan="2">
+        <input type="checkbox"
+               name="enableRecipients" id="enableRecipients" value="true"
+               onclick="disableRecipients(this);"/>
+        <fmt:message key="enable.recipient.validation"/>
+    </td>
+</tr>
+<tr>
+    <td
+            style="padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;">
+        <fmt:message key="sp.recipient"/>
+    </td>
+    <td>
+        <input type="text" id="recipient" name="recipient"
+               class="text-box-big"/>
+        <input id="addRecipient" name="addRecipient" type="button"
+               disabled="disabled" value="<fmt:message key="saml.sso.add.recipient"/>"
+               onclick="addRecipientFunc()"/>
+    </td>
+</tr>
+<%} %>
+<tr>
+    <td>
+        <table id="recipientTableId" style="<%=recipientTableStyle%>" class="styledInner">
+            <tbody id="recipientTableTbody">
+            <%
+                int k = 0;
+                if (isEditSP && provider.getRequestedRecipients().length > 0) {
+            %>
+            <%
+                for (String recipient : provider.getRequestedRecipients()) {
+                    if (recipient != null && !"null".equals(recipient)) {
+            %>
+            <tr id="recipientRow<%=k%>">
+                <td style="padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;">
+                    <input type="hidden" name="recipientPropertyName<%=k%>"
+                           id="recipientPropertyName<%=k%>" value="<%=recipient%>"/><%=recipient%>
+                </td>
+                <td>
+                    <a onclick="removeRecipient('<%=k%>');return false;"
+                       href="#" class="icon-link"
+                       style="background-image: url(../admin/images/delete.gif)">Delete
+                    </a>
+                </td>
+            </tr>
+            <%
+                        k++;
+                    }
+                }
+            %>
+            <%
+                }
+            %>
+            <input type="hidden" name="recipientPropertyCounter" id="recipientPropertyCounter"
+                   value="<%=k%>"/>
+            </tbody>
+        </table>
+    </td>
+</tr>
 
+<!-- IdP-Initiated SSO -->
 <tr>
     <td colspan="2">
         <input type="checkbox" name="enableIdPInitSSO" value="true"

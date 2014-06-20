@@ -17,7 +17,9 @@
 */
 package org.wso2.carbon.identity.sso.saml.dto;
 
-public class SingleLogoutRequestDTO {
+import java.io.Serializable;
+
+public class SingleLogoutRequestDTO implements Serializable {
 
     private String assertionConsumerURL;
     private String logoutResponse;

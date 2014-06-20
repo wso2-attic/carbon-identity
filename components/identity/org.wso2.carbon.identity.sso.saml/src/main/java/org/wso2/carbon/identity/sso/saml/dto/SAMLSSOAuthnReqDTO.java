@@ -17,10 +17,13 @@
  */
 package org.wso2.carbon.identity.sso.saml.dto;
 
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SAMLSSOAuthnReqDTO {
+public class SAMLSSOAuthnReqDTO implements Serializable {
 
 	private String username;
 	private String password;
@@ -30,6 +33,7 @@ public class SAMLSSOAuthnReqDTO {
 	private String id;
 	private String claim;
 	private String audience;
+    private String recipient;
 	private String nameIDFormat;
 	private String logoutURL;
 	private String loginPageURL;
@@ -39,6 +43,7 @@ public class SAMLSSOAuthnReqDTO {
 	private String destination;
 	private String[] requestedClaims;
 	private String[] requestedAudiences;
+    private String[] requestedRecipients;
 	private boolean doSingleLogout;
 	private boolean doSignResponse;
 	private boolean doSignAssertions;
@@ -49,7 +54,7 @@ public class SAMLSSOAuthnReqDTO {
 	private boolean isIdPInitSSO;
 	private boolean doEnableEncryptedAssertion;
 	private boolean doValidateSignatureInRequests;
-	private Map<String, String> userAttributes = new HashMap<String, String>();
+	private Map<ClaimMapping, String> userAttributes = new HashMap<ClaimMapping, String>();
 	private Map<String, String> claimMapping = null;
 	private String tenantDomain;
 
@@ -97,8 +102,16 @@ public class SAMLSSOAuthnReqDTO {
 	}
 
 	public String getIssuer() {
+        if(issuer.contains("@")){
+            String[] splitIssuer = issuer.split("@");
+            return splitIssuer[0];
+        }
 		return issuer;
 	}
+
+    public String getIssuerWithDomain() {
+        return issuer;
+    }
 
 	public void setIssuer(String issuer) {
 		this.issuer = issuer;
@@ -151,6 +164,14 @@ public class SAMLSSOAuthnReqDTO {
 	public void setAudience(String audience) {
 		this.audience = audience;
 	}
+
+    public String getRecipient() {
+        return recipient;
+    }
+
+    public void setRecipient(String recipient) {
+        this.recipient = recipient;
+    }
 
 	public String getLogoutURL() {
 		return logoutURL;
@@ -233,6 +254,14 @@ public class SAMLSSOAuthnReqDTO {
 		this.requestedAudiences = requestedAudiences;
 	}
 
+    public String[] getRequestedRecipients() {
+        return requestedRecipients;
+    }
+
+    public void setRequestedRecipients(String[] requestedRecipients) {
+        this.requestedRecipients = requestedRecipients;
+    }
+
 	public boolean isStratosDeployment() {
 		return isStratosDeployment;
 	}
@@ -311,11 +340,11 @@ public class SAMLSSOAuthnReqDTO {
 		this.doValidateSignatureInRequests = doValidateSignatureInRequests;
 	}
 
-	public Map<String, String> getUserAttributes() {
+	public Map<ClaimMapping, String> getUserAttributes() {
 		return userAttributes;
 	}
 
-	public void setUserAttributes(Map<String, String> subjectAttributes) {
+	public void setUserAttributes(Map<ClaimMapping, String> subjectAttributes) {
 		this.userAttributes = subjectAttributes;
 	}
 
