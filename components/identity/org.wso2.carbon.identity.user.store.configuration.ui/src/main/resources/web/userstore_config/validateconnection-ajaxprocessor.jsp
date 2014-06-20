@@ -28,5 +28,9 @@ String connectionPassword = request.getParameter("connectionPassword");
 } catch (Throwable e) {
 %><%=e.getMessage()%><%
         }
+    }else{
+    	String errmsg = "Please specify a domain name";
+    	%><%=errmsg%><%
+    	
     }
 %>
