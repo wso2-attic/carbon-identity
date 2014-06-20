@@ -19,6 +19,10 @@ package org.wso2.carbon.identity.oauth.endpoint.user.impl;
 import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.jwt.JWTBuilder;
 import org.apache.oltu.oauth2.jwt.JWTException;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.oauth.cache.UserAttributesCache;
+import org.wso2.carbon.identity.oauth.cache.UserAttributesCacheEntry;
+import org.wso2.carbon.identity.oauth.cache.UserAttributesCacheKey;
 import org.wso2.carbon.identity.oauth.endpoint.user.UserInfoClaimRetriever;
 import org.wso2.carbon.identity.oauth.endpoint.user.UserInfoEndpointException;
 import org.wso2.carbon.identity.oauth.endpoint.user.UserInfoResponseBuilder;
@@ -30,8 +34,9 @@ public class UserInfoJWTResponse implements UserInfoResponseBuilder {
 
 	public String getResponseString(OAuth2TokenValidationResponseDTO tokenResponse)
                                                                                    throws UserInfoEndpointException, OAuthSystemException {
-		UserInfoClaimRetriever retriever = UserInfoEndpointConfig.getInstance().getUserInfoClaimRetriever();
-		Map<String, Object> claims = retriever.getClaimsMap(tokenResponse);
+        Map<ClaimMapping, String> userAttributes = getUserAttributesFromCache(tokenResponse);
+        UserInfoClaimRetriever retriever = UserInfoEndpointConfig.getInstance().getUserInfoClaimRetriever();
+		Map<String, Object> claims = retriever.getClaimsMap(userAttributes);
 		
 		JWTBuilder jwtBuilder = new JWTBuilder();
 		try {
@@ -39,6 +44,12 @@ public class UserInfoJWTResponse implements UserInfoResponseBuilder {
 		} catch (JWTException e) {
 			throw new UserInfoEndpointException("Error while generating the response JWT");
 		}
+    }
+
+    private Map<ClaimMapping, String> getUserAttributesFromCache(OAuth2TokenValidationResponseDTO tokenResponse) {
+        UserAttributesCacheKey cacheKey = new UserAttributesCacheKey(tokenResponse.getAuthorizationContextToken().getTokenString());
+        UserAttributesCacheEntry cacheEntry = (UserAttributesCacheEntry) UserAttributesCache.getInstance().getValueFromCache(cacheKey);
+        return cacheEntry.getUserAttributes();
     }
 
 }

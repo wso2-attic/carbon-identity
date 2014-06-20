@@ -21,16 +21,21 @@ import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.axiom.util.base64.Base64Utils;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.oauth.cache.SessionDataCache;
+import org.wso2.carbon.identity.oauth.cache.SessionDataCacheEntry;
+import org.wso2.carbon.identity.oauth.cache.SessionDataCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.exception.OAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth2.OAuth2Service;
 import org.wso2.carbon.identity.oauth2.OAuth2TokenValidationService;
 import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
+import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.ui.CarbonUIUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Set;
 
 public class EndpointUtil {
 
@@ -165,23 +170,40 @@ public class EndpointUtil {
      *
      * @param checkAuthentication
      * @param forceAuthenticate
+     * @param scopes 
      * @return
      */
-    public static String getLoginPageURL(String clientId, String queryParams, String sessionDataKey, boolean forceAuthenticate, boolean checkAuthentication) {
+    public static String getLoginPageURL(String clientId, String sessionDataKey,
+                                         boolean forceAuthenticate, boolean checkAuthentication, Set<String> scopes)
+            throws UnsupportedEncodingException {
+    	
+    	try {
 
+    	String type = "oauth2";
+    	
+    	if(scopes != null && scopes.contains("openid")) {
+    		type = "oidc";
+    	}
+    	
+        SessionDataCacheEntry entry = (SessionDataCacheEntry)SessionDataCache.getInstance()
+                .getValueFromCache(new SessionDataCacheKey(sessionDataKey));
         String commonAuthURL = CarbonUIUtil.getAdminConsoleURL("/");
         commonAuthURL = commonAuthURL.replace("carbon", "commonauth");
-        String selfPath = "../../oauth2";
-        String loginQueryParams = "";
-        loginQueryParams = "?" + OAuthConstants.SESSION_DATA_KEY + "=" + sessionDataKey + "&type=oauth2"
-                + "&commonAuthCallerPath=" + selfPath
+        String selfPath = "/oauth2/authorize";
+        String loginQueryParams = "?" + OAuthConstants.SESSION_DATA_KEY + "=" + sessionDataKey + "&type=" + type
+                + "&" + "commonAuthCallerPath=" + selfPath
                 + "&" + "forceAuthenticate" + "=" + forceAuthenticate
                 + "&" + "checkAuthentication" + "=" + checkAuthentication
                 + "&" + "relyingParty" + "=" + clientId
-                + "&" + queryParams;
-
-        return commonAuthURL + loginQueryParams;
-    }
+                + "&" + "tenantId" + "=" + OAuth2Util.getClientTenatId()
+                + "&" + URLEncoder.encode(entry.getQueryString(), "UTF-8");
+               
+			return commonAuthURL + loginQueryParams;
+			
+		} finally {
+			OAuth2Util.clearClientTenantId();
+		}
+	}
 
     /**
      * Returns the consent page URL.
@@ -190,25 +212,24 @@ public class EndpointUtil {
      * @param loggedInUser
      * @return
      */
-    public static String getUserConsentURL(OAuth2Parameters params, String loggedInUser, String sessiondataKey, boolean  isOIDC) {
+    public static String getUserConsentURL(OAuth2Parameters params, String loggedInUser, String sessionDataKey,
+                                           boolean  isOIDC) throws UnsupportedEncodingException {
+
+        SessionDataCacheEntry entry = (SessionDataCacheEntry)SessionDataCache.getInstance()
+                .getValueFromCache(new SessionDataCacheKey(sessionDataKey));
         String consentPage = null;
-        try {
-            if(isOIDC) {
-                consentPage = CarbonUIUtil.getAdminConsoleURL("/") +
-                        "../authenticationendpoint/oauth2_consent.do";
-            } else {
-                consentPage = CarbonUIUtil.getAdminConsoleURL("/") +
-                        "../authenticationendpoint/oauth2_authz.do";
-            }
-            consentPage +=
-                    "?" + OAuthConstants.OIDC_LOGGED_IN_USER + "=" +
-                            URLEncoder.encode(loggedInUser, "UTF-8") + "&" +
-                            "application" + "=" + URLEncoder.encode(params.getApplicationName(), "ISO-8859-1" ) + "&" +
-                            OAuthConstants.OAuth20Params.SCOPE + "=" + URLEncoder.encode(EndpointUtil.getScope(params), "ISO-8859-1" ) + "&" +
-                            OAuthConstants.SESSION_DATA_KEY_CONSENT + "=" + URLEncoder.encode(sessiondataKey, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            // ignore
+        if(isOIDC) {
+            consentPage = CarbonUIUtil.getAdminConsoleURL("/") +
+                    "../authenticationendpoint/oauth2_consent.do";
+        } else {
+            consentPage = CarbonUIUtil.getAdminConsoleURL("/") +
+                    "../authenticationendpoint/oauth2_authz.do";
         }
+        consentPage += "?" + OAuthConstants.OIDC_LOGGED_IN_USER + "=" + URLEncoder.encode(loggedInUser, "UTF-8")
+                        + "&" + "application" + "=" + URLEncoder.encode(params.getApplicationName(), "ISO-8859-1" )
+                        + "&" + OAuthConstants.OAuth20Params.SCOPE + "=" + URLEncoder.encode(EndpointUtil.getScope(params), "ISO-8859-1" )
+                        + "&" + OAuthConstants.SESSION_DATA_KEY_CONSENT + "=" + URLEncoder.encode(sessionDataKey, "UTF-8")
+                        + "&" + "spQueryParams" + "=" + URLEncoder.encode(entry.getQueryString(), "UTF-8");
         return consentPage;
     }
 

@@ -25,14 +25,11 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="org.wso2.carbon.identity.application.mgt.ui.ApplicationConfigBean"%>
 
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Arrays" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ResourceBundle" %>
-
-<jsp:useBean id="appBean" class="org.wso2.carbon.identity.application.mgt.ui.ApplicationConfigBean" scope="session"/>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
@@ -44,10 +41,10 @@
 <jsp:include page="../dialog/display_messages.jsp"/>
 
 <%
-String appid = (String) request.getParameter("appid");
-appBean.setApplicationIdentifier(appid);
 
 	String consumerkey = CharacterEncoder.getSafeText(request.getParameter("consumerkey"));
+    String appName = CharacterEncoder.getSafeText(request.getParameter("appName"));
+
     OAuthConsumerAppDTO app = null;
     String forwardTo = null;
 	String BUNDLE = "org.wso2.carbon.identity.oauth.ui.i18n.Resources";
@@ -61,9 +58,14 @@ appBean.setApplicationIdentifier(appid);
 	boolean clientCredGrant = false;
 	boolean refreshGrant = false;
 	boolean samlGrant = false;
+	boolean ntlmGrant = false;
     List<String> allowedGrants = null;
+    String applicationSPName = null;
 
     try {
+    	
+    	applicationSPName = request.getParameter("appName");
+    	session.setAttribute("application-sp-name", applicationSPName);
 
        	String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
 		String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
@@ -71,7 +73,13 @@ appBean.setApplicationIdentifier(appid);
 		                                     (ConfigurationContext) config.getServletContext()
 		                                                                  .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
 		OAuthAdminClient client = new OAuthAdminClient(cookie, backendServerURL, configContext);
-		app = client.getOAuthApplicationData(consumerkey);
+		
+		if (appName!=null){
+			app = client.getOAuthApplicationDataByAppName(appName);
+		}else{
+			app = client.getOAuthApplicationData(consumerkey);
+		}
+		
         if(app.getCallbackUrl() == null){
             app.setCallbackUrl("");
         }
@@ -93,6 +101,7 @@ appBean.setApplicationIdentifier(appid);
 	            clientCredGrant = grants.contains("client_credentials") ? true : false;
 	            refreshGrant = grants.contains("refresh_token") ? true : false;
 	            samlGrant = grants.contains("urn:ietf:params:oauth:grant-type:saml2-bearer") ? true : false;
+	            ntlmGrant = grants.contains("iwa:ntlm") ? true : false;
             }
         }
 	} catch (Exception e) {
@@ -166,6 +175,8 @@ appBean.setApplicationIdentifier(appid);
             </script>
 
             <form method="post" name="editAppform"  action="edit-finish.jsp"  target="_self">
+            	<input id="consumerkey" name="consumerkey" type="hidden" value="<%=app.getOauthConsumerKey()%>" />
+		        <input id="consumersecret" name="consumersecret" type="hidden" value="<%=app.getOauthConsumerSecret()%>" />
                 <table style="width: 100%" class="styledLeft">
                     <thead>
                     <tr>
@@ -181,11 +192,18 @@ appBean.setApplicationIdentifier(appid);
                                 <td><%=app.getOAuthVersion()%><input id="oauthVersion" name="oauthVersion"
                                                                         type="hidden" value="<%=app.getOAuthVersion()%>" /></td>
                             </tr>
+                            <%if (applicationSPName ==null) { %>
 				           <tr>
 		                        <td class="leftCol-small"><fmt:message key='application.name'/><span class="required">*</span></td>
 		                        <td><input class="text-box-big" id="application" name="application"
 		                                   type="text" value="<%=app.getApplicationName()%>" /></td>
 		                    </tr>
+		                    <%}else { %>
+		                    <tr style="display: none;">
+		                        <td colspan="2" style="display: none;"><input class="text-box-big" id="application" name="application"
+		                                   type="hidden" value="<%=applicationSPName%>" /></td>
+		                    </tr>
+		                    <%} %>
 		                    <tr id="callback_row">
 		                        <td class="leftCol-small"><fmt:message key='callback'/><span class="required">*</span></td>
 		                        <td><input class="text-box-big" id="callback" name="callback"
@@ -222,6 +240,8 @@ appBean.setApplicationIdentifier(appid);
                                             }
                                             if(allowedGrants.contains("urn:ietf:params:oauth:grant-type:saml2-bearer")){
                                                 %><tr><tr><label><input type="checkbox" id="grant_saml" name="grant_saml" value="urn:ietf:params:oauth:grant-type:saml2-bearer"  <%=(samlGrant ? "checked=\"checked\"" : "")%>/>SAML</label></tr><%
+                                            } if(allowedGrants.contains("iwa:ntlm")){
+                                                %><tr><tr><label><input type="checkbox" id="grant_ntlm" name="grant_ntlm" value="iwa:ntlm"  <%=(ntlmGrant ? "checked=\"checked\"" : "")%>/>IWA-NTLM</label></tr><%
                                             }
                                     } catch (Exception e){
                                         forwardTo = "../admin/error.jsp";
@@ -244,18 +264,6 @@ appBean.setApplicationIdentifier(appid);
                                     </td>
                                 </tr>
                             <% } %>
-		                     <tr>
-		                        <td class="leftCol-small"><%=id%></td>
-		                        <td><%=app.getOauthConsumerKey()%>
-		                        <input id="consumerkey" name="consumerkey"
-		                                   type="hidden" value="<%=app.getOauthConsumerKey()%>" /></td>
-		                    </tr>
-		                     <tr>
-		                        <td class="leftCol-small"><%=secret%></td>
-		                        <td><%=app.getOauthConsumerSecret()%>
-		                        <input id="consumersecret" name="consumersecret"
-		                                   type="hidden" value="<%=app.getOauthConsumerSecret()%>" /></td>
-		                    </tr>
 		                    <tr>
 		                        <td class="leftCol-small"><fmt:message key='accesstoken'/></td>
                                  <%if (OAuthConstants.OAuthVersions.VERSION_2.equals(app.getOAuthVersion())){ %>
@@ -291,9 +299,21 @@ appBean.setApplicationIdentifier(appid);
                         <td class="buttonRow">
                            <input name="update"
                                    type="button" class="button" value="<fmt:message key='update'/>" onclick="validate();"/>
-                           <input type="button" class="button"
-                                              onclick="javascript:location.href='../application/add-service-provider.jsp'"
-                                          value="<fmt:message key='cancel'/>"/></td>
+                             <%                           
+                            boolean applicationComponentFound = CarbonUIUtil.isContextRegistered(config, "/application/");
+                            if (applicationComponentFound) {                            
+                            %>
+                            <input type="button" class="button"
+                                       onclick="javascript:location.href='../application/configure-service-provider.jsp'"
+                                   value="<fmt:message key='cancel'/>"/>
+                            <% } else { %>
+                                   
+                            <input type="button" class="button"
+                                       onclick="javascript:location.href='index.jsp?region=region1&item=oauth_menu&ordinal=0'"
+                                   value="<fmt:message key='cancel'/>"/>
+                            <%} %>
+                                          
+                        </td>
                     </tr>
                     </tbody>
                 </table>

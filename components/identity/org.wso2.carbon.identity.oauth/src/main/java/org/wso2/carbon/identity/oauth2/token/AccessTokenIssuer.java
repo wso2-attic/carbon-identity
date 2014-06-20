@@ -19,12 +19,13 @@
 package org.wso2.carbon.identity.oauth2.token;
 
 import org.apache.amber.oauth2.common.error.OAuthError;
+import org.apache.amber.oauth2.common.message.types.GrantType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.openidconnect.as.util.OIDCAuthzServerUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
-import org.wso2.carbon.identity.oauth.cache.BaseCache;
+import org.wso2.carbon.identity.oauth.cache.*;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
@@ -152,16 +153,16 @@ public class AccessTokenIssuer {
             isAuthenticated = true;
         }
 
-        boolean isValidGrant = authzGrantHandler.validateGrant(tokReqMsgCtx);
-        boolean isAuthorized = authzGrantHandler.authorizeAccessDelegation(tokReqMsgCtx);
-        boolean isValidScope = authzGrantHandler.validateScope(tokReqMsgCtx);
-
         String applicationName = oAuthAppDO.getApplicationName();
         String userName = tokReqMsgCtx.getAuthorizedUser();
         if(!authzGrantHandler.isOfTypeApplicationUser()) {
             tokReqMsgCtx.setAuthorizedUser(oAuthAppDO.getUserName());
             tokReqMsgCtx.setTenantID(oAuthAppDO.getTenantId());
         }
+
+        boolean isValidGrant = authzGrantHandler.validateGrant(tokReqMsgCtx);
+        boolean isAuthorized = authzGrantHandler.authorizeAccessDelegation(tokReqMsgCtx);
+        boolean isValidScope = authzGrantHandler.validateScope(tokReqMsgCtx);
 
         //boolean isAuthenticated = true;
         if (!isAuthenticated) {
@@ -229,7 +230,22 @@ public class AccessTokenIssuer {
             IDTokenBuilder builder = OAuthServerConfiguration.getInstance().getOpenIDConnectIDTokenBuilder();
             tokenRespDTO.setIDToken(builder.buildIDToken(tokReqMsgCtx, tokenRespDTO));
         }
+
+        if (tokenReqDTO.getGrantType().equals(GrantType.AUTHORIZATION_CODE.toString())) {
+            addUserAttributesToCache(tokenReqDTO, tokenRespDTO);
+        }
+
         return tokenRespDTO;
+    }
+
+    private void addUserAttributesToCache(OAuth2AccessTokenReqDTO tokenReqDTO, OAuth2AccessTokenRespDTO tokenRespDTO) {
+        UserAttributesCacheKey oldCacheKey = new UserAttributesCacheKey(tokenReqDTO.getAuthorizationCode());
+        //checking getUserAttributesId vale of cacheKey before retrieve entry from cache as it causes to NPE
+        if(oldCacheKey.getUserAttributesId() != null){
+            CacheEntry userAttributesCacheEntry = UserAttributesCache.getInstance().getValueFromCache(oldCacheKey);
+            UserAttributesCacheKey newCacheKey = new UserAttributesCacheKey(tokenRespDTO.getAccessToken());
+            UserAttributesCache.getInstance().addToCache(newCacheKey,userAttributesCacheEntry);
+        }
     }
 
     private OAuthAppDO getAppInformation(OAuth2AccessTokenReqDTO tokenReqDTO) throws IdentityOAuth2Exception, InvalidOAuthClientException {

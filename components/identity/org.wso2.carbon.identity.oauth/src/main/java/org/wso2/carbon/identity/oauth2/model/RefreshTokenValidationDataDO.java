@@ -31,6 +31,8 @@ public class RefreshTokenValidationDataDO {
 
     private String refreshTokenState;
 
+    private long issuedAt;
+
     public String getAccessToken() {
         return accessToken;
     }
@@ -61,5 +63,13 @@ public class RefreshTokenValidationDataDO {
 
     public void setRefreshTokenState(String refreshTokenState) {
         this.refreshTokenState = refreshTokenState;
+    }
+
+    public long getIssuedAt() {
+        return issuedAt;
+    }
+
+    public void setIssuedAt(long issuedAt) {
+        this.issuedAt = issuedAt;
     }
 }

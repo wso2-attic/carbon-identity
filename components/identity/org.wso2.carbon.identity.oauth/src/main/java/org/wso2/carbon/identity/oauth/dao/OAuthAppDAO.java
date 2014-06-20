@@ -337,7 +337,7 @@ public class OAuthAppDAO {
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
             prepStmt = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.REMOVE_APPLICATION);
-            prepStmt.setString(1, persistenceProcessor.getProcessedClientId(consumerKey));
+            prepStmt.setString(1, consumerKey);
 
             prepStmt.execute();
             connection.commit();

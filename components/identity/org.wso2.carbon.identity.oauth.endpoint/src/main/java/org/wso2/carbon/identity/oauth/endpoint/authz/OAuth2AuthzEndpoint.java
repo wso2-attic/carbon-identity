@@ -28,10 +28,12 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.openidconnect.as.OIDC;
 import org.apache.oltu.openidconnect.as.util.OIDCAuthzServerUtil;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.identity.oauth.cache.CacheKey;
-import org.wso2.carbon.identity.oauth.cache.SessionDataCache;
-import org.wso2.carbon.identity.oauth.cache.SessionDataCacheEntry;
-import org.wso2.carbon.identity.oauth.cache.SessionDataCacheKey;
+import org.wso2.carbon.identity.application.common.cache.CacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheKey;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
+import org.wso2.carbon.identity.oauth.cache.*;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.endpoint.OAuthRequestWrapper;
@@ -52,8 +54,10 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -76,7 +80,7 @@ public class OAuth2AuthzEndpoint {
 
         String clientId = request.getParameter(EndpointUtil.getSafeText("client_id"));
 
-        String sessionDataKeyFromLogin = EndpointUtil.getSafeText((String)request.getAttribute(
+        String sessionDataKeyFromLogin = EndpointUtil.getSafeText(request.getParameter(
                 OAuthConstants.SESSION_DATA_KEY));
         String sessionDataKeyFromConsent = EndpointUtil.getSafeText(request.getParameter(
                 OAuthConstants.SESSION_DATA_KEY_CONSENT));
@@ -135,6 +139,7 @@ public class OAuth2AuthzEndpoint {
 
         }
         SessionDataCacheEntry sessionDataCacheEntry = null;
+        UserAttributesCacheEntry userAttributesCacheEntry = null;
 
         try {
 
@@ -147,30 +152,29 @@ public class OAuth2AuthzEndpoint {
 
                     sessionDataCacheEntry = ((SessionDataCacheEntry) resultFromLogin);
                     OAuth2Parameters oauth2Params = sessionDataCacheEntry.getoAuth2Parameters();
-                    Object authenticatedObject = request.getAttribute("commonAuthAuthenticated");
+                    AuthenticationResult authnResult = getAuthenticationResultFromCache(sessionDataKeyFromLogin);
 
-                    if (authenticatedObject != null) {
+                    if (authnResult != null) {
 
                         String redirectURL = null;
-                        if ((Boolean)request.getAttribute("commonAuthAuthenticated") == true) {
+                        if (authnResult.isAuthenticated()) {
 
-                            String username = (String) request.getAttribute("authenticatedUser");
+                            String username = authnResult.getSubject();
                             String tenantDomain = MultitenantUtils.getTenantDomain(username);
                             String tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(username);
                             username = tenantAwareUserName + "@" + tenantDomain;
                             username = username.toLowerCase();
                             sessionDataCacheEntry.setLoggedInUser(username);
+                            sessionDataCacheEntry.setUserAttributes(authnResult.getUserAttributes());
+                            sessionDataCacheEntry.setAuthenticatedIdPs(authnResult.getAuthenticatedIdPs());
+
                             redirectURL = doUserAuthz(request, sessionDataKeyFromLogin, sessionDataCacheEntry);
                             return Response.status(HttpServletResponse.SC_FOUND).location(new URI(redirectURL)).build();
 
                         } else {
 
-                            OAuthProblemException oauthException = null;
-                            if (oauth2Params.getPrompt() != null && oauth2Params.getPrompt().contains(OIDC.Prompt.NONE)) {
-                                oauthException = OAuthProblemException.error(
-                                        OAuth2ErrorCodes.ACCESS_DENIED, "Authentication required");
-                            }
-
+                            OAuthProblemException oauthException = OAuthProblemException.error(
+                                     OAuth2ErrorCodes.ACCESS_DENIED, "Authentication required");
                             redirectURL = OAuthASResponse.errorResponse(HttpServletResponse.SC_FOUND)
                                     .error(oauthException).location(oauth2Params.getRedirectURI())
                                     .setState(oauth2Params.getState()).buildQueryMessage()
@@ -188,7 +192,7 @@ public class OAuth2AuthzEndpoint {
                         clearCacheEntry(sessionDataKeyFromLogin);
                         if(log.isDebugEnabled()){
                             String msg = "Invalid authorization request. " +
-                                    "\'sessionDataKey\' attribute found but \'commonAuthAuthenticated\' attribute could not be found in request";
+                                    "\'sessionDataKey\' attribute found but corresponding AuthenticationResult does not exist in the cache.";
                             log.debug(msg);
                         }
                         String msg = "Invalid authorization request";
@@ -207,13 +211,26 @@ public class OAuth2AuthzEndpoint {
 
                         if (OAuthConstants.Consent.DENY.equals(consent)) {
                             // return an error if user denied
-                            OAuthASResponse.errorResponse(HttpServletResponse.SC_FOUND)
+                            String denyResponse = OAuthASResponse.errorResponse(HttpServletResponse.SC_FOUND)
                                     .setError(OAuth2ErrorCodes.ACCESS_DENIED)
                                     .location(oauth2Params.getRedirectURI()).setState(oauth2Params.getState())
                                     .buildQueryMessage().getLocationUri();
+                            return Response.status(HttpServletResponse.SC_FOUND).location(new URI(denyResponse)).build();
                         }
 
                         String redirectURL = handleUserConsent(request, consent, oauth2Params, sessionDataCacheEntry);
+                        
+                        String authenticatedIdPs = sessionDataCacheEntry.getAuthenticatedIdPs();
+                        
+                        if (authenticatedIdPs != null && !authenticatedIdPs.isEmpty()) {
+                            try {
+                                redirectURL = redirectURL + "&AuthenticatedIdPs=" + URLEncoder.encode(authenticatedIdPs, "UTF-8") ;
+                            } catch (UnsupportedEncodingException e) {
+                                //this exception should not occur
+                                log.error(e.getMessage(), e);
+                            }
+                        }
+
                         SessionDataCache.getInstance().clearCacheEntry(new SessionDataCacheKey(sessionDataKeyFromConsent));
                         return Response.status(HttpServletResponse.SC_FOUND).location(new URI(redirectURL)).build();
 
@@ -317,7 +334,9 @@ public class OAuth2AuthzEndpoint {
                     .authorizationResponse(request, HttpServletResponse.SC_FOUND);
             // all went okay
             if (ResponseType.CODE.toString().equals(oauth2Params.getResponseType())) {
-                builder.setCode(authzRespDTO.getAuthorizationCode());
+                String code = authzRespDTO.getAuthorizationCode();
+                builder.setCode(code);
+                addUserAttributesToCache(sessionDataCacheEntry, code);
             } else if (ResponseType.TOKEN.toString().equals(oauth2Params.getResponseType())) {
                 builder.setAccessToken(authzRespDTO.getAccessToken());
                 builder.setExpiresIn(String.valueOf(60 * 60));
@@ -338,7 +357,13 @@ public class OAuth2AuthzEndpoint {
         return oauthResponse.getLocationUri();
 	}
 
-	/**
+    private void addUserAttributesToCache(SessionDataCacheEntry sessionDataCacheEntry, String code) {
+        UserAttributesCacheKey userAttributesCacheKey = new UserAttributesCacheKey(code);
+        UserAttributesCacheEntry userAttributesCacheEntry = new UserAttributesCacheEntry(sessionDataCacheEntry.getUserAttributes());
+        UserAttributesCache.getInstance().addToCache(userAttributesCacheKey,userAttributesCacheEntry);
+    }
+
+    /**
 	 * http://tools.ietf.org/html/rfc6749#section-4.1.2
 	 * 
 	 * 4.1.2.1. Error Response
@@ -471,9 +496,16 @@ public class OAuth2AuthzEndpoint {
         CacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
         sessionDataCacheEntry = new SessionDataCacheEntry();
         sessionDataCacheEntry.setoAuth2Parameters(params);
-        SessionDataCache.getInstance().addToCache(cacheKey, sessionDataCacheEntry);;
+        sessionDataCacheEntry.setQueryString(req.getQueryString());
+        sessionDataCacheEntry.setParamMap(req.getParameterMap());
+        SessionDataCache.getInstance().addToCache(cacheKey, sessionDataCacheEntry);
 
-		return EndpointUtil.getLoginPageURL(clientId, req.getQueryString(), sessionDataKey, forceAuthenticate, checkAuthentication);
+        try {
+            return EndpointUtil.getLoginPageURL(clientId, sessionDataKey, forceAuthenticate, checkAuthentication, oauthRequest.getScopes());
+        } catch (UnsupportedEncodingException e) {
+            log.debug(e.getMessage(), e);
+            throw new OAuthSystemException("Error when encoding login page URL");
+        }
     }
 
 	/**
@@ -544,8 +576,13 @@ public class OAuth2AuthzEndpoint {
 
         } else {
 
-            return EndpointUtil.getUserConsentURL(oauth2Params, loggedInUser, sessionDataKey,
-                    OIDCAuthzServerUtil.isOIDCAuthzRequest(oauth2Params.getScopes()) ? true : false);
+            try {
+                return EndpointUtil.getUserConsentURL(oauth2Params, loggedInUser, sessionDataKey,
+                        OIDCAuthzServerUtil.isOIDCAuthzRequest(oauth2Params.getScopes()) ? true : false);
+            } catch (UnsupportedEncodingException e) {
+                log.debug(e.getMessage(), e);
+                throw new OAuthSystemException("Error when encoding consent page URL");
+            }
 
         }
 
@@ -576,5 +613,21 @@ public class OAuth2AuthzEndpoint {
                 SessionDataCache.getInstance().clearCacheEntry(cacheKey);
             }
         }
+    }
+    
+    private AuthenticationResult getAuthenticationResultFromCache(String sessionDataKey) {
+    	
+    	AuthenticationResultCacheKey authResultCacheKey = new AuthenticationResultCacheKey(sessionDataKey);
+		CacheEntry cacheEntry = AuthenticationResultCache.getInstance(0).getValueFromCache(authResultCacheKey);
+		AuthenticationResult authResult = null;
+		
+		if (cacheEntry != null) {
+			AuthenticationResultCacheEntry authResultCacheEntry = (AuthenticationResultCacheEntry)cacheEntry;
+			authResult = authResultCacheEntry.getResult();
+		} else {
+			log.error("Cannot find AuthenticationResult from the cache");
+		}
+		
+		return authResult;
     }
 }
