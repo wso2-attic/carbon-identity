@@ -25,6 +25,7 @@ import org.apache.catalina.core.ApplicationServletRegistration;
 import org.apache.catalina.deploy.*;
 import org.apache.catalina.util.CharsetMapper;
 import org.apache.juli.logging.Log;
+import org.apache.tomcat.InstanceManager;
 import org.apache.tomcat.JarScanner;
 import org.apache.tomcat.util.http.mapper.Mapper;
 
@@ -37,6 +38,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Locale;
 import java.util.Set;
+import java.util.Map;
 
 
 public class SimpleContext implements Context {
@@ -680,6 +682,41 @@ public class SimpleContext implements Context {
     }
 
     @Override
+    public void addPostConstructMethod(String s, String s2) {
+
+    }
+
+    @Override
+    public void addPreDestroyMethod(String s, String s2) {
+
+    }
+
+    @Override
+    public void removePostConstructMethod(String s) {
+
+    }
+
+    @Override
+    public void removePreDestroyMethod(String s) {
+
+    }
+
+    @Override
+    public String findPostConstructMethod(String s) {
+        return null;
+    }
+
+    @Override
+    public String findPreDestroyMethod(String s) {
+        return null;
+    }
+
+    @Override
+    public Map<String, String> findPostConstructMethods() {
+        return null;
+    }
+
+    @Override
     public void setAltDDName(String arg0) {
 
     }
@@ -810,6 +847,16 @@ public class SimpleContext implements Context {
     }
 
     @Override
+    public boolean getXmlBlockExternal() {
+        return false;
+    }
+
+    @Override
+    public void setXmlBlockExternal(boolean b) {
+
+    }
+
+    @Override
     public JarScanner getJarScanner() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
@@ -832,6 +879,31 @@ public class SimpleContext implements Context {
     @Override
     public boolean getLogEffectiveWebXml() {
         return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public InstanceManager getInstanceManager() {
+        return null;
+    }
+
+    @Override
+    public void setInstanceManager(InstanceManager instanceManager) {
+
+    }
+
+    @Override
+    public void setContainerSciFilter(String s) {
+
+    }
+
+    @Override
+    public String getContainerSciFilter() {
+        return null;
+    }
+
+    @Override
+    public void addApplicationListener(ApplicationListener applicationListener) {
+
     }
 
     @Override
@@ -1149,4 +1221,15 @@ public class SimpleContext implements Context {
     public String getStateName() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
+
+    @Override
+    public Map<String, String> findPreDestroyMethods() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public Map<String, String> findPostConstructMethods(String clazz) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
 }
+
