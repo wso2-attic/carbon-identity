@@ -78,7 +78,7 @@
 	<module>org.wso2.carbon.identity.entitlement.common</module>
         <module>org.wso2.carbon.identity.entitlement.ui</module>
         <module>org.wso2.carbon.identity.entitlement.mediator</module>
-	<module>org.wso2.carbon.identity.sso.agent</module>
+	<!--module>org.wso2.carbon.identity.sso.agent</module-->
         <module>org.wso2.carbon.identity.provider.openid.admin</module>
         <module>org.wso2.carbon.identity.provider.openid.admin.ui</module>
         <module>org.wso2.carbon.identity.oauth.common</module>
