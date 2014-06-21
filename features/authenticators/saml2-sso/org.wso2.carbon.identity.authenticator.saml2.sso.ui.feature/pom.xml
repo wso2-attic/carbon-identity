@@ -83,14 +83,14 @@
 								</properties>
 							</adviceFile>
 							<bundles>
-								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.saml2.sso.ui:4.3.0-SNAPSHOT</bundleDef>
-								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.saml2.sso.stub:4.3.0-SNAPSHOT</bundleDef>
-								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.saml2.sso.common:4.3.0-SNAPSHOT</bundleDef>	
-								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.sso.saml.stub:4.3.0-SNAPSHOT</bundleDef>
-                                				<bundleDef>opensaml.wso2:opensaml2</bundleDef>
+								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.saml2.sso.ui</bundleDef>
+								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.saml2.sso.stub</bundleDef>
+								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.saml2.sso.common</bundleDef>	
+								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.sso.saml.stub</bundleDef>
+                                <bundleDef>opensaml.wso2:opensaml2</bundleDef>
 							</bundles>
 							<importFeatures>
-								<importFeatureDef>org.wso2.carbon.core.ui:4.3.0-SNAPSHOT</importFeatureDef>
+								<importFeatureDef>org.wso2.carbon.core.ui</importFeatureDef>
 							</importFeatures>
 						</configuration>
 					</execution>

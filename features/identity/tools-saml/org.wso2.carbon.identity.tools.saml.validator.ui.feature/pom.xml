@@ -42,6 +42,10 @@
                         <groupId>org.wso2.carbon</groupId>
                         <artifactId>org.wso2.carbon.identity.tools.saml.validator.stub</artifactId>
                 </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.ui.menu.tools</artifactId>
+        </dependency>
 	</dependencies>
 
     <build>
@@ -70,6 +74,10 @@
 								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.tools.saml.validator.ui</bundleDef>
 								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.tools.saml.validator.stub</bundleDef>
 							</bundles>
+							<importBundles>
+								<importBundleDef>org.wso2.carbon:org.wso2.carbon.ui.menu.tools</importBundleDef>
+							</importBundles>
+
 							<importFeatures>
 								<importFeatureDef>org.wso2.carbon.identity.core.ui</importFeatureDef>
 							</importFeatures>

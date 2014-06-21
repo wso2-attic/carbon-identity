@@ -93,6 +93,9 @@
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.application.authentication.framework</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.application.common</bundleDef>
                             </bundles>
+			    <importFeatures>
+				<importFeatureDef>org.wso2.carbon.identity.user.profile.server</importFeatureDef>
+			    </importFeatures>
                         </configuration>
                     </execution>
                 </executions>
