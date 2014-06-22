@@ -50,6 +50,7 @@
     String grantClient = CharacterEncoder.getSafeText(request.getParameter("grant_client"));
     String grantRefresh = CharacterEncoder.getSafeText(request.getParameter("grant_refresh"));
     String grantSAML = CharacterEncoder.getSafeText(request.getParameter("grant_saml"));
+    String grantNTLM = CharacterEncoder.getSafeText(request.getParameter("grant_ntlm"));
     String grants = null;
    	StringBuffer buff = new StringBuffer();
 	if (grantCode != null) {
@@ -68,13 +69,20 @@
 		buff.append(grantRefresh + " ");
 	}
 	if (grantSAML != null) {
-		buff.append(grantSAML);
+		buff.append(grantSAML+ " ");
+	}
+    if (grantNTLM != null) {
+		buff.append(grantNTLM);
 	}
 	grants = buff.toString();
-	String forwardTo = "../application/add-service-provider.jsp";
+	String forwardTo = "index.jsp";
     String BUNDLE = "org.wso2.carbon.identity.oauth.ui.i18n.Resources";
 	ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
 	OAuthConsumerAppDTO app = new OAuthConsumerAppDTO();
+	
+	String spName = (String) session.getAttribute("application-sp-name");
+	session.removeAttribute("application-sp-name");
+	boolean isError = false;
 	
     try {
 
@@ -96,16 +104,30 @@
         CarbonUIMessage.sendCarbonUIMessage(message,CarbonUIMessage.INFO, request);
 
     } catch (Exception e) {
+    	isError = false;
     	String message = resourceBundle.getString("error.while.updating.app");
     	CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request,e);
         forwardTo ="../admin/error.jsp";
     }
 %>
 
-<script type="text/javascript">
-    function forward() {
-        location.href = "<%=forwardTo%>";
+<script>
+
+<%
+boolean qpplicationComponentFound = CarbonUIUtil.isContextRegistered(config, "/application/");
+if (qpplicationComponentFound) {
+	if (!isError) {
+%>
+    location.href = '../application/configure-service-provider.jsp?action=update&display=oauthapp&spName=<%=spName%>&oauthapp=<%=consumerkey%>';
+<%  } else { %>
+    location.href = '../application/configure-service-provider.jsp?action=cancel&display=oauthapp&spName=<%=spName%>';
+<%
     }
+}else {
+%>
+    location.href = '<%=forwardTo%>';
+<% } %>
+
 </script>
 
 <script type="text/javascript">

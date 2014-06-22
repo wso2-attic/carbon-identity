@@ -38,6 +38,7 @@ import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenRespDTO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
+import org.wso2.carbon.identity.oauth2.model.RefreshTokenValidationDataDO;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 
@@ -108,52 +109,47 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                 //TODO Need to refactor this logic
                 //First serve from the cache
                 if (cacheEnabled) {
-                    AccessTokenDO newAccessTokenDO = (AccessTokenDO) oauthCache.getValueFromCache(cacheKey);
-                    if (newAccessTokenDO != null) {
-                        AccessTokenDO accessTokenDO = OAuth2Util.validateAccessTokenDO(newAccessTokenDO);
-                        if (accessTokenDO != null) {
+					AccessTokenDO AccessTokenDO = (AccessTokenDO) oauthCache.getValueFromCache(cacheKey);
+					if (AccessTokenDO != null) {
+						long expireTime = OAuth2Util.getTokenExpireTimeMillis(AccessTokenDO);
+                          if (expireTime > 0) {
                             tokenRespDTO = new OAuth2AccessTokenRespDTO();
-                            tokenRespDTO.setAccessToken(accessTokenDO.getAccessToken());
+                            tokenRespDTO.setAccessToken(AccessTokenDO.getAccessToken());
                             if (issueRefreshToken() &&
                                     OAuthServerConfiguration.getInstance().getSupportedGrantTypes().containsKey(
                                             GrantType.REFRESH_TOKEN.toString())) {
-                                tokenRespDTO.setRefreshToken(accessTokenDO.getRefreshToken());
+                                tokenRespDTO.setRefreshToken(AccessTokenDO.getRefreshToken());
                             }
-                            tokenRespDTO.setExpiresIn(accessTokenDO.getValidityPeriod());
+                            tokenRespDTO.setExpiresIn(expireTime/1000);
+                            tokenRespDTO.setExpiresInMillis(expireTime);  
                             if (log.isDebugEnabled()) {
                                 log.debug("Access Token info retrieved from the cache and served to client with client id : " +
                                         oAuth2AccessTokenReqDTO.getClientId());
                             }
-                            oauthCache.addToCache(cacheKey, accessTokenDO);
                             return tokenRespDTO;
                         } else {
                             oauthCache.clearCacheEntry(cacheKey);
-                            //Token is expired. Mark it as expired on database
-                            //TODO : Read token state from a constant
-                            String tokenState = tokenMgtDAO.getAccessTokenState(consumerKey, authorizedUser, scope);
-                            if (tokenState.equals("REVOKED")) {
-                                tokenMgtDAO.setAccessTokenState(consumerKey, authorizedUser,"REVOKED", UUID.randomUUID().toString(),userStoreDomain, scope);
-                            } else {//Token is expired. Mark it as expired on database
-                                tokenMgtDAO.setAccessTokenState(consumerKey, authorizedUser, "EXPIRED",
-                                        UUID.randomUUID().toString(), userStoreDomain, scope);
-                            }
                         }
                     }
                 }
 
                 //Check if previously issued token exists in database
-                tokenRespDTO = tokenMgtDAO.getValidAccessTokenIfExist(oAuth2AccessTokenReqDTO.getClientId(),
+                AccessTokenDO accessTokenDO = tokenMgtDAO.getValidAccessTokenIfExist(oAuth2AccessTokenReqDTO.getClientId(),
                         tokReqMsgCtx.getAuthorizedUser(), userStoreDomain, scope);
-                if (tokenRespDTO != null) {
+				if (accessTokenDO != null) {
+					// set the missing accessTokenDO attributes
+					accessTokenDO.setScope(tokReqMsgCtx.getScope());
+					accessTokenDO.setTokenType(tokenType);
+					tokenRespDTO = new OAuth2AccessTokenRespDTO();
+					tokenRespDTO.setRefreshToken(accessTokenDO.getRefreshToken());
+					tokenRespDTO.setAccessToken(accessTokenDO.getAccessToken());
+					long expireTime = OAuth2Util.getTokenExpireTimeMillis(accessTokenDO);
+					tokenRespDTO.setExpiresIn(expireTime / 1000);
+                  tokenRespDTO.setExpiresInMillis(expireTime);
                     if (log.isDebugEnabled()) {
                         log.debug("Retrieving existing valid access token for client ID" + oAuth2AccessTokenReqDTO.getClientId());
                     }
                     if (cacheEnabled) {
-                        AccessTokenDO accessTokenDO = new AccessTokenDO(consumerKey, tokReqMsgCtx.getAuthorizedUser(),
-                                tokReqMsgCtx.getScope(), new Timestamp(System.currentTimeMillis()), tokenRespDTO.getExpiresIn(), tokenType);
-                        accessTokenDO.setRefreshToken(tokenRespDTO.getRefreshToken());
-                        accessTokenDO.setTokenState(OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE);
-                        accessTokenDO.setAccessToken(tokenRespDTO.getAccessToken());
                         if (log.isDebugEnabled()) {
                             log.debug("Access Token info was added to the cache for the client id : " +
                                     oAuth2AccessTokenReqDTO.getClientId());
@@ -201,6 +197,19 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
             try {
                 accessToken = oauthIssuerImpl.accessToken();
                 refreshToken = oauthIssuerImpl.refreshToken();
+                AccessTokenDO accessTokenDO = tokenMgtDAO.getValidAccessTokenIfExist(consumerKey, authorizedUser, userStoreDomain, true);
+                if(accessTokenDO != null){
+                    RefreshTokenValidationDataDO refreshTokenValidationDataDO = tokenMgtDAO.validateRefreshToken(
+                            consumerKey, accessTokenDO.getRefreshToken());
+                    String state = refreshTokenValidationDataDO.getRefreshTokenState();
+                    long createdTime = refreshTokenValidationDataDO.getIssuedAt();
+                    long refreshValidity = OAuthServerConfiguration.getInstance().getTimeStampSkewInSeconds() * 1000;
+                    if(state.equals(OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED) &&
+                            createdTime + accessTokenDO.getValidityPeriodInMillis()
+                                    - refreshTokenValidationDataDO.getIssuedAt() + refreshValidity > 1000){
+                        refreshToken = accessTokenDO.getRefreshToken();
+                    }
+                }
             } catch (OAuthSystemException e) {
                 throw new IdentityOAuth2Exception("Error when generating the tokens.", e);
             }
@@ -266,7 +275,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                             GrantType.REFRESH_TOKEN.toString())){
                 tokenRespDTO.setRefreshToken(refreshToken);
             }
-            tokenRespDTO.setExpiresIn(validityPeriod);
+            tokenRespDTO.setExpiresIn(OAuth2Util.getTokenExpireTimeMillis(accessTokenDO)/1000);
             return tokenRespDTO;
         }
     }

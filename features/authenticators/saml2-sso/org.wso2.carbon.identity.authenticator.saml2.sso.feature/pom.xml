@@ -65,7 +65,7 @@
 							<id>org.wso2.carbon.identity.authenticator.saml2.sso</id>
 							<propertiesFile>../../../../etc/feature.properties</propertiesFile>
 							 <includedFeatures>
-                                			<includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.saml2.sso.server.feature:4.3.0-SNAPSHOT</includedFeatureDef>
+                                			<includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.saml2.sso.server.feature</includedFeatureDef>
                                 			<includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.saml2.sso.ui.feature</includedFeatureDef>
                             </includedFeatures>
 						</configuration>

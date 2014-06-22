@@ -15,18 +15,21 @@
 ~ specific language governing permissions and limitations
 ~ under the License.
 -->
-
-<%@ page import="org.wso2.carbon.identity.application.common.model.xsd.*"%>
-
-<%@page import="java.util.HashMap"%>
+<%@ page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@ page import="org.wso2.carbon.CarbonConstants"%>
+<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.client.ApplicationManagementServiceClient"%>
+<%@ page import="org.wso2.carbon.identity.application.common.model.xsd.IdentityProvider"%>
+<%@ page import="org.wso2.carbon.identity.application.common.model.xsd.ProvisioningConnectorConfig"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"%>
-<%@ page import="java.util.List" %>
+<%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Map" %>
-<%@ page import="java.util.Arrays" %>
-<%@page import="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"%>
+<%@ page import="org.wso2.carbon.identity.application.common.model.xsd.ProvisioningConnectorConfig" %>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
-<jsp:useBean id="appBean" class="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean" scope="session"/>   
+<jsp:useBean id="appBean" class="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean" scope="session"/>
 <carbon:breadcrumb label="breadcrumb.service.provider" resourceBundle="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources"
                     topPage="true" request="<%=request%>" />
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -43,59 +46,91 @@
 	String startOption = "<option value=\"";
 	String middleOption = "\">";
 	String endOPtion = "</option>";	
+	String disbleText = " (Disabled)";
     
-	FederatedIdentityProvider[] federatedIdPs = appBean.getFederatedIdentityProviders();
+	IdentityProvider[] federatedIdPs = appBean.getFederatedIdentityProviders();
 	Map<String, String> proIdpConnector = new HashMap<String, String>();
 	Map<String, String> selectedProIdpConnectors = new HashMap<String, String>();
+	Map<String, String> enabledProIdpConnector = new HashMap<String, String>();
+	Map<String, Boolean> idpStatus = new HashMap<String, Boolean>();
+	Map<String, Boolean> IdpProConnectorsStatus = new HashMap<String, Boolean>();
 
 	StringBuffer idpType = null;
 	StringBuffer connType = null;
+	StringBuffer enabledConnType = null;
+	String[] userStoreDomains = null;
 
 	
 	if (federatedIdPs!=null && federatedIdPs.length>0) {
 		idpType = new StringBuffer();
 		StringBuffer provisioningConnectors = null;
-		for(FederatedIdentityProvider idp : federatedIdPs) {
-			if (idp.getProvisoningConnectors()!=null && idp.getProvisoningConnectors().length>0){	
-				ProvisioningConnector[] connectors =  idp.getProvisoningConnectors();
+		for(IdentityProvider idp : federatedIdPs) {
+			idpStatus.put(idp.getIdentityProviderName(), idp.getEnable());
+			if (idp.getProvisioningConnectorConfigs()!=null && idp.getProvisioningConnectorConfigs().length>0){
+				ProvisioningConnectorConfig[] connectors =  idp.getProvisioningConnectorConfigs();
 				int i = 1;
 				connType = new StringBuffer();
+				enabledConnType = new StringBuffer();
 				provisioningConnectors = new StringBuffer();
-				for (ProvisioningConnector proConnector : connectors){
+				for (ProvisioningConnectorConfig proConnector : connectors){
 					if (i == connectors.length ){
-						provisioningConnectors.append(proConnector.getName());
+						provisioningConnectors.append(proConnector.getEnabled() ? proConnector.getName() : "");
 					} else {
-						provisioningConnectors.append(proConnector.getName() + ",");
+						provisioningConnectors.append(proConnector.getEnabled() ? proConnector.getName() + "," : "");
 					}
 					connType.append(startOption + proConnector.getName() + middleOption + proConnector.getName() + endOPtion);
+					if(proConnector.getEnabled()){
+						enabledConnType.append(startOption + proConnector.getName() + middleOption + proConnector.getName() + endOPtion);	
+					}
+					IdpProConnectorsStatus.put(idp.getIdentityProviderName()+"_"+proConnector.getName(), proConnector.getEnabled());
 					i++;
 				}
 				proIdpConnector.put(idp.getIdentityProviderName(), connType.toString());
-				idpType.append(startOption + idp.getIdentityProviderName() + "\" data=\""+provisioningConnectors.toString() + "\" >" + idp.getIdentityProviderName() + endOPtion); 
+				if(idp.getEnable()){
+					enabledProIdpConnector.put(idp.getIdentityProviderName(), enabledConnType.toString());
+					idpType.append(startOption + idp.getIdentityProviderName() + "\" data=\""+provisioningConnectors.toString() + "\" >" + idp.getIdentityProviderName() + endOPtion); 
+				}
 			} 
-			
 		}
 		
-		if (appBean.getServiceProvider().getOutboundProvisioningConfiguration() != null
-				&& appBean.getServiceProvider().getOutboundProvisioningConfiguration() .getProvisioningIdentityProviders()!=null 
-			&& appBean.getServiceProvider().getOutboundProvisioningConfiguration() .getProvisioningIdentityProviders().length>0) {
-		
-			FederatedIdentityProvider[]  proIdps = appBean.getServiceProvider().getOutboundProvisioningConfiguration() .getProvisioningIdentityProviders();			
-		    for (FederatedIdentityProvider idp : proIdps){
-				ProvisioningConnector proIdp = idp.getDefaultProvisioinongConnector();
+		if (appBean.getServiceProvider().getOutboundProvisioningConfig() != null
+				&& appBean.getServiceProvider().getOutboundProvisioningConfig() .getProvisioningIdentityProviders()!=null
+			&& appBean.getServiceProvider().getOutboundProvisioningConfig() .getProvisioningIdentityProviders().length>0) {
+
+            IdentityProvider[]  proIdps = appBean.getServiceProvider().getOutboundProvisioningConfig() .getProvisioningIdentityProviders();
+		    for (IdentityProvider idp : proIdps){
+				ProvisioningConnectorConfig proIdp = idp.getDefaultProvisioningConnectorConfig();
 				String options = proIdpConnector.get(idp.getIdentityProviderName());
-				if (proIdp!=null) {
+				if (proIdp!=null && options != null) {
 					String conName = proIdp.getName();
 					String oldOption = startOption + proIdp.getName() + middleOption + proIdp.getName() + endOPtion;
-					String newOption = startOption + proIdp.getName() + "\" selected=\"selected" + middleOption + proIdp.getName() + endOPtion;
-					options = options.replace(oldOption, newOption);
+					String newOption = startOption + proIdp.getName() + "\" selected=\"selected" + middleOption + proIdp.getName()+ (IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) != null && IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) ? "" : disbleText) + endOPtion;
+					if(options.contains(oldOption)) {
+						options = options.replace(oldOption, newOption);
+					} else {
+						options = options + newOption;
+					}
 					selectedProIdpConnectors.put(idp.getIdentityProviderName(), options);
-				}else {
+				} else if(proIdp!=null && options == null) {
+					String disabledOption = startOption + proIdp.getName() + "\" selected=\"selected" + middleOption + proIdp.getName() + disbleText + endOPtion;
+					selectedProIdpConnectors.put(idp.getIdentityProviderName(), disabledOption);
+				} else {
+					options = enabledProIdpConnector.get(idp.getIdentityProviderName());
 					selectedProIdpConnectors.put(idp.getIdentityProviderName(), options);
 				}
+				
 			}
-		}
-		
+		}	
+	}
+	
+	try {
+		String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+		String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
+		ConfigurationContext configContext = (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+		ApplicationManagementServiceClient serviceClient = new ApplicationManagementServiceClient(cookie, backendServerURL, configContext);
+		userStoreDomains = serviceClient.getUserStoreDomains();
+	} catch (Exception e) {
+		CarbonUIMessage.sendCarbonUIMessage("Error occured while loading User Store Domail", CarbonUIMessage.ERROR, request, e);
 	}
 %>
 
@@ -129,13 +164,18 @@
 		var selectedObj = jQuery(obj).prev().find(":selected");
 
 		var selectedIDPName = selectedObj.val(); 
+		if(!validaForDuplications('[name=provisioning_idp]', selectedIDPName, 'Configuration')){
+			return false;
+		} 
 		//var stepID = jQuery(obj).parent().children()[1].value;
 		var dataArray =  selectedObj.attr('data').split(',');
 		var newRow = '<tr><td><input name="provisioning_idp" id="" type="hidden" value="' + selectedIDPName + '" />' + selectedIDPName + ' </td><td> <select name="provisioning_con_idp_' + selectedIDPName + '" style="float: left; min-width: 150px;font-size:13px;">';
 		for(var i=0;i<dataArray.length;i++){
-			newRow+='<option>'+dataArray[i]+'</option>';	
+			if(dataArray[i].length > 0){
+				newRow+='<option>'+dataArray[i]+'</option>';
+			}
 		}
-		newRow+='</select></td><td class="leftCol-small" ><a onclick="deleteIDPRow(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a></td></tr>';
+		newRow+='</select></td><td><input type="checkbox" name="blocking_prov_' + selectedIDPName + '"  />Blocking</td><td class="leftCol-small" ><a onclick="deleteIDPRow(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a></td></tr>';
 		jQuery(obj)
 				.parent()
 				.parent()
@@ -148,6 +188,23 @@
     function deleteIDPRow(obj){
         jQuery(obj).parent().parent().remove();
     }
+    
+	function validaForDuplications(selector, selectedIDPName, type){
+		if($(selector).length > 0){
+			var isNew = true;
+			$.each($(selector),function(){
+				if($(this).val() == selectedIDPName){
+					CARBON.showWarningDialog(type+' "'+selectedIDPName+'" is already added');
+					isNew = false;
+					return false;
+				}
+			});
+			if(!isNew){
+				return false;
+			}
+		}
+		return true;
+	}
 </script>
 
 <fmt:bundle basename="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources">
@@ -175,12 +232,28 @@
                   </td></tr>
                    <tr>
                         <td >
-                        <% if(appBean.getServiceProvider().getInboundProvisioningConfiguration() != null
-                              && appBean.getServiceProvider().getInboundProvisioningConfiguration().getProvisioningUserStore()!=null) { %>
-                            <input style="width:50%" id="scim-inbound-userstore" name="scim-inbound-userstore" type="text" value="<%=appBean.getServiceProvider().getInboundProvisioningConfiguration().getProvisioningUserStore()%>" autofocus/>
-                            <% } else { %>
-                            <input style="width:50%" id="scim-inbound-userstore" name="scim-inbound-userstore" type="text" value="" autofocus/>
-                            <% } %>
+                           <select style="min-width: 250px;" id="scim-inbound-userstore" name="scim-inbound-userstore">
+                          		<option value="">---Select---</option>
+                                <%
+                                    if(userStoreDomains != null && userStoreDomains.length > 0){
+                                        for(String userStoreDomain : userStoreDomains){
+                                            if(userStoreDomain != null){
+                                            	if( appBean.getServiceProvider().getInboundProvisioningConfig() != null
+                                                	&& appBean.getServiceProvider().getInboundProvisioningConfig().getProvisioningUserStore()!=null
+                                                    && userStoreDomain.equals(appBean.getServiceProvider().getInboundProvisioningConfig().getProvisioningUserStore())) {
+                                    %>
+                                          			<option selected="selected" value="<%=userStoreDomain%>"><%=userStoreDomain%></option>
+                                    <%
+                                      			} else {
+                                    %>
+                                           			<option value="<%=userStoreDomain%>"><%=userStoreDomain%></option>
+                                    <%
+                                                }
+                                              }
+                                           }
+                                        }
+                                    %>
+                          </select>
                           <div class="sectionHelp">
                                 <fmt:message key='help.inbound.scim'/>
                             </div>
@@ -198,7 +271,7 @@
             <div class="toggle_container sectionSub" style="margin-bottom:10px;" id="outboundProvisioning">
              <table class="styledLeft" width="100%" id="fed_auth_table">
             
-		      <% if (idpType!=null) {%>
+		      <% if (idpType != null && idpType.length() > 0) {%>
 		       <thead> 
 		       
 					<tr>
@@ -212,27 +285,47 @@
 		           
 	           </thead>
 	            <% } else { %>
-	           <table class="carbonFormTable" width="100%" id="fed_auth_table">
-	            
-		              <tr><td>There are no provisioning enabled identity providers defined in the system.</td></tr>
+	           		<tr><td colspan="4" style="border: none;">There are no provisioning enabled identity providers defined in the system.</td></tr>
 		        <%} %>
 							                 
 	           <%
-	           	   if (idpType!=null && appBean.getServiceProvider().getInboundProvisioningConfiguration() != null ) {							      
-				   			FederatedIdentityProvider[] fedIdps = appBean.getServiceProvider().getOutboundProvisioningConfiguration().getProvisioningIdentityProviders();
+	           			if (appBean.getServiceProvider().getOutboundProvisioningConfig() != null) {
+				   			IdentityProvider[] fedIdps = appBean.getServiceProvider().getOutboundProvisioningConfig().getProvisioningIdentityProviders();
 							      if (fedIdps!=null && fedIdps.length>0){
-							      			for(FederatedIdentityProvider idp:fedIdps) {
-							      				if (idp!=null) {
+							      			for(IdentityProvider idp:fedIdps) {
+							      				if (idp != null) {
+													boolean jitEnabled = false;
+							      					boolean blocking = false;
+
+							      					if (idp.getJustInTimeProvisioningConfig()!=null &&
+							      							idp.getJustInTimeProvisioningConfig().getProvisioningEnabled())
+							      					{
+							      						jitEnabled = true;
+							      					}
+
+							      					if (idp.getDefaultProvisioningConnectorConfig()!=null &&
+							      							idp.getDefaultProvisioningConnectorConfig().getBlocking())
+							      					{
+							      						blocking = true;
+							      					}
 	           %>
 							      
 							      	       <tr>
 							      	      	   <td>
 							      	      		<input name="provisioning_idp" id="" type="hidden" value="<%=idp.getIdentityProviderName()%>" />
-							      	      			<%=idp.getIdentityProviderName()%>
+							      	      			<%=idp.getIdentityProviderName() + (idpStatus.get(idp.getIdentityProviderName()) != null && idpStatus.get(idp.getIdentityProviderName()) ? "" : disbleText)%>
 							      	      		</td>
 							      	      		<td> 
-							      	      			<select name="provisioning_con_idp_<%=idp.getIdentityProviderName()%>" style="float: left; min-width: 150px;font-size:13px;"><%=selectedProIdpConnectors.get(idp.getIdentityProviderName())%></select>
+							      	      			<% if(selectedProIdpConnectors.get(idp.getIdentityProviderName()) != null) { %>
+							      	      				<select name="provisioning_con_idp_<%=idp.getIdentityProviderName()%>" style="float: left; min-width: 150px;font-size:13px;"><%=selectedProIdpConnectors.get(idp.getIdentityProviderName())%></select>
+							      	      			<% } %>
 							      	      		</td>
+							      	      		 <td>
+                            						<div class="sectionCheckbox">
+                                						<input type="checkbox" id="blocking_prov_<%=idp.getIdentityProviderName()%>" name="blocking_prov_<%=idp.getIdentityProviderName()%>" <%=blocking ? "checked" : "" %>>Blocking
+                   									</div>
+                        						</td>
+							      	      		 <td>
 							      	      		<td class="leftCol-small" >
 							      	      		<a onclick="deleteIDPRow(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a>
 							      	      		</td>

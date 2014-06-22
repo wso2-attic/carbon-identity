@@ -41,12 +41,12 @@
             <!--version>4.3.0-SNAPSHOT</version-->
             <type>zip</type>
 	    </dependency>
-        <!--dependency>
+        <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.self.registration.ui.feature</artifactId>
             <version>4.3.0-SNAPSHOT</version>
             <type>zip</type>
-	    </dependency-->
+	</dependency>
     </dependencies>
 
 	<build>
@@ -70,7 +70,7 @@
                             </importFeatures>
                             <includedFeatures>
                                 <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.self.registration.server.feature</includedFeatureDef>
-                                <!--includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.self.registration.ui.feature</includedFeatureDef-->
+                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.self.registration.ui.feature</includedFeatureDef>
                             </includedFeatures>
 						</configuration>
 					</execution>

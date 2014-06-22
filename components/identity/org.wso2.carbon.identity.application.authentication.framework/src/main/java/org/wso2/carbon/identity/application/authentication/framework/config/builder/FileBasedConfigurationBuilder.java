@@ -37,13 +37,14 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.application.authentication.framework.config.dto.AuthenticatorConfig;
-import org.wso2.carbon.identity.application.authentication.framework.config.dto.ExternalIdPConfig;
-import org.wso2.carbon.identity.application.authentication.framework.config.dto.SequenceConfig;
-import org.wso2.carbon.identity.application.authentication.framework.config.dto.StepConfig;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.SequenceConfig;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.StepConfig;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
-import org.wso2.carbon.identity.application.common.model.FederatedIdentityProvider;
+import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 
 /**
@@ -87,7 +88,8 @@ public class FileBasedConfigurationBuilder {
             OMElement documentElement = new StAXOMBuilder(fileInputStream).getDocumentElement();
             
             //########### Read Authentication Endpoint URL ###########
-            OMElement authEndpointURLElem = documentElement.getFirstChildWithName(new QName(FrameworkConstants.Config.QNAME_AUTHENTICATION_ENDPOINT_URL));
+            OMElement authEndpointURLElem = documentElement.getFirstChildWithName(IdentityApplicationManagementUtil.
+                        getQNameWithIdentityApplicationNS(FrameworkConstants.Config.QNAME_AUTHENTICATION_ENDPOINT_URL));
             
             if (authEndpointURLElem != null) {
             	 authenticationEndpointURL = authEndpointURLElem.getText();
@@ -95,7 +97,8 @@ public class FileBasedConfigurationBuilder {
             
             //########### Read Proxy Mode ###########
             //TODO:get proxy modes from an enum?
-            OMElement proxyModeElem = documentElement.getFirstChildWithName(new QName(FrameworkConstants.Config.QNAME_PROXY_MODE));
+            OMElement proxyModeElem = documentElement.getFirstChildWithName(IdentityApplicationManagementUtil.
+                                            getQNameWithIdentityApplicationNS(FrameworkConstants.Config.QNAME_PROXY_MODE));
             
             if (proxyModeElem != null && proxyModeElem.getText() != null && !proxyModeElem.getText().isEmpty()) {
             	 if (proxyModeElem.getText().equalsIgnoreCase("dumb")) {
@@ -104,7 +107,8 @@ public class FileBasedConfigurationBuilder {
             }
             
             //########### Read Maximum Login Attempt Count ###########
-            OMElement maxLoginAttemptCountElem = documentElement.getFirstChildWithName(new QName(FrameworkConstants.Config.QNAME_MAX_LOGIN_ATTEMPT_COUNT));
+            OMElement maxLoginAttemptCountElem = documentElement.getFirstChildWithName(IdentityApplicationManagementUtil.
+                            getQNameWithIdentityApplicationNS(FrameworkConstants.Config.QNAME_MAX_LOGIN_ATTEMPT_COUNT));
             
             if (maxLoginAttemptCountElem != null) {
             	String maxLoginAttemptCountStr = maxLoginAttemptCountElem.getText();
@@ -120,7 +124,8 @@ public class FileBasedConfigurationBuilder {
             }
             
             //########### Read Extension Points ###########
-            OMElement extensionsElem = documentElement.getFirstChildWithName(new QName(FrameworkConstants.Config.QNAME_EXTENSIONS));
+            OMElement extensionsElem = documentElement.getFirstChildWithName(IdentityApplicationManagementUtil.
+                                        getQNameWithIdentityApplicationNS(FrameworkConstants.Config.QNAME_EXTENSIONS));
             
             if (extensionsElem != null) {
             	for (Iterator extChildElems = extensionsElem.getChildElements(); extChildElems.hasNext() ;) {
@@ -144,7 +149,8 @@ public class FileBasedConfigurationBuilder {
             }
             
             //########### Read Cache Timeouts ###########
-            OMElement cacheTimeoutsElem = documentElement.getFirstChildWithName(new QName(FrameworkConstants.Config.QNAME_CACHE_TIMEOUTS));
+            OMElement cacheTimeoutsElem = documentElement.getFirstChildWithName(IdentityApplicationManagementUtil.
+                                    getQNameWithIdentityApplicationNS(FrameworkConstants.Config.QNAME_CACHE_TIMEOUTS));
             
             if (cacheTimeoutsElem != null) {
             	for (Iterator cacheChildElems = cacheTimeoutsElem.getChildElements(); cacheChildElems.hasNext() ;) {
@@ -166,17 +172,19 @@ public class FileBasedConfigurationBuilder {
             }
             
             //########### Read Authenticator Name Mappings ###########
-            OMElement authenticatorNameMappingsElem = documentElement.getFirstChildWithName(new QName(FrameworkConstants.Config.QNAME_AUTHENTICATOR_NAME_MAPPINGS));
+            OMElement authenticatorNameMappingsElem = documentElement.getFirstChildWithName(IdentityApplicationManagementUtil.
+                    getQNameWithIdentityApplicationNS(FrameworkConstants.Config.QNAME_AUTHENTICATOR_NAME_MAPPINGS));
             
             if (authenticatorNameMappingsElem != null) {
-                for (Iterator authenticatorNameMappingElems = authenticatorNameMappingsElem.getChildrenWithLocalName(FrameworkConstants.Config.ELEM_AUTHENTICATOR_NAME_MAPPING); 
+                for (Iterator authenticatorNameMappingElems = authenticatorNameMappingsElem.getChildrenWithLocalName(FrameworkConstants.Config.ELEM_AUTHENTICATOR_NAME_MAPPING);
         				authenticatorNameMappingElems.hasNext();) {
         			processAuthenticatorNameMappingElement((OMElement) authenticatorNameMappingElems.next());
         		}
             }
             
             //########### Read Authenticator Configs ###########
-            OMElement authenticatorConfigsElem = documentElement.getFirstChildWithName(new QName(FrameworkConstants.Config.QNAME_AUTHENTICATOR_CONFIGS));
+            OMElement authenticatorConfigsElem = documentElement.getFirstChildWithName(IdentityApplicationManagementUtil.
+                                getQNameWithIdentityApplicationNS(FrameworkConstants.Config.QNAME_AUTHENTICATOR_CONFIGS));
             
             if (authenticatorConfigsElem != null) {
             	// for each and every authenticator defined, create an AuthenticatorConfig instance
@@ -191,7 +199,8 @@ public class FileBasedConfigurationBuilder {
             }
             
             //########### Read IdP Configs ###########
-            OMElement idpConfigsElem = documentElement.getFirstChildWithName(new QName(FrameworkConstants.Config.QNAME_IDP_CONFIGS));
+            OMElement idpConfigsElem = documentElement.getFirstChildWithName(IdentityApplicationManagementUtil.
+                                        getQNameWithIdentityApplicationNS(FrameworkConstants.Config.QNAME_IDP_CONFIGS));
             
             if (idpConfigsElem != null) {
             	// for each and every external idp defined, create an ExternalIdPConfig instance
@@ -207,7 +216,8 @@ public class FileBasedConfigurationBuilder {
             }
             
             //########### Read Sequence Configs ###########
-            OMElement sequencesElem = documentElement.getFirstChildWithName(new QName(FrameworkConstants.Config.QNAME_SEQUENCES));
+            OMElement sequencesElem = documentElement.getFirstChildWithName(IdentityApplicationManagementUtil.
+                                        getQNameWithIdentityApplicationNS(FrameworkConstants.Config.QNAME_SEQUENCES));
             
             if (sequencesElem != null) {
             	// for each every application defined, create a ApplicationBean instance
@@ -292,14 +302,16 @@ public class FileBasedConfigurationBuilder {
         }
         
         //RequestPathAuthenticators
-        OMElement reqPathAuthenticatorsElem = sequenceElem.getFirstChildWithName(new QName(FrameworkConstants.Config.ELEM_REQ_PATH_AUTHENTICATOR));
+        OMElement reqPathAuthenticatorsElem = sequenceElem.getFirstChildWithName(IdentityApplicationManagementUtil.
+                            getQNameWithIdentityApplicationNS(FrameworkConstants.Config.ELEM_REQ_PATH_AUTHENTICATOR));
         
         if (reqPathAuthenticatorsElem != null) {
         	
         	for (Iterator reqPathAuthenticatorElems = reqPathAuthenticatorsElem.getChildElements(); reqPathAuthenticatorElems.hasNext() ;) {
         		OMElement reqPathAuthenticatorElem = (OMElement)reqPathAuthenticatorElems.next();
         		
-        		String authenticatorName = reqPathAuthenticatorElem.getAttributeValue(new QName(FrameworkConstants.Config.ATTR_AUTHENTICATOR_NAME));
+        		String authenticatorName = reqPathAuthenticatorElem.getAttributeValue(IdentityApplicationManagementUtil.
+                                getQNameWithIdentityApplicationNS(FrameworkConstants.Config.ATTR_AUTHENTICATOR_NAME));
     			AuthenticatorConfig authenticatorConfig = authenticatorConfigMap.get(authenticatorName);
         		sequenceConfig.getReqPathAuthenticators().add(authenticatorConfig);
         	}
@@ -355,11 +367,11 @@ public class FileBasedConfigurationBuilder {
 				String[] idpArr = idps.split(",");
 				
 				for (String idp : idpArr) {
-					authenticatorConfig.getIdps().add(idp);
+					authenticatorConfig.getIdpNames().add(idp);
 				}
 			} else {
 				//authenticatorConfig.getIdpNameList().add("internal");
-				authenticatorConfig.getIdps().add("internal");
+				authenticatorConfig.getIdpNames().add(FrameworkConstants.LOCAL_IDP_NAME);
 			}
 			
 			stepConfig.getAuthenticatorList().add(authenticatorConfig);
@@ -390,9 +402,10 @@ public class FileBasedConfigurationBuilder {
         // check whether the disabled attribute is set
         boolean enabled = false;
         
-        if (authenticatorConfigElem.getAttribute(new QName(FrameworkConstants.Config.ATTR_AUTHENTICATOR_ENABLED)) != null) {
-            enabled = Boolean.parseBoolean(authenticatorConfigElem.getAttribute(
-                    new QName(FrameworkConstants.Config.ATTR_AUTHENTICATOR_ENABLED)).getAttributeValue());
+        if (authenticatorConfigElem.getAttribute(IdentityApplicationManagementUtil.
+                    getQNameWithIdentityApplicationNS(FrameworkConstants.Config.ATTR_AUTHENTICATOR_ENABLED)) != null) {
+            enabled = Boolean.parseBoolean(authenticatorConfigElem.getAttribute(IdentityApplicationManagementUtil.
+                    getQNameWithIdentityApplicationNS(FrameworkConstants.Config.ATTR_AUTHENTICATOR_ENABLED)).getAttributeValue());
         }
         
         // read the config parameters
@@ -443,7 +456,7 @@ public class FileBasedConfigurationBuilder {
             parameterMap.put(paramNameAttr.getAttributeValue(), paramElem.getText());
         }   
 
-        FederatedIdentityProvider fedIdp = new FederatedIdentityProvider();
+        IdentityProvider fedIdp = new IdentityProvider();
         fedIdp.setIdentityProviderName(nameAttr.getAttributeValue());
         ExternalIdPConfig externalIdPConfig = new ExternalIdPConfig(fedIdp);
         externalIdPConfig.setParameterMap(parameterMap);

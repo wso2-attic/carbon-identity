@@ -1,5 +1,7 @@
 package org.wso2.carbon.identity.application.authentication.framework;
 
-public abstract class AuthenticatorStateInfo {
+import java.io.Serializable;
+
+public abstract class AuthenticatorStateInfo implements Serializable {
 
 }

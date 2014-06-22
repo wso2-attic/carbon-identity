@@ -45,7 +45,7 @@ public class JDBCPersistenceManager {
     private DataSource dataSource;
 
     private static Log log = LogFactory.getLog(JDBCPersistenceManager.class);
-    private static JDBCPersistenceManager instance;
+    private static volatile JDBCPersistenceManager instance;
 
     private JDBCPersistenceManager() throws IdentityException {
         initDataSource();

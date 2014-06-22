@@ -31,7 +31,6 @@ import org.wso2.carbon.identity.oauth.dao.OAuthAppDAO;
 import org.wso2.carbon.identity.oauth.tokenprocessor.PlainTextPersistenceProcessor;
 import org.wso2.carbon.identity.oauth.tokenprocessor.TokenPersistenceProcessor;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
-import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenRespDTO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.model.AuthzCodeDO;
 import org.wso2.carbon.identity.oauth2.model.RefreshTokenValidationDataDO;
@@ -155,14 +154,14 @@ public class TokenMgtDAO {
         return false;
     }
 
-    public OAuth2AccessTokenRespDTO getValidAccessTokenIfExist(String consumerKey, String userName,
+    public AccessTokenDO getValidAccessTokenIfExist(String consumerKey, String userName,
                                                                String userStoreDomain, String scope)
             throws IdentityOAuth2Exception {
 
         return getValidAccessTokenIfExist(consumerKey, userName, userStoreDomain,scope, false);
     }
 
-    public OAuth2AccessTokenRespDTO getValidAccessTokenIfExist(String consumerKey, String userName,
+    public AccessTokenDO getValidAccessTokenIfExist(String consumerKey, String userName,
                                                                String userStoreDomain, String scope, boolean includeExpiredTokens)
                 throws IdentityOAuth2Exception {
                 Connection connection = null;
@@ -178,7 +177,7 @@ public class TokenMgtDAO {
                     }
             }
 
-    public OAuth2AccessTokenRespDTO getValidAccessTokenIfExist(String consumerKey, String userName,
+    public AccessTokenDO getValidAccessTokenIfExist(String consumerKey, String userName,
                                                                String userStoreDomain, boolean includeExpiredTokens)
             throws IdentityOAuth2Exception {
         Connection connection = null;
@@ -194,13 +193,13 @@ public class TokenMgtDAO {
         }
     }
 
-    public OAuth2AccessTokenRespDTO getValidAccessTokenIfExist(String consumerKey, String userName,
+    public AccessTokenDO getValidAccessTokenIfExist(String consumerKey, String userName,
                                                                Connection connection,
                                                                String userStoreDomain, String scope) throws IdentityOAuth2Exception {
                 return getValidAccessTokenIfExist(consumerKey, userName, connection, userStoreDomain, scope, false);
     }
 
-    public OAuth2AccessTokenRespDTO getValidAccessTokenIfExist(String consumerKey, String userName,
+    public AccessTokenDO getValidAccessTokenIfExist(String consumerKey, String userName,
                                                                Connection connection,
                                                                String userStoreDomain, String scope,
                                                                boolean includeExpiredTokens) throws IdentityOAuth2Exception {
@@ -294,9 +293,6 @@ public class TokenMgtDAO {
 
             //Read the latest ACCESS_TOKEN record for CONSUMER_KEY+AUTHZ_USER combination
             if (resultSet.next()) {
-                timestampSkew = OAuthServerConfiguration.getInstance().
-                        getTimeStampSkewInSeconds() * 1000;
-                currentTime = System.currentTimeMillis();
                 issuedTime = resultSet.getTimestamp("TIME_CREATED",
                         Calendar.getInstance(TimeZone.getTimeZone("UTC"))).getTime();
                 validityPeriod = resultSet.getLong("VALIDITY_PERIOD");
@@ -307,16 +303,16 @@ public class TokenMgtDAO {
                 } else {
                     refreshToken = resultSet.getString("REFRESH_TOKEN");
                 }
-                OAuth2AccessTokenRespDTO tokenRespDTO = new OAuth2AccessTokenRespDTO();
-                tokenRespDTO.setAccessToken(accessToken);
-                tokenRespDTO.setRefreshToken(refreshToken);
-                tokenRespDTO.setExpiresIn(((issuedTime + validityPeriod) - (currentTime + timestampSkew)) / 1000);
-                tokenRespDTO.setExpiresInMillis(((issuedTime + validityPeriod) - (currentTime + timestampSkew)));
+				// data loss at dividing the validity period but can be neglected
+				AccessTokenDO accessTokenDO = new AccessTokenDO(consumerKey, userName, null, new Timestamp(issuedTime),
+						validityPeriod / 1000, null);
+				accessTokenDO.setAccessToken(accessToken);
+				accessTokenDO.setRefreshToken(refreshToken);
                 if (includeExpiredTokens) {
-                    return tokenRespDTO;
+                    return accessTokenDO;
                 } else {
-                    if(((issuedTime + validityPeriod) - (currentTime + timestampSkew)) > 1000){
-                        return tokenRespDTO;
+					if (OAuth2Util.getTokenExpireTimeMillis(accessTokenDO) > 0) {
+                        return accessTokenDO;
                     }
                 }
             }
@@ -331,7 +327,7 @@ public class TokenMgtDAO {
         }
     }
 
-    public OAuth2AccessTokenRespDTO getValidAccessTokenIfExist(String consumerKey, String userName,
+    public AccessTokenDO getValidAccessTokenIfExist(String consumerKey, String userName,
                                                                Connection connection,
                                                                String userStoreDomain,
                                                                boolean includeExpiredTokens) throws IdentityOAuth2Exception {
@@ -432,16 +428,16 @@ public class TokenMgtDAO {
                 } else {
                     refreshToken = resultSet.getString("REFRESH_TOKEN");
                 }
-                OAuth2AccessTokenRespDTO tokenRespDTO = new OAuth2AccessTokenRespDTO();
-                tokenRespDTO.setAccessToken(accessToken);
-                tokenRespDTO.setRefreshToken(refreshToken);
-                tokenRespDTO.setExpiresIn(((issuedTime + validityPeriod) - (currentTime + timestampSkew)) / 1000);
-                tokenRespDTO.setExpiresInMillis(((issuedTime + validityPeriod) - (currentTime + timestampSkew)));
+				// data loss at dividing the validity period but can be neglected
+				AccessTokenDO accessTokenDO = new AccessTokenDO(consumerKey, userName, null, new Timestamp(issuedTime),
+						validityPeriod / 1000, null);
+				accessTokenDO.setAccessToken(accessToken);
+                accessTokenDO.setRefreshToken(refreshToken);
                 if (includeExpiredTokens) {
-                    return tokenRespDTO;
+                    return accessTokenDO;
                 } else {
                     if (((issuedTime + validityPeriod) - (currentTime + timestampSkew)) > 1000) {
-                        return tokenRespDTO;
+                        return accessTokenDO;
                     }
                 }
             }
@@ -522,9 +518,9 @@ public class TokenMgtDAO {
         }
     }
 
-    public RefreshTokenValidationDataDO validateRefreshToken(String consumerKey,
-                                                             String refreshToken)
+    public RefreshTokenValidationDataDO validateRefreshToken(String consumerKey, String refreshToken)
             throws IdentityOAuth2Exception {
+
         RefreshTokenValidationDataDO validationDataDO = new RefreshTokenValidationDataDO();
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -534,6 +530,7 @@ public class TokenMgtDAO {
         String mySqlQuery;
         String oracleQuery;
         String msSqlQuery;
+        String postgreSqlQuery;
 
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
@@ -546,25 +543,33 @@ public class TokenMgtDAO {
                 accessTokenStoreTable = accessTokenStoreTable + "_" + userStoreDomain;
             }
             mySqlQuery = "SELECT ACCESS_TOKEN, AUTHZ_USER, " +
-                    "TOKEN_SCOPE, TOKEN_STATE FROM " + accessTokenStoreTable +
+                    "TOKEN_SCOPE, TOKEN_STATE, TIME_CREATED FROM " + accessTokenStoreTable +
                     " WHERE CONSUMER_KEY = ? AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC LIMIT 1";
 
             oracleQuery = "SELECT * FROM (SELECT ACCESS_TOKEN, AUTHZ_USER, " +
-                    "TOKEN_SCOPE, TOKEN_STATE FROM " + accessTokenStoreTable +
+                    "TOKEN_SCOPE, TOKEN_STATE, TIME_CREATED FROM " + accessTokenStoreTable +
                     " WHERE CONSUMER_KEY = ? AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC) WHERE ROWNUM < 2 ";
 
             msSqlQuery = "SELECT TOP 1 ACCESS_TOKEN, AUTHZ_USER, " +
-                    "TOKEN_SCOPE, TOKEN_STATE FROM " + accessTokenStoreTable +
+                    "TOKEN_SCOPE, TOKEN_STATE, TIME_CREATED FROM " + accessTokenStoreTable +
                     " WHERE CONSUMER_KEY = ? AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC";
+
+            postgreSqlQuery = "SELECT * FROM (SELECT ACCESS_TOKEN, AUTHZ_USER, TOKEN_SCOPE, TOKEN_STATE, TIME_CREATED" +
+                    " FROM " + accessTokenStoreTable + " WHERE CONSUMER_KEY = ? " +
+                    " AND REFRESH_TOKEN = ? " +
+                    " ORDER BY TIME_CREATED DESC) " +
+                    " LIMIT 1 ";
 
             if (connection.getMetaData().getDriverName().contains("MySQL")
                     || connection.getMetaData().getDriverName().contains("H2")) {
                 sql = mySqlQuery;
-            }
-            else if(connection.getMetaData().getDriverName().contains("MS SQL")){
+            } else if (connection.getMetaData().getDriverName().contains("MS SQL")) {
                 sql = msSqlQuery;
-            }
-            else {
+            } else if (connection.getMetaData().getDriverName().contains("Microsoft")) {
+                sql = msSqlQuery;
+            } else if (connection.getMetaData().getDriverName().contains("PostgreSQL")) {
+                sql = postgreSqlQuery;
+            } else {
                 sql = oracleQuery;
             }
 
@@ -583,6 +588,8 @@ public class TokenMgtDAO {
                 validationDataDO.setAuthorizedUser(resultSet.getString(2));
                 validationDataDO.setScope(OAuth2Util.buildScopeArray(resultSet.getString(3)));
                 validationDataDO.setRefreshTokenState(resultSet.getString(4));
+                Timestamp timestamp = resultSet.getTimestamp(5,Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+                validationDataDO.setIssuedAt(timestamp.getTime());
             }
 
         } catch (IdentityException e) {
@@ -768,7 +775,7 @@ public class TokenMgtDAO {
             ps = connection.prepareStatement(sqlQuery);
             ps.setString(1, OAuthConstants.TokenStates.TOKEN_STATE_REVOKED);
             ps.setString(2, UUID.randomUUID().toString());
-            ps.setString(3, persistenceProcessor.getPreprocessedAccessTokenIdentifier(token));
+            ps.setString(3, persistenceProcessor.getProcessedAccessTokenIdentifier(token));
             ps.setString(4, persistenceProcessor.getProcessedClientId(consumerKey));
             int count = ps.executeUpdate();
             if (log.isDebugEnabled()) {
@@ -843,8 +850,8 @@ public class TokenMgtDAO {
                 OAuth2Util.checkUserNameAssertionEnabled()) {
             userStoreDomain = OAuth2Util.getUserStoreDomainFromUserId(authzUser);
         }
-        OAuth2AccessTokenRespDTO accessTokenRespDTO = getValidAccessTokenIfExist(consumerKey, authzUser, userStoreDomain, true);
-        if(accessTokenRespDTO != null){
+        AccessTokenDO accessTokenDO = getValidAccessTokenIfExist(consumerKey, authzUser, userStoreDomain, true);
+            if(accessTokenDO != null){
             String sqlQuery = SQLQueries.REVOKE_ALL_ACCESS_TOKEN_BY_RESOURCE_OWNER.replace("IDN_OAUTH2_ACCESS_TOKEN", accessTokenStoreTable);
             PreparedStatement ps = null;
             ps = dbConnection.prepareStatement(sqlQuery);
@@ -852,7 +859,7 @@ public class TokenMgtDAO {
             ps.setString(2, UUID.randomUUID().toString());
             ps.setString(3, persistenceProcessor.getProcessedClientId(consumerKey));
             ps.setString(4, authzUser.toLowerCase());
-            ps.setString(5, persistenceProcessor.getProcessedAccessTokenIdentifier(accessTokenRespDTO.getAccessToken()));
+//            ps.setString(5, persistenceProcessor.getProcessedAccessTokenIdentifier(accessTokenDO.getAccessToken()));
             int count = ps.executeUpdate();
             if (log.isDebugEnabled()) {
                 log.debug("Number of rows being updated : " + count);
@@ -896,8 +903,8 @@ public class TokenMgtDAO {
                 userStoreDomain = OAuth2Util.getUserStoreDomainFromUserId(authzUser);
             }
             for(String consumerKey:distinctConsumerKeys){
-                OAuth2AccessTokenRespDTO accessTokenRespDTO = getValidAccessTokenIfExist(consumerKey, authzUser, userStoreDomain, true);
-                if (accessTokenRespDTO != null) {
+                AccessTokenDO accessTokenDO = getValidAccessTokenIfExist(consumerKey, authzUser, userStoreDomain, true);
+                if (accessTokenDO != null) {
                     OAuthAppDO appDO = new OAuthAppDO();
                     appDO.setOauthConsumerKey(consumerKey);
                     appDOs.add(appDO);
@@ -965,7 +972,7 @@ public class TokenMgtDAO {
             connection.setAutoCommit(false);
             String sql = "SELECT IOS.SCOPE_KEY " +
                          "FROM IDN_OAUTH2_SCOPE IOS, IDN_OAUTH2_RESOURCE_SCOPE IORS " +
-                         "WHERE RESOURCE = ? " +
+                         "WHERE RESOURCE_PATH = ? " +
                          "AND IORS.SCOPE_ID = IOS.SCOPE_ID";
 
             ps = connection.prepareStatement(sql);

@@ -85,6 +85,7 @@ public class ThriftAuthenticationConfigParser {
         InputStream inStream = null;
         StAXOMBuilder builder = null;
 
+        String warningMessage = "";
         try {
             if (configFilePath != null) {
                 File identityConfigXml = new File(configFilePath);
@@ -100,7 +101,7 @@ public class ThriftAuthenticationConfigParser {
             }
 
             if (inStream == null) {
-                String message = "Thrift Authentication configuration file - thrift-authentication.xml cannot be found";
+                String message = "Thrift Authentication configuration not found. Cause - " + warningMessage;
                 if (log.isDebugEnabled()) {
                     log.debug(message);
                 }

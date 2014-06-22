@@ -18,11 +18,7 @@
 
 package org.wso2.carbon.identity.sso.agent.saml;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +36,10 @@ import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.DefaultBootstrap;
 import org.opensaml.common.SAMLVersion;
+import org.opensaml.common.xml.SAMLConstants;
+import org.opensaml.saml2.common.Extensions;
+import org.opensaml.saml2.common.impl.ExtensionsBuilder;
+import org.opensaml.saml2.common.impl.ExtensionsImpl;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AttributeStatement;
@@ -97,6 +97,7 @@ import org.wso2.carbon.identity.sso.agent.exception.SSOAgentException;
 import org.wso2.carbon.identity.sso.agent.util.SSOAgentConfigs;
 import org.wso2.carbon.identity.sso.agent.util.SSOAgentConstants;
 import org.wso2.carbon.identity.sso.agent.util.SSOAgentUtils;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class SAML2SSOManager {
@@ -145,11 +146,14 @@ public class SAML2SSOManager {
 		RequestAbstractType requestMessage;
 		if (!isLogout) {
 			requestMessage = buildAuthnRequest(isPassive);
-		} else { 
-			requestMessage = buildLogoutRequest(((SSOAgentSessionBean) request.getSession().getAttribute(
-                    SSOAgentConfigs.getSessionBeanName())).getSAMLSSOSessionBean().getSubjectId(),
-                    ((SSOAgentSessionBean) request.getSession().getAttribute(
-                            SSOAgentConfigs.getSessionBeanName())).getSAMLSSOSessionBean().getIdPSessionIndex());
+		} else {
+            SSOAgentSessionBean sessionBean = (SSOAgentSessionBean) request.getSession().getAttribute(SSOAgentConfigs.getSessionBeanName());
+            if(sessionBean != null){
+                requestMessage = buildLogoutRequest(sessionBean.getSAMLSSOSessionBean().getSubjectId(),
+                                                            sessionBean.getSAMLSSOSessionBean().getIdPSessionIndex());
+            } else {
+                throw new SSOAgentException("SLO Request can not be built. SSO Session is null");
+            }
 		}
         String idpUrl = null;
         
@@ -182,14 +186,20 @@ public class SAML2SSOManager {
 	
     public void processResponse(HttpServletRequest request) throws SSOAgentException {
 
-            String decodedResponse = new String(Base64.decode(request.getParameter(SSOAgentConstants.HTTP_POST_PARAM_SAML2_RESP)));
+        String samlRequest = request.getParameter(SSOAgentConstants.HTTP_POST_PARAM_SAML2_RESP);
+
+        if(samlRequest != null){
+            String decodedResponse = new String(Base64.decode(samlRequest));
             XMLObject samlObject = unmarshall(decodedResponse);
             if (samlObject instanceof LogoutResponse) {
                 //This is a SAML response for a single logout request from the SP
                 doSLO(request);
             } else {
-                processSSOResponse(request);
+                    processSSOResponse(request);
             }
+        } else {
+            throw new SSOAgentException("Invalid SAML Response. SAML Response can not be null.");
+        }
     }
 
     /**
@@ -374,7 +384,13 @@ public class SAML2SSOManager {
 		AuthnRequest authRequest =
 		                           authRequestBuilder.buildObject("urn:oasis:names:tc:SAML:2.0:protocol",
 		                                                          "AuthnRequest", "samlp");
-		authRequest.setForceAuthn(false);
+		
+		if (!isPassive) {
+		    authRequest.setForceAuthn(SSOAgentConfigs.isForceAuthn());
+		} else {
+		    authRequest.setForceAuthn(false);
+		}
+		
 		authRequest.setIsPassive(isPassive);
 		authRequest.setIssueInstant(issueInstant);
 		authRequest.setProtocolBinding("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST");
@@ -385,6 +401,30 @@ public class SAML2SSOManager {
 		authRequest.setID(authReqRandomId);
 		authRequest.setVersion(SAMLVersion.VERSION_20);
 		authRequest.setDestination(SSOAgentConfigs.getIdPUrl());
+
+
+        if("true".equalsIgnoreCase(SSOAgentConfigs.getAddExtension())) {
+
+            // need to add extensions.
+            String xmlString = "<saml2p:Extensions xmlns:saml2p=\"urn:oasis:names:tc:SAML:2.0:protocol\"><Test>TestContent</Test></saml2p:Extensions>";
+            Element element = null;
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            try{
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                Document document = builder.parse(new InputSource(new StringReader(xmlString)));
+                element = document.getDocumentElement();
+            } catch (Exception e){
+                //ignore
+            }
+
+            if(element != null){
+                ExtensionsBuilder extBuilder = new ExtensionsBuilder();
+                Extensions extensions = extBuilder.buildObject(SAMLConstants.SAML20P_NS, Extensions.LOCAL_NAME,
+                        SAMLConstants.SAML20P_PREFIX);
+                extensions.setDOM(element);
+                authRequest.setExtensions(extensions);
+            }
+        }
 
 		/* Requesting Attributes. This Index value is registered in the IDP */
 		if (SSOAgentConfigs.getAttributeConsumingServiceIndex() != null && SSOAgentConfigs.getAttributeConsumingServiceIndex().trim().length() > 0) {

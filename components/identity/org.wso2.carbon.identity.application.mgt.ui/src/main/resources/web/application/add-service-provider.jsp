@@ -18,11 +18,6 @@
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"%>
-<%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon"%>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.Map" %>
-<%@ page import="java.util.ResourceBundle"%>
 
 <carbon:breadcrumb label="breadcrumb.service.provider" resourceBundle="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources" topPage="true" request="<%=request%>" />
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -37,11 +32,12 @@ function createAppOnclick() {
 	var spName = document.getElementById("spName").value;
 	var description = document.getElementById("sp-description").value;
 	if( spName == '') {
-		CARBON.showWarningDialog('<fmt:message key="alert.please.provide.service.provider.id"/>');
+		//CARBON.showWarningDialog('<fmt:message key="alert.please.provide.service.provider.id"/>');
+		CARBON.showWarningDialog('Please provide Service Provider ID');
 		location.href = '#';
-	} else if( description == '') {
-		CARBON.showWarningDialog('<fmt:message key="alert.please.provide.service.provider.description"/>');
-		location.href = '#';
+	//} else if( description == '') {
+	//	CARBON.showWarningDialog('<fmt:message key="alert.please.provide.service.provider.description"/>');
+	//	location.href = '#';
     }else {
 		location.href='add-service-provider-finish.jsp?spName=' + spName+'&sp-description='+description;
 	}
@@ -68,7 +64,7 @@ function createAppOnclick() {
                         </td>                     
                     </tr>
                     <tr>
-                       <td class="leftCol-med labelField">Description:<span class="required">*</span></td>                   
+                       <td class="leftCol-med labelField">Description:</td>                   
                      <td>
                         <textarea style="width:50%" type="text" name="sp-description" id="sp-description" class="text-box-big"></textarea>
                         <div class="sectionHelp">

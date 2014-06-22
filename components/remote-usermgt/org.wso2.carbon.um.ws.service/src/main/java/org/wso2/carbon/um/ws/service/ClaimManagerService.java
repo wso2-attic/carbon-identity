@@ -86,7 +86,7 @@ public class ClaimManagerService extends AbstractAdmin {
         }
     }
 
-    public String getAttributeName(String domainName, String claimURI) throws UserStoreException {
+    public String getAttributeNameFromDomain(String domainName, String claimURI) throws UserStoreException {
         try {
             return getClaimManager().getAttributeName(domainName, claimURI);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {

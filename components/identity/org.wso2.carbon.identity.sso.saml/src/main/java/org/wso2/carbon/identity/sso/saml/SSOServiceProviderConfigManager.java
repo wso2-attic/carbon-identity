@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * This class is used in Stratos when SSO is enabled to the complete system.
  */
 public class SSOServiceProviderConfigManager {
+
     private static Log log = LogFactory.getLog(SSOServiceProviderConfigManager.class);
     private static SSOServiceProviderConfigManager instance;
 
@@ -43,7 +44,11 @@ public class SSOServiceProviderConfigManager {
 
     public static SSOServiceProviderConfigManager getInstance(){
         if(instance == null){
-            instance = new SSOServiceProviderConfigManager();
+            synchronized (SSOServiceProviderConfigManager.class){
+                if(instance == null){
+                    instance = new SSOServiceProviderConfigManager();
+                }
+            }
         }
         return instance;
     }

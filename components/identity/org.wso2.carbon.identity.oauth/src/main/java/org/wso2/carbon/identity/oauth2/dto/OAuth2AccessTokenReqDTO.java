@@ -31,7 +31,7 @@ public class OAuth2AccessTokenReqDTO {
     private String assertion;
     private String clientAssertionType;
     private String clientAssertion;
-    private String idp;
+    private String tenantDomain;
     private String windows_token;
 
     public String getClientId() {
@@ -138,11 +138,11 @@ public class OAuth2AccessTokenReqDTO {
         this.clientAssertion = clientAssertion;
     }
 
-    public String getIdp() {
-        return idp;
+    public String getTenantDomain() {
+        return tenantDomain;
     }
 
-    public void setIdp(String idp) {
-        this.idp = idp;
+    public void setTenantDomain(String tenantDomain) {
+        this.tenantDomain = tenantDomain;
     }
 }

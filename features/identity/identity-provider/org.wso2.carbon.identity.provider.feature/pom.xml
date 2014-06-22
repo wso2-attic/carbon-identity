@@ -65,10 +65,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 <propertyDef>org.eclipse.equinox.p2.type.group:false</propertyDef>
 </properties>
 </adviceFile-->
-							<importFeatures>
-								<importFeatureDef>org.wso2.carbon.identity.core</importFeatureDef>
-								<importFeatureDef>org.wso2.carbon.identity.relying.party</importFeatureDef>
-							</importFeatures>
 							<includedFeatures>
 								<includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.provider.server.feature</includedFeatureDef>
 								<includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.provider.ui.feature</includedFeatureDef>

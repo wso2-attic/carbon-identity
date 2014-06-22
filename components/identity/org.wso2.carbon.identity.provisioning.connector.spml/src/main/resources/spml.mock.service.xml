@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://ws.apache.org/ns/synapse">
+   <registry provider="org.wso2.carbon.mediation.registry.WSO2Registry">
+      <parameter name="cachableDuration">15000</parameter>
+   </registry>
+   <proxy name="test"
+          transports="https http"
+          startOnLoad="true"
+          trace="disable">
+      <description/>
+      <target inSequence="addUserSequence">
+         <endpoint>
+            <address uri="http://test"/>
+         </endpoint>
+      </target>
+   </proxy>
+   <sequence name="updateUserSequence">
+      <header name="To" action="remove"/>
+      <property name="RESPONSE" value="true"/>
+      <property name="NO_ENTITY_BODY" scope="axis2" action="remove"/>
+      <payloadFactory media-type="xml">
+         <format>
+            <modifyResponse xmlns="urn:oasis:names:tc:SPML:2:0"
+                            status="success"
+                            requestID="rid-spmlv2">
+               <pso>
+                  <psoID ID="anSpml2Person">
+                     <containerID/>
+                  </psoID>
+                  <data>
+                     <dsml:attr xmlns:dsml="urn:oasis:names:tc:DSML:2:0:core" name="accountId">
+                        <dsml:value>1020202</dsml:value>
+                     </dsml:attr>
+                     <dsml:attr xmlns:dsml="urn:oasis:names:tc:DSML:2:0:core" name="objectclass">
+                        <dsml:value>testObj</dsml:value>
+                     </dsml:attr>
+                     <dsml:attr xmlns:dsml="urn:oasis:names:tc:DSML:2:0:core" name="credentials">
+                        <dsml:value>nopassword</dsml:value>
+                     </dsml:attr>
+                  </data>
+               </pso>
+            </modifyResponse>
+         </format>
+         <args/>
+      </payloadFactory>
+   </sequence>
+   <sequence name="addUserSequence">
+      <header name="To" action="remove"/>
+      <property name="RESPONSE" value="true"/>
+      <property name="NO_ENTITY_BODY" scope="axis2" action="remove"/>
+      <payloadFactory media-type="xml">
+         <format>
+            <addResponse xmlns="urn:oasis:names:tc:SPML:2:0"
+                         status="success"
+                         requestID="rid-spmlv2">
+               <openspml:operationalNameValuePair xmlns:openspml="urn:org:openspml:v2:util:xml"
+                                                  name="session"
+                                                  value="AAALPgAAYD0A..."/>
+               <pso>
+                  <psoID ID="anSpml2Person"/>
+                  <data>
+                     <dsml:attr xmlns:dsml="urn:oasis:names:tc:DSML:2:0:core" name="accountId">
+                        <dsml:value>21212</dsml:value>
+                     </dsml:attr>
+                     <dsml:attr xmlns:dsml="urn:oasis:names:tc:DSML:2:0:core" name="objectclass">
+                        <dsml:value>testObj</dsml:value>
+                     </dsml:attr>
+                     <dsml:attr xmlns:dsml="urn:oasis:names:tc:DSML:2:0:core" name="credentials">
+                        <dsml:value>nopassword</dsml:value>
+                     </dsml:attr>
+                  </data>
+               </pso>
+            </addResponse>
+         </format>
+         <args/>
+      </payloadFactory>
+   </sequence>
+   <sequence name="fault">
+      <log level="full">
+         <property name="MESSAGE" value="Executing default 'fault' sequence"/>
+         <property name="ERROR_CODE" expression="get-property('ERROR_CODE')"/>
+         <property name="ERROR_MESSAGE" expression="get-property('ERROR_MESSAGE')"/>
+      </log>
+      <drop/>
+   </sequence>
+   <sequence name="deleteUserSequence">
+      <header name="To" action="remove"/>
+      <property name="RESPONSE" value="true"/>
+      <property name="NO_ENTITY_BODY" scope="axis2" action="remove"/>
+      <payloadFactory media-type="xml">
+         <format>
+            <deleteResponse xmlns="urn:oasis:names:tc:SPML:2:0"
+                            status="success"
+                            requestID="rid-spmlv2"/>
+         </format>
+         <args/>
+      </payloadFactory>
+   </sequence>
+   <sequence name="main">
+      <filter xmlns:urn1="urn:oasis:names:tc:SPML:2:0" xpath="//urn1:addRequest">
+         <then>
+            <sequence key="addUserSequence"/>
+         </then>
+         <else/>
+      </filter>
+      <filter xmlns:urn1="urn:oasis:names:tc:SPML:2:0" xpath="//urn1:modifyRequest">
+         <then>
+            <sequence key="updateUserSequence"/>
+         </then>
+         <else/>
+      </filter>
+      <filter xmlns:urn1="urn:oasis:names:tc:SPML:2:0" xpath="//urn1:deleteRequest">
+         <then>
+            <sequence key="deleteUserSequence"/>
+         </then>
+         <else/>
+      </filter>
+      <send/>
+      <description>The main sequence for the message mediation</description>
+   </sequence>
+</definitions>

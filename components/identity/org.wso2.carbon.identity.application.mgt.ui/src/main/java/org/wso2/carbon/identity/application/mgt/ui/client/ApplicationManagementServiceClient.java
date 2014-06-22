@@ -19,6 +19,8 @@
 package org.wso2.carbon.identity.application.mgt.ui.client;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
@@ -26,17 +28,20 @@ import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.application.common.model.xsd.ApplicationBasicInfo;
-import org.wso2.carbon.identity.application.common.model.xsd.FederatedIdentityProvider;
-import org.wso2.carbon.identity.application.common.model.xsd.LocalAuthenticator;
-import org.wso2.carbon.identity.application.common.model.xsd.RequestPathAuthenticator;
-import org.wso2.carbon.identity.application.common.model.xsd.ServiceProvider;
-import org.wso2.carbon.identity.application.mgt.stub.ApplicationManagementServiceIdentityException;
-import org.wso2.carbon.identity.application.mgt.stub.ApplicationManagementServiceStub;
+import org.wso2.carbon.identity.application.common.model.xsd.*;
+import org.wso2.carbon.identity.application.common.model.xsd.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.xsd.LocalAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.xsd.RequestPathAuthenticatorConfig;
+import org.wso2.carbon.identity.application.mgt.stub.IdentityApplicationManagementServiceIdentityApplicationManagementException;
+import org.wso2.carbon.identity.application.mgt.stub.IdentityApplicationManagementServiceStub;
+import org.wso2.carbon.user.mgt.stub.UserAdminStub;
+import org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo;
+import org.wso2.carbon.user.mgt.stub.types.carbon.UserStoreInfo;
 
 public class ApplicationManagementServiceClient {
 
-    ApplicationManagementServiceStub stub = null;
+	IdentityApplicationManagementServiceStub stub;
+    private UserAdminStub userAdminStub;
 
     Log log = LogFactory.getLog(ApplicationManagementServiceClient.class);
     boolean debugEnabled = log.isErrorEnabled();
@@ -51,12 +56,21 @@ public class ApplicationManagementServiceClient {
     public ApplicationManagementServiceClient(String cookie, String backendServerURL,
             ConfigurationContext configCtx) throws AxisFault {
 
-        String serviceURL = backendServerURL + "ApplicationManagementService";
-        stub = new ApplicationManagementServiceStub(configCtx, serviceURL);
+        String serviceURL = backendServerURL + "IdentityApplicationManagementService";
+        String userAdminServiceURL = backendServerURL + "UserAdmin";
+        stub = new IdentityApplicationManagementServiceStub(configCtx, serviceURL);
+        userAdminStub = new UserAdminStub(configCtx, userAdminServiceURL);
+        
         ServiceClient client = stub._getServiceClient();
         Options option = client.getOptions();
         option.setManageSession(true);
         option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
+        
+		ServiceClient userAdminClient = userAdminStub._getServiceClient();
+		Options userAdminOptions = userAdminClient.getOptions();
+		userAdminOptions.setManageSession(true);
+		userAdminOptions.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING,
+		                             cookie);
 
         if (debugEnabled) {
             log.debug("Invoking service " + serviceURL);
@@ -78,7 +92,7 @@ public class ApplicationManagementServiceClient {
         } catch (RemoteException e) {
             log.error(e.getMessage(), e);
             throw new Exception(e.getMessage());
-        } catch (ApplicationManagementServiceIdentityException e) {
+        } catch (IdentityApplicationManagementServiceIdentityApplicationManagementException e) {
             log.error(e.getMessage(), e);
             throw new Exception(e.getMessage());
         }
@@ -115,7 +129,7 @@ public class ApplicationManagementServiceClient {
         } catch (RemoteException e) {
             log.error(e.getMessage(), e);
             throw new Exception(e.getMessage());
-        } catch (ApplicationManagementServiceIdentityException e) {
+        } catch (IdentityApplicationManagementServiceIdentityApplicationManagementException e) {
             log.error(e.getMessage(), e);
             throw new Exception(e.getMessage());
         }
@@ -132,7 +146,7 @@ public class ApplicationManagementServiceClient {
         } catch (RemoteException e) {
             log.error(e.getMessage(), e);
             throw new Exception(e.getMessage());
-        } catch (ApplicationManagementServiceIdentityException e) {
+        } catch (IdentityApplicationManagementServiceIdentityApplicationManagementException e) {
             log.error(e.getMessage(), e);
             throw new Exception(e.getMessage());
         }
@@ -149,7 +163,7 @@ public class ApplicationManagementServiceClient {
         } catch (RemoteException e) {
             log.error(e.getMessage(), e);
             throw new Exception(e.getMessage());
-        } catch (ApplicationManagementServiceIdentityException e) {
+        } catch (IdentityApplicationManagementServiceIdentityApplicationManagementException e) {
             log.error(e.getMessage(), e);
             throw new Exception(e.getMessage());
         }
@@ -161,9 +175,9 @@ public class ApplicationManagementServiceClient {
      * @param identityProviderName
      * @throws Exception
      */
-    public FederatedIdentityProvider getFederatedIdentityProvider(String identityProviderName)
+    public IdentityProvider getFederatedIdentityProvider(String identityProviderName)
             throws Exception {
-        return stub.getFederatedIdentityProvider(identityProviderName);
+        return stub.getIdentityProvider(identityProviderName);
     }
 
     /**
@@ -171,7 +185,7 @@ public class ApplicationManagementServiceClient {
      * @return
      * @throws Exception
      */
-    public RequestPathAuthenticator[] getAllRequestPathAuthenticators() throws Exception {
+    public RequestPathAuthenticatorConfig[] getAllRequestPathAuthenticators() throws Exception {
         return stub.getAllRequestPathAuthenticators();
     }
 
@@ -180,7 +194,7 @@ public class ApplicationManagementServiceClient {
      * @return
      * @throws Exception
      */
-    public LocalAuthenticator[] getAllLocalAuthenticators() throws Exception {
+    public LocalAuthenticatorConfig[] getAllLocalAuthenticators() throws Exception {
         return stub.getAllLocalAuthenticators();
     }
 
@@ -189,11 +203,11 @@ public class ApplicationManagementServiceClient {
      * @return
      * @throws Exception
      */
-    public FederatedIdentityProvider[] getAllFederatedIdentityProvider() throws Exception {
-        FederatedIdentityProvider[] idps = null;
+    public IdentityProvider[] getAllFederatedIdentityProvider() throws Exception {
+        IdentityProvider[] idps = null;
 
         try {
-            idps = stub.getAllFederatedIdentityProviders();
+            idps = stub.getAllIdentityProviders();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -207,6 +221,29 @@ public class ApplicationManagementServiceClient {
      */
     public String[] getAllClaimUris() throws Exception {
         return stub.getAllLocalClaimUris();
+    }
+    
+    /**
+     * Get User Store Domains
+     * @return
+     * @throws Exception
+     */
+    public String[] getUserStoreDomains() throws Exception {
+
+        try {
+            List<String> readWriteDomainNames = new ArrayList<String>();
+            UserStoreInfo[] storesInfo = userAdminStub.getUserRealmInfo().getUserStoresInfo();
+            for(UserStoreInfo storeInfo : storesInfo){
+                if(!storeInfo.getReadOnly()){
+                    readWriteDomainNames.add(storeInfo.getDomainName());
+                }
+            }
+            return readWriteDomainNames.toArray(new String[readWriteDomainNames.size()]);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new Exception(
+                    "Error occurred while retrieving Read-Write User Store Domain IDs for logged-in user's tenant realm");
+        }
     }
 
 }

@@ -16,13 +16,16 @@
 
 package org.wso2.carbon.identity.core.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.apache.axis2.databinding.utils.ConverterUtil;
 
-public class SAMLSSOServiceProviderDO {
+public class SAMLSSOServiceProviderDO implements Serializable {
 
-	private String issuer;
+    private static final long serialVersionUID = -1213957008659821807L;
+    
+    private String issuer;
 	private String assertionConsumerUrl;
 	private String certAlias;
 	private String logoutURL;
@@ -36,6 +39,8 @@ public class SAMLSSOServiceProviderDO {
 	private List<String> requestedClaimsList;
     private String[] requestedAudiences;
     private List<String> requestedAudiencesList;
+    private String[] requestedRecipients;
+    private List<String> requestedRecipientsList;
     private boolean enableAttributesByDefault;  
     private String nameIdClaimUri;    
     private String nameIDFormat;
@@ -209,6 +214,38 @@ public class SAMLSSOServiceProviderDO {
     public void setRequestedAudiences(List<String> requestedAudiences) {
         this.requestedAudiencesList = requestedAudiences;
         this.requestedAudiences = requestedAudiences.toArray(new String[requestedAudiencesList.size()]);
+    }
+
+    /**
+     * @return the requestedRecipients
+     */
+    public String[] getRequestedRecipients() {
+        return requestedRecipients;
+    }
+
+    /**
+     * @return the requestedRecipients
+     */
+    public List<String> getRequestedRecipientsList() {
+        return requestedRecipientsList;
+    }
+
+    /**
+     * @param requestedRecipients
+     *            the requestedRecipients to set
+     */
+    public void setRequestedRecipients(String[] requestedRecipients) {
+        this.requestedRecipients = requestedRecipients;
+        this.requestedRecipientsList = ConverterUtil.toList(requestedRecipients);
+    }
+
+    /**
+     * @param requestedRecipients
+     *            the requestedRecipients to set
+     */
+    public void setRequestedRecipients(List<String> requestedRecipients) {
+        this.requestedRecipientsList = requestedRecipients;
+        this.requestedRecipients = requestedRecipients.toArray(new String[requestedRecipientsList.size()]);
     }
 
 	/**

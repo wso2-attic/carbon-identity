@@ -103,6 +103,11 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
             serviceProviderDO.setRequestedAudiences(resource
                     .getPropertyValues(IdentityRegistryResources.PROP_SAML_SSO_REQUESTED_AUDIENCES));
         }
+
+        if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_REQUESTED_RECIPIENTS) != null) {
+            serviceProviderDO.setRequestedRecipients(resource
+                    .getPropertyValues(IdentityRegistryResources.PROP_SAML_SSO_REQUESTED_RECIPIENTS));
+        }
         
 		if (resource
 				.getProperty(IdentityRegistryResources.PROP_SAML_SSO_ENABLE_ATTRIBUTES_BY_DEFAULT) != null) {
@@ -197,14 +202,21 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
                     && serviceProviderDO.getRequestedClaimsList().size() > 0) {
                 resource.setProperty(IdentityRegistryResources.PROP_SAML_SSO_REQUESTED_CLAIMS,
                         serviceProviderDO.getRequestedClaimsList());
+            }
+            if(serviceProviderDO.getAttributeConsumingServiceIndex() != null){
                 resource.addProperty(
-                        IdentityRegistryResources.PROP_SAML_SSO_ATTRIB_CONSUMING_SERVICE_INDEX,
-                        serviceProviderDO.getAttributeConsumingServiceIndex());
+                                     IdentityRegistryResources.PROP_SAML_SSO_ATTRIB_CONSUMING_SERVICE_INDEX,
+                                     serviceProviderDO.getAttributeConsumingServiceIndex());
             }
             if (serviceProviderDO.getRequestedAudiencesList() != null
                     && serviceProviderDO.getRequestedAudiencesList().size() > 0) {
                 resource.setProperty(IdentityRegistryResources.PROP_SAML_SSO_REQUESTED_AUDIENCES,
                         serviceProviderDO.getRequestedAudiencesList());
+            }
+            if (serviceProviderDO.getRequestedRecipientsList() != null
+                    && serviceProviderDO.getRequestedRecipientsList().size() > 0) {
+                resource.setProperty(IdentityRegistryResources.PROP_SAML_SSO_REQUESTED_RECIPIENTS,
+                        serviceProviderDO.getRequestedRecipientsList());
             }
             
             String enableAttributesByDefault = serviceProviderDO.isEnableAttributesByDefault() ? "true"

@@ -25,15 +25,11 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants"%>
-<%@ page import="org.wso2.carbon.identity.application.mgt.ui.ApplicationConfigBean"%>
-<%@ page import="org.wso2.carbon.identity.application.mgt.ui.OAuthOIDCAppConfig"%>
 
 <%@ page import="java.util.ResourceBundle" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon"%>
-
-<jsp:useBean id="appBean" class="org.wso2.carbon.identity.application.mgt.ui.ApplicationConfigBean" scope="session"/>
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
@@ -52,6 +48,7 @@
     String grantClient = CharacterEncoder.getSafeText(request.getParameter("grant_client"));
     String grantRefresh = CharacterEncoder.getSafeText(request.getParameter("grant_refresh"));
     String grantSAML = CharacterEncoder.getSafeText(request.getParameter("grant_saml"));
+    String grantNTLM = CharacterEncoder.getSafeText(request.getParameter("grant_ntlm"));
     String grants = null;
    	StringBuffer buff = new StringBuffer();
 	if (grantCode != null) {
@@ -70,7 +67,10 @@
 		buff.append(grantRefresh + " ");
 	}
 	if (grantSAML != null) {
-		buff.append(grantSAML);
+		buff.append(grantSAML+" ");
+	}
+    if (grantNTLM != null) {
+		buff.append(grantNTLM);
 	}
 	grants = buff.toString();
 	// -- end setting grants
@@ -78,6 +78,11 @@
 	String BUNDLE = "org.wso2.carbon.identity.oauth.ui.i18n.Resources";
 	ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
 	OAuthConsumerAppDTO app = new OAuthConsumerAppDTO();
+	
+	String spName = (String) session.getAttribute("application-sp-name");
+	session.removeAttribute("application-sp-name");
+	boolean isError = false;
+	OAuthConsumerAppDTO consumerApp = null;
 
 	try {
 
@@ -95,30 +100,37 @@
         }
 		client.registerOAuthApplicationData(app);
 		
-		// set app bean
-		OAuthConsumerAppDTO dto = client.getOAuthApplicationDataByName(app.getApplicationName());
-		if(dto != null) {
-			OAuthOIDCAppConfig oauthConfig = new OAuthOIDCAppConfig();
-			oauthConfig.setClientID(dto.getOauthConsumerKey());
-			oauthConfig.setClientSecret(dto.getOauthConsumerSecret());
-			oauthConfig.setCallbackUrl(dto.getCallbackUrl());
-			appBean.setOauthoidcConfig(oauthConfig);
-		}
+		consumerApp = client.getOAuthApplicationDataByAppName(applicationName);
 		
 		String message = resourceBundle.getString("app.added.successfully");
 		CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
 
 	} catch (Exception e) {
+		isError = true;
 		String message = resourceBundle.getString("error.while.adding.app") + " : " + e.getMessage();
 		CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request, e);
 	}
 %>
 
-<script type="text/javascript">
-    function forward() {
-        location.href = "../application/add-service-provider.jsp";
-    }
+<script>
+
+<%
+
+boolean qpplicationComponentFound = CarbonUIUtil.isContextRegistered(config, "/application/");
+if (qpplicationComponentFound) {
+	if (!isError) {
+		session.setAttribute("oauth-consum-secret", consumerApp.getOauthConsumerSecret());
+%>
+    location.href = '../application/configure-service-provider.jsp?action=update&display=oauthapp&spName=<%=spName%>&oauthapp=<%=consumerApp.getOauthConsumerKey()%>';
+<% } else { %>
+    location.href = '../application/configure-service-provider.jsp?display=oauthapp&spName=<%=spName%>&action=cancel';
+<% } 
+} else {%>
+    location.href = 'index.jsp';
+<% } %>
+
 </script>
+
 
 <script type="text/javascript">
     forward();

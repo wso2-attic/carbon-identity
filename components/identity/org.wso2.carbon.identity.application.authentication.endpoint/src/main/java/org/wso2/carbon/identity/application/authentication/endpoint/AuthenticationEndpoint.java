@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  * 
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.identity.application.authentication.endpoint;
 
 import java.io.IOException;
@@ -30,57 +31,59 @@ public class AuthenticationEndpoint extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
-        String loadPage = null;
-        String hrdParam = request.getParameter("hrd");
-        Map<String, String> idpAuthenticatorMapping = new HashMap<String, String>();
-        
-        String authenticators = request.getParameter("authenticators");
-        
-        if (authenticators != null) {
+        try {
+            String loadPage = null;
+            String hrdParam = request.getParameter("hrd");
+            Map<String, String> idpAuthenticatorMapping = new HashMap<String, String>();
 
-        	String[] authenticatorIdPMappings = authenticators.split(";");
-        	for (String authenticatorIdPMapping : authenticatorIdPMappings) {
-        		String[] authenticatorIdPMapArr = authenticatorIdPMapping.split(":");
-                for(int i = 1; i < authenticatorIdPMapArr.length; i++){
-                    if(idpAuthenticatorMapping.containsKey(authenticatorIdPMapArr[i])){
-                        idpAuthenticatorMapping.put(authenticatorIdPMapArr[i],
-                                idpAuthenticatorMapping.get(authenticatorIdPMapArr[i]) + "," + authenticatorIdPMapArr[0]);
-                    } else {
-                        idpAuthenticatorMapping.put(authenticatorIdPMapArr[i],authenticatorIdPMapArr[0]);
+            String authenticators = request.getParameter("authenticators");
+
+            if (authenticators != null) {
+
+                String[] authenticatorIdPMappings = authenticators.split(";");
+                for (String authenticatorIdPMapping : authenticatorIdPMappings) {
+                    String[] authenticatorIdPMapArr = authenticatorIdPMapping.split(":");
+                    for (int i = 1; i < authenticatorIdPMapArr.length; i++) {
+                        if (idpAuthenticatorMapping.containsKey(authenticatorIdPMapArr[i])) {
+                            idpAuthenticatorMapping.put(authenticatorIdPMapArr[i],
+                                    idpAuthenticatorMapping.get(authenticatorIdPMapArr[i]) + "," + authenticatorIdPMapArr[0]);
+                        } else {
+                            idpAuthenticatorMapping.put(authenticatorIdPMapArr[i], authenticatorIdPMapArr[0]);
+                        }
                     }
                 }
-        	}
-        }
-        
-        if (idpAuthenticatorMapping != null) {
-        	request.setAttribute("idpAuthenticatorMap", idpAuthenticatorMapping);
-        }
-        
-        if (hrdParam != null && "true".equalsIgnoreCase(hrdParam)) {
-        	request.getRequestDispatcher("domain.jsp").forward(request, response);
-        	return;
-        }
-        
-        if (request.getRequestURI().contains("retry.do")) {
-        	request.getRequestDispatcher("retry.jsp").forward(request, response);
-        	return;
+            }
+
+            if (idpAuthenticatorMapping != null) {
+                request.setAttribute("idpAuthenticatorMap", idpAuthenticatorMapping);
+            }
+
+            if (hrdParam != null && "true".equalsIgnoreCase(hrdParam)) {
+                request.getRequestDispatcher("domain.jsp").forward(request, response);
+                return;
+            }
+
+            if (request.getRequestURI().contains("retry.do")) {
+                request.getRequestDispatcher("retry.jsp").forward(request, response);
+                return;
+            }
+
+            if ((request.getParameter("type")).equals("samlsso")) {
+                loadPage = "samlsso_login.do";
+            } else if (request.getParameter("type").equals("openid")) {
+                loadPage = "openid_login.do";
+            } else if (request.getParameter("type").equals("passivests")) {
+                loadPage = "passivests_login.do";
+            } else if (request.getParameter("type").equals("oauth2") || request.getParameter("type").equals("oidc")) {
+                loadPage = "oauth2_login.do";
+            }
+            request.getRequestDispatcher(loadPage).forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new AuthenticationException(e);
         }
 
-        if((request.getParameter("type")).equals("samlsso") ){
-            loadPage = "samlsso_login.do";
-        }
-        else if (request.getParameter("type").equals("openid")) {
-            loadPage = "openid_login.do";
-        }
-        else if (request.getParameter("type").equals("passivests")) {
-            loadPage = "passivests_login.do";
-        }
-        else if (request.getParameter("type").equals("oauth2")) {
-            loadPage = "oauth2_login.do";
-        }
-
-        request.getRequestDispatcher(loadPage).forward(request, response);
     }
 }

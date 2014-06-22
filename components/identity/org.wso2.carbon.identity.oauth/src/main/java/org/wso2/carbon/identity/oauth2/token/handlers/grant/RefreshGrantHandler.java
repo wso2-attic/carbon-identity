@@ -104,6 +104,22 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
         try {
             accessToken = oauthIssuerImpl.accessToken();
             refreshToken = oauthIssuerImpl.refreshToken();
+            boolean renew = OAuthServerConfiguration.getInstance().isRefreshTokenRenewalEnabled();
+            if(!renew){
+                RefreshTokenValidationDataDO refreshTokenValidationDataDO =
+                    tokenMgtDAO.validateRefreshToken(oauth2AccessTokenReqDTO.getClientId(),
+                    oauth2AccessTokenReqDTO.getRefreshToken());
+                if(OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE.equals(
+                    refreshTokenValidationDataDO.getRefreshTokenState())){
+                    long issuedAt = refreshTokenValidationDataDO.getIssuedAt();
+                    long refreshValidity =
+                    OAuthServerConfiguration.getInstance().getRefreshTokenValidityPeriodInSeconds() * 1000;
+                    long skew = OAuthServerConfiguration.getInstance().getTimeStampSkewInSeconds() * 1000;
+                    if(issuedAt + refreshValidity - (System.currentTimeMillis() + skew) > 1000){
+                        refreshToken = oauth2AccessTokenReqDTO.getRefreshToken();
+                    }
+                }
+            }
         } catch (OAuthSystemException e) {
             throw new IdentityOAuth2Exception("Error when generating the tokens.", e);
         }

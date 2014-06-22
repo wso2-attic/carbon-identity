@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
- ~ Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ ~ Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  ~
  ~ WSO2 Inc. licenses this file to you under the Apache License,
  ~ Version 2.0 (the "License"); you may not use this file except
@@ -77,7 +77,7 @@
     <div class="header-back">
         <div class="container">
             <div class="row">
-                <div class="span4 offset3">
+                <div class="span12">
                     <a class="logo">&nbsp</a>
                 </div>
             </div>
@@ -85,63 +85,45 @@
     </div>
 
     <div class="header-text">
-        <fmt:message key='signin.to.authenticate1'/><strong>"<%=openidreturnto%>" </strong><fmt:message key='signin.to.authenticate2'/><%if(!openididentity.endsWith("/openid/")){%><strong> "<%=openididentity%>"</strong><% } else { %><strong> "<%=openididentity%>&lt;username&gt;"</strong><% } %>.
+	    <div class="container">
+	        <div class="row">
+	            <div class="span12 content-section">
+	            	<fmt:message key='signin.to.authenticate1'/>  <strong>"<%=openidreturnto%>" </strong><fmt:message key='signin.to.authenticate2'/><%if(!openididentity.endsWith("/openid/")){%><strong> "<%=openididentity%>"</strong><% } else { %><strong> "<%=openididentity%>&lt;username&gt;"</strong><% } %>.
+	        	</div>
+	        </div>
+	   </div>
     </div>
 
-    <div class="container">
+    <div class="container main-login-container" style="margin-top:10px;">
         <div class="row">
-            <div class="span6 offset3 content-section">
-                <h3 style="text-align: center">OpenID User Profile</h3>
-	                <div class="well">
-			            <form name="profileSelection" action="openid_profile_view.jsp" method="POST"  class="form-horizontal">
-                            <div class="control-group">
-                               <label class="control-label" for="selectedProfile"><fmt:message key='profile'/>:</label>
-
-                               <div class="controls">
-                                   <select name="selectedProfile" id="selectedProfile" onchange="submitProfileSelection();">
-                                    <%
-                                       if(profiles != null) {
-                                        for (int i = 0; i < profiles.length; i++) {
-                                            String profile = profiles[i];
-                                            if(profile.equals(request.getParameter("selectedProfile"))){
-                                            %>
-                                            <option value="<%=profile%>" selected="selected"><%=profile%>
-                                            </option>
-                                            <%}
-                                            else{
-                                              %><option value="<%=profile%>"><%=profile%></option><%
-                                            }
-                                        }
-                                     }
-                                    %>
-                                    </select>
-                               </div>
-                           </div>
-			            </form>
-
-
-
-			
+            <div class="span12 content-section">
+                <h3 style="text-align:left;margin-bottom:10px;">OpenID User Claims</h3>
+	                <div>
 			            <form action="../../openidserver" id="profile" name="profile" class="form-horizontal">
                                 <div class="control-group">
-                                    <div class="controls">
-                                        <img src="images/profile-picture.gif" align="bottom"/>
+                                    <div class="controls" style="margin-left: 0px !important;">
+
                                         <%
-                                        if(claimTags != null) {
-                                            for (int i = 0; i < claimTags.length; i++) {
+                                        if(claimTags != null && claimTags.length > 0 ) { %>
+                                            <table class="table table-striped table-bordered">
+                                            <tr>
+                                                <th>Claim URI</th>
+                                                <th>Claim Value</th>
+                                            </tr>
+                                            <%for (int i = 0; i < claimTags.length; i++) {
                                                 String claimTag = claimTags[i];
                                             %>
-                                                <div><strong><%=claimTag%></strong></div>
-                                                <div><%=claimValues[i]%></div>
-                                                <br/>
-                                        <%
-                                            }
+                                                <tr><td><%=claimTag%></td><td><%=claimValues[i]%></td></tr>
+                                            <%
+                                            } %>
+                                            </table>
+                                            <%
                                         }
                                         %>
                                     </div>
                                 </div>
 
-                            <div class="form-actions">
+                            <div style="text-align:left;">
                                 <input type="button" class="btn  btn-primary" id="approve" name="approve"
                                                  onclick="javascript: approved(); return false;"
                                                  value="<fmt:message key='approve'/>"/>

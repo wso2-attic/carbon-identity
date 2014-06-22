@@ -18,21 +18,28 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.model;
 
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+
+import java.io.Serializable;
 import java.util.Map;
 
-public class AuthenticationResult {
+public class AuthenticationResult implements Serializable {
+	
+	private static final long serialVersionUID = -2555005773164092641L;
 	
 	private boolean authenticated;
 	private String subject;
-	private Map<String, String> userAttributes;
+	private Map<ClaimMapping, String> userAttributes;
+	private String authenticatedIdPs;
 	private String authenticatedAuthenticators;
+	private boolean isSaaSApp;
 	private boolean loggedOut;
 	private Map<String, String> claimMapping;
 	
 	public AuthenticationResult(){}
 	
 	public AuthenticationResult(boolean authenticated, String subject,
-                                Map<String, String> userAttributes, String authenticatedAuthenticators) {
+                                Map<ClaimMapping, String> userAttributes, String authenticatedAuthenticators) {
 
         this.authenticated = authenticated;
 		this.subject = subject;
@@ -56,11 +63,11 @@ public class AuthenticationResult {
 		this.subject = subject;
 	}
 	
-	public Map<String, String> getUserAttributes() {
+	public Map<ClaimMapping, String> getUserAttributes() {
 		return userAttributes;
 	}
 	
-	public void setUserAttributes(Map<String, String> userAttributes) {
+	public void setUserAttributes(Map<ClaimMapping, String> userAttributes) {
 		this.userAttributes = userAttributes;
 	}
 	
@@ -87,5 +94,21 @@ public class AuthenticationResult {
 	public void setClaimMapping(Map<String, String> claimMapping) {
 		this.claimMapping = claimMapping;
 	}
+
+    public String getAuthenticatedIdPs() {
+        return authenticatedIdPs;
+    }
+
+    public void setAuthenticatedIdPs(String authenticatedIdPs) {
+        this.authenticatedIdPs = authenticatedIdPs;
+    }
+
+    public boolean isSaaSApp() {
+        return isSaaSApp;
+    }
+
+    public void setSaaSApp(boolean isSaaSApp) {
+        this.isSaaSApp = isSaaSApp;
+    }
 	
 }

@@ -65,10 +65,10 @@
                                 </properties>
                             </adviceFile>
 							<bundles>
-								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.user.registration:4.3.0-SNAPSHOT</bundleDef>
+								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.user.registration</bundleDef>
 							</bundles>
 							<importFeatures>
-								<importFeatureDef>org.wso2.carbon.identity.core.server:${project.version}</importFeatureDef>
+								<importFeatureDef>org.wso2.carbon.identity.core.server</importFeatureDef>
 							</importFeatures>
 						</configuration>
 					</execution>

@@ -18,35 +18,62 @@
  */
 package org.wso2.carbon.identity.provisioning.connector.spml;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
 
-import java.util.Arrays;
+public class SPMLProvisioningConnectorConfig implements Serializable {
 
-public class SPMLProvisioningConnectorConfig {
-	
-	private static final Log log = LogFactory.getLog(SPMLProvisioningConnectorConfig.class);
-	private Properties configs;
-	
-	public SPMLProvisioningConnectorConfig(Properties configs) {
-		this.configs = configs;
-	}
-	
-	List<String> getRequiredAttributeNames() {
-		List<String> requiredAttributeList = new ArrayList<String>();
-		String requiredAttributes = this.configs.getProperty(SPMLConnectorConstants.PropertyConfig.REQUIRED_FIELDS);
-		if (requiredAttributes != null && !requiredAttributes.isEmpty()) {
-			requiredAttributeList = Arrays.asList(requiredAttributes.split(IdentityProvisioningConstants.PropertyConfig.DELIMATOR));
-		}
-		return requiredAttributeList;
-	}
+    private static final long serialVersionUID = -8394278502516014519L;
+    
+    private static final Log log = LogFactory.getLog(SPMLProvisioningConnectorConfig.class);
+    private Properties configs;
 
-	public String getValue(String key) {
-		return this.configs.getProperty(key);
-	}
+    /**
+     * 
+     * @param configs
+     */
+    public SPMLProvisioningConnectorConfig(Properties configs) {
+        this.configs = configs;
+    }
+
+    /**
+     * 
+     * @param key
+     * @return
+     */
+    public String getValue(String key) {
+        return this.configs.getProperty(key);
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public ArrayList<String> extractAttributes() {
+        boolean isDebugEnabled = log.isDebugEnabled();
+        if (isDebugEnabled) {
+            log.debug("Starting extract Attributes  " + SPMLProvisioningConnectorConfig.class);
+        }
+
+        ArrayList<String> attributeList = new ArrayList<String>();
+        Set<Object> keySet = configs.keySet();
+        for (Object key : keySet) {
+            if (key.toString().startsWith("spml-atribute-name_")) {
+                attributeList.add(key.toString());
+            }
+        }
+
+        if (isDebugEnabled) {
+            log.debug("Attributes set : " + attributeList);
+            log.debug("Ending extractAttributes  " + SPMLProvisioningConnectorConfig.class);
+        }
+
+        return attributeList;
+    }
+
 }

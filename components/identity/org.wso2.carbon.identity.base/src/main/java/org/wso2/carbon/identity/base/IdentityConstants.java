@@ -171,6 +171,7 @@ public class IdentityConstants {
         public final static String XMPP_SETTINGS_PASSWORD = "MultifactorAuthentication.XMPPSettings.XMPPConfig.XMPPPassword";
 
         //SAML SSO Service config
+        public final static String ENTITY_ID = "SSOService.EntityID";
         public final static String SSO_IDP_URL = "SSOService.IdentityProviderURL";
         public final static String SSO_ATTRIB_CLAIM_DIALECT = "SSOService.AttributesClaimDialect";
         public static final String SINGLE_LOGOUT_RETRY_COUNT = "SSOService.SingleLogoutRetryCount";

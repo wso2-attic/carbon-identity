@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -15,60 +15,172 @@
  *specific language governing permissions and limitations
  *under the License.
  */
+
 package org.wso2.carbon.identity.application.common.model;
 
-public class ClaimMapping {
+import java.io.Serializable;
+import java.util.Iterator;
 
-	private Claim localClaim;
-	private Claim spClaim;
-	private Claim idpClaim;
+import org.apache.axiom.om.OMElement;
 
-	/**
-	 * 
-	 * @return
-	 */
-	public Claim getLocalClaim() {
-		return localClaim;
-	}
+public class ClaimMapping implements Serializable {
 
-	/**
-	 * 
-	 * @param localClaim
-	 */
-	public void setLocalClaim(Claim localClaim) {
-		this.localClaim = localClaim;
-	}
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -2530192004968748230L;
 
-	/**
-	 * 
-	 * @return
-	 */
-	public Claim getSpClaim() {
-		return spClaim;
-	}
+    private Claim localClaim;
+    private Claim remoteClaim;
+    private String defaultValue;
+    private boolean requested;
 
-	/**
-	 * 
-	 * @param spClaim
-	 */
-	public void setSpClaim(Claim spClaim) {
-		this.spClaim = spClaim;
-	}
+    /**
+     * 
+     * @return
+     */
+    public Claim getLocalClaim() {
+        return localClaim;
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public Claim getIdpClaim() {
-		return idpClaim;
-	}
+    /**
+     * 
+     * @param localClaim
+     */
+    public void setLocalClaim(Claim localClaim) {
+        this.localClaim = localClaim;
+    }
 
-	/**
-	 * 
-	 * @param idpClaim
-	 */
-	public void setIdpClaim(Claim idpClaim) {
-		this.idpClaim = idpClaim;
-	}
+    /**
+     * 
+     * @return
+     */
+    public Claim getRemoteClaim() {
+        return remoteClaim;
+    }
 
+    /**
+     * 
+     * @param remoteClaim
+     */
+    public void setRemoteClaim(Claim remoteClaim) {
+        this.remoteClaim = remoteClaim;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        ClaimMapping that = (ClaimMapping) o;
+
+        if (remoteClaim != null ? !remoteClaim.equals(that.remoteClaim) : that.remoteClaim != null)
+            return false;
+        if (localClaim != null ? !localClaim.equals(that.localClaim) : that.localClaim != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = localClaim != null ? localClaim.hashCode() : 0;
+        result = 31 * result + (remoteClaim != null ? remoteClaim.hashCode() : 0);
+        return result;
+    }
+
+    /**
+     * 
+     * @param localClaimUri
+     * @param remoteClaimUri
+     * @return
+     */
+    public static ClaimMapping build(String localClaimUri, String remoteClaimUri,
+            String defaultValue, boolean requested) {
+        ClaimMapping mapping = new ClaimMapping();
+
+        Claim localClaim = new Claim();
+        localClaim.setClaimUri(localClaimUri);
+
+        Claim remoteClaim = new Claim();
+        remoteClaim.setClaimUri(remoteClaimUri);
+
+        mapping.setLocalClaim(localClaim);
+        mapping.setRemoteClaim(remoteClaim);
+
+        mapping.setDefaultValue(defaultValue);
+        mapping.setRequested(requested);
+
+        return mapping;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    /**
+     * 
+     * @param defaultValue
+     */
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+
+    /*
+     * <ClaimMapping> <LocalClaim></LocalClaim> <RemoteClaim></RemoteClaim>
+     * <DefaultValue></DefaultValue> </ClaimMapping>
+     */
+    public static ClaimMapping build(OMElement claimMappingOM) {
+        ClaimMapping claimMapping = new ClaimMapping();
+
+        Iterator<?> iter = claimMappingOM.getChildElements();
+
+        while (iter.hasNext()) {
+            OMElement element = (OMElement) (iter.next());
+            String elementName = element.getLocalName();
+
+            if (elementName.equals("LocalClaim")) {
+                Claim claim = Claim.build(element);
+                if (claim != null) {
+                    claimMapping.setLocalClaim(claim);
+                }
+            }
+            
+            if (elementName.equals("RemoteClaim")) {
+                Claim claim = Claim.build(element);
+                if (claim != null) {
+                    claimMapping.setRemoteClaim(Claim.build(element));
+                }
+            }
+            
+            if (elementName.equals("DefaultValue")) {
+                claimMapping.setDefaultValue(element.getText());
+            }
+
+        }
+
+        return claimMapping;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public boolean isRequested() {
+        return requested;
+    }
+
+    /**
+     * 
+     * @param requested
+     */
+    public void setRequested(boolean requested) {
+        this.requested = requested;
+    }
 }

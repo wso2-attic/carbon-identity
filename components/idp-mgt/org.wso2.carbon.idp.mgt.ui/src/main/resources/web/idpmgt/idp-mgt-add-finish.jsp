@@ -16,8 +16,7 @@
 ~ under the License.
 -->
 
-<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.*"%>
-<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.idp.mgt.ui.client.IdentityProviderMgtServiceClient" %>
 <%@ page import="org.wso2.carbon.idp.mgt.ui.util.IdPManagementUIUtil" %>
@@ -26,6 +25,7 @@
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
 
 <%
 	String BUNDLE = "org.wso2.carbon.idp.mgt.ui.i18n.Resources";
@@ -37,7 +37,7 @@
                 (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         IdentityProviderMgtServiceClient client = new IdentityProviderMgtServiceClient(cookie, backendServerURL, configContext);
 
-        FederatedIdentityProvider identityProvider = IdPManagementUIUtil.buildeFederatedIdentityProvider(request);
+        IdentityProvider identityProvider = IdPManagementUIUtil.buildeFederatedIdentityProvider(request);
         client.addIdP(identityProvider);
         String message = MessageFormat.format(resourceBundle.getString("success.adding.idp"),null);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);

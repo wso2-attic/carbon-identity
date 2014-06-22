@@ -27,6 +27,12 @@ import java.util.concurrent.Executors;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.identity.application.common.model.ProvisioningServiceProviderType;
+import org.wso2.carbon.identity.application.common.model.ServiceProvider;
+import org.wso2.carbon.identity.application.common.model.ThreadLocalProvisioningServiceProvider;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
+import org.wso2.carbon.identity.application.mgt.ApplicationInfoProvider;
 import org.wso2.carbon.identity.scim.common.config.SCIMProvisioningConfigManager;
 import org.wso2.carbon.identity.scim.common.group.SCIMGroupHandler;
 import org.wso2.carbon.identity.scim.common.utils.AttributeMapper;
@@ -39,6 +45,7 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import org.wso2.charon.core.attributes.Attribute;
 import org.wso2.charon.core.exceptions.CharonException;
 import org.wso2.charon.core.exceptions.DuplicateResourceException;
@@ -68,6 +75,46 @@ public class SCIMUserManager implements UserManager {
     }
 
     public User createUser(User user) throws CharonException, DuplicateResourceException {
+
+        try {
+
+            ThreadLocalProvisioningServiceProvider threadLocalSP = IdentityApplicationManagementUtil
+                    .getThreadLocalProvisioningServiceProvider();
+
+            ServiceProvider serviceProvider = null;
+            if (threadLocalSP.getServiceProviderType() == ProvisioningServiceProviderType.OAUTH) {
+                serviceProvider = ApplicationInfoProvider.getInstance()
+                        .getServiceProviderByClienId(threadLocalSP.getServiceProviderName(),
+                                "oauth2", threadLocalSP.getTenantDomain());
+            } else {
+                serviceProvider = ApplicationInfoProvider.getInstance().getServiceProvider(
+                        threadLocalSP.getServiceProviderName(), threadLocalSP.getTenantDomain());
+            }
+
+            String userStoreName = null;
+
+            if (serviceProvider != null && serviceProvider.getInboundProvisioningConfig() != null) {
+                userStoreName = serviceProvider.getInboundProvisioningConfig()
+                        .getProvisioningUserStore();
+
+            }
+
+            StringBuilder userName = new StringBuilder();
+
+            if (userStoreName != null && userStoreName.trim().length() > 0) {
+                // if we have set a user store under provisioning configuration - we should only use
+                // that.
+                String currentUserName = user.getUserName();
+                currentUserName = UserCoreUtil.removeDomainFromName(currentUserName);
+                user.setUserName(userName.append(userStoreName)
+                        .append(CarbonConstants.DOMAIN_SEPARATOR).append(currentUserName)
+                        .toString());
+            }
+
+        } catch (IdentityApplicationManagementException e) {
+            throw new CharonException("Error retrieving User Store name. ", e);
+        }
+
         SCIMProvisioningConfigManager provisioningConfigManager =
                 SCIMProvisioningConfigManager.getInstance();
         //if operating in dumb mode, do not persist the operation, only provision to providers
@@ -378,11 +425,14 @@ public class SCIMUserManager implements UserManager {
                 //modify display name if no domain is specified, in order to support multiple user store feature
                 String originalName = group.getDisplayName();
                 String roleNameWithDomain = null;
+                String domainName = "";
                 if (originalName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
                     roleNameWithDomain = originalName;
+                    domainName = originalName.split(UserCoreConstants.DOMAIN_SEPARATOR)[0];
                 } else {
                     roleNameWithDomain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME +
                                          CarbonConstants.DOMAIN_SEPARATOR + originalName;
+                    domainName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
                 }
                 group.setDisplayName(roleNameWithDomain);
                 //check if the group already exists
@@ -408,7 +458,13 @@ public class SCIMUserManager implements UserManager {
                             String error = "User: " + userId + " doesn't exist in the user store. " +
                                            "Hence, can not create the group: " + group.getDisplayName();
                             throw new IdentitySCIMException(error);
-                        } else {
+                        }
+                        else if(userNames[0].indexOf(UserCoreConstants.DOMAIN_SEPARATOR) > 0 && !userNames[0].contains(domainName)){
+                            String error = "User: " + userId + " doesn't exist in the same user store. " +
+                                    "Hence, can not create the group: " + group.getDisplayName();
+                            throw new IdentitySCIMException(error);
+                        }
+                        else {
                             members.add(userNames[0]);
 							if (userDisplayNames != null && userDisplayNames.size() != 0) {
 								boolean userContains = false;
@@ -494,7 +550,11 @@ public class SCIMUserManager implements UserManager {
                         UserCoreUtil.isPrimaryAdminRole(roleName, carbonUM.getRealmConfiguration())) {
                         continue;
                     }
-                    groupList.add(this.getGroupWithName(roleName));
+
+                    Group group = this.getGroupWithName(roleName);
+                    if (group != null) {
+                        groupList.add(group);
+                    }
                 }
             } else {
                 return null;
@@ -753,13 +813,9 @@ public class SCIMUserManager implements UserManager {
             if (attributes.containsKey(SCIMConstants.ADDRESSES_URI)) {
                 attributes.remove(SCIMConstants.ADDRESSES_URI);
             }
-            // with the JDBC userstore manager the userName is not returned as a claim, so adding it
-            if(!attributes.containsKey(SCIMConstants.USER_NAME_URI)) {
-				attributes.put(SCIMConstants.USER_NAME_URI,
-				               userName.indexOf(UserCoreConstants.DOMAIN_SEPARATOR) > 0
-				                                                                        ? userName.split(UserCoreConstants.DOMAIN_SEPARATOR)[1]
-				                                                                        : userName);
-            }
+
+            // Add username with domain name
+            attributes.put(SCIMConstants.USER_NAME_URI, userName);
             
             //get groups of user and add it as groups attribute
             String[] roles = carbonUM.getRoleListOfUser(userName);

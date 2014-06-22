@@ -26,6 +26,7 @@
 	<groupId>org.wso2.carbon</groupId>
 	<artifactId>org.wso2.carbon.identity.oauth</artifactId>
 	<packaging>bundle</packaging>
+	<version>4.3.0-SNAPSHOT</version>
 	<name>WSO2 Carbon - OAuth</name>
 	<description>A custom wso2 products or solution</description>
 	<url>http://wso2.org</url>
@@ -97,14 +98,22 @@
             <artifactId>org.wso2.carbon.idp.mgt</artifactId>
             <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.application.mgt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.application.common</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>org.wso2.carbon</groupId>
 			<artifactId>org.wso2.carbon.identity.entitlement</artifactId>
 			<!--<version>4.3.0-SNAPSHOT</version>-->
 		</dependency>
         <dependency>
-            <groupId>org.apache.amber</groupId>
-            <artifactId>openidconnect-authzserver</artifactId>
+            <groupId>tomcat</groupId>
+            <artifactId>tomcat-util</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.dblock.waffle.wso2</groupId>
@@ -120,10 +129,10 @@
 
 	<build>
 		<plugins>
-			<plugin>
+			<!--plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-scr-plugin</artifactId>
-			</plugin>
+			</plugin-->
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>

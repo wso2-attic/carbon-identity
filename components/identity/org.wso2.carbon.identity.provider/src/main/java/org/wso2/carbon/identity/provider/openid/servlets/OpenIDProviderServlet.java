@@ -60,8 +60,7 @@ public class OpenIDProviderServlet extends HttpServlet {
 				resp.sendRedirect(response);
 			}
 		} catch (Exception e) {
-			log.debug(e);
-			// do nothing
+			log.error(e);
 		}
 	}
 

@@ -21,9 +21,11 @@ package org.wso2.carbon.identity.application.authenticator.facebook;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.Object;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,11 +40,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jettison.json.JSONException;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
-import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorStateInfo;
-import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorStatus;
 import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
-import org.wso2.carbon.identity.application.authentication.framework.config.dto.ExternalIdPConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
+import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.ui.CarbonUIUtil;
 
 public class FacebookAuthenticator extends AbstractApplicationAuthenticator implements
@@ -51,59 +52,85 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
     private static final long serialVersionUID = 1L;
     private static final Log LOGGER = LogFactory.getLog(FacebookAuthenticator.class);
 
+    @Override
     public boolean canHandle(HttpServletRequest request) {
 
         LOGGER.trace("Inside FacebookAuthenticator.canHandle()");
 
-        // From login page asking for Facebook login
-        if (request.getParameter(FacebookAuthenticatorConstants.LOGIN_TYPE) != null &&
-            FacebookAuthenticatorConstants.FACEBOOK_LOGIN_TYPE.equals(request.getParameter(FacebookAuthenticatorConstants.LOGIN_TYPE))) {
-            return true;
-        }
-
         // Check commonauth got an OIDC response
         if (request.getParameter(FacebookAuthenticatorConstants.OAUTH2_GRANT_TYPE_CODE) != null &&
-            request.getParameter(FacebookAuthenticatorConstants.OAUTH2_PARAM_STATE) != null) {
+            request.getParameter(FacebookAuthenticatorConstants.OAUTH2_PARAM_STATE) != null  &&
+              FacebookAuthenticatorConstants.FACEBOOK_LOGIN_TYPE.equals(getLoginType(request))) {
             return true;
         }
 
         return false;
     }
-
+    
     @Override
-    public AuthenticatorStatus authenticate(HttpServletRequest request,
-                                            HttpServletResponse response,
-                                            AuthenticationContext context) {
-
-        LOGGER.trace("Inside FacebookAuthenticator.authenticate()");
-
-        if (request.getParameter(FacebookAuthenticatorConstants.LOGIN_TYPE) != null &&
-            FacebookAuthenticatorConstants.FACEBOOK_LOGIN_TYPE.equals(request.getParameter(FacebookAuthenticatorConstants.LOGIN_TYPE))) {
-            sendInitialRequest(request, response, null);
-            return AuthenticatorStatus.CONTINUE;
-        }
-
-        try {
-            ExternalIdPConfig externalIdPConfig = context.getExternalIdP();
-            String clientId = externalIdPConfig.getFbauthClientId();
-            String clientSecret = externalIdPConfig.getFbauthClientSecret();
-            String tokenEndPoint = FacebookAuthenticatorConstants.FB_TOKEN_URL;
-            String fbauthUserInfoUrl = FacebookAuthenticatorConstants.FB_USER_INFO_URL;
+	protected void initiateAuthenticationRequest(HttpServletRequest request,
+			HttpServletResponse response, AuthenticationContext context)
+			throws AuthenticationFailedException {
+		
+		try {
+            Map<String,String> authenticatorProperties = context.getAuthenticatorProperties();
+            String clientId = authenticatorProperties.get(FacebookAuthenticatorConstants.CLIENT_ID);
+            String authorizationEP = FacebookAuthenticatorConstants.FB_AUTHZ_URL;
+            String scope = FacebookAuthenticatorConstants.SCOPE;
 
             String callbackurl = CarbonUIUtil.getAdminConsoleURL(request);
             callbackurl = callbackurl.replace("commonauth/carbon/", "commonauth");
 
-            String code = getAuthorizationCode(request);
-            String token = getToken(tokenEndPoint, clientId, clientSecret, callbackurl, code);
-            String authenticatedUser = getUserName(fbauthUserInfoUrl, token);
-            request.getSession().setAttribute(FacebookAuthenticatorConstants.USERNAME,
-                                              authenticatedUser);
-            return AuthenticatorStatus.PASS;
-        } catch (AuthenticatorException e) {
-            LOGGER.error("Failed to process Facebook Connect response.", e);
+            String state = context.getContextIdentifier() + "," + FacebookAuthenticatorConstants.FACEBOOK_LOGIN_TYPE;
+
+            OAuthClientRequest authzRequest =
+                                              OAuthClientRequest.authorizationLocation(authorizationEP)
+                                                                .setClientId(clientId)
+                                                                .setRedirectURI(callbackurl)
+                                                                .setResponseType(FacebookAuthenticatorConstants.OAUTH2_GRANT_TYPE_CODE)
+                                                                .setScope(scope).setState(state)
+                                                                .buildQueryMessage();
+            response.sendRedirect(authzRequest.getLocationUri());
+        } catch (IOException e) {
+            LOGGER.error("Exception while sending to the login page.", e);
+            throw new AuthenticationFailedException(e.getMessage(), e);
+        } catch (OAuthSystemException e) {
+            LOGGER.error("Exception while building authorization code request.", e);
+            throw new AuthenticationFailedException(e.getMessage(), e);
         }
-        return AuthenticatorStatus.FAIL;
+        return;
+	}
+
+    private String getClientID(Map<String, String> authenticatorProperties, String clientId) {
+        return authenticatorProperties.get(clientId);
     }
+
+    @Override
+	protected void processAuthenticationResponse(HttpServletRequest request,
+			HttpServletResponse response, AuthenticationContext context)
+			throws AuthenticationFailedException {
+		
+		 LOGGER.trace("Inside FacebookAuthenticator.authenticate()");
+		
+		try {
+            Map<String,String> authenticatorProperties = context.getAuthenticatorProperties();
+		    String clientId =  authenticatorProperties.get(FacebookAuthenticatorConstants.CLIENT_ID);
+		    String clientSecret = authenticatorProperties.get(FacebookAuthenticatorConstants.CLIENT_SECRET);
+		    String tokenEndPoint = FacebookAuthenticatorConstants.FB_TOKEN_URL;
+		    String fbauthUserInfoUrl = FacebookAuthenticatorConstants.FB_USER_INFO_URL;
+		
+		    String callbackurl = CarbonUIUtil.getAdminConsoleURL(request);
+		    callbackurl = callbackurl.replace("commonauth/carbon/", "commonauth");
+		
+		    String code = getAuthorizationCode(request);
+		    String token = getToken(tokenEndPoint, clientId, clientSecret, callbackurl, code);
+		    Map<String,Object> userInfoJson = getUserInfoJson(fbauthUserInfoUrl, token);
+            buildClaims(context,userInfoJson);
+		} catch (AuthenticatorException e) {
+		    LOGGER.error("Failed to process Facebook Connect response.", e);
+		    throw new AuthenticationFailedException(e.getMessage(), e);
+		}
+	}
 
     private String getAuthorizationCode(HttpServletRequest request) throws AuthenticatorException {
         OAuthAuthzResponse authzResponse;
@@ -164,7 +191,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
         return tokenRequest;
     }
 
-    private String getUserInformation(String fbauthUserInfoUrl, String token)
+    private String getUserInfoString(String fbauthUserInfoUrl, String token)
                                                                              throws AuthenticatorException {
 
         String userInfoString = null;
@@ -185,90 +212,56 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
         return userInfoString;
     }
 
-    private String getUserName(String fbauthUserInfoUrl, String token)
+    private Map<String,Object> getUserInfoJson(String fbauthUserInfoUrl, String token)
                                                                       throws AuthenticatorException {
-        String userName = null;
-        String userInfoString = getUserInformation(fbauthUserInfoUrl, token);
+        Map<String, Object> jsonObject;
+        String userInfoString = getUserInfoString(fbauthUserInfoUrl, token);
         try {
-            Map<String, Object> jsonObject = JSONUtils.parseJSON(userInfoString);
-            userName = (String) jsonObject.get(FacebookAuthenticatorConstants.USERNAME);
+            jsonObject = JSONUtils.parseJSON(userInfoString);
         } catch (JSONException e) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("UserInfoString : " + userInfoString, e);
             }
             throw new AuthenticatorException("Exception while parsing User Information.", e);
         }
-        return userName;
+        return jsonObject;
     }
 
-    @Override
-    public AuthenticatorStatus logout(HttpServletRequest request, HttpServletResponse response,
-                                      AuthenticationContext context,
-                                      AuthenticatorStateInfo stateInfo) {
-        LOGGER.trace("Inside FacebookAuthenticator.logout()");
-        return AuthenticatorStatus.PASS;
-    }
+    public void buildClaims(AuthenticationContext context, Map<String, Object> jsonObject) throws AuthenticatorException{
+        if(jsonObject != null) {
+            Map<ClaimMapping, String> claims = new HashMap<ClaimMapping, String>();
 
-    @Override
-    public void sendInitialRequest(HttpServletRequest request, HttpServletResponse response,
-                                   AuthenticationContext context) {
+            for(Map.Entry<String, Object> entry : jsonObject.entrySet()) {
+                claims.put(ClaimMapping.build(entry.getKey(), entry.getKey(), null,
+                        false), entry.getValue().toString());
+                if(LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Adding claim mapping : " + entry.getKey() + " <> " + entry.getKey() + " : " + entry.getValue());
+                }
 
-        LOGGER.trace("Inside FacebookAuthenticator.sendInitialRequest()");
+            }
+            context.setSubjectAttributes(claims);
 
-        try {
-            ExternalIdPConfig externalIdPConfig = context.getExternalIdP();
-            String clientId = externalIdPConfig.getFbauthClientId();
-            String authorizationEP = FacebookAuthenticatorConstants.FB_AUTHZ_URL;
-            String scope = FacebookAuthenticatorConstants.SCOPE;
-
-            String callbackurl = CarbonUIUtil.getAdminConsoleURL(request);
-            callbackurl = callbackurl.replace("commonauth/carbon/", "commonauth");
-
-            String state = context.getContextIdentifier();
-
-            OAuthClientRequest authzRequest =
-                                              OAuthClientRequest.authorizationLocation(authorizationEP)
-                                                                .setClientId(clientId)
-                                                                .setRedirectURI(callbackurl)
-                                                                .setResponseType(FacebookAuthenticatorConstants.OAUTH2_GRANT_TYPE_CODE)
-                                                                .setScope(scope).setState(state)
-                                                                .buildQueryMessage();
-            response.sendRedirect(authzRequest.getLocationUri());
-        } catch (IOException e) {
-            LOGGER.error("Exception while sending to the login page.", e);
-        } catch (OAuthSystemException e) {
-            LOGGER.error("Exception while building authorization code request.", e);
+            String authenticatedUser = (String) jsonObject.get(FacebookAuthenticatorConstants.USERNAME);
+            context.setSubject(authenticatedUser);
+        } else {
+            if(LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Decoded json object is null");
+            }
+            throw new AuthenticatorException("Decoded json object is null");
         }
-        return;
-    }
-
-    @Override
-    public String getAuthenticatedSubject(HttpServletRequest request) {
-        LOGGER.trace("Inside FacebookAuthenticator.getAuthenticatedSubject()");
-        String authenticatedUser =
-                                   (String) request.getSession()
-                                                   .getAttribute(FacebookAuthenticatorConstants.USERNAME);
-        return authenticatedUser;
     }
 
     @Override
     public String getContextIdentifier(HttpServletRequest request) {
         LOGGER.trace("Inside FacebookAuthenticator.getContextIdentifier()");
-        return request.getParameter(FacebookAuthenticatorConstants.OAUTH2_PARAM_STATE);
+        String state = request.getParameter(FacebookAuthenticatorConstants.OAUTH2_PARAM_STATE);
+        if (state != null) {
+            return state.split(",")[0];
+        } else {
+            return null;
+        }
     }
-
-    @Override
-    public String getAuthenticatorName() {
-        LOGGER.trace("Inside FacebookAuthenticator.getAuthenticatorName()");
-        return FacebookAuthenticatorConstants.AUTHENTICATOR_NAME;
-    }
-
-    @Override
-    public Map<String, String> getResponseAttributes(HttpServletRequest request, AuthenticationContext context) {
-        LOGGER.trace("Inside FacebookAuthenticator.getResponseAttributes()");
-        return null;
-    }
-
+    
     private String sendRequest(String url) throws IOException {
         URLConnection urlConnection = new URL(url).openConnection();
         BufferedReader in =
@@ -284,8 +277,22 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
         return b.toString();
     }
 
-    @Override
-    public AuthenticatorStateInfo getStateInfo(HttpServletRequest request) {
-        return null;
+    private String getLoginType(HttpServletRequest request) {
+        String state = request.getParameter(FacebookAuthenticatorConstants.OAUTH2_PARAM_STATE);
+        if (state != null) {
+            return state.split(",")[1];
+        } else {
+            return null;
+        }
     }
+
+	@Override
+	public String getFriendlyName() {
+		return "facebook";
+	}
+
+	@Override
+	public String getName() {
+		return FacebookAuthenticatorConstants.AUTHENTICATOR_NAME;
+	}
 }

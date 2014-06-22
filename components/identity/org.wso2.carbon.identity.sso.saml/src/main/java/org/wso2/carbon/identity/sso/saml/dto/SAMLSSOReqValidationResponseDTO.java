@@ -17,7 +17,9 @@
 */
 package org.wso2.carbon.identity.sso.saml.dto;
 
-public class SAMLSSOReqValidationResponseDTO {
+import java.io.Serializable;
+
+public class SAMLSSOReqValidationResponseDTO implements Serializable {
 
     private boolean isLogOutReq;
     private boolean isValid;

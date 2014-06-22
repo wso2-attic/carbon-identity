@@ -42,6 +42,7 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.TenantUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -203,7 +204,18 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
        
         boolean isAuthenticated = false;
         boolean isAuthorized = false;
-        String tenantAwareUserName = TenantUtils.getTenantAwareUsername(user);
+
+        // verify whether user is in same tenant that service has been deployed.
+        if(realm.getUserStoreManager().getTenantId() !=
+            SecurityServiceHolder.getRealmService().getTenantManager().getTenantId(MultitenantUtils.getTenantDomain(user))){
+            if(log.isDebugEnabled()){
+                log.debug("User : " + user + " trying access service which is deployed in different tenant domain");
+            }
+            return false;
+        }
+
+        String tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(user);
+
         try {
 
 //			UserRealm realm = AnonymousSessionUtil.getRealmByUserName(
@@ -287,7 +299,7 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw e;
-        } 
+        }
         
         return password;
     }

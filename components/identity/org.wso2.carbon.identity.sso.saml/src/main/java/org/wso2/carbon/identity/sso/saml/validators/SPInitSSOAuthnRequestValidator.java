@@ -134,7 +134,7 @@ public class SPInitSSOAuthnRequestValidator {
             }
 
             // subject confirmation should not exist
-            if(subject != null && subject.getSubjectConfirmations() != null) {
+            if(subject != null && subject.getSubjectConfirmations() != null && subject.getSubjectConfirmations().size() > 0) {
 				validationResponse.setValid(false);
 				String errorResp =
 				                   buildErrorResponse(SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,

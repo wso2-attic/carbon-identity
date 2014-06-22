@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -15,14 +15,15 @@
  *specific language governing permissions and limitations
  *under the License.
  */
+
 package org.wso2.carbon.identity.application.mgt.dao;
+
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.identity.application.common.model.ApplicationBasicInfo;
+import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 
 import java.util.List;
 import java.util.Map;
-
-import org.wso2.carbon.identity.application.common.model.ApplicationBasicInfo;
-import org.wso2.carbon.identity.application.common.model.ServiceProvider;
-import org.wso2.carbon.identity.base.IdentityException;
 
 public interface ApplicationDAO {
 
@@ -30,46 +31,46 @@ public interface ApplicationDAO {
      * 
      * @param applicationDTO
      * @return
-     * @throws IdentityException
+     * @throws IdentityApplicationManagementException
      */
-    int createApplication(ServiceProvider applicationDTO) throws IdentityException;
+    int createApplication(ServiceProvider applicationDTO, String tenantDomain) throws IdentityApplicationManagementException;
 
     /**
      * 
      * @param applicationName
      * @return
-     * @throws IdentityException
+     * @throws IdentityApplicationManagementException
      */
-    ServiceProvider getApplication(String applicationName) throws IdentityException;
+    ServiceProvider getApplication(String applicationName, String tenantDomain) throws IdentityApplicationManagementException;
 
     /**
      * 
      * @return
-     * @throws IdentityException
+     * @throws IdentityApplicationManagementException
      */
-    ApplicationBasicInfo[] getAllApplicationBasicInfo() throws IdentityException;
+    ApplicationBasicInfo[] getAllApplicationBasicInfo() throws IdentityApplicationManagementException;
 
     /**
      * 
      * @param applicationDTO
-     * @throws IdentityException
+     * @throws IdentityApplicationManagementException
      */
-    void updateApplication(ServiceProvider applicationDTO) throws IdentityException;
+    void updateApplication(ServiceProvider applicationDTO) throws IdentityApplicationManagementException;
 
     /**
      * 
      * @param applicationName
-     * @throws IdentityException
+     * @throws IdentityApplicationManagementException
      */
-    void deleteApplication(String applicationName) throws IdentityException;
+    void deleteApplication(String applicationName) throws IdentityApplicationManagementException;
 
     /**
      * 
      * @param applicationID
      * @return
-     * @throws IdentityException
+     * @throws IdentityApplicationManagementException
      */
-    String getApplicationName(int applicationID) throws IdentityException;
+    String getApplicationName(int applicationID) throws IdentityApplicationManagementException;
 
     /**
      * 
@@ -77,10 +78,10 @@ public interface ApplicationDAO {
      * @param clientType
      * @param tenantDomain
      * @return
-     * @throws IdentityException
+     * @throws IdentityApplicationManagementException
      */
     String getServiceProviderNameByClientId(String clientId, String clientType, String tenantDomain)
-            throws IdentityException;
+            throws IdentityApplicationManagementException;
 
     /**
      * [sp-claim-uri,local-idp-claim-uri]
@@ -90,7 +91,7 @@ public interface ApplicationDAO {
      * @return
      */
     Map<String, String> getServiceProviderToLocalIdPClaimMapping(String serviceProviderName,
-            String tenantDomain) throws IdentityException;
+            String tenantDomain) throws IdentityApplicationManagementException;
 
     /**
      * [local-idp-claim-uri,sp-claim-uri]
@@ -98,10 +99,10 @@ public interface ApplicationDAO {
      * @param serviceProviderName
      * @param tenantDomain
      * @return
-     * @throws IdentityException 
+     * @throws IdentityApplicationManagementException
      */
     Map<String, String> getLocalIdPToServiceProviderClaimMapping(String serviceProviderName,
-            String tenantDomain) throws IdentityException;
+            String tenantDomain) throws IdentityApplicationManagementException;
 
     /**
      * Returns back the requested set of claims by the provided service provider in local idp claim
@@ -112,5 +113,5 @@ public interface ApplicationDAO {
      * @return
      */
     List<String> getAllRequestedClaimsByServiceProvider(String serviceProviderName,
-            String tenantDomain) throws IdentityException;
+            String tenantDomain) throws IdentityApplicationManagementException;
 }

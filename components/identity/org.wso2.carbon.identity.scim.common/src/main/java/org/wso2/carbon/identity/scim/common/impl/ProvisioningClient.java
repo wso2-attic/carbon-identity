@@ -119,7 +119,9 @@ public class ProvisioningClient implements Runnable {
 
             String encodedUser = scimClient.encodeSCIMObject((AbstractSCIMObject) scimObject,
                                                              SCIMConstants.identifyFormat(contentType));
-            logger.info(encodedUser);
+            if (logger.isDebugEnabled()) {
+                logger.debug("User to provision : useName" + userName);
+            }
 
             PostMethod postMethod = new PostMethod(userEPURL);
             //add basic auth header

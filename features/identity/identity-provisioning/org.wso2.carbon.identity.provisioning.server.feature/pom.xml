@@ -31,7 +31,8 @@
 	<packaging>pom</packaging>
 	<name>Identity Provisioning Server Feature</name>
 	<url>http://wso2.org</url>
-	<description>This feature contains the core bundles required for Salesforce Identity provisioning functionality</description>
+	<description>This feature contains the core bundles required for Identity Provisioning Framework</description>
+	
 	<dependencies>
 		<dependency>
 			<groupId>org.wso2.carbon</groupId>
@@ -41,33 +42,7 @@
 	</dependencies>
 	<build>
 	<plugins>
-
-    	<plugin>
-		<artifactId>maven-resources-plugin</artifactId>
-		<executions>
-		    <execution>
-		        <id>prefilter-resources</id>
-		        <phase>generate-resources</phase>
-		        <goals>
-		            <goal>copy-resources</goal>
-		        </goals>
-		        <configuration>
-		            <outputDirectory>src/main/resources</outputDirectory>
-		            <resources>
-		                <resource>
-		                    <directory>resources</directory>
-		                    <includes>
-		                        <include>p2.inf</include>                                      
-		                        <include>identity-provision.properties</include>                                        
-		                        <include>salesforce-rolemapping.csv</include>                                        
-		                    </includes>
-		                </resource>
-		            </resources>
-		        </configuration>
-		    </execution>
-		</executions>
-    	</plugin>
-	<plugin>
+      <plugin>
 		<groupId>org.wso2.maven</groupId>
 		<artifactId>carbon-p2-plugin</artifactId>
 		<version>${carbon.p2.plugin.version}</version>
@@ -84,7 +59,7 @@
 					    <adviceFile>
 						<properties>
 						    <propertyDef>org.wso2.carbon.p2.category.type:server</propertyDef>
-						    <propertyDef>org.eclipse.equinox.p2.type.group:false</propertyDef>
+						    <!--propertyDef>org.eclipse.equinox.p2.type.group:false</propertyDef-->
 						</properties>
 					    </adviceFile>
 					<bundles>
@@ -96,28 +71,7 @@
 				</configuration>
 			</execution>
 		</executions>
-	</plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.1</version>
-                <executions>
-                    <execution>
-                        <id>clean_target</id>
-                        <phase>install</phase>
-                        <configuration>
-                            <tasks>
-                                <delete dir="src/main/resources"/>
-                                <delete dir="src/main"/>
-                                <delete dir="src"/>                                
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+	  </plugin>
 	</plugins>
 	</build>
 </project>

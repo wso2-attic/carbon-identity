@@ -1,21 +1,25 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.scim.provider.auth;
+
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
@@ -23,6 +27,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.message.Message;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.application.common.model.ThreadLocalProvisioningServiceProvider;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
+import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
 import org.wso2.carbon.identity.scim.provider.util.SCIMProviderConstants;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -32,10 +39,6 @@ import org.wso2.charon.core.exceptions.InternalServerException;
 import org.wso2.charon.core.exceptions.UnauthorizedException;
 import org.wso2.charon.core.schema.SCIMConstants;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.TreeMap;
-
 /**
  * This is the default BASIC-Auth authentication handler for SCIM REST Endpoints.
  */
@@ -43,13 +46,13 @@ public class BasicAuthHandler implements SCIMAuthenticationHandler {
 
     private static Log log = LogFactory.getLog(BasicAuthHandler.class);
 
-    /*property map*/
+    /* property map */
     private Map<String, String> properties;
 
-    /*properties specific to this authenticator*/
+    /* properties specific to this authenticator */
     private int priority;
 
-    /*constants specific to this authenticator*/
+    /* constants specific to this authenticator */
     private final String BASIC_AUTH_HEADER = "Basic";
     private final int DEFAULT_PRIORITY = 5;
 
@@ -59,7 +62,7 @@ public class BasicAuthHandler implements SCIMAuthenticationHandler {
 
     /**
      * Ideally this should be configurable. For the moment, hard code the priority.
-     *
+     * 
      * @return
      */
     public int getPriority() {
@@ -71,14 +74,15 @@ public class BasicAuthHandler implements SCIMAuthenticationHandler {
     }
 
     public boolean canHandle(Message message, ClassResourceInfo classResourceInfo) {
-        //check the "Authorization" header and if "Basic" is there, can be handled.
+        // check the "Authorization" header and if "Basic" is there, can be handled.
 
-        //get the map of protocol headers
+        // get the map of protocol headers
         TreeMap protocolHeaders = (TreeMap) message.get(Message.PROTOCOL_HEADERS);
-        //get the value for Authorization Header
-        ArrayList authzHeaders = (ArrayList) protocolHeaders.get(SCIMConstants.AUTHORIZATION_HEADER);
+        // get the value for Authorization Header
+        ArrayList authzHeaders = (ArrayList) protocolHeaders
+                .get(SCIMConstants.AUTHORIZATION_HEADER);
         if (authzHeaders != null) {
-            //get the authorization header value, if provided
+            // get the authorization header value, if provided
             String authzHeader = (String) authzHeaders.get(0);
             if (authzHeader != null && authzHeader.contains(BASIC_AUTH_HEADER)) {
                 return true;
@@ -88,17 +92,18 @@ public class BasicAuthHandler implements SCIMAuthenticationHandler {
     }
 
     public boolean isAuthenticated(Message message, ClassResourceInfo classResourceInfo) {
-        //extract authorization header and authenticate.
+        // extract authorization header and authenticate.
 
-        //get the map of protocol headers
+        // get the map of protocol headers
         TreeMap protocolHeaders = (TreeMap) message.get(Message.PROTOCOL_HEADERS);
-        //get the value for Authorization Header
-        ArrayList authzHeaders = (ArrayList) protocolHeaders.get(SCIMConstants.AUTHORIZATION_HEADER);
+        // get the value for Authorization Header
+        ArrayList authzHeaders = (ArrayList) protocolHeaders
+                .get(SCIMConstants.AUTHORIZATION_HEADER);
         if (authzHeaders != null) {
-            //get the authorization header value, if provided
+            // get the authorization header value, if provided
             String authzHeader = (String) authzHeaders.get(0);
 
-            //decode it and extract username and password
+            // decode it and extract username and password
             byte[] decodedAuthHeader = Base64.decode(authzHeader.split(" ")[1]);
             String authHeader = new String(decodedAuthHeader);
             String userName = authHeader.split(":")[0];
@@ -108,32 +113,49 @@ public class BasicAuthHandler implements SCIMAuthenticationHandler {
                 String tenantLessUserName = MultitenantUtils.getTenantAwareUsername(userName);
 
                 try {
-                    //get super tenant context and get realm service which is an osgi service
-                    RealmService realmService = (RealmService)
-                            PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService(RealmService.class);
+                    // get super tenant context and get realm service which is an osgi service
+                    RealmService realmService = (RealmService) PrivilegedCarbonContext
+                            .getThreadLocalCarbonContext().getOSGiService(RealmService.class);
                     if (realmService != null) {
                         int tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
-                        if(tenantId == -1) {
-                        	log.error("Invalid tenant domain " + tenantDomain);
-                        	return false;
+                        if (tenantId == -1) {
+                            log.error("Invalid tenant domain " + tenantDomain);
+                            return false;
                         }
-                        //get tenant's user realm
+                        // get tenant's user realm
                         UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
-                        boolean authenticated = userRealm.getUserStoreManager().authenticate(tenantLessUserName, password);
+                        boolean authenticated = userRealm.getUserStoreManager().authenticate(
+                                tenantLessUserName, password);
                         if (authenticated) {
-                            //authentication success. set the username for authorization header and proceed the REST call
+
+                            // setup thread local variable to be consumed by the provisioning
+                            // framework.
+                            ThreadLocalProvisioningServiceProvider serviceProvider = new ThreadLocalProvisioningServiceProvider();
+                            serviceProvider
+                                    .setServiceProviderName(IdentityProvisioningConstants.LOCAL_SP);
+                            serviceProvider
+                                    .setClaimDialect(SCIMProviderConstants.DEFAULT_SCIM_DIALECT);
+                            serviceProvider.setTenantDomain(MultitenantUtils.getTenantDomain(userName));
+
+                            IdentityApplicationManagementUtil
+                                    .setThreadLocalProvisioningServiceProvider(serviceProvider);
+
+                            // authentication success. set the username for authorization header and
+                            // proceed the REST call
                             authzHeaders.set(0, userName);
                             return true;
                         } else {
                             UnauthorizedException unauthorizedException = new UnauthorizedException(
-                                    "Authentication failed for the user: " + tenantLessUserName + "@" + tenantDomain);
+                                    "Authentication failed for the user: " + tenantLessUserName
+                                            + "@" + tenantDomain);
                             log.error(unauthorizedException.getDescription());
                             return false;
                         }
                     } else {
                         log.error("Error in getting Realm Service for user: " + userName);
                         InternalServerException internalServerException = new InternalServerException(
-                                "Internal server error while authenticating the user: " + tenantLessUserName + "@" + tenantDomain);
+                                "Internal server error while authenticating the user: "
+                                        + tenantLessUserName + "@" + tenantDomain);
                         log.error(internalServerException.getDescription());
                         return false;
                     }
@@ -161,15 +183,16 @@ public class BasicAuthHandler implements SCIMAuthenticationHandler {
 
     /**
      * To set the properties specific to each authenticator
-     *
+     * 
      * @param authenticatorProperties
      */
     public void setProperties(Map<String, String> authenticatorProperties) {
-        //set the priority read from config
+        // set the priority read from config
         this.properties = authenticatorProperties;
         String priorityString = properties.get(SCIMProviderConstants.PROPERTY_NAME_PRIORITY);
         if (priorityString != null) {
-            priority = Integer.parseInt(properties.get(SCIMProviderConstants.PROPERTY_NAME_PRIORITY));
+            priority = Integer.parseInt(properties
+                    .get(SCIMProviderConstants.PROPERTY_NAME_PRIORITY));
         } else {
             priority = DEFAULT_PRIORITY;
         }

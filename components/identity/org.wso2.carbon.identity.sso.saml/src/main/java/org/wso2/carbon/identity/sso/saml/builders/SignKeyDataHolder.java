@@ -28,11 +28,14 @@ import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 import org.wso2.carbon.security.keystore.KeyStoreAdmin;
 import org.wso2.carbon.utils.AuthenticationObserver;
 import org.wso2.carbon.utils.TenantUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.crypto.SecretKey;
 import java.security.KeyStore;
@@ -77,10 +80,32 @@ public class SignKeyDataHolder implements X509Credential {
         KeyStoreAdmin keyAdmin ;
         KeyStoreManager keyMan ;
         Certificate[] certificates ;
+        int tenantID;
+        String tenantDomain;
+        String userTenantDomain;
+        String spTenantDomain;
 
         try {
-            String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            int tenantID = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
+
+            userTenantDomain =  MultitenantUtils.getTenantDomain(username);
+            spTenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            
+            if (!SAMLSSOUtil.isSaaSApplication() && !spTenantDomain.equalsIgnoreCase(userTenantDomain)) {
+                throw new IdentityException("Service Provider tenant domian must be equal to user tenant domain"
+                        + " for non-SaaS applications");
+            }
+            
+            String signWithValue = IdentityUtil.getProperty(
+                    SAMLSSOConstants.FileBasedSPConfig.USE_AUTHENTICATED_USER_DOMAIN_CRYPTO);
+            if (signWithValue != null  && "true".equalsIgnoreCase(signWithValue.trim())) {
+                tenantDomain = userTenantDomain;
+                tenantID = SAMLSSOUtil.getRealmService().getTenantManager().
+                        getTenantId(tenantDomain);
+            } else {
+                tenantDomain = spTenantDomain;
+                tenantID = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
+            }
+
             initializeRegistry(tenantID);
             
             if (tenantID != MultitenantConstants.SUPER_TENANT_ID) {

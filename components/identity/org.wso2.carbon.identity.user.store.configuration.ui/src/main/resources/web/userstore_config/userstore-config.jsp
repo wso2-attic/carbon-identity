@@ -324,7 +324,7 @@
     function doValidationMandatoryProperties() {
         var length = <%=mandatories.length%>;
         for (var j = 1; j <= length; j++) {
-            if (document.getElementsByName("propertyValue_" + j)[0].value.trim().length == 0) {
+            if ($.trim(document.getElementsByName("propertyValue_" + j)[0].value).length == 0) {
                 CARBON.showWarningDialog(document.getElementsByName("propertyName_" + j)[0].value + " " + '<fmt:message key="is.required"/>');
                 return false;
             }

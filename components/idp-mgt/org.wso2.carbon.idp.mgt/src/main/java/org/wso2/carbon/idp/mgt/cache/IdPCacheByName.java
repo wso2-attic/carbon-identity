@@ -18,6 +18,9 @@
 
 package org.wso2.carbon.idp.mgt.cache;
 
+import org.wso2.carbon.identity.application.common.cache.BaseCache;
+import org.wso2.carbon.identity.application.common.cache.CacheEntry;
+import org.wso2.carbon.identity.application.common.cache.CacheKey;
 import org.wso2.carbon.utils.CarbonUtils;
 
 public class IdPCacheByName extends BaseCache<CacheKey, CacheEntry> {

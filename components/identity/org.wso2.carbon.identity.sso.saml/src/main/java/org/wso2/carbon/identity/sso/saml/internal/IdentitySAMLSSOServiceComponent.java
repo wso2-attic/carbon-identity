@@ -16,6 +16,10 @@
 
 package org.wso2.carbon.identity.sso.saml.internal;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Scanner;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.equinox.http.helper.ContextPathServletAdaptor;
@@ -25,10 +29,12 @@ import org.wso2.carbon.identity.authenticator.saml2.sso.common.Util;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
+import org.wso2.carbon.identity.sso.saml.admin.FileBasedConfigManager;
 import org.wso2.carbon.identity.sso.saml.servlet.SAMLSSOProviderServlet;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
 import javax.servlet.Servlet;
@@ -59,6 +65,8 @@ public class IdentitySAMLSSOServiceComponent{
     private static int defaultSingleLogoutRetryCount = 5;
 
     private static long defaultSingleLogoutRetryInterval = 60000;
+    
+    private static String ssoRedirectPage = null;
 
     protected void activate(ComponentContext ctxt) {
         SAMLSSOUtil.setBundleContext(ctxt.getBundleContext());
@@ -90,7 +98,21 @@ public class IdentitySAMLSSOServiceComponent{
             log.debug("Single logout retry count is set to " + SAMLSSOUtil.getSingleLogoutRetryCount());
             log.debug("Single logout retry interval is set to " +
                     SAMLSSOUtil.getSingleLogoutRetryInterval() + " in seconds.");
-        } catch (Exception e) {
+            
+            
+            String redirectHtmlPath = CarbonUtils.getCarbonHome() + File.separator + "repository"
+                    + File.separator + "resources" + File.separator + "security" + File.separator + "sso_redirect.html";
+            FileInputStream fis = new FileInputStream(new File(redirectHtmlPath));
+            ssoRedirectPage = new Scanner(fis,"UTF-8").useDelimiter("\\A").next();
+            log.debug("sso_redirect.html " + ssoRedirectPage);
+
+            FileBasedConfigManager.getInstance().addServiceProviders();
+
+            Util.initSSOConfigParams();
+            if (log.isDebugEnabled()) {
+                log.info("Identity SAML SSO bundle is activated");
+            }
+        } catch (Throwable e) {
             SAMLSSOUtil.setSingleLogoutRetryCount(defaultSingleLogoutRetryCount);
             SAMLSSOUtil.setSingleLogoutRetryInterval(defaultSingleLogoutRetryInterval);
             if (log.isDebugEnabled()) {
@@ -99,10 +121,7 @@ public class IdentitySAMLSSOServiceComponent{
                         " and interval: " + defaultSingleLogoutRetryInterval + " will be used.");
             }
         }
-        Util.initSSOConfigParams();
-        if (log.isDebugEnabled()) {
-            log.info("Identity SAML SSO bundle is activated");
-        }
+
     }
 
     protected void deactivate(ComponentContext ctxt) {
@@ -170,5 +189,9 @@ public class IdentitySAMLSSOServiceComponent{
             log.debug("HTTP Service is unset in the SAML SSO bundle");
         }
         SAMLSSOUtil.setHttpService(null);
+    }
+    
+    public static String getSsoRedirectHtml() {
+    	return ssoRedirectPage;
     }
 }

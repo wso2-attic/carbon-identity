@@ -60,7 +60,7 @@ if (applicationComponentFound) {
 %>
 
 <script>
-    location.href = '../application/configure-service-provider.jsp?action=delete&samlissuer=<%=request.getParameter("issuer")%>';
+    location.href = '../application/configure-service-provider.jsp?action=delete&samlIssuer=<%=request.getParameter("issuer")%>';
 </script>
 <%}%>
 

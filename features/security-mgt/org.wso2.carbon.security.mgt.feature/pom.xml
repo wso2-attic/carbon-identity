@@ -67,8 +67,8 @@
                                 <importFeatureDef>org.wso2.carbon.core:${wso2carbon.version}</importFeatureDef>
                             </importFeatures>
                             <includedFeatures>
-                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.security.mgt.server.feature:4.3.0-SNAPSHOT</includedFeatureDef>
-                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.security.mgt.ui.feature:4.3.0-SNAPSHOT</includedFeatureDef>                                
+                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.security.mgt.server.feature</includedFeatureDef>
+                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.security.mgt.ui.feature</includedFeatureDef>                                
                             </includedFeatures>
                         </configuration>
                     </execution>

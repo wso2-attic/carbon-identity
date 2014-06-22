@@ -18,23 +18,22 @@
 
 package org.wso2.carbon.idp.mgt;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
-import org.wso2.carbon.identity.application.common.model.FacebookFederatedAuthenticator;
-import org.wso2.carbon.identity.application.common.model.FederatedIdentityProvider;
-import org.wso2.carbon.identity.application.common.model.OpenIDConnectFederatedAuthenticator;
-import org.wso2.carbon.identity.application.common.model.OpenIDFederatedAuthenticator;
-import org.wso2.carbon.identity.application.common.model.PassiveSTSFederatedAuthenticator;
-import org.wso2.carbon.identity.application.common.model.ResidentIdentityProvider;
-import org.wso2.carbon.identity.application.common.model.SAMLFederatedAuthenticator;
+import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
+import org.wso2.carbon.idp.mgt.internal.IdpMgtListenerServiceComponent;
+import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtLister;
 import org.wso2.carbon.user.api.ClaimMapping;
 
-public class IdentityProviderManagementService {
+import java.util.ArrayList;
+import java.util.List;
+
+public class IdentityProviderManagementService extends AbstractAdmin {
 
     private static Log log = LogFactory.getLog(IdentityProviderManager.class);
     private static String LOCAL_DEFAULT_CLAIM_DIALECT = "http://wso2.org/claims";
@@ -42,126 +41,123 @@ public class IdentityProviderManagementService {
     /**
      * Retrieves resident Identity provider for the logged-in tenant
      * 
-     * @return <code>ResidentIdentityProvider</code>
+     * @return <code>IdentityProvider</code>
      * @throws IdentityApplicationManagementException Error when getting Resident Identity Provider
      */
-    public ResidentIdentityProvider getResidentIdP() throws IdentityApplicationManagementException {
+    public IdentityProvider getResidentIdP() throws IdentityApplicationManagementException {
 
-        try {
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            ResidentIdentityProvider residentIdP = IdentityProviderManager.getInstance()
-                    .getResidentIdP(tenantDomain);
-            return residentIdP;
-        } catch (Exception e) {
-            String message = "Error occured while loading resident identity provider.";
-            log.error(message, e);
-            throw new IdentityApplicationManagementException(message, e);
-        }
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        IdentityProvider residentIdP = IdentityProviderManager.getInstance()
+                .getResidentIdP(tenantDomain);
+        return residentIdP;
     }
 
     /**
      * Updated resident Identity provider for the logged-in tenant
      * 
-     * @param identityProvider <code>ResidentIdentityProvider</code>
+     * @param identityProvider <code>IdentityProvider</code>
      * @throws IdentityApplicationManagementException Error when getting Resident Identity Provider
      */
-    public void updateResidentIdP(ResidentIdentityProvider identityProvider)
+    public void updateResidentIdP(IdentityProvider identityProvider)
             throws IdentityApplicationManagementException {
 
-        try {
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            IdentityProviderManager.getInstance().updateResidentIdP(identityProvider, tenantDomain);
-        } catch (Exception e) {
-            String message = "Error occured while updating resident identity provider.";
-            log.error(message, e);
-            throw new IdentityApplicationManagementException(message, e);
-        }
+    	// invoking the listeners
+    	List<IdentityProviderMgtLister> listerns = IdpMgtListenerServiceComponent.getListners();
+    	for(IdentityProviderMgtLister listner : listerns) {
+    		listner.updateResidentIdP(identityProvider);
+    	}
+    	
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        IdentityProviderManager.getInstance().updateResidentIdP(identityProvider, tenantDomain);
     }
 
     /**
      * Retrieves registered Identity providers for the logged-in tenant
      * 
-     * @return Array of <code>FederatedIdentityProvider</code>. IdP names, primary IdP and home
+     * @return Array of <code>IdentityProvider</code>. IdP names, primary IdP and home
      *         realm identifiers of each IdP
      * @throws IdentityApplicationManagementException Error when getting list of Identity Providers
      */
-    public FederatedIdentityProvider[] getAllIdPs() throws IdentityApplicationManagementException {
-        try {
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            List<FederatedIdentityProvider> identityProviders = IdentityProviderManager
-                    .getInstance().getIdPs(tenantDomain);
-            return identityProviders
-                    .toArray(new FederatedIdentityProvider[identityProviders.size()]);
-        } catch (Exception e) {
-            String message = "Error occured while loading all federated identity providers.";
-            log.error(message, e);
-            throw new IdentityApplicationManagementException(message, e);
-        }
+    public IdentityProvider[] getAllIdPs() throws IdentityApplicationManagementException {
+
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        List<IdentityProvider> identityProviders = IdentityProviderManager.getInstance().getIdPs(tenantDomain);
+        return identityProviders.toArray(new IdentityProvider[identityProviders.size()]);
     }
 
+    
+    /**
+     * Retrieves Enabled registered Identity providers for the logged-in tenant
+     * 
+     * @return Array of <code>IdentityProvider</code>. IdP names, primary IdP and home
+     *         realm identifiers of each IdP
+     * @throws IdentityApplicationManagementException Error when getting list of Identity Providers
+     */
+    public IdentityProvider[] getEnabledAllIdPs() throws IdentityApplicationManagementException {
+
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        List<IdentityProvider> identityProviders = IdentityProviderManager.getInstance().getEnabledIdPs(tenantDomain);
+        return identityProviders.toArray(new IdentityProvider[identityProviders.size()]);
+    }
+    
+    
     /**
      * Retrieves Identity provider information for the logged-in tenant by Identity Provider name
      * 
      * @param idPName Unique name of the Identity provider of whose information is requested
-     * @return <code>IdentityProviderDTO</code> Identity Provider information
-     * @throws IdentityProviderMgtException
+     * @return <code>IdentityProvider</code> Identity Provider information
+     * @throws IdentityApplicationManagementException
      */
-    public FederatedIdentityProvider getIdPByName(String idPName)
+    public IdentityProvider getIdPByName(String idPName)
             throws IdentityApplicationManagementException {
-        try {
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            return IdentityProviderManager.getInstance().getIdPByName(idPName, tenantDomain);
-        } catch (Exception e) {
-            String message = "Error occured while loading federated identity provider by name.";
-            log.error(message, e);
-            throw new IdentityApplicationManagementException(message, e);
-        }
+
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        return IdentityProviderManager.getInstance().getIdPByName(idPName, tenantDomain, true);
     }
 
     /**
      * Adds an Identity Provider to the logged-in tenant
      * 
-     * @param identityProviderDTO Identity Provider information
-     * @throws IdentityProviderMgtException Error when adding Identity Provider
+     * @param identityProvider <code>IdentityProvider</code> new Identity Provider information
+     * @throws IdentityApplicationManagementException Error when adding Identity Provider
      */
-    public void addIdP(FederatedIdentityProvider identityProvider)
+    public void addIdP(IdentityProvider identityProvider)
             throws IdentityApplicationManagementException {
 
-        try {
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            IdentityProviderManager.getInstance().addIdP(identityProvider, tenantDomain);
-        } catch (Exception e) {
-            String message = "Error occured while adding federated identity provider.";
-            log.error(message, e);
-            throw new IdentityApplicationManagementException(message, e);
-        }
+    	// invoking the listeners
+    	List<IdentityProviderMgtLister> listerns = IdpMgtListenerServiceComponent.getListners();
+    	for(IdentityProviderMgtLister listner : listerns) {
+    		listner.addIdP(identityProvider);
+    	}
+    	
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        IdentityProviderManager.getInstance().addIdP(identityProvider, tenantDomain);
     }
 
     /**
      * Deletes an Identity Provider from the logged-in tenant
      * 
      * @param idPName Name of the IdP to be deleted
-     * @throws IdentityProviderMgtException Error when deleting Identity Provider
+     * @throws IdentityApplicationManagementException Error when deleting Identity Provider
      */
-    public void deleteIdP(String idPName) throws IdentityApplicationManagementException {
-
-        try {
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            IdentityProviderManager.getInstance().deleteIdP(idPName, tenantDomain);
-        } catch (Exception e) {
-            String message = "Error occured while adding deleting identity provider.";
-            log.error(message, e);
-            throw new IdentityApplicationManagementException(message, e);
+    public void deleteIdP(String idPName) throws IdentityApplicationManagementException {    	
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        IdentityProviderManager.getInstance().deleteIdP(idPName, tenantDomain);
+        
+        // invoking the listeners
+        List<IdentityProviderMgtLister> listerns = IdpMgtListenerServiceComponent.getListners();
+        for(IdentityProviderMgtLister listner : listerns) {
+            listner.deleteIdP(idPName);
         }
-
     }
 
     /**
      * 
      * @return
-     * @throws IdentityProviderMgtException
+     * @throws IdentityApplicationManagementException
      */
     public String[] getAllLocalClaimUris() throws IdentityApplicationManagementException {
+
         try {
             String claimDialect = LOCAL_DEFAULT_CLAIM_DIALECT;
             ClaimMapping[] claimMappings = CarbonContext.getThreadLocalCarbonContext()
@@ -172,8 +168,8 @@ public class IdentityProviderManagementService {
             }
             return claimUris.toArray(new String[claimUris.size()]);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new IdentityApplicationManagementException("Error while reading system claims");
+            String message = "Error while reading system claims";
+            throw new IdentityApplicationManagementException(message);
         }
     }
 
@@ -181,35 +177,33 @@ public class IdentityProviderManagementService {
      * Updates a given Identity Provider's information in the logged-in tenant
      * 
      * @param oldIdPName existing Identity Provider name
-     * @param newIdentityProviderDTO new Identity Provider information
-     * @throws IdentityProviderMgtException Error when updating Identity Provider
+     * @param identityProvider <code>IdentityProvider</code> new Identity Provider information
+     * @throws IdentityApplicationManagementException Error when updating Identity Provider
      */
-    public void updateIdP(String oldIdPName, FederatedIdentityProvider identityProvider)
+    public void updateIdP(String oldIdPName, IdentityProvider identityProvider)
             throws IdentityApplicationManagementException {
 
-        try {
 
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            IdentityProviderManager.getInstance().updateIdP(oldIdPName, identityProvider,
-                    tenantDomain);
-        } catch (Exception e) {
-            String message = "Error occured while updating federated identity provider.";
-            log.error(message, e);
-            throw new IdentityApplicationManagementException(message, e);
-        }
+    	// invoking the listeners
+    	List<IdentityProviderMgtLister> listerns = IdpMgtListenerServiceComponent.getListners();
+    	for(IdentityProviderMgtLister listner : listerns) {
+    		listner.updateIdP(oldIdPName, identityProvider);
+    	}
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        IdentityProviderManager.getInstance().updateIdP(oldIdPName, identityProvider, tenantDomain);
     }
 
     /**
-     * Bogus operation - doing nothing.
-     * @param openid
-     * @param fb
-     * @param saml
-     * @param oidc
-     * @param passive
+     * Get the authenticators registered in the system.
+     *
+     * @return <code>FederatedAuthenticatorConfig</code> array.
+     * @throws IdentityApplicationManagementException Error when getting authenticators registered in the system
      */
-    public void bogusOperation(OpenIDFederatedAuthenticator openid,
-            FacebookFederatedAuthenticator fb, SAMLFederatedAuthenticator saml,
-            OpenIDConnectFederatedAuthenticator oidc, PassiveSTSFederatedAuthenticator passive) {
-
+    public FederatedAuthenticatorConfig[] getAllFederatedAuthenticators() throws IdentityApplicationManagementException {
+        return IdentityProviderManager.getInstance().getAllFederatedAuthenticators();
+    }
+    
+    public ProvisioningConnectorConfig[] getAllProvisioningConnectors() throws IdentityApplicationManagementException {
+    	return IdentityProviderManager.getInstance().getAllProvisioningConnectors();
     }
 }

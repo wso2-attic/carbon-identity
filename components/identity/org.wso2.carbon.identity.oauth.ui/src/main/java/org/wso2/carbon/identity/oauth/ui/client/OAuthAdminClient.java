@@ -57,6 +57,11 @@ public class OAuthAdminClient {
 	public OAuthConsumerAppDTO getOAuthApplicationData(String consumerkey) throws Exception {
 		return stub.getOAuthApplicationData(consumerkey);
 	}
+	
+	public OAuthConsumerAppDTO getOAuthApplicationDataByAppName(String appName) throws Exception {
+		return stub.getOAuthApplicationDataByAppName(appName);
+	}
+
 
 	// TODO : this method should return app data
 	public void registerOAuthApplicationData(OAuthConsumerAppDTO application) throws Exception {

@@ -35,8 +35,6 @@ import org.wso2.carbon.identity.oauth2.token.handlers.clientauth.ClientAuthentic
 import org.wso2.carbon.identity.oauth2.token.handlers.grant.AuthorizationGrantHandler;
 import org.wso2.carbon.identity.oauth2.token.handlers.grant.saml.SAML2TokenCallbackHandler;
 import org.wso2.carbon.identity.oauth2.validators.OAuth2ScopeValidator;
-import org.wso2.carbon.identity.oauth2.validators.OAuth2TokenValidator;
-import org.wso2.carbon.identity.oauth2.validators.TokenValidationHandler;
 import org.wso2.carbon.identity.openidconnect.CustomClaimsCallbackHandler;
 import org.wso2.carbon.identity.openidconnect.IDTokenBuilder;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -82,9 +80,13 @@ public class OAuthServerConfiguration {
 		private static final String AUTHORIZATION_CODE_DEFAULT_VALIDITY_PERIOD = "AuthorizationCodeDefaultValidityPeriod";
 		private static final String USER_ACCESS_TOKEN_DEFAULT_VALIDITY_PERIOD = "UserAccessTokenDefaultValidityPeriod";
 		private static final String APPLICATION_ACCESS_TOKEN_VALIDATION_PERIOD = "ApplicationAccessTokenDefaultValidityPeriod";
-				
+        private static final String REFRESH_TOKEN_VALIDITY_PERIOD = "RefreshTokenValidityPeriod";
+
 		// Enable/Disable cache
 		private static final String ENABLE_CACHE = "EnableOAuthCache";
+
+        // Enable/Disable refresh token renewal on each refresh_token grant request
+        private static final String RENEW_REFRESH_TOKEN_FOR_REFRESH_GRANT = "RenewRefreshTokenForRefreshGrant";
 
 		// TokenPersistenceProcessor
 		private static final String TOKEN_PERSISTENCE_PROCESSOR = "TokenPersistenceProcessor";
@@ -147,12 +149,16 @@ public class OAuthServerConfiguration {
 	private long accessTokenValidityPeriodInSeconds = 3600;
 
 	private long applicationAccessTokenValidityPeriodInSeconds = 3600;
-	
+
+    private long refreshTokenValidityPeriodInSeconds = 24 * 3600;
+
 	private long timeStampSkewInSeconds = 300;
 
     private String tokenPersistenceProcessorClassName = "org.wso2.carbon.identity.oauth.tokenprocessor.PlainTextPersistenceProcessor";
 
 	private boolean cacheEnabled = true;
+
+    private boolean isRefreshTokenRenewalEnabled = true;
 
 	private boolean assertionsUserNameEnabled = false;
 
@@ -181,6 +187,8 @@ public class OAuthServerConfiguration {
 	private String saml2TokenCallbackHandlerName = null;
 	
 	private SAML2TokenCallbackHandler saml2TokenCallbackHandler = null;
+
+    private Map<String, String> tokenValidatorClassNames = new HashMap<String, String>();
 
 	private boolean isAuthContextTokGenEnabled = false;
 
@@ -268,6 +276,9 @@ public class OAuthServerConfiguration {
 			// read caching configurations
 			parseCachingConfiguration(oauthElem);
 
+            // read refresh token renewal config
+            parseRefreshTokenRenewalConfiguration(oauthElem);
+
 			// read token persistence processor config
 			parseTokenPersistenceProcessorConfig(oauthElem);
 
@@ -319,7 +330,11 @@ public class OAuthServerConfiguration {
     public long getApplicationAccessTokenValidityPeriodInSeconds() {
         return applicationAccessTokenValidityPeriodInSeconds;
     }
-	
+
+    public long getRefreshTokenValidityPeriodInSeconds(){
+        return refreshTokenValidityPeriodInSeconds;
+    }
+
 	public long getTimeStampSkewInSeconds() {
 		return timeStampSkewInSeconds;
 	}
@@ -327,6 +342,10 @@ public class OAuthServerConfiguration {
 	public boolean isCacheEnabled() {
 		return cacheEnabled;
 	}
+
+    public boolean isRefreshTokenRenewalEnabled(){
+        return isRefreshTokenRenewalEnabled;
+    }
 
 	public Map<String,AuthorizationGrantHandler> getSupportedGrantTypes() {
         if(supportedGrantTypes == null){
@@ -438,6 +457,10 @@ public class OAuthServerConfiguration {
 		}
 		return saml2TokenCallbackHandler;
 	}
+
+    public Map<String, String> getTokenValidatorClassNames(){
+        return tokenValidatorClassNames;
+    }
 
 	public boolean isAccessTokenPartitioningEnabled() {
 		return accessTokenPartitioningEnabled;
@@ -645,24 +668,9 @@ public class OAuthServerConfiguration {
 			for (; validators.hasNext();) {
 				OMElement validator = ((OMElement) validators.next());
 				if (validator != null) {
-					OAuth2TokenValidator tokenValidator = null;
-					String clazzName = null;
-					try {
-						clazzName =
-						            validator.getAttributeValue(getQNameWithIdentityNS(ConfigElements.TOKEN_CLASS_ATTR));
-						Class clazz = Thread.currentThread().getContextClassLoader().loadClass(clazzName);
-						tokenValidator = (OAuth2TokenValidator) clazz.newInstance();
-					} catch (ClassNotFoundException e) {
-						log.error("Class not in build path " + clazzName, e);
-					} catch (InstantiationException e) {
-						log.error("Class initialization error " + clazzName, e);
-					} catch (IllegalAccessException e) {
-						log.error("Class access error " + clazzName, e);
-
-					}
-					String type =
-					              validator.getAttributeValue(getQNameWithIdentityNS(ConfigElements.TOKEN_TYPE_ATTR));
-					TokenValidationHandler.getInstance().addTokenValidator(type, tokenValidator);
+                    String clazzName = validator.getAttributeValue(new QName(ConfigElements.TOKEN_CLASS_ATTR));
+					String type = validator.getAttributeValue(new QName(ConfigElements.TOKEN_TYPE_ATTR));
+                    tokenValidatorClassNames.put(type, clazzName);
 				}
 			}
 		}
@@ -767,6 +775,13 @@ public class OAuthServerConfiguration {
             applicationAccessTokenValidityPeriodInSeconds = Long.parseLong(applicationAccessTokTimeoutElem.getText());
         }
 
+        // set the application access token default timeout
+        OMElement refreshTokenTimeoutElem = oauthConfigElem.getFirstChildWithName(
+                getQNameWithIdentityNS(ConfigElements.REFRESH_TOKEN_VALIDITY_PERIOD));
+        if(refreshTokenTimeoutElem != null) {
+            refreshTokenValidityPeriodInSeconds = Long.parseLong(refreshTokenTimeoutElem.getText().trim());
+        }
+
 		OMElement timeStampSkewElem = oauthConfigElem.getFirstChildWithName(
                 getQNameWithIdentityNS(ConfigElements.TIMESTAMP_SKEW));
 		if (timeStampSkewElem != null) {
@@ -782,6 +797,10 @@ public class OAuthServerConfiguration {
 				log.debug("\"Access Token Default Timeout\" element was not available "
 				          + "in from identity.xml. Continuing with the default value.");
 			}
+            if (refreshTokenTimeoutElem == null){
+                log.debug("\"Refresh Token Default Timeout\" element was not available " +
+                        "in from identity.xml. Continuing with the default value.");
+            }
 			if (timeStampSkewElem == null) {
 				log.debug("\"Default Timestamp Skew\" element was not available "
 				          + "in from identity.xml. Continuing with the default value.");
@@ -792,7 +811,8 @@ public class OAuthServerConfiguration {
 			          "ms.");
 			log.debug("Application Access Token Default Timeout is set to " +
                     accessTokenValidityPeriodInSeconds + "ms.");
-			log.debug("Default TimestampSkew is set to " + timeStampSkewInSeconds + "ms.");
+            log.debug("Refresh Token validity period is set to " + refreshTokenValidityPeriodInSeconds + "s.");
+            log.debug("Default TimestampSkew is set to " + timeStampSkewInSeconds + "ms.");
 		}
 	}
 
@@ -807,6 +827,18 @@ public class OAuthServerConfiguration {
 			log.debug("Enable OAuth Cache was set to : " + cacheEnabled);
 		}
 	}
+
+    private void parseRefreshTokenRenewalConfiguration(OMElement oauthConfigElem) {
+
+        OMElement enableRefreshTokenRenewalElem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
+                ConfigElements.RENEW_REFRESH_TOKEN_FOR_REFRESH_GRANT));
+        if (enableRefreshTokenRenewalElem != null) {
+            isRefreshTokenRenewalEnabled = Boolean.parseBoolean(enableRefreshTokenRenewalElem.getText());
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("RenewRefreshTokenForRefreshGrant was set to : " + isRefreshTokenRenewalEnabled);
+        }
+    }
 
 	private void parseAccessTokenPartitioningConfig(OMElement oauthConfigElem) {
 		OMElement enableAccessTokenPartitioningElem =

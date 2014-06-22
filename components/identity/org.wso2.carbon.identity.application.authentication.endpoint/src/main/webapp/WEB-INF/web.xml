@@ -119,5 +119,8 @@
         <servlet-name>PassiveSTSLogin</servlet-name>
         <url-pattern>/passivests_login.do</url-pattern>
     </servlet-mapping>
-
+    <error-page>
+        <exception-type>java.lang.Throwable</exception-type>
+        <location>/generic-exception-response.jsp</location>
+    </error-page>
 </web-app>

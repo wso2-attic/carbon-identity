@@ -9,8 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public interface SequenceHandler {
-	
-	public void handle(HttpServletRequest request, HttpServletResponse response, 
-			AuthenticationContext context) 
-			throws ServletException, IOException, FrameworkException;
+
+    public void handle(HttpServletRequest request, HttpServletResponse response,
+            AuthenticationContext context) throws FrameworkException;
 }

@@ -17,7 +17,9 @@
  */
 package org.wso2.carbon.identity.sso.saml.dto;
 
-public class SAMLSSOServiceProviderDTO {
+import java.io.Serializable;
+
+public class SAMLSSOServiceProviderDTO implements Serializable {
 
     private String issuer;
     private String assertionConsumerUrl;
@@ -31,6 +33,7 @@ public class SAMLSSOServiceProviderDTO {
     private boolean doSignResponse;
     private String[] requestedClaims;
     private String[] requestedAudiences;
+    private String[] requestedRecipients;
     private boolean enableAttributesByDefault;
     private String nameIdClaimUri;
     private String nameIDFormat;
@@ -168,6 +171,20 @@ public class SAMLSSOServiceProviderDTO {
      */
     public void setRequestedAudiences(String[] requestedAudiences) {
         this.requestedAudiences = requestedAudiences;
+    }
+
+    /**
+     * @return the requestedRecipients
+     */
+    public String[] getRequestedRecipients() {
+        return requestedRecipients;
+    }
+
+    /**
+     * @param requestedRecipients the requestedRecipients to set
+     */
+    public void setRequestedRecipients(String[] requestedRecipients) {
+        this.requestedRecipients = requestedRecipients;
     }
 
     /**

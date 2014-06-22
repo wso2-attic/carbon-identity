@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -15,28 +15,28 @@
  *specific language governing permissions and limitations
  *under the License.
  */
-package org.wso2.carbon.identity.application.mgt;
 
-import javax.xml.namespace.QName;
+package org.wso2.carbon.identity.application.mgt;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.base.ServerConfigurationException;
+import org.wso2.carbon.identity.application.common.config.IdentityApplicationConfig;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.mgt.dao.ApplicationDAO;
 import org.wso2.carbon.identity.application.mgt.dao.IdentityProviderDAO;
 import org.wso2.carbon.identity.application.mgt.dao.OAuthApplicationDAO;
 import org.wso2.carbon.identity.application.mgt.dao.SAMLApplicationDAO;
 import org.wso2.carbon.identity.application.mgt.dao.impl.ApplicationDAOImpl;
 import org.wso2.carbon.identity.application.mgt.dao.impl.IdentityProviderDAOImpl;
-import org.wso2.carbon.identity.application.mgt.dao.impl.OAuthApplicationDAOImp;
+import org.wso2.carbon.identity.application.mgt.dao.impl.OAuthApplicationDAOImpl;
 import org.wso2.carbon.identity.application.mgt.dao.impl.SAMLApplicationDAOImpl;
-import org.wso2.carbon.identity.core.util.IdentityConfigParser;
 import org.wso2.carbon.utils.CarbonUtils;
+
+import javax.xml.namespace.QName;
 
 /**
  * This instance holds all the system configurations
- * @author sga
  *
  */
 public class ApplicationMgtSystemConfig {
@@ -45,7 +45,7 @@ public class ApplicationMgtSystemConfig {
 	
 	private static final Log log = LogFactory.getLog(ApplicationMgtSystemConfig.class);
 	
-	// Configuration elements in the identity.xml
+	// Configuration elements in the application-authentication.xml
 	private static final String CONFIG_ELEMENT_SP_MGT = "ServiceProvidersManagement";
 	private static final String CONFIG_APPLICATION_DAO = "ApplicationDAO";
 	private static final String CONFIG_OAUTH_OIDC_DAO = "OAuthOIDCClientDAO";
@@ -88,58 +88,52 @@ public class ApplicationMgtSystemConfig {
 	 * Start building the system config
 	 */
 	private void buildSystemConfiguration() {
-		
-		try {
-			IdentityConfigParser configParser = IdentityConfigParser.getInstance();
-			OMElement spConfigElem = configParser.getConfigElement(CONFIG_ELEMENT_SP_MGT);
-			
-			if(spConfigElem == null) {
-				log.warn("No Service Providers Management confiruation found. System Starts with default settings");
-			} else {
-				// application DAO class
-				OMElement appDAOConfigElem =
-						spConfigElem.getFirstChildWithName(getQNameWithIdentityNS(CONFIG_APPLICATION_DAO));
-				if(appDAOConfigElem != null) {
-					appDAOClassName = appDAOConfigElem.getText().trim();
-				}
-				
-				// OAuth and OpenID Connect DAO class
-				OMElement oauthOidcDAOConfigElem =
-						spConfigElem.getFirstChildWithName(getQNameWithIdentityNS(CONFIG_OAUTH_OIDC_DAO));
-				if(oauthOidcDAOConfigElem != null) {
-					oauthDAOClassName = oauthOidcDAOConfigElem.getText().trim();
-				}
-				
-				// SAML DAO class
-				OMElement samlDAOConfigElem =
-						spConfigElem.getFirstChildWithName(getQNameWithIdentityNS(CONFIG_SAML_DAO));
-				if(samlDAOConfigElem != null) {
-					samlDAOClassName = samlDAOConfigElem.getText().trim();
-				}
-				
-				// IDP DAO class
-				OMElement idpDAOConfigElem =
-						spConfigElem.getFirstChildWithName(getQNameWithIdentityNS(CONFIG_SYSTEM_IDP_DAO));
-				if(idpDAOConfigElem != null) {
-					systemIDPDAPClassName = idpDAOConfigElem.getText().trim();
-				}
-				
-				OMElement claimDAOConfigElem =
-						spConfigElem.getFirstChildWithName(getQNameWithIdentityNS(CONFIG_CLAIM_DIALECT));
-				if(claimDAOConfigElem != null) {
-					claimDialect = claimDAOConfigElem.getText().trim();
-				}
-				
-			}
-			
-		} catch (ServerConfigurationException e) {
-			log.error("Error while reading Service Providers Management System configurations", e);
-		}
-		
+
+        IdentityApplicationConfig configParser = IdentityApplicationConfig.getInstance();
+        OMElement spConfigElem = configParser.getConfigElement(CONFIG_ELEMENT_SP_MGT);
+
+        if(spConfigElem == null) {
+            log.warn("No Identity Application Management configuration found. System Starts with default settings");
+        } else {
+            // application DAO class
+            OMElement appDAOConfigElem =
+                    spConfigElem.getFirstChildWithName(getQNameWithIdentityNS(CONFIG_APPLICATION_DAO));
+            if(appDAOConfigElem != null) {
+                appDAOClassName = appDAOConfigElem.getText().trim();
+            }
+
+            // OAuth and OpenID Connect DAO class
+            OMElement oauthOidcDAOConfigElem =
+                    spConfigElem.getFirstChildWithName(getQNameWithIdentityNS(CONFIG_OAUTH_OIDC_DAO));
+            if(oauthOidcDAOConfigElem != null) {
+                oauthDAOClassName = oauthOidcDAOConfigElem.getText().trim();
+            }
+
+            // SAML DAO class
+            OMElement samlDAOConfigElem =
+                    spConfigElem.getFirstChildWithName(getQNameWithIdentityNS(CONFIG_SAML_DAO));
+            if(samlDAOConfigElem != null) {
+                samlDAOClassName = samlDAOConfigElem.getText().trim();
+            }
+
+            // IDP DAO class
+            OMElement idpDAOConfigElem =
+                    spConfigElem.getFirstChildWithName(getQNameWithIdentityNS(CONFIG_SYSTEM_IDP_DAO));
+            if(idpDAOConfigElem != null) {
+                systemIDPDAPClassName = idpDAOConfigElem.getText().trim();
+            }
+
+            OMElement claimDAOConfigElem =
+                    spConfigElem.getFirstChildWithName(getQNameWithIdentityNS(CONFIG_CLAIM_DIALECT));
+            if(claimDAOConfigElem != null) {
+                claimDialect = claimDAOConfigElem.getText().trim();
+            }
+
+        }
 	}
 	
 	private QName getQNameWithIdentityNS(String localPart) {
-		return new QName(IdentityConfigParser.IDENTITY_DEFAULT_NAMESPACE, localPart);
+		return new QName(IdentityApplicationConstants.APPLICATION_AUTHENTICATION_DEFAULT_NAMESPACE, localPart);
 	}
 	
 	/**
@@ -157,7 +151,7 @@ public class ApplicationMgtSystemConfig {
 				// Bundle class loader will cache the loaded class and returned
 				// the already loaded instance, hence calling this method
 				// multiple times doesn't cost.
-				Class clazz = Thread.currentThread().getContextClassLoader().loadClass(appDAOClassName);
+				Class clazz = Class.forName(appDAOClassName);
 				applicationDAO = (ApplicationDAO) clazz.newInstance();
 
 			} catch (ClassNotFoundException e) {
@@ -190,7 +184,7 @@ public class ApplicationMgtSystemConfig {
 				// Bundle class loader will cache the loaded class and returned
 				// the already loaded instance, hence calling this method
 				// multiple times doesn't cost.
-				Class clazz = Thread.currentThread().getContextClassLoader().loadClass(oauthDAOClassName);
+				Class clazz = Class.forName(oauthDAOClassName);
 				oauthOidcDAO = (OAuthApplicationDAO) clazz.newInstance();
 
 			} catch (ClassNotFoundException e) {
@@ -202,7 +196,7 @@ public class ApplicationMgtSystemConfig {
 			}
 
 		} else {
-			oauthOidcDAO = new OAuthApplicationDAOImp();
+			oauthOidcDAO = new OAuthApplicationDAOImpl();
 		}
 		
 		return oauthOidcDAO;
@@ -223,7 +217,7 @@ public class ApplicationMgtSystemConfig {
 				// Bundle class loader will cache the loaded class and returned
 				// the already loaded instance, hence calling this method
 				// multiple times doesn't cost.
-				Class clazz = Thread.currentThread().getContextClassLoader().loadClass(samlDAOClassName);
+				Class clazz = Class.forName(samlDAOClassName);
 				samlDAO = (SAMLApplicationDAO) clazz.newInstance();
 
 			} catch (ClassNotFoundException e) {
@@ -257,7 +251,7 @@ public class ApplicationMgtSystemConfig {
 				// Bundle class loader will cache the loaded class and returned
 				// the already loaded instance, hence calling this method
 				// multiple times doesn't cost.
-				Class clazz = Thread.currentThread().getContextClassLoader().loadClass(systemIDPDAPClassName);
+				Class clazz = Class.forName(systemIDPDAPClassName);
 				idpDAO = (IdentityProviderDAO) clazz.newInstance();
 
 			} catch (ClassNotFoundException e) {

@@ -29,11 +29,20 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticationService;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
+import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
+import org.wso2.carbon.identity.application.authentication.framework.LocalApplicationAuthenticator;
+import org.wso2.carbon.identity.application.authentication.framework.RequestPathApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.servlet.CommonAuthenticationServlet;
+import org.wso2.carbon.identity.application.common.ApplicationAuthenticatorService;
+import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.LocalAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.model.RequestPathAuthenticatorConfig;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
 
 import javax.servlet.Servlet;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,9 +93,37 @@ public class FrameworkServiceComponent {
 								.getBundle().getBundleContext()
 								.getService(serviceReference);
 						authenticators.add(authenticator);
+						
+						Property[] configProperties = null;
+						
+						if (authenticator.getConfigurationProperties() != null
+                                && authenticator.getConfigurationProperties().size() > 0) {
+						    configProperties = authenticator.getConfigurationProperties().toArray(new Property[0]);
+                        }
+						
+						if (authenticator instanceof LocalApplicationAuthenticator) {
+							LocalAuthenticatorConfig localAuthenticatorConfig = new LocalAuthenticatorConfig();
+							localAuthenticatorConfig.setName(authenticator.getName());                            
+							localAuthenticatorConfig.setProperties(configProperties);
+							localAuthenticatorConfig.setDisplayName(authenticator.getFriendlyName());
+							ApplicationAuthenticatorService.getInstance().addLocalAuthenticator(localAuthenticatorConfig);
+						} else if (authenticator instanceof FederatedApplicationAuthenticator) {
+							FederatedAuthenticatorConfig federatedAuthenticatorConfig = new FederatedAuthenticatorConfig();
+							federatedAuthenticatorConfig.setName(authenticator.getName());
+							federatedAuthenticatorConfig.setProperties(configProperties);
+							federatedAuthenticatorConfig.setDisplayName(authenticator.getFriendlyName());
+							ApplicationAuthenticatorService.getInstance().addFederatedAuthenticator(federatedAuthenticatorConfig);
+						} else if (authenticator instanceof RequestPathApplicationAuthenticator) {
+							RequestPathAuthenticatorConfig reqPathAuthenticatorConfig = new RequestPathAuthenticatorConfig();
+							reqPathAuthenticatorConfig.setName(authenticator.getName());
+							reqPathAuthenticatorConfig.setProperties(configProperties);
+							reqPathAuthenticatorConfig.setDisplayName(authenticator.getFriendlyName());
+							ApplicationAuthenticatorService.getInstance().addRequestPathAuthenticator(reqPathAuthenticatorConfig);
+						}
+						
 						if (log.isDebugEnabled()) {
 							log.debug("Added application authenticator : "
-									+ authenticator.getAuthenticatorName());
+									+ authenticator.getName());
 						}
 						return authenticator;
 					}
@@ -100,13 +137,27 @@ public class FrameworkServiceComponent {
 					@Override
 					public void removedService(
 							ServiceReference<ApplicationAuthenticator> serviceReference,
-							ApplicationAuthenticator service) {
-						authenticators.remove(service);
+							ApplicationAuthenticator authenticator) {
+						authenticators.remove(authenticator);
+						String authenticatorName = authenticator.getName();
+						ApplicationAuthenticatorService appAuthenticatorService = ApplicationAuthenticatorService.getInstance();
+						
+						if (authenticator instanceof LocalApplicationAuthenticator) {
+							LocalAuthenticatorConfig localAuthenticatorConfig = appAuthenticatorService.getLocalAuthenticatorByName(authenticatorName);
+							appAuthenticatorService.removeLocalAuthenticator(localAuthenticatorConfig);
+						} else if (authenticator instanceof FederatedApplicationAuthenticator) {
+							FederatedAuthenticatorConfig federatedAuthenticatorConfig = appAuthenticatorService.getFederatedAuthenticatorByName(authenticatorName);
+							appAuthenticatorService.removeFederatedAuthenticator(federatedAuthenticatorConfig);
+						} else if (authenticator instanceof RequestPathApplicationAuthenticator) {
+							RequestPathAuthenticatorConfig reqPathAuthenticatorConfig = appAuthenticatorService.getRequestPathAuthenticatorByName(authenticatorName);
+							appAuthenticatorService.removeRequestPathAuthenticator(reqPathAuthenticatorConfig);
+						}
+						
 						serviceReference.getBundle().getBundleContext()
 								.ungetService(serviceReference);
 						if (log.isDebugEnabled()) {
 							log.debug("Removed application authenticator : "
-									+ service.getAuthenticatorName());
+									+ authenticator.getName());
 						}
 					}
 
@@ -173,6 +224,12 @@ public class FrameworkServiceComponent {
         return FrameworkServiceComponent.realmService;
     }
 
+    protected void setApplicationAuthenticatorService(ApplicationAuthenticatorService service) {
+    }
+
+    protected void unsetApplicationAuthenticatorService(ApplicationAuthenticatorService service) {
+    }
+    
     protected void setRegistryService(RegistryService registryService) {
 		if (log.isDebugEnabled()) {
 			log.debug("RegistryService is set in the Application Authentication Framework bundle");

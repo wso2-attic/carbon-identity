@@ -16,14 +16,8 @@
  */
 package org.wso2.carbon.identity.oauth.endpoint.user.impl;
 
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
-import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.oauth.endpoint.user.UserInfoClaimRetriever;
-import org.wso2.carbon.identity.oauth.endpoint.util.EndpointUtil;
-import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
-import org.wso2.carbon.user.api.Claim;
-import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,44 +29,14 @@ import java.util.Map;
  */
 public class UserInfoUserStoreClaimRetriever implements UserInfoClaimRetriever {
 
-	/**
-	 * Retrieving claims from the Identity Server user store with the given
-	 * claim dialect
-	 */
-	public Map<String, Object> getClaimsMap(OAuth2TokenValidationResponseDTO tokenResponse)
-	                                                                                       throws OAuthSystemException {
-	    String username = tokenResponse.getAuthorizedUser();
-	    // Remove the super tenant domain name from username.
-            if(username.contains(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME)) {
-               int index = username.lastIndexOf("@");
-               if(index > -1){
-                       username = username.substring(0, index);
-               }
+    public Map<String, Object> getClaimsMap(Map<ClaimMapping, String> userAttributes) {
+        Map<String,Object> claims = new HashMap<String, Object>();
+        if (userAttributes != null) {
+            for (ClaimMapping claimMapping : userAttributes.keySet()) {
+                claims.put(claimMapping.getRemoteClaim().getClaimUri(), userAttributes.get(claimMapping));
             }
-		String tenantUser = MultitenantUtils.getTenantAwareUsername(username);
-		String domainName = MultitenantUtils.getTenantDomain(tokenResponse.getAuthorizedUser());
-		Claim[] claims;
-		try {
-			claims =
-			         IdentityTenantUtil.getRealm(domainName, username).getUserStoreManager()
-			                           .getUserClaimValues(tenantUser, null);
-		} catch (Exception e) {
-			throw new OAuthSystemException("Error while reading user claims for the user " + username);
-		}
-
-		String claimDialect =
-		                      EndpointUtil.getOAuthServerConfiguration()
-		                                  .getOpenIDConnectUserInfoEndpointClaimDialect();
-		Map<String, Object> dialectClaims = new HashMap<String, Object>();
-		// lets always return the sub claim
-		dialectClaims.put("sub", username);
-		// add only the claims with the requested dialect
-		for (Claim curClaim : claims) {
-			if (curClaim.getClaimUri().contains(claimDialect)) {
-				dialectClaims.put(curClaim.getClaimUri(), curClaim.getValue());
-			}
-		}
-		return dialectClaims;
-	}
+        }
+        return claims;
+    }
 
 }

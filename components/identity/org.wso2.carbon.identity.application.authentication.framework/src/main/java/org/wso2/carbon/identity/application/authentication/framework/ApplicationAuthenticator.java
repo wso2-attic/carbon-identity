@@ -18,12 +18,16 @@
 
 package org.wso2.carbon.identity.application.authentication.framework;
 
-import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
+import java.io.Serializable;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.Serializable;
-import java.util.Map;
+
+import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
+import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
+import org.wso2.carbon.identity.application.authentication.framework.exception.LogoutFailedException;
+import org.wso2.carbon.identity.application.common.model.Property;
 
 /**
  * API of the Application Authenticators.
@@ -32,92 +36,57 @@ import java.util.Map;
 public interface ApplicationAuthenticator extends Serializable {
 
 	/**
-	 * Check whether the request can be handled by the authenticator
+	 * Check whether the authentication or logout request can be handled by the
+	 * authenticator
+	 * 
 	 * @param request
 	 * @return boolean
 	 */
 	public boolean canHandle(HttpServletRequest request);
 	
 	/**
-	 * Do authentication
+	 * Process the authentication or logout request.
+	 * 
 	 * @param request
 	 * @param response
-	 * @return
+	 * @param context
+	 * @return the status of the flow
+	 * @throws AuthenticationFailedException
+	 * @throws LogoutFailedException
 	 */
-	public AuthenticatorStatus authenticate(HttpServletRequest request, 
-											HttpServletResponse response, 
-											AuthenticationContext context);
+	public AuthenticatorFlowStatus process(HttpServletRequest request,
+			HttpServletResponse response, AuthenticationContext context)
+			throws AuthenticationFailedException, LogoutFailedException;
 	
 	/**
-	 * Do logout
-	 * @param request
-	 * @param response
-	 * @return
-	 */
-	public AuthenticatorStatus logout(HttpServletRequest request, 
-									  HttpServletResponse response, 
-									  AuthenticationContext context,
-									  AuthenticatorStateInfo stateInfoDTO);
-	
-	/**
-	 * Common Servlet will call this if a common login page is not defined.
-	 * @param request
-	 * @param response
-	 */
-	public void sendInitialRequest(HttpServletRequest request, 
-								   HttpServletResponse response, 
-								   AuthenticationContext context);
-	
-	/**
-	 * Get the authenticated subject
+	 * Get the Context identifier sent with the request. This identifier is used
+	 * to retrieve the state of the authentication/logout flow
+	 * 
 	 * @param request
 	 * @return
 	 */
-	public String getAuthenticatedSubject(HttpServletRequest request);
-
-	/**
-	 * Get the attributes sent in the response
-	 * @param request
-	 * @return
-	 */
-	public Map<String, String> getResponseAttributes(HttpServletRequest request, AuthenticationContext context);
-
-	/**
-	 * Get any (state) information that would be required by the authenticator
-	 * for later processing.
-	 * E.g. sessionIndex for SAMLSSOAuthenticator in SLO.
-	 * Each authenticator should have an internal DTO that extends the
-	 * AuthenticatorStateInfoDTO and set all the required state info in it.
-	 * Framework will call this method after successful authentication and
-	 * that DTO should be returned from this method.
-	 *
-	 * @return
-	 */
-	public AuthenticatorStateInfo getStateInfo(HttpServletRequest request);
-	
-	/**
-     * Get the Context identifier sent with the request
-     * @param request
-     * @return
-     */
 	public String getContextIdentifier(HttpServletRequest request);
 	
 	/**
 	 * Get the name of the Authenticator
 	 * @return name
 	 */
-	public String getAuthenticatorName();
+	public String getName();
 	
 	/**
-	 * Check whether the Authenticator is disabled
-	 * @return boolean
+	 * @return
 	 */
-	public boolean isEnabled();
-
+	public String getFriendlyName();
+	
     /**
      * Get the claim dialect URI if this authenticator receives claims in a standard dialect
      * and needs to be mapped to the Carbon dialect http://wso2.org/claims
      * @return boolean
      */
-    public String getClaimDialectURIIfStandard();
+	public String getClaimDialectURI();
+	
+	/**
+	 * @return
+	 */
+	public List<Property> getConfigurationProperties();
 }

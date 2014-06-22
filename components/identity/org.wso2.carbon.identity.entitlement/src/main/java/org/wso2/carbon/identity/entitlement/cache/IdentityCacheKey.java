@@ -43,20 +43,22 @@ public class IdentityCacheKey implements Serializable {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof IdentityCacheKey)) {
-            return false;
-        }
-        IdentityCacheKey cacheKey = (IdentityCacheKey) obj;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof IdentityCacheKey)) return false;
 
-        return cacheKey.getKey() != null &&  cacheKey.getKey().equals(key) &&
-               cacheKey.getTenantId() == tenantId;
+        IdentityCacheKey that = (IdentityCacheKey) o;
 
+        if (tenantId != that.tenantId) return false;
+        if (key != null ? !key.equals(that.key) : that.key != null) return false;
+
+        return true;
     }
 
     @Override
     public int hashCode() {
-    	int hash = key.hashCode();
-        return hash;
+        int result = tenantId;
+        result = 31 * result + (key != null ? key.hashCode() : 0);
+        return result;
     }
 }

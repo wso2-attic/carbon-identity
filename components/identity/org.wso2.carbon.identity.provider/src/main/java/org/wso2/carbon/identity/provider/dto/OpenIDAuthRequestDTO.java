@@ -17,6 +17,8 @@
 */
 package org.wso2.carbon.identity.provider.dto;
 
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+
 import java.util.Map;
 
 public class OpenIDAuthRequestDTO {
@@ -37,7 +39,7 @@ public class OpenIDAuthRequestDTO {
 
     private boolean authenticated;
     
-    private Map<String, String> responseClaims = null;
+    private Map<ClaimMapping, String> responseClaims = null;
 
     public String getOpenID() {
         return openID;
@@ -103,11 +105,11 @@ public class OpenIDAuthRequestDTO {
         this.authenticated = authenticated;
     }
 
-	public Map<String, String> getResponseClaims() {
+	public Map<ClaimMapping, String> getResponseClaims() {
 		return responseClaims;
 	}
 
-	public void setResponseClaims(Map<String, String> responseClaims) {
+	public void setResponseClaims(Map<ClaimMapping, String> responseClaims) {
 		this.responseClaims = responseClaims;
 	}
 

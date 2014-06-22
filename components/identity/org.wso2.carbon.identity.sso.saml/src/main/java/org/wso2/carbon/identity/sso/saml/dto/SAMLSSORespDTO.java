@@ -17,7 +17,9 @@
 */
 package org.wso2.carbon.identity.sso.saml.dto;
 
-public class SAMLSSORespDTO {
+import java.io.Serializable;
+
+public class SAMLSSORespDTO implements Serializable {
 
     private String respString;
     private boolean isSessionEstablished;

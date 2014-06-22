@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -15,14 +15,26 @@
  *specific language governing permissions and limitations
  *under the License.
  */
+
 package org.wso2.carbon.identity.application.common.model;
 
+import java.io.Serializable;
+import java.util.*;
 
-public class AuthenticationStep {
+import org.apache.axiom.om.OMElement;
+
+public class AuthenticationStep implements Serializable {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -4001996659290645507L;
 
     private int stepOrder = 1;
-    private LocalAuthenticator[] localAuthenticators;
-    private FederatedIdentityProvider[] federatedIdentityProviders;
+    private LocalAuthenticatorConfig[] localAuthenticatorConfigs = new LocalAuthenticatorConfig[0];
+    private IdentityProvider[] federatedIdentityProviders = new IdentityProvider[0];
+    private boolean subjectStep;
+    private boolean attributeStep;
 
     /**
      * 
@@ -44,23 +56,28 @@ public class AuthenticationStep {
      * 
      * @return
      */
-    public LocalAuthenticator[] getLocalAuthenticators() {
-        return localAuthenticators;
+    public LocalAuthenticatorConfig[] getLocalAuthenticatorConfigs() {
+        return localAuthenticatorConfigs;
     }
 
     /**
      * 
-     * @param localAuthenticators
+     * @param localAuthenticatorConfigs
      */
-    public void setLocalAuthenticators(LocalAuthenticator[] localAuthenticators) {
-        this.localAuthenticators = localAuthenticators;
+    public void setLocalAuthenticatorConfigs(LocalAuthenticatorConfig[] localAuthenticatorConfigs) {
+        if(localAuthenticatorConfigs == null){
+            return;
+        }
+        Set<LocalAuthenticatorConfig> propertySet =
+                                new HashSet<LocalAuthenticatorConfig>(Arrays.asList(localAuthenticatorConfigs));
+        this.localAuthenticatorConfigs = propertySet.toArray(new LocalAuthenticatorConfig[propertySet.size()]);
     }
 
     /**
      * 
      * @return
      */
-    public FederatedIdentityProvider[] getFederatedIdentityProviders() {
+    public IdentityProvider[] getFederatedIdentityProviders() {
         return federatedIdentityProviders;
     }
 
@@ -68,8 +85,116 @@ public class AuthenticationStep {
      * 
      * @param federatedIdentityProviders
      */
-    public void setFederatedIdentityProviders(FederatedIdentityProvider[] federatedIdentityProviders) {
-        this.federatedIdentityProviders = federatedIdentityProviders;
+    public void setFederatedIdentityProviders(IdentityProvider[] federatedIdentityProviders) {
+        if(federatedIdentityProviders == null){
+            return;
+        }
+        Set<IdentityProvider> propertySet = new HashSet<IdentityProvider>(Arrays.asList(federatedIdentityProviders));
+        this.federatedIdentityProviders = propertySet.toArray(new IdentityProvider[propertySet.size()]);
     }
 
+    /**
+     * 
+     * @return
+     */
+    public boolean isSubjectStep() {
+        return subjectStep;
+    }
+
+    /**
+     * 
+     * @param subjectStep
+     */
+    public void setSubjectStep(boolean subjectStep) {
+        this.subjectStep = subjectStep;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public boolean isAttributeStep() {
+        return attributeStep;
+    }
+
+    /**
+     * 
+     * @param attributeStep
+     */
+    public void setAttributeStep(boolean attributeStep) {
+        this.attributeStep = attributeStep;
+    }
+
+    /*
+     * <AuthenticationStep> <StepOrder></StepOrder>
+     * <LocalAuthenticatorConfigs></LocalAuthenticatorConfigs>
+     * <FederatedIdentityProviders></FederatedIdentityProviders> <SubjectStep></SubjectStep>
+     * <AttributeStep></AttributeStep> </AuthenticationStep>
+     */
+    public static AuthenticationStep build(OMElement authenticationStepOM) {
+        AuthenticationStep authenticationStep = new AuthenticationStep();
+
+        Iterator<?> iter = authenticationStepOM.getChildElements();
+        while (iter.hasNext()) {
+            OMElement member = (OMElement) iter.next();
+            if (member.getLocalName().equals("StepOrder")) {
+                authenticationStep.setStepOrder(Integer.parseInt(member.getText()));
+            } else if (member.getLocalName().equals("SubjectStep")) {
+                if (member.getText() != null && member.getText().trim().length() > 0) {
+                    authenticationStep.setSubjectStep(Boolean.parseBoolean(member.getText()));
+                }
+            } else if (member.getLocalName().equals("AttributeStep")) {
+                if (member.getText() != null && member.getText().trim().length() > 0) {
+                    authenticationStep.setAttributeStep(Boolean.parseBoolean(member.getText()));
+                }
+            } else if (member.getLocalName().equals("FederatedIdentityProviders")) {
+
+                Iterator<?> federatedIdentityProvidersIter = member.getChildElements();
+                ArrayList<IdentityProvider> federatedIdentityProvidersArrList = new ArrayList<IdentityProvider>();
+
+                if (federatedIdentityProvidersIter != null) {
+                    while (federatedIdentityProvidersIter.hasNext()) {
+                        OMElement federatedIdentityProvidersElement = (OMElement) (federatedIdentityProvidersIter
+                                .next());
+                        IdentityProvider idp = IdentityProvider
+                                .build(federatedIdentityProvidersElement);
+                        if (idp != null) {
+                            federatedIdentityProvidersArrList.add(idp);
+                        }
+                    }
+                }
+
+                if (federatedIdentityProvidersArrList.size() > 0) {
+                    IdentityProvider[] federatedAuthenticatorConfigsArr = federatedIdentityProvidersArrList
+                            .toArray(new IdentityProvider[0]);
+                    authenticationStep
+                            .setFederatedIdentityProviders(federatedAuthenticatorConfigsArr);
+                }
+
+            } else if (member.getLocalName().equals("LocalAuthenticatorConfigs")) {
+
+                Iterator<?> localAuthenticatorConfigsIter = member.getChildElements();
+                ArrayList<LocalAuthenticatorConfig> localAuthenticatorConfigsArrList = new ArrayList<LocalAuthenticatorConfig>();
+
+                if (localAuthenticatorConfigsIter != null) {
+                    while (localAuthenticatorConfigsIter.hasNext()) {
+                        OMElement localAuthenticatorConfigsElement = (OMElement) (localAuthenticatorConfigsIter
+                                .next());
+                        LocalAuthenticatorConfig localAuthConfig = LocalAuthenticatorConfig
+                                .build(localAuthenticatorConfigsElement);
+                        if (localAuthConfig != null) {
+                            localAuthenticatorConfigsArrList.add(localAuthConfig);
+                        }
+                    }
+                }
+
+                if (localAuthenticatorConfigsArrList.size() > 0) {
+                    LocalAuthenticatorConfig[] localAuthenticatorConfigsArr = localAuthenticatorConfigsArrList
+                            .toArray(new LocalAuthenticatorConfig[0]);
+                    authenticationStep.setLocalAuthenticatorConfigs(localAuthenticatorConfigsArr);
+                }
+            }
+        }
+        return authenticationStep;
+    }
 }

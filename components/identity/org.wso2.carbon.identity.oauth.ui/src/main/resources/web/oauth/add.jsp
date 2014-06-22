@@ -27,7 +27,6 @@
 <%@ page import="java.util.Arrays" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ResourceBundle" %>
-<%@ page import="org.wso2.carbon.identity.application.mgt.ui.ApplicationConfigBean"%>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"  prefix="carbon" %>
@@ -36,11 +35,11 @@
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
-<jsp:useBean id="appBean" class="org.wso2.carbon.identity.application.mgt.ui.ApplicationConfigBean" scope="session"/>
-
 <%
     String BUNDLE = "org.wso2.carbon.identity.oauth.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
+    String applicationSPName = request.getParameter("spName");
+    session.setAttribute("application-sp-name", applicationSPName);
 %>
 
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -130,11 +129,18 @@
                                 <td><input id="oauthVersion10a" name="oauthVersion" type="radio" value="<%=OAuthConstants.OAuthVersions.VERSION_1A%>" onclick="toggleVersion()"/>1.0a
                                     <input id="oauthVersion20" name="oauthVersion" type="radio" value="<%=OAuthConstants.OAuthVersions.VERSION_2%>" CHECKED onclick="toggleVersion()"/>2.0</td>
                             </tr>
+                            <%if  (applicationSPName!= null) {%>
+                             <tr style="display: none;">
+		                        <td colspan="2" style="display: none;"><input class="text-box-big" type="hidden" id="application" name="application"
+		                                   value="<%=applicationSPName%>" /></td>
+		                    </tr>
+                            <% } else { %>
 		                    <tr>
 		                        <td class="leftCol-small"><fmt:message key='application.name'/><span class="required">*</span></td>
 		                        <td><input class="text-box-big" id="application" name="application"
 		                                   type="text" /></td>
 		                    </tr>
+		                    <% } %>
 		                    <tr id="callback_row">
 		                        <td class="leftCol-small"><fmt:message key='callback'/><span class="required">*</span></td>
 		                        <td><input class="text-box-big" id="callback" name="callback" type="text" /></td>
@@ -144,9 +150,6 @@
 		                        <td>
 		                        <table>
                                     <%
-                                    	String appid = (String) request.getParameter("appid");
-                                    	appBean.setApplicationIdentifier(appid);
-                                    
                                         String forwardTo = "index.jsp";
                                         try{
                                             String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
@@ -173,6 +176,8 @@
                                             }
                                             if(allowedGrants.contains("urn:ietf:params:oauth:grant-type:saml2-bearer")){
                                                 %><tr><label><input type="checkbox" id="grant_saml" name="grant_saml" value="urn:ietf:params:oauth:grant-type:saml2-bearer" checked="checked"/>SAML</label></tr><%
+                                            }if(allowedGrants.contains("iwa:ntlm")){
+                                                %><tr><label><input type="checkbox" id="grant_ntlm" name="grant_ntlm" value="iwa:ntlm" checked="checked"/>IWA-NTLM</label></tr><%
                                             }
                                         } catch (Exception e){
                                             String message = resourceBundle.getString("error.while.getting.allowed.grants") + " : " + e.getMessage();
@@ -201,9 +206,22 @@
                     <tr>
                         <td class="buttonRow" >
                             <input name="addprofile" type="button" class="button" value="<fmt:message key='add'/>" onclick="validate();"/>
+                            
+                            <%
+                            
+                            boolean applicationComponentFound = CarbonUIUtil.isContextRegistered(config, "/application/");
+                            if (applicationComponentFound) {                            
+                            %>
                             <input type="button" class="button"
-                                       onclick="javascript:location.href='../application/add-service-provider.jsp'"
-                                   value="<fmt:message key='cancel'/>"/></td>
+                                       onclick="javascript:location.href='../application/configure-service-provider.jsp'"
+                                   value="<fmt:message key='cancel'/>"/>
+                            <% } else { %>
+                                   
+                            <input type="button" class="button"
+                                       onclick="javascript:location.href='index.jsp?region=region1&item=oauth_menu&ordinal=0'"
+                                   value="<fmt:message key='cancel'/>"/>
+                            <%} %>
+                       </td>
                     </tr>
                     </tbody>
                 </table>

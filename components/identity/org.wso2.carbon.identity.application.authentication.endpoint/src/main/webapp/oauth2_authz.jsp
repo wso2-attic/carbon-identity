@@ -1,5 +1,5 @@
 <!--
-~ Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+~ Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 ~
 ~ WSO2 Inc. licenses this file to you under the Apache License,
 ~ Version 2.0 (the "License"); you may not use this file except
@@ -53,22 +53,26 @@
 <div class="header-back">
     <div class="container">
         <div class="row">
-            <div class="span4 offset3">
+            <div class="span12">
                 <a class="logo">&nbsp</a>
             </div>
         </div>
     </div>
 </div>
-
-<div id="middle">
     <div class="header-text">
-        You are logged in as <strong><%=loggedInUser%></strong>.
-        <strong><%=request.getParameter("application")%></strong> <fmt:message key='request.access.scope'/> <strong><%=scopeString%></strong>.
+	    <div class="container">
+	        <div class="row">
+	            <div class="span12 content-section">
+	            	You are logged in as <strong><%=loggedInUser%></strong>. <strong><%=request.getParameter("application")%></strong> requests access to your profile information
+	            </div>
+	        </div>
+	   </div>
     </div>
-    <div id="workArea"  class="container">
+    
+    <div class="container main-login-container" style="margin-top:10px;">
         <div class="row">
-            <div class="span5 offset3 content-section">
-                <script type="text/javascript">
+            <div class="span12 content-section">
+            <script type="text/javascript">
                     function approved() {
                         document.getElementById('consent').value="approve";
                         document.getElementById("oauth2_authz").submit();
@@ -94,7 +98,7 @@
                                 <input type="button" class="btn btn-primary btn-large" id="approveAlways" name="approveAlways"
                                        onclick="javascript: approvedAlways(); return false;"
                                        value="Approve Always"/>
-                                <input class="btn btn-large" type="reset"
+                                <input class="btn btn-primary-deny btn-large" type="reset"
                                        value="Deny" onclick="javascript: deny(); return false;" />
 
                                 <input type="hidden" name="<%=Constants.SESSION_DATA_KEY_CONSENT%>"
@@ -108,8 +112,8 @@
                 </form>
             </div>
         </div>
-    </div>
-</div>
+   </div>
+   
 </body>
 </html>
 

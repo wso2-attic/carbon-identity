@@ -101,8 +101,7 @@
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.wso2.carbon</groupId>
-                                    <artifactId>org.wso2.carbon.identity.application.authentication.endpoint
-                                    </artifactId>
+                                    <artifactId>org.wso2.carbon.identity.application.authentication.endpoint</artifactId>
                                     <type>war</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${basedir}/src/main/resources/</outputDirectory>
@@ -169,14 +168,12 @@
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.identity.core.server</importFeatureDef>
-                                <importFeatureDef>org.wso2.carbon.identity.oauth.common
-                                </importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.oauth.common</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.idp.mgt</importFeatureDef>
-                                <importFeatureDef>org.wso2.carbon.webapp.mgt.server
-                                </importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.webapp.mgt.server</importFeatureDef>
-                                <importFeatureDef>org.wso2.carbon.identity.provider.server
-                                </importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.webapp.mgt.server</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.as.runtimes.cxf</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.provider.server</importFeatureDef>
                             </importFeatures>
                         </configuration>
                     </execution>

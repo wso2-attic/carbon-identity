@@ -30,13 +30,13 @@ public class FacebookAuthenticatorConstants {
     public static final String OAUTH2_PARAM_STATE = "state";
     public static final String USERNAME = "username";
 
-    public static final String ACCESS_TOKEN = "access_token";
-    public static final String ID_TOKEN = "id_token";
-    
     public static final String FB_AUTHZ_URL = "http://www.facebook.com/dialog/oauth";
     public static final String FB_TOKEN_URL = "https://graph.facebook.com/oauth/access_token";
     public static final String FB_USER_INFO_URL = "https://graph.facebook.com/me";
-    public static final String SCOPE = "basic_info";
+    public static final String SCOPE = "email";
+
+    public static final String CLIENT_ID = "ClientId";
+    public static final String CLIENT_SECRET = "ClientSecret";
 
     private FacebookAuthenticatorConstants() {
     }

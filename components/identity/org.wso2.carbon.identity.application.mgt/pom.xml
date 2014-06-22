@@ -52,16 +52,22 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.core</artifactId>
+            <artifactId>org.wso2.carbon.identity.application.common</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.idp.mgt</artifactId>
         </dependency>
+
+        <!-- Adding dependency to identity.core temporary -->
+        <!-- 
+	     This should be removed once app.mgt component provide a listener model.
+	     Then other (inbound auth) servelets implement those listerns and get triggered
+	     for app.mgt operations. (like delete sp configuration)
+	-->
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.application.common</artifactId>
-            <!--version>4.2.0</version-->
+            <artifactId>org.wso2.carbon.identity.core</artifactId>
         </dependency>
     </dependencies>
 
@@ -98,6 +104,7 @@
                         </Import-Package>
 						<Export-Package>
 							org.wso2.carbon.identity.application.mgt.*,
+							org.wso2.carbon.identity.application.mgt.listener.*
                         </Export-Package>
 						<DynamicImport-Package>*</DynamicImport-Package>
 					</instructions>

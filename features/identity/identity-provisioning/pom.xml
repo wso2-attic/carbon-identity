@@ -29,6 +29,10 @@
 
         <modules>
             <module>org.wso2.carbon.identity.provisioning.server.feature</module>
+            <module>org.wso2.carbon.identity.provisioning.connector.google.server.feature</module>
+            <module>org.wso2.carbon.identity.provisioning.connector.salesforce.server.feature</module>
+            <module>org.wso2.carbon.identity.provisioning.connector.scim.server.feature</module>
+            <module>org.wso2.carbon.identity.provisioning.connector.spml.server.feature</module>
         </modules>
 
 	<properties>

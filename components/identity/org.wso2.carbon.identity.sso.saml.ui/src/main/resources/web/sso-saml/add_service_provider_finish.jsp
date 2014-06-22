@@ -48,6 +48,7 @@
     String spName = (String) session.getAttribute("application-sp-name");
     session.removeAttribute("application-sp-name");
     boolean status = false;
+    String attributeConsumingServiceIndex;
 
     backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
     configContext = (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
@@ -103,6 +104,10 @@
                
         if ("true".equals(request.getParameter("enableAudienceRestriction"))) {
             serviceProviderDTO.setRequestedAudiences(samlSsoServuceProviderConfigBean.getSelectedAudiencesArray());
+        }
+
+        if ("true".equals(request.getParameter("enableRecipients"))) {
+            serviceProviderDTO.setRequestedRecipients(samlSsoServuceProviderConfigBean.getSelectedRecipientsArray());
         }
         
         if (request.getParameter("logoutURL")!=null && !"null".equals(request.getParameter("logoutURL"))) {
@@ -171,6 +176,35 @@
         	}
         }
 
+        if ("true".equals(request.getParameter("enableRecipients"))) {
+
+            String recipientCountParameter = SAMLSSOUIUtil.getSafeInput(request, "recipientPropertyCounter");
+            if (recipientCountParameter != null && !"".equals(recipientCountParameter)) {
+                try {
+                    int recipientCount = Integer.parseInt(recipientCountParameter);
+                    for (int i = 0; i < recipientCount; i++) {
+                        String recipient = SAMLSSOUIUtil.getSafeInput(request, "recipientPropertyName" + i);
+                        if (recipient != null && !"".equals(recipient) && !"null".equals(recipient)) {
+                            String[] currentRecipients = serviceProviderDTO.getRequestedRecipients();
+                            boolean isRecipientAlreadyAdded = false;
+                            for (String currentRecipient : currentRecipients) {
+                                if (recipient.equals(currentRecipient)) {
+                                    isRecipientAlreadyAdded = true;
+                                    break;
+                                }
+                            }
+
+                            if (!isRecipientAlreadyAdded) {
+                                serviceProviderDTO.addRequestedRecipients(recipient);
+                            }
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException("Invalid number", e);
+                }
+            }
+        }
+
         serviceProviderDTO.setAttributeConsumingServiceIndex(SAMLSSOUIUtil.getSafeInput(request, "attributeConsumingServiceIndex"));
 
         if ("true".equals(request.getParameter("enableIdPInitSSO"))) {
@@ -193,6 +227,7 @@
             client.removeServiceProvier(serviceProviderDTO.getIssuer());
         }
         status = client.addServiceProvider(serviceProviderDTO);
+        attributeConsumingServiceIndex = client.getServiceProvider(serviceProviderDTO.getIssuer()).getAttributeConsumingServiceIndex();
 
         samlSsoServuceProviderConfigBean.clearBean();
 
@@ -220,9 +255,9 @@ boolean applicationComponentFound = CarbonUIUtil.isContextRegistered(config, "/a
 if (applicationComponentFound) {
 	if (status) {
 %>
-    location.href = '../application/configure-service-provider.jsp?action=update&display=samlIssuer&spName=<%=spName%>&samlIssuer=<%=serviceProviderDTO.getIssuer()%>';
+    location.href = '../application/configure-service-provider.jsp?action=update&display=samlIssuer&spName=<%=spName%>&samlIssuer=<%=serviceProviderDTO.getIssuer()%>&attrConServIndex=<%=attributeConsumingServiceIndex%>';
 <% } else { %>
-location.href = '../application/configure-service-provider.jsp?action=delete&display=samlIssuer&spName=<%=spName%>&samlIssuer=<%=serviceProviderDTO.getIssuer()%>';
+	location.href = '../application/configure-service-provider.jsp?action=delete&display=samlIssuer&spName=<%=spName%>&samlIssuer=<%=serviceProviderDTO.getIssuer()%>&attrConServIndex=<%=attributeConsumingServiceIndex%>';
 
 <% } } else { %>
     location.href = 'manage_service_providers.jsp?region=region1&item=manage_saml_sso';

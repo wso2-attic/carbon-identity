@@ -69,7 +69,7 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
         HttpSession session = request.getSession();
         Response samlResponse = (Response) request.getAttribute(SAML2SSOAuthenticatorConstants.HTTP_ATTR_SAML2_RESP_TOKEN);
         String responseStr = request.getParameter(SAML2SSOAuthenticatorConstants.HTTP_POST_PARAM_SAML2_RESP);
-        String username = getUsernameFromResponse(samlResponse);
+        String username = Util.getUsernameFromResponse(samlResponse);
         ServletContext servletContext = request.getSession().getServletContext();
         ConfigurationContext configContext = (ConfigurationContext) servletContext.getAttribute(
                 CarbonConstants.CONFIGURATION_CONTEXT);

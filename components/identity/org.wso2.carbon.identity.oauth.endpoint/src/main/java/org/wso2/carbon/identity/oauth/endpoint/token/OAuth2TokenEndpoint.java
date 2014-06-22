@@ -126,6 +126,7 @@ public class OAuth2TokenEndpoint {
                             .setRefreshToken(oauth2AccessTokenResp.getRefreshToken())
                             .setExpiresIn(Long.toString(oauth2AccessTokenResp.getExpiresIn()))
                             .setTokenType("bearer");
+                    oAuthRespBuilder.setScope(oauth2AccessTokenResp.getAuthorizedScopes());
 
                     // OpenID Connect ID token
                     if (oauth2AccessTokenResp.getIDToken() != null) {
@@ -221,7 +222,9 @@ public class OAuth2TokenEndpoint {
             tokenReqDTO.setRefreshToken(oauthRequest.getRefreshToken());
         } else if (org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString().equals(grantType)){
             tokenReqDTO.setAssertion(oauthRequest.getAssertion());
-            tokenReqDTO.setIdp(oauthRequest.getIdP());
+            tokenReqDTO.setTenantDomain(oauthRequest.getTenantDomain());
+        } else if (org.wso2.carbon.identity.oauth.common.GrantType.IWA_NTLM.toString().equals(grantType)){
+            tokenReqDTO.setWindowsToken(oauthRequest.getWindowsToken());           
         }
 
         return EndpointUtil.getOAuth2Service().issueAccessToken(tokenReqDTO);

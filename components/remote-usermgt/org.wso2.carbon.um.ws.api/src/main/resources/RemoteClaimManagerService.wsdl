@@ -82,6 +82,21 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:element name="getAttributeNameFromDomain">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="domainName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="claimURI" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAttributeNameFromDomainResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
             <xs:element name="getAllSupportClaimsByDefaultResponse">
                 <xs:complexType>
                     <xs:sequence>
@@ -183,6 +198,12 @@
     <wsdl:message name="getAttributeNameResponse">
         <wsdl:part name="parameters" element="ns:getAttributeNameResponse" />
     </wsdl:message>
+    <wsdl:message name="getAttributeNameFromDomainRequest">
+        <wsdl:part name="parameters" element="ns:getAttributeNameFromDomain"/>
+    </wsdl:message>
+    <wsdl:message name="getAttributeNameFromDomainResponse">
+        <wsdl:part name="parameters" element="ns:getAttributeNameFromDomainResponse"/>
+    </wsdl:message>
     <wsdl:message name="getAllSupportClaimsByDefaultRequest" />
     <wsdl:message name="getAllSupportClaimsByDefaultResponse">
         <wsdl:part name="parameters" element="ns:getAllSupportClaimsByDefaultResponse" />
@@ -227,6 +248,11 @@
             <wsdl:input message="ns:getAttributeNameRequest" wsaw:Action="urn:getAttributeName" />
             <wsdl:output message="ns:getAttributeNameResponse" wsaw:Action="urn:getAttributeNameResponse" />
             <wsdl:fault message="ns:UserStoreException" name="UserStoreException" wsaw:Action="urn:getAttributeNameUserStoreException" />
+        </wsdl:operation>
+        <wsdl:operation name="getAttributeNameFromDomain">
+            <wsdl:input message="ns:getAttributeNameFromDomainRequest" wsaw:Action="urn:getAttributeNameFromDomain"/>
+            <wsdl:output message="ns:getAttributeNameFromDomainResponse" wsaw:Action="urn:getAttributeNameFromDomainResponse"/>
+            <wsdl:fault message="ns:RemoteClaimManagerServiceUserStoreException" name="RemoteClaimManagerServiceUserStoreException" wsaw:Action="urn:getAttributeNameFromDomainRemoteClaimManagerServiceUserStoreException"/>
         </wsdl:operation>
         <wsdl:operation name="getAllSupportClaimsByDefault">
             <wsdl:input message="ns:getAllSupportClaimsByDefaultRequest" wsaw:Action="urn:getAllSupportClaimsByDefault" />
@@ -297,6 +323,18 @@
             </wsdl:output>
             <wsdl:fault name="UserStoreException">
                 <soap:fault use="literal" name="UserStoreException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getAttributeNameFromDomain">
+            <soap:operation soapAction="urn:getAttributeNameFromDomain" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="RemoteClaimManagerServiceUserStoreException">
+                <soap:fault use="literal" name="RemoteClaimManagerServiceUserStoreException"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getAllSupportClaimsByDefault">
@@ -413,6 +451,18 @@
                 <soap12:fault use="literal" name="UserStoreException" />
             </wsdl:fault>
         </wsdl:operation>
+        <wsdl:operation name="getAttributeNameFromDomain">
+            <soap12:operation soapAction="urn:getAttributeNameFromDomain" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="RemoteClaimManagerServiceUserStoreException">
+                <soap12:fault use="literal" name="RemoteClaimManagerServiceUserStoreException"/>
+            </wsdl:fault>
+        </wsdl:operation>
         <wsdl:operation name="getAllSupportClaimsByDefault">
             <soap12:operation soapAction="urn:getAllSupportClaimsByDefault" style="document" />
             <wsdl:input>
@@ -516,6 +566,15 @@
             </wsdl:input>
             <wsdl:output>
                 <mime:content type="text/xml" part="getAttributeName" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getAttributeNameFromDomain">
+            <http:operation location="getAttributeNameFromDomain"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="getAttributeNameFromDomain"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="getAttributeNameFromDomain"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getAllSupportClaimsByDefault">

@@ -110,11 +110,11 @@
             <id>my_pep_menu</id>
             <i18n-key>xacml</i18n-key>
             <i18n-bundle>org.wso2.carbon.identity.entitlement.ui.i18n.Resources</i18n-bundle>
-			<parent-menu>tools_menu</parent-menu>
+	    <parent-menu>tools_menu</parent-menu>
             <link>#</link>
-            <region>region1</region>
-            <order>80</order>
-            <style-class>manage</style-class>
+            <region>region5</region>
+            <order>4</order>
+            <style-class>tools</style-class>
             <icon>../entitlement/images/policy.gif</icon>
             <require-permission>/permission/admin/configure</require-permission>
         </menu>
@@ -124,9 +124,9 @@
             <i18n-bundle>org.wso2.carbon.identity.entitlement.ui.i18n.Resources</i18n-bundle>
             <parent-menu>my_pep_menu</parent-menu>
             <link>../entitlement/create-evaluation-request.jsp</link>
-            <region>region1</region>
-            <order>8</order>
-            <style-class>manage</style-class>
+            <region>region5</region>
+            <order>5</order>
+            <style-class>tools</style-class>
             <icon>../entitlement/images/evaluate.png</icon>
             <require-permission>/permission/admin/configure</require-permission>
         </menu>

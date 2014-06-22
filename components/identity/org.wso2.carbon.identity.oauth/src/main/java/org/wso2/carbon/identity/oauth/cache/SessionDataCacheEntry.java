@@ -18,7 +18,11 @@
 
 package org.wso2.carbon.identity.oauth.cache;
 
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SessionDataCacheEntry  extends CacheEntry {
 
@@ -27,6 +31,14 @@ public class SessionDataCacheEntry  extends CacheEntry {
     private OAuth2Parameters oAuth2Parameters;
 
     String loggedInUser;
+
+    private Map<ClaimMapping, String> userAttributes;
+    
+    private String authenticatedIdPs;
+
+    private String queryString = null;
+
+    private Map<String,String[]> paramMap = new HashMap<String, String[]>();
 
     public OAuth2Parameters getoAuth2Parameters() {
         return oAuth2Parameters;
@@ -44,4 +56,35 @@ public class SessionDataCacheEntry  extends CacheEntry {
         this.loggedInUser = loggedInUser;
     }
 
+    public Map<ClaimMapping, String> getUserAttributes() {
+        return userAttributes;
+    }
+
+    public void setUserAttributes(Map<ClaimMapping, String> userAttributes) {
+        this.userAttributes = userAttributes;
+    }
+
+    public String getQueryString() {
+        return queryString;
+    }
+
+    public void setQueryString(String queryString) {
+        this.queryString = queryString;
+    }
+
+    public Map<String, String[]> getParamMap() {
+        return paramMap;
+    }
+
+    public void setParamMap(Map<String, String[]> paramMap) {
+        this.paramMap = paramMap;
+    }
+
+    public String getAuthenticatedIdPs() {
+        return authenticatedIdPs;
+    }
+
+    public void setAuthenticatedIdPs(String authenticatedIdPs) {
+        this.authenticatedIdPs = authenticatedIdPs;
+    }
 }
