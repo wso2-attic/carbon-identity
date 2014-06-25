@@ -1030,16 +1030,16 @@
             <artifactId>openidconnect-authzserver</artifactId>
             <version>0.22.1358727-wso2v3</version>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.user.profile</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
+        </dependency-->
+        <!--dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.common</artifactId>
             <version>${project.version}</version>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -1876,6 +1876,8 @@
         <httpcomponents-httpclient.wso2.version>4.1.1-wso2v1</httpcomponents-httpclient.wso2.version>
         <orbit.version.commons.lang>2.6.0.wso2v1</orbit.version.commons.lang>
         <org.wso2.securevault.version>1.0.0-wso2v2</org.wso2.securevault.version>
+
+	<version.commons.logging>1.1.1</version.commons.logging>
 
     </properties>
 
