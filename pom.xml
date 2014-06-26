@@ -1799,7 +1799,7 @@
 	<junit.version>4.9</junit.version>
 	<xmlschema.version>1.4.3</xmlschema.version>
 	<version.javax.servlet>3.0.0.v201112011016</version.javax.servlet>
-        <amber.version>0.22.1358727.wso2v4-SNAPSHOT</amber.version>
+        <amber.version>0.22.1358727.wso2v4</amber.version>
 
         <!-- Orbits -->
 	<orbit.version.xmlschema>1.4.7.wso2v2</orbit.version.xmlschema>
