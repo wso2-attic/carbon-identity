@@ -31,9 +31,14 @@
 
 			<modules>
 				<module>basic-auth</module>
+				<module>basicauth-request-path-auth</module>
+				<module>facebook</module>
+				<module>iwa</module>
+				<module>oauth-request-path-auth</module>
 				<module>oidc</module>
-				<module>samlsso</module>
 				<module>openid</module>
+				<module>passive-sts</module>
+				<module>samlsso</module>
 			</modules>
 </project>
 
