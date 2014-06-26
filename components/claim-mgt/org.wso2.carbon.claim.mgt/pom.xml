@@ -70,18 +70,26 @@
                         <Bundle-SymbolicName>
                             ${project.artifactId}
                         </Bundle-SymbolicName>
+                        <Private-Package>
+                            org.wso2.carbon.claim.mgt.internal
+                        </Private-Package>
                         <Import-Package>
                             org.wso2.carbon.user.core.*,
                             org.apache.commons.logging.*,
                             *;resolution:=optional
                         </Import-Package>
                         <Export-Package>
+                            !org.wso2.carbon.claim.mgt.internal,
                             org.wso2.carbon.claim.mgt.*,
                         </Export-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>
+            <plugin>
+		<groupId>org.apache.felix</groupId>
+		<artifactId>maven-scr-plugin</artifactId>
+	    </plugin>
         </plugins>
     </build>
     
