@@ -34,7 +34,7 @@
                 <module>org.wso2.carbon.identity.xacml.feature</module>
                 <module>org.wso2.carbon.identity.xacml.server.feature</module>
                 <module>org.wso2.carbon.identity.xacml.ui.feature</module>
-                <module>org.wso2.carbon.identity.xacml.mediator.feature</module>
+                <!--module>org.wso2.carbon.identity.xacml.mediator.feature</module-->
 		<module>org.wso2.carbon.identity.xacml.filter.feature</module>
             </modules>
 
