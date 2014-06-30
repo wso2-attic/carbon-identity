@@ -34,7 +34,7 @@
                 <module>org.wso2.carbon.identity.oauth.feature</module>
                 <module>org.wso2.carbon.identity.oauth.server.feature</module>
                 <module>org.wso2.carbon.identity.oauth.ui.feature</module>
-                <module>org.wso2.carbon.identity.oauth.mediator.feature</module>
+                <!--module>org.wso2.carbon.identity.oauth.mediator.feature</module-->
 				<module>org.wso2.carbon.identity.oauth.common.feature</module>
             </modules>
 

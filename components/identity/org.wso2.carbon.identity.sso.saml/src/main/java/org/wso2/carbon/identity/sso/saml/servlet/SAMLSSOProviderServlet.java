@@ -323,7 +323,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         String commonAuthURL = CarbonUIUtil.getAdminConsoleURL(req);
         commonAuthURL = commonAuthURL.replace("samlsso/carbon/", "commonauth");
 
-        String selfPath = URLEncoder.encode("/samlsso","UTF-8");
+        String selfPath = URLEncoder.encode("samlsso","UTF-8");
         String forceAuthenticate = "false";
         String passiveAuthenticate = "false";
         
@@ -384,7 +384,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             String commonAuthURL = CarbonUIUtil.getAdminConsoleURL(request);
             commonAuthURL = commonAuthURL.replace("samlsso/carbon/", "commonauth");
 
-            String selfPath = URLEncoder.encode("/samlsso","UTF-8");
+            String selfPath = URLEncoder.encode("samlsso","UTF-8");
             
             String queryParams = "?" + request.getQueryString() +
                     "&" + SAMLSSOConstants.SESSION_DATA_KEY + "=" + sessionDataKey +

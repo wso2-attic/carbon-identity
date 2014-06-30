@@ -77,7 +77,7 @@
         <module>org.wso2.carbon.identity.entitlement</module>
 	<module>org.wso2.carbon.identity.entitlement.common</module>
         <module>org.wso2.carbon.identity.entitlement.ui</module>
-        <module>org.wso2.carbon.identity.entitlement.mediator</module>
+        <!--module>org.wso2.carbon.identity.entitlement.mediator</module-->
 	<!--module>org.wso2.carbon.identity.sso.agent</module-->
         <module>org.wso2.carbon.identity.provider.openid.admin</module>
         <module>org.wso2.carbon.identity.provider.openid.admin.ui</module>
@@ -85,7 +85,7 @@
         <module>org.wso2.carbon.identity.oauth</module>
         <module>org.wso2.carbon.identity.oauth.endpoint</module>
         <module>org.wso2.carbon.identity.oauth.ui</module>
-        <module>org.wso2.carbon.identity.oauth.mediator</module>
+        <!--module>org.wso2.carbon.identity.oauth.mediator</module-->
 	<module>org.wso2.carbon.identity.scim.provider</module>
         <module>org.wso2.carbon.identity.authentication</module>
         <module>org.wso2.carbon.identity.thrift.authentication</module>
