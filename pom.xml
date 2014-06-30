@@ -867,11 +867,11 @@
             <artifactId>synapse-core</artifactId>
             <version>${synapse.version}</version>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.mediator.service</artifactId>
             <version>${wso2carbon.version}</version>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>org.openid4java</groupId>
             <artifactId>openid4java-consumer</artifactId>
@@ -1283,7 +1283,7 @@
             <version>${project.version}</version>
             <type>zip</type>
 	</dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.entitlement.mediator</artifactId>
             <version>${project.version}</version>
@@ -1292,7 +1292,7 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.oauth.mediator</artifactId>
             <version>${project.version}</version>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.entitlement.stub</artifactId>
