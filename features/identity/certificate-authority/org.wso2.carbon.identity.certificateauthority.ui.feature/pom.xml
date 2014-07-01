@@ -15,7 +15,8 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
@@ -29,7 +30,8 @@
     <packaging>pom</packaging>
     <name>Certificate Authority UI Feature</name>
     <url>http://wso2.org</url>
-    <description>This feature contains the bundles required for Front-end Certificate Authority functionality
+    <description>This feature contains the bundles required for Front-end Certificate Authority
+        functionality
     </description>
 
     <dependencies>
@@ -68,17 +70,22 @@
                             <goal>p2-feature-gen</goal>
                         </goals>
                         <configuration>
-                            <id>org.wso2.carbon.identity.oauth.ui</id>
+                            <id>org.wso2.carbon.identity.certificateauthority.ui</id>
                             <propertiesFile>../../../../etc/feature.properties</propertiesFile>
                             <adviceFile>
                                 <properties>
-                                    <propertyDef>org.wso2.carbon.p2.category.type:console</propertyDef>
-                                    <propertyDef>org.eclipse.equinox.p2.type.group:false</propertyDef>
+                                    <propertyDef>org.wso2.carbon.p2.category.type:console
+                                    </propertyDef>
+                                    <propertyDef>org.eclipse.equinox.p2.type.group:false
+                                    </propertyDef>
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.certificateauthority.ui</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.certificateauthority.stub
+                                <bundleDef>
+                                    org.wso2.carbon:org.wso2.carbon.identity.certificateauthority.ui
+                                </bundleDef>
+                                <bundleDef>
+                                    org.wso2.carbon:org.wso2.carbon.identity.certificateauthority.stub
                                 </bundleDef>
                             </bundles>
                         </configuration>
