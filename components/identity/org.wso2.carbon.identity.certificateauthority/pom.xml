@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>org.wso2.carbon</groupId>
+        <artifactId>identity</artifactId>
+        <version>4.3.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>bundle</packaging>
+
+    <artifactId>org.wso2.carbon.identity.certificateauthority</artifactId>
+    <name>Certificate Authority Services Component</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.code.jscep.wso2</groupId>
+            <artifactId>jscep</artifactId>
+            <version>2.1.0.wso2v1</version>
+        </dependency>
+
+        <!--todo BC is provided by wss4j for now, this should be fixed once the BC is bundled seperately-->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <version>1.49</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.49</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.utils</artifactId>
+            <version>4.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.base</artifactId>
+            <version>4.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.core</artifactId>
+            <version>4.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.core</artifactId>
+            <version>4.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.logging</artifactId>
+            <version>4.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.core.services</artifactId>
+            <version>4.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.base</artifactId>
+            <version>4.2.0</version>
+        </dependency>
+
+        <!--todo wss4j is added to provide the BC dependency, once it is solved this should be removed-->
+        <dependency>
+            <groupId>org.apache.ws.security.wso2</groupId>
+            <artifactId>wss4j</artifactId>
+            <version>1.5.11.wso2v6</version>
+        </dependency>
+
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <Private-Package>org.wso2.carbon.identity.certificateauthority.internal,</Private-Package>
+                        <Import-Package>
+                            org.apache.axis2.*,
+                            org.wso2.carbon.core.utils.*,
+                            org.wso2.carbon.core.*,
+                            org.wso2.carbon.registry.core.*,
+                            org.wso2.carbon.utils.*,
+                            org.apache.commons.logging.*; version="1.0.4",
+                            org.osgi.framework,
+                            javax.servlet,
+                            javax.servlet.http,
+                            org.bouncycastle.asn1; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
+                            org.bouncycastle.asn1.cms; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
+                            org.bouncycastle.asn1.x500; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
+                            org.bouncycastle.asn1.x500.style; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
+                            org.bouncycastle.asn1.x509; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
+                            org.bouncycastle.cert; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
+                            org.bouncycastle.cert.jcajce; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
+                            org.bouncycastle.jce.provider; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
+                            org.bouncycastle.ocsp; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
+                            org.bouncycastle.openssl; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
+                            org.bouncycastle.operator; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
+                            org.bouncycastle.operator.jcajce; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
+                            org.bouncycastle.pkcs; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
+                            org.bouncycastle.pkcs.jcajce; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
+                            org.bouncycastle.x509; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
+                            org.bouncycastle.x509.extension; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
+                            org.bouncycastle.cms; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
+                            org.bouncycastle.util; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
+                            org.bouncycastle.util.encoders; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
+                            org.wso2.carbon.security.*,
+                            com.hazelcast.util.*,
+                            javax.security.auth.*,
+                            org.osgi.service.*,
+                            org.wso2.carbon.context.*,
+                            org.wso2.carbon.identity.*,
+                            org.wso2.carbon.user.*,
+                            org.wso2.carbon.base.*,
+                            org.apache.log4j.*,
+                            org.apache.commons.io,
+                            org.slf4j,
+                            org.jscep.message,
+                            org.jscep.asn1,
+                            org.jscep.transaction,
+                            org.jscep.transport.request,
+                            org.jscep.transport.response
+                        </Import-Package>
+                        <Export-Package>!org.wso2.carbon.identity.certificateauthority.internal,
+                            org.wso2.carbon.identity.certificateauthority.*;version="1.0.0-SNAPSHOT"
+                        </Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+
+</project>
