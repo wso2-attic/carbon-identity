@@ -33,7 +33,7 @@
 	<url>http://wso2.org</url>
 	<description>This feature contains the core bundles required for Thirft Authentication Functionality</description>
 
-     <dependencies>
+    <dependencies>
 	    <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.thrift.authentication</artifactId>
@@ -42,7 +42,7 @@
 
     <build>
         <plugins>
-<plugin>
+            <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
                     <execution>
@@ -89,9 +89,30 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-				                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.thrift.authentication</bundleDef>
+				<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.thrift.authentication</bundleDef>
                             </bundles>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.1</version>
+                <executions>
+                    <execution>
+                        <id>clean_target</id>
+                        <phase>install</phase>
+                        <configuration>
+                            <tasks>
+                                <delete dir="src/main/resources"/>
+                                <delete dir="src/main"/>
+                                <delete dir="src"/>                                
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
