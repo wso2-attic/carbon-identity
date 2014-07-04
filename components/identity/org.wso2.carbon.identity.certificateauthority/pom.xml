@@ -92,15 +92,14 @@
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Private-Package>org.wso2.carbon.identity.certificateauthority.internal,</Private-Package>
                         <Import-Package>
-                            org.apache.axis2.*,
-                            org.wso2.carbon.core.utils.*,
-                            org.wso2.carbon.core.*,
-                            org.wso2.carbon.registry.core.*,
-                            org.wso2.carbon.utils.*,
-                            org.apache.commons.logging.*; version="1.0.4",
-                            org.osgi.framework,
+                            com.hazelcast.util.*,
                             javax.servlet,
                             javax.servlet.http,
+                            javax.security.auth.*,
+                            org.apache.log4j.*,
+                            org.apache.commons.io;version="2.0.0",
+                            org.apache.axis2.*,
+                            org.apache.commons.logging.*; version="1.0.4",
                             org.bouncycastle.asn1; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
                             org.bouncycastle.asn1.cms; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
                             org.bouncycastle.asn1.x500; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
@@ -120,25 +119,29 @@
                             org.bouncycastle.cms; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
                             org.bouncycastle.util; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
                             org.bouncycastle.util.encoders; version="[1.40.0.wso2v1, 1.50.0.wso2v1)",
-                            org.wso2.carbon.security.*,
-                            com.hazelcast.util.*,
-                            javax.security.auth.*,
-                            org.osgi.service.*,
-                            org.wso2.carbon.context.*,
-                            org.wso2.carbon.identity.*,
-                            org.wso2.carbon.user.*,
-                            org.wso2.carbon.base.*,
-                            org.apache.log4j.*,
-                            org.apache.commons.io,
-                            org.slf4j,
                             org.jscep.message,
                             org.jscep.asn1,
                             org.jscep.transaction,
                             org.jscep.transport.request,
-                            org.jscep.transport.response
+                            org.jscep.transport.response,
+                            org.osgi.framework,
+                            org.osgi.service.*,
+                            org.slf4j,
+                            org.wso2.carbon.core.utils.*,
+                            org.wso2.carbon.core.*,
+                            org.wso2.carbon.registry.core.*,
+                            org.wso2.carbon.security.*,
+                            org.wso2.carbon.utils.*,
+                            org.wso2.carbon.context.*,
+                            org.wso2.carbon.identity.*,
+                            org.wso2.carbon.user.*,
+                            org.wso2.carbon.base.*,
+                            org.wso2.carbon.user.core.service;version="4.2.0",
+                            org.wso2.carbon.user.core.util;version="4.2.0"
                         </Import-Package>
                         <Export-Package>!org.wso2.carbon.identity.certificateauthority.internal,
-                            org.wso2.carbon.identity.certificateauthority.*;version="1.0.0-SNAPSHOT"
+                            org.wso2.carbon.identity.certificateauthority.*;version=${project.version},
+                            org.wso2.carbon.identity.certificateauthority.data.*;version=${project.version}
                         </Export-Package>
                     </instructions>
                 </configuration>

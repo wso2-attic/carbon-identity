@@ -3,8 +3,8 @@ package org.wso2.carbon.identity.certificateauthority;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.certificateauthority.dao.CertificateDAO;
 import org.wso2.carbon.identity.certificateauthority.dao.CsrDAO;
-import org.wso2.carbon.identity.certificateauthority.dao.PublicCertificateDAO;
 import org.wso2.carbon.identity.certificateauthority.data.CertAuthException;
 import org.wso2.carbon.identity.certificateauthority.data.Certificate;
 import org.wso2.carbon.identity.certificateauthority.data.CsrFile;
@@ -16,15 +16,13 @@ public class CAClientService {
     Log log = LogFactory.getLog(CAClientService.class);
 
     private CsrDAO csrDAO = new CsrDAO();
-    private PublicCertificateDAO certificateDAO = new PublicCertificateDAO();
+    private CertificateDAO certificateDAO = new CertificateDAO();
 
     public String addCsr(String csrContent) throws CertAuthException {
         String username = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
         int tenantID = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
         String userStoreDomain = UserCoreUtil.extractDomainFromName(username);
-        int userStoreId = CAServiceComponent.getUserDomainId(tenantID, userStoreDomain);
-        return csrDAO.addCsr(csrContent, username, tenantID, userStoreId);
-
+        return csrDAO.addCsr(csrContent, username, tenantID, userStoreDomain);
     }
 
     public CsrFile getCsr(String serial) throws CertAuthException {

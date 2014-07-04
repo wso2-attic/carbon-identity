@@ -5,6 +5,7 @@ import org.wso2.carbon.identity.certificateauthority.data.CertAuthException;
 
 import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
+import java.security.cert.X509CRL;
 
 public class CrlStore {
     CrlDataHolderDao crlDataHolderDao = new CrlDataHolderDao();
@@ -20,5 +21,10 @@ public class CrlStore {
      */
     public byte[] getLatestCrl(int tenantId, boolean deltaCrl) throws CertificateException, CertAuthException, CRLException {
         return crlDataHolderDao.getLatestCRL(tenantId, deltaCrl).getCRL().getEncoded();
+    }
+
+    public X509CRL getLatestX509Crl(int tenantId, boolean deltaCrl)
+            throws CertificateException, CertAuthException {
+        return crlDataHolderDao.getLatestCRL(tenantId, deltaCrl).getCRL();
     }
 }

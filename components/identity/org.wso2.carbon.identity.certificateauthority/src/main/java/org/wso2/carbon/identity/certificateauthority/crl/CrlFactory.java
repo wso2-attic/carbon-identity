@@ -6,8 +6,8 @@ import org.bouncycastle.asn1.x509.CRLNumber;
 import org.bouncycastle.asn1.x509.X509Extensions;
 import org.bouncycastle.x509.X509V2CRLGenerator;
 import org.bouncycastle.x509.extension.AuthorityKeyIdentifierStructure;
+import org.wso2.carbon.identity.certificateauthority.dao.CertificateDAO;
 import org.wso2.carbon.identity.certificateauthority.dao.CrlDataHolderDao;
-import org.wso2.carbon.identity.certificateauthority.dao.PublicCertificateDAO;
 import org.wso2.carbon.identity.certificateauthority.dao.RevocationDAO;
 import org.wso2.carbon.identity.certificateauthority.data.CRLDataHolder;
 import org.wso2.carbon.identity.certificateauthority.data.RevokedCertificate;
@@ -38,7 +38,7 @@ public class CrlFactory {
     private X509CRL createCRL(X509Certificate caCert, PrivateKey caKey, RevokedCertificate[] revokedCertificates, int crlNumber, int baseCrlNumber, boolean isDeltaCrl) throws Exception {
         X509V2CRLGenerator crlGen = new X509V2CRLGenerator();
         Date now = new Date();
-        PublicCertificateDAO certificateDAO = new PublicCertificateDAO();
+        CertificateDAO certificateDAO = new CertificateDAO();
         RevocationDAO revocationDAO = new RevocationDAO();
         crlGen.setIssuerDN(caCert.getSubjectX500Principal());
         crlGen.setThisUpdate(now);

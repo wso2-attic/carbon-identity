@@ -31,8 +31,12 @@
         </jaxrs:serviceBeans>
     </jaxrs:server>
 
-    <bean id="ocspEndpointBean" class="org.wso2.carbon.identity.certificateauthority.endpoint.ocsp.OCSPResponder"/>
-    <bean id="crlEndpointBean" class="org.wso2.carbon.identity.certificateauthority.endpoint.crl.CRLResponder"/>
+    <bean id="ocspEndpointBean"
+          class="org.wso2.carbon.identity.certificateauthority.endpoint.ocsp.OCSPResponder"/>
+    <bean id="crlEndpointBean"
+          class="org.wso2.carbon.identity.certificateauthority.endpoint.crl.CRLResponder"/>
     <bean id="certificateEndpointBean"
           class="org.wso2.carbon.identity.certificateauthority.endpoint.cert.CertificateRetriever"/>
+    <bean id="scepEndpointBean"
+          class="org.wso2.carbon.identity.certificateauthority.endpoint.scep.ScepEndpoint"/>
 </beans>

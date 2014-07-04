@@ -1,6 +1,7 @@
 package org.wso2.carbon.identity.certificateauthority.endpoint.cert;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.certificateauthority.CertificateService;
 import org.wso2.carbon.identity.certificateauthority.data.CertAuthException;
 
@@ -12,7 +13,7 @@ import javax.ws.rs.core.Response;
 
 @Path("/certificate")
 public class CertificateRetriever {
-    protected static Logger log = Logger.getLogger(CertificateRetriever.class);
+    private static final Log log = LogFactory.getLog(CertificateRetriever.class);
 
     @GET
     @Path("/{serial}.crt")
@@ -21,7 +22,7 @@ public class CertificateRetriever {
         CertificateService service = new CertificateService();
         try {
             String certificate = service.getCertificate(serial);
-            return Response.ok().type("application/octet-string").entity(certificate).build();
+            return Response.ok().type("application/x-x509-user-cert").entity(certificate).build();
         } catch (CertAuthException e) {
             log.error("Error occurred retrieving certificate", e);
             return Response.serverError().build();

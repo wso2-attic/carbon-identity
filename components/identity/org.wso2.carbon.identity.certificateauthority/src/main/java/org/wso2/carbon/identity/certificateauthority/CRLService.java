@@ -8,6 +8,7 @@ import org.wso2.carbon.identity.certificateauthority.scheduledTask.CrlUpdater;
 
 import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
+import java.security.cert.X509CRL;
 
 public class CRLService {
     public void addCRL() throws Exception {
@@ -38,5 +39,10 @@ public class CRLService {
     public void updateCrl() throws Exception {
         CrlUpdater updater = new CrlUpdater();
         updater.buildFullCrl();
+    }
+
+    public X509CRL getLatestX509Crl(int tenantId) throws CertificateException, CertAuthException {
+        CrlStore store = new CrlStore();
+        return store.getLatestX509Crl(tenantId, false);
     }
 }

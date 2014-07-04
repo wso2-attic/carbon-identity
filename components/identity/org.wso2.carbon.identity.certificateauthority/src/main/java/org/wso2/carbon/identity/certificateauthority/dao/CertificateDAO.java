@@ -8,19 +8,20 @@ import org.wso2.carbon.identity.certificateauthority.data.CertAuthException;
 import org.wso2.carbon.identity.certificateauthority.data.Certificate;
 import org.wso2.carbon.identity.certificateauthority.data.CertificateMetaInfo;
 import org.wso2.carbon.identity.certificateauthority.data.CertificateStatus;
-import org.wso2.carbon.identity.certificateauthority.utils.CertificateUtils;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 
 import java.io.ByteArrayInputStream;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.UUID;
 
-public class PublicCertificateDAO {
-    Log log = LogFactory.getLog(PublicCertificateDAO.class);
+public class CertificateDAO {
+    Log log = LogFactory.getLog(CertificateDAO.class);
 
     /**
      * adds a public certificate to the database
@@ -29,14 +30,12 @@ public class PublicCertificateDAO {
      * @param tenantID id of the tenant tenant who issued the certificate
      * @return
      */
-    public String addPublicCertificate(String serial, X509Certificate certificate, int tenantID, String username, int userStoreId) throws CertAuthException {
-        String csrSerialNo = UUID.randomUUID().toString();
+    public void addPublicCertificate(String serial, X509Certificate certificate, int tenantID, String username, int userStoreId) throws CertAuthException {
         Connection connection = null;
         Date requestDate = new Date();
         String sql = null;
         PreparedStatement prepStmt = null;
         try {
-            String publicCertificateContent = CertificateUtils.getEncodedCertificate(certificate);
             Date expiryDate = certificate.getNotAfter();
 
             log.debug("adding public certificate file to database");
@@ -44,7 +43,7 @@ public class PublicCertificateDAO {
             sql = "INSERT INTO CA_CERTIFICATE_STORE (SERIAL_NO,PUBLIC_CERTIFICATE,STATUS,ISSUED_DATE,EXPIRY_DATE,TENANT_ID,USER_NAME,USER_STORE_ID) VALUES (?,?,?,?,?,?,?,?) ";
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setString(1, serial);
-            prepStmt.setBlob(2, new ByteArrayInputStream(publicCertificateContent.getBytes()));
+            prepStmt.setBlob(2, new ByteArrayInputStream(certificate.getEncoded()));
             prepStmt.setString(3, CertificateStatus.ACTIVE.toString());
             prepStmt.setTimestamp(4, new Timestamp(requestDate.getTime()));
             prepStmt.setTimestamp(5, new Timestamp(expiryDate.getTime()));
@@ -60,10 +59,11 @@ public class PublicCertificateDAO {
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
+        } catch (CertificateEncodingException e) {
+            log.error("Error encoding certificate");
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return csrSerialNo;
     }
 
     /**
@@ -76,7 +76,6 @@ public class PublicCertificateDAO {
     public int updatePCStatus(String serialNo, String status) throws CertAuthException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
-        ResultSet resultSet;
         String sql = null;
         int result = 0;
         try {
@@ -161,18 +160,22 @@ public class PublicCertificateDAO {
 
 
                 Blob pcBlob = resultSet.getBlob(Constants.PC_CONTENT_LABEL);
+                CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+                X509Certificate certificate = (X509Certificate) certificateFactory.generateCertificate(pcBlob.getBinaryStream());
                 String pcContent = new String(pcBlob.getBytes(1, (int) pcBlob.length()));
                 Date issuedDate = resultSet.getTimestamp(Constants.PC_ISSUDED_DATE);
                 String username = resultSet.getString(Constants.PC_ISSUER_LABEL);
                 int tenantID = resultSet.getInt(Constants.TENANT_ID_LABEL);
                 int userStoreId = resultSet.getInt(Constants.USER_STORE_ID_LABEL);
-                pc = new Certificate(serialNo, pcContent, status, tenantID, username, issuedDate, expiryDate, userStoreId);
+                pc = new Certificate(serialNo, certificate, status, tenantID, username, issuedDate, expiryDate, userStoreId);
 
 
                 pcList.add(pc);
             }
         } catch (SQLException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (CertificateException e) {
+            e.printStackTrace();
         }
         Certificate[] pcFiles = new Certificate[pcList.size()];
         pcFiles = pcList.toArray(pcFiles);

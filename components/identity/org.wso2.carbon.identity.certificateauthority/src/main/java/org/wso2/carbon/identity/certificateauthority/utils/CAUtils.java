@@ -15,16 +15,19 @@ import java.security.cert.X509Certificate;
 public class CAUtils {
 
     public static X509Certificate getConfiguredCaCert() {
+        int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
+        return getConfiguredCaCert(tenantId);
+    }
 
-        int tenantID = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
-        KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(tenantID);
+    public static X509Certificate getConfiguredCaCert(int tenantId) {
+        KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(tenantId);
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         try {
             String keyStore = getKeyStoreName();
             String alias = getAlias();
 
             if (keyStore == null) {
-                if (tenantID == MultitenantConstants.SUPER_TENANT_ID) {
+                if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
                     return keyStoreManager.getDefaultPrimaryCertificate();
                 } else {
                     String ksName = tenantDomain.trim().replace(".", "-");
@@ -43,14 +46,18 @@ public class CAUtils {
 
     public static PrivateKey getConfiguredPrivateKey() {
         int tenantID = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
-        KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(tenantID);
+        return getConfiguredPrivateKey(tenantID);
+    }
+
+    public static PrivateKey getConfiguredPrivateKey(int tenantId) {
+        KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(tenantId);
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         try {
             String keystore = getKeyStoreName();
             String alias = getAlias();
 
             if (keystore == null) {
-                if (tenantID == MultitenantConstants.SUPER_TENANT_ID) {
+                if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
                     return keyStoreManager.getDefaultPrivateKey();
                 } else {
                     String ksName = tenantDomain.trim().replace(".", "-");

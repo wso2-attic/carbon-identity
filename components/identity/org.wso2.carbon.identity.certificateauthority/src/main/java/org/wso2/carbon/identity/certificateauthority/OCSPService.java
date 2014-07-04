@@ -4,7 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.ocsp.*;
 import org.wso2.carbon.core.util.KeyStoreManager;
-import org.wso2.carbon.identity.certificateauthority.dao.PublicCertificateDAO;
+import org.wso2.carbon.identity.certificateauthority.dao.CertificateDAO;
 import org.wso2.carbon.identity.certificateauthority.dao.RevocationDAO;
 import org.wso2.carbon.identity.certificateauthority.data.Certificate;
 import org.wso2.carbon.identity.certificateauthority.data.RevokedCertificate;
@@ -15,13 +15,13 @@ import java.util.Date;
 
 public class OCSPService {
 
-    private PublicCertificateDAO certificateDAO;
+    private CertificateDAO certificateDAO;
     private RevocationDAO revocationDAO;
 
     private Log log = LogFactory.getLog(OCSPService.class);
 
     public OCSPService() {
-        this.certificateDAO = new PublicCertificateDAO();
+        this.certificateDAO = new CertificateDAO();
         this.revocationDAO = new RevocationDAO();
     }
 

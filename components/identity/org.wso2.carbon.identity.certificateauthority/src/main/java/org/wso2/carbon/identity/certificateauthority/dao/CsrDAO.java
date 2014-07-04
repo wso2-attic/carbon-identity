@@ -16,6 +16,7 @@ import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.sql.*;
@@ -26,6 +27,11 @@ import java.util.HashMap;
 public class CsrDAO {
     private static Log log = LogFactory.getLog(CsrDAO.class);
 
+    public void addCsrFromScep(PKCS10CertificationRequest request, String transactionId, int tenantId)
+            throws CertAuthException {
+        addCsr(request, null, tenantId, null, transactionId);
+    }
+
     /**
      * to add a csr to the database
      *
@@ -35,34 +41,33 @@ public class CsrDAO {
      * @return
      */
 
-    public String addCsr(String csrContent, String userName, int tenantID, int userStoreId) throws CertAuthException {
+    public String addCsr(String csrContent, String userName, int tenantID, String userStoreDomain) throws CertAuthException {
+        PKCS10CertificationRequest request = CsrUtils.getCRfromEncodedCsr(csrContent);
+        return addCsr(request, userName, tenantID, userStoreDomain, null);
+    }
 
+    private String addCsr(PKCS10CertificationRequest request, String userName, int tenantID, String userStoreDomain, String transactionId) throws CertAuthException {
         String csrSerialNo = new BigInteger(32, new SecureRandom()).toString();
         Connection connection = null;
         Date requestDate = new Date();
         String sql = null;
         PreparedStatement prepStmt = null;
-        RDN[] orgRdNs = CsrUtils.getCRfromEncodedCsr(csrContent).getSubject().getRDNs(BCStyle.O);
+        RDN[] orgRdNs = request.getSubject().getRDNs(BCStyle.O);
         String organization = "";
         if (orgRdNs.length > 0) {
             organization = orgRdNs[0].getFirst().getValue().toString();
         }
-        RDN[] cnRdNs = CsrUtils.getCRfromEncodedCsr(csrContent).getSubject().getRDNs(BCStyle.CN);
+        RDN[] cnRdNs = request.getSubject().getRDNs(BCStyle.CN);
         String commonName = "";
         if (cnRdNs.length > 0) {
             commonName = cnRdNs[0].getFirst().getValue().toString();
         }
-//        Vector vector = CsrUtils.getCRfromEncodedCsr(csrContent).getCertificationRequestInfo().getSubject().getValues();
-//        String organization = vector.get(3).toString();
-//        String commonName = CsrUtils.getSubjectInfo(CsrUtils.getCRfromEncodedCsr(csrContent)).get("CN");
-//        PKCS10CertificationRequest csr = CsrUtils.getCRfromEncodedCsr(csrContent);
-//        HashMap map = CsrUtils.getSubjectInfo(csr);
         try {
             log.debug("adding csr file to database");
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
-            sql = "INSERT INTO CA_CSR_STORE (CSR_CONTENT, STATUS, USER_NAME, REQUESTED_DATE, SERIAL_NO, TENANT_ID,COMMON_NAME,ORGANIZATION,USER_STORE_ID) VALUES (?,?,?,?,?,?,?,?,?) ";
+            sql = "INSERT INTO CA_CSR_STORE (CSR_CONTENT, STATUS, USER_NAME, REQUESTED_DATE, SERIAL_NO, TENANT_ID,COMMON_NAME,ORGANIZATION,UM_DOMAIN_NAME,TRANSACTION_ID) VALUES (?,?,?,?,?,?,?,?,?,?) ";
             prepStmt = connection.prepareStatement(sql);
-            prepStmt.setBlob(1, new ByteArrayInputStream(csrContent.getBytes()));
+            prepStmt.setBlob(1, new ByteArrayInputStream(request.getEncoded()));
             prepStmt.setString(2, CsrStatus.PENDING.toString());
             prepStmt.setString(3, userName);
             prepStmt.setTimestamp(4, new Timestamp(requestDate.getTime()));
@@ -70,7 +75,8 @@ public class CsrDAO {
             prepStmt.setInt(6, tenantID);
             prepStmt.setString(7, commonName);
             prepStmt.setString(8, organization);
-            prepStmt.setInt(9, userStoreId);
+            prepStmt.setString(9, userStoreDomain);
+            prepStmt.setString(10, transactionId);
             prepStmt.execute();
             connection.commit();
         } catch (IdentityException e) {
@@ -80,6 +86,8 @@ public class CsrDAO {
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
+        } catch (IOException e) {
+            e.printStackTrace();
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
@@ -186,6 +194,37 @@ public class CsrDAO {
             prepStmt = connection.prepareStatement(sql);
 
             prepStmt.setString(1, serialNo);
+            resultSet = prepStmt.executeQuery();
+            CsrFile[] csrFiles = getCsrArray(resultSet);
+            if (csrFiles != null && csrFiles.length > 0) {
+                return csrFiles[0];
+            }
+        } catch (IdentityException e) {
+            String errorMsg = "Error when getting an Identity Persistence Store instance.";
+            log.error(errorMsg, e);
+            throw new CertAuthException(errorMsg, e);
+        } catch (SQLException e) {
+            log.error("Error when executing the SQL : " + sql);
+            log.error(e.getMessage(), e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+        return null;
+    }
+
+    public CsrFile getCsrWithTransactionId(String transactionId) throws CertAuthException {
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet;
+        String sql = null;
+
+        try {
+            log.debug("retriving csr information from transaction id :" + transactionId);
+            connection = JDBCPersistenceManager.getInstance().getDBConnection();
+            sql = "SELECT * FROM CA_CSR_STORE WHERE TRANSACTION_ID = ?";
+            prepStmt = connection.prepareStatement(sql);
+
+            prepStmt.setString(1, transactionId);
             resultSet = prepStmt.executeQuery();
             CsrFile[] csrFiles = getCsrArray(resultSet);
             if (csrFiles != null && csrFiles.length > 0) {
@@ -406,12 +445,11 @@ public class CsrDAO {
                 String city = null;
                 String state = null;
                 Blob csrBlob = resultSet.getBlob(Constants.CSR_CONTENT_LABEL);
-                String csrContent = new String(csrBlob.getBytes(1, (int) csrBlob.length()));
                 Date requestedDate = resultSet.getTimestamp(Constants.CSR_REQUESTED_DATE);
                 String username = resultSet.getString(Constants.CSR_REQUESTER_USERNAME_LABEL);
                 int tenantID = resultSet.getInt(Constants.TENANT_ID_LABEL);
                 int userStoreId = resultSet.getInt(Constants.USER_STORE_ID_LABEL);
-                PKCS10CertificationRequest csr = CsrUtils.getCRfromEncodedCsr(csrContent);
+                PKCS10CertificationRequest csr = new PKCS10CertificationRequest(csrBlob.getBytes(1, (int) csrBlob.length()));
                 HashMap decodedContent = CsrUtils.getSubjectInfo(csr);
                 if (decodedContent.containsKey("C")) {
                     country = decodedContent.get("C").toString();
@@ -425,11 +463,13 @@ public class CsrDAO {
                 if (decodedContent.containsKey("ST")) {
                     state = decodedContent.get("ST").toString();
                 }
-                csrFile = new CsrFile(commonName, department, organization, city, state, country, csrContent, serialNo, status, username, tenantID, userStoreId, requestedDate);
+                csrFile = new CsrFile(commonName, department, organization, city, state, country, csr, serialNo, status, username, tenantID, userStoreId, requestedDate);
                 csrList.add(csrFile);
             }
         } catch (SQLException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         CsrFile[] csrFiles = new CsrFile[csrList.size()];
         csrFiles = csrList.toArray(csrFiles);
@@ -446,7 +486,6 @@ public class CsrDAO {
                 String status = resultSet.getString(Constants.CSR_STATUS_LABEL);
                 String commonName = resultSet.getString(Constants.CSR_COMMON_NAME_LABEL);
                 String organization = resultSet.getString(Constants.CSR_ORGANIZATION_LABEL);
-                CsrFile csrFile;
                 Date requestedDate = resultSet.getTimestamp(Constants.CSR_REQUESTED_DATE);
                 String username = resultSet.getString(Constants.CSR_REQUESTER_USERNAME_LABEL);
                 CsrMetaInfo csrMetaInfo = new CsrMetaInfo(serialNo, commonName, organization, status, requestedDate, username);

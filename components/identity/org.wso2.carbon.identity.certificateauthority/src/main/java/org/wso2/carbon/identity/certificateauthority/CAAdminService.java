@@ -1,7 +1,8 @@
 package org.wso2.carbon.identity.certificateauthority;
 
 import org.apache.log4j.Logger;
-import org.bouncycastle.asn1.DERObjectIdentifier;
+import org.bouncycastle.asn1.ASN1EncodableVector;
+import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -18,14 +19,13 @@ import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.certificateauthority.crl.CrlFactory;
 import org.wso2.carbon.identity.certificateauthority.crl.RevokedCertInfo;
+import org.wso2.carbon.identity.certificateauthority.dao.CertificateDAO;
 import org.wso2.carbon.identity.certificateauthority.dao.CsrDAO;
-import org.wso2.carbon.identity.certificateauthority.dao.PublicCertificateDAO;
 import org.wso2.carbon.identity.certificateauthority.dao.RevocationDAO;
 import org.wso2.carbon.identity.certificateauthority.data.*;
 import org.wso2.carbon.identity.certificateauthority.data.Certificate;
 import org.wso2.carbon.identity.certificateauthority.internal.CAServiceComponent;
 import org.wso2.carbon.identity.certificateauthority.utils.CAUtils;
-import org.wso2.carbon.identity.certificateauthority.utils.CsrUtils;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.security.SecurityConfigException;
 import org.wso2.carbon.security.keystore.KeyStoreAdmin;
@@ -47,11 +47,9 @@ import java.util.List;
 public class CAAdminService extends AbstractAdmin {
 
     private static final long MILLIS_PER_DAY = 86400000l;
-    private static final DERObjectIdentifier ID_AD_OCSP = new DERObjectIdentifier("1.3.6.1.5.5.7.48.1");
-    private static final int DNP_TYPE = 0;
     private static Logger log = Logger.getLogger(CAAdminService.class);
     private CsrDAO csrDAO;
-    private PublicCertificateDAO certificateDAO;
+    private CertificateDAO certificateDAO;
     private RevocationDAO revokeDAO;
 
     public CAAdminService() {
@@ -59,7 +57,7 @@ public class CAAdminService extends AbstractAdmin {
             Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
         }
         csrDAO = new CsrDAO();
-        certificateDAO = new PublicCertificateDAO();
+        certificateDAO = new CertificateDAO();
         revokeDAO = new RevocationDAO();
     }
 
@@ -76,8 +74,7 @@ public class CAAdminService extends AbstractAdmin {
             if (!"PENDING".equals(csrFile.getStatus())) {
                 throw new CertificateGenerationException("Certificate already signed");
             }
-            X509Certificate signedCert = signCSR(serialNo, CsrUtils.getCRfromEncodedCsr(csrFile.getCsrRequest()),
-                    validity, CAUtils.getConfiguredPrivateKey(), CAUtils.getConfiguredCaCert());
+            X509Certificate signedCert = signCSR(serialNo, csrFile.getCsrRequest(), validity, CAUtils.getConfiguredPrivateKey(), CAUtils.getConfiguredCaCert());
             csrDAO.updateStatus(serialNo, CsrStatus.SIGNED, tenantID);
             certificateDAO.addPublicCertificate(serialNo, signedCert, tenantID, username, userStoreId);
 
@@ -86,8 +83,10 @@ public class CAAdminService extends AbstractAdmin {
         }
     }
 
-    protected X509Certificate signCSR(String serialNo, PKCS10CertificationRequest request, int validity,
-                                      PrivateKey privateKey, X509Certificate caCert) throws CertificateGenerationException {
+    protected X509Certificate signCSR(String serialNo, PKCS10CertificationRequest request,
+                                      int validity,
+                                      PrivateKey privateKey, X509Certificate caCert)
+            throws CertificateGenerationException {
         try {
 
             Date issuedDate = new Date();
@@ -116,7 +115,9 @@ public class CAAdminService extends AbstractAdmin {
                     new GeneralName(GeneralName.uniformResourceIdentifier, CAUtils.getServerURL() + "/ca/ocsp/" +
                             tenantID)
             );
-            certificateBuilder.addExtension(Extension.authorityInfoAccess, false, ocsp);
+            ASN1EncodableVector authInfoAccessASN = new ASN1EncodableVector();
+            authInfoAccessASN.add(ocsp);
+            certificateBuilder.addExtension(Extension.authorityInfoAccess, false, new DERSequence(authInfoAccessASN));
             return new JcaX509CertificateConverter().setProvider("BC").getCertificate(certificateBuilder.build(signer));
 
 
@@ -178,7 +179,8 @@ public class CAAdminService extends AbstractAdmin {
      * @return PKCS10CertificationRequest object from the CSR
      * @throws CertificateGenerationException
      */
-    private PKCS10CertificationRequest buildPkcs10CertificationRequest(String encodedCsr) throws CertificateGenerationException {
+    private PKCS10CertificationRequest buildPkcs10CertificationRequest(String encodedCsr)
+            throws CertificateGenerationException {
         try {
             PEMReader reader = new PEMReader(new InputStreamReader(new ByteArrayInputStream(encodedCsr.getBytes()),
                     "8859_1"));

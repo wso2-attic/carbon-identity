@@ -1,14 +1,15 @@
 package org.wso2.carbon.identity.certificateauthority.data;
 
+import java.security.cert.X509Certificate;
 import java.util.Date;
 
 public class Certificate {
     private CertificateMetaInfo certificateMetaInfo;
-    private String publicCertificate;
+    private X509Certificate publicCertificate;
     private int tenantID;
     private int userStoreId;
 
-    public Certificate(String serialNo, String publicCertificate, String status, int tenantID, String username, Date issuedDate, Date expiaryDate, int userStoreid) {
+    public Certificate(String serialNo, X509Certificate publicCertificate, String status, int tenantID, String username, Date issuedDate, Date expiaryDate, int userStoreid) {
         this.certificateMetaInfo = new CertificateMetaInfo(serialNo, issuedDate, expiaryDate, username, status);
         this.publicCertificate = publicCertificate;
         this.tenantID = tenantID;
@@ -39,11 +40,11 @@ public class Certificate {
         certificateMetaInfo.getIssuedDate();
     }
 
-    public String getPublicCertificate() {
+    public X509Certificate getPublicCertificate() {
         return publicCertificate;
     }
 
-    public void setPublicCertificate(String publicCertificate) {
+    public void setPublicCertificate(X509Certificate publicCertificate) {
         this.publicCertificate = publicCertificate;
     }
 

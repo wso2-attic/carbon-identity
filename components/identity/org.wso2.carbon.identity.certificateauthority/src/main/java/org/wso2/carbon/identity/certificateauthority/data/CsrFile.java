@@ -1,5 +1,7 @@
 package org.wso2.carbon.identity.certificateauthority.data;
 
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+
 import java.util.Date;
 
 
@@ -7,20 +9,20 @@ public class CsrFile {
     private String department;
     private String city;
     private String country;
-    private String csrRequest;
+    private PKCS10CertificationRequest csrRequest;
     private String state;
     private int userStoreId;
     private CsrMetaInfo csrMetaInfo;
     private int tenantID;
 
-    public CsrFile(String commonName, String organization, String csrRequest, String serialNo, String status, String userName, int tenantID, int userStoreId, Date reqestedDate) {
+    public CsrFile(String commonName, String organization, PKCS10CertificationRequest csrRequest, String serialNo, String status, String userName, int tenantID, int userStoreId, Date reqestedDate) {
         csrMetaInfo = new CsrMetaInfo(serialNo, commonName, organization, status, reqestedDate, userName);
         this.csrRequest = csrRequest;
         this.tenantID = tenantID;
         this.userStoreId = userStoreId;
     }
 
-    public CsrFile(String commonName, String department, String organization, String city, String state, String country, String csrRequest, String serialNo, String status, String username, int tenantID, int userStoreId, Date reqestedDate) {
+    public CsrFile(String commonName, String department, String organization, String city, String state, String country, PKCS10CertificationRequest csrRequest, String serialNo, String status, String username, int tenantID, int userStoreId, Date reqestedDate) {
 
         csrMetaInfo = new CsrMetaInfo(serialNo, commonName, organization, status, reqestedDate, username);
         this.department = department;
@@ -80,11 +82,11 @@ public class CsrFile {
         this.country = country;
     }
 
-    public String getCsrRequest() {
+    public PKCS10CertificationRequest getCsrRequest() {
         return csrRequest;
     }
 
-    public void setCsrRequest(String csrRequest) {
+    public void setCsrRequest(PKCS10CertificationRequest csrRequest) {
         this.csrRequest = csrRequest;
     }
 
