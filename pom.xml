@@ -24,6 +24,7 @@
         <module>components/sts</module>
         <module>components/user-manager</module>
         <module>components/stratos-sso-mgt</module>
+        <module>components/captcha-mgt</module>
 
 	<module>features/security-mgt</module>
         <module>features/authenticators</module>
@@ -36,6 +37,7 @@
         <module>features/ldap-server-manager</module>
      	<module>features/sts</module>
         <module>features/stratos-sso-mgt</module>
+        <module>features/captcha-mgt</module>
     </modules>
     
     <repositories>
@@ -562,7 +564,18 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.captcha.mgt</artifactId>
-            <version>4.2.0</version>
+            <version>${project.version}</version>
+        </dependency>
+	<dependency>
+	    <groupId>kaptcha.wso2</groupId>
+            <artifactId>kaptcha</artifactId>
+            <version>${kaptcha.wso2.version}</version>
+            <exclusions>
+                 <exclusion>
+                     <groupId>com.google.code</groupId>
+                     <artifactId>kaptcha</artifactId>
+                 </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -789,6 +802,12 @@
             <version>${project.version}</version>
             <type>zip</type>
 	</dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.captcha.mgt.server.feature</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.mgt.stub</artifactId>
@@ -1878,6 +1897,7 @@
         <org.wso2.securevault.version>1.0.0-wso2v2</org.wso2.securevault.version>
 
 	<version.commons.logging>1.1.1</version.commons.logging>
+	<kaptcha.wso2.version>2.3.0.wso2v1</kaptcha.wso2.version>
 
     </properties>
 
