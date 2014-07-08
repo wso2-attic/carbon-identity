@@ -81,7 +81,6 @@
                                 <resource>
                                     <directory>resources</directory>
                                     <includes>
-                                        <include>**/*.xml</include>
                                         <include>entitlement.properties</include>
                                         <include>p2.inf</include>
                                     </includes>
