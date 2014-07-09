@@ -22,9 +22,9 @@ import com.hazelcast.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.certificateauthority.CaException;
 import org.wso2.carbon.identity.certificateauthority.Constants;
 import org.wso2.carbon.identity.certificateauthority.data.CRLDataHolder;
-import org.wso2.carbon.identity.certificateauthority.data.CertAuthException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 
@@ -48,9 +48,9 @@ public class CrlDataHolderDao {
      * @param crlNumber         contiuolusly increasing number for a tenant
      * @param deltaCrlIndicator
      * @throws CRLException
-     * @throws CertAuthException
+     * @throws CaException
      */
-    public void addCRL(X509CRL crl, int tenantID, Date thisUpdate, Date nextUpdate, int crlNumber, int deltaCrlIndicator) throws CRLException, CertAuthException {
+    public void addCRL(X509CRL crl, int tenantID, Date thisUpdate, Date nextUpdate, int crlNumber, int deltaCrlIndicator) throws CRLException, CaException {
         Connection connection = null;
         String sql = null;
         PreparedStatement prepStmt = null;
@@ -71,7 +71,7 @@ public class CrlDataHolderDao {
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -87,9 +87,9 @@ public class CrlDataHolderDao {
      * @param deltaCrl if delta crl is requested, true and if full crl is requested false
      * @return the latest crl or delta crl
      * @throws CertificateException
-     * @throws CertAuthException
+     * @throws CaException
      */
-    public CRLDataHolder getLatestCRL(int tenantId, boolean deltaCrl) throws CertificateException, CertAuthException {
+    public CRLDataHolder getLatestCRL(int tenantId, boolean deltaCrl) throws CertificateException, CaException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -115,7 +115,7 @@ public class CrlDataHolderDao {
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -163,9 +163,9 @@ public class CrlDataHolderDao {
      * @param deltaCrl true if the required number is for delta crl, false unless
      * @return current highest number of the crl
      * @throws CertificateException
-     * @throws CertAuthException
+     * @throws CaException
      */
-    public int findHighestCrlNumber(int tenantId, boolean deltaCrl) throws CertificateException, CertAuthException {
+    public int findHighestCrlNumber(int tenantId, boolean deltaCrl) throws CertificateException, CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -189,7 +189,7 @@ public class CrlDataHolderDao {
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);

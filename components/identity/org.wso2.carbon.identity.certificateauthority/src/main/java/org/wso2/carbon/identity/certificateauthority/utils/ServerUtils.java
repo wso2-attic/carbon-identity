@@ -16,25 +16,25 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.certificateauthority.data;
+package org.wso2.carbon.identity.certificateauthority.utils;
 
+import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.identity.certificateauthority.Constants;
 
-public class CertAuthException extends Exception {
+public class ServerUtils {
 
-    public CertAuthException() {
-        super();
+    private static ServerConfiguration serverConfigs;
+
+    private ServerUtils(){
+        serverConfigs = ServerConfiguration.getInstance();
     }
 
-    public CertAuthException(String message, Throwable cause) {
-        super(message, cause);
+
+    public static String getServerHost(){
+        return serverConfigs.getFirstProperty(Constants.HOST_NAME);
     }
 
-    public CertAuthException(String message) {
-        super(message);
+    public static int getHttpPort(){
+        return Integer.parseInt(ServerConfiguration.getInstance().getFirstProperty(Constants.PORT_OFFSET)) + Constants.DEFAULT_HTTP_PORT;
     }
-
-    public CertAuthException(Throwable cause) {
-        super(cause);
-    }
-
 }

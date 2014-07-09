@@ -21,8 +21,8 @@ package org.wso2.carbon.identity.certificateauthority.endpoint.crl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.certificateauthority.CRLService;
+import org.wso2.carbon.identity.certificateauthority.CaException;
 import org.wso2.carbon.identity.certificateauthority.Constants;
-import org.wso2.carbon.identity.certificateauthority.data.CertAuthException;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -44,7 +44,7 @@ public class CRLResponder {
                 return Response.ok().type("application/pkix-crl").entity(crlBytes).build();
             } catch (CertificateException e) {
                 log.error("error whilte trying to get CRL for the tenant :" + tenantId);
-            } catch (CertAuthException e) {
+            } catch (CaException e) {
                 log.error("error whilte trying to get CRL for the tenant :" + tenantId);
             } catch (CRLException e) {
                 log.error("error whilte trying to get CRL for the tenant :" + tenantId);
@@ -56,7 +56,7 @@ public class CRLResponder {
                 return Response.ok().type("application/pkix-crl").entity(crlService.getLatestDeltaCrl(tenantId)).build();
             } catch (CertificateException e) {
                 log.error("error whilte trying to get CRL for the tenant :" + tenantId);
-            } catch (CertAuthException e) {
+            } catch (CaException e) {
                 log.error("error whilte trying to get CRL for the tenant :" + tenantId);
             } catch (CRLException e) {
                 log.error("error whilte trying to get CRL for the tenant :" + tenantId);

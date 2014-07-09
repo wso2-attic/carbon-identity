@@ -21,7 +21,6 @@ package org.wso2.carbon.identity.certificateauthority;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.certificateauthority.data.CertAuthException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 
@@ -34,7 +33,7 @@ public class CaConfigurations {
 
     private static Log log = LogFactory.getLog(CaConfigurations.class);
 
-    public static String getKeyStoreName(int tenantId) throws CertAuthException {
+    public static String getKeyStoreName(int tenantId) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -55,7 +54,7 @@ public class CaConfigurations {
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -65,7 +64,7 @@ public class CaConfigurations {
         return null;
     }
 
-    public static String getAlias(int tenantId) throws CertAuthException {
+    public static String getAlias(int tenantId) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -86,7 +85,7 @@ public class CaConfigurations {
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -96,7 +95,7 @@ public class CaConfigurations {
         return null;
     }
 
-    public static void setKeyStoreNameAndAlias(int tenantId, String keyStoreName, String alias) throws CertAuthException {
+    public static void setKeyStoreNameAndAlias(int tenantId, String keyStoreName, String alias) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -128,11 +127,10 @@ public class CaConfigurations {
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + sql);
-            log.error(e.getMessage(), e);
-            throw new CertAuthException(e);
+            log.error("Error when executing the SQL : " + sql,e);
+            throw new CaException(e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }

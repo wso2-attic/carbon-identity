@@ -23,9 +23,8 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.certificateauthority.dao.CertificateDAO;
 import org.wso2.carbon.identity.certificateauthority.dao.CsrDAO;
-import org.wso2.carbon.identity.certificateauthority.data.CertAuthException;
 import org.wso2.carbon.identity.certificateauthority.data.Certificate;
-import org.wso2.carbon.identity.certificateauthority.data.CsrFile;
+import org.wso2.carbon.identity.certificateauthority.data.Csr;
 import org.wso2.carbon.identity.certificateauthority.data.CsrMetaInfo;
 import org.wso2.carbon.identity.certificateauthority.internal.CAServiceComponent;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
@@ -36,14 +35,14 @@ public class CAClientService {
     private CsrDAO csrDAO = new CsrDAO();
     private CertificateDAO certificateDAO = new CertificateDAO();
 
-    public String addCsr(String csrContent) throws CertAuthException {
+    public String addCsr(String csrContent) throws CaException {
         String username = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
         int tenantID = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
         String userStoreDomain = UserCoreUtil.extractDomainFromName(username);
         return csrDAO.addCsr(csrContent, username, tenantID, userStoreDomain);
     }
 
-    public CsrFile getCsr(String serial) throws CertAuthException {
+    public Csr getCsr(String serial) throws CaException {
         String username = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
         int tenantID = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
         String userStoreDomain = UserCoreUtil.extractDomainFromName(username);
@@ -51,7 +50,7 @@ public class CAClientService {
         return csrDAO.getCSR(serial, userStoreId, username, tenantID);
     }
 
-    public CsrMetaInfo[] getCsrList() throws CertAuthException {
+    public CsrMetaInfo[] getCsrList() throws CaException {
         String username = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
         int tenantID = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
         String userStoreDomain = UserCoreUtil.extractDomainFromName(username);
@@ -59,11 +58,11 @@ public class CAClientService {
         return csrDAO.getCsrList(tenantID, username, userStoreId);
     }
 
-    public Certificate getCertificate(String serialNo) throws CertAuthException {
+    public Certificate getCertificate(String serialNo) throws CaException {
         String username = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
         int tenantID = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
         String userStoreDomain = UserCoreUtil.extractDomainFromName(username);
         int userStoreId = CAServiceComponent.getUserDomainId(tenantID, userStoreDomain);
-        return certificateDAO.getPubCert(serialNo, tenantID, username, userStoreId);
+        return certificateDAO.getCertificate(serialNo, tenantID, username, userStoreId);
     }
 }

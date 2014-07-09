@@ -84,7 +84,7 @@ public class CrlFactory {
     public X509CRL createFullCrl(int tenantId) throws Exception {
         RevocationDAO revocationDAO = new RevocationDAO();
         CrlDataHolderDao crlDataHolderDao = new CrlDataHolderDao();
-        RevokedCertificate[] revokedCertificates = revocationDAO.getRevokedCerts(tenantId);
+        RevokedCertificate[] revokedCertificates = revocationDAO.getRevokedCertificates(tenantId);
         CRLDataHolder crlDataHolder = crlDataHolderDao.getLatestCRL(tenantId, false);
         PrivateKey privateKey = CAUtils.getConfiguredPrivateKey();
         X509Certificate certb = CAUtils.getConfiguredCaCert();
@@ -108,7 +108,7 @@ public class CrlFactory {
         X509CRL latestCrl = null;
         if (dataholder != null) {
             latestCrl = crlDataHolderDao.getLatestCRL(tenantId, false).getCRL();
-            RevokedCertificate[] revokedCertificates = revocationDAO.getRevokedCertsAfter(tenantId, latestCrl.getThisUpdate());
+            RevokedCertificate[] revokedCertificates = revocationDAO.getRevokedCertificatesAfter(tenantId, latestCrl.getThisUpdate());
             CRLDataHolder crlDataHolder = crlDataHolderDao.getLatestCRL(tenantId, false);
             PrivateKey privateKey = CAUtils.getConfiguredPrivateKey();
             X509Certificate certb = CAUtils.getConfiguredCaCert();
@@ -135,7 +135,7 @@ public class CrlFactory {
         X509CRL crl = createFullCrl(tenantId);
         CrlDataHolderDao crlDataHolderDao = new CrlDataHolderDao();
         RevocationDAO revocationDAO = new RevocationDAO();
-        revocationDAO.removeActivedCerts();
+        revocationDAO.removeActivedCertificates();
         int fullnumber = crlDataHolderDao.findHighestCrlNumber(tenantId, false);
         int deltanumber = crlDataHolderDao.findHighestCrlNumber(tenantId, true);
         // nextCrlNumber: The highest number of last CRL (full or delta) and increased by 1 (both full CRLs and deltaCRLs share the same series of CRL Number)

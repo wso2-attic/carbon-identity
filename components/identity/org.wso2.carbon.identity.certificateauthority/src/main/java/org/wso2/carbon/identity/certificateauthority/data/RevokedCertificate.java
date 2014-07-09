@@ -22,9 +22,9 @@ import java.util.Date;
 
 public class RevokedCertificate {
 
-    String serialNo;
-    Date revokedDate;
-    int reason;
+    private String serialNo;
+    private Date revokedDate;
+    private int reason;
 
     public RevokedCertificate(String serialNo, Date revokedDate, int reason) {
         this.serialNo = serialNo;

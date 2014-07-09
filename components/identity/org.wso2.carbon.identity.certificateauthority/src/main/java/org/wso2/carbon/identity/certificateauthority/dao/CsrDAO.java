@@ -24,9 +24,9 @@ import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.certificateauthority.CaException;
 import org.wso2.carbon.identity.certificateauthority.Constants;
-import org.wso2.carbon.identity.certificateauthority.data.CertAuthException;
-import org.wso2.carbon.identity.certificateauthority.data.CsrFile;
+import org.wso2.carbon.identity.certificateauthority.data.Csr;
 import org.wso2.carbon.identity.certificateauthority.data.CsrMetaInfo;
 import org.wso2.carbon.identity.certificateauthority.data.CsrStatus;
 import org.wso2.carbon.identity.certificateauthority.utils.CsrUtils;
@@ -46,7 +46,7 @@ public class CsrDAO {
     private static Log log = LogFactory.getLog(CsrDAO.class);
 
     public void addCsrFromScep(PKCS10CertificationRequest request, String transactionId, int tenantId)
-            throws CertAuthException {
+            throws CaException {
         addCsr(request, null, tenantId, null, transactionId);
     }
 
@@ -59,12 +59,12 @@ public class CsrDAO {
      * @return
      */
 
-    public String addCsr(String csrContent, String userName, int tenantID, String userStoreDomain) throws CertAuthException {
+    public String addCsr(String csrContent, String userName, int tenantID, String userStoreDomain) throws CaException, IOException {
         PKCS10CertificationRequest request = CsrUtils.getCRfromEncodedCsr(csrContent);
         return addCsr(request, userName, tenantID, userStoreDomain, null);
     }
 
-    private String addCsr(PKCS10CertificationRequest request, String userName, int tenantID, String userStoreDomain, String transactionId) throws CertAuthException {
+    private String addCsr(PKCS10CertificationRequest request, String userName, int tenantID, String userStoreDomain, String transactionId) throws CaException {
         String csrSerialNo = new BigInteger(32, new SecureRandom()).toString();
         Connection connection = null;
         Date requestDate = new Date();
@@ -100,7 +100,7 @@ public class CsrDAO {
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -118,7 +118,7 @@ public class CsrDAO {
      * @param serialNo serial number of the csr request which is stored against in DB
      * @return CSR file
      */
-    public CsrFile getCSR(String serialNo, int userStoreId, String userName, int tenantId) throws CertAuthException {
+    public Csr getCSR(String serialNo, int userStoreId, String userName, int tenantId) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -135,14 +135,14 @@ public class CsrDAO {
             prepStmt.setInt(3, tenantId);
             prepStmt.setInt(4, userStoreId);
             resultSet = prepStmt.executeQuery();
-            CsrFile[] csrFiles = getCsrArray(resultSet);
-            if (csrFiles != null && csrFiles.length > 0) {
-                return csrFiles[0];
+            Csr[] csrs = getCsrArray(resultSet);
+            if (csrs != null && csrs.length > 0) {
+                return csrs[0];
             }
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -157,9 +157,9 @@ public class CsrDAO {
      * @param serialNo
      * @param tenantId
      * @return
-     * @throws CertAuthException
+     * @throws CaException
      */
-    public CsrFile getCSR(String serialNo, int tenantId) throws CertAuthException {
+    public Csr getCSR(String serialNo, int tenantId) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -174,15 +174,15 @@ public class CsrDAO {
             prepStmt.setString(1, serialNo);
             prepStmt.setInt(2, tenantId);
             resultSet = prepStmt.executeQuery();
-            CsrFile[] csrFiles = getCsrArray(resultSet);
-            if (csrFiles != null && csrFiles.length > 0) {
-                return csrFiles[0];
+            Csr[] csrs = getCsrArray(resultSet);
+            if (csrs != null && csrs.length > 0) {
+                return csrs[0];
             }
 
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -197,9 +197,9 @@ public class CsrDAO {
      *
      * @param serialNo serial number of the csr
      * @return csr file with relevent serial number if not returns false
-     * @throws CertAuthException
+     * @throws CaException
      */
-    public CsrFile getCSR(String serialNo) throws CertAuthException {
+    public Csr getCSR(String serialNo) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -213,14 +213,14 @@ public class CsrDAO {
 
             prepStmt.setString(1, serialNo);
             resultSet = prepStmt.executeQuery();
-            CsrFile[] csrFiles = getCsrArray(resultSet);
-            if (csrFiles != null && csrFiles.length > 0) {
-                return csrFiles[0];
+            Csr[] csrs = getCsrArray(resultSet);
+            if (csrs != null && csrs.length > 0) {
+                return csrs[0];
             }
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -230,7 +230,7 @@ public class CsrDAO {
         return null;
     }
 
-    public CsrFile getCsrWithTransactionId(String transactionId) throws CertAuthException {
+    public Csr getCsrWithTransactionId(String transactionId) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -244,14 +244,14 @@ public class CsrDAO {
 
             prepStmt.setString(1, transactionId);
             resultSet = prepStmt.executeQuery();
-            CsrFile[] csrFiles = getCsrArray(resultSet);
-            if (csrFiles != null && csrFiles.length > 0) {
-                return csrFiles[0];
+            Csr[] csrs = getCsrArray(resultSet);
+            if (csrs != null && csrs.length > 0) {
+                return csrs[0];
             }
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -268,7 +268,7 @@ public class CsrDAO {
      * @param status   status of the csr
      * @return returns 1 if the update is successful, 0 if unsuccessful
      */
-    public int updateStatus(String serialNo, CsrStatus status, int tenantID) throws CertAuthException {
+    public int updateStatus(String serialNo, CsrStatus status, int tenantID) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -293,7 +293,7 @@ public class CsrDAO {
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -309,7 +309,7 @@ public class CsrDAO {
      * @param serialNo serial number of the csr request
      * @return 1 if the update is successful, 0 if unsuccessful
      */
-    public int deleteCSR(String serialNo, int tenantId) throws CertAuthException {
+    public int deleteCSR(String serialNo, int tenantId) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         int result = 0;
@@ -332,7 +332,7 @@ public class CsrDAO {
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -350,7 +350,7 @@ public class CsrDAO {
      * @return array of csr files
      */
 
-    public CsrMetaInfo[] getCSRList(int tenantID) throws CertAuthException {
+    public CsrMetaInfo[] getCSRList(int tenantID) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -367,7 +367,7 @@ public class CsrDAO {
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -377,7 +377,7 @@ public class CsrDAO {
         return null;
     }
 
-    public CsrMetaInfo[] getCSRListWithStatus(int tenantID, String status) throws CertAuthException {
+    public CsrMetaInfo[] getCSRListWithStatus(int tenantID, String status) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -395,7 +395,7 @@ public class CsrDAO {
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -412,7 +412,7 @@ public class CsrDAO {
      * @param username tenant id
      * @return array of csr files
      */
-    public CsrMetaInfo[] getCSRList(String username, int tenantID) throws CertAuthException {
+    public CsrMetaInfo[] getCSRList(String username, int tenantID) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -431,7 +431,7 @@ public class CsrDAO {
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -442,13 +442,13 @@ public class CsrDAO {
     }
 
     /**
-     * constructs and returns a CsrFile array from a resultSet
+     * constructs and returns a Csr array from a resultSet
      *
      * @param resultSet result set
      * @return array of CsrFiles
      */
-    private CsrFile[] getCsrArray(ResultSet resultSet) {
-        ArrayList<CsrFile> csrList = new ArrayList<CsrFile>();
+    private Csr[] getCsrArray(ResultSet resultSet) {
+        ArrayList<Csr> csrList = new ArrayList<Csr>();
         int count = 0;
 
         try {
@@ -457,7 +457,7 @@ public class CsrDAO {
                 String status = resultSet.getString(Constants.CSR_STATUS_LABEL);
                 String commonName = resultSet.getString(Constants.CSR_COMMON_NAME_LABEL);
                 String organization = resultSet.getString(Constants.CSR_ORGANIZATION_LABEL);
-                CsrFile csrFile;
+                Csr csrFile;
                 String country = null;
                 String department = null;
                 String city = null;
@@ -481,7 +481,7 @@ public class CsrDAO {
                 if (decodedContent.containsKey("ST")) {
                     state = decodedContent.get("ST").toString();
                 }
-                csrFile = new CsrFile(commonName, department, organization, city, state, country, csr, serialNo, status, username, tenantID, userStoreId, requestedDate);
+                csrFile = new Csr(commonName, department, organization, city, state, country, csr, serialNo, status, username, tenantID, userStoreId, requestedDate);
                 csrList.add(csrFile);
             }
         } catch (SQLException e) {
@@ -489,9 +489,9 @@ public class CsrDAO {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        CsrFile[] csrFiles = new CsrFile[csrList.size()];
-        csrFiles = csrList.toArray(csrFiles);
-        return csrFiles;
+        Csr[] csrs = new Csr[csrList.size()];
+        csrs = csrList.toArray(csrs);
+        return csrs;
     }
 
 
@@ -524,7 +524,7 @@ public class CsrDAO {
      * @param username
      * @return
      */
-    public CsrMetaInfo[] getCsrList(int tenantID, String username, int userStoreId) throws CertAuthException {
+    public CsrMetaInfo[] getCsrList(int tenantID, String username, int userStoreId) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -543,7 +543,7 @@ public class CsrDAO {
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -559,9 +559,9 @@ public class CsrDAO {
      * @param cn       common name
      * @param tenantID id of the tenant
      * @return CsrMetaInfos for given cn and tenant id
-     * @throws CertAuthException
+     * @throws CaException
      */
-    public CsrMetaInfo[] getCsrListfromCN(String cn, int tenantID) throws CertAuthException {
+    public CsrMetaInfo[] getCsrListfromCN(String cn, int tenantID) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -580,7 +580,7 @@ public class CsrDAO {
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -596,9 +596,9 @@ public class CsrDAO {
      * @param org      organization name
      * @param tenantID tenant id
      * @return list of CsrMetaInfo
-     * @throws CertAuthException
+     * @throws CaException
      */
-    public CsrMetaInfo[] getCsrListfromOrg(String org, int tenantID) throws CertAuthException {
+    public CsrMetaInfo[] getCsrListfromOrg(String org, int tenantID) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -618,7 +618,7 @@ public class CsrDAO {
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);

@@ -22,7 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.certificateauthority.data.CertAuthException;
+import org.wso2.carbon.identity.certificateauthority.CaException;
 import org.wso2.carbon.identity.certificateauthority.scheduledTask.CrlUpdater;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
@@ -57,7 +57,7 @@ public class CAServiceComponent {
         CAServiceComponent.realmService = realmService;
     }
 
-    public static int getUserDomainId(int tenantID, String tenantDomain) throws CertAuthException {
+    public static int getUserDomainId(int tenantID, String tenantDomain) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -79,7 +79,7 @@ public class CAServiceComponent {
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);

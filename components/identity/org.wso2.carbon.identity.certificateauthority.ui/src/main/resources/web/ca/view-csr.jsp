@@ -36,7 +36,7 @@
     String forwardTo = null;
     boolean view = false;
     CAAdminServiceClient client = null;
-    CsrFile csrFile = null;
+    CsrFile csr = null;
 
     String isPaginatedString = request.getParameter("isPaginated");
 
@@ -81,7 +81,7 @@
         }
 
         if (serialNo != null) {
-            csrFile = client.getCSRFromSerialNo(serialNo);
+            csr = client.getCSRFromSerialNo(serialNo);
         }
 
     } catch (Exception e) {
@@ -176,52 +176,52 @@
                             </thead>
                             <tr>
                                 <td style="width: 50%"><fmt:message key='user'/></td>
-                                <td><%=csrFile.getUserName()%>
+                                <td><%=csr.getUserName()%>
                                 </td>
                             </tr>
                             <tr>
                                 <td><fmt:message key='serial.No'/></td>
-                                <td><%=csrFile.getSerialNo()%>
+                                <td><%=csr.getSerialNo()%>
                                 </td>
                             </tr>
                             <tr>
                                 <td><fmt:message key='status'/></td>
-                                <td><%=csrFile.getStatus()%>
+                                <td><%=csr.getStatus()%>
                                 </td>
                             </tr>
                             <tr>
                                 <td><fmt:message key='csr.detail.cn'/></td>
-                                <td><%=csrFile.getCommonName()%>
+                                <td><%=csr.getCommonName()%>
                                 </td>
                             </tr>
                             <tr>
                                 <td><fmt:message key='csr.detail.dept'/></td>
-                                <td><%=csrFile.getDepartment()%>
+                                <td><%=csr.getDepartment()%>
                                 </td>
                             </tr>
                             <tr>
                                 <td><fmt:message key='csr.detail.org'/></td>
-                                <td><%=csrFile.getOrganization()%>
+                                <td><%=csr.getOrganization()%>
                                 </td>
                             </tr>
                             <tr>
                                 <td><fmt:message key='csr.detail.city'/></td>
-                                <td><%=csrFile.getCity()%>
+                                <td><%=csr.getCity()%>
                                 </td>
                             </tr>
                             <tr>
                                 <td><fmt:message key='csr.detail.state'/></td>
-                                <td><%=csrFile.getState()%>
+                                <td><%=csr.getState()%>
                                 </td>
                             </tr>
                             <tr>
                                 <td><fmt:message key='csr.detail.country'/></td>
-                                <td><%=csrFile.getCountry()%>
+                                <td><%=csr.getCountry()%>
                                 </td>
                             </tr>
                             <tr>
                                 <td><fmt:message key='requested.date'/></td>
-                                <td><%=csrFile.getReqestedDate()%>
+                                <td><%=csr.getReqestedDate()%>
                                 </td>
                             </tr>
                         </table>
@@ -238,7 +238,7 @@
                             <tbody>
                             <tr>
                                 <%
-                                    if (csrFile.getStatus().equals(resourceBundle.getString("pending"))) {
+                                    if (csr.getStatus().equals(resourceBundle.getString("pending"))) {
                                 %>
                                 <td>
                                     <form method="post" action="" name="signForm">
@@ -252,7 +252,7 @@
                                                 </td>
                                                 <input type="hidden" name="action" value="sign"/>
                                                 <input type="hidden" name="serial"
-                                                       value="<%=csrFile.getSerialNo() %>">
+                                                       value="<%=csr.getSerialNo() %>">
                                                 <td style="border: transparent">
                                                     <a onclick="signCsr();return false;"
                                                        href="#" style="background-image: url(images/sign.gif);"
@@ -267,7 +267,7 @@
                                 <td style="width: 20%;">
                                     <form method="post" action="" name="reject">
                                         <input type="hidden" name="action" value="reject">
-                                        <input type="hidden" name="serial" value="<%=csrFile.getSerialNo() %>">
+                                        <input type="hidden" name="serial" value="<%=csr.getSerialNo() %>">
 
                                         <a onclick="rejectCsr();return false;"
                                            href="#" style="background-image: url(images/reject.gif);"
@@ -277,16 +277,16 @@
                                 </td>
                             </tr>
                             <%
-                            } else if (csrFile.getStatus().equals(resourceBundle.getString("signed"))) {
+                            } else if (csr.getStatus().equals(resourceBundle.getString("signed"))) {
                             %>
                             <td>
-                                <a onclick="viewCertificate('<%=csrFile.getSerialNo()%>');return false;"
+                                <a onclick="viewCertificate('<%=csr.getSerialNo()%>');return false;"
                                    href="#" style="background-image: url(images/view.gif);"
                                    class="icon-link">
                                     <fmt:message key='view.certificate'/></a>
                             </td>
                             <td>
-                                <a onclick="downloadCertificate('<%=csrFile.getSerialNo()%>');return false;"
+                                <a onclick="downloadCertificate('<%=csr.getSerialNo()%>');return false;"
                                    href="#" style="background-image: url(images/download.gif);"
                                    class="icon-link">
                                     <fmt:message key='download.certificate'/></a>

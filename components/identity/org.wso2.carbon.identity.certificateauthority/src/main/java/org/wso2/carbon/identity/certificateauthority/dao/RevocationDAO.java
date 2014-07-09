@@ -21,9 +21,9 @@ package org.wso2.carbon.identity.certificateauthority.dao;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.certificateauthority.CaException;
 import org.wso2.carbon.identity.certificateauthority.Constants;
 import org.wso2.carbon.identity.certificateauthority.crl.RevokedCertInfo;
-import org.wso2.carbon.identity.certificateauthority.data.CertAuthException;
 import org.wso2.carbon.identity.certificateauthority.data.RevokedCertificate;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
@@ -41,10 +41,10 @@ public class RevocationDAO {
      * @param serialNo serialNo of the revoked certificate
      * @param tenantID
      * @param reason   reason for the revoke
-     * @throws CertAuthException
+     * @throws CaException
      */
 
-    public void addRevokedCert(String serialNo, int tenantID, int reason) throws CertAuthException {
+    public void addRevokedCertificate(String serialNo, int tenantID, int reason) throws CaException {
         Connection connection = null;
         Date requestDate = new Date();
         String sql = null;
@@ -63,7 +63,7 @@ public class RevocationDAO {
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -77,9 +77,9 @@ public class RevocationDAO {
      *
      * @param serialNo
      * @return RevokedCertificate with given serial number
-     * @throws CertAuthException
+     * @throws CaException
      */
-    public RevokedCertificate getRevokedCertificate(String serialNo) throws CertAuthException {
+    public RevokedCertificate getRevokedCertificate(String serialNo) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -93,14 +93,14 @@ public class RevocationDAO {
 
             prepStmt.setString(1, serialNo);
             resultSet = prepStmt.executeQuery();
-            RevokedCertificate[] revCerts = getRevCertArray(resultSet);
+            RevokedCertificate[] revCerts = getRevCertificateArray(resultSet);
             if (revCerts != null && revCerts.length > 0) {
                 return revCerts[0];
             }
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -116,7 +116,7 @@ public class RevocationDAO {
      * @param resultSet
      * @return
      */
-    public RevokedCertificate[] getRevCertArray(ResultSet resultSet) {
+    public RevokedCertificate[] getRevCertificateArray(ResultSet resultSet) {
         ArrayList<RevokedCertificate> revokedList = new ArrayList<RevokedCertificate>();
         int count = 0;
         try {
@@ -143,9 +143,9 @@ public class RevocationDAO {
      *
      * @param serialNo
      * @return
-     * @throws CertAuthException
+     * @throws CaException
      */
-    public int deleteRevokedCert(String serialNo) throws CertAuthException {
+    public int deleteRevokedCertificate(String serialNo) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         int result = 0;
@@ -167,7 +167,7 @@ public class RevocationDAO {
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -182,9 +182,9 @@ public class RevocationDAO {
      *
      * @param
      * @return
-     * @throws CertAuthException
+     * @throws CaException
      */
-    public RevokedCertificate[] getRevokedCerts(int tenantId) throws CertAuthException {
+    public RevokedCertificate[] getRevokedCertificates(int tenantId) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -198,13 +198,13 @@ public class RevocationDAO {
             prepStmt.setInt(1, tenantId);
 
             resultSet = prepStmt.executeQuery();
-            RevokedCertificate[] revCerts = getRevCertArray(resultSet);
+            RevokedCertificate[] revCerts = getRevCertificateArray(resultSet);
             return revCerts;
 
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -217,9 +217,9 @@ public class RevocationDAO {
     /**
      * remove all actived certificates from revocation table
      *
-     * @throws CertAuthException
+     * @throws CaException
      */
-    public void removeActivedCerts() throws CertAuthException {
+    public void removeActivedCertificates() throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -235,7 +235,7 @@ public class RevocationDAO {
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -251,9 +251,9 @@ public class RevocationDAO {
      * @param tenantId id of the tenant
      * @param date     date to be compared
      * @return set of revoked certificates which are revoked after the given date
-     * @throws CertAuthException
+     * @throws CaException
      */
-    public RevokedCertificate[] getRevokedCertsAfter(int tenantId, Date date) throws CertAuthException {
+    public RevokedCertificate[] getRevokedCertificatesAfter(int tenantId, Date date) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -267,13 +267,13 @@ public class RevocationDAO {
             prepStmt.setInt(1, tenantId);
             prepStmt.setTimestamp(2, new Timestamp(date.getTime()));
             resultSet = prepStmt.executeQuery();
-            RevokedCertificate[] revCerts = getRevCertArray(resultSet);
+            RevokedCertificate[] revCerts = getRevCertificateArray(resultSet);
             return revCerts;
 
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -289,9 +289,9 @@ public class RevocationDAO {
      * @param tenantId
      * @param serialNo
      * @param reason
-     * @throws CertAuthException
+     * @throws CaException
      */
-    public void updateRevocationReason(int tenantId, String serialNo, int reason) throws CertAuthException {
+    public void updateRevocationReason(int tenantId, String serialNo, int reason) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -316,7 +316,7 @@ public class RevocationDAO {
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);

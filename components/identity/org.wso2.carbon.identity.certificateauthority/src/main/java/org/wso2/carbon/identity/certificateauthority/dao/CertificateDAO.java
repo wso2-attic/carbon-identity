@@ -21,8 +21,8 @@ package org.wso2.carbon.identity.certificateauthority.dao;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.certificateauthority.CaException;
 import org.wso2.carbon.identity.certificateauthority.Constants;
-import org.wso2.carbon.identity.certificateauthority.data.CertAuthException;
 import org.wso2.carbon.identity.certificateauthority.data.Certificate;
 import org.wso2.carbon.identity.certificateauthority.data.CertificateMetaInfo;
 import org.wso2.carbon.identity.certificateauthority.data.CertificateStatus;
@@ -48,7 +48,7 @@ public class CertificateDAO {
      * @param tenantID id of the tenant tenant who issued the certificate
      * @return
      */
-    public void addPublicCertificate(String serial, X509Certificate certificate, int tenantID, String username, int userStoreId) throws CertAuthException {
+    public void addCertificate(String serial, X509Certificate certificate, int tenantID, String username, int userStoreId) throws CaException {
         Connection connection = null;
         Date requestDate = new Date();
         String sql = null;
@@ -73,7 +73,7 @@ public class CertificateDAO {
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -91,7 +91,7 @@ public class CertificateDAO {
      * @param status   Status of the PC
      * @return 1 if the update is successfull, 0 if not
      */
-    public int updatePCStatus(String serialNo, String status) throws CertAuthException {
+    public int updateCertificateStatus(String serialNo, String status) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         String sql = null;
@@ -114,7 +114,7 @@ public class CertificateDAO {
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -130,7 +130,7 @@ public class CertificateDAO {
      * @return returns an array of revoked certificates
      */
 
-    public CertificateMetaInfo[] getRevokedPCList() throws CertAuthException {
+    public CertificateMetaInfo[] getRevokedCertificateList() throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -143,12 +143,12 @@ public class CertificateDAO {
 
             prepStmt.setString(1, CertificateStatus.REVOKED.toString());
             resultSet = prepStmt.executeQuery();
-            return getPublicCertificateMetaInfoArray(resultSet);
+            return getCertificateMetaInfoArray(resultSet);
 
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -165,8 +165,7 @@ public class CertificateDAO {
      * @param resultSet resultSet
      * @return an Array of PublicCertificates
      */
-
-    public Certificate[] getPublicCertificateArray(ResultSet resultSet) {
+    private Certificate[] getCertificateArray(ResultSet resultSet) {
         ArrayList<Certificate> pcList = new ArrayList<Certificate>();
         int count = 0;
         try {
@@ -191,7 +190,7 @@ public class CertificateDAO {
                 pcList.add(pc);
             }
         } catch (SQLException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();
         } catch (CertificateException e) {
             e.printStackTrace();
         }
@@ -206,7 +205,7 @@ public class CertificateDAO {
      * @param resultSet result set
      * @return CertificateMetaInfoArray
      */
-    public CertificateMetaInfo[] getPublicCertificateMetaInfoArray(ResultSet resultSet) {
+    public CertificateMetaInfo[] getCertificateMetaInfoArray(ResultSet resultSet) {
         ArrayList<CertificateMetaInfo> pcList = new ArrayList<CertificateMetaInfo>();
         int count = 0;
         try {
@@ -223,9 +222,9 @@ public class CertificateDAO {
         } catch (SQLException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
-        CertificateMetaInfo[] pcFiles = new CertificateMetaInfo[pcList.size()];
-        pcFiles = pcList.toArray(pcFiles);
-        return pcFiles;
+        CertificateMetaInfo[] certFiles = new CertificateMetaInfo[pcList.size()];
+        certFiles = pcList.toArray(certFiles);
+        return certFiles;
     }
 
     /**
@@ -234,7 +233,7 @@ public class CertificateDAO {
      * @param serialNo serial number of the certificate
      * @return Certificate
      */
-    public Certificate getPubCert(String serialNo, int tenantID) throws CertAuthException {
+    public Certificate getCertificate(String serialNo, int tenantID) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -247,14 +246,14 @@ public class CertificateDAO {
             prepStmt.setString(1, serialNo);
             prepStmt.setInt(2, tenantID);
             resultSet = prepStmt.executeQuery();
-            Certificate[] pcs = getPublicCertificateArray(resultSet);
+            Certificate[] pcs = getCertificateArray(resultSet);
             if (pcs != null && pcs.length > 0) {
                 return pcs[0];
             }
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -269,9 +268,9 @@ public class CertificateDAO {
      *
      * @param serialNo serial number of the requested certificate
      * @return public certificate with requested serial number
-     * @throws CertAuthException
+     * @throws CaException
      */
-    public Certificate getPubCert(String serialNo) throws CertAuthException {
+    public Certificate getCertificate(String serialNo) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -283,14 +282,14 @@ public class CertificateDAO {
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setString(1, serialNo);
             resultSet = prepStmt.executeQuery();
-            Certificate[] pcs = getPublicCertificateArray(resultSet);
+            Certificate[] pcs = getCertificateArray(resultSet);
             if (pcs != null && pcs.length > 0) {
                 return pcs[0];
             }
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -308,15 +307,15 @@ public class CertificateDAO {
      * @param username    username
      * @param userStoreId user store id of the user
      * @return certificate with requested details
-     * @throws CertAuthException
+     * @throws CaException
      */
-    public Certificate getPubCert(String serialNo, int tenantID, String username, int userStoreId) throws CertAuthException {
+    public Certificate getCertificate(String serialNo, int tenantID, String username, int userStoreId) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
         String sql = null;
         try {
-            log.debug("retriving PC information from serial :" + serialNo);
+            log.debug("retriving Certificate information from serial :" + serialNo);
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
             sql = "SELECT * FROM CA_CERTIFICATE_STORE WHERE SERIAL_NO = ? AND TENANT_ID = ? AND USER_STORE_ID =? AND USER_NAME = ?";
             prepStmt = connection.prepareStatement(sql);
@@ -325,14 +324,14 @@ public class CertificateDAO {
             prepStmt.setInt(3, userStoreId);
             prepStmt.setString(4, username);
             resultSet = prepStmt.executeQuery();
-            Certificate[] pcs = getPublicCertificateArray(resultSet);
+            Certificate[] pcs = getCertificateArray(resultSet);
             if (pcs != null && pcs.length > 0) {
-                return (Certificate) pcs[0];
+                return pcs[0];
             }
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -348,10 +347,10 @@ public class CertificateDAO {
      *
      * @param tenantID
      * @return
-     * @throws CertAuthException
+     * @throws CaException
      */
 
-    public Certificate[] getRevokedPubCertsDecoded(String tenantID) throws CertAuthException {
+    public Certificate[] getRevokedCertificatesDecoded(String tenantID) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -364,12 +363,12 @@ public class CertificateDAO {
 
             prepStmt.setString(1, CertificateStatus.REVOKED.toString());
             resultSet = prepStmt.executeQuery();
-            return getPublicCertificateArray(resultSet);
+            return getCertificateArray(resultSet);
 
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -385,9 +384,9 @@ public class CertificateDAO {
      *
      * @param tenantId id of the tenant
      * @return set of certificate meta infos of all the certificates issued by the given tenant
-     * @throws CertAuthException
+     * @throws CaException
      */
-    public CertificateMetaInfo[] getCertificates(int tenantId) throws CertAuthException {
+    public CertificateMetaInfo[] getCertificates(int tenantId) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -400,12 +399,12 @@ public class CertificateDAO {
 
             prepStmt.setInt(1, tenantId);
             resultSet = prepStmt.executeQuery();
-            return getPublicCertificateMetaInfoArray(resultSet);
+            return getCertificateMetaInfoArray(resultSet);
 
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -421,9 +420,9 @@ public class CertificateDAO {
      * @param status   status of the certificate
      * @param tenantId tenant Id
      * @return
-     * @throws CertAuthException
+     * @throws CaException
      */
-    public CertificateMetaInfo[] getCerts(String status, int tenantId) throws CertAuthException {
+    public CertificateMetaInfo[] getCertificates(String status, int tenantId) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -436,11 +435,11 @@ public class CertificateDAO {
             prepStmt.setString(1, CertificateStatus.valueOf(status).toString());
             prepStmt.setInt(2, tenantId);
             resultSet = prepStmt.executeQuery();
-            return getPublicCertificateMetaInfoArray(resultSet);
+            return getCertificateMetaInfoArray(resultSet);
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -456,9 +455,9 @@ public class CertificateDAO {
      * @param username username of the user
      * @param tenantId tenant id
      * @return
-     * @throws CertAuthException
+     * @throws CaException
      */
-    public CertificateMetaInfo[] getCertsFromUsername(String username, int tenantId) throws CertAuthException {
+    public CertificateMetaInfo[] getCertificatesFromUsername(String username, int tenantId) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -471,11 +470,11 @@ public class CertificateDAO {
             prepStmt.setString(1, username);
             prepStmt.setInt(2, tenantId);
             resultSet = prepStmt.executeQuery();
-            return getPublicCertificateMetaInfoArray(resultSet);
+            return getCertificateMetaInfoArray(resultSet);
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
-            throw new CertAuthException(errorMsg, e);
+            throw new CaException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);

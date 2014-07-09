@@ -18,9 +18,9 @@
 
 package org.wso2.carbon.identity.certificateauthority.data;
 
-import com.hazelcast.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.bouncycastle.util.encoders.Base64;
 import org.wso2.carbon.identity.certificateauthority.crl.CrlTools;
 
 import java.security.cert.CRLException;
@@ -30,13 +30,13 @@ import java.util.Date;
 
 public class CRLDataHolder {
 
-    Log log = LogFactory.getLog(CRLDataHolder.class);
-    Date thisUpdate;
-    Date nextUpdate;
-    String base64Crl;
-    int tenantID;
-    int crlNumber;
-    int deltaCrlIndicator;
+    private static final Log log = LogFactory.getLog(CRLDataHolder.class);
+    private Date thisUpdate;
+    private Date nextUpdate;
+    private String base64Crl;
+    private int tenantID;
+    private int crlNumber;
+    private int deltaCrlIndicator;
 
     public CRLDataHolder(Date thisUpdate, Date nextUpdate, String base64Crl, int tenantID, int crlNumber, int deltaCrlIndicator) {
         this.thisUpdate = thisUpdate;

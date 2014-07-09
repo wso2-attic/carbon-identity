@@ -42,8 +42,8 @@ import org.jscep.transaction.Nonce;
 import org.jscep.transaction.TransactionId;
 import org.jscep.transport.request.Operation;
 import org.wso2.carbon.identity.certificateauthority.CRLService;
+import org.wso2.carbon.identity.certificateauthority.CaException;
 import org.wso2.carbon.identity.certificateauthority.ScepServices;
-import org.wso2.carbon.identity.certificateauthority.data.CertAuthException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -296,14 +296,14 @@ public class ScepEndpoint {
     }
 
     private X509CRL doGetCrl(int tenantId, X509Name issuer, BigInteger serialNumber)
-            throws CertificateException, CertAuthException {
+            throws CertificateException, CaException {
         CRLService crlService = new CRLService();
         return crlService.getLatestX509Crl(tenantId);
     }
 
     private List<X509Certificate> doEnrol(PKCS10CertificationRequest certReq,
                                           TransactionId transId, int tenantId)
-            throws CertAuthException {
+            throws CaException {
         scepServices.addCsr(certReq, transId.toString(), tenantId);
         return Collections.emptyList();
     }
@@ -327,7 +327,7 @@ public class ScepEndpoint {
             if (certificate != null) {
                 return Collections.singletonList(certificate);
             }
-        } catch (CertAuthException e) {
+        } catch (CaException e) {
             log.error("Error retrieving certificate", e);
         }
         return Collections.emptyList();
@@ -355,7 +355,7 @@ public class ScepEndpoint {
             if (certificate != null) {
                 return Collections.singletonList(certificate);
             }
-        } catch (CertAuthException e) {
+        } catch (CaException e) {
             log.error("Error retrieving the certificate");
         }
         return null;

@@ -28,7 +28,7 @@ import org.wso2.carbon.user.api.Tenant;
 import org.wso2.carbon.user.api.UserRealmService;
 
 public class CrlUpdater implements Runnable {
-    private Log log = LogFactory.getLog(CrlUpdater.class);
+    private static final Log log = LogFactory.getLog(CrlUpdater.class);
 
     public void buildFullCrl() throws Exception {
         CrlFactory crlFactory = new CrlFactory();
@@ -40,8 +40,6 @@ public class CrlUpdater implements Runnable {
             setTenant(tenant.getId(), tenant.getDomain());
             crlFactory.createAndStoreCrl(tenant.getId());
         }
-        // setTenant(-1,null);
-
     }
 
     @Override
@@ -50,12 +48,11 @@ public class CrlUpdater implements Runnable {
             log.info("building full crls for tenants... and testing for scripts");
             buildFullCrl();
         } catch (Exception e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            log.error(e.getMessage(),e);
         }
     }
 
     public void setTenant(int tenantId, String tenantDomain) {
-
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
     }

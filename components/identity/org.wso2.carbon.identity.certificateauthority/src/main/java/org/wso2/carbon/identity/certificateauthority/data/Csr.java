@@ -23,7 +23,7 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import java.util.Date;
 
 
-public class CsrFile {
+public class Csr {
     private String department;
     private String city;
     private String country;
@@ -33,14 +33,14 @@ public class CsrFile {
     private CsrMetaInfo csrMetaInfo;
     private int tenantID;
 
-    public CsrFile(String commonName, String organization, PKCS10CertificationRequest csrRequest, String serialNo, String status, String userName, int tenantID, int userStoreId, Date reqestedDate) {
+    public Csr(String commonName, String organization, PKCS10CertificationRequest csrRequest, String serialNo, String status, String userName, int tenantID, int userStoreId, Date reqestedDate) {
         csrMetaInfo = new CsrMetaInfo(serialNo, commonName, organization, status, reqestedDate, userName);
         this.csrRequest = csrRequest;
         this.tenantID = tenantID;
         this.userStoreId = userStoreId;
     }
 
-    public CsrFile(String commonName, String department, String organization, String city, String state, String country, PKCS10CertificationRequest csrRequest, String serialNo, String status, String username, int tenantID, int userStoreId, Date reqestedDate) {
+    public Csr(String commonName, String department, String organization, String city, String state, String country, PKCS10CertificationRequest csrRequest, String serialNo, String status, String username, int tenantID, int userStoreId, Date reqestedDate) {
 
         csrMetaInfo = new CsrMetaInfo(serialNo, commonName, organization, status, reqestedDate, username);
         this.department = department;

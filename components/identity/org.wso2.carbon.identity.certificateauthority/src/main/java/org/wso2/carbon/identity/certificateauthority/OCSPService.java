@@ -59,7 +59,7 @@ public class OCSPService {
             BasicOCSPRespGenerator basicRespGen = new BasicOCSPRespGenerator(publicKey);
             for (int i = 0; i < requests.length; i++) {
                 certID = requests[i].getCertID();
-                certificate = certificateDAO.getPubCert(certID.getSerialNumber().toString());
+                certificate = certificateDAO.getCertificate(certID.getSerialNumber().toString());
                 if (certificate == null || tenantID != certificate.getTenantID()) {
                     basicRespGen.addResponse(certID, new UnknownStatus());
                 } else {

@@ -21,7 +21,6 @@ package org.wso2.carbon.identity.certificateauthority;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.certificateauthority.crl.CrlFactory;
 import org.wso2.carbon.identity.certificateauthority.crl.CrlStore;
-import org.wso2.carbon.identity.certificateauthority.data.CertAuthException;
 import org.wso2.carbon.identity.certificateauthority.scheduledTask.CrlUpdater;
 
 import java.security.cert.CRLException;
@@ -41,13 +40,13 @@ public class CRLService {
         factory.createAndStoreDeltaCrl(tenantID);
     }
 
-    public byte[] getLatestCrl(int tenantID) throws CertificateException, CertAuthException, CRLException {
+    public byte[] getLatestCrl(int tenantID) throws CertificateException, CaException, CRLException {
         CrlStore store = new CrlStore();
         byte[] crlBytes = store.getLatestCrl(tenantID, false);
         return crlBytes;
     }
 
-    public byte[] getLatestDeltaCrl(int tenantId) throws CertificateException, CertAuthException, CRLException {
+    public byte[] getLatestDeltaCrl(int tenantId) throws CertificateException, CaException, CRLException {
         CrlStore store = new CrlStore();
         byte[] crlBytes = store.getLatestCrl(tenantId, true);
         return crlBytes;
@@ -59,7 +58,7 @@ public class CRLService {
         updater.buildFullCrl();
     }
 
-    public X509CRL getLatestX509Crl(int tenantId) throws CertificateException, CertAuthException {
+    public X509CRL getLatestX509Crl(int tenantId) throws CertificateException, CaException {
         CrlStore store = new CrlStore();
         return store.getLatestX509Crl(tenantId, false);
     }

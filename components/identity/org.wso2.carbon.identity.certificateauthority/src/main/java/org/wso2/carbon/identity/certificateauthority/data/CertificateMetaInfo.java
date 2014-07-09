@@ -21,11 +21,11 @@ package org.wso2.carbon.identity.certificateauthority.data;
 import java.util.Date;
 
 public class CertificateMetaInfo {
-    String serialNo;
-    Date issuedDate;
-    Date expiryDate;
-    String username;
-    String status;
+    private String serialNo;
+    private Date issuedDate;
+    private Date expiryDate;
+    private String username;
+    private String status;
 
     public CertificateMetaInfo(String serialNo, Date issuedDate, Date expiryDate, String username, String status) {
         this.serialNo = serialNo;

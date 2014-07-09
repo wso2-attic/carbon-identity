@@ -18,20 +18,21 @@
 
 package org.wso2.carbon.identity.certificateauthority;
 
-public class CertificateGenerationException extends Exception {
+public class CaException extends Exception{
 
-    public CertificateGenerationException() {
+    public CaException() {
+        super();
     }
 
-    public CertificateGenerationException(String message) {
+    public CaException(String message) {
         super(message);
     }
 
-    public CertificateGenerationException(String message, Throwable cause) {
+    public CaException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public CertificateGenerationException(Throwable cause) {
+    public CaException(Throwable cause) {
         super(cause);
     }
 }

@@ -32,7 +32,7 @@
 
     CsrMetaInfo[] csrPerPage = null;
     CAAdminServiceClient client = null;
-    CsrMetaInfo[] csrFiles = null;
+    CsrMetaInfo[] csrs = null;
     int numberOfPages = 0;
     int pageNumberInt = 0;
 
@@ -80,27 +80,27 @@
         }
 
 
-        csrFiles = (CsrMetaInfo[]) session.getAttribute("csrFiles");
-        if (csrFiles == null || !isPaginated) {
+        csrs = (CsrMetaInfo[]) session.getAttribute("csrs");
+        if (csrs == null || !isPaginated) {
 
             if (statusTypeFilter.equals("ALL")) {
-                csrFiles = client.getCSRFileList();
+                csrs = client.getCSRFileList();
             } else {
-                csrFiles = client.getCSRsFromType(statusTypeFilter);
+                csrs = client.getCSRsFromType(statusTypeFilter);
             }
-            if (csrSearchString != "*") {
-                csrFiles = client.getCSRsFromCommonName(csrSearchString);
+            if (!csrSearchString.equals("*")) {
+                csrs = client.getCSRsFromCommonName(csrSearchString);
             }
 
-            session.setAttribute("csrFiles", csrFiles);
+            session.setAttribute("csrs", csrs);
         }
 
         int itemsPerPageInt = CAConstants.DEFAULT_ITEMS_PER_PAGE;
 
 
-        if (csrFiles != null) {
-            numberOfPages = (int) Math.ceil((double) csrFiles.length / itemsPerPageInt);
-            csrPerPage = ClientUtil.doPagingForStrings(pageNumberInt, itemsPerPageInt, csrFiles);
+        if (csrs != null) {
+            numberOfPages = (int) Math.ceil((double) csrs.length / itemsPerPageInt);
+            csrPerPage = ClientUtil.doPagingForStrings(pageNumberInt, itemsPerPageInt, csrs);
         }
     } catch (Exception e) {
 %>

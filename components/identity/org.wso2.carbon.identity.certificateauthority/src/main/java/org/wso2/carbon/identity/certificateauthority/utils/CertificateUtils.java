@@ -34,7 +34,7 @@ public class CertificateUtils {
             writer.close();
             return stringWriter.toString();
         } catch (IOException ignored) {
+            return "";
         }
-        return null;
     }
 }
