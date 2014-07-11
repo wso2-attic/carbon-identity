@@ -21,11 +21,11 @@ package org.wso2.carbon.identity.certificateauthority;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.ocsp.*;
+import org.bouncycastle.ocsp.CertificateStatus;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.certificateauthority.dao.CertificateDAO;
 import org.wso2.carbon.identity.certificateauthority.dao.RevocationDAO;
-import org.wso2.carbon.identity.certificateauthority.data.Certificate;
-import org.wso2.carbon.identity.certificateauthority.data.RevokedCertificate;
+import org.wso2.carbon.identity.certificateauthority.data.*;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -57,8 +57,8 @@ public class OCSPService {
             PublicKey publicKey = keyStoreManager.getDefaultPublicKey();
             PrivateKey privateKey = keyStoreManager.getDefaultPrivateKey();
             BasicOCSPRespGenerator basicRespGen = new BasicOCSPRespGenerator(publicKey);
-            for (int i = 0; i < requests.length; i++) {
-                certID = requests[i].getCertID();
+            for (Req request : requests) {
+                certID = request.getCertID();
                 certificate = certificateDAO.getCertificate(certID.getSerialNumber().toString());
                 if (certificate == null || tenantID != certificate.getTenantID()) {
                     basicRespGen.addResponse(certID, new UnknownStatus());

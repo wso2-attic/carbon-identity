@@ -87,7 +87,7 @@ public class CAAdminService extends AbstractAdmin {
                 throw new CaException("Invalid serial no");
             }
             if (!"PENDING".equals(csr.getStatus())) {
-                throw new CaException("Certificate already signed");
+                throw new CaException("Certificate already signed, rejected or revoked");
             }
             X509Certificate signedCert = signCSR(serialNo, csr.getCsrRequest(), validity, CAUtils.getConfiguredPrivateKey(), CAUtils.getConfiguredCaCert());
             csrDAO.updateStatus(serialNo, CsrStatus.SIGNED, tenantID);
@@ -132,7 +132,7 @@ public class CAAdminService extends AbstractAdmin {
 
     }
 
-    public String[] listKeyAliases() {
+    public String[] listKeyAliases() throws CaException {
         List<String> keyList = new ArrayList<String>();
 
 
@@ -160,12 +160,9 @@ public class CAAdminService extends AbstractAdmin {
                     }
                 }
             }
-        } catch (RegistryException e) {
-            log.error(e);
-        } catch (SecurityConfigException e) {
-            log.error(e);
         } catch (Exception e) {
             log.error(e);
+            throw new CaException("Error when listing keys");
         }
         return keyList.toArray(new String[keyList.size()]);
     }

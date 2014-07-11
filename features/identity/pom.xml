@@ -12,8 +12,8 @@
         limitations under the License.
     -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
@@ -29,28 +29,28 @@
     <name>WSO2 Carbon - Identity Feature Aggregator Module</name>
     <url>http://wso2.org</url>
 
-            <modules>
-                <module>identity-core</module>
-                <module>identity-provider</module>
-		<!--module>identity-provider-mgt</module-->
-		<module>identity-mgt</module>
-		<module>identity-authorization</module>
-                <module>relying-party</module>
-                <module>self-registration</module>
-                <module>user-profiles</module>
-                <module>xacml</module>
-                <module>oauth</module>
-                <module>sso-saml</module>
-                <module>openid-admin</module>
-                <module>passive-sts</module>
-                <module>application-authentication-framework</module>
-                <module>application-authenticators</module>
-		<module>scim</module>
-		<module>application-mgt</module>
-		<module>identity-provisioning</module>
-		<module>tools-saml</module>
-		<module>thrift</module>
-            </modules>
+    <modules>
+        <module>identity-core</module>
+        <module>identity-provider</module>
+        <!--module>identity-provider-mgt</module-->
+        <module>identity-mgt</module>
+        <module>identity-authorization</module>
+        <module>relying-party</module>
+        <module>self-registration</module>
+        <module>user-profiles</module>
+        <module>xacml</module>
+        <module>oauth</module>
+        <module>sso-saml</module>
+        <module>openid-admin</module>
+        <module>passive-sts</module>
+        <module>application-authentication-framework</module>
+        <module>application-authenticators</module>
+        <module>scim</module>
+        <module>application-mgt</module>
+        <module>identity-provisioning</module>
+        <module>tools-saml</module>
+        <module>certificate-authority</module>
+    </modules>
 
     <!--dependencyManagement>
         <dependencies>
@@ -399,7 +399,7 @@
         <identity.version>${wso2carbon.version}</identity.version>
         <wso2carbon.version.identity>${wso2carbon.version}</wso2carbon.version.identity>
         <libthrift.wso2.version>0.8.0.wso2v1</libthrift.wso2.version>
-	<charon.wso2.version.identity>2.0.0</charon.wso2.version.identity>
+        <charon.wso2.version.identity>2.0.0</charon.wso2.version.identity>
     </properties>
 
 </project>

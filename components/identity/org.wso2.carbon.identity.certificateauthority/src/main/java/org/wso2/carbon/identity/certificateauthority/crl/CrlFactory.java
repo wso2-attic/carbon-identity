@@ -40,7 +40,7 @@ import java.util.Date;
 public class CrlFactory {
     Log log = LogFactory.getLog(CrlFactory.class);
 
-    private long CRL_UPDATE_TIME = 24 * 60 * 60 * 1000;
+    private final long CRL_UPDATE_TIME = 24 * 60 * 60 * 1000;
 
 
     /**
@@ -71,8 +71,7 @@ public class CrlFactory {
         if (isDeltaCrl) {
             crlGen.addExtension(X509Extensions.DeltaCRLIndicator, true, new CRLNumber(BigInteger.valueOf(baseCrlNumber)));
         }
-        X509CRL crl = crlGen.generateX509CRL(caKey, "BC");
-        return crl;
+        return crlGen.generateX509CRL(caKey, "BC");
     }
 
     /**
@@ -92,8 +91,7 @@ public class CrlFactory {
         int deltanumber = crlDataHolderDao.findHighestCrlNumber(tenantId, true);
         // nextCrlNumber: The highest number of last CRL (full or delta) and increased by 1 (both full CRLs and deltaCRLs share the same series of CRL Number)
         int nextCrlNumber = ((fullnumber > deltanumber) ? fullnumber : deltanumber) + 1;
-        X509CRL crl = createCRL(certb, privateKey, revokedCertificates, nextCrlNumber, -1, false);
-        return crl;
+        return createCRL(certb, privateKey, revokedCertificates, nextCrlNumber, -1, false);
     }
 
     /**
@@ -116,8 +114,7 @@ public class CrlFactory {
             int deltanumber = crlDataHolderDao.findHighestCrlNumber(tenantId, true);
             // nextCrlNumber: The highest number of last CRL (full or delta) and increased by 1 (both full CRLs and deltaCRLs share the same series of CRL Number)
             int nextCrlNumber = ((fullnumber > deltanumber) ? fullnumber : deltanumber) + 1;
-            X509CRL crl = createCRL(certb, privateKey, revokedCertificates, nextCrlNumber, fullnumber, false);
-            return crl;
+            return createCRL(certb, privateKey, revokedCertificates, nextCrlNumber, fullnumber, false);
         } else {
             log.info("No base crl found to create a delta crl");
         }

@@ -103,6 +103,8 @@ public class CAAdminServiceClient {
             return stub.listKeyAliases();
         } catch (RemoteException e) {
             handleException(e.getMessage(), e);
+        } catch (CAAdminServiceCaException e) {
+            handleException(e.getMessage(),e);
         }
         return new String[0];
     }
@@ -120,7 +122,7 @@ public class CAAdminServiceClient {
         } catch (RemoteException e) {
             //todo: exception handling
             e.printStackTrace();
-        } catch (CAAdminServiceCertificateGenerationException e) {
+        } catch (CAAdminServiceCaException e) {
             e.printStackTrace();
         }
     }
@@ -136,7 +138,7 @@ public class CAAdminServiceClient {
         } catch (RemoteException e) {
             //todo: exception handling
             e.printStackTrace();
-        } catch (CAAdminServiceCertAuthException e) {
+        }catch (CAAdminServiceCaException e) {
             e.printStackTrace();
         }
     }
@@ -147,7 +149,7 @@ public class CAAdminServiceClient {
      * @return CSR File Serial Number
      * @throws AxisFault
      */
-    public CsrFile getCSRFromSerialNo(String serialNo) throws AxisFault {
+    public Csr getCSRFromSerialNo(String serialNo) throws AxisFault {
 
         try {
             return stub.getCsr(serialNo);

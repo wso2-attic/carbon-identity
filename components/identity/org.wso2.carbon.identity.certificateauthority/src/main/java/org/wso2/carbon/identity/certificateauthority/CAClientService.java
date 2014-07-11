@@ -29,6 +29,8 @@ import org.wso2.carbon.identity.certificateauthority.data.CsrMetaInfo;
 import org.wso2.carbon.identity.certificateauthority.internal.CAServiceComponent;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
+import java.io.IOException;
+
 public class CAClientService {
     Log log = LogFactory.getLog(CAClientService.class);
 
@@ -36,10 +38,15 @@ public class CAClientService {
     private CertificateDAO certificateDAO = new CertificateDAO();
 
     public String addCsr(String csrContent) throws CaException {
-        String username = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
-        int tenantID = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
-        String userStoreDomain = UserCoreUtil.extractDomainFromName(username);
-        return csrDAO.addCsr(csrContent, username, tenantID, userStoreDomain);
+        try {
+            String username = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
+            int tenantID = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
+            String userStoreDomain = UserCoreUtil.extractDomainFromName(username);
+            return csrDAO.addCsr(csrContent, username, tenantID, userStoreDomain);
+        } catch (IOException e) {
+            log.error(e);
+            throw new CaException("Could not store CSR. "+e.getMessage(),e);
+        }
     }
 
     public Csr getCsr(String serial) throws CaException {

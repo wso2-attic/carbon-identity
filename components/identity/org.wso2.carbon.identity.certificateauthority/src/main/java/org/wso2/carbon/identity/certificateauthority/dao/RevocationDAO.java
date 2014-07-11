@@ -198,8 +198,7 @@ public class RevocationDAO {
             prepStmt.setInt(1, tenantId);
 
             resultSet = prepStmt.executeQuery();
-            RevokedCertificate[] revCerts = getRevCertificateArray(resultSet);
-            return revCerts;
+            return getRevCertificateArray(resultSet);
 
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
@@ -267,8 +266,7 @@ public class RevocationDAO {
             prepStmt.setInt(1, tenantId);
             prepStmt.setTimestamp(2, new Timestamp(date.getTime()));
             resultSet = prepStmt.executeQuery();
-            RevokedCertificate[] revCerts = getRevCertificateArray(resultSet);
-            return revCerts;
+            return getRevCertificateArray(resultSet);
 
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";

@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.identity.certificateauthority;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.wso2.carbon.identity.certificateauthority.dao.CertificateDAO;
 import org.wso2.carbon.identity.certificateauthority.dao.CsrDAO;
@@ -31,6 +33,7 @@ import java.security.cert.X509Certificate;
 
 public class ScepServices {
 
+    private static final Log log = LogFactory.getLog(CAClientService.class);
     private CsrDAO csrDAO = new CsrDAO();
     private CertificateDAO certDao = new CertificateDAO();
 
@@ -56,14 +59,16 @@ public class ScepServices {
         if (cert != null) {
             return cert.getPublicCertificate();
         }
-        return null;
+        else {
+            throw new CaException("No certificates with given serial no: "+serialNo);
+        }
     }
 
-    public X509Certificate getCaCert(int tenantId) {
+    public X509Certificate getCaCert(int tenantId) throws Exception {
         return CAUtils.getConfiguredCaCert(tenantId);
     }
 
-    public PrivateKey getCaKey(int tenantId) {
+    public PrivateKey getCaKey(int tenantId) throws Exception {
         return CAUtils.getConfiguredPrivateKey();
     }
 

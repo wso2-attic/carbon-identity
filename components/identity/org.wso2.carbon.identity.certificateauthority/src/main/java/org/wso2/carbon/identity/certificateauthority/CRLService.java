@@ -42,14 +42,12 @@ public class CRLService {
 
     public byte[] getLatestCrl(int tenantID) throws CertificateException, CaException, CRLException {
         CrlStore store = new CrlStore();
-        byte[] crlBytes = store.getLatestCrl(tenantID, false);
-        return crlBytes;
+        return store.getLatestCrl(tenantID, false);
     }
 
     public byte[] getLatestDeltaCrl(int tenantId) throws CertificateException, CaException, CRLException {
         CrlStore store = new CrlStore();
-        byte[] crlBytes = store.getLatestCrl(tenantId, true);
-        return crlBytes;
+        return store.getLatestCrl(tenantId, true);
 
     }
 

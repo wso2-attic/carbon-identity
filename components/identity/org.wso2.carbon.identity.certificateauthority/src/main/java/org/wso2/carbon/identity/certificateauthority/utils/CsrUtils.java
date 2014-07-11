@@ -37,8 +37,7 @@ public class CsrUtils {
      */
     public static PKCS10CertificationRequest getCRfromEncodedCsr(String encodedCsr) throws IOException {
         PEMParser pemParser = new PEMParser(new InputStreamReader(new ByteArrayInputStream(encodedCsr.getBytes()), "8859_1"));
-        PKCS10CertificationRequest csr = (PKCS10CertificationRequest) pemParser.readObject();
-        return csr;
+        return (PKCS10CertificationRequest) pemParser.readObject();
     }
 
     public static HashMap<String, String> getSubjectInfo(PKCS10CertificationRequest csr) {

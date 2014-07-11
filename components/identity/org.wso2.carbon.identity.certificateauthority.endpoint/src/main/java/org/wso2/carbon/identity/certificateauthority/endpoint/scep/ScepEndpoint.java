@@ -159,6 +159,10 @@ public class ScepEndpoint {
             return ResponseUtils.notFound();
         } catch (CertificateEncodingException e) {
             return ResponseUtils.serverError();
+        } catch (Exception e) {
+            //occurs when invalid tenant id is given
+            log.warn("Certificate for tenant "+tenantId+" is requested, but was not available");
+            return ResponseUtils.notFound();
         }
         return ResponseUtils.notFound();
     }
@@ -270,7 +274,7 @@ public class ScepEndpoint {
             PkcsPkiEnvelopeEncoder envEncoder = new PkcsPkiEnvelopeEncoder(
                     reqCert, "DESede");
             PkiMessageEncoder encoder = new PkiMessageEncoder(getSignerKey(tenantId),
-                    getSigner(tenantId), getSignerCertificateChain(tenantId), envEncoder);
+                    getSigner(tenantId), envEncoder);
             CMSSignedData signedData = encoder.encode(certRep);
 
             return Response.ok()
@@ -308,15 +312,15 @@ public class ScepEndpoint {
         return Collections.emptyList();
     }
 
-    private X509Certificate[] getSignerCertificateChain(int tenantId) {
+    private X509Certificate[] getSignerCertificateChain(int tenantId) throws Exception {
         return new X509Certificate[]{scepServices.getCaCert(tenantId)};
     }
 
-    private X509Certificate getSigner(int tenantId) {
+    private X509Certificate getSigner(int tenantId) throws Exception {
         return scepServices.getCaCert(tenantId);
     }
 
-    private PrivateKey getSignerKey(int tenantId) {
+    private PrivateKey getSignerKey(int tenantId) throws Exception {
         return scepServices.getCaKey(tenantId);
     }
 
@@ -341,11 +345,11 @@ public class ScepEndpoint {
         return generator.generate(new CMSAbsentContent());
     }
 
-    private X509Certificate getRecipient(int tenantId) {
+    private X509Certificate getRecipient(int tenantId) throws Exception {
         return scepServices.getCaCert(tenantId);
     }
 
-    private PrivateKey getRecipientKey(int tenantId) {
+    private PrivateKey getRecipientKey(int tenantId) throws Exception {
         return scepServices.getCaKey(tenantId);
     }
 

@@ -58,8 +58,7 @@ public class CrlTools {
     public static X509CRL getCRL(String base64Crl) throws CertificateException {
         X509CRL crl = null;
         try {
-            String b64Crl = base64Crl;
-            crl = CrlTools.getCRLfromByteArray(Base64.decode(b64Crl.getBytes()));
+            crl = CrlTools.getCRLfromByteArray(Base64.decode(base64Crl.getBytes()));
         } catch (CRLException ce) {
             log.error("Can't decode CRL.", ce);
             return null;
