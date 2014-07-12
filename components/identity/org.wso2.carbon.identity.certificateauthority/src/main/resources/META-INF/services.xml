@@ -41,7 +41,7 @@
         <parameter name="ServiceClass">org.wso2.carbon.identity.certificateauthority.CAClientService</parameter>
         <parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
         <parameter name="adminService" locked="true">true</parameter>
-        <parameter name="hiddenService" locked="true">false</parameter>
+        <parameter name="hiddenService" locked="true">true</parameter>
     </service>
 
 </serviceGroup>

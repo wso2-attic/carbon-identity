@@ -39,16 +39,15 @@
             <version>2.0.2.wso2v1</version>
         </dependency>
 
-        <!--todo BC is provided by wss4j for now, this should be fixed once the BC is bundled seperately-->
         <dependency>
-            <groupId>org.bouncycastle</groupId>
+            <groupId>org.bouncycastle.wso2</groupId>
             <artifactId>bcpkix-jdk15on</artifactId>
-            <version>1.49</version>
+            <version>1.49.wso2v1</version>
         </dependency>
         <dependency>
-            <groupId>org.bouncycastle</groupId>
+            <groupId>org.bouncycastle.wso2</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
-            <version>1.49</version>
+            <version>1.49.wso2v1</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
