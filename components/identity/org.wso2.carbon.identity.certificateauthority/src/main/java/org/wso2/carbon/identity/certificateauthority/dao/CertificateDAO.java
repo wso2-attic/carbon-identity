@@ -48,7 +48,7 @@ public class CertificateDAO {
      * @param tenantID id of the tenant tenant who issued the certificate
      * @return
      */
-    public void addCertificate(String serial, X509Certificate certificate, int tenantID, String username, int userStoreId) throws CaException {
+    public void addCertificate(String serial, X509Certificate certificate, int tenantID, String username, String userStoreDomain) throws CaException {
         Connection connection = null;
         Date requestDate = new Date();
         String sql = null;
@@ -58,7 +58,7 @@ public class CertificateDAO {
 
             log.debug("adding public certificate file to database");
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
-            sql = "INSERT INTO CA_CERTIFICATE_STORE (SERIAL_NO,PUBLIC_CERTIFICATE,STATUS,ISSUED_DATE,EXPIRY_DATE,TENANT_ID,USER_NAME,USER_STORE_ID) VALUES (?,?,?,?,?,?,?,?) ";
+            sql = "INSERT INTO CA_CERTIFICATE_STORE (SERIAL_NO,PUBLIC_CERTIFICATE,STATUS,ISSUED_DATE,EXPIRY_DATE,TENANT_ID,USER_NAME,UM_DOMAIN_NAME) VALUES (?,?,?,?,?,?,?,?) ";
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setString(1, serial);
             prepStmt.setBlob(2, new ByteArrayInputStream(certificate.getEncoded()));
@@ -67,7 +67,7 @@ public class CertificateDAO {
             prepStmt.setTimestamp(5, new Timestamp(expiryDate.getTime()));
             prepStmt.setInt(6, tenantID);
             prepStmt.setString(7, username);
-            prepStmt.setInt(8, userStoreId);
+            prepStmt.setString(8, userStoreDomain);
             prepStmt.execute();
             connection.commit();
         } catch (IdentityException e) {
@@ -170,7 +170,7 @@ public class CertificateDAO {
         int count = 0;
         try {
             while (resultSet.next()) {
-                Certificate pc = null;
+                Certificate cert = null;
                 String serialNo = resultSet.getString(Constants.SERIAL_NO_LABEL);
                 String status = resultSet.getString(Constants.PC_STATUS_LABEL);
                 Date expiryDate = resultSet.getTimestamp(Constants.PC_EXPIRY_DATE);
@@ -179,15 +179,12 @@ public class CertificateDAO {
                 Blob pcBlob = resultSet.getBlob(Constants.PC_CONTENT_LABEL);
                 CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
                 X509Certificate certificate = (X509Certificate) certificateFactory.generateCertificate(pcBlob.getBinaryStream());
-                String pcContent = new String(pcBlob.getBytes(1, (int) pcBlob.length()));
                 Date issuedDate = resultSet.getTimestamp(Constants.PC_ISSUDED_DATE);
                 String username = resultSet.getString(Constants.PC_ISSUER_LABEL);
                 int tenantID = resultSet.getInt(Constants.TENANT_ID_LABEL);
-                int userStoreId = resultSet.getInt(Constants.USER_STORE_ID_LABEL);
-                pc = new Certificate(serialNo, certificate, status, tenantID, username, issuedDate, expiryDate, userStoreId);
-
-
-                pcList.add(pc);
+                String userStoreDomain = resultSet.getString(Constants.USER_STORE_DOMAIN_LABEL);
+                cert = new Certificate(serialNo, certificate, status, tenantID, username, issuedDate, expiryDate, userStoreDomain);
+                pcList.add(cert);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -302,14 +299,14 @@ public class CertificateDAO {
     /**
      * get the public certificate with given serial number for a user
      *
-     * @param serialNo    serial number of the certificate
-     * @param tenantID    tenant
-     * @param username    username
-     * @param userStoreId user store id of the user
+     * @param serialNo        serial number of the certificate
+     * @param tenantID        tenant
+     * @param username        username
+     * @param userStoreDomain user store domain of the user
      * @return certificate with requested details
      * @throws CaException
      */
-    public Certificate getCertificate(String serialNo, int tenantID, String username, int userStoreId) throws CaException {
+    public Certificate getCertificate(String serialNo, int tenantID, String username, String userStoreDomain) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -317,11 +314,11 @@ public class CertificateDAO {
         try {
             log.debug("retriving Certificate information from serial :" + serialNo);
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
-            sql = "SELECT * FROM CA_CERTIFICATE_STORE WHERE SERIAL_NO = ? AND TENANT_ID = ? AND USER_STORE_ID =? AND USER_NAME = ?";
+            sql = "SELECT * FROM CA_CERTIFICATE_STORE WHERE SERIAL_NO = ? AND TENANT_ID = ? AND UM_DOMAIN_NAME =? AND USER_NAME = ?";
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setString(1, serialNo);
             prepStmt.setInt(2, tenantID);
-            prepStmt.setInt(3, userStoreId);
+            prepStmt.setString(3, userStoreDomain);
             prepStmt.setString(4, username);
             resultSet = prepStmt.executeQuery();
             Certificate[] pcs = getCertificateArray(resultSet);

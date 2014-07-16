@@ -23,10 +23,11 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.certificateauthority.dao.CertificateDAO;
 import org.wso2.carbon.identity.certificateauthority.dao.CsrDAO;
-import org.wso2.carbon.identity.certificateauthority.data.Certificate;
-import org.wso2.carbon.identity.certificateauthority.data.Csr;
+import org.wso2.carbon.identity.certificateauthority.data.CertificateDTO;
+import org.wso2.carbon.identity.certificateauthority.data.CsrDTO;
 import org.wso2.carbon.identity.certificateauthority.data.CsrMetaInfo;
-import org.wso2.carbon.identity.certificateauthority.internal.CAServiceComponent;
+import org.wso2.carbon.identity.certificateauthority.utils.CertificateUtils;
+import org.wso2.carbon.identity.certificateauthority.utils.CsrUtils;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.io.IOException;
@@ -45,31 +46,34 @@ public class CAClientService {
             return csrDAO.addCsr(csrContent, username, tenantID, userStoreDomain);
         } catch (IOException e) {
             log.error(e);
-            throw new CaException("Could not store CSR. "+e.getMessage(),e);
+            throw new CaException("Could not store CSR. " + e.getMessage(), e);
         }
     }
 
-    public Csr getCsr(String serial) throws CaException {
+    public CsrDTO getCsr(String serial) throws CaException {
         String username = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
         int tenantID = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
         String userStoreDomain = UserCoreUtil.extractDomainFromName(username);
-        int userStoreId = CAServiceComponent.getUserDomainId(tenantID, userStoreDomain);
-        return csrDAO.getCSR(serial, userStoreId, username, tenantID);
+        try {
+            return CsrUtils.CsrToCsrDTO(csrDAO.getCSR(serial, userStoreDomain, username, tenantID));
+        } catch (IOException e) {
+            log.error(e);
+            throw new CaException(e);
+        }
     }
 
     public CsrMetaInfo[] getCsrList() throws CaException {
         String username = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
         int tenantID = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
         String userStoreDomain = UserCoreUtil.extractDomainFromName(username);
-        int userStoreId = CAServiceComponent.getUserDomainId(tenantID, userStoreDomain);
-        return csrDAO.getCsrList(tenantID, username, userStoreId);
+        return csrDAO.getCsrList(tenantID, username, userStoreDomain);
     }
 
-    public Certificate getCertificate(String serialNo) throws CaException {
+    public CertificateDTO getCertificate(String serialNo) throws CaException {
         String username = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
         int tenantID = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
         String userStoreDomain = UserCoreUtil.extractDomainFromName(username);
-        int userStoreId = CAServiceComponent.getUserDomainId(tenantID, userStoreDomain);
-        return certificateDAO.getCertificate(serialNo, tenantID, username, userStoreId);
+        return CertificateUtils.getCertificateDTO(certificateDAO.getCertificate(serialNo, tenantID, username,
+                userStoreDomain));
     }
 }

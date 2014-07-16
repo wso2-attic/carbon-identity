@@ -21,7 +21,7 @@
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.identity.certificateauthority.stub.Certificate" %>
+<%@ page import="org.wso2.carbon.identity.certificateauthority.stub.CertificateDTO" %>
 <%@ page import="org.wso2.carbon.identity.certificateauthority.ui.CAConstants" %>
 <%@ page import="org.wso2.carbon.identity.certificateauthority.ui.client.CAAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.certificateauthority.ui.util.ClientUtil" %>
@@ -34,7 +34,7 @@
 
 <%
     String serialNo;
-    Certificate certificate = null;
+    CertificateDTO certificate = null;
     String revokedReason = "";
     String forwardTo = null;
     boolean view = false;
@@ -180,7 +180,7 @@
                                 </tr>
                                 <tr>
                                     <td><fmt:message key='expiry.date'/></td>
-                                    <td><%=certificate.getExpiaryDate()%>
+                                    <td><%=certificate.getExpiryDate()%>
                                     </td>
                                 </tr>
                                 <tr>

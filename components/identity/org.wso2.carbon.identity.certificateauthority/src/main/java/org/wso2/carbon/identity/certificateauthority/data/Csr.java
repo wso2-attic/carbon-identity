@@ -29,18 +29,18 @@ public class Csr {
     private String country;
     private PKCS10CertificationRequest csrRequest;
     private String state;
-    private int userStoreId;
+    private String userStoreDomain;
     private CsrMetaInfo csrMetaInfo;
     private int tenantID;
 
-    public Csr(String commonName, String organization, PKCS10CertificationRequest csrRequest, String serialNo, String status, String userName, int tenantID, int userStoreId, Date reqestedDate) {
+    public Csr(String commonName, String organization, PKCS10CertificationRequest csrRequest, String serialNo, String status, String userName, int tenantID, String userStoreDomain, Date reqestedDate) {
         csrMetaInfo = new CsrMetaInfo(serialNo, commonName, organization, status, reqestedDate, userName);
         this.csrRequest = csrRequest;
         this.tenantID = tenantID;
-        this.userStoreId = userStoreId;
+        this.userStoreDomain = userStoreDomain;
     }
 
-    public Csr(String commonName, String department, String organization, String city, String state, String country, PKCS10CertificationRequest csrRequest, String serialNo, String status, String username, int tenantID, int userStoreId, Date reqestedDate) {
+    public Csr(String commonName, String department, String organization, String city, String state, String country, PKCS10CertificationRequest csrRequest, String serialNo, String status, String username, int tenantID, String userStoreDomain, Date reqestedDate) {
 
         csrMetaInfo = new CsrMetaInfo(serialNo, commonName, organization, status, reqestedDate, username);
         this.department = department;
@@ -49,15 +49,15 @@ public class Csr {
         this.country = country;
         this.csrRequest = csrRequest;
         this.tenantID = tenantID;
-        this.userStoreId = userStoreId;
+        this.userStoreDomain = userStoreDomain;
     }
 
-    public int getUserStoreId() {
-        return userStoreId;
+    public String getUserStoreDomain() {
+        return userStoreDomain;
     }
 
-    public void setUserStoreId(int userStoreId) {
-        this.userStoreId = userStoreId;
+    public void setUserStoreDomain(String userStoreDomain) {
+        this.userStoreDomain = userStoreDomain;
     }
 
     public String getUserName() {

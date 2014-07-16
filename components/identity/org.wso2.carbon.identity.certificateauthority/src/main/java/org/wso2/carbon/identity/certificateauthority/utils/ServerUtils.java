@@ -23,18 +23,15 @@ import org.wso2.carbon.identity.certificateauthority.Constants;
 
 public class ServerUtils {
 
-    private static ServerConfiguration serverConfigs;
-
-    private ServerUtils(){
-        serverConfigs = ServerConfiguration.getInstance();
+    private ServerUtils() {
     }
 
-
-    public static String getServerHost(){
-        return serverConfigs.getFirstProperty(Constants.HOST_NAME);
+    public static String getServerHost() {
+        return ServerConfiguration.getInstance().getFirstProperty(Constants.HOST_NAME);
     }
 
-    public static int getHttpPort(){
-        return Integer.parseInt(ServerConfiguration.getInstance().getFirstProperty(Constants.PORT_OFFSET)) + Constants.DEFAULT_HTTP_PORT;
+    public static int getHttpPort() {
+        return Integer.parseInt(ServerConfiguration.getInstance().getFirstProperty(Constants.PORT_OFFSET)) +
+                Constants.DEFAULT_HTTP_PORT;
     }
 }

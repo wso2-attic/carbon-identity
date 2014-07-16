@@ -36,7 +36,7 @@ public class Constants {
 
     public static final String SERIAL_NO_LABEL = "SERIAL_NO";
     public static final String TENANT_ID_LABEL = "TENANT_ID";
-    public static final String USER_STORE_ID_LABEL = "USER_STORE_ID";
+    public static final String USER_STORE_DOMAIN_LABEL = "UM_DOMAIN_NAME";
     public static final String PC_CONTENT_LABEL = "PUBLIC_CERTIFICATE";
     public static final String PC_ISSUER_LABEL = "USER_NAME";
     public static final String PC_STATUS_LABEL = "STATUS";

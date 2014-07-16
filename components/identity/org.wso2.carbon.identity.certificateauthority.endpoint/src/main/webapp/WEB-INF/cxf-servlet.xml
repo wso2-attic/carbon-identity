@@ -39,6 +39,6 @@
           class="org.wso2.carbon.identity.certificateauthority.endpoint.crl.CRLResponder"/>
     <bean id="certificateEndpointBean"
           class="org.wso2.carbon.identity.certificateauthority.endpoint.cert.CertificateRetriever"/>
-    <bean id="scepEndpointBean"
-          class="org.wso2.carbon.identity.certificateauthority.endpoint.scep.ScepEndpoint"/>
+    <!--<bean id="scepEndpointBean"-->
+    <!--class="org.wso2.carbon.identity.certificateauthority.endpoint.scep.ScepEndpoint"/>-->
 </beans>

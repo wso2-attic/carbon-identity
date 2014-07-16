@@ -118,7 +118,7 @@ public class CsrDAO {
      * @param serialNo serial number of the csr request which is stored against in DB
      * @return CSR file
      */
-    public Csr getCSR(String serialNo, int userStoreId, String userName, int tenantId) throws CaException {
+    public Csr getCSR(String serialNo, String userStoreDomain, String userName, int tenantId) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -127,13 +127,13 @@ public class CsrDAO {
         try {
             log.debug("retriving csr information from serial :" + serialNo);
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
-            sql = "SELECT * FROM CA_CSR_STORE WHERE SERIAL_NO = ? and USER_NAME= ? AND TENANT_ID =? AND USER_STORE_ID =?";
+            sql = "SELECT * FROM CA_CSR_STORE WHERE SERIAL_NO = ? and USER_NAME= ? AND TENANT_ID =? AND UM_DOMAIN_NAME =?";
             prepStmt = connection.prepareStatement(sql);
 
             prepStmt.setString(1, serialNo);
             prepStmt.setString(2, userName);
             prepStmt.setInt(3, tenantId);
-            prepStmt.setInt(4, userStoreId);
+            prepStmt.setString(4, userStoreDomain);
             resultSet = prepStmt.executeQuery();
             Csr[] csrs = getCsrArray(resultSet);
             if (csrs != null && csrs.length > 0) {
@@ -166,7 +166,7 @@ public class CsrDAO {
         String sql = null;
 
         try {
-            log.debug("retriving csr information from serial :" + serialNo);
+            log.debug("retrieving csr information from serial :" + serialNo);
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
             sql = "SELECT * FROM CA_CSR_STORE WHERE SERIAL_NO = ? and TENANT_ID =? ";
             prepStmt = connection.prepareStatement(sql);
@@ -466,7 +466,7 @@ public class CsrDAO {
                 Date requestedDate = resultSet.getTimestamp(Constants.CSR_REQUESTED_DATE);
                 String username = resultSet.getString(Constants.CSR_REQUESTER_USERNAME_LABEL);
                 int tenantID = resultSet.getInt(Constants.TENANT_ID_LABEL);
-                int userStoreId = resultSet.getInt(Constants.USER_STORE_ID_LABEL);
+                String userStoreDomain = resultSet.getString(Constants.USER_STORE_DOMAIN_LABEL);
                 PKCS10CertificationRequest csr = new PKCS10CertificationRequest(csrBlob.getBytes(1, (int) csrBlob.length()));
                 HashMap decodedContent = CsrUtils.getSubjectInfo(csr);
                 if (decodedContent.containsKey("C")) {
@@ -481,7 +481,7 @@ public class CsrDAO {
                 if (decodedContent.containsKey("ST")) {
                     state = decodedContent.get("ST").toString();
                 }
-                csrFile = new Csr(commonName, department, organization, city, state, country, csr, serialNo, status, username, tenantID, userStoreId, requestedDate);
+                csrFile = new Csr(commonName, department, organization, city, state, country, csr, serialNo, status, username, tenantID, userStoreDomain, requestedDate);
                 csrList.add(csrFile);
             }
         } catch (SQLException e) {
@@ -524,20 +524,20 @@ public class CsrDAO {
      * @param username
      * @return
      */
-    public CsrMetaInfo[] getCsrList(int tenantID, String username, int userStoreId) throws CaException {
+    public CsrMetaInfo[] getCsrList(int tenantID, String username, String userStoreDomain) throws CaException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
         String sql = null;
         try {
-            log.debug("retriving csr information for tenantID :" + username);
+            log.debug("retrieving csr information for tenantID :" + username);
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
-            sql = "SELECT * FROM CA_CSR_STORE WHERE USER_NAME = ? and TENANT_ID= ? and USER_STORE_ID = ?";
+            sql = "SELECT * FROM CA_CSR_STORE WHERE USER_NAME = ? and TENANT_ID= ? and UM_DOMAIN_NAME = ?";
             prepStmt = connection.prepareStatement(sql);
 
             prepStmt.setString(1, username);
             prepStmt.setInt(2, tenantID);
-            prepStmt.setInt(3, userStoreId);
+            prepStmt.setString(3, userStoreDomain);
             resultSet = prepStmt.executeQuery();
             return getCsrMetaInfoArray(resultSet);
         } catch (IdentityException e) {

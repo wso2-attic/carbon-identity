@@ -40,15 +40,14 @@ import org.wso2.carbon.identity.certificateauthority.dao.CertificateDAO;
 import org.wso2.carbon.identity.certificateauthority.dao.CsrDAO;
 import org.wso2.carbon.identity.certificateauthority.dao.RevocationDAO;
 import org.wso2.carbon.identity.certificateauthority.data.*;
-import org.wso2.carbon.identity.certificateauthority.data.Certificate;
-import org.wso2.carbon.identity.certificateauthority.internal.CAServiceComponent;
 import org.wso2.carbon.identity.certificateauthority.utils.CAUtils;
-import org.wso2.carbon.registry.core.exceptions.RegistryException;
-import org.wso2.carbon.security.SecurityConfigException;
+import org.wso2.carbon.identity.certificateauthority.utils.CertificateUtils;
+import org.wso2.carbon.identity.certificateauthority.utils.CsrUtils;
 import org.wso2.carbon.security.keystore.KeyStoreAdmin;
 import org.wso2.carbon.security.keystore.service.KeyStoreData;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyStore;
 import java.security.PrivateKey;
@@ -81,7 +80,6 @@ public class CAAdminService extends AbstractAdmin {
             int tenantID = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
             String username = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
             String userStoreDomain = UserCoreUtil.extractDomainFromName(username);
-            int userStoreId = CAServiceComponent.getUserDomainId(tenantID, userStoreDomain);
             Csr csr = csrDAO.getCSR(serialNo, tenantID);
             if (csr == null) {
                 throw new CaException("Invalid serial no");
@@ -91,10 +89,10 @@ public class CAAdminService extends AbstractAdmin {
             }
             X509Certificate signedCert = signCSR(serialNo, csr.getCsrRequest(), validity, CAUtils.getConfiguredPrivateKey(), CAUtils.getConfiguredCaCert());
             csrDAO.updateStatus(serialNo, CsrStatus.SIGNED, tenantID);
-            certificateDAO.addCertificate(serialNo, signedCert, tenantID, username, userStoreId);
+            certificateDAO.addCertificate(serialNo, signedCert, tenantID, username, userStoreDomain);
 
-        }  catch (Exception e) {
-            log.error(e.getMessage(),e);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
             throw new CaException(e);
         }
     }
@@ -179,9 +177,9 @@ public class CAAdminService extends AbstractAdmin {
         csrDAO.deleteCSR(serial, tenantID);
     }
 
-    public Certificate getPubCert(String serialNo) throws CaException {
+    public CertificateDTO getCertificate(String serialNo) throws CaException {
         int tenantID = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
-        return certificateDAO.getCertificate(serialNo, tenantID);
+        return CertificateUtils.getCertificateDTO(certificateDAO.getCertificate(serialNo, tenantID));
     }
 
     public CertificateMetaInfo[] getTenantIssuedCertificates() throws CaException {
@@ -221,9 +219,14 @@ public class CAAdminService extends AbstractAdmin {
         return csrDAO.getCsrListfromCN(org, tenantId);
     }
 
-    public Csr getCsr(String serial) throws CaException {
+    public CsrDTO getCsr(String serial) throws CaException {
         int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
-        return csrDAO.getCSR(serial, tenantId);
+        try {
+            return CsrUtils.CsrToCsrDTO(csrDAO.getCSR(serial, tenantId));
+        } catch (IOException e) {
+            log.error(e);
+            throw new CaException(e);
+        }
     }
 
 

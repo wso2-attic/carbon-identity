@@ -19,11 +19,16 @@
 package org.wso2.carbon.identity.certificateauthority.utils;
 
 import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.PEMWriter;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.wso2.carbon.identity.certificateauthority.data.Csr;
+import org.wso2.carbon.identity.certificateauthority.data.CsrDTO;
+import org.wso2.carbon.identity.certificateauthority.data.CsrMetaInfo;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.util.HashMap;
 
 public class CsrUtils {
@@ -38,6 +43,15 @@ public class CsrUtils {
     public static PKCS10CertificationRequest getCRfromEncodedCsr(String encodedCsr) throws IOException {
         PEMParser pemParser = new PEMParser(new InputStreamReader(new ByteArrayInputStream(encodedCsr.getBytes()), "8859_1"));
         return (PKCS10CertificationRequest) pemParser.readObject();
+    }
+
+    public static String getEncodedCsr(PKCS10CertificationRequest request) throws IOException {
+        StringWriter writer = new StringWriter();
+        PEMWriter pemWriter = new PEMWriter(writer);
+        pemWriter.writeObject(request);
+        writer.close();
+        pemWriter.close();
+        return writer.toString();
     }
 
     public static HashMap<String, String> getSubjectInfo(PKCS10CertificationRequest csr) {
@@ -68,6 +82,26 @@ public class CsrUtils {
             map.put("ST", st);
         }
         return map;
+    }
+
+    public static CsrDTO CsrToCsrDTO(Csr csr) throws IOException {
+        String encodedReq = getEncodedCsr(csr.getCsrRequest());
+        CsrMetaInfo metaInfo = new CsrMetaInfo(
+                csr.getSerialNo(),
+                csr.getCommonName(),
+                csr.getOrganization(),
+                csr.getStatus(),
+                csr.getReqestedDate(),
+                csr.getUserName());
+        return new CsrDTO(
+                csr.getDepartment(),
+                csr.getCity(),
+                csr.getCountry(),
+                encodedReq,
+                csr.getState(),
+                csr.getUserStoreDomain(),
+                metaInfo,
+                csr.getTenantID());
     }
 
 }

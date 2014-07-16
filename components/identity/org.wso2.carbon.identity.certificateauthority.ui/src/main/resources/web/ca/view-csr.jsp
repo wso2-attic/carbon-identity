@@ -21,7 +21,7 @@
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.identity.certificateauthority.stub.CsrFile" %>
+<%@ page import="org.wso2.carbon.identity.certificateauthority.stub.CsrDTO" %>
 <%@ page import="org.wso2.carbon.identity.certificateauthority.ui.CAConstants" %>
 <%@ page import="org.wso2.carbon.identity.certificateauthority.ui.client.CAAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
@@ -36,7 +36,7 @@
     String forwardTo = null;
     boolean view = false;
     CAAdminServiceClient client = null;
-    CsrFile csr = null;
+    CsrDTO csr = null;
 
     String isPaginatedString = request.getParameter("isPaginated");
 
@@ -176,22 +176,22 @@
                             </thead>
                             <tr>
                                 <td style="width: 50%"><fmt:message key='user'/></td>
-                                <td><%=csr.getUserName()%>
+                                <td><%=csr.getCsrMetaInfo().getUserName()%>
                                 </td>
                             </tr>
                             <tr>
                                 <td><fmt:message key='serial.No'/></td>
-                                <td><%=csr.getSerialNo()%>
+                                <td><%=csr.getCsrMetaInfo().getSerialNo()%>
                                 </td>
                             </tr>
                             <tr>
                                 <td><fmt:message key='status'/></td>
-                                <td><%=csr.getStatus()%>
+                                <td><%=csr.getCsrMetaInfo().getStatus()%>
                                 </td>
                             </tr>
                             <tr>
                                 <td><fmt:message key='csr.detail.cn'/></td>
-                                <td><%=csr.getCommonName()%>
+                                <td><%=csr.getCsrMetaInfo().getCommonName()%>
                                 </td>
                             </tr>
                             <tr>
@@ -201,7 +201,7 @@
                             </tr>
                             <tr>
                                 <td><fmt:message key='csr.detail.org'/></td>
-                                <td><%=csr.getOrganization()%>
+                                <td><%=csr.getCsrMetaInfo().getOrganization()%>
                                 </td>
                             </tr>
                             <tr>
@@ -221,7 +221,7 @@
                             </tr>
                             <tr>
                                 <td><fmt:message key='requested.date'/></td>
-                                <td><%=csr.getReqestedDate()%>
+                                <td><%=csr.getCsrMetaInfo().getRequestedDate()%>
                                 </td>
                             </tr>
                         </table>
@@ -238,7 +238,7 @@
                             <tbody>
                             <tr>
                                 <%
-                                    if (csr.getStatus().equals(resourceBundle.getString("pending"))) {
+                                    if (csr.getCsrMetaInfo().getStatus().equals(resourceBundle.getString("pending"))) {
                                 %>
                                 <td>
                                     <form method="post" action="" name="signForm">
@@ -252,7 +252,7 @@
                                                 </td>
                                                 <input type="hidden" name="action" value="sign"/>
                                                 <input type="hidden" name="serial"
-                                                       value="<%=csr.getSerialNo() %>">
+                                                       value="<%=csr.getCsrMetaInfo().getSerialNo() %>">
                                                 <td style="border: transparent">
                                                     <a onclick="signCsr();return false;"
                                                        href="#" style="background-image: url(images/sign.gif);"
@@ -267,7 +267,8 @@
                                 <td style="width: 20%;">
                                     <form method="post" action="" name="reject">
                                         <input type="hidden" name="action" value="reject">
-                                        <input type="hidden" name="serial" value="<%=csr.getSerialNo() %>">
+                                        <input type="hidden" name="serial"
+                                               value="<%=csr.getCsrMetaInfo().getSerialNo() %>">
 
                                         <a onclick="rejectCsr();return false;"
                                            href="#" style="background-image: url(images/reject.gif);"
@@ -277,16 +278,16 @@
                                 </td>
                             </tr>
                             <%
-                            } else if (csr.getStatus().equals(resourceBundle.getString("signed"))) {
+                            } else if (csr.getCsrMetaInfo().getStatus().equals(resourceBundle.getString("signed"))) {
                             %>
                             <td>
-                                <a onclick="viewCertificate('<%=csr.getSerialNo()%>');return false;"
+                                <a onclick="viewCertificate('<%=csr.getCsrMetaInfo().getSerialNo()%>');return false;"
                                    href="#" style="background-image: url(images/view.gif);"
                                    class="icon-link">
                                     <fmt:message key='view.certificate'/></a>
                             </td>
                             <td>
-                                <a onclick="downloadCertificate('<%=csr.getSerialNo()%>');return false;"
+                                <a onclick="downloadCertificate('<%=csr.getCsrMetaInfo().getSerialNo()%>');return false;"
                                    href="#" style="background-image: url(images/download.gif);"
                                    class="icon-link">
                                     <fmt:message key='download.certificate'/></a>

@@ -19,6 +19,8 @@
 package org.wso2.carbon.identity.certificateauthority.utils;
 
 import org.bouncycastle.openssl.PEMWriter;
+import org.wso2.carbon.identity.certificateauthority.data.Certificate;
+import org.wso2.carbon.identity.certificateauthority.data.CertificateDTO;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -36,5 +38,11 @@ public class CertificateUtils {
         } catch (IOException ignored) {
             return "";
         }
+    }
+
+
+    public static CertificateDTO getCertificateDTO(Certificate certificate) {
+        return new CertificateDTO(certificate.getCertificateMetaInfo(), getEncodedCertificate(certificate
+                .getPublicCertificate()), certificate.getTenantID(), certificate.getUserStoreDomain());
     }
 }

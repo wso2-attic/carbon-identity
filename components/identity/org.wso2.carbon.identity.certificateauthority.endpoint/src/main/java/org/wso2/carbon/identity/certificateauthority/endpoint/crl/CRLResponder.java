@@ -21,13 +21,10 @@ package org.wso2.carbon.identity.certificateauthority.endpoint.crl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.certificateauthority.CRLService;
-import org.wso2.carbon.identity.certificateauthority.CaException;
 import org.wso2.carbon.identity.certificateauthority.Constants;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-import java.security.cert.CRLException;
-import java.security.cert.CertificateException;
 
 @Path("/crl")
 public class CRLResponder {
@@ -42,24 +39,16 @@ public class CRLResponder {
             try {
                 byte[] crlBytes = crlService.getLatestCrl(tenantId);
                 return Response.ok().type("application/pkix-crl").entity(crlBytes).build();
-            } catch (CertificateException e) {
-                log.error("error whilte trying to get CRL for the tenant :" + tenantId);
-            } catch (CaException e) {
-                log.error("error whilte trying to get CRL for the tenant :" + tenantId);
-            } catch (CRLException e) {
-                log.error("error whilte trying to get CRL for the tenant :" + tenantId);
+            } catch (Exception e) {
+                log.error("error whilte trying to get CRL for the tenant :" + tenantId, e);
             }
         } else if (Constants.REQUEST_TYPE_DELTA_CRL.equals(command)) {
             //todo : fetch delta crl
             CRLService crlService = new CRLService();
             try {
                 return Response.ok().type("application/pkix-crl").entity(crlService.getLatestDeltaCrl(tenantId)).build();
-            } catch (CertificateException e) {
-                log.error("error whilte trying to get CRL for the tenant :" + tenantId);
-            } catch (CaException e) {
-                log.error("error whilte trying to get CRL for the tenant :" + tenantId);
-            } catch (CRLException e) {
-                log.error("error whilte trying to get CRL for the tenant :" + tenantId);
+            } catch (Exception e) {
+                log.error("error whilte trying to get CRL for the tenant :" + tenantId, e);
             }
         }
         return Response.status(Response.Status.BAD_REQUEST).build();

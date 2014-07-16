@@ -25,13 +25,13 @@ public class Certificate {
     private CertificateMetaInfo certificateMetaInfo;
     private X509Certificate publicCertificate;
     private int tenantID;
-    private int userStoreId;
+    private String userStoreDomain;
 
-    public Certificate(String serialNo, X509Certificate publicCertificate, String status, int tenantID, String username, Date issuedDate, Date expiaryDate, int userStoreid) {
+    public Certificate(String serialNo, X509Certificate publicCertificate, String status, int tenantID, String username, Date issuedDate, Date expiaryDate, String userStoreDomain) {
         this.certificateMetaInfo = new CertificateMetaInfo(serialNo, issuedDate, expiaryDate, username, status);
         this.publicCertificate = publicCertificate;
         this.tenantID = tenantID;
-        this.userStoreId = userStoreid;
+        this.userStoreDomain = userStoreDomain;
     }
 
     public Date getExpiryDate() {
@@ -42,12 +42,12 @@ public class Certificate {
         certificateMetaInfo.setExpiryDate(expiryDate);
     }
 
-    public int getUserStoreId() {
-        return userStoreId;
+    public String getUserStoreDomain() {
+        return userStoreDomain;
     }
 
-    public void setUserStoreId(int userStoreId) {
-        this.userStoreId = userStoreId;
+    public void setUserStoreDomain(String userStoreDomain) {
+        this.userStoreDomain = userStoreDomain;
     }
 
     public Date getIssuedDate() {
@@ -65,7 +65,6 @@ public class Certificate {
     public void setPublicCertificate(X509Certificate publicCertificate) {
         this.publicCertificate = publicCertificate;
     }
-
 
     public int getTenantID() {
         return tenantID;
@@ -107,4 +106,7 @@ public class Certificate {
         certificateMetaInfo.setSerialNo(serialNo);
     }
 
+    public CertificateMetaInfo getCertificateMetaInfo() {
+        return certificateMetaInfo;
+    }
 }

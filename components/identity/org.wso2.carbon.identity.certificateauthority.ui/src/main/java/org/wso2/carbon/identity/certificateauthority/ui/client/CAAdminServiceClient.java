@@ -104,7 +104,7 @@ public class CAAdminServiceClient {
         } catch (RemoteException e) {
             handleException(e.getMessage(), e);
         } catch (CAAdminServiceCaException e) {
-            handleException(e.getMessage(),e);
+            handleException(e.getMessage(), e);
         }
         return new String[0];
     }
@@ -138,7 +138,7 @@ public class CAAdminServiceClient {
         } catch (RemoteException e) {
             //todo: exception handling
             e.printStackTrace();
-        }catch (CAAdminServiceCaException e) {
+        } catch (CAAdminServiceCaException e) {
             e.printStackTrace();
         }
     }
@@ -149,7 +149,7 @@ public class CAAdminServiceClient {
      * @return CSR File Serial Number
      * @throws AxisFault
      */
-    public Csr getCSRFromSerialNo(String serialNo) throws AxisFault {
+    public CsrDTO getCSRFromSerialNo(String serialNo) throws AxisFault {
 
         try {
             return stub.getCsr(serialNo);
@@ -204,9 +204,9 @@ public class CAAdminServiceClient {
      * @throws AxisFault
      */
 
-    public Certificate getCertificateBySerialNo(String serialNo) throws AxisFault {
+    public CertificateDTO getCertificateBySerialNo(String serialNo) throws AxisFault {
         try {
-            return stub.getPubCert(serialNo);
+            return stub.getCertificate(serialNo);
         } catch (Exception e) {
             String message = e.getMessage();
             handleException(e.getMessage(), e);

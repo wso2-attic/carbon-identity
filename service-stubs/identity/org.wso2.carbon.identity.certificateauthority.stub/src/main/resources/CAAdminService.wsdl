@@ -1,96 +1,31 @@
-
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ax2211="http://certificateauthority.identity.carbon.wso2.org/xsd" xmlns:ax2222="http://pkcs.asn1.bouncycastle.org/xsd" xmlns:ax2221="http://pkcs.bouncycastle.org/xsd" xmlns:ax2230="http://x500.asn1.bouncycastle.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ax2227="http://x509.asn1.bouncycastle.org/xsd" xmlns:ax2218="http://util.java/xsd" xmlns:ax2216="http://security.java/xsd" xmlns:ax2215="http://cert.security.java/xsd" xmlns:ax2223="http://asn1.bouncycastle.org/xsd" xmlns:ax2213="http://data.certificateauthority.identity.carbon.wso2.org/xsd" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:tns="http://certificateauthority.identity.carbon.wso2.org" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://certificateauthority.identity.carbon.wso2.org">
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:ax2211="http://certificateauthority.identity.carbon.wso2.org/xsd"
+                  xmlns:ns1="http://org.apache.axis2/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
+                  xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+                  xmlns:tns="http://certificateauthority.identity.carbon.wso2.org"
+                  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
+                  xmlns:ax2213="http://data.certificateauthority.identity.carbon.wso2.org/xsd"
+                  xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+                  targetNamespace="http://certificateauthority.identity.carbon.wso2.org">
     <wsdl:documentation>CAAdminService</wsdl:documentation>
     <wsdl:types>
-        <xs:schema xmlns:ax2229="http://x509.asn1.bouncycastle.org/xsd" xmlns:ax2232="http://x500.asn1.bouncycastle.org/xsd" xmlns:ax2226="http://pkcs.asn1.bouncycastle.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://pkcs.bouncycastle.org/xsd">
-            <xs:import namespace="http://pkcs.asn1.bouncycastle.org/xsd"></xs:import>
-            <xs:import namespace="http://x509.asn1.bouncycastle.org/xsd"></xs:import>
-            <xs:import namespace="http://x500.asn1.bouncycastle.org/xsd"></xs:import>
-            <xs:complexType name="PKCS10CertificationRequest">
-                <xs:sequence>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="attributes" nillable="true" type="ax2222:Attribute"></xs:element>
-                    <xs:element minOccurs="0" name="encoded" nillable="true" type="xs:base64Binary"></xs:element>
-                    <xs:element minOccurs="0" name="signature" nillable="true" type="xs:base64Binary"></xs:element>
-                    <xs:element minOccurs="0" name="signatureAlgorithm" nillable="true" type="ax2227:AlgorithmIdentifier"></xs:element>
-                    <xs:element minOccurs="0" name="subject" nillable="true" type="ax2232:X500Name"></xs:element>
-                    <xs:element minOccurs="0" name="subjectPublicKeyInfo" nillable="true" type="ax2227:SubjectPublicKeyInfo"></xs:element>
-                </xs:sequence>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified"
+                   targetNamespace="http://certificateauthority.identity.carbon.wso2.org/xsd">
+            <xs:complexType name="CaException">
+                <xs:sequence></xs:sequence>
             </xs:complexType>
         </xs:schema>
-        <xs:schema xmlns:ax2224="http://asn1.bouncycastle.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://pkcs.asn1.bouncycastle.org/xsd">
-            <xs:import namespace="http://asn1.bouncycastle.org/xsd"></xs:import>
-            <xs:complexType name="Attribute">
-                <xs:complexContent>
-                    <xs:extension base="ax2224:ASN1Object">
-                        <xs:sequence>
-                            <xs:element minOccurs="0" name="attrType" nillable="true" type="ax2224:ASN1ObjectIdentifier"></xs:element>
-                            <xs:element minOccurs="0" name="attrValues" nillable="true" type="ax2224:ASN1Set"></xs:element>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="attributeValues" nillable="true" type="ax2224:ASN1Encodable"></xs:element>
-                        </xs:sequence>
-                    </xs:extension>
-                </xs:complexContent>
-            </xs:complexType>
-        </xs:schema>
-        <xs:schema xmlns:ax2220="http://cert.security.java/xsd" xmlns:ax2233="http://pkcs.bouncycastle.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://data.certificateauthority.identity.carbon.wso2.org/xsd">
-            <xs:import namespace="http://cert.security.java/xsd"></xs:import>
-            <xs:import namespace="http://pkcs.bouncycastle.org/xsd"></xs:import>
-            <xs:complexType name="CertificateMetaInfo">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="expiryDate" nillable="true" type="xs:date"></xs:element>
-                    <xs:element minOccurs="0" name="issuedDate" nillable="true" type="xs:date"></xs:element>
-                    <xs:element minOccurs="0" name="serialNo" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="status" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="username" nillable="true" type="xs:string"></xs:element>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="Certificate">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="expiaryDate" nillable="true" type="xs:date"></xs:element>
-                    <xs:element minOccurs="0" name="expiryDate" nillable="true" type="xs:date"></xs:element>
-                    <xs:element minOccurs="0" name="issuedDate" nillable="true" type="xs:date"></xs:element>
-                    <xs:element minOccurs="0" name="publicCertificate" nillable="true" type="ax2220:X509Certificate"></xs:element>
-                    <xs:element minOccurs="0" name="serialNo" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="status" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="tenantID" type="xs:int"></xs:element>
-                    <xs:element minOccurs="0" name="userStoreId" type="xs:int"></xs:element>
-                    <xs:element minOccurs="0" name="username" nillable="true" type="xs:string"></xs:element>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="CsrMetaInfo">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="commonName" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="organization" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="requestedDate" nillable="true" type="xs:date"></xs:element>
-                    <xs:element minOccurs="0" name="serialNo" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="status" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"></xs:element>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="Csr">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="city" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="commonName" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="country" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="csrRequest" nillable="true" type="ax2221:PKCS10CertificationRequest"></xs:element>
-                    <xs:element minOccurs="0" name="department" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="organization" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="reqestedDate" nillable="true" type="xs:date"></xs:element>
-                    <xs:element minOccurs="0" name="serialNo" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="state" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="status" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="tenantID" type="xs:int"></xs:element>
-                    <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="userStoreId" type="xs:int"></xs:element>
-                </xs:sequence>
-            </xs:complexType>
-        </xs:schema>
-        <xs:schema xmlns:ns="http://org.apache.axis2/xsd" xmlns:ax2214="http://data.certificateauthority.identity.carbon.wso2.org/xsd" xmlns:ax2212="http://certificateauthority.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://org.apache.axis2/xsd">
+        <xs:schema xmlns:ax2214="http://data.certificateauthority.identity.carbon.wso2.org/xsd"
+                   attributeFormDefault="qualified" elementFormDefault="qualified"
+                   targetNamespace="http://org.apache.axis2/xsd">
             <xs:import namespace="http://certificateauthority.identity.carbon.wso2.org/xsd"></xs:import>
             <xs:import namespace="http://data.certificateauthority.identity.carbon.wso2.org/xsd"></xs:import>
             <xs:element name="CAAdminServiceCaException">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="CaException" nillable="true" type="ax2211:CaException"></xs:element>
+                        <xs:element minOccurs="0" name="CaException" nillable="true"
+                                    type="ax2211:CaException"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -113,7 +48,8 @@
             <xs:element name="CAAdminServiceException">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="CAAdminServiceException" nillable="true" type="ns:Exception"></xs:element>
+                        <xs:element minOccurs="0" name="CAAdminServiceException" nillable="true"
+                                    type="ns1:Exception"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -145,7 +81,8 @@
             <xs:element name="listKeyAliasesResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="xs:string"></xs:element>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true"
+                                    type="xs:string"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -157,7 +94,8 @@
             <xs:element name="getTenantIssuedCertificatesResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2214:CertificateMetaInfo"></xs:element>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true"
+                                    type="ax2214:CertificateMetaInfo"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -175,20 +113,6 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="getPubCert">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="serialNo" nillable="true" type="xs:string"></xs:element>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getPubCertResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2214:Certificate"></xs:element>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
             <xs:element name="getCsrfromORG">
                 <xs:complexType>
                     <xs:sequence>
@@ -199,7 +123,8 @@
             <xs:element name="getCsrfromORGResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2214:CsrMetaInfo"></xs:element>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true"
+                                    type="ax2214:CsrMetaInfo"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -213,7 +138,8 @@
             <xs:element name="getCsrfromCNResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2214:CsrMetaInfo"></xs:element>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true"
+                                    type="ax2214:CsrMetaInfo"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -227,7 +153,8 @@
             <xs:element name="getCsrListWithStatusResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2214:CsrMetaInfo"></xs:element>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true"
+                                    type="ax2214:CsrMetaInfo"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -239,7 +166,8 @@
             <xs:element name="getCsrListResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2214:CsrMetaInfo"></xs:element>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true"
+                                    type="ax2214:CsrMetaInfo"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -253,7 +181,7 @@
             <xs:element name="getCsrResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2214:Csr"></xs:element>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2214:CsrDTO"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -267,7 +195,23 @@
             <xs:element name="getCertsResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2214:CertificateMetaInfo"></xs:element>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true"
+                                    type="ax2214:CertificateMetaInfo"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getCertificate">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="serialNo" nillable="true" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getCertificateResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true"
+                                    type="ax2214:CertificateDTO"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -279,7 +223,8 @@
             <xs:element name="getAllCsrsResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2214:CsrMetaInfo"></xs:element>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true"
+                                    type="ax2214:CsrMetaInfo"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -291,7 +236,8 @@
             <xs:element name="getAllCertsResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2214:CertificateMetaInfo"></xs:element>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true"
+                                    type="ax2214:CertificateMetaInfo"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -303,182 +249,52 @@
                 </xs:complexType>
             </xs:element>
         </xs:schema>
-        <xs:schema xmlns:ax2231="http://asn1.bouncycastle.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://x500.asn1.bouncycastle.org/xsd">
-            <xs:import namespace="http://asn1.bouncycastle.org/xsd"></xs:import>
-            <xs:complexType name="X500Name">
-                <xs:complexContent>
-                    <xs:extension base="ax2231:ASN1Object">
-                        <xs:sequence>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="RDNs" nillable="true" type="ax2230:RDN"></xs:element>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="attributeTypes" nillable="true" type="ax2231:ASN1ObjectIdentifier"></xs:element>
-                        </xs:sequence>
-                    </xs:extension>
-                </xs:complexContent>
-            </xs:complexType>
-            <xs:complexType name="RDN">
-                <xs:complexContent>
-                    <xs:extension base="ax2231:ASN1Object">
-                        <xs:sequence>
-                            <xs:element minOccurs="0" name="first" nillable="true" type="ax2230:AttributeTypeAndValue"></xs:element>
-                            <xs:element minOccurs="0" name="multiValued" type="xs:boolean"></xs:element>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="typesAndValues" nillable="true" type="ax2230:AttributeTypeAndValue"></xs:element>
-                        </xs:sequence>
-                    </xs:extension>
-                </xs:complexContent>
-            </xs:complexType>
-            <xs:complexType name="AttributeTypeAndValue">
-                <xs:complexContent>
-                    <xs:extension base="ax2231:ASN1Object">
-                        <xs:sequence>
-                            <xs:element minOccurs="0" name="type" nillable="true" type="ax2231:ASN1ObjectIdentifier"></xs:element>
-                            <xs:element minOccurs="0" name="value" nillable="true" type="ax2231:ASN1Encodable"></xs:element>
-                        </xs:sequence>
-                    </xs:extension>
-                </xs:complexContent>
-            </xs:complexType>
-        </xs:schema>
-        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://certificateauthority.identity.carbon.wso2.org/xsd">
-            <xs:complexType name="CaException">
-                <xs:sequence></xs:sequence>
-            </xs:complexType>
-        </xs:schema>
-        <xs:schema xmlns:ax2219="http://util.java/xsd" xmlns:ax2217="http://security.java/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://cert.security.java/xsd">
-            <xs:import namespace="http://security.java/xsd"></xs:import>
-            <xs:import namespace="http://util.java/xsd"></xs:import>
-            <xs:complexType abstract="true" name="Certificate">
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified"
+                   targetNamespace="http://data.certificateauthority.identity.carbon.wso2.org/xsd">
+            <xs:complexType name="CertificateMetaInfo">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="encoded" nillable="true" type="xs:base64Binary"></xs:element>
-                    <xs:element minOccurs="0" name="publicKey" nillable="true" type="ax2217:PublicKey"></xs:element>
-                    <xs:element minOccurs="0" name="type" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="expiryDate" nillable="true" type="xs:date"></xs:element>
+                    <xs:element minOccurs="0" name="issuedDate" nillable="true" type="xs:date"></xs:element>
+                    <xs:element minOccurs="0" name="serialNo" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="status" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="username" nillable="true" type="xs:string"></xs:element>
                 </xs:sequence>
             </xs:complexType>
-            <xs:complexType abstract="true" name="X509Certificate">
-                <xs:complexContent>
-                    <xs:extension base="ax2215:Certificate">
-                        <xs:sequence>
-                            <xs:element minOccurs="0" name="TBSCertificate" nillable="true" type="xs:base64Binary"></xs:element>
-                            <xs:element minOccurs="0" name="basicConstraints" type="xs:int"></xs:element>
-                            <xs:element minOccurs="0" name="extendedKeyUsage" nillable="true" type="xs:anyType"></xs:element>
-                            <xs:element minOccurs="0" name="issuerAlternativeNames" nillable="true" type="ax2219:Collection"></xs:element>
-                            <xs:element minOccurs="0" name="issuerDN" nillable="true" type="ax2217:Principal"></xs:element>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="issuerUniqueID" nillable="true" type="xs:boolean"></xs:element>
-                            <xs:element minOccurs="0" name="issuerX500Principal" nillable="true" type="xs:anyType"></xs:element>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="keyUsage" nillable="true" type="xs:boolean"></xs:element>
-                            <xs:element minOccurs="0" name="notAfter" nillable="true" type="xs:date"></xs:element>
-                            <xs:element minOccurs="0" name="notBefore" nillable="true" type="xs:date"></xs:element>
-                            <xs:element minOccurs="0" name="serialNumber" nillable="true" type="xs:integer"></xs:element>
-                            <xs:element minOccurs="0" name="sigAlgName" nillable="true" type="xs:string"></xs:element>
-                            <xs:element minOccurs="0" name="sigAlgOID" nillable="true" type="xs:string"></xs:element>
-                            <xs:element minOccurs="0" name="sigAlgParams" nillable="true" type="xs:base64Binary"></xs:element>
-                            <xs:element minOccurs="0" name="signature" nillable="true" type="xs:base64Binary"></xs:element>
-                            <xs:element minOccurs="0" name="subjectAlternativeNames" nillable="true" type="ax2219:Collection"></xs:element>
-                            <xs:element minOccurs="0" name="subjectDN" nillable="true" type="ax2217:Principal"></xs:element>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectUniqueID" nillable="true" type="xs:boolean"></xs:element>
-                            <xs:element minOccurs="0" name="subjectX500Principal" nillable="true" type="xs:anyType"></xs:element>
-                            <xs:element minOccurs="0" name="version" type="xs:int"></xs:element>
-                        </xs:sequence>
-                    </xs:extension>
-                </xs:complexContent>
-            </xs:complexType>
-        </xs:schema>
-        <xs:schema xmlns:ax2228="http://asn1.bouncycastle.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://x509.asn1.bouncycastle.org/xsd">
-            <xs:import namespace="http://asn1.bouncycastle.org/xsd"></xs:import>
-            <xs:complexType name="AlgorithmIdentifier">
-                <xs:complexContent>
-                    <xs:extension base="ax2228:ASN1Object">
-                        <xs:sequence>
-                            <xs:element minOccurs="0" name="algorithm" nillable="true" type="ax2228:ASN1ObjectIdentifier"></xs:element>
-                            <xs:element minOccurs="0" name="objectId" nillable="true" type="ax2228:ASN1ObjectIdentifier"></xs:element>
-                            <xs:element minOccurs="0" name="parameters" nillable="true" type="ax2228:ASN1Encodable"></xs:element>
-                        </xs:sequence>
-                    </xs:extension>
-                </xs:complexContent>
-            </xs:complexType>
-            <xs:complexType name="SubjectPublicKeyInfo">
-                <xs:complexContent>
-                    <xs:extension base="ax2228:ASN1Object">
-                        <xs:sequence>
-                            <xs:element minOccurs="0" name="algorithm" nillable="true" type="ax2227:AlgorithmIdentifier"></xs:element>
-                            <xs:element minOccurs="0" name="algorithmId" nillable="true" type="ax2227:AlgorithmIdentifier"></xs:element>
-                            <xs:element minOccurs="0" name="publicKey" nillable="true" type="ax2228:ASN1Primitive"></xs:element>
-                            <xs:element minOccurs="0" name="publicKeyData" nillable="true" type="ax2228:DERBitString"></xs:element>
-                        </xs:sequence>
-                    </xs:extension>
-                </xs:complexContent>
-            </xs:complexType>
-        </xs:schema>
-        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://security.java/xsd">
-            <xs:complexType abstract="true" name="PublicKey">
-                <xs:sequence></xs:sequence>
-            </xs:complexType>
-            <xs:complexType abstract="true" name="Principal">
+            <xs:complexType name="CsrMetaInfo">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="commonName" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="organization" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="requestedDate" nillable="true" type="xs:date"></xs:element>
+                    <xs:element minOccurs="0" name="serialNo" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="status" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"></xs:element>
                 </xs:sequence>
             </xs:complexType>
-        </xs:schema>
-        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://util.java/xsd">
-            <xs:complexType abstract="true" name="Collection">
+            <xs:complexType name="CsrDTO">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="empty" type="xs:boolean"></xs:element>
+                    <xs:element minOccurs="0" name="city" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="country" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="csrMetaInfo" nillable="true" type="ax2213:CsrMetaInfo"></xs:element>
+                    <xs:element minOccurs="0" name="csrRequest" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="department" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="state" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="tenantID" type="xs:int"></xs:element>
+                    <xs:element minOccurs="0" name="userStoreDomain" nillable="true" type="xs:string"></xs:element>
                 </xs:sequence>
             </xs:complexType>
-            <xs:complexType abstract="true" name="Enumeration">
-                <xs:sequence></xs:sequence>
-            </xs:complexType>
-        </xs:schema>
-        <xs:schema xmlns:ax2225="http://util.java/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://asn1.bouncycastle.org/xsd">
-            <xs:import namespace="http://util.java/xsd"></xs:import>
-            <xs:complexType abstract="true" name="ASN1Object">
+            <xs:complexType name="CertificateDTO">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="encoded" nillable="true" type="xs:base64Binary"></xs:element>
+                    <xs:element minOccurs="0" name="certificateMetaInfo" nillable="true"
+                                type="ax2213:CertificateMetaInfo"></xs:element>
+                    <xs:element minOccurs="0" name="encodedCertificate" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="expiryDate" nillable="true" type="xs:date"></xs:element>
+                    <xs:element minOccurs="0" name="issuedDate" nillable="true" type="xs:date"></xs:element>
+                    <xs:element minOccurs="0" name="serialNo" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="status" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="tenantID" type="xs:int"></xs:element>
+                    <xs:element minOccurs="0" name="userStoreDomain" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="username" nillable="true" type="xs:string"></xs:element>
                 </xs:sequence>
-            </xs:complexType>
-            <xs:complexType abstract="true" name="ASN1Primitive">
-                <xs:complexContent>
-                    <xs:extension base="ax2223:ASN1Object">
-                        <xs:sequence></xs:sequence>
-                    </xs:extension>
-                </xs:complexContent>
-            </xs:complexType>
-            <xs:complexType name="DERObjectIdentifier">
-                <xs:complexContent>
-                    <xs:extension base="ax2223:ASN1Primitive">
-                        <xs:sequence>
-                            <xs:element minOccurs="0" name="id" nillable="true" type="xs:string"></xs:element>
-                        </xs:sequence>
-                    </xs:extension>
-                </xs:complexContent>
-            </xs:complexType>
-            <xs:complexType name="ASN1ObjectIdentifier">
-                <xs:complexContent>
-                    <xs:extension base="ax2223:DERObjectIdentifier">
-                        <xs:sequence></xs:sequence>
-                    </xs:extension>
-                </xs:complexContent>
-            </xs:complexType>
-            <xs:complexType abstract="true" name="ASN1Set">
-                <xs:complexContent>
-                    <xs:extension base="ax2223:ASN1Primitive">
-                        <xs:sequence>
-                            <xs:element minOccurs="0" name="objects" nillable="true" type="ax2218:Enumeration"></xs:element>
-                        </xs:sequence>
-                    </xs:extension>
-                </xs:complexContent>
-            </xs:complexType>
-            <xs:complexType abstract="true" name="ASN1Encodable">
-                <xs:sequence></xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="DERBitString">
-                <xs:complexContent>
-                    <xs:extension base="ax2223:ASN1Primitive">
-                        <xs:sequence>
-                            <xs:element minOccurs="0" name="bytes" nillable="true" type="xs:base64Binary"></xs:element>
-                            <xs:element minOccurs="0" name="padBits" type="xs:int"></xs:element>
-                            <xs:element minOccurs="0" name="string" nillable="true" type="xs:string"></xs:element>
-                        </xs:sequence>
-                    </xs:extension>
-                </xs:complexContent>
             </xs:complexType>
         </xs:schema>
     </wsdl:types>
@@ -533,17 +349,17 @@
     <wsdl:message name="getRevokedReasonResponse">
         <wsdl:part name="parameters" element="ns1:getRevokedReasonResponse"></wsdl:part>
     </wsdl:message>
+    <wsdl:message name="getCertificateRequest">
+        <wsdl:part name="parameters" element="ns1:getCertificate"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getCertificateResponse">
+        <wsdl:part name="parameters" element="ns1:getCertificateResponse"></wsdl:part>
+    </wsdl:message>
     <wsdl:message name="getCsrfromCNRequest">
         <wsdl:part name="parameters" element="ns1:getCsrfromCN"></wsdl:part>
     </wsdl:message>
     <wsdl:message name="getCsrfromCNResponse">
         <wsdl:part name="parameters" element="ns1:getCsrfromCNResponse"></wsdl:part>
-    </wsdl:message>
-    <wsdl:message name="getPubCertRequest">
-        <wsdl:part name="parameters" element="ns1:getPubCert"></wsdl:part>
-    </wsdl:message>
-    <wsdl:message name="getPubCertResponse">
-        <wsdl:part name="parameters" element="ns1:getPubCertResponse"></wsdl:part>
     </wsdl:message>
     <wsdl:message name="getCsrfromORGRequest">
         <wsdl:part name="parameters" element="ns1:getCsrfromORG"></wsdl:part>
@@ -579,82 +395,103 @@
         <wsdl:operation name="getCsr">
             <wsdl:input message="tns:getCsrRequest" wsaw:Action="urn:getCsr"></wsdl:input>
             <wsdl:output message="tns:getCsrResponse" wsaw:Action="urn:getCsrResponse"></wsdl:output>
-            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException" wsaw:Action="urn:getCsrCAAdminServiceCaException"></wsdl:fault>
+            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException"
+                        wsaw:Action="urn:getCsrCAAdminServiceCaException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="revokeCert">
             <wsdl:input message="tns:revokeCertRequest" wsaw:Action="urn:revokeCert"></wsdl:input>
-            <wsdl:fault message="tns:CAAdminServiceException" name="CAAdminServiceException" wsaw:Action="urn:revokeCertCAAdminServiceException"></wsdl:fault>
+            <wsdl:fault message="tns:CAAdminServiceException" name="CAAdminServiceException"
+                        wsaw:Action="urn:revokeCertCAAdminServiceException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="deleteCsr">
             <wsdl:input message="tns:deleteCsrRequest" wsaw:Action="urn:deleteCsr"></wsdl:input>
-            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException" wsaw:Action="urn:deleteCsrCAAdminServiceCaException"></wsdl:fault>
+            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException"
+                        wsaw:Action="urn:deleteCsrCAAdminServiceCaException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="setKeyStoreAndAlias">
             <wsdl:input message="tns:setKeyStoreAndAliasRequest" wsaw:Action="urn:setKeyStoreAndAlias"></wsdl:input>
-            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException" wsaw:Action="urn:setKeyStoreAndAliasCAAdminServiceCaException"></wsdl:fault>
+            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException"
+                        wsaw:Action="urn:setKeyStoreAndAliasCAAdminServiceCaException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getAllCsrs">
             <wsdl:input message="tns:getAllCsrsRequest" wsaw:Action="urn:getAllCsrs"></wsdl:input>
             <wsdl:output message="tns:getAllCsrsResponse" wsaw:Action="urn:getAllCsrsResponse"></wsdl:output>
-            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException" wsaw:Action="urn:getAllCsrsCAAdminServiceCaException"></wsdl:fault>
+            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException"
+                        wsaw:Action="urn:getAllCsrsCAAdminServiceCaException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getTenantIssuedCertificates">
-            <wsdl:input message="tns:getTenantIssuedCertificatesRequest" wsaw:Action="urn:getTenantIssuedCertificates"></wsdl:input>
-            <wsdl:output message="tns:getTenantIssuedCertificatesResponse" wsaw:Action="urn:getTenantIssuedCertificatesResponse"></wsdl:output>
-            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException" wsaw:Action="urn:getTenantIssuedCertificatesCAAdminServiceCaException"></wsdl:fault>
+            <wsdl:input message="tns:getTenantIssuedCertificatesRequest"
+                        wsaw:Action="urn:getTenantIssuedCertificates"></wsdl:input>
+            <wsdl:output message="tns:getTenantIssuedCertificatesResponse"
+                         wsaw:Action="urn:getTenantIssuedCertificatesResponse"></wsdl:output>
+            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException"
+                        wsaw:Action="urn:getTenantIssuedCertificatesCAAdminServiceCaException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getCerts">
             <wsdl:input message="tns:getCertsRequest" wsaw:Action="urn:getCerts"></wsdl:input>
             <wsdl:output message="tns:getCertsResponse" wsaw:Action="urn:getCertsResponse"></wsdl:output>
-            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException" wsaw:Action="urn:getCertsCAAdminServiceCaException"></wsdl:fault>
+            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException"
+                        wsaw:Action="urn:getCertsCAAdminServiceCaException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getAllCerts">
             <wsdl:input message="tns:getAllCertsRequest" wsaw:Action="urn:getAllCerts"></wsdl:input>
             <wsdl:output message="tns:getAllCertsResponse" wsaw:Action="urn:getAllCertsResponse"></wsdl:output>
-            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException" wsaw:Action="urn:getAllCertsCAAdminServiceCaException"></wsdl:fault>
+            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException"
+                        wsaw:Action="urn:getAllCertsCAAdminServiceCaException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getRevokedReason">
             <wsdl:input message="tns:getRevokedReasonRequest" wsaw:Action="urn:getRevokedReason"></wsdl:input>
-            <wsdl:output message="tns:getRevokedReasonResponse" wsaw:Action="urn:getRevokedReasonResponse"></wsdl:output>
-            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException" wsaw:Action="urn:getRevokedReasonCAAdminServiceCaException"></wsdl:fault>
+            <wsdl:output message="tns:getRevokedReasonResponse"
+                         wsaw:Action="urn:getRevokedReasonResponse"></wsdl:output>
+            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException"
+                        wsaw:Action="urn:getRevokedReasonCAAdminServiceCaException"></wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getCertificate">
+            <wsdl:input message="tns:getCertificateRequest" wsaw:Action="urn:getCertificate"></wsdl:input>
+            <wsdl:output message="tns:getCertificateResponse" wsaw:Action="urn:getCertificateResponse"></wsdl:output>
+            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException"
+                        wsaw:Action="urn:getCertificateCAAdminServiceCaException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getCsrfromCN">
             <wsdl:input message="tns:getCsrfromCNRequest" wsaw:Action="urn:getCsrfromCN"></wsdl:input>
             <wsdl:output message="tns:getCsrfromCNResponse" wsaw:Action="urn:getCsrfromCNResponse"></wsdl:output>
-            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException" wsaw:Action="urn:getCsrfromCNCAAdminServiceCaException"></wsdl:fault>
-        </wsdl:operation>
-        <wsdl:operation name="getPubCert">
-            <wsdl:input message="tns:getPubCertRequest" wsaw:Action="urn:getPubCert"></wsdl:input>
-            <wsdl:output message="tns:getPubCertResponse" wsaw:Action="urn:getPubCertResponse"></wsdl:output>
-            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException" wsaw:Action="urn:getPubCertCAAdminServiceCaException"></wsdl:fault>
+            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException"
+                        wsaw:Action="urn:getCsrfromCNCAAdminServiceCaException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getCsrfromORG">
             <wsdl:input message="tns:getCsrfromORGRequest" wsaw:Action="urn:getCsrfromORG"></wsdl:input>
             <wsdl:output message="tns:getCsrfromORGResponse" wsaw:Action="urn:getCsrfromORGResponse"></wsdl:output>
-            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException" wsaw:Action="urn:getCsrfromORGCAAdminServiceCaException"></wsdl:fault>
+            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException"
+                        wsaw:Action="urn:getCsrfromORGCAAdminServiceCaException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getCsrListWithStatus">
             <wsdl:input message="tns:getCsrListWithStatusRequest" wsaw:Action="urn:getCsrListWithStatus"></wsdl:input>
-            <wsdl:output message="tns:getCsrListWithStatusResponse" wsaw:Action="urn:getCsrListWithStatusResponse"></wsdl:output>
-            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException" wsaw:Action="urn:getCsrListWithStatusCAAdminServiceCaException"></wsdl:fault>
+            <wsdl:output message="tns:getCsrListWithStatusResponse"
+                         wsaw:Action="urn:getCsrListWithStatusResponse"></wsdl:output>
+            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException"
+                        wsaw:Action="urn:getCsrListWithStatusCAAdminServiceCaException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="listKeyAliases">
             <wsdl:input message="tns:listKeyAliasesRequest" wsaw:Action="urn:listKeyAliases"></wsdl:input>
             <wsdl:output message="tns:listKeyAliasesResponse" wsaw:Action="urn:listKeyAliasesResponse"></wsdl:output>
-            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException" wsaw:Action="urn:listKeyAliasesCAAdminServiceCaException"></wsdl:fault>
+            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException"
+                        wsaw:Action="urn:listKeyAliasesCAAdminServiceCaException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="rejectCSR">
             <wsdl:input message="tns:rejectCSRRequest" wsaw:Action="urn:rejectCSR"></wsdl:input>
-            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException" wsaw:Action="urn:rejectCSRCAAdminServiceCaException"></wsdl:fault>
+            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException"
+                        wsaw:Action="urn:rejectCSRCAAdminServiceCaException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getCsrList">
             <wsdl:input message="tns:getCsrListRequest" wsaw:Action="urn:getCsrList"></wsdl:input>
             <wsdl:output message="tns:getCsrListResponse" wsaw:Action="urn:getCsrListResponse"></wsdl:output>
-            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException" wsaw:Action="urn:getCsrListCAAdminServiceCaException"></wsdl:fault>
+            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException"
+                        wsaw:Action="urn:getCsrListCAAdminServiceCaException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="signCSR">
             <wsdl:input message="tns:signCSRRequest" wsaw:Action="urn:signCSR"></wsdl:input>
-            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException" wsaw:Action="urn:signCSRCAAdminServiceCaException"></wsdl:fault>
+            <wsdl:fault message="tns:CAAdminServiceCaException" name="CAAdminServiceCaException"
+                        wsaw:Action="urn:signCSRCAAdminServiceCaException"></wsdl:fault>
         </wsdl:operation>
     </wsdl:portType>
     <wsdl:binding name="CAAdminServiceSoap11Binding" type="tns:CAAdminServicePortType">
@@ -758,6 +595,18 @@
                 <soap:fault use="literal" name="CAAdminServiceCaException"></soap:fault>
             </wsdl:fault>
         </wsdl:operation>
+        <wsdl:operation name="getCertificate">
+            <soap:operation soapAction="urn:getCertificate" style="document"></soap:operation>
+            <wsdl:input>
+                <soap:body use="literal"></soap:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"></soap:body>
+            </wsdl:output>
+            <wsdl:fault name="CAAdminServiceCaException">
+                <soap:fault use="literal" name="CAAdminServiceCaException"></soap:fault>
+            </wsdl:fault>
+        </wsdl:operation>
         <wsdl:operation name="getCsrfromCN">
             <soap:operation soapAction="urn:getCsrfromCN" style="document"></soap:operation>
             <wsdl:input>
@@ -772,18 +621,6 @@
         </wsdl:operation>
         <wsdl:operation name="getCsrfromORG">
             <soap:operation soapAction="urn:getCsrfromORG" style="document"></soap:operation>
-            <wsdl:input>
-                <soap:body use="literal"></soap:body>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"></soap:body>
-            </wsdl:output>
-            <wsdl:fault name="CAAdminServiceCaException">
-                <soap:fault use="literal" name="CAAdminServiceCaException"></soap:fault>
-            </wsdl:fault>
-        </wsdl:operation>
-        <wsdl:operation name="getPubCert">
-            <soap:operation soapAction="urn:getPubCert" style="document"></soap:operation>
             <wsdl:input>
                 <soap:body use="literal"></soap:body>
             </wsdl:input>
@@ -950,6 +787,18 @@
                 <soap12:fault use="literal" name="CAAdminServiceCaException"></soap12:fault>
             </wsdl:fault>
         </wsdl:operation>
+        <wsdl:operation name="getCertificate">
+            <soap12:operation soapAction="urn:getCertificate" style="document"></soap12:operation>
+            <wsdl:input>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:output>
+            <wsdl:fault name="CAAdminServiceCaException">
+                <soap12:fault use="literal" name="CAAdminServiceCaException"></soap12:fault>
+            </wsdl:fault>
+        </wsdl:operation>
         <wsdl:operation name="getCsrfromCN">
             <soap12:operation soapAction="urn:getCsrfromCN" style="document"></soap12:operation>
             <wsdl:input>
@@ -964,18 +813,6 @@
         </wsdl:operation>
         <wsdl:operation name="getCsrfromORG">
             <soap12:operation soapAction="urn:getCsrfromORG" style="document"></soap12:operation>
-            <wsdl:input>
-                <soap12:body use="literal"></soap12:body>
-            </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"></soap12:body>
-            </wsdl:output>
-            <wsdl:fault name="CAAdminServiceCaException">
-                <soap12:fault use="literal" name="CAAdminServiceCaException"></soap12:fault>
-            </wsdl:fault>
-        </wsdl:operation>
-        <wsdl:operation name="getPubCert">
-            <soap12:operation soapAction="urn:getPubCert" style="document"></soap12:operation>
             <wsdl:input>
                 <soap12:body use="literal"></soap12:body>
             </wsdl:input>
@@ -1115,6 +952,15 @@
                 <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="getCertificate">
+            <http:operation location="getCertificate"></http:operation>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"></mime:content>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"></mime:content>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="getCsrfromCN">
             <http:operation location="getCsrfromCN"></http:operation>
             <wsdl:input>
@@ -1126,15 +972,6 @@
         </wsdl:operation>
         <wsdl:operation name="getCsrfromORG">
             <http:operation location="getCsrfromORG"></http:operation>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"></mime:content>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="parameters"></mime:content>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="getPubCert">
-            <http:operation location="getPubCert"></http:operation>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:input>
@@ -1184,13 +1021,16 @@
     </wsdl:binding>
     <wsdl:service name="CAAdminService">
         <wsdl:port name="CAAdminServiceHttpsSoap11Endpoint" binding="tns:CAAdminServiceSoap11Binding">
-            <soap:address location="https://localhost:9443/services/CAAdminService.CAAdminServiceHttpsSoap11Endpoint/"></soap:address>
+            <soap:address
+                    location="https://10.100.5.101:9443/services/CAAdminService.CAAdminServiceHttpsSoap11Endpoint/"></soap:address>
         </wsdl:port>
         <wsdl:port name="CAAdminServiceHttpsSoap12Endpoint" binding="tns:CAAdminServiceSoap12Binding">
-            <soap12:address location="https://localhost:9443/services/CAAdminService.CAAdminServiceHttpsSoap12Endpoint/"></soap12:address>
+            <soap12:address
+                    location="https://10.100.5.101:9443/services/CAAdminService.CAAdminServiceHttpsSoap12Endpoint/"></soap12:address>
         </wsdl:port>
         <wsdl:port name="CAAdminServiceHttpsEndpoint" binding="tns:CAAdminServiceHttpBinding">
-            <http:address location="https://localhost:9443/services/CAAdminService.CAAdminServiceHttpsEndpoint/"></http:address>
+            <http:address
+                    location="https://10.100.5.101:9443/services/CAAdminService.CAAdminServiceHttpsEndpoint/"></http:address>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>
