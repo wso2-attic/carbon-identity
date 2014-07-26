@@ -58,6 +58,11 @@ public class TenantManagementListener implements TenantMgtListener {
         // It is not required to implement this method for IdP mgt.
     }
 
+    @Override
+    public void onTenantDelete(int i) {
+        //todo: IDENTITY-2639
+    }
+
     public void onTenantRename(int tenantId, String oldDomainName,
                                String newDomainName) throws StratosException {
         // It is not required to implement this method for IdP mgt.
