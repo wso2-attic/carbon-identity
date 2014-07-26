@@ -22,6 +22,7 @@ import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
@@ -201,8 +202,10 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
             }
 
             if (post.getStatusCode() == HttpStatus.SC_CREATED) {
-                JSONObject response = new JSONObject(new JSONTokener(new InputStreamReader(
-                        post.getResponseBodyAsStream())));
+                //todo: possible fix for IDENTITY-2640, need to be verified
+//                JSONObject response = new JSONObject(new JSONTokener(new InputStreamReader(
+//                        post.getResponseBodyAsStream())));
+                JSONObject response = new JSONObject(new JSONTokener(IOUtils.toString(post.getResponseBodyAsStream())));
                 if (isDebugEnabled) {
                     log.debug("Create response: " + response.toString(2));
                 }
@@ -392,8 +395,10 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
             sb.append("HTTP status " + post.getStatusCode() + " creating user\n\n");
 
             if (post.getStatusCode() == HttpStatus.SC_OK) {
-                JSONObject response = new JSONObject(new JSONTokener(new InputStreamReader(
-                        post.getResponseBodyAsStream())));
+                //todo: possible fix for IDENTITY-2640, need to be verified
+//                JSONObject response = new JSONObject(new JSONTokener(new InputStreamReader(
+//                        post.getResponseBodyAsStream())));
+                JSONObject response = new JSONObject(new JSONTokener(IOUtils.toString(post.getResponseBodyAsStream())));
                 if (isDebugEnabled) {
                     log.debug("Authenticate response: " + response.toString(2));
                 }
@@ -496,9 +501,10 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
         try {
             httpclient.executeMethod(get);
             if (get.getStatusCode() == HttpStatus.SC_OK) {
-
-                JSONObject response = new JSONObject(new JSONTokener(new InputStreamReader(
-                        get.getResponseBodyAsStream())));
+                //todo: possible fix for IDENTITY-2640, need to be verified
+//                JSONObject response = new JSONObject(new JSONTokener(new InputStreamReader(
+//                        get.getResponseBodyAsStream())));
+                JSONObject response = new JSONObject(new JSONTokener(IOUtils.toString(get.getResponseBodyAsStream())));
                 if (isDebugEnabled) {
                     log.debug("Query response: " + response.toString(2));
                 }
