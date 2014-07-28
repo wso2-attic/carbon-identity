@@ -155,7 +155,7 @@ public class CertificateDAO {
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return null;
+        return new CertificateMetaInfo[0];
     }
 
 
@@ -235,6 +235,7 @@ public class CertificateDAO {
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
         String sql = null;
+        Certificate[] certificates = null;
         try {
             log.debug("retriving PC information from serial :" + serialNo);
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
@@ -243,9 +244,9 @@ public class CertificateDAO {
             prepStmt.setString(1, serialNo);
             prepStmt.setInt(2, tenantID);
             resultSet = prepStmt.executeQuery();
-            Certificate[] pcs = getCertificateArray(resultSet);
-            if (pcs != null && pcs.length > 0) {
-                return pcs[0];
+            certificates = getCertificateArray(resultSet);
+            if (certificates != null && certificates.length > 0) {
+                return certificates[0];
             }
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
@@ -257,7 +258,10 @@ public class CertificateDAO {
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return null;
+        if(certificates == null || certificates.length==0){
+            throw new CaException("No such certificate");
+        }
+        return certificates[0];
     }
 
     /**
@@ -272,6 +276,7 @@ public class CertificateDAO {
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
         String sql = null;
+        Certificate[] certificates = null;
         try {
             log.debug("retriving PC information from serial :" + serialNo);
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
@@ -279,10 +284,7 @@ public class CertificateDAO {
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setString(1, serialNo);
             resultSet = prepStmt.executeQuery();
-            Certificate[] pcs = getCertificateArray(resultSet);
-            if (pcs != null && pcs.length > 0) {
-                return pcs[0];
-            }
+            certificates = getCertificateArray(resultSet);
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -293,7 +295,10 @@ public class CertificateDAO {
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return null;
+        if(certificates == null || certificates.length==0){
+            throw new CaException("No such certificate");
+        }
+        return certificates[0];
     }
 
     /**
@@ -311,6 +316,7 @@ public class CertificateDAO {
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
         String sql = null;
+        Certificate[] certificates = null;
         try {
             log.debug("retriving Certificate information from serial :" + serialNo);
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
@@ -321,10 +327,7 @@ public class CertificateDAO {
             prepStmt.setString(3, userStoreDomain);
             prepStmt.setString(4, username);
             resultSet = prepStmt.executeQuery();
-            Certificate[] pcs = getCertificateArray(resultSet);
-            if (pcs != null && pcs.length > 0) {
-                return pcs[0];
-            }
+            certificates = getCertificateArray(resultSet);
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -335,7 +338,10 @@ public class CertificateDAO {
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return null;
+        if(certificates == null || certificates.length==0){
+            throw new CaException("No such certificate");
+        }
+        return certificates[0];
     }
 
 
@@ -372,7 +378,7 @@ public class CertificateDAO {
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return null;
+        return new Certificate[0];
     }
 
 
@@ -408,7 +414,7 @@ public class CertificateDAO {
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return null;
+        return new CertificateMetaInfo[0];
     }
 
     /**
@@ -443,7 +449,7 @@ public class CertificateDAO {
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return null;
+        return new CertificateMetaInfo[0];
     }
 
     /**
@@ -478,7 +484,7 @@ public class CertificateDAO {
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return null;
+        return new CertificateMetaInfo[0];
     }
 
 

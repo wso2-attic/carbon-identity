@@ -18,9 +18,9 @@
 
 package org.wso2.carbon.identity.certificateauthority.dao;
 
-import com.hazelcast.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.bouncycastle.util.encoders.Base64;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.certificateauthority.CaException;
 import org.wso2.carbon.identity.certificateauthority.Constants;
@@ -95,7 +95,7 @@ public class CrlDataHolderDao {
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
         String sql = null;
-
+        CRLDataHolder[] crls = null;
         try {
             log.debug("retriving CRL information from serial :" + tenantId);
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
@@ -108,7 +108,7 @@ public class CrlDataHolderDao {
             prepStmt.setInt(1, tenantId);
             prepStmt.setInt(2, tenantId);
             resultSet = prepStmt.executeQuery();
-            CRLDataHolder[] crls = getCrl(resultSet);
+            crls = getCrl(resultSet);
             if (crls != null && crls.length > 0) {
                 return crls[0];
             }
@@ -122,7 +122,10 @@ public class CrlDataHolderDao {
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return null;
+        if(crls == null || crls.length==0){
+            throw new CaException("No CRL Entries");
+        }
+        return crls[0];
     }
 
 

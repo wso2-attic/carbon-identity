@@ -102,10 +102,9 @@ public class CsrDAO {
             log.error(errorMsg, e);
             throw new CaException(errorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + sql);
-            log.error(e.getMessage(), e);
+            log.error("Error when executing the SQL : " + sql,e);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
@@ -123,6 +122,7 @@ public class CsrDAO {
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
         String sql = null;
+        Csr[] csrs = null;
 
         try {
             log.debug("retriving csr information from serial :" + serialNo);
@@ -135,21 +135,26 @@ public class CsrDAO {
             prepStmt.setInt(3, tenantId);
             prepStmt.setString(4, userStoreDomain);
             resultSet = prepStmt.executeQuery();
-            Csr[] csrs = getCsrArray(resultSet);
-            if (csrs != null && csrs.length > 0) {
-                return csrs[0];
-            }
+            csrs = getCsrArray(resultSet);
+
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
             throw new CaException(errorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + sql);
+            log.error("Error when executing the SQL : " + sql,e);
+        } catch (IOException e) {
             log.error(e.getMessage(), e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return null;
+
+        if(csrs == null || csrs.length == 0){
+            log.warn("Attempted to access non-existing or unauthorized CSR. User:"+userName+", tenant:"+tenantId+
+                    ", Resource:"+serialNo);
+            throw new CaException("No such CSR");
+        }
+        return csrs[0];
     }
 
 
@@ -164,7 +169,7 @@ public class CsrDAO {
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
         String sql = null;
-
+        Csr[] csrs = null;
         try {
             log.debug("retrieving csr information from serial :" + serialNo);
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
@@ -174,11 +179,7 @@ public class CsrDAO {
             prepStmt.setString(1, serialNo);
             prepStmt.setInt(2, tenantId);
             resultSet = prepStmt.executeQuery();
-            Csr[] csrs = getCsrArray(resultSet);
-            if (csrs != null && csrs.length > 0) {
-                return csrs[0];
-            }
-
+            csrs = getCsrArray(resultSet);
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -186,10 +187,17 @@ public class CsrDAO {
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return null;
+        if(csrs == null || csrs.length == 0){
+            log.warn("Attempted to access non-existing or unauthorized CSR. Tenant:"+tenantId+
+                    ", Resource:"+serialNo);
+            throw new CaException("No such CSR");
+        }
+        return csrs[0];
     }
 
     /**
@@ -204,6 +212,7 @@ public class CsrDAO {
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
         String sql = null;
+        Csr[] csrs = null;
 
         try {
             log.debug("retriving csr information from serial :" + serialNo);
@@ -213,21 +222,23 @@ public class CsrDAO {
 
             prepStmt.setString(1, serialNo);
             resultSet = prepStmt.executeQuery();
-            Csr[] csrs = getCsrArray(resultSet);
-            if (csrs != null && csrs.length > 0) {
-                return csrs[0];
-            }
+            csrs = getCsrArray(resultSet);
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
             throw new CaException(errorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + sql);
+            log.error("Error when executing the SQL : " + sql,e);
+        } catch (IOException e) {
             log.error(e.getMessage(), e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return null;
+        if(csrs == null || csrs.length == 0){
+            log.warn("Attempted to access non-existing or unauthorized CSR. Resource:"+serialNo);
+            throw new CaException("No such CSR");
+        }
+        return csrs[0];
     }
 
     public Csr getCsrWithTransactionId(String transactionId) throws CaException {
@@ -235,6 +246,7 @@ public class CsrDAO {
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
         String sql = null;
+        Csr[] csrs = null;
 
         try {
             log.debug("retriving csr information from transaction id :" + transactionId);
@@ -244,10 +256,7 @@ public class CsrDAO {
 
             prepStmt.setString(1, transactionId);
             resultSet = prepStmt.executeQuery();
-            Csr[] csrs = getCsrArray(resultSet);
-            if (csrs != null && csrs.length > 0) {
-                return csrs[0];
-            }
+            csrs = getCsrArray(resultSet);
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -255,10 +264,16 @@ public class CsrDAO {
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
+        } catch (IOException e) {
+            log.error(e.getMessage(),e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return null;
+        if(csrs == null || csrs.length == 0){
+            log.warn("Attempted to access non-existing or unauthorized CSR. Transaction Id:"+transactionId);
+            throw new CaException("No such CSR");
+        }
+        return csrs[0];
     }
 
     /**
@@ -334,8 +349,7 @@ public class CsrDAO {
             log.error(errorMsg, e);
             throw new CaException(errorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + sql);
-            log.error(e.getMessage(), e);
+            log.error("Error when executing the SQL : " + sql,e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
@@ -369,12 +383,11 @@ public class CsrDAO {
             log.error(errorMsg, e);
             throw new CaException(errorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + sql);
-            log.error(e.getMessage(), e);
+            log.error("Error when executing the SQL : " + sql,e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return null;
+        return new CsrMetaInfo[0];
     }
 
     public CsrMetaInfo[] getCSRListWithStatus(int tenantID, String status) throws CaException {
@@ -397,12 +410,11 @@ public class CsrDAO {
             log.error(errorMsg, e);
             throw new CaException(errorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + sql);
-            log.error(e.getMessage(), e);
+            log.error("Error when executing the SQL : " + sql,e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return null;
+        return new CsrMetaInfo[0];
     }
 
 
@@ -433,12 +445,11 @@ public class CsrDAO {
             log.error(errorMsg, e);
             throw new CaException(errorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + sql);
-            log.error(e.getMessage(), e);
+            log.error("Error when executing the SQL : " + sql,e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return null;
+        return new CsrMetaInfo[0];
     }
 
     /**
@@ -447,47 +458,40 @@ public class CsrDAO {
      * @param resultSet result set
      * @return array of CsrFiles
      */
-    private Csr[] getCsrArray(ResultSet resultSet) {
+    private Csr[] getCsrArray(ResultSet resultSet) throws CaException, SQLException, IOException {
         ArrayList<Csr> csrList = new ArrayList<Csr>();
         int count = 0;
-
-        try {
-            while (resultSet.next()) {
-                String serialNo = resultSet.getString(Constants.SERIAL_NO_LABEL);
-                String status = resultSet.getString(Constants.CSR_STATUS_LABEL);
-                String commonName = resultSet.getString(Constants.CSR_COMMON_NAME_LABEL);
-                String organization = resultSet.getString(Constants.CSR_ORGANIZATION_LABEL);
-                Csr csrFile;
-                String country = null;
-                String department = null;
-                String city = null;
-                String state = null;
-                Blob csrBlob = resultSet.getBlob(Constants.CSR_CONTENT_LABEL);
-                Date requestedDate = resultSet.getTimestamp(Constants.CSR_REQUESTED_DATE);
-                String username = resultSet.getString(Constants.CSR_REQUESTER_USERNAME_LABEL);
-                int tenantID = resultSet.getInt(Constants.TENANT_ID_LABEL);
-                String userStoreDomain = resultSet.getString(Constants.USER_STORE_DOMAIN_LABEL);
-                PKCS10CertificationRequest csr = new PKCS10CertificationRequest(csrBlob.getBytes(1, (int) csrBlob.length()));
-                HashMap decodedContent = CsrUtils.getSubjectInfo(csr);
-                if (decodedContent.containsKey("C")) {
-                    country = decodedContent.get("C").toString();
-                }
-                if (decodedContent.containsKey("L")) {
-                    city = decodedContent.get("L").toString();
-                }
-                if (decodedContent.containsKey("OU")) {
-                    department = decodedContent.get("OU").toString();
-                }
-                if (decodedContent.containsKey("ST")) {
-                    state = decodedContent.get("ST").toString();
-                }
-                csrFile = new Csr(commonName, department, organization, city, state, country, csr, serialNo, status, username, tenantID, userStoreDomain, requestedDate);
-                csrList.add(csrFile);
+        while (resultSet.next()) {
+            String serialNo = resultSet.getString(Constants.SERIAL_NO_LABEL);
+            String status = resultSet.getString(Constants.CSR_STATUS_LABEL);
+            String commonName = resultSet.getString(Constants.CSR_COMMON_NAME_LABEL);
+            String organization = resultSet.getString(Constants.CSR_ORGANIZATION_LABEL);
+            Csr csrFile;
+            String country = null;
+            String department = null;
+            String city = null;
+            String state = null;
+            Blob csrBlob = resultSet.getBlob(Constants.CSR_CONTENT_LABEL);
+            Date requestedDate = resultSet.getTimestamp(Constants.CSR_REQUESTED_DATE);
+            String username = resultSet.getString(Constants.CSR_REQUESTER_USERNAME_LABEL);
+            int tenantID = resultSet.getInt(Constants.TENANT_ID_LABEL);
+            String userStoreDomain = resultSet.getString(Constants.USER_STORE_DOMAIN_LABEL);
+            PKCS10CertificationRequest csr = new PKCS10CertificationRequest(csrBlob.getBytes(1, (int) csrBlob.length()));
+            HashMap decodedContent = CsrUtils.getSubjectInfo(csr);
+            if (decodedContent.containsKey("C")) {
+                country = decodedContent.get("C").toString();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (IOException e) {
-            e.printStackTrace();
+            if (decodedContent.containsKey("L")) {
+                city = decodedContent.get("L").toString();
+            }
+            if (decodedContent.containsKey("OU")) {
+                department = decodedContent.get("OU").toString();
+            }
+            if (decodedContent.containsKey("ST")) {
+                state = decodedContent.get("ST").toString();
+            }
+            csrFile = new Csr(commonName, department, organization, city, state, country, csr, serialNo, status, username, tenantID, userStoreDomain, requestedDate);
+            csrList.add(csrFile);
         }
         Csr[] csrs = new Csr[csrList.size()];
         csrs = csrList.toArray(csrs);
@@ -545,12 +549,11 @@ public class CsrDAO {
             log.error(errorMsg, e);
             throw new CaException(errorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + sql);
-            log.error(e.getMessage(), e);
+            log.error("Error when executing the SQL : " + sql,e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return null;
+        return new CsrMetaInfo[0];
     }
 
     /**
@@ -582,12 +585,11 @@ public class CsrDAO {
             log.error(errorMsg, e);
             throw new CaException(errorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + sql);
-            log.error(e.getMessage(), e);
+            log.error("Error when executing the SQL : " + sql,e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return null;
+        return new CsrMetaInfo[0];
     }
 
     /**
@@ -620,12 +622,11 @@ public class CsrDAO {
             log.error(errorMsg, e);
             throw new CaException(errorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + sql);
-            log.error(e.getMessage(), e);
+            log.error("Error when executing the SQL : " + sql,e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return null;
+        return new CsrMetaInfo[0];
     }
 
 }

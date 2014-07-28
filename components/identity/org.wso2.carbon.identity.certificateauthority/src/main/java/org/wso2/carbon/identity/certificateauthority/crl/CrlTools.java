@@ -18,9 +18,9 @@
 
 package org.wso2.carbon.identity.certificateauthority.crl;
 
-import com.hazelcast.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.bouncycastle.util.encoders.Base64;
 
 import java.io.ByteArrayInputStream;
 import java.security.cert.CRLException;
