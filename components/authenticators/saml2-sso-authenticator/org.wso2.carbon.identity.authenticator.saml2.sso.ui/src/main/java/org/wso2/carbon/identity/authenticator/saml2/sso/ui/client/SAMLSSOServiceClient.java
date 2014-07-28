@@ -17,8 +17,6 @@
 */
 package org.wso2.carbon.identity.authenticator.saml2.sso.ui.client;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
@@ -45,8 +43,7 @@ public class SAMLSSOServiceClient {
     }
 
     /**
-     * 
-     * @param authnRequest
+     *
      * @param sessionId
      * @param rpSessionId
      * @param authnMode
@@ -58,7 +55,7 @@ public class SAMLSSOServiceClient {
 	                                                String authnMode,boolean isPost)
 	                                                                                     throws IdentityException {
 		try {
-			return stub.validateRequest(samlReq, queryString, sessionId, rpSessionId, authnMode,isPost);
+			return stub.validateSPInitSSORequest(samlReq,queryString,sessionId,rpSessionId,authnMode,isPost);
 		} catch (Exception e) {
 			log.error("Error validating the Authentication Request", e);
 			throw new IdentityException("Error in parsing authentication request", e);

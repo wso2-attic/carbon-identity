@@ -1899,7 +1899,7 @@
         <openid4java.wso2.version>0.9.6.wso2v1</openid4java.wso2.version>
         <opensaml2.version>2.4.1.wso2v1</opensaml2.version>
         <opensaml.wso2.version>1.1.0.wso2v1</opensaml.wso2.version>
-        <balana.version>1.0.0-wso2v7</balana.version>
+        <balana.version>1.0.0.wso2v7-SNAPSHOT</balana.version>
         <gdata-core.wso2.version>1.47.0.wso2v1</gdata-core.wso2.version>
         <smack.wso2.version>3.0.4.wso2v1</smack.wso2.version>
         <smackx.wso2.version>3.0.4.wso2v1</smackx.wso2.version>
