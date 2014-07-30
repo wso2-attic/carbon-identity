@@ -63,15 +63,28 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 						<Bundle-Name>${project.artifactId}</Bundle-Name>
 						<Private-Package>org.wso2.carbon.identity.application.authenticator.iwa.internal,</Private-Package>
 						<Import-Package>
-							org.osgi.framework,
+                            org.osgi.framework,
                             org.wso2.carbon.identity.application.authentication.framework.*,
-                            waffle.*;version="1.6.wso2v1",
+                            javax.security.auth,
+                            org.eclipse.equinox.http.helper,
+                            org.osgi.service.component,
+                            org.osgi.service.http,
+                            org.wso2.carbon.context,
+                            org.wso2.carbon.ui,
+                            org.wso2.carbon.user.api,
+                            org.wso2.carbon.user.core,
+                            org.wso2.carbon.utils.multitenancy,
+                            waffle.servlet,
+                            waffle.servlet.spi,
+                            waffle.util,
+                            waffle.windows.auth,
+                            waffle.windows.auth.impl,
                             javax.servlet;version="${imp.pkg.version.javax.servlet}",
                             javax.servlet.http;version="${imp.pkg.version.javax.servlet}",
-							*;resolution:=optional</Import-Package>
+                            org.apache.commons.logging;resolution:=optional
+							</Import-Package>
 						<Export-Package>!org.wso2.carbon.identity.application.authenticator.iwa.internal,
 							org.wso2.carbon.identity.application.authenticator.iwa.*</Export-Package>
-						<DynamicImport-Package>*</DynamicImport-Package>
 					</instructions>
 				</configuration>
 			</plugin>

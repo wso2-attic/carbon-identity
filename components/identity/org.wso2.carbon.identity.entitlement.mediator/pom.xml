@@ -14,7 +14,7 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>identity</artifactId>
@@ -106,7 +106,7 @@
                         </Export-Package>
                         <Import-Package>
                             !javax.xml.namespace,
-                            org.apache.commons.logging.*; version=&quot;1.0.4&quot;,
+                            org.apache.commons.logging.*; version="1.0.4",
                             !org.osgi.framework,
                             !javax.servlet,
                             !javax.servlet.http,
@@ -115,8 +115,8 @@
 			    !org.pache.axis2.databinding.utils.writer,
                             !org.wso2.carbon.identity.entitlement.mediator.*,
 			    org.wso2.carbon.identity.entitlement.proxy.*,
-                            org.wso2.carbon.identity.entitlement.stub.*;version=&quot;${carbon.platform.package.import.version.range}&quot;,
-                            org.wso2.carbon.authenticator.stub.*;version=&quot;${carbon.platform.package.import.version.range}&quot;,
+                            org.wso2.carbon.identity.entitlement.stub.*;version="${carbon.platform.package.import.version.range}",
+                            org.wso2.carbon.authenticator.stub.*;version="${carbon.platform.package.import.version.range}",
                             *; resolution:=optional
                         </Import-Package>
                         <Fragment-Host>synapse-core</Fragment-Host>

@@ -26,7 +26,8 @@
             <xs:element name="validateSPInitSSORequestResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2306:SAMLSSOReqValidationResponseDTO"></xs:element>
+                        <xs:element minOccurs="0" name="return" nillable="true"
+                                    type="ax2308:SAMLSSOReqValidationResponseDTO"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -47,7 +48,8 @@
             <xs:element name="validateIdPInitSSORequestResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2306:SAMLSSOReqValidationResponseDTO"></xs:element>
+                        <xs:element minOccurs="0" name="return" nillable="true"
+                                    type="ax2308:SAMLSSOReqValidationResponseDTO"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
