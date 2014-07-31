@@ -109,9 +109,6 @@ public class CrlDataHolderDao {
             prepStmt.setInt(2, tenantId);
             resultSet = prepStmt.executeQuery();
             crls = getCrl(resultSet);
-            if (crls != null && crls.length > 0) {
-                return crls[0];
-            }
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
