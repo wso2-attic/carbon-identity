@@ -24,6 +24,7 @@ import org.bouncycastle.asn1.x509.CRLNumber;
 import org.bouncycastle.asn1.x509.X509Extensions;
 import org.bouncycastle.x509.X509V2CRLGenerator;
 import org.bouncycastle.x509.extension.AuthorityKeyIdentifierStructure;
+import org.wso2.carbon.identity.certificateauthority.CaException;
 import org.wso2.carbon.identity.certificateauthority.dao.CertificateDAO;
 import org.wso2.carbon.identity.certificateauthority.dao.CrlDataHolderDao;
 import org.wso2.carbon.identity.certificateauthority.dao.RevocationDAO;
@@ -84,7 +85,7 @@ public class CrlFactory {
         RevocationDAO revocationDAO = new RevocationDAO();
         CrlDataHolderDao crlDataHolderDao = new CrlDataHolderDao();
         RevokedCertificate[] revokedCertificates = revocationDAO.getRevokedCertificates(tenantId);
-        CRLDataHolder crlDataHolder = crlDataHolderDao.getLatestCRL(tenantId, false);
+//        CRLDataHolder crlDataHolder = crlDataHolderDao.getLatestCRL(tenantId, false);
         PrivateKey privateKey = CAUtils.getConfiguredPrivateKey();
         X509Certificate certb = CAUtils.getConfiguredCaCert();
         int fullnumber = crlDataHolderDao.findHighestCrlNumber(tenantId, false);
@@ -102,9 +103,9 @@ public class CrlFactory {
     public X509CRL creteDeltaCrl(int tenantId) throws Exception {
         RevocationDAO revocationDAO = new RevocationDAO();
         CrlDataHolderDao crlDataHolderDao = new CrlDataHolderDao();
-        CRLDataHolder dataholder = crlDataHolderDao.getLatestCRL(tenantId, false);
-        X509CRL latestCrl = null;
-        if (dataholder != null) {
+        X509CRL latestCrl;
+        try{
+            CRLDataHolder dataholder = crlDataHolderDao.getLatestCRL(tenantId, false);
             latestCrl = crlDataHolderDao.getLatestCRL(tenantId, false).getCRL();
             RevokedCertificate[] revokedCertificates = revocationDAO.getRevokedCertificatesAfter(tenantId, latestCrl.getThisUpdate());
             CRLDataHolder crlDataHolder = crlDataHolderDao.getLatestCRL(tenantId, false);
@@ -115,10 +116,9 @@ public class CrlFactory {
             // nextCrlNumber: The highest number of last CRL (full or delta) and increased by 1 (both full CRLs and deltaCRLs share the same series of CRL Number)
             int nextCrlNumber = ((fullnumber > deltanumber) ? fullnumber : deltanumber) + 1;
             return createCRL(certb, privateKey, revokedCertificates, nextCrlNumber, fullnumber, false);
-        } else {
+        } catch (CaException e){
             log.info("No base crl found to create a delta crl");
         }
-
         return null;
     }
 
