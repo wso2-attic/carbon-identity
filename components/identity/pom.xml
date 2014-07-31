@@ -12,8 +12,8 @@
         limitations under the License.
     -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
@@ -35,7 +35,7 @@
     <url>http://wso2.org</url>
 
     <modules>
-	<module>org.wso2.carbon.identity.application.authentication.endpoint</module>
+        <module>org.wso2.carbon.identity.application.authentication.endpoint</module>
         <module>org.wso2.carbon.identity.sts.passive</module>
         <module>org.wso2.carbon.identity.sts.passive.ui</module>
         <module>org.wso2.carbon.identity.sso.saml.common</module>
@@ -57,9 +57,12 @@
         <module>org.wso2.carbon.identity.application.authenticator.requestpath.oauth</module>
         <module>org.wso2.carbon.identity.application.authenticator.samlsso</module>
         <module>org.wso2.carbon.identity.base</module>
+        <module>org.wso2.carbon.identity.certificateauthority</module>
+        <module>org.wso2.carbon.identity.certificateauthority.endpoint</module>
+        <module>org.wso2.carbon.identity.certificateauthority.ui</module>
         <module>org.wso2.carbon.identity.core</module>
-    	<module>org.wso2.carbon.identity.mgt</module>
-	    <module>org.wso2.carbon.identity.mgt.ui</module>
+        <module>org.wso2.carbon.identity.mgt</module>
+        <module>org.wso2.carbon.identity.mgt.ui</module>
         <module>org.wso2.carbon.identity.menu.ui</module>
         <module>org.wso2.carbon.identity.provider</module>
         <module>org.wso2.carbon.identity.provider.ui</module>
@@ -72,13 +75,13 @@
         <module>org.wso2.carbon.identity.relyingparty.ui</module>
         <module>org.wso2.carbon.identity.user.profile</module>
         <module>org.wso2.carbon.identity.user.profile.ui</module>
-	<module>org.wso2.carbon.identity.authorization.core</module>
-	<module>org.wso2.carbon.identity.authorization.ui</module>
+        <module>org.wso2.carbon.identity.authorization.core</module>
+        <module>org.wso2.carbon.identity.authorization.ui</module>
         <module>org.wso2.carbon.identity.entitlement</module>
-	<module>org.wso2.carbon.identity.entitlement.common</module>
+        <module>org.wso2.carbon.identity.entitlement.common</module>
         <module>org.wso2.carbon.identity.entitlement.ui</module>
         <!--module>org.wso2.carbon.identity.entitlement.mediator</module-->
-	<!--module>org.wso2.carbon.identity.sso.agent</module-->
+        <!--module>org.wso2.carbon.identity.sso.agent</module-->
         <module>org.wso2.carbon.identity.provider.openid.admin</module>
         <module>org.wso2.carbon.identity.provider.openid.admin.ui</module>
         <module>org.wso2.carbon.identity.oauth.common</module>
@@ -86,7 +89,7 @@
         <module>org.wso2.carbon.identity.oauth.endpoint</module>
         <module>org.wso2.carbon.identity.oauth.ui</module>
         <!--module>org.wso2.carbon.identity.oauth.mediator</module-->
-	<module>org.wso2.carbon.identity.scim.provider</module>
+        <module>org.wso2.carbon.identity.scim.provider</module>
         <module>org.wso2.carbon.identity.authentication</module>
         <module>org.wso2.carbon.identity.thrift.authentication</module>
         <!--module>org.wso2.carbon.identity.sts</module-->
@@ -95,19 +98,19 @@
         <module>org.wso2.carbon.identity.scim.common</module>
         <module>org.wso2.carbon.identity.scim.ui</module>
         <module>org.wso2.carbon.identity.sts.store</module>
-	<module>org.wso2.carbon.identity.entitlement.filter</module>
-	<module>org.wso2.carbon.identity.sso.saml.tomcat.agent</module>
-	<module>org.wso2.carbon.identity.user.store.configuration</module>
-	<module>org.wso2.carbon.identity.user.store.configuration.deployer</module>
-	<module>org.wso2.carbon.identity.user.store.configuration.ui</module>
-	<module>org.wso2.carbon.identity.user.store.remote</module>
-	<module>org.wso2.carbon.identity.provisioning</module>
-	<module>org.wso2.carbon.identity.provisioning.connector.spml</module>
-	<module>org.wso2.carbon.identity.provisioning.connector.google</module>
-	<module>org.wso2.carbon.identity.provisioning.connector.salesforce</module>
-	<module>org.wso2.carbon.identity.provisioning.connector.scim</module>
-	<module>org.wso2.carbon.identity.tools.saml.validator</module>
-	<module>org.wso2.carbon.identity.tools.saml.validator.ui</module>
+        <module>org.wso2.carbon.identity.entitlement.filter</module>
+        <module>org.wso2.carbon.identity.sso.saml.tomcat.agent</module>
+        <module>org.wso2.carbon.identity.user.store.configuration</module>
+        <module>org.wso2.carbon.identity.user.store.configuration.deployer</module>
+        <module>org.wso2.carbon.identity.user.store.configuration.ui</module>
+        <module>org.wso2.carbon.identity.user.store.remote</module>
+        <module>org.wso2.carbon.identity.provisioning</module>
+        <module>org.wso2.carbon.identity.provisioning.connector.spml</module>
+        <module>org.wso2.carbon.identity.provisioning.connector.google</module>
+        <module>org.wso2.carbon.identity.provisioning.connector.salesforce</module>
+        <module>org.wso2.carbon.identity.provisioning.connector.scim</module>
+        <module>org.wso2.carbon.identity.tools.saml.validator</module>
+        <module>org.wso2.carbon.identity.tools.saml.validator.ui</module>
     </modules>
 
     <!--dependencyManagement>
@@ -358,7 +361,7 @@
         <httpcomponents-httpcore.wso2.version.identity>${httpcomponents-httpcore.wso2.version}
         </httpcomponents-httpcore.wso2.version.identity>
         <neethi.osgi.version.identity>${neethi.osgi.version}</neethi.osgi.version.identity>
-	<charon.wso2.version.identity>2.0.0</charon.wso2.version.identity>
+        <charon.wso2.version.identity>2.0.0</charon.wso2.version.identity>
         <libthrift.wso2.version>0.8.0.wso2v1</libthrift.wso2.version>
     </properties>
 

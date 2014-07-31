@@ -4,4 +4,3 @@ org.eclipse.equinox.p2.touchpoint.natives.mkdir(path:${installFolder}/../../reso
 org.eclipse.equinox.p2.touchpoint.natives.mkdir(path:${installFolder}/../../resources/security/policies/xacml/default); \
 org.eclipse.equinox.p2.touchpoint.natives.mkdir(path:${installFolder}/../../conf/security/); \
 org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../features/org.wso2.carbon.identity.xacml.server_${feature.version}/entitlement.properties,target:${installFolder}/../../conf/security/entitlement.properties,overwrite:true);\
-org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../features/org.wso2.carbon.identity.xacml.server_${feature.version}/thrift-authentication.xml,target:${installFolder}/../../conf/security/thrift-authentication.xml,overwrite:true);\

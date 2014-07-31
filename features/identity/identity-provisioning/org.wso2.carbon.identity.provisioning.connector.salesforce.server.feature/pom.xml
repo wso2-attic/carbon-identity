@@ -60,7 +60,7 @@
 		                        <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.provisioning.connector.salesforce</bundleDef>
 		                    </bundles>
 		                    <importFeatures>
-		                        <importFeatureDef>org.wso2.carbon.identity.provisioning.server:4.2.0</importFeatureDef>
+		                        <importFeatureDef>org.wso2.carbon.identity.provisioning.server</importFeatureDef>
 		                    </importFeatures>
 		                </configuration>
 		            </execution>

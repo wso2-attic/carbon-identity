@@ -1,5 +1,7 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.wso2.carbon</groupId>
     <artifactId>carbon-identity</artifactId>
@@ -23,7 +25,8 @@
         <module>components/security</module>
         <module>components/sts</module>
         <module>components/user-manager</module>
-        <module>components/stratos-sso-mgt</module>
+        <!--<module>components/stratos-sso-mgt</module>-->
+        <module>components/captcha-mgt</module>
 
 	<module>features/security-mgt</module>
         <module>features/authenticators</module>
@@ -36,6 +39,7 @@
         <module>features/ldap-server-manager</module>
      	<module>features/sts</module>
         <module>features/stratos-sso-mgt</module>
+        <module>features/captcha-mgt</module>
     </modules>
     
     <repositories>
@@ -562,7 +566,18 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.captcha.mgt</artifactId>
-            <version>4.2.0</version>
+            <version>${project.version}</version>
+        </dependency>
+	<dependency>
+	    <groupId>kaptcha.wso2</groupId>
+            <artifactId>kaptcha</artifactId>
+            <version>${kaptcha.wso2.version}</version>
+            <exclusions>
+                 <exclusion>
+                     <groupId>com.google.code</groupId>
+                     <artifactId>kaptcha</artifactId>
+                 </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -791,6 +806,12 @@
 	</dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.captcha.mgt.server.feature</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.mgt.stub</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -901,6 +922,18 @@
 	</dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.certificateauthority.server.feature</artifactId>
+            <version>4.3.0-SNAPSHOT</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.certificateauthority.ui.feature</artifactId>
+            <version>4.3.0-SNAPSHOT</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.mgt.ui.feature</artifactId>
             <version>4.3.0-SNAPSHOT</version>
             <type>zip</type>
@@ -978,15 +1011,15 @@
             <artifactId>org.wso2.carbon.ndatasource.rdbms</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.wso2.carbon</groupId>-->
+            <!--<artifactId>org.wso2.carbon.stratos.common</artifactId>-->
+            <!--<version>${stratos.version}</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.stratos.common</artifactId>
-            <version>${stratos.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.keystore.mgt</artifactId>
-            <version>${stratos.version}</version>
+            <artifactId>org.wso2.carbon.tenant.keystore.mgt</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -1854,7 +1887,6 @@
         <httpcore.version>4.3.0.wso2v1</httpcore.version>
         <synapse.version>2.1.3-wso2v1-SNAPSHOT</synapse.version>
         <wso2carbon.version>4.3.0-SNAPSHOT</wso2carbon.version>
-        <wso2carbon.old.version>4.2.0</wso2carbon.old.version>
         <com.google.code.gson.version>2.2.4</com.google.code.gson.version>
         <orbit.version.backport.util>3.1.0.wso2v1</orbit.version.backport.util>
         <bcprov-jdk15.version>132</bcprov-jdk15.version>
@@ -1867,7 +1899,7 @@
         <openid4java.wso2.version>0.9.6.wso2v1</openid4java.wso2.version>
         <opensaml2.version>2.4.1.wso2v1</opensaml2.version>
         <opensaml.wso2.version>1.1.0.wso2v1</opensaml.wso2.version>
-        <balana.version>1.0.0-wso2v7</balana.version>
+        <balana.version>1.0.0.wso2v8-SNAPSHOT</balana.version>
         <gdata-core.wso2.version>1.47.0.wso2v1</gdata-core.wso2.version>
         <smack.wso2.version>3.0.4.wso2v1</smack.wso2.version>
         <smackx.wso2.version>3.0.4.wso2v1</smackx.wso2.version>
@@ -1878,6 +1910,7 @@
         <org.wso2.securevault.version>1.0.0-wso2v2</org.wso2.securevault.version>
 
 	<version.commons.logging>1.1.1</version.commons.logging>
+	<kaptcha.wso2.version>2.3.0.wso2v1</kaptcha.wso2.version>
 
     </properties>
 
