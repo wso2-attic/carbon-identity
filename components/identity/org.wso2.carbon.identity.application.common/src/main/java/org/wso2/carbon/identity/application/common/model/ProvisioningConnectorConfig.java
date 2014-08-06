@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 
 public class ProvisioningConnectorConfig implements Serializable {
@@ -156,6 +157,7 @@ public class ProvisioningConnectorConfig implements Serializable {
 
         ProvisioningConnectorConfig that = (ProvisioningConnectorConfig) o;
 
+        if(!StringUtils.equals(name, that.name)) return false;
         if (!Arrays.equals(provisioningProperties, that.provisioningProperties)) return false;
 
         return true;
@@ -163,6 +165,9 @@ public class ProvisioningConnectorConfig implements Serializable {
 
     @Override
     public int hashCode() {
-        return provisioningProperties != null ? Arrays.hashCode(provisioningProperties) : 0;
+        int hashCode = 1;
+        hashCode = hashCode * 17 + (name != null ? name.hashCode() : 0);
+        hashCode = hashCode * 31 + (provisioningProperties != null ? Arrays.hashCode(provisioningProperties) : 0);
+        return hashCode;
     }
 }
