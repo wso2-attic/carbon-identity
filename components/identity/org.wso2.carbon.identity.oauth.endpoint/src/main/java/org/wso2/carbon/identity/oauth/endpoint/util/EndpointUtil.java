@@ -45,7 +45,7 @@ public class EndpointUtil {
      * @return
      */
     public static OAuth2Service getOAuth2Service() {
-        return (OAuth2Service) PrivilegedCarbonContext.getCurrentContext()
+        return (OAuth2Service) PrivilegedCarbonContext.getThreadLocalCarbonContext()
                 .getOSGiService(OAuth2Service.class);
     }
 
@@ -55,7 +55,7 @@ public class EndpointUtil {
      * @return
      */
     public static OAuthServerConfiguration getOAuthServerConfiguration() {
-        return (OAuthServerConfiguration) PrivilegedCarbonContext.getCurrentContext()
+        return (OAuthServerConfiguration) PrivilegedCarbonContext.getThreadLocalCarbonContext()
                 .getOSGiService(OAuthServerConfiguration.class);
     }
 
@@ -65,7 +65,7 @@ public class EndpointUtil {
      * @return
      */
     public static OAuth2TokenValidationService getOAuth2TokenValidationService() {
-        return (OAuth2TokenValidationService) PrivilegedCarbonContext.getCurrentContext()
+        return (OAuth2TokenValidationService) PrivilegedCarbonContext.getThreadLocalCarbonContext()
                 .getOSGiService(OAuth2TokenValidationService.class);
     }
 
