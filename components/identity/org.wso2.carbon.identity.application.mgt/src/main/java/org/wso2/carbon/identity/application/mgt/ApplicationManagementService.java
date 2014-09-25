@@ -122,7 +122,7 @@ public class ApplicationManagementService extends AbstractAdmin {
         try {
             if (!ApplicationConstants.LOCAL_SP.equals(applicationName)
                     && !ApplicationMgtUtil.isUserAuthorized(applicationName)) {
-                log.warn("Illegale Access! User " + CarbonContext.getCurrentContext().getUsername()
+                log.warn("Illegale Access! User " + CarbonContext.getThreadLocalCarbonContext().getUsername()
                         + " does not have access to the application " + applicationName);
                 throw new IdentityApplicationManagementException("User not authorized");
             }
@@ -219,7 +219,7 @@ public class ApplicationManagementService extends AbstractAdmin {
             if (!ApplicationConstants.LOCAL_SP.equals(serviceProvider.getApplicationName())
                     && !ApplicationMgtUtil.isUserAuthorized(serviceProvider.getApplicationName(),
                             serviceProvider.getApplicationID())) {
-                log.warn("Illegale Access! User " + CarbonContext.getCurrentContext().getUsername()
+                log.warn("Illegale Access! User " + CarbonContext.getThreadLocalCarbonContext().getUsername()
                         + " does not have access to the application "
                         + serviceProvider.getApplicationName());
                 throw new IdentityApplicationManagementException("User not authorized");
@@ -258,7 +258,7 @@ public class ApplicationManagementService extends AbstractAdmin {
             }
 
             if (!ApplicationMgtUtil.isUserAuthorized(applicationName)) {
-                log.warn("Illegal Access! User " + CarbonContext.getCurrentContext().getUsername()
+                log.warn("Illegal Access! User " + CarbonContext.getThreadLocalCarbonContext().getUsername()
                         + " does not have access to the application " + applicationName);
                 throw new IdentityApplicationManagementException("User not authorized");
             }
