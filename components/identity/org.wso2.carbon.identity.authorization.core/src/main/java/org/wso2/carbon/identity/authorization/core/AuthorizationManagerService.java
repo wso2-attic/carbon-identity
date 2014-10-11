@@ -96,7 +96,7 @@ public class AuthorizationManagerService implements AuthorizationManager {
 				if (log.isDebugEnabled()) {
 					log.debug("Adding new permission to the database  " + permission.toString());
 				}
-				int tenantId = CarbonContext.getCurrentContext().getTenantId();
+				int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 
 				permDAO.setTenantId(tenantId);
 
@@ -137,7 +137,7 @@ public class AuthorizationManagerService implements AuthorizationManager {
 			}
 			permission.setModuleId(module.getModuleId());
 			PermissionDAO dao = permissionMapper.mapPermission(permission);
-			dao.setTenantId(CarbonContext.getCurrentContext().getTenantId());
+			dao.setTenantId(CarbonContext.getThreadLocalCarbonContext().getTenantId());
 			dao.setStatus(JDBCConstantsDAO.DELETE);
 			try {
 				permissionProcessor.save(dao);

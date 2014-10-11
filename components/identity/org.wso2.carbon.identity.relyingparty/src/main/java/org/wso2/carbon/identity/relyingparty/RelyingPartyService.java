@@ -298,7 +298,7 @@ public class RelyingPartyService extends AbstractAdmin {
     private void onUserLogin(String userName, String tenantDomain, HttpSession httpSess)
             throws Exception {
         httpSess.setAttribute(ServerConstants.USER_LOGGED_IN, userName);
-        PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getCurrentContext(httpSess);
+        PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
         carbonContext.setTenantDomain(tenantDomain);
         carbonContext.setUsername(userName);
         int tenantId = IdentityRPServiceComponent.getRealmService().getTenantManager()

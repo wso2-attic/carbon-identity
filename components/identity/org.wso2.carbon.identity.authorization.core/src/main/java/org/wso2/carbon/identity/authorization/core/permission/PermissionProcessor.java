@@ -209,7 +209,7 @@ public class PermissionProcessor {
 	public PermissionModule loadModulePermissions(final String subject, final boolean isUserPerm,
 	                                              final String moduleName)
 	                                                                      throws UserStoreException {
-		int tenantId = CarbonContext.getCurrentContext().getTenantId();
+		int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 		PermissionModule permissionModule =
 		                                    executor.loadModulePermissions(subject, isUserPerm,
 		                                                                   moduleName, tenantId);
@@ -230,7 +230,7 @@ public class PermissionProcessor {
 	public List<Permission> loadPermission(final String subject, final boolean isUserPerm,
 	                                       final String moduleName, final String resource,
 	                                       final String action) throws UserStoreException {
-		int tenantId = CarbonContext.getCurrentContext().getTenantId();
+		int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 		ModuleDAO module = loadModule(moduleName);
 		if (module == null) {
 			log.error("Module code incorrect");
@@ -266,7 +266,7 @@ public class PermissionProcessor {
 	 */
 	public void clearPermissions(PermissionRequest request) throws UserStoreException {
 		boolean isWholeModule = StringUtils.isEmpty(request.getSubject());
-		int tenantId = CarbonContext.getCurrentContext().getTenantId();
+		int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 		if (isWholeModule) {
 			// clears the permissions for the whole module
 			executor.clearModulePermissions(request.getModuleId(), tenantId, null, true);
@@ -287,7 +287,7 @@ public class PermissionProcessor {
 	 * @throws UserStoreException
 	 */
 	public void removeModule(PermissionRequest request) throws UserStoreException {
-		int tenantId = CarbonContext.getCurrentContext().getTenantId();
+		int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 		// removes the module
 
 		if (request.getModuleId() <= 0) {
