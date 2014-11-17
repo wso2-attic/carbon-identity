@@ -87,6 +87,11 @@ public class WSRealmTenantManager implements TenantManager {
         }
     }
 
+    public void deleteTenant(int tenantId, boolean removeFromPersistentStorage) throws UserStoreException {
+        //TODO Implement tenant deletion
+    }	
+
+
     public Tenant[] getAllTenants() throws UserStoreException {
         try {
             org.wso2.carbon.um.ws.api.stub.Tenant[] tenats = stub.getAllTenants();
