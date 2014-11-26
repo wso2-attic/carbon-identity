@@ -18,17 +18,29 @@
 package org.wso2.carbon.identity.entitlement.filter.callback;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.entitlement.filter.exception.EntitlementFilterException;
 
 import javax.servlet.http.HttpServletRequest;
 
 public class BasicAuthCallBackHandler extends EntitlementFilterCallBackHandler {
 
-    public BasicAuthCallBackHandler(HttpServletRequest request) {
-        String authHeaderEn =request.getHeader("Authorization");
-        String tempArr[]=authHeaderEn.split(" ");
-        String authHeaderDc = new String(Base64.decodeBase64(tempArr[1].getBytes()));
-        tempArr = authHeaderDc.split(":");
-        setUserName(tempArr[0]);
-    }
+    private static final Log log = LogFactory.getLog(BasicAuthCallBackHandler.class);
 
+    public BasicAuthCallBackHandler(HttpServletRequest request) throws EntitlementFilterException {
+        String authHeaderEn = null;
+        if( !(request.getHeader("Authorization") == null || request.getHeader("Authorization").equals("null") ) ){
+            authHeaderEn=request.getHeader("Authorization");
+            String tempArr[]=authHeaderEn.split(" ");
+            if(tempArr.length == 2){
+                String authHeaderDc = new String(Base64.decodeBase64(tempArr[1].getBytes()));
+                tempArr = authHeaderDc.split(":");
+                if(tempArr.length == 2){
+                    setUserName(tempArr[0]);
+                }
+            }
+            throw new EntitlementFilterException("Unable to retrieve username from Authorization header");
+        }
+    }
 }

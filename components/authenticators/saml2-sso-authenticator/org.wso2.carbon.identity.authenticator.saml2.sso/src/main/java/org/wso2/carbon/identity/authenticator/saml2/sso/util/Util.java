@@ -64,8 +64,10 @@ public class Util {
         try {
             doBootstrap();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setExpandEntityReferences(false);
             documentBuilderFactory.setNamespaceAware(true);
             DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
+            docBuilder.setEntityResolver(new CarbonEntityResolver());
             Document document = docBuilder.parse(new ByteArrayInputStream(authReqStr.trim()
                     .getBytes()));
             Element element = document.getDocumentElement();

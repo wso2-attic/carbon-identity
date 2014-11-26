@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.oauth2.model;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 
 import java.io.Serializable;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -41,6 +42,7 @@ public class OAuth2Parameters implements Serializable {
     private String prompt;
     private String id_token_hint;
     private String login_hint;
+    private LinkedHashSet acrValues;
 
     public String getApplicationName() {
         return applicationName;
@@ -158,5 +160,13 @@ public class OAuth2Parameters implements Serializable {
      */
     public void setLoginHint(String login_hint) {
         this.login_hint = OAuth2Util.getSafeText(login_hint);
+    }
+
+    public LinkedHashSet getACRValues() {
+        return acrValues;
+    }
+
+    public void setACRValues(LinkedHashSet acrValues) {
+        this.acrValues = acrValues;
     }
 }

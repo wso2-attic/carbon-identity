@@ -120,11 +120,18 @@
             <artifactId>waffle-jna</artifactId>
             <!--version>1.6.wso2v1</version-->
         </dependency>
-
-
-
-
-
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.core.common</artifactId>
+        </dependency>
     </dependencies>
 
 	<build>

@@ -447,6 +447,13 @@
                             if ((index=propDescription.indexOf("#")) > -1){
                             	displayName = propDescription.substring(0,index);
                             	propDescription = propDescription.substring(index+1);
+
+                            	if( propDescription != null ){
+                            	    index=propDescription.indexOf("#");
+                            	    if(index > -1 ){
+                            	      propDescription = propDescription.substring(0,index);
+                            	    }
+                            	}
                             }
 
                             propertyName = displayName;

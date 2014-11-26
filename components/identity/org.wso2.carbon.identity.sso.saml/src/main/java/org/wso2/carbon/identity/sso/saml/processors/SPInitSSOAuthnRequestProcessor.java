@@ -144,16 +144,10 @@ public class SPInitSSOAuthnRequestProcessor {
                     spDO.setAssertionConsumerUrl(authnReqDTO.getAssertionConsumerURL());
                     spDO.setCertAlias(authnReqDTO.getCertAlias());
                     spDO.setLogoutURL(authnReqDTO.getLogoutURL());
-                    sessionPersistenceManager.persistSession(sessionId, sessionIndexId, authnReqDTO.getUsername(),
-                            spDO, authnReqDTO.getRpSessionId(), authenticators, authnReqDTO.getUserAttributes(),
-                            authnReqDTO.getTenantDomain());
-
-                    SessionInfoData sessionInfo = sessionPersistenceManager.getSessionInfo(sessionIndexId);
-                    /*authnReqDTO.setUsername(sessionInfo.getSubject());*/
-                    /*authnReqDTO.setUserAttributes(sessionInfo.getAttributes());*/
-                    sessionPersistenceManager.persistSession(sessionId, sessionIndexId, authnReqDTO.getIssuer(),
-                            authnReqDTO.getAssertionConsumerURL(),
-                            authnReqDTO.getRpSessionId());
+                    sessionPersistenceManager.persistSession(sessionIndexId,
+                            authnReqDTO.getUsername(), spDO, authnReqDTO.getRpSessionId()
+                            , authnReqDTO.getTenantDomain(), authnReqDTO.getIssuer()
+                            , authnReqDTO.getAssertionConsumerURL());
                 }
 
                 // Build the response for the successful scenario

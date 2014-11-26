@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.identity.oauth2.authcontext;
 
-import org.apache.axiom.util.base64.Base64Utils;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
@@ -66,6 +66,8 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
     private static final String SHA256_WITH_RSA = "SHA256withRSA";
 
     private static final String NONE = "NONE";
+
+    private static final Base64 base64Url = new Base64(0, null, true);
 
     private static volatile long ttl = -1L;
 
@@ -228,15 +230,15 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
 
         String jwtHeader = null;
 
-        //if signature algo==NONE, header without cert
+        //if signature algo==NONE, header with "alg":"none"
         if(signatureAlgorithm.equals(NONE)){
-            jwtHeader = "{\"typ\":\"JWT\"}";
+            jwtHeader = "{\"typ\":\"JWT\",\"alg\":\"none\"}";
         } else if (signatureAlgorithm.equals(SHA256_WITH_RSA)){
             jwtHeader = addCertToHeader(authzUser);
         }
 
-        String base64EncodedHeader = Base64Utils.encode(jwtHeader.getBytes());
-        String base64EncodedBody = Base64Utils.encode(jwtBody.getBytes());
+        String base64EncodedHeader = new String(base64Url.encode(jwtHeader.getBytes()));
+        String base64EncodedBody = new String(base64Url.encode(jwtBody.getBytes()));
         OAuth2TokenValidationResponseDTO.AuthorizationContextToken token;
         if(signatureAlgorithm.equals(SHA256_WITH_RSA)){
             String assertion = base64EncodedHeader + "." + base64EncodedBody;
@@ -247,7 +249,7 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
             if (log.isDebugEnabled()) {
                 log.debug("Signed assertion value : " + new String(signedAssertion));
             }
-            String base64EncodedAssertion = Base64Utils.encode(signedAssertion);
+            String base64EncodedAssertion = new String(base64Url.encode(signedAssertion));
 
             token = messageContext.getResponseDTO().new AuthorizationContextToken(
                     "JWT", base64EncodedHeader + "." + base64EncodedBody + "." + base64EncodedAssertion);
@@ -377,7 +379,7 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
             byte[] digestInBytes = digestValue.digest();
 
             String publicCertThumbprint = hexify(digestInBytes);
-            String base64EncodedThumbPrint = Base64Utils.encode(publicCertThumbprint.getBytes());
+            String base64EncodedThumbPrint = new String(base64Url.encode(publicCertThumbprint.getBytes()));
 
             StringBuilder jwtHeader = new StringBuilder();
 

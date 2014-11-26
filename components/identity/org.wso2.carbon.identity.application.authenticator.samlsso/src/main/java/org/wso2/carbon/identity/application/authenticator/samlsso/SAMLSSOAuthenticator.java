@@ -34,14 +34,15 @@ import org.wso2.carbon.identity.application.authenticator.samlsso.exception.SAML
 import org.wso2.carbon.identity.application.authenticator.samlsso.util.SSOConstants;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLDecoder;
 import java.util.Map;
+import java.util.Scanner;
 
 public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator implements FederatedApplicationAuthenticator {
 
@@ -71,27 +72,37 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
 		String idpURL = context.getAuthenticatorProperties().get(
                 IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL);
 		String ssoUrl = "";
-		
-        try {
-            SAML2SSOManager saml2SSOManager = getSAML2SSOManagerInstance();
-            saml2SSOManager.init(context.getTenantDomain(), context.getAuthenticatorProperties(),
-                    context.getExternalIdP().getIdentityProvider());
-	        ssoUrl = saml2SSOManager.buildRequest(request, false, false, idpURL, context);
-        } catch (SAMLSSOException e) {
-        	throw new AuthenticationFailedException(e.getMessage(), e);
-        }
-        
-		try {
-			String domain = request.getParameter("domain");
-			
-			if (domain != null) {
-				ssoUrl = ssoUrl + "&fidp=" + domain;
-			}
-			
-			Map<String, String> authenticatorProperties = context
-					.getAuthenticatorProperties();
 
-			if (authenticatorProperties != null) {
+        try {
+            if (getAuthenticatorConfig().getParameterMap() != null &&
+                    Boolean.parseBoolean(getAuthenticatorConfig().getParameterMap().
+                            get("HttpPostBindingEnabled"))) {
+
+                sendPostAuthRequest(request, response, false, false, idpURL, context);
+                return;
+
+            } else {
+                SAML2SSOManager saml2SSOManager = getSAML2SSOManagerInstance();
+                saml2SSOManager.init(context.getTenantDomain(), context.getAuthenticatorProperties(),
+                        context.getExternalIdP().getIdentityProvider());
+                ssoUrl = saml2SSOManager.buildRequest(request, false, false, idpURL, context);
+            }
+        } catch (SAMLSSOException e) {
+            throw new AuthenticationFailedException(e.getMessage(), e);
+        }
+
+        try {
+            String domain = request.getParameter("domain");
+
+            if (domain != null) {
+                ssoUrl = ssoUrl + "&fidp=" + domain;
+            }
+
+            Map<String, String> authenticatorProperties = context
+                    .getAuthenticatorProperties();
+
+
+                if (authenticatorProperties != null) {
 				String queryString = authenticatorProperties
 						.get(FrameworkConstants.QUERY_PARAMS);
 				if (queryString != null) {
@@ -235,6 +246,79 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
 			HttpServletResponse response, AuthenticationContext context)
 			throws LogoutFailedException {
 	}
+
+    private void sendPostAuthRequest(HttpServletRequest request, HttpServletResponse response,
+                                     boolean isLogout, boolean isPassive,
+                                     String loginPage, AuthenticationContext context) throws SAMLSSOException {
+
+        SAML2SSOManager saml2SSOManager = getSAML2SSOManagerInstance();
+        saml2SSOManager.init(context.getTenantDomain(), context.getAuthenticatorProperties(),
+                context.getExternalIdP().getIdentityProvider());
+
+        if (!(saml2SSOManager instanceof DefaultSAML2SSOManager)) {
+            throw new SAMLSSOException("HTTP-POST is not supported");
+        }
+
+        String encodedRequest = ((DefaultSAML2SSOManager) saml2SSOManager).buildPostRequest(request,
+                isLogout, isPassive, loginPage);
+
+        String relayState = context.getContextIdentifier();
+
+        try {
+            if (getAuthenticatorConfig().getParameterMap() != null &&
+                    Boolean.parseBoolean(getAuthenticatorConfig().getParameterMap().get("HttpPostRedirectPageEnabled"))) {
+
+                String redirectHtmlPath = CarbonUtils.getCarbonHome() + File.separator + "repository"
+                        + File.separator + "resources" + File.separator + "security" + File.separator + "sso_redirect.html";
+                FileInputStream fis = new FileInputStream(new File(redirectHtmlPath));
+                String ssoRedirectPage = new Scanner(fis, "UTF-8").useDelimiter("\\A").next();
+                log.debug("sso_redirect.html " + ssoRedirectPage);
+
+                if (ssoRedirectPage != null) {
+                    String finalPage;
+
+                    String pageWithAcs = ssoRedirectPage.replace("$acUrl", loginPage);
+                    String pageWithAcsResponse = pageWithAcs.replace("$response", encodedRequest);
+                    if (relayState != null) {
+                        finalPage = pageWithAcsResponse.replace("$relayState", relayState);
+                    } else {
+                        finalPage = pageWithAcsResponse.replace("$relayState", "");
+                    }
+
+                    PrintWriter out = response.getWriter();
+                    out.print(finalPage);
+
+                    if (log.isDebugEnabled()) {
+                        log.debug("sso_redirect.html " + finalPage);
+                    }
+                } else {
+                    throw new SAMLSSOException("POST redirect page is not defined");
+                }
+            } else {
+                PrintWriter out = response.getWriter();
+                out.println("<html>");
+                out.println("<body>");
+                out.println("<p>You are now redirected back to " + loginPage);
+                out.println(" If the redirection fails, please click the post button.</p>");
+                out.println("<form method='post' action='" + loginPage + "'>");
+                out.println("<p>");
+                out.println("<input type='hidden' name='SAMLRequest' value='" + encodedRequest + "'>");
+                if (relayState != null) {
+                    out.println("<input type='hidden' name='RelayState' value='" + relayState + "'>");
+                }
+                out.println("<button type='submit'>POST</button>");
+                out.println("</p>");
+                out.println("</form>");
+                out.println("<script type='text/javascript'>");
+                out.println("document.forms[0].submit();");
+                out.println("</script>");
+                out.println("</body>");
+                out.println("</html>");
+            }
+        } catch (Exception e) {
+            throw new SAMLSSOException(e.getMessage(), e);
+        }
+    }
 
     private SAML2SSOManager getSAML2SSOManagerInstance() throws SAMLSSOException {
 

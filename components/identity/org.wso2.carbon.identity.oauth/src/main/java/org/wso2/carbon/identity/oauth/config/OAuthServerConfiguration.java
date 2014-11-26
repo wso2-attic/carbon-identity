@@ -215,7 +215,7 @@ public class OAuthServerConfiguration {
 	
 	private String openIDConnectIDTokenSubClaim = "http://wso2.org/claims/fullname";
 	
-	private String openIDConnectSkipUserConsent = "false";
+	private String openIDConnectSkipUserConsent = "true";
 
 	private String openIDConnectIDTokenExpiration = "300";
 

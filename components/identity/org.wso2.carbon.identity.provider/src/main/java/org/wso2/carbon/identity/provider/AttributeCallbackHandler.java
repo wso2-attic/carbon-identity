@@ -310,12 +310,29 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
                                 claimData.getValue(), claimData.getUri());
                         callback.addAttributes(saml2Attribute);
                     } else {
+                        String name;
+                        String nameSpace;
                         if (supportedClaims.get(claimData.getUri()) != null) {
-                            attribute = new SAMLAttribute(supportedClaims.get(claimData.getUri())
-                                    .getDisplayTag(), claimData.getUri(), null, -1,
-                                    Arrays.asList(new String[] { claimData.getValue() }));
-                            callback.addAttributes(attribute);
+                            name = supportedClaims.get(claimData.getUri()).getDisplayTag();
+                            nameSpace = claimData.getUri();
+                        } else {
+                            nameSpace = claimData.getUri();
+                            if(nameSpace.contains("/") && nameSpace.length() > (nameSpace.lastIndexOf("/") + 1)){
+                                // Custom claim uri should be in a format of http(s)://nameSpace/name 
+                                name = nameSpace.substring(nameSpace.lastIndexOf("/") + 1);
+                                nameSpace = nameSpace.substring(0, nameSpace.lastIndexOf("/"));
+                            } else {
+                                name = nameSpace;
+                            }
                         }
+                        String[]  values;
+                        if(claimData.getValue().contains(",")){
+                            values = claimData.getValue().split(",");
+                        } else {
+                            values = new String[]{claimData.getValue()};
+                        }
+                        attribute = new SAMLAttribute(name, nameSpace, null, -1, Arrays.asList(values));
+                        callback.addAttributes(attribute);                        
                     }
                 }
             }

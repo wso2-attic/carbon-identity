@@ -21,6 +21,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml2.core.Response;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.util.AnonymousSessionUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
@@ -36,6 +38,7 @@ import org.wso2.carbon.identity.sso.saml.dto.SAMLSSORespDTO;
 import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
 import org.wso2.carbon.identity.sso.saml.session.SessionInfoData;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
+import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.user.core.UserRealm;
@@ -115,16 +118,10 @@ public class IdPInitSSOAuthnRequestProcessor {
                     spDO.setAssertionConsumerUrl(authnReqDTO.getAssertionConsumerURL());
                     spDO.setCertAlias(authnReqDTO.getCertAlias());
                     spDO.setLogoutURL(authnReqDTO.getLogoutURL());
-                    sessionPersistenceManager.persistSession(sessionId, sessionIndexId, authnReqDTO.getUsername(),
-                            spDO, authnReqDTO.getRpSessionId(), authenticators, authnReqDTO.getUserAttributes(),
-                            authnReqDTO.getTenantDomain());
-
-                    SessionInfoData sessionInfo = sessionPersistenceManager.getSessionInfo(sessionIndexId);
-                    authnReqDTO.setUsername(sessionInfo.getSubject());
-                    /*authnReqDTO.setUserAttributes(sessionInfo.getAttributes());*/
-                    sessionPersistenceManager.persistSession(sessionId, sessionIndexId, authnReqDTO.getIssuer(),
-                            authnReqDTO.getAssertionConsumerURL(),
-                            authnReqDTO.getRpSessionId());
+                    sessionPersistenceManager.persistSession(sessionIndexId,
+                            authnReqDTO.getUsername(), spDO, authnReqDTO.getRpSessionId()
+                            , authnReqDTO.getTenantDomain(), authnReqDTO.getIssuer()
+                            , authnReqDTO.getAssertionConsumerURL());
                 }
 
                 // Build the response for the successful scenario
@@ -181,8 +178,7 @@ public class IdPInitSSOAuthnRequestProcessor {
             if (ssoIdpConfigs == null) {
                 IdentityPersistenceManager persistenceManager = IdentityPersistenceManager
                         .getPersistanceManager();
-                UserRegistry registry = SAMLSSOUtil.getRegistryService().getConfigSystemRegistry(
-                        IdentityUtil.getTenantIdOFUser(authnReqDTO.getUsername()));
+                Registry registry = (Registry) PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_CONFIGURATION);
                 ssoIdpConfigs = persistenceManager.getServiceProvider(registry,
                         authnReqDTO.getIssuer());
                 authnReqDTO.setStratosDeployment(false); // not stratos

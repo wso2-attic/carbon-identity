@@ -52,12 +52,14 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.w3c.dom.Element;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.common.AuthenticationException;
 import org.wso2.carbon.core.security.AuthenticatorsConfiguration;
 import org.wso2.carbon.core.services.authentication.CarbonServerAuthenticator;
 import org.wso2.carbon.core.services.util.CarbonAuthenticationUtil;
 import org.wso2.carbon.core.util.AnonymousSessionUtil;
 import org.wso2.carbon.core.util.PermissionUpdateUtil;
+import org.wso2.carbon.identity.authenticator.saml2.sso.common.SAML2SSOAuthenticatorConstants;
 import org.wso2.carbon.identity.authenticator.saml2.sso.dto.AuthnReqDTO;
 import org.wso2.carbon.identity.authenticator.saml2.sso.internal.SAML2SSOAuthBEDataHolder;
 import org.wso2.carbon.identity.authenticator.saml2.sso.util.Util;
@@ -77,13 +79,18 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
     private SecureRandom random = new SecureRandom();
 
     public static final Log log = LogFactory.getLog(SAML2SSOAuthenticator.class);
+    private static final Log AUDIT_LOG = CarbonConstants.AUDIT_LOG;
 
     public boolean login(AuthnReqDTO authDto) {
+        String username = null;
+        String tenantDomain = null;
+        String result = SAML2SSOAuthenticatorConstants.AUDIT_FAILED;
+
     	HttpSession httpSession = getHttpSession();
     	try {
     		XMLObject xmlObject = Util.unmarshall(org.wso2.carbon.identity.authenticator.saml2.sso.common.Util.decode(authDto.getResponse()));
 
-    		String username = org.wso2.carbon.identity.authenticator.saml2.sso.common.Util.getUsername(xmlObject);
+    		username = org.wso2.carbon.identity.authenticator.saml2.sso.common.Util.getUsername(xmlObject);
 
     		if ((username == null) || username.trim().equals("")) {
     			log.error("Authentication Request is rejected. " +
@@ -105,7 +112,7 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
 
     		RegistryService registryService = SAML2SSOAuthBEDataHolder.getInstance().getRegistryService();
     		RealmService realmService = SAML2SSOAuthBEDataHolder.getInstance().getRealmService();
-    		String tenantDomain = MultitenantUtils.getTenantDomain(username);
+    		tenantDomain = MultitenantUtils.getTenantDomain(username);
     		int tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
     		handleAuthenticationStarted(tenantId);
 			if (isResponseSignatureValidationEnabled()) {
@@ -139,6 +146,7 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
     			CarbonAuthenticationUtil.onSuccessAdminLogin(httpSession, username,
     					tenantId, tenantDomain, "SAML2 SSO Authentication");
     			handleAuthenticationCompleted(tenantId, true);
+    			result = SAML2SSOAuthenticatorConstants.AUDIT_SUCCESS;
     			return true;
     		} else {
     			log.error("Authentication Request is rejected. Authorization Failure.");
@@ -151,6 +159,11 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
     		String msg = "System error while Authenticating/Authorizing User : " + e.getMessage();
     		log.error(msg, e);
     		return false;
+    	} finally {
+    		if (username != null && username.trim().length() > 0 && AUDIT_LOG.isInfoEnabled()) {
+    			AUDIT_LOG.info(String.format(SAML2SSOAuthenticatorConstants.AUDIT_MESSAGE, username + '@' + tenantDomain, "Login",
+    				"SAML2SSOAuthenticator", "", result));
+    		}
     	}
     }
 
@@ -206,6 +219,13 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
                          + " delegated by " + delegatedBy);
             }
             session.invalidate();
+            if (loggedInUser != null && AUDIT_LOG.isInfoEnabled()) {
+                String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(loggedInUser);
+                String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                AUDIT_LOG.info(String.format(SAML2SSOAuthenticatorConstants.AUDIT_MESSAGE, tenantAwareUsername + "@" + tenantDomain, "Logout",
+                        "SAML2SSOAuthenticator", delegatedBy != null ? "Delegated By : " + delegatedBy : "",
+                        SAML2SSOAuthenticatorConstants.AUDIT_SUCCESS));
+            }
         }
     }
 
@@ -317,7 +337,6 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
      * @param xmlObject   SAML2 XMLObject
      * @param domainName domain name of the subject
      * @return true, if signature is valid.
-     * @throws AuthenticationException
      */
     private boolean validateSignature(XMLObject xmlObject, String domainName) {
     	if(xmlObject instanceof Response){
@@ -336,7 +355,6 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
      * @param response   SAML2 Response
      * @param domainName domain name of the subject
      * @return true, if signature is valid.
-     * @throws AuthenticationException
      */
     private boolean validateSignature(Response response, String domainName) {
     	boolean isSignatureValid = false;
@@ -352,10 +370,9 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
     /**
      * Validate the signature of a SAML2 Assertion
      *
-     * @param response   SAML2 Response
+     * @param assertion   SAML2 Assertion
      * @param domainName domain name of the subject
      * @return true, if signature is valid.
-     * @throws AuthenticationException
      */
     private boolean validateSignature(Assertion assertion, String domainName) {
     	boolean isSignatureValid = false;
@@ -374,7 +391,6 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
      * @param signature   SAML2 Signature
      * @param domainName domain name of the subject
      * @return true, if signature is valid.
-     * @throws AuthenticationException
      */
     private boolean validateSignature(Signature signature, String domainName){
     	boolean isSignatureValid = false;
@@ -418,7 +434,7 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
     /**
      * Validate the AudienceRestriction of SAML2 XMLObject 
      * 
-     * @param assertion SAML2 Assertion
+     * @param xmlObject Unmarshalled SAML2 Response
      * @return validity
      */
     private boolean validateAudienceRestriction(XMLObject xmlObject) {
@@ -435,7 +451,7 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
     /**
      * Validate the AudienceRestriction of SAML2 Response 
      * 
-     * @param assertion SAML2 Assertion
+     * @param response SAML2 Response
      * @return validity
      */
     public boolean validateAudienceRestriction(Response response) {

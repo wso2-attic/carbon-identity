@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
+	import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ApplicationPermission;
@@ -37,7 +38,10 @@ import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.api.Resource;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.user.mgt.UserMgtConstants;
+import org.wso2.carbon.user.mgt.UserRealmProxy;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 public class ApplicationMgtUtil {
@@ -193,9 +197,27 @@ public class ApplicationMgtUtil {
         String permissionResourcePath = getApplicationPermissionPath();
         try {
             if (!tenantGovReg.resourceExists(permissionResourcePath)) {
+	         String loggedInUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
+	         boolean loggedInUserChanged = false;
+	         UserRealm realm =
+		         (UserRealm) CarbonContext.getThreadLocalCarbonContext().getUserRealm();
+	         if (!realm.getAuthorizationManager()
+	                 .isUserAuthorized(loggedInUser, permissionResourcePath,
+	                         UserMgtConstants.EXECUTE_ACTION)) {
+		     //Logged in user is not authorized to create the permission.
+		     // Temporarily change the user to the admin for creating the permission
+		     PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(
+			         realm.getRealmConfiguration().getAdminUserName());
+		     tenantGovReg = CarbonContext.getThreadLocalCarbonContext()
+		                 .getRegistry(RegistryType.USER_GOVERNANCE);
+		     loggedInUserChanged = true;
+	         }
                 Collection appRootNode = tenantGovReg.newCollection();
                 appRootNode.setProperty("name", "Applications");
                 tenantGovReg.put(permissionResourcePath, appRootNode);
+                if (loggedInUserChanged) {
+                    PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(loggedInUser);
+                }
             }
 
             if(permissionsConfig != null){
@@ -218,7 +240,7 @@ public class ApplicationMgtUtil {
                 }
             }
 
-        } catch (RegistryException e) {
+        } catch (Exception e) {
             throw new IdentityApplicationManagementException("Error while storing permissions", e);
         }
     }

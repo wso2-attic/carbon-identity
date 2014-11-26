@@ -51,6 +51,7 @@ public final class SAML2SSOAuthenticatorConstants {
     public static final String LOGIN_PAGE = "LoginPage";
     public static final String LANDING_PAGE = "LandingPage";
     public static final String EXTERNAL_LOGOUT_PAGE = "ExternalLogoutPage";
+    public static final String ASSERTION_CONSUMER_SERVICE_URL = "AssertionConsumerServiceURL";
     public static final String FEDERATION_CONFIG = "FederationConfig";
     public static final String FEDERATION_CONFIG_USER = "FederationConfigUser";
     public static final String FEDERATION_CONFIG_PASSWORD = "FederationConfigPassword";
@@ -64,4 +65,8 @@ public final class SAML2SSOAuthenticatorConstants {
         public static final String RESPONSE_MALFORMED = "response.malformed";
         public static final String SUCCESSFUL_SIGN_OUT = "successful.signed.out";
     }
+
+    public static final String AUDIT_MESSAGE = "Initiator : %s | Action : %s | Target : %s | Data : { %s } | Result : %s ";
+    public static final String AUDIT_SUCCESS = "Success";
+    public static final String AUDIT_FAILED = "Failed";
 }

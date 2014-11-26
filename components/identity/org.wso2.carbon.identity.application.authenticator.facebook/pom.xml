@@ -43,7 +43,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
         <dependency>
             <groupId>org.apache.amber.wso2</groupId>
             <artifactId>amber</artifactId>
-            <!--version>0.22.1358727.wso2v4</version-->
 		</dependency>  
         <dependency>
             <groupId>org.wso2.carbon</groupId>

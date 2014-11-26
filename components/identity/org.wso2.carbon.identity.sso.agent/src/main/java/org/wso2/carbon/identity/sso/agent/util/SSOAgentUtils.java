@@ -32,19 +32,25 @@ import org.opensaml.xml.signature.Signature;
 import org.opensaml.xml.signature.Signer;
 import org.opensaml.xml.signature.X509Data;
 import org.opensaml.xml.util.Base64;
-import org.wso2.carbon.identity.sso.agent.exception.SSOAgentException;
+import org.wso2.carbon.identity.sso.agent.SSOAgentConstants;
+import org.wso2.carbon.identity.sso.agent.SSOAgentException;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
+import java.io.IOException;
+import java.io.Writer;
 import java.net.URLEncoder;
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SSOAgentUtils {
 
-    private static Logger LOGGER = Logger.getLogger("InfoLogging");
+    private static Logger LOGGER = Logger.getLogger(SSOAgentConstants.LOGGER_NAME);
 
 	/**
      * Generates a unique Id for Authentication Requests
@@ -79,7 +85,7 @@ public class SSOAgentUtils {
      * @param signatureAlgorithm
      * @param cred
      * @return
-     * @throws org.wso2.carbon.identity.sso.agent.exception.SSOAgentException
+     * @throws org.wso2.carbon.identity.sso.agent.SSOAgentException
      */
     public static AuthnRequest setSignature(AuthnRequest authnRequest, String signatureAlgorithm,
                                         X509Credential cred) throws SSOAgentException {
@@ -217,4 +223,25 @@ public class SSOAgentUtils {
                 objectQName.getPrefix());
     }
 
+    public static void sendPostResponse(HttpServletRequest request, HttpServletResponse response,
+                                        String htmlPayload)
+            throws SSOAgentException {
+
+        Writer writer = null;
+        try {
+            writer = response.getWriter();
+            writer.write(htmlPayload);
+            response.flushBuffer();
+        } catch (IOException e) {
+            throw new SSOAgentException("Error occurred while writing to HttpServletResponse", e);
+        } finally {
+            if(writer != null){
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    LOGGER.log(Level.WARNING, "Error occurred while closing Writer", e);
+                }
+            }
+        }
+    }
 }

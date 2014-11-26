@@ -43,6 +43,7 @@ import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 public class DefaultInboundUserProvisioningListener extends AbstractUserOperationEventListener {
 
@@ -88,8 +89,14 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
                         .asList(roleList));
             }
 
+            String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
+            if(log.isDebugEnabled()) {
+                log.debug("Adding domain name : " + domainName + " to user : " + userName);
+            }
+            String domainAwareName = UserCoreUtil.addDomainToName(userName,domainName);
+
             ProvisioningEntity provisioningEntity = new ProvisioningEntity(
-                    ProvisioningEntityType.USER, userName, ProvisioningOperation.POST,
+                    ProvisioningEntityType.USER, domainAwareName, ProvisioningOperation.POST,
                     outboundAttributes);
 
             // set the in-bound attribute list.in this particular case this is in the wso2.org claim
@@ -150,8 +157,14 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
                         Arrays.asList(new String[] { userName }));
             }
 
+            String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
+            if(log.isDebugEnabled()) {
+                log.debug("Adding domain name : " + domainName + " to user : " + userName);
+            }
+            String domainAwareName = UserCoreUtil.addDomainToName(userName,domainName);
+
             ProvisioningEntity provisioningEntity = new ProvisioningEntity(
-                    ProvisioningEntityType.USER, userName, ProvisioningOperation.PUT,
+                    ProvisioningEntityType.USER, domainAwareName, ProvisioningOperation.PUT,
                     outboundAttributes);
 
             // set the in-bound attribute list.
@@ -210,8 +223,14 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
                     IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false), Arrays
                     .asList(new String[] { userName }));
 
+            String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
+            if(log.isDebugEnabled()) {
+                log.debug("Adding domain name : " + domainName + " to user : " + userName);
+            }
+            String domainAwareName = UserCoreUtil.addDomainToName(userName,domainName);
+
             ProvisioningEntity provisioningEntity = new ProvisioningEntity(
-                    ProvisioningEntityType.USER, userName, ProvisioningOperation.DELETE,
+                    ProvisioningEntityType.USER, domainAwareName, ProvisioningOperation.DELETE,
                     outboundAttributes);
 
             String tenantDomainName = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
@@ -277,8 +296,14 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
                     IdentityProvisioningConstants.DELETED_USER_CLAIM_URI, null, null, false),
                     Arrays.asList(deletedUsers));
 
+            String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
+            if(log.isDebugEnabled()) {
+                log.debug("Adding domain name : " + domainName + " to role : " + roleName);
+            }
+            String domainAwareName = UserCoreUtil.addDomainToName(roleName,domainName);
+
             ProvisioningEntity provisioningEntity = new ProvisioningEntity(
-                    ProvisioningEntityType.GROUP, roleName, ProvisioningOperation.PUT,
+                    ProvisioningEntityType.GROUP, domainAwareName, ProvisioningOperation.PUT,
                     outboundAttributes);
 
             String tenantDomainName = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
@@ -354,8 +379,14 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
                         Arrays.asList(deletedRoles));
             }
 
+            String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
+            if(log.isDebugEnabled()) {
+                log.debug("Adding domain name : " + domainName + " to user : " + userName);
+            }
+            String domainAwareName = UserCoreUtil.addDomainToName(userName,domainName);
+
             ProvisioningEntity provisioningEntity = new ProvisioningEntity(
-                    ProvisioningEntityType.USER, userName, ProvisioningOperation.PUT,
+                    ProvisioningEntityType.USER, domainAwareName, ProvisioningOperation.PUT,
                     outboundAttributes);
 
             String tenantDomainName = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
@@ -417,8 +448,14 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
                         .asList(userList));
             }
 
+            String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
+            if(log.isDebugEnabled()) {
+                log.debug("Adding domain name : " + domainName + " to user : " + roleName);
+            }
+            String domainAwareName = UserCoreUtil.addDomainToName(roleName,domainName);
+
             ProvisioningEntity provisioningEntity = new ProvisioningEntity(
-                    ProvisioningEntityType.GROUP, roleName, ProvisioningOperation.POST,
+                    ProvisioningEntityType.GROUP, domainAwareName, ProvisioningOperation.POST,
                     outboundAttributes);
 
             String tenantDomainName = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
@@ -475,8 +512,14 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
                         .asList(new String[] { roleName }));
             }
 
+            String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
+            if(log.isDebugEnabled()) {
+                log.debug("Adding domain name : " + domainName + " to user : " + roleName);
+            }
+            String domainAwareName = UserCoreUtil.addDomainToName(roleName,domainName);
+
             ProvisioningEntity provisioningEntity = new ProvisioningEntity(
-                    ProvisioningEntityType.GROUP, roleName, ProvisioningOperation.DELETE,
+                    ProvisioningEntityType.GROUP, domainAwareName, ProvisioningOperation.DELETE,
                     outboundAttributes);
 
             String tenantDomainName = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();

@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.entitlement.PDPConstants;
+import org.wso2.carbon.identity.entitlement.cache.DecisionInvalidationCache;
 import org.wso2.carbon.identity.entitlement.cache.PIPAbstractAttributeCache;
 import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent;
 
@@ -147,7 +148,11 @@ public abstract class AbstractPIPAttributeFinder implements PIPAttributeFinder {
                                 (issuer != null  ? issuer : "" ) +
                                 (actionId != null ? actionId:"");
 
-            attributeValues = abstractAttributeFinderCache.getFromCache(tenantId, key);
+            if (DecisionInvalidationCache.getInstance().isInvalidate()) {
+                abstractAttributeFinderCache.clearCache();
+            } else {
+                attributeValues = abstractAttributeFinderCache.getFromCache(tenantId, key);
+            }
         }
         
         if(attributeValues == null){
