@@ -30,6 +30,11 @@
 <%@ page import="org.wso2.carbon.claim.mgt.stub.dto.ClaimDialectDTO" %>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp" />
+<style>
+    .sectionHelp {
+        padding-left: 17px;
+    }
+</style>
 
 <%
     ClaimDialectDTO[] claimMappping = null;
@@ -55,6 +60,25 @@
 %>
 
 	 <script type="text/javascript">
+         String.prototype.format = function (args) {
+             var str = this;
+             return str.replace(String.prototype.format.regex, function(item) {
+                 var intVal = parseInt(item.substring(1, item.length - 1));
+                 var replace;
+                 if (intVal >= 0) {
+                     replace = args[intVal];
+                 } else if (intVal === -1) {
+                     replace = "{";
+                 } else if (intVal === -2) {
+                     replace = "}";
+                 } else {
+                     replace = "";
+                 }
+                 return replace;
+             });
+         };
+         String.prototype.format.regex = new RegExp("{-?[0-9]+}", "g");
+
 	    function setType(chk,hidden) {
 	    	var val = document.getElementById(chk).checked;
     		var hiddenElement = document.getElementById(hidden);
@@ -136,6 +160,37 @@
                 }
             }
 
+            //Mapped Attributes Validation
+            var value = document.getElementsByName("attribute")[0].value;
+            var mappedAttributes = value.split(";");
+            var domainSeparator = "/";
+            for (var i = 0; i < mappedAttributes.length; i++) {
+                var index = mappedAttributes[i].indexOf(domainSeparator);
+                if(index >= 0){ //has domain
+                    var lastIndex = mappedAttributes[i].lastIndexOf(domainSeparator);
+                    if(index == 0){
+                        //domain separator cannot be the first letter of the mapped attribute
+                        var message = '<fmt:message key="attribute.domain.required"/>';
+                        message = message.format([mappedAttributes[i]]);
+                        CARBON.showWarningDialog(message);
+                        return false;
+                    }
+                    else if(index != lastIndex){
+                        //mapped attribute cannot have duplicated domainSeparator
+                        var message = '<fmt:message key="attribute.domain.separator.duplicate"/>';
+                        message = message.format([mappedAttributes[i]]);
+                        CARBON.showWarningDialog(message);
+                        return false;
+                    } else if(index == (mappedAttributes[i].length -1)){
+                        //domain separator cannot be the last character of the mapped attribute
+                        var message = '<fmt:message key="attribute.domain.mapped.attribute.required"/>';
+                        message = message.format([mappedAttributes[i]]);
+                        CARBON.showWarningDialog(message);
+                        return false;
+                    }
+                }
+            }
+
         	document.addclaim.submit();
     	}  
         
@@ -151,49 +206,53 @@
 		<tbody>
 			<tr>
 				<td class="formRow">
-					<table class="normal" cellspacing="0">
+					<table class="normal" cellspacing="0" width="100%">
 						<tr>
 							<td class="leftCol-small"><fmt:message key='display.name'/><font color="red">*</font></td>
-							<td class="leftCol-big"><input type="text" name="displayName" id="displayName" class="text-box-big"/></td>
+							<td><input type="text" name="displayName" id="displayName" class="text-box-big"/></td>
 						</tr>
 						
 						<tr>
-							<td class="leftCol-small"><fmt:message key='description'/><font color="red">*</font></td>
-							<td class="leftCol-big"><input type="text" name="description" id="description"  class="text-box-big"/></td>
+							<td><fmt:message key='description'/><font color="red">*</font></td>
+							<td><input type="text" name="description" id="description"  class="text-box-big"/></td>
 						</tr>
 			
 						<tr>
-							<td class="leftCol-small"><fmt:message key='claim.uri'/><font color="red">*</font></td>
+							<td><fmt:message key='claim.uri'/><font color="red">*</font></td>
 <%
                             if(claimUri != null && claimUri.trim().length() > 0){
 %>
-							<td class="leftCol-big"><input type="text" name="claimUri" id="claimUri" class="text-box-big" value="<%=claimUri%>"/></td>
+							<td><input type="text" name="claimUri" id="claimUri" class="text-box-big" value="<%=claimUri%>"/></td>
 <%
                             } else {
 %>
-							<td class="leftCol-big"><input type="text" name="claimUri" id="claimUri" class="text-box-big"/></td>
+							<td><input type="text" name="claimUri" id="claimUri" class="text-box-big"/></td>
 <%
                             }
 %>
                         </tr>
 			
 						<tr>
-							<td class="leftCol-small"><fmt:message key='mapped.attribute'/><font color="red">*</font></td>
-							<td class="leftCol-big">
+							<td><fmt:message key='mapped.attribute'/><font color="red">*</font></td>
+							<!--td class="leftCol-big"-->
+                            <td>
 							<input type="text" name="attribute" id="attribute"  class="text-box-big"/>
+                                <div class="sectionHelp" style="display: inline">
+                                    <fmt:message key='help.mapped.attribute'/>
+                                </div>
 							</td>
 						</tr>
 			
 						<tr>
-							<td class="leftCol-small"><fmt:message key='regular.expression'/></td>
-							<td class="leftCol-big"><input type="text" name="regex" id="regex" class="text-box-big"/></td>				
+							<td><fmt:message key='regular.expression'/></td>
+							<td><input type="text" name="regex" id="regex" class="text-box-big"/></td>
 						</tr>
 			            		<tr>
-							<td class="leftCol-small"><fmt:message key='display.order'/></td>
-							<td class="leftCol-big"><input type="text" name="displayOrder" id="displayOrder" class="text-box-big"/></td>				
+							<td><fmt:message key='display.order'/></td>
+							<td><input type="text" name="displayOrder" id="displayOrder" class="text-box-big"/></td>
 						</tr>
 						<tr>
-							<td class="leftCol-small"><fmt:message key='supported.by.default'/></td>
+							<td><fmt:message key='supported.by.default'/></td>
 							<td>
 							   <input type='checkbox' name='supported' id='supported' onclick="setType('supported','supportedhidden')" />
 							   <input type='hidden' name='supportedhidden' id='supportedhidden' />
@@ -201,7 +260,7 @@
 						</tr>
 			
 						<tr>
-							<td class="leftCol-small"><fmt:message key='required'/></td>
+							<td><fmt:message key='required'/></td>
 							<td>
 							   <input type='checkbox' name='required' id='required' onclick="setType('required','requiredhidden')" />
 							   <input type='hidden' name='requiredhidden' id='requiredhidden' />
@@ -209,7 +268,7 @@
 						</tr>
 						
 							<tr>
-							<td class="leftCol-small"><fmt:message key='readonly'/></td>
+							<td><fmt:message key='readonly'/></td>
 							<td>
 							   <input type='checkbox' name='readonly' id='readonly' onclick="setType('readonly','readonlyhidden')" />
 							   <input type='hidden' name='readonlyhidden' id='readonlyhidden' />

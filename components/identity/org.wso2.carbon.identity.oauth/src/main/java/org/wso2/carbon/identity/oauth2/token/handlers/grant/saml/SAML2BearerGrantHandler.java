@@ -18,48 +18,24 @@
 
 package org.wso2.carbon.identity.oauth2.token.handlers.grant.saml;
 
-import java.io.ByteArrayInputStream;
-import java.security.KeyStore;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.DefaultBootstrap;
-import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.Audience;
-import org.opensaml.saml2.core.AudienceRestriction;
-import org.opensaml.saml2.core.Conditions;
-import org.opensaml.saml2.core.SubjectConfirmation;
+import org.opensaml.saml2.core.*;
 import org.opensaml.security.SAMLSignatureProfileValidator;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.io.Unmarshaller;
 import org.opensaml.xml.io.UnmarshallerFactory;
-import org.opensaml.xml.security.CriteriaSet;
-import org.opensaml.xml.security.credential.CredentialResolver;
-import org.opensaml.xml.security.criteria.EntityIDCriteria;
-import org.opensaml.xml.security.keyinfo.KeyInfoCriteria;
 import org.opensaml.xml.security.x509.X509Credential;
-import org.opensaml.xml.signature.SignatureTrustEngine;
 import org.opensaml.xml.signature.SignatureValidator;
-import org.opensaml.xml.signature.impl.ExplicitKeySignatureTrustEngine;
 import org.opensaml.xml.validation.ValidationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
@@ -72,11 +48,21 @@ import org.wso2.carbon.identity.oauth.internal.OAuthComponentServiceHolder;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.token.handlers.grant.AbstractAuthorizationGrantHandler;
+import org.wso2.carbon.identity.oauth2.util.CarbonEntityResolver;
 import org.wso2.carbon.identity.oauth2.util.X509CredentialImpl;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.utils.CarbonUtils;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.ByteArrayInputStream;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This implements SAML 2.0 Bearer Assertion Profile for OAuth 2.0 -
@@ -181,44 +167,50 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             return false;
         } else {
             try {
-                identityProvider = IdentityProviderManager.getInstance().getIdPByAuthenticatorPropertyValue(
-                        "IdPEntityId", assertion.getIssuer().getValue(), tenantDomain, false);
-                // IF Federated IDP not found get the resident IDP and check, resident IDP entitiID == issuer
-                if (identityProvider == null || !identityProvider.isEnable()) {
-                    identityProvider = IdentityProviderManager.getInstance().getResidentIdP(tenantDomain);
+				identityProvider = IdentityProviderManager.getInstance().getIdPByAuthenticatorPropertyValue("IdPEntityId",
+				                   assertion.getIssuer().getValue(), tenantDomain, false);
+				// IF Federated IDP not found get the resident IDP and check,
+				// resident IDP entitiID == issuer
+				if (identityProvider != null) {
+					if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(identityProvider.getIdentityProviderName())) {
+						identityProvider = IdentityProviderManager.getInstance().getResidentIdP(tenantDomain);
 
-                    FederatedAuthenticatorConfig[] fedAuthnConfigs = identityProvider
-                            .getFederatedAuthenticatorConfigs();
-                    String idpEntityId = null;
+						FederatedAuthenticatorConfig[] fedAuthnConfigs = identityProvider.getFederatedAuthenticatorConfigs();
+						String idpEntityId = null;
 
-                    // Get SAML authenticator
-                    FederatedAuthenticatorConfig samlAuthenticatorConfig = IdentityApplicationManagementUtil.getFederatedAuthenticator(
-                            fedAuthnConfigs, IdentityApplicationConstants.Authenticator.SAML2SSO.NAME);
-                    // Get Entity ID from SAML authenticator
-                    Property samlProperty = IdentityApplicationManagementUtil.getProperty(samlAuthenticatorConfig.getProperties(),
-                            IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
-                    if (samlProperty != null) {
-                        idpEntityId = samlProperty.getValue();
-                    }
+						// Get SAML authenticator
+						FederatedAuthenticatorConfig samlAuthenticatorConfig = IdentityApplicationManagementUtil.getFederatedAuthenticator(fedAuthnConfigs,
+						                                                                                                                   IdentityApplicationConstants.Authenticator.SAML2SSO.NAME);
+						// Get Entity ID from SAML authenticator
+						Property samlProperty = IdentityApplicationManagementUtil.getProperty(samlAuthenticatorConfig.getProperties(),
+						                                                                      IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
+						if (samlProperty != null) {
+							idpEntityId = samlProperty.getValue();
+						}
 
-                    // Get OpenIDConnect authenticator == OAuth authenticator
-                    FederatedAuthenticatorConfig oauthAuthenticatorConfig = IdentityApplicationManagementUtil.getFederatedAuthenticator(
-                            fedAuthnConfigs, IdentityApplicationConstants.Authenticator.OIDC.NAME);
-                    // Get  OAuth token endpoint
-                    Property oauthProperty = IdentityApplicationManagementUtil.getProperty(oauthAuthenticatorConfig.getProperties(),
-                            IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_TOKEN_URL);
-                    if (oauthProperty != null) {
-                        tokenEndpointAlias = oauthProperty.getValue();
-                    }
+						if (idpEntityId == null || !assertion.getIssuer().getValue().equals(idpEntityId)) {
+							log.debug("SAML Token Issuer verification failed or Issuer not registered");
+							return false;
+						}
 
-                    if (idpEntityId == null || !assertion.getIssuer().getValue().equals(idpEntityId)) {
-                        log.debug("SAML Token Issuer verification failed or Issuer not registered");
-                        return false;
-                    }
-                } else {
-                    // Get Alias from Federated IDP
-                    tokenEndpointAlias = identityProvider.getAlias();
-                }
+						// Get OpenIDConnect authenticator == OAuth
+						// authenticator
+						FederatedAuthenticatorConfig oauthAuthenticatorConfig = IdentityApplicationManagementUtil.getFederatedAuthenticator(fedAuthnConfigs,
+						                                                                                                                    IdentityApplicationConstants.Authenticator.OIDC.NAME);
+						// Get OAuth token endpoint
+						Property oauthProperty = IdentityApplicationManagementUtil.getProperty(oauthAuthenticatorConfig.getProperties(),
+						                                                                       IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_TOKEN_URL);
+						if (oauthProperty != null) {
+							tokenEndpointAlias = oauthProperty.getValue();
+						}
+					} else {
+						// Get Alias from Federated IDP
+						tokenEndpointAlias = identityProvider.getAlias();
+					}
+				} else {
+					log.debug("SAML Token Issuer verification failed or Issuer not registered");
+					return false;
+				}
             } catch (IdentityApplicationManagementException e) {
                 log.debug("Error while getting Federated Identity Provider ");
             }
@@ -457,8 +449,10 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
         Unmarshaller unmarshaller;
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setExpandEntityReferences(false);
             documentBuilderFactory.setNamespaceAware(true);
             DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
+            docBuilder.setEntityResolver(new CarbonEntityResolver());
             Document document = docBuilder.parse(new ByteArrayInputStream(xmlString.trim().getBytes()));
             Element element = document.getDocumentElement();
             UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();

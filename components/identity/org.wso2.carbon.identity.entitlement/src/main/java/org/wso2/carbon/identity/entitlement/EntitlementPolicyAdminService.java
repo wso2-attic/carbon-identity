@@ -627,8 +627,8 @@ public class EntitlementPolicyAdminService {
         if(storeManager.isExistPolicy(policyId)){
             storeManager.addOrUpdatePolicy(policyDTO);
         }
-        publishToPDP(new String[] {policyDTO.getPolicyId()}, null,
-                EntitlementConstants.PolicyPublish.ACTION_ORDER, false, newOrder);
+        publishToPDP(new String[] {policyDTO.getPolicyId()}, EntitlementConstants.PolicyPublish.ACTION_ORDER,
+                                        null, false, newOrder);
     }
 
     public void enableDisablePolicy(String policyId, boolean enable) throws EntitlementException {

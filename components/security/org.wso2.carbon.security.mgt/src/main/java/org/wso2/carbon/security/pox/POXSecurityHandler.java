@@ -16,6 +16,8 @@
 
 package org.wso2.carbon.security.pox;
 
+import java.io.IOException;
+import org.apache.axiom.om.impl.dom.jaxp.DocumentBuilderFactoryImpl;
 import org.apache.axiom.om.util.Base64;
 import org.apache.axiom.soap.SOAPHeader;
 import org.apache.axiom.soap.SOAPHeaderBlock;
@@ -46,7 +48,6 @@ import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -83,68 +84,50 @@ public class POXSecurityHandler implements Handler {
      */
     public InvocationResponse invoke(MessageContext msgCtx) throws AxisFault {
 
-        if (msgCtx != null && !msgCtx.isEngaged(POX_SECURITY_MODULE)){
-            return InvocationResponse.CONTINUE;
-        }
-
-        AxisService service = msgCtx.getAxisService();
-
-        if (service == null) {
-            if(log.isDebugEnabled()) {
-                log.debug("Service not dispatched");
-            }
-            return InvocationResponse.CONTINUE;
-        }
-
-        // We do not add details of admin services to the registry, hence if a rest call comes to a
-        // admin service that does not require authentication we simply skip it
-        String isAdminService = (String) service.getParameterValue("adminService");
-        if (isAdminService != null) {
-            if (JavaUtils.isTrueExplicitly(isAdminService)) {
-                return InvocationResponse.CONTINUE;
-            }
-        }
-
-        String isHiddenService = (String) service.getParameterValue("hiddenService");
-        if (isHiddenService != null) {
-            if (JavaUtils.isTrueExplicitly(isHiddenService)) {
-                return InvocationResponse.CONTINUE;
-            }
-        }
-
-        String isReverseProxy = System.getProperty("reverseProxyMode");
-        if (isReverseProxy != null) {
-            if (JavaUtils.isTrueExplicitly(isReverseProxy)) {
-                return InvocationResponse.CONTINUE;
-            }
-        }
-
-        String isPox = null;
-        Cache<String, String> cache = this.getPOXCache();
-        if(cache != null){
-            if(cache.get(service.getName()) != null) {
-                isPox = cache.get(service.getName());
-            }
-        }
-        if (isPox != null && JavaUtils.isFalseExplicitly(isPox)) {
-            return InvocationResponse.CONTINUE;
-        }
-
-        if (msgCtx.isFault() && new Integer(MessageContext.OUT_FAULT_FLOW).equals(msgCtx.getFLOW())) {
+        if (msgCtx.isFault()) {
             // we only need to execute this block in Unauthorized situations when basicAuth used
             // otherwise it should continue the message flow by throwing the incoming fault message since
             // this is already a fault response - ESBJAVA-2731
             try {
-                String scenarioID = getScenarioId(msgCtx, service);
-                if (scenarioID != null && scenarioID.equals(SecurityConstants.USERNAME_TOKEN_SCENARIO_ID)) {
-                    setAuthHeaders(msgCtx);
-                    return InvocationResponse.CONTINUE;
+                SecurityConfigAdmin securityAdmin = new SecurityConfigAdmin(msgCtx.getConfigurationContext().getAxisConfiguration());
+                SecurityScenarioData data = securityAdmin.getCurrentScenario(msgCtx.getAxisService().getName());
+                if (data != null && data.getScenarioId().equals(SecurityConstants.USERNAME_TOKEN_SCENARIO_ID)) {
+                    String servername = ServerConfiguration.getInstance().getFirstProperty("Name");
+                    if (servername == null || servername.trim().length() == 0) {
+                        servername = "WSO2 Carbon";
+                    }
+                    try {
+                        HttpServletResponse response = (HttpServletResponse)
+                                msgCtx.getProperty(HTTPConstants.MC_HTTP_SERVLETRESPONSE);
+                        if (response != null) {
+                            response.setContentLength(0);
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.addHeader("WWW-Authenticate",
+                                    "BASIC realm=\"" + servername + "\"");
+                            response.flushBuffer();
+                        } else {
+                            // if not servlet transport assume it to be nhttp transport
+                            msgCtx.setProperty("NIO-ACK-Requested", "true");
+                            msgCtx.setProperty("HTTP_SC", HttpServletResponse.SC_UNAUTHORIZED);
+                            Map<String, String> responseHeaders = new HashMap<String, String>();
+                            responseHeaders.put("WWW-Authenticate",
+                                    "BASIC realm=\"" + servername + "\"");
+                            msgCtx.setProperty(MessageContext.TRANSPORT_HEADERS, responseHeaders);
+                        }
+                        return InvocationResponse.CONTINUE;
+                    } catch (IOException e1) {
+                        throw new AxisFault("System error", e1);
+                    }
                 }
             } catch (Exception e) {
                 // throwing the same fault which returned by the messageCtx
                 throw new AxisFault("System error", msgCtx.getFailureReason());
+            } finally {
+                return InvocationResponse.CONTINUE;
             }
-
+        }
+        
+        if (msgCtx != null && !msgCtx.isEngaged(POX_SECURITY_MODULE)){
             return InvocationResponse.CONTINUE;
         }
 
@@ -160,12 +143,82 @@ public class POXSecurityHandler implements Handler {
             return InvocationResponse.CONTINUE;
         }
 
+        //Then check whether UT auth is enabled on the service
+        AxisService service = msgCtx.getAxisService();
+
+        if (service == null) {
+            if(log.isDebugEnabled()) {
+                log.debug("Service not dispatched");
+            }
+            return InvocationResponse.CONTINUE;
+        }
+
+        
+        // We do not add details of admin services to the registry, hence if a rest call comes to a
+        // admin service that does not require authentication we simply skip it
+        String isAdminService = (String) service.getParameterValue("adminService");
+        if (isAdminService != null) {
+            if (JavaUtils.isTrueExplicitly(isAdminService)) {
+                return InvocationResponse.CONTINUE;
+            }
+        }
+        
+        String isHiddenService = (String) service.getParameterValue("hiddenService");
+        if (isHiddenService != null) {
+            if (JavaUtils.isTrueExplicitly(isHiddenService)) {
+                return InvocationResponse.CONTINUE;
+            }
+        }
+
+        String isReverseProxy = System.getProperty("reverseProxyMode");
+        if (isReverseProxy != null) {
+            if (JavaUtils.isTrueExplicitly(isReverseProxy)) {
+                return InvocationResponse.CONTINUE;
+            }
+        }
+
+        String isPox = null;
+
+        Cache<String, String> cache = this.getPOXCache();
+
+        if(cache != null){
+        	if(cache.get(service.getName()) != null) {
+        		isPox = cache.get(service.getName());
+        	}
+        }
+
+        if (isPox != null && JavaUtils.isFalseExplicitly(isPox)) {
+            return InvocationResponse.CONTINUE;
+        }
+        
         if (log.isDebugEnabled()) {
             log.debug("Admin service check failed OR cache miss");
         }
 
         try {
-            String scenarioID = getScenarioId(msgCtx, service);
+            String scenarioID = null;
+            try{
+                scenarioID = (String)service.getParameter(SecurityConstants.SCENARIO_ID_PARAM_NAME).getValue();
+            }catch (Exception e){}//ignore
+
+            if(scenarioID == null){
+                synchronized (this){
+                    SecurityConfigAdmin securityAdmin = new SecurityConfigAdmin(msgCtx.
+                                                          getConfigurationContext().getAxisConfiguration());
+                    SecurityScenarioData data = securityAdmin.getCurrentScenario(service.getName());
+                    if(data != null){
+                        scenarioID = data.getScenarioId();
+                        try {
+                            Parameter param = new Parameter();
+                            param.setName(SecurityConstants.SCENARIO_ID_PARAM_NAME);
+                            param.setValue(scenarioID);
+                            service.addParameter(param);
+                        } catch (AxisFault axisFault) {
+                            log.error("Error while adding Scenario ID parameter",axisFault);
+                        }
+                    }
+                }
+            }
 
             if (scenarioID != null && scenarioID.equals(SecurityConstants.USERNAME_TOKEN_SCENARIO_ID)) {
                 if (log.isDebugEnabled()) {
@@ -198,9 +251,32 @@ public class POXSecurityHandler implements Handler {
 
             if (username == null || password == null || password.trim().length() == 0
                     || username.trim().length() == 0) {
+                
+                
+                String servername = ServerConfiguration.getInstance().getFirstProperty("Name");
+                
+                if(servername == null || servername.trim().length() == 0){
+                    servername = "WSO2 Carbon";
+                }
 
-               setAuthHeaders(msgCtx);
-
+                HttpServletResponse response = (HttpServletResponse)
+                        msgCtx.getProperty(HTTPConstants.MC_HTTP_SERVLETRESPONSE);
+                if (response != null) {
+                    response.setContentLength(0);
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.addHeader("WWW-Authenticate",
+                            "BASIC realm=\""+servername+"\"");
+                    response.flushBuffer();
+                } else {
+                    // if not servlet transport assume it to be nhttp transport
+                    msgCtx.setProperty("NIO-ACK-Requested", "true");
+                    msgCtx.setProperty("HTTP_SC", HttpServletResponse.SC_UNAUTHORIZED);
+                    Map<String, String> responseHeaders = new HashMap<String, String>();
+                    responseHeaders.put("WWW-Authenticate",
+                            "BASIC realm=\""+servername+"\"");
+                    msgCtx.setProperty(MessageContext.TRANSPORT_HEADERS, responseHeaders);
+                }
+                
                 return InvocationResponse.ABORT;
             }
 
@@ -230,61 +306,6 @@ public class POXSecurityHandler implements Handler {
             throw new AxisFault("System error", e);
         }
         return InvocationResponse.CONTINUE;
-    }
-
-    private void setAuthHeaders(MessageContext msgCtx) throws IOException {
-        String serverName = ServerConfiguration.getInstance().getFirstProperty("Name");
-
-        if(serverName == null || serverName.trim().length() == 0){
-            serverName = "WSO2 Carbon";
-        }
-
-        HttpServletResponse response = (HttpServletResponse)
-                msgCtx.getProperty(HTTPConstants.MC_HTTP_SERVLETRESPONSE);
-        if (response != null) {
-            response.setContentLength(0);
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.addHeader("WWW-Authenticate",
-                    "BASIC realm=\""+serverName+"\"");
-            response.flushBuffer();
-        } else {
-            // if not servlet transport assume it to be nhttp transport
-            msgCtx.setProperty("NIO-ACK-Requested", "true");
-            msgCtx.setProperty("HTTP_SC", HttpServletResponse.SC_UNAUTHORIZED);
-            Map<String, String> responseHeaders = new HashMap<String, String>();
-            responseHeaders.put("WWW-Authenticate",
-                    "BASIC realm=\""+serverName+"\"");
-            msgCtx.setProperty(MessageContext.TRANSPORT_HEADERS, responseHeaders);
-        }
-
-    }
-
-    private String getScenarioId(MessageContext msgCtx, AxisService service) throws SecurityConfigException{
-        String scenarioID = null;
-        try{
-            scenarioID = (String)service.getParameter(SecurityConstants.SCENARIO_ID_PARAM_NAME).getValue();
-        }catch (Exception e){}//ignore
-
-        if(scenarioID == null){
-            synchronized (this){
-                SecurityConfigAdmin securityAdmin = new SecurityConfigAdmin(msgCtx.
-                        getConfigurationContext().getAxisConfiguration());
-                SecurityScenarioData data = securityAdmin.getCurrentScenario(service.getName());
-                if(data != null){
-                    scenarioID = data.getScenarioId();
-                    try {
-                        Parameter param = new Parameter();
-                        param.setName(SecurityConstants.SCENARIO_ID_PARAM_NAME);
-                        param.setValue(scenarioID);
-                        service.addParameter(param);
-                    } catch (AxisFault axisFault) {
-                        log.error("Error while adding Scenario ID parameter",axisFault);
-                    }
-                }
-            }
-        }
-
-        return scenarioID;
     }
 
     /**

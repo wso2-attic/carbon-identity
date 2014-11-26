@@ -1348,7 +1348,7 @@ var roleMappinRowID = -1;
                     			 	<input name="req_path_auth" id="req_path_auth" type="hidden" value="<%=reqAth.getName()%>" />
                     			 	<input name="req_path_auth_<%=reqAth.getName()%>" id="req_path_auth_<%=reqAth.getName()%>" type="hidden" value="<%=reqAth.getDisplayName()%>" />
                     			 	
-                    			 	<%=reqAth.getDisplayName()%>
+                    			 	<%=reqAth.getName()%>
                     			 </td>
                     			 <td class="leftCol-small" >
                     			 	<a onclick="deleteReqPathRow(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a>

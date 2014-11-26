@@ -18,33 +18,28 @@
 
 package org.wso2.carbon.identity.sso.agent.saml;
 
-import org.wso2.carbon.identity.sso.agent.bean.SSOAgentSessionBean;
-import org.wso2.carbon.identity.sso.agent.util.SSOAgentConfigs;
-import org.wso2.carbon.identity.sso.agent.util.SSOAgentConstants;
+import org.wso2.carbon.identity.sso.agent.SSOAgentConstants;
 
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class SSOAgentHttpSessionListener implements HttpSessionListener{
+public class SSOAgentHttpSessionListener implements HttpSessionListener {
+
+    private static Logger LOGGER = Logger.getLogger(SSOAgentConstants.LOGGER_NAME);
 
     @Override
     public void sessionCreated(HttpSessionEvent httpSessionEvent) {
-
+        if(httpSessionEvent.getSession().getAttribute(SSOAgentConstants.SESSION_BEAN_NAME) == null){
+            LOGGER.log(Level.WARNING, "HTTP Session created without LoggedInSessionBean");
+        }
     }
 
     @Override
     public void sessionDestroyed(HttpSessionEvent httpSessionEvent) {
-
         // No need to invalidate session here, as it is going to be invalidated soon
-
-        SSOAgentSessionBean sessionBean = (SSOAgentSessionBean)httpSessionEvent.getSession()
-                .getAttribute(SSOAgentConfigs.getSessionBeanName());
-
-        if(sessionBean != null && sessionBean.getSAMLSSOSessionBean() != null &&
-                sessionBean.getSAMLSSOSessionBean().getIdPSessionIndex() != null){
-
-            SSOAgentSessionManager.getSsoSessions().remove(sessionBean.getSAMLSSOSessionBean().getIdPSessionIndex());
-        }
-
+        SSOAgentSessionManager.invalidateSession(httpSessionEvent.getSession());
+        httpSessionEvent.getSession().removeAttribute(SSOAgentConstants.SESSION_BEAN_NAME);
     }
 }

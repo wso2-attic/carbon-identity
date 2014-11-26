@@ -56,7 +56,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         try {
             int tenantID = MultitenantConstants.SUPER_TENANT_ID;
             if (username.contains("@")) {
-                tenantID = realmService.getTenantManager().getTenantId(username.substring(username.lastIndexOf("@") + 1));
+                tenantID = realmService.getTenantManager().getTenantId(MultitenantUtils.getTenantDomain(username));
             }
             UserRealm userRealm = realmService.getTenantUserRealm(tenantID);
 

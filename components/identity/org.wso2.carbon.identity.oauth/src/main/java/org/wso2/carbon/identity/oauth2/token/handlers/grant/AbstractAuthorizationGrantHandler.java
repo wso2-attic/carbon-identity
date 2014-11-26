@@ -202,12 +202,14 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                     RefreshTokenValidationDataDO refreshTokenValidationDataDO = tokenMgtDAO.validateRefreshToken(
                             consumerKey, accessTokenDO.getRefreshToken());
                     String state = refreshTokenValidationDataDO.getRefreshTokenState();
-                    long createdTime = refreshTokenValidationDataDO.getIssuedAt();
-                    long refreshValidity = OAuthServerConfiguration.getInstance().getTimeStampSkewInSeconds() * 1000;
-                    if(state.equals(OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED) &&
-                            createdTime + accessTokenDO.getValidityPeriodInMillis()
-                                    - refreshTokenValidationDataDO.getIssuedAt() + refreshValidity > 1000){
-                        refreshToken = accessTokenDO.getRefreshToken();
+                    if(state != null){
+                        long createdTime = refreshTokenValidationDataDO.getIssuedAt();
+                        long refreshValidity = OAuthServerConfiguration.getInstance().getTimeStampSkewInSeconds() * 1000;
+                        if(OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED.equals(state) &&
+                                createdTime + accessTokenDO.getValidityPeriodInMillis()
+                                        - refreshTokenValidationDataDO.getIssuedAt() + refreshValidity > 1000){
+                            refreshToken = accessTokenDO.getRefreshToken();
+                        }
                     }
                 }
             } catch (OAuthSystemException e) {

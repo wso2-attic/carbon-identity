@@ -24,6 +24,7 @@
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.net.URLEncoder" %>
 
 
 <%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
@@ -391,10 +392,10 @@
                                     </td>
                                     <td>
                                         <% if(!userRealmInfo.getAdminRole().equals(name.getItemName())) {%>
-                                            <a style="background-image:url(images/edit.gif);" class="icon-link" href="../role/edit-permissions.jsp?roleName=<%=name.getItemName()%>&prevPage=view&prevUser=<%=userName%>&prevPageNumber=<%=pageNumber%>"><fmt:message key="edit.permissions"/></a>
+                                            <a style="background-image:url(images/edit.gif);" class="icon-link" href="../role/edit-permissions.jsp?roleName=<%=name.getItemName()%>&prevPage=view&prevUser=<%=URLEncoder.encode(userName,"UTF-8")%>&prevPageNumber=<%=pageNumber%>"><fmt:message key="edit.permissions"/></a>
                                         <%} %>
                                         <% if(!userRealmInfo.getEveryOneRole().equals(name.getItemName())) {%>
-                                            <a style="background-image:url(images/view.gif);" class="icon-link" href="../role/view-users.jsp?roleName=<%=name.getItemName()%>&prevPage=view&prevUser=<%=userName%>&prevPageNumber=<%=pageNumber%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%if (!name.getEditable()) { %>true<% }else{ %>false<% } %>"><fmt:message key="view.users"/></a>
+                                            <a style="background-image:url(images/view.gif);" class="icon-link" href="../role/view-users.jsp?roleName=<%=name.getItemName()%>&prevPage=view&prevUser=<%=URLEncoder.encode(userName,"UTF-8")%>&prevPageNumber=<%=pageNumber%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%if (!name.getEditable()) { %>true<% }else{ %>false<% } %>"><fmt:message key="view.users"/></a>
                                         <% } %>
                                     </td>
                                     <% } %>

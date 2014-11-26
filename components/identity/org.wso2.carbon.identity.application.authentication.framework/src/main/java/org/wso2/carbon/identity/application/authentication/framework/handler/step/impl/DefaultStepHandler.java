@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
@@ -26,6 +27,7 @@ import org.wso2.carbon.identity.application.authentication.framework.model.Authe
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 public class DefaultStepHandler implements StepHandler {
 
@@ -75,7 +77,7 @@ public class DefaultStepHandler implements StepHandler {
         } 
         
         // if Request has fidp param and if this is the first step
-        if (fidp != null && !fidp.isEmpty() && stepConfig.getOrder() == 1) {
+        if (fidp != null && stepConfig.getOrder() == 1) {
             handleHomeRealmDiscovery(request, response, context);
             return;
         } else if (context.isReturning()) {
@@ -213,6 +215,22 @@ public class DefaultStepHandler implements StepHandler {
         StepConfig stepConfig = sequenceConfig.getStepMap().get(context.getCurrentStep());
         List<AuthenticatorConfig> authConfigList = stepConfig.getAuthenticatorList();
 
+
+        String authenticatorNames = FrameworkUtils.getAuthenticatorIdPMappingString(authConfigList);
+        String redirectURL = ConfigurationFacade.getInstance().getAuthenticationEndpointURL();
+
+        if (domain.trim().length() == 0) {
+            //SP hasn't specified a domain. We assume it wants to get the domain from the user
+            try {
+                response.sendRedirect(redirectURL
+                        + ("?" + context.getContextIdIncludedQueryParams()) + "&authenticators="
+                        + authenticatorNames + "&hrd=true");
+            } catch (IOException e) {
+                throw new FrameworkException(e.getMessage(), e);
+            }
+
+            return;
+        }
         // call home realm discovery handler to retrieve the realm
         String homeRealm = FrameworkUtils.getHomeRealmDiscoverer().discover(domain);
 
@@ -222,7 +240,7 @@ public class DefaultStepHandler implements StepHandler {
 
         // try to find an IdP with the retrieved realm
         ExternalIdPConfig externalIdPConfig = ConfigurationFacade.getInstance()
-                .getIdPConfigByRealm(homeRealm);
+                .getIdPConfigByRealm(homeRealm, context.getTenantDomain());
         // if an IdP exists
         if (externalIdPConfig != null) {
             String idpName = externalIdPConfig.getIdPName();
@@ -258,17 +276,10 @@ public class DefaultStepHandler implements StepHandler {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("An IdP was not found for the sent domain");
+            log.debug("An IdP was not found for the sent domain. Sending to the domain page");
         }
 
-        // if an IdP wasn't found
-        String authenticatorNames = FrameworkUtils.getAuthenticatorIdPMappingString(authConfigList);
-        String redirectURL = ConfigurationFacade.getInstance().getAuthenticationEndpointURL();
         String errorMsg = "domain.unknown";
-
-        if (log.isDebugEnabled()) {
-            log.debug("Sending to the domain page");
-        }
 
         try {
             response.sendRedirect(redirectURL + ("?" + context.getContextIdIncludedQueryParams())
@@ -309,7 +320,7 @@ public class DefaultStepHandler implements StepHandler {
             ApplicationAuthenticator authenticator = authenticatorConfig
                     .getApplicationAuthenticator();
             // TODO [IMPORTANT] validate the authenticator is inside the step.
-            if (authenticator.getName().equalsIgnoreCase(
+            if (authenticator != null && authenticator.getName().equalsIgnoreCase(
                     request.getParameter(FrameworkConstants.RequestParams.AUTHENTICATOR))) {
                 doAuthentication(request, response, context, authenticatorConfig);
                 return;
@@ -337,7 +348,7 @@ public class DefaultStepHandler implements StepHandler {
                     .getApplicationAuthenticator();
 
             // Call authenticate if canHandle
-            if (authenticator.canHandle(request)
+            if (authenticator != null && authenticator.canHandle(request)
                     && (context.getCurrentAuthenticator() == null || authenticator.getName()
                             .equals(context.getCurrentAuthenticator()))) {
 
@@ -360,6 +371,11 @@ public class DefaultStepHandler implements StepHandler {
         int currentStep = context.getCurrentStep();
         StepConfig stepConfig = sequenceConfig.getStepMap().get(currentStep);
         ApplicationAuthenticator authenticator = authenticatorConfig.getApplicationAuthenticator();
+
+        if(authenticator == null) {
+            log.error("Authenticator is null");
+            return;
+        }
 
         try {
             context.setAuthenticatorProperties(FrameworkUtils.getAuthenticatorPropertyMapFromIdP(

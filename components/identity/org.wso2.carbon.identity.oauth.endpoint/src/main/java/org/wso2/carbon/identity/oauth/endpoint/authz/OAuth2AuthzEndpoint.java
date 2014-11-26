@@ -59,6 +59,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Path("/authorize")
@@ -97,8 +98,6 @@ public class OAuth2AuthzEndpoint {
         }
         if(resultFromLogin != null && resultFromConsent != null){
 
-            clearCacheEntry(sessionDataKeyFromLogin);
-            clearCacheEntry(sessionDataKeyFromConsent);
             if(log.isDebugEnabled()){
                 String msg = "Invalid authorization request." +
                         "\'SessionDataKey\' found in request as parameter and attribute, " +
@@ -139,7 +138,6 @@ public class OAuth2AuthzEndpoint {
 
         }
         SessionDataCacheEntry sessionDataCacheEntry = null;
-        UserAttributesCacheEntry userAttributesCacheEntry = null;
 
         try {
 
@@ -153,8 +151,9 @@ public class OAuth2AuthzEndpoint {
                     sessionDataCacheEntry = ((SessionDataCacheEntry) resultFromLogin);
                     OAuth2Parameters oauth2Params = sessionDataCacheEntry.getoAuth2Parameters();
                     AuthenticationResult authnResult = getAuthenticationResultFromCache(sessionDataKeyFromLogin);
-
                     if (authnResult != null) {
+                        AuthenticationResultCache.getInstance(0).
+                                        clearCacheEntry( new AuthenticationResultCacheKey(sessionDataKeyFromLogin));
 
                         String redirectURL = null;
                         if (authnResult.isAuthenticated()) {
@@ -189,7 +188,6 @@ public class OAuth2AuthzEndpoint {
                         if(sessionDataCacheEntry != null){
                             appName = sessionDataCacheEntry.getoAuth2Parameters().getApplicationName();
                         }
-                        clearCacheEntry(sessionDataKeyFromLogin);
                         if(log.isDebugEnabled()){
                             String msg = "Invalid authorization request. " +
                                     "\'sessionDataKey\' attribute found but corresponding AuthenticationResult does not exist in the cache.";
@@ -206,7 +204,6 @@ public class OAuth2AuthzEndpoint {
                     sessionDataCacheEntry = ((SessionDataCacheEntry) resultFromConsent);
                     OAuth2Parameters oauth2Params = sessionDataCacheEntry.getoAuth2Parameters();
                     String consent = EndpointUtil.getSafeText(request.getParameter("consent"));
-
                     if(consent != null){
 
                         if (OAuthConstants.Consent.DENY.equals(consent)) {
@@ -231,7 +228,6 @@ public class OAuth2AuthzEndpoint {
                             }
                         }
 
-                        SessionDataCache.getInstance().clearCacheEntry(new SessionDataCacheKey(sessionDataKeyFromConsent));
                         return Response.status(HttpServletResponse.SC_FOUND).location(new URI(redirectURL)).build();
 
                     } else {
@@ -240,7 +236,6 @@ public class OAuth2AuthzEndpoint {
                         if(sessionDataCacheEntry != null){
                             appName = sessionDataCacheEntry.getoAuth2Parameters().getApplicationName();
                         }
-                        clearCacheEntry(sessionDataKeyFromConsent);
                         if(log.isDebugEnabled()){
                             String msg = "Invalid authorization request. " +
                                     "\'sessionDataKey\' parameter found but \'consent\' parameter could not be found in request";
@@ -258,7 +253,6 @@ public class OAuth2AuthzEndpoint {
                 if(sessionDataCacheEntry != null){
                     appName = sessionDataCacheEntry.getoAuth2Parameters().getApplicationName();
                 }
-                clearCacheEntry(sessionDataKeyFromLogin);
                 String msg = "Invalid authorization request";
                 log.debug(msg);
                 return Response.status(HttpServletResponse.SC_FOUND).location(new URI(
@@ -271,7 +265,6 @@ public class OAuth2AuthzEndpoint {
             if(sessionDataCacheEntry != null){
                 appName = sessionDataCacheEntry.getoAuth2Parameters().getApplicationName();
             }
-            clearCacheEntry(sessionDataKeyFromLogin);
             log.debug(e.getError(), e);
             return Response.status(HttpServletResponse.SC_FOUND).location(new URI(
                     EndpointUtil.getErrorPageURL(OAuth2ErrorCodes.INVALID_REQUEST, e.getMessage(), appName, null))).build();
@@ -282,7 +275,6 @@ public class OAuth2AuthzEndpoint {
             if(sessionDataCacheEntry != null){
                 redirect_uri = sessionDataCacheEntry.getoAuth2Parameters().getRedirectURI();
             }
-            clearCacheEntry(sessionDataKeyFromLogin);
             log.debug(e.getMessage(), e);
             String msg = "Server error occurred while performing authorization";
             if(redirect_uri != null && !redirect_uri.equals("")){
@@ -294,6 +286,18 @@ public class OAuth2AuthzEndpoint {
             }
 
         } finally {
+            if (sessionDataKeyFromConsent != null) {
+                /*
+                 * TODO Cache retaining is a temporary fix. Remove after Google fixes
+                 * http://code.google.com/p/gdata-issues/issues/detail?id=6628
+                 */
+                String retainCache = System.getProperty("retainCache");
+
+                if (retainCache == null) {
+                    clearCacheEntry(sessionDataKeyFromConsent);
+                }
+            }
+
             PrivilegedCarbonContext.endTenantFlow();
         }
     }
@@ -320,9 +324,12 @@ public class OAuth2AuthzEndpoint {
 		String applicationName = sessionDataCacheEntry.getoAuth2Parameters().getApplicationName();
 		String loggedInUser = sessionDataCacheEntry.getLoggedInUser();
 
-		boolean approvedAlways =
-                OAuthConstants.Consent.APPROVE_ALWAYS.equals(consent) ? true : false;
-		OpenIDConnectUserRPStore.getInstance().putUserRPToStore(loggedInUser, applicationName, approvedAlways);
+        boolean skipConsent = EndpointUtil.getOAuthServerConfiguration().getOpenIDConnectSkipeUserConsentConfig();
+        if(!skipConsent){
+            boolean approvedAlways =
+                    OAuthConstants.Consent.APPROVE_ALWAYS.equals(consent) ? true : false;
+            OpenIDConnectUserRPStore.getInstance().putUserRPToStore(loggedInUser, applicationName, approvedAlways);
+        }
 
         OAuthResponse oauthResponse = null;
 
@@ -358,9 +365,11 @@ public class OAuth2AuthzEndpoint {
 	}
 
     private void addUserAttributesToCache(SessionDataCacheEntry sessionDataCacheEntry, String code) {
-        UserAttributesCacheKey userAttributesCacheKey = new UserAttributesCacheKey(code);
-        UserAttributesCacheEntry userAttributesCacheEntry = new UserAttributesCacheEntry(sessionDataCacheEntry.getUserAttributes());
-        UserAttributesCache.getInstance().addToCache(userAttributesCacheKey,userAttributesCacheEntry);
+        AuthorizationGrantCacheKey authorizationGrantCacheKey = new AuthorizationGrantCacheKey(code);
+        AuthorizationGrantCacheEntry authorizationGrantCacheEntry = new AuthorizationGrantCacheEntry(sessionDataCacheEntry
+                .getUserAttributes());
+        authorizationGrantCacheEntry.setNonceValue(sessionDataCacheEntry.getoAuth2Parameters().getNonce());
+        AuthorizationGrantCache.getInstance().addToCache(authorizationGrantCacheKey, authorizationGrantCacheEntry);
     }
 
     /**
@@ -409,9 +418,8 @@ public class OAuth2AuthzEndpoint {
 		}
 
 		// Now the client is valid, redirect him to the authorization page.
-		OAuthAuthzRequest
+		OAuthAuthzRequest oauthRequest = new OAuthAuthzRequest(req);
 
-                oauthRequest = new OAuthAuthzRequest(req);
 		OAuth2Parameters params = new OAuth2Parameters();
         params.setClientId(clientId);
         params.setRedirectURI(clientDTO.getCallbackURL());
@@ -430,6 +438,15 @@ public class OAuth2AuthzEndpoint {
         params.setDisplay(oauthRequest.getParam(OIDC.AuthZRequest.DISPLAY));
         params.setIDTokenHint(oauthRequest.getParam(OIDC.AuthZRequest.ID_TOKEN_HINT));
         params.setLoginHint(oauthRequest.getParam(OIDC.AuthZRequest.LOGIN_HINT));
+        if(oauthRequest.getParam("acr_values") != null && !oauthRequest.getParam("acr_values").equals("null") &&
+                !oauthRequest.getParam("acr_values").equals("")){
+            String[] acrValues = oauthRequest.getParam("acr_values").split(" ");
+            LinkedHashSet list = new LinkedHashSet();
+            for(String acrValue : acrValues){
+                list.add(acrValue);
+            }
+            params.setACRValues(list);
+        }
         String prompt = oauthRequest.getParam(OIDC.AuthZRequest.PROMPT);
         if(prompt == null){
             prompt = "consent";
@@ -554,25 +571,23 @@ public class OAuth2AuthzEndpoint {
 
         boolean skipConsent = EndpointUtil.getOAuthServerConfiguration().getOpenIDConnectSkipeUserConsentConfig();
 
-        if (skipConsent) {
+		// load the users approved applications to skip consent
+		String appName = oauth2Params.getApplicationName();
+		boolean hasUserApproved = OpenIDConnectUserRPStore.getInstance().hasUserApproved(loggedInUser, appName);
 
-            return handleUserConsent(request, "approve", oauth2Params, sessionDataCacheEntry);
+		//Skip the consent page if User has provided approve always or skip consent from file
+        if (skipConsent || hasUserApproved) {
+
+            return handleUserConsent(request, "approveAlways", oauth2Params, sessionDataCacheEntry);
 
         } else if(oauth2Params.getPrompt().contains(OIDC.Prompt.NONE)){ // should not prompt for consent if approved always
 
-            // load the users approved applications to skip consent
-            String appName = oauth2Params.getApplicationName();
-            boolean hasUserApproved = OpenIDConnectUserRPStore.getInstance().hasUserApproved(loggedInUser, appName);
-            if (hasUserApproved) {
-                return handleUserConsent(request, "approve", oauth2Params, sessionDataCacheEntry);
-            } else {
                 // returning error
                 return OAuthASResponse.errorResponse(HttpServletResponse.SC_FOUND)
                         .setError(OAuth2ErrorCodes.ACCESS_DENIED)
                         .location(oauth2Params.getRedirectURI())
                         .setState(oauth2Params.getState()).buildQueryMessage()
                         .getLocationUri();
-            }
 
         } else {
 
@@ -602,6 +617,7 @@ public class OAuth2AuthzEndpoint {
         authzReqDTO.setResponseType(oauth2Params.getResponseType());
         authzReqDTO.setScopes(oauth2Params.getScopes().toArray(new String[oauth2Params.getScopes().size()]));
         authzReqDTO.setUsername(sessionDataCacheEntry.getLoggedInUser());
+        authzReqDTO.setACRValues(oauth2Params.getACRValues());
         return EndpointUtil.getOAuth2Service().authorize(authzReqDTO);
     }
 

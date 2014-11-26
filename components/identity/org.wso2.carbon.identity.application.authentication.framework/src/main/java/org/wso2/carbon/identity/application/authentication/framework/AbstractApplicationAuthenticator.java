@@ -26,6 +26,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
@@ -35,6 +36,7 @@ import org.wso2.carbon.identity.application.authentication.framework.exception.A
 import org.wso2.carbon.identity.application.authentication.framework.exception.LogoutFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 /**
  * This is the super class of all the Application Authenticators. Authenticator writers must extend
@@ -140,5 +142,14 @@ public abstract class AbstractApplicationAuthenticator implements ApplicationAut
     @Override
     public List<Property> getConfigurationProperties() {
         return new ArrayList<Property>();
+    }
+
+    protected String getUserStoreAppendedName(String userName){
+        if(userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) < 0) {
+            if (UserCoreUtil.getDomainFromThreadLocal() != null && !UserCoreUtil.getDomainFromThreadLocal().equals("")) {
+                userName = UserCoreUtil.getDomainFromThreadLocal() + CarbonConstants.DOMAIN_SEPARATOR + userName;
+            }
+        }
+        return userName;
     }
 }

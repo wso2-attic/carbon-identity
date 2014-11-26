@@ -17,10 +17,7 @@
 */
 package org.wso2.carbon.identity.scim.provider.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -156,8 +153,10 @@ public class SCIMUserManager implements UserManager {
                 log.info("User: " + user.getUserName() + " is created through SCIM.");
 
             } catch (UserStoreException e) {
-                throw new CharonException("Error in adding the user: " + user.getUserName() +
-                                          " to the user store..", e);
+               String errMsg = e.getMessage()+ " ";
+                errMsg += "Error in adding the user: " + user.getUserName() +
+                        " to the user store..";
+                throw new CharonException(errMsg,e);
             }
             return user;
         }
@@ -198,29 +197,20 @@ public class SCIMUserManager implements UserManager {
     }
 
     public List<User> listUsers() throws CharonException {
-        List<User> users = new ArrayList();
+        List<User> users = new ArrayList<User>();
         try {
-            String[] userNames = carbonUM.listUsers("*", -1);
+            String[] userNames = carbonUM.getUserList(SCIMConstants.ID_URI, "*", null);
             if (userNames != null && userNames.length != 0) {
                 for (String userName : userNames) {
-                	if(userName.contains(UserCoreConstants.NAME_COMBINER)) {
-                		userName = userName.split("\\"+ UserCoreConstants.NAME_COMBINER)[0];
-                	}
-                    if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userName)) {
-                        continue;
+                    if (userName.contains(UserCoreConstants.NAME_COMBINER)) {
+                        userName = userName.split("\\" + UserCoreConstants.NAME_COMBINER)[0];
                     }
                     User scimUser = this.getSCIMUser(userName);
-                    //if SCIM-ID is not present in the attributes, skip
-                    if (scimUser.getId() == null) {
-                        continue;
-                    }
                     Map<String, Attribute> attrMap = scimUser.getAttributeList();
                     if (attrMap != null && !attrMap.isEmpty()) {
                         users.add(scimUser);
                     }
                 }
-            } else {
-                return null;
             }
         } catch (org.wso2.carbon.user.core.UserStoreException e) {
             throw new CharonException("Error while retrieving users from user store..", e);
@@ -278,8 +268,10 @@ public class SCIMUserManager implements UserManager {
             }
 
         } catch (UserStoreException e) {
-            throw new CharonException("Error in getting user information from Carbon User Store for" +
-                                      "users:" + attributeValue, e);
+            String errMsg = "Error in getting user information from Carbon User Store for" +
+                    "users:" + attributeValue + " ";
+            errMsg += e.getMessage();
+            throw new CharonException(errMsg, e);
         }
         return filteredUsers;
     }
@@ -343,7 +335,9 @@ public class SCIMUserManager implements UserManager {
                 }
                 log.info("User: " + user.getUserName() + " updated updated through SCIM.");
             } catch (org.wso2.carbon.user.core.UserStoreException e) {
-                throw new CharonException("Error while updating attributes of user: " + user.getUserName(), e);
+                String errMsg = "Error while updating attributes of user: " + user.getUserName();
+                errMsg += " " + e.getMessage();
+                throw new CharonException(errMsg, e);
             }
 
             return user;
@@ -400,7 +394,10 @@ public class SCIMUserManager implements UserManager {
                 }
 
             } catch (org.wso2.carbon.user.core.UserStoreException e) {
-                throw new CharonException("Error in deleting user: " + userName, e);
+
+                String errMsg = "Error in deleting user: " + userName + " ";
+                errMsg += e.getMessage();
+                throw new CharonException(errMsg, e);
             }
         }
     }
@@ -530,7 +527,9 @@ public class SCIMUserManager implements UserManager {
                 return null;
             }
         } catch (org.wso2.carbon.user.core.UserStoreException e) {
-            throw new CharonException("Error in retrieving group: " + id, e);
+            String errMsg = "Error in retrieving group: " + id + " ";
+            errMsg += e.getMessage();
+            throw new CharonException(errMsg, e);
         } catch (IdentitySCIMException e) {
             throw new CharonException("Error in retrieving SCIM Group information from database.", e);
         }
@@ -540,27 +539,16 @@ public class SCIMUserManager implements UserManager {
     public List<Group> listGroups() throws CharonException {
         List<Group> groupList = new ArrayList<Group>();
         try {
-            String[] roleNames = carbonUM.getRoleNames();
-            //remove everyone and wso2anonymous role
-            if (roleNames != null && roleNames.length != 0) {
-                for (String roleName : roleNames) {
-                    //skip internal roles
-                    if ((CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME.equals(roleName)) ||
-                        UserCoreUtil.isEveryoneRole(roleName, carbonUM.getRealmConfiguration()) ||
-                        UserCoreUtil.isPrimaryAdminRole(roleName, carbonUM.getRealmConfiguration())) {
-                        continue;
-                    }
-
-                    Group group = this.getGroupWithName(roleName);
-                    if (group != null) {
-                        groupList.add(group);
-                    }
-                }
-            } else {
-                return null;
+            SCIMGroupHandler groupHandler = new SCIMGroupHandler(carbonUM.getTenantId());
+            Set<String> roleNames = groupHandler.listSCIMRoles();
+            for (String roleName : roleNames) {
+                Group group = this.getGroupWithName(roleName);
+                groupList.add(group);
             }
         } catch (org.wso2.carbon.user.core.UserStoreException e) {
-            throw new CharonException("Error in obtaining role names from user store.", e);
+            String errMsg = "Error in obtaining role names from user store." ;
+            errMsg += e.getMessage();
+            throw new CharonException(errMsg, e);
         } catch (IdentitySCIMException e) {
             throw new CharonException("Error in retrieving SCIM Group information from database.", e);
         }
@@ -605,8 +593,10 @@ public class SCIMUserManager implements UserManager {
                 return null;
             }
 		} catch (org.wso2.carbon.user.core.UserStoreException e) {
-			throw new CharonException("Error in filtering group with filter: "
-					+ filterAttribute + filterOperation + attributeValue, e);
+            String errMsg ="Error in filtering group with filter: "
+                    + filterAttribute + filterOperation + attributeValue;
+            errMsg += e.getMessage();
+            throw new CharonException(errMsg, e);
 		} catch (org.wso2.carbon.user.api.UserStoreException e) {
 			throw new CharonException("Error in filtering group with filter: "
 					+ filterAttribute + filterOperation + attributeValue, e);
@@ -669,11 +659,50 @@ public class SCIMUserManager implements UserManager {
                 //also a matching one.
                 List<String> userIds = newGroup.getMembers();
                 List<String> userDisplayNames = newGroup.getMembersWithDisplayName();
+
+                String groupName = newGroup.getDisplayName();
+                String userStoreDomainForGroup = null;
+                //Check domain name of the group
+                int domainSeparatorIndexForGroup = groupName.indexOf(UserCoreConstants
+                        .DOMAIN_SEPARATOR);
+                if (domainSeparatorIndexForGroup > 0) {
+                    userStoreDomainForGroup = groupName.substring(0, domainSeparatorIndexForGroup);
+                                        /*User list and role should belong to same domain. throw exceptions if there
+                     is mismatch*/
+                    for (int i = 0; i < userDisplayNames.size(); i++) {
+                        String userDisplayName = userDisplayNames.get(i);
+                        int userDomainSeparatorIndex = userDisplayName.indexOf(UserCoreConstants
+                                .DOMAIN_SEPARATOR);
+                        if (userDomainSeparatorIndex > 0) {
+                            String userStoreDomainForUser = groupName.substring(0,
+                                    userDomainSeparatorIndex);
+                            if (userStoreDomainForGroup.equals(userStoreDomainForUser)) {
+                                continue;
+                            } else {
+                                throw new IdentitySCIMException(userDisplayName + " does not " +
+                                        "belongs to user store " + userStoreDomainForGroup);
+                            }
+
+                        } else {
+                            throw new IdentitySCIMException(userDisplayName + " does not " +
+                                    "belongs to user store " + userStoreDomainForGroup);
+                        }
+                    }
+                }
+
                 if (userIds != null && userIds.size() != 0) {
                     String[] userNames = null;
                     for (String userId : userIds) {
                         userNames = carbonUM.getUserList(SCIMConstants.ID_URI, userId,
                                                          UserCoreConstants.DEFAULT_PROFILE);
+                        if (userStoreDomainForGroup != null) {
+                            userNames = carbonUM.getUserList(SCIMConstants.ID_URI,
+                                    userStoreDomainForGroup + UserCoreConstants.DOMAIN_SEPARATOR + userId,
+                                    UserCoreConstants.DEFAULT_PROFILE);
+                        } else {
+                            userNames = carbonUM.getUserList(SCIMConstants.ID_URI, userId,
+                                    UserCoreConstants.DEFAULT_PROFILE);
+                        }
                         if (userNames == null || userNames.length == 0) {
                             String error = "User: " + userId + " doesn't exist in the user store. " +
                                            "Hence, can not update the group: " + oldGroup.getDisplayName();
@@ -840,8 +869,10 @@ public class SCIMUserManager implements UserManager {
 				}
             }
         } catch (UserStoreException e) {
-            throw new CharonException("Error in getting user information from Carbon User Store for " +
-                                      "user: " + userName, e);
+            String errMsg = "Error in getting user information from Carbon User Store for " +
+                    "user: " + userName + " ";
+            errMsg += e.getMessage();
+            throw new CharonException(errMsg, e);
         } catch (CharonException e) {
             throw new CharonException("Error in getting user information from Carbon User Store for " +
                                       "user: " + userName, e);

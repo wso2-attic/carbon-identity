@@ -22,6 +22,7 @@ import org.apache.amber.oauth2.as.response.OAuthASResponse;
 import org.apache.amber.oauth2.common.OAuth;
 import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.amber.oauth2.common.message.OAuthResponse;
+import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -83,10 +84,10 @@ public class OAuthRevocationEndpoint {
                     token_type = paramMap.get("token_type_hint").get(0);
                 }
             }
-            String callback = httpRequest.getParameter("callback");
+            String callback = EndpointUtil.getSafeText(httpRequest.getParameter("callback"));
             if (callback == null || callback.equals("")) {
                 if (paramMap.get("callback") != null && !paramMap.get("callback").isEmpty()) {
-                    callback = paramMap.get("callback").get(0);
+                    callback = EndpointUtil.getSafeText(paramMap.get("callback").get(0));
                 }
             }
 
@@ -153,6 +154,8 @@ public class OAuthRevocationEndpoint {
                             .status(response.getResponseStatus())
                             .header(OAuthConstants.HTTP_RESP_HEADER_CACHE_CONTROL,
                                     OAuthConstants.HTTP_RESP_HEADER_VAL_CACHE_CONTROL_NO_STORE)
+                            .header(HTTPConstants.HEADER_CONTENT_LENGTH,
+                                    "0")
                             .header(OAuthConstants.HTTP_RESP_HEADER_PRAGMA,
                                     OAuthConstants.HTTP_RESP_HEADER_VAL_PRAGMA_NO_CACHE);
                     if (headers != null && headers.length > 0) {
@@ -182,7 +185,7 @@ public class OAuthRevocationEndpoint {
 
     private Response handleBasicAuthFailure(String callback)
             throws OAuthSystemException {
-        if(callback == null && callback.equals("")){
+        if(callback == null || "".equals(callback)){
             OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_UNAUTHORIZED)
                     .setError(OAuth2ErrorCodes.INVALID_CLIENT)
                     .setErrorDescription("Client Authentication failed.").buildJSONMessage();
@@ -202,7 +205,7 @@ public class OAuthRevocationEndpoint {
 
     private Response handleAuthorizationFailure(String callback)
             throws OAuthSystemException {
-        if(callback == null && callback.equals("")){
+        if(callback == null  || "".equals(callback)){
             OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_UNAUTHORIZED)
                     .setError(OAuth2ErrorCodes.UNAUTHORIZED_CLIENT)
                     .setErrorDescription("Client Authentication failed.").buildJSONMessage();
@@ -222,7 +225,7 @@ public class OAuthRevocationEndpoint {
 
     private Response handleServerFailure(String callback, Exception e)
             throws OAuthSystemException {
-        if(callback == null && callback.equals("")){
+        if(callback == null || "".equals(callback)){
             OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
                     .setError(OAuth2ErrorCodes.SERVER_ERROR)
                     .setErrorDescription(e.getMessage()).buildJSONMessage();
@@ -240,7 +243,7 @@ public class OAuthRevocationEndpoint {
 
     private Response handleClientFailure(String callback)
             throws OAuthSystemException {
-        if(callback == null && callback.equals("")){
+        if(callback == null || "".equals(callback)){
             OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
                     .setError(OAuth2ErrorCodes.INVALID_REQUEST)
                     .setErrorDescription("Invalid revocation request").buildJSONMessage();
@@ -258,7 +261,7 @@ public class OAuthRevocationEndpoint {
 
     private Response handleClientFailure(String callback, OAuthRevocationResponseDTO dto)
             throws OAuthSystemException {
-        if(callback == null && callback.equals("")){
+        if(callback == null || "".equals(callback)){
             OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
                     .setError(dto.getErrorCode())
                     .setErrorDescription(dto.getErrorMsg()).buildJSONMessage();

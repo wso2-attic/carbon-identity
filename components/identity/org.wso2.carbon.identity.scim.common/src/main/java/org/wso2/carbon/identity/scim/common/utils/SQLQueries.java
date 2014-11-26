@@ -20,6 +20,8 @@ package org.wso2.carbon.identity.scim.common.utils;
 
 public class SQLQueries {
     /*SQL Queries for SCIM_IDENTITY_TABLE which persists SCIM_GROUP info*/
+    public static final String LIST_SCIM_GROUPS_SQL =
+            "SELECT ROLE_NAME FROM IDN_SCIM_GROUP WHERE IDN_SCIM_GROUP.ATTR_NAME=?";
     public static final String GET_ATTRIBUTES_SQL =
             "SELECT ATTR_NAME, ATTR_VALUE FROM IDN_SCIM_GROUP WHERE IDN_SCIM_GROUP.TENANT_ID=? AND " +
             "IDN_SCIM_GROUP.ROLE_NAME=?";

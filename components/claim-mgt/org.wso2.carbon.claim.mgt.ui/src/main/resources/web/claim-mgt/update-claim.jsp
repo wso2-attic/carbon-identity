@@ -31,6 +31,11 @@
 <%@ page import="org.wso2.carbon.user.core.UserCoreConstants" %>
 <%@ page import="org.wso2.carbon.claim.mgt.stub.dto.ClaimDialectDTO" %>
 
+<style>
+    .sectionHelp {
+        padding-left: 17px;
+    }
+</style>
 
 <%
     ClaimDialectDTO[] claimMappping = null;
@@ -55,6 +60,25 @@
 	<div id="workArea">
 	
 	   <script type="text/javascript">
+        String.prototype.format = function (args) {
+               var str = this;
+               return str.replace(String.prototype.format.regex, function(item) {
+                   var intVal = parseInt(item.substring(1, item.length - 1));
+                   var replace;
+                   if (intVal >= 0) {
+                       replace = args[intVal];
+                   } else if (intVal === -1) {
+                       replace = "{";
+                   } else if (intVal === -2) {
+                       replace = "}";
+                   } else {
+                       replace = "";
+                   }
+                   return replace;
+               });
+        };
+        String.prototype.format.regex = new RegExp("{-?[0-9]+}", "g");
+
 	    function setType(chk,hidden) {
 	    	var val = document.getElementById(chk).checked;
     		var hiddenElement = document.getElementById(hidden);
@@ -120,6 +144,37 @@
             	CARBON.showWarningDialog('<fmt:message key="regex.is.too.long"/>');
             	return false;
         	}
+
+            //Mapped Attributes Validation
+            var value = document.getElementsByName("attribute")[0].value;
+            var mappedAttributes = value.split(";");
+            var domainSeparator = "/";
+            for (var i = 0; i < mappedAttributes.length; i++) {
+                var index = mappedAttributes[i].indexOf(domainSeparator);
+                if(index >= 0){ //has domain
+                    var lastIndex = mappedAttributes[i].lastIndexOf(domainSeparator);
+                    if(index == 0){
+                        //domain separator cannot be the first letter of the mapped attribute
+                        var message = '<fmt:message key="attribute.domain.required"/>';
+                        message = message.format([mappedAttributes[i]]);
+                        CARBON.showWarningDialog(message);
+                        return false;
+                    }
+                    else if(index != lastIndex){
+                        //mapped attribute cannot have duplicated domainSeparator
+                        var message = '<fmt:message key="attribute.domain.separator.duplicate"/>';
+                        message = message.format([mappedAttributes[i]]);
+                        CARBON.showWarningDialog(message);
+                        return false;
+                    } else if(index == (mappedAttributes[i].length -1)){
+                        //domain separator cannot be the last character of the mapped attribute
+                        var message = '<fmt:message key="attribute.domain.mapped.attribute.required"/>';
+                        message = message.format([mappedAttributes[i]]);
+                        CARBON.showWarningDialog(message);
+                        return false;
+                    }
+                }
+            }
         	
         	document.updateclaim.submit();
     	}        
@@ -164,7 +219,11 @@
 			
 						<tr>
 							<td class="leftCol-small"><fmt:message key='mapped.attribute'/><font class="required">*</font></td>
-							<td class="leftCol-big"><input type="text" name="attribute" id="attribute" value="<%=claims[j].getMappedAttribute()%>"/></td>
+							<td class="leftCol-big"><input type="text" name="attribute" id="attribute" value="<%=claims[j].getMappedAttribute()%>"/>
+                                <div class="sectionHelp" style="display: inline">
+                                    <fmt:message key='help.mapped.attribute'/>
+                                </div>
+                            </td>
 						</tr>
 			
 						<tr>

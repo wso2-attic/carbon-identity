@@ -18,70 +18,25 @@
 
 package org.wso2.carbon.identity.sso.agent.saml;
 
-import java.io.*;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.Deflater;
-import java.util.zip.DeflaterOutputStream;
-
-import javax.crypto.SecretKey;
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
+import org.apache.xml.security.signature.XMLSignature;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.DefaultBootstrap;
 import org.opensaml.common.SAMLVersion;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.common.Extensions;
-import org.opensaml.saml2.common.impl.ExtensionsBuilder;
-import org.opensaml.saml2.common.impl.ExtensionsImpl;
-import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.Attribute;
-import org.opensaml.saml2.core.AttributeStatement;
-import org.opensaml.saml2.core.Audience;
-import org.opensaml.saml2.core.AudienceRestriction;
-import org.opensaml.saml2.core.AuthnContextClassRef;
-import org.opensaml.saml2.core.AuthnContextComparisonTypeEnumeration;
-import org.opensaml.saml2.core.AuthnRequest;
-import org.opensaml.saml2.core.Conditions;
-import org.opensaml.saml2.core.EncryptedAssertion;
-import org.opensaml.saml2.core.Issuer;
-import org.opensaml.saml2.core.LogoutRequest;
-import org.opensaml.saml2.core.LogoutResponse;
-import org.opensaml.saml2.core.NameID;
-import org.opensaml.saml2.core.NameIDPolicy;
-import org.opensaml.saml2.core.RequestAbstractType;
-import org.opensaml.saml2.core.RequestedAuthnContext;
-import org.opensaml.saml2.core.Response;
-import org.opensaml.saml2.core.SessionIndex;
-import org.opensaml.saml2.core.impl.AuthnContextClassRefBuilder;
-import org.opensaml.saml2.core.impl.AuthnRequestBuilder;
-import org.opensaml.saml2.core.impl.IssuerBuilder;
-import org.opensaml.saml2.core.impl.LogoutRequestBuilder;
-import org.opensaml.saml2.core.impl.NameIDBuilder;
-import org.opensaml.saml2.core.impl.NameIDPolicyBuilder;
-import org.opensaml.saml2.core.impl.RequestedAuthnContextBuilder;
-import org.opensaml.saml2.core.impl.SessionIndexBuilder;
+import org.opensaml.saml2.core.*;
+import org.opensaml.saml2.core.impl.*;
+import org.opensaml.saml2.ecp.RelayState;
 import org.opensaml.saml2.encryption.Decrypter;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.encryption.EncryptedKey;
-import org.opensaml.xml.io.Marshaller;
-import org.opensaml.xml.io.MarshallerFactory;
-import org.opensaml.xml.io.MarshallingException;
-import org.opensaml.xml.io.Unmarshaller;
-import org.opensaml.xml.io.UnmarshallerFactory;
-import org.opensaml.xml.io.UnmarshallingException;
+import org.opensaml.xml.io.*;
 import org.opensaml.xml.security.SecurityHelper;
 import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.security.keyinfo.KeyInfoCredentialResolver;
 import org.opensaml.xml.security.keyinfo.StaticKeyInfoCredentialResolver;
-import org.opensaml.xml.security.x509.X509Credential;
 import org.opensaml.xml.signature.SignatureValidator;
 import org.opensaml.xml.util.Base64;
 import org.opensaml.xml.util.XMLHelper;
@@ -92,44 +47,58 @@ import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
-import org.wso2.carbon.identity.sso.agent.bean.SSOAgentSessionBean;
-import org.wso2.carbon.identity.sso.agent.exception.SSOAgentException;
-import org.wso2.carbon.identity.sso.agent.util.SSOAgentConfigs;
-import org.wso2.carbon.identity.sso.agent.util.SSOAgentConstants;
+import org.wso2.carbon.identity.sso.agent.SSOAgentConstants;
+import org.wso2.carbon.identity.sso.agent.SSOAgentException;
+import org.wso2.carbon.identity.sso.agent.bean.LoggedInSessionBean;
+import org.wso2.carbon.identity.sso.agent.bean.SSOAgentConfig;
+import org.wso2.carbon.identity.sso.agent.util.CarbonEntityResolver;
 import org.wso2.carbon.identity.sso.agent.util.SSOAgentUtils;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import javax.crypto.SecretKey;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
+
+/**
+ * TODO: Need to have mechanism to map SP initiated SAML2 Request to SAML2 Responses and validate.
+ * TODO: Still however IdP initiated SSO also should be possible through configuration
+ */
 public class SAML2SSOManager {
 
-	private String authReqRandomId = Integer.toHexString(new Double(Math.random()).intValue());
-	private String relayState = null;
-    private X509Credential credential = null;
+    private static Logger LOGGER = Logger.getLogger(SSOAgentConstants.LOGGER_NAME);
 
-	public SAML2SSOManager() throws SSOAgentException {
+    private static volatile boolean bootStrapped = false;
+    private SSOAgentConfig ssoAgentConfig = null;
+
+	public SAML2SSOManager(SSOAgentConfig ssoAgentConfig) throws SSOAgentException {
+
 		/* Initializing the OpenSAML library, loading default configurations */
-		try {
-            DefaultBootstrap.bootstrap();
-            synchronized (this){
-                if(credential == null){
-                    synchronized (this){
-                        SSOAgentCredential credential = (SSOAgentCredential) Class.forName(SSOAgentConfigs.getSSOAgentCredentialImplClass()).newInstance();
-                        credential.init();
-                        this.credential = new X509CredentialImpl(credential);
+		this.ssoAgentConfig = ssoAgentConfig;
+        try {
+            if(!bootStrapped){
+                synchronized (this) {
+                    if(!bootStrapped){
+                        DefaultBootstrap.bootstrap();
+                        bootStrapped = true;
                     }
                 }
             }
         } catch (ConfigurationException e) {
             throw new SSOAgentException("Error while bootstrapping OpenSAML library", e);
-        } catch (ClassNotFoundException e) {
-            throw new SSOAgentException("Error while instantiating SSOAgentCredentialImplClass: " +
-                    SSOAgentConfigs.getSSOAgentCredentialImplClass(), e);
-        } catch (InstantiationException e) {
-            throw new SSOAgentException("Error while instantiating SSOAgentCredentialImplClass: " +
-                    SSOAgentConfigs.getSSOAgentCredentialImplClass(), e);
-        } catch (IllegalAccessException e) {
-            throw new SSOAgentException("Error while instantiating SSOAgentCredentialImplClass: " +
-                    SSOAgentConfigs.getSSOAgentCredentialImplClass(), e);
         }
     }
 
@@ -141,64 +110,173 @@ public class SAML2SSOManager {
 	 * 
 	 * @return redirectionUrl
 	 */
-	public String buildRequest(HttpServletRequest request, boolean isLogout, boolean isPassive) throws SSOAgentException {
+	public String buildRedirectRequest(HttpServletRequest request, boolean isLogout) throws SSOAgentException {
 
-		RequestAbstractType requestMessage;
+		RequestAbstractType requestMessage = null;
 		if (!isLogout) {
-			requestMessage = buildAuthnRequest(isPassive);
+			requestMessage = buildAuthnRequest(request);
 		} else {
-            SSOAgentSessionBean sessionBean = (SSOAgentSessionBean) request.getSession().getAttribute(SSOAgentConfigs.getSessionBeanName());
+            LoggedInSessionBean sessionBean = (LoggedInSessionBean) request.getSession(false).
+                    getAttribute(SSOAgentConstants.SESSION_BEAN_NAME);
             if(sessionBean != null){
-                requestMessage = buildLogoutRequest(sessionBean.getSAMLSSOSessionBean().getSubjectId(),
-                                                            sessionBean.getSAMLSSOSessionBean().getIdPSessionIndex());
+                requestMessage = buildLogoutRequest(sessionBean.getSAML2SSO().getSubjectId(),
+                        sessionBean.getSAML2SSO().getSessionIndex());
             } else {
-                throw new SSOAgentException("SLO Request can not be built. SSO Session is null");
+                throw new SSOAgentException("SLO Request can not be built. SSO Session is NULL");
             }
 		}
         String idpUrl = null;
-        
-        String encodedRequestMessage = encodeRequestMessage(requestMessage);
-        StringBuilder httpQueryString = new StringBuilder("SAMLRequest=" + encodedRequestMessage);
-                
-        if(relayState != null && !relayState.isEmpty()){
+
+        String encodedRequestMessage = encodeRequestMessage(
+                requestMessage, SAMLConstants.SAML2_REDIRECT_BINDING_URI);
+        StringBuilder httpQueryString = new StringBuilder(
+                SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_AUTH_REQ +
+                        "=" + encodedRequestMessage);
+
+        String relayState = ssoAgentConfig.getSAML2().getRelayState();
+        if(relayState != null){
             try {
-                httpQueryString.append("&RelayState=" + URLEncoder.encode(relayState, "UTF-8").trim());
+                httpQueryString.append("&"+ RelayState.DEFAULT_ELEMENT_LOCAL_NAME + "=" +
+                        URLEncoder.encode(relayState, "UTF-8").trim());
             } catch (UnsupportedEncodingException e) {
-                throw new SSOAgentException("Error occurred while url encoding RelayState", e);
+                throw new SSOAgentException("Error occurred while URLEncoding " +
+                        RelayState.DEFAULT_ELEMENT_LOCAL_NAME, e);
             }
         }
 
-        if(SSOAgentConfigs.getRequestQueryParameters() != null && !SSOAgentConfigs.getRequestQueryParameters().isEmpty()){
-            httpQueryString.append(SSOAgentConfigs.getRequestQueryParameters());
+        if(ssoAgentConfig.getQueryParams() != null && !ssoAgentConfig.getQueryParams().isEmpty()){
+            StringBuilder builder = new StringBuilder();
+            for(Map.Entry<String,String[]> entry : ssoAgentConfig.getQueryParams().entrySet()){
+                if(entry.getKey() != null && entry.getValue() != null && entry.getValue().length > 0){
+                    for(String param : entry.getValue()){
+                        builder.append("&").append(entry.getKey()).append("=").append(param);
+                    }
+                }
+            }
+            httpQueryString.append(builder);
         }
 
-        if(SSOAgentConfigs.isRequestSigned()){
-            SSOAgentUtils.addDeflateSignatureToHTTPQueryString(httpQueryString, credential);
+        if(ssoAgentConfig.getSAML2().isRequestSigned()){
+            SSOAgentUtils.addDeflateSignatureToHTTPQueryString(httpQueryString,
+                    new X509CredentialImpl(ssoAgentConfig.getSAML2().getSSOAgentX509Credential()));
         }
         
-        if(SSOAgentConfigs.getIdPUrl().indexOf("?") > -1){
-            idpUrl = SSOAgentConfigs.getIdPUrl().concat("&").concat(httpQueryString.toString());
+        if(ssoAgentConfig.getSAML2().getIdPURL().indexOf("?") > -1){
+            idpUrl = ssoAgentConfig.getSAML2().getIdPURL().concat("&").concat(httpQueryString.toString());
         } else {
-            idpUrl = SSOAgentConfigs.getIdPUrl().concat("?").concat(httpQueryString.toString());
+            idpUrl = ssoAgentConfig.getSAML2().getIdPURL().concat("?").concat(httpQueryString.toString());
         }
         return idpUrl;
 	}
-	
-    public void processResponse(HttpServletRequest request) throws SSOAgentException {
 
-        String samlRequest = request.getParameter(SSOAgentConstants.HTTP_POST_PARAM_SAML2_RESP);
+    /**
+     * Handles the request for http post binding
+     *
+     * @param request      The HTTP request with SAML2 message
+     * @param response     The HTTP response
+     * @param isLogout     Whether the request is a logout request
 
-        if(samlRequest != null){
-            String decodedResponse = new String(Base64.decode(samlRequest));
+     * @throws SSOAgentException
+     */
+    public String buildPostRequest(HttpServletRequest request, HttpServletResponse response,
+                                 boolean isLogout) throws SSOAgentException {
+
+        RequestAbstractType requestMessage = null;
+        if (!isLogout) {
+            requestMessage = buildAuthnRequest(request);
+            if (ssoAgentConfig.getSAML2().isRequestSigned()) {
+                requestMessage = SSOAgentUtils.setSignature((AuthnRequest) requestMessage,
+                        XMLSignature.ALGO_ID_SIGNATURE_RSA,
+                        new X509CredentialImpl(ssoAgentConfig.getSAML2().getSSOAgentX509Credential()));
+            }
+
+        } else {
+            LoggedInSessionBean sessionBean = (LoggedInSessionBean) request.getSession(false).
+                    getAttribute(SSOAgentConstants.SESSION_BEAN_NAME);
+            if (sessionBean != null) {
+                requestMessage = buildLogoutRequest(sessionBean.getSAML2SSO()
+                        .getSubjectId(), sessionBean.getSAML2SSO().getSessionIndex());
+                if (ssoAgentConfig.getSAML2().isRequestSigned()) {
+                    requestMessage = SSOAgentUtils.setSignature((LogoutRequest) requestMessage,
+                            XMLSignature.ALGO_ID_SIGNATURE_RSA,
+                            new X509CredentialImpl(ssoAgentConfig.getSAML2().getSSOAgentX509Credential()));
+                }
+            } else {
+                throw new SSOAgentException("SLO Request can not be built. SSO Session is null");
+            }
+        }
+        String encodedRequestMessage = encodeRequestMessage(requestMessage, SAMLConstants.SAML2_POST_BINDING_URI);
+
+        Map<String, String[]> paramsMap = new HashMap<String, String[]>();
+        paramsMap.put(SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_AUTH_REQ,
+                new String[]{encodedRequestMessage});
+        if(ssoAgentConfig.getSAML2().getRelayState() != null){
+            paramsMap.put(RelayState.DEFAULT_ELEMENT_LOCAL_NAME,
+                    new String[]{ssoAgentConfig.getSAML2().getRelayState()});
+        }
+
+        //Add any additional parameters defined
+        if (ssoAgentConfig.getQueryParams() != null && !ssoAgentConfig.getQueryParams().isEmpty()) {
+            paramsMap.putAll(ssoAgentConfig.getQueryParams());
+        }
+
+        StringBuilder htmlParams = new StringBuilder();
+        for (Map.Entry<String, String[]> entry : paramsMap.entrySet()) {
+            if(entry.getKey() != null && entry.getValue() != null && entry.getValue().length > 0){
+                for(String param : entry.getValue()){
+                    htmlParams.append("<input type='hidden' name='").append(entry.getKey())
+                            .append("' value='").append(param).append("'>\n");
+                }
+            }
+
+        }
+        String htmlPayload = ssoAgentConfig.getSAML2().getPostBindingRequestHTMLPayload();
+        if (htmlPayload == null || !htmlPayload.contains("<!--$saml_params-->")) {
+            htmlPayload = "<html>\n" +
+                    "<body>\n" +
+                    "<p>You are now redirected back to " + ssoAgentConfig.getSAML2().getIdPURL() + " \n" +
+                    "If the redirection fails, please click the post button.</p>\n" +
+                    "<form method='post' action='" + ssoAgentConfig.getSAML2().getIdPURL() + "'>\n" +
+                    "<p>\n" +
+                    htmlParams.toString() +
+                    "<button type='submit'>POST</button>\n" +
+                    "</p>\n" +
+                    "</form>\n" +
+                    "<script type='text/javascript'>\n" +
+                    "document.forms[0].submit();\n" +
+                    "</script>\n" +
+                    "</body>\n" +
+                    "</html>";
+        } else {
+            htmlPayload = htmlPayload.replace("<!--$saml_params-->",
+                    htmlParams.toString());
+        }
+        return htmlPayload;
+
+    }
+
+    public void processResponse(HttpServletRequest request, HttpServletResponse response)
+            throws SSOAgentException {
+
+        String saml2SSOResponse = request.getParameter(SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP);
+
+        if(saml2SSOResponse != null){
+            String decodedResponse = new String(Base64.decode(saml2SSOResponse));
             XMLObject samlObject = unmarshall(decodedResponse);
             if (samlObject instanceof LogoutResponse) {
                 //This is a SAML response for a single logout request from the SP
                 doSLO(request);
             } else {
-                    processSSOResponse(request);
+                processSSOResponse(request);
+            }
+            String relayState = request.getParameter(RelayState.DEFAULT_ELEMENT_LOCAL_NAME);
+            if(relayState != null) {
+                if (!relayState.isEmpty() && !"null".equalsIgnoreCase(relayState)) { //additional checks for incompetent IdPs
+                    ssoAgentConfig.getSAML2().setRelayState(relayState);
+                }
             }
         } else {
-            throw new SSOAgentException("Invalid SAML Response. SAML Response can not be null.");
+            throw new SSOAgentException("Invalid SAML2 Response. SAML2 Response can not be null.");
         }
     }
 
@@ -210,70 +288,86 @@ public class SAML2SSOManager {
      * @throws IOException
      */
     public void doSLO (HttpServletRequest request) throws SSOAgentException {
-        XMLObject samlObject = null;
-        if(request.getParameter(SSOAgentConstants.HTTP_POST_PARAM_SAML2_AUTH_REQ) != null){
-            samlObject = unmarshall(new String(Base64.decode(request.getParameter(SSOAgentConstants.HTTP_POST_PARAM_SAML2_AUTH_REQ))));
+
+        XMLObject saml2Object = null;
+        if(request.getParameter(SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_AUTH_REQ) != null){
+            saml2Object = unmarshall(new String(Base64.decode(request.getParameter(
+                    SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_AUTH_REQ))));
         }
-        if(samlObject == null){
-            samlObject = unmarshall(new String(Base64.decode(request.getParameter(SSOAgentConstants.HTTP_POST_PARAM_SAML2_RESP))));
+        if(saml2Object == null){
+            saml2Object = unmarshall(new String(Base64.decode(request.getParameter(
+                    SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP))));
         }
-        if (samlObject instanceof LogoutRequest) {
-            LogoutRequest logoutRequest = (LogoutRequest) samlObject;
+        if (saml2Object instanceof LogoutRequest) {
+            LogoutRequest logoutRequest = (LogoutRequest) saml2Object;
             String sessionIndex = logoutRequest.getSessionIndexes().get(0).getSessionIndex();
-            SSOAgentSessionManager.invalidateSession(sessionIndex);
-        } else if (samlObject instanceof LogoutResponse){
+            Set<HttpSession> sessions = SSOAgentSessionManager.invalidateAllSessions(sessionIndex);
+            for(HttpSession session : sessions){
+                session.invalidate();
+            }
+        } else if (saml2Object instanceof LogoutResponse){
             if(request.getSession(false) != null){
-                request.getSession().invalidate();
+                /**
+                 * Not invalidating session explicitly since there may be other listeners
+                 * still waiting to get triggered and at the end of the chain session needs to be
+                 * invalidated by the system
+                 */
+                Set<HttpSession> sessions =
+                        SSOAgentSessionManager.invalidateAllSessions(request.getSession(false));
+                for(HttpSession session : sessions){
+                    session.invalidate();
+                }
             }
         } else {
-            throw new SSOAgentException("Invalid Single Logout SAML Request");
+            throw new SSOAgentException("Invalid SAML2 Single Logout Request/Response");
         }
     }
 
-    private void processSSOResponse(HttpServletRequest request) throws SSOAgentException {
+    protected void processSSOResponse(HttpServletRequest request) throws SSOAgentException {
 
-        SSOAgentSessionBean sessionBean = new SSOAgentSessionBean();
-        sessionBean.setSAMLSSOSessionBean(sessionBean.new SAMLSSOSessionBean());
-        request.getSession().setAttribute(SSOAgentConfigs.getSessionBeanName(), sessionBean);
+        LoggedInSessionBean sessionBean = new LoggedInSessionBean();
+        sessionBean.setSAML2SSO(sessionBean.new SAML2SSO());
 
-        String samlResponseString =
-                new String(Base64.decode(request.getParameter(SSOAgentConstants.HTTP_POST_PARAM_SAML2_RESP)));
-        Response samlResponse = (Response) unmarshall(samlResponseString);
-        sessionBean.getSAMLSSOSessionBean().setSAMLResponseString(samlResponseString);
-        sessionBean.getSAMLSSOSessionBean().setSAMLResponse(samlResponse);
+        String saml2ResponseString =
+                new String(Base64.decode(request.getParameter(
+                        SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP)));
+        Response saml2Response = (Response) unmarshall(saml2ResponseString);
+        sessionBean.getSAML2SSO().setResponseString(saml2ResponseString);
+        sessionBean.getSAML2SSO().setSAMLResponse(saml2Response);
 
 		Assertion assertion = null;
-		if (SSOAgentConfigs.isAssertionEncripted()) {
-			List<EncryptedAssertion> encryptedAssertions = samlResponse.getEncryptedAssertions();
+		if (ssoAgentConfig.getSAML2().isAssertionEncrypted()) {
+			List<EncryptedAssertion> encryptedAssertions = saml2Response.getEncryptedAssertions();
 			EncryptedAssertion encryptedAssertion = null;
 			if (encryptedAssertions != null && encryptedAssertions.size() > 0) {
 				encryptedAssertion = encryptedAssertions.get(0);
 				try {
-					assertion = getDecryptedAssertion(encryptedAssertion, credential);
+					assertion = getDecryptedAssertion(encryptedAssertion);
 				} catch (Exception e) {
-					throw new SSOAgentException("Unable to decrypt the SAML Assertion");
+					throw new SSOAgentException("Unable to decrypt the SAML2 Assertion");
 				}
 			}
 		} else {
-			List<Assertion> assertions = samlResponse.getAssertions();
+			List<Assertion> assertions = saml2Response.getAssertions();
 			if (assertions != null && assertions.size() > 0) {
 				assertion = assertions.get(0);
 			}
 		}
-		
         if (assertion == null) {
-            if (samlResponse.getStatus() != null &&
-                    samlResponse.getStatus().getStatusCode() != null &&
-                    samlResponse.getStatus().getStatusCode().getValue().equals(SSOAgentConstants.StatusCodes.IDENTITY_PROVIDER_ERROR) &&
-                    samlResponse.getStatus().getStatusCode().getStatusCode() != null &&
-                    samlResponse.getStatus().getStatusCode().getStatusCode().getValue().equals(SSOAgentConstants.StatusCodes.NO_PASSIVE)) {
-                    request.getSession().removeAttribute(SSOAgentConfigs.getSessionBeanName());
+            if (isNoPassive(saml2Response)) {
+                LOGGER.log(Level.FINE, "Cannot authenticate in passive mode");
                 return;
             }
-            throw new SSOAgentException("SAML Assertion not found in the Response");
+            throw new SSOAgentException("SAML2 Assertion not found in the Response");
         }
 
-        sessionBean.getSAMLSSOSessionBean().setSAMLAssertion(assertion);
+        String idPEntityIdValue = assertion.getIssuer().getValue();
+        if(idPEntityIdValue == null || idPEntityIdValue.isEmpty()){
+            throw new SSOAgentException("SAML2 Response does not contain an Issuer value");
+        } else if(!idPEntityIdValue.equals(ssoAgentConfig.getSAML2().getIdPEntityId())){
+            throw new SSOAgentException("SAML2 Response Issuer verification failed");
+        }
+        sessionBean.getSAML2SSO().setAssertion(assertion);
         // Cannot marshall SAML assertion here, before signature validation due to a weird issue in OpenSAML
 
         // Get the subject name from the Response Object and forward it to login_action.jsp
@@ -283,45 +377,47 @@ public class SAML2SSOManager {
         }
 
         if(subject == null){
-            throw new SSOAgentException("SAML Response does not contain the name of the subject");
+            throw new SSOAgentException("SAML2 Response does not contain the name of the subject");
         }
 
 
-        sessionBean.getSAMLSSOSessionBean().setSubjectId(subject); // set the subject
-        request.getSession().setAttribute(SSOAgentConfigs.getSessionBeanName(), sessionBean);
+        sessionBean.getSAML2SSO().setSubjectId(subject); // set the subject
+        request.getSession().setAttribute(SSOAgentConstants.SESSION_BEAN_NAME, sessionBean);
 
         // validate audience restriction
         validateAudienceRestriction(assertion);
 
         // validate signature
-        validateSignature(samlResponse,assertion);
+        validateSignature(saml2Response,assertion);
 
-        // Marshalling SAML assertion after signature validation due to a weird issue in OpenSAML
-        sessionBean.getSAMLSSOSessionBean().setSAMLAssertionString(marshall(assertion));
+        // Marshalling SAML2 assertion after signature validation due to a weird issue in OpenSAML
+        sessionBean.getSAML2SSO().setAssertionString(marshall(assertion));
 
-        ((SSOAgentSessionBean)request.getSession().getAttribute(
-                SSOAgentConfigs.getSessionBeanName())).getSAMLSSOSessionBean().
-                setSAMLSSOAttributes(getAssertionStatements(assertion));
+        ((LoggedInSessionBean)request.getSession().getAttribute(
+                SSOAgentConstants.SESSION_BEAN_NAME)).getSAML2SSO().
+                setSubjectAttributes(getAssertionStatements(assertion));
 
         //For removing the session when the single sign out request made by the SP itself
-        if(SSOAgentConfigs.isSLOEnabled()){
+        if(ssoAgentConfig.getSAML2().isSLOEnabled()){
             String sessionId = assertion.getAuthnStatements().get(0).getSessionIndex();
             if(sessionId == null){
-                throw new SSOAgentException("Single Logout is enabled but IdP Session ID not found in SAML Assertion");
+                throw new SSOAgentException("Single Logout is enabled but IdP Session ID not found in SAML2 Assertion");
             }
-            ((SSOAgentSessionBean)request.getSession().getAttribute(
-                    SSOAgentConfigs.getSessionBeanName())).getSAMLSSOSessionBean().setIdPSessionIndex(sessionId);
-            SSOAgentSessionManager.addAuthenticatedSession(sessionId, request.getSession());
+            ((LoggedInSessionBean)request.getSession().getAttribute(
+                    SSOAgentConstants.SESSION_BEAN_NAME)).getSAML2SSO().setSessionIndex(sessionId);
+            SSOAgentSessionManager.addAuthenticatedSession(request.getSession(false));
         }
+
+        request.getSession().setAttribute(SSOAgentConstants.SESSION_BEAN_NAME, sessionBean);
 
     }
 
-	private LogoutRequest buildLogoutRequest(String user, String sessionIdx) throws SSOAgentException{
+	protected LogoutRequest buildLogoutRequest(String user, String sessionIdx) throws SSOAgentException{
 
 		LogoutRequest logoutReq = new LogoutRequestBuilder().buildObject();
 
 		logoutReq.setID(SSOAgentUtils.createID());
-		logoutReq.setDestination(SSOAgentConfigs.getIdPUrl());
+		logoutReq.setDestination(ssoAgentConfig.getSAML2().getIdPURL());
 
 		DateTime issueInstant = new DateTime();
 		logoutReq.setIssueInstant(issueInstant);
@@ -329,7 +425,7 @@ public class SAML2SSOManager {
 
 		IssuerBuilder issuerBuilder = new IssuerBuilder();
 		Issuer issuer = issuerBuilder.buildObject();
-		issuer.setValue(SSOAgentConfigs.getIssuerId());
+		issuer.setValue(ssoAgentConfig.getSAML2().getSPEntityId());
 		logoutReq.setIssuer(issuer);
 
 		NameID nameId = new NameIDBuilder().buildObject();
@@ -346,14 +442,14 @@ public class SAML2SSOManager {
 		return logoutReq;
 	}
 
-	private AuthnRequest buildAuthnRequest(boolean isPassive) throws SSOAgentException{
+	protected AuthnRequest buildAuthnRequest(HttpServletRequest request) throws SSOAgentException{
 
 		
 		IssuerBuilder issuerBuilder = new IssuerBuilder();
 		Issuer issuer =
 		                issuerBuilder.buildObject("urn:oasis:names:tc:SAML:2.0:assertion",
 		                                          "Issuer", "samlp");
-		issuer.setValue(SSOAgentConfigs.getIssuerId());
+		issuer.setValue(ssoAgentConfig.getSAML2().getSPEntityId());
 
 		/* NameIDPolicy */
 		NameIDPolicyBuilder nameIdPolicyBuilder = new NameIDPolicyBuilder();
@@ -384,92 +480,79 @@ public class SAML2SSOManager {
 		AuthnRequest authRequest =
 		                           authRequestBuilder.buildObject("urn:oasis:names:tc:SAML:2.0:protocol",
 		                                                          "AuthnRequest", "samlp");
-		
-		if (!isPassive) {
-		    authRequest.setForceAuthn(SSOAgentConfigs.isForceAuthn());
-		} else {
-		    authRequest.setForceAuthn(false);
-		}
-		
-		authRequest.setIsPassive(isPassive);
+
+        authRequest.setForceAuthn(ssoAgentConfig.getSAML2().isForceAuthn());
+		authRequest.setIsPassive(ssoAgentConfig.getSAML2().isPassiveAuthn());
 		authRequest.setIssueInstant(issueInstant);
-		authRequest.setProtocolBinding("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST");
-		authRequest.setAssertionConsumerServiceURL(SSOAgentConfigs.getConsumerUrl());
+		authRequest.setProtocolBinding(ssoAgentConfig.getSAML2().getHttpBinding());
+		authRequest.setAssertionConsumerServiceURL(ssoAgentConfig.getSAML2().getACSURL());
 		authRequest.setIssuer(issuer);
 		authRequest.setNameIDPolicy(nameIdPolicy);
 		authRequest.setRequestedAuthnContext(requestedAuthnContext);
-		authRequest.setID(authReqRandomId);
+		authRequest.setID(SSOAgentUtils.createID());
 		authRequest.setVersion(SAMLVersion.VERSION_20);
-		authRequest.setDestination(SSOAgentConfigs.getIdPUrl());
-
-
-        if("true".equalsIgnoreCase(SSOAgentConfigs.getAddExtension())) {
-
-            // need to add extensions.
-            String xmlString = "<saml2p:Extensions xmlns:saml2p=\"urn:oasis:names:tc:SAML:2.0:protocol\"><Test>TestContent</Test></saml2p:Extensions>";
-            Element element = null;
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            try{
-                DocumentBuilder builder = factory.newDocumentBuilder();
-                Document document = builder.parse(new InputSource(new StringReader(xmlString)));
-                element = document.getDocumentElement();
-            } catch (Exception e){
-                //ignore
-            }
-
-            if(element != null){
-                ExtensionsBuilder extBuilder = new ExtensionsBuilder();
-                Extensions extensions = extBuilder.buildObject(SAMLConstants.SAML20P_NS, Extensions.LOCAL_NAME,
-                        SAMLConstants.SAML20P_PREFIX);
-                extensions.setDOM(element);
-                authRequest.setExtensions(extensions);
-            }
+		authRequest.setDestination(ssoAgentConfig.getSAML2().getIdPURL());
+        if(request.getAttribute(Extensions.LOCAL_NAME) != null){
+            authRequest.setExtensions((Extensions)request.getAttribute(Extensions.LOCAL_NAME));
         }
 
 		/* Requesting Attributes. This Index value is registered in the IDP */
-		if (SSOAgentConfigs.getAttributeConsumingServiceIndex() != null && SSOAgentConfigs.getAttributeConsumingServiceIndex().trim().length() > 0) {
-			authRequest.setAttributeConsumingServiceIndex(Integer.parseInt(SSOAgentConfigs.getAttributeConsumingServiceIndex()));
-		}
+		if (ssoAgentConfig.getSAML2().getAttributeConsumingServiceIndex() != null &&
+                ssoAgentConfig.getSAML2().getAttributeConsumingServiceIndex().trim().length() > 0) {
+			authRequest.setAttributeConsumingServiceIndex(Integer.parseInt(
+                    ssoAgentConfig.getSAML2().getAttributeConsumingServiceIndex()));
+        }
 
-		return authRequest;
-	}
+        return authRequest;
+    }
 
-	private String encodeRequestMessage(RequestAbstractType requestMessage) throws SSOAgentException{
+    protected String encodeRequestMessage(RequestAbstractType requestMessage, String binding)
+            throws SSOAgentException {
 
 		Marshaller marshaller = Configuration.getMarshallerFactory().getMarshaller(requestMessage);
         Element authDOM = null;
         try {
             authDOM = marshaller.marshall(requestMessage);
-
-            /* Compress the message */
-            Deflater deflater = new Deflater(Deflater.DEFLATED, true);
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(byteArrayOutputStream, deflater);
             StringWriter rspWrt = new StringWriter();
             XMLHelper.writeNode(authDOM, rspWrt);
-            deflaterOutputStream.write(rspWrt.toString().getBytes());
-            deflaterOutputStream.close();
-
-            /* Encoding the compressed message */
-            String encodedRequestMessage = Base64.encodeBytes(byteArrayOutputStream.toByteArray(), Base64.DONT_BREAK_LINES);
-            return URLEncoder.encode(encodedRequestMessage, "UTF-8").trim();
-
+            if(SAMLConstants.SAML2_REDIRECT_BINDING_URI.equals(binding)) {
+                //Compress the message, Base 64 encode and URL encode
+                Deflater deflater = new Deflater(Deflater.DEFLATED, true);
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream
+                        (byteArrayOutputStream, deflater);
+                deflaterOutputStream.write(rspWrt.toString().getBytes());
+                deflaterOutputStream.close();
+                String encodedRequestMessage = Base64.encodeBytes(byteArrayOutputStream
+                        .toByteArray(), Base64.DONT_BREAK_LINES);
+                return URLEncoder.encode(encodedRequestMessage, "UTF-8").trim();
+            } else if (SAMLConstants.SAML2_POST_BINDING_URI.equals(binding)) {
+                return Base64.encodeBytes(rspWrt.toString().getBytes(),
+                        Base64.DONT_BREAK_LINES);
+            } else {
+                LOGGER.log(Level.FINE, "Unsupported SAML2 HTTP Binding. Defaulting to " +
+                        SAMLConstants.SAML2_POST_BINDING_URI);
+                return Base64.encodeBytes(rspWrt.toString().getBytes(),
+                        Base64.DONT_BREAK_LINES);
+            }
         } catch (MarshallingException e) {
-            throw new SSOAgentException("Error occurred while encoding SAML request",e);
+            throw new SSOAgentException("Error occurred while encoding SAML2 request",e);
         } catch (UnsupportedEncodingException e) {
-            throw new SSOAgentException("Error occurred while encoding SAML request",e);
+            throw new SSOAgentException("Error occurred while encoding SAML2 request",e);
         } catch (IOException e) {
-            throw new SSOAgentException("Error occurred while encoding SAML request",e);
+            throw new SSOAgentException("Error occurred while encoding SAML2 request",e);
         }
     }
 
-	private XMLObject unmarshall(String samlString) throws SSOAgentException {
+	protected XMLObject unmarshall(String saml2SSOString) throws SSOAgentException {
 
-        String decodedString = decodeHTMLCharacters(samlString);
+        String decodedString = decodeHTMLCharacters(saml2SSOString);
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setExpandEntityReferences(false);
 		documentBuilderFactory.setNamespaceAware(true);
         try {
             DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
+            docBuilder.setEntityResolver(new CarbonEntityResolver());
             ByteArrayInputStream is = new ByteArrayInputStream(decodedString.getBytes());
             Document document = docBuilder.parse(is);
             Element element = document.getDocumentElement();
@@ -477,13 +560,13 @@ public class SAML2SSOManager {
             Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(element);
             return unmarshaller.unmarshall(element);
         } catch (ParserConfigurationException e) {
-            throw new SSOAgentException("Error in unmarshalling SAML Request from the encoded String", e);
+            throw new SSOAgentException("Error in unmarshalling SAML2SSO Request from the encoded String", e);
         } catch (UnmarshallingException e) {
-            throw new SSOAgentException("Error in unmarshalling SAML Request from the encoded String", e);
+            throw new SSOAgentException("Error in unmarshalling SAML2SSO Request from the encoded String", e);
         } catch (SAXException e) {
-            throw new SSOAgentException("Error in unmarshalling SAML Request from the encoded String", e);
+            throw new SSOAgentException("Error in unmarshalling SAML2SSO Request from the encoded String", e);
         } catch (IOException e) {
-            throw new SSOAgentException("Error in unmarshalling SAML Request from the encoded String", e);
+            throw new SSOAgentException("Error in unmarshalling SAML2SSO Request from the encoded String", e);
         }
 
     }
@@ -525,7 +608,7 @@ public class SAML2SSOManager {
 	 * @param assertion SAML2 Assertion
 	 * @return validity
 	 */
-	private void validateAudienceRestriction(Assertion assertion) throws SSOAgentException{
+	protected void validateAudienceRestriction(Assertion assertion) throws SSOAgentException{
         
 		if (assertion != null) {
 			Conditions conditions = assertion.getConditions();
@@ -536,7 +619,7 @@ public class SAML2SSOManager {
     				for (AudienceRestriction audienceRestriction : audienceRestrictions) {
     					if (audienceRestriction.getAudiences() != null && audienceRestriction.getAudiences().size() > 0) {
     						for (Audience audience : audienceRestriction.getAudiences()) {
-								if (SSOAgentConfigs.getIssuerId().equals(audience.getAudienceURI())) {
+								if (ssoAgentConfig.getSAML2().getSPEntityId().equals(audience.getAudienceURI())) {
 									audienceFound = true;
                                     break;
 								}
@@ -547,13 +630,13 @@ public class SAML2SSOManager {
                         }
     				}
                     if(!audienceFound){
-                        throw new SSOAgentException("SAML Assertion Audience Restriction validation failed");
+                        throw new SSOAgentException("SAML2 Assertion Audience Restriction validation failed");
                     }
     			} else {
-                    throw new SSOAgentException("SAML Response doesn't contain AudienceRestrictions");
+                    throw new SSOAgentException("SAML2 Response doesn't contain AudienceRestrictions");
     			}
         	} else {
-                throw new SSOAgentException("SAML Response doesn't contain Conditions");
+                throw new SSOAgentException("SAML2 Response doesn't contain Conditions");
         	}
 		}
 	}
@@ -565,28 +648,30 @@ public class SAML2SSOManager {
      * @param response   SAML2 Response
      * @return true, if signature is valid.
      */
-    private void validateSignature(Response response, Assertion assertion) throws SSOAgentException{
-        if(SSOAgentConfigs.isResponseSigned()){
+    protected void validateSignature(Response response, Assertion assertion) throws SSOAgentException{
+        if(ssoAgentConfig.getSAML2().isResponseSigned()){
             if(response.getSignature() == null){
-                throw new SSOAgentException("SAMLResponse signing is enabled, but signature element not found in SAML Response element.");
+                throw new SSOAgentException("SAML2 Response signing is enabled, but signature element not found in SAML2 Response element");
             } else {
                 try {
-                    SignatureValidator validator = new SignatureValidator(credential);
+                    SignatureValidator validator = new SignatureValidator(
+                            new X509CredentialImpl(ssoAgentConfig.getSAML2().getSSOAgentX509Credential()));
                     validator.validate(response.getSignature());
                 }  catch (ValidationException e) {
-                    throw new SSOAgentException("Signature validation failed for SAML Response");
+                    throw new SSOAgentException("Signature validation failed for SAML2 Response");
                 }
             }
         }
-        if(SSOAgentConfigs.isAssertionSigned()){
+        if(ssoAgentConfig.getSAML2().isAssertionSigned()){
             if(assertion.getSignature() == null){
-                throw new SSOAgentException("SAMLAssertion signing is enabled, but signature element not found in SAML Assertion element.");
+                throw new SSOAgentException("SAML2 Assertion signing is enabled, but signature element not found in SAML2 Assertion element");
             } else {
                 try {
-                    SignatureValidator validator = new SignatureValidator(credential);
+                    SignatureValidator validator = new SignatureValidator(
+                            new X509CredentialImpl(ssoAgentConfig.getSAML2().getSSOAgentX509Credential()));
                     validator.validate(assertion.getSignature());
                 }  catch (ValidationException e) {
-                    throw new SSOAgentException("Signature validation failed for SAML Assertion");
+                    throw new SSOAgentException("Signature validation failed for SAML2 Assertion");
                 }
             }
         }
@@ -598,7 +683,7 @@ public class SAML2SSOManager {
      * @param xmlObject
      * @return serialized auth. req
      */
-     public static String marshall(XMLObject xmlObject) throws SSOAgentException {
+     protected String marshall(XMLObject xmlObject) throws SSOAgentException {
      try {
         System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
                 "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl");
@@ -615,13 +700,13 @@ public class SAML2SSOManager {
             writer.write(element, output);
             return byteArrayOutputStrm.toString();
         } catch (ClassNotFoundException e) {
-            throw new SSOAgentException("Error in marshalling SAML Assertion", e);
+            throw new SSOAgentException("Error in marshalling SAML2 Assertion", e);
         } catch (InstantiationException e) {
-            throw new SSOAgentException("Error in marshalling SAML Assertion", e);
+            throw new SSOAgentException("Error in marshalling SAML2 Assertion", e);
         } catch (MarshallingException e) {
-            throw new SSOAgentException("Error in marshalling SAML Assertion", e);
+            throw new SSOAgentException("Error in marshalling SAML2 Assertion", e);
         } catch (IllegalAccessException e) {
-            throw new SSOAgentException("Error in marshalling SAML Assertion", e);
+            throw new SSOAgentException("Error in marshalling SAML2 Assertion", e);
         }
     }
     
@@ -629,26 +714,34 @@ public class SAML2SSOManager {
 	 * Get Decrypted Assertion
 	 * 
 	 * @param encryptedAssertion
-	 * @param credential
 	 * @return
 	 * @throws Exception
 	 */
-	public static Assertion getDecryptedAssertion(EncryptedAssertion encryptedAssertion,
-	                                              X509Credential credential) throws Exception {
-		KeyInfoCredentialResolver keyResolver = new StaticKeyInfoCredentialResolver(credential);
-		EncryptedKey key =
-		                   encryptedAssertion.getEncryptedData().getKeyInfo().getEncryptedKeys()
-		                                     .get(0);
+	protected Assertion getDecryptedAssertion(EncryptedAssertion encryptedAssertion) throws Exception {
+
+        KeyInfoCredentialResolver keyResolver = new StaticKeyInfoCredentialResolver(
+                new X509CredentialImpl(ssoAgentConfig.getSAML2().getSSOAgentX509Credential()));
+		EncryptedKey key = encryptedAssertion.getEncryptedData().
+                getKeyInfo().getEncryptedKeys().get(0);
 		Decrypter decrypter = new Decrypter(null, keyResolver, null);
-		SecretKey dkey =
-		                 (SecretKey) decrypter.decryptKey(key,
-		                                                  encryptedAssertion.getEncryptedData()
-		                                                                    .getEncryptionMethod()
-		                                                                    .getAlgorithm());
+		SecretKey dkey = (SecretKey) decrypter.decryptKey(key, encryptedAssertion.getEncryptedData().
+                getEncryptionMethod().getAlgorithm());
 		Credential shared = SecurityHelper.getSimpleCredential(dkey);
 		decrypter = new Decrypter(new StaticKeyInfoCredentialResolver(shared), null, null);
 		decrypter.setRootInNewDocument(true);
 		return decrypter.decrypt(encryptedAssertion);
 	}
 
+    protected boolean isNoPassive(Response response){
+        return response.getStatus() != null &&
+                response.getStatus().getStatusCode() != null &&
+                response.getStatus().getStatusCode().getValue().equals(StatusCode.RESPONDER_URI) &&
+                response.getStatus().getStatusCode().getStatusCode() != null &&
+                response.getStatus().getStatusCode().getStatusCode().getValue().equals(
+                        StatusCode.NO_PASSIVE_URI);
+    }
+
+    public SSOAgentConfig getSsoAgentConfig() {
+        return ssoAgentConfig;
+    }
 }

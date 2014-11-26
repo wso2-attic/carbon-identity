@@ -41,6 +41,8 @@
         IdentityProviderMgtServiceClient client = new IdentityProviderMgtServiceClient(cookie, backendServerURL, configContext);
 
         IdentityProvider identityProvider = new IdentityProvider();
+        identityProvider.setEnable(true);
+        identityProvider.setPrimary(true);
         identityProvider.setIdentityProviderName(IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME);
         identityProvider.setHomeRealmId(CharacterEncoder.getSafeText(request.getParameter("homeRealmId")));
         FederatedAuthenticatorConfig samlFedAuthn = new FederatedAuthenticatorConfig();

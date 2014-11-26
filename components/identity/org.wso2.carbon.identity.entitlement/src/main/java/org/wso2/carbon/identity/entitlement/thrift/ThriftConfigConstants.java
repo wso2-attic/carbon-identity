@@ -28,4 +28,6 @@ public class ThriftConfigConstants {
             "EntitlementSettings.ThirftBasedEntitlementConfig.KeyStore.Location";
     public static final String PARAM_KEYSTORE_PASSWORD =
             "EntitlementSettings.ThirftBasedEntitlementConfig.KeyStore.Password";
+	public static final String PARAM_HOST_NAME =
+			"EntitlementSettings.ThirftBasedEntitlementConfig.ThriftHostName";
 }

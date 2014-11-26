@@ -18,32 +18,69 @@
 
 package org.wso2.carbon.identity.sso.agent.saml;
 
-import org.wso2.carbon.identity.sso.agent.util.SSOAgentConfigs;
+import org.wso2.carbon.identity.sso.agent.SSOAgentConstants;
+import org.wso2.carbon.identity.sso.agent.bean.LoggedInSessionBean;
 
 import javax.servlet.http.HttpSession;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Set;
 
 public class SSOAgentSessionManager {
 	
 	/*
-	 * Session Index at the IdP is mapped to the session at the SP so that a single logout request can be handled
-	 * by invalidating the SP session mapped to IdP Session Index.
+	 * Session Index at the IdP is mapped to the session at the SP so that a single logout request
+	 * can be handled by invalidating the SP session mapped to IdP Session Index.
 	 */
-	private static Map<String, HttpSession> ssoSessions  = new Hashtable<String, HttpSession>();
-	
-	public static void invalidateSession(String sessionIndex) {
-		HttpSession session = ssoSessions.remove(sessionIndex);
-		if(session != null){
-			session.removeAttribute(SSOAgentConfigs.getSessionBeanName());
-		}
-	}
-	
-	public static void addAuthenticatedSession(String idPSessionId, HttpSession session){
-		ssoSessions.put(idPSessionId, session);
-	}
+	private static Map<String, Set<HttpSession>> ssoSessionsMap =
+            new Hashtable<String, Set<HttpSession>>();
 
-    static Map<String,HttpSession> getSsoSessions(){
-        return ssoSessions;
+    public static void invalidateSession(HttpSession session){
+        LoggedInSessionBean sessionBean = ((LoggedInSessionBean)session.getAttribute(
+                SSOAgentConstants.SESSION_BEAN_NAME));
+        if(sessionBean != null && sessionBean.getSAML2SSO() != null){
+            String sessionIndex = sessionBean.getSAML2SSO().getSessionIndex();
+            if(sessionIndex != null){
+                Set<HttpSession> sessions = ssoSessionsMap.get(sessionIndex);
+                sessions.remove(session);
+            }
+        }
     }
+
+    public static Set<HttpSession> invalidateAllSessions(HttpSession session) {
+        LoggedInSessionBean sessionBean = ((LoggedInSessionBean)session.getAttribute(
+                SSOAgentConstants.SESSION_BEAN_NAME));
+        Set<HttpSession> sessions = new HashSet<HttpSession>();
+        if(sessionBean != null && sessionBean.getSAML2SSO() != null){
+            String sessionIndex = sessionBean.getSAML2SSO().getSessionIndex();
+            if(sessionIndex != null){
+                sessions = ssoSessionsMap.remove(sessionIndex);
+            }
+        }
+        if(sessions == null){
+            sessions = new HashSet<HttpSession>();
+        }
+        return sessions;
+    }
+
+	public static Set<HttpSession> invalidateAllSessions(String sessionIndex) {
+		Set<HttpSession> sessions = ssoSessionsMap.remove(sessionIndex);
+        if(sessions == null){
+            sessions = new HashSet<HttpSession>();
+		}
+        return sessions;
+	}
+	
+	public static void addAuthenticatedSession(HttpSession session){
+        String sessionIndex = ((LoggedInSessionBean)session.getAttribute(
+                SSOAgentConstants.SESSION_BEAN_NAME)).getSAML2SSO().getSessionIndex();
+        if(ssoSessionsMap.get(sessionIndex) != null){
+            ssoSessionsMap.get(sessionIndex).add(session);
+        } else {
+            Set<HttpSession> sessions = new HashSet<HttpSession>();
+            sessions.add(session);
+            ssoSessionsMap.put(sessionIndex, sessions);
+        }
+	}
 }

@@ -87,7 +87,8 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                 "Remote Sever Username#Name of a user from the remote server, having enough privileges for user management",
                 null);
         Property password = new Property("password", "",
-                "Remote Server Password#The password correspoing to the remote server username",
+                "Remote Server Password#The password correspoing to the remote server " +
+                        "username#encrypt",
                 null);
         Property serverUrls = new Property(
                 "serverUrls",

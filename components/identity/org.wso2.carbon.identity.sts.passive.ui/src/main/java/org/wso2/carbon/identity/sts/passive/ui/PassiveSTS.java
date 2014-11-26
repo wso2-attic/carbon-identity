@@ -24,11 +24,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -47,10 +44,9 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheKey;
+import org.wso2.carbon.identity.application.authentication.framework.cache.*;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.sts.passive.stub.types.RequestToken;
@@ -62,6 +58,7 @@ import org.wso2.carbon.identity.sts.passive.ui.client.IdentityPassiveSTSClient;
 import org.wso2.carbon.identity.sts.passive.ui.dto.SessionDTO;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.ui.CarbonUIUtil;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
 
 public class PassiveSTS extends HttpServlet {
 
@@ -203,14 +200,26 @@ public class PassiveSTS extends HttpServlet {
         commonAuthURL = commonAuthURL.replace("carbon/", "commonauth");
 
         String selfPath = URLEncoder.encode("/passivests","UTF-8");
+        //Authentication context keeps data which should be sent to commonAuth endpoint
+        AuthenticationRequest authenticationRequest = new
+                AuthenticationRequest();
+        authenticationRequest.setRelyingParty(sessionDTO.getRealm());
+        authenticationRequest.setCommonAuthCallerPath(selfPath);
+        authenticationRequest.setForceAuth("false");
+        authenticationRequest.setRequestQueryParams(request.getParameterMap());
 
-        String queryParams = "?" + sessionDTO.getReqQueryString() + 
-                "&sessionDataKey=" + sessionDataKey +
-                "&type=passivests" +
-                "&relyingParty=" + sessionDTO.getRealm() +
-                "&commonAuthCallerPath=" + selfPath +
-                "&forceAuthenticate=false";
+        //adding headers in out going request to authentication request context
+        for (Enumeration e = request.getHeaderNames(); e.hasMoreElements(); ) {
+            String headerName = e.nextElement().toString();
+            authenticationRequest.addHeader(headerName, request.getHeader(headerName));
+        }
 
+        //Add authenticationRequest cache entry to cache
+        AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry
+                (authenticationRequest);
+        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest, request.getSession().getMaxInactiveInterval());
+        String queryParams = "?" + "sessionDataKey=" + sessionDataKey
+                + "&" + "type" + "=" + "passivests";
         response.sendRedirect(commonAuthURL + queryParams);
     }
     

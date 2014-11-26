@@ -19,6 +19,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 
 public class EntitlementService {
 
@@ -245,6 +246,8 @@ public class EntitlementService {
           result.success = iface.getDecision(args.request, args.sessionId);
         } catch (EntitlementException e) {
           result.e = e;
+        } finally {
+            PrivilegedCarbonContext.destroyCurrentContext();
         }
         return result;
       }
@@ -265,6 +268,8 @@ public class EntitlementService {
           result.success = iface.getDecisionByAttributes(args.subject, args.resource, args.action, args.environment, args.sessionID);
         } catch (EntitlementException e) {
           result.e = e;
+        } finally {
+            PrivilegedCarbonContext.destroyCurrentContext();
         }
         return result;
       }

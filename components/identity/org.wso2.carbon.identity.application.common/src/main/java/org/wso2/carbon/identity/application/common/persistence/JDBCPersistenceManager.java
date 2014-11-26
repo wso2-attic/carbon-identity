@@ -122,8 +122,10 @@ public class JDBCPersistenceManager {
         Connection dbConnection = null;
         try {
             dbConnection = dataSource.getConnection();
+            if (dbConnection.getTransactionIsolation() != Connection.TRANSACTION_READ_COMMITTED) {
+                dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+            }
             dbConnection.setAutoCommit(false);
-            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
             return dbConnection;
         } catch (SQLException e) {
             String errorMsg = "Error occurred while trying to get a database connection on " +

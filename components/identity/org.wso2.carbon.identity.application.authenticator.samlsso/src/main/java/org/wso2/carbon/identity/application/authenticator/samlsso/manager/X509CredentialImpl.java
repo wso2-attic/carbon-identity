@@ -86,21 +86,25 @@ public class X509CredentialImpl implements X509Credential {
         }
         
         this.privateKey = privateKey;
-        
-        if (idpCert != null && !idpCert.isEmpty()) {
-            try {
+
+        try {
+            if (idpCert != null && !idpCert.isEmpty()) {
                 cert = (X509Certificate) IdentityApplicationManagementUtil.decodeCertificate(idpCert);
-            } catch (CertificateException e) {
-                throw new SAMLSSOException("Cannot find the certificate for alias: " + idpCert, e);
+            }else{
+                cert = keyStoreManager.getDefaultPrimaryCertificate();
             }
-            
-            if(cert == null){
-                throw new SAMLSSOException("Cannot find the certificate for alias: " + idpCert);
-            }
-            
-            entityCertificate = cert;
-            publicKey = cert.getPublicKey();
+        } catch (CertificateException e) {
+            throw new SAMLSSOException("Cannot find the certificate for alias: " + idpCert, e);
+        } catch (Exception e) {
+            throw new SAMLSSOException("Error while finding primary certificate", e);
         }
+
+        if(cert == null){
+            throw new SAMLSSOException("Cannot find the certificate.");
+        }
+
+        entityCertificate = cert;
+        publicKey = cert.getPublicKey();
     }
 
     /**

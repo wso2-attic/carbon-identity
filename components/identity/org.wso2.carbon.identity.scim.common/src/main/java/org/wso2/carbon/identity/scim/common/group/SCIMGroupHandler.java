@@ -27,10 +27,7 @@ import org.wso2.charon.core.objects.Group;
 import org.wso2.charon.core.schema.SCIMConstants;
 import org.wso2.charon.core.util.AttributeUtil;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * This is for managing SCIM specific attributes related to Group resource in Identity_SCIM_GROUP
@@ -212,5 +209,10 @@ public class SCIMGroupHandler {
             throw new IdentitySCIMException("Non-existent group: " + oldRoleName +
                                             " is trying to be updated..");
         }
+    }
+
+    public Set<String> listSCIMRoles() throws IdentitySCIMException {
+        GroupDAO groupDAO = new GroupDAO();
+        return groupDAO.listSCIMGroups();
     }
 }

@@ -26,6 +26,8 @@ import java.util.Map.Entry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.mgt.beans.UserIdentityMgtBean;
 import org.wso2.carbon.identity.mgt.beans.VerificationBean;
 import org.wso2.carbon.identity.mgt.config.Config;
@@ -53,6 +55,7 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 
 /**
@@ -133,15 +136,26 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 			log.debug("Pre authenticator is called in IdentityMgtEventListener");
 		}
 
+        IdentityUtil.clearIdentityErrorMsg();
+
 		IdentityMgtConfig config = IdentityMgtConfig.getInstance();
 
 		if (!config.isEnableAuthPolicy()) {
 			return true;
 		}
 
-        if(config.isAuthPolicyAccountExistCheck() && !userStoreManager.isExistingUser(userName)){
-            log.warn("User name does not exist in system : " + userName);
-            throw new UserStoreException(UserCoreConstants.ErrorCode.USER_DOES_NOT_EXIST);
+        if(!userStoreManager.isExistingUser(userName)){
+
+            IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(UserCoreConstants.ErrorCode.USER_DOES_NOT_EXIST);
+            IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
+
+            if (log.isDebugEnabled()) {
+                log.debug("Username :" + userName + "does not exists in the system, ErrorCode :" + UserCoreConstants.ErrorCode.USER_DOES_NOT_EXIST);
+            }
+            if (config.isAuthPolicyAccountExistCheck()) {
+                log.warn("User name does not exist in system : " + userName);
+                throw new UserStoreException(UserCoreConstants.ErrorCode.USER_DOES_NOT_EXIST);
+            }
         }
 
 		UserIdentityClaimsDO userIdentityDTO = module.load(userName, userStoreManager);
@@ -161,7 +175,9 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 					throw new UserStoreException("Error while saving user", e);
 				}
 			} else {
-
+                IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext( UserCoreConstants.ErrorCode.USER_IS_LOCKED,
+                        userIdentityDTO.getFailAttempts() ,config.getAuthPolicyMaxLoginAttempts());
+                IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
 				log.warn("User account is locked for user : " + userName
 						+ ". cannot login until the account is unlocked ");
 				throw new UserStoreException(
@@ -320,33 +336,63 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 		
 		
 		if (!authenticated && config.isAuthPolicyAccountLockOnFailure()) {
-			userIdentityDTO.setFailAttempts();
-			// reading the max allowed #of failure attempts
+            // reading the max allowed #of failure attempts
 
-			if (userIdentityDTO.getFailAttempts() >= config.getAuthPolicyMaxLoginAttempts()) {
-				if (log.isDebugEnabled()) {
-					log.debug("User, " + userName + " has exceed the max failed login attempts. " +
-					          "User account would be locked");
-				}
-				userIdentityDTO.setAccountLock(true);
-				// lock time from the config
-				int lockTime = IdentityMgtConfig.getInstance().getAuthPolicyLockingTime();
-				if (lockTime != 0) {
-					userIdentityDTO.setUnlockTime(System.currentTimeMillis() +
-					                              (lockTime * 60 * 1000));
-				}
-			}
-			
-			try {
-				module.store(userIdentityDTO, userStoreManager);
-			} catch (IdentityException e) {
-				throw new UserStoreException("Error while doPostAuthenticate", e);
-			}
+            String domainName = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+            String usernameWithDomain = UserCoreUtil.addDomainToName(userName, domainName);
+            boolean isUserExistInCurrentDomain = userStoreManager.isExistingUser(usernameWithDomain);
+
+            if (isUserExistInCurrentDomain) {
+                userIdentityDTO.setFailAttempts();
+
+                if (userIdentityDTO.getFailAttempts() >= config.getAuthPolicyMaxLoginAttempts()) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("User, " + userName + " has exceed the max failed login attempts. " +
+                                "User account would be locked");
+                    }
+
+                    IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(UserCoreConstants.ErrorCode.USER_IS_LOCKED,
+                            userIdentityDTO.getFailAttempts(), config.getAuthPolicyMaxLoginAttempts());
+                    IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
+
+                    if (log.isDebugEnabled()) {
+                        log.debug("Username :"+userName +"Exceeded the maximum login attempts. User locked, ErrorCode :"+UserCoreConstants.ErrorCode.USER_IS_LOCKED);
+                    }
+
+                    userIdentityDTO.setAccountLock(true);
+                    userIdentityDTO.setFailAttempts(0);
+                    // lock time from the config
+                    int lockTime = IdentityMgtConfig.getInstance().getAuthPolicyLockingTime();
+                    if (lockTime != 0) {
+                        userIdentityDTO.setUnlockTime(System.currentTimeMillis() +
+                                (lockTime * 60 * 1000));
+                    }
+                } else {
+                    IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext( UserCoreConstants.ErrorCode.INVALID_CREDENTIAL,
+                            userIdentityDTO.getFailAttempts(), config.getAuthPolicyMaxLoginAttempts());
+                    IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
+
+                    if (log.isDebugEnabled()) {
+                        log.debug("Username :"+userName +"Invalid Credential, ErrorCode :"+UserCoreConstants.ErrorCode.INVALID_CREDENTIAL);
+                    }
+
+                }
+
+                try {
+                    module.store(userIdentityDTO, userStoreManager);
+                } catch (IdentityException e) {
+                    throw new UserStoreException("Error while doPostAuthenticate", e);
+                }
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("User, " + userName + " is not exists in "+domainName);
+                }
+            }
 
 		} else {
 			// if the account was locked due to account verification process,
 			// the unlock the account and reset the number of failedAttempts
-			if (userIdentityDTO.isAccountLocked() || userIdentityDTO.getFailAttempts() > 0) {
+			if (userIdentityDTO.isAccountLocked() || userIdentityDTO.getFailAttempts() > 0 || userIdentityDTO.getAccountLock()) {
 				userIdentityDTO.setAccountLock(false);
 				userIdentityDTO.setFailAttempts(0);
 				userIdentityDTO.setUnlockTime(0);
@@ -564,7 +610,22 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 			} catch (IdentityException e) {
 				throw new UserStoreException("Error while doPostAddUser", e);
 			}
-		} 
+		}
+
+        // When claims available in user add request like http://wso2.org/claims/identity/accountLocked
+        if (!config.isEnableUserAccountVerification() &&
+                !config.isAuthPolicyAccountLockOnCreation() && userIdentityClaimsDO != null) {
+            try {
+                if(log.isDebugEnabled()) {
+                    log.debug("Storing identity-mgt claims since they are available in the addUser request");
+                }
+                module.store(userIdentityClaimsDO, userStoreManager);
+            } catch (IdentityException e) {
+                throw new UserStoreException("Error while doPostAddUser when storing User Identity Data ", e);
+            }
+        }
+
+
 		return true;	
 	}
 

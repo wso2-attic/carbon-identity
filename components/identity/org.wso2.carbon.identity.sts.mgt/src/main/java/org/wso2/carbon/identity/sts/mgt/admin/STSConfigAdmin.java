@@ -27,6 +27,7 @@ import org.apache.rahas.impl.SAMLTokenIssuerConfig;
 import org.apache.ws.security.handler.WSHandlerConstants;
 
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.provider.AttributeCallbackHandler;
 import org.wso2.carbon.identity.provider.IdentityProviderException;
@@ -108,10 +109,26 @@ public class STSConfigAdmin {
 
     }
 
+    /**
+     * Configures the STS service for the super tenant.
+     *
+     * @throws IdentityProviderException
+     */
     public static void configureGenericSTS() throws IdentityProviderException {
+        AxisConfiguration config = IdentitySTSMgtServiceComponent.getConfigurationContext()
+                .getAxisConfiguration();
+        configureGenericSTS(config);
+    }
+
+    /**
+     * Configures the STS service. STS service of different tenants can be configured by providing the AxisConfiguration instances
+     * of corresponding tenants.
+     *
+     * @param config AxisConfiguration instance of the tenant.
+     * @throws IdentityProviderException
+     */
+    public static void configureGenericSTS(AxisConfiguration config) throws IdentityProviderException {
         try {
-            AxisConfiguration config = IdentitySTSMgtServiceComponent.getConfigurationContext()
-                    .getAxisConfiguration();
             AxisService stsService = config.getService(ServerConstants.STS_NAME);
             if (stsService == null) {
                 return;
@@ -123,6 +140,12 @@ public class STSConfigAdmin {
                         SAMLTokenIssuerConfig.SAML_ISSUER_CONFIG);
                 SAMLTokenIssuerConfig samlConfig = new SAMLTokenIssuerConfig(samlConfigElem);
                 samlConfig.setCallbackHandlerName(AttributeCallbackHandler.class.getName());
+                if (log.isDebugEnabled()) {
+                    log.debug("Configured the SAML callback handler: " + AttributeCallbackHandler.class.getName() +
+                            " in the service " + stsService.getName() + " for tenant " +
+                            PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain() +
+                            "[" + PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId() + "]");
+                }
 
                 ServerConfiguration serverConfig = ServerConfiguration.getInstance();
                 String ttl = serverConfig.getFirstProperty("STSTimeToLive");
@@ -138,7 +161,7 @@ public class STSConfigAdmin {
                     }
                 }
 
-                setSTSParameter(samlConfig);
+                setSTSParameter(samlConfig, config);
             }
         } catch (Exception e) {
             log.error("Error while setting password callback to the STS", e);
@@ -277,9 +300,7 @@ public class STSConfigAdmin {
         return param;
     }
 
-    private static void setSTSParameter(SAMLTokenIssuerConfig samlConfig) throws AxisFault, ServerException {
-        AxisConfiguration config = IdentitySTSMgtServiceComponent.getConfigurationContext()
-                .getAxisConfiguration();
+    private static void setSTSParameter(SAMLTokenIssuerConfig samlConfig, AxisConfiguration config) throws AxisFault, ServerException {
         try {
             new SecurityServiceAdmin(config).setServiceParameterElement(ServerConstants.STS_NAME,
                     samlConfig.getParameter());
