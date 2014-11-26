@@ -27,12 +27,20 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.user.store.configuration.dto.PropertyDTO;
 import org.wso2.carbon.identity.user.store.configuration.dto.UserStoreDTO;
+import org.wso2.carbon.identity.user.store.configuration.randompasswordcache.RandomPasswordContainerCache;
+import org.wso2.carbon.identity.user.store.configuration.randompasswordcache.RandomPasswordContainerCacheConstants;
+import org.wso2.carbon.identity.user.store.configuration.randompasswordcache.randompasswordobject.RandomPassword;
+import org.wso2.carbon.identity.user.store.configuration.randompasswordcache.randompasswordobject.RandomPasswordContainer;
+import org.wso2.carbon.identity.user.store.configuration.utils.IdentityUserStoreMgtConstants;
+import org.wso2.carbon.identity.user.store.configuration.utils.IdentityUserStoreMgtException;
+import org.wso2.carbon.identity.user.store.configuration.utils.SecondaryUserStoreConfigurationUtil;
 import org.wso2.carbon.ndatasource.common.DataSourceException;
 import org.wso2.carbon.ndatasource.core.DataSourceManager;
 import org.wso2.carbon.ndatasource.core.services.WSDataSourceMetaInfo;
 import org.wso2.carbon.ndatasource.core.services.WSDataSourceMetaInfo.WSDataSourceDefinition;
 import org.wso2.carbon.ndatasource.rdbms.RDBMSConfiguration;
 import org.wso2.carbon.user.api.Properties;
+import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserCoreConstants;
@@ -82,7 +90,6 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      */
     public UserStoreDTO[] getSecondaryRealmConfigurations() throws UserStoreException {
         ArrayList<UserStoreDTO> domains = new ArrayList<UserStoreDTO>();
-
         RealmConfiguration secondaryRealmConfiguration = CarbonContext.getThreadLocalCarbonContext().getUserRealm().
                 getRealmConfiguration().getSecondaryRealmConfig();
 
@@ -94,12 +101,9 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
             do {
             	Map<String, String> userStoreProperties = secondaryRealmConfiguration.getUserStoreProperties();
                 UserStoreDTO userStoreDTO = new UserStoreDTO();
-                if (userStoreProperties.containsKey(UserStoreConfigConstants.connectionPassword)) {
-                    userStoreProperties.put(UserStoreConfigConstants.connectionPassword, "");
-                }
-                if (userStoreProperties.containsKey(JDBCRealmConstants.PASSWORD)) {
-                    userStoreProperties.put(JDBCRealmConstants.PASSWORD, "");
-                }
+                long uniqueID = generateID();
+                String randomPhrase = IdentityUserStoreMgtConstants.RANDOM_PHRASE_PREFIX + String
+                        .valueOf(uniqueID);
                 String className = secondaryRealmConfiguration.getUserStoreClass();
                 userStoreDTO.setClassName(secondaryRealmConfiguration.getUserStoreClass());
                 userStoreDTO.setDescription(secondaryRealmConfiguration.getUserStoreProperty(DESCRIPTION));
@@ -108,7 +112,22 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
                     userStoreDTO.setDisabled(Boolean.valueOf(userStoreProperties.get(DISABLED)));
                 }
                 userStoreProperties.put("Class", className);
+                userStoreProperties.put(IdentityUserStoreMgtConstants.UNIQUE_ID_CONSTANT,
+                        String.valueOf(uniqueID) );
+                RandomPassword[] randomPasswords =  getRandomPasswordProperties(className,
+                        randomPhrase, secondaryRealmConfiguration);
+                if(randomPasswords != null){
+                    updatePasswordContainer(randomPasswords, uniqueID);
+                }
+
+                if (userStoreProperties.containsKey(UserStoreConfigConstants.connectionPassword)) {
+                    userStoreProperties.put(UserStoreConfigConstants.connectionPassword, randomPhrase);
+                }
+                if (userStoreProperties.containsKey(JDBCRealmConstants.PASSWORD)) {
+                    userStoreProperties.put(JDBCRealmConstants.PASSWORD, randomPhrase);
+                }
                 userStoreDTO.setProperties(convertMapToArray(userStoreProperties));
+
 
                 domains.add(userStoreDTO);
                 secondaryRealmConfiguration = secondaryRealmConfiguration.getSecondaryRealmConfig();
@@ -179,7 +198,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
         	log.error(msg);
         	throw new UserStoreException(msg);
         }
-        writeUserMgtXMLFile(userStoreConfigFile,userStoreDTO);
+        writeUserMgtXMLFile(userStoreConfigFile,userStoreDTO, false);
         if(log.isDebugEnabled()) {
         	log.debug("New user store successfully written to the file" + userStoreConfigFile.getAbsolutePath());
         }
@@ -205,7 +224,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
                 throw new UserStoreException(msg);
             }
 
-            writeUserMgtXMLFile(userStoreConfigFile, userStoreDTO);
+            writeUserMgtXMLFile(userStoreConfigFile, userStoreDTO,true);
             if (log.isDebugEnabled()) {
                 log.debug("Edited user store successfully written to the file" + userStoreConfigFile.getAbsolutePath());
             }
@@ -285,7 +304,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
         }
 
         previousUserStoreConfigFile.delete();
-        writeUserMgtXMLFile(userStoreConfigFile,userStoreDTO);
+        writeUserMgtXMLFile(userStoreConfigFile,userStoreDTO, true);
     }
 
     /**
@@ -346,10 +365,55 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      * @param doc:         Document
      * @param parent       : Parent element of the properties to be added
      */
-    private void addProperties(PropertyDTO[] propertyDTOs, Document doc, Element parent) {
+    private void addProperties( String userStoreClass, PropertyDTO[] propertyDTOs, Document doc,
+                                 Element parent, boolean editSecondaryUserStore) throws UserStoreException {
+
+        RandomPasswordContainer randomPasswordContainer = null;
+        if(editSecondaryUserStore){
+            String uniqueID = getUniqueIDFromUserDTO(propertyDTOs);
+            randomPasswordContainer = getAndRemoveRandomPasswordContainer(Long.valueOf(uniqueID));
+            if(randomPasswordContainer == null){
+                String errorMsg = "randomPasswordContainer is null for uniqueID therefore "  +
+                        "proceeding without encryption="+uniqueID;
+                log.error(errorMsg);
+                throw new UserStoreException("Longer delay causes the edit operation be to " +
+                        "abandoned");
+            }
+        }
+        //First check for mandatory field with #encrypt
+        Property[] mandatoryProperties = getMandatoryProperties(userStoreClass);
         for (PropertyDTO propertyDTO : propertyDTOs) {
-            if (propertyDTO.getValue() != null) {
-                addProperty(propertyDTO.getName(), propertyDTO.getValue(), doc, parent);
+            String propertyDTOName = propertyDTO.getName();
+            if(propertyDTOName != null && propertyDTOName.equalsIgnoreCase
+                    (IdentityUserStoreMgtConstants.UNIQUE_ID_CONSTANT)){
+                continue;
+            }
+
+            String propertyDTOValue = propertyDTO.getValue();
+            if (propertyDTOValue != null) {
+                boolean encrypted=false;
+                if( isPropertyToBeEncrypted(mandatoryProperties, propertyDTOName) ){
+
+                    if(randomPasswordContainer != null){
+                        RandomPassword randomPassword = getRandomPassword
+                                (randomPasswordContainer, propertyDTOName);
+                        if(randomPassword != null && randomPassword.getRandomPhrase() != null ){
+                            if(propertyDTOValue.equalsIgnoreCase(randomPassword.getRandomPhrase())){
+                                propertyDTOValue = randomPassword.getPassword();
+                            }
+                        }
+                    }
+
+                    try {
+                        propertyDTOValue = SecondaryUserStoreConfigurationUtil.
+                                encryptPlainText(propertyDTOValue);
+                        encrypted = true;
+                    } catch (IdentityUserStoreMgtException e) {
+                        log.error("addProperties failed to encrypt", e);
+                        //its ok to continue from here
+                    }
+                }
+                addProperty(propertyDTOName, propertyDTOValue, doc, parent, encrypted);
             }
         }
     }
@@ -362,10 +426,17 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      * @param doc:    Document
      * @param parent: Parent element of the property to be added as a child
      */
-    private void addProperty(String name, String value, Document doc, Element parent) {
+    private void addProperty(String name, String value, Document doc, Element parent,
+                             boolean encrypted) {
         Element property = doc.createElement("Property");
+        Attr attr;
+        if(encrypted){
+            attr = doc.createAttribute("encrypted");
+            attr.setValue("true");
+            property.setAttributeNode(attr);
+        }
 
-        Attr attr = doc.createAttribute("name");
+        attr = doc.createAttribute("name");
         attr.setValue(name);
         property.setAttributeNode(attr);
 
@@ -509,7 +580,8 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
     }
 
 
-    private void writeUserMgtXMLFile(File userStoreConfigFile,UserStoreDTO userStoreDTO) throws UserStoreException{
+    private void writeUserMgtXMLFile(File userStoreConfigFile,UserStoreDTO userStoreDTO,
+                                     boolean editSecondaryUserStore) throws UserStoreException{
         StreamResult result = new StreamResult(userStoreConfigFile);
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 
@@ -525,9 +597,11 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
             attrClass.setValue(userStoreDTO.getClassName());
             userStoreElement.setAttributeNode(attrClass);
 
-            addProperties(userStoreDTO.getProperties(), doc, userStoreElement);
-            addProperty(UserStoreConfigConstants.DOMAIN_NAME, userStoreDTO.getDomainId(), doc, userStoreElement);
-            addProperty(DESCRIPTION, userStoreDTO.getDescription(), doc, userStoreElement);
+            addProperties(userStoreDTO.getClassName(), userStoreDTO.getProperties(), doc,
+                    userStoreElement, editSecondaryUserStore);
+            addProperty(UserStoreConfigConstants.DOMAIN_NAME, userStoreDTO.getDomainId(), doc,
+                    userStoreElement, false);
+            addProperty(DESCRIPTION, userStoreDTO.getDescription(), doc, userStoreElement, false);
             DOMSource source = new DOMSource(doc);
 
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -540,5 +614,181 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
         } catch (Exception ex) {
             throw new UserStoreException(ex);
         }
+    }
+
+    /**
+     * Obtains the mandatory properties for a given userStoreClass
+     *
+     * @param userStoreClass   userStoreClass name
+     * @return                 Property[] of Mandatory Properties
+     */
+    private Property[] getMandatoryProperties(String userStoreClass){
+        return UserStoreManagerRegistry.getUserStoreProperties(userStoreClass).
+                getMandatoryProperties();
+    }
+
+    /**
+     * Check whether the given property should be encrypted or not.
+     *
+     * @param mandatoryProperties   mandatory property array
+     * @param propertyName          property name
+     * @return                      returns true if the property should be encrypted
+     */
+    private boolean isPropertyToBeEncrypted(Property[] mandatoryProperties,
+                                            String propertyName){
+        if(mandatoryProperties != null && propertyName != null){
+            for(Property property : mandatoryProperties){
+                if(property != null ){
+                    if(propertyName.equalsIgnoreCase(property.getName())){
+                        if(property.getDescription().contains(IdentityUserStoreMgtConstants.ENCRYPT_TEXT))
+                        {
+                            return true;
+                        }else{
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+
+    /**
+     * Generate unique long id used to denote the message id across the cluster
+     * @return Returns the ID obtained from cache
+     */
+     private long generateID(){
+        String incrementalString = RandomPasswordContainerCache.getIdIncrementalCounterCache().get(
+                RandomPasswordContainerCacheConstants.INCREMENTAL_ID_COUNTER);
+
+        long incrementalValue = 0;
+        if(incrementalString != null){
+            incrementalValue = Long.valueOf(incrementalString);
+            ++incrementalValue;
+        }
+        RandomPasswordContainerCache.getIdIncrementalCounterCache().put(RandomPasswordContainerCacheConstants.
+                INCREMENTAL_ID_COUNTER, String.valueOf(incrementalValue));
+        return incrementalValue;
+    }
+
+    /**
+     * Generate the RandomPassword[] from secondaryRealmConfiguration for given userStoreClass
+     *
+     * @param userStoreClass          Extract the mandatory properties of this class
+     * @param randomPhrase            The randomly generated keyword which will be stored in
+     *                                RandomPassword object
+     * @param secondaryRealmConfiguration  RealmConfiguration object consists the properties
+     * @return                          RandomPassword[] array for each property
+     */
+    private RandomPassword[] getRandomPasswordProperties(String userStoreClass,
+                                                         String randomPhrase,RealmConfiguration secondaryRealmConfiguration) {
+        //First check for mandatory field with #encrypt
+        Property[] mandatoryProperties = getMandatoryProperties(userStoreClass);
+        ArrayList<RandomPassword> randomPasswordArrayList = new ArrayList<RandomPassword>();
+        for (Property property : mandatoryProperties) {
+            if (property != null) {
+                String propertyName = property.getName();
+                if (propertyName != null && property.getDescription().contains
+                        (IdentityUserStoreMgtConstants.ENCRYPT_TEXT)) {
+                    RandomPassword randomPassword = new RandomPassword();
+                    randomPassword.setPropertyName(propertyName);
+                    randomPassword.setPassword(secondaryRealmConfiguration.getUserStoreProperty
+                            (propertyName));
+                    randomPassword.setRandomPhrase(randomPhrase);
+                    randomPasswordArrayList.add(randomPassword);
+                }
+            }
+        }
+        return randomPasswordArrayList.toArray(new RandomPassword[randomPasswordArrayList.size()]);
+    }
+
+    /**
+     * Create and update the RandomPasswordContainer with given unique ID and randomPasswords array
+     *
+     * @param randomPasswords  array contains the elements to be encrypted with thier random
+     *                         password phrase, password and unique id
+     * @param uniqueID         Unique id of the RandomPasswordContainer
+     */
+    public void updatePasswordContainer(RandomPassword[] randomPasswords, long uniqueID){
+
+        if(randomPasswords != null){
+            if(log.isDebugEnabled()){
+                log.debug("updatePasswordContainer reached for number of random password " +
+                        "properties length="+randomPasswords.length);
+            }
+            RandomPasswordContainer randomPasswordContainer = new RandomPasswordContainer();
+            randomPasswordContainer.setRandomPasswords(randomPasswords);
+            randomPasswordContainer.setUniqueID(uniqueID);
+
+            RandomPasswordContainerCache.getRandomPasswordContainerCache().put(uniqueID, randomPasswordContainer);
+        }
+    }
+
+    /**
+     * Get the RandomPasswordContainer object from the cache for given unique id
+     *
+     * @param uniqueID  Get and Remove the unique id for that particualr cache
+     *
+     * @return          RandomPasswordContainer of particular unique ID
+     */
+    private RandomPasswordContainer getAndRemoveRandomPasswordContainer(long uniqueID){
+        return RandomPasswordContainerCache.getRandomPasswordContainerCache().getAndRemove(uniqueID);
+    }
+
+    /**
+     * Obtain the UniqueID ID constant value from the propertyDTO object which was set well
+     * before sending the edit request.
+     *
+     * @param propertyDTOs PropertyDTO[] object passed from JSP page
+     * @return             unique id string value
+     *
+     */
+    private String getUniqueIDFromUserDTO(PropertyDTO[] propertyDTOs){
+
+        if(propertyDTOs != null){
+            int length = propertyDTOs.length;
+
+            for (int i = length - 1; i >=0; i--){
+                PropertyDTO propertyDTO = propertyDTOs[i];
+
+                if(propertyDTO != null && propertyDTO.getName() != null && propertyDTO.getName()
+                        .equalsIgnoreCase(IdentityUserStoreMgtConstants.UNIQUE_ID_CONSTANT)){
+                    return propertyDTO.getValue();
+                }
+            }
+        }
+        if(log.isDebugEnabled()){
+            log.debug("Error : getUniqueIDFromUserDTO not found some thing had gone wrong");
+        }
+        return null;
+    }
+
+    /**
+     * Finds the RandomPassword object for a given propertyName in the RandomPasswordContainer
+     * ( Which is unique per uniqueID )
+     *
+     * @param randomPasswordContainer RandomPasswordContainer object of an unique id
+     * @param propertyName            RandomPassword object to be obtained for that property
+     * @return                        Returns the RandomPassword object from the
+     */
+    private RandomPassword getRandomPassword(RandomPasswordContainer randomPasswordContainer,
+                                  String propertyName){
+
+        if(randomPasswordContainer != null){
+            RandomPassword[] randomPasswords = randomPasswordContainer.getRandomPasswords();
+
+            if(randomPasswords != null){
+                for (RandomPassword randomPassword : randomPasswords){
+                    if(randomPassword != null && (randomPassword.getPropertyName() != null) ){
+                        if(randomPassword.getPropertyName().equalsIgnoreCase(propertyName) &&
+                                (randomPassword.getPassword() != null)){
+                            return randomPassword;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

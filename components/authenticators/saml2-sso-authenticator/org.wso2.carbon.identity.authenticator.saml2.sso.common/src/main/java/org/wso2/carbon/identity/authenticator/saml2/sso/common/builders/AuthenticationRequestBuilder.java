@@ -66,7 +66,11 @@ public class AuthenticationRequestBuilder {
         authnRequest.setIssuer(buildIssuer());
         authnRequest.setNameIDPolicy(buildNameIDPolicy(nameIdPolicyFormat));
         authnRequest.setDestination(Util.getIdentityProviderSSOServiceURL());
-
+		String acs = Util.getAssertionConsumerServiceURL();
+		if (acs != null && acs.trim().length() > 0) {
+			authnRequest.setAssertionConsumerServiceURL(acs);
+		}
+        
         if (subjectName != null) {
             Subject subject = new SubjectBuilder().buildObject();
             NameID nameId = new NameIDBuilder().buildObject();

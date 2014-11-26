@@ -17,28 +17,17 @@
  */
 package org.wso2.carbon.identity.provider.openid.handlers;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URLEncoder;
-import java.util.Map;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openid4java.message.DirectError;
 import org.openid4java.message.ParameterList;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheKey;
-import org.wso2.carbon.identity.application.common.cache.CacheEntry;
-import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityConstants.OpenId;
@@ -47,11 +36,23 @@ import org.wso2.carbon.identity.provider.OpenIDProviderService;
 import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
 import org.wso2.carbon.identity.provider.dto.OpenIDAuthResponseDTO;
 import org.wso2.carbon.identity.provider.dto.OpenIDParameterDTO;
-import org.wso2.carbon.identity.provider.dto.OpenIDRememberMeDTO;
 import org.wso2.carbon.identity.provider.openid.OpenIDConstants;
 import org.wso2.carbon.identity.provider.openid.client.OpenIDAdminClient;
 import org.wso2.carbon.identity.provider.openid.util.OpenIDUtil;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URLEncoder;
+import java.util.Enumeration;
+import java.util.Map;
 
 /**
  * Handles functionality related OpenID association,
@@ -403,7 +404,7 @@ public class OpenIDHandler {
 	 * @param profileName
 	 * @param params
 	 * @param client
-	 * @param request
+	 * @param
 	 * @param session
 	 * @throws Exception
 	 */
@@ -478,21 +479,34 @@ public class OpenIDHandler {
 		String commonAuthURL = OpenIDUtil.getAdminConsoleURL(request);
 	    commonAuthURL = commonAuthURL.replace("carbon/", "commonauth");
 	    String selfPath = URLEncoder.encode("/openidserver", "UTF-8");
-	    String sessionDataKey = UUIDGenerator.generateUUID();
+        String sessionDataKey = UUIDGenerator.generateUUID();
 
-	    String queryParams = "?" + request.getQueryString()  + "&relyingParty=" + getRelyingParty(request) +
-	    		"&sessionDataKey=" + sessionDataKey + 
-	    		"&type=openid" + "&commonAuthCallerPath=" + selfPath;
-	    
-	    String username = null;
-		if(params.getParameterValue("openid.identity") != null){
-			username = OpenIDUtil.getUserName(params.getParameterValue("openid.identity"));
-			queryParams = queryParams + "&username=" + username;
-		}
-	    
-	    loginPageUrl = commonAuthURL + queryParams;
-	    
-	    // reading the authorization header for request path authentication
+        //Authentication context keeps data which should be sent to commonAuth endpoint
+        AuthenticationRequest authenticationRequest = new
+                AuthenticationRequest();
+        authenticationRequest.setRelyingParty(getRelyingParty(request));
+        authenticationRequest.setCommonAuthCallerPath(selfPath);
+        String username = null;
+        if (params.getParameterValue("openid.identity") != null) {
+            username = OpenIDUtil.getUserName(params.getParameterValue("openid.identity"));
+            authenticationRequest.addRequestQueryParam("username", new String[]{username});
+        }
+
+        //add request headers to authentication request context. ie to cache
+        authenticationRequest.setRequestQueryParams(request.getParameterMap());
+        for (Enumeration e = request.getHeaderNames(); e.hasMoreElements(); ) {
+            String headerName = e.nextElement().toString();
+            authenticationRequest.addHeader(headerName, request.getHeader(headerName));
+        }
+
+        AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry(authenticationRequest);
+        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest, request.getSession().getMaxInactiveInterval());
+        String queryParams = "?sessionDataKey=" + sessionDataKey
+                + "&" + "type" + "=" + "openid";
+
+        loginPageUrl = commonAuthURL + queryParams;
+
+        // reading the authorization header for request path authentication
         FrameworkUtils.setRequestPathCredentials(request);
         
 		return loginPageUrl;

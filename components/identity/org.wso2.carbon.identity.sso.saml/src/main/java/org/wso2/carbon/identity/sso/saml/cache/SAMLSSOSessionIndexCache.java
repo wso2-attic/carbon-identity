@@ -18,10 +18,14 @@
 
 package org.wso2.carbon.identity.sso.saml.cache;
 
+import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
+
 public class SAMLSSOSessionIndexCache extends BaseCache<CacheKey, CacheEntry> {
 
     private static final String CACHE_NAME = "SAMLSSOSessionIndexCache";
     private static volatile SAMLSSOSessionIndexCache instance;
+    private boolean useCache = true;
 
     private SAMLSSOSessionIndexCache(String cacheName) {
         super(cacheName);
@@ -29,17 +33,50 @@ public class SAMLSSOSessionIndexCache extends BaseCache<CacheKey, CacheEntry> {
     
     private SAMLSSOSessionIndexCache(String cacheName, int timeout) {
         super(cacheName, timeout);
+        useCache = !Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Only"));
     }
 
     public static SAMLSSOSessionIndexCache getInstance(int timeout) {
     	if (instance == null) {
     		synchronized (SAMLSSOSessionIndexCache.class) {
-    			
 				if (instance == null) {
 					instance = new SAMLSSOSessionIndexCache(CACHE_NAME, timeout);
 				}
 			}
     	}
         return instance;
+    }
+
+
+    @Override
+    public void addToCache(CacheKey key, CacheEntry entry) {
+        if(useCache){
+            super.addToCache(key, entry);
+        }
+        String keyValue = ((SAMLSSOSessionIndexCacheKey) key).getTokenId();
+        SessionDataStore.getInstance().storeSessionData(keyValue, CACHE_NAME, entry);
+    }
+
+    @Override
+    public CacheEntry getValueFromCache(CacheKey key) {
+        CacheEntry cacheEntry = null;
+        if(useCache){
+            cacheEntry = super.getValueFromCache(key);
+        }
+        if(cacheEntry == null){
+            String keyValue = ((SAMLSSOSessionIndexCacheKey) key).getTokenId();
+            cacheEntry = (SAMLSSOSessionIndexCacheEntry) SessionDataStore.getInstance().
+                    getSessionData(keyValue, CACHE_NAME);
+        }
+        return cacheEntry;
+    }
+
+    @Override
+    public void clearCacheEntry(CacheKey key) {
+        if(useCache){
+            super.clearCacheEntry(key);
+        }
+        String keyValue = ((SAMLSSOSessionIndexCacheKey) key).getTokenId();
+        SessionDataStore.getInstance().clearSessionData(keyValue, CACHE_NAME);
     }
 }

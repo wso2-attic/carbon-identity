@@ -278,6 +278,8 @@ public class OpenIDUserRPDAO {
 		try {
 			connection = JDBCPersistenceManager.getInstance().getDBConnection();
 			prepStmt = connection.prepareStatement(OpenIDSQLQueries.LOAD_USER_RPS);
+			prepStmt.setString(1, userName);
+			prepStmt.setInt(2, IdentityUtil.getTenantIdOFUser(userName));
 			results = prepStmt.executeQuery();
 
 			while (results.next()) {

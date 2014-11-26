@@ -18,35 +18,16 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.util;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationContextCache;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationContextCacheEntry;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationContextCacheKey;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheKey;
-import org.wso2.carbon.identity.application.authentication.framework.cache.SessionContextCache;
-import org.wso2.carbon.identity.application.authentication.framework.cache.SessionContextCacheEntry;
-import org.wso2.carbon.identity.application.authentication.framework.cache.SessionContextCacheKey;
+import org.wso2.carbon.identity.application.authentication.framework.cache.*;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
+import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.SequenceConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.StepConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.context.SessionContext;
@@ -72,19 +53,159 @@ import org.wso2.carbon.identity.application.authentication.framework.handler.ste
 import org.wso2.carbon.identity.application.authentication.framework.handler.step.impl.DefaultStepHandler;
 import org.wso2.carbon.identity.application.authentication.framework.internal.FrameworkServiceComponent;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedIdPData;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationFrameworkWrapper;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.ui.CarbonUIUtil;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class FrameworkUtils {
 
+    private static int maxInactiveInterval;
+
     private static Log log = LogFactory.getLog(FrameworkUtils.class);
 
+	/**
+	 * To add authentication request cache entry to cache, with timeout
+	 * @param key cache entry key
+	 * @param authReqEntry AuthenticationReqCache Entry.
+	 * @param cacheTimeout Cache timeout
+	 */
+    public static void addAuthenticationRequestToCache(
+            String key, AuthenticationRequestCacheEntry authReqEntry, int cacheTimeout) {
+
+        AuthenticationRequestCacheKey cacheKey = new AuthenticationRequestCacheKey(key);
+        AuthenticationRequestCache.getInstance(cacheTimeout).addToCache(cacheKey, authReqEntry);
+    }
+
+	/**
+	 * To add authentication request cache entry to the cache without timout
+	 * @param key cache entry key
+	 * @param authReqEntry AuthenticationReqCache Entry.
+	 */
+    public static void addAuthenticationRequestToCache(
+            String key, AuthenticationRequestCacheEntry authReqEntry) {
+
+        AuthenticationRequestCacheKey cacheKey = new AuthenticationRequestCacheKey(key);
+        AuthenticationRequestCache.getInstance().addToCache(cacheKey, authReqEntry);
+    }
+
+	/**
+	 * To get authentication cache request from cache
+	 * @param key Key of the cache entry
+	 * @return
+	 */
+    public static AuthenticationRequestCacheEntry getAuthenticationReqFromCache(String key) {
+
+        AuthenticationRequestCacheEntry authRequest = null;
+        AuthenticationRequestCacheKey cacheKey = new AuthenticationRequestCacheKey(key);
+        Object cacheEntryObj = AuthenticationRequestCache.getInstance(0).getValueFromCache(cacheKey);
+
+        if (cacheEntryObj != null) {
+            authRequest = (AuthenticationRequestCacheEntry) cacheEntryObj;
+        }
+
+        return authRequest;
+    }
+
+	/**
+	 * removes authentication request from cache.
+	 * @param key SessionDataKey
+	 */
+    public static void removeAuthenticationRequestFromCache(String key) {
+
+        if (key != null) {
+            AuthenticationRequestCacheKey cacheKey = new AuthenticationRequestCacheKey(key);
+            AuthenticationRequestCache.getInstance(0).clearCacheEntry(cacheKey);
+        }
+    }
+
     /**
-     * 
+     * Builds the wrapper, wrapping incoming request and information take from cache entry
+     *
+     * @param request    Original request coming to authentication framework
+     * @param cacheEntry Cache entry from the cache, which is added from calling servlets
+     * @return
+     */
+    public static HttpServletRequest getCommonAuthReqWithParams(
+            HttpServletRequest request, AuthenticationRequestCacheEntry cacheEntry) {
+
+        Map<String, String[]> modifiableParameters = new TreeMap<String, String[]>();
+
+        if (cacheEntry != null) {
+            AuthenticationRequest authenticationRequest = cacheEntry.getAuthenticationRequest();
+
+            if (authenticationRequest.getType() != null) {
+                modifiableParameters.put("type", new String[]{authenticationRequest.getType()});
+            }
+            if (authenticationRequest.getCommonAuthCallerPath() != null) {
+                modifiableParameters.put("commonAuthCallerPath",
+                        new String[]{authenticationRequest.getCommonAuthCallerPath()});
+            }
+            if (authenticationRequest.getRelyingParty() != null) {
+                modifiableParameters.put("relyingParty",
+                        new String[]{authenticationRequest.getRelyingParty()});
+            }
+            if (authenticationRequest.getTenantDomain() != null) {
+                modifiableParameters.put("tenantDomain",
+                        new String[]{authenticationRequest.getTenantDomain()});
+            }
+            if (authenticationRequest.getForceAuth() != null) {
+                modifiableParameters.put("forceAuth",
+                        new String[]{authenticationRequest.getForceAuth()});
+            }
+            if (authenticationRequest.getPassiveAuth() != null) {
+                modifiableParameters.put("passiveAuth",
+                        new String[]{authenticationRequest.getPassiveAuth()});
+            }
+
+
+            if (!authenticationRequest.getRequestQueryParams().isEmpty()) {
+                modifiableParameters.putAll(authenticationRequest.getRequestQueryParams());
+            }
+
+
+            if (log.isDebugEnabled()) {
+                StringBuilder queryStringBuilder = new StringBuilder("");
+
+                for (Map.Entry<String, String[]> entry : modifiableParameters.entrySet()) {
+                    StringBuilder paramValueBuilder = new StringBuilder("");
+                    String[] paramValueArr = entry.getValue();
+
+                    if (paramValueArr != null) {
+                        for (String paramValue : paramValueArr) {
+                            paramValueBuilder.append("{").append(paramValue).append("}");
+                        }
+                    }
+
+                    queryStringBuilder.append("\n").append(
+                            entry.getKey() + "=" + paramValueBuilder.toString());
+                }
+
+                log.debug("\nInbound Request parameters: " + queryStringBuilder.toString());
+            }
+
+            return new AuthenticationFrameworkWrapper(request, modifiableParameters,
+                    authenticationRequest.getRequestHeaders());
+        }
+        return null;
+    }
+
+    /**
      * @param name
      * @return
      */
@@ -101,7 +222,6 @@ public class FrameworkUtils {
     }
 
     /**
-     * 
      * @param request
      * @return
      */
@@ -115,7 +235,6 @@ public class FrameworkUtils {
 
                 if (contextIdentifier != null && !contextIdentifier.isEmpty()) {
                     context = FrameworkUtils.getAuthenticationContextFromCache(contextIdentifier);
-
                     if (context != null) {
                         break;
                     }
@@ -144,7 +263,6 @@ public class FrameworkUtils {
     }
 
     /**
-     * 
      * @return
      */
     public static AuthenticationRequestHandler getAuthenticationRequestHandler() {
@@ -163,7 +281,6 @@ public class FrameworkUtils {
     }
 
     /**
-     * 
      * @return
      */
     public static LogoutRequestHandler getLogoutRequestHandler() {
@@ -182,7 +299,6 @@ public class FrameworkUtils {
     }
 
     /**
-     * 
      * @return
      */
     public static StepBasedSequenceHandler getStepBasedSequenceHandler() {
@@ -201,7 +317,6 @@ public class FrameworkUtils {
     }
 
     /**
-     * 
      * @return
      */
     public static RequestPathBasedSequenceHandler getRequestPathBasedSequenceHandler() {
@@ -220,7 +335,6 @@ public class FrameworkUtils {
     }
 
     /**
-     * 
      * @return
      */
     public static StepHandler getStepHandler() {
@@ -239,7 +353,6 @@ public class FrameworkUtils {
     }
 
     /**
-     * 
      * @return
      */
     public static HomeRealmDiscoverer getHomeRealmDiscoverer() {
@@ -258,7 +371,6 @@ public class FrameworkUtils {
     }
 
     /**
-     * 
      * @return
      */
     public static ClaimHandler getClaimHandler() {
@@ -277,7 +389,6 @@ public class FrameworkUtils {
     }
 
     /**
-     * 
      * @return
      */
     public static RoleHandler getRoleHandler() {
@@ -297,7 +408,6 @@ public class FrameworkUtils {
     }
 
     /**
-     * 
      * @return
      */
     public static ProvisioningHandler getProvisioningHandler() {
@@ -316,7 +426,6 @@ public class FrameworkUtils {
     }
 
     /**
-     * 
      * @param request
      * @param response
      * @throws IOException
@@ -330,7 +439,6 @@ public class FrameworkUtils {
     }
 
     /**
-     * 
      * @param req
      * @param resp
      */
@@ -350,19 +458,32 @@ public class FrameworkUtils {
     }
 
     /**
-     * 
      * @param req
      * @param resp
      * @param id
      */
     public static void storeAuthCookie(HttpServletRequest req, HttpServletResponse resp, String id) {
+        storeAuthCookie(req, resp, id, null);
+    }
+
+    /**
+     * @param req
+     * @param resp
+     * @param id
+     * @param age
+     */
+    public static void storeAuthCookie(HttpServletRequest req, HttpServletResponse resp, String id, Integer age) {
 
         Cookie authCookie = new Cookie(FrameworkConstants.COMMONAUTH_COOKIE, id);
+
+        if (age != null) {
+            authCookie.setMaxAge(age.intValue() * 60);
+        }
+
         resp.addCookie(authCookie);
     }
 
     /**
-     * 
      * @param req
      * @return
      */
@@ -384,13 +505,12 @@ public class FrameworkUtils {
     }
 
     /**
-     * 
      * @param key
      * @param context
      * @param cacheTimeout
      */
     public static void addAuthenticationContextToCache(String key, AuthenticationContext context,
-            int cacheTimeout) {
+                                                       int cacheTimeout) {
 
         AuthenticationContextCacheKey cacheKey = new AuthenticationContextCacheKey(key);
         AuthenticationContextCacheEntry cacheEntry = new AuthenticationContextCacheEntry();
@@ -399,13 +519,12 @@ public class FrameworkUtils {
     }
 
     /**
-     * 
      * @param key
      * @param authenticationResult
      * @param cacheTimeout
      */
     public static void addAuthenticationResultToCache(String key,
-            AuthenticationResult authenticationResult, int cacheTimeout) {
+                                                      AuthenticationResult authenticationResult, int cacheTimeout) {
 
         AuthenticationResultCacheKey cacheKey = new AuthenticationResultCacheKey(key);
         AuthenticationResultCacheEntry cacheEntry = new AuthenticationResultCacheEntry();
@@ -413,23 +532,32 @@ public class FrameworkUtils {
         AuthenticationResultCache.getInstance(cacheTimeout).addToCache(cacheKey, cacheEntry);
     }
 
+
+
     /**
-     * 
      * @param key
      * @param sessionContext
      * @param cacheTimeout
      */
-    public static void addSessionContextToCache(String key, SessionContext sessionContext,
-            int cacheTimeout) {
-
+    public static void addSessionContextToCache(String key, SessionContext sessionContext, int cacheTimeout)
+    {
         SessionContextCacheKey cacheKey = new SessionContextCacheKey(key);
         SessionContextCacheEntry cacheEntry = new SessionContextCacheEntry();
+
+        Map<String, SequenceConfig> seqData = sessionContext.getAuthenticatedSequences();
+        if (seqData != null) {
+            for (Entry<String, SequenceConfig> entry : seqData.entrySet()) {
+                if (entry.getValue() != null) {
+                    ((SequenceConfig)entry.getValue()).setUserAttributes(null);
+                }
+            }
+        }
+
         cacheEntry.setContext(sessionContext);
         SessionContextCache.getInstance(cacheTimeout).addToCache(cacheKey, cacheEntry);
     }
 
     /**
-     * 
      * @param key
      * @return
      */
@@ -447,19 +575,17 @@ public class FrameworkUtils {
     }
 
     /**
-     * 
      * @param key
      */
     public static void removeSessionContextFromCache(String key) {
-        
+
         if (key != null) {
             SessionContextCacheKey cacheKey = new SessionContextCacheKey(key);
             SessionContextCache.getInstance(0).clearCacheEntry(cacheKey);
         }
     }
-    
+
     /**
-     * 
      * @param key
      */
     public static void removeAuthenticationContextFromCache(String key) {
@@ -471,7 +597,6 @@ public class FrameworkUtils {
     }
 
     /**
-     * 
      * @param contextId
      * @return
      */
@@ -486,11 +611,16 @@ public class FrameworkUtils {
             authnContext = ((AuthenticationContextCacheEntry) cacheEntryObj).getContext();
         }
 
+        if(log.isDebugEnabled()){
+            if(authnContext == null){
+                log.debug("Authentication Context is null");
+            }
+        }
+
         return authnContext;
     }
 
     /**
-     * 
      * @param req
      */
     public static void setRequestPathCredentials(HttpServletRequest req) {
@@ -506,7 +636,6 @@ public class FrameworkUtils {
     }
 
     /**
-     * 
      * @param externalIdPConfig
      * @param name
      * @return
@@ -536,7 +665,6 @@ public class FrameworkUtils {
     }
 
     /**
-     * 
      * @param attributeValue
      * @return
      */
@@ -545,8 +673,11 @@ public class FrameworkUtils {
         Map<ClaimMapping, String> claimMap = new HashMap<ClaimMapping, String>();
 
         for (Iterator<Entry<String, String>> iterator = attributeValue.entrySet().iterator(); iterator
-                .hasNext();) {
+                .hasNext(); ) {
             Entry<String, String> entry = iterator.next();
+            if(entry.getValue() == null){
+            	continue;
+            }
             claimMap.put(ClaimMapping.build(entry.getKey(), entry.getKey(), null, false),
                     entry.getValue());
         }
@@ -556,7 +687,6 @@ public class FrameworkUtils {
     }
 
     /**
-     * 
      * @param attributeValues
      * @return
      */
@@ -565,7 +695,7 @@ public class FrameworkUtils {
         Set<String> claimList = new HashSet<String>();
 
         for (Iterator<Entry<ClaimMapping, String>> iterator = attributeValues.entrySet().iterator(); iterator
-                .hasNext();) {
+                .hasNext(); ) {
             Entry<ClaimMapping, String> entry = iterator.next();
             claimList.add(entry.getKey().getLocalClaim().getClaimUri());
 
@@ -576,12 +706,11 @@ public class FrameworkUtils {
     }
 
     /**
-     * 
      * @param remoteIdpClaimMapping
      * @return
      */
     public static Map<String, String> getClaimMappings(ClaimMapping[] remoteIdpClaimMapping,
-            boolean useRemoteAsClaimKey) {
+                                                       boolean useRemoteAsClaimKey) {
 
         Map<String, String> idpToLocalClaimMap = new HashMap<String, String>();
 
@@ -598,7 +727,6 @@ public class FrameworkUtils {
     }
 
     /**
-     * 
      * @param remoteIdpClaimMapping
      * @param useRemoteAsClaimKey
      * @return
@@ -622,7 +750,7 @@ public class FrameworkUtils {
     }
 
     public static String getQueryStringWithFrameworkContextId(String originalQueryStr,
-            String callerContextId, String frameworkContextId) {
+                                                              String callerContextId, String frameworkContextId) {
 
         String queryParams = originalQueryStr;
 
@@ -652,7 +780,7 @@ public class FrameworkUtils {
     }
 
     public static List<String> getAuthenticatedStepIdPs(List<String> stepIdPs,
-            List<String> authenticatedIdPs) {
+                                                        List<String> authenticatedIdPs) {
 
         List<String> idps = new ArrayList<String>();
 
@@ -669,7 +797,7 @@ public class FrameworkUtils {
     }
 
     public static Map<String, AuthenticatorConfig> getAuthenticatedStepIdPs(StepConfig stepConfig,
-            Map<String, AuthenticatedIdPData> authenticatedIdPs) {
+                                                                            Map<String, AuthenticatedIdPData> authenticatedIdPs) {
 
         if (log.isDebugEnabled()) {
             log.debug("Finding already authenticated IdPs of the Step");
@@ -708,14 +836,14 @@ public class FrameworkUtils {
 
             for (String idpName : authConfig.getIdpNames()) {
 
-                if (idpName != null) { 
+                if (idpName != null) {
 
                     if (idpsOfAuthenticatorStr.length() != 0) {
                         idpsOfAuthenticatorStr.append(":");
                     }
-                    
+
                     IdentityProvider idp = authConfig.getIdps().get(idpName);
-                   
+
                     if (idp.isFederationHub()) {
                         idpName += ".hub";
                     }
@@ -733,5 +861,127 @@ public class FrameworkUtils {
         }
 
         return authenticatorIdPStr.toString();
+    }
+
+	/**
+	 * when getting query params through this, only configured params will be appended as query params
+	 * The required params can be configured from application-authenticators.xml
+	 * @param request
+	 * @return
+	 */
+    public static String getQueryStringWithConfiguredParams(HttpServletRequest request) {
+
+        boolean configAvailable = FileBasedConfigurationBuilder.getInstance().isAuthEndpointQueryParamsConfigAvailable();
+        List<String> queryParams = FileBasedConfigurationBuilder.getInstance()
+                .getAuthEndpointQueryParams();
+        String action = FileBasedConfigurationBuilder.getInstance()
+                .getAuthEndpointQueryParamsAction();
+
+        StringBuilder queryStrBuilder = new StringBuilder("");
+        Map<String, String[]> reqParamMap = request.getParameterMap();
+
+        if (configAvailable) {
+            if (action != null
+                    && action.equals(FrameworkConstants.AUTH_ENDPOINT_QUERY_PARAMS_ACTION_EXCLUDE)) {
+                if (reqParamMap != null) {
+                    for (Map.Entry<String, String[]> entry : reqParamMap.entrySet()) {
+                        String paramName = entry.getKey();
+                        String paramValue = entry.getValue()[0];
+
+                        //skip the sessionDataKey sent from the servlet.
+                        if (paramName.equals("sessionDataKey")) {
+                            continue;
+                        }
+
+                        if (!queryParams.contains(paramName)) {
+                            if (queryStrBuilder.length() > 0) {
+                                queryStrBuilder.append('&');
+                            }
+
+                            try {
+                                queryStrBuilder.append(URLEncoder.encode(paramName, "UTF-8")).append('=')
+                                        .append(URLEncoder.encode(paramValue, "UTF-8"));
+                            } catch (UnsupportedEncodingException e) {
+                                log.error(
+                                        "Error while URL Encoding query param to be sent to the AuthenticationEndpoint",
+                                        e);
+                            }
+                        }
+                    }
+                }
+            } else {
+                if (reqParamMap != null) {
+                    for (Map.Entry<String, String[]> entry : reqParamMap.entrySet()) {
+                        String paramName = entry.getKey();
+                        String paramValue = entry.getValue()[0];
+
+                        //skip the sessionDataKey sent from the servlet.
+                        if (paramName.equals("sessionDataKey")) {
+                            continue;
+                        }
+
+                        if (queryStrBuilder.length() > 0) {
+                            queryStrBuilder.append('&');
+                        }
+
+                        try {
+                            queryStrBuilder.append(URLEncoder.encode(paramName, "UTF-8")).append('=')
+                                    .append(URLEncoder.encode(paramValue, "UTF-8"));
+                        } catch (UnsupportedEncodingException e) {
+                            log.error(
+                                    "Error while URL Encoding query param to be sent to the AuthenticationEndpoint",
+                                    e);
+                        }
+                    }
+                }
+            }
+        } else {
+            for (String param : queryParams) {
+                String paramValue = request.getParameter(param);
+
+                if (paramValue != null) {
+                    if (queryStrBuilder.length() > 0) {
+                        queryStrBuilder.append('&');
+                    }
+                    try {
+                        queryStrBuilder.append(URLEncoder.encode(param, "UTF-8")).append('=')
+                                .append(URLEncoder.encode(paramValue, "UTF-8"));
+                    } catch (UnsupportedEncodingException e) {
+                        log.error(
+                                "Error while URL Encoding query param to be sent to the AuthenticationEndpoint",
+                                e);
+                    }
+                }
+            }
+        }
+        return queryStrBuilder.toString();
+    }
+
+    public static int getMaxInactiveInterval() {
+        return maxInactiveInterval;
+    }
+
+    public static void setMaxInactiveInterval(int maxInactiveInterval) {
+        FrameworkUtils.maxInactiveInterval = maxInactiveInterval;
+    }
+
+    public static String prependUserStoreDomainToName(String authenticatedSubject) {
+
+        if (authenticatedSubject == null || authenticatedSubject.trim().isEmpty()) {
+            throw new IllegalArgumentException("Invalid argument. authenticatedSubject : "
+                  +  authenticatedSubject);
+        }
+        if (authenticatedSubject.indexOf(CarbonConstants.DOMAIN_SEPARATOR) < 0) {
+            if (UserCoreUtil.getDomainFromThreadLocal() != null
+                    && !UserCoreUtil.getDomainFromThreadLocal().isEmpty()) {
+                authenticatedSubject = UserCoreUtil.getDomainFromThreadLocal()
+                + CarbonConstants.DOMAIN_SEPARATOR + authenticatedSubject;
+            }
+        } else if (authenticatedSubject.indexOf(CarbonConstants.DOMAIN_SEPARATOR) == 0) {
+            throw new IllegalArgumentException("Invalid argument. authenticatedSubject : "
+                   + authenticatedSubject + " begins with \'" + CarbonConstants.DOMAIN_SEPARATOR
+                   + "\'");
+        }
+        return authenticatedSubject;
     }
 }

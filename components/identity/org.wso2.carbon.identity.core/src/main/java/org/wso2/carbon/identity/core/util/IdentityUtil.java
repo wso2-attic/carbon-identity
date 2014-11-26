@@ -26,6 +26,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.user.api.TenantManager;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -47,6 +48,35 @@ public class IdentityUtil {
 	private static Map<String, Object> configuration = new HashMap<String, Object>();
 	private static Document importerDoc = null;
 	private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
+    private static ThreadLocal<IdentityErrorMsgContext> IdentityError = new ThreadLocal<IdentityErrorMsgContext>();
+
+    /**
+     *
+     * @return
+     */
+    public static IdentityErrorMsgContext getIdentityErrorMsg() {
+        if (IdentityError.get() == null) {
+            return null;
+        }
+        return IdentityError.get();
+    }
+
+    /**
+     *
+     * @param error
+     */
+    public static void setIdentityErrorMsg(IdentityErrorMsgContext error) {
+        IdentityError.set(error);
+    }
+
+    /**
+     *
+     */
+    public static void clearIdentityErrorMsg(){
+        IdentityError.remove();
+    }
+
+
 
     /**
      * Read configuration elements from the identity.xml

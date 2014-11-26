@@ -17,14 +17,29 @@
 */
 package org.wso2.carbon.identity.user.store.configuration.deployer;
 
+import org.apache.axiom.om.OMElement;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.deployment.AbstractDeployer;
 import org.apache.axis2.deployment.DeploymentException;
 import org.apache.axis2.deployment.repository.util.DeploymentFileData;
 import org.apache.axis2.engine.AxisConfiguration;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.tools.ant.util.FileUtils;
+import org.wso2.carbon.base.api.ServerConfigurationService;
+import org.wso2.carbon.identity.user.store.configuration.deployer.exception.UserStoreConfigurationDeployerException;
+import org.wso2.carbon.identity.user.store.configuration.deployer.internal.UserStoreConfigComponent;
+import org.wso2.carbon.identity.user.store.configuration.deployer.util.UserStoreConfigurationConstants;
+import org.wso2.carbon.identity.user.store.configuration.deployer.util.UserStoreUtil;
+import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.common.UserStoreDeploymentManager;
+
+import javax.xml.stream.XMLStreamException;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 
 /**
  * This is to deploy a new User Store Management Configuration file dropped or created at repository/deployment/server/userstores
@@ -54,13 +69,55 @@ public class UserStoreConfigurationDeployer extends AbstractDeployer {
      *          for any errors
      */
     public void deploy(DeploymentFileData deploymentFileData) throws DeploymentException {
+        ServerConfigurationService config =
+                UserStoreConfigComponent.getServerConfigurationService();
+
+        if(config == null){
+            return;
+        }
+        String absolutePath = deploymentFileData.getAbsolutePath();
+        String ext = FilenameUtils.getExtension(absolutePath);
+
+        if(UserStoreConfigurationConstants.ENC_EXTENSION.equalsIgnoreCase(ext)){
+            try {
+                UserStoreUtil.initializeKeyStore();
+                OMElement secondaryStoreDocument = UserStoreUtil.initializeOMElement(absolutePath);
+                UserStoreUtil.updateSecondaryUserStore(secondaryStoreDocument);
+
+                int index = absolutePath.lastIndexOf(".");
+                if(index != 1 ){
+                    String encFileName = absolutePath.substring(0, index+1) + UserStoreConfigurationConstants.XML_EXTENSION;
+                    OutputStream outputStream;
+                    outputStream = new FileOutputStream(encFileName);
+                    secondaryStoreDocument.serialize(outputStream);
+
+                    File file = new File(absolutePath);
+                    if(file.exists()){
+                        FileUtils.delete(file);
+                    }
+                }
+                return;
+            } catch (UserStoreConfigurationDeployerException e) {
+                String errMsg = "Secondary user store processing failed while processing "+absolutePath;
+                throw new DeploymentException(errMsg,e);
+            } catch (FileNotFoundException e) {
+                String errMsg = "Secondary user store File path "+absolutePath + " is invalid";
+                throw new DeploymentException(errMsg,e);
+            } catch (XMLStreamException e) {
+                String errMsg = "Unexpected xml processing errors while trying to update file "
+                        +absolutePath;
+                throw new DeploymentException(errMsg,e);
+            } catch (UserStoreException e) {
+                String errMsg = "Error while initializing key store";
+                throw new DeploymentException(errMsg,e);
+            }
+        }
+
         UserStoreDeploymentManager userStoreDeploymentManager = new UserStoreDeploymentManager();
         userStoreDeploymentManager.deploy(deploymentFileData.getAbsolutePath());
+  }
 
 
-    }
-
-    
     /**
      * Trigger un-deploying of a deployed file. Removes the deleted user store from chain
      *
@@ -69,9 +126,14 @@ public class UserStoreConfigurationDeployer extends AbstractDeployer {
      *          for any errors
      */
     public void undeploy(String fileName) throws DeploymentException {
-        UserStoreDeploymentManager userStoreDeploymentManager = new UserStoreDeploymentManager();
-        userStoreDeploymentManager.undeploy(fileName);
 
+        if(fileName != null){
+            String ext = FilenameUtils.getExtension(fileName);
+            if(!UserStoreConfigurationConstants.ENC_EXTENSION.equalsIgnoreCase(ext)){
+                UserStoreDeploymentManager userStoreDeploymentManager = new UserStoreDeploymentManager();
+                userStoreDeploymentManager.undeploy(fileName);
+            }
+        }
     }
 
 
@@ -82,5 +144,6 @@ public class UserStoreConfigurationDeployer extends AbstractDeployer {
     public void setExtension(String s) {
 
     }
-
 }
+
+

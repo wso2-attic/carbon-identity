@@ -19,8 +19,12 @@ package org.wso2.carbon.identity.oauth.endpoint.util;
 
 import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.axiom.util.base64.Base64Utils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.oauth.cache.SessionDataCache;
 import org.wso2.carbon.identity.oauth.cache.SessionDataCacheEntry;
 import org.wso2.carbon.identity.oauth.cache.SessionDataCacheKey;
@@ -31,6 +35,7 @@ import org.wso2.carbon.identity.oauth2.OAuth2Service;
 import org.wso2.carbon.identity.oauth2.OAuth2TokenValidationService;
 import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
 import org.wso2.carbon.ui.CarbonUIUtil;
 
 import java.io.UnsupportedEncodingException;
@@ -39,6 +44,8 @@ import java.util.Set;
 
 public class EndpointUtil {
 
+    private static Log log = LogFactory.getLog(EndpointUtil.class);
+    
     /**
      * Returns the {@code OAuth2Service} instance
      *
@@ -187,20 +194,39 @@ public class EndpointUtil {
     	
         SessionDataCacheEntry entry = (SessionDataCacheEntry)SessionDataCache.getInstance()
                 .getValueFromCache(new SessionDataCacheKey(sessionDataKey));
-        String commonAuthURL = CarbonUIUtil.getAdminConsoleURL("/");
-        commonAuthURL = commonAuthURL.replace("carbon", "commonauth");
-        String selfPath = "/oauth2/authorize";
-        String loginQueryParams = "?" + OAuthConstants.SESSION_DATA_KEY + "=" + sessionDataKey + "&type=" + type
-                + "&" + "commonAuthCallerPath=" + selfPath
-                + "&" + "forceAuthenticate" + "=" + forceAuthenticate
-                + "&" + "checkAuthentication" + "=" + checkAuthentication
-                + "&" + "relyingParty" + "=" + clientId
-                + "&" + "tenantId" + "=" + OAuth2Util.getClientTenatId()
-                + "&" + URLEncoder.encode(entry.getQueryString(), "UTF-8");
-               
-			return commonAuthURL + loginQueryParams;
-			
-		} finally {
+
+            if (entry == null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Cache Entry is Null from SessionDataCache ");
+                }
+            }
+            String commonAuthURL = CarbonUIUtil.getAdminConsoleURL("/");
+            commonAuthURL = commonAuthURL.replace("carbon", "commonauth");
+            String selfPath = "/oauth2/authorize";
+            AuthenticationRequest authenticationRequest = new
+                    AuthenticationRequest();
+
+            //Build the authentication request context.
+            authenticationRequest.setCommonAuthCallerPath(selfPath);
+            authenticationRequest.setForceAuth(String.valueOf(forceAuthenticate));
+            authenticationRequest.setPassiveAuth(String.valueOf(checkAuthentication));
+            authenticationRequest.setRelyingParty(clientId);
+            authenticationRequest.addRequestQueryParam("tenantId", new String[]{String.valueOf(OAuth2Util
+                    .getClientTenatId())});
+            authenticationRequest.setRequestQueryParams(entry.getParamMap());
+
+            //Build an AuthenticationRequestCacheEntry which wraps AuthenticationRequestContext
+            AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry
+                    (authenticationRequest);
+            FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest);
+
+            String loginQueryParams = "?sessionDataKey=" + sessionDataKey
+                    + "&" + "type" + "=" + type;
+
+            return commonAuthURL + loginQueryParams;
+
+
+        } finally {
 			OAuth2Util.clearClientTenantId();
 		}
 	}
@@ -214,9 +240,32 @@ public class EndpointUtil {
      */
     public static String getUserConsentURL(OAuth2Parameters params, String loggedInUser, String sessionDataKey,
                                            boolean  isOIDC) throws UnsupportedEncodingException {
-
+        String queryString = "";
+        if(log.isDebugEnabled()){
+            log.debug("Received Session Data Key is :  " + sessionDataKey);
+            if(params == null) {
+                log.debug("Received OAuth2 params are Null for UserConsentURL");
+            }
+        }
         SessionDataCacheEntry entry = (SessionDataCacheEntry)SessionDataCache.getInstance()
                 .getValueFromCache(new SessionDataCacheKey(sessionDataKey));
+        if (entry == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Cache Entry is Null from SessionDataCache ");
+            }
+        }else{
+            queryString = URLEncoder.encode(entry.getQueryString(), "UTF-8");
+        }
+
+
+        if (entry == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Cache Entry is Null from SessionDataCache ");
+            }
+        }else{
+            queryString = URLEncoder.encode(entry.getQueryString(), "UTF-8");
+        }
+
         String consentPage = null;
         if(isOIDC) {
             consentPage = CarbonUIUtil.getAdminConsoleURL("/") +
@@ -229,7 +278,7 @@ public class EndpointUtil {
                         + "&" + "application" + "=" + URLEncoder.encode(params.getApplicationName(), "ISO-8859-1" )
                         + "&" + OAuthConstants.OAuth20Params.SCOPE + "=" + URLEncoder.encode(EndpointUtil.getScope(params), "ISO-8859-1" )
                         + "&" + OAuthConstants.SESSION_DATA_KEY_CONSENT + "=" + URLEncoder.encode(sessionDataKey, "UTF-8")
-                        + "&" + "spQueryParams" + "=" + URLEncoder.encode(entry.getQueryString(), "UTF-8");
+                        + "&" + "spQueryParams" + "=" + queryString;
         return consentPage;
     }
 

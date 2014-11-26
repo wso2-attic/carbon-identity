@@ -37,6 +37,7 @@ import org.wso2.carbon.identity.application.authentication.framework.handler.req
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 
 public class DefaultAuthenticationRequestHandler implements AuthenticationRequestHandler {
@@ -72,17 +73,28 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
             log.debug("In authentication flow");
         }
 
-        // if "Deny" or "Cancel" pressed on the login page.
-        if (request.getParameter(FrameworkConstants.RequestParams.DENY) != null) {
+        if (context.isReturning()) {
+            // if "Deny" or "Cancel" pressed on the login page.
+            if (request.getParameter(FrameworkConstants.RequestParams.DENY) != null) {
 
-            if (log.isDebugEnabled()) {
-                log.debug("User has pressed Deny or Cancel in the login page. Terminating the authentication flow");
+                if (log.isDebugEnabled()) {
+                    log.debug("User has pressed Deny or Cancel in the login page. Terminating the authentication flow");
+                }
+
+                context.getSequenceConfig().setCompleted(true);
+                context.setRequestAuthenticated(false);
+                concludeFlow(request, response, context);
+                return;
             }
 
-            context.getSequenceConfig().setCompleted(true);
-            context.setRequestAuthenticated(false);
-            concludeFlow(request, response, context);
-            return;
+            // handle remember-me option from the login page
+            String rememberMe = request.getParameter("chkRemember");
+
+            if (rememberMe != null && "on".equalsIgnoreCase(rememberMe)) {
+                context.setRememberMe(true);
+            } else {
+                context.setRememberMe(false);
+            }
         }
 
         int currentStep = context.getCurrentStep();
@@ -114,7 +126,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
             concludeFlow(request, response, context);
         } else { // redirecting outside
             FrameworkUtils.addAuthenticationContextToCache(context.getContextIdentifier(), context,
-                    request.getSession().getMaxInactiveInterval());
+                    FrameworkUtils.getMaxInactiveInterval());
         }
     }
 
@@ -237,25 +249,46 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
                 sessionContext.getAuthenticatedIdPs().putAll(context.getCurrentAuthenticatedIdPs());
                 // TODO add to cache?
                 // store again. when replicate  cache is used. this may be needed.
-                FrameworkUtils.addSessionContextToCache(commonAuthCookie, sessionContext, request
-                        .getSession().getMaxInactiveInterval());                
+                FrameworkUtils.addSessionContextToCache(commonAuthCookie, sessionContext,
+                                                    FrameworkUtils.getMaxInactiveInterval());
             }  else {
                 sessionContext = new SessionContext();
                 sessionContext.getAuthenticatedSequences().put(appConfig.getApplicationName(),
                         sequenceConfig);
                 sessionContext.setAuthenticatedIdPs(context.getCurrentAuthenticatedIdPs());
+                sessionContext.setRememberMe(context.isRememberMe());
 
                 String sessionKey = UUIDGenerator.generateUUID();
-                FrameworkUtils.addSessionContextToCache(sessionKey, sessionContext, request
-                        .getSession().getMaxInactiveInterval());
-                FrameworkUtils.storeAuthCookie(request, response, sessionKey);
+                FrameworkUtils.addSessionContextToCache(sessionKey, sessionContext,
+                                            FrameworkUtils.getMaxInactiveInterval());
+
+                Integer authCookieAge = null;
+
+                if (context.isRememberMe()) {
+                    String rememberMePeriod = IdentityUtil
+                            .getProperty("JDBCPersistenceManager.SessionDataPersist.RememberMePeriod");
+
+                    if (rememberMePeriod == null || rememberMePeriod.trim().length() == 0) {
+                        // set default value to 2 weeks
+                        rememberMePeriod = "20160";
+                    }
+
+                    try {
+                        authCookieAge = Integer.valueOf(rememberMePeriod);
+                    } catch (NumberFormatException e) {
+                        throw new FrameworkException(
+                                "RememberMePeriod in identity.xml must be a numeric value", e);
+                    }
+                }
+
+                FrameworkUtils.storeAuthCookie(request, response, sessionKey, authCookieAge);
             }
         }
         // Put the result in the cache using calling servlet's sessionDataKey as the cache key Once
         // the redirect is done to that servlet, it will retrieve the result from the cache using
         // that key.
         FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(),
-                authenticationResult, request.getSession().getMaxInactiveInterval());
+                authenticationResult, FrameworkUtils.getMaxInactiveInterval());
 
         FrameworkUtils.removeAuthenticationContextFromCache(context.getContextIdentifier());
         

@@ -85,12 +85,24 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
                 int currentStep = context.getCurrentStep();
                 StepConfig stepConfig = sequenceConfig.getStepMap().get(currentStep);
                 AuthenticatorConfig authenticatorConfig = stepConfig.getAuthenticatedAutenticator();
-                ApplicationAuthenticator authenticator = authenticatorConfig.getApplicationAuthenticator();
-                ExternalIdPConfig externalIdPConfig = ConfigurationFacade.getInstance().getIdPConfigByName(
-                        stepConfig.getAuthenticatedIdP(), context.getTenantDomain());
+                if(authenticatorConfig==null){
+                    authenticatorConfig = sequenceConfig.getAuthenticatedReqPathAuthenticator();
+                }
+                ApplicationAuthenticator authenticator =
+                        authenticatorConfig.getApplicationAuthenticator();
+
+                String idpName = stepConfig.getAuthenticatedIdP();
+                //TODO: Need to fix occurrences where idPName becomes "null"
+                if((idpName == null || "null".equalsIgnoreCase(idpName) || idpName.isEmpty()) &&
+                        sequenceConfig.getAuthenticatedReqPathAuthenticator() != null){
+                    idpName = FrameworkConstants.LOCAL_IDP_NAME;
+                }
+                ExternalIdPConfig externalIdPConfig = ConfigurationFacade.getInstance()
+                        .getIdPConfigByName(idpName, context.getTenantDomain());
                 context.setExternalIdP(externalIdPConfig);
-                context.setAuthenticatorProperties(FrameworkUtils.getAuthenticatorPropertyMapFromIdP(externalIdPConfig,
-                        authenticator.getName()));
+                context.setAuthenticatorProperties(FrameworkUtils
+                        .getAuthenticatorPropertyMapFromIdP(
+                                externalIdPConfig, authenticator.getName()));
                 context.setStateInfo(authenticatorConfig.getAuthenticatorStateInfo());
 
                 try {
@@ -104,7 +116,7 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
                     }
                     // sends the logout request to the external IdP
                     FrameworkUtils.addAuthenticationContextToCache(context.getContextIdentifier(),
-                            context, request.getSession().getMaxInactiveInterval());
+                            context, FrameworkUtils.getMaxInactiveInterval());
                     return;
                 } catch (AuthenticationFailedException e) {
                     throw new FrameworkException(e.getMessage(), e);
@@ -144,8 +156,8 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
         authenticationResult.setLoggedOut(true);
 
         // Put the result in the
-        FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult, request
-                .getSession().getMaxInactiveInterval());
+        FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult,
+                                FrameworkUtils.getMaxInactiveInterval());
         
         FrameworkUtils.removeAuthenticationContextFromCache(context.getContextIdentifier());
 

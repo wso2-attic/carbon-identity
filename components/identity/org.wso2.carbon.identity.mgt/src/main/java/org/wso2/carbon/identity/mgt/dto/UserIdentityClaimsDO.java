@@ -171,6 +171,10 @@ public class UserIdentityClaimsDO implements Serializable{
 		return accountLock;
 	}
 
+    public boolean getAccountLock() {
+        return accountLock;
+    }
+
 	public UserIdentityClaimsDO setAccountLock(boolean accountLock) {
 		this.accountLock = accountLock;
 		this.userIdentityDataMap.put(UserIdentityDataStore.ACCOUNT_LOCK,
@@ -336,4 +340,8 @@ public class UserIdentityClaimsDO implements Serializable{
 		}
 		return identityRecoveryData;
 	}
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 }

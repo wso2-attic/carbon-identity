@@ -14,6 +14,7 @@ public class SessionContext implements Serializable {
 	
 	private Map<String, SequenceConfig> authenticatedSequences = new HashMap<String, SequenceConfig>();
 	private Map<String, AuthenticatedIdPData> authenticatedIdPs = new HashMap<String, AuthenticatedIdPData>();
+    private boolean isRememberMe = false;
 	
 	public Map<String, SequenceConfig> getAuthenticatedSequences() {
 		return authenticatedSequences;
@@ -31,5 +32,13 @@ public class SessionContext implements Serializable {
 
     public void setAuthenticatedIdPs(Map<String, AuthenticatedIdPData> authenticatedIdPs) {
         this.authenticatedIdPs = authenticatedIdPs;
+    }
+
+    public boolean isRememberMe() {
+        return isRememberMe;
+    }
+
+    public void setRememberMe(boolean isRememberMe) {
+        this.isRememberMe = isRememberMe;
     }
 }

@@ -80,7 +80,7 @@ public class CarbonEntitlementDataFinder implements EntitlementDataFinderModule 
                                                    int limit) throws Exception {
 
         registry = EntitlementServiceComponent.getRegistryService().getSystemRegistry(CarbonContext.
-                getThreadLocalCarbonContext().getTenantId());        
+                getThreadLocalCarbonContext().getTenantId());
         if(RESOURCE_CATEGORY.equalsIgnoreCase(category)){
             EntitlementTreeNodeDTO nodeDTO = new EntitlementTreeNodeDTO("/");
             getChildResources(nodeDTO, "_system");

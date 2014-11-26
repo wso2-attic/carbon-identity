@@ -80,14 +80,14 @@ public class IdPInitSSOAuthnRequestValidator {
                 spAcsUrl = spDO.getAssertionConsumerUrl();
             }
 
-            if (relayState != null && !relayState.equals("")) {
-                validationResponse.setAssertionConsumerURL(relayState);
-            } else {
-                if(spAcsUrl != null){
-                    log.debug("RelayState parameter not found in IdP Initiated SSO request. " +
-                            "Using " + spAcsUrl + " as default Assertion Consumer URL for " + spEntityID);
+//            if (relayState != null && !relayState.equals("")) {
+//                validationResponse.setAssertionConsumerURL(relayState);
+//            } else {
+//                if(spAcsUrl != null){
+//                    log.debug("RelayState parameter not found in IdP Initiated SSO request. " +
+//                            "Using " + spAcsUrl + " as default Assertion Consumer URL for " + spEntityID);
                     validationResponse.setAssertionConsumerURL(spAcsUrl);
-                }
+//                }
 //              else {
 //                    String errorMsg = "RelayState parameter not found in IdP Initiated SSO request and " +
 //                            "Assertion Consumer URL not found in service provider configuration for " + spEntityID + ". " +
@@ -96,7 +96,7 @@ public class IdPInitSSOAuthnRequestValidator {
 //                    String errorResp = buildErrorResponse(SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, errorMsg);
 //                    validationResponse.setResponse(errorResp);
 //                }
-            }
+//            }
 
             validationResponse.setValid(true);
 

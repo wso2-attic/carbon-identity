@@ -69,11 +69,11 @@ public class ServerCrypto implements Crypto {
 
     public final static String PROP_ID_CACERT_PASS = "org.wso2.carbon.security.crypto.cacert.pass";
 
-//    public final static String PROP_ID_XKMS_SERVICE_PASS_PHRASE = "org.wso2.wsas.security.wso2wsas.crypto.xkms.pass";
+    public final static String PROP_ID_XKMS_SERVICE_PASS_PHRASE = "org.wso2.wsas.security.wso2wsas.crypto.xkms.pass";
 
     public final static String PROP_ID_TENANT_ID = "org.wso2.stratos.tenant.id";
     
-//    public final static String PROP_ID_XKMS_SERVICE_URL = "org.wso2.carbon.security.crypto.xkms.url";
+    public final static String PROP_ID_XKMS_SERVICE_URL = "org.wso2.carbon.security.crypto.xkms.url";
     
     private static final String SKI_OID = "2.5.29.14";
 
@@ -83,7 +83,7 @@ public class ServerCrypto implements Crypto {
     private List<KeyStore> trustStores = new ArrayList<KeyStore>();
     private static CertificateFactory certFact = null;
     private Registry registry = null;
-//    private Boolean useXkms;
+    private Boolean useXkms;
 
     public ServerCrypto(Properties prop) throws CredentialException, IOException {
         this(prop, ServerCrypto.class.getClassLoader());
@@ -612,7 +612,7 @@ public class ServerCrypto implements Crypto {
         
 //        if (useXKMS()) {
 //            result = XKMSCryptoClient.validateCertPath(certs, properties
-//                    .getProperty(PROP_ID_XKMS_SERVICE_URL));            
+//                    .getProperty(PROP_ID_XKMS_SERVICE_URL));
 //            if (result) {
 //                return true;
 //             }
@@ -814,39 +814,39 @@ public class ServerCrypto implements Crypto {
 
     }
 
-//    private boolean useXKMS() {
-//        
-//         if (useXkms != null) {
-//             return useXkms.booleanValue();
-//         }
-//
-//         AxisConfiguration axisConfiguration =
-//                 SecurityMgtServiceComponent.getServerConfigurationContext().getAxisConfiguration();
-//         Parameter parameter = axisConfiguration.getParameter("XKMSConfig");
-//
-//         if (parameter == null) {
-//             useXkms = Boolean.FALSE;
-//             return useXkms.booleanValue();
-//         }
-//
-//         OMElement parameterElement = parameter.getParameterElement();
-//         OMAttribute attribute = parameterElement.getAttribute(new QName("enabled"));
-//
-//         if (attribute != null) {
-//             String value = attribute.getAttributeValue();
-//             useXkms = Boolean.valueOf(value);
-//         }
-//
-//         OMElement urlElement = parameterElement
-//                 .getFirstChildWithName(new QName("URL"));
-//         properties.setProperty(PROP_ID_XKMS_SERVICE_URL, urlElement.getText());
-//
-//         OMElement passPhraseElement = parameterElement
-//                 .getFirstChildWithName(new QName("PassPhrase"));
-//         properties.setProperty(PROP_ID_XKMS_SERVICE_PASS_PHRASE,
-//                                passPhraseElement.getText());
-//
-//         return useXkms.booleanValue();
-//    }
+    private boolean useXKMS() {
+        
+         if (useXkms != null) {
+             return useXkms.booleanValue();
+         }
+
+         AxisConfiguration axisConfiguration =
+                 SecurityMgtServiceComponent.getServerConfigurationContext().getAxisConfiguration();
+         Parameter parameter = axisConfiguration.getParameter("XKMSConfig");
+
+         if (parameter == null) {
+             useXkms = Boolean.FALSE;
+             return useXkms.booleanValue();
+         }
+
+         OMElement parameterElement = parameter.getParameterElement();
+         OMAttribute attribute = parameterElement.getAttribute(new QName("enabled"));
+
+         if (attribute != null) {
+             String value = attribute.getAttributeValue();
+             useXkms = Boolean.valueOf(value);
+         }
+
+         OMElement urlElement = parameterElement
+                 .getFirstChildWithName(new QName("URL"));
+         properties.setProperty(PROP_ID_XKMS_SERVICE_URL, urlElement.getText());
+
+         OMElement passPhraseElement = parameterElement
+                 .getFirstChildWithName(new QName("PassPhrase"));
+         properties.setProperty(PROP_ID_XKMS_SERVICE_PASS_PHRASE,
+                                passPhraseElement.getText());
+
+         return useXkms.booleanValue();
+    }
 
 }

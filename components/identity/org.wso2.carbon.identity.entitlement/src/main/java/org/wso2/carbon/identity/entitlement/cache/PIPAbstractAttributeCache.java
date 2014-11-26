@@ -35,7 +35,7 @@ import org.wso2.carbon.identity.entitlement.PDPConstants;
 public class PIPAbstractAttributeCache extends EntitlementBaseCache<IdentityCacheKey, IdentityCacheEntry>{
 
     public PIPAbstractAttributeCache(int timeOut) {
-        super(PDPConstants.PIP_ABSTRACT_ATTRIBUTE_CACHE, timeOut);
+        super(CachingConstants.LOCAL_CACHE_PREFIX + PDPConstants.PIP_ABSTRACT_ATTRIBUTE_CACHE, timeOut);
     }
 
     public void addToCache(int tenantId, String key, Set<String> attributes){

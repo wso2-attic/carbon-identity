@@ -587,17 +587,16 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
             AuthenticationContext context, Map<String, String> extAttrs, boolean isFederatedClaims)
             throws FrameworkException {
 
-        Map<String, String> mappedAttrs = null;
+        Map<String, String> mappedAttrs = new HashMap<String, String>();
 
         try {
             mappedAttrs = FrameworkUtils.getClaimHandler().handleClaimMappings(stepConfig, context,
                     extAttrs, isFederatedClaims);
-            return mappedAttrs;
         } catch (FrameworkException e) {
             log.error("Claim handling failed!", e);
         }
 
-        return null;
+        return mappedAttrs;
     }
 
     /**

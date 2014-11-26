@@ -88,16 +88,20 @@ public class EntitlementBaseCache<K extends IdentityCacheKey, V extends Serializ
         CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(ENTITLEMENT_CACHE_MANAGER);
 		if(this.cacheTimeout > 0) {
             if(cacheBuilder == null){
-                cacheManager.removeCache(Entitlement_CACHE_NAME);
-                this.cacheBuilder = cacheManager.<K, V>createCacheBuilder(Entitlement_CACHE_NAME).
-                        setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
-                                new CacheConfiguration.Duration(TimeUnit.SECONDS, cacheTimeout)).
-                        setStoreByValue(false);
-                cache = cacheBuilder.build();
-                if(log.isDebugEnabled()){
-                    String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-                    log.debug("Cache : " + Entitlement_CACHE_NAME + "  is built with time out value " +
-                            ": " + cacheTimeout + " for tenant domain : " + tenantDomain);
+                synchronized (Entitlement_CACHE_NAME.intern()) {
+                    if(cacheBuilder == null){
+                        cacheManager.removeCache(Entitlement_CACHE_NAME);
+                        this.cacheBuilder = cacheManager.<K, V>createCacheBuilder(Entitlement_CACHE_NAME).
+                                setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
+                                        new CacheConfiguration.Duration(TimeUnit.SECONDS, cacheTimeout)).
+                                setStoreByValue(false);
+                        cache = cacheBuilder.build();
+                        if(log.isDebugEnabled()){
+                            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                            log.debug("Cache : " + Entitlement_CACHE_NAME + "  is built with time out value " +
+                                    ": " + cacheTimeout + " for tenant domain : " + tenantDomain);
+                        }
+                    }
                 }
             } else {
             	cache = cacheManager.getCache(Entitlement_CACHE_NAME);

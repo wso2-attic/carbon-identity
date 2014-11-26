@@ -18,9 +18,6 @@
 
 package org.wso2.carbon.identity.application.mgt;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.description.AxisService;
@@ -33,16 +30,8 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
-import org.wso2.carbon.identity.application.common.model.ApplicationBasicInfo;
-import org.wso2.carbon.identity.application.common.model.ApplicationPermission;
-import org.wso2.carbon.identity.application.common.model.IdentityProvider;
-import org.wso2.carbon.identity.application.common.model.InboundAuthenticationRequestConfig;
-import org.wso2.carbon.identity.application.common.model.LocalAuthenticatorConfig;
-import org.wso2.carbon.identity.application.common.model.PermissionsAndRoleConfig;
-import org.wso2.carbon.identity.application.common.model.RequestPathAuthenticatorConfig;
-import org.wso2.carbon.identity.application.common.model.ServiceProvider;
+import org.wso2.carbon.identity.application.common.model.*;
 import org.wso2.carbon.identity.application.mgt.cache.IdentityServiceProviderCache;
-import org.wso2.carbon.identity.application.mgt.cache.IdentityServiceProviderCacheEntry;
 import org.wso2.carbon.identity.application.mgt.cache.IdentityServiceProviderCacheKey;
 import org.wso2.carbon.identity.application.mgt.dao.ApplicationDAO;
 import org.wso2.carbon.identity.application.mgt.dao.IdentityProviderDAO;
@@ -58,13 +47,15 @@ import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ApplicationManagementService extends AbstractAdmin {
 
     private static Log log = LogFactory.getLog(ApplicationManagementService.class);
     private static ApplicationManagementService appMgtService = new ApplicationManagementService();
 
     /**
-     * 
      * @return
      */
     public static ApplicationManagementService getInstance() {
@@ -75,7 +66,7 @@ public class ApplicationManagementService extends AbstractAdmin {
      * Creates a service provider with basic information.First we need to create a role with the
      * application name. Only the users in this role will be able to edit/update the application.The
      * user will assigned to the created role.Internal roles used.
-     * 
+     *
      * @param serviceProvider
      * @return
      * @throws IdentityApplicationManagementException
@@ -85,10 +76,10 @@ public class ApplicationManagementService extends AbstractAdmin {
         try {
 
             // invoking the listeners
-            List<ApplicationMgtListener> listerns = ApplicationMgtListenerServiceComponent
+            List<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent
                     .getListners();
-            for (ApplicationMgtListener listner : listerns) {
-                listner.createApplication(serviceProvider);
+            for (ApplicationMgtListener listener : listeners) {
+                listener.createApplication(serviceProvider);
             }
 
             // first we need to create a role with the application name.
@@ -111,7 +102,6 @@ public class ApplicationManagementService extends AbstractAdmin {
     }
 
     /**
-     * 
      * @param applicationName
      * @return
      * @throws IdentityApplicationManagementException
@@ -122,7 +112,8 @@ public class ApplicationManagementService extends AbstractAdmin {
         try {
             if (!ApplicationConstants.LOCAL_SP.equals(applicationName)
                     && !ApplicationMgtUtil.isUserAuthorized(applicationName)) {
-                log.warn("Illegale Access! User " + CarbonContext.getThreadLocalCarbonContext().getUsername()
+                log.warn("Illegal Access! User " + CarbonContext.getThreadLocalCarbonContext()
+                        .getUsername()
                         + " does not have access to the application " + applicationName);
                 throw new IdentityApplicationManagementException("User not authorized");
             }
@@ -134,7 +125,7 @@ public class ApplicationManagementService extends AbstractAdmin {
             List<ApplicationPermission> permissionList = ApplicationMgtUtil
                     .loadPermissions(applicationName);
             if (permissionList != null) {
-                PermissionsAndRoleConfig permissionAndRoleConfig = null;
+                PermissionsAndRoleConfig permissionAndRoleConfig;
                 if (serviceProvider.getPermissionAndRoleConfig() == null) {
                     permissionAndRoleConfig = new PermissionsAndRoleConfig();
                 } else {
@@ -148,12 +139,11 @@ public class ApplicationManagementService extends AbstractAdmin {
         } catch (Exception e) {
             log.error("Error occurred while retrieving the application, " + applicationName, e);
             throw new IdentityApplicationManagementException(
-                    "Error occurred while retreiving the application", e);
+                    "Error occurred while retrieving the application", e);
         }
     }
 
     /**
-     * 
      * @return
      * @throws IdentityApplicationManagementException
      */
@@ -170,7 +160,6 @@ public class ApplicationManagementService extends AbstractAdmin {
     }
 
     /**
-     * 
      * @param serviceProvider
      * @throws IdentityApplicationManagementException
      */
@@ -187,7 +176,7 @@ public class ApplicationManagementService extends AbstractAdmin {
             }
 
             try {
-                
+
                 PrivilegedCarbonContext.startTenantFlow();
                 PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
                         .getThreadLocalCarbonContext();
@@ -209,17 +198,18 @@ public class ApplicationManagementService extends AbstractAdmin {
             }
 
             // invoking the listeners
-            List<ApplicationMgtListener> listerns = ApplicationMgtListenerServiceComponent
+            List<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent
                     .getListners();
-            for (ApplicationMgtListener listner : listerns) {
-                listner.updateApplication(serviceProvider);
+            for (ApplicationMgtListener listener : listeners) {
+                listener.updateApplication(serviceProvider);
             }
 
             // check whether use is authorized to update the application.
             if (!ApplicationConstants.LOCAL_SP.equals(serviceProvider.getApplicationName())
                     && !ApplicationMgtUtil.isUserAuthorized(serviceProvider.getApplicationName(),
-                            serviceProvider.getApplicationID())) {
-                log.warn("Illegale Access! User " + CarbonContext.getThreadLocalCarbonContext().getUsername()
+                    serviceProvider.getApplicationID())) {
+                log.warn("Illegal Access! User " + CarbonContext.getThreadLocalCarbonContext()
+                        .getUsername()
                         + " does not have access to the application "
                         + serviceProvider.getApplicationName());
                 throw new IdentityApplicationManagementException("User not authorized");
@@ -241,7 +231,6 @@ public class ApplicationManagementService extends AbstractAdmin {
     }
 
     /**
-     * 
      * @param applicationName
      * @throws IdentityApplicationManagementException
      */
@@ -250,15 +239,16 @@ public class ApplicationManagementService extends AbstractAdmin {
         try {
 
             // invoking the listeners
-            List<ApplicationMgtListener> listerns = ApplicationMgtListenerServiceComponent
+            List<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent
                     .getListners();
-            for (ApplicationMgtListener listner : listerns) {
-                listner.deleteApplication(applicationName);
+            for (ApplicationMgtListener listener : listeners) {
+                listener.deleteApplication(applicationName);
                 ;
             }
 
             if (!ApplicationMgtUtil.isUserAuthorized(applicationName)) {
-                log.warn("Illegal Access! User " + CarbonContext.getThreadLocalCarbonContext().getUsername()
+                log.warn("Illegal Access! User " + CarbonContext.getThreadLocalCarbonContext()
+                        .getUsername()
                         + " does not have access to the application " + applicationName);
                 throw new IdentityApplicationManagementException("User not authorized");
             }
@@ -274,7 +264,7 @@ public class ApplicationManagementService extends AbstractAdmin {
             if (serviceProvider != null
                     && serviceProvider.getInboundAuthenticationConfig() != null
                     && serviceProvider.getInboundAuthenticationConfig()
-                            .getInboundAuthenticationRequestConfigs() != null) {
+                    .getInboundAuthenticationRequestConfigs() != null) {
 
                 InboundAuthenticationRequestConfig[] configs = serviceProvider
                         .getInboundAuthenticationConfig().getInboundAuthenticationRequestConfigs();
@@ -314,7 +304,7 @@ public class ApplicationManagementService extends AbstractAdmin {
                                 throw new IdentityApplicationManagementException(
                                         "missing parameter : "
                                                 + SAMLTokenIssuerConfig.SAML_ISSUER_CONFIG
-                                                        .getLocalPart());
+                                                .getLocalPart());
                             }
                         } catch (Exception e) {
                             log.error("Error while removing a trusted service", e);
@@ -332,7 +322,6 @@ public class ApplicationManagementService extends AbstractAdmin {
     }
 
     /**
-     * 
      * @param federatedIdPName
      * @return
      * @throws IdentityApplicationManagementException
@@ -344,14 +333,13 @@ public class ApplicationManagementService extends AbstractAdmin {
                     .getIdentityProviderDAO();
             return idpdao.getIdentityProvider(federatedIdPName);
         } catch (Exception e) {
-            log.error("Error occurred while deleting the application", e);
+            log.error("Error occurred while retrieving Identity Provider", e);
             throw new IdentityApplicationManagementException(
-                    "Error occurred while deleting the application", e);
+                    "Error occurred while retrieving Identity Provider", e);
         }
     }
 
     /**
-     * 
      * @return
      * @throws IdentityApplicationManagementException
      */
@@ -366,14 +354,13 @@ public class ApplicationManagementService extends AbstractAdmin {
             }
             return null;
         } catch (Exception e) {
-            log.error("Error occurred while deleting the application", e);
+            log.error("Error occurred while retrieving all Identity Providers", e);
             throw new IdentityApplicationManagementException(
-                    "Error occurred while deleting the application", e);
+                    "Error occurred while retrieving all Identity Providers", e);
         }
     }
 
     /**
-     * 
      * @return
      * @throws IdentityApplicationManagementException
      */
@@ -389,14 +376,13 @@ public class ApplicationManagementService extends AbstractAdmin {
             }
             return null;
         } catch (Exception e) {
-            log.error("Error occurred while deleting the application", e);
+            log.error("Error occurred while retrieving all Local Authenticators", e);
             throw new IdentityApplicationManagementException(
-                    "Error occurred while deleting the application", e);
+                    "Error occurred while retrieving all Local Authenticators", e);
         }
     }
 
     /**
-     * 
      * @return
      * @throws IdentityApplicationManagementException
      */
@@ -413,14 +399,13 @@ public class ApplicationManagementService extends AbstractAdmin {
             }
             return null;
         } catch (Exception e) {
-            log.error("Error occurred while deleting the application", e);
+            log.error("Error occurred while retrieving all Request Path Authenticators", e);
             throw new IdentityApplicationManagementException(
-                    "Error occurred while deleting the application", e);
+                    "Error occurred while retrieving all Request Path Authenticators", e);
         }
     }
 
     /**
-     * 
      * @return
      * @throws IdentityApplicationManagementException
      */
@@ -465,8 +450,8 @@ public class ApplicationManagementService extends AbstractAdmin {
                 }
             }
         } catch (Exception e) {
-            log.error("Error occured while removing trusted service for STS", e);
-            throw new SecurityConfigException("Error occured while adding trusted service for STS",
+            log.error("Error occurred while removing trusted service for STS", e);
+            throw new SecurityConfigException("Error occurred while adding trusted service for STS",
                     e);
         }
     }

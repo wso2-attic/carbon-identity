@@ -33,10 +33,12 @@ import org.wso2.carbon.identity.authenticator.saml2.sso.common.SAML2SSOUIAuthent
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.client.SAML2SSOAuthenticationClient;
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.Util;
 import org.wso2.carbon.identity.authenticator.saml2.sso.ui.internal.SAML2SSOAuthFEDataHolder;
+import org.wso2.carbon.identity.authenticator.saml2.sso.ui.session.SSOSessionManager;
 import org.wso2.carbon.ui.AbstractCarbonUIAuthenticator;
 import org.wso2.carbon.ui.CarbonSSOSessionManager;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.utils.ServerConstants;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -49,6 +51,7 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
     private static final int DEFAULT_PRIORITY_LEVEL = 50;
 
     public static final Log log = LogFactory.getLog(SAML2SSOUIAuthenticator.class);
+    private static final Log AUDIT_LOG = CarbonConstants.AUDIT_LOG;
 
     public boolean canHandle(HttpServletRequest request) {
         String relayState = request.getParameter(SAML2SSOAuthenticatorConstants.HTTP_POST_PARAM_RELAY_STATE);
@@ -100,6 +103,7 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
                     ssoSessionManager.addSessionMapping(getSessionIndexFromResponse(samlResponse),
                             session.getId());
                     request.getSession().setAttribute(SAML2SSOAuthenticatorConstants.IDP_SESSION_INDEX, sessionId);
+                    SSOSessionManager.getInstance().addSession(sessionId, request.getSession());
                 }
                 onSuccessAdminLogin(request, username);
             }
@@ -114,20 +118,35 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
             log.error("Error when creating SAML2SSOAuthenticationClient.", e);
             throw new AuthenticationException("Error when creating SAML2SSOAuthenticationClient.", e);
         }
+        if (AUDIT_LOG.isInfoEnabled()) {
+            String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(username);
+            String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            AUDIT_LOG.info(String.format(SAML2SSOAuthenticatorConstants.AUDIT_MESSAGE, tenantAwareUsername + "@" + tenantDomain, "Login", "SAML2SSOUIAuthenticator", "",
+                    isAuthenticated ? SAML2SSOAuthenticatorConstants.AUDIT_SUCCESS : SAML2SSOAuthenticatorConstants.AUDIT_FAILED));
+        }
         if (!isAuthenticated) {
             throw new AuthenticationException("Authentication failure " + username);
         }
     }
 
     public void unauthenticate(Object o) throws Exception {
-        HttpServletRequest request = (HttpServletRequest) o;
-        HttpSession session = request.getSession();
+        HttpServletRequest request = null;
+        HttpSession session = null;
+        
+        if (o instanceof HttpSession) {
+            session = (HttpSession)o;
+        } else {
+            request = (HttpServletRequest)o;
+            session = request.getSession();
+        }
+        
         String username = (String) session.getAttribute(CarbonConstants.LOGGED_USER);
         ServletContext servletContext = session.getServletContext();
         ConfigurationContext configContext = (ConfigurationContext) servletContext
                 .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
 
         String backendServerURL = CarbonUIUtil.getServerURL(servletContext, session);
+        String result = SAML2SSOAuthenticatorConstants.AUDIT_FAILED;
         try {
             String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_AUTH_TOKEN);
             SAML2SSOAuthenticationClient authClient = new SAML2SSOAuthenticationClient(configContext,
@@ -135,24 +154,35 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
                                                                                        cookie,
                                                                                        session);
             authClient.logout(session);
+            result = SAML2SSOAuthenticatorConstants.AUDIT_SUCCESS;
             log.info(username + "@" + PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain() +" successfully logged out");
         } catch (Exception ignored) {
             String msg = "Configuration context is null.";
             log.error(msg);
             throw new Exception(msg);
-        }
+        } finally {
+            if (AUDIT_LOG.isInfoEnabled()) {
+                String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(username);
+                String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                AUDIT_LOG.info(String.format(SAML2SSOAuthenticatorConstants.AUDIT_MESSAGE, tenantAwareUsername + "@" + tenantDomain, "Logout", "SAML2SSOUIAuthenticator",
+                        "", result));
+            }
+         }
+
 
 //        // memory cleanup : remove the invalid session from the invalid session list at the SSOSessionManager
 //        CarbonSSOSessionManager ssoSessionManager =
 //                    SAML2SSOAuthFEDataHolder.getInstance().getCarbonSSOSessionManager();
 //        ssoSessionManager.removeInvalidSession(session.getId());
 
-        // this attribute is used to avoid generate the logout request
-        request.setAttribute(SAML2SSOAuthenticatorConstants.HTTP_ATTR_IS_LOGOUT_REQ, Boolean.valueOf(true));
-        request.setAttribute(SAML2SSOAuthenticatorConstants.LOGGED_IN_USER, session.getAttribute(
-                "logged-user"));
-        
-        request.setAttribute(SAML2SSOAuthenticatorConstants.EXTERNAL_LOGOUT_PAGE, Util.getExternalLogoutPage());
+        if (request != null) {
+            // this attribute is used to avoid generate the logout request
+            request.setAttribute(SAML2SSOAuthenticatorConstants.HTTP_ATTR_IS_LOGOUT_REQ, Boolean.valueOf(true));
+            request.setAttribute(SAML2SSOAuthenticatorConstants.LOGGED_IN_USER, session.getAttribute(
+                    "logged-user"));
+            
+            request.setAttribute(SAML2SSOAuthenticatorConstants.EXTERNAL_LOGOUT_PAGE, Util.getExternalLogoutPage());
+        }
     }
 
     public int getPriority() {

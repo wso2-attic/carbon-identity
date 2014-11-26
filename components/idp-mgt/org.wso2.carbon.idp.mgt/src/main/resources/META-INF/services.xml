@@ -24,11 +24,11 @@
         <parameter name="ServiceClass" locked="true">
             org.wso2.carbon.idp.mgt.IdentityProviderManagementService
         </parameter>
-        <parameter name="adminService" locked="true">true</parameter>
-        <parameter name="AuthorizationAction" locked="false">/permission/admin</parameter>
-        <parameter name="hiddenService" locked="true">true</parameter>
+        <parameter name="AuthorizationAction" locked="false">/permission/admin/manage</parameter>
         <operation name="getAllIdPs">
             <parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
         </operation>
     </service>
+    <parameter name="adminService" locked="true">true</parameter>
+    <parameter name="hiddenService" locked="true">true</parameter>
 </serviceGroup>
