@@ -30,6 +30,7 @@ import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.sso.saml.dto.SingleLogoutRequestDTO;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 
@@ -78,6 +79,15 @@ public class LogoutRequestSender {
             List<NameValuePair> logoutReqParams = new ArrayList<NameValuePair>();
             // set the logout request
             logoutReqParams.add(new BasicNameValuePair("SAMLRequest", logoutReqDTO.getLogoutResponse()));
+
+            if(log.isDebugEnabled()) {
+                try {
+                    log.debug("SAMLRequest : " + SAMLSSOUtil.decodeForPost(logoutReqDTO.getLogoutResponse()));
+                } catch (IdentityException e) {
+                    log.debug(e);
+                }
+            }
+
             try {
                 int port = derivePortFromAssertionConsumerURL(logoutReqDTO.getAssertionConsumerURL());
                 UrlEncodedFormEntity entity = new UrlEncodedFormEntity(logoutReqParams, "UTF-8");

@@ -23,11 +23,12 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.user.api.Tenant;
-import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCache;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheKey;
 
 /**
  * Request Coordinator
- * 
  */
 public class DefaultRequestCoordinator implements RequestCoordinator {
 
@@ -52,12 +53,26 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
 
         try {
             AuthenticationContext context = null;
+            AuthenticationRequestCacheEntry authRequest = null;
+            String sessionDataKey = request.getParameter("sessionDataKey");
+
             boolean returning = false;
             // Check whether this is the start of the authentication flow.
             // 'type' parameter should be present if so. This parameter contains
             // the request type (e.g. samlsso) set by the calling servlet.
             // TODO: use a different mechanism to determine the flow start.
-            if (request.getParameter(FrameworkConstants.RequestParams.TYPE) != null) {
+            if (request != null && request.getParameter("type") != null) {
+                // Retrieve AuthenticationRequestCache Entry which is stored stored from servlet.
+                AuthenticationRequestCacheKey cacheKey = new AuthenticationRequestCacheKey(
+                        sessionDataKey);
+                authRequest = (AuthenticationRequestCacheEntry) AuthenticationRequestCache
+                        .getInstance(0).getValueFromCache(cacheKey);
+                log.debug("retrieving authentication request from cache..");
+
+                // if there is a cache entry, wrap the original request with params in cache entry
+                if (authRequest != null) {
+                    request = FrameworkUtils.getCommonAuthReqWithParams(request, authRequest);
+                }
                 context = initializeFlow(request, response);
             } else {
                 returning = true;
@@ -66,6 +81,14 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
 
             if (context != null) {
                 context.setReturning(returning);
+
+                // if this is the flow start, store the original request in the context
+                if (!context.isReturning()) {
+                    if (authRequest != null) {
+                        context.setAuthenticationRequest(authRequest.getAuthenticationRequest());
+                    }
+                }
+
                 
                 if (!context.isLogoutRequest()) {
                     FrameworkUtils.getAuthenticationRequestHandler().handle(request, response,
@@ -74,6 +97,14 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                     FrameworkUtils.getLogoutRequestHandler().handle(request, response, context);
                 }
             } else {
+                if(log.isDebugEnabled()){
+                    String key =  request.getParameter("sessionDataKey");
+                    if(key == null){
+                        log.debug("Session data key is null in the request");
+                    } else {
+                        log.debug("Session data key  :  " + key);
+                    }
+                }
                 log.error("Context does not exist. Probably due to invalidated cache");
                 FrameworkUtils.sendToRetryPage(request, response);
             }
@@ -81,29 +112,28 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
             log.error("Exception in Authentication Framework", e);
             FrameworkUtils.sendToRetryPage(request, response);
         }
+        finally {
+        //      FrameworkUtils.removeAuthenticationRequestFromCache(request.getParameter("sessionDataKey"));
+        }
     }
 
     /**
      * Handles the initial request (from the calling servlet)
-     * 
+     *
      * @param request
      * @param response
      * @throws ServletException
      * @throws IOException
-     * @throws ApplicationAuthenticatorException
+     * @throws
+     *
      */
     protected AuthenticationContext initializeFlow(HttpServletRequest request,
-            HttpServletResponse response) throws FrameworkException {
+                                                   HttpServletResponse response) throws FrameworkException {
 
         if (log.isDebugEnabled()) {
             log.debug("Initializing the flow");
         }
 
-        String queryParams = request.getQueryString();
-
-        if (log.isDebugEnabled()) {
-            log.debug("The query-string sent by the calling servlet is: " + queryParams);
-        }
 
         // "sessionDataKey" - calling servlet maintains its state information
         // using this
@@ -125,11 +155,11 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
 
         // "relyingParty"
         String relyingParty = request.getParameter(FrameworkConstants.RequestParams.ISSUER);
-        
+
         // tenant domain
         String tenantDomain = request.getParameter(FrameworkConstants.RequestParams.TENANT_DOMAIN);
 
-        if (tenantDomain == null || tenantDomain.isEmpty()) {
+        if (tenantDomain == null || tenantDomain.isEmpty()||tenantDomain.equals("null")) {
 
             String tenantId = request.getParameter(FrameworkConstants.RequestParams.TENANT_ID);
 
@@ -155,7 +185,6 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
         context.setRequestType(requestType);
         context.setRelyingParty(relyingParty);
         context.setTenantDomain(tenantDomain);
-        context.setOrignalRequestQueryParams(queryParams);
 
         // generate a new key to hold the context data object
         String contextId = UUIDGenerator.generateUUID();
@@ -165,31 +194,28 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
             log.debug("Framework contextId: " + contextId);
         }
 
-        context.setContextIdIncludedQueryParams(FrameworkUtils
-                .getQueryStringWithFrameworkContextId(context.getQueryParams(),
-                        callerSessionDataKey, contextId));
 
         // if this a logout request from the calling servlet
         if (request.getParameter(FrameworkConstants.RequestParams.LOGOUT) != null) {
-            
+
             if (log.isDebugEnabled()) {
                 log.debug("Starting a logout flow");
             }
-            
+
             context.setLogoutRequest(true);
-            
+
             if (context.getRelyingParty() == null || context.getRelyingParty().trim().length() == 0) {
-                
+
                 if (log.isDebugEnabled()) {
                     log.debug("relyingParty param is null. This is a possible logout scenario.");
                 }
-                
+
                 Cookie cookie = FrameworkUtils.getAuthCookie(request);
-                
+
                 if (cookie != null) {
                     context.setSessionIdentifier(cookie.getValue());
                 }
-                
+
                 return context;
             }
         } else {
@@ -199,15 +225,14 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
         }
 
         findPreviousAuthenticatedSession(request, context);
-        FrameworkUtils.addAuthenticationContextToCache(contextId, context, request.getSession()
-                .getMaxInactiveInterval());
+        buildOutboundQueryString(request, context);
 
         return context;
     }
 
     protected void findPreviousAuthenticatedSession(HttpServletRequest request,
-            AuthenticationContext context) throws FrameworkException {
-        
+                                                    AuthenticationContext context) throws FrameworkException {
+
         // Get service provider chain
         SequenceConfig sequenceConfig = ConfigurationFacade.getInstance().getSequenceConfig(
                 context.getRequestType(),
@@ -245,7 +270,7 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                         log.debug("A previously authenticated sequence found for the SP: "
                                 + appName);
                     }
-                    
+
                     context.setPreviousSessionFound(true);
                     sequenceConfig = previousAuthenticatedSeq;
                     String authenticatedUser = sequenceConfig.getAuthenticatedUser();
@@ -269,7 +294,30 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
             }
         }
 
+        context.setServiceProviderName(sequenceConfig.getApplicationConfig().getApplicationName());
         // set the sequence for the current authentication/logout flow
         context.setSequenceConfig(sequenceConfig);
+    }
+
+    private void buildOutboundQueryString(HttpServletRequest request, AuthenticationContext context) {
+
+        // Build the outbound query string that will be sent to the authentication endpoint and
+        // federated IdPs
+        String outboundQueryString = FrameworkUtils.getQueryStringWithConfiguredParams(request);
+
+        if (outboundQueryString.trim().length() != 0) {
+            outboundQueryString = outboundQueryString + "&";
+        }
+
+        outboundQueryString = outboundQueryString + "sessionDataKey="
+                + context.getContextIdentifier() + "&relyingParty=" + context.getRelyingParty()
+                + "&type=" + context.getRequestType() + "&sp=" + context.getServiceProviderName();
+
+        if (log.isDebugEnabled()) {
+            log.debug("Outbound Query String: " + outboundQueryString);
+        }
+
+        context.setContextIdIncludedQueryParams(outboundQueryString);
+        context.setOrignalRequestQueryParams(outboundQueryString);
     }
 }

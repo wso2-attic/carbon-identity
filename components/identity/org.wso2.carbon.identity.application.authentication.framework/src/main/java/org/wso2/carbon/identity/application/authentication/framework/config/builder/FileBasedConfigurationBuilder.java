@@ -60,12 +60,15 @@ public class FileBasedConfigurationBuilder {
 	private boolean isDumbMode;
 	private List<ExternalIdPConfig> idpList = new ArrayList<ExternalIdPConfig>();
 	private List<SequenceConfig> sequenceList = new ArrayList<SequenceConfig>();
+    private List<String> authEndpointQueryParams = new ArrayList<String>();
 	private Map<String, AuthenticatorConfig> authenticatorConfigMap = new Hashtable<String, AuthenticatorConfig>();
 	private Map<String, Object> extensions = new Hashtable<String, Object>();
 	private int maxLoginAttemptCount = 5;
 	private Map<String,String> authenticatorNameMappings = new HashMap<String, String>();
 	private Map<String,Integer> cacheTimeouts = new HashMap<String, Integer>();
-	
+    private String authEndpointQueryParamsAction;
+    private boolean authEndpointQueryParamsConfigAvailable;
+
 	public static FileBasedConfigurationBuilder getInstance() {
         if(instance == null){
             instance = new FileBasedConfigurationBuilder();
@@ -122,7 +125,40 @@ public class FileBasedConfigurationBuilder {
                 	}
             	}
             }
-            
+
+            // ########### Read Authentication Endpoint Query Params ###########
+            OMElement authEndpointQueryParamsElem = documentElement
+                    .getFirstChildWithName(IdentityApplicationManagementUtil
+                            .getQNameWithIdentityApplicationNS(FrameworkConstants.Config.QNAME_AUTH_ENDPOINT_QUERY_PARAMS));
+
+            if (authEndpointQueryParamsElem != null) {
+
+                authEndpointQueryParamsConfigAvailable = true;
+                OMAttribute actionAttr = authEndpointQueryParamsElem.getAttribute(new QName(
+                        FrameworkConstants.Config.ATTR_AUTH_ENDPOINT_QUERY_PARAM_ACTION));
+                authEndpointQueryParamsAction = FrameworkConstants.AUTH_ENDPOINT_QUERY_PARAMS_ACTION_EXCLUDE;
+
+                if (actionAttr != null) {
+                    String actionValue = actionAttr.getAttributeValue();
+
+                    if (actionValue != null && !actionValue.isEmpty()) {
+                        authEndpointQueryParamsAction = actionValue;
+                    }
+                }
+
+
+                for (Iterator authEndpointQueryParamElems = authEndpointQueryParamsElem
+                        .getChildrenWithLocalName(FrameworkConstants.Config.ELEM_AUTH_ENDPOINT_QUERY_PARAM); authEndpointQueryParamElems
+                             .hasNext(); ) {
+                    String queryParamName = processAuthEndpointQueryParamElem((OMElement) authEndpointQueryParamElems
+                            .next());
+
+                    if (queryParamName != null) {
+                        this.authEndpointQueryParams.add(queryParamName);
+                    }
+                }
+            }
+
             //########### Read Extension Points ###########
             OMElement extensionsElem = documentElement.getFirstChildWithName(IdentityApplicationManagementUtil.
                                         getQNameWithIdentityApplicationNS(FrameworkConstants.Config.QNAME_EXTENSIONS));
@@ -245,6 +281,19 @@ public class FileBasedConfigurationBuilder {
                 log.warn("Unable to close the file input stream created for " + FrameworkConstants.Config.AUTHENTICATORS_FILE_NAME);
             }	
         }
+    }
+
+    private String processAuthEndpointQueryParamElem(OMElement authEndpointQueryParamElem) {
+
+        OMAttribute nameAttr = authEndpointQueryParamElem.getAttribute(new QName(
+                FrameworkConstants.Config.ATTR_AUTH_ENDPOINT_QUERY_PARAM_NAME));
+
+        if (nameAttr == null) {
+            log.warn("Each Authentication Endpoint Query Param should have a unique name attribute. This Query Param will skipped.");
+            return null;
+        }
+
+        return nameAttr.getAttributeValue();
     }
     
     private void processAuthenticatorNameMappingElement(OMElement authenticatorNameMappingElem) {
@@ -504,6 +553,18 @@ public class FileBasedConfigurationBuilder {
 		
 		return null;
 	}
+
+    public List<String> getAuthEndpointQueryParams() {
+        return authEndpointQueryParams;
+    }
+
+    public String getAuthEndpointQueryParamsAction() {
+        return authEndpointQueryParamsAction;
+    }
+
+    public boolean isAuthEndpointQueryParamsConfigAvailable() {
+        return authEndpointQueryParamsConfigAvailable;
+    }
 
 	public String getAuthenticationEndpointURL() {
 		return authenticationEndpointURL;

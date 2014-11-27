@@ -24,6 +24,7 @@
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@page import="java.net.URLEncoder" %>
 
 
 <%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
@@ -72,9 +73,9 @@
     if(prevPage != null && prevPage.trim().length() > 0 && prevUser !=null &&  prevUser.trim().length() > 0){
         showUpdate = false;
         if("view".equals(prevPage)){
-            prevString = "../user/view-roles.jsp?username="+prevUser + "&pageNumber=" + prevPageNumber;
+            prevString = "../user/view-roles.jsp?username="+URLEncoder.encode(prevUser) + "&pageNumber=" + prevPageNumber;
         }else if("edit".equals(prevPage)){
-            prevString = "../user/edit-user-roles.jsp?username="+prevUser + "&pageNumber=" + prevPageNumber;
+            prevString = "../user/edit-user-roles.jsp?username="+URLEncoder.encode(prevUser) + "&pageNumber=" + prevPageNumber;
         }
         session.setAttribute("prevString", prevString);
     } else {

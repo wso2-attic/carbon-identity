@@ -20,10 +20,12 @@ package org.wso2.carbon.identity.application.mgt.internal;
 
 import org.wso2.carbon.registry.api.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.utils.ConfigurationContextService;
 
 public class ApplicationManagementServiceComponentHolder {
     private static RegistryService registryService;
     private static RealmService realmService;
+    private static ConfigurationContextService configContextService;
 
     public static RegistryService getRegistryService() {
         return registryService;
@@ -40,4 +42,15 @@ public class ApplicationManagementServiceComponentHolder {
     public static void setRealmService(RealmService realmService) {
         ApplicationManagementServiceComponentHolder.realmService = realmService;
     }
+
+	public static ConfigurationContextService getConfigContextService() {
+		return configContextService;
+	}
+
+	public static void setConfigContextService(
+			ConfigurationContextService configContextService) {
+		ApplicationManagementServiceComponentHolder.configContextService = configContextService;
+	}
+    
+    
 }

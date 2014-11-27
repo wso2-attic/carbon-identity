@@ -56,6 +56,7 @@ public class OpenIDConnectUserEndpoint {
 			UserInfoAccessTokenValidator tokenValidator = UserInfoEndpointConfig.getInstance().getUserInfoAccessTokenValidator();
 			OAuth2TokenValidationResponseDTO tokenResponse = tokenValidator.validateToken(accessToken);
 			// build the claims
+            //ToDO - Validate the grant type to be implicit or authorization_code before retrieving claims
 			UserInfoResponseBuilder userInfoResponseBuilder = UserInfoEndpointConfig.getInstance().getUserInfoResponseBuilder();
 			response = userInfoResponseBuilder.getResponseString(tokenResponse);
 			

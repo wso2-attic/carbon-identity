@@ -239,12 +239,13 @@ public class AccessTokenIssuer {
     }
 
     private void addUserAttributesToCache(OAuth2AccessTokenReqDTO tokenReqDTO, OAuth2AccessTokenRespDTO tokenRespDTO) {
-        UserAttributesCacheKey oldCacheKey = new UserAttributesCacheKey(tokenReqDTO.getAuthorizationCode());
+        AuthorizationGrantCacheKey oldCacheKey = new AuthorizationGrantCacheKey(tokenReqDTO.getAuthorizationCode());
         //checking getUserAttributesId vale of cacheKey before retrieve entry from cache as it causes to NPE
         if(oldCacheKey.getUserAttributesId() != null){
-            CacheEntry userAttributesCacheEntry = UserAttributesCache.getInstance().getValueFromCache(oldCacheKey);
-            UserAttributesCacheKey newCacheKey = new UserAttributesCacheKey(tokenRespDTO.getAccessToken());
-            UserAttributesCache.getInstance().addToCache(newCacheKey,userAttributesCacheEntry);
+            CacheEntry userAttributesCacheEntry = AuthorizationGrantCache.getInstance().getValueFromCache(oldCacheKey);
+            AuthorizationGrantCacheKey newCacheKey = new AuthorizationGrantCacheKey(tokenRespDTO.getAccessToken());
+            AuthorizationGrantCache.getInstance().addToCache(newCacheKey,userAttributesCacheEntry);
+            AuthorizationGrantCache.getInstance().clearCacheEntry(oldCacheKey);
         }
     }
 

@@ -64,28 +64,15 @@ public final class OAuthUtil {
     }
 
     public static void clearOAuthCache(String consumerKey, String authorizedUser) {
-        OAuthCache oauthCache;
-
-        try {
-            PrivilegedCarbonContext.startTenantFlow();
-            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
-                    .getThreadLocalCarbonContext();
-            carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
-            carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
-
-            CacheKey cacheKey = new OAuthCacheKey(consumerKey + ":" + authorizedUser);
-            if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
-                oauthCache = OAuthCache.getInstance();
-                oauthCache.clearCacheEntry(cacheKey);
-            }
-        } finally {
-            PrivilegedCarbonContext.endTenantFlow();
-        }
+        clearOAuthCache(consumerKey + ":" + authorizedUser);
     }
 
     public static void clearOAuthCache(String consumerKey, String authorizedUser, String scope) {
-        OAuthCache oauthCache;
+        clearOAuthCache(consumerKey + ":" + authorizedUser + ":" + scope);
+    }
 
+    public static void clearOAuthCache(String oauthCacheKey) {
+        OAuthCache oauthCache;
         try {
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
@@ -93,7 +80,7 @@ public final class OAuthUtil {
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
-            CacheKey cacheKey = new OAuthCacheKey(consumerKey + ":" + authorizedUser+":"+scope);
+            CacheKey cacheKey = new OAuthCacheKey(oauthCacheKey);
             if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
                 oauthCache = OAuthCache.getInstance();
                 oauthCache.clearCacheEntry(cacheKey);

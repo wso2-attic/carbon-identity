@@ -24,6 +24,7 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
@@ -38,6 +39,10 @@ import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  * Data Access Layer functionality for Token management in OAuth 2.0 implementation. This includes
@@ -45,21 +50,80 @@ import java.util.*;
  */
 public class TokenMgtDAO {
 
-    private static final Log log = LogFactory.getLog(TokenMgtDAO.class);
     private static TokenPersistenceProcessor persistenceProcessor;
 
-    public TokenMgtDAO() {
+    private static int maxPoolSize = 100;
 
+    private boolean enablePersist = true;
+
+    private static BlockingDeque<AccessContextTokenDO> accessContextTokenQueue = new LinkedBlockingDeque<AccessContextTokenDO>();
+
+    private static BlockingDeque<AuthContextTokenDO> authContextTokenQueue = new LinkedBlockingDeque<AuthContextTokenDO>();
+
+    private static final Log log = LogFactory.getLog(TokenMgtDAO.class);
+
+    static {
+
+        final Log log = LogFactory.getLog(TokenMgtDAO.class);
+
+        try {
+            maxPoolSize =
+                    Integer.parseInt(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.PoolSize"));
+        } catch (Exception e) {
+        }
+
+        if (maxPoolSize > 0) {
+            log.info("Thread pool size for session persistent consumer : " + maxPoolSize);
+
+            ExecutorService threadPool = Executors.newFixedThreadPool(maxPoolSize);
+
+            for (int i = 0; i < maxPoolSize; i++) {
+                threadPool.execute(new TokenPersistenceTask(accessContextTokenQueue));
+            }
+
+            threadPool = Executors.newFixedThreadPool(maxPoolSize);
+
+            for (int i = 0; i < maxPoolSize; i++) {
+                threadPool.execute(new AuthPersistenceTask(authContextTokenQueue));
+            }
+        }
+    }
+
+
+    public TokenMgtDAO() {
         try {
             persistenceProcessor = OAuthServerConfiguration.getInstance().getPersistenceProcessor();
         } catch (IdentityOAuth2Exception e) {
             log.error("Error retrieving TokenPersistenceProcessor. Defaulting to PlainTextProcessor");
             persistenceProcessor = new PlainTextPersistenceProcessor();
         }
+
+        if(IdentityUtil.getProperty("JDBCPersistenceManager.TokenPersist.Enable") != null){
+            enablePersist= Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.TokenPersist.Enable"));
+        }
     }
 
     public void storeAuthorizationCode(String authzCode, String consumerKey, String callbackUrl,
                                        AuthzCodeDO authzCodeDO) throws IdentityOAuth2Exception {
+
+        if(!enablePersist){
+            return;
+        }
+
+        if (maxPoolSize > 0){
+            authContextTokenQueue.push(new AuthContextTokenDO(authzCode, consumerKey, callbackUrl, authzCodeDO));
+        } else {
+            persistAuthorizationCode(authzCode, consumerKey, callbackUrl, authzCodeDO);
+        }
+    }
+
+    public void persistAuthorizationCode(String authzCode, String consumerKey, String callbackUrl,
+                                       AuthzCodeDO authzCodeDO) throws IdentityOAuth2Exception {
+
+        if(!enablePersist){
+            return;
+        }
+
         Connection connection = null;
         PreparedStatement prepStmt = null;
         try {
@@ -92,6 +156,10 @@ public class TokenMgtDAO {
                                  AccessTokenDO accessTokenDO, Connection connection,
                                  String userStoreDomain) throws IdentityOAuth2Exception {
 
+        if(!enablePersist){
+            return;
+        }
+
         PreparedStatement prepStmt = null;
         String accessTokenStoreTable = "IDN_OAUTH2_ACCESS_TOKEN";
         if (userStoreDomain != null) {
@@ -118,6 +186,7 @@ public class TokenMgtDAO {
             prepStmt.setString(8, accessTokenDO.getTokenState());
             prepStmt.setString(9, accessTokenDO.getTokenType());
             prepStmt.execute();
+            connection.commit();
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -127,15 +196,31 @@ public class TokenMgtDAO {
         }
     }
 
-    public boolean storeAccessToken(String accessToken, String consumerKey,
+    public void storeAccessToken(String accessToken, String consumerKey,
+                                 AccessTokenDO accessTokenDO, String userStoreDomain) throws IdentityOAuth2Exception {
+
+        if(!enablePersist){
+            return;
+        }
+        if (maxPoolSize > 0){
+            accessContextTokenQueue.push(new AccessContextTokenDO(accessToken, consumerKey, accessTokenDO, userStoreDomain));
+        } else {
+            persistAccessToken(accessToken, consumerKey, accessTokenDO, userStoreDomain);
+        }
+    }
+
+    public boolean persistAccessToken(String accessToken, String consumerKey,
                                     AccessTokenDO accessTokenDO,
                                     String userStoreDomain) throws IdentityOAuth2Exception {
+
+        if(!enablePersist){
+            return false;
+        }
         Connection connection = null;
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
             connection.setAutoCommit(false);
             storeAccessToken(accessToken, consumerKey, accessTokenDO, connection, userStoreDomain);
-            connection.commit();
             return true;
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
@@ -493,7 +578,15 @@ public class TokenMgtDAO {
         return null;
     }
 
-    public void cleanUpAuthzCode(String authzCode) throws IdentityOAuth2Exception {
+    public void cleanUpAuthzCode(String authzCode) throws IdentityOAuth2Exception{
+        if (maxPoolSize > 0){
+            authContextTokenQueue.push(new AuthContextTokenDO(authzCode, null, null, null));
+        } else {
+            removeAuthzCode(authzCode);
+        }
+    }
+
+    public void removeAuthzCode(String authzCode) throws IdentityOAuth2Exception {
         Connection connection = null;
         PreparedStatement prepStmt = null;
 
@@ -504,7 +597,6 @@ public class TokenMgtDAO {
 
             prepStmt.execute();
             connection.commit();
-
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -557,7 +649,7 @@ public class TokenMgtDAO {
             postgreSqlQuery = "SELECT * FROM (SELECT ACCESS_TOKEN, AUTHZ_USER, TOKEN_SCOPE, TOKEN_STATE, TIME_CREATED" +
                     " FROM " + accessTokenStoreTable + " WHERE CONSUMER_KEY = ? " +
                     " AND REFRESH_TOKEN = ? " +
-                    " ORDER BY TIME_CREATED DESC) " +
+                    " ORDER BY TIME_CREATED DESC) AS TOKEN " +
                     " LIMIT 1 ";
 
             if (connection.getMetaData().getDriverName().contains("MySQL")
@@ -573,13 +665,15 @@ public class TokenMgtDAO {
                 sql = oracleQuery;
             }
 
+            if(refreshToken == null){
+                sql = sql.replace("REFRESH_TOKEN = ?","REFRESH_TOKEN IS NULL");
+            }
+
             prepStmt = connection.prepareStatement(sql);
 
             prepStmt.setString(1, persistenceProcessor.getProcessedClientId(consumerKey));
             if(refreshToken != null){
                 prepStmt.setString(2, persistenceProcessor.getProcessedRefreshToken(refreshToken));
-            } else {
-                prepStmt.setString(2, refreshToken);
             }
             resultSet = prepStmt.executeQuery();
 
@@ -607,7 +701,15 @@ public class TokenMgtDAO {
         return validationDataDO;
     }
 
-    public void cleanUpAccessToken(String accessToken) throws IdentityOAuth2Exception {
+    public void cleanUpAccessToken(String accessToken) throws IdentityOAuth2Exception{
+        if (maxPoolSize > 0){
+            accessContextTokenQueue.push(new AccessContextTokenDO(accessToken, null, null, null));
+        } else {
+            removeAccessToken(accessToken);
+        }
+    }
+
+    public void removeAccessToken(String accessToken) throws IdentityOAuth2Exception {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         String userStoreDomain = null;
@@ -769,6 +871,7 @@ public class TokenMgtDAO {
                     OAuth2Util.checkUserNameAssertionEnabled()) {
                 accessTokenStoreTable = OAuth2Util.getAccessTokenStoreTableFromAccessToken(token);
             }
+            org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(token);
             String sqlQuery = SQLQueries.REVOKE_ACCESS_TOKEN_BY_CLIENT.replace("IDN_OAUTH2_ACCESS_TOKEN", accessTokenStoreTable);
             connection = IdentityDatabaseUtil.getDBConnection();
             connection.setAutoCommit(false);
@@ -851,7 +954,8 @@ public class TokenMgtDAO {
             userStoreDomain = OAuth2Util.getUserStoreDomainFromUserId(authzUser);
         }
         AccessTokenDO accessTokenDO = getValidAccessTokenIfExist(consumerKey, authzUser, userStoreDomain, true);
-            if(accessTokenDO != null){
+        if (accessTokenDO != null) {
+            org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(accessTokenDO.getAccessToken());
             String sqlQuery = SQLQueries.REVOKE_ALL_ACCESS_TOKEN_BY_RESOURCE_OWNER.replace("IDN_OAUTH2_ACCESS_TOKEN", accessTokenStoreTable);
             PreparedStatement ps = null;
             ps = dbConnection.prepareStatement(sqlQuery);

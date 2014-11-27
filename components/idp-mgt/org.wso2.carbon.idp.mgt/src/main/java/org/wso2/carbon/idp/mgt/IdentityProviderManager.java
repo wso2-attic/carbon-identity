@@ -316,12 +316,30 @@ public class IdentityProviderManager {
         if (fedAuthnConfig.getProperties() == null) {
             fedAuthnConfig.setProperties(new Property[0]);
         }
-        Property idPEntityIdProp = IdentityApplicationManagementUtil.getProperty(
-                fedAuthnConfig.getProperties(),
-                IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
-        if (idPEntityIdProp != null && idPEntityIdProp.equals(identityProvider.getHomeRealmId())) {
-            idPEntityIdProp.setValue(null);
-        }
+        
+		boolean idPEntityIdAvailable = false;
+		for (Property property : fedAuthnConfig.getProperties()) {
+			if (IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID.equals(property.getName())) {
+				idPEntityIdAvailable = true;
+			}
+		}
+		if (!idPEntityIdAvailable) {
+			Property property = new Property();
+			property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
+			property.setValue("localhost");
+			if (fedAuthnConfig.getProperties().length > 0) {
+				List<Property> properties = Arrays.asList(fedAuthnConfig.getProperties());
+				properties.add(property);
+				fedAuthnConfig.setProperties((Property[]) properties.toArray());
+			} else {
+				fedAuthnConfig.setProperties(new Property[] { property });
+			}
+		}
+
+        FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs = {fedAuthnConfig};
+        identityProvider.setFederatedAuthenticatorConfigs(IdentityApplicationManagementUtil
+                .concatArrays(identityProvider.getFederatedAuthenticatorConfigs(),federatedAuthenticatorConfigs));
+
         dao.addIdP(identityProvider, getTenantIdOfDomain(tenantDomain), tenantDomain);
     }
 
@@ -344,19 +362,15 @@ public class IdentityProviderManager {
         if (identityProvider.getFederatedAuthenticatorConfigs() == null) {
             identityProvider.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[0]);
         }
-        FederatedAuthenticatorConfig fedAuthnConfig = IdentityApplicationManagementUtil
-                .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
-                        IdentityApplicationConstants.Authenticator.SAML2SSO.NAME);
-        Property idPEntityIdProp = IdentityApplicationManagementUtil.getProperty(
-                fedAuthnConfig.getProperties(),
-                IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
-        if (idPEntityIdProp != null
-                && idPEntityIdProp.getValue().equals(identityProvider.getHomeRealmId())) {
-            idPEntityIdProp.setValue(null);
-        }
+
         IdentityProvider currentIdP = IdentityProviderManager.getInstance().getIdPByName(
                 IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME, tenantDomain, true);
-        dao.updateIdP(identityProvider, currentIdP, getTenantIdOfDomain(tenantDomain), tenantDomain);
+        
+		int tenantId = getTenantIdOfDomain(tenantDomain);
+		validateUpdateOfIdPEntityId(currentIdP.getFederatedAuthenticatorConfigs(),
+		                            identityProvider.getFederatedAuthenticatorConfigs(), tenantId, tenantDomain);
+        
+        dao.updateIdP(identityProvider, currentIdP, tenantId, tenantDomain);
     }
 
     /**
@@ -372,6 +386,7 @@ public class IdentityProviderManager {
 
         int tenantId = getTenantIdOfDomain(tenantDomain);
         return dao.getIdPs(null, tenantId, tenantDomain);
+
     }
     
     /**
@@ -458,7 +473,7 @@ public class IdentityProviderManager {
      * @param idPName Unique name of the Identity provider of whose information is requested
      * @param tenantDomain Tenant domain whose information is requested
      * @return <code>IdentityProvider</code> Identity Provider information
-     * @throws IdentityApplicationManagementException Error when getting Identity Provider
+     * @throws IdentityApplicationManagementException Error when enetting Identity Provider
      *         information by IdP name
      */
     public IdentityProvider getIdPByName(String idPName, String tenantDomain)
@@ -887,7 +902,10 @@ public class IdentityProviderManager {
         }
 
         if (IdPManagementServiceComponent.getFileBasedIdPs().containsKey(
-                identityProvider.getIdentityProviderName())) {
+                identityProvider.getIdentityProviderName())
+                && !identityProvider.getIdentityProviderName().startsWith("SHARED_")) {
+            //If an IDP with name starting with "SHARED_" is added from UI, It's blocked at the service class
+            // before calling this method
             throw new IdentityApplicationManagementException(
                     "Identity provider with the same name exists in the file system.");
         }
@@ -929,6 +947,8 @@ public class IdentityProviderManager {
                     + identityProvider.getIdentityProviderName() + " for tenant " + tenantDomain;
             throw new IdentityApplicationManagementException(msg);
         }
+        
+        validateIdPEntityId(identityProvider.getFederatedAuthenticatorConfigs(), tenantId, tenantDomain);
 
         dao.addIdP(identityProvider, tenantId, tenantDomain);
     }
@@ -1038,6 +1058,10 @@ public class IdentityProviderManager {
                 }
             }
         }
+        
+		validateUpdateOfIdPEntityId(currentIdentityProvider.getFederatedAuthenticatorConfigs(),
+		                            newIdentityProvider.getFederatedAuthenticatorConfigs(),
+		                            tenantId, tenantDomain);
 
         dao.updateIdP(newIdentityProvider, currentIdentityProvider, tenantId, tenantDomain);
     }
@@ -1095,5 +1119,81 @@ public class IdentityProviderManager {
         }
         return null;
     }
+    
+	private boolean validateIdPEntityId(FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs,
+	                                                          int tenantId, String tenantDomain)throws IdentityApplicationManagementException {
+		if (federatedAuthenticatorConfigs != null) {
+			for (FederatedAuthenticatorConfig authConfig : federatedAuthenticatorConfigs) {
+				if (IdentityApplicationConstants.Authenticator.SAML2SSO.FED_AUTH_NAME.equals(authConfig.getName()) ||
+				    IdentityApplicationConstants.Authenticator.SAML2SSO.NAME.equals(authConfig.getName())) {
+					Property[] properties = authConfig.getProperties();
+					if (properties != null) {
+						for (Property property : properties) {
+							if (IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID.equals(property.getName())) {
+								if (dao.isSimilarIdPEntityIdsAvailble(property.getValue(), tenantId)) {
+									String msg = "An Identity Provider Entity Id has already been registered with the name '" +
+						                     property.getValue() + "' for tenant '" + tenantDomain + "'";
+									throw new IdentityApplicationManagementException(msg);
+								}
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+		return true;
+	}
+	
+	private boolean validateUpdateOfIdPEntityId(FederatedAuthenticatorConfig[] currentFederatedAuthConfigs,
+	                                            FederatedAuthenticatorConfig[] newFederatedAuthConfigs,
+	                                            int tenantId, String tenantDomain) throws IdentityApplicationManagementException {
+		String currentIdentityProviderEntityId = null;
+		if (currentFederatedAuthConfigs != null) {
+			for (FederatedAuthenticatorConfig fedAuthnConfig : currentFederatedAuthConfigs) {
+				if (IdentityApplicationConstants.Authenticator.SAML2SSO.FED_AUTH_NAME.equals(fedAuthnConfig.getName()) ||
+				    IdentityApplicationConstants.Authenticator.SAML2SSO.NAME.equals(fedAuthnConfig.getName())) {
+					Property[] properties = fedAuthnConfig.getProperties();
+					if (properties != null) {
+						for (Property property : properties) {
+							if (IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID.equals(property.getName())) {
+								currentIdentityProviderEntityId = property.getValue();
+								break;
+							}
+						}
+					}
+					break;
+				}
+			}
+		}
+		
+		if(newFederatedAuthConfigs != null){
+			for (FederatedAuthenticatorConfig fedAuthnConfig : newFederatedAuthConfigs) {
+				if (IdentityApplicationConstants.Authenticator.SAML2SSO.FED_AUTH_NAME.equals(fedAuthnConfig.getName()) ||
+				    IdentityApplicationConstants.Authenticator.SAML2SSO.NAME.equals(fedAuthnConfig.getName())) {
+					Property[] properties = fedAuthnConfig.getProperties();
+					if (properties != null) {
+						for (Property property : properties) {
+							if (IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID.equals(property.getName())) {
+								if(currentIdentityProviderEntityId != null && currentIdentityProviderEntityId.equals(property.getValue())){
+									return true;
+								} else {
+									if (dao.isSimilarIdPEntityIdsAvailble(property.getValue(), tenantId)) {
+										String msg = "An Identity Provider Entity Id has already been registered with the name '" +
+							                     property.getValue() + "' for tenant '" + tenantDomain + "'";
+										throw new IdentityApplicationManagementException(msg);
+									}
+									return true;
+								}
+							}
+						}
+					}
+					break;
+				}
+			}
+		}
+
+		return true;
+	}
 
 }

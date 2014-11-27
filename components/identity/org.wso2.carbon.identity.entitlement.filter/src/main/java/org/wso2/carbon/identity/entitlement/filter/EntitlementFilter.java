@@ -19,6 +19,7 @@ package org.wso2.carbon.identity.entitlement.filter;
 
 
 import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -184,8 +185,12 @@ public class EntitlementFilter implements Filter {
             try {
                 String decision = pepProxy.getDecision(userName, resource, action, env);
                 OMElement decisionElement = AXIOMUtil.stringToOM(decision);
-                simpleDecision = decisionElement.getFirstChildWithName(new QName("Result")).
-                        getFirstChildWithName(new QName("Decision")).getText();
+                String namespace = "";
+                if (decisionElement.getNamespace().getNamespaceURI() != null) {
+                    namespace = decisionElement.getNamespace().getNamespaceURI();
+                }
+                simpleDecision = decisionElement.getFirstChildWithName(new QName(namespace, "Result")).
+                        getFirstChildWithName(new QName(namespace, "Decision")).getText();
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new EntitlementFilterException("Exception while making the decision : " + e);

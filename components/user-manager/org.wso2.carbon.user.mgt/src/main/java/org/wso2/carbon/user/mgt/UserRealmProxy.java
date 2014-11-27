@@ -1586,7 +1586,7 @@ public class UserRealmProxy {
 
             for (String name : oldRoleList) {
                 int newindex = Arrays.binarySearch(roleList, name);
-                if (newindex > 0) {
+                if (newindex < 0) {
                     if (realm.getRealmConfiguration().getEveryOneRoleName().equalsIgnoreCase(name)) {
                         log.error("Security Alert! Carbon everyone role is being manipulated");
                         throw new UserAdminException("Invalid data");// obscure

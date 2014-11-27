@@ -141,9 +141,12 @@ public class CarbonAttributeFinder extends AttributeFinderModule {
 		if (finders == null || finders.size() == 0) {
 			finders = attrFinders.get(attributeId.toString());
 			if (finders == null || finders.size() == 0) {
-				log.info("No attribute designators defined for the attribute "
-						+ attributeId.toString());
+                if (log.isDebugEnabled()) {
+                    log.debug("No attribute designators defined for the attribute "
+                            + attributeId.toString());
+                }
                 return new EvaluationResult(BagAttribute.createEmptyBag(attributeType));
+
 			}
 		}
 

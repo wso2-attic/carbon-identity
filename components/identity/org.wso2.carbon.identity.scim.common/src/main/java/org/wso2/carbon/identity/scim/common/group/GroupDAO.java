@@ -32,7 +32,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * JDBC based Data Access layer for managing SCIM specific attributes that are not stored in
@@ -40,6 +42,36 @@ import java.util.Map;
  */
 public class GroupDAO {
     private static Log log = LogFactory.getLog(GroupDAO.class);
+
+    public Set<String> listSCIMGroups() throws IdentitySCIMException {
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rSet = null;
+        Set<String> groups = new HashSet<String>();
+
+        try {
+            connection = JDBCPersistenceManager.getInstance().getDBConnection();
+            prepStmt = connection.prepareStatement(SQLQueries.LIST_SCIM_GROUPS_SQL);
+            prepStmt.setString(1, SCIMConstants.ID_URI);
+
+            rSet = prepStmt.executeQuery();
+            while (rSet.next()) {
+                if (rSet.getString(1) != null && rSet.getString(1).length() > 0) {
+                    groups.add(rSet.getString(1));
+                }
+            }
+        } catch (IdentityException e) {
+            String errorMsg = "Error when getting an Identity Persistence Store instance.";
+            throw new IdentitySCIMException(errorMsg, e);
+        } catch (SQLException e) {
+            log.error("Error when executing the SQL : " + SQLQueries.LIST_SCIM_GROUPS_SQL);
+            throw new IdentitySCIMException("Error when reading the SCIM Group information from " +
+                    "the persistence store.");
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
+        }
+        return groups;
+    }
 
     public boolean isExistingGroup(String groupName, int tenantId) throws IdentitySCIMException {
 

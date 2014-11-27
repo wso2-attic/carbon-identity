@@ -88,6 +88,8 @@
     <%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.Constants" %>
 
     <%
+
+        request.getSession().invalidate();
         String queryString = request.getQueryString();
         Map<String, String> idpAuthenticatorMapping = null;
         if (request.getAttribute("idpAuthenticatorMap") != null) {

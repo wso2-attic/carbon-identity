@@ -116,6 +116,43 @@ public class SSOSessionPersistenceManager {
         return false;
     }
 
+    public void persistSession(String sessionIndex, String subject, SAMLSSOServiceProviderDO spDO,
+                               String rpSessionId, String tenantDomain, String issuer,
+                               String assertionConsumerURL)
+            throws IdentityException {
+
+        SessionInfoData sessionInfoData = getSessionInfoDataFromCache(sessionIndex);
+
+        if (sessionInfoData == null) {
+            sessionInfoData = new SessionInfoData(subject, tenantDomain);
+            sessionInfoData.addServiceProvider(spDO.getIssuer(), spDO, rpSessionId);
+        }
+
+        try {
+            if (sessionIndex != null) {
+                spDO = SSOServiceProviderConfigManager.getInstance().getServiceProvider(issuer);
+                if (spDO == null) {
+                    IdentityPersistenceManager identityPersistenceManager =
+                            IdentityPersistenceManager.getPersistanceManager();
+                    Registry registry = (Registry) PrivilegedCarbonContext
+                            .getThreadLocalCarbonContext()
+                            .getRegistry(RegistryType.SYSTEM_CONFIGURATION);
+                    spDO = identityPersistenceManager.getServiceProvider(registry, issuer);
+                }
+                //give priority to assertion consuming URL if specified in the request
+                if (assertionConsumerURL != null) {
+                    spDO.setAssertionConsumerUrl(assertionConsumerURL);
+                }
+                sessionInfoData.addServiceProvider(spDO.getIssuer(), spDO, rpSessionId);
+                addSessionInfoDataToCache(sessionIndex, sessionInfoData, CACHE_TIME_OUT);
+            }
+        } catch (Exception e) {
+            log.error("Error obtaining the service provider info from registry", e);
+            throw new IdentityException("Error obtaining the service provider info from registry"
+                    , e);
+        }
+    }
+
     /**
      * Get the session infodata for a particular session
      *

@@ -49,6 +49,11 @@ import org.opensaml.xml.signature.Signature;
 import org.opensaml.xml.signature.Signer;
 import org.opensaml.xml.signature.X509Data;
 import org.opensaml.xml.util.Base64;
+import org.w3c.dom.Element;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSSerializer;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.application.authenticator.samlsso.exception.SAMLSSOException;
@@ -237,8 +242,6 @@ public class SSOUtils {
      */
     public static String decode(String encodedStr) throws SAMLSSOException {
         try {
-            encodedStr = java.net.URLDecoder.decode(encodedStr, "UTF-8");
-            
             org.apache.commons.codec.binary.Base64 base64Decoder =
                     new org.apache.commons.codec.binary.Base64();
             byte[] xmlBytes = encodedStr.getBytes("UTF-8");
@@ -303,6 +306,49 @@ public class SSOUtils {
             throw new SAMLSSOException(
                     "Error when decoding the SAML Request.", e);
         }
+    }
+
+    /**
+     * Serializing a SAML2 object into a String
+     *
+     * @param xmlObject object that needs to serialized.
+     * @return serialized object
+     * @throws SAMLSSOException
+     */
+    public static String marshall(XMLObject xmlObject) throws SAMLSSOException {
+        try {
+
+            System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
+                    "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl");
+
+            MarshallerFactory marshallerFactory = org.opensaml.xml.Configuration
+                    .getMarshallerFactory();
+            Marshaller marshaller = marshallerFactory.getMarshaller(xmlObject);
+            Element element = marshaller.marshall(xmlObject);
+
+            ByteArrayOutputStream byteArrayOutputStrm = new ByteArrayOutputStream();
+            DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
+            DOMImplementationLS impl = (DOMImplementationLS) registry.getDOMImplementation("LS");
+            LSSerializer writer = impl.createLSSerializer();
+            LSOutput output = impl.createLSOutput();
+            output.setByteStream(byteArrayOutputStrm);
+            writer.write(element, output);
+            return byteArrayOutputStrm.toString();
+        } catch (Exception e) {
+            log.error("Error Serializing the SAML Response");
+            throw new SAMLSSOException("Error Serializing the SAML Response", e);
+        }
+    }
+
+    /**
+     * Encoding the response
+     *
+     * @param xmlString String to be encoded
+     * @return encoded String
+     */
+    public static String encode(String xmlString) {
+        String encodedRequestMessage = Base64.encodeBytes(xmlString.getBytes(), Base64.DONT_BREAK_LINES);
+        return encodedRequestMessage.trim();
     }
 
     public static boolean isAuthnRequestSigned(Map<String,String> properties) {

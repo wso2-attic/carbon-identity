@@ -89,7 +89,7 @@ public class WSRealmTenantManager implements TenantManager {
 
     public void deleteTenant(int tenantId, boolean removeFromPersistentStorage) throws UserStoreException {
         //TODO Implement tenant deletion
-    }	
+    }
 
 
     public Tenant[] getAllTenants() throws UserStoreException {
@@ -130,6 +130,12 @@ public class WSRealmTenantManager implements TenantManager {
             handleException("", e);
         }
         return null;
+    }
+
+    //TODO:implement methods
+    public String[] getAllTenantDomainStrOfUser(String s)
+            throws org.wso2.carbon.user.api.UserStoreException {
+        return new String[0];  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public int addTenant(org.wso2.carbon.user.api.Tenant tenant)

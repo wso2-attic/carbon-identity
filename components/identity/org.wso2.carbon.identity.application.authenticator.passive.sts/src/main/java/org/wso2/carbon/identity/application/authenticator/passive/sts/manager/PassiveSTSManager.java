@@ -58,6 +58,7 @@ import org.w3c.dom.NodeList;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authenticator.passive.sts.exception.PassiveSTSException;
+import org.wso2.carbon.identity.application.authenticator.passive.sts.util.CarbonEntityResolver;
 import org.wso2.carbon.identity.application.authenticator.passive.sts.util.PassiveSTSConstants;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.xml.sax.SAXException;
@@ -236,10 +237,12 @@ public class PassiveSTSManager {
         
         samlString = decodeHTMLCharacters(samlString);
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setExpandEntityReferences(false);
 		documentBuilderFactory.setNamespaceAware(true);
 
         try {
             DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
+            docBuilder.setEntityResolver(new CarbonEntityResolver());
             ByteArrayInputStream is = new ByteArrayInputStream(samlString.getBytes(Charset.forName("UTF-8")));
             Document document = docBuilder.parse(is);
             Element element = document.getDocumentElement();

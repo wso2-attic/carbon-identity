@@ -56,9 +56,6 @@ public class BaseCache <K extends Serializable, V extends Serializable> {
 	 *            Actual object where cache entry is placed.
 	 */
 	public void addToCache(K key, V entry) {
-		// Element already in the cache. Remove it first
-		clearCacheEntry(key);
-		
 		Cache<K,V> cache = getBaseCache();
 		if (cache != null) {
 			cache.put(key, entry);
@@ -75,9 +72,7 @@ public class BaseCache <K extends Serializable, V extends Serializable> {
 	public V getValueFromCache(K key) {
 		Cache<K,V> cache = getBaseCache();
 		if (cache != null) {
-			if (cache.containsKey(key)) {
-				return (V) cache.get(key);
-			}
+            return (V) cache.get(key);
 		}
 		return null;
 	}
@@ -91,9 +86,7 @@ public class BaseCache <K extends Serializable, V extends Serializable> {
 	public void clearCacheEntry(K key) {
 		Cache<K,V> cache = getBaseCache();
 		if (cache != null) {
-			if (cache.containsKey(key)) {
-				cache.remove(key);
-			}
+            cache.remove(key);
 		}
 	}
 

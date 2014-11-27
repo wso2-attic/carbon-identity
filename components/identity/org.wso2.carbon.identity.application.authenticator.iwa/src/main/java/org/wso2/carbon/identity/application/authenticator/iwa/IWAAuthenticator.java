@@ -36,6 +36,7 @@ import org.wso2.carbon.identity.application.authentication.framework.config.Conf
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.exception.LogoutFailedException;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.authenticator.iwa.servlet.IWAServelet;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.user.core.UserStoreManager;
@@ -129,7 +130,7 @@ public class IWAAuthenticator extends AbstractApplicationAuthenticator implement
              
              throw new AuthenticationFailedException("Authentication Failed");
          }
-         
+         username = FrameworkUtils.prependUserStoreDomainToName(username);
          context.setSubject(username);
 	}
     

@@ -66,6 +66,7 @@ import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 import org.wso2.carbon.core.security.AuthenticatorsConfiguration;
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.builders.SignKeyDataHolder;
+import org.wso2.carbon.identity.authenticator.saml2.sso.common.util.CarbonEntityResolver;
 
 /**
  * This class contains all the utility methods required by SAML2 SSO Authenticator module.
@@ -81,6 +82,7 @@ public class Util {
 	private static String loginPage = "/carbon/admin/login.jsp";
 	private static String landingPage = null;
 	private static String externalLogoutPage = null;
+	private static String assertionConsumerServiceUrl = null;
 	private static Map<String, String> parameters = new HashMap<String, String>();
 	private static boolean initSuccess = false;
 	private static Properties saml2IdpProperties = new Properties();
@@ -97,9 +99,11 @@ public class Util {
 		try {
 			doBootstrap();
 			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setExpandEntityReferences(false);
 			documentBuilderFactory.setNamespaceAware(true);
 			DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
-			Document document = docBuilder.parse(new ByteArrayInputStream(authReqStr.trim()
+            docBuilder.setEntityResolver(new CarbonEntityResolver());
+            Document document = docBuilder.parse(new ByteArrayInputStream(authReqStr.trim()
 					.getBytes()));
 			Element element = document.getDocumentElement();
 			UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
@@ -333,6 +337,7 @@ public class Util {
 			loginPage = parameters.get(SAML2SSOAuthenticatorConstants.LOGIN_PAGE);
 			landingPage = parameters.get(SAML2SSOAuthenticatorConstants.LANDING_PAGE);
 			externalLogoutPage = parameters.get(SAML2SSOAuthenticatorConstants.EXTERNAL_LOGOUT_PAGE);
+			assertionConsumerServiceUrl = parameters.get(SAML2SSOAuthenticatorConstants.ASSERTION_CONSUMER_SERVICE_URL);
 			initSuccess = true;
 		}
 		return initSuccess;
@@ -374,6 +379,18 @@ public class Util {
 			initSSOConfigParams();
 		}
 		return identityProviderSSOServiceURL;
+	}
+	
+	/**
+	 * returns the Assertion Consumer Service URL
+	 * 
+	 * @return Assertion Consumer Service URL
+	 */
+	public static String getAssertionConsumerServiceURL() {
+		if (!initSuccess) {
+			initSSOConfigParams();
+		}
+		return assertionConsumerServiceUrl;
 	}
 
 	/**

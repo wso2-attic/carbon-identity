@@ -53,6 +53,7 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.user.core.tenant.TenantManager;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
 
 /**
@@ -281,8 +282,18 @@ public class UserInformationRecoveryService {
 		
 		try {
 			UserDTO userDTO = Utils.processUserId(username);
+
+
+            TenantManager tenantManager = IdentityMgtServiceComponent.getRealmService().getTenantManager();
+            int tenantId = 0;
+            try {
+                tenantId = tenantManager.getTenantId(userDTO.getTenantDomain());
+            } catch (UserStoreException e) {
+                log.warn("No Tenant id for tenant domain " + userDTO.getTenantDomain());
+            }
+
 			if (recoveryProcessor.verifyConfirmationCode(3, userDTO.getUserId(), confirmationCode).isVerified()) {
-				Utils.updatePassword(userDTO.getUserId(), userDTO.getTenantId(), newPassword);
+				Utils.updatePassword(userDTO.getUserId(), tenantId, newPassword);
 				log.info("Credential is updated for user : " + userDTO.getUserId()
 						+ " and tenant domain : " + userDTO.getTenantDomain());
 				bean = new VerificationBean(true);
