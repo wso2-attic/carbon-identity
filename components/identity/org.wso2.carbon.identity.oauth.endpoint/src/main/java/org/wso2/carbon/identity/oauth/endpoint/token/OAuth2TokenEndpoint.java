@@ -125,7 +125,7 @@ public class OAuth2TokenEndpoint {
                             .setAccessToken(oauth2AccessTokenResp.getAccessToken())
                             .setRefreshToken(oauth2AccessTokenResp.getRefreshToken())
                             .setExpiresIn(Long.toString(oauth2AccessTokenResp.getExpiresIn()))
-                            .setTokenType("bearer");
+                            .setTokenType("Bearer");
                     oAuthRespBuilder.setScope(oauth2AccessTokenResp.getAuthorizedScopes());
 
                     // OpenID Connect ID token

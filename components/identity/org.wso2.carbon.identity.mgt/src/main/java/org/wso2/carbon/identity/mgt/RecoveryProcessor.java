@@ -22,7 +22,6 @@ import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.beans.VerificationBean;
 import org.wso2.carbon.identity.mgt.config.Config;
@@ -42,7 +41,10 @@ import org.wso2.carbon.identity.mgt.store.UserIdentityDataStore;
 import org.wso2.carbon.identity.mgt.store.UserRecoveryDataStore;
 import org.wso2.carbon.identity.mgt.util.Utils;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
+import org.wso2.carbon.user.api.Tenant;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
+import org.wso2.carbon.user.core.tenant.TenantManager;
 
 /**
  *
@@ -110,6 +112,18 @@ public class RecoveryProcessor {
         int tenantId = recoveryDTO.getTenantId();
         NotificationDataDTO notificationData = new NotificationDataDTO();
         String internalCode = null;
+
+
+        TenantManager tenantManager = IdentityMgtServiceComponent.getRealmService().getTenantManager();
+        try {
+            Tenant tenant = tenantManager.getTenant(tenantId);
+            if(tenant != null) {
+                domainName = tenant.getDomain();
+            }
+
+        } catch (UserStoreException e) {
+            log.warn("No Tenant domain for tenant id " + tenantId);
+        }
         
         String type = recoveryDTO.getNotificationType();
         if(type != null){
@@ -462,6 +476,7 @@ public class RecoveryProcessor {
           } else if(IdentityMgtConstants.Notification.ACCOUNT_CONFORM.equals(notification)){
               notificationData.setNotificationCode(confirmationKey);
               emailNotificationData.setTagData("confirmation-code", confirmationKey);
+              emailNotificationData.setTagData("tenant-domain", domainName);
               emailTemplate = config.getProperty(IdentityMgtConstants.Notification.ACCOUNT_CONFORM);
               
           } else if(IdentityMgtConstants.Notification.TEMPORARY_PASSWORD.equals(notification)){
@@ -481,6 +496,8 @@ public class RecoveryProcessor {
           } else if(IdentityMgtConstants.Notification.ASK_PASSWORD.equals(notification)){          	
               notificationData.setNotificationCode(confirmationKey);
               emailNotificationData.setTagData("confirmation-code", confirmationKey);
+              emailNotificationData.setTagData("tenant-domain", domainName);
+
               emailTemplate = config.getProperty(IdentityMgtConstants.Notification.ASK_PASSWORD);
               
           } 

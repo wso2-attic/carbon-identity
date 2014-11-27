@@ -19,17 +19,14 @@ import org.openid4java.message.ax.FetchRequest;
 import org.openid4java.message.ax.FetchResponse;
 import org.openid4java.server.RealmVerifierFactory;
 import org.openid4java.util.HttpFetcherFactory;
-import org.wso2.carbon.identity.sso.agent.bean.SSOAgentSessionBean;
-import org.wso2.carbon.identity.sso.agent.exception.SSOAgentException;
-import org.wso2.carbon.identity.sso.agent.util.SSOAgentConfigs;
+import org.wso2.carbon.identity.sso.agent.SSOAgentConstants;
+import org.wso2.carbon.identity.sso.agent.SSOAgentException;
+import org.wso2.carbon.identity.sso.agent.bean.LoggedInSessionBean;
+import org.wso2.carbon.identity.sso.agent.bean.SSOAgentConfig;
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
@@ -39,15 +36,22 @@ public class OpenIDManager {
 
     // Smart OpenID Consumer Manager
     private static ConsumerManager consumerManager = null;
-
+    private SSOAgentConfig ssoAgentConfig = null;
     AttributesRequestor attributesRequestor = null;
 
-    public OpenIDManager() throws SSOAgentException{
+    public OpenIDManager(SSOAgentConfig ssoAgentConfig) throws SSOAgentException{
         consumerManager = getConsumerManagerInstance();
+        this.ssoAgentConfig = ssoAgentConfig;
     }
 
-    private ConsumerManager getConsumerManagerInstance() throws SSOAgentException{
-        HttpFetcherFactory  httpFetcherFactory = new HttpFetcherFactory(loadSSLContext(),null);
+    private ConsumerManager getConsumerManagerInstance() throws SSOAgentException {
+
+        HttpFetcherFactory  httpFetcherFactory = null;
+        try {
+            httpFetcherFactory = new HttpFetcherFactory(SSLContext.getDefault(),null);
+        } catch (NoSuchAlgorithmException e) {
+            throw new SSOAgentException("Error while getting default SSL Context", e);
+        }
         return new ConsumerManager(
                 new RealmVerifierFactory(new YadisResolver(httpFetcherFactory)),
                 new Discovery(), httpFetcherFactory);
@@ -55,10 +59,14 @@ public class OpenIDManager {
 
     public String doOpenIDLogin(HttpServletRequest request, HttpServletResponse response) throws SSOAgentException {
 
-        String claimed_id = request.getParameter(SSOAgentConfigs.getClaimedIdParameterName());
-
+        String claimed_id = ssoAgentConfig.getOpenId().getClaimedId();
 
         try {
+
+            if (ssoAgentConfig.getOpenId().isDumbModeEnabled()){
+                // Switch the consumer manager to dumb mode
+                consumerManager.setMaxAssocAttempts(0);
+            }
 
             // Discovery on the user supplied ID
             List discoveries = consumerManager.discover(claimed_id);
@@ -67,26 +75,22 @@ public class OpenIDManager {
             DiscoveryInformation discovered = consumerManager.associate(discoveries);
 
             // Keeping necessary parameters to verify the AuthResponse
-            SSOAgentSessionBean sessionBean = new SSOAgentSessionBean();
-            sessionBean.setOpenIDSessionBean(sessionBean.new OpenIDSessionBean());
-            sessionBean.getOpenIDSessionBean().setDiscoveryInformation(discovered); // set the discovery information
-            request.getSession().setAttribute(SSOAgentConfigs.getSessionBeanName(), sessionBean);
+            LoggedInSessionBean sessionBean = new LoggedInSessionBean();
+            sessionBean.setOpenId(sessionBean.new OpenID());
+            sessionBean.getOpenId().setDiscoveryInformation(discovered); // set the discovery information
+            request.getSession().setAttribute(SSOAgentConstants.SESSION_BEAN_NAME, sessionBean);
 
             consumerManager.setImmediateAuth(true);
-            AuthRequest authReq = consumerManager.authenticate(discovered, SSOAgentConfigs.getReturnTo());
+            AuthRequest authReq = consumerManager.authenticate(discovered,
+                    ssoAgentConfig.getOpenId().getReturnToURL());
 
-            // Request subject attributes using Attribute Exchange extension specification
-            if(SSOAgentConfigs.getAttributesRequestorImplClass() != null){
 
-                if(attributesRequestor == null){
-                    synchronized (this){
-                        if(attributesRequestor == null){
-                            attributesRequestor = (AttributesRequestor)Class.forName(SSOAgentConfigs.
-                                    getAttributesRequestorImplClass()).newInstance();
-                            attributesRequestor.init();
-                        }
-                    }
-                }
+            // Request subject attributes using Attribute Exchange extension specification if AttributeExchange is enabled
+            if(ssoAgentConfig.getOpenId().isAttributeExchangeEnabled() &&
+                    ssoAgentConfig.getOpenId().getAttributesRequestor() != null){
+
+                attributesRequestor = ssoAgentConfig.getOpenId().getAttributesRequestor();
+                attributesRequestor.init();
 
                 String[] requestedAttributes = attributesRequestor.getRequestedAttributes(claimed_id);
 
@@ -118,15 +122,6 @@ public class OpenIDManager {
             throw new SSOAgentException("Error while doing OpenID Discovery", e);
         } catch (ConsumerException e) {
             throw new SSOAgentException("Error while doing OpenID Authentication", e);
-        } catch (ClassNotFoundException e) {
-            throw new SSOAgentException("Error while instantiating AttributeRequestorImplClass: " +
-                    SSOAgentConfigs.getAttributesRequestorImplClass(), e);
-        } catch (InstantiationException e) {
-            throw new SSOAgentException("Error while instantiating AttributeRequestorImplClass: " +
-                    SSOAgentConfigs.getAttributesRequestorImplClass(), e);
-        } catch (IllegalAccessException e) {
-            throw new SSOAgentException("Error while instantiating AttributeRequestorImplClass: " +
-                    SSOAgentConfigs.getAttributesRequestorImplClass(), e);
         }
     }
 
@@ -137,18 +132,20 @@ public class OpenIDManager {
             ParameterList authResponseParams = new ParameterList(request.getParameterMap());
 
             // Get previously saved session bean
-            SSOAgentSessionBean ssoAgentSessionBean = (SSOAgentSessionBean)request.getSession(false).getAttribute(
-                    SSOAgentConfigs.getSessionBeanName());
-            if(ssoAgentSessionBean == null){
-                throw new SSOAgentException("Error while verifying OpenID response. Cannot find valid session for user");
+            LoggedInSessionBean loggedInSessionBean = (LoggedInSessionBean)request.getSession(false).
+                    getAttribute(SSOAgentConstants.SESSION_BEAN_NAME);
+            if(loggedInSessionBean == null){
+                throw new SSOAgentException("Error while verifying OpenID response. " +
+                        "Cannot find valid session for user");
             }
 
             // Previously discovered information
-            DiscoveryInformation discovered = ssoAgentSessionBean.getOpenIDSessionBean().getDiscoveryInformation();
+            DiscoveryInformation discovered = loggedInSessionBean.getOpenId().getDiscoveryInformation();
 
             // Verify return-to, discoveries, nonce & signature
             // Signature will be verified using the shared secret
-            VerificationResult verificationResult = consumerManager.verify(SSOAgentConfigs.getReturnTo(), authResponseParams, discovered);
+            VerificationResult verificationResult = consumerManager.verify(
+                    ssoAgentConfig.getOpenId().getReturnToURL(), authResponseParams, discovered);
 
             Identifier verified = verificationResult.getVerifiedId();
 
@@ -157,26 +154,29 @@ public class OpenIDManager {
 
                 AuthSuccess authSuccess = (AuthSuccess) verificationResult.getAuthResponse();
 
-                ssoAgentSessionBean.getOpenIDSessionBean().setClaimedId(authSuccess.getIdentity());
+                loggedInSessionBean.getOpenId().setClaimedId(authSuccess.getIdentity());
 
                 // Get requested attributes using AX extension
                 if (authSuccess.hasExtension(AxMessage.OPENID_NS_AX)) {
                     Map<String,List<String>> attributesMap = new HashMap<String,List<String>>();
-                    String[] attrArray = attributesRequestor.getRequestedAttributes(authSuccess.getIdentity());
-                    FetchResponse fetchResp = (FetchResponse) authSuccess.getExtension(AxMessage.OPENID_NS_AX);
-                    for(String attr : attrArray){
-                        List attributeValues = fetchResp.getAttributeValuesByTypeUri(attributesRequestor.getTypeURI(authSuccess.getIdentity(), attr));
-                        if(attributeValues.get(0) instanceof String && ((String)attributeValues.get(0)).split(",").length > 1){
-                            String[] splitString = ((String)attributeValues.get(0)).split(",");
-                            for(String part : splitString){
-                                attributeValues.add(part);
+                    if (ssoAgentConfig.getOpenId().getAttributesRequestor() != null) {
+                        attributesRequestor = ssoAgentConfig.getOpenId().getAttributesRequestor();
+                        String[] attrArray = attributesRequestor.getRequestedAttributes(authSuccess.getIdentity());
+                        FetchResponse fetchResp = (FetchResponse) authSuccess.getExtension(AxMessage.OPENID_NS_AX);
+                        for(String attr : attrArray){
+                            List attributeValues = fetchResp.getAttributeValuesByTypeUri(attributesRequestor.getTypeURI(authSuccess.getIdentity(), attr));
+                            if(attributeValues.get(0) instanceof String && ((String)attributeValues.get(0)).split(",").length > 1){
+                                String[] splitString = ((String)attributeValues.get(0)).split(",");
+                                for(String part : splitString){
+                                    attributeValues.add(part);
+                                }
+                            }
+                            if(attributeValues.get(0) != null){
+                                attributesMap.put(attr,attributeValues);
                             }
                         }
-                        if(attributeValues.get(0) != null){
-                            attributesMap.put(attr,attributeValues);
-                        }
                     }
-                    ssoAgentSessionBean.getOpenIDSessionBean().setOpenIdAttributes(attributesMap);
+                    loggedInSessionBean.getOpenId().setSubjectAttributes(attributesMap);
                 }
 
             } else {
@@ -193,26 +193,28 @@ public class OpenIDManager {
 
     }
 
-    private SSLContext loadSSLContext() throws SSOAgentException {
-        KeyStore trustStore = null;
-        try {
-            trustStore = SSOAgentConfigs.getKeyStore();
-
-            TrustManagerFactory tmf = TrustManagerFactory
-                    .getInstance(TrustManagerFactory.getDefaultAlgorithm());
-
-            tmf.init(trustStore);
-
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, tmf.getTrustManagers(), null);
-            return sslContext;
-        } catch (NoSuchAlgorithmException e) {
-            throw new SSOAgentException("Error when reading keystore", e);
-        } catch (KeyManagementException e) {
-            throw new SSOAgentException("Error when reading keystore", e);
-        } catch (KeyStoreException e) {
-            throw new SSOAgentException("Error when reading keystore", e);
-        }
-    }
+//    protected SSLContext loadSSLContext() throws SSOAgentException {
+//
+//        KeyStore trustStore = null;
+//        try {
+//
+//            trustStore = SSOAgentConfig.getKeyStore();
+//
+//            TrustManagerFactory tmf = TrustManagerFactory
+//                    .getInstance(TrustManagerFactory.getDefaultAlgorithm());
+//
+//            tmf.init(trustStore);
+//
+//            SSLContext sslContext = SSLContext.getInstance("TLS");
+//            sslContext.init(null, tmf.getTrustManagers(), null);
+//            return sslContext;
+//        } catch (NoSuchAlgorithmException e) {
+//            throw new SSOAgentException("Error when reading keystore", e);
+//        } catch (KeyManagementException e) {
+//            throw new SSOAgentException("Error when reading keystore", e);
+//        } catch (KeyStoreException e) {
+//            throw new SSOAgentException("Error when reading keystore", e);
+//        }
+//    }
 
 }

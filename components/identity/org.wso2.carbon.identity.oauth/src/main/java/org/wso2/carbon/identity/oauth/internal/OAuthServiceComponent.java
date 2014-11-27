@@ -20,10 +20,13 @@ package org.wso2.carbon.identity.oauth.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
+import org.wso2.carbon.identity.oauth.listener.IdentityOathEventListener;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 
 /**
@@ -38,6 +41,9 @@ import org.wso2.carbon.user.core.service.RealmService;
  */
 public class OAuthServiceComponent {
     private static Log log = LogFactory.getLog(OAuthServiceComponent.class);
+
+    private ServiceRegistration serviceRegistration = null;
+    private static IdentityOathEventListener listener = null;
 
     protected void activate(ComponentContext context) {
         // initialize the OAuth Server configuration
@@ -54,12 +60,20 @@ public class OAuthServiceComponent {
             }
         }
 
+        listener = new IdentityOathEventListener();
+        serviceRegistration = context.getBundleContext().registerService(UserOperationEventListener.class.getName(),
+                listener, null);
+        log.debug("Identity Oath Event Listener is enabled");
+
         if (log.isDebugEnabled()) {
             log.info("Identity OAuth bundle is activated");
         }
     }
 
     protected void deactivate(ComponentContext context) {
+        if (serviceRegistration != null) {
+            serviceRegistration.unregister();
+        }
         if (log.isDebugEnabled()) {
             log.info("Identity OAuth bundle is deactivated");
         }

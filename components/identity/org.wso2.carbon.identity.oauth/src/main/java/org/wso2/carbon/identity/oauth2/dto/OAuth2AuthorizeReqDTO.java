@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.identity.oauth2.dto;
 
+import java.util.LinkedHashSet;
+
 public class OAuth2AuthorizeReqDTO {
     private String consumerKey;
     private String[] scopes;
@@ -25,6 +27,7 @@ public class OAuth2AuthorizeReqDTO {
     private String callbackUrl;
     private String username;
     private String password;
+    private LinkedHashSet acrValues;
 
     public String getUsername() {
         return username;
@@ -75,4 +78,11 @@ public class OAuth2AuthorizeReqDTO {
         this.callbackUrl = callbackUrl;
     }
 
+    public LinkedHashSet getACRValues() {
+        return acrValues;
+    }
+
+    public void setACRValues(LinkedHashSet acrValues) {
+        this.acrValues = acrValues;
+    }
 }

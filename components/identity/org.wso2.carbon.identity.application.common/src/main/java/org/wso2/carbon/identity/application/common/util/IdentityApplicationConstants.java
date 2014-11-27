@@ -52,6 +52,7 @@ public class IdentityApplicationConstants {
         public static class SAML2SSO {
 
             public static final String NAME = "samlsso";
+            public static final String FED_AUTH_NAME = "SAMLSSOAuthenticator";
             public static final String IDP_ENTITY_ID = "IdPEntityId";
             public static final String SP_ENTITY_ID = "SPEntityId";
             public static final String SSO_URL = "SSOUrl";

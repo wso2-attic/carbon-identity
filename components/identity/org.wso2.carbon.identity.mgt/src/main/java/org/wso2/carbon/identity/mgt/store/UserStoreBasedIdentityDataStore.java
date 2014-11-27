@@ -105,13 +105,15 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
 			                 ((AbstractUserStoreManager) userStoreManager).getUserClaimValues(userName,
 			                                                                                  null);
 			// select the security questions and identity claims
-			for (Claim claim : claims) {
-				String claimUri = claim.getClaimUri();
-				if (claimUri.contains(UserCoreConstants.ClaimTypeURIs.IDENTITY_CLAIM_URI) ||
-				    claimUri.contains(UserCoreConstants.ClaimTypeURIs.CHALLENGE_QUESTION_URI)) {
-					userDataMap.put(claimUri, claim.getValue());
-				}
-			}
+            if(claims != null) {
+                for (Claim claim : claims) {
+                    String claimUri = claim.getClaimUri();
+                    if (claimUri.contains(UserCoreConstants.ClaimTypeURIs.IDENTITY_CLAIM_URI) ||
+                            claimUri.contains(UserCoreConstants.ClaimTypeURIs.CHALLENGE_QUESTION_URI)) {
+                        userDataMap.put(claimUri, claim.getValue());
+                    }
+                }
+            }
 		} catch (UserStoreException e) {
 			// ignore may be user is not exist
 		}

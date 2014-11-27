@@ -22,7 +22,7 @@ import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.security.credential.CredentialContextSet;
 import org.opensaml.xml.security.credential.UsageType;
 import org.opensaml.xml.security.x509.X509Credential;
-import org.wso2.carbon.identity.sso.agent.exception.SSOAgentException;
+import org.wso2.carbon.identity.sso.agent.SSOAgentException;
 
 import javax.crypto.SecretKey;
 import java.security.PrivateKey;
@@ -40,7 +40,7 @@ public class X509CredentialImpl implements X509Credential {
     private X509Certificate entityCertificate = null;
     private PrivateKey privateKey = null;
 
-    public X509CredentialImpl(SSOAgentCredential credential) throws SSOAgentException {
+    public X509CredentialImpl(SSOAgentX509Credential credential) throws SSOAgentException {
         publicKey = credential.getPublicKey();
         this.entityCertificate = credential.getEntityCertificate();
         this.privateKey = credential.getPrivateKey();

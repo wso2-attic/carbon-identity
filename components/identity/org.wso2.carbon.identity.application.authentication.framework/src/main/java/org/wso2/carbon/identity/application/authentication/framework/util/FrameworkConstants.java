@@ -32,10 +32,13 @@ public abstract class FrameworkConstants {
         public static final String ELEM_STEP = "Step";
         public static final String ELEM_AUTHENTICATOR = "Authenticator";
         public static final String ELEM_AUTHENTICATOR_CONFIG = "AuthenticatorConfig";
+        public static final String ELEM_AUTH_ENDPOINT_QUERY_PARAM = "AuthenticationEndpointQueryParam";
         public static final String ELEM_AUTHENTICATOR_NAME_MAPPING = "AuthenticatorNameMapping";
         public static final String ELEM_IDP_CONFIG = "IdPConfig";
         public static final String ELEM_PARAMETER = "Parameter";
         public static final String ELEM_REQ_PATH_AUTHENTICATOR = "RequestPathAuthenticators";
+        public static final String ATTR_AUTH_ENDPOINT_QUERY_PARAM_NAME = "name";
+        public static final String ATTR_AUTH_ENDPOINT_QUERY_PARAM_ACTION = "action";
 
         // Constant definitions for attributes
         public static final String ATTR_AUTHENTICATOR_NAME = "name";
@@ -62,6 +65,7 @@ public abstract class FrameworkConstants {
         public static final String QNAME_AUTHENTICATOR_NAME_MAPPINGS = "AuthenticatorNameMappings";
         public static final String QNAME_IDP_CONFIGS = "IdPConfigs";
         public static final String QNAME_SEQUENCES = "Sequences";
+        public static final String QNAME_AUTH_ENDPOINT_QUERY_PARAMS = "AuthenticationEndpointQueryParams";
 
         public static final String QNAME_EXT_REQ_COORDINATOR = "RequestCoordinator";
         public static final String QNAME_EXT_AUTH_REQ_HANDLER = "AuthenticationRequestHandler";
@@ -122,4 +126,13 @@ public abstract class FrameworkConstants {
     public static final String LOCAL_IDP_NAME = "LOCAL";
     public static final String REQ_ATTR_HANDLED = "commonAuthHandled";
 
+    public static final String LOGOUT = "commonAuthLogout";
+    public static final String IDP = "idp";
+    public static final String AUTHENTICATOR = "authenticator";
+    public final static String SIGNATURE_ALGORITHM = "SigAlg";
+    public final static String SAML_REQUEST = "SAMLRequest";
+    public final static String SIGNATURE = "Signature";
+
+    public final static String AUTH_ENDPOINT_QUERY_PARAMS_ACTION_INCLUDE = "include";
+    public final static String AUTH_ENDPOINT_QUERY_PARAMS_ACTION_EXCLUDE = "exclude";
 }

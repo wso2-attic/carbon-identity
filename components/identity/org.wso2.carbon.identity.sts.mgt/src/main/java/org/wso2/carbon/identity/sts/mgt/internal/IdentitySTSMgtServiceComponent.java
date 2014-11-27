@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.provider.IdentityProviderUtil;
+import org.wso2.carbon.identity.sts.mgt.STSConfigurationContextObserver;
 import org.wso2.carbon.identity.sts.mgt.STSObserver;
 import org.wso2.carbon.identity.sts.mgt.admin.STSConfigAdmin;
 import org.wso2.carbon.registry.core.Registry;
@@ -36,6 +37,7 @@ import org.wso2.carbon.security.SecurityScenarioDatabase;
 import org.wso2.carbon.security.config.SecurityConfigAdmin;
 import org.wso2.carbon.security.util.XmlConfiguration;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
 import java.net.URL;
@@ -214,6 +216,12 @@ public class IdentitySTSMgtServiceComponent {
      * @throws Exception
      */
     private void initialize() throws Exception {
+
+        // Register a Axis2ConfigurationContextObserver to activate on loading tenants.
+        bundleContext.registerService(
+                Axis2ConfigurationContextObserver.class.getName(), new STSConfigurationContextObserver(), null);
+        log.debug("Registered STSConfigurationContextObserver to configure STS service for tenants.");
+
         loadSecurityScenarios();
         STSConfigAdmin.configureService(configContext.getAxisConfiguration(),
                                         this.registryService.getConfigSystemRegistry());

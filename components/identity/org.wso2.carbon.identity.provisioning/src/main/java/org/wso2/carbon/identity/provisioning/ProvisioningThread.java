@@ -1,11 +1,13 @@
 package org.wso2.carbon.identity.provisioning;
 
-import java.util.UUID;
-
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.provisioning.dao.CacheBackedProvisioningMgtDAO;
 import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 import org.wso2.carbon.user.api.UserStoreException;
+
+import java.util.UUID;
 
 public class ProvisioningThread implements Runnable {
 
@@ -31,7 +33,18 @@ public class ProvisioningThread implements Runnable {
     @Override
     public void run() {
 
+        String tenantDomainName = null;
+
+        if (CarbonContext.getThreadLocalCarbonContext() != null) {
+            tenantDomainName = this.tenantDomainName;
+        }
+
         try {
+
+            PrivilegedCarbonContext.startTenantFlow();
+            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
+                    .getThreadLocalCarbonContext();
+            carbonContext.setTenantDomain(tenantDomainName);
 
             ProvisionedIdentifier provisionedIdentifier = null;
             // real provisioning happens now.
@@ -55,11 +68,18 @@ public class ProvisioningThread implements Runnable {
             }
         } catch (Exception e) {
 
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+
+            if (tenantDomainName != null) {
+                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(
+                        tenantDomainName);
+            }
         }
     }
 
     /**
-     * 
+     *
      * @param idpName
      * @param connectorType
      * @param provisioningEntity
@@ -80,7 +100,7 @@ public class ProvisioningThread implements Runnable {
     }
 
     /**
-     * 
+     *
      * @param idpName
      * @param connectorType
      * @param provisioningEntity

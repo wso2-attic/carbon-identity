@@ -25,8 +25,12 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
+import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.persistence.JDBCPersistenceManager;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -37,7 +41,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @scr.component name="idp.mgt.dscomponent" immediate=true
@@ -58,6 +64,8 @@ public class IdPManagementServiceComponent {
     private static ConfigurationContextService configurationContextService = null;
 
     private static Map<String, IdentityProvider> fileBasedIdPs = new HashMap<String, IdentityProvider>();
+
+    private static Set<String> sharedIdps = new HashSet<String>();
 
     protected void activate(ComponentContext ctxt) {
         try {
@@ -89,7 +97,8 @@ public class IdPManagementServiceComponent {
                         "variable was not provided during startup");
             }
 
-            buidFileBasedIdPList();
+            buildFileBasedIdPList();
+            cleanUpRemovedIdps();
 
             log.debug("Identity Provider Management bundle is activated");
 
@@ -103,7 +112,7 @@ public class IdPManagementServiceComponent {
     /**
      * 
      */
-    private void buidFileBasedIdPList() {
+    private void buildFileBasedIdPList() {
 
         String spConfigDirPath = CarbonUtils.getCarbonConfigDirPath() + File.separator + "identity"
                 + File.separator + "identity-providers";
@@ -120,7 +129,27 @@ public class IdPManagementServiceComponent {
                         documentElement = new StAXOMBuilder(fileInputStream).getDocumentElement();
                         IdentityProvider idp = IdentityProvider.build(documentElement);
                         if (idp != null) {
-                            fileBasedIdPs.put(idp.getIdentityProviderName(), idp);
+                            IdentityProviderManager idpManager = IdentityProviderManager.getInstance();
+                            String superTenantDN = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+                            if (isSharedIdP(idp)) {
+                                IdentityProvider currentIdp = idpManager.getIdPByName(idp.getIdentityProviderName(),
+                                        superTenantDN);
+                                if (currentIdp != null && !IdentityApplicationConstants.DEFAULT_IDP_CONFIG.equals(
+                                        currentIdp.getIdentityProviderName())) {
+                                    idpManager.updateIdP(idp.getIdentityProviderName(), idp, superTenantDN);
+                                    if(log.isDebugEnabled()){
+                                        log.debug("Shared IdP "+idp.getIdentityProviderName()+" updated");
+                                    }
+                                } else {
+                                    IdentityProviderManager.getInstance().addIdP(idp, superTenantDN);
+                                    if(log.isDebugEnabled()){
+                                        log.debug("Shared IdP "+idp.getIdentityProviderName()+" added");
+                                    }
+                                }
+                                sharedIdps.add(idp.getIdentityProviderName());
+                            } else {
+                                fileBasedIdPs.put(idp.getIdentityProviderName(), idp);
+                            }
                         }
                     }
                 } catch (Exception e) {
@@ -136,6 +165,29 @@ public class IdPManagementServiceComponent {
                 }
             }
         }
+    }
+
+    private void cleanUpRemovedIdps(){
+        IdentityProviderManager idpManager = IdentityProviderManager.getInstance();
+        String superTenantDN = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+
+        try {
+            for (IdentityProvider idp : idpManager.getIdPs(superTenantDN)) {
+                if(isSharedIdP(idp) && !sharedIdps.contains(idp.getIdentityProviderName())){
+                    //IDP config file has been deleted from filesystem
+                    idpManager.deleteIdP(idp.getIdentityProviderName(),superTenantDN);
+                    log.info("Deleted shared IdP with the name : "+idp.getIdentityProviderName());
+                }
+            }
+
+        } catch (IdentityApplicationManagementException e) {
+            log.error("Error loading IDPs",e);
+        }
+    }
+
+    private boolean isSharedIdP(IdentityProvider idp){
+        return idp != null && idp.getIdentityProviderName() != null && idp.getIdentityProviderName().startsWith
+                ("SHARED_");
     }
 
     /**

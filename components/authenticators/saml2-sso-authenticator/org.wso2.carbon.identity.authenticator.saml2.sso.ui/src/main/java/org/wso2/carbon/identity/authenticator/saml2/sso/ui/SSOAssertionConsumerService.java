@@ -45,18 +45,14 @@ import org.wso2.carbon.identity.authenticator.saml2.sso.common.FederatedSSOToken
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.SAML2SSOAuthenticatorConstants;
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.SAML2SSOUIAuthenticatorException;
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.SAMLConstants;
-import org.wso2.carbon.identity.authenticator.saml2.sso.common.SSOSessionManager;
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.Util;
 import org.wso2.carbon.identity.authenticator.saml2.sso.ui.authenticator.SAML2SSOUIAuthenticator;
 import org.wso2.carbon.identity.authenticator.saml2.sso.ui.client.SAMLSSOServiceClient;
-import org.wso2.carbon.identity.authenticator.saml2.sso.ui.internal.SAML2SSOAuthFEDataHolder;
+import org.wso2.carbon.identity.authenticator.saml2.sso.ui.session.SSOSessionManager;
 import org.wso2.carbon.identity.sso.saml.stub.IdentityException;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOAuthnReqDTO;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOReqValidationResponseDTO;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSORespDTO;
-import org.wso2.carbon.ui.CarbonSSOSessionManager;
-import org.wso2.carbon.ui.CarbonSecuredHttpContext;
-import org.wso2.carbon.ui.CarbonUIAuthenticator;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -90,9 +86,23 @@ public class SSOAssertionConsumerService extends HttpServlet {
         String samlRespString = req.getParameter(
                 SAML2SSOAuthenticatorConstants.HTTP_POST_PARAM_SAML2_RESP);
 
-		if (log.isDebugEnabled()) {
-			log.debug("Processing SAML Response");
-		}
+        if (log.isDebugEnabled()) {
+            log.debug("Processing SAML Response");
+
+            Enumeration headerNames = req.getHeaderNames();
+            log.debug("[Request Headers] :");
+            while (headerNames.hasMoreElements()) {
+                String headerName = (String) headerNames.nextElement();
+                log.debug(">> " + headerName + ":" + req.getHeader(headerName));
+            }
+
+            Enumeration params = req.getParameterNames();
+            log.debug("[Request Parameters] :");
+            while (params.hasMoreElements()) {
+                String paramName = (String) params.nextElement();
+                log.debug(">> " + paramName + ":" + req.getParameter(paramName));
+            }
+        }
 
         // Handle single logout requests
         if (req.getParameter(SAML2SSOAuthenticatorConstants.HTTP_POST_PARAM_SAML2_AUTH_REQ) != null) {
@@ -182,7 +192,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
 		boolean isFederated = false;
 
 		if (relayState != null) {
-			FederatedSSOToken federatedSSOToken = SSOSessionManager
+			FederatedSSOToken federatedSSOToken = org.wso2.carbon.identity.authenticator.saml2.sso.common.SSOSessionManager
 					.getFederatedToken(relayState);
 			if (federatedSSOToken != null) {
 				isFederated = true;
@@ -263,11 +273,10 @@ public class SSOAssertionConsumerService extends HttpServlet {
     private void handleSingleLogoutRequest(HttpServletRequest req, HttpServletResponse resp) {
         String logoutReqStr = decodeHTMLCharacters(req.getParameter(
                 SAML2SSOAuthenticatorConstants.HTTP_POST_PARAM_SAML2_AUTH_REQ));
-        CarbonSSOSessionManager ssoSessionManager = null;
+        
         XMLObject samlObject = null;
 
         try {
-            ssoSessionManager = SAML2SSOAuthFEDataHolder.getInstance().getCarbonSSOSessionManager();
             samlObject = Util.unmarshall(Util.decode(logoutReqStr));
         } catch (SAML2SSOUIAuthenticatorException e) {
             log.error("Error handling the single logout request", e);
@@ -278,60 +287,12 @@ public class SSOAssertionConsumerService extends HttpServlet {
             //  There can be only one session index entry.
             List<SessionIndex> sessionIndexList = logoutRequest.getSessionIndexes();
             if (sessionIndexList.size() > 0) {
-                // mark this session as invalid.
-                ssoSessionManager.makeSessionInvalid(sessionIndexList.get(0).getSessionIndex());
-                clearHttpSession(req);
+                SSOSessionManager.getInstance().handleLogout(
+                        sessionIndexList.get(0).getSessionIndex());
             }
         }
     }
     
-    /**
-     * Clear session cookies and parameters
-     */
-    private void clearHttpSession(HttpServletRequest req) {
-    	
-    	HttpSession session = req.getSession(false);
-    	String username = (String) session.getAttribute(CarbonSecuredHttpContext.LOGGED_USER);
-    	log.info("Invalidating session for user " + username);
-    	
-    	// invalidating backend session
-    	try {
-    		CarbonUIAuthenticator authenticator =
-    				(CarbonUIAuthenticator) session.getAttribute(CarbonSecuredHttpContext.CARBON_AUTHNETICATOR);
-    		if (authenticator != null) {
-    			authenticator.unauthenticate(req);
-    			log.debug("Backend session invalidated");
-    		}
-    	} catch (Exception e) {
-    		log.error(e.getMessage());
-    	}
-    	
-    	// clearing front end session
-		session.setAttribute("authenticated", false);
-		session.removeAttribute(CarbonSecuredHttpContext.LOGGED_USER);
-        session.getServletContext().removeAttribute(CarbonSecuredHttpContext.LOGGED_USER);
-        
-       /* Cookie[] cookies = req.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("requestedURI")) {
-                    cookie.setValue(null);
-                }
-            }
-        }*/
-		
-		try {
-            session.invalidate();
-        } catch (Exception ignored) {
-        	log.error(ignored.getMessage());
-        }
-		
-		if (log.isDebugEnabled()) {
-			log.debug("Cleared authenticated session " + session.getId());
-		}
-    	
-    }
-
     /**
      * Get the admin console url from the request.
      *

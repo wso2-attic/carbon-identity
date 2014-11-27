@@ -102,6 +102,12 @@ public class LogoutRequestProcessor {
 				}
 				subject = sessionInfoData.getSubject();
 				issuer = logoutRequest.getIssuer().getValue();
+
+                if(issuer.contains("@")){
+                    String[] splitIssuer = issuer.split("@");
+                    issuer = splitIssuer[0];
+                    SAMLSSOUtil.setTenantDomainInThreadLocal(splitIssuer[1]);
+                }
 				Map<String, SAMLSSOServiceProviderDO> sessionsList = sessionInfoData
 						.getServiceProviderList();
 				SAMLSSOServiceProviderDO logoutReqIssuer = sessionsList.get(issuer);
@@ -157,6 +163,7 @@ public class LogoutRequestProcessor {
 						.size() - 1];
 				LogoutRequest logoutReq = logoutMsgBuilder.buildLogoutRequest(subject, sessionIndex,
 						SAMLSSOConstants.SingleLogoutCodes.LOGOUT_USER);
+                logoutReq.setIssuer(SAMLSSOUtil.getIssuer());
 				String logoutReqString = SAMLSSOUtil.encode(SAMLSSOUtil.marshall(logoutReq));
 				int index = 0;
 				for (String key : sessionsList.keySet()) {

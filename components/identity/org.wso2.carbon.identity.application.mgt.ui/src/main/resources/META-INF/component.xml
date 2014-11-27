@@ -61,6 +61,12 @@
             <require-not-logged-in>false</require-not-logged-in>
         </menu>
 	</menus>
+    <ManagementPermissions>
+        <ManagementPermission>
+            <DisplayName>applications</DisplayName>
+            <ResourceId>/permission/applications</ResourceId>
+        </ManagementPermission>
+    </ManagementPermissions>
     <!-- framework-configuration>
         <bypass>
             <authentication>

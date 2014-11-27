@@ -350,17 +350,21 @@ public class DefaultClaimHandler implements ClaimHandler {
 
             }
 
+            if (spToLocalClaimMappings == null || spToLocalClaimMappings.size() == 0
+                    && spDialect == null) {
+                return new HashMap<String, String>();
+            }
+
+
             // user claim values against local claim uris.
             Map<String, String> userClaims = userstore.getUserClaimValues(
                     MultitenantUtils.getTenantAwareUsername(authenticatedUser),
                     claimURIList.toArray(new String[claimURIList.size()]), null);
 
-            if (userClaims == null
-                    || userClaims.size() == 0
-                    || (spToLocalClaimMappings == null || spToLocalClaimMappings.size() == 0
-                            && spDialect == null)) {
+            if(userClaims == null || userClaims.size() == 0){
                 return new HashMap<String, String>();
             }
+
 
             HashMap<String, String> mappedAppClaims = new HashMap<String, String>();
             HashMap<String, String> filteredClaims = new HashMap<String, String>();

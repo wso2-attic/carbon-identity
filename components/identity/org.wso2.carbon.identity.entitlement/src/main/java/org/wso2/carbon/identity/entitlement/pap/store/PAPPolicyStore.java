@@ -26,6 +26,8 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.entitlement.EntitlementException;
 import org.wso2.carbon.identity.entitlement.PDPConstants;
+import org.wso2.carbon.identity.entitlement.cache.DecisionInvalidationCache;
+import org.wso2.carbon.identity.entitlement.cache.EntitlementPolicyInvalidationCache;
 import org.wso2.carbon.identity.entitlement.dto.PolicyDTO;
 import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent;
 import org.wso2.carbon.identity.entitlement.policy.PolicyAttributeBuilder;
@@ -134,6 +136,7 @@ public class PAPPolicyStore {
 
     public void addOrUpdatePolicy(PolicyDTO policy, String policyPath) throws EntitlementException {
         addOrUpdatePolicy(policy, policy.getPolicyId(), policyPath);
+
     }
     /**
      *
@@ -306,6 +309,8 @@ public class PAPPolicyStore {
             }
 
             registry.put(path, resource);
+	       clearDecisionCache();
+	       clearPolicyCache();
 
         } catch (RegistryException e) {
             log.error("Error while adding or updating entitlement policy " + policyId+
@@ -336,10 +341,20 @@ public class PAPPolicyStore {
                 return;
             }
             registry.delete(path);
+	        clearDecisionCache();
+	        clearPolicyCache();
         } catch (RegistryException e) {
             log.error("Error while removing entitlement policy " + policyId + " from PAP policy store" , e);
             throw new EntitlementException("Error while removing policy " + policyId + " from PAP policy store");
         }
     }
+
+	private void clearPolicyCache() throws EntitlementException {
+		EntitlementPolicyInvalidationCache.getInstance().invalidateCache();
+	}
+
+	private void clearDecisionCache() {
+		DecisionInvalidationCache.getInstance().invalidateCache();
+	}
 
 }

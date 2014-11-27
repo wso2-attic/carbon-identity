@@ -82,6 +82,13 @@ public class IdentityProviderManagementService extends AbstractAdmin {
 
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         List<IdentityProvider> identityProviders = IdentityProviderManager.getInstance().getIdPs(tenantDomain);
+        for (int i = 0; i < identityProviders.size(); i++) {
+            String providerName = identityProviders.get(i).getIdentityProviderName();
+            if(providerName!=null && providerName.startsWith("SHARED_")){
+                identityProviders.remove(i);
+                i--;
+            }
+        }
         return identityProviders.toArray(new IdentityProvider[identityProviders.size()]);
     }
 
@@ -123,6 +130,9 @@ public class IdentityProviderManagementService extends AbstractAdmin {
      */
     public void addIdP(IdentityProvider identityProvider)
             throws IdentityApplicationManagementException {
+        if(identityProvider.getIdentityProviderName()!=null && identityProvider.getIdentityProviderName().startsWith("SHARED_")){
+            throw new IdentityApplicationManagementException("Identity provider name cannot have 'SHARED_' as prefix.");
+        }
 
     	// invoking the listeners
     	List<IdentityProviderMgtLister> listerns = IdpMgtListenerServiceComponent.getListners();
@@ -183,7 +193,12 @@ public class IdentityProviderManagementService extends AbstractAdmin {
     public void updateIdP(String oldIdPName, IdentityProvider identityProvider)
             throws IdentityApplicationManagementException {
 
-
+        if(oldIdPName!=null && !oldIdPName.startsWith("SHARED_") && identityProvider !=null && identityProvider
+                .getIdentityProviderName()!=null && identityProvider.getIdentityProviderName().startsWith("SHARED_")){
+            String msg = "Cannot update Idp name to have 'SHARED_' as a prefix'";
+            log.error(msg+ " (prev name:"+oldIdPName+", New name: "+identityProvider.getIdentityProviderName()+")");
+            throw new IdentityApplicationManagementException(msg);
+        }
     	// invoking the listeners
     	List<IdentityProviderMgtLister> listerns = IdpMgtListenerServiceComponent.getListners();
     	for(IdentityProviderMgtLister listner : listerns) {

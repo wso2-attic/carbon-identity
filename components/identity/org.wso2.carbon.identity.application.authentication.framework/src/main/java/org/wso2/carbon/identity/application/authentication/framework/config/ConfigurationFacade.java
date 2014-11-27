@@ -97,7 +97,7 @@ public class ConfigurationFacade {
         return externalIdPConfig;
     }
 
-    public ExternalIdPConfig getIdPConfigByRealm(String realm) {
+    public ExternalIdPConfig getIdPConfigByRealm(String realm, String tenantDomain) {
 
         ExternalIdPConfig externalIdPConfig = null;
         IdentityProvider idpDO = null;
@@ -108,9 +108,8 @@ public class ConfigurationFacade {
 
         try {
             IdentityProviderManager idpManager = IdentityProviderManager.getInstance();
-            // TODO use tenantDomain sent from client
             idpDO = idpManager
-                    .getEnabledIdPByRealmId(realm, MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+                    .getEnabledIdPByRealmId(realm, tenantDomain);
 
             if (idpDO != null) {
 
