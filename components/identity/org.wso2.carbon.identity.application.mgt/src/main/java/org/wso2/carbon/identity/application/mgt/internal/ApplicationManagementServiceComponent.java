@@ -32,8 +32,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
-import org.wso2.carbon.identity.application.mgt.ApplicationManagementOSGIService;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
+import org.wso2.carbon.identity.application.mgt.ApplicationManagementServiceImpl;
 import org.wso2.carbon.identity.application.mgt.ApplicationMgtSystemConfig;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -63,12 +63,10 @@ public class ApplicationManagementServiceComponent {
     private static Map<String, ServiceProvider> fileBasedSPs = new HashMap<String, ServiceProvider>();
 
     protected void activate(ComponentContext context) {
-        // Registering OAuth2Service as a OSGIService
+        // Registering Application management service as a OSGIService
         bundleContext = context.getBundleContext();
         bundleContext.registerService(ApplicationManagementService.class.getName(),
-                new ApplicationManagementService(), null);
-        bundleContext.registerService(ApplicationManagementOSGIService.class.getName(),
-                new ApplicationManagementOSGIService(), null);
+                ApplicationManagementServiceImpl.getInstance(), null);
         ApplicationMgtSystemConfig.getInstance();
         buidFileBasedSPList();
         log.info("Identity ApplicationManagementComponent bundle is activated");

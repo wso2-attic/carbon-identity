@@ -22,12 +22,20 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
+import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth2.OAuth2Service;
 import org.wso2.carbon.identity.oauth2.OAuth2TokenValidationService;
 
 /**
  * @scr.component name="identity.oauth2.component" immediate="true"
+ *
+ * @scr.reference name="identity.application.management.component"
+ *                interface=
+ *                "org.wso2.carbon.identity.application.mgt.ApplicationManagementService"
+ *                cardinality="1..1" policy="dynamic"
+ *                bind="setApplicationMgtService"
+ *                unbind="unsetApplicationMgtService"
  */
 public class OAuth2ServiceComponent {
     private static Log log = LogFactory.getLog(OAuth2ServiceComponent.class);
@@ -45,5 +53,31 @@ public class OAuth2ServiceComponent {
         if (log.isDebugEnabled()) {
             log.info("Identity OAuth bundle is activated");
         }
+    }
+
+    /**
+     * Set Application management service implementation
+     *
+     * @param applicationMgtService
+     *            Application management service
+     */
+    protected void setApplicationMgtService(ApplicationManagementService applicationMgtService) {
+        if (log.isDebugEnabled()) {
+            log.debug("ApplicationManagementService set in Identity OAuth2ServiceComponent bundle");
+        }
+        OAuth2ServiceComponentHolder.setApplicationMgtService(applicationMgtService);
+    }
+
+    /**
+     * Unset Application management service implementation
+     *
+     * @param applicationMgtService
+     *            Application management service
+     */
+    protected void unsetApplicationMgtService(ApplicationManagementService applicationMgtService) {
+        if (log.isDebugEnabled()) {
+            log.debug("ApplicationManagementService unset in Identity OAuth2ServiceComponent bundle");
+        }
+        OAuth2ServiceComponentHolder.setApplicationMgtService(null);
     }
 }
