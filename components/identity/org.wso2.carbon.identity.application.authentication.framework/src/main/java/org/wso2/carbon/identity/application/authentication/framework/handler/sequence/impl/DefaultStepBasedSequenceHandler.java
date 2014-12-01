@@ -322,7 +322,7 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                     List<String> locallyMappedUserRoles = getLocallyMappedUserRoles(sequenceConfig,
                             externalIdPConfig, extAttibutesValueMap, idpRoleClaimUri);
 
-                    if (idpRoleClaimUri != null) {
+                    if (idpRoleClaimUri != null && locallyMappedUserRoles != null && locallyMappedUserRoles.size() > 0) {
                         extAttibutesValueMap.put(
                                 idpRoleClaimUri,
                                 getServiceProviderMappedUserRoles(sequenceConfig,
