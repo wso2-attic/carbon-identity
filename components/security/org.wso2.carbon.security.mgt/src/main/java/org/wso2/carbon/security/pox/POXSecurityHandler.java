@@ -16,9 +16,12 @@
 
 package org.wso2.carbon.security.pox;
 
+import org.apache.axiom.om.OMNode;
 import java.io.IOException;
 import org.apache.axiom.om.impl.dom.jaxp.DocumentBuilderFactoryImpl;
 import org.apache.axiom.om.util.Base64;
+import org.apache.axiom.soap.SOAPEnvelope;
+import org.apache.axiom.soap.SOAPFactory;
 import org.apache.axiom.soap.SOAPHeader;
 import org.apache.axiom.soap.SOAPHeaderBlock;
 import org.apache.axis2.AxisFault;
@@ -125,7 +128,7 @@ public class POXSecurityHandler implements Handler {
             } finally {
                 return InvocationResponse.CONTINUE;
             }
-        }
+        }Head
         
         if (msgCtx != null && !msgCtx.isEngaged(POX_SECURITY_MODULE)){
             return InvocationResponse.CONTINUE;
@@ -169,7 +172,7 @@ public class POXSecurityHandler implements Handler {
                 return InvocationResponse.CONTINUE;
             }
         }
-
+Head
         String isReverseProxy = System.getProperty("reverseProxyMode");
         if (isReverseProxy != null) {
             if (JavaUtils.isTrueExplicitly(isReverseProxy)) {
@@ -280,8 +283,24 @@ public class POXSecurityHandler implements Handler {
                 return InvocationResponse.ABORT;
             }
 
-            
-            Document doc = Axis2Util.getDocumentFromSOAPEnvelope(msgCtx.getEnvelope(), true);
+            // If no soap header found in the request create new soap header
+            Document doc = null;
+            SOAPEnvelope soapEnvelop = msgCtx.getEnvelope();
+            if (msgCtx.getEnvelope().getHeader() == null) {
+                SOAPFactory omFac = (SOAPFactory) soapEnvelop.getOMFactory();
+                SOAPEnvelope newEnvelop = omFac.getDefaultEnvelope();
+                Iterator itr = soapEnvelop.getBody().getChildren();
+                while (itr.hasNext()) {
+                    OMNode omNode = (OMNode) itr.next();
+                    if (omNode != null) {
+                        itr.remove();
+                        newEnvelop.getBody().addChild(omNode);
+                    }
+                }
+                doc = Axis2Util.getDocumentFromSOAPEnvelope(newEnvelop, true);
+            } else {
+                doc = Axis2Util.getDocumentFromSOAPEnvelope(soapEnvelop, true);
+            }
 
             WSSecHeader secHeader = new WSSecHeader();
             secHeader.insertSecurityHeader(doc);
