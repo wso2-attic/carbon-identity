@@ -128,7 +128,7 @@ public class POXSecurityHandler implements Handler {
             } finally {
                 return InvocationResponse.CONTINUE;
             }
-        }Head
+        }
         
         if (msgCtx != null && !msgCtx.isEngaged(POX_SECURITY_MODULE)){
             return InvocationResponse.CONTINUE;
@@ -172,7 +172,7 @@ public class POXSecurityHandler implements Handler {
                 return InvocationResponse.CONTINUE;
             }
         }
-Head
+
         String isReverseProxy = System.getProperty("reverseProxyMode");
         if (isReverseProxy != null) {
             if (JavaUtils.isTrueExplicitly(isReverseProxy)) {
