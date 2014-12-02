@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2007 WSO2, Inc. (http://wso2.com)
+ * Copyright 2014 WSO2, Inc. (http://wso2.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,8 @@
 
 package org.wso2.carbon.security.pox;
 
-import org.apache.axiom.om.OMNode;
-import java.io.IOException;
 import org.apache.axiom.om.impl.dom.jaxp.DocumentBuilderFactoryImpl;
 import org.apache.axiom.om.util.Base64;
-import org.apache.axiom.soap.SOAPEnvelope;
-import org.apache.axiom.soap.SOAPFactory;
 import org.apache.axiom.soap.SOAPHeader;
 import org.apache.axiom.soap.SOAPHeaderBlock;
 import org.apache.axis2.AxisFault;
@@ -51,6 +47,7 @@ import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -193,16 +190,43 @@ public class POXSecurityHandler implements Handler {
         if (isPox != null && JavaUtils.isFalseExplicitly(isPox)) {
             return InvocationResponse.CONTINUE;
         }
-        
+
+        if (msgCtx.isFault() && new Integer(MessageContext.OUT_FAULT_FLOW).equals(msgCtx.getFLOW())) {
+            // we only need to execute this block in Unauthorized situations when basicAuth used
+            // otherwise it should continue the message flow by throwing the incoming fault message since
+            // this is already a fault response - ESBJAVA-2731
+            try {
+                String scenarioID = getScenarioId(msgCtx, service);
+                if (scenarioID != null && scenarioID.equals(SecurityConstants.USERNAME_TOKEN_SCENARIO_ID)) {
+                    setAuthHeaders(msgCtx);
+                    return InvocationResponse.CONTINUE;
+                }
+            } catch (Exception e) {
+                // throwing the same fault which returned by the messageCtx
+                throw new AxisFault("System error", msgCtx.getFailureReason());
+            }
+
+            return InvocationResponse.CONTINUE;
+        }
+
+        if (msgCtx == null || msgCtx.getIncomingTransportName() == null) {
+            return InvocationResponse.CONTINUE;
+        }
+
+        String basicAuthHeader = getBasicAuthHeaders(msgCtx);
+
+        //this handler only intercepts
+        if (!(msgCtx.isDoingREST() || isSOAPWithoutSecHeader(msgCtx)) ||
+                !msgCtx.getIncomingTransportName().equals("https")) {
+            return InvocationResponse.CONTINUE;
+        }
+
         if (log.isDebugEnabled()) {
             log.debug("Admin service check failed OR cache miss");
         }
 
         try {
-            String scenarioID = null;
-            try{
-                scenarioID = (String)service.getParameter(SecurityConstants.SCENARIO_ID_PARAM_NAME).getValue();
-            }catch (Exception e){}//ignore
+            String scenarioID = getScenarioId(msgCtx, service);
 
             if(scenarioID == null){
                 synchronized (this){
@@ -325,6 +349,61 @@ public class POXSecurityHandler implements Handler {
             throw new AxisFault("System error", e);
         }
         return InvocationResponse.CONTINUE;
+    }
+
+    private void setAuthHeaders(MessageContext msgCtx) throws IOException {
+        String serverName = ServerConfiguration.getInstance().getFirstProperty("Name");
+
+        if(serverName == null || serverName.trim().length() == 0){
+            serverName = "WSO2 Carbon";
+        }
+
+        HttpServletResponse response = (HttpServletResponse)
+                msgCtx.getProperty(HTTPConstants.MC_HTTP_SERVLETRESPONSE);
+        if (response != null) {
+            response.setContentLength(0);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.addHeader("WWW-Authenticate",
+                    "BASIC realm=\""+serverName+"\"");
+            response.flushBuffer();
+        } else {
+            // if not servlet transport assume it to be nhttp transport
+            msgCtx.setProperty("NIO-ACK-Requested", "true");
+            msgCtx.setProperty("HTTP_SC", HttpServletResponse.SC_UNAUTHORIZED);
+            Map<String, String> responseHeaders = new HashMap<String, String>();
+            responseHeaders.put("WWW-Authenticate",
+                    "BASIC realm=\""+serverName+"\"");
+            msgCtx.setProperty(MessageContext.TRANSPORT_HEADERS, responseHeaders);
+        }
+
+    }
+
+    private String getScenarioId(MessageContext msgCtx, AxisService service) throws SecurityConfigException{
+        String scenarioID = null;
+        try{
+            scenarioID = (String)service.getParameter(SecurityConstants.SCENARIO_ID_PARAM_NAME).getValue();
+        }catch (Exception e){}//ignore
+
+        if(scenarioID == null){
+            synchronized (this){
+                SecurityConfigAdmin securityAdmin = new SecurityConfigAdmin(msgCtx.
+                        getConfigurationContext().getAxisConfiguration());
+                SecurityScenarioData data = securityAdmin.getCurrentScenario(service.getName());
+                if(data != null){
+                    scenarioID = data.getScenarioId();
+                    try {
+                        Parameter param = new Parameter();
+                        param.setName(SecurityConstants.SCENARIO_ID_PARAM_NAME);
+                        param.setValue(scenarioID);
+                        service.addParameter(param);
+                    } catch (AxisFault axisFault) {
+                        log.error("Error while adding Scenario ID parameter",axisFault);
+                    }
+                }
+            }
+        }
+
+        return scenarioID;
     }
 
     /**
