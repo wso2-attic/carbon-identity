@@ -100,9 +100,6 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 public class SecurityDeploymentInterceptor implements AxisObserver {
     private static final Log log = LogFactory.getLog(SecurityDeploymentInterceptor.class);
 
-    private PersistenceFactory persistenceFactory;
-    private ServiceGroupFilePersistenceManager serviceGroupFilePM;
-    private ModuleFilePersistenceManager moduleFilePM;
 
     protected void activate(ComponentContext ctxt) {
         BundleContext bundleCtx = ctxt.getBundleContext();
@@ -151,13 +148,6 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
     
     public void init(AxisConfiguration axisConfig) {
 
-        try {
-            persistenceFactory = PersistenceFactory.getInstance(axisConfig);
-            serviceGroupFilePM = persistenceFactory.getServiceGroupFilePM();
-            moduleFilePM = persistenceFactory.getModuleFilePM();
-        } catch (AxisFault e) {
-            log.error("Error while adding PersistenceFactory parameter to axisConfig", e);
-        }
     }
 
     public void moduleUpdate(AxisEvent event, AxisModule module) {
@@ -173,111 +163,7 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
         String serviceGroupId = axisService.getAxisServiceGroup().getServiceGroupName();
 
         if (eventType == AxisEvent.SERVICE_DEPLOY) {
-            try {
-                boolean isTransactionStarted = serviceGroupFilePM.isTransactionStarted(serviceGroupId);
-                if(!isTransactionStarted) {
-                    serviceGroupFilePM.beginTransaction(serviceGroupId);
-                }
-                String policyResourcePath = PersistenceUtils.getResourcePath(axisService)+
-                        "/"+Resources.POLICIES+"/"+Resources.POLICY;
 
-                List policies = serviceGroupFilePM.getAll(serviceGroupId, policyResourcePath);
-
-                //removing security scenarioID parameter from axis service if exists
-                Parameter scenarioIDParam = axisService.getParameter(SecurityConstants.SCENARIO_ID_PARAM_NAME);
-                if (scenarioIDParam != null) {
-                    axisService.removeParameter(scenarioIDParam);
-                }
-
-                SecurityScenario scenario = null;
-                if(policies == null || policies.size() == 0){
-                    if(axisService.getPolicySubject() != null &&
-                            axisService.getPolicySubject().getAttachedPolicyComponents() != null){
-                        Iterator iterator = axisService.getPolicySubject().
-                                                        getAttachedPolicyComponents().iterator();
-                        String policyId = null;
-                        while(iterator.hasNext()){
-                            PolicyComponent currentPolicyComponent = (PolicyComponent) iterator.next();
-                            if (currentPolicyComponent instanceof Policy) {
-                                policyId = ((Policy) currentPolicyComponent).getId();
-                            } else if (currentPolicyComponent instanceof PolicyReference) {
-                                policyId = ((PolicyReference) currentPolicyComponent).getURI().substring(1);
-                            }
-                            if(policyId != null){
-                                scenario = SecurityScenarioDatabase.getByWsuId(policyId);
-                                if(scenario == null){
-                                    // if there is no security scenario id,  put default id
-                                    SecurityScenario securityScenario = new SecurityScenario();
-                                    securityScenario.setScenarioId(SecurityConstants.CUSTOM_SECURITY_SCENARIO);
-                                    securityScenario.setWsuId(policyId);
-                                    securityScenario.setGeneralPolicy(false);
-                                    securityScenario.setSummary(SecurityConstants.CUSTOM_SECURITY_SCENARIO_SUMMARY);
-                                    SecurityScenarioDatabase.put(policyId, securityScenario);
-                                    scenario = securityScenario;
-                                }
-                            }
-                        }
-                    } else {
-                        // do nothing, because no policy
-                        if(!isTransactionStarted) {
-                            serviceGroupFilePM.rollbackTransaction(serviceGroupId);
-                        }
-                        return;
-                    }
-                } else {
-                    for (Object node : policies) {
-                        OMElement policyWrapperElement = (OMElement) node;
-                        Policy policy = null;
-                        try{
-                            policy = PolicyEngine.getPolicy(policyWrapperElement.
-                                    getFirstChildWithName(new QName(PolicyEngine.POLICY_NAMESPACE,
-                                    PolicyEngine.POLICY)));
-                        } catch (Exception e){
-                            // just ignore, we want to make sure this is security policy    
-                        }
-                        if(policy != null){
-                            String policyId = PersistenceUtils.getPolicyUUIDFromWrapperOM(policyWrapperElement);
-                            if (policyId != null) {
-                                scenario = SecurityScenarioDatabase.getByWsuId(policyId);
-                                if (scenario != null) {
-                                    break;
-                                } else {
-                                    // if there is no security scenario id,  put default id
-                                    // before that check whether this is actually a security policy
-                                    // by comparing UUID that is used to persist them
-
-                                    SecurityScenario securityScenario = new SecurityScenario();
-                                    securityScenario.setScenarioId(SecurityConstants.CUSTOM_SECURITY_SCENARIO);
-                                    securityScenario.setWsuId(policyId);
-                                    securityScenario.setGeneralPolicy(false);
-                                    securityScenario.setSummary(SecurityConstants.CUSTOM_SECURITY_SCENARIO_SUMMARY);
-                                    scenario = securityScenario;
-                                    if(!("RMPolicy".equals(policyId) || "WSO2CachingPolicy".equals(policyId)
-                                            || "WSO2ServiceThrottlingPolicy".equals(policyId))){
-                                        SecurityScenarioDatabase.put(policyId, securityScenario);    
-                                    }
-                                }
-                            } else {
-                                log.error("Policy UUID is not found though a policy element exist.");
-                            }
-                        }
-                    }
-                }
-
-                if (scenario != null) {
-                    applySecurityParameters(axisService, scenario);
-                }
-
-                if(!isTransactionStarted) {
-                    serviceGroupFilePM.commitTransaction(serviceGroupId);
-                }
-            } catch (Exception e) {
-                String msg = "Cannot handle service DEPLOY event for service: " +
-                             axisService.getName();
-                log.error(msg, e);
-                serviceGroupFilePM.rollbackTransaction(serviceGroupId);
-                throw new RuntimeException(msg, e);
-            }
 		} else if (eventType == AxisEvent.SERVICE_REMOVE) {
 
 			try {
@@ -396,108 +282,7 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
     }
 
     private void applySecurityParameters(AxisService service, SecurityScenario secScenario) {
-        try {
-            String serviceGroupId = service.getAxisServiceGroup().getServiceGroupName();
-            String serviceName = service.getName();
-            ServiceGroupFilePersistenceManager sfpm = persistenceFactory.getServiceGroupFilePM();
 
-            String registryServicePath = RegistryResources.SERVICE_GROUPS
-                    + service.getAxisServiceGroup().getServiceGroupName()
-                    + RegistryResources.SERVICES + serviceName;
-            
-			AxisModule rahas = service.getAxisConfiguration()
-					.getModule("rahas");
-			if (!"scenario1".equals(secScenario.getScenarioId())) {
-				service.disengageModule(rahas);
-				service.engageModule(rahas);
-			}
-            
-            String serviceXPath = Resources.ServiceProperties.ROOT_XPATH
-                    + PersistenceUtils.getXPathAttrPredicate(Resources.NAME, serviceName);
-
-            UserRealm userRealm = (UserRealm) PrivilegedCarbonContext.getThreadLocalCarbonContext()
-                    .getUserRealm();
-            UserRegistry govRegistry = (UserRegistry) PrivilegedCarbonContext
-                    .getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_GOVERNANCE);
-
-            ServicePasswordCallbackHandler handler = new ServicePasswordCallbackHandler(
-                    persistenceFactory, serviceGroupId, serviceName, serviceXPath,
-                    registryServicePath, govRegistry, userRealm);
-
-            Parameter param = new Parameter();
-            param.setName(WSHandlerConstants.PW_CALLBACK_REF);
-            param.setValue(handler);
-            service.addParameter(param);
-
-            if (!SecurityConstants.USERNAME_TOKEN_SCENARIO_ID.equals(secScenario.getScenarioId())) {
-                Parameter param2 = new Parameter();
-                param2.setName("disableREST"); // TODO Find the constant
-                param2.setValue(Boolean.TRUE.toString());
-                service.addParameter(param2);
-            }
-
-            Parameter allowRolesParameter = service.getParameter("allowRoles");
-            
-            if(allowRolesParameter!= null && allowRolesParameter.getValue() != null){
-
-                AuthorizationManager manager = userRealm.getAuthorizationManager();
-                String resourceName = serviceGroupId + "/" + serviceName;
-                String[] roles = manager.getAllowedRolesForResource(resourceName,
-                                                    UserCoreConstants.INVOKE_SERVICE_PERMISSION);
-                if(roles != null){
-                    for (String role : roles) {
-                        manager.clearRoleAuthorization(role, resourceName,
-                                                    UserCoreConstants.INVOKE_SERVICE_PERMISSION);
-                    }
-                }
-
-                String value = (String) allowRolesParameter.getValue();
-                String[] allowRoles = value.split(",") ;
-                if(allowRoles != null){
-                    for(String role : allowRoles){
-                        userRealm.getAuthorizationManager().authorizeRole(role, resourceName,
-                                                        UserCoreConstants.INVOKE_SERVICE_PERMISSION);
-                    }
-                }
-            }
-
-            OMElement serviceElement = (OMElement) sfpm.get(serviceGroupId, serviceXPath);
-            if (serviceElement != null &&
-                serviceElement.getAttributeValue(new QName(SecurityConstants.PROP_RAHAS_SCT_ISSUER)) != null) {
-
-
-                Object[] pvtStores = sfpm.getAll(serviceGroupId, Resources.ServiceProperties.ROOT_XPATH+
-                        PersistenceUtils.getXPathAttrPredicate(Resources.NAME, serviceName)+
-                        "/"+Resources.Associations.ASSOCIATION_XML_TAG+
-                        PersistenceUtils.getXPathAttrPredicate(Resources.Associations.TYPE,
-                                SecurityConstants.ASSOCIATION_PRIVATE_KEYSTORE)).
-                        toArray();
-
-
-                Properties cryptoProps = new Properties();
-
-                if (pvtStores != null && pvtStores.length > 0) {
-                    ServerConfiguration serverConfig = ServerConfiguration.getInstance();
-                    String pvtStore = serverConfig.getFirstProperty("Security.KeyStore.Location");
-                    String keyAlias = null;
-                    String name = null;                    
-                    keyAlias = serverConfig.getFirstProperty("Security.KeyStore.KeyAlias");
-                    name = pvtStore.substring(pvtStore.lastIndexOf("/") + 1);
-                    cryptoProps.setProperty(ServerCrypto.PROP_ID_PRIVATE_STORE, name);
-                    cryptoProps.setProperty(ServerCrypto.PROP_ID_DEFAULT_ALIAS, keyAlias);
-                    service.addParameter(RahasUtil.getSCTIssuerConfigParameter(ServerCrypto.class.getName(),
-                            cryptoProps, -1, null, true, true));
-                    service.addParameter(RahasUtil.getTokenCancelerConfigParameter());
-
-                } else {
-                    throw new Exception("Cannot start Rahas");
-                }
-
-            }
-        } catch (Throwable e) {
-            String msg = "Cannot apply security parameters";
-            log.error(msg, e);
-        }
     }
 
     public void addParameter(Parameter param) throws AxisFault {

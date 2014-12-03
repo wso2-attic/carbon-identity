@@ -56,6 +56,11 @@ import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+/**
+ * This class is already deprecated and can use ApplicationManagementServiceImpl for same purpose as osgi service
+ */
+
+@Deprecated
 public class ApplicationManagementOSGIService{
 
     private static Log log = LogFactory.getLog(ApplicationManagementOSGIService.class);
