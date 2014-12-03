@@ -40,17 +40,14 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
-	    	<!--<version>${carbon.kernel.version}</version>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.registry.core</artifactId>
-            <!--<version>${carbon.kernel.version}</version>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.utils</artifactId>
-            <!--<version>${carbon.kernel.version}</version>-->
         </dependency>
         <dependency>
             <groupId>org.apache.ws.security.wso2</groupId>
@@ -79,7 +76,6 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>javax.cache.wso2</artifactId>
-            <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
         <!--dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -121,7 +117,7 @@
                             org.apache.rampart.*; version="[${rampart.wso2.version}, 2)",
                             org.apache.rahas.*; version="[1.6.1.wso2v12, 2)",
                             org.apache.ws.security.*; version="${imp.pkg.version.wss4j}",
-                            org.wso2.carbon.core.*; version="0.0.0",
+                            org.wso2.carbon.core.*; version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.user.core,
                             org.wso2.carbon.utils,
                             org.wso2.carbon.registry.core,
@@ -147,7 +143,4 @@
             </plugin>
         </plugins>
     </build>
-    <properties>
-      <carbon.kernel.version>${carbon.platform.version}</carbon.kernel.version>
-    </properties>
 </project>
