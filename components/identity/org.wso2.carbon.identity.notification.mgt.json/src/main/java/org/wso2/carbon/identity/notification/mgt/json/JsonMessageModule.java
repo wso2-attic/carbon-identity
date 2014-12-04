@@ -72,7 +72,6 @@ public class JsonMessageModule extends AbstractNotificationSendingModule {
                 try {
                     HttpClient client = new DefaultHttpClient();
                     StringEntity entity;
-                    //TODO add constants
                     post.setHeader(JsonModuleConstants.CONTENT_TYPE_LABEL, JsonModuleConstants.CONTENT_TYPE_JSON_LABEL);
                     //Adding basic authentication header to post, only if authentication is required
                     if (endpoint.isAuthenticationRequired()) {
@@ -85,7 +84,6 @@ public class JsonMessageModule extends AbstractNotificationSendingModule {
                     if (jsonContent == null || jsonContent.trim().isEmpty()) {
                         jsonContent = jsonSubscription.getJsonContent();
                     }
-
                     if (jsonContent == null || jsonContent.trim().isEmpty()) {
                         log.error("No content template found either for event or endpoint " +endpoint.getEndpoint() +
                                 ", message sending aborted");
@@ -135,8 +133,7 @@ public class JsonMessageModule extends AbstractNotificationSendingModule {
      * @return Whether this module is subscribed or not
      */
     @Override
-    public boolean isSubscribed(PublisherEvent publisherEvent) throws
-            NotificationManagementException {
+    public boolean isSubscribed(PublisherEvent publisherEvent) throws NotificationManagementException {
 
         return publisherEvent.getEventName() != null && subscriptionMap.get(publisherEvent
                 .getEventName()) != null;

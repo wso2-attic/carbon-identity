@@ -22,6 +22,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.entitlement.NotificationConstants;
 import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent;
+import org.wso2.carbon.identity.notification.mgt.NotificationManagementException;
+import org.wso2.carbon.identity.notification.mgt.NotificationSender;
+import org.wso2.carbon.identity.notification.mgt.bean.PublisherEvent;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
@@ -36,7 +39,9 @@ import java.util.Map;
 public class UserOperationsNotificationListener extends AbstractUserOperationEventListener {
 
     private static final Log log = LogFactory.getLog(UserOperationsNotificationListener.class);
-
+    private final String EVENT_NAME = "userOperation";
+    private final String USERNAME_LABEL = "username";
+    private final String OPERATION_LABEL = "operation";
 
     @Override
     public int getExecutionOrderId() {
@@ -167,6 +172,17 @@ public class UserOperationsNotificationListener extends AbstractUserOperationEve
      * @param username  username of the subjected user for attribute change
      */
     private void sendNotification(String operation, String username) {
-        // to be implemented
+        NotificationSender notificationSender = EntitlementServiceComponent.getNotificationSender();
+        if (notificationSender != null) {
+            PublisherEvent event = new PublisherEvent();
+            event.addEventProperty(OPERATION_LABEL, operation);
+            event.addEventProperty(USERNAME_LABEL, username);
+            event.setEventName(EVENT_NAME);
+            try {
+                notificationSender.invoke(event);
+            } catch (NotificationManagementException e) {
+                log.error("Error while sending notifications on user operations", e);
+            }
+        }
     }
 }

@@ -37,6 +37,7 @@ import org.wso2.carbon.identity.entitlement.pap.store.PAPPolicyStore;
 import org.wso2.carbon.identity.entitlement.thrift.EntitlementService;
 import org.wso2.carbon.identity.entitlement.thrift.ThriftConfigConstants;
 import org.wso2.carbon.identity.entitlement.thrift.ThriftEntitlementServiceImpl;
+import org.wso2.carbon.identity.notification.mgt.NotificationSender;
 import org.wso2.carbon.identity.thrift.authentication.ThriftAuthenticatorService;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -65,15 +66,13 @@ import java.util.concurrent.Executors;
  * @scr.reference name="org.wso2.carbon.identity.thrift.authentication.internal.ThriftAuthenticationServiceComponent"
  * interface="org.wso2.carbon.identity.thrift.authentication.ThriftAuthenticatorService"
  * cardinality="1..1" policy="dynamic" bind="setThriftAuthenticationService"  unbind="unsetThriftAuthenticationService"
- */
-
-
-/**
- *  * @scr.reference name="identity.application.message.mgt"
- * interface="org.wso2.carbon.identity.application.message.mgt.NotificationSender"
+ * @scr.reference name="carbon.identity.notification.mgt"
+ * interface="org.wso2.carbon.identity.notification.mgt.NotificationSender"
  * cardinality="1..1" policy="dynamic" bind="setNotificationSender"
  * unbind="unsetNotificationSender"
  */
+
+
 public class EntitlementServiceComponent {
 
 	private static final Log log = LogFactory.getLog(EntitlementServiceComponent.class);
@@ -82,7 +81,7 @@ public class EntitlementServiceComponent {
 	private static RealmService realmservice;
 	private ThriftAuthenticatorService thriftAuthenticationService;
 	private ExecutorService executor = Executors.newFixedThreadPool(2);
-//    private static NotificationSender notificationSender;
+    private static NotificationSender notificationSender;
 
 	/**
 	 *
@@ -481,21 +480,21 @@ public class EntitlementServiceComponent {
 		}
 	 }
 
-//    protected void setNotificationSender(NotificationSender notificationSender){
-//        if(log.isDebugEnabled()){
-//            log.debug("Un setting notification sender in Entitlement bundle");
-//        }
-//        this.notificationSender = notificationSender;
-//    }
-//
-//    protected void unsetNotificationSender(NotificationSender notificationSender){
-//        if(log.isDebugEnabled()){
-//            log.debug("Setting notification sender in Entitlement bundle");
-//        }
-//        this.notificationSender = null;
-//    }
-//
-//    public static NotificationSender getNotificationSender(){
-//        return EntitlementServiceComponent.notificationSender;
-//    }
+    protected void setNotificationSender(NotificationSender notificationSender) {
+        if (log.isDebugEnabled()) {
+            log.debug("Un-setting notification sender in Entitlement bundle");
+        }
+        this.notificationSender = notificationSender;
+    }
+
+    protected void unsetNotificationSender(NotificationSender notificationSender) {
+        if (log.isDebugEnabled()) {
+            log.debug("Setting notification sender in Entitlement bundle");
+        }
+        this.notificationSender = null;
+    }
+
+    public static NotificationSender getNotificationSender() {
+        return EntitlementServiceComponent.notificationSender;
+    }
 }

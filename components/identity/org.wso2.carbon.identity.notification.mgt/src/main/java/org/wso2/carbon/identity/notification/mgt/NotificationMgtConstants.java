@@ -32,6 +32,5 @@ public class NotificationMgtConstants {
        public static final String MODULE_NAME = "module.name";
        public static final String SUBSCRIPTION = "subscription";
        public static final String THREAD_POOL_SIZE = "threadPool.size";
-
     }
 }

@@ -72,8 +72,9 @@ public class EmailSendingModule extends AbstractNotificationSendingModule {
                 for (EmailEndpointInfo endpointInfo : endpointInfoList) {
 
                     Map<String, String> headerMap = new HashMap<String, String>();
-                    headerMap.put(MailConstants.MAIL_HEADER_SUBJECT, getSubject(subscription.getSubscriptionProperties(),
-                            endpointInfo.getProperties(), publisherEvent.getEventProperties()));
+                    headerMap.put(MailConstants.MAIL_HEADER_SUBJECT,
+                            getSubject(subscription.getSubscriptionProperties(),
+                                    endpointInfo.getProperties(), publisherEvent.getEventProperties()));
                     // Read the template configured in endpoint information.
                     String template = endpointInfo.getTemplate();
                     // If there is no template defined in the endpoint. use default template for
@@ -150,8 +151,7 @@ public class EmailSendingModule extends AbstractNotificationSendingModule {
      * @return true if subscribed. false if not.
      */
     @Override
-    public boolean isSubscribed(PublisherEvent publisherEvent) throws
-            NotificationManagementException {
+    public boolean isSubscribed(PublisherEvent publisherEvent) throws NotificationManagementException {
         return subscriptionMap.get(publisherEvent.getEventName()) != null;
     }
 
@@ -164,14 +164,13 @@ public class EmailSendingModule extends AbstractNotificationSendingModule {
      * @param eventProperties        Dynamic properties which are coming from the event publisher
      * @return Message whose place holders are replaced.
      */
-    private String getMessage(String mailContent, Properties subscriptionProperties,
-                              Properties endpointProperties, Properties eventProperties) {
+    private String getMessage(String mailContent, Properties subscriptionProperties, Properties endpointProperties,
+                              Properties eventProperties) {
         // First replace place holders with configured endpoint properties
         mailContent = NotificationManagementUtils.replacePlaceHolders(mailContent, "\\{", "\\}", endpointProperties);
         // Secondly replace place holders with dynamic properties which comes form publisher
         mailContent = NotificationManagementUtils.replacePlaceHolders(mailContent, "\\{", "\\}", eventProperties);
-        // Thirdly replace place holders with generic properties which are configured in event
-        // level.
+        // Thirdly replace place holders with generic properties which are configured in event level.
         mailContent = NotificationManagementUtils.replacePlaceHolders(mailContent, "\\{", "\\}",
                 subscriptionProperties);
         return mailContent;

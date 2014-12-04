@@ -40,8 +40,7 @@ public abstract class AbstractNotificationSendingModule implements NotificationS
     }
 
     @Override
-    public void init(ModuleConfiguration moduleConfiguration) throws
-            NotificationManagementException {
+    public void init(ModuleConfiguration moduleConfiguration) throws NotificationManagementException {
         this.moduleConfiguration = moduleConfiguration;
     }
 

@@ -58,10 +58,9 @@ public interface NotificationSendingModule {
     public void init(ModuleConfiguration moduleConfiguration) throws NotificationManagementException;
 
     /**
-     * This method returns whether this MessageSendingModule can handle the given type of event or
-     * not. ie Whether this module is subscribed to the passed event or not. Depending on the
-     * content of the event or depending on the configurations module can decide whether it is
-     * subscribed or not.
+     * This method returns whether this MessageSendingModule can handle the given type of event or not. ie Whether
+     * this module is subscribed to the passed event or not. Depending on the content of the event or depending on the
+     * configurations module can decide whether it is subscribed or not.
      *
      * @param event Event which is published from the publisher
      * @return True if the module can handle or subscribed to the event.

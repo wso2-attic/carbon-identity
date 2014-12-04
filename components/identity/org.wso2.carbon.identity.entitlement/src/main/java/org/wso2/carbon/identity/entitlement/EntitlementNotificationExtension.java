@@ -23,6 +23,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.entitlement.common.EntitlementConstants;
 import org.wso2.carbon.identity.entitlement.dto.StatusHolder;
+import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent;
+import org.wso2.carbon.identity.notification.mgt.NotificationManagementException;
+import org.wso2.carbon.identity.notification.mgt.NotificationSender;
+import org.wso2.carbon.identity.notification.mgt.bean.PublisherEvent;
 
 /**
  * This is an extension module that can be used to send policy update statuses as notifications.
@@ -36,6 +40,8 @@ public class EntitlementNotificationExtension implements PAPStatusDataHandler {
     private boolean papUpdate = false;
     private List<String> pdpActions = new ArrayList<String>();
     private static final Log log = LogFactory.getLog(EntitlementNotificationExtension.class);
+
+    private final String eventName = "policyUpdate";
 
     /**
      * At the initialization a property map which carries relevant properties to this extension
@@ -138,13 +144,27 @@ public class EntitlementNotificationExtension implements PAPStatusDataHandler {
         }
         // Setting up properties and configuration object to be sent to the NotificationSender,
         // which is consumed by all subscribed Message Sending Modules
-//        MessageModuleDynamicConfigs configs = new MessageModuleDynamicConfigs();
-//        configs.addProperty(NotificationConstants.TARGET_ID_PROPERTY_LABEL, statusHolder.getKey());
-//        configs.addProperty(NotificationConstants.USERNAME_PROPERTY_LABEL, statusHolder.getUser());
-//        configs.addProperty(NotificationConstants.TARGET_PROPERTY_LABEL, statusHolder.getTarget());
-//        configs.addProperty(NotificationConstants.ACTION_PROPERTY_LABEL, action);
-//        configs.setPublisherEvent(NotificationConstants.EVENT_LABEL_POLICY_CHANGE);
-//        EntitlementServiceComponent.getNotificationSender().invoke(configs);
+        NotificationSender notificationSender = EntitlementServiceComponent.getNotificationSender();
+        if (notificationSender != null) {
+            PublisherEvent event = new PublisherEvent();
+            event.setEventName(eventName);
+            event.addEventProperty(NotificationConstants.TARGET_ID_PROPERTY_LABEL, statusHolder.getKey());
+            event.addEventProperty(NotificationConstants.USERNAME_PROPERTY_LABEL, statusHolder.getUser());
+            event.addEventProperty(NotificationConstants.TARGET_PROPERTY_LABEL, statusHolder.getTarget());
+            event.addEventProperty(NotificationConstants.ACTION_PROPERTY_LABEL, action);
+            try {
+                if (log.isDebugEnabled()) {
+                    log.debug("Invoking notification sender");
+                }
+                notificationSender.invoke(event);
+            } catch (NotificationManagementException e) {
+                log.error("Error while invoking notification sender");
+            }
+        } else {
+            if (log.isDebugEnabled()) {
+                log.error("No registered notification sending service found");
+            }
+        }
     }
 
     @Override

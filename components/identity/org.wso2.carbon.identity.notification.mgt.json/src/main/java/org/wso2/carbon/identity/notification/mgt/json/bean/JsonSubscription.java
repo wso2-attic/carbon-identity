@@ -189,8 +189,8 @@ public class JsonSubscription extends Subscription {
 
             if (username == null || username.trim().isEmpty() || password == null ||
                     password.trim().isEmpty()) {
-                throw new NotificationManagementException("No authentication information  found" +
-                        " for authentication required endpoint");
+                throw new NotificationManagementException("No authentication information  found for authentication " +
+                        "required endpoint");
             }
             endpointInfo.setUsername(username);
             endpointInfo.setPassword(password.trim().toCharArray());

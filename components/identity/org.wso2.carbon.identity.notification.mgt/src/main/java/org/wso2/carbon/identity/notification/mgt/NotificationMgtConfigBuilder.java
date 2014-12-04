@@ -42,6 +42,7 @@ public class NotificationMgtConfigBuilder {
     private static final Log log = LogFactory.getLog(NotificationMgtConfigBuilder.class);
     // All properties configured in msg-mgt.properties file
     private Properties notificationMgtConfigProperties;
+    // Map of configurations which are specific to notification sending modules
     private Map<String, ModuleConfiguration> moduleConfiguration;
     private String threadPoolSize;
 
@@ -51,8 +52,7 @@ public class NotificationMgtConfigBuilder {
      * @param bundleContext Bundle context
      * @throws NotificationManagementException
      */
-    public NotificationMgtConfigBuilder(BundleContext bundleContext) throws
-            NotificationManagementException {
+    public NotificationMgtConfigBuilder(BundleContext bundleContext) throws NotificationManagementException {
         notificationMgtConfigProperties = loadProperties(bundleContext);
         setThreadPoolSize();
         moduleConfiguration = new HashMap<String, ModuleConfiguration>();
@@ -74,8 +74,7 @@ public class NotificationMgtConfigBuilder {
      * @return Set of properties which are defined in msg-mgt.properties file
      * @throws NotificationManagementException
      */
-    private Properties loadProperties(BundleContext bundleContext) throws
-            NotificationManagementException {
+    private Properties loadProperties(BundleContext bundleContext) throws NotificationManagementException {
         Properties properties = new Properties();
         InputStream inStream = null;
 
@@ -87,12 +86,10 @@ public class NotificationMgtConfigBuilder {
             // If the configuration exists in the carbon conf directory, read properties from there
             if (MessageMgtPropertyFile.exists()) {
                 inStream = new FileInputStream(MessageMgtPropertyFile);
-
                 // Else read properties form either bundle context path or class path
             } else {
                 URL url;
                 if (bundleContext != null) {
-
                     if ((url = bundleContext.getBundle().getResource(NotificationMgtConstants
                             .MODULE_CONFIG_FILE)) != null) {
                         inStream = url.openStream();
@@ -117,11 +114,9 @@ public class NotificationMgtConfigBuilder {
                 properties.load(inStream);
             }
         } catch (FileNotFoundException e) {
-            log.warn("Could not find configuration file for Message " +
-                    "Sending module", e);
+            log.warn("Could not find configuration file for Message Sending module", e);
         } catch (IOException e) {
-            log.warn("Error while opening input stream for property " +
-                    "file", e);
+            log.warn("Error while opening input stream for property file", e);
             // Finally close input stream
         } finally {
             try {
@@ -171,16 +166,13 @@ public class NotificationMgtConfigBuilder {
      * @param moduleProperties Set of properties which
      * @return A list of subscriptions by the module
      */
-    private List<Subscription> buildSubscriptionList(String moduleName,
-                                                     Properties moduleProperties) {
+    private List<Subscription> buildSubscriptionList(String moduleName, Properties moduleProperties) {
         // Get subscribed events
-        Properties subscriptions = NotificationManagementUtils.getSubProperties
-                (moduleName + "." + NotificationMgtConstants.Configs.SUBSCRIPTION,
-                        moduleProperties);
+        Properties subscriptions = NotificationManagementUtils.getSubProperties(moduleName + "." +
+                NotificationMgtConstants.Configs.SUBSCRIPTION, moduleProperties);
 
         List<Subscription> subscriptionList = new ArrayList<Subscription>();
         Enumeration propertyNames = subscriptions.propertyNames();
-
         // Iterate through events and build event objects
         while (propertyNames.hasMoreElements()) {
             String key = (String) propertyNames.nextElement();
