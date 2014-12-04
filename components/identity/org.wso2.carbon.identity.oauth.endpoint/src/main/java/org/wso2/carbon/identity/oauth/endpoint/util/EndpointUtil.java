@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.oauth.cache.SessionDataCache;
 import org.wso2.carbon.identity.oauth.cache.SessionDataCacheEntry;
@@ -185,11 +186,9 @@ public class EndpointUtil {
             throws UnsupportedEncodingException {
     	
     	try {
-
-    	String type = "oauth2";
-    	
-    	if(scopes != null && scopes.contains("openid")) {
-    		type = "oidc";
+    	String type = FrameworkConstants.OAUTH2;
+    	if(scopes != null && scopes.contains(FrameworkConstants.RequestType.CLAIM_TYPE_OPENID)) {
+    		type = FrameworkConstants.OIDC;
     	}
     	
         SessionDataCacheEntry entry = (SessionDataCacheEntry)SessionDataCache.getInstance()
@@ -197,35 +196,33 @@ public class EndpointUtil {
 
             if (entry == null) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Cache Entry is Null from SessionDataCache ");
+                    log.debug("Cache Entry is null from SessionDataCache ");
                 }
             }
             String commonAuthURL = CarbonUIUtil.getAdminConsoleURL("/");
-            commonAuthURL = commonAuthURL.replace("carbon", "commonauth");
+            commonAuthURL = commonAuthURL.replace(FrameworkConstants.CARBON,
+                    FrameworkConstants.COMMONAUTH);
             String selfPath = "/oauth2/authorize";
-            AuthenticationRequest authenticationRequest = new
-                    AuthenticationRequest();
+            AuthenticationRequest authenticationRequest = new AuthenticationRequest();
 
             //Build the authentication request context.
             authenticationRequest.setCommonAuthCallerPath(selfPath);
-            authenticationRequest.setForceAuth(String.valueOf(forceAuthenticate));
-            authenticationRequest.setPassiveAuth(String.valueOf(checkAuthentication));
+            authenticationRequest.setForceAuth(forceAuthenticate);
+            authenticationRequest.setPassiveAuth(checkAuthentication);
             authenticationRequest.setRelyingParty(clientId);
-            authenticationRequest.addRequestQueryParam("tenantId", new String[]{String.valueOf(OAuth2Util
-                    .getClientTenatId())});
+            authenticationRequest.addRequestQueryParam(FrameworkConstants.RequestParams.TENANT_ID,
+                    new String[]{String.valueOf(OAuth2Util.getClientTenatId())});
             authenticationRequest.setRequestQueryParams(entry.getParamMap());
 
             //Build an AuthenticationRequestCacheEntry which wraps AuthenticationRequestContext
             AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry
                     (authenticationRequest);
             FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest);
-
-            String loginQueryParams = "?sessionDataKey=" + sessionDataKey
-                    + "&" + "type" + "=" + type;
+            // Build new query param with only type and session data key
+            String loginQueryParams = "?"+FrameworkConstants.SESSION_DATA_KEY+"=" + sessionDataKey
+                    + "&" + FrameworkConstants.RequestParams.TYPE + "=" + type;
 
             return commonAuthURL + loginQueryParams;
-
-
         } finally {
 			OAuth2Util.clearClientTenantId();
 		}

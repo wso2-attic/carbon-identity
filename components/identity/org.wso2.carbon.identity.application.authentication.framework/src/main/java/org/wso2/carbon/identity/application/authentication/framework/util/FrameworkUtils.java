@@ -148,36 +148,31 @@ public class FrameworkUtils {
 
         if (cacheEntry != null) {
             AuthenticationRequest authenticationRequest = cacheEntry.getAuthenticationRequest();
-
+            // Adding field variables to wrapper
             if (authenticationRequest.getType() != null) {
-                modifiableParameters.put("type", new String[]{authenticationRequest.getType()});
+                modifiableParameters.put(FrameworkConstants.RequestParams.TYPE,
+                        new String[]{authenticationRequest.getType()});
             }
             if (authenticationRequest.getCommonAuthCallerPath() != null) {
-                modifiableParameters.put("commonAuthCallerPath",
+                modifiableParameters.put(FrameworkConstants.RequestParams.CALLER_PATH,
                         new String[]{authenticationRequest.getCommonAuthCallerPath()});
             }
             if (authenticationRequest.getRelyingParty() != null) {
-                modifiableParameters.put("relyingParty",
+                modifiableParameters.put(FrameworkConstants.RequestParams.ISSUER,
                         new String[]{authenticationRequest.getRelyingParty()});
             }
             if (authenticationRequest.getTenantDomain() != null) {
-                modifiableParameters.put("tenantDomain",
+                modifiableParameters.put(FrameworkConstants.RequestParams.TENANT_DOMAIN,
                         new String[]{authenticationRequest.getTenantDomain()});
             }
-            if (authenticationRequest.getForceAuth() != null) {
-                modifiableParameters.put("forceAuth",
-                        new String[]{authenticationRequest.getForceAuth()});
-            }
-            if (authenticationRequest.getPassiveAuth() != null) {
-                modifiableParameters.put("passiveAuth",
-                        new String[]{authenticationRequest.getPassiveAuth()});
-            }
-
+            modifiableParameters.put(FrameworkConstants.RequestParams.FORCE_AUTHENTICATE,
+                    new String[]{String.valueOf(authenticationRequest.getForceAuth())});
+            modifiableParameters.put(FrameworkConstants.RequestParams.PASSIVE_AUTHENTICATION,
+                    new String[]{String.valueOf(authenticationRequest.getPassiveAuth())});
 
             if (!authenticationRequest.getRequestQueryParams().isEmpty()) {
                 modifiableParameters.putAll(authenticationRequest.getRequestQueryParams());
             }
-
 
             if (log.isDebugEnabled()) {
                 StringBuilder queryStringBuilder = new StringBuilder("");
@@ -202,7 +197,7 @@ public class FrameworkUtils {
             return new AuthenticationFrameworkWrapper(request, modifiableParameters,
                     authenticationRequest.getRequestHeaders());
         }
-        return null;
+        return request;
     }
 
     /**

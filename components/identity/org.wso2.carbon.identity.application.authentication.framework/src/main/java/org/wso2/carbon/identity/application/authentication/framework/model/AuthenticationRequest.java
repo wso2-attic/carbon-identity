@@ -29,100 +29,105 @@ import java.util.Map;
  * authentication framework
  */
 public class AuthenticationRequest implements Serializable {
-	private static final long serialVersionUID = -5407487459807348541L;
+    private static final long serialVersionUID = -5407487459807348541L;
 
-	private String type;
-	private String commonAuthCallerPath;
-	private String forceAuth;
-	private String passiveAuth;
-	private String tenantDomain;
-	private String isPost;
-	private String relyingParty;
-	//used to store query params which should be sent to Authentication Framework
-	private Map<String,String[]> requestQueryParams = new HashMap<String, String[]>();
-	//used to store request headers which should be sent to Authentication Framework.
-	private Map<String,String> requestHeaders = new HashMap<String, String>();
+    private String type;
+    private String commonAuthCallerPath;
+    private boolean forceAuth;
+    private boolean passiveAuth;
+    private String tenantDomain;
+    private boolean isPost;
+    private String relyingParty;
+    //used to store query params which should be sent to Authentication Framework
+    private Map<String, String[]> requestQueryParams = new HashMap<String, String[]>();
+    //used to store request headers which should be sent to Authentication Framework.
+    private Map<String, String> requestHeaders = new HashMap<String, String>();
 
-	public Map<String, String[]> getRequestQueryParams() {
-		return requestQueryParams;
-	}
+    public Map<String, String[]> getRequestQueryParams() {
+        return requestQueryParams;
+    }
 
-	public void setRequestQueryParams(Map<String, String[]> requestQueryParams) {
-		this.requestQueryParams.putAll(requestQueryParams);
-	}
+    /**
+     * Set request query params which are comming from the calling servelets
+     * @param requestQueryParams Map of query params
+     */
+    public void setRequestQueryParams(Map<String, String[]> requestQueryParams) {
+        this.requestQueryParams.putAll(requestQueryParams);
+    }
 
-	public void addHeader(String key,String values){
-		requestHeaders.put(key,values);
-	}
-	public String getRelyingParty() {
-		return relyingParty;
-	}
+    public void addHeader(String key, String values) {
+        requestHeaders.put(key, values);
+    }
 
-	public Map<String, String> getRequestHeaders(){
-		return requestHeaders;
-	}
-	public void setRelyingParty(String relyingParty) {
-		this.relyingParty = relyingParty;
-	}
+    public String getRelyingParty() {
+        return relyingParty;
+    }
 
-	public String isPost() {
-		return isPost;
-	}
+    public Map<String, String> getRequestHeaders() {
+        return requestHeaders;
+    }
 
-	public void setPost(String post) {
-		isPost = post;
-	}
+    public void setRelyingParty(String relyingParty) {
+        this.relyingParty = relyingParty;
+    }
 
+    public boolean isPost() {
+        return isPost;
+    }
 
-	public String[] addRequestQueryParam(String key, String value[]){
-		return requestQueryParams.put(key,value);
-	}
+    public void setPost(boolean post) {
+        isPost = post;
+    }
 
-	public String[] getRequestQueryParam(String key){
-		return requestQueryParams.get(key);
-	}
+    public String[] addRequestQueryParam(String key, String value[]) {
+        return requestQueryParams.put(key, value);
+    }
 
-	public void appendRequestQueryParams(Map<String, String[]> map){
-		requestQueryParams.putAll(map);
-	}
+    public String[] getRequestQueryParam(String key) {
+        return requestQueryParams.get(key);
+    }
 
-	public String getTenantDomain() {
-		return tenantDomain;
-	}
+    public void appendRequestQueryParams(Map<String, String[]> map) {
+        requestQueryParams.putAll(map);
+    }
 
-	public void setTenantDomain(String tenantDomain) {
-		this.tenantDomain = tenantDomain;
-	}
+    public String getTenantDomain() {
+        return tenantDomain;
+    }
 
-	public String getForceAuth() {
-		return forceAuth;
-	}
+    public void setTenantDomain(String tenantDomain) {
+        this.tenantDomain = tenantDomain;
+    }
 
-	public void setForceAuth(String forceAuth) {
-		this.forceAuth = forceAuth;
-	}
+    public boolean getForceAuth() {
+        return forceAuth;
+    }
 
-	public String getCommonAuthCallerPath() {
-		return commonAuthCallerPath;
-	}
+    public void setForceAuth(boolean forceAuth) {
+        this.forceAuth = forceAuth;
+    }
 
-	public void setCommonAuthCallerPath(String commonAuthCallerPath) {
-		this.commonAuthCallerPath = commonAuthCallerPath;
-	}
+    public String getCommonAuthCallerPath() {
+        return commonAuthCallerPath;
+    }
 
-	public String getType() {
-		return type;
-	}
+    public void setCommonAuthCallerPath(String commonAuthCallerPath) {
+        this.commonAuthCallerPath = commonAuthCallerPath;
+    }
 
-	public void setType(String type) {
-		this.type = type;
-	}
+    public String getType() {
+        return type;
+    }
 
-    public String getPassiveAuth() {
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public boolean getPassiveAuth() {
         return passiveAuth;
     }
 
-    public void setPassiveAuth(String passiveAuth) {
+    public void setPassiveAuth(boolean passiveAuth) {
         this.passiveAuth = passiveAuth;
     }
 

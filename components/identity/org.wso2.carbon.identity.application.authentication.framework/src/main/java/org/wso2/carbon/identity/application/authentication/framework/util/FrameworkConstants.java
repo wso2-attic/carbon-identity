@@ -132,6 +132,14 @@ public abstract class FrameworkConstants {
     public final static String SIGNATURE_ALGORITHM = "SigAlg";
     public final static String SAML_REQUEST = "SAMLRequest";
     public final static String SIGNATURE = "Signature";
+    public final static String COMMONAUTH = "commonauth";
+    public final static String CARBON = "carbon";
+    public final static String PASSIVE_STS = "passivests";
+    public final static String OPENID_SERVER = "openidserver";
+    public final static String OAUTH2 = "oauth2";
+    public final static String USERNAME = "username";
+    public final static String OPENID_IDENTITY = "openid.identity";
+    public final static String OIDC = "oidc";
 
     public final static String AUTH_ENDPOINT_QUERY_PARAMS_ACTION_INCLUDE = "include";
     public final static String AUTH_ENDPOINT_QUERY_PARAMS_ACTION_EXCLUDE = "exclude";

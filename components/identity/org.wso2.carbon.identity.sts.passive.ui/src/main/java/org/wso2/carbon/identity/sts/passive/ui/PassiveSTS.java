@@ -18,6 +18,7 @@
 package org.wso2.carbon.identity.sts.passive.ui;
 
 
+import java.awt.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
@@ -46,6 +47,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.application.authentication.framework.cache.*;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
@@ -192,20 +194,23 @@ public class PassiveSTS extends HttpServlet {
         }
         realms.add(reqToken.getRealm());
     }
-    
-    private void sendToAuthenticationFramework(HttpServletRequest request, HttpServletResponse response, 
-    		String sessionDataKey, SessionDTO sessionDTO) throws IOException {
-        
-        String commonAuthURL = CarbonUIUtil.getAdminConsoleURL(request);
-        commonAuthURL = commonAuthURL.replace("carbon/", "commonauth");
 
-        String selfPath = URLEncoder.encode("/passivests","UTF-8");
+    private void sendToAuthenticationFramework(HttpServletRequest request,
+                                               HttpServletResponse response,
+                                               String sessionDataKey,
+                                               SessionDTO sessionDTO) throws IOException {
+
+        String commonAuthURL = CarbonUIUtil.getAdminConsoleURL(request);
+        commonAuthURL = commonAuthURL.replace(FrameworkConstants.CARBON + "/",
+                FrameworkConstants.COMMONAUTH);
+
+        String selfPath = URLEncoder.encode("/" + FrameworkConstants.PASSIVE_STS, "UTF-8");
         //Authentication context keeps data which should be sent to commonAuth endpoint
         AuthenticationRequest authenticationRequest = new
                 AuthenticationRequest();
         authenticationRequest.setRelyingParty(sessionDTO.getRealm());
         authenticationRequest.setCommonAuthCallerPath(selfPath);
-        authenticationRequest.setForceAuth("false");
+        authenticationRequest.setForceAuth(false);
         authenticationRequest.setRequestQueryParams(request.getParameterMap());
 
         //adding headers in out going request to authentication request context
@@ -217,16 +222,17 @@ public class PassiveSTS extends HttpServlet {
         //Add authenticationRequest cache entry to cache
         AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry
                 (authenticationRequest);
-        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest, request.getSession().getMaxInactiveInterval());
-        String queryParams = "?" + "sessionDataKey=" + sessionDataKey
-                + "&" + "type" + "=" + "passivests";
+        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest,
+                request.getSession().getMaxInactiveInterval());
+        String queryParams = "?" + FrameworkConstants.SESSION_DATA_KEY + "=" + sessionDataKey
+                + "&" + FrameworkConstants.RequestParams.TYPE + "=" + FrameworkConstants.PASSIVE_STS;
         response.sendRedirect(commonAuthURL + queryParams);
     }
-    
+
     private void handleResponseFromAuthenticationFramework(HttpServletRequest request, HttpServletResponse response) 
     																throws ServletException, IOException {
     	
-    	String sessionDataKey = request.getParameter("sessionDataKey");
+    	String sessionDataKey = request.getParameter(FrameworkConstants.SESSION_DATA_KEY);
     	SessionDTO sessionDTO = getSessionDataFromCache(sessionDataKey);
     	AuthenticationResult authnResult = getAuthenticationResultFromCache(sessionDataKey);
     	
