@@ -83,8 +83,6 @@ public class CacheClearingUserOperationListener extends AbstractUserOperationEve
     public boolean doPostSetUserClaimValue(String userName, UserStoreManager userStoreManager)
             throws UserStoreException {
         if (log.isDebugEnabled()) {
-
-
             log.debug("Clearing entitlement cache on post set user claim value operation for user "
                     + userName);
         }
@@ -244,6 +242,7 @@ public class CacheClearingUserOperationListener extends AbstractUserOperationEve
             // clearAttributeCache.
             EntitlementPolicyInvalidationCache.getInstance().invalidateCache();
         } else {
+            // Return if no finders are found
             return;
         }
         // clearing pip attribute finder caches

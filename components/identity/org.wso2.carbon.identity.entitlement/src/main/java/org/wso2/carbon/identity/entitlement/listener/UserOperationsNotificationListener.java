@@ -157,7 +157,7 @@ public class UserOperationsNotificationListener extends AbstractUserOperationEve
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
-            log.debug("Sending user claim value update notification for user " + username);
+            log.debug("Sending user claim values update notification for user " + username);
         }
         sendNotification(NotificationConstants.EVENT_TYPE_PROFILE_UPDATE, username);
         // Returns true since no major effect on upcoming listeners
