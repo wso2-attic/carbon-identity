@@ -68,5 +68,4 @@ public class ModuleConfiguration {
     public List<Subscription> getSubscriptions() {
         return new ArrayList<Subscription>(subscriptions);
     }
-
 }

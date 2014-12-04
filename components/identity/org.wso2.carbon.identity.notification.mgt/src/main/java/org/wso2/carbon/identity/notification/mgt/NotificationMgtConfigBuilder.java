@@ -187,8 +187,8 @@ public class NotificationMgtConfigBuilder {
             String subscriptionName = (String) subscriptions.remove(key);
             // Read all the event properties starting from the event prefix
             Properties subscriptionProperties = NotificationManagementUtils.getPropertiesWithPrefix
-                    (moduleName + "." + NotificationMgtConstants.Configs.SUBSCRIPTION + "." +
-                            subscriptionName, moduleProperties);
+                    (moduleName + "." + NotificationMgtConstants.Configs.SUBSCRIPTION + "." + subscriptionName,
+                            moduleProperties);
             Subscription subscription = new Subscription(subscriptionName, subscriptionProperties);
             subscriptionList.add(subscription);
         }
@@ -202,8 +202,7 @@ public class NotificationMgtConfigBuilder {
      * @return A set of properties which are defined for a particular module
      */
     private Properties getModuleProperties(String moduleName) {
-        return NotificationManagementUtils.getPropertiesWithPrefix(moduleName,
-                notificationMgtConfigProperties);
+        return NotificationManagementUtils.getPropertiesWithPrefix(moduleName, notificationMgtConfigProperties);
     }
 
     /**

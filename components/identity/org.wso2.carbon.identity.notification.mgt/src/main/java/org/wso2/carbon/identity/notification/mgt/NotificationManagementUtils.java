@@ -192,5 +192,4 @@ public class NotificationManagementUtils {
         }
         return template;
     }
-
 }

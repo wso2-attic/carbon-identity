@@ -59,5 +59,4 @@ public class PublisherEvent {
     public void addEventProperty(String key, String value) {
         eventProperties.put(key, value);
     }
-
 }
