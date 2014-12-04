@@ -441,7 +441,7 @@
 
                         isBoolean = -123;
                         for (int j = 0; j < mandatories.length; j++) {
-                        	String displayName = mandatories[j].getValue();
+                        	String displayName = mandatories[j].getName();
                             String propDescription = mandatories[j].getDescription();
                             int index = 0;
                             if ((index=propDescription.indexOf("#")) > -1){
@@ -593,7 +593,7 @@
 
                         for (int x = 0; x < optionals.length; x++) {
                         	
-                        	String displayName = optionals[x].getValue();
+                        	String displayName = optionals[x].getName();
                             String propDescription = optionals[x].getDescription();
                             int index = 0;
                             if ((index=propDescription.indexOf("#")) > -1){
@@ -709,7 +709,7 @@
 
                         for (int x = 0; x < advancedProperties.length; x++) {
                         	
-                        	String displayName = advancedProperties[x].getValue();
+                        	String displayName = advancedProperties[x].getName();
                             String propDescription = advancedProperties[x].getDescription();
                             int index = 0;
                             if ((index=propDescription.indexOf("#")) > -1){
