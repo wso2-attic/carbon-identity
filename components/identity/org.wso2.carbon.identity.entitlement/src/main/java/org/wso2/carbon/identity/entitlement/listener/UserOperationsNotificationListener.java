@@ -39,13 +39,13 @@ import java.util.Map;
 public class UserOperationsNotificationListener extends AbstractUserOperationEventListener {
 
     private static final Log log = LogFactory.getLog(UserOperationsNotificationListener.class);
-    private final String EVENT_NAME = "userOperation";
-    private final String USERNAME_LABEL = "username";
-    private final String OPERATION_LABEL = "operation";
+    private final String eventName = "userOperation";
+    private final String usernameLabel = "username";
+    private final String operationLabel = "operation";
 
     @Override
     public int getExecutionOrderId() {
-        return 3;
+        return 7;
     }
 
     /**
@@ -175,14 +175,19 @@ public class UserOperationsNotificationListener extends AbstractUserOperationEve
         NotificationSender notificationSender = EntitlementServiceComponent.getNotificationSender();
         if (notificationSender != null) {
             PublisherEvent event = new PublisherEvent();
-            event.addEventProperty(OPERATION_LABEL, operation);
-            event.addEventProperty(USERNAME_LABEL, username);
-            event.setEventName(EVENT_NAME);
+            event.addEventProperty(operationLabel, operation);
+            event.addEventProperty(usernameLabel, username);
+            event.setEventName(eventName);
             try {
+                if (log.isDebugEnabled()) {
+                    log.debug("Invoking notification sender");
+                }
                 notificationSender.invoke(event);
             } catch (NotificationManagementException e) {
                 log.error("Error while sending notifications on user operations", e);
             }
+        } else {
+            log.error("No registered notification sender found. Notification sending aborted");
         }
     }
 }

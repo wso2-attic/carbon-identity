@@ -158,7 +158,7 @@ public class EntitlementNotificationExtension implements PAPStatusDataHandler {
                 }
                 notificationSender.invoke(event);
             } catch (NotificationManagementException e) {
-                log.error("Error while invoking notification sender");
+                log.error("Error while invoking notification sender",e);
             }
         } else {
             if (log.isDebugEnabled()) {
