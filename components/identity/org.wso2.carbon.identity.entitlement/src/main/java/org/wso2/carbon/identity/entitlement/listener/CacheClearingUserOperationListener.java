@@ -134,8 +134,7 @@ public class CacheClearingUserOperationListener extends AbstractUserOperationEve
 
         if (log.isDebugEnabled()) {
             log.debug("Clearing entitlement cache on post delete user claim values operation for " +
-                    "user " +
-                    userName);
+                    "user " + userName);
         }
         // Always returns true since cache clearing failure does not make an effect on subsequent
         // User Operation Listeners
