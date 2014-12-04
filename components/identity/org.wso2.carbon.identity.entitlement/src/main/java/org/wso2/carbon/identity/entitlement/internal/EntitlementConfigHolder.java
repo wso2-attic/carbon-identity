@@ -20,7 +20,6 @@ package org.wso2.carbon.identity.entitlement.internal;
 
 import org.wso2.carbon.identity.entitlement.PAPStatusDataHandler;
 import org.wso2.carbon.identity.entitlement.dto.PublisherDataHolder;
-import org.wso2.carbon.identity.entitlement.model.PEPEndpointInfo;
 import org.wso2.carbon.identity.entitlement.pap.EntitlementDataFinderModule;
 import org.wso2.carbon.identity.entitlement.pip.PIPAttributeFinder;
 import org.wso2.carbon.identity.entitlement.pip.PIPExtension;
@@ -53,18 +52,6 @@ public class EntitlementConfigHolder {
      * module and missing in the XACML request.
      */
     private Map<PIPAttributeFinder, Properties> designators = new HashMap<PIPAttributeFinder, Properties>();
-
-	//set of pep endpoints which notifications should be sent to on an event of cache
-	//clearance
-    public List<PEPEndpointInfo> getPepEndpoints() {
-        return pepEndpoints;
-    }
-
-    public void setPepEndpoints(List<PEPEndpointInfo> pepEndpoints) {
-        this.pepEndpoints = pepEndpoints;
-    }
-
-    private List<PEPEndpointInfo> pepEndpoints = new ArrayList<PEPEndpointInfo>();
 
     /**
      * This will be fired by CarbonResourceFinder whenever it wants to find a descendant or child resource

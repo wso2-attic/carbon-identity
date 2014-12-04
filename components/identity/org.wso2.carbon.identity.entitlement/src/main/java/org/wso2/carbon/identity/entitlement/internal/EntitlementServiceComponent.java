@@ -31,8 +31,8 @@ import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.entitlement.EntitlementUtil;
 import org.wso2.carbon.identity.entitlement.PDPConstants;
 import org.wso2.carbon.identity.entitlement.dto.PolicyDTO;
-import org.wso2.carbon.identity.entitlement.listner.CacheClearingUserOperationListener;
-import org.wso2.carbon.identity.entitlement.listner.UserOperationsNotificationListener;
+import org.wso2.carbon.identity.entitlement.listener.CacheClearingUserOperationListener;
+import org.wso2.carbon.identity.entitlement.listener.UserOperationsNotificationListener;
 import org.wso2.carbon.identity.entitlement.pap.store.PAPPolicyStore;
 import org.wso2.carbon.identity.entitlement.thrift.EntitlementService;
 import org.wso2.carbon.identity.entitlement.thrift.ThriftConfigConstants;
@@ -66,6 +66,14 @@ import java.util.concurrent.Executors;
  * interface="org.wso2.carbon.identity.thrift.authentication.ThriftAuthenticatorService"
  * cardinality="1..1" policy="dynamic" bind="setThriftAuthenticationService"  unbind="unsetThriftAuthenticationService"
  */
+
+
+/**
+ *  * @scr.reference name="identity.application.message.mgt"
+ * interface="org.wso2.carbon.identity.application.message.mgt.NotificationSender"
+ * cardinality="1..1" policy="dynamic" bind="setNotificationSender"
+ * unbind="unsetNotificationSender"
+ */
 public class EntitlementServiceComponent {
 
 	private static final Log log = LogFactory.getLog(EntitlementServiceComponent.class);
@@ -74,6 +82,7 @@ public class EntitlementServiceComponent {
 	private static RealmService realmservice;
 	private ThriftAuthenticatorService thriftAuthenticationService;
 	private ExecutorService executor = Executors.newFixedThreadPool(2);
+//    private static NotificationSender notificationSender;
 
 	/**
 	 *
@@ -157,30 +166,28 @@ public class EntitlementServiceComponent {
 					}
 				}
 			}
-
+            // Cache clearing listener is always registered since cache clearing is a must when
+            // an update happens of user attributes
 			CacheClearingUserOperationListener pipUserOperationListener =
                     new CacheClearingUserOperationListener();
 			ctxt.getBundleContext().registerService(
                     UserOperationEventListener.class.getName(), pipUserOperationListener, null);
 
-			UserNotificationConfig config = new UserNotificationConfig();
-			if(config.isNotificationEnabled()){
+            // Register Notification sending on user operations. Even though this is registered
+            // only subscribed modules will send messages.
 				log.info("Registering notification sender on user operations");
 				UserOperationsNotificationListener notificationListener =
-                        new UserOperationsNotificationListener(config);
+                        new UserOperationsNotificationListener();
 				ctxt.getBundleContext().registerService(
                         UserOperationEventListener.class.getName(),notificationListener, null);
-			}
-
 
 			//TODO: Read from identity.xml, the configurations to be used in thrift based entitlement service.
 			//initialize thrift authenticator
 			ThriftEntitlementServiceImpl.init(thriftAuthenticationService);
 			//initialize thrift based Entitlement Service.
 			startThriftServices();
-			//TODO catch a throwable
-		} catch (Exception e) {
-			log.error("Failed to initialize Entitlement Service", e);
+		} catch (Throwable throwable) {
+			log.error("Failed to initialize Entitlement Service", throwable);
 		}
 	}
 
@@ -473,4 +480,22 @@ public class EntitlementServiceComponent {
 			return NetworkUtils.getLocalHostname();
 		}
 	 }
+
+//    protected void setNotificationSender(NotificationSender notificationSender){
+//        if(log.isDebugEnabled()){
+//            log.debug("Un setting notification sender in Entitlement bundle");
+//        }
+//        this.notificationSender = notificationSender;
+//    }
+//
+//    protected void unsetNotificationSender(NotificationSender notificationSender){
+//        if(log.isDebugEnabled()){
+//            log.debug("Setting notification sender in Entitlement bundle");
+//        }
+//        this.notificationSender = null;
+//    }
+//
+//    public static NotificationSender getNotificationSender(){
+//        return EntitlementServiceComponent.notificationSender;
+//    }
 }
