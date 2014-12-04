@@ -44,8 +44,7 @@ public class EventDistributionTask implements Runnable {
     private List<NotificationSendingModule> notificationSendingModules;
     private static ExecutorService threadPool = null;
 
-    public EventDistributionTask(List<NotificationSendingModule> notificationSendingModules,
-                                 int threadPoolSize) {
+    public EventDistributionTask(List<NotificationSendingModule> notificationSendingModules, int threadPoolSize) {
         this.notificationSendingModules = notificationSendingModules;
         this.eventQueue = new LinkedBlockingDeque<PublisherEvent>();
         threadPool = Executors.newFixedThreadPool(threadPoolSize);
@@ -70,22 +69,22 @@ public class EventDistributionTask implements Runnable {
                                 @Override
                                 public void run() {
                                     if (log.isDebugEnabled()) {
-                                        log.debug("Executing " + module.getModuleName() + " on " +
-                                                "event" + event.getEventName());
+                                        log.debug("Executing " + module.getModuleName() + " on event" +
+                                                event.getEventName());
                                     }
                                     try {
                                         module.sendMessage(event);
                                     } catch (NotificationManagementException e) {
-                                        log.error("Error while invoking notification sending for " +
-                                                "module " + module.getModuleName(), e);
+                                        log.error("Error while invoking notification sending module " +
+                                                module.getModuleName(), e);
                                     }
                                 }
                             };
                             threadPool.submit(msgSender);
                         }
                     } catch (NotificationManagementException e) {
-                        log.error("Error while getting subscription status from notification " +
-                                "module " + module.getModuleName(), e);
+                        log.error("Error while getting subscription status from notification module " +
+                                module.getModuleName(), e);
                     }
                 }
             } catch (InterruptedException e) {

@@ -26,8 +26,8 @@ import org.wso2.carbon.identity.notification.mgt.bean.PublisherEvent;
 import java.util.List;
 
 /**
- * The service class exposed from this bundle. This will take care of triggering all registered
- * message sending modules on a publisher invocation of invoke method.
+ * The service class exposed from this bundle. This will take care of triggering all registered message sending
+ * modules on a publisher invocation of invoke method.
  */
 
 @SuppressWarnings("unused")
@@ -39,12 +39,11 @@ public class NotificationSender {
 
     /**
      * Overridden to initiate event distribution task towards notification sending modules.
+     *
      * @param notificationSendingModules Set of notification sending modules registered
      */
-    public NotificationSender(List<NotificationSendingModule> notificationSendingModules,
-                              int threadPoolSize) {
-        this.eventDistributionTask = new EventDistributionTask(notificationSendingModules,
-                threadPoolSize);
+    public NotificationSender(List<NotificationSendingModule> notificationSendingModules, int threadPoolSize) {
+        this.eventDistributionTask = new EventDistributionTask(notificationSendingModules, threadPoolSize);
         if (log.isDebugEnabled()) {
             log.debug("Starting event distribution task from Notification Management component");
         }
@@ -52,10 +51,10 @@ public class NotificationSender {
     }
 
     /**
-     * This method is called from all service consumers of this bundle,
-     * whenever messageSendingModules need to be fired. This method will check whether the
-     * registered message sending modules can handle the event type and if can,
-     * it will invoke sendMessage
+     * This method is called from all service consumers of this bundle, whenever messageSendingModules need to be
+     * fired. This method will check whether the registered message sending modules can handle the event type and if
+     * can, it will invoke sendMessage
+     *
      * @param event Publisher event
      * @throws NotificationManagementException
      */

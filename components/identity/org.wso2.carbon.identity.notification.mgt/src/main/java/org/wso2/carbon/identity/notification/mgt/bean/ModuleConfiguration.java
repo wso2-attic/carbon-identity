@@ -38,8 +38,9 @@ public class ModuleConfiguration {
 
     /**
      * Overridden to add module properties and subscription list
+     *
      * @param moduleProperties Set of properties which are configured to module level.
-     * @param subscriptions List of subscriptions for a module
+     * @param subscriptions    List of subscriptions for a module
      */
     public ModuleConfiguration(Properties moduleProperties, List<Subscription> subscriptions) {
         this.moduleProperties = moduleProperties;
@@ -47,8 +48,8 @@ public class ModuleConfiguration {
     }
 
     /**
-     * Overridden default constructor to make sure that configuration can be initiated without
-     * module params and list of subscriptions. From this, those variables are initiated
+     * Overridden default constructor to make sure that configuration can be initiated without module params and list
+     * of subscriptions. From this, those variables are initiated
      */
     public ModuleConfiguration() {
         moduleProperties = new Properties();
@@ -61,6 +62,7 @@ public class ModuleConfiguration {
 
     /**
      * To get set of subscriptions configured for the module
+     *
      * @return A set of subscriptions.
      */
     public List<Subscription> getSubscriptions() {

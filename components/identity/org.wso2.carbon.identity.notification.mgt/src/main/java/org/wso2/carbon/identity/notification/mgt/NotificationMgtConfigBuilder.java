@@ -63,8 +63,8 @@ public class NotificationMgtConfigBuilder {
      * Sets the thread pool size read from configurations
      */
     private void setThreadPoolSize() {
-        threadPoolSize = (String) notificationMgtConfigProperties.remove
-                (NotificationMgtConstants.Configs.THREAD_POOL_SIZE);
+        threadPoolSize = (String) notificationMgtConfigProperties.remove(NotificationMgtConstants.Configs.
+                THREAD_POOL_SIZE);
     }
 
     /**
@@ -103,12 +103,12 @@ public class NotificationMgtConfigBuilder {
                     // If bundle context is not found, read properties file from class path
                 } else {
 
-                    if ((url = this.getClass().getClassLoader().getResource
-                            (NotificationMgtConstants.MODULE_CONFIG_FILE)) != null) {
+                    if ((url = this.getClass().getClassLoader().getResource(NotificationMgtConstants.
+                            MODULE_CONFIG_FILE)) != null) {
                         inStream = url.openStream();
                     } else {
-                        log.warn("Class resource loader could not find resource " +
-                                NotificationMgtConstants.MODULE_CONFIG_FILE);
+                        log.warn("Class resource loader could not find resource " + NotificationMgtConstants.
+                                MODULE_CONFIG_FILE);
                     }
                 }
             }
@@ -140,8 +140,8 @@ public class NotificationMgtConfigBuilder {
      * Build and store per module configuration objects
      */
     private void build() {
-        Properties moduleNames = NotificationManagementUtils.getSubProperties
-                (NotificationMgtConstants.Configs.MODULE_NAME, notificationMgtConfigProperties);
+        Properties moduleNames = NotificationManagementUtils.getSubProperties(NotificationMgtConstants.Configs.
+                MODULE_NAME, notificationMgtConfigProperties);
         Enumeration propertyNames = moduleNames.propertyNames();
         // Iterate through events and build event objects
         while (propertyNames.hasMoreElements()) {
@@ -161,8 +161,7 @@ public class NotificationMgtConfigBuilder {
         Properties moduleProperties = getModuleProperties(moduleName);
         List<Subscription> subscriptionList = buildSubscriptionList(moduleName, moduleProperties);
 
-        return new ModuleConfiguration(getModuleProperties
-                (moduleName), subscriptionList);
+        return new ModuleConfiguration(getModuleProperties(moduleName), subscriptionList);
     }
 
     /**
@@ -190,7 +189,7 @@ public class NotificationMgtConfigBuilder {
             Properties subscriptionProperties = NotificationManagementUtils.getPropertiesWithPrefix
                     (moduleName + "." + NotificationMgtConstants.Configs.SUBSCRIPTION + "." +
                             subscriptionName, moduleProperties);
-            Subscription subscription = new Subscription(subscriptionName,subscriptionProperties);
+            Subscription subscription = new Subscription(subscriptionName, subscriptionProperties);
             subscriptionList.add(subscription);
         }
         return subscriptionList;

@@ -23,8 +23,8 @@ package org.wso2.carbon.identity.notification.mgt.bean;
 import java.util.Properties;
 
 /**
- * Subscription bean is used to represent a subscription by a particular notification sending
- * module. A set of relevant subscriptions will be passed to a notification sending module
+ * Subscription bean is used to represent a subscription by a particular notification sending module. A set of
+ * relevant subscriptions will be passed to a notification sending module
  */
 @SuppressWarnings("unused")
 public class Subscription {

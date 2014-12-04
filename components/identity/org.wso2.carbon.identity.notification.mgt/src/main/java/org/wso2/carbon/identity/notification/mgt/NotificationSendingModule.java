@@ -39,8 +39,7 @@ public interface NotificationSendingModule {
      * @param publisherEvent Published event name
      * @throws NotificationManagementException
      */
-    public void sendMessage(PublisherEvent publisherEvent) throws
-            NotificationManagementException;
+    public void sendMessage(PublisherEvent publisherEvent) throws NotificationManagementException;
 
     /**
      * A unique name for Module. Basically used to identify the registered module
@@ -56,8 +55,7 @@ public interface NotificationSendingModule {
      * @throws NotificationManagementException
      */
 
-    public void init(ModuleConfiguration moduleConfiguration) throws
-            NotificationManagementException;
+    public void init(ModuleConfiguration moduleConfiguration) throws NotificationManagementException;
 
     /**
      * This method returns whether this MessageSendingModule can handle the given type of event or

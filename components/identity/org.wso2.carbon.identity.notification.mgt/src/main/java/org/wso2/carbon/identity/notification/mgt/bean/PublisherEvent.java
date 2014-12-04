@@ -23,8 +23,8 @@ package org.wso2.carbon.identity.notification.mgt.bean;
 import java.util.Properties;
 
 /**
- * A bean class for Publisher event. This contains the information which are passed to the
- * Notification Management component by the notification publisher.
+ * A bean class for Publisher event. This contains the information which are passed to the Notification Management
+ * component by the notification publisher.
  */
 @SuppressWarnings("unused")
 public class PublisherEvent {
@@ -38,7 +38,7 @@ public class PublisherEvent {
         return eventProperties;
     }
 
-    public PublisherEvent(){
+    public PublisherEvent() {
         eventProperties = new Properties();
     }
 
@@ -52,11 +52,12 @@ public class PublisherEvent {
 
     /**
      * Add dynamic property to eventPublisher bean
-     * @param key key of the property
+     *
+     * @param key   key of the property
      * @param value value of the property
      */
-    public void addEventProperty(String key, String value){
-       eventProperties.put(key, value);
+    public void addEventProperty(String key, String value) {
+        eventProperties.put(key, value);
     }
 
 }

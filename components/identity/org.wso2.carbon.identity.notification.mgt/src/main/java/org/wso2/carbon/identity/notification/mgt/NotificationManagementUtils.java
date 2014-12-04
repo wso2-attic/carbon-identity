@@ -46,12 +46,13 @@ public class NotificationManagementUtils {
     public static Properties getPropertiesWithPrefix(String prefix, Properties properties) {
 
         if (prefix == null || properties == null) {
-            throw new IllegalArgumentException("Prefix and properties should not be null to " +
-                    "extract properties with certain prefix");
+            throw new IllegalArgumentException("Prefix and properties should not be null to extract properties with " +
+                    "certain prefix");
         }
 
         Properties subProperties = new Properties();
         Enumeration propertyNames = properties.propertyNames();
+
         while (propertyNames.hasMoreElements()) {
             String key = (String) propertyNames.nextElement();
             if (key.startsWith(prefix)) {
@@ -62,8 +63,7 @@ public class NotificationManagementUtils {
     }
 
     /**
-     * Returns a sub set of properties which has the given prefix key. ie properties which has
-     * numbers at the end
+     * Returns a sub set of properties which has the given prefix key. ie properties which has numbers at the end
      *
      * @param prefix     Prefix of the key
      * @param properties Set of properties which needs be filtered for the given prefix
@@ -73,8 +73,7 @@ public class NotificationManagementUtils {
 
         // Stop proceeding if required arguments are not present
         if (prefix == null || properties == null) {
-            throw new IllegalArgumentException("Prefix and Properties should not be null to get " +
-                    "sub properties");
+            throw new IllegalArgumentException("Prefix and Properties should not be null to get sub properties");
         }
 
         int i = 1;
@@ -86,9 +85,8 @@ public class NotificationManagementUtils {
     }
 
     /**
-     * @param prefix        Prefix of the property key
-     * @param propertiesWithFullKeys Set of properties which needs to be converted to single word key
-     *                      properties
+     * @param prefix                 Prefix of the property key
+     * @param propertiesWithFullKeys Set of properties which needs to be converted to single word key properties
      * @return Set of properties which has keys containing single word.
      */
     public static Properties buildSingleWordKeyProperties(String prefix,
@@ -96,12 +94,11 @@ public class NotificationManagementUtils {
 
         // Stop proceeding if required arguments are not present
         if (prefix == null || propertiesWithFullKeys == null) {
-            throw new IllegalArgumentException("Prefix and properties should not be null to get " +
-                    "properties with single word keys.");
+            throw new IllegalArgumentException("Prefix and properties should not be null to get  properties with " +
+                    "single word keys.");
         }
 
-        propertiesWithFullKeys = NotificationManagementUtils.getPropertiesWithPrefix(prefix,
-                propertiesWithFullKeys);
+        propertiesWithFullKeys = NotificationManagementUtils.getPropertiesWithPrefix(prefix, propertiesWithFullKeys);
         Properties properties = new Properties();
         Enumeration propertyNames = propertiesWithFullKeys.propertyNames();
 
@@ -132,18 +129,16 @@ public class NotificationManagementUtils {
             log.debug("Replacing place holders of String " + content);
         }
         // Stop proceeding if required arguments are not present
-        if (properties == null || content == null || replaceRegexEndsWith == null ||
-                replaceRegexStartsWith == null) {
-            throw new IllegalArgumentException("Missing required arguments for replacing place " +
-                    "holders");
+        if (properties == null || content == null || replaceRegexEndsWith == null || replaceRegexStartsWith == null) {
+            throw new IllegalArgumentException("Missing required arguments for replacing place holders");
         }
 
         if (content.contains(replaceRegexStartsWith)) {
             // For each property check whether there is a place holder and replace the place
             // holders exist.
             for (String key : properties.stringPropertyNames()) {
-                content = content.replaceAll(replaceRegexStartsWith + key +
-                        replaceRegexEndsWith, properties.getProperty(key));
+                content = content.replaceAll(replaceRegexStartsWith + key + replaceRegexEndsWith,
+                        properties.getProperty(key));
             }
         } else {
             if (log.isDebugEnabled()) {

@@ -49,19 +49,17 @@ public class NotificationManagementServiceComponent {
             ArrayList<NotificationSendingModule>();
 
     protected void activate(ComponentContext context) {
-        // Register Notification sender as an OSGI service. Other components can consume
-        //the service for sending messages on a registered event
+        // Register Notification sender as an OSGI service. Other components can consume the service for sending
+        // messages on a registered event
         try {
-            // Pass the bundle context to read property file in a case it is not found in default
-            // location.
+            // Pass the bundle context to read property file in a case it is not found in default location.
             try {
                 configBuilder = new NotificationMgtConfigBuilder(context.getBundleContext());
             } catch (NotificationManagementException e) {
                 log.error("Error while building Notification Mgt configuration", e);
             }
 
-            // Read the thread pool size from configurations. If not present in configurations
-            // use default value.
+            // Read the thread pool size from configurations. If not present in configurations use default value.
             int threadPoolSize;
             if (configBuilder.getThreadPoolSize() != null) {
                 try {
@@ -69,11 +67,11 @@ public class NotificationManagementServiceComponent {
                 } catch (NumberFormatException e) {
                     threadPoolSize = NotificationMgtConstants.THREAD_POOL_DEFAULT_SIZE;
                 }
-            }else {
+            } else {
                 threadPoolSize = NotificationMgtConstants.THREAD_POOL_DEFAULT_SIZE;
             }
-            if(log.isDebugEnabled()){
-                log.debug("Notification mgt thread pool size "+threadPoolSize);
+            if (log.isDebugEnabled()) {
+                log.debug("Notification mgt thread pool size " + threadPoolSize);
             }
             // Register Notification sender as the service class
             context.getBundleContext().registerService(NotificationSender.class.getName(),
@@ -94,8 +92,8 @@ public class NotificationManagementServiceComponent {
     }
 
     /**
-     * Will register message sending modules dynamically. This method is used
-     * to bind the notification sending modules in to msg mgt component
+     * Will register message sending modules dynamically. This method is used to bind the notification sending
+     * modules in to msg mgt component
      *
      * @param module MessageSendingModule
      */
@@ -122,8 +120,7 @@ public class NotificationManagementServiceComponent {
             module.init(moduleConfiguration);
             notificationSendingModules.add(module);
         } catch (NotificationManagementException e) {
-            log.error("Error while initializing Notification sending module " + module
-                    .getModuleName());
+            log.error("Error while initializing Notification sending module " + module.getModuleName());
         }
     }
 
