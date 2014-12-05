@@ -112,10 +112,6 @@
             <groupId>org.json.wso2</groupId>
             <artifactId>json</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.notification.mgt</artifactId>
-        </dependency>
 	</dependencies>
 
 	<build>
