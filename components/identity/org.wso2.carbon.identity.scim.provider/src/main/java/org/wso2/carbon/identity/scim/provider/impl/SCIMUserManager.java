@@ -779,6 +779,151 @@ public class SCIMUserManager implements UserManager {
         return null;
     }
 
+    public Group patchGroup(Group oldGroup, Group newGroup) throws CharonException {
+        SCIMProvisioningConfigManager provisioningConfigManager = SCIMProvisioningConfigManager.getInstance();
+
+        newGroup.setDisplayName(SCIMCommonUtils.getGroupNameWithDomain(newGroup.getDisplayName()));
+        oldGroup.setDisplayName(SCIMCommonUtils.getGroupNameWithDomain(oldGroup.getDisplayName()));
+
+        // if operating in dumb mode, do not persist the operation, only
+        // provision to providers
+        if (provisioningConfigManager.isDumbMode()) {
+            if (log.isDebugEnabled()) {
+                log.debug("This instance is operating in dumb mode. "
+                          + "Hence, operation is not persisted, it will only be provisioned.");
+            }
+            // add old role name details.
+            Map<String, Object> additionalInformation = new HashMap<String, Object>();
+            additionalInformation.put(SCIMCommonConstants.IS_ROLE_NAME_CHANGED_ON_UPDATE, true);
+            additionalInformation.put(SCIMCommonConstants.OLD_GROUP_NAME, oldGroup.getDisplayName());
+
+            this.provisionSCIMOperation(SCIMConstants.PUT, newGroup, SCIMConstants.GROUP_INT, additionalInformation);
+            return newGroup;
+
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("Updating group: " + oldGroup.getDisplayName());
+            }
+
+            /*
+             * we need to set the domain name for the newGroup if it doesn't
+             * have it
+             */
+            // we should be able get the domain name like bellow, cause we set
+            // it by force at create group
+
+            try {
+                /*
+                 * set thread local property to signal the downstream
+                 * SCIMUserOperationListener
+                 * about the provisioning route.
+                 */
+                SCIMCommonUtils.setThreadLocalIsManagedThroughSCIMEP(true);
+
+                boolean updated = false;
+                /*
+                 * set thread local property to signal the downstream
+                 * SCIMUserOperationListener
+                 * about the provisioning route.
+                 */
+                SCIMCommonUtils.setThreadLocalIsManagedThroughSCIMEP(true);
+                // check if the user ids sent in updated group exist in the user
+                // store and the associated user name
+                // also a matching one.
+                if (newGroup != null && newGroup.getMembers().size() != 0) {
+                    List<String> userIds = newGroup.getMembers();
+                    List<String> userDisplayNames = newGroup.getMembersWithDisplayName();
+                    if (userIds != null && userIds.size() != 0) {
+                        String[] userNames = null;
+                        for (String userId : userIds) {
+                            userNames =
+                                    carbonUM.getUserList(SCIMConstants.ID_URI, userId,
+                                                         UserCoreConstants.DEFAULT_PROFILE);
+                            if (userNames == null || userNames.length == 0) {
+                                String error =
+                                        "User: " + userId + " doesn't exist in the user store. " +
+                                        "Hence, can not update the group: " + oldGroup.getDisplayName();
+                                throw new IdentitySCIMException(error);
+                            } else {
+                                if (!userDisplayNames.contains(userNames[0])) {
+                                    throw new IdentitySCIMException("Given SCIM user Id and name not matching..");
+                                }
+                            }
+                        }
+                    }
+                }
+                // we do not update Identity_SCIM DB here since it is updated in
+                // SCIMUserOperationListener's methods.
+
+                // update name if it is changed
+                if (!(oldGroup.getDisplayName().equals(newGroup.getDisplayName()))) {
+                    // update group name in carbon UM
+                    carbonUM.updateRoleName(oldGroup.getDisplayName(), newGroup.getDisplayName());
+
+                    updated = true;
+                }
+
+                // find out added members and deleted members..
+                List<String> oldMembers = oldGroup.getMembersWithDisplayName();
+                List<String> addRequestedMembers = null;
+                List<String> deleteRequestedMembers = null;
+                if (newGroup != null && newGroup.getMembers().size() != 0) {
+                    addRequestedMembers = newGroup.getMembersWithDisplayName(null);
+                    deleteRequestedMembers =
+                            newGroup.getMembersWithDisplayName(SCIMConstants.CommonSchemaConstants.OPERATION_DELETE);
+                }
+                List<String> addedMembers = new ArrayList<String>();
+                List<String> deletedMembers = new ArrayList<String>();
+
+                if (addRequestedMembers == null && deleteRequestedMembers == null) {
+                    String users[] = carbonUM.getUserListOfRole(newGroup.getDisplayName());
+                    deletedMembers = Arrays.asList(users);
+                }
+
+                if (addRequestedMembers != null && addRequestedMembers.size() != 0) {
+                    for (String addRequestedMember : addRequestedMembers) {
+                        if (oldMembers != null && oldMembers.contains(addRequestedMember)) {
+                            continue;
+                        }
+                        addedMembers.add(addRequestedMember);
+                    }
+                }
+
+                if (deleteRequestedMembers != null && deleteRequestedMembers.size() != 0) {
+                    for (String deleteRequestedMember : deleteRequestedMembers) {
+                        if (oldMembers != null && oldMembers.contains(deleteRequestedMember)) {
+                            deletedMembers.add(deleteRequestedMember);
+                        } else {
+                            continue;
+                        }
+                    }
+                }
+
+                if (newGroup.getDisplayName() != null) {
+                    if (addedMembers.size() != 0 || deletedMembers.size() != 0) {
+                        carbonUM.updateUserListOfRole(newGroup.getDisplayName(),
+                                                      deletedMembers.toArray(new String[deletedMembers.size()]),
+                                                      addedMembers.toArray(new String[addedMembers.size()]));
+                        updated = true;
+                    }
+                }
+
+                if (updated) {
+                    log.info("Group: " + newGroup.getDisplayName() + " is updated through SCIM.");
+                } else {
+                    log.warn("There is no updated field in the group: " + oldGroup.getDisplayName() +
+                             ". Therefore ignoring the provisioning.");
+                }
+
+            } catch (UserStoreException e) {
+                throw new CharonException(e.getMessage());
+            } catch (IdentitySCIMException e) {
+                throw new CharonException(e.getMessage());
+            }
+            return newGroup;
+        }
+    }
+
     public void deleteGroup(String groupId) throws NotFoundException, CharonException {
         SCIMProvisioningConfigManager provisioningConfigManager =
                 SCIMProvisioningConfigManager.getInstance();
