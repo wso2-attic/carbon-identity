@@ -830,24 +830,23 @@ public class SCIMUserManager implements UserManager {
                 // check if the user ids sent in updated group exist in the user
                 // store and the associated user name
                 // also a matching one.
-                if (newGroup != null && newGroup.getMembers().size() != 0) {
-                    List<String> userIds = newGroup.getMembers();
-                    List<String> userDisplayNames = newGroup.getMembersWithDisplayName();
-                    if (userIds != null && userIds.size() != 0) {
-                        String[] userNames = null;
-                        for (String userId : userIds) {
-                            userNames =
-                                    carbonUM.getUserList(SCIMConstants.ID_URI, userId,
-                                                         UserCoreConstants.DEFAULT_PROFILE);
-                            if (userNames == null || userNames.length == 0) {
-                                String error =
-                                        "User: " + userId + " doesn't exist in the user store. " +
-                                        "Hence, can not update the group: " + oldGroup.getDisplayName();
-                                throw new IdentitySCIMException(error);
-                            } else {
-                                if (!userDisplayNames.contains(userNames[0])) {
-                                    throw new IdentitySCIMException("Given SCIM user Id and name not matching..");
-                                }
+
+                List<String> userIds = newGroup.getMembers();
+                List<String> userDisplayNames = newGroup.getMembersWithDisplayName();
+                if (userIds != null && userIds.size() != 0) {
+                    String[] userNames = null;
+                    for (String userId : userIds) {
+                        userNames =
+                                carbonUM.getUserList(SCIMConstants.ID_URI, userId,
+                                                     UserCoreConstants.DEFAULT_PROFILE);
+                        if (userNames == null || userNames.length == 0) {
+                            String error =
+                                    "User: " + userId + " doesn't exist in the user store. " +
+                                    "Hence, can not update the group: " + oldGroup.getDisplayName();
+                            throw new IdentitySCIMException(error);
+                        } else {
+                            if (!userDisplayNames.contains(userNames[0])) {
+                                throw new IdentitySCIMException("Given SCIM user Id and name not matching..");
                             }
                         }
                     }
@@ -867,11 +866,11 @@ public class SCIMUserManager implements UserManager {
                 List<String> oldMembers = oldGroup.getMembersWithDisplayName();
                 List<String> addRequestedMembers = null;
                 List<String> deleteRequestedMembers = null;
-                if (newGroup != null && newGroup.getMembers().size() != 0) {
-                    addRequestedMembers = newGroup.getMembersWithDisplayName(null);
-                    deleteRequestedMembers =
-                            newGroup.getMembersWithDisplayName(SCIMConstants.CommonSchemaConstants.OPERATION_DELETE);
-                }
+
+                addRequestedMembers = newGroup.getMembersWithDisplayName(null);
+                deleteRequestedMembers =
+                        newGroup.getMembersWithDisplayName(SCIMConstants.CommonSchemaConstants.OPERATION_DELETE);
+
                 List<String> addedMembers = new ArrayList<String>();
                 List<String> deletedMembers = new ArrayList<String>();
 
