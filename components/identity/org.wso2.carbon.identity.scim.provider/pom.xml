@@ -32,7 +32,8 @@
         <dependency>
             <groupId>org.wso2.charon</groupId>
             <artifactId>org.wso2.charon.core</artifactId>
-            <scope>provided</scope>
+            <version>2.0.0</version>
+            <!--<scope>provided</scope>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>

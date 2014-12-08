@@ -793,10 +793,15 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.tools.xacml.validator.stub</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.tools.saml.validator.server.feature</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
-	    </dependency>
+        </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.tools.saml.validator.ui.feature</artifactId>

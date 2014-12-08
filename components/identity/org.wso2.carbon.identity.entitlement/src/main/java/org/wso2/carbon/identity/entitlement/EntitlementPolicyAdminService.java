@@ -149,7 +149,70 @@ public class EntitlementPolicyAdminService {
         }
     }
 
-	/**
+    /**
+     * This method finds the policy content as a String from given registry path
+     *
+     * @param policyRegistryPath
+     * @return
+     * @throws EntitlementException
+     */
+    public String importPolicyContentFromRegistry(String policyRegistryPath) throws
+                                                                             EntitlementException {
+
+        Registry registry;
+        PolicyDTO policyDTO = new PolicyDTO();
+        String policy = "";
+        BufferedReader bufferedReader = null;
+        InputStream inputStream = null;
+
+        // Finding from which registry by comparing prefix of resource path
+        String resourceUri = policyRegistryPath.substring(policyRegistryPath.lastIndexOf(':') + 1);
+        String registryIdentifier = policyRegistryPath.substring(0,
+                                                                 policyRegistryPath.lastIndexOf(':'));
+        if ("conf".equals(registryIdentifier)) {
+            registry = (Registry) CarbonContext.getThreadLocalCarbonContext().
+                    getRegistry(RegistryType.SYSTEM_CONFIGURATION);
+        } else {
+            registry = (Registry) CarbonContext.getThreadLocalCarbonContext().
+                    getRegistry(RegistryType.SYSTEM_GOVERNANCE);
+        }
+
+        try {
+            Resource resource = registry.get(resourceUri);
+            inputStream = resource.getContentStream();
+            bufferedReader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("UTF-8")));
+            String stringLine;
+            StringBuilder buffer = new StringBuilder(policy);
+            while ((stringLine = bufferedReader.readLine()) != null) {
+                buffer.append(stringLine);
+                buffer.append(System.getProperty("line.separator"));
+            }
+            policy = buffer.toString();
+            return policy;
+        } catch (RegistryException e) {
+            log.error("Registry Error occurs while reading policy from registry", e);
+            throw new EntitlementException("Error loading policy from carbon registry");
+        } catch (IOException e) {
+            log.error("I/O Error occurs while reading policy from registry", e);
+            throw new EntitlementException("Error loading policy from carbon registry");
+        } finally {
+            if (bufferedReader != null) {
+                try {
+                    bufferedReader.close();
+                } catch (IOException e) {
+                    log.error("Error occurs while closing inputStream", e);
+                }
+            }
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    log.error("Error occurs while closing inputStream", e);
+                }
+            }
+        }
+    }
+    /**
 	 * Updates given policy
 	 *
 	 * @param policyDTO policy object

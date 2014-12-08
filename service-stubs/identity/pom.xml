@@ -62,6 +62,7 @@
         <module>org.wso2.carbon.user.mgt.stub</module>
         <module>org.wso2.carbon.directory.server.manager.stub</module>
         <module>org.wso2.carbon.identity.tools.saml.validator.stub</module>
+        <module>org.wso2.carbon.identity.tools.xacml.validator.stub</module>
     </modules>
 
     <build>
