@@ -28,6 +28,7 @@ public class IdentityApplicationConstants {
     public static final String DEFAULT_IDP_CONFIG = "default";
 
     public static final String WSO2CARBON_CLAIM_DIALECT = "http://wso2.org/claims";
+    public static final String SF_OAUTH2_TOKEN_ENDPOINT = "https://login.salesforce.com/services/oauth2/token";
 
 
     public static class ConfigElements {

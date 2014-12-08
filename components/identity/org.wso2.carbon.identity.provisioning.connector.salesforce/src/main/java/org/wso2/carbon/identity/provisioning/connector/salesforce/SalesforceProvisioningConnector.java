@@ -30,6 +30,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.provisioning.*;
 import org.wso2.carbon.utils.CarbonUtils;
 
@@ -367,7 +368,10 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
 
         HttpClient httpclient = new HttpClient();
 
-        PostMethod post = new PostMethod(SalesforceConnectorConstants.OAUTH2_TOKEN_ENDPOINT);
+        String url = configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.OAUTH2_TOKEN_ENDPOINT);
+
+        PostMethod post = new PostMethod(url != null && !url.isEmpty() ?
+                                         url : IdentityApplicationConstants.SF_OAUTH2_TOKEN_ENDPOINT);
 
         post.addParameter(SalesforceConnectorConstants.CLIENT_ID,
                 configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.CLIENT_ID));

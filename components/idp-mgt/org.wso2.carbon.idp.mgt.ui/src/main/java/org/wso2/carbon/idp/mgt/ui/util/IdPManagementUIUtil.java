@@ -598,6 +598,7 @@ public class IdPManagementUIUtil {
         Property clientSecretProp = null;
         Property apiVersionProp = null;
         Property domainNameProp = null;
+        Property tokenEndpointProp = null;
 
         if (paramMap.get("sfProvEnabled") != null && "on".equals(paramMap.get("sfProvEnabled"))) {
             proConnector.setEnabled(true);
@@ -653,8 +654,14 @@ public class IdPManagementUIUtil {
             domainNameProp.setValue(paramMap.get("sf-domain-name"));
         }
 
+        if (paramMap.get("sf-token-endpoint") != null) {
+            tokenEndpointProp = new Property();
+            tokenEndpointProp.setName("sf-token-endpoint");
+            tokenEndpointProp.setValue(paramMap.get("sf-token-endpoint"));
+        }
+
         Property[] proProperties = new Property[] { userNameProp, passwordProp, clentIdProp,
-                clientSecretProp, apiVersionProp, domainNameProp };
+                clientSecretProp, apiVersionProp, domainNameProp, tokenEndpointProp };
 
         proConnector.setProvisioningProperties(proProperties);
 
