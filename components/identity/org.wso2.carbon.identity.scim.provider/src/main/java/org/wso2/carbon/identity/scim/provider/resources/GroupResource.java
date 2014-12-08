@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * 
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.scim.provider.resources;
 
 import javax.ws.rs.DELETE;
@@ -33,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.scim.provider.impl.IdentitySCIMManager;
 import org.wso2.carbon.identity.scim.provider.util.JAXRSResponseBuilder;
+import org.wso2.carbon.webapp.ext.jaxrs.designator.PATCH;
 import org.wso2.charon.core.encoder.Encoder;
 import org.wso2.charon.core.exceptions.BadRequestException;
 import org.wso2.charon.core.exceptions.CharonException;
@@ -56,174 +57,53 @@ public class GroupResource extends AbstractResource {
                              @HeaderParam(SCIMConstants.ACCEPT_HEADER) String format,
                              @HeaderParam(SCIMConstants.AUTHENTICATION_TYPE_HEADER) String authMechanism,
                              @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization) {
-
-        Encoder encoder = null;
-        try {
-            IdentitySCIMManager identitySCIMManager = IdentitySCIMManager.getInstance();
-
-            // defaults to application/json.
-            format = identifyOutputFormat(format);
-            //obtain the encoder at this layer in case exceptions needs to be encoded.
-            encoder = identitySCIMManager.getEncoder(SCIMConstants.identifyFormat(format));
-            //perform authentication
-            /*Map<String, String> headerMap = new HashMap<String, String>();
-            headerMap.put(SCIMConstants.AUTHORIZATION_HEADER, authorization);
-            headerMap.put(SCIMConstants.AUTHENTICATION_TYPE_HEADER, authMechanism);
-            //authenticate the request
-            AuthenticationInfo authInfo = identitySCIMManager.handleAuthentication(headerMap);*/
-
-            //obtain the user store manager
-            UserManager userManager = IdentitySCIMManager.getInstance().getUserManager(
-                    authorization);
-
-            //create charon-SCIM group endpoint and hand-over the request.
-            GroupResourceEndpoint groupResourceEndpoint = new GroupResourceEndpoint();
-
-            SCIMResponse scimResponse = groupResourceEndpoint.get(id, format, userManager);
-            //needs to check the code of the response and return 200 0k or other error codes
-            // appropriately.
-            return new JAXRSResponseBuilder().buildResponse(scimResponse);
-
-        } catch (CharonException e) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(e.getMessage(), e);
-            }
-            //create SCIM response with code as the same of exception and message as error message of the exception
-            if (e.getCode() == -1) {
-                e.setCode(ResponseCodeConstants.CODE_INTERNAL_SERVER_ERROR);
-            }
-            return new JAXRSResponseBuilder().buildResponse(
-                    AbstractResourceEndpoint.encodeSCIMException(encoder, e));
-        } catch (FormatNotSupportedException e) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(e.getMessage(), e);
-            }
-            return new JAXRSResponseBuilder().buildResponse(
-                    AbstractResourceEndpoint.encodeSCIMException(encoder, e));
-        }
+        return processRequest(id, null, null, format, authorization, "GET");
     }
 
     @POST
     public Response createGroup(@HeaderParam(SCIMConstants.CONTENT_TYPE_HEADER) String inputFormat,
-                               @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
-                               @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
-                               String resourceString) {
-
-        Encoder encoder = null;
-        try {
-            //obtain default charon manager
-            IdentitySCIMManager identitySCIMManager = IdentitySCIMManager.getInstance();
-
-            //content-type header is compulsory in post request.
-            if (inputFormat == null) {
-                String error = SCIMConstants.CONTENT_TYPE_HEADER + " not present in the request header";
-                throw new FormatNotSupportedException(error);
-            }
-	        //identify input format
-            inputFormat = identifyInputFormat(inputFormat);
-            //set the format in which the response should be encoded, if not specified in the request,
-            // defaults to application/json.
-            outputFormat = identifyOutputFormat(outputFormat);
-            //obtain the encoder at this layer in case exceptions needs to be encoded.
-            encoder = identitySCIMManager.getEncoder(SCIMConstants.identifyFormat(outputFormat));
-            //perform authentication
-            /*Map<String, String> headerMap = new HashMap<String, String>();
-            headerMap.put(SCIMConstants.AUTHORIZATION_HEADER, authorization);
-            //authenticate the request
-            AuthenticationInfo authInfo = identitySCIMManager.handleAuthentication(headerMap);*/
-
-            //obtain the user store manager
-            UserManager userManager = IdentitySCIMManager.getInstance().getUserManager(
-                    authorization);
-
-            //create charon-SCIM user endpoint and hand-over the request.
-            GroupResourceEndpoint groupResourceEndpoint = new GroupResourceEndpoint();
-
-            SCIMResponse response = groupResourceEndpoint.create(resourceString, inputFormat,
-                                                                outputFormat, userManager);
-
-            return new JAXRSResponseBuilder().buildResponse(response);
-
-        } catch (CharonException e) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(e.getMessage(), e);
-            }
-            //create SCIM response with code as the same of exception and message as error message of the exception
-            if (e.getCode() == -1) {
-                e.setCode(ResponseCodeConstants.CODE_INTERNAL_SERVER_ERROR);
-            }
-            return new JAXRSResponseBuilder().buildResponse(
-                    AbstractResourceEndpoint.encodeSCIMException(encoder, e));
-        } catch (FormatNotSupportedException e) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(e.getMessage(), e);
-            }
-            return new JAXRSResponseBuilder().buildResponse(
-                    AbstractResourceEndpoint.encodeSCIMException(encoder, e));
-        }
+                                @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
+                                @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
+                                String resourceString) {
+        return processRequest(null, resourceString, inputFormat, outputFormat, authorization, "POST");
     }
-    
+
     @DELETE
     @Path("{id}")
     public Response deleteGroup(@PathParam(SCIMConstants.CommonSchemaConstants.ID) String id,
-                               @HeaderParam(SCIMConstants.ACCEPT_HEADER) String format,
-                               @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization) {
-        Encoder encoder = null;
-        try {
-            IdentitySCIMManager identitySCIMManager = IdentitySCIMManager.getInstance();
+                                @HeaderParam(SCIMConstants.ACCEPT_HEADER) String format,
+                                @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization) {
+        return processRequest(id, null, null, format, authorization, "DELETE");
+    }
 
-            // defaults to application/json.
-            if (format == null) {
-                format = SCIMConstants.APPLICATION_JSON;
-            }
-            //set the format in which the response should be encoded, if not specified in the request,
-            // defaults to application/json.
-            format = identifyOutputFormat(format);
-            //obtain the encoder at this layer in case exceptions needs to be encoded.
-            encoder = identitySCIMManager.getEncoder(SCIMConstants.identifyFormat(format));
-            //perform authentication
-            /*Map<String, String> headerMap = new HashMap<String, String>();
-            headerMap.put(SCIMConstants.AUTHORIZATION_HEADER, authorization);
-            //authenticate the request
-            AuthenticationInfo authInfo = identitySCIMManager.handleAuthentication(headerMap);*/
+    @PUT
+    @Path("{id}")
+    public Response updateGroup(@PathParam(SCIMConstants.CommonSchemaConstants.ID) String id,
+                                @HeaderParam(SCIMConstants.CONTENT_TYPE_HEADER) String inputFormat,
+                                @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
+                                @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
+                                String resourceString) {
+        return processRequest(id, resourceString, inputFormat, outputFormat, authorization, "PUT");
+    }
 
-            //obtain the user store manager
-            UserManager userManager = IdentitySCIMManager.getInstance().getUserManager(
-                    authorization);
-
-            //create charon-SCIM group endpoint and hand-over the request.
-            GroupResourceEndpoint groupResourceEndpoint = new GroupResourceEndpoint();
-
-            SCIMResponse scimResponse = groupResourceEndpoint.delete(id, userManager, format);
-            //needs to check the code of the response and return 200 0k or other error codes
-            // appropriately.
-            return new JAXRSResponseBuilder().buildResponse(scimResponse);
-
-        } catch (CharonException e) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(e.getMessage(), e);
-            }
-            //create SCIM response with code as the same of exception and message as error message of the exception
-            if (e.getCode() == -1) {
-                e.setCode(ResponseCodeConstants.CODE_INTERNAL_SERVER_ERROR);
-            }
-            return new JAXRSResponseBuilder().buildResponse(
-                    AbstractResourceEndpoint.encodeSCIMException(encoder, e));
-        } catch (FormatNotSupportedException e) {
-            e.printStackTrace();
-            return new JAXRSResponseBuilder().buildResponse(
-                    AbstractResourceEndpoint.encodeSCIMException(encoder, e));
-        }
+    @PATCH
+    @Path("{id}")
+    public Response patchGroup(@PathParam(SCIMConstants.CommonSchemaConstants.ID) String id,
+                               @HeaderParam(SCIMConstants.CONTENT_TYPE_HEADER) String inputFormat,
+                               @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
+                               @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
+                               String resourceString) {
+        return processRequest(id, resourceString, inputFormat, outputFormat, authorization, "PATCH");
     }
 
     @GET
     public Response getGroup(@HeaderParam(SCIMConstants.ACCEPT_HEADER) String format,
-                            @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
-                            @QueryParam("attributes") String searchAttribute,
-                            @QueryParam("filter") String filter,
-                            @QueryParam("startIndex") String startIndex,
-                            @QueryParam("count") String count, @QueryParam("sortBy") String sortBy,
-                            @QueryParam("sortOrder") String sortOrder) {
+                             @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
+                             @QueryParam("attributes") String searchAttribute,
+                             @QueryParam("filter") String filter,
+                             @QueryParam("startIndex") String startIndex,
+                             @QueryParam("count") String count, @QueryParam("sortBy") String sortBy,
+                             @QueryParam("sortOrder") String sortOrder) {
         Encoder encoder = null;
         try {
             IdentitySCIMManager identitySCIMManager = IdentitySCIMManager.getInstance();
@@ -251,8 +131,8 @@ public class GroupResource extends AbstractResource {
                 scimResponse = groupResourceEndpoint.listByFilter(filter, userManager, format);
             } else if (startIndex != null && count != null) {
                 scimResponse = groupResourceEndpoint.listWithPagination(Integer.valueOf(startIndex),
-                                                                       Integer.valueOf(count),
-                                                                       userManager, format);
+                                                                        Integer.valueOf(count),
+                                                                        userManager, format);
             } else if (sortBy != null) {
                 scimResponse = groupResourceEndpoint.listBySort(sortBy, sortOrder, userManager, format);
             } else if (searchAttribute == null && filter == null && startIndex == null &&
@@ -290,42 +170,50 @@ public class GroupResource extends AbstractResource {
         }
     }
 
-    @PUT
-    @Path("{id}")
-    public Response updateGroup(@PathParam(SCIMConstants.CommonSchemaConstants.ID) String id,
-                               @HeaderParam(SCIMConstants.CONTENT_TYPE_HEADER) String inputFormat,
-                               @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
-                               @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
-                               String resourceString) {
+    /**
+     * build response according to http verb
+     *
+     * @param id
+     * @param resourceString
+     * @param inputFormat
+     * @param outputFormat
+     * @param authorization
+     * @param httpVerb
+     * @return
+     */
+    public Response processRequest(String id, String resourceString, String inputFormat, String outputFormat,
+                                   String authorization, String httpVerb) {
         Encoder encoder = null;
         try {
-            //obtain default charon manager
-            IdentitySCIMManager identitySCIMManager = IdentitySCIMManager.getInstance();
-
-            //content-type header is compulsory in post request.
-            if (inputFormat == null) {
-                String error = SCIMConstants.CONTENT_TYPE_HEADER + " not present in the request header";
-                throw new FormatNotSupportedException(error);
-            }
-	        //identify input format
-            inputFormat = identifyInputFormat(inputFormat);
-            //set the format in which the response should be encoded, if not specified in the request,
-            // defaults to application/json.
             outputFormat = identifyOutputFormat(outputFormat);
+            if (inputFormat != null) {
+                inputFormat = identifyInputFormat(inputFormat);
+            }
+            IdentitySCIMManager identitySCIMManager = IdentitySCIMManager.getInstance();
             //obtain the encoder at this layer in case exceptions needs to be encoded.
             encoder = identitySCIMManager.getEncoder(SCIMConstants.identifyFormat(outputFormat));
-
             //obtain the user store manager
             UserManager userManager = IdentitySCIMManager.getInstance().getUserManager(
                     authorization);
 
-            //create charon-SCIM user endpoint and hand-over the request.
+            //create charon-SCIM group endpoint and hand-over the request.
             GroupResourceEndpoint groupResourceEndpoint = new GroupResourceEndpoint();
+            SCIMResponse scimResponse = null;
+            if ("GET".equals(httpVerb)) {
+                scimResponse = groupResourceEndpoint.get(id, outputFormat, userManager);
+            } else if ("POST".equals(httpVerb)) {
+                scimResponse = groupResourceEndpoint.create(resourceString, inputFormat, outputFormat, userManager);
+            } else if ("PUT".equals(httpVerb)) {
+                scimResponse =
+                        groupResourceEndpoint.updateWithPUT(id, resourceString, inputFormat, outputFormat, userManager);
+            } else if ("PATCH".equals(httpVerb)) {
+                scimResponse = groupResourceEndpoint
+                        .updateWithPATCH(id, resourceString, inputFormat, outputFormat, userManager);
+            } else if ("DELETE".equals(httpVerb)) {
+                scimResponse = groupResourceEndpoint.delete(id, userManager, outputFormat);
+            }
 
-            SCIMResponse response = groupResourceEndpoint.updateWithPUT(id, resourceString, inputFormat,
-                                                                       outputFormat, userManager);
-
-            return new JAXRSResponseBuilder().buildResponse(response);
+            return new JAXRSResponseBuilder().buildResponse(scimResponse);
 
         } catch (CharonException e) {
             if (logger.isDebugEnabled()) {
