@@ -592,4 +592,19 @@ public class EntitlementUtil {
             }
         }
     }
+
+    /**
+     * get XACML policy schema required for XACML validator tool
+     *
+     * @param policy
+     * @return
+     */
+    public static Schema getSchema(PolicyDTO policy) {
+        // get policy version
+        String policyXMLNS = getPolicyVersion(policy.getPolicy());
+        Map<String, Schema> schemaMap = EntitlementServiceComponent.getEntitlementConfig().getPolicySchemaMap();
+        // load correct schema by version
+        Schema schema = schemaMap.get(policyXMLNS);
+        return schema;
+    }
 }
