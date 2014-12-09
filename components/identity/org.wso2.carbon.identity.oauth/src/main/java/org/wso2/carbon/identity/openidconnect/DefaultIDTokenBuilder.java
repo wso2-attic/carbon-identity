@@ -28,14 +28,22 @@ import org.apache.oltu.openidconnect.as.messages.IDTokenBuilder;
 import org.apache.oltu.openidconnect.as.messages.IDTokenException;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.core.util.KeyStoreManager;
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.identity.application.common.model.ServiceProvider;
+import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
+import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.oauth.cache.*;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenRespDTO;
+import org.wso2.carbon.identity.oauth2.internal.OAuth2ServiceComponentHolder;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
+import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.security.Key;
 import java.security.KeyStore;
@@ -62,6 +70,9 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
     private static final String RS384 = "RS384";
     private static final String RS512 = "RS512";
 
+    private static final String INBOUND_AUTH2_TYPE = "oauth2";
+
+
     public String buildIDToken(OAuthTokenReqMessageContext request, OAuth2AccessTokenRespDTO tokenRespDTO)
             throws IdentityOAuth2Exception {
 
@@ -76,6 +87,49 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         long curTime = Calendar.getInstance().getTimeInMillis();
         // setting subject
         String subject = request.getAuthorizedUser();
+
+        ApplicationManagementService applicationMgtService =
+                OAuth2ServiceComponentHolder.getApplicationMgtService();
+        ServiceProvider serviceProvider;
+        String claim = null;
+        try {
+            String spName =
+                    applicationMgtService.getServiceProviderNameByClientId(request.getOauth2AccessTokenReqDTO()
+                                    .getClientId(),
+                            INBOUND_AUTH2_TYPE);
+            serviceProvider = applicationMgtService.getApplication(spName);
+        } catch (IdentityApplicationManagementException ex) {
+            String error = "Error occurred while getting service provider information.";
+            log.error(error, ex);
+            throw new IdentityOAuth2Exception(error, ex);
+        }
+
+        if (serviceProvider != null) {
+            claim = serviceProvider.getLocalAndOutBoundAuthenticationConfig().getSubjectClaimUri();
+
+            if (claim != null) {
+                String username = request.getAuthorizedUser();
+                String tenantUser = MultitenantUtils.getTenantAwareUsername(username);
+                String domainName = MultitenantUtils.getTenantDomain(request.getAuthorizedUser());
+                try {
+                    subject =
+                            IdentityTenantUtil.getRealm(domainName, username)
+                                    .getUserStoreManager()
+                                    .getUserClaimValue(tenantUser, claim, null);
+                    if (subject == null) {
+                        subject = request.getAuthorizedUser();
+                    }
+                } catch (IdentityException e) {
+                    String error = "Error occurred while generating the IDToken.";
+                    log.error(error, e);
+                    throw new IdentityOAuth2Exception("Error while generating the IDToken", e);
+                } catch (UserStoreException e) {
+                    String error = "Error occurred while generating the IDToken.";
+                    log.error(error, e);
+                    throw new IdentityOAuth2Exception(error, e);
+                }
+            }
+        }
 
         String nonceValue = null;
         // AuthorizationCode only available for authorization code grant type
