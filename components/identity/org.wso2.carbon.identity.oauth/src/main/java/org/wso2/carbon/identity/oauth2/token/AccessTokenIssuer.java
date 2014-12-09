@@ -160,45 +160,45 @@ public class AccessTokenIssuer {
             tokReqMsgCtx.setTenantID(oAuthAppDO.getTenantId());
         }
 
-        boolean isValidGrant = authzGrantHandler.validateGrant(tokReqMsgCtx);
-        boolean isAuthorized = authzGrantHandler.authorizeAccessDelegation(tokReqMsgCtx);
-        boolean isValidScope = authzGrantHandler.validateScope(tokReqMsgCtx);
-
         //boolean isAuthenticated = true;
         if (!isAuthenticated) {
             //Do not change this log format as these logs use by external applications
             log.debug("Client Authentication Failed for client id=" + tokenReqDTO.getClientId() + ", " +
-                    "user-name=" + userName + " to application=" + applicationName);
+                      "user-name=" + userName + " to application=" + applicationName);
             tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_CLIENT,
-                    "Client credentials are invalid.", tokenReqDTO);
+                                       "Client credentials are invalid.", tokenReqDTO);
             return tokenRespDTO;
         }
 
+        boolean isValidGrant = authzGrantHandler.validateGrant(tokReqMsgCtx);
         //boolean isValidGrant = true;
         if (!isValidGrant) {
             //Do not change this log format as these logs use by external applications
             log.debug("Invalid Grant provided by the client, id=" + tokenReqDTO.getClientId() + ", " +
-                    "" + "user-name=" + userName + " to application=" + applicationName);
+                      "" + "user-name=" + userName + " to application=" + applicationName);
             tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_GRANT,
-                    "Provided Authorization Grant is invalid.", tokenReqDTO);
+                                       "Provided Authorization Grant is invalid.", tokenReqDTO);
             return tokenRespDTO;
         }
 
+        boolean isAuthorized = authzGrantHandler.authorizeAccessDelegation(tokReqMsgCtx);
         //boolean isAuthorized = true;
         if (!isAuthorized) {
             //Do not change this log format as these logs use by external applications
             log.debug("Resource owner is not authorized to grant access, client-id="
-                    + tokenReqDTO.getClientId() + " " + "user-name=" + userName + " to application=" + applicationName);
+                      + tokenReqDTO.getClientId() + " " + "user-name=" + userName + " to application=" +
+                      applicationName);
             tokenRespDTO = handleError(OAuthError.TokenResponse.UNAUTHORIZED_CLIENT,
-                    "Unauthorized Client!", tokenReqDTO);
+                                       "Unauthorized Client!", tokenReqDTO);
             return tokenRespDTO;
         }
 
+        boolean isValidScope = authzGrantHandler.validateScope(tokReqMsgCtx);
         //boolean isValidScope = true;
         if (!isValidScope) {
             //Do not change this log format as these logs use by external applications
             log.debug("Invalid Scope provided. client-id=" + tokenReqDTO.getClientId() + " " +
-                    "" + "user-name=" + userName + " to application=" + applicationName);
+                      "" + "user-name=" + userName + " to application=" + applicationName);
             tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_SCOPE, "Invalid Scope!", tokenReqDTO);
             return tokenRespDTO;
         }
