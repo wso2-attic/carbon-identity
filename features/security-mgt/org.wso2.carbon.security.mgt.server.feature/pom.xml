@@ -114,6 +114,7 @@
                                 <bundleDef>org.apache.rampart.wso2:rampart-policy</bundleDef>
                                 <bundleDef>org.apache.rampart.wso2:rampart-core</bundleDef>
                                 <bundleDef>org.apache.rampart.wso2:rampart-trust</bundleDef>
+                                <bundleDef>org.apache.ws.security.wso2:wss4j</bundleDef>
 								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.sts.store</bundleDef>
                             </bundles>
                             <importFeatures>
