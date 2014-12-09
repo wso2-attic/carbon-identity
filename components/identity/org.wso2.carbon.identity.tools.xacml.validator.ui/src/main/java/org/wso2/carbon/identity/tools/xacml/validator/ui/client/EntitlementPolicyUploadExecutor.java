@@ -56,8 +56,6 @@ public class EntitlementPolicyUploadExecutor extends AbstractFileUploadExecutor 
                                                                                                           IOException {
         log.info("execute hits");
         String webContext = (String) httpServletRequest.getAttribute(CarbonConstants.WEB_CONTEXT);
-        String serverURL = (String) httpServletRequest.getAttribute(CarbonConstants.SERVER_URL);
-        String cookie = (String) httpServletRequest.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
         errorRedirectionPage = getContextRoot(httpServletRequest) + "/" + webContext + "/policy-validator/index.jsp";
 
         Map<String, ArrayList<FileItemData>> fileItemsMap = getFileItemsMap();
@@ -70,6 +68,7 @@ public class EntitlementPolicyUploadExecutor extends AbstractFileUploadExecutor 
         }
         List<FileItemData> fileItems = fileItemsMap.get("policyFromFileSystem");
         String msg;
+        BufferedReader br = null;
         try {
             for (FileItemData fileItem : fileItems) {
                 String filename = getFileName(fileItem.getFileItem().getName());
@@ -79,16 +78,15 @@ public class EntitlementPolicyUploadExecutor extends AbstractFileUploadExecutor 
                     throw new CarbonException("File with extension " + getFileName(fileItem.getFileItem().getName()) +
                                               " is not supported!");
                 } else {
-                    BufferedReader br =
-                                        new BufferedReader(new InputStreamReader(fileItem.getDataHandler()
+                    br = new BufferedReader(new InputStreamReader(fileItem.getDataHandler()
                                                                                          .getInputStream()));
                     String temp;
-                    String policyContent = "";
+                    StringBuilder policyContent = new StringBuilder();
                     while ((temp = br.readLine()) != null) {
-                        policyContent += temp + System.getProperty("line.separator");
+                        policyContent.append(temp + System.getProperty("line.separator"));
                     }
                     PolicyDTO policyDTO = new PolicyDTO();
-                    policyDTO.setPolicy(policyContent);
+                    policyDTO.setPolicy(policyContent.toString());
                     policyDTO.setPolicyEditor("XML");
                     HttpSession session = httpServletRequest.getSession();
                     session.setAttribute("policyDTO", policyDTO);
@@ -105,6 +103,10 @@ public class EntitlementPolicyUploadExecutor extends AbstractFileUploadExecutor 
             log.error(msg);
             CarbonUIMessage.sendCarbonUIMessage(msg, CarbonUIMessage.ERROR, httpServletRequest, httpServletResponse,
                                                 errorRedirectionPage);
+        }finally {
+            if(br!=null){
+                br.close();
+            }
         }
         return false;
     }
