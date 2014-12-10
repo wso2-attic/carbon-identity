@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.identity.application.authenticator.samlsso.manager;
 
-import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
@@ -52,54 +51,81 @@ public class X509CredentialImpl implements X509Credential {
     private PrivateKey privateKey = null;
     private X509Certificate entityCertificate = null;
 
+    /**
+     * Instantiates X509Credential.
+     * If the IDP cert passed is not null the instantiated credential object will hold the passed
+     * cert and the public key of the cert.
+     * Otherwise the object will hold the private key, public key and the cert for the respective
+     * tenant domain.
+     *
+     * @param tenantDomain  tenant domain
+     * @param idpCert       certificate of the IDP
+     * @throws SAMLSSOException
+     */
     public X509CredentialImpl(String tenantDomain, String idpCert) throws SAMLSSOException {
 
-        int tenantId = -1;
-        
-        try {
-            tenantId = SAMLSSOAuthenticatorServiceComponent.getRealmService().getTenantManager().getTenantId(tenantDomain);
-        } catch (UserStoreException e) {
-            throw new SAMLSSOException(
-                    "Exception occurred while retrieving Tenant ID from tenant domain " + tenantDomain, e);
-        }
-        
-        KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(tenantId);
-        X509Certificate cert = null;
-        PrivateKey privateKey = null;
-        
-        try {
-            if(!tenantDomain.equals(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME)){
-                // derive key store name
-                String ksName = tenantDomain.trim().replace(".", "-");
-                // derive JKS name
-                String jksName = ksName + ".jks";
-                privateKey = (PrivateKey) keyStoreManager.getPrivateKey(jksName, tenantDomain);
-            } else {
-                privateKey = keyStoreManager.getDefaultPrivateKey();
-            }
-        } catch (Exception e) {
-            throw new SAMLSSOException("Error retrieving private key for tenant : " + tenantDomain, e);
-        }
-        
-        if(privateKey == null){
-            throw new SAMLSSOException("Cannot find the primary private key for tenant " + tenantDomain);
-        }
-        
-        this.privateKey = privateKey;
+        X509Certificate cert;
 
-        try {
-            if (idpCert != null && !idpCert.isEmpty()) {
-                cert = (X509Certificate) IdentityApplicationManagementUtil.decodeCertificate(idpCert);
-            }else{
-                cert = keyStoreManager.getDefaultPrimaryCertificate();
+        /**
+         * If IDP cert is passed as a parameter set the cert to the IDP cert.
+         * IDP cert should be passed when used with response validation.
+         */
+        if (idpCert != null && !idpCert.isEmpty()) {
+            try {
+                cert = (X509Certificate) IdentityApplicationManagementUtil
+                        .decodeCertificate(idpCert);
+            } catch (CertificateException e) {
+                throw new SAMLSSOException(
+                        "Error retrieving the certificate for alias " + idpCert, e);
             }
-        } catch (CertificateException e) {
-            throw new SAMLSSOException("Cannot find the certificate for alias: " + idpCert, e);
-        } catch (Exception e) {
-            throw new SAMLSSOException("Error while finding primary certificate", e);
+        } else {
+            int tenantId;
+
+            try {
+                tenantId = SAMLSSOAuthenticatorServiceComponent.getRealmService().getTenantManager()
+                                                               .getTenantId(tenantDomain);
+            } catch (UserStoreException e) {
+                throw new SAMLSSOException(
+                        "Exception occurred while retrieving Tenant ID from tenant domain " +
+                        tenantDomain, e);
+            }
+
+            KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(tenantId);
+            PrivateKey privateKey;
+
+            try {
+                /**
+                 * Get the private key and the cert for the respective tenant domain.
+                 */
+                if (!tenantDomain.equals(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME)) {
+                    // derive key store name
+                    String ksName = tenantDomain.trim().replace(".", "-");
+                    // derive JKS name
+                    String jksName = ksName + ".jks";
+                    privateKey =
+                            (PrivateKey) keyStoreManager.getPrivateKey(jksName, tenantDomain);
+                    cert = (X509Certificate) keyStoreManager.getKeyStore(jksName)
+                                                            .getCertificate(tenantDomain);
+                } else {
+                    privateKey = keyStoreManager.getDefaultPrivateKey();
+                    cert = keyStoreManager.getDefaultPrimaryCertificate();
+
+                }
+            } catch (Exception e) {
+                throw new SAMLSSOException(
+                        "Error retrieving private key and the certificate for tenant " +
+                        tenantDomain, e);
+            }
+
+            if (privateKey == null) {
+                throw new SAMLSSOException(
+                        "Cannot find the private key for tenant " + tenantDomain);
+            }
+
+            this.privateKey = privateKey;
         }
 
-        if(cert == null){
+        if (cert == null) {
             throw new SAMLSSOException("Cannot find the certificate.");
         }
 
