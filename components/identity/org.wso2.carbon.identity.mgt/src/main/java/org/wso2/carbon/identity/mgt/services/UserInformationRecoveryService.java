@@ -607,14 +607,8 @@ public class UserInformationRecoveryService {
 			}
 		}
 		
-		String loggedInTenant = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-		if(tenantDomain != null && !tenantDomain.isEmpty() && !loggedInTenant.equals(tenantDomain)){
-			String msg = "Trying to verify account unauthorized tenant space";
-			log.error(msg);
-			throw new IdentityMgtServiceException(msg);
-		}
 		if (tenantDomain == null || tenantDomain.isEmpty()) {
-			tenantDomain = loggedInTenant;
+			tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
 		}
 
 		try {
@@ -675,14 +669,8 @@ public class UserInformationRecoveryService {
 		org.wso2.carbon.user.core.UserStoreManager userStoreManager = null;
 		Permission permission = null;
 
-		String loggedInTenant = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-		if(tenantDomain != null && !tenantDomain.isEmpty() && !loggedInTenant.equals(tenantDomain)){
-			String msg = "Trying to create users in unauthorized tenant space";
-			log.error(msg);
-			throw new IdentityMgtServiceException(msg);
-		}
 		if (tenantDomain == null || tenantDomain.isEmpty()) {
-			tenantDomain = loggedInTenant;
+			tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
 		}
 
 		RealmService realmService = IdentityMgtServiceComponent.getRealmService();
@@ -802,14 +790,8 @@ public class UserInformationRecoveryService {
 			}
 		}
 
-		String loggedInTenant = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-		if(tenantDomain != null && !tenantDomain.isEmpty() && !loggedInTenant.equals(tenantDomain)){
-			String msg = "Trying to confirm users in unauthorized tenant space";
-			log.error(msg);
-			throw new IdentityMgtServiceException(msg);
-		}
 		if (tenantDomain == null || tenantDomain.isEmpty()) {
-			tenantDomain = loggedInTenant;
+			tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
 		}
 
 		try {
