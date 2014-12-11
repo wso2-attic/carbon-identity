@@ -500,7 +500,7 @@ public class EntitlementUtil {
     }
 	
 	/**
-	 * Gets policy dto for a given policy id
+	 * Gets policy model for a given policy id
 	 * 
 	 * @param policyId policy id
 	 * @param registry Registry

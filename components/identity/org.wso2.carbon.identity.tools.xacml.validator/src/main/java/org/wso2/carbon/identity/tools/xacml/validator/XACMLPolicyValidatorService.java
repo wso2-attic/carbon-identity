@@ -20,7 +20,7 @@ package org.wso2.carbon.identity.tools.xacml.validator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.entitlement.dto.PolicyDTO;
-import org.wso2.carbon.identity.tools.xacml.validator.dto.ErrorItem;
+import org.wso2.carbon.identity.tools.xacml.validator.model.ValidationResult;
 import org.wso2.carbon.identity.tools.xacml.validator.processors.XACMLPolicyValidator;
 
 /**
@@ -33,15 +33,15 @@ public class XACMLPolicyValidatorService {
     private static Log log = LogFactory.getLog(XACMLPolicyValidatorService.class);
 
     /**
-     * Service which provides array of schema validation errors
+     * validate policy according to XACML schema
      * 
      * @param policyDTO
      *            include policy content
-     * @return ErrorItem array
+     * @return ValidationResult array
      */
-    public ErrorItem[] validateXACMLPolicy(PolicyDTO policyDTO) {
+    public ValidationResult[] validateXACMLPolicy(PolicyDTO policyDTO) {//change ValidationResult to ValidationResult
         if (log.isDebugEnabled()) {
-            log.debug("Request Recived :" + policyDTO.getPolicy());
+            log.debug("Request Received :" + policyDTO.getPolicy());
         }
         return XACMLPolicyValidator.validatePolicy(policyDTO);
     }

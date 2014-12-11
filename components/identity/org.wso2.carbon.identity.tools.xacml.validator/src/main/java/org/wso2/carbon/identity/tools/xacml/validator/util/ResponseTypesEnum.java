@@ -17,16 +17,6 @@
  */
 package org.wso2.carbon.identity.tools.xacml.validator.util;
 
-import org.wso2.carbon.identity.tools.xacml.validator.dto.ErrorItem;
-
-public class XACMLValidatorUtils {
-    public static ErrorItem getErrorItem(String message, String type, int lineNumber) {
-        ErrorItem errorItem = new ErrorItem();
-        errorItem.setMessage(message);
-        errorItem.setType(type);
-        if (lineNumber != 0) {
-            errorItem.setLineNumber(lineNumber);
-        }
-        return errorItem;
-    }
+public enum ResponseTypesEnum {
+    ERROR, WARNING, FATAL_ERROR, SUCCESS
 }

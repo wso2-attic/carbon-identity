@@ -15,15 +15,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.identity.tools.xacml.validator.dto;
+package org.wso2.carbon.identity.tools.xacml.validator.model;
 
 /**
  * Bean entity to store validated item
  */
-public class ErrorItem {
+public class ValidationResult {
     private String message;
     private int lineNumber;
-    private String type;
+    private String responseType;
+
+    public ValidationResult(String message, int lineNumber, String responseType) {
+        this.message = message;
+        this.lineNumber = lineNumber;
+        this.responseType = responseType;
+    }
 
     public String getMessage() {
         return message;
@@ -41,11 +47,11 @@ public class ErrorItem {
         this.lineNumber = lineNumber;
     }
 
-    public String getType() {
-        return type;
+    public String getResponseType() {
+        return responseType;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setResponseType(String responseType) {
+        this.responseType = responseType;
     }
 }
