@@ -100,7 +100,6 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
             serviceProvider = applicationMgtService.getApplication(spName);
         } catch (IdentityApplicationManagementException ex) {
             String error = "Error occurred while getting service provider information.";
-            log.error(error, ex);
             throw new IdentityOAuth2Exception(error, ex);
         }
 
@@ -121,11 +120,9 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
                     }
                 } catch (IdentityException e) {
                     String error = "Error occurred while generating the IDToken.";
-                    log.error(error, e);
                     throw new IdentityOAuth2Exception("Error while generating the IDToken", e);
                 } catch (UserStoreException e) {
                     String error = "Error occurred while generating the IDToken.";
-                    log.error(error, e);
                     throw new IdentityOAuth2Exception(error, e);
                 }
             }
