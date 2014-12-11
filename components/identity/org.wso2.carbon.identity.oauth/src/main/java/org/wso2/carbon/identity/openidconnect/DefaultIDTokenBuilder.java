@@ -61,14 +61,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidconnect.IDTokenBuilder {
 
     private static Log log = LogFactory.getLog(DefaultIDTokenBuilder.class);
-    private static boolean DEBUG = log.isDebugEnabled();
     private static ConcurrentHashMap<Integer, Key> privateKeys = new ConcurrentHashMap<Integer, Key>();
     private static ConcurrentHashMap<Integer, Certificate> publicCerts = new ConcurrentHashMap<Integer, Certificate>();
+    private static ConcurrentHashMap<String, JWSAlgorithm> signatureAlgorithms =
+            new ConcurrentHashMap<String, JWSAlgorithm>();
 
     private static final String NONE = "NONE";
-    private static final String RS256 = "RS256";
-    private static final String RS384 = "RS384";
-    private static final String RS512 = "RS512";
 
     private static final String INBOUND_AUTH2_TYPE = "oauth2";
 
@@ -78,12 +76,14 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
 
         OAuthServerConfiguration config = OAuthServerConfiguration.getInstance();
         String signatureAlgorithm = config.getSignatureAlgorithm();
-        if (!signatureAlgorithm.equals(NONE)) {
+        if (!NONE.equals(signatureAlgorithm)) {
             //if signature algorithm cannot map throws an Exception
             mapSignatureAlgorithm(signatureAlgorithm);
         }
         String issuer = config.getOpenIDConnectIDTokenIssuerIdentifier();
+        //time in milliseconds
         long lifetime = Integer.parseInt(config.getOpenIDConnectIDTokenExpiration()) * 1000;
+        //time in milliseconds
         long curTime = Calendar.getInstance().getTimeInMillis();
         // setting subject
         String subject = request.getAuthorizedUser();
@@ -142,7 +142,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         //if signature algorithm is NONE do not sign ID Token
         signatureAlgorithm = OAuthServerConfiguration.getInstance().getSignatureAlgorithm();
 
-        if (DEBUG) {
+        if (log.isDebugEnabled()) {
             log.debug("Using issuer " + issuer);
             log.debug("Subject " + subject);
             log.debug("ID Token expiration seconds " + lifetime);
@@ -215,12 +215,13 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
                     try {
                         privateKey = tenantKSM.getDefaultPrivateKey();
                     } catch (Exception e) {
-                        log.error("Error while obtaining private key for super tenant", e);
+                        throw new IdentityOAuth2Exception("Error while obtaining private key for super tenant", e);
                     }
                 }
-                if (privateKey != null) {
-                    privateKeys.put(tenantId, privateKey);
+                if (privateKey == null) {
+                    throw new IdentityOAuth2Exception("Cannot retrieve private key for super tenant");
                 }
+                privateKeys.put(tenantId, privateKey);
             } else {
                 privateKey = privateKeys.get(tenantId);
             }
@@ -304,18 +305,14 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         }
 
         // Cache miss, load the access token info from the database.
-        if (null == accessTokenDO) {
+        if (accessTokenDO == null) {
             accessTokenDO = tokenMgtDAO.retrieveAccessToken(accessToken);
         }
 
         // if the access token or client id is not valid
-        if (null == accessTokenDO) {
-            log.error("Error occured while getting access token based information"); //$NON-NLS-1$
-            throw new IdentityOAuth2Exception(
-                    "Error occured while getting access token based information"); //$NON-NLS-1$
+        if (accessTokenDO == null) {
+            throw new IdentityOAuth2Exception("Error occured while getting access token based information");
         }
-
-        long timeIndMilliSeconds = accessTokenDO.getIssuedTime().getTime();
 
         return accessTokenDO.getIssuedTime().getTime();
     }
@@ -362,23 +359,35 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
      */
     protected JWSAlgorithm mapSignatureAlgorithm(String signatureAlgorithm)
             throws IdentityOAuth2Exception {
+        if(signatureAlgorithms.contains(signatureAlgorithm)){
+            return signatureAlgorithms.get(signatureAlgorithm);
+        }
         if ("SHA256withRSA".equals(signatureAlgorithm)) {
+            signatureAlgorithms.put(signatureAlgorithm, JWSAlgorithm.RS256);
             return JWSAlgorithm.RS256;
         } else if ("SHA384withRSA".equals(signatureAlgorithm)) {
+            signatureAlgorithms.put(signatureAlgorithm, JWSAlgorithm.RS384);
             return JWSAlgorithm.RS384;
         } else if ("SHA512withRSA".equals(signatureAlgorithm)) {
+            signatureAlgorithms.put(signatureAlgorithm, JWSAlgorithm.RS512);
             return JWSAlgorithm.RS512;
         } else if ("SHA256withHMAC".equals(signatureAlgorithm)) {
+            signatureAlgorithms.put(signatureAlgorithm, JWSAlgorithm.HS256);
             return JWSAlgorithm.HS256;
         } else if ("SHA384withHMAC".equals(signatureAlgorithm)) {
+            signatureAlgorithms.put(signatureAlgorithm, JWSAlgorithm.HS384);
             return JWSAlgorithm.HS384;
         } else if ("SHA512withHMAC".equals(signatureAlgorithm)) {
+            signatureAlgorithms.put(signatureAlgorithm, JWSAlgorithm.HS512);
             return JWSAlgorithm.HS512;
         } else if ("SHA256withEC".equals(signatureAlgorithm)) {
+            signatureAlgorithms.put(signatureAlgorithm, JWSAlgorithm.ES256);
             return JWSAlgorithm.ES256;
         } else if ("SHA384withEC".equals(signatureAlgorithm)) {
+            signatureAlgorithms.put(signatureAlgorithm, JWSAlgorithm.ES384);
             return JWSAlgorithm.ES384;
         } else if ("SHA512withEC".equals(signatureAlgorithm)) {
+            signatureAlgorithms.put(signatureAlgorithm, JWSAlgorithm.ES512);
             return JWSAlgorithm.ES512;
         }
         throw new IdentityOAuth2Exception("Unsupported Signature Algorithm in identity.xml");
