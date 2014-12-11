@@ -460,7 +460,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 			((StringBuffer) credential).replace(0, temporaryPassword.length, new String(temporaryPassword));
 		}
 
-		// Filtering security question URIs from claims and add them to the thread local dto
+		// Filtering security question URIs from claims and add them to the thread local model
 		Map<String,String> userDataMap = new HashMap<String, String>();
 
 		// TODO why challenge Q
@@ -477,7 +477,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 		}
 		
         UserIdentityClaimsDO identityDTO = new UserIdentityClaimsDO(userName, userDataMap);
-		// adding dto to thread local to be read again from the doPostAddUser method
+		// adding model to thread local to be read again from the doPostAddUser method
 		threadLocalProperties.get().put(USER_IDENTITY_DO, identityDTO);
 		return true;
 	}
@@ -876,7 +876,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 		if(!containsIdentityClaims) {
 			return true;
 		}
-		// there is/are identity claim/s . load the dto
+		// there is/are identity claim/s . load the model
 		UserIdentityClaimsDO identityDTO = identityDataStore.load(userName, storeManager);
 		// if no user identity data found, just continue
 		if(identityDTO == null) {

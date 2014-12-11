@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.authorization.core.permission;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
-//import org.wso2.carbon.identity.authorization.core.dto.PermissionTreeNodeDTO;
+//import org.wso2.carbon.identity.authorization.core.model.PermissionTreeNodeDTO;
 import org.wso2.carbon.identity.authorization.core.internal.AuthorizationServiceComponent;
 import org.wso2.carbon.registry.api.Resource;
 import org.wso2.carbon.registry.core.Collection;

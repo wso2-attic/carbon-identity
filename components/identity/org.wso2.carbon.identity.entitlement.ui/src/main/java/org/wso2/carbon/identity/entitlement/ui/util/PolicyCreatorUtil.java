@@ -356,12 +356,12 @@ public class PolicyCreatorUtil {
 //
 //        if(obligationElementDTOs != null && obligationElementDTOs.size() > 0){
 //
-//            for(ObligationElementDTO dto : obligationElementDTOs){
-//                String id = dto.getId();
-//                String effect = dto.getEffect();
+//            for(ObligationElementDTO model : obligationElementDTOs){
+//                String id = model.getId();
+//                String effect = model.getEffect();
 //
 //                if(id != null && id.trim().length() > 0 && effect != null){
-//                    if(dto.getType() == ObligationElementDTO.ADVICE){
+//                    if(model.getType() == ObligationElementDTO.ADVICE){
 //                        if(adviceExpressions == null){
 //                             adviceExpressions = doc.
 //                                        createElement(EntitlementPolicyConstants.ADVICE_EXPRESSIONS);
@@ -371,7 +371,7 @@ public class PolicyCreatorUtil {
 //                                    createElement(EntitlementPolicyConstants.ADVICE_EXPRESSION);
 //                        adviceExpression.setAttribute(EntitlementPolicyConstants.ADVICE_ID, id);
 //                        adviceExpression.setAttribute(EntitlementPolicyConstants.ADVICE_EFFECT, effect);
-//                        List<AttributeAssignmentElementDTO> elementDTOs = dto.getAssignmentElementDTOs();
+//                        List<AttributeAssignmentElementDTO> elementDTOs = model.getAssignmentElementDTOs();
 //                        if(elementDTOs != null){
 //                            for(AttributeAssignmentElementDTO elementDTO : elementDTOs){
 //                                Element element = createAttributeAssignmentElement(elementDTO, doc);
@@ -393,7 +393,7 @@ public class PolicyCreatorUtil {
 //                        obligationExpression.setAttribute(EntitlementPolicyConstants.OBLIGATION_ID, id);
 //                        obligationExpression.setAttribute(EntitlementPolicyConstants.OBLIGATION_EFFECT,
 //                                                                                            effect);
-//                        List<AttributeAssignmentElementDTO> elementDTOs = dto.getAssignmentElementDTOs();
+//                        List<AttributeAssignmentElementDTO> elementDTOs = model.getAssignmentElementDTOs();
 //                        if(elementDTOs != null){
 //                            for(AttributeAssignmentElementDTO elementDTO : elementDTOs){
 //                                Element element = createAttributeAssignmentElement(elementDTO, doc);

@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.identity.authorization.core.permission;
 
-//import org.wso2.carbon.identity.authorization.core.dto.PermissionTreeNodeDTO;
+//import org.wso2.carbon.identity.authorization.core.model.PermissionTreeNodeDTO;
 
 import java.util.List;
 import java.util.Properties;

@@ -116,7 +116,7 @@ public class CarbonBasicPolicyPublisherModule extends AbstractPolicyPublisherMod
 
     public void publishNew(PolicyDTO policyDTO) throws EntitlementException {
 
-        String body  =  "<xsd:addPolicy xmlns:xsd=\"http://org.apache.axis2/xsd\" xmlns:xsd1=\"http://dto.entitlement.identity.carbon.wso2.org/xsd\">" +
+        String body  =  "<xsd:addPolicy xmlns:xsd=\"http://org.apache.axis2/xsd\" xmlns:xsd1=\"http://model.entitlement.identity.carbon.wso2.org/xsd\">" +
                 "  <xsd:policyDTO>" +
                 "  <xsd1:active>" +Boolean.toString(policyDTO.isActive()) + "</xsd1:active>" +
                 "  <xsd1:policy><![CDATA[" + policyDTO.getPolicy() + "]]>  </xsd1:policy>" +
@@ -161,7 +161,7 @@ public class CarbonBasicPolicyPublisherModule extends AbstractPolicyPublisherMod
     @Override
     public void update(PolicyDTO policyDTO) throws EntitlementException {
 
-        String body  =  "<xsd:updatePolicy xmlns:xsd=\"http://org.apache.axis2/xsd\" xmlns:xsd1=\"http://dto.entitlement.identity.carbon.wso2.org/xsd\">" +
+        String body  =  "<xsd:updatePolicy xmlns:xsd=\"http://org.apache.axis2/xsd\" xmlns:xsd1=\"http://model.entitlement.identity.carbon.wso2.org/xsd\">" +
                 "  <xsd:policyDTO>" +
                 "  <xsd1:policy><![CDATA[" + policyDTO.getPolicy() + "]]>  </xsd1:policy>" +
                 "  <xsd:policyId>" + policyDTO.getPolicyId() + "</xsd:policyId>" +

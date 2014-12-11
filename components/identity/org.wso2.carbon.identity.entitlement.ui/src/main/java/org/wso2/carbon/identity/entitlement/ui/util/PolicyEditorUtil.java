@@ -545,47 +545,47 @@ public class PolicyEditorUtil {
 //        List<BasicRuleDTO> ruleElementDTOs = new ArrayList<BasicRuleDTO>();
 //        if(elementDTOs != null){
 //            int ruleNo = 1;
-//            for(SimplePolicyEditorElementDTO dto : elementDTOs){
+//            for(SimplePolicyEditorElementDTO model : elementDTOs){
 //                BasicRuleDTO ruleElementDTO = new BasicRuleDTO();
 //
-//                if(dto.getResourceValue() != null && dto.getResourceValue().trim().length() > 0 &&
-//                    !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getResourceValue().trim())){
+//                if(model.getResourceValue() != null && model.getResourceValue().trim().length() > 0 &&
+//                    !PolicyEditorConstants.FunctionIdentifier.ANY.equals(model.getResourceValue().trim())){
 //                    ruleElementDTO.setResourceDataType(PolicyEditorConstants.DataType.STRING);
 //                    ruleElementDTO.setResourceId(PolicyEditorConstants.RESOURCE_ID_DEFAULT);
-//                    ruleElementDTO.setResourceList(dto.getResourceValue());
-//                    ruleElementDTO.setFunctionOnResources(getBasicPolicyEditorFunction(dto.
+//                    ruleElementDTO.setResourceList(model.getResourceValue());
+//                    ruleElementDTO.setFunctionOnResources(getBasicPolicyEditorFunction(model.
 //                                                                    getFunctionOnResources()));
 //                }
 //
-//                if(dto.getUserAttributeValue() != null && dto.getUserAttributeValue().trim().length() > 0 &&
-//                    !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getUserAttributeValue().trim())){
+//                if(model.getUserAttributeValue() != null && model.getUserAttributeValue().trim().length() > 0 &&
+//                    !PolicyEditorConstants.FunctionIdentifier.ANY.equals(model.getUserAttributeValue().trim())){
 //                    ruleElementDTO.setSubjectDataType(PolicyEditorConstants.DataType.STRING);
-//                    ruleElementDTO.setSubjectId(dto.getUserAttributeId());
-//                    ruleElementDTO.setSubjectList(dto.getUserAttributeValue());
-//                    ruleElementDTO.setFunctionOnSubjects(getBasicPolicyEditorFunction(dto.
+//                    ruleElementDTO.setSubjectId(model.getUserAttributeId());
+//                    ruleElementDTO.setSubjectList(model.getUserAttributeValue());
+//                    ruleElementDTO.setFunctionOnSubjects(getBasicPolicyEditorFunction(model.
 //                                                                        getFunctionOnUsers()));
 //                }
 //
-//                if(dto.getActionValue() != null && dto.getActionValue().trim().length() > 0 &&
-//                    !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getActionValue().trim())){
+//                if(model.getActionValue() != null && model.getActionValue().trim().length() > 0 &&
+//                    !PolicyEditorConstants.FunctionIdentifier.ANY.equals(model.getActionValue().trim())){
 //                    ruleElementDTO.setActionDataType(PolicyEditorConstants.DataType.STRING);
-//                    ruleElementDTO.setActionList(dto.getActionValue());
+//                    ruleElementDTO.setActionList(model.getActionValue());
 //                    ruleElementDTO.setActionId(PolicyEditorConstants.ACTION_ID_DEFAULT);
-//                    ruleElementDTO.setFunctionOnActions(getBasicPolicyEditorFunction(dto.
+//                    ruleElementDTO.setFunctionOnActions(getBasicPolicyEditorFunction(model.
 //                                                                    getFunctionOnActions()));
 //                }
 //
-//                if(dto.getEnvironmentValue() != null && dto.getEnvironmentValue().trim().length() > 0 &&
-//                    !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getEnvironmentValue().trim())){
-//                    ruleElementDTO.setEnvironmentId(dto.getEnvironmentId());
-//                    ruleElementDTO.setEnvironmentList(dto.getEnvironmentValue());
+//                if(model.getEnvironmentValue() != null && model.getEnvironmentValue().trim().length() > 0 &&
+//                    !PolicyEditorConstants.FunctionIdentifier.ANY.equals(model.getEnvironmentValue().trim())){
+//                    ruleElementDTO.setEnvironmentId(model.getEnvironmentId());
+//                    ruleElementDTO.setEnvironmentList(model.getEnvironmentValue());
 //                    ruleElementDTO.setEnvironmentDataType(PolicyEditorConstants.DataType.STRING);
-//                    ruleElementDTO.setFunctionOnEnvironment(getBasicPolicyEditorFunction(dto.
+//                    ruleElementDTO.setFunctionOnEnvironment(getBasicPolicyEditorFunction(model.
 //                                                                getFunctionOnEnvironments()));
 //                }
 //
-//                if(dto.getOperationType() != null && PolicyEditorConstants.PreFunctions.CAN_DO.
-//                                                        equals(dto.getOperationType().trim())){
+//                if(model.getOperationType() != null && PolicyEditorConstants.PreFunctions.CAN_DO.
+//                                                        equals(model.getOperationType().trim())){
 //                    ruleElementDTO.setRuleEffect(PolicyEditorConstants.RULE_EFFECT_PERMIT);
 //                } else {
 //                    ruleElementDTO.setRuleEffect(PolicyEditorConstants.RULE_EFFECT_DENY);
@@ -597,10 +597,10 @@ public class PolicyEditorUtil {
 //        }
 //
 //         if(ruleElementDTOs.size() > 0){
-//            for(BasicRuleDTO dto : ruleElementDTOs){
+//            for(BasicRuleDTO model : ruleElementDTOs){
 //                Element rule = null;
 //                try {
-//                    rule = BasicPolicyHelper.createRuleElement(dto, doc);
+//                    rule = BasicPolicyHelper.createRuleElement(model, doc);
 //                } catch (PolicyBuilderException e) {
 //                    throw new PolicyEditorException("Error while creating rule element");
 //                }
