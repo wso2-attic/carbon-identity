@@ -135,7 +135,8 @@ public class AuthenticationFrameworkWrapper extends HttpServletRequestWrapper {
                         .append('=')
                         .append(URLEncoder.encode(entry.getValue()[0], "UTF-8"));
             } catch (UnsupportedEncodingException e) {
-                log.error("Error while encoding query string", e);
+                log.error("Error while encoding query string built using entry key : " + entry.
+                        getKey() + "and value :" + entry.getValue()[0], e);
             }
         }
         return sb.toString();

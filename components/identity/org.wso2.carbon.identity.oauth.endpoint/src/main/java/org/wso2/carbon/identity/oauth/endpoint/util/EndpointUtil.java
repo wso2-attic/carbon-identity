@@ -196,7 +196,8 @@ public class EndpointUtil {
 
             if (entry == null) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Cache Entry is null from SessionDataCache ");
+                    log.debug("Cache Entry is null from SessionDataCache for session data key :"
+                            + sessionDataKey);
                 }
             }
             String commonAuthURL = CarbonUIUtil.getAdminConsoleURL("/");
