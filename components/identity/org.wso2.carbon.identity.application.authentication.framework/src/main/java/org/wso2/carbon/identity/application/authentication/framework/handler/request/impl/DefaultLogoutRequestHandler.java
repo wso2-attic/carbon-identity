@@ -155,6 +155,9 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
         AuthenticationResult authenticationResult = new AuthenticationResult();
         authenticationResult.setLoggedOut(true);
 
+        SequenceConfig sequenceConfig = context.getSequenceConfig();
+        authenticationResult.setSaaSApp(sequenceConfig.getApplicationConfig().isSaaSApp());
+
         // Put the result in the
         FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult,
                                 FrameworkUtils.getMaxInactiveInterval());
