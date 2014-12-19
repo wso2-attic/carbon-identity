@@ -507,21 +507,21 @@ public class OpenIDHandler {
                 (authenticationRequest);
         FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest,
                 request.getSession().getMaxInactiveInterval());
-        StringBuilder queryStringBuilder = new StringBuilder();
-        queryStringBuilder.append(commonAuthURL);
-        queryStringBuilder.append("?");
-        queryStringBuilder.append(FrameworkConstants.SESSION_DATA_KEY);
-        queryStringBuilder.append("=");
-        queryStringBuilder.append(sessionDataKey);
-        queryStringBuilder.append("&");
-        queryStringBuilder.append(FrameworkConstants.RequestParams.TYPE);
-        queryStringBuilder.append("=");
-        queryStringBuilder.append(FrameworkConstants.RequestType.CLAIM_TYPE_OPENID);
-        // reading the authorization header for request path authentication
-        FrameworkUtils.setRequestPathCredentials(request);
+		StringBuilder queryStringBuilder = new StringBuilder();
+		queryStringBuilder.append(commonAuthURL).
+		  append("?").
+		  append(FrameworkConstants.SESSION_DATA_KEY).
+		  append("=").
+		  append(sessionDataKey).
+		  append("&").
+		  append(FrameworkConstants.RequestParams.TYPE).
+		  append("=").
+		  append(FrameworkConstants.RequestType.CLAIM_TYPE_OPENID);
+		// reading the authorization header for request path authentication
+		FrameworkUtils.setRequestPathCredentials(request);
 
-        return queryStringBuilder.toString();
-    }
+		return queryStringBuilder.toString();
+	}
 
 	/**
 	 * Return the error response message based on the given message

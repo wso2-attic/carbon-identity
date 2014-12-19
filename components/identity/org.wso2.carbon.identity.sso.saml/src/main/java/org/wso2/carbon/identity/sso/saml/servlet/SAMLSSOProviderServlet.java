@@ -351,18 +351,18 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                 (authenticationRequest);
         FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest,
                 req.getSession().getMaxInactiveInterval());
-        StringBuilder queryStringBuilder =new StringBuilder();
-        queryStringBuilder.append(commonAuthURL);
-        queryStringBuilder.append("?");
-        queryStringBuilder.append(SAMLSSOConstants.SESSION_DATA_KEY);
-        queryStringBuilder.append("=");
-        queryStringBuilder.append(sessionDataKey);
-        queryStringBuilder.append("&");
-        queryStringBuilder.append(FrameworkConstants.RequestParams.TYPE);
-        queryStringBuilder.append("=");
-        queryStringBuilder.append(FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO);
-        FrameworkUtils.setRequestPathCredentials(req);
-        resp.sendRedirect(queryStringBuilder.toString());
+	    StringBuilder queryStringBuilder = new StringBuilder();
+	    queryStringBuilder.append(commonAuthURL).
+	      append("?").
+	      append(SAMLSSOConstants.SESSION_DATA_KEY).
+	      append("=").
+	      append(sessionDataKey).
+	      append("&").
+	      append(FrameworkConstants.RequestParams.TYPE).
+	      append("=").
+	      append(FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO);
+	    FrameworkUtils.setRequestPathCredentials(req);
+	    resp.sendRedirect(queryStringBuilder.toString());
     }
     
     private void sendToFrameworkForLogout(HttpServletRequest request, HttpServletResponse response, 

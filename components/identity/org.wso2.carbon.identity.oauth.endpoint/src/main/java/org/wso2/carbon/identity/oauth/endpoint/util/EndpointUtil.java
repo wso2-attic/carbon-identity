@@ -220,19 +220,19 @@ public class EndpointUtil {
                     (authenticationRequest);
             FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest);
             // Build new query param with only type and session data key
-            StringBuilder queryStringBuilder = new StringBuilder();
-            queryStringBuilder.append(commonAuthURL);
-            queryStringBuilder.append("?");
-            queryStringBuilder.append(FrameworkConstants.SESSION_DATA_KEY);
-            queryStringBuilder.append("=");
-            queryStringBuilder.append(sessionDataKey);
-            queryStringBuilder.append("&");
-            queryStringBuilder.append(FrameworkConstants.RequestParams.TYPE);
-            queryStringBuilder.append("=");
-            queryStringBuilder.append(type);
+		    StringBuilder queryStringBuilder = new StringBuilder();
+		    queryStringBuilder.append(commonAuthURL).
+		      append("?").
+		      append(FrameworkConstants.SESSION_DATA_KEY).
+		      append("=").
+		      append(sessionDataKey).
+		      append("&").
+		      append(FrameworkConstants.RequestParams.TYPE).
+		      append("=").
+		      append(type);
 
-            return queryStringBuilder.toString();
-        } finally {
+		    return queryStringBuilder.toString();
+	    } finally {
 			OAuth2Util.clearClientTenantId();
 		}
 	}

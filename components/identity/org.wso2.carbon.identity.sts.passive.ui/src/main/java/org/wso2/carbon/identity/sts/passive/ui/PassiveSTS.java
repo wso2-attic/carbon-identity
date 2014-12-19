@@ -222,17 +222,17 @@ public class PassiveSTS extends HttpServlet {
                 (authenticationRequest);
         FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest,
                 request.getSession().getMaxInactiveInterval());
-        StringBuilder queryStringBuilder = new StringBuilder();
-        queryStringBuilder.append(commonAuthURL);
-        queryStringBuilder.append("?");
-        queryStringBuilder.append(FrameworkConstants.SESSION_DATA_KEY);
-        queryStringBuilder.append("=");
-        queryStringBuilder.append(sessionDataKey);
-        queryStringBuilder.append("&");
-        queryStringBuilder.append(FrameworkConstants.RequestParams.TYPE);
-        queryStringBuilder.append("=");
-        queryStringBuilder.append(FrameworkConstants.PASSIVE_STS);
-        response.sendRedirect(commonAuthURL + queryStringBuilder.toString());
+	    StringBuilder queryStringBuilder = new StringBuilder();
+	    queryStringBuilder.append(commonAuthURL).
+	      append("?").
+	      append(FrameworkConstants.SESSION_DATA_KEY).
+	      append("=").
+	      append(sessionDataKey).
+	      append("&").
+	      append(FrameworkConstants.RequestParams.TYPE).
+	      append("=").
+	      append(FrameworkConstants.PASSIVE_STS);
+	    response.sendRedirect(commonAuthURL + queryStringBuilder.toString());
     }
 
     private void handleResponseFromAuthenticationFramework(HttpServletRequest request, HttpServletResponse response) 
