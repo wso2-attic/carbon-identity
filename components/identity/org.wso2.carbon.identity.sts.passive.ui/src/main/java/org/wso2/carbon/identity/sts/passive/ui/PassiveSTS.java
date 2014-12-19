@@ -43,7 +43,10 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.identity.application.authentication.framework.cache.*;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheKey;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
@@ -257,7 +260,7 @@ public class PassiveSTS extends HttpServlet {
     }
     
     private void process(HttpServletRequest request, HttpServletResponse response, 
-    		SessionDTO sessionDTO, AuthenticationResult authnResult) 
+    		SessionDTO sessionDTO, AuthenticationResult authnResult)
     				throws ServletException, IOException {
     	
     	HttpSession session = request.getSession();
