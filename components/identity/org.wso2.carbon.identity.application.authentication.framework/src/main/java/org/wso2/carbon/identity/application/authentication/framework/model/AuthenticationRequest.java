@@ -31,19 +31,48 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public class AuthenticationRequest implements Serializable {
     private static final long serialVersionUID = -5407487459807348541L;
-
+    /**
+     * Type of the request coming to framework eg:saml
+     */
     private String type;
+    /**
+     * Calling entity to framework
+     */
     private String commonAuthCallerPath;
+    /**
+     * Whether the request is force authentication request
+     */
     private boolean forceAuth;
+    /**
+     * Whether the request is passive authentication request
+     */
     private boolean passiveAuth;
+    /**
+     * Tenant domain of the caller application
+     */
     private String tenantDomain;
+    /**
+     * Whether the request is a post or redirect
+     */
     private boolean isPost;
+    /**
+     * Relying party of the request
+     */
     private String relyingParty;
-    //used to store query params which should be sent to Authentication Framework
+    /**
+     * used to store query params which should be sent to Authentication Framework
+     */
     private Map<String, String[]> requestQueryParams = new HashMap<String, String[]>();
-    //used to store request headers which should be sent to Authentication Framework.
+    /**
+     * used to store request headers which should be sent to Authentication Framework.
+     */
     private Map<String, String> requestHeaders = new HashMap<String, String>();
 
+    /**
+     * To retrieve request query params which are stored.
+     *
+     * @return  A map of query parameters
+     */
     public Map<String, String[]> getRequestQueryParams() {
         return requestQueryParams;
     }

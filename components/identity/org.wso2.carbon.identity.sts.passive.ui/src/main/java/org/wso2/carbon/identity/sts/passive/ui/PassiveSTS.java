@@ -17,8 +17,6 @@
 */
 package org.wso2.carbon.identity.sts.passive.ui;
 
-
-import java.awt.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
@@ -224,9 +222,17 @@ public class PassiveSTS extends HttpServlet {
                 (authenticationRequest);
         FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest,
                 request.getSession().getMaxInactiveInterval());
-        String queryParams = "?" + FrameworkConstants.SESSION_DATA_KEY + "=" + sessionDataKey
-                + "&" + FrameworkConstants.RequestParams.TYPE + "=" + FrameworkConstants.PASSIVE_STS;
-        response.sendRedirect(commonAuthURL + queryParams);
+        StringBuilder queryStringBuilder = new StringBuilder();
+        queryStringBuilder.append(commonAuthURL);
+        queryStringBuilder.append("?");
+        queryStringBuilder.append(FrameworkConstants.SESSION_DATA_KEY);
+        queryStringBuilder.append("=");
+        queryStringBuilder.append(sessionDataKey);
+        queryStringBuilder.append("&");
+        queryStringBuilder.append(FrameworkConstants.RequestParams.TYPE);
+        queryStringBuilder.append("=");
+        queryStringBuilder.append(FrameworkConstants.PASSIVE_STS);
+        response.sendRedirect(commonAuthURL + queryStringBuilder.toString());
     }
 
     private void handleResponseFromAuthenticationFramework(HttpServletRequest request, HttpServletResponse response) 
