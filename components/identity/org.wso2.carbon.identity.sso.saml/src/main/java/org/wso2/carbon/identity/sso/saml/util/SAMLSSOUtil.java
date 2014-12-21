@@ -770,24 +770,22 @@ public class SAMLSSOUtil {
      */
     public static boolean validateLogoutRequestSignature(LogoutRequest logoutRequest, String alias,
                                                          String subject, String queryString) {
-        String domainName = MultitenantUtils.getTenantDomain(subject);
-		/*
-		 * if (isStratosDeployment) {
-		 * domainName = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
-		 * }
-		 */
-        try{
-        if (queryString != null) {
-            return validateDeflateSignature(queryString, logoutRequest.getIssuer().getValue(), alias,
-                    domainName);
-        } else {
-            return validateXMLSignature(logoutRequest, alias, domainName);
-        }
-    } catch (IdentityException e) {
-        log.warn("Failed to validate login request signature ");
-        log.debug(e);
+        String domainName = getTenantDomainFromThreadLocal();
+        try {
+            if (queryString != null) {
+                return validateDeflateSignature(queryString, logoutRequest.getIssuer().getValue(),
+                                                alias,
+                                                domainName);
+            } else {
+                return validateXMLSignature(logoutRequest, alias, domainName);
+            }
+        } catch (IdentityException e) {
+            log.warn("Failed to validate login request signature ");
+            if (log.isDebugEnabled()) {
+                log.debug(e);
+            }
             return false;
-    }
+        }
     }
 
     /**
