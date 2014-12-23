@@ -177,8 +177,7 @@ public class IdentityProviderMgtServiceClient {
             idPMgtStub.addIdP(identityProvider);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            throw new Exception("Error occurred while adding Identity Provider "
-                    + identityProvider.getIdentityProviderName());
+            throw e;
         }
     }
 
@@ -208,7 +207,7 @@ public class IdentityProviderMgtServiceClient {
             idPMgtStub.updateIdP(oldIdPName, identityProvider);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            throw new Exception("Error occurred while deleting Identity Provider " + oldIdPName);
+            throw e;
         }
     }
 
