@@ -21,8 +21,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.entitlement.EntitlementUtil;
 import org.wso2.carbon.identity.entitlement.dto.PolicyDTO;
-import org.wso2.carbon.identity.tools.xacml.validator.model.ValidationResult;
-import org.wso2.carbon.identity.tools.xacml.validator.util.ResponseTypesEnum;
+import org.wso2.carbon.identity.tools.xacml.validator.bean.ValidationResult;
+import org.wso2.carbon.identity.tools.xacml.validator.exceptions.SystemException;
+import org.wso2.carbon.identity.tools.xacml.validator.util.ResponseType;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -35,7 +36,6 @@ import javax.xml.validation.Validator;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -61,6 +61,9 @@ public class XACMLPolicyValidator {
     public static ValidationResult[] validatePolicy(PolicyDTO policyDTO) {
         final List<ValidationResult> validationResultList = new ArrayList<ValidationResult>();
         try {
+            if(policyDTO.getPolicy()==null){
+                throw new SystemException();
+            }
             // get schema according to xacml version
             Schema schema = EntitlementUtil.getSchema(policyDTO);
 
@@ -74,17 +77,17 @@ public class XACMLPolicyValidator {
                 validator.setErrorHandler(new ErrorHandler() {
                     @Override
                     public void warning(SAXParseException exception) throws SAXException {
-                        processException(exception, ResponseTypesEnum.WARNING.name());
+                        processException(exception, ResponseType.WARNING.name());
                     }
 
                     @Override
                     public void fatalError(SAXParseException exception) throws SAXException {
-                        processException(exception, ResponseTypesEnum.FATAL_ERROR.name());
+                        processException(exception, ResponseType.FATAL_ERROR.name());
                     }
 
                     @Override
                     public void error(SAXParseException exception) throws SAXException {
-                        processException(exception, ResponseTypesEnum.ERROR.name());
+                        processException(exception, ResponseType.ERROR.name());
                     }
 
                     private void processException(SAXParseException exception, String type) {
@@ -96,7 +99,7 @@ public class XACMLPolicyValidator {
 
             } else {
                 String message = "Invalid Namespace in policy";
-                ValidationResult validationResult = new ValidationResult(message,FIRST_LINE_NUMBER , ResponseTypesEnum.ERROR.name());
+                ValidationResult validationResult = new ValidationResult(message,FIRST_LINE_NUMBER , ResponseType.ERROR.name());
                 validationResultList.add(validationResult);
             }
             // since custom error handler sets, validate method does not throw
@@ -107,13 +110,17 @@ public class XACMLPolicyValidator {
             // reason to ignore has been mentioned in the above comment
         } catch (IOException e) {
             String message = "XML content is not readable";
-            ValidationResult validationResult = new ValidationResult(message,FIRST_LINE_NUMBER , ResponseTypesEnum.ERROR.name());
+            ValidationResult validationResult = new ValidationResult(message,FIRST_LINE_NUMBER , ResponseType.ERROR.name());
+            validationResultList.add(validationResult);
+        } catch (SystemException e) {
+            String message = "System Error";
+            ValidationResult validationResult = new ValidationResult(message,0 , ResponseType.SYSTEM_ERROR.name());
             validationResultList.add(validationResult);
         }
         //
         if (validationResultList.isEmpty()) {
             String message = "Valid Policy";
-            ValidationResult validationResult = new ValidationResult(message, 0 , ResponseTypesEnum.SUCCESS.name());
+            ValidationResult validationResult = new ValidationResult(message, 0 , ResponseType.SUCCESS.name());
             validationResultList.add(validationResult);
         }
         return validationResultList.toArray(new ValidationResult[validationResultList.size()]);

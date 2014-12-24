@@ -463,7 +463,7 @@ public class SCIMUserManager implements UserManager {
                         }
                         else {
                             members.add(userNames[0]);
-							if (userDisplayNames != null && userDisplayNames.size() != 0) {
+							if (!userDisplayNames.isEmpty()) {
 								boolean userContains = false;
 								for (String user : userDisplayNames) {
 									user =
@@ -727,15 +727,15 @@ public class SCIMUserManager implements UserManager {
                 //find out added members and deleted members..
                 List<String> oldMembers = oldGroup.getMembersWithDisplayName();
                 List<String> newMembers = newGroup.getMembersWithDisplayName();
-                if (newMembers != null) {
+                if (!newMembers.isEmpty()) {
 
                     List<String> addedMembers = new ArrayList<String>();
                     List<String> deletedMembers = new ArrayList<String>();
 
                     //check for deleted members
-                    if (oldMembers != null && oldMembers.size() != 0) {
+                    if (!oldMembers.isEmpty()) {
                         for (String oldMember : oldMembers) {
-                            if (newMembers != null && newMembers.contains(oldMember)) {
+                            if ((!newMembers.isEmpty()) && newMembers.contains(oldMember)) {
                                 continue;
                             }
                             deletedMembers.add(oldMember);
@@ -743,9 +743,9 @@ public class SCIMUserManager implements UserManager {
                     }
 
                     //check for added members
-                    if (newMembers != null && newMembers.size() != 0) {
+                    if (!newMembers.isEmpty()) {
                         for (String newMember : newMembers) {
-                            if (oldMembers != null && oldMembers.contains(newMember)) {
+                            if ((!oldMembers.isEmpty()) && oldMembers.contains(newMember)) {
                                 continue;
                             }
                             addedMembers.add(newMember);
@@ -802,7 +802,7 @@ public class SCIMUserManager implements UserManager {
 
         } else {
             if (log.isDebugEnabled()) {
-                log.debug("Updating group: " + oldGroup.getDisplayName());
+                log.debug("Updating group: " + oldGroup.getDisplayName());//add from group new name
             }
 
             /*
@@ -833,7 +833,7 @@ public class SCIMUserManager implements UserManager {
 
                 List<String> userIds = newGroup.getMembers();
                 List<String> userDisplayNames = newGroup.getMembersWithDisplayName();
-                if (userIds != null && userIds.size() != 0) {
+                if (userIds != null && userIds.size() != 0) {//check isEmpty
                     String[] userNames = null;
                     for (String userId : userIds) {
                         userNames =
@@ -864,33 +864,31 @@ public class SCIMUserManager implements UserManager {
 
                 // find out added members and deleted members..
                 List<String> oldMembers = oldGroup.getMembersWithDisplayName();
-                List<String> addRequestedMembers = null;
-                List<String> deleteRequestedMembers = null;
 
-                addRequestedMembers = newGroup.getMembersWithDisplayName(null);
-                deleteRequestedMembers =
+                List<String> addRequestedMembers = newGroup.getMembersWithDisplayName(null);
+                List<String> deleteRequestedMembers =
                         newGroup.getMembersWithDisplayName(SCIMConstants.CommonSchemaConstants.OPERATION_DELETE);
 
                 List<String> addedMembers = new ArrayList<String>();
                 List<String> deletedMembers = new ArrayList<String>();
 
-                if (addRequestedMembers == null && deleteRequestedMembers == null) {
+                if (addRequestedMembers.isEmpty() && deleteRequestedMembers.isEmpty()) {
                     String users[] = carbonUM.getUserListOfRole(newGroup.getDisplayName());
                     deletedMembers = Arrays.asList(users);
                 }
 
-                if (addRequestedMembers != null && addRequestedMembers.size() != 0) {
+                if (!addRequestedMembers.isEmpty()) {
                     for (String addRequestedMember : addRequestedMembers) {
-                        if (oldMembers != null && oldMembers.contains(addRequestedMember)) {
+                        if ((!oldMembers.isEmpty()) && oldMembers.contains(addRequestedMember)) {
                             continue;
                         }
                         addedMembers.add(addRequestedMember);
                     }
                 }
 
-                if (deleteRequestedMembers != null && deleteRequestedMembers.size() != 0) {
+                if (!deleteRequestedMembers.isEmpty()) {
                     for (String deleteRequestedMember : deleteRequestedMembers) {
-                        if (oldMembers != null && oldMembers.contains(deleteRequestedMember)) {
+                        if ((!oldMembers.isEmpty()) && oldMembers.contains(deleteRequestedMember)) {
                             deletedMembers.add(deleteRequestedMember);
                         } else {
                             continue;
@@ -899,7 +897,7 @@ public class SCIMUserManager implements UserManager {
                 }
 
                 if (newGroup.getDisplayName() != null) {
-                    if (addedMembers.size() != 0 || deletedMembers.size() != 0) {
+                    if ((!addedMembers.isEmpty()) || (!deletedMembers.isEmpty())) {
                         carbonUM.updateUserListOfRole(newGroup.getDisplayName(),
                                                       deletedMembers.toArray(new String[deletedMembers.size()]),
                                                       addedMembers.toArray(new String[addedMembers.size()]));
@@ -915,8 +913,11 @@ public class SCIMUserManager implements UserManager {
                 }
 
             } catch (UserStoreException e) {
+                //throwing real message coming from carbon user manager
                 throw new CharonException(e.getMessage());
             } catch (IdentitySCIMException e) {
+                //e.getMessage() contains meaningful message because custom message has been mentioned while throwing
+                //IdentitySCIMException
                 throw new CharonException(e.getMessage());
             }
             return newGroup;

@@ -19,8 +19,9 @@ package org.wso2.carbon.identity.tools.xacml.validator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.entitlement.dto.PolicyDTO;
-import org.wso2.carbon.identity.tools.xacml.validator.model.ValidationResult;
+import org.wso2.carbon.identity.tools.xacml.validator.bean.ValidationResult;
 import org.wso2.carbon.identity.tools.xacml.validator.processors.XACMLPolicyValidator;
 
 /**
@@ -28,7 +29,7 @@ import org.wso2.carbon.identity.tools.xacml.validator.processors.XACMLPolicyVali
  * service
  */
 
-public class XACMLPolicyValidatorService {
+public class XACMLPolicyValidatorService extends AbstractAdmin {
 
     private static Log log = LogFactory.getLog(XACMLPolicyValidatorService.class);
 
@@ -41,7 +42,7 @@ public class XACMLPolicyValidatorService {
      */
     public ValidationResult[] validateXACMLPolicy(PolicyDTO policyDTO) {//change ValidationResult to ValidationResult
         if (log.isDebugEnabled()) {
-            log.debug("Request Received :" + policyDTO.getPolicy());
+            log.debug("XACML Policy Content :" + policyDTO.getPolicy());
         }
         return XACMLPolicyValidator.validatePolicy(policyDTO);
     }
