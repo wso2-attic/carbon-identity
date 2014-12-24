@@ -17,22 +17,15 @@
  */
 package org.wso2.carbon.identity.tools.xacml.validator.ui.client;
 
-import java.rmi.RemoteException;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.tools.xacml.validator.stub.*;
-import org.wso2.carbon.identity.tools.xacml.validator.stub.types.ErrorItem;
-import org.apache.axis2.context.ConfigurationContext;
-import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.ui.CarbonUIMessage;
-import org.wso2.carbon.ui.CarbonUIUtil;
-import org.wso2.carbon.utils.ServerConstants;
-import org.wso2.carbon.identity.entitlement.dto.xsd.*;
-import org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyConstants;
+import org.wso2.carbon.identity.entitlement.dto.xsd.PolicyDTO;
+import org.wso2.carbon.identity.tools.xacml.validator.stub.IdentityXACMLValidatorServiceStub;
+import org.wso2.carbon.identity.tools.xacml.validator.stub.types.ValidationResult;
 
 public class IdentityXACMLValidatorServiceClient {
 
@@ -41,14 +34,13 @@ public class IdentityXACMLValidatorServiceClient {
     private IdentityXACMLValidatorServiceStub stub;
 
     /**
-     * 
      * @param cookie
      * @param backendServerURL
      * @param configCtx
      * @throws AxisFault
      */
     public IdentityXACMLValidatorServiceClient(String cookie, String backendServerURL, ConfigurationContext configCtx)
-                                                                                                                      throws AxisFault {
+            throws AxisFault {
         try {
             String serviceURL = backendServerURL + "IdentityXACMLValidatorService";
             stub = new IdentityXACMLValidatorServiceStub(configCtx, serviceURL);
@@ -63,19 +55,19 @@ public class IdentityXACMLValidatorServiceClient {
     }
 
     /**
-     * 
+     *
      * @param policy
      * @return
-     * @throws AxisFault
+     * @throws Exception
      */
-    public ErrorItem[] validateXACMLPolicy(PolicyDTO policy) throws Exception {
-        ErrorItem[] errorItems = null;
+    public ValidationResult[] validateXACMLPolicy(PolicyDTO policy) throws Exception {
+        ValidationResult[] validationResults = null;
         try {
-            errorItems = stub.validateXACMLPolicy(policy);
+            validationResults = stub.validateXACMLPolicy(policy);
         } catch (Exception e) {
             throw e;
         }
-        return errorItems;
+        return validationResults;
     }
 
 }

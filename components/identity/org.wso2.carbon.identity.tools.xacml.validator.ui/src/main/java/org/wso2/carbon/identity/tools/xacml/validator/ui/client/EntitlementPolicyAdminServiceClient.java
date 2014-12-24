@@ -21,18 +21,10 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
-import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.fileupload.servlet.ServletRequestContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.entitlement.stub.EntitlementPolicyAdminServiceEntitlementException;
 import org.wso2.carbon.identity.entitlement.stub.EntitlementPolicyAdminServiceStub;
-import org.wso2.carbon.identity.entitlement.stub.dto.*;
-
-import java.util.List;
 
 public class EntitlementPolicyAdminServiceClient {
 
@@ -41,20 +33,13 @@ public class EntitlementPolicyAdminServiceClient {
     private static final Log log = LogFactory.getLog(EntitlementPolicyAdminServiceClient.class);
 
     /**
-     * Instantiates EntitlementServiceClient
-     * 
      * @param cookie
-     *            For session management
      * @param backendServerURL
-     *            URL of the back end server where EntitlementPolicyAdminService
-     *            is
-     *            running.
      * @param configCtx
-     *            ConfigurationContext
-     * @throws org.apache.axis2.AxisFault
+     * @throws AxisFault
      */
     public EntitlementPolicyAdminServiceClient(String cookie, String backendServerURL, ConfigurationContext configCtx)
-                                                                                                                      throws AxisFault {
+            throws AxisFault {
         String serviceURL = backendServerURL + "EntitlementPolicyAdminService";
         stub = new EntitlementPolicyAdminServiceStub(configCtx, serviceURL);
         ServiceClient client = stub._getServiceClient();
@@ -64,8 +49,6 @@ public class EntitlementPolicyAdminServiceClient {
     }
 
     /**
-     * This method return policy content from given registry path
-     * 
      * @param policyRegistryPath
      * @return
      * @throws AxisFault
@@ -81,11 +64,8 @@ public class EntitlementPolicyAdminServiceClient {
     }
 
     /**
-     * Logs and wraps the given exception.
-     * 
      * @param e
-     *            Exception
-     * @throws org.apache.axis2.AxisFault
+     * @throws AxisFault
      */
     private void handleException(Exception e) throws AxisFault {
 
@@ -93,7 +73,7 @@ public class EntitlementPolicyAdminServiceClient {
 
         if (e instanceof EntitlementPolicyAdminServiceEntitlementException) {
             EntitlementPolicyAdminServiceEntitlementException entitlementException =
-                                                                                     (EntitlementPolicyAdminServiceEntitlementException) e;
+                    (EntitlementPolicyAdminServiceEntitlementException) e;
             if (entitlementException.getFaultMessage().getEntitlementException() != null) {
                 errorMessage = entitlementException.getFaultMessage().getEntitlementException().getMessage();
             }

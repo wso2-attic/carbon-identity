@@ -25,7 +25,6 @@ import org.wso2.carbon.identity.entitlement.dto.xsd.PolicyDTO;
 import org.wso2.carbon.ui.CarbonUIMessage;
 import org.wso2.carbon.ui.transports.fileupload.AbstractFileUploadExecutor;
 import org.wso2.carbon.utils.FileItemData;
-import org.wso2.carbon.utils.ServerConstants;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -52,8 +51,8 @@ public class EntitlementPolicyUploadExecutor extends AbstractFileUploadExecutor 
 
     @Override
     public boolean execute(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
-                                                                                                          throws CarbonException,
-                                                                                                          IOException {
+            throws CarbonException,
+                   IOException {
         log.info("execute hits");
         String webContext = (String) httpServletRequest.getAttribute(CarbonConstants.WEB_CONTEXT);
         errorRedirectionPage = getContextRoot(httpServletRequest) + "/" + webContext + "/policy-validator/index.jsp";
@@ -79,7 +78,7 @@ public class EntitlementPolicyUploadExecutor extends AbstractFileUploadExecutor 
                                               " is not supported!");
                 } else {
                     br = new BufferedReader(new InputStreamReader(fileItem.getDataHandler()
-                                                                                         .getInputStream()));
+                                                                          .getInputStream()));
                     String temp;
                     StringBuilder policyContent = new StringBuilder();
                     while ((temp = br.readLine()) != null) {
@@ -94,7 +93,8 @@ public class EntitlementPolicyUploadExecutor extends AbstractFileUploadExecutor 
                     msg = "Policy have been uploaded successfully.";
                     CarbonUIMessage.sendCarbonUIMessage(msg, CarbonUIMessage.INFO, httpServletRequest,
                                                         httpServletResponse, getContextRoot(httpServletRequest) + "/" +
-                                                                             webContext + "/policy-validator/index.jsp");
+                                                                             webContext +
+                                                                             "/policy-validator/index.jsp");
                     return true;
                 }
             }
@@ -103,8 +103,8 @@ public class EntitlementPolicyUploadExecutor extends AbstractFileUploadExecutor 
             log.error(msg);
             CarbonUIMessage.sendCarbonUIMessage(msg, CarbonUIMessage.ERROR, httpServletRequest, httpServletResponse,
                                                 errorRedirectionPage);
-        }finally {
-            if(br!=null){
+        } finally {
+            if (br != null) {
                 br.close();
             }
         }
