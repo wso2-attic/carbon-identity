@@ -1,5 +1,5 @@
 <!--
-~ Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+~ Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 ~
 ~ WSO2 Inc. licenses this file to you under the Apache License,
 ~ Version 2.0 (the "License"); you may not use this file except
@@ -30,7 +30,7 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="org.wso2.carbon.identity.tools.xacml.validator.stub.types.ErrorItem" %>
+<%@ page import="org.wso2.carbon.identity.tools.xacml.validator.stub.types.ValidationResult" %>
 <jsp:include page="../resources/resources-i18n-ajaxprocessor.jsp"/>
 <jsp:include page="../dialog/display_messages.jsp"/>
 
@@ -134,7 +134,7 @@
     }
     forwardTo = forwardTo + ".jsp";
     PolicyDTO dto = null;
-    ErrorItem[] errorItems = null;
+    ValidationResult[] errorItems = null;
     dto = (PolicyDTO) session.getAttribute("policyDTO");
     IdentityXACMLValidatorServiceClient client = null;
     String policy = request.getParameter("policy");
@@ -167,7 +167,7 @@
 
     <div id="workArea">
         <%
-            for (ErrorItem item : errorItem) {
+            for (ValidationResult item : errorItem) {
         %>
         <div style="padding-bottom: 10px;">
             <div style="font-weight: bold; padding-bottom: 5px;"><%=item.getType()%>
