@@ -21,7 +21,7 @@
 //import org.apache.commons.logging.Log;
 //import org.apache.commons.logging.LogFactory;
 //import org.wso2.carbon.context.CarbonContext;
-//import org.wso2.carbon.identity.authorization.core.model.PermissionGroup;
+//import org.wso2.carbon.identity.authorization.core.dto.PermissionGroup;
 //import org.wso2.carbon.identity.authorization.core.extension.PostAuthorizationExtension;
 //import org.wso2.carbon.identity.authorization.core.internal.AuthorizationConfigHolder;
 //import org.wso2.carbon.identity.authorization.core.internal.AuthorizationServiceComponent;
@@ -155,15 +155,15 @@
 //				for (Map.Entry<String, String> stringEntry : stringMap.entrySet()) {
 //					String resource = stringEntry.getKey();
 //					if (resource != null && resource.startsWith(moduleRoot)) {
-//						PermissionGroup model = new PermissionGroup();
-//						model.setPermissionId(resource);
-//						model.setAction(stringEntry.getValue());
-//						model.setSubject(userName);
-//						model.setUserPermission(true);
+//						PermissionGroup dto = new PermissionGroup();
+//						dto.setPermissionId(resource);
+//						dto.setAction(stringEntry.getValue());
+//						dto.setSubject(userName);
+//						dto.setUserPermission(true);
 //						if (value == 1) {
-//							model.setAuthorized(true);
+//							dto.setAuthorized(true);
 //						}
-//						permissionDTOs.add(model);
+//						permissionDTOs.add(dto);
 //					}
 //				}
 //			}
@@ -205,15 +205,15 @@
 //				for (Map.Entry<String, String> stringEntry : stringMap.entrySet()) {
 //					String resource = stringEntry.getKey();
 //					if (resource != null && resource.startsWith(moduleRoot)) {
-//						PermissionGroup model = new PermissionGroup();
-//						model.setPermissionId(resource);
-//						model.setAction(stringEntry.getValue());
-//						model.setSubject(roleName);
-//						model.setUserPermission(true);
+//						PermissionGroup dto = new PermissionGroup();
+//						dto.setPermissionId(resource);
+//						dto.setAction(stringEntry.getValue());
+//						dto.setSubject(roleName);
+//						dto.setUserPermission(true);
 //						if (value == 1) {
-//							model.setAuthorized(true);
+//							dto.setAuthorized(true);
 //						}
-//						permissionDTOs.add(model);
+//						permissionDTOs.add(dto);
 //					}
 //				}
 //			}
