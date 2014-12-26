@@ -20,8 +20,8 @@
 //
 //import org.apache.commons.logging.Log;
 //import org.apache.commons.logging.LogFactory;
-//import org.wso2.carbon.identity.authorization.core.model.PermissionModule;
-//import org.wso2.carbon.identity.authorization.core.model.PermissionTreeNodeDTO;
+//import org.wso2.carbon.identity.authorization.core.dto.PermissionModule;
+//import org.wso2.carbon.identity.authorization.core.dto.PermissionTreeNodeDTO;
 //import org.wso2.carbon.identity.authorization.core.internal.AuthorizationConfigHolder;
 //import org.wso2.carbon.identity.authorization.core.internal.AuthorizationServiceComponent;
 //
