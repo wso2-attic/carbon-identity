@@ -311,7 +311,8 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
 
         outboundQueryString = outboundQueryString + "sessionDataKey="
                 + context.getContextIdentifier() + "&relyingParty=" + context.getRelyingParty()
-                + "&type=" + context.getRequestType() + "&sp=" + context.getServiceProviderName();
+                + "&type=" + context.getRequestType() + "&sp=" + context.getServiceProviderName() + "&isSaaSApp="
+                + context.getSequenceConfig().getApplicationConfig().isSaaSApp();
 
         if (log.isDebugEnabled()) {
             log.debug("Outbound Query String: " + outboundQueryString);
