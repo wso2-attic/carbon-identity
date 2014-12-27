@@ -193,9 +193,9 @@ public class TenantActivityListener implements TenantMgtListener {
 
     }
 
-    //@Override public void onTenantDelete(int tenantId) {
-//
-    //}
+    @Override public void onTenantDelete(int tenantId) {
+
+    }
 
     @Override
     public void onTenantRename(int tenantId, String oldDomainName, String newDomainName) throws StratosException {
