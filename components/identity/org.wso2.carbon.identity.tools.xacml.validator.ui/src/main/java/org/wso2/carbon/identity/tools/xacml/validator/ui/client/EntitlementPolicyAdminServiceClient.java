@@ -48,18 +48,18 @@ public class EntitlementPolicyAdminServiceClient {
         option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
     }
 
-    public String importPolicyContentFromRegistry(String policyRegistryPath) throws AxisFault {
+    public String importPolicyContentFromRegistry(String policyRegistryPath) throws Exception {
         String policy = null;
         try {
             policy = stub.importPolicyContentFromRegistry(policyRegistryPath);
         } catch (Exception e) {
-            handleException(e);
+            convertToUIFriendlyErrorMsg(e);
         }
         return policy;
     }
 
 
-    private void handleException(Exception e) throws AxisFault {
+    private void convertToUIFriendlyErrorMsg(Exception e) throws Exception {
 
         String errorMessage = "Unknown";
 
@@ -73,6 +73,6 @@ public class EntitlementPolicyAdminServiceClient {
             errorMessage = e.getMessage();
         }
 
-        throw new AxisFault(errorMessage, e);
+        throw new Exception(errorMessage, e);
     }
 }
