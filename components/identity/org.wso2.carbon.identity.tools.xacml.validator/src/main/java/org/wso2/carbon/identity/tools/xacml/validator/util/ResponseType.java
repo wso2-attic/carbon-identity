@@ -17,6 +17,6 @@
  */
 package org.wso2.carbon.identity.tools.xacml.validator.util;
 
-public enum ResponseType {//ResponseType
+public enum ResponseType {
     ERROR, WARNING, FATAL_ERROR, SUCCESS, SYSTEM_ERROR
 }
