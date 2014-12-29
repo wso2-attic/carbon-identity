@@ -150,11 +150,11 @@ public class EntitlementPolicyAdminService {
     }
 
     /**
-     * This method finds the policy content as a String from given registry path
+     * This method finds the policy content as a String from given registry path.
      *
-     * @param policyRegistryPath
-     * @return
-     * @throws EntitlementException
+     * @param policyRegistryPath given registry path
+     * @return policy content as a String
+     * @throws EntitlementException throws when registry error occurs
      */
     public String importPolicyContentFromRegistry(String policyRegistryPath) throws
                                                                              EntitlementException {
