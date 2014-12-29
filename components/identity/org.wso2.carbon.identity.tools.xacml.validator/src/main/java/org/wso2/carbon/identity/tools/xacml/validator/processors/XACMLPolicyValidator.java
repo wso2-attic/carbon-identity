@@ -91,7 +91,8 @@ public class XACMLPolicyValidator {
                     }
 
                     private void processException(SAXParseException exception, String type) {
-                        ValidationResult validationResult = new ValidationResult(exception.getMessage(), exception.getLineNumber(), type);
+                        ValidationResult validationResult =
+                                new ValidationResult(exception.getMessage(), exception.getLineNumber(), type);
                         validationResultList.add(validationResult);
                     }
                 });
@@ -99,18 +100,19 @@ public class XACMLPolicyValidator {
 
             } else {
                 String message = "Invalid Namespace in policy";
-                ValidationResult validationResult = new ValidationResult(message,FIRST_LINE_NUMBER , ResponseType.ERROR.name());
+                ValidationResult validationResult =
+                        new ValidationResult(message, FIRST_LINE_NUMBER, ResponseType.ERROR.name());
                 validationResultList.add(validationResult);
             }
+        } catch (SAXException e) {
             // since custom error handler sets, validate method does not throw
             // SAXException but
             // still need to add SAXException to catch ladder to complete
             // compilation
-        } catch (SAXException e) {
-            // reason to ignore has been mentioned in the above comment
         } catch (IOException e) {
             String message = "XML content is not readable";
-            ValidationResult validationResult = new ValidationResult(message,FIRST_LINE_NUMBER , ResponseType.ERROR.name());
+            ValidationResult validationResult =
+                    new ValidationResult(message, FIRST_LINE_NUMBER, ResponseType.ERROR.name());
             validationResultList.add(validationResult);
         } catch (SystemException e) {
             String message = "System Error";

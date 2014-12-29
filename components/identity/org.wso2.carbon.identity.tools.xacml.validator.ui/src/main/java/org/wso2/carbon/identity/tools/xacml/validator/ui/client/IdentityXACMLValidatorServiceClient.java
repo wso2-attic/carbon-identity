@@ -61,13 +61,7 @@ public class IdentityXACMLValidatorServiceClient {
      * @throws Exception
      */
     public ValidationResult[] validateXACMLPolicy(PolicyDTO policy) throws Exception {
-        ValidationResult[] validationResults = null;
-        try {
-            validationResults = stub.validateXACMLPolicy(policy);
-        } catch (Exception e) {
-            throw e;
-        }
-        return validationResults;
+        return stub.validateXACMLPolicy(policy);
     }
 
 }
