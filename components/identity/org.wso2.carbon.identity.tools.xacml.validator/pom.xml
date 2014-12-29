@@ -85,7 +85,6 @@
                             *;resolution:=optional
                         </Import-Package>
                         <Export-Package>org.wso2.carbon.identity.tools.xacml.validator.*</Export-Package>
-                        <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>

@@ -106,7 +106,6 @@
                         </Import-Package>
                         <Export-Package>org.wso2.carbon.identity.tools.saml.validator.ui.*</Export-Package>
                         <Carbon-Component>UIBundle</Carbon-Component>
-                        <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>
