@@ -28,7 +28,6 @@ public class SAMLSSOValidatorServiceClient {
 			option.setManageSession(true);
 			option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
 		} catch (AxisFault ex) {
-			log.error("Error generating stub for IdentitySAMLValidatorService", ex);
 			throw new AxisFault("Error generating stub for IdentitySAMLValidatorService", ex);
 		}
 	}
