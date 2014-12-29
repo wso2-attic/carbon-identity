@@ -48,11 +48,6 @@ public class EntitlementPolicyAdminServiceClient {
         option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
     }
 
-    /**
-     * @param policyRegistryPath
-     * @return
-     * @throws AxisFault
-     */
     public String importPolicyContentFromRegistry(String policyRegistryPath) throws AxisFault {
         String policy = null;
         try {
@@ -63,10 +58,7 @@ public class EntitlementPolicyAdminServiceClient {
         return policy;
     }
 
-    /**
-     * @param e
-     * @throws AxisFault
-     */
+
     private void handleException(Exception e) throws AxisFault {
 
         String errorMessage = "Unknown";
