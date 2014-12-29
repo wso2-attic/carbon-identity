@@ -80,12 +80,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         signatureAlgorithm = mapSignatureAlgorithm(config.getSignatureAlgorithm());
     }
 
-    /**
-     * @param request
-     * @param tokenRespDTO
-     * @return ID Token as a String
-     * @throws IdentityOAuth2Exception
-     */
+    @Override
     public String buildIDToken(OAuthTokenReqMessageContext request, OAuth2AccessTokenRespDTO tokenRespDTO)
             throws IdentityOAuth2Exception {
 
