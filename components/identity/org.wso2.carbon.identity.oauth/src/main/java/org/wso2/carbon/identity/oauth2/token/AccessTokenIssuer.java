@@ -89,7 +89,7 @@ public class AccessTokenIssuer {
 
     public OAuth2AccessTokenRespDTO issue(OAuth2AccessTokenReqDTO tokenReqDTO)
             throws IdentityException, InvalidOAuthClientException {
-
+        boolean isDebugEnable = log.isDebugEnabled();
         String grantType = tokenReqDTO.getGrantType();
         OAuth2AccessTokenRespDTO tokenRespDTO;
 
@@ -162,9 +162,11 @@ public class AccessTokenIssuer {
 
         //boolean isAuthenticated = true;
         if (!isAuthenticated) {
-            //Do not change this log format as these logs use by external applications
-            log.debug("Client Authentication Failed for client id=" + tokenReqDTO.getClientId() + ", " +
-                      "user-name=" + userName + " to application=" + applicationName);
+            if (isDebugEnable) {
+                //Do not change this log format as these logs use by external applications
+                log.debug("Client Authentication Failed for client id=" + tokenReqDTO.getClientId() + ", " +
+                          "user-name=" + userName + " to application=" + applicationName);
+            }
             tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_CLIENT,
                                        "Client credentials are invalid.", tokenReqDTO);
             return tokenRespDTO;
@@ -173,9 +175,11 @@ public class AccessTokenIssuer {
         boolean isValidGrant = authzGrantHandler.validateGrant(tokReqMsgCtx);
         //boolean isValidGrant = true;
         if (!isValidGrant) {
-            //Do not change this log format as these logs use by external applications
-            log.debug("Invalid Grant provided by the client, id=" + tokenReqDTO.getClientId() + ", " +
-                      "" + "user-name=" + userName + " to application=" + applicationName);
+            if (isDebugEnable) {
+                //Do not change this log format as these logs use by external applications
+                log.debug("Invalid Grant provided by the client, id=" + tokenReqDTO.getClientId() + ", "
+                          + "user-name=" + userName + " to application=" + applicationName);
+            }
             tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_GRANT,
                                        "Provided Authorization Grant is invalid.", tokenReqDTO);
             return tokenRespDTO;
@@ -184,10 +188,12 @@ public class AccessTokenIssuer {
         boolean isAuthorized = authzGrantHandler.authorizeAccessDelegation(tokReqMsgCtx);
         //boolean isAuthorized = true;
         if (!isAuthorized) {
-            //Do not change this log format as these logs use by external applications
-            log.debug("Resource owner is not authorized to grant access, client-id="
-                      + tokenReqDTO.getClientId() + " " + "user-name=" + userName + " to application=" +
-                      applicationName);
+            if (isDebugEnable) {
+                //Do not change this log format as these logs use by external applications
+                log.debug("Resource owner is not authorized to grant access, client-id="
+                          + tokenReqDTO.getClientId() + " " + "user-name=" + userName + " to application=" +
+                          applicationName);
+            }
             tokenRespDTO = handleError(OAuthError.TokenResponse.UNAUTHORIZED_CLIENT,
                                        "Unauthorized Client!", tokenReqDTO);
             return tokenRespDTO;
@@ -196,9 +202,11 @@ public class AccessTokenIssuer {
         boolean isValidScope = authzGrantHandler.validateScope(tokReqMsgCtx);
         //boolean isValidScope = true;
         if (!isValidScope) {
-            //Do not change this log format as these logs use by external applications
-            log.debug("Invalid Scope provided. client-id=" + tokenReqDTO.getClientId() + " " +
-                      "" + "user-name=" + userName + " to application=" + applicationName);
+            if (isDebugEnable) {
+                //Do not change this log format as these logs use by external applications
+                log.debug("Invalid Scope provided. client-id=" + tokenReqDTO.getClientId() + " " + "user-name=" +
+                          userName + " to application=" + applicationName);
+            }
             tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_SCOPE, "Invalid Scope!", tokenReqDTO);
             return tokenRespDTO;
         }
