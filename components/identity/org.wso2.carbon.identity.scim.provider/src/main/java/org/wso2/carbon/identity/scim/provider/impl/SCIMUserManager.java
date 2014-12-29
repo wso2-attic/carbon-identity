@@ -843,10 +843,10 @@ public class SCIMUserManager implements UserManager {
                             String error =
                                     "User: " + userId + " doesn't exist in the user store. " +
                                     "Hence, can not update the group: " + oldGroup.getDisplayName();
-                            throw new IdentitySCIMException(error);
+                            throw new CharonException(error);
                         } else {
                             if (!userDisplayNames.contains(userNames[0])) {
-                                throw new IdentitySCIMException("Given SCIM user Id and name not matching..");
+                                throw new CharonException("Given SCIM user Id and name not matching..");
                             }
                         }
                     }
@@ -914,11 +914,7 @@ public class SCIMUserManager implements UserManager {
 
             } catch (UserStoreException e) {
                 //throwing real message coming from carbon user manager
-                throw new CharonException(e.getMessage());
-            } catch (IdentitySCIMException e) {
-                //e.getMessage() contains meaningful message because custom message has been mentioned while throwing
-                //IdentitySCIMException
-                throw new CharonException(e.getMessage());
+                throw new CharonException(e.getMessage(), e);
             }
             return newGroup;
         }
