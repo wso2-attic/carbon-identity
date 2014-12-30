@@ -18,6 +18,10 @@
 
 package org.wso2.carbon.identity.oauth.cache;
 
+/**
+ * Authorization code is the cache key attribute here. Authenticated user attributes and OpenID Connect specific
+ * attributes are stored against cache key.
+ */
 public class AuthorizationGrantCacheKey extends CacheKey {
 
     private String userAttributesId;
