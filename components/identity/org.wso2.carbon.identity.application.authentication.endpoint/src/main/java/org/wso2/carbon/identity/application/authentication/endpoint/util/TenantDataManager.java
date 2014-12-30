@@ -284,7 +284,7 @@ public class TenantDataManager {
                                         log.debug(tenantDomain + " is active and added to the dropdown list");
                                     }
                                 } else {
-                                    if (log.isDebugEnabled()){
+                                    if (log.isDebugEnabled()) {
                                         log.debug(tenantDomain + " is inactive and not added to the dropdown list");
                                     }
                                 }
