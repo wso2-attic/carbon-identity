@@ -40,7 +40,7 @@ import java.util.List;
 
 /**
  * This is the actual class doing xml processing and generate list of Exceptions
- * as a list
+ * as a list.
  */
 
 public class XACMLPolicyValidator {
@@ -49,14 +49,11 @@ public class XACMLPolicyValidator {
     private final static int FIRST_LINE_NUMBER = 1;
 
     /**
-     * This method return validated Items as an Array, If there is no errors
-     * validatePolicy
-     * function include single record with success element,a validated exception
-     * item include xml
-     * parser error or fatal errors or warnings
-     * 
+     * Collecting all xml parser error or fatal errors or warnings to list while parsing xml content for schema
+     * validation
      * @param policyDTO
-     * @return
+     * @return validated Items as an Array, If there is no errors validatePolicy function include single record with
+     * success element
      */
     public static ValidationResult[] validatePolicy(PolicyDTO policyDTO) {
         final List<ValidationResult> validationResultList = new ArrayList<ValidationResult>();
