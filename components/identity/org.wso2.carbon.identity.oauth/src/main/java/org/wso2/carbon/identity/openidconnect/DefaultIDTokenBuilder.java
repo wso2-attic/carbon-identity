@@ -49,6 +49,7 @@ import java.security.Key;
 import java.security.interfaces.RSAPrivateKey;
 import java.text.ParseException;
 import java.util.Calendar;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -70,7 +71,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
     private static final String AUTHORIZATION_CODE = "AuthorizationCode";
     private static final String INBOUND_AUTH2_TYPE = "oauth2";
     private static Log log = LogFactory.getLog(DefaultIDTokenBuilder.class);
-    private static ConcurrentHashMap<Integer, Key> privateKeys = new ConcurrentHashMap<Integer, Key>();
+    private static Map<Integer, Key> privateKeys = new ConcurrentHashMap<Integer, Key>();
     private OAuthServerConfiguration config = null;
     private Algorithm signatureAlgorithm = null;
 
