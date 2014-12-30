@@ -47,6 +47,7 @@ import org.wso2.charon.core.protocol.endpoints.GroupResourceEndpoint;
 import org.wso2.charon.core.schema.SCIMConstants;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @Path("/")
 public class GroupResource extends AbstractResource {
@@ -59,7 +60,7 @@ public class GroupResource extends AbstractResource {
     public Response getGroup(@PathParam(SCIMConstants.CommonSchemaConstants.ID) String id,
                              @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
                              @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization) {
-        HashMap<String, String> requestAttributes = new HashMap<String, String>();
+        Map<String, String> requestAttributes = new HashMap<String, String>();
         requestAttributes.put(SCIMProviderConstants.ID, id);
         requestAttributes.put(SCIMProviderConstants.OUTPUT_FORMAT, outputFormat);
         requestAttributes.put(SCIMProviderConstants.AUTHORIZATION, authorization);
@@ -72,7 +73,7 @@ public class GroupResource extends AbstractResource {
                                 @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
                                 @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
                                 String resourceString) {
-        HashMap<String, String> requestAttributes = new HashMap<String, String>();
+        Map<String, String> requestAttributes = new HashMap<String, String>();
         requestAttributes.put(SCIMProviderConstants.INPUT_FORMAT, inputFormat);
         requestAttributes.put(SCIMProviderConstants.OUTPUT_FORMAT, outputFormat);
         requestAttributes.put(SCIMProviderConstants.AUTHORIZATION, authorization);
@@ -85,7 +86,7 @@ public class GroupResource extends AbstractResource {
     public Response deleteGroup(@PathParam(SCIMConstants.CommonSchemaConstants.ID) String id,
                                 @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
                                 @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization) {
-        HashMap<String, String> requestAttributes = new HashMap<String, String>();
+        Map<String, String> requestAttributes = new HashMap<String, String>();
         requestAttributes.put(SCIMProviderConstants.ID, id);
         requestAttributes.put(SCIMProviderConstants.OUTPUT_FORMAT, outputFormat);
         requestAttributes.put(SCIMProviderConstants.AUTHORIZATION, authorization);
@@ -100,7 +101,7 @@ public class GroupResource extends AbstractResource {
                                 @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
                                 @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
                                 String resourceString) {
-        HashMap<String, String> requestAttributes = new HashMap<String, String>();
+        Map<String, String> requestAttributes = new HashMap<String, String>();
         requestAttributes.put(SCIMProviderConstants.ID, id);
         requestAttributes.put(SCIMProviderConstants.INPUT_FORMAT, inputFormat);
         requestAttributes.put(SCIMProviderConstants.OUTPUT_FORMAT, outputFormat);
@@ -116,7 +117,7 @@ public class GroupResource extends AbstractResource {
                                @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
                                @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
                                String resourceString) {
-        HashMap<String, String> requestAttributes = new HashMap<String, String>();
+        Map<String, String> requestAttributes = new HashMap<String, String>();
         requestAttributes.put(SCIMProviderConstants.ID, id);
         requestAttributes.put(SCIMProviderConstants.INPUT_FORMAT, inputFormat);
         requestAttributes.put(SCIMProviderConstants.OUTPUT_FORMAT, outputFormat);
@@ -133,7 +134,7 @@ public class GroupResource extends AbstractResource {
                              @QueryParam("startIndex") String startIndex,
                              @QueryParam("count") String count, @QueryParam("sortBy") String sortBy,
                              @QueryParam("sortOrder") String sortOrder) {
-        HashMap<String, String> requestAttributes = new HashMap<String, String>();
+        Map<String, String> requestAttributes = new HashMap<String, String>();
         requestAttributes.put(SCIMProviderConstants.OUTPUT_FORMAT, outputFormat);
         requestAttributes.put(SCIMProviderConstants.AUTHORIZATION, authorization);
         requestAttributes.put(SCIMProviderConstants.HTTP_VERB, GET.class.getSimpleName());
@@ -151,7 +152,7 @@ public class GroupResource extends AbstractResource {
      * @param requestAttributes
      * @return
      */
-    private Response processRequest(final HashMap<String, String> requestAttributes) {
+    private Response processRequest(final Map<String, String> requestAttributes) {
 
         String id = requestAttributes.get(SCIMProviderConstants.ID);
         String inputFormat = requestAttributes.get(SCIMProviderConstants.INPUT_FORMAT);
