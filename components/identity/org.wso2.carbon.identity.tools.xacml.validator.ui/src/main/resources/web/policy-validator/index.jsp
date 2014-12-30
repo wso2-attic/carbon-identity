@@ -40,7 +40,6 @@
                    topPage="true" request="<%=request%>"/>
 
 <%
-    out.print("hiiii");
     String importFrom = (String) request.getParameter("importFrom");
     String[] importingMethods = new String[]{EntitlementPolicyConstants.IMPORT_POLICY_REGISTRY,
             EntitlementPolicyConstants.IMPORT_POLICY_FILE_SYSTEM};
