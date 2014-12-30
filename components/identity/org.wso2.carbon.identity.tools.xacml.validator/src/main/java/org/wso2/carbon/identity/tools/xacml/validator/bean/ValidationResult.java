@@ -18,7 +18,7 @@
 package org.wso2.carbon.identity.tools.xacml.validator.bean;
 
 /**
- * Bean entity to store validated item
+ * Bean entity to store validated item.
  */
 public class ValidationResult {
     private String message;

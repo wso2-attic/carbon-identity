@@ -26,7 +26,7 @@ import org.wso2.carbon.identity.tools.xacml.validator.processors.XACMLPolicyVali
 
 /**
  * XACMLPolicyValidatorService class which exposes xacml policy processors
- * service
+ * service.
  */
 
 public class XACMLPolicyValidatorService extends AbstractAdmin {
@@ -34,10 +34,9 @@ public class XACMLPolicyValidatorService extends AbstractAdmin {
     private static Log log = LogFactory.getLog(XACMLPolicyValidatorService.class);
 
     /**
-     * validate policy according to XACML schema
+     * Validate policy according to XACML schema.
      * 
-     * @param policyDTO
-     *            include policy content
+     * @param policyDTO include policy content
      * @return ValidationResult array
      */
     public ValidationResult[] validateXACMLPolicy(PolicyDTO policyDTO) {//change ValidationResult to ValidationResult
