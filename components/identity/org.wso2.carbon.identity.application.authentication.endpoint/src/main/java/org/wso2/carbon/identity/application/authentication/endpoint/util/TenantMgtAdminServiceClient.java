@@ -45,42 +45,37 @@ import java.util.Map;
 /**
  * Client for calling Admin Services with mutual ssl authentication
  */
-public class MutualSSLClient {
+public class TenantMgtAdminServiceClient {
 
 	/**
 	 * Logger for MutualSSLClient class
 	 */
-	private static final Log log = LogFactory.getLog(MutualSSLClient.class);
+	private static final Log log = LogFactory.getLog(TenantMgtAdminServiceClient.class);
 
 	/**
 	 * Default keystore type of the client
 	 */
-	private static String KEY_STORE_TYPE = "JKS";
+	private static String keyStoreType = "JKS";
 
 	/**
 	 * Default truststore type of the client
 	 */
-	private static String TRUST_STORE_TYPE = "JKS";
+	private static String trustStoreType = "JKS";
 
 	/**
 	 * Default keymanager type of the client
 	 */
-	private static String KEY_MANAGER_TYPE = "SunX509";
+	private static String keyManagerType = "SunX509";
 
 	/**
 	 * Default trustmanager type of the client
 	 */
-	private static String TRUST_MANAGER_TYPE = "SunX509";
+	private static String trustManagerType = "SunX509";
 
 	/**
 	 * Default ssl protocol for client
 	 */
-	private static String PROTOCOL = "SSLv3";
-
-	/**
-	 * HTTP GET
-	 */
-	private static final String HTTP_GET = "GET";
+	private static String protocol = "SSLv3";
 
 	/**
 	 * HTTP POST
@@ -89,7 +84,7 @@ public class MutualSSLClient {
 
 	private static KeyStore keyStore;
 	private static KeyStore trustStore;
-	private static String keyStorePassword;
+	private static char [] keyStorePassword;
 	private static HttpsURLConnection httpsURLConnection;
 	private static SSLSocketFactory sslSocketFactory;
 
@@ -105,9 +100,9 @@ public class MutualSSLClient {
 	 */
 	public static void loadKeyStore(String keyStorePath, String keyStorePassoword)
 			throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
-		keyStorePassword = keyStorePassoword;
-		keyStore = KeyStore.getInstance(KEY_STORE_TYPE);
-		keyStore.load(new FileInputStream(keyStorePath), keyStorePassoword.toCharArray());
+		keyStorePassword = keyStorePassoword.toCharArray();
+		keyStore = KeyStore.getInstance(keyStoreType);
+		keyStore.load(new FileInputStream(keyStorePath), keyStorePassword);
 	}
 
 	/**
@@ -123,7 +118,7 @@ public class MutualSSLClient {
 	public static void loadTrustStore(String trustStorePath, String trustStorePassoword)
 			throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
 
-		trustStore = KeyStore.getInstance(TRUST_STORE_TYPE);
+		trustStore = KeyStore.getInstance(trustStoreType);
 		trustStore.load(new FileInputStream(trustStorePath), trustStorePassoword.toCharArray());
 	}
 
@@ -139,13 +134,13 @@ public class MutualSSLClient {
 	public static void initMutualSSLConnection() throws NoSuchAlgorithmException, KeyStoreException,
 	        KeyManagementException, IOException, UnrecoverableKeyException {
 
-		KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KEY_MANAGER_TYPE);
-		keyManagerFactory.init(keyStore, keyStorePassword.toCharArray());
-		TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TRUST_MANAGER_TYPE);
+		KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(keyManagerType);
+		keyManagerFactory.init(keyStore, keyStorePassword);
+		TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(trustManagerType);
 		trustManagerFactory.init(trustStore);
 
 		// Create and initialize SSLContext for HTTPS communication
-		SSLContext sslContext = SSLContext.getInstance(PROTOCOL);
+		SSLContext sslContext = SSLContext.getInstance(protocol);
 		sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), null);
 		sslSocketFactory = sslContext.getSocketFactory();
 	}
@@ -159,25 +154,26 @@ public class MutualSSLClient {
 	 * @return Received data
 	 * @throws IOException
 	 */
-	public static String sendPostRequest(String backendURL, String message, Map<String, String> requestProps)
-			throws IOException {
-		URL url = new URL(backendURL);
-		httpsURLConnection = (HttpsURLConnection) url.openConnection();
-		httpsURLConnection.setSSLSocketFactory(sslSocketFactory);
-		httpsURLConnection.setDoOutput(true);
-		httpsURLConnection.setDoInput(true);
-		httpsURLConnection.setRequestMethod(HTTP_POST);
-
-		if (requestProps != null && requestProps.size() > 0) {
-			for (Map.Entry<String, String> entry : requestProps.entrySet()) {
-				httpsURLConnection.setRequestProperty(entry.getKey(), entry.getValue());
-			}
-		}
+	public static String sendPostRequest(String backendURL, String message, Map<String, String> requestProps) {
 		OutputStream outputStream = null;
 		InputStream inputStream = null;
 		BufferedReader reader = null;
-		StringBuilder response = null;
+		String response = null;
+		URL url = null;
+
 		try {
+			url = new URL(backendURL);
+			httpsURLConnection = (HttpsURLConnection) url.openConnection();
+			httpsURLConnection.setSSLSocketFactory(sslSocketFactory);
+			httpsURLConnection.setDoOutput(true);
+			httpsURLConnection.setDoInput(true);
+			httpsURLConnection.setRequestMethod(HTTP_POST);
+
+			if (requestProps != null && requestProps.size() > 0) {
+				for (Map.Entry<String, String> entry : requestProps.entrySet()) {
+					httpsURLConnection.setRequestProperty(entry.getKey(), entry.getValue());
+				}
+			}
 			outputStream = httpsURLConnection.getOutputStream();
 
 			if (StringUtils.isNotEmpty(message)) {
@@ -185,110 +181,70 @@ public class MutualSSLClient {
 			}
 			inputStream = httpsURLConnection.getInputStream();
 			reader = new BufferedReader(new InputStreamReader(inputStream));
-			response = new StringBuilder();
+			StringBuilder builder = new StringBuilder();
 			String line;
 
 			while (StringUtils.isNotEmpty(line = reader.readLine())) {
-				response.append(line);
+				builder.append(line);
 			}
+			response = builder.toString();
 		} catch (IOException e) {
 			log.error("Sending " + HTTP_POST + " request to URL : " + url + "failed.", e);
 		} finally {
-			reader.close();
-			inputStream.close();
-			outputStream.close();
-		}
-		return response.toString();
-	}
-
-	/**
-	 * Send mutual ssl https get request and return data
-	 *
-	 * @param backendURL URL of the service
-	 * @param message Message sent to the URL
-	 * @param requestProps Request properties
-	 * @return Received data
-	 * @throws IOException
-	 */
-	public static String sendGetRequest(String backendURL, String message, Map<String, String> requestProps)
-			throws IOException {
-		URL url = new URL(backendURL);
-		httpsURLConnection = (HttpsURLConnection) url.openConnection();
-		httpsURLConnection.setSSLSocketFactory(sslSocketFactory);
-		httpsURLConnection.setDoOutput(true);
-		httpsURLConnection.setDoInput(true);
-		httpsURLConnection.setRequestMethod(HTTP_GET);
-
-		if (requestProps != null && requestProps.size() > 0) {
-			for (Map.Entry<String, String> entry : requestProps.entrySet()) {
-				httpsURLConnection.setRequestProperty(entry.getKey(), entry.getValue());
+			try {
+				if(reader != null) {
+					reader.close();
+				}
+				if(inputStream != null) {
+					inputStream.close();
+				}
+				if(outputStream != null){
+					outputStream.close();
+				}
+			} catch (IOException e) {
+				log.error("Closing stream for " + url + " failed");
 			}
-		}
-		OutputStream outputStream = null;
-		InputStream inputStream = null;
-		BufferedReader reader = null;
-		StringBuilder response = null;
-		try {
-			outputStream = httpsURLConnection.getOutputStream();
-
-			if (StringUtils.isNotEmpty(message)) {
-				outputStream.write(message.getBytes());
-			}
-			inputStream = httpsURLConnection.getInputStream();
-			reader = new BufferedReader(new InputStreamReader(inputStream));
-			response = new StringBuilder();
-			String line;
-
-			while (StringUtils.isNotEmpty(line = reader.readLine())) {
-				response.append(line);
-			}
-		} catch (IOException e) {
-			log.error("Sending " + HTTP_GET + " request to URL : " + url + "failed.", e);
-		} finally {
-			reader.close();
-			inputStream.close();
-			outputStream.close();
 		}
 		return response.toString();
 	}
 
 	public static String getKeyStoreType() {
-		return KEY_STORE_TYPE;
+		return keyStoreType;
 	}
 
-	public static void setKeyStoreType(String KEY_STORE_TYPE) {
-		MutualSSLClient.KEY_STORE_TYPE = KEY_STORE_TYPE;
+	public static void setKeyStoreType(String keyStoreType) {
+		TenantMgtAdminServiceClient.keyStoreType = keyStoreType;
 	}
 
 	public static String getTrustStoreType() {
-		return TRUST_STORE_TYPE;
+		return trustStoreType;
 	}
 
-	public static void setTrustStoreType(String TRUST_STORE_TYPE) {
-		MutualSSLClient.TRUST_STORE_TYPE = TRUST_STORE_TYPE;
+	public static void setTrustStoreType(String trustStoreType) {
+		TenantMgtAdminServiceClient.trustStoreType = trustStoreType;
 	}
 
 	public static String getKeyManagerType() {
-		return KEY_MANAGER_TYPE;
+		return keyManagerType;
 	}
 
-	public static void settKeyManagerType(String KEY_MANAGER_TYPE) {
-		MutualSSLClient.KEY_MANAGER_TYPE = KEY_MANAGER_TYPE;
+	public static void settKeyManagerType(String keyManagerType) {
+		TenantMgtAdminServiceClient.keyManagerType = keyManagerType;
 	}
 
 	public static String getTrustManagerType() {
-		return TRUST_MANAGER_TYPE;
+		return trustManagerType;
 	}
 
-	public static void getTrustManagerType(String TRUST_MANAGER_TYPE) {
-		MutualSSLClient.TRUST_MANAGER_TYPE = TRUST_MANAGER_TYPE;
+	public static void getTrustManagerType(String trustManagerType) {
+		TenantMgtAdminServiceClient.trustManagerType = trustManagerType;
 	}
 
 	public static HttpsURLConnection getHttpsURLConnection() {
 		return httpsURLConnection;
 	}
 
-	public static void setProtocol(String PROTOCOL) {
-		MutualSSLClient.PROTOCOL = PROTOCOL;
+	public static void setProtocol(String protocol) {
+		TenantMgtAdminServiceClient.protocol = protocol;
 	}
 }

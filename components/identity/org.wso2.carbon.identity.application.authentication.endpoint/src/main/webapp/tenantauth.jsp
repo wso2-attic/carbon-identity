@@ -58,7 +58,7 @@
 
                 <%
                     List<String> tenantDomainsList = TenantDataManager.getAllActiveTenantDomains();
-                    if (tenantDomainsList != null) {
+                    if (!tenantDomainsList.isEmpty()) {
                         for (String tenant : tenantDomainsList) {
                 %>
                             <option value="<%=tenant%>"><%=tenant%></option>

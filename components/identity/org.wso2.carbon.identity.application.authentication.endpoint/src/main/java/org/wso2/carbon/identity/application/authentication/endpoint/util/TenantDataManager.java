@@ -75,7 +75,7 @@ public class TenantDataManager {
     private static String carbonLogin = "";
     private static String serviceURL;
     private static String usernameHeaderName = "";
-    private static List<String> tenantDomainList;
+    private static List<String> tenantDomainList = new ArrayList<String>();
     private static boolean initialized = false;
 
     /**
@@ -100,12 +100,11 @@ public class TenantDataManager {
                     String clientKeyStorePath = buildFilePath(getPropertyValue(CLIENT_KEY_STORE));
                     String clientTrustStorePath = buildFilePath(getPropertyValue(CLIENT_TRUST_STORE));
 
-                    MutualSSLClient.loadKeyStore(clientKeyStorePath, getPropertyValue(CLIENT_KEY_STORE_PASSWORD));
-                    MutualSSLClient
+                    TenantMgtAdminServiceClient
+                            .loadKeyStore(clientKeyStorePath, getPropertyValue(CLIENT_KEY_STORE_PASSWORD));
+                    TenantMgtAdminServiceClient
                             .loadTrustStore(clientTrustStorePath, getPropertyValue(CLIENT_TRUST_STORE_PASSWORD));
-                    MutualSSLClient.initMutualSSLConnection();
-
-                    tenantDomainList = new ArrayList<String>();
+                    TenantMgtAdminServiceClient.initMutualSSLConnection();
 
                     // Build the service URL of tenant management admin service
                     StringBuilder builder = new StringBuilder();
@@ -171,12 +170,7 @@ public class TenantDataManager {
         Map<String, String> headerParams = new HashMap<String, String>();
         // Set the username in HTTP header for mutual ssl authentication
         headerParams.put(usernameHeaderName, carbonLogin);
-
-        try {
-            serviceResponse = MutualSSLClient.sendGetRequest(url, null, headerParams);
-        } catch (IOException e) {
-            log.error("Processing request for " + url + " failed.", e);
-        }
+        serviceResponse = TenantMgtAdminServiceClient.sendPostRequest(url, null, headerParams);
         return serviceResponse;
     }
 
@@ -189,7 +183,7 @@ public class TenantDataManager {
         if (!initialized) {
             init();
         }
-        if (tenantDomainList == null || tenantDomainList.size() == 0) {
+        if (initialized && tenantDomainList.isEmpty()) {
             refreshActiveTenantDomainsList();
         }
         return tenantDomainList;
@@ -205,20 +199,21 @@ public class TenantDataManager {
             init();
         }
 
-        if (dataList != null && dataList.trim().length() > 0) {
+        if (StringUtils.isNotEmpty(dataList)) {
             synchronized (tenantDomainList) {
                 String[] domains = dataList.split(TENANT_DATA_SEPARATOR);
-                tenantDomainList = new ArrayList<String>();
+                // Remove all existing tenant domains from the list
+                tenantDomainList.clear();
 
                 for (String domain : domains) {
                     tenantDomainList.add(domain);
                 }
-                // Soft the tenant domains list according to alphabetical order
+                // Sort the tenant domains list according to alphabetical order
                 Collections.sort(tenantDomainList);
             }
         } else {
             // Reset active tenant domains list
-            tenantDomainList = null;
+            tenantDomainList.clear();
         }
     }
 
@@ -241,7 +236,8 @@ public class TenantDataManager {
                 NodeList nodeList = null;
                 nodeList = (NodeList) xpath.evaluate(xPathExpression, inputSource, XPathConstants.NODESET);
 
-                tenantDomainList = new ArrayList<String>();
+                // Reset existing tenant domains list
+                tenantDomainList.clear();
 
                 // For each loop is not supported for NodeList
                 for (int i = 0; i < nodeList.getLength(); i++) {
@@ -276,6 +272,14 @@ public class TenantDataManager {
                             if (activeChecked && domainChecked) {
                                 if (isActive) {
                                     tenantDomainList.add(tenantDomain);
+
+                                    if (log.isDebugEnabled()) {
+                                        log.debug(tenantDomain + " is active and added to the dropdown list");
+                                    }
+                                } else {
+                                    if (log.isDebugEnabled()){
+                                        log.debug(tenantDomain + " is inactive and not added to the dropdown list");
+                                    }
                                 }
                                 break;
                             }
@@ -299,6 +303,6 @@ public class TenantDataManager {
         if (!initialized) {
             init();
         }
-        return Boolean.parseBoolean(getPropertyValue(TENANT_LIST_ENABLED));
+        return (initialized && Boolean.parseBoolean(getPropertyValue(TENANT_LIST_ENABLED)));
     }
 }
