@@ -137,24 +137,24 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         String atHash = new String(Base64.encodeBase64(tokenRespDTO.getAccessToken().getBytes()));
 
         if (log.isDebugEnabled()) {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("Using issuer " + issuer);
-            stringBuilder.append("\n");
+            StringBuilder stringBuilder = (new StringBuilder()).
+            append("Using issuer " + issuer).
+            append("\n").
 
-            stringBuilder.append("Subject " + subject);
-            stringBuilder.append("\n");
+            append("Subject " + subject).
+            append("\n").
 
-            stringBuilder.append("ID Token life time " + lifetime);
-            stringBuilder.append("\n");
+            append("ID Token life time " + lifetime).
+            append("\n").
 
-            stringBuilder.append("Current time " + curTime);
-            stringBuilder.append("\n");
+            append("Current time " + curTime).
+            append("\n").
 
-            stringBuilder.append("Nonce Value " + nonceValue);
-            stringBuilder.append("\n");
+            append("Nonce Value " + nonceValue).
+            append("\n").
 
-            stringBuilder.append("Signature Algorithm " + signatureAlgorithm);
-            stringBuilder.append("\n");
+            append("Signature Algorithm " + signatureAlgorithm).
+            append("\n");
             log.debug(stringBuilder.toString());
         }
 
