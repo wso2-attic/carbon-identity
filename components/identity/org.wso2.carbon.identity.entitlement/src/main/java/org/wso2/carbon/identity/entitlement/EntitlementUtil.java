@@ -594,10 +594,10 @@ public class EntitlementUtil {
     }
 
     /**
-     * get XACML policy schema required for XACML validator tool
+     * get XACML policy schema required for XACML validator tool.
      *
-     * @param policy
-     * @return
+     * @param policy contains policy content and meta information
+     * @return XACML Schema according to version
      */
     public static Schema getSchema(PolicyDTO policy) {
         // get policy version
