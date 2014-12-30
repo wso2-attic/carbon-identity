@@ -95,7 +95,7 @@ public class MutualSSLAuthenticator implements CarbonServerAuthenticator {
     /**
      * Initialize Mutual SSL Authenticator Configuration
      */
-    private static void init() {
+    private synchronized static void init() {
 
         AuthenticatorsConfiguration authenticatorsConfiguration = AuthenticatorsConfiguration.getInstance();
 
@@ -106,7 +106,7 @@ public class MutualSSLAuthenticator implements CarbonServerAuthenticator {
         if (authenticatorConfig != null) {
             Map<String, String> configParameters = authenticatorConfig.getParameters();
 
-            if(configParameters != null) {
+            if (configParameters != null) {
 
                 if (configParameters.containsKey(USERNAME_HEADER)) {
                     usernameHeaderName = configParameters.get(USERNAME_HEADER);
@@ -114,6 +114,10 @@ public class MutualSSLAuthenticator implements CarbonServerAuthenticator {
 
                 if (configParameters.containsKey(WHITE_LIST_ENABLED)) {
                     whiteListEnabled = Boolean.parseBoolean(configParameters.get(WHITE_LIST_ENABLED));
+
+                    if (log.isDebugEnabled()) {
+                        log.debug("Enabling trusted client certificates list : " + whiteListEnabled);
+                    }
                 }
 
                 if (whiteListEnabled) {
@@ -123,7 +127,12 @@ public class MutualSSLAuthenticator implements CarbonServerAuthenticator {
                         int index = 0;
                         // Remove whitespaces in the thumbprints of white list
                         for (String thumbprint : whiteList) {
-                            whiteList[index] = thumbprint.trim();
+                            thumbprint = thumbprint.trim();
+                            whiteList[index] = thumbprint;
+
+                            if (log.isDebugEnabled()) {
+                               log.debug("Client thumbprint " + thumbprint + " added to the white list" );
+                            }
                             index++;
                         }
                     } else {
@@ -185,6 +194,11 @@ public class MutualSSLAuthenticator implements CarbonServerAuthenticator {
                 if (!authenticatorInitialized) {
                     init();
                 }
+                if (!authenticatorInitialized) {
+                    log.error(AUTHENTICATOR_NAME + " failed initialization");
+                    return false;
+                }
+
                 // <m:UserName xmlns:m="http://mutualssl.carbon.wso2.org"
                 // soapenv:mustUnderstand="0">234</m:UserName>
                 boolean trustedThumbprint = false;
@@ -196,10 +210,19 @@ public class MutualSSLAuthenticator implements CarbonServerAuthenticator {
                     if (whiteListEnabled && whiteList != null) {
                         // Client certificate is always in the index 0
                         thumbprint = getThumbPrint(cert[0]);
+
+                        if (log.isDebugEnabled()) {
+                            log.debug("Client certificate thumbprint is " + thumbprint);
+                        }
+
                         for(String whiteThumbprint : whiteList) {
                             if (thumbprint.equals(whiteThumbprint)) {
                                 // Thumbprint of the client certificate is in the trusted list
                                 trustedThumbprint = true;
+
+                                if (log.isDebugEnabled()) {
+                                    log.debug("Client certificate thumbprint matched with the white list");
+                                }
                                 break;
                             }
                         }
@@ -218,6 +241,10 @@ public class MutualSSLAuthenticator implements CarbonServerAuthenticator {
                         byte[] base64DecodedByteArray = Base64.decode(usernameInHeader);
                         userName = new String(base64DecodedByteArray, CHARACTER_ENCODING);
                         validHeader = true;
+
+                        if (log.isDebugEnabled()) {
+                            log.debug("Username for Mutual SSL : " + userName);
+                        }
                     }
 
                     if (StringUtils.isEmpty(userName)) {
