@@ -92,8 +92,8 @@ public class FrameworkServiceComponent {
 			        new AuthenticationEndpointTenantActivityListener(), null);
 
 			if (log.isDebugEnabled()) {
-				log.debug("AuthenticationEndpointTenantActivityListener is registered. Tenant Domains Dropdown is" +
-				        " enabled.");
+				log.debug("AuthenticationEndpointTenantActivityListener is registered. Tenant Domains Dropdown is " +
+				        "enabled.");
 			}
 		}
 
