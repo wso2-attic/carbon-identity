@@ -864,7 +864,7 @@ public class SCIMUserManager implements UserManager {
 
                 // find out added members and deleted members..
                 List<String> oldMembers = oldGroup.getMembersWithDisplayName();
-
+                //SCIM request does not have operation attribute for new members need be added hence parsing null
                 List<String> addRequestedMembers = newGroup.getMembersWithDisplayName(null);
                 List<String> deleteRequestedMembers =
                         newGroup.getMembersWithDisplayName(SCIMConstants.CommonSchemaConstants.OPERATION_DELETE);
