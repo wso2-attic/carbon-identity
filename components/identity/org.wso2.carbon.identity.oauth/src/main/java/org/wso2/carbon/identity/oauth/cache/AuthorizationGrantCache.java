@@ -22,7 +22,7 @@ import org.wso2.carbon.utils.CarbonUtils;
 
 /**
  * Stores authenticated user attributes and OpenID Connect specific attributes during OIDC Authorization request
- * processing. Those values are later required to serve OIDC Token request and build IDToken
+ * processing. Those values are later required to serve OIDC Token request and build IDToken.
  */
 public class AuthorizationGrantCache extends BaseCache<CacheKey, CacheEntry> {
     private static final String AUTHORIZATION_GRANT_CACHE_NAME = "AuthorizationGrantCache";

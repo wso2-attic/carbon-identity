@@ -23,7 +23,7 @@ import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import java.util.Map;
 
 /**
- * contains authenticated user attributes and nonce value
+ * Contains authenticated user attributes and nonce value.
  */
 public class AuthorizationGrantCacheEntry extends CacheEntry {
 
