@@ -33,7 +33,7 @@ import org.wso2.carbon.identity.application.authentication.framework.FederatedAp
 import org.wso2.carbon.identity.application.authentication.framework.LocalApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.RequestPathApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
-import org.wso2.carbon.identity.application.authentication.framework.listener.TenantActivityListener;
+import org.wso2.carbon.identity.application.authentication.framework.listener.AuthenticationEndpointTenantActivityListener;
 import org.wso2.carbon.identity.application.authentication.framework.servlet.CommonAuthenticationServlet;
 import org.wso2.carbon.identity.application.common.ApplicationAuthenticatorService;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
@@ -88,10 +88,12 @@ public class FrameworkServiceComponent {
 
 		if (tenantDropdownEnabled) {
 			// Register the tenant management listener for tracking changes to tenants
-			bundleContext.registerService(TenantMgtListener.class.getName(), new TenantActivityListener(), null);
+			bundleContext.registerService(TenantMgtListener.class.getName(),
+			        new AuthenticationEndpointTenantActivityListener(), null);
 
 			if (log.isDebugEnabled()) {
-				log.debug("Tenant Domains Dropdown is enabled. TenantActivityListener is registered");
+				log.debug("AuthenticationEndpointTenantActivityListener is registered. Tenant Domains Dropdown is" +
+				        " enabled.");
 			}
 		}
 

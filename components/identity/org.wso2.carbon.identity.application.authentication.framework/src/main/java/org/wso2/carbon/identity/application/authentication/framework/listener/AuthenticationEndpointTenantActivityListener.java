@@ -36,17 +36,18 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Class for listening to modifications of tenants and sending the tenant list to receiving endpoints.
  */
-public class TenantActivityListener implements TenantMgtListener {
+public class AuthenticationEndpointTenantActivityListener implements TenantMgtListener {
 
     /**
      * Logger for the class
      */
-    private static final Log log = LogFactory.getLog(TenantActivityListener.class);
+    private static final Log log = LogFactory.getLog(AuthenticationEndpointTenantActivityListener.class);
 
     /**
      * URL Root
@@ -96,11 +97,11 @@ public class TenantActivityListener implements TenantMgtListener {
     /**
      * Initialize listener
      */
-    private void init() {
+    private synchronized void init() {
         try {
             tenantDataReceiveURLs = ConfigurationFacade.getInstance().getTenantDataEndpointURLs();
 
-            if (tenantDataReceiveURLs != null && tenantDataReceiveURLs.size() > 0) {
+            if (!tenantDataReceiveURLs.isEmpty()) {
 
                 serverURL = CarbonUIUtil.getAdminConsoleURL(URL_ROOT).replace(CARBON_PATH, EMPTY_STRING);
                 int index = 0;
@@ -138,6 +139,14 @@ public class TenantActivityListener implements TenantMgtListener {
 
         if (!initialized) {
             init();
+        }
+
+        if(!initialized){
+            if(log.isDebugEnabled()){
+                log.debug("AuthenticationEndpointTenantActivityListener is not initialized. Tenant list not sent " +
+                        "to authentication endpoint");
+            }
+            return;
         }
 
         if (tenantDataReceiveURLs != null && tenantDataReceiveURLs.size() > 0) {
@@ -184,6 +193,21 @@ public class TenantActivityListener implements TenantMgtListener {
     }
 
     @Override
+    public void onTenantInitialActivation(int tenantId) throws StratosException {
+        sendTenantList();
+    }
+
+    @Override
+    public void onTenantActivation(int tenantId) throws StratosException {
+        sendTenantList();
+    }
+
+    @Override
+    public void onTenantDeactivation(int tenantId) throws StratosException {
+        sendTenantList();
+    }
+
+    @Override
     public void onTenantCreate(TenantInfoBean tenantInfoBean) throws StratosException {
 
     }
@@ -200,39 +224,6 @@ public class TenantActivityListener implements TenantMgtListener {
     @Override
     public void onTenantRename(int tenantId, String oldDomainName, String newDomainName) throws StratosException {
 
-    }
-
-    /**
-     * Send the modified tenant list to receiving endpoints upon initial activation of a tenant
-     *
-     * @param tenantId Tenant ID
-     * @throws StratosException
-     */
-    @Override
-    public void onTenantInitialActivation(int tenantId) throws StratosException {
-        sendTenantList();
-    }
-
-    /**
-     * Send the modified tenant list to receiving endpoints upon activation of a tenant
-     *
-     * @param tenantId Tenant ID
-     * @throws StratosException
-     */
-    @Override
-    public void onTenantActivation(int tenantId) throws StratosException {
-        sendTenantList();
-    }
-
-    /**
-     * Send the modified tenant list to receiving endpoints upon deactivation of a tenant
-     *
-     * @param tenantId Tenant ID
-     * @throws StratosException
-     */
-    @Override
-    public void onTenantDeactivation(int tenantId) throws StratosException {
-        sendTenantList();
     }
 
     @Override

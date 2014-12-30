@@ -46,6 +46,7 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.utils.CarbonUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Application Authenticators Framework configuration reader.
@@ -121,7 +122,8 @@ public class FileBasedConfigurationBuilder {
                                 tenantDataURLElems.hasNext(); ) {
 
                     OMElement tenantDataListenerURLElem = (OMElement) tenantDataURLElems.next();
-                    if (tenantDataListenerURLElem != null) {
+                    if (tenantDataListenerURLElem != null &&
+                            StringUtils.isNotEmpty(tenantDataListenerURLElem.getText())) {
                         tenantDataEndpointURLs.add(tenantDataListenerURLElem.getText());
                     }
                 }
