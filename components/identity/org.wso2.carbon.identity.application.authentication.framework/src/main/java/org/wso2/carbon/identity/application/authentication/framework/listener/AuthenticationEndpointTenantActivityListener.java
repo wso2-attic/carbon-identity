@@ -109,6 +109,10 @@ public class AuthenticationEndpointTenantActivityListener implements TenantMgtLi
                 for (String tenantDataReceiveUrl : tenantDataReceiveURLs) {
                     URI tenantDataReceiveURI = new URI(tenantDataReceiveUrl);
 
+                    if (log.isDebugEnabled()) {
+                        log.debug("Tenant list receiving url added : " + tenantDataReceiveUrl);
+                    }
+
                     if (!tenantDataReceiveURI.isAbsolute()) {
                         // Set the absolute URL for tenant list receiving endpoint
                         tenantDataReceiveURLs.set(index, serverURL + tenantDataReceiveUrl);
