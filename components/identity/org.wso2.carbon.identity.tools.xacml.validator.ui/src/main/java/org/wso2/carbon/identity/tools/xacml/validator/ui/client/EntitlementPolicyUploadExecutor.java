@@ -100,7 +100,7 @@ public class EntitlementPolicyUploadExecutor extends AbstractFileUploadExecutor 
             }
         } catch (Exception e) {
             msg = "Policy uploading failed. ";
-            log.error(msg);
+            log.error(msg,e);
             CarbonUIMessage.sendCarbonUIMessage(msg, CarbonUIMessage.ERROR, httpServletRequest, httpServletResponse,
                                                 errorRedirectionPage);
         } finally {
