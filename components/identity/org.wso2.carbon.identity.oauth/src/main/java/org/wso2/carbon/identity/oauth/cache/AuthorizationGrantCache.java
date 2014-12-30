@@ -20,6 +20,10 @@ package org.wso2.carbon.identity.oauth.cache;
 
 import org.wso2.carbon.utils.CarbonUtils;
 
+/**
+ * store authenticated user attributes and openID connect specific attributes during authorization request those values
+ * required to serve token request and build ID token
+ */
 public class AuthorizationGrantCache extends BaseCache<CacheKey, CacheEntry> {
     private static final String AUTHORIZATION_GRANT_CACHE_NAME = "AuthorizationGrantCache";
 
