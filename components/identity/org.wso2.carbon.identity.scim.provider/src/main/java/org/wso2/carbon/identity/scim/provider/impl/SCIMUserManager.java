@@ -840,24 +840,23 @@ public class SCIMUserManager implements UserManager {
 
                 List<String> userIds = newGroup.getMembers();
                 List<String> userDisplayNames = newGroup.getMembersWithDisplayName();
-                if (userIds != null && userIds.size() != 0) {//check isEmpty
-                    String[] userNames = null;
-                    for (String userId : userIds) {
-                        userNames =
-                                carbonUM.getUserList(SCIMConstants.ID_URI, userId,
-                                                     UserCoreConstants.DEFAULT_PROFILE);
-                        if (userNames == null || userNames.length == 0) {
-                            String error =
-                                    "User: " + userId + " doesn't exist in the user store. " +
-                                    "Hence, can not update the group: " + oldGroup.getDisplayName();
-                            throw new CharonException(error);
-                        } else {
-                            if (!userDisplayNames.contains(userNames[0])) {
-                                throw new CharonException("Given SCIM user Id and name not matching..");
-                            }
+                String[] userNames = null;
+                for (String userId : userIds) {
+                    userNames =
+                            carbonUM.getUserList(SCIMConstants.ID_URI, userId,
+                                                 UserCoreConstants.DEFAULT_PROFILE);
+                    if (userNames == null || userNames.length == 0) {
+                        String error =
+                                "User: " + userId + " doesn't exist in the user store. " +
+                                "Hence, can not update the group: " + oldGroup.getDisplayName();
+                        throw new CharonException(error);
+                    } else {
+                        if (!userDisplayNames.contains(userNames[0])) {
+                            throw new CharonException("Given SCIM user Id and name not matching..");
                         }
                     }
                 }
+
                 // we do not update Identity_SCIM DB here since it is updated in
                 // SCIMUserOperationListener's methods.
 
@@ -884,22 +883,18 @@ public class SCIMUserManager implements UserManager {
                     deletedMembers = Arrays.asList(users);
                 }
 
-                if (!addRequestedMembers.isEmpty()) {
-                    for (String addRequestedMember : addRequestedMembers) {
-                        if ((!oldMembers.isEmpty()) && oldMembers.contains(addRequestedMember)) {
-                            continue;
-                        }
-                        addedMembers.add(addRequestedMember);
+                for (String addRequestedMember : addRequestedMembers) {
+                    if ((!oldMembers.isEmpty()) && oldMembers.contains(addRequestedMember)) {
+                        continue;
                     }
+                    addedMembers.add(addRequestedMember);
                 }
 
-                if (!deleteRequestedMembers.isEmpty()) {
-                    for (String deleteRequestedMember : deleteRequestedMembers) {
-                        if ((!oldMembers.isEmpty()) && oldMembers.contains(deleteRequestedMember)) {
-                            deletedMembers.add(deleteRequestedMember);
-                        } else {
-                            continue;
-                        }
+                for (String deleteRequestedMember : deleteRequestedMembers) {
+                    if ((!oldMembers.isEmpty()) && oldMembers.contains(deleteRequestedMember)) {
+                        deletedMembers.add(deleteRequestedMember);
+                    } else {
+                        continue;
                     }
                 }
 
