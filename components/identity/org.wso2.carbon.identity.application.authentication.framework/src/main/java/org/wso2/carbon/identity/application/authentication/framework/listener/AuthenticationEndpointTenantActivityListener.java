@@ -145,8 +145,8 @@ public class AuthenticationEndpointTenantActivityListener implements TenantMgtLi
             init();
         }
 
-        if(!initialized){
-            if(log.isDebugEnabled()){
+        if (!initialized) {
+            if (log.isDebugEnabled()) {
                 log.debug("AuthenticationEndpointTenantActivityListener is not initialized. Tenant list not sent " +
                         "to authentication endpoint");
             }
