@@ -192,13 +192,13 @@ public class TenantMgtAdminServiceClient {
 			log.error("Sending " + HTTP_POST + " request to URL : " + url + "failed.", e);
 		} finally {
 			try {
-				if(reader != null) {
+				if (reader != null) {
 					reader.close();
 				}
-				if(inputStream != null) {
+				if (inputStream != null) {
 					inputStream.close();
 				}
-				if(outputStream != null){
+				if (outputStream != null) {
 					outputStream.close();
 				}
 			} catch (IOException e) {
