@@ -199,6 +199,13 @@ public class TenantDataManager {
             init();
         }
 
+        if (!initialized) {
+            if (log.isDebugEnabled()) {
+                log.debug("Tenant domains list not set as TenantDataManager is not initialized.");
+            }
+            return;
+        }
+
         if (StringUtils.isNotEmpty(dataList)) {
             synchronized (tenantDomainList) {
                 String[] domains = dataList.split(TENANT_DATA_SEPARATOR);
