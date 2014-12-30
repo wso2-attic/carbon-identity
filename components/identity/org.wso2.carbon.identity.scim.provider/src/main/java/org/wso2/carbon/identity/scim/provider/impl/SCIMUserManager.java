@@ -779,6 +779,13 @@ public class SCIMUserManager implements UserManager {
         return null;
     }
 
+    /**
+     * this method similar to updateGroup but new changes to group will be merged without changing existing data
+     * @param oldGroup existing group meta information
+     * @param newGroup new changes required for existing group
+     * @return updated group information
+     * @throws CharonException
+     */
     public Group patchGroup(Group oldGroup, Group newGroup) throws CharonException {
         SCIMProvisioningConfigManager provisioningConfigManager = SCIMProvisioningConfigManager.getInstance();
 
