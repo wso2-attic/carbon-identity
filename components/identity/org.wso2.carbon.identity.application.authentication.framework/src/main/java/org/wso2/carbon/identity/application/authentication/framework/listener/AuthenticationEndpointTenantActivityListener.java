@@ -67,7 +67,7 @@ public class AuthenticationEndpointTenantActivityListener implements TenantMgtLi
     /**
      * Tenant list query parameter
      */
-    private static final String TENANT_LIST_QUERY_PARAM = "?tenantList=";
+    private static final String TENANT_LIST_QUERY_PARAM = "tenantList";
 
     /**
      * Tenant list data separator
@@ -160,25 +160,27 @@ public class AuthenticationEndpointTenantActivityListener implements TenantMgtLi
             } catch (UserStoreException e) {
                 log.error("Retrieving all available tenants failed", e);
             }
-            StringBuilder builder = new StringBuilder();
+            StringBuilder tenantDataReceiverUrlBuilder = new StringBuilder();
             // Add only the active tenants to the list
             for (Tenant tenant : tenants) {
                 if (tenant.isActive()) {
-                    builder.append(tenant.getDomain() + TENANT_LIST_DATA_SEPARATOR);
+                    tenantDataReceiverUrlBuilder.append(tenant.getDomain() + TENANT_LIST_DATA_SEPARATOR);
                 }
             }
-            if (builder.toString().length() > 0) {
+            if (tenantDataReceiverUrlBuilder.toString().length() > 0) {
                 // Delete data separator at the last index
-                builder.deleteCharAt(builder.toString().length() - 1);
+                tenantDataReceiverUrlBuilder.deleteCharAt(tenantDataReceiverUrlBuilder.toString().length() - 1);
             }
 
-            String params = TENANT_LIST_QUERY_PARAM + builder.toString();
+            StringBuilder paramsBuilder = new StringBuilder();
+            paramsBuilder.append("?").append(TENANT_LIST_QUERY_PARAM).append("=")
+                         .append(tenantDataReceiverUrlBuilder.toString());
 
             InputStream inputStream = null;
             for (String tenantDataReceiveURL : tenantDataReceiveURLs) {
                 try {
                     // Send tenant list to the receiving endpoint
-                    inputStream = new URL(tenantDataReceiveURL + params).openStream();
+                    inputStream = new URL(tenantDataReceiveURL + paramsBuilder.toString()).openStream();
 
                 } catch (IOException e) {
                     log.error("Sending tenant domain list to " + tenantDataReceiveURL + " failed.", e);
