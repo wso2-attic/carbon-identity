@@ -922,18 +922,6 @@
 	</dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.certificateauthority.server.feature</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.certificateauthority.ui.feature</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.mgt.ui.feature</artifactId>
             <version>4.3.0-SNAPSHOT</version>
             <type>zip</type>
@@ -1838,8 +1826,8 @@
 	<derby.version>10.4.2.0</derby.version>
 	<activation.version>1.1</activation.version>
 	<javamail.version>1.4</javamail.version>
-	<wss4j.version>1.5.11.wso2v7</wss4j.version>
-    <imp.pkg.version.wss4j>[1.5.11.wso2v7,2)</imp.pkg.version.wss4j>
+	<wss4j.version>1.5.11.wso2v8-SNAPSHOT</wss4j.version>
+    <imp.pkg.version.wss4j>[1.5.11.wso2v8-SNAPSHOT,2)</imp.pkg.version.wss4j>
 	<wsdl4j.wso2.version>1.6.2.wso2v4</wsdl4j.wso2.version>
 	<jetty.version>6.1.5</jetty.version>
 	<xml-apis.version>1.3.04</xml-apis.version>

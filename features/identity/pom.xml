@@ -49,7 +49,6 @@
         <module>application-mgt</module>
         <module>identity-provisioning</module>
         <module>tools-saml</module>
-        <module>certificate-authority</module>
         <module>thrift</module>
     </modules>
 
