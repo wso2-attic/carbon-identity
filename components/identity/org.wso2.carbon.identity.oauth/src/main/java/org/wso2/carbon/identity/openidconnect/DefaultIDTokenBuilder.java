@@ -167,7 +167,8 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         try {
             String plainIDToken = builder.buildIDToken();
             if (signatureAlgorithm.equals(NONE)) {
-                return PlainJWT.parse(plainIDToken).serialize();
+                return new PlainJWT((com.nimbusds.jwt.JWTClaimsSet)
+                    PlainJWT.parse(plainIDToken).getJWTClaimsSet()).serialize();
             }
             return signJWT(plainIDToken, request);
         } catch (IDTokenException e) {
