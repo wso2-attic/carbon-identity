@@ -83,7 +83,7 @@
 								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.provider.stub</bundleDef>
 							</bundles>
 							<importFeatures>
-								<importFeatureDef>org.wso2.carbon.core.ui</importFeatureDef>
+								<importFeatureDef>org.wso2.carbon.core.ui:${carbon.kernel.version}</importFeatureDef>
 								<importFeatureDef>org.wso2.carbon.identity.core.ui</importFeatureDef>
 								<importFeatureDef>org.wso2.carbon.identity.relying.party.ui</importFeatureDef>
 							</importFeatures>
