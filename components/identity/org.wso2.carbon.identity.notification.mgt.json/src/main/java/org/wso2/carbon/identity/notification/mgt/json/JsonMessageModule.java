@@ -36,6 +36,7 @@ import org.wso2.carbon.identity.notification.mgt.bean.PublisherEvent;
 import org.wso2.carbon.identity.notification.mgt.bean.Subscription;
 import org.wso2.carbon.identity.notification.mgt.json.bean.JsonEndpointInfo;
 import org.wso2.carbon.identity.notification.mgt.json.bean.JsonSubscription;
+import org.apache.http.client.ClientProtocolException;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
