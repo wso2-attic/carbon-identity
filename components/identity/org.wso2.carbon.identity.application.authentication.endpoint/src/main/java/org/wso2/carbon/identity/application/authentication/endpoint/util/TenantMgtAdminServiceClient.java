@@ -202,7 +202,7 @@ public class TenantMgtAdminServiceClient {
 					outputStream.close();
 				}
 			} catch (IOException e) {
-				log.error("Closing stream for " + url + " failed");
+				log.error("Closing stream for " + url + " failed", e);
 			}
 		}
 		return response.toString();
