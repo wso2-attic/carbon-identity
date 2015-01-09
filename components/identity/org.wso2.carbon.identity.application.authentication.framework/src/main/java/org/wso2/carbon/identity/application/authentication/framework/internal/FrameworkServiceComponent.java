@@ -32,6 +32,8 @@ import org.wso2.carbon.identity.application.authentication.framework.Application
 import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.LocalApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.RequestPathApplicationAuthenticator;
+import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
+import org.wso2.carbon.identity.application.authentication.framework.listener.AuthenticationEndpointTenantActivityListener;
 import org.wso2.carbon.identity.application.authentication.framework.servlet.CommonAuthenticationServlet;
 import org.wso2.carbon.identity.application.common.ApplicationAuthenticatorService;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
@@ -39,6 +41,7 @@ import org.wso2.carbon.identity.application.common.model.LocalAuthenticatorConfi
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.model.RequestPathAuthenticatorConfig;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.user.core.service.RealmService;
 
 import javax.servlet.Servlet;
@@ -80,6 +83,19 @@ public class FrameworkServiceComponent {
     protected void activate(ComponentContext ctxt) {
 		bundleContext = ctxt.getBundleContext();
         bundleContext.registerService(ApplicationAuthenticationService.class.getName(), new ApplicationAuthenticationService(), null);
+
+		boolean tenantDropdownEnabled = ConfigurationFacade.getInstance().getTenantDropdownEnabled();
+
+		if (tenantDropdownEnabled) {
+			// Register the tenant management listener for tracking changes to tenants
+			bundleContext.registerService(TenantMgtListener.class.getName(),
+			        new AuthenticationEndpointTenantActivityListener(), null);
+
+			if (log.isDebugEnabled()) {
+				log.debug("AuthenticationEndpointTenantActivityListener is registered. Tenant Domains Dropdown is " +
+				        "enabled.");
+			}
+		}
 
 		ServiceTracker authServiceTracker = new ServiceTracker(
 				bundleContext,
