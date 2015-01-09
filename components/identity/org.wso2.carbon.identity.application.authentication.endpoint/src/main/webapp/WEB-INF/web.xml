@@ -9,6 +9,11 @@
     </servlet>
 
     <servlet>
+        <servlet-name>TenantListRefreshEndpoint</servlet-name>
+        <servlet-class>org.wso2.carbon.identity.application.authentication.endpoint.TenantListRefreshEndpoint</servlet-class>
+    </servlet>
+
+    <servlet>
         <servlet-name>OAuth2Login</servlet-name>
         <servlet-class>org.wso2.carbon.identity.application.authentication.endpoint.oauth2.OAuth2Login</servlet-class>
         <!--  Custom Page configurations -->
@@ -71,6 +76,11 @@
         <servlet-name>AuthenticationEndpoint</servlet-name>
         <url-pattern>/login.do</url-pattern>
         <url-pattern>/retry.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>TenantListRefreshEndpoint</servlet-name>
+        <url-pattern>/tenantlistrefresher.do</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

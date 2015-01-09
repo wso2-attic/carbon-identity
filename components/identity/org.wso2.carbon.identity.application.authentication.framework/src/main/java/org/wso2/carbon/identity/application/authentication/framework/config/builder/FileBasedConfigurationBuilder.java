@@ -46,6 +46,7 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.utils.CarbonUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Application Authenticators Framework configuration reader.
@@ -57,6 +58,17 @@ public class FileBasedConfigurationBuilder {
 	private static FileBasedConfigurationBuilder instance;
 	
 	private String authenticationEndpointURL;
+
+       /**
+        * List of URLs that receive the tenant list
+        */
+	private List<String> tenantDataEndpointURLs = new ArrayList<String>();
+
+       /**
+        * Tenant list dropdown enabled or disabled value
+        */
+	private boolean isTenantDomainDropdownEnabled;
+    
 	private boolean isDumbMode;
 	private List<ExternalIdPConfig> idpList = new ArrayList<ExternalIdPConfig>();
 	private List<SequenceConfig> sequenceList = new ArrayList<SequenceConfig>();
@@ -97,7 +109,36 @@ public class FileBasedConfigurationBuilder {
             if (authEndpointURLElem != null) {
             	 authenticationEndpointURL = authEndpointURLElem.getText();
             }
-            
+
+            //########### Read tenant data listener URLs ###########
+            OMElement tenantDataURLsElem =
+                    documentElement.getFirstChildWithName(IdentityApplicationManagementUtil.
+                            getQNameWithIdentityApplicationNS(
+                                    FrameworkConstants.Config.QNAME_TENANT_DATA_LISTENER_URLS));
+
+            if (tenantDataURLsElem != null) {
+                for (Iterator tenantDataURLElems = tenantDataURLsElem.getChildrenWithLocalName(
+                        FrameworkConstants.Config.ELEM_TENANT_DATA_LISTENER_URL);
+                                tenantDataURLElems.hasNext(); ) {
+
+                    OMElement tenantDataListenerURLElem = (OMElement) tenantDataURLElems.next();
+                    if (tenantDataListenerURLElem != null &&
+                            StringUtils.isNotEmpty(tenantDataListenerURLElem.getText())) {
+                        tenantDataEndpointURLs.add(tenantDataListenerURLElem.getText());
+                    }
+                }
+            }
+
+            //########### Read tenant domain dropdown enabled value ###########
+            OMElement tenantDomainDropdownElem =
+                    documentElement.getFirstChildWithName(IdentityApplicationManagementUtil.
+                            getQNameWithIdentityApplicationNS(
+                                    FrameworkConstants.Config.QNAME_TENANT_DOMAIN_DROPDOWN_ENABLED));
+
+            if (tenantDomainDropdownElem != null) {
+                isTenantDomainDropdownEnabled = Boolean.parseBoolean(tenantDomainDropdownElem.getText());
+            }
+
             //########### Read Proxy Mode ###########
             //TODO:get proxy modes from an enum?
             OMElement proxyModeElem = documentElement.getFirstChildWithName(IdentityApplicationManagementUtil.
@@ -572,6 +613,22 @@ public class FileBasedConfigurationBuilder {
 
 	public void setAuthenticationEndpointURL(String authenticationEndpointURL) {
 		this.authenticationEndpointURL = authenticationEndpointURL;
+	}
+
+       /**
+        * Get the tenant list receiving urls
+        * @return Tenant list receiving urls
+        */
+	public List<String> getTenantDataEndpointURLs() {
+            return tenantDataEndpointURLs;
+    	}
+
+       /**
+        * Get the value of tenant list dropdown enabled or disabled
+        * @return Tenant list dropdown enabled or disabled
+        */
+	public boolean isTenantDomainDropdownEnabled() {
+            return isTenantDomainDropdownEnabled;
 	}
 
 	public boolean isDumbMode() {

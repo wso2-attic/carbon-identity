@@ -86,6 +86,7 @@
     <%@ page import="java.util.Map" %>
     <%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder" %>
     <%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.Constants" %>
+    <%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.TenantDataManager" %>
 
     <%
 
@@ -166,15 +167,30 @@ if (idpAuthenticatorMapping.get(IdentityApplicationConstants.RESIDENT_IDP_RESERV
             	hasLocalLoginOptions = true;
             %>
 
-            <div class="row">
-                <div class="span6">
-
-                        <%@ include file="basicauth.jsp" %>
-
-                </div>
-            </div>
-
             <%
+                if (TenantDataManager.isTenantListEnabled() && Boolean.parseBoolean(CharacterEncoder
+                          .getSafeText(request.getParameter("isSaaSApp")))) {
+            %>
+                    <div class="row">
+                        <div class="span6">
+                            <%@ include file="tenantauth.jsp" %>
+                        </div>
+                    </div>
+
+                    <script>
+                        //set the selected tenant domain in dropdown from the cookie value
+                        window.onload=selectTenantFromCookie;
+                    </script>
+            <%
+                } else {
+            %>
+                    <div class="row">
+                        <div class="span6">
+                                <%@ include file="basicauth.jsp" %>
+                        </div>
+                    </div>
+            <%
+                }
             } 
             } 
             %>
