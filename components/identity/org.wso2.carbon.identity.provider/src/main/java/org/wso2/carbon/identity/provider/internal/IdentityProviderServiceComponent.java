@@ -21,13 +21,16 @@ import javax.servlet.ServletContext;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provider.IdentityAttributeService;
 import org.wso2.carbon.identity.provider.IdentityAttributeServiceStore;
 import org.wso2.carbon.identity.provider.IdentityProviderUtil;
+import org.wso2.carbon.identity.provider.openid.listener.IdentityOpenIDUserEventListener;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
@@ -57,6 +60,7 @@ public class IdentityProviderServiceComponent {
     private static ConfigurationContext configContext;
     private static RealmService realmService;    
     private static RegistryService registryService;
+    private static ServiceRegistration userEventServiceRegistration;
 
     public static RealmService getRealmService() {
         return realmService;
@@ -79,7 +83,12 @@ public class IdentityProviderServiceComponent {
         try {
             ctxt.getBundleContext().registerService(IdentityProviderUtil.class.getName(),
                     new IdentityProviderUtil(), null);
-            
+
+            //register User Operation Event Listener for openID
+            IdentityOpenIDUserEventListener openIDUserListener = new IdentityOpenIDUserEventListener();
+            userEventServiceRegistration = ctxt.getBundleContext().registerService(UserOperationEventListener.class.getName(),
+                                                                                   openIDUserListener, null);
+
             String filter = "(objectclass=" + ServletContext.class.getName() + ")";
             ctxt.getBundleContext().addServiceListener(
                     new ServletContextListener(ctxt.getBundleContext()), filter);
@@ -93,6 +102,9 @@ public class IdentityProviderServiceComponent {
      * @param ctxt
      */
     protected void deactivate(ComponentContext ctxt) {
+        if (userEventServiceRegistration != null) {
+            userEventServiceRegistration.unregister();
+        }
         if (log.isDebugEnabled()) {
             log.info("Identity Provider bundle is deactivated");
         }
