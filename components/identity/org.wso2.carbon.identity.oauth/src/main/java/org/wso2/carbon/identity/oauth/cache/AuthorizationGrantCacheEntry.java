@@ -1,5 +1,5 @@
 /*
-*Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *WSO2 Inc. licenses this file to you under the Apache License,
 *Version 2.0 (the "License"); you may not use this file except
@@ -23,7 +23,7 @@ import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import java.util.Map;
 
 /**
- * Created by prasad on 5/16/14.
+ * Contains authenticated user attributes and nonce value.
  */
 public class AuthorizationGrantCacheEntry extends CacheEntry {
 

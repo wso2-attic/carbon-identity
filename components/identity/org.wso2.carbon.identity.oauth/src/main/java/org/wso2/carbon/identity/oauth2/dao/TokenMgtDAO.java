@@ -1104,4 +1104,61 @@ public class TokenMgtDAO {
         return false;
     }
 
+    /**
+     * Get access token information
+     *
+     * @param accessToken access token
+     * @return access token info obj
+     * @throws IdentityOAuth2Exception if something went wrong when getting access token info
+     */
+    public AccessTokenDO getAccessTokenInfo(String accessToken) throws IdentityOAuth2Exception {
+        Connection connection = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        AccessTokenDO accessTokenDO = null;
+        String authorizedUser;
+        String[] scope;
+        Timestamp timestamp;
+        long validityPeriod;
+        String tokenState;
+        String refreshToken;
+        String consumerKey;
+        String tokenType;
+        try {
+            String sqlQuery = "SELECT * FROM IDN_OAUTH2_ACCESS_TOKEN WHERE ACCESS_TOKEN=?";
+            connection = IdentityDatabaseUtil.getDBConnection();
+            ps = connection.prepareStatement(sqlQuery);
+            ps.setString(1, accessToken);
+            rs = ps.executeQuery();
+            while(rs.next()) {
+                consumerKey = persistenceProcessor.getPreprocessedClientId(rs.getString("CONSUMER_KEY"));
+                authorizedUser = rs.getString("AUTHZ_USER");
+                scope = OAuth2Util.buildScopeArray(rs.getString("TOKEN_SCOPE"));
+                timestamp = rs.getTimestamp("TIME_CREATED",
+                        Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+                validityPeriod = rs.getLong("VALIDITY_PERIOD");
+                refreshToken = rs.getString("REFRESH_TOKEN");
+                tokenState = rs.getString("TOKEN_STATE");
+                accessToken = rs.getString("ACCESS_TOKEN");
+                tokenType = rs.getString("USER_TYPE");
+                accessTokenDO = new AccessTokenDO(consumerKey, authorizedUser, scope, timestamp, validityPeriod, tokenType);
+                accessTokenDO.setRefreshToken(refreshToken);
+                accessTokenDO.setTokenState(tokenState);
+                accessTokenDO.setAccessToken(accessToken);
+            }
+        } catch (SQLException e) {
+            String msg = "SQL error occurred while getting access token information " + e.getMessage();
+            log.error(msg, e);
+            throw new IdentityOAuth2Exception(msg, e);
+        } catch (IdentityException e) {
+            String msg = "Error occurred getting access token information due to failed to create database connection"+ e.getMessage();
+            log.error(msg, e);
+            throw new IdentityOAuth2Exception(msg, e);
+        } finally {
+            IdentityDatabaseUtil.closeResultSet(rs);
+            IdentityDatabaseUtil.closeStatement(ps);
+            IdentityDatabaseUtil.closeConnection(connection);
+        }
+        return accessTokenDO;
+    }
 }
