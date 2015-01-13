@@ -1,5 +1,5 @@
 /*
-*Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *WSO2 Inc. licenses this file to you under the Apache License,
 *Version 2.0 (the "License"); you may not use this file except
@@ -18,8 +18,12 @@
 
 package org.wso2.carbon.identity.oauth.cache;
 
+/**
+ * Authorization code is the cache key attribute here. Authenticated user attributes and OpenID Connect specific
+ * attributes are stored against cache key.
+ */
 public class AuthorizationGrantCacheKey extends CacheKey {
-
+    //todo:variable name userAttributesId should be change later because userAttributesId = authorizationCode
     private String userAttributesId;
 
     public AuthorizationGrantCacheKey(String userAttributesId) {

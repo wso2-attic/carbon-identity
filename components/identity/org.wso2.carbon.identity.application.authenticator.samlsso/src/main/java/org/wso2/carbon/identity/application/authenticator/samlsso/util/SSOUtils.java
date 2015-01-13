@@ -54,9 +54,8 @@ import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
-import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.application.authenticator.samlsso.exception.SAMLSSOException;
+import org.wso2.carbon.identity.application.authenticator.samlsso.manager.X509CredentialImpl;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 
 public class SSOUtils {
@@ -194,23 +193,33 @@ public class SSOUtils {
             throw new SAMLSSOException("Error while signing the Logout Request message", e);
         }
     }
-    
-    public static void addDeflateSignatureToHTTPQueryString(StringBuilder httpQueryString) throws SAMLSSOException {
+
+    /**
+     * Appends the RSA-SHA1 signature to the query string
+     *
+     * @param tenantDomain      tenant domain
+     * @param httpQueryString   http query string to append the signature
+     * @throws SAMLSSOException
+     */
+    public static void addSignatureToHTTPQueryString(String tenantDomain, StringBuilder
+            httpQueryString) throws SAMLSSOException {
         try {
-            httpQueryString.append("&SigAlg="
-                    + URLEncoder.encode(XMLSignature.ALGO_ID_SIGNATURE_RSA, "UTF-8").trim());
+            httpQueryString.append("&SigAlg=");
+            httpQueryString
+                    .append(URLEncoder.encode(XMLSignature.ALGO_ID_SIGNATURE_RSA, "UTF-8").trim());
 
+            X509Credential credential = new X509CredentialImpl(tenantDomain, null);
             java.security.Signature signature = java.security.Signature.getInstance("SHA1withRSA");
-            signature.initSign(KeyStoreManager.getInstance(MultitenantConstants.SUPER_TENANT_ID).getDefaultPrivateKey());
+            signature.initSign(credential.getPrivateKey());
             signature.update(httpQueryString.toString().getBytes());
-            byte[] signatureByteArray = signature.sign();
 
+            byte[] signatureByteArray = signature.sign();
             String signatureBase64encodedString = Base64.encodeBytes(signatureByteArray,
-                    Base64.DONT_BREAK_LINES);
-            httpQueryString.append("&Signature="
-                    + URLEncoder.encode(signatureBase64encodedString, "UTF-8").trim());
+                                                                     Base64.DONT_BREAK_LINES);
+            httpQueryString.append("&Signature=");
+            httpQueryString.append(URLEncoder.encode(signatureBase64encodedString, "UTF-8").trim());
         } catch (Exception e) {
-            throw new SAMLSSOException("Error applying SAML2 Redirect Binding signature", e);
+            throw new SAMLSSOException("Error while applying SAML2 Redirect Binding signature", e);
         }
     }
 

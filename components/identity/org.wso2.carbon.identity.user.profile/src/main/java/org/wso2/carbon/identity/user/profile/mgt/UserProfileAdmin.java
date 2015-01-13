@@ -36,7 +36,6 @@ import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.profile.ProfileConfiguration;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
-import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
@@ -124,7 +123,8 @@ public class UserProfileAdmin extends AbstractAdmin {
             }
 
             UserStoreManager admin = realm.getUserStoreManager();
-            admin.setUserClaimValues(username, map, profile.getProfileName());
+            admin.setUserClaimValues(MultitenantUtils.getTenantAwareUsername(username), map,
+                                     profile.getProfileName());
 
         } catch (UserStoreException e) {
             // Not logging. Already logged.
@@ -147,8 +147,10 @@ public class UserProfileAdmin extends AbstractAdmin {
             }
             realm = getUserRealm();
 
-            ClaimManager cman = realm.getClaimManager();
-            String[] claims = cman.getAllClaimUris();
+            ClaimManager claimManager = realm.getClaimManager();
+            String[] claims = claimManager.getAllClaimUris();
+            username = MultitenantUtils.getTenantAwareUsername(username);
+
             UserStoreManager admin = realm.getUserStoreManager();
             admin.deleteUserClaimValues(username, claims, profileName);
             admin.deleteUserClaimValue(username, UserCoreConstants.PROFILE_CONFIGURATION,
@@ -202,8 +204,9 @@ public class UserProfileAdmin extends AbstractAdmin {
             if (profileAdmin != null) {
                 availableProfileConfigurations = getAvailableProfileConfiguration(profileAdmin);
             }
-            
-            String[] profileNames = null;
+
+            username = MultitenantUtils.getTenantAwareUsername(username);
+            String[] profileNames;
 
             if(secUserStoreManager != null){
                 profileNames = secUserStoreManager.getProfileNames(username);
@@ -372,7 +375,8 @@ public class UserProfileAdmin extends AbstractAdmin {
             ProfileConfigurationManager profileAdmin = realm
                     .getProfileConfigurationManager();
 
-            String[] profileNames = null;
+            username = MultitenantUtils.getTenantAwareUsername(username);
+            String[] profileNames;
             
             if(secUserStoreManager != null){
                 profileNames = secUserStoreManager.getProfileNames(username);
