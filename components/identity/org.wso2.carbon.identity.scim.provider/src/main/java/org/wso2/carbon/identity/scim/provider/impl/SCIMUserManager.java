@@ -72,17 +72,24 @@ public class SCIMUserManager implements UserManager {
     }
 
     public User createUser(User user) throws CharonException, DuplicateResourceException {
+        return createUser(user, false);
+    }
+    public User createUser(User user, boolean isBulkUserAdd) throws CharonException, DuplicateResourceException {
 
         try {
 
             ThreadLocalProvisioningServiceProvider threadLocalSP = IdentityApplicationManagementUtil
                     .getThreadLocalProvisioningServiceProvider();
+            //isBulkUserAdd is true indicates bulk user add
+            if (isBulkUserAdd) {
+                threadLocalSP.setBulkUserAdd(true);
+            }
 
             ServiceProvider serviceProvider = null;
             if (threadLocalSP.getServiceProviderType() == ProvisioningServiceProviderType.OAUTH) {
                 serviceProvider = ApplicationInfoProvider.getInstance()
-                        .getServiceProviderByClienId(threadLocalSP.getServiceProviderName(),
-                                "oauth2", threadLocalSP.getTenantDomain());
+                                                         .getServiceProviderByClienId(threadLocalSP.getServiceProviderName(),
+                                                                                      "oauth2", threadLocalSP.getTenantDomain());
             } else {
                 serviceProvider = ApplicationInfoProvider.getInstance().getServiceProvider(
                         threadLocalSP.getServiceProviderName(), threadLocalSP.getTenantDomain());
@@ -92,7 +99,7 @@ public class SCIMUserManager implements UserManager {
 
             if (serviceProvider != null && serviceProvider.getInboundProvisioningConfig() != null) {
                 userStoreName = serviceProvider.getInboundProvisioningConfig()
-                        .getProvisioningUserStore();
+                                               .getProvisioningUserStore();
 
             }
 
@@ -104,8 +111,8 @@ public class SCIMUserManager implements UserManager {
                 String currentUserName = user.getUserName();
                 currentUserName = UserCoreUtil.removeDomainFromName(currentUserName);
                 user.setUserName(userName.append(userStoreName)
-                        .append(CarbonConstants.DOMAIN_SEPARATOR).append(currentUserName)
-                        .toString());
+                                         .append(CarbonConstants.DOMAIN_SEPARATOR).append(currentUserName)
+                                         .toString());
             }
 
         } catch (IdentityApplicationManagementException e) {
@@ -153,9 +160,9 @@ public class SCIMUserManager implements UserManager {
                 log.info("User: " + user.getUserName() + " is created through SCIM.");
 
             } catch (UserStoreException e) {
-               String errMsg = e.getMessage()+ " ";
+                String errMsg = e.getMessage()+ " ";
                 errMsg += "Error in adding the user: " + user.getUserName() +
-                        " to the user store..";
+                          " to the user store..";
                 throw new CharonException(errMsg,e);
             }
             return user;

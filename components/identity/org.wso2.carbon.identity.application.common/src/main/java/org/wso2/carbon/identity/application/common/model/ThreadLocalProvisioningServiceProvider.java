@@ -14,7 +14,16 @@ public class ThreadLocalProvisioningServiceProvider implements Serializable{
     private boolean justInTimeProvisioning;
     private ProvisioningServiceProviderType serviceProviderType;
     private String tenantDomain;
+    //isBulkUserAdd is true indicates bulk user add
+    private boolean isBulkUserAdd;
 
+    public boolean isBulkUserAdd() {
+        return isBulkUserAdd;
+    }
+
+    public void setBulkUserAdd(boolean isBulkUserAdd) {
+        this.isBulkUserAdd = isBulkUserAdd;
+    }
     /**
      * 
      * @return
