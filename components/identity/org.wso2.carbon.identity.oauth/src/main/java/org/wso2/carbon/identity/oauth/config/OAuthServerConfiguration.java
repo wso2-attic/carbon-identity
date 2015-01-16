@@ -27,6 +27,7 @@ import org.apache.amber.oauth2.common.message.types.ResponseType;
 import org.apache.amber.oauth2.common.validators.OAuthValidator;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.util.JavaUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfigurationException;
@@ -47,7 +48,16 @@ import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.namespace.QName;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Arrays;
+import java.util.Properties;
 
 /**
  * Runtime representation of the OAuth Configuration as configured through
@@ -149,6 +159,20 @@ public class OAuthServerConfiguration {
         public static final String SUPPORTED_CLAIMS = "OpenIDConnectClaims";
 
 	}
+
+	// Grant Handler Classes
+	private static final String AUTHORIZATION_CODE_GRANT_HANDLER_CLASS = "org.wso2.carbon.identity.oauth2.token" +
+																		 ".handlers.grant.AuthorizationCodeHandler";
+	private static final String CLIENT_CREDENTIALS_GRANT_HANDLER_CLASS =
+			"org.wso2.carbon.identity.oauth2.token.handlers.grant.ClientCredentialsGrantHandler";
+	private static final String PASSWORD_GRANT_HANDLER_CLASS =
+			"org.wso2.carbon.identity.oauth2.token.handlers.grant.PasswordGrantHandler";
+	private static final String REFRESH_TOKEN_GRANT_HANDLER_CLASS =
+			"org.wso2.carbon.identity.oauth2.token.handlers.grant.RefreshGrantHandler";
+	private static final String SAML20_BEARER_GRANT_HANDLER_CLASS =
+			"org.wso2.carbon.identity.oauth2.token.handlers.grant.saml.SAML2BearerGrantHandler";
+	private static final String IWA_NTLM_BEARER_GRANT_HANDLER_CLASS =
+			"org.wso2.carbon.identity.oauth2.token.handlers.grant.iwa.ntlm.NTLMAuthenticationGrantHandler";
 
 	private static OAuthServerConfiguration instance;
 
@@ -387,12 +411,17 @@ public class OAuthServerConfiguration {
 		return supportedGrantTypes;
 	}
 
-    /**
-     * Returns a map of supported grant type validators
-     *
-     * @return a map of <Grant type, Oauth validator class>
-     */
-    public Map<String, Class<? extends OAuthValidator<HttpServletRequest>>> getSupportedGrantTypeValidators() {
+	/**
+	 * Returns a map of supported grant type validators that are configured in identity.xml.
+	 * This method loads default grant type validator classes for PASSWORD, CLIENT_CREDENTIALS, AUTHORIZATION_CODE,
+	 * REFRESH_TOKEN and SAML20_BEARER grant types and also loads validator classes configured in identity.xml for
+	 * custom grant types under /Server/OAuth/SupportedGrantTypes/GrantTypeValidatorImplClass element.
+	 * A validator class defined under this element should be an implementation of org.apache.amber.oauth2.common
+	 * .validators.OAuthValidator
+	 *
+	 * @return a map of <Grant type, Oauth validator class>
+	 */
+	public Map<String, Class<? extends OAuthValidator<HttpServletRequest>>> getSupportedGrantTypeValidators() {
         if (supportedGrantTypeValidators == null) {
             synchronized (this) {
                 if (supportedGrantTypeValidators == null) {
@@ -424,9 +453,9 @@ public class OAuthServerConfiguration {
                                 supportedGrantTypeValidators
                                         .put(entry.getKey(), oauthValidatorClass);
                             } catch (ClassNotFoundException e) {
-                                log.error("Cannot find class: " + entry.getValue());
+                                log.error("Cannot find class: " + entry.getValue(), e);
                             } catch (ClassCastException e) {
-                                log.error("Cannot cast class: " + entry.getValue());
+                                log.error("Cannot cast class: " + entry.getValue(), e);
                             }
                         }
                     }
@@ -984,9 +1013,7 @@ public class OAuthServerConfiguration {
                     authzGrantHandlerImplClass = authzGrantHandlerClassNameElement.getText();
                 }
 
-                if (grantTypeName != null && !grantTypeName.trim().isEmpty() &&
-                    authzGrantHandlerImplClass != null &&
-                    !authzGrantHandlerImplClass.trim().isEmpty()) {
+                if (!StringUtils.isEmpty(grantTypeName) && !StringUtils.isEmpty(authzGrantHandlerImplClass)) {
                     supportedGrantTypeClassNames.put(grantTypeName, authzGrantHandlerImplClass);
 
                     OMElement authzGrantValidatorClassNameElement =
@@ -1000,8 +1027,7 @@ public class OAuthServerConfiguration {
                                 authzGrantValidatorClassNameElement.getText();
                     }
 
-                    if (authzGrantValidatorImplClass != null &&
-                        !authzGrantHandlerImplClass.trim().isEmpty()) {
+                    if (!StringUtils.isEmpty(authzGrantValidatorImplClass)) {
                         supportedGrantTypeValidatorNames.put(grantTypeName,
                                                              authzGrantValidatorImplClass);
                     }
@@ -1013,22 +1039,16 @@ public class OAuthServerConfiguration {
                      "Therefore instantiating default grant type handlers");
 
             Map<String, String> defaultGrantTypes = new Hashtable<String, String>(5);
-            defaultGrantTypes.put(GrantType.AUTHORIZATION_CODE.toString(),
-                                  "org.wso2.carbon.identity.oauth2.token.handlers.grant.AuthorizationCodeHandler");
-            defaultGrantTypes.put(GrantType.CLIENT_CREDENTIALS.toString(),
-                                  "org.wso2.carbon.identity.oauth2.token.handlers.grant.ClientCredentialsGrantHandler");
-            defaultGrantTypes.put(GrantType.PASSWORD.toString(),
-                                  "org.wso2.carbon.identity.oauth2.token.handlers.grant.PasswordGrantHandler");
-            defaultGrantTypes.put(GrantType.REFRESH_TOKEN.toString(),
-                                  "org.wso2.carbon.identity.oauth2.token.handlers.grant.RefreshGrantHandler");
-            defaultGrantTypes
-                    .put(org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString(),
-                         "org.wso2.carbon.identity.oauth2.token.handlers.grant.saml.SAML2BearerGrantHandler");
-            defaultGrantTypes.put(
-                    org.wso2.carbon.identity.oauth.common.GrantType.IWA_NTLM.toString(),
-                    "org.wso2.carbon.identity.oauth2.token.handlers.grant.iwa.ntlm.NTLMAuthenticationGrantHandler");
-            supportedGrantTypeClassNames.putAll(defaultGrantTypes);
-        }
+			defaultGrantTypes.put(GrantType.AUTHORIZATION_CODE.toString(), AUTHORIZATION_CODE_GRANT_HANDLER_CLASS);
+			defaultGrantTypes.put(GrantType.CLIENT_CREDENTIALS.toString(), CLIENT_CREDENTIALS_GRANT_HANDLER_CLASS);
+			defaultGrantTypes.put(GrantType.PASSWORD.toString(), PASSWORD_GRANT_HANDLER_CLASS);
+			defaultGrantTypes.put(GrantType.REFRESH_TOKEN.toString(), REFRESH_TOKEN_GRANT_HANDLER_CLASS);
+			defaultGrantTypes.put(org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString(),
+								  SAML20_BEARER_GRANT_HANDLER_CLASS);
+			defaultGrantTypes.put(org.wso2.carbon.identity.oauth.common.GrantType.IWA_NTLM.toString(),
+								  IWA_NTLM_BEARER_GRANT_HANDLER_CLASS);
+			supportedGrantTypeClassNames.putAll(defaultGrantTypes);
+		}
 
         if (log.isDebugEnabled()) {
             for (Map.Entry entry : supportedGrantTypeClassNames.entrySet()) {

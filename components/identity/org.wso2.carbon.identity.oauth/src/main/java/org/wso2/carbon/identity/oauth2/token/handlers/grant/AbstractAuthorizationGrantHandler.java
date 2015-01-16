@@ -340,34 +340,29 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
     public boolean validateGrant(OAuthTokenReqMessageContext tokReqMsgCtx)
             throws IdentityOAuth2Exception {
 
-        try {
-            OAuth2AccessTokenReqDTO tokenReqDTO = tokReqMsgCtx.getOauth2AccessTokenReqDTO();
-            String grantType = tokenReqDTO.getGrantType();
+        OAuth2AccessTokenReqDTO tokenReqDTO = tokReqMsgCtx.getOauth2AccessTokenReqDTO();
+        String grantType = tokenReqDTO.getGrantType();
 
-            // Load application data from the cache
-            AppInfoCache appInfoCache = AppInfoCache.getInstance();
-            OAuthAppDO oAuthAppDO = appInfoCache.getValueFromCache(
-                    tokenReqDTO.getClientId());
-            if (oAuthAppDO == null) {
+        // Load application data from the cache
+        AppInfoCache appInfoCache = AppInfoCache.getInstance();
+        OAuthAppDO oAuthAppDO = appInfoCache.getValueFromCache(tokenReqDTO.getClientId());
+        if (oAuthAppDO == null) {
+            try {
                 oAuthAppDO = new OAuthAppDAO().getAppInformation(tokenReqDTO.getClientId());
                 appInfoCache.addToCache(tokenReqDTO.getClientId(), oAuthAppDO);
-            }
-
-            // If the application has defined a limited set of grant types, then check the grant
-            if (oAuthAppDO.getGrantTypes() != null &&
-                !oAuthAppDO.getGrantTypes().contains(grantType)) {
-                if (log.isDebugEnabled()) {
-                    //Do not change this log format as these logs use by external applications
-                    log.debug("Unsupported Grant Type : " + grantType +
-                              " for client id : " + tokenReqDTO.getClientId());
-                }
+            } catch (InvalidOAuthClientException e) {
+                log.error("Error while reading application data for client id : " + tokenReqDTO.getClientId(), e);
                 return false;
             }
-        } catch (InvalidOAuthClientException e) {
-            log.error("Error while reading application data ", e);
+        }
+        // If the application has defined a limited set of grant types, then check the grant
+        if (oAuthAppDO.getGrantTypes() != null && !oAuthAppDO.getGrantTypes().contains(grantType)) {
+            if (log.isDebugEnabled()) {
+                //Do not change this log format as these logs use by external applications
+                log.debug("Unsupported Grant Type : " + grantType + " for client id : " + tokenReqDTO.getClientId());
+            }
             return false;
         }
-
         return true;
     }
 }

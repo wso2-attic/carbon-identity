@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -26,30 +26,42 @@ import org.apache.amber.oauth2.common.validators.OAuthValidator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * CarbonOAuthTokenRequest holds all OAuth token request parameters.
+ */
 public class CarbonOAuthTokenRequest extends OAuthTokenRequest {
     private static Log log = LogFactory.getLog(CarbonOAuthTokenRequest.class);
 
-    private String assertion;
+    private static final String ASSERTION = "assertion";
+    private static final String CREDENTIAL_TYPE = "credentialType";
+    private static final String WINDOWS_TOKEN = "windows_token";
+    private static final String TENANT_DOMAIN = "tenantDomain";
 
+    private String assertion;
     private String credentialType;
     private String windows_token;
-
     private String tenantDomain;
-
     private RequestParameter[] requestParameters;
 
+    /**
+     * Constructs CarbonOAuthTokenRequest from the given HttpServletRequest
+     *
+     * @param request   an instance of HttpServletRequest that represents an OAuth token request
+     * @throws OAuthSystemException
+     * @throws OAuthProblemException
+     */
     public CarbonOAuthTokenRequest(HttpServletRequest request) throws OAuthSystemException,
                                                                       OAuthProblemException {
+
         super(request);
-        assertion = request.getParameter("assertion");
-        credentialType = request.getParameter("credentialType");
-        tenantDomain = request.getParameter("tenantDomain");
-        windows_token = request.getParameter("windows_token");
+        assertion = request.getParameter(ASSERTION);
+        credentialType = request.getParameter(CREDENTIAL_TYPE);
+        tenantDomain = request.getParameter(TENANT_DOMAIN);
+        windows_token = request.getParameter(WINDOWS_TOKEN);
 
         // Store all request parameters
         if (request.getParameterNames() != null) {
@@ -59,7 +71,6 @@ public class CarbonOAuthTokenRequest extends OAuthTokenRequest {
                 String value = request.getParameter(key);
                 requestParameterList.add(new RequestParameter(key, value));
             }
-
             requestParameters =
                     requestParameterList.toArray(new RequestParameter[requestParameterList.size()]);
         }
@@ -75,6 +86,7 @@ public class CarbonOAuthTokenRequest extends OAuthTokenRequest {
     @Override
     protected OAuthValidator<HttpServletRequest> initValidator()
             throws OAuthProblemException, OAuthSystemException {
+
         String requestTypeValue = getParam(OAuth.OAUTH_GRANT_TYPE);
         if (OAuthUtils.isEmpty(requestTypeValue)) {
             throw OAuthUtils.handleOAuthProblemException("Missing grant_type parameter value");
@@ -123,7 +135,7 @@ public class CarbonOAuthTokenRequest extends OAuthTokenRequest {
     }
 
     /**
-     * Returns the credential type
+     * Sets the credential type
      *
      * @param credentialType credential type as a string
      */
