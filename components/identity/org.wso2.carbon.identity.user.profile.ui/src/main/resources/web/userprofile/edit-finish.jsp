@@ -36,6 +36,7 @@
 <%@ page import="org.wso2.carbon.identity.user.profile.stub.types.UserFieldDTO" %>
 <%@ page import="org.wso2.carbon.identity.user.profile.stub.types.UserProfileDTO" %>
 <%@ page import="java.text.MessageFormat" %>
+<%@page import="java.net.URLEncoder" %>
 
 <%
 	String profile = CharacterEncoder.getSafeText(request.getParameter("profile"));
@@ -86,7 +87,7 @@
             if ((!client.isAddProfileEnabled()) && ((Integer.parseInt(noOfProfiles)) == 1)) {
                 forwardTo = "../user/user-mgt.jsp?ordinal=1";
             } else {
-                forwardTo ="index.jsp?username="+username+"&fromUserMgt="+fromUserMgt;
+                forwardTo ="index.jsp?username="+ URLEncoder.encode(username)+"&fromUserMgt="+fromUserMgt;
             }
         }else{
         	forwardTo ="index.jsp?region=region5&item=userprofiles_menu&ordinal=0";        	
