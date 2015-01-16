@@ -67,7 +67,7 @@ public class CarbonOAuthTokenRequest extends OAuthTokenRequest {
         if (request.getParameterNames() != null) {
             List<RequestParameter> requestParameterList = new ArrayList<RequestParameter>();
             while (request.getParameterNames().hasMoreElements()) {
-                String key = (String)request.getParameterNames().nextElement();
+                String key = (String) request.getParameterNames().nextElement();
                 String value = request.getParameter(key);
                 requestParameterList.add(new RequestParameter(key, value));
             }
