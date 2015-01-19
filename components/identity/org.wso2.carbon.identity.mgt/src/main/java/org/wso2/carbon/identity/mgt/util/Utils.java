@@ -84,6 +84,7 @@ public class Utils {
         }
 
         UserDTO userDTO = new UserDTO(userId);
+        validateTenant(userDTO);
         return userDTO;
 
     }

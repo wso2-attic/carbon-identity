@@ -144,7 +144,11 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 			return true;
 		}
 
-        if(!userStoreManager.isExistingUser(userName)){
+        String domainName = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+        String usernameWithDomain = UserCoreUtil.addDomainToName(userName, domainName);
+        boolean isUserExistInCurrentDomain = userStoreManager.isExistingUser(usernameWithDomain);
+
+        if (!isUserExistInCurrentDomain) {
 
             IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(UserCoreConstants.ErrorCode.USER_DOES_NOT_EXIST);
             IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
@@ -156,34 +160,35 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                 log.warn("User name does not exist in system : " + userName);
                 throw new UserStoreException(UserCoreConstants.ErrorCode.USER_DOES_NOT_EXIST);
             }
+        } else {
+
+            UserIdentityClaimsDO userIdentityDTO = module.load(userName, userStoreManager);
+
+            // if the account is locked, should not be able to log in
+            if (userIdentityDTO != null && userIdentityDTO.isAccountLocked()) {
+
+                // If unlock time is specified then unlock the account.
+                if ((userIdentityDTO.getUnlockTime() != 0) && (System.currentTimeMillis() >= userIdentityDTO.getUnlockTime())) {
+
+                    userIdentityDTO.setAccountLock(false);
+                    userIdentityDTO.setUnlockTime(0);
+
+                    try {
+                        module.store(userIdentityDTO, userStoreManager);
+                    } catch (IdentityException e) {
+                        throw new UserStoreException("Error while saving user", e);
+                    }
+                } else {
+                    IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(UserCoreConstants.ErrorCode.USER_IS_LOCKED,
+                            userIdentityDTO.getFailAttempts(), config.getAuthPolicyMaxLoginAttempts());
+                    IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
+                    log.warn("User account is locked for user : " + userName
+                            + ". cannot login until the account is unlocked ");
+                    throw new UserStoreException(UserCoreConstants.ErrorCode.USER_IS_LOCKED);
+
+                }
+            }
         }
-
-		UserIdentityClaimsDO userIdentityDTO = module.load(userName, userStoreManager);
-
-		// if the account is locked, should not be able to log in
-		if (userIdentityDTO != null && userIdentityDTO.isAccountLocked()) {
-
-			// If unlock time is specified then unlock the account.
-			if ((userIdentityDTO.getUnlockTime() != 0) && (System.currentTimeMillis() >= userIdentityDTO.getUnlockTime())) {
-
-				userIdentityDTO.setAccountLock(false);
-				userIdentityDTO.setUnlockTime(0);
-				
-				try {
-					module.store(userIdentityDTO, userStoreManager);
-				} catch (IdentityException e) {
-					throw new UserStoreException("Error while saving user", e);
-				}
-			} else {
-                IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext( UserCoreConstants.ErrorCode.USER_IS_LOCKED,
-                        userIdentityDTO.getFailAttempts() ,config.getAuthPolicyMaxLoginAttempts());
-                IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
-				log.warn("User account is locked for user : " + userName
-						+ ". cannot login until the account is unlocked ");
-				throw new UserStoreException(
-						UserCoreConstants.ErrorCode.USER_IS_LOCKED);
-			}
-		}
 
         return true;
 	}
