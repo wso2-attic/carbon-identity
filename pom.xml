@@ -1930,7 +1930,7 @@
 
         <google.step2.wso2.version>1.0.wso2v2</google.step2.wso2.version>
         <google.guice.wso2.version>3.0.wso2v1</google.guice.wso2.version>
-        <charon.wso2.version.identity>2.0.0</charon.wso2.version.identity>
+        <charon.wso2.version.identity>2.0.0-wso2v1-SNAPSHOT</charon.wso2.version.identity>
         <openid4java.wso2.version>0.9.6.wso2v1</openid4java.wso2.version>
         <opensaml2.version>2.4.1.wso2v1</opensaml2.version>
         <opensaml.wso2.version>1.1.0.wso2v1</opensaml.wso2.version>
