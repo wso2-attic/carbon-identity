@@ -73,6 +73,11 @@
             <artifactId>org.wso2.carbon.identity.provisioning</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.cxf.ext</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
