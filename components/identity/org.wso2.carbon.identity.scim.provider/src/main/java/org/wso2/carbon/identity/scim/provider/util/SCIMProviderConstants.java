@@ -32,18 +32,5 @@ public class SCIMProviderConstants {
     
     public static final String DEFAULT_SCIM_DIALECT = "urn:scim:schemas:core:1.0";
 
-    public static final String ID = "ID";
-    public static final String INPUT_FORMAT = "INPUT_FORMAT";
-    public static final String OUTPUT_FORMAT = "INPUT_FORMAT";
-    public static final String AUTHORIZATION = "AUTHORIZATION";
-    public static final String RESOURCE_STRING = "RESOURCE_STRING";
-    public static final String HTTP_VERB = "HTTP_VERB";
-    public static final String SEARCH_ATTRIBUTE = "SEARCH_ATTRIBUTE";
-    public static final String FILTER = "FILTER";
-    public static final String START_INDEX = "START_INDEX";
-    public static final String COUNT = "COUNT";
-    public static final String SORT_BY = "SORT_BY";
-    public static final String SORT_ORDER = "SORT_ORDER";
-    public static final String PATCH = "PATCH";
 
 }
