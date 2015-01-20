@@ -51,6 +51,7 @@ import org.wso2.charon.core.provisioning.ProvisioningHandler;
 import org.wso2.charon.core.schema.SCIMConstants;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
