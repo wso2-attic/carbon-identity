@@ -19,15 +19,13 @@
 package org.wso2.carbon.identity.oauth;
 
 import java.util.Arrays;
-import org.apache.axis2.context.MessageContext;
-import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
-import org.wso2.carbon.identity.oauth.cache.BaseCache;
+import org.wso2.carbon.identity.oauth.cache.AppInfoCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
@@ -42,11 +40,8 @@ import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
-import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,7 +51,7 @@ public class OAuthAdminService extends AbstractAdmin {
 
     private static List<String> allowedGrants = null;
 
-    private BaseCache<String, OAuthAppDO> appInfoCache = new BaseCache<String,OAuthAppDO>("AppInfoCache");
+    private AppInfoCache appInfoCache = AppInfoCache.getInstance();
 
     /**
      * Registers an consumer secret against the logged in user. A given user can only have a single
