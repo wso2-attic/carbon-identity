@@ -35,6 +35,9 @@
     <url>http://wso2.org</url>
 
     <modules>
+        <module>org.wso2.carbon.identity.notification.mgt</module>
+        <module>org.wso2.carbon.identity.notification.mgt.email</module>
+        <module>org.wso2.carbon.identity.notification.mgt.json</module>
         <module>org.wso2.carbon.identity.application.authentication.endpoint</module>
         <module>org.wso2.carbon.identity.sts.passive</module>
         <module>org.wso2.carbon.identity.sts.passive.ui</module>
@@ -109,9 +112,6 @@
         <module>org.wso2.carbon.identity.provisioning.connector.scim</module>
         <module>org.wso2.carbon.identity.tools.saml.validator</module>
         <module>org.wso2.carbon.identity.tools.saml.validator.ui</module>
-        <module>org.wso2.carbon.identity.notification.mgt</module>
-        <module>org.wso2.carbon.identity.notification.mgt.email</module>
-        <module>org.wso2.carbon.identity.notification.mgt.json</module>
     </modules>
 
     <!--dependencyManagement>

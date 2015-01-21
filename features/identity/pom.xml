@@ -50,6 +50,7 @@
         <module>identity-provisioning</module>
         <module>tools-saml</module>
         <module>thrift</module>
+        <module>notification-mgt</module>
     </modules>
 
     <!--dependencyManagement>
