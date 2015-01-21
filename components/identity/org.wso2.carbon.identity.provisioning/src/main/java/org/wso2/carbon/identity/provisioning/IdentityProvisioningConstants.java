@@ -62,5 +62,13 @@ public class IdentityProvisioningConstants {
         		+ "ENTITY_LOCAL_USERSTORE=? AND ENTITY_NAME=? AND TENANT_ID=?";
         
         public static final String GET_IDP_PROVISIONING_CONFIG_ID_SQL = "SELECT ID FROM IDP_PROVISIONING_CONFIG WHERE IDP_ID=? AND PROVISIONING_CONNECTOR_TYPE=?";
+
+        public static final String GET_SP_NAMES_OF_SUPER_TENANT_PROV_CONNECTORS_BY_IDP = "SELECT DISTINCT(APP.APP_NAME) FROM SP_APP APP JOIN " +
+                                                                                         "SP_PROVISIONING_CONNECTOR PC ON APP.ID = PC.APP_ID " +
+                                                                                         "WHERE PC.IDP_NAME = ? AND APP.TENANT_ID = PC.TENANT_ID AND APP.TENANT_ID = ?";
+
+        public static final String GET_SP_NAMES_OF_PROVISIONING_CONNECTORS_BY_IDP = "SELECT DISTINCT(APP.APP_NAME) FROM SP_PROVISIONING_CONNECTOR PC JOIN SP_APP APP " +
+                                                                                    "ON APP.ID = PC.APP_ID WHERE PC.IDP_NAME = ? AND APP.TENANT_ID = PC.TENANT_ID " +
+                                                                                    "AND APP.TENANT_ID = (SELECT UM_ID FROM UM_TENANT WHERE UM_DOMAIN_NAME = ?) ";
 	}
 }

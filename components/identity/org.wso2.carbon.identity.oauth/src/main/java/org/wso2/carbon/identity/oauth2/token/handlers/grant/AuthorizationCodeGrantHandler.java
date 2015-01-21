@@ -42,6 +42,8 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
 
     @Override
     public boolean validateGrant(OAuthTokenReqMessageContext tokReqMsgCtx) throws IdentityOAuth2Exception {
+        super.validateGrant(tokReqMsgCtx);
+
         OAuth2AccessTokenReqDTO oAuth2AccessTokenReqDTO = tokReqMsgCtx.getOauth2AccessTokenReqDTO();
         String authorizationCode = oAuth2AccessTokenReqDTO.getAuthorizationCode();
 

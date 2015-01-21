@@ -1,19 +1,19 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.idp.mgt.internal;
@@ -31,6 +31,7 @@ import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
+import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -42,6 +43,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -110,7 +112,7 @@ public class IdPManagementServiceComponent {
     }
 
     /**
-     * 
+     *
      */
     private void buildFileBasedIdPList() {
 
@@ -137,13 +139,13 @@ public class IdPManagementServiceComponent {
                                 if (currentIdp != null && !IdentityApplicationConstants.DEFAULT_IDP_CONFIG.equals(
                                         currentIdp.getIdentityProviderName())) {
                                     idpManager.updateIdP(idp.getIdentityProviderName(), idp, superTenantDN);
-                                    if(log.isDebugEnabled()){
-                                        log.debug("Shared IdP "+idp.getIdentityProviderName()+" updated");
+                                    if (log.isDebugEnabled()) {
+                                        log.debug("Shared IdP " + idp.getIdentityProviderName() + " updated");
                                     }
                                 } else {
-                                    IdentityProviderManager.getInstance().addIdP(idp, superTenantDN);
-                                    if(log.isDebugEnabled()){
-                                        log.debug("Shared IdP "+idp.getIdentityProviderName()+" added");
+                                    idpManager.addIdP(idp, superTenantDN);
+                                    if (log.isDebugEnabled()) {
+                                        log.debug("Shared IdP " + idp.getIdentityProviderName() + " added");
                                     }
                                 }
                                 sharedIdps.add(idp.getIdentityProviderName());
@@ -170,28 +172,35 @@ public class IdPManagementServiceComponent {
     private void cleanUpRemovedIdps(){
         IdentityProviderManager idpManager = IdentityProviderManager.getInstance();
         String superTenantDN = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
-
+        List<IdentityProvider> idPs;
         try {
-            for (IdentityProvider idp : idpManager.getIdPs(superTenantDN)) {
-                if(isSharedIdP(idp) && !sharedIdps.contains(idp.getIdentityProviderName())){
-                    //IDP config file has been deleted from filesystem
-                    idpManager.deleteIdP(idp.getIdentityProviderName(),superTenantDN);
-                    log.info("Deleted shared IdP with the name : "+idp.getIdentityProviderName());
+            idPs = idpManager.getIdPs(superTenantDN);
+        } catch (IdentityApplicationManagementException e) {
+            log.error("Error loading IDPs", e);
+            return;
+        }
+        for (IdentityProvider idp : idPs) {
+            if (isSharedIdP(idp) && !sharedIdps.contains(idp.getIdentityProviderName())) {
+                //IDP config file has been deleted from filesystem
+                try {
+                    idpManager.deleteIdP(idp.getIdentityProviderName(), superTenantDN);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Deleted shared IdP with the name : " + idp.getIdentityProviderName());
+                    }
+                } catch (IdentityApplicationManagementException e) {
+                    log.error("Error when deleting IdP " + idp.getIdentityProviderName(), e);
                 }
             }
-
-        } catch (IdentityApplicationManagementException e) {
-            log.error("Error loading IDPs",e);
         }
     }
 
-    private boolean isSharedIdP(IdentityProvider idp){
+    private boolean isSharedIdP(IdentityProvider idp) {
         return idp != null && idp.getIdentityProviderName() != null && idp.getIdentityProviderName().startsWith
-                ("SHARED_");
+                (IdPManagementConstants.SHARED_IDP_PREFIX);
     }
 
     /**
-     * 
+     *
      * @return
      */
     public static Map<String, IdentityProvider> getFileBasedIdPs() {
@@ -199,7 +208,7 @@ public class IdPManagementServiceComponent {
     }
 
     /**
-     * 
+     *
      * @param ctxt
      */
     protected void deactivate(ComponentContext ctxt) {
@@ -207,7 +216,7 @@ public class IdPManagementServiceComponent {
     }
 
     /**
-     * 
+     *
      * @return
      */
     public static RealmService getRealmService() {
@@ -215,7 +224,7 @@ public class IdPManagementServiceComponent {
     }
 
     /**
-     * 
+     *
      * @return
      */
     public static ConfigurationContextService getConfigurationContextService() {
@@ -223,7 +232,7 @@ public class IdPManagementServiceComponent {
     }
 
     /**
-     * 
+     *
      * @param rlmService
      */
     protected void setRealmService(RealmService rlmService) {
@@ -231,7 +240,7 @@ public class IdPManagementServiceComponent {
     }
 
     /**
-     * 
+     *
      * @param realmService
      */
     protected void unsetRealmService(RealmService realmService) {
@@ -239,7 +248,7 @@ public class IdPManagementServiceComponent {
     }
 
     /**
-     * 
+     *
      * @param service
      */
     protected void setConfigurationContextService(ConfigurationContextService service) {

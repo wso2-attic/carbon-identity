@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.identity.oauth2.dto;
 
+import org.wso2.carbon.identity.oauth2.model.RequestParameter;
+
 public class OAuth2AccessTokenReqDTO {
     private String clientId;
     private String clientSecret;
@@ -33,6 +35,7 @@ public class OAuth2AccessTokenReqDTO {
     private String clientAssertion;
     private String tenantDomain;
     private String windows_token;
+    private RequestParameter[] requestParameters;
 
     public String getClientId() {
         return clientId;
@@ -144,5 +147,13 @@ public class OAuth2AccessTokenReqDTO {
 
     public void setTenantDomain(String tenantDomain) {
         this.tenantDomain = tenantDomain;
+    }
+
+    public RequestParameter[] getRequestParameters() {
+        return requestParameters;
+    }
+
+    public void setRequestParameters(RequestParameter[] requestParameters) {
+        this.requestParameters = requestParameters;
     }
 }

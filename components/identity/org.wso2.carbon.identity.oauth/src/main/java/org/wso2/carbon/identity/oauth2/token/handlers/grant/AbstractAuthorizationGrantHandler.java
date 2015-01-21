@@ -26,13 +26,17 @@ import org.apache.amber.oauth2.common.message.types.GrantType;
 import org.apache.axiom.util.base64.Base64Utils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.core.model.OAuthAppDO;
+import org.wso2.carbon.identity.oauth.cache.AppInfoCache;
 import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.callback.OAuthCallback;
 import org.wso2.carbon.identity.oauth.callback.OAuthCallbackManager;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
+import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
+import org.wso2.carbon.identity.oauth.dao.OAuthAppDAO;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
@@ -330,5 +334,35 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
         tokReqMsgCtx.setValidityPeriod(scopeValidationCallback.getValidityPeriod());
         tokReqMsgCtx.setScope(scopeValidationCallback.getApprovedScope());
         return scopeValidationCallback.isValidScope();
+    }
+
+    @Override
+    public boolean validateGrant(OAuthTokenReqMessageContext tokReqMsgCtx)
+            throws IdentityOAuth2Exception {
+
+        OAuth2AccessTokenReqDTO tokenReqDTO = tokReqMsgCtx.getOauth2AccessTokenReqDTO();
+        String grantType = tokenReqDTO.getGrantType();
+
+        // Load application data from the cache
+        AppInfoCache appInfoCache = AppInfoCache.getInstance();
+        OAuthAppDO oAuthAppDO = appInfoCache.getValueFromCache(tokenReqDTO.getClientId());
+        if (oAuthAppDO == null) {
+            try {
+                oAuthAppDO = new OAuthAppDAO().getAppInformation(tokenReqDTO.getClientId());
+                appInfoCache.addToCache(tokenReqDTO.getClientId(), oAuthAppDO);
+            } catch (InvalidOAuthClientException e) {
+                log.error("Error while reading application data for client id : " + tokenReqDTO.getClientId(), e);
+                return false;
+            }
+        }
+        // If the application has defined a limited set of grant types, then check the grant
+        if (oAuthAppDO.getGrantTypes() != null && !oAuthAppDO.getGrantTypes().contains(grantType)) {
+            if (log.isDebugEnabled()) {
+                //Do not change this log format as these logs use by external applications
+                log.debug("Unsupported Grant Type : " + grantType + " for client id : " + tokenReqDTO.getClientId());
+            }
+            return false;
+        }
+        return true;
     }
 }

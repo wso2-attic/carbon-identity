@@ -24,6 +24,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,6 +38,7 @@ import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 public class ProvisioningManagementDAO {
@@ -470,5 +473,46 @@ public class ProvisioningManagementDAO {
             return is;
         }
         return null;
+    }
+
+
+    public List<String> getSPNamesOfProvisioningConnectorsByIDP(String idPName, String tenantDomain)
+            throws IdentityApplicationManagementException {
+        Connection dbConnection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        List<String> spNames = new ArrayList<String>();
+        try {
+            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
+            String sqlStmt = null;
+            if(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
+                sqlStmt = IdentityProvisioningConstants.SQLQueries.GET_SP_NAMES_OF_SUPER_TENANT_PROV_CONNECTORS_BY_IDP;
+                prepStmt = dbConnection.prepareStatement(sqlStmt);
+                prepStmt.setString(1, idPName);
+                prepStmt.setInt(2, MultitenantConstants.SUPER_TENANT_ID);
+            } else {
+                sqlStmt = IdentityProvisioningConstants.SQLQueries.GET_SP_NAMES_OF_PROVISIONING_CONNECTORS_BY_IDP;
+                prepStmt = dbConnection.prepareStatement(sqlStmt);
+                prepStmt.setString(1, idPName);
+                prepStmt.setString(2, tenantDomain);
+            }
+            rs = prepStmt.executeQuery();
+
+            while (rs.next()) {
+                spNames.add(rs.getString(1));
+            }
+        } catch (SQLException e) {
+            String msg = "Error occurred while retrieving SP names of provisioning connectors by IDP name";
+            throw new IdentityApplicationManagementException(msg, e);
+        } finally {
+            if (prepStmt != null) {
+                IdentityApplicationManagementUtil.closeStatement(prepStmt);
+            }
+            if (rs != null) {
+                IdentityApplicationManagementUtil.closeResultSet(rs);
+            }
+            IdentityApplicationManagementUtil.closeConnection(dbConnection);
+        }
+        return spNames;
     }
 }
