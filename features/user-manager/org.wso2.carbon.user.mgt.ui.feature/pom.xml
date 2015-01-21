@@ -93,7 +93,7 @@
 								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.user.store.configuration.stub</bundleDef>
 							</bundles>
 							<importFeatures>
-								<importFeatureDef>org.wso2.carbon.core.ui</importFeatureDef>
+								<importFeatureDef>org.wso2.carbon.core.ui:${carbon.kernel.version}</importFeatureDef>
 							</importFeatures>
 						</configuration>
 					</execution>

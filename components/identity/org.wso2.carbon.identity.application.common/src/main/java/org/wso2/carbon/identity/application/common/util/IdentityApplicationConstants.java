@@ -89,6 +89,10 @@ public class IdentityApplicationConstants {
             public static final String CLIENT_SECRET = "ClientSecret";
         }
 
+        public static class WSTrust {
+            public static final String NAME = "wstrust";
+        }
+
     }
 
     public static class OAuth10A {
@@ -102,6 +106,7 @@ public class IdentityApplicationConstants {
 
     public static class OAuth2 {
 
+        public static final String NAME = "oauth2";
         public static final String CLIENT_ID = "ClientId";
         public static final String CLIENT_SECRET = "ClientSecret";
         public static final String OAUTH2_AUTHZ_URL = "OAuth2AuthzUrl";

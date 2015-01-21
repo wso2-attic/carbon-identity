@@ -23,7 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.oauth.IdentityOAuthAdminException;
-import org.wso2.carbon.identity.oauth.cache.BaseCache;
+import org.wso2.carbon.identity.oauth.cache.AppInfoCache;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
@@ -47,7 +47,7 @@ public class AuthorizationHandlerManager {
 
     private Map<String, ResponseTypeHandler> responseHandlers = new Hashtable<String, ResponseTypeHandler>();
 
-    private BaseCache<String, OAuthAppDO> appInfoCache;
+    private AppInfoCache appInfoCache;
 
     public static AuthorizationHandlerManager getInstance() throws IdentityOAuth2Exception {
 
@@ -64,7 +64,7 @@ public class AuthorizationHandlerManager {
 
     private AuthorizationHandlerManager() throws IdentityOAuth2Exception {
         responseHandlers = OAuthServerConfiguration.getInstance().getSupportedResponseTypes();
-        appInfoCache = new BaseCache<String, OAuthAppDO>("AppInfoCache");
+        appInfoCache = AppInfoCache.getInstance();
         if(appInfoCache != null) {
             if (log.isDebugEnabled()) {
                 log.debug("Successfully created AppInfoCache under "+ OAuthConstants.OAUTH_CACHE_MANAGER);

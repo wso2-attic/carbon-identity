@@ -1,23 +1,24 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.idp.mgt;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
@@ -28,6 +29,7 @@ import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
 import org.wso2.carbon.idp.mgt.internal.IdpMgtListenerServiceComponent;
 import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtLister;
+import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.user.api.ClaimMapping;
 
 import java.util.ArrayList;
@@ -60,11 +62,13 @@ public class IdentityProviderManagementService extends AbstractAdmin {
      */
     public void updateResidentIdP(IdentityProvider identityProvider)
             throws IdentityApplicationManagementException {
-
+        if(identityProvider == null){
+            throw new IllegalArgumentException("Identity provider is null");
+        }
     	// invoking the listeners
-    	List<IdentityProviderMgtLister> listerns = IdpMgtListenerServiceComponent.getListners();
-    	for(IdentityProviderMgtLister listner : listerns) {
-    		listner.updateResidentIdP(identityProvider);
+    	List<IdentityProviderMgtLister> listeners = IdpMgtListenerServiceComponent.getListners();
+    	for(IdentityProviderMgtLister listener : listeners) {
+    		listener.updateResidentIdP(identityProvider);
     	}
     	
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
@@ -84,7 +88,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
         List<IdentityProvider> identityProviders = IdentityProviderManager.getInstance().getIdPs(tenantDomain);
         for (int i = 0; i < identityProviders.size(); i++) {
             String providerName = identityProviders.get(i).getIdentityProviderName();
-            if(providerName!=null && providerName.startsWith("SHARED_")){
+            if (providerName != null && providerName.startsWith(IdPManagementConstants.SHARED_IDP_PREFIX)) {
                 identityProviders.remove(i);
                 i--;
             }
@@ -117,7 +121,9 @@ public class IdentityProviderManagementService extends AbstractAdmin {
      */
     public IdentityProvider getIdPByName(String idPName)
             throws IdentityApplicationManagementException {
-
+        if(StringUtils.isEmpty(idPName)){
+            throw new IllegalArgumentException("Provided IdP name is empty");
+        }
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         return IdentityProviderManager.getInstance().getIdPByName(idPName, tenantDomain, true);
     }
@@ -128,16 +134,20 @@ public class IdentityProviderManagementService extends AbstractAdmin {
      * @param identityProvider <code>IdentityProvider</code> new Identity Provider information
      * @throws IdentityApplicationManagementException Error when adding Identity Provider
      */
-    public void addIdP(IdentityProvider identityProvider)
-            throws IdentityApplicationManagementException {
-        if(identityProvider.getIdentityProviderName()!=null && identityProvider.getIdentityProviderName().startsWith("SHARED_")){
-            throw new IdentityApplicationManagementException("Identity provider name cannot have 'SHARED_' as prefix.");
+    public void addIdP(IdentityProvider identityProvider) throws IdentityApplicationManagementException {
+        if(identityProvider == null){
+            throw new IllegalArgumentException("Identity provider cannot be null when adding an IdP");
+        }
+        if (identityProvider.getIdentityProviderName() != null && identityProvider.getIdentityProviderName().startsWith
+                (IdPManagementConstants.SHARED_IDP_PREFIX)) {
+            throw new IdentityApplicationManagementException("Identity provider name cannot have " +
+                    IdPManagementConstants.SHARED_IDP_PREFIX + " as prefix.");
         }
 
     	// invoking the listeners
-    	List<IdentityProviderMgtLister> listerns = IdpMgtListenerServiceComponent.getListners();
-    	for(IdentityProviderMgtLister listner : listerns) {
-    		listner.addIdP(identityProvider);
+    	List<IdentityProviderMgtLister> listeners = IdpMgtListenerServiceComponent.getListners();
+    	for(IdentityProviderMgtLister listener : listeners) {
+    		listener.addIdP(identityProvider);
     	}
     	
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
@@ -151,13 +161,16 @@ public class IdentityProviderManagementService extends AbstractAdmin {
      * @throws IdentityApplicationManagementException Error when deleting Identity Provider
      */
     public void deleteIdP(String idPName) throws IdentityApplicationManagementException {    	
+        if(StringUtils.isEmpty(idPName)){
+            throw new IllegalArgumentException("Provided IdP name is empty");
+        }
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         IdentityProviderManager.getInstance().deleteIdP(idPName, tenantDomain);
         
         // invoking the listeners
-        List<IdentityProviderMgtLister> listerns = IdpMgtListenerServiceComponent.getListners();
-        for(IdentityProviderMgtLister listner : listerns) {
-            listner.deleteIdP(idPName);
+        List<IdentityProviderMgtLister> listeners = IdpMgtListenerServiceComponent.getListners();
+        for(IdentityProviderMgtLister listener : listeners) {
+            listener.deleteIdP(idPName);
         }
     }
 
@@ -190,19 +203,26 @@ public class IdentityProviderManagementService extends AbstractAdmin {
      * @param identityProvider <code>IdentityProvider</code> new Identity Provider information
      * @throws IdentityApplicationManagementException Error when updating Identity Provider
      */
-    public void updateIdP(String oldIdPName, IdentityProvider identityProvider)
-            throws IdentityApplicationManagementException {
-
-        if(oldIdPName!=null && !oldIdPName.startsWith("SHARED_") && identityProvider !=null && identityProvider
-                .getIdentityProviderName()!=null && identityProvider.getIdentityProviderName().startsWith("SHARED_")){
-            String msg = "Cannot update Idp name to have 'SHARED_' as a prefix'";
-            log.error(msg+ " (prev name:"+oldIdPName+", New name: "+identityProvider.getIdentityProviderName()+")");
-            throw new IdentityApplicationManagementException(msg);
+    public void updateIdP(String oldIdPName, IdentityProvider identityProvider) throws
+            IdentityApplicationManagementException {
+        if(identityProvider == null){
+            throw new IllegalArgumentException("Provided IdP is null");
+        }
+        if(StringUtils.isEmpty(oldIdPName)){
+            throw new IllegalArgumentException("The IdP name which need to be updated is empty");
+        }
+        //Updating a non-shared IdP's name to have shared prefix is not allowed
+        if (oldIdPName != null && !oldIdPName.startsWith(IdPManagementConstants.SHARED_IDP_PREFIX) &&
+                identityProvider != null && identityProvider.getIdentityProviderName() != null && identityProvider
+                .getIdentityProviderName().startsWith(IdPManagementConstants.SHARED_IDP_PREFIX)) {
+            throw new IdentityApplicationManagementException("Cannot update Idp name to have '" +
+                    IdPManagementConstants.SHARED_IDP_PREFIX + "' as a prefix (previous name:" + oldIdPName + ", " +
+                    "New name: " + identityProvider.getIdentityProviderName() + ")");
         }
     	// invoking the listeners
-    	List<IdentityProviderMgtLister> listerns = IdpMgtListenerServiceComponent.getListners();
-    	for(IdentityProviderMgtLister listner : listerns) {
-    		listner.updateIdP(oldIdPName, identityProvider);
+    	List<IdentityProviderMgtLister> listeners = IdpMgtListenerServiceComponent.getListners();
+    	for(IdentityProviderMgtLister listener : listeners) {
+    		listener.updateIdP(oldIdPName, identityProvider);
     	}
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         IdentityProviderManager.getInstance().updateIdP(oldIdPName, identityProvider, tenantDomain);

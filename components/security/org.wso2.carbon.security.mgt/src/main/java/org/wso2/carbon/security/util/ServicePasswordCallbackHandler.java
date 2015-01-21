@@ -37,6 +37,7 @@ import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.security.SecurityConfigException;
 import org.wso2.carbon.security.SecurityConstants;
 import org.wso2.carbon.security.SecurityServiceHolder;
+import org.wso2.carbon.security.UserCredentialRetriever;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
@@ -119,6 +120,52 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                         }
 
                         break;
+                    case WSPasswordCallback.USERNAME_TOKEN:
+                        // In username token scenario, if user sends the digested password, callback handler needs to provide plain text password.
+                        // We get plain text password through UserCredentialRetriever interface, which is implemented by custom user store managers.
+                        // we expect username with domain name if user resides in a secondary user store, eg, WSO2.Test/fooUser.
+                        // Additionally, secondary user stores needs to implement UserCredentialRetriever interface too
+                        UserCredentialRetriever userCredentialRetriever;
+                        String storedPassword=null;
+                        String domainName = UserCoreUtil.extractDomainFromName(username);
+                        if (UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(domainName)) {
+                            if (realm.getUserStoreManager() instanceof UserCredentialRetriever) {
+                                userCredentialRetriever = (UserCredentialRetriever) realm.getUserStoreManager();
+                                storedPassword = userCredentialRetriever.getPassword(username);
+                            }else {
+                                if(log.isDebugEnabled()){
+                                    log.debug("Can not set user password in callback because primary userstore class" +
+                                            " has not implemented UserCredentialRetriever interface.");
+                                }
+                            }
+                        } else {
+                            if (realm.getUserStoreManager().getSecondaryUserStoreManager(domainName) instanceof UserCredentialRetriever) {
+                                userCredentialRetriever = (UserCredentialRetriever) realm.getUserStoreManager().getSecondaryUserStoreManager(domainName);
+                                storedPassword = userCredentialRetriever.getPassword(UserCoreUtil.removeDomainFromName(username));
+                            }else {
+                                if(log.isDebugEnabled()){
+                                    log.debug("Can not set user password in callback because secondary userstore " +
+                                            "for domain:"+domainName+" has not implemented UserCredentialRetriever interface.");
+                                }
+                            }
+                        }
+                        if (storedPassword != null) {
+                            try {
+                                if (this.authenticateUser(username, storedPassword)) {
+                                    // do nothing things are fine
+                                } else {
+                                    if(log.isDebugEnabled()){
+                                        log.debug("User is not authorized!");
+                                    }
+                                    throw new UnsupportedCallbackException(callbacks[i], "check failed");
+                                }
+                            } catch (Exception e) {
+                                throw new UnsupportedCallbackException(callbacks[i],
+                                        "Check failed : System error");
+                            }
+                            passwordCallback.setPassword(storedPassword);
+                            break;
+                        }
                     default:
 
                         /*

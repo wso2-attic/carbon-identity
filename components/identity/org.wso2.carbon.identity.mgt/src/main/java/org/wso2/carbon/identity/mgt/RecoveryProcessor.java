@@ -124,7 +124,7 @@ public class RecoveryProcessor {
         } catch (UserStoreException e) {
             log.warn("No Tenant domain for tenant id " + tenantId);
         }
-        
+
         String type = recoveryDTO.getNotificationType();
         if(type != null){
             module =  modules.get(type);
@@ -211,6 +211,7 @@ public class RecoveryProcessor {
 				}
                 secretKey = UUIDGenerator.generateUUID();
                 emailNotificationData.setTagData("confirmation-code", confirmationKey);
+                emailNotificationData.setTagData("tenant-domain", domainName);
                 emailTemplate = config.getProperty(IdentityMgtConstants.Notification.ASK_PASSWORD);
             }
             

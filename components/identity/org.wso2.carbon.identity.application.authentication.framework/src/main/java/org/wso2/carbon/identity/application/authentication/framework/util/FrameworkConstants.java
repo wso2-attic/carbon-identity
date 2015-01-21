@@ -40,6 +40,11 @@ public abstract class FrameworkConstants {
         public static final String ATTR_AUTH_ENDPOINT_QUERY_PARAM_NAME = "name";
         public static final String ATTR_AUTH_ENDPOINT_QUERY_PARAM_ACTION = "action";
 
+        /**
+         * Configuration name for setting the url for receiving tenant list upon any modification to a tenant
+         */
+        public static final String ELEM_TENANT_DATA_LISTENER_URL = "TenantDataListenerURL";
+
         // Constant definitions for attributes
         public static final String ATTR_AUTHENTICATOR_NAME = "name";
         public static final String ATTR_AUTHENTICATOR_IDPS = "idpList";
@@ -66,6 +71,16 @@ public abstract class FrameworkConstants {
         public static final String QNAME_IDP_CONFIGS = "IdPConfigs";
         public static final String QNAME_SEQUENCES = "Sequences";
         public static final String QNAME_AUTH_ENDPOINT_QUERY_PARAMS = "AuthenticationEndpointQueryParams";
+
+        /**
+         * Configuration name for the collection of urls for receiving tenant list
+         */
+        public static final String QNAME_TENANT_DATA_LISTENER_URLS = "TenantDataListenerURLs";
+
+        /**
+         * Configuration name for enabling or disabling the tenant list dropdown
+         */
+        public static final String QNAME_TENANT_DOMAIN_DROPDOWN_ENABLED = "TenantDomainDropDownEnabled";
 
         public static final String QNAME_EXT_REQ_COORDINATOR = "RequestCoordinator";
         public static final String QNAME_EXT_AUTH_REQ_HANDLER = "AuthenticationRequestHandler";

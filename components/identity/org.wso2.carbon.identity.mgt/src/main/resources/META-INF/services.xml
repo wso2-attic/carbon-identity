@@ -28,14 +28,6 @@
 		<parameter name="hiddenService" locked="false">false</parameter>
 		<parameter name="AuthorizationAction" locked="true">/permission/admin/login
 		</parameter>
-
-        <operation name="updatePassword">
-            <parameter name="DoAuthentication" locked="true">false</parameter>
-        </operation>
-
-        <operation name="verifyConfirmationCode">
-            <parameter name="DoAuthentication" locked="true">false</parameter>
-        </operation>
 	</service>
 
 	<service name="AccountCredentialMgtConfigService" scope="transportsession">

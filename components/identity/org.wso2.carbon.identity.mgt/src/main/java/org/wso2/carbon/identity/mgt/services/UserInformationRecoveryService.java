@@ -283,14 +283,13 @@ public class UserInformationRecoveryService {
 		try {
 			UserDTO userDTO = Utils.processUserId(username);
 
-
-            TenantManager tenantManager = IdentityMgtServiceComponent.getRealmService().getTenantManager();
-            int tenantId = 0;
-            try {
-                tenantId = tenantManager.getTenantId(userDTO.getTenantDomain());
-            } catch (UserStoreException e) {
-                log.warn("No Tenant id for tenant domain " + userDTO.getTenantDomain());
-            }
+			TenantManager tenantManager = IdentityMgtServiceComponent.getRealmService().getTenantManager();
+			int tenantId = 0;
+			try {
+				tenantId = tenantManager.getTenantId(userDTO.getTenantDomain());
+			} catch (UserStoreException e) {
+				log.warn("No Tenant id for tenant domain " + userDTO.getTenantDomain());
+			}
 
 			if (recoveryProcessor.verifyConfirmationCode(3, userDTO.getUserId(), confirmationCode).isVerified()) {
 				Utils.updatePassword(userDTO.getUserId(), tenantId, newPassword);

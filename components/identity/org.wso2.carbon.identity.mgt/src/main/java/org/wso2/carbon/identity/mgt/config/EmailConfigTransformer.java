@@ -39,6 +39,12 @@ public class EmailConfigTransformer {
 		
 		Set<String> keySet = props.stringPropertyNames();
 		for (String key : keySet) {
+
+			// Escape Registry system properties
+			if(key.startsWith("registry.")) {
+				continue;
+			}
+
 			EmailTemplateDTO template = new EmailTemplateDTO();
 			template.setName(key);
 			

@@ -45,6 +45,7 @@ public class NTLMAuthenticationGrantHandler extends AbstractAuthorizationGrantHa
 
     @Override
     public boolean validateGrant(OAuthTokenReqMessageContext tokReqMsgCtx) throws IdentityOAuth2Exception {
+        super.validateGrant(tokReqMsgCtx);
 
         String token=tokReqMsgCtx.getOauth2AccessTokenReqDTO().getWindowsToken();
         boolean authenticated;

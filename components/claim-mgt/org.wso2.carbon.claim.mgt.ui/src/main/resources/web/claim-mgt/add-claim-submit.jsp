@@ -86,22 +86,25 @@
 		if (attribute!=null){
 			String[] attributes = attribute.split(";");
 			List<ClaimAttributeDTO> attrList = new ArrayList<ClaimAttributeDTO>();
-
-		        for (int i = 0; i < attributes.length; i++) {
-		                int index = 0;
-		                if ((index = attributes[i].indexOf("/")) > 1) {
-		                    String domain = attributes[i].substring(0, index);
-		                    String attrName = attributes[i].substring(index + 1);
-
-		                    ClaimAttributeDTO attr = new ClaimAttributeDTO();
-		                    attr.setAttributeName(attrName);
-		                    attr.setDomainName(domain);
-		                    attrList.add(attr);
-		                } else {
-		                    mapping.setMappedAttribute(attributes[i]);
-		                }
-		        }
 			
+			for (int i=0;i<attributes.length;i++){
+				int index = 0;
+				if ((index = attributes[i].indexOf("/"))>1){
+					String domain = attributes[i].substring(0, index);
+					String attrName = attributes[i].substring(index + 1);
+					if (domain!=null){
+						ClaimAttributeDTO attr = new ClaimAttributeDTO();
+						attr.setAttributeName(attrName);
+						attr.setDomainName(domain);
+						attrList.add(attr);
+					} else {
+				        mapping.setMappedAttribute(attributes[i]);
+					}
+				} else {
+					mapping.setMappedAttribute(attributes[i]);
+			    }
+			}
+
 			if (attrList.size()>0){
 				mapping.setMappedAttributes(attrList.toArray(new ClaimAttributeDTO[attrList.size()]));
 			}

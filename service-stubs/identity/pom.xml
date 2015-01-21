@@ -41,7 +41,6 @@
         <module>org.wso2.carbon.identity.authenticator.token.stub</module>
         <module>org.wso2.carbon.identity.authenticator.webseal.stub</module>
         <module>org.wso2.carbon.identity.authorization.stub</module>
-        <module>org.wso2.carbon.identity.certificateauthority.stub</module>
         <module>org.wso2.carbon.identity.entitlement.stub</module>
         <module>org.wso2.carbon.identity.mgt.stub</module>
         <module>org.wso2.carbon.identity.oauth.stub</module>

@@ -152,7 +152,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         }
 
         if(SSOUtils.isAuthnRequestSigned(properties)){
-            SSOUtils.addDeflateSignatureToHTTPQueryString(httpQueryString);
+            SSOUtils.addSignatureToHTTPQueryString(context.getTenantDomain(), httpQueryString);
         }
 
         if(loginPage.indexOf("?") > -1){
@@ -177,23 +177,23 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         doBootstrap();
         RequestAbstractType requestMessage;
 
-        X509Credential credential = new X509CredentialImpl(this.tenantDomain, null);
-
         if (!isLogout) {
             requestMessage = buildAuthnRequest(request, isPassive, loginPage);
-	        if (SSOUtils.isAuthnRequestSigned(properties)) {
-		        requestMessage = SSOUtils.setSignature((AuthnRequest)requestMessage,
-		                                               XMLSignature.ALGO_ID_SIGNATURE_RSA, credential);
-	        }
+            if (SSOUtils.isAuthnRequestSigned(properties)) {
+                requestMessage = SSOUtils.setSignature((AuthnRequest) requestMessage,
+                                                       XMLSignature.ALGO_ID_SIGNATURE_RSA,
+                                                       new X509CredentialImpl(tenantDomain, null));
+            }
         } else {
             String username = (String) request.getSession().getAttribute("logoutUsername");
             String sessionIndex = (String) request.getSession().getAttribute("logoutSessionIndex");
 
             requestMessage = buildLogoutRequest(username, sessionIndex, loginPage);
-	        if (SSOUtils.isLogoutRequestSigned(properties)) {
-		        requestMessage = SSOUtils.setSignature((LogoutRequest)requestMessage,
-		                                               XMLSignature.ALGO_ID_SIGNATURE_RSA, credential);
-	        }
+            if (SSOUtils.isLogoutRequestSigned(properties)) {
+                requestMessage = SSOUtils.setSignature((LogoutRequest) requestMessage,
+                                                       XMLSignature.ALGO_ID_SIGNATURE_RSA,
+                                                       new X509CredentialImpl(tenantDomain, null));
+            }
         }
 
         return SSOUtils.encode(SSOUtils.marshall(requestMessage));
@@ -276,18 +276,16 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
     private void processSSOResponse(HttpServletRequest request) throws SAMLSSOException {
 
         Response samlResponse = (Response) unmarshall(new String(Base64.decode(request.getParameter(SSOConstants.HTTP_POST_PARAM_SAML2_RESP))));
-        X509Credential credential = new X509CredentialImpl(this.tenantDomain,
-                                                           identityProvider.getCertificate());
 
         Assertion assertion = null;
 
         if (SSOUtils.isAssertionEncryptionEnabled(properties)) {
             List<EncryptedAssertion> encryptedAssertions = samlResponse.getEncryptedAssertions();
-            EncryptedAssertion encryptedAssertion = null;
+            EncryptedAssertion encryptedAssertion;
             if (encryptedAssertions != null && encryptedAssertions.size() > 0) {
                 encryptedAssertion = encryptedAssertions.get(0);
                 try {
-                    assertion = getDecryptedAssertion(encryptedAssertion, credential);
+                    assertion = getDecryptedAssertion(encryptedAssertion);
                 } catch (Exception e) {
                     throw new SAMLSSOException("Unable to decrypt the SAML Assertion", e);
                 }
@@ -326,7 +324,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         validateAudienceRestriction(assertion);
 
         // validate signature this SP only looking for assertion signature
-        validateSignature(samlResponse, assertion, credential);
+        validateSignature(samlResponse, assertion);
 
         request.getSession(false).setAttribute("samlssoAttributes", getAssertionStatements(assertion));
 
@@ -592,8 +590,8 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
      * @param response   SAML2 Response
      * @return true, if signature is valid.
      */
-    private void validateSignature(Response response, Assertion assertion, X509Credential credential) throws
-                                                                                                      SAMLSSOException{
+    private void validateSignature(Response response, Assertion assertion) throws
+                                                                           SAMLSSOException {
         if(SSOUtils.isAuthnResponseSigned(properties)){
             
             if (identityProvider.getCertificate() == null
@@ -606,6 +604,8 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
                 throw new SAMLSSOException("SAMLResponse signing is enabled, but signature element not found in SAML Response element.");
             } else {
                 try {
+                    X509Credential credential =
+                            new X509CredentialImpl(tenantDomain, identityProvider.getCertificate());
                     SignatureValidator validator = new SignatureValidator(credential);
                     validator.validate(response.getSignature());
                 }  catch (ValidationException e) {
@@ -625,6 +625,8 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
                 throw new SAMLSSOException("SAMLAssertion signing is enabled, but signature element not found in SAML Assertion element.");
             } else {
                 try {
+                    X509Credential credential =
+                            new X509CredentialImpl(tenantDomain, identityProvider.getCertificate());
                     SignatureValidator validator = new SignatureValidator(credential);
                     validator.validate(assertion.getSignature());
                 }  catch (ValidationException e) {
@@ -641,7 +643,8 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
      * @return
      * @throws Exception
      */
-    private Assertion getDecryptedAssertion(EncryptedAssertion encryptedAssertion, X509Credential credential) throws Exception {
+    private Assertion getDecryptedAssertion(EncryptedAssertion encryptedAssertion) throws Exception {
+        X509Credential credential = new X509CredentialImpl(tenantDomain, null);
         KeyInfoCredentialResolver keyResolver = new StaticKeyInfoCredentialResolver(credential);
         EncryptedKey key = encryptedAssertion.getEncryptedData().getKeyInfo().getEncryptedKeys().get(0);
         Decrypter decrypter = new Decrypter(null, keyResolver, null);

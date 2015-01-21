@@ -38,6 +38,7 @@
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserStoreInfo" %>
+<%@page import="java.net.URLEncoder" %>
 
 <%
     boolean readOnlyUserStore = false;
@@ -111,7 +112,7 @@
             if("true".equals(editCancel) && "true".equals(fromUserMgt)){
                 forwardTo = "../user/user-mgt.jsp?ordinal=1";
             } else {
-                forwardTo = "edit.jsp?username=" + username + "&profile=" + profiles[0].getProfileName()
+                forwardTo = "edit.jsp?username=" + URLEncoder.encode(username) + "&profile=" + profiles[0].getProfileName()
                             + "&fromUserMgt="+fromUserMgt+"&noOfProfiles=1";
             }
         } else {
@@ -202,7 +203,7 @@
            				String profileName = CharacterEncoder.getSafeText(profiles[i].getProfileName());
            %>		
 			<tr>
-				<td width="50%"><a href="edit.jsp?username=<%=username%>&profile=<%=profileName%>&fromUserMgt=<%=fromUserMgt%>"><%=profileName%></a></td>
+				<td width="50%"><a href="edit.jsp?username=<%=URLEncoder.encode(username)%>&profile=<%=profileName%>&fromUserMgt=<%=fromUserMgt%>"><%=profileName%></a></td>
 				<td width="50%">
 				<%
                     if (readOnlyUserStore == false && !"default".equals(profileName)) {

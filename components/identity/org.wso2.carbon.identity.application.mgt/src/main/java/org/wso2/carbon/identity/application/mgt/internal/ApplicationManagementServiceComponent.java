@@ -32,8 +32,9 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
-import org.wso2.carbon.identity.application.mgt.ApplicationManagementOSGIService;
+import org.wso2.carbon.identity.application.common.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
+import org.wso2.carbon.identity.application.mgt.ApplicationManagementServiceImpl;
 import org.wso2.carbon.identity.application.mgt.ApplicationMgtSystemConfig;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -63,15 +64,26 @@ public class ApplicationManagementServiceComponent {
     private static Map<String, ServiceProvider> fileBasedSPs = new HashMap<String, ServiceProvider>();
 
     protected void activate(ComponentContext context) {
-        // Registering OAuth2Service as a OSGIService
-        bundleContext = context.getBundleContext();
-        bundleContext.registerService(ApplicationManagementService.class.getName(),
-                new ApplicationManagementService(), null);
-        bundleContext.registerService(ApplicationManagementOSGIService.class.getName(),
-                new ApplicationManagementOSGIService(), null);
-        ApplicationMgtSystemConfig.getInstance();
-        buidFileBasedSPList();
-        log.info("Identity ApplicationManagementComponent bundle is activated");
+        try {
+            if (System.getProperty("setup") != null) {
+                // initialize the identity application persistence manager
+                JDBCPersistenceManager jdbcPersistenceManager = JDBCPersistenceManager.getInstance();
+                jdbcPersistenceManager.initializeDatabase();
+            } else {
+                log.debug("Identity Application Management Database initialization not attempted since \'setup\' " +
+                          "variable was not provided during startup");
+            }
+            // Registering Application management service as a OSGIService
+            bundleContext = context.getBundleContext();
+            bundleContext.registerService(ApplicationManagementService.class.getName(),
+                    ApplicationManagementServiceImpl.getInstance(), null);
+            ApplicationMgtSystemConfig.getInstance();
+            buidFileBasedSPList();
+
+            log.info("Identity ApplicationManagementComponent bundle is activated");
+        } catch (Exception e) {
+            log.error("Error while activating ApplicationManagementComponent bundle", e);
+        }
     }
 
     protected void deactivate(ComponentContext context) {
