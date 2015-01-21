@@ -689,6 +689,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             rememberMeCookie = new Cookie("samlssoRememberMe", sessionId);
         }
         rememberMeCookie.setMaxAge(sessionTimeout);
+        rememberMeCookie.setSecure(true);
+        rememberMeCookie.setHttpOnly(true);
         resp.addCookie(rememberMeCookie);
     }
     
@@ -729,6 +731,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         if (rememberMeCookie == null) {
             rememberMeCookie = new Cookie("samlssoTokenId", sessionId);
             rememberMeCookie.setMaxAge(SAMLSSOService.getSSOSessionTimeout());
+            rememberMeCookie.setSecure(true);
+            rememberMeCookie.setHttpOnly(true);
         }
         resp.addCookie(rememberMeCookie);
     }

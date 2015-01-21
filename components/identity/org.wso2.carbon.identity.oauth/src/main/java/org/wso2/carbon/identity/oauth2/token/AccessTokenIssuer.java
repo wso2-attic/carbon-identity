@@ -55,7 +55,7 @@ public class AccessTokenIssuer {
     private static AccessTokenIssuer instance;
 
     private static Log log = LogFactory.getLog(AccessTokenIssuer.class);
-    private BaseCache<String, OAuthAppDO> appInfoCache;
+    private AppInfoCache appInfoCache;
 
     public static AccessTokenIssuer getInstance() throws IdentityOAuth2Exception {
 
@@ -75,7 +75,7 @@ public class AccessTokenIssuer {
 
         authzGrantHandlers = OAuthServerConfiguration.getInstance().getSupportedGrantTypes();
         clientAuthenticationHandlers = OAuthServerConfiguration.getInstance().getSupportedClientAuthHandlers();
-        appInfoCache = new BaseCache<String,OAuthAppDO>("AppInfoCache");
+        appInfoCache = AppInfoCache.getInstance();
         if(appInfoCache != null) {
             if (log.isDebugEnabled()) {
                 log.debug("Successfully created AppInfoCache under "+ OAuthConstants.OAUTH_CACHE_MANAGER);
@@ -92,27 +92,6 @@ public class AccessTokenIssuer {
 
         String grantType = tokenReqDTO.getGrantType();
         OAuth2AccessTokenRespDTO tokenRespDTO;
-
-        if (!authzGrantHandlers.containsKey(grantType)) {
-            //Do not change this log format as these logs use by external applications
-            log.debug("Unsupported Grant Type : " + grantType +
-                    " for client id : " + tokenReqDTO.getClientId());
-            tokenRespDTO = handleError(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE,
-                    "Unsupported Grant Type!", tokenReqDTO);
-            return tokenRespDTO;
-        }
-
-        // loading the stored application data
-        OAuthAppDO oAuthAppDO = getAppInformation(tokenReqDTO);
-        // If the application has defined a limited set of grant types, then check the grant
-        if(oAuthAppDO.getGrantTypes() != null && !oAuthAppDO.getGrantTypes().contains(grantType)) {
-            //Do not change this log format as these logs use by external applications
-            log.debug("Unsupported Grant Type : " + grantType +
-                    " for client id : " + tokenReqDTO.getClientId());
-            tokenRespDTO = handleError(OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE,
-                    "Unsupported Grant Type!", tokenReqDTO);
-            return tokenRespDTO;
-        }
 
         AuthorizationGrantHandler authzGrantHandler = authzGrantHandlers.get(grantType);
 
@@ -153,6 +132,8 @@ public class AccessTokenIssuer {
             isAuthenticated = true;
         }
 
+        // loading the stored application data
+        OAuthAppDO oAuthAppDO = getAppInformation(tokenReqDTO);
         String applicationName = oAuthAppDO.getApplicationName();
         String userName = tokReqMsgCtx.getAuthorizedUser();
         if(!authzGrantHandler.isOfTypeApplicationUser()) {

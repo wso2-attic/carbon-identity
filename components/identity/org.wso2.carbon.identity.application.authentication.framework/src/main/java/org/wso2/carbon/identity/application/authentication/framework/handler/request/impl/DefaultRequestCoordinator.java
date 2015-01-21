@@ -26,6 +26,7 @@ import org.wso2.carbon.user.api.Tenant;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCache;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheKey;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Request Coordinator
@@ -303,21 +304,24 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
 
         // Build the outbound query string that will be sent to the authentication endpoint and
         // federated IdPs
-        String outboundQueryString = FrameworkUtils.getQueryStringWithConfiguredParams(request);
+        StringBuilder outboundQueryStringBuilder = new StringBuilder();
+        outboundQueryStringBuilder.append(FrameworkUtils.getQueryStringWithConfiguredParams(request));
 
-        if (outboundQueryString.trim().length() != 0) {
-            outboundQueryString = outboundQueryString + "&";
+        if (StringUtils.isNotEmpty(outboundQueryStringBuilder.toString())) {
+            outboundQueryStringBuilder.append("&");
         }
 
-        outboundQueryString = outboundQueryString + "sessionDataKey="
-                + context.getContextIdentifier() + "&relyingParty=" + context.getRelyingParty()
-                + "&type=" + context.getRequestType() + "&sp=" + context.getServiceProviderName();
+        outboundQueryStringBuilder.append("sessionDataKey=").append(context.getContextIdentifier())
+                .append("&relyingParty=").append(context.getRelyingParty()).append("&type=")
+                .append(context.getRequestType()).append("&sp=")
+                .append(context.getServiceProviderName()).append("&isSaaSApp=")
+                .append(context.getSequenceConfig().getApplicationConfig().isSaaSApp());
 
         if (log.isDebugEnabled()) {
-            log.debug("Outbound Query String: " + outboundQueryString);
+            log.debug("Outbound Query String: " + outboundQueryStringBuilder.toString());
         }
 
-        context.setContextIdIncludedQueryParams(outboundQueryString);
-        context.setOrignalRequestQueryParams(outboundQueryString);
+        context.setContextIdIncludedQueryParams(outboundQueryStringBuilder.toString());
+        context.setOrignalRequestQueryParams(outboundQueryStringBuilder.toString());
     }
 }

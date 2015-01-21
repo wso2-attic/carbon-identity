@@ -31,7 +31,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
         <dependency>
 			<groupId>org.wso2.carbon</groupId>
 			<artifactId>org.wso2.carbon.utils</artifactId>
-			<!--<version>4.3.0-SNAPSHOT</version>-->
 		</dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -46,17 +45,14 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 		<dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.ui</artifactId>
-            <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
 		<dependency>
 			<groupId>org.wso2.carbon</groupId>
 			<artifactId>org.wso2.carbon.core</artifactId>
-			<!--<version>4.3.0-SNAPSHOT</version>-->
 		</dependency>
 		<dependency>
 			<groupId>org.wso2.carbon</groupId>
 			<artifactId>org.wso2.carbon.logging</artifactId>
-			<!--<version>4.3.0-SNAPSHOT</version>-->
 		</dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -82,6 +78,10 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.user.profile</artifactId>
         </dependency>
+		<dependency>
+			<groupId>commons-lang.wso2</groupId>
+			<artifactId>commons-lang</artifactId>
+		</dependency>
     </dependencies>
 	<build>
 		<plugins>

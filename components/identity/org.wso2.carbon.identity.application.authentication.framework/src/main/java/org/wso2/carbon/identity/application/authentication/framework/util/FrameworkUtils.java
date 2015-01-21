@@ -475,6 +475,8 @@ public class FrameworkUtils {
     public static void storeAuthCookie(HttpServletRequest req, HttpServletResponse resp, String id, Integer age) {
 
         Cookie authCookie = new Cookie(FrameworkConstants.COMMONAUTH_COOKIE, id);
+        authCookie.setSecure(true);
+        authCookie.setHttpOnly(true);
 
         if (age != null) {
             authCookie.setMaxAge(age.intValue() * 60);

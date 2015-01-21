@@ -206,36 +206,35 @@
 		<tbody>
 			<tr>
 				<td class="formRow">
-					<table class="normal" cellspacing="0" width="100%">
+					<table class="normal" cellspacing="0">
 						<tr>
 							<td class="leftCol-small"><fmt:message key='display.name'/><font color="red">*</font></td>
-							<td><input type="text" name="displayName" id="displayName" class="text-box-big"/></td>
+							<td class="leftCol-big"><input type="text" name="displayName" id="displayName" class="text-box-big"/></td>
 						</tr>
 						
 						<tr>
-							<td><fmt:message key='description'/><font color="red">*</font></td>
-							<td><input type="text" name="description" id="description"  class="text-box-big"/></td>
+							<td class="leftCol-small"><fmt:message key='description'/><font color="red">*</font></td>
+							<td class="leftCol-big"><input type="text" name="description" id="description"  class="text-box-big"/></td>
 						</tr>
 			
 						<tr>
-							<td><fmt:message key='claim.uri'/><font color="red">*</font></td>
+							<td class="leftCol-small"><fmt:message key='claim.uri'/><font color="red">*</font></td>
 <%
                             if(claimUri != null && claimUri.trim().length() > 0){
 %>
-							<td><input type="text" name="claimUri" id="claimUri" class="text-box-big" value="<%=claimUri%>"/></td>
+							<td class="leftCol-big"><input type="text" name="claimUri" id="claimUri" class="text-box-big" value="<%=claimUri%>"/></td>
 <%
                             } else {
 %>
-							<td><input type="text" name="claimUri" id="claimUri" class="text-box-big"/></td>
+							<td class="leftCol-big"><input type="text" name="claimUri" id="claimUri" class="text-box-big"/></td>
 <%
                             }
 %>
                         </tr>
 			
 						<tr>
-							<td><fmt:message key='mapped.attribute'/><font color="red">*</font></td>
-							<!--td class="leftCol-big"-->
-                            <td>
+							<td class="leftCol-small"><fmt:message key='mapped.attribute'/><font color="red">*</font></td>
+							<td class="leftCol-big">
 							<input type="text" name="attribute" id="attribute"  class="text-box-big"/>
                                 <div class="sectionHelp" style="display: inline">
                                     <fmt:message key='help.mapped.attribute'/>
@@ -244,15 +243,15 @@
 						</tr>
 			
 						<tr>
-							<td><fmt:message key='regular.expression'/></td>
-							<td><input type="text" name="regex" id="regex" class="text-box-big"/></td>
+							<td class="leftCol-small"><fmt:message key='regular.expression'/></td>
+							<td class="leftCol-big"><input type="text" name="regex" id="regex" class="text-box-big"/></td>				
 						</tr>
 			            		<tr>
-							<td><fmt:message key='display.order'/></td>
-							<td><input type="text" name="displayOrder" id="displayOrder" class="text-box-big"/></td>
+							<td class="leftCol-small"><fmt:message key='display.order'/></td>
+							<td class="leftCol-big"><input type="text" name="displayOrder" id="displayOrder" class="text-box-big"/></td>				
 						</tr>
 						<tr>
-							<td><fmt:message key='supported.by.default'/></td>
+							<td class="leftCol-small"><fmt:message key='supported.by.default'/></td>
 							<td>
 							   <input type='checkbox' name='supported' id='supported' onclick="setType('supported','supportedhidden')" />
 							   <input type='hidden' name='supportedhidden' id='supportedhidden' />
@@ -260,7 +259,7 @@
 						</tr>
 			
 						<tr>
-							<td><fmt:message key='required'/></td>
+							<td class="leftCol-small"><fmt:message key='required'/></td>
 							<td>
 							   <input type='checkbox' name='required' id='required' onclick="setType('required','requiredhidden')" />
 							   <input type='hidden' name='requiredhidden' id='requiredhidden' />
@@ -268,7 +267,7 @@
 						</tr>
 						
 							<tr>
-							<td><fmt:message key='readonly'/></td>
+							<td class="leftCol-small"><fmt:message key='readonly'/></td>
 							<td>
 							   <input type='checkbox' name='readonly' id='readonly' onclick="setType('readonly','readonlyhidden')" />
 							   <input type='hidden' name='readonlyhidden' id='readonlyhidden' />

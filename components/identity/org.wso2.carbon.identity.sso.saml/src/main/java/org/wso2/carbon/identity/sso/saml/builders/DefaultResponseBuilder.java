@@ -69,7 +69,7 @@ public class DefaultResponseBuilder implements ResponseBuilder{
         Assertion assertion = buildSAMLAssertion(authReqDTO, notOnOrAfter, sessionId);
         if (authReqDTO.isDoEnableEncryptedAssertion()) {
 
-            String domainName = MultitenantUtils.getTenantDomain(authReqDTO.getUsername());
+            String domainName = authReqDTO.getTenantDomain();
             String alias = authReqDTO.getCertAlias();
             if(alias != null)   {
             EncryptedAssertion encryptedAssertion = SAMLSSOUtil.setEncryptedAssertion(assertion,
