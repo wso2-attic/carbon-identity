@@ -1,22 +1,20 @@
 /*
-*
-*   Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*   WSO2 Inc. licenses this file to you under the Apache License,
-*   Version 2.0 (the "License"); you may not use this file except
-*   in compliance with the License.
-*   You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*
-*/
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.notification.mgt.email;
 
@@ -31,6 +29,7 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.base.BaseConstants;
 import org.apache.axis2.transport.mail.MailConstants;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -44,7 +43,12 @@ import org.wso2.carbon.identity.notification.mgt.bean.Subscription;
 import org.wso2.carbon.identity.notification.mgt.email.bean.EmailEndpointInfo;
 import org.wso2.carbon.identity.notification.mgt.email.bean.EmailSubscription;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 
 /**
  * This class will be the registering class as a service for email sending module on message sending component. This
@@ -53,9 +57,17 @@ import java.util.*;
  */
 @SuppressWarnings("unused")
 public class EmailSendingModule extends AbstractNotificationSendingModule {
+    /**
+     * Subscription map which has all the subscriptions by email module
+     */
     private Map<String, EmailSubscription> subscriptionMap;
     private static final Log log = LogFactory.getLog(EmailSendingModule.class);
 
+    /**
+     * Logic for sending email on publisher event from Notification Management component
+     * @param publisherEvent Publisher event from publisher. Includes event name and properties
+     * @throws NotificationManagementException
+     */
     @Override
     public void sendMessage(PublisherEvent publisherEvent) throws NotificationManagementException {
         // publisher event will not be null, since it is handled by the mgt component
@@ -63,8 +75,7 @@ public class EmailSendingModule extends AbstractNotificationSendingModule {
 
         // Message sending will only be done if there is a subscription on this module
         if (subscription != null) {
-            List<EmailEndpointInfo> endpointInfoList = new ArrayList<EmailEndpointInfo>
-                    (subscription.getEmailEndpointInfoList());
+            List<EmailEndpointInfo> endpointInfoList = new ArrayList<EmailEndpointInfo>(subscription.getEmailEndpointInfoList());
 
             PrivilegedCarbonContext.startTenantFlow();
             // Send mails for each and every subscribed endpoint of the subscription
@@ -77,9 +88,9 @@ public class EmailSendingModule extends AbstractNotificationSendingModule {
                                 publisherEvent.getEventProperties()));
                 // Read the template configured in endpoint information.
                 String template = endpointInfo.getTemplate();
-                // If there is no template defined in the endpoint. use default template for
-                // which is configured for subscription.
-                if (template == null || template.trim().isEmpty()) {
+                // If there is no template defined in the endpoint. use default template for which is configured for
+                // subscription.
+                if (StringUtils.isEmpty(template)) {
                     template = subscription.getMailTemplate();
                 }
                 // If still no template found. The message sending will be aborted to that
@@ -120,7 +131,7 @@ public class EmailSendingModule extends AbstractNotificationSendingModule {
                                 "on event " + publisherEvent.getEventName());
                     }
                 } catch (AxisFault axisFault) {
-                        log.debug("Error while sending email notification to address " + endpointInfo.
+                        log.error("Error while sending email notification to address " + endpointInfo.
                                 getEmailAddress() + "on event " + publisherEvent.getEventName(), axisFault);
                 }
             }
@@ -139,11 +150,16 @@ public class EmailSendingModule extends AbstractNotificationSendingModule {
         return EmailModuleConstants.MODULE_NAME;
     }
 
+    /**
+     * Initialize Email Module with configurations.
+     * @param configurations Configurations which are relevant to this module. Passed by Notification Management
+     *                       Component
+     */
     @Override
     public void init(ModuleConfiguration configurations) {
         List<Subscription> subscriptions = configurations.getSubscriptions();
         subscriptionMap = new HashMap<String, EmailSubscription>();
-
+        // Create Email Subscription from generic Subscriptions and add to map
         for (Subscription subscription : subscriptions) {
             subscriptionMap.put(subscription.getSubscriptionName(), new EmailSubscription(subscription));
         }
@@ -156,7 +172,7 @@ public class EmailSendingModule extends AbstractNotificationSendingModule {
      */
     @Override
     public boolean isSubscribed(PublisherEvent publisherEvent) throws NotificationManagementException {
-        return subscriptionMap.get(publisherEvent.getEventName()) != null;
+        return (publisherEvent != null && subscriptionMap.containsKey(publisherEvent.getEventName()));
     }
 
     /**
@@ -190,20 +206,19 @@ public class EmailSendingModule extends AbstractNotificationSendingModule {
      */
     private String getSubject(Properties subscriptionProperties, Properties endpointProperties,
                               Properties eventProperties) {
-
         String subject = "";
         // First priority is given to the endpoint level subject
-        if (endpointProperties != null && endpointProperties.get(EmailModuleConstants.SUBJECT_PROPERTY_LABLE) != null) {
-            subject = endpointProperties.getProperty(EmailModuleConstants.SUBJECT_PROPERTY_LABLE);
+        if (endpointProperties != null && endpointProperties.get(EmailModuleConstants.SUBJECT_PROPERTY_LABEL) != null) {
+            subject = endpointProperties.getProperty(EmailModuleConstants.SUBJECT_PROPERTY_LABEL);
             // If the subject is not found at endpoint level configuration then search in dynamic configurations.
-        } else if (eventProperties != null && eventProperties.getProperty(EmailModuleConstants
-                .SUBJECT_PROPERTY_LABLE) != null) {
-            subject = eventProperties.get(EmailModuleConstants.SUBJECT_PROPERTY_LABLE).toString();
+        } else if (eventProperties != null && StringUtils.isNotEmpty(eventProperties.getProperty(EmailModuleConstants
+                .SUBJECT_PROPERTY_LABEL))) {
+            subject = eventProperties.get(EmailModuleConstants.SUBJECT_PROPERTY_LABEL).toString();
             // If subject is not found at any of the above levels. use the default subject which is configured at
             // subscription level.
-        } else if (subscriptionProperties != null && subscriptionProperties.getProperty(EmailModuleConstants
-                .SUBJECT_PROPERTY_LABLE) != null) {
-            subject = subscriptionProperties.get(EmailModuleConstants.SUBJECT_PROPERTY_LABLE).toString();
+        } else if (subscriptionProperties != null && StringUtils.isNotEmpty(subscriptionProperties.getProperty
+                (EmailModuleConstants.SUBJECT_PROPERTY_LABEL))) {
+            subject = subscriptionProperties.getProperty(EmailModuleConstants.SUBJECT_PROPERTY_LABEL);
         }
         return subject;
     }

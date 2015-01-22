@@ -1,29 +1,29 @@
 /*
-*
-*   Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*   WSO2 Inc. licenses this file to you under the Apache License,
-*   Version 2.0 (the "License"); you may not use this file except
-*   in compliance with the License.
-*   You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*
-*/
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.notification.mgt.json;
 
 import org.apache.axiom.om.util.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -36,7 +36,6 @@ import org.wso2.carbon.identity.notification.mgt.bean.PublisherEvent;
 import org.wso2.carbon.identity.notification.mgt.bean.Subscription;
 import org.wso2.carbon.identity.notification.mgt.json.bean.JsonEndpointInfo;
 import org.wso2.carbon.identity.notification.mgt.json.bean.JsonSubscription;
-import org.apache.http.client.ClientProtocolException;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -50,9 +49,12 @@ import java.util.Properties;
  * This is exposed as the service class and will register this module as a message sending module
  */
 public class JsonMessageModule extends AbstractNotificationSendingModule {
-    // Map of JsonSubscriptions which are registered
-    private Map<String, JsonSubscription> subscriptionMap;
+
     private static final Log log = LogFactory.getLog(JsonMessageModule.class);
+    /**
+     * Map of JsonSubscriptions which are registered
+     */
+    private Map<String, JsonSubscription> subscriptionMap;
 
     /**
      * Overridden method for rest json message sending.
@@ -69,14 +71,13 @@ public class JsonMessageModule extends AbstractNotificationSendingModule {
         List<JsonEndpointInfo> endpoints;
 
         if (jsonSubscription != null) {
-            // Get all configured endpoints for message sending
             endpoints = jsonSubscription.getEndpointInfoList();
-
+            HttpClient client = new DefaultHttpClient();
+            // Get all configured endpoints for message sending
             // Send messages to each endpoint in endpoints list
             for (JsonEndpointInfo endpoint : endpoints) {
                 HttpPost post = new HttpPost(endpoint.getEndpoint());
                 HttpResponse response = null;
-                HttpClient client = new DefaultHttpClient();
                 StringEntity entity;
 
                 post.setHeader(JsonModuleConstants.CONTENT_TYPE_LABEL, JsonModuleConstants.CONTENT_TYPE_JSON_LABEL);
@@ -98,10 +99,10 @@ public class JsonMessageModule extends AbstractNotificationSendingModule {
                 // Read JSON content from endpoint configurations. If not present,
                 // get content form event configurations.
                 String jsonContent = endpoint.getJsonConfigString();
-                if (jsonContent == null || jsonContent.trim().isEmpty()) {
+                if (StringUtils.isEmpty(jsonContent)) {
                     jsonContent = jsonSubscription.getJsonContent();
                 }
-                if (jsonContent == null || jsonContent.trim().isEmpty()) {
+                if (StringUtils.isEmpty(jsonContent)) {
                     log.error("No content template found either for event or endpoint " + endpoint.getEndpoint() +
                             " on event " + publisherEvent.getEventName() + ", message sending aborted");
                     continue;
@@ -133,6 +134,7 @@ public class JsonMessageModule extends AbstractNotificationSendingModule {
                             "event " + publisherEvent.getEventName(), e);
 
                 } finally {
+                    // Finally closing connections.
                     post.abort();
                 }
             }
@@ -144,13 +146,25 @@ public class JsonMessageModule extends AbstractNotificationSendingModule {
         return JsonModuleConstants.MODULE_NAME;
     }
 
+    /**
+     * Initialize REST JSON Module with configurations.
+     * @param moduleConfigurations Configurations which are relevant to this module. Passed by Notification Management
+     *                       Component
+     */
     @Override
     public void init(ModuleConfiguration moduleConfigurations) throws NotificationManagementException {
 
-        this.subscriptionMap = new HashMap<String, JsonSubscription>();
-        for (Subscription subscription : moduleConfigurations.getSubscriptions()) {
-            subscriptionMap.put(subscription.getSubscriptionName(), new JsonSubscription(subscription));
-        }
+	    this.subscriptionMap = new HashMap<String, JsonSubscription>();
+	    for (Subscription subscription : moduleConfigurations.getSubscriptions()) {
+		    try {
+			    subscriptionMap.put(subscription.getSubscriptionName(), new JsonSubscription(subscription));
+		    } catch (NotificationManagementException e) {
+			    // Will log an error at the server startup time if JSON subscription object building fails. Will
+			    // continue with building rest of the subscriptions if one fails.
+			    log.error("Error while building JSON subscription from Subscription for : " +
+			              subscription.getSubscriptionName(), e);
+		    }
+	    }
     }
 
     /**
@@ -161,8 +175,7 @@ public class JsonMessageModule extends AbstractNotificationSendingModule {
     @Override
     public boolean isSubscribed(PublisherEvent publisherEvent) throws NotificationManagementException {
 
-        return publisherEvent.getEventName() != null && subscriptionMap.get(publisherEvent
-                .getEventName()) != null;
+        return (publisherEvent != null && subscriptionMap.containsKey(publisherEvent.getEventName()));
     }
 
     /**
@@ -189,7 +202,7 @@ public class JsonMessageModule extends AbstractNotificationSendingModule {
     private String getJSONData(String jsonContent, Properties eventParams, Properties endpointParams,
                                Properties dynamicParams) {
 
-        if (jsonContent != null && !jsonContent.trim().isEmpty()) {
+        if (StringUtils.isNotEmpty(jsonContent)) {
             // Replaced using one property map at once. May improve efficiency if no replacements are needed.
             jsonContent = NotificationManagementUtils.replacePlaceHolders(jsonContent, "\\(", "\\)", endpointParams);
             jsonContent = NotificationManagementUtils.replacePlaceHolders(jsonContent, "\\(", "\\)", dynamicParams);

@@ -1,22 +1,20 @@
 /*
-*
-*   Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*   WSO2 Inc. licenses this file to you under the Apache License,
-*   Version 2.0 (the "License"); you may not use this file except
-*   in compliance with the License.
-*   You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*
-*/
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.notification.mgt;
 
@@ -29,9 +27,19 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 
 /**
  * Configuration builder class for Message Management component. Responsible for reading msg-mgt
@@ -42,11 +50,17 @@ import java.util.*;
 public class NotificationMgtConfigBuilder {
 
     private static final Log log = LogFactory.getLog(NotificationMgtConfigBuilder.class);
-    // All properties configured in msg-mgt.properties file
+    /**
+     * All properties configured in msg-mgt.properties file
+     */
     private Properties notificationMgtConfigProperties;
-    // Map of configurations which are specific to notification sending modules
+    /**
+     * Map of configurations which are specific to notification sending modules
+     */
     private Map<String, ModuleConfiguration> moduleConfiguration;
-    // Thread pool size for message sending task
+    /**
+     * Thread pool size for message sending task
+     */
     private String threadPoolSize;
 
     /**
@@ -237,7 +251,9 @@ public class NotificationMgtConfigBuilder {
                     // Replaces the original encrypted property with resolved property
                     notificationMgtConfigProperties.put(key, value);
                 } else {
-                    log.debug("No encryption done for value with key :" + key);
+                    if (log.isDebugEnabled()) {
+                        log.debug("No encryption done for value with key :" + key);
+                    }
                 }
             }
         } else {

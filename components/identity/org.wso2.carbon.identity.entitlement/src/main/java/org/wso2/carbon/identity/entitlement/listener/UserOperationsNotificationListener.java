@@ -174,11 +174,10 @@ public class UserOperationsNotificationListener extends AbstractUserOperationEve
     private void sendNotification(String operation, String username) {
         NotificationSender notificationSender = EntitlementServiceComponent.getNotificationSender();
         if (notificationSender != null) {
-            PublisherEvent event = new PublisherEvent();
-            event.addEventProperty(operationLabel, operation);
-            event.addEventProperty(usernameLabel, username);
-            event.setEventName(eventName);
             try {
+                PublisherEvent event = new PublisherEvent(eventName);
+                event.addEventProperty(operationLabel, operation);
+                event.addEventProperty(usernameLabel, username);
                 if (log.isDebugEnabled()) {
                     log.debug("Invoking notification sender");
                 }

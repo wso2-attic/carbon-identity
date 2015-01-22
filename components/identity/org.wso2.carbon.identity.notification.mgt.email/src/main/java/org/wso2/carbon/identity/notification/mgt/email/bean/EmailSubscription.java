@@ -1,25 +1,24 @@
 /*
-*
-*   Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*   WSO2 Inc. licenses this file to you under the Apache License,
-*   Version 2.0 (the "License"); you may not use this file except
-*   in compliance with the License.
-*   You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*
-*/
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.notification.mgt.email.bean;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.notification.mgt.NotificationManagementException;
@@ -40,9 +39,13 @@ import java.util.Properties;
 public class EmailSubscription extends Subscription {
 
     private static final Log log = LogFactory.getLog(EmailSubscription.class);
-    // Subscription level template.
+    /**
+     * Subscription level template.
+     */
     private String mailTemplate;
-    // List of email endpoints which is registered with the subscription.
+    /**
+     * List of email endpoints which is registered with the subscription.
+     */
     private List<EmailEndpointInfo> emailEndpointInfoList;
 
     /**
@@ -71,7 +74,7 @@ public class EmailSubscription extends Subscription {
         String templatePath = (String) getSubscriptionProperties().remove(subscriptionKey + "." +
                 EmailModuleConstants.Config.MAIL_TEMPLATE_QNAME);
 
-        if (templatePath != null) {
+        if (StringUtils.isNotEmpty(templatePath)) {
             String template = NotificationManagementUtils.readMessageTemplate(templatePath);
             this.setMailTemplate(template);
         } else {
@@ -105,7 +108,9 @@ public class EmailSubscription extends Subscription {
             try {
                 emailEndpointInfoList.add(buildEndpoint(endpointKey, endpointProperties));
             } catch (NotificationManagementException e) {
-                log.error("Error while building endpoint object for endpoint with key " +endpointKey, e);
+                // If the particular endpoint building fails, An error message will be printed at the startup time.
+                // And continue with building other endpoints
+                log.error("Error while building endpoint object for endpoint with key " + endpointKey, e);
             }
         }
     }
@@ -126,11 +131,11 @@ public class EmailSubscription extends Subscription {
         String emailAddress = (String) endpointProperties.remove(prefix + "." + EmailModuleConstants.Config.
                 ADDRESS_QNAME);
         // If no configured email address is found, check in event properties for an email address.
-        if (emailAddress == null || emailAddress.trim().isEmpty()) {
+        if (StringUtils.isEmpty(emailAddress)) {
             emailAddress = (String) endpointProperties.remove(EmailModuleConstants.Config.ADDRESS_QNAME);
         }
         // If there is no configured email address, stop building endpoint, throw an exception
-        if (emailAddress == null || emailAddress.trim().isEmpty()) {
+        if (StringUtils.isEmpty(emailAddress)) {
             throw new NotificationManagementException("No email address configured for endpoint");
         }
 

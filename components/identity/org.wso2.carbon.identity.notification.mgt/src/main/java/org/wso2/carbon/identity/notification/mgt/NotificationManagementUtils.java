@@ -1,25 +1,24 @@
 /*
-*
-*   Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*   WSO2 Inc. licenses this file to you under the Apache License,
-*   Version 2.0 (the "License"); you may not use this file except
-*   in compliance with the License.
-*   You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*
-*/
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.notification.mgt;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -46,7 +45,7 @@ public class NotificationManagementUtils {
      */
     public static Properties getPropertiesWithPrefix(String prefix, Properties properties) {
 
-        if (prefix == null || properties == null) {
+        if (StringUtils.isEmpty(prefix) || properties == null) {
             throw new IllegalArgumentException("Prefix and properties should not be null to extract properties with " +
                     "certain prefix");
         }
@@ -57,6 +56,8 @@ public class NotificationManagementUtils {
         while (propertyNames.hasMoreElements()) {
             String key = (String) propertyNames.nextElement();
             if (key.startsWith(prefix)) {
+                // Remove from original properties to hold property schema. ie need to get the set of properties which
+                // remains after consuming all required specific properties
                 subProperties.setProperty(key, (String) properties.remove(key));
             }
         }
@@ -73,13 +74,15 @@ public class NotificationManagementUtils {
     public static Properties getSubProperties(String prefix, Properties properties) {
 
         // Stop proceeding if required arguments are not present
-        if (prefix == null || properties == null) {
+        if (StringUtils.isEmpty(prefix) || properties == null) {
             throw new IllegalArgumentException("Prefix and Properties should not be null to get sub properties");
         }
 
         int i = 1;
         Properties subProperties = new Properties();
         while (properties.getProperty(prefix + "." + i) != null) {
+            // Remove from original properties to hold property schema. ie need to get the set of properties which
+            // remains after consuming all required specific properties
             subProperties.put(prefix + "." + i, properties.remove(prefix + "." + i++));
         }
         return subProperties;
@@ -93,7 +96,7 @@ public class NotificationManagementUtils {
     public static Properties buildSingleWordKeyProperties(String prefix, Properties propertiesWithFullKeys) {
 
         // Stop proceeding if required arguments are not present
-        if (prefix == null || propertiesWithFullKeys == null) {
+        if (StringUtils.isEmpty(prefix) || propertiesWithFullKeys == null) {
             throw new IllegalArgumentException("Prefix and properties should not be null to get  properties with " +
                     "single word keys.");
         }
@@ -106,6 +109,8 @@ public class NotificationManagementUtils {
             String key = (String) propertyNames.nextElement();
             String newKey = key.substring(key.lastIndexOf(".") + 1, key.length());
             if (!newKey.trim().isEmpty()) {
+                // Remove from original properties to hold property schema. ie need to get the set of properties which
+                // remains after consuming all required specific properties
                 properties.put(newKey, propertiesWithFullKeys.remove(key));
             }
         }
@@ -125,26 +130,38 @@ public class NotificationManagementUtils {
                                              String replaceRegexEndsWith,
                                              Properties properties) {
 
-        if (log.isDebugEnabled()) {
-            log.debug("Replacing place holders of String " + content);
-        }
         // Stop proceeding if required arguments are not present
-        if (properties == null || content == null || replaceRegexEndsWith == null || replaceRegexStartsWith == null) {
+        if (properties == null || StringUtils.isEmpty(content) || StringUtils.isEmpty(replaceRegexEndsWith) ||
+                StringUtils.isEmpty(replaceRegexStartsWith)) {
             throw new IllegalArgumentException("Missing required arguments for replacing place holders");
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Place holders starting regex : " + replaceRegexStartsWith + ". End regex with : " +
+                    replaceRegexEndsWith);
+            log.debug("Replacing place holders of String " + content);
         }
 
         if (content.contains(replaceRegexStartsWith)) {
             // For each property check whether there is a place holder and replace the place
             // holders exist.
             for (String key : properties.stringPropertyNames()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Replacing place holder with property key :" + key + " from value :" + properties
+                            .getProperty(key));
+                }
                 content = content.replaceAll(replaceRegexStartsWith + key + replaceRegexEndsWith,
                         properties.getProperty(key));
             }
+            if (log.isDebugEnabled()) {
+                log.debug("Place holders replaced String " + content);
+            }
         } else {
             if (log.isDebugEnabled()) {
-                log.debug("No place holders are found to be replaced");
+                log.debug("No place holders are found to be replaced in the message " + content);
             }
         }
+
         return content;
     }
 
@@ -159,8 +176,8 @@ public class NotificationManagementUtils {
         BufferedReader bufferedReader = null;
         String template = null;
         // Stop proceeding if required arguments are not present
-        if (filePath == null || filePath.trim().isEmpty()) {
-            throw new IllegalArgumentException("File path for message reading is not present");
+        if (StringUtils.isEmpty(filePath)) {
+            throw new IllegalArgumentException("File path should not be empty");
         }
 
         // Reading the content of the file
@@ -179,7 +196,7 @@ public class NotificationManagementUtils {
             template = templateBuilder.toString();
 
         } catch (IOException e) {
-            log.error("Error while reading email template", e);
+            log.error("Error while reading email template from location " + filePath, e);
 
         } finally {
             try {
@@ -187,7 +204,7 @@ public class NotificationManagementUtils {
                     bufferedReader.close();
                 }
             } catch (IOException e) {
-                log.error("Error while closing buffered reader", e);
+                log.error("Error while closing buffered reader after reading file " + filePath, e);
             }
         }
         return template;

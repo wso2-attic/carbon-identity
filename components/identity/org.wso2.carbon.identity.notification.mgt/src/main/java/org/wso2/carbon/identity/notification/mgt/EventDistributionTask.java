@@ -1,25 +1,24 @@
 /*
-*
-*   Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*   WSO2 Inc. licenses this file to you under the Apache License,
-*   Version 2.0 (the "License"); you may not use this file except
-*   in compliance with the License.
-*   You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*
-*/
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.notification.mgt;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.notification.mgt.bean.PublisherEvent;
@@ -37,11 +36,22 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class EventDistributionTask implements Runnable {
 
     private static final Log log = LogFactory.getLog(NotificationSender.class);
-    // Queue used to add events by publishers.
+    /**
+     * Queue used to add events by publishers.
+     */
     private BlockingDeque<PublisherEvent> eventQueue;
-    // Registered message sending modules.
+    /**
+     * Registered message sending modules.
+     */
     private List<NotificationSendingModule> notificationSendingModules;
+    /**
+     * Thread pool for executing event distribution
+     */
     private static ExecutorService threadPool = null;
+    /**
+     * Condition to break event distribution task
+     */
+    private volatile boolean running;
 
     /**
      * Overridden constructor to initiate notification sending modules and thread pool size
@@ -60,8 +70,9 @@ public class EventDistributionTask implements Runnable {
 
     @Override
     public void run() {
-        // Run forever
-        while (true) {
+        running = true;
+        // Run forever until stop the bundle. Will stop in eventQueue.take()
+        while (running) {
             try {
                 final PublisherEvent event = eventQueue.take();
                 for (final NotificationSendingModule module : notificationSendingModules) {
@@ -95,5 +106,9 @@ public class EventDistributionTask implements Runnable {
                 log.error("Error while picking up event from event queue", e);
             }
         }
+    }
+
+    public void shutdown(){
+        this.running = false;
     }
 }

@@ -1,24 +1,25 @@
 /*
-*
-*   Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*   WSO2 Inc. licenses this file to you under the Apache License,
-*   Version 2.0 (the "License"); you may not use this file except
-*   in compliance with the License.
-*   You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*
-*/
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.notification.mgt.bean;
+
+import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.identity.notification.mgt.NotificationManagementException;
 
 import java.util.Properties;
 
@@ -29,25 +30,30 @@ import java.util.Properties;
 @SuppressWarnings("unused")
 public class PublisherEvent {
 
-    // Name of the event
+    /**
+     * Name of the event
+     */
     private String eventName;
-    // Set of dynamic properties including event data
+    /**
+     * Set of dynamic properties including event data
+     */
     private Properties eventProperties;
 
     public Properties getEventProperties() {
         return eventProperties;
     }
 
-    public PublisherEvent() {
+    public PublisherEvent(String eventName) throws NotificationManagementException{
+        if(StringUtils.isEmpty(eventName)){
+            throw new NotificationManagementException("Cannot build Publisher Event without a valid event name");
+        }
+        this.eventName = eventName;
         eventProperties = new Properties();
+
     }
 
     public String getEventName() {
         return eventName;
-    }
-
-    public void setEventName(String eventName) {
-        this.eventName = eventName;
     }
 
     /**

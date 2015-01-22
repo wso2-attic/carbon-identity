@@ -1,25 +1,24 @@
 /*
-*
-*   Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*   WSO2 Inc. licenses this file to you under the Apache License,
-*   Version 2.0 (the "License"); you may not use this file except
-*   in compliance with the License.
-*   You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*
-*/
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.notification.mgt.json.bean;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.notification.mgt.NotificationManagementException;
@@ -27,6 +26,7 @@ import org.wso2.carbon.identity.notification.mgt.NotificationManagementUtils;
 import org.wso2.carbon.identity.notification.mgt.bean.Subscription;
 import org.wso2.carbon.identity.notification.mgt.json.JsonModuleConstants;
 
+import java.lang.Boolean;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -40,21 +40,26 @@ import java.util.Properties;
 public class JsonSubscription extends Subscription {
 
     private static final Log log = LogFactory.getLog(JsonSubscription.class);
-    // Template of the json as defined in the configuration or given at the run time
+    /**
+     * Template of the json as defined in the configuration or given at the run time
+     */
     private String jsonContent;
-    // List of endpoints which this event should fire notifications.
+    /**
+     * List of endpoints which this event should fire notifications.
+     */
     private List<JsonEndpointInfo> endpointInfoList;
 
-    // Passes a generic subscription object and this builds specific json subscription object
-    public JsonSubscription(Subscription subscription) {
+    /**
+     * Passes a generic subscription object and this builds specific json subscription object
+     *
+     * @param subscription  A generic type subscription object
+     */
+    public JsonSubscription(Subscription subscription) throws NotificationManagementException {
 
-        super(subscription.getSubscriptionName(), subscription.getSubscriptionProperties());
-        endpointInfoList = new ArrayList<JsonEndpointInfo>();
-        try {
-            build(getSubscriptionName(), getSubscriptionProperties());
-        } catch (NotificationManagementException e) {
-            log.error("Error while building json subscription " + subscription.getSubscriptionName(), e);
-        }
+	    super(subscription.getSubscriptionName(), subscription.getSubscriptionProperties());
+	    endpointInfoList = new ArrayList<JsonEndpointInfo>();
+	    // Build the json subscription object with parsed properties from management component
+	    build(getSubscriptionName(), getSubscriptionProperties());
     }
 
     /**
@@ -67,8 +72,8 @@ public class JsonSubscription extends Subscription {
     private void build(String eventName, Properties subscriptionProperties) throws
             NotificationManagementException {
         // Subscription properties will never be null, Therefore no need to check
-        if (eventName == null || eventName.trim().isEmpty()) {
-            throw new NotificationManagementException("No event name found. Cannot proceed with event building");
+        if (StringUtils.isEmpty(eventName)) {
+            throw new NotificationManagementException("No valid event name found. Cannot proceed with event building");
         }
         String eventKey = JsonModuleConstants.Config.SUBSCRIPTION_NS + "." + eventName;
 
@@ -86,12 +91,17 @@ public class JsonSubscription extends Subscription {
             log.warn("No default json template found for event " + eventName);
         }
 
-        //Sets endpoint information for the event
+        // Sets endpoint information for the event
         String endpointKey = eventKey + "." + JsonModuleConstants.Config.ENDPOINT_QNAME;
         setEndpoints(endpointKey, NotificationManagementUtils.getPropertiesWithPrefix(endpointKey,
                 subscriptionProperties));
     }
 
+    /**
+     * Set endpoints to the json subscription object
+     * @param prefix Prefix of the endpoint properties key. ie json.subscribe.eventName.endpoint.endpointName
+     * @param endpointsProperties Properties which are relevant to endpoint.
+     */
     private void setEndpoints(String prefix, Properties endpointsProperties) {
 
         Properties endpointNames = NotificationManagementUtils.getSubProperties(prefix, endpointsProperties);
@@ -130,7 +140,7 @@ public class JsonSubscription extends Subscription {
         JsonEndpointInfo jsonEndpointInfo = new JsonEndpointInfo();
         String url = (String) endpointProperties.remove(prefix + "." + JsonModuleConstants.Config.ADDRESS_QNAME);
         // If there is no configured json url address, stop building endpoint, throw an exception
-        if (url == null || url.trim().isEmpty()) {
+        if (StringUtils.isEmpty(url)) {
             throw new NotificationManagementException("No address configured for endpoint");
         } else {
             url = url.trim();
@@ -177,15 +187,14 @@ public class JsonSubscription extends Subscription {
                 AUTH_REQUIRED_QNAME);
 
         // If authentication required
-        if (("true").equals(authenticationRequired)) {
+        if (Boolean.parseBoolean(authenticationRequired)) {
             endpointInfo.setAuthenticationRequired(true);
             String username = ((String) endpointProperties.remove(prefix + "." + JsonModuleConstants.Config.
                     USERNAME_QNAME));
             String password = ((String) endpointProperties.remove(prefix + "." + JsonModuleConstants.Config.
                     PASSWORD_QNAME));
 
-            if (username == null || username.trim().isEmpty() || password == null ||
-                    password.trim().isEmpty()) {
+            if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
                 throw new NotificationManagementException("No authentication information  found for authentication " +
                         "required endpoint");
             }

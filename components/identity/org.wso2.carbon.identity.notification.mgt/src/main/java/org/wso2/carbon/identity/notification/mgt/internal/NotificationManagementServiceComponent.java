@@ -1,30 +1,33 @@
 /*
-*
-*   Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*   WSO2 Inc. licenses this file to you under the Apache License,
-*   Version 2.0 (the "License"); you may not use this file except
-*   in compliance with the License.
-*   You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*
-*/
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.notification.mgt.internal;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.identity.notification.mgt.*;
+import org.wso2.carbon.identity.notification.mgt.NotificationManagementException;
+import org.wso2.carbon.identity.notification.mgt.NotificationMgtConfigBuilder;
+import org.wso2.carbon.identity.notification.mgt.NotificationSender;
+import org.wso2.carbon.identity.notification.mgt.NotificationSendingModule;
 import org.wso2.carbon.identity.notification.mgt.bean.ModuleConfiguration;
+import org.wso2.carbon.identity.notification.mgt.NotificationMgtConstants;
 
 import javax.mail.MessageRemovedException;
 import java.util.ArrayList;
@@ -43,9 +46,21 @@ import java.util.List;
 public class NotificationManagementServiceComponent {
 
     private static final Log log = LogFactory.getLog(NotificationManagementServiceComponent.class);
+    /**
+     * NotificationSender instance which is exposed as the service.
+     */
+    private NotificationSender notificationSender;
+    /**
+     * Notification management configurations
+     */
     private NotificationMgtConfigBuilder configBuilder;
-    // Since Message Sending modules are dynamically registered a List is used
+    /**
+     * Since Message Sending modules are dynamically registered a List is used
+     */
     private List<NotificationSendingModule> notificationSendingModules = new ArrayList<NotificationSendingModule>();
+    /**
+     * Size of the thread pool for distributing events to subscribed modules
+     */
     int threadPoolSize=0;
 
     protected void activate(ComponentContext context) {
@@ -60,7 +75,7 @@ public class NotificationManagementServiceComponent {
             }
 
             // Read the thread pool size from configurations. If not present in configurations use default value.
-            if (configBuilder.getThreadPoolSize() != null) {
+            if (configBuilder != null && configBuilder.getThreadPoolSize() != null) {
                 try {
                     threadPoolSize = Integer.parseInt(configBuilder.getThreadPoolSize());
                 } catch (NumberFormatException e) {
@@ -81,8 +96,9 @@ public class NotificationManagementServiceComponent {
                 log.debug("Notification mgt thread pool size " + threadPoolSize);
             }
             // Register Notification sender as the service class
+            notificationSender = new NotificationSender(notificationSendingModules, threadPoolSize);
             context.getBundleContext().registerService(NotificationSender.class.getName(),
-                    new NotificationSender(notificationSendingModules, threadPoolSize), null);
+                    notificationSender, null);
             if (log.isDebugEnabled()) {
                 log.debug("Notification Management bundle is activated");
             }
@@ -96,6 +112,7 @@ public class NotificationManagementServiceComponent {
         if (log.isDebugEnabled()) {
             log.debug("Notification Management bundle is deactivated");
         }
+        notificationSender.stopService();
     }
 
     /**
@@ -107,9 +124,9 @@ public class NotificationManagementServiceComponent {
     protected void addNotificationSendingModule(NotificationSendingModule module) throws MessageRemovedException {
 
         ModuleConfiguration moduleConfiguration;
-        if (module.getModuleName() == null) {
+        if (StringUtils.isEmpty(module.getModuleName())) {
             if (log.isDebugEnabled()) {
-                log.debug("Cannot register module with module name null");
+                log.debug("Cannot register module without a valid module name");
             }
             return;
         }

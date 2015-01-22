@@ -145,14 +145,14 @@ public class EntitlementNotificationExtension implements PAPStatusDataHandler {
         // Setting up properties and configuration object to be sent to the NotificationSender,
         // which is consumed by all subscribed Message Sending Modules
         NotificationSender notificationSender = EntitlementServiceComponent.getNotificationSender();
+
         if (notificationSender != null) {
-            PublisherEvent event = new PublisherEvent();
-            event.setEventName(eventName);
-            event.addEventProperty(NotificationConstants.TARGET_ID_PROPERTY_LABEL, statusHolder.getKey());
-            event.addEventProperty(NotificationConstants.USERNAME_PROPERTY_LABEL, statusHolder.getUser());
-            event.addEventProperty(NotificationConstants.TARGET_PROPERTY_LABEL, statusHolder.getTarget());
-            event.addEventProperty(NotificationConstants.ACTION_PROPERTY_LABEL, action);
             try {
+                PublisherEvent event = new PublisherEvent(eventName);
+                event.addEventProperty(NotificationConstants.TARGET_ID_PROPERTY_LABEL, statusHolder.getKey());
+                event.addEventProperty(NotificationConstants.USERNAME_PROPERTY_LABEL, statusHolder.getUser());
+                event.addEventProperty(NotificationConstants.TARGET_PROPERTY_LABEL, statusHolder.getTarget());
+                event.addEventProperty(NotificationConstants.ACTION_PROPERTY_LABEL, action);
                 if (log.isDebugEnabled()) {
                     log.debug("Invoking notification sender");
                 }
