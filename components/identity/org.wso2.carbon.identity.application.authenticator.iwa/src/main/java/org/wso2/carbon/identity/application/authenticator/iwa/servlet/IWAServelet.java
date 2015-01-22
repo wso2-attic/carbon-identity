@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.application.authenticator.iwa.servlet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authenticator.iwa.IWAAuthenticator;
+import org.wso2.carbon.identity.application.authenticator.iwa.IWAConstants;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import waffle.servlet.AutoDisposableWindowsPrincipal;
 import waffle.servlet.NegotiateRequestWrapper;
@@ -49,13 +50,17 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class handles the IWA login requests. The implementation is based on the NegotiateSecurityFilter class.
+ */
 public class IWAServelet extends HttpServlet {
-    private PrincipalFormat _principalFormat = PrincipalFormat.fqn;
-    private PrincipalFormat _roleFormat = PrincipalFormat.fqn;
-    private SecurityFilterProviderCollection _providers = null;
-    private IWindowsAuthProvider _auth;
-    private boolean _allowGuestLogin = true;
-    private boolean _impersonate = false;
+
+    private PrincipalFormat principalFormat = PrincipalFormat.fqn;
+    private PrincipalFormat roleFormat = PrincipalFormat.fqn;
+    private SecurityFilterProviderCollection providers = null;
+    private IWindowsAuthProvider auth;
+    private boolean allowGuestLogin = true;
+    private boolean impersonate = false;
     public static final String PRINCIPAL_SESSION_KEY = NegotiateSecurityFilter.class
             .getName() + ".PRINCIPAL";
     private static Log log = LogFactory.getLog(IWAServelet.class);
@@ -66,116 +71,112 @@ public class IWAServelet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         String commonAuthURL = CarbonUIUtil.getAdminConsoleURL(request);
-        commonAuthURL = commonAuthURL.replace("iwa/carbon", "commonauth");
-        String param = request.getParameter(IWAAuthenticator.IWA_PARAM_STATE);
-        commonAuthURL += "?" + IWAAuthenticator.IWA_PARAM_STATE + "=" + URLEncoder.encode(param, "UTF-8")+
-                "&"+IWAAuthenticator.IWA_PROCESSED+"=1";
+        commonAuthURL = commonAuthURL.replace(IWAConstants.IWA_CARBON_ROOT, IWAConstants.COMMON_AUTH_EP);
+        String param = request.getParameter(IWAConstants.IWA_PARAM_STATE);
+        if(param==null){
+            throw new IllegalArgumentException(IWAConstants.IWA_PARAM_STATE+" parameter is null.");
+        }
+        commonAuthURL += "?" + IWAConstants.IWA_PARAM_STATE + "=" + URLEncoder.encode(param, IWAConstants.UTF_8) +
+                "&" + IWAAuthenticator.IWA_PROCESSED + "=1";
 
         if (doFilterPrincipal(request)) {
             // previously authenticated user
             response.sendRedirect(commonAuthURL);
             return;
         }
-
-        AuthorizationHeader authorizationHeader = new AuthorizationHeader(
-                request);
-
+        AuthorizationHeader authorizationHeader = new AuthorizationHeader(request);
         // authenticate user
         if (!authorizationHeader.isNull()) {
-
             // log the user in using the token
             IWindowsIdentity windowsIdentity;
-
             try {
-
-                windowsIdentity = _providers.doFilter(request, response);
+                windowsIdentity = providers.doFilter(request, response);
                 if (windowsIdentity == null) {
                     return;
                 }
-
-            } catch (Exception e) {
-                log.warn("error logging in user: " + e.getMessage());
+            } catch (IOException e) {
+                log.warn("error logging in user.", e);
                 sendUnauthorized(response, true);
                 return;
             }
-
             IWindowsImpersonationContext ctx = null;
             try {
-                if (!_allowGuestLogin && windowsIdentity.isGuest()) {
+                if (!allowGuestLogin && windowsIdentity.isGuest()) {
                     log.warn("guest login disabled: " + windowsIdentity.getFqn());
                     sendUnauthorized(response, true);
                     return;
                 }
-
-                log.debug("logged in user: " + windowsIdentity.getFqn() + " (" + windowsIdentity.getSidString() + ")");
-
+                if(log.isDebugEnabled()){
+                    log.debug("logged in user: " + windowsIdentity.getFqn() + " (" + windowsIdentity.getSidString() +
+                            ")");
+                }
                 HttpSession session = request.getSession(true);
                 if (session == null) {
                     throw new ServletException("Expected HttpSession");
                 }
 
-                Subject subject = (Subject) session
-                        .getAttribute("javax.security.auth.subject");
+                Subject subject = (Subject) session.getAttribute(IWAConstants.SUBJECT_ATTRIBUTE);
                 if (subject == null) {
                     subject = new Subject();
                 }
 
                 WindowsPrincipal windowsPrincipal;
-                if (_impersonate) {
-                    windowsPrincipal = new AutoDisposableWindowsPrincipal(
-                            windowsIdentity, _principalFormat, _roleFormat);
+                if (impersonate) {
+                    windowsPrincipal = new AutoDisposableWindowsPrincipal(windowsIdentity, principalFormat, roleFormat);
                 } else {
-                    windowsPrincipal = new WindowsPrincipal(windowsIdentity,
-                            _principalFormat, _roleFormat);
+                    windowsPrincipal = new WindowsPrincipal(windowsIdentity, principalFormat, roleFormat);
                 }
-
-                log.debug("roles: " + windowsPrincipal.getRolesString());
+                if(log.isDebugEnabled()){
+                    log.debug("roles: " + windowsPrincipal.getRolesString());
+                }
                 subject.getPrincipals().add(windowsPrincipal);
-                session.setAttribute("javax.security.auth.subject", subject);
+                session.setAttribute(IWAConstants.SUBJECT_ATTRIBUTE, subject);
 
-                log.info("successfully logged in user: " + windowsIdentity.getFqn());
+                log.info("Successfully logged in user: " + windowsIdentity.getFqn());
 
-                request.getSession().setAttribute(PRINCIPAL_SESSION_KEY,
-                        windowsPrincipal);
-
-                if (_impersonate) {
-                    log.debug("impersonating user");
+                request.getSession().setAttribute(PRINCIPAL_SESSION_KEY, windowsPrincipal);
+                if (impersonate) {
+                    if(log.isDebugEnabled()){
+                        log.debug("impersonating user");
+                    }
                     ctx = windowsIdentity.impersonate();
                 }
             } finally {
-                if (_impersonate && ctx != null) {
-                    log.debug("terminating impersonation");
+                if (impersonate && ctx != null) {
+                    if(log.isDebugEnabled()){
+                        log.debug("terminating impersonation");
+                    }
                     ctx.revertToSelf();
                 } else {
                     windowsIdentity.dispose();
                 }
             }
-
             response.sendRedirect(commonAuthURL);
             return;
         }
-
-        log.debug("authorization required");
+        if(log.isDebugEnabled()){
+            log.debug("authorization required");
+        }
         sendUnauthorized(response, false);
     }
 
     /**
      * Check whether the request is already authenticated using IWA
-     * @param request
+     *
+     * @param request The HttpServletRequest
      * @return
      * @throws IOException
      * @throws ServletException
      */
-    private boolean doFilterPrincipal(HttpServletRequest request)
-            throws IOException, ServletException {
+    private boolean doFilterPrincipal(HttpServletRequest request) throws IOException, ServletException {
         Principal principal = request.getUserPrincipal();
         if (principal == null) {
             HttpSession session = request.getSession(false);
             if (session != null) {
-                principal = (Principal) session
-                        .getAttribute(PRINCIPAL_SESSION_KEY);
+                principal = (Principal) session.getAttribute(PRINCIPAL_SESSION_KEY);
             }
         }
 
@@ -184,7 +185,7 @@ public class IWAServelet extends HttpServlet {
             return false;
         }
 
-        if (_providers.isPrincipalException(request)) {
+        if (providers.isPrincipalException(request)) {
             // the providers signal to authenticate despite an existing principal, eg. NTLM post
             return false;
         }
@@ -192,82 +193,86 @@ public class IWAServelet extends HttpServlet {
         // user already authenticated
 
         if (principal instanceof WindowsPrincipal) {
-            log.debug("previously authenticated Windows user: " + principal.getName());
+            if(log.isDebugEnabled()){
+                log.debug("previously authenticated Windows user: " + principal.getName());
+            }
             WindowsPrincipal windowsPrincipal = (WindowsPrincipal) principal;
 
-            if (_impersonate && windowsPrincipal.getIdentity() == null) {
+            if (impersonate && windowsPrincipal.getIdentity() == null) {
                 // This can happen when the session has been serialized then de-serialized
                 // and because the IWindowsIdentity field is transient. In this case re-ask an
                 // authentication to get a new identity.
                 return false;
             }
 
-            NegotiateRequestWrapper requestWrapper = new NegotiateRequestWrapper(
-                    request, windowsPrincipal);
+            NegotiateRequestWrapper requestWrapper = new NegotiateRequestWrapper(request, windowsPrincipal);
 
             IWindowsImpersonationContext ctx = null;
-            if (_impersonate) {
-                log.debug("re-impersonating user");
+            if (impersonate) {
+                if(log.isDebugEnabled()){
+                    log.debug("re-impersonating user");
+                }
                 ctx = windowsPrincipal.getIdentity().impersonate();
             }
-            try {
-            } finally {
-                if (_impersonate && ctx != null) {
+            if (impersonate && ctx != null) {
+                if(log.isDebugEnabled()){
                     log.debug("terminating impersonation");
-                    ctx.revertToSelf();
                 }
+                ctx.revertToSelf();
             }
         } else {
-            log.debug("previously authenticated user: " + principal.getName());
+            if(log.isDebugEnabled()){
+                log.debug("previously authenticated user: " + principal.getName());
+            }
         }
         return true;
     }
 
     /**
      * Send response as unauthorized
+     *
      * @param response
-     * @param close whether to close the connection or to keep it alive
+     * @param close    whether to close the connection or to keep it alive
      */
     private void sendUnauthorized(HttpServletResponse response, boolean close) {
         try {
-            _providers.sendUnauthorized(response);
+            providers.sendUnauthorized(response);
             if (close) {
-                response.setHeader("Connection", "close");
+                response.setHeader(IWAConstants.HTTP_CONNECTION_HEADER, IWAConstants.CONNECTION_CLOSE);
             } else {
-                response.setHeader("Connection", "keep-alive");
+                response.setHeader(IWAConstants.HTTP_CONNECTION_HEADER, IWAConstants.CONNECTION_KEEP_ALIVE);
             }
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             response.flushBuffer();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            log.error("Error when sending unauthorized response.");
         }
     }
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         Map<String, String> implParameters = new HashMap<String, String>();
-
         String authProvider = null;
         String[] providerNames = null;
         if (config != null) {
-            Enumeration<String> parameterNames = config
-                    .getInitParameterNames();
+            Enumeration parameterNames = config.getInitParameterNames();
             while (parameterNames.hasMoreElements()) {
-                String parameterName = parameterNames.nextElement();
+                String parameterName = (String) parameterNames.nextElement();
                 String parameterValue = config
+
                         .getInitParameter(parameterName);
 //                _log.debug(parameterName + "=" + parameterValue);
-                if (parameterName.equals("principalFormat")) {
-                    _principalFormat = PrincipalFormat.valueOf(parameterValue);
-                } else if (parameterName.equals("roleFormat")) {
-                    _roleFormat = PrincipalFormat.valueOf(parameterValue);
-                } else if (parameterName.equals("allowGuestLogin")) {
-                    _allowGuestLogin = Boolean.parseBoolean(parameterValue);
-                } else if (parameterName.equals("impersonate")) {
-                    _impersonate = Boolean.parseBoolean(parameterValue);
-                } else if (parameterName.equals("securityFilterProviders")) {
+                if (parameterName.equals(IWAConstants.PRINCIPAL_FORMAT)) {
+                    principalFormat = PrincipalFormat.valueOf(parameterValue);
+                } else if (parameterName.equals(IWAConstants.ROLE_FORMAT)) {
+                    roleFormat = PrincipalFormat.valueOf(parameterValue);
+                } else if (parameterName.equals(IWAConstants.ALLOW_GUEST_LOGIN)) {
+                    allowGuestLogin = Boolean.parseBoolean(parameterValue);
+                } else if (parameterName.equals(IWAConstants.IMPERSONATE)) {
+                    impersonate = Boolean.parseBoolean(parameterValue);
+                } else if (parameterName.equals(IWAConstants.SECURITY_FILTER_PROVIDERS)) {
                     providerNames = parameterValue.split("\\s+");
-                } else if (parameterName.equals("authProvider")) {
+                } else if (parameterName.equals(IWAConstants.AUTH_PROVIDER)) {
                     authProvider = parameterValue;
                 } else {
                     implParameters.put(parameterName, parameterValue);
@@ -277,27 +282,27 @@ public class IWAServelet extends HttpServlet {
 
         if (authProvider != null) {
             try {
-                _auth = (IWindowsAuthProvider) Class.forName(authProvider)
-                        .getConstructor().newInstance();
+                auth = (IWindowsAuthProvider) Class.forName(authProvider).getConstructor().newInstance();
             } catch (Exception e) {
-                log.error("error loading '" + authProvider + "': " + e.getMessage());
-                throw new ServletException(e);
+                throw new ServletException("Error loading '" + authProvider, e);
             }
         }
 
-        if (_auth == null) {
-            _auth = new WindowsAuthProviderImpl();
+        if (auth == null) {
+            auth = new WindowsAuthProviderImpl();
         }
 
         if (providerNames != null) {
-            _providers = new SecurityFilterProviderCollection(providerNames,
-                    _auth);
+            providers = new SecurityFilterProviderCollection(providerNames,
+                    auth);
         }
 
         // create default providers if none specified
-        if (_providers == null) {
-            log.debug("initializing default security filter providers");
-            _providers = new SecurityFilterProviderCollection(_auth);
+        if (providers == null) {
+            if(log.isDebugEnabled()){
+                log.debug("initializing default security filter providers");
+            }
+            providers = new SecurityFilterProviderCollection(auth);
         }
 
         // apply provider implementation parameters
@@ -305,25 +310,18 @@ public class IWAServelet extends HttpServlet {
             String[] classAndParameter = implParameter.getKey().split("/", 2);
             if (classAndParameter.length == 2) {
                 try {
-
-                    log.debug("setting " + classAndParameter[0] + ", " + classAndParameter[1] + "=" + implParameter.getValue());
-
-                    SecurityFilterProvider provider = _providers
-                            .getByClassName(classAndParameter[0]);
-                    provider.initParameter(classAndParameter[1],
-                            implParameter.getValue());
-
+                    if(log.isDebugEnabled()){
+                        log.debug("Setting " + classAndParameter[0] + ", " + classAndParameter[1] + "=" +
+                                implParameter.getValue());
+                    }
+                    SecurityFilterProvider provider = providers.getByClassName(classAndParameter[0]);
+                    provider.initParameter(classAndParameter[1], implParameter.getValue());
                 } catch (ClassNotFoundException e) {
-                    log.error("invalid class: " + classAndParameter[0] + " in " + implParameter.getKey());
-                    throw new ServletException(e);
-                } catch (Exception e) {
-                    log.error(classAndParameter[0] + ": error setting '" + classAndParameter[1] + "': " + e.getMessage());
-                    throw new ServletException(e);
+                    throw new ServletException("Invalid class: " + classAndParameter[0] + " in " + implParameter
+                            .getKey(),e);
                 }
             } else {
-                log.error("Invalid parameter: " + implParameter.getKey());
-                throw new ServletException("Invalid parameter: "
-                        + implParameter.getKey());
+                throw new ServletException("Invalid parameter: "+ implParameter.getKey());
             }
         }
     }
