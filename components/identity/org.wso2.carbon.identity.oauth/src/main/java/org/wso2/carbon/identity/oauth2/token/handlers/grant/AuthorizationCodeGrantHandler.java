@@ -24,6 +24,7 @@ import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
+import org.wso2.carbon.identity.oauth2.InvalidRefreshTokenException;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenRespDTO;
 import org.wso2.carbon.identity.oauth2.model.AuthzCodeDO;
@@ -161,7 +162,7 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
 
     @Override
     public OAuth2AccessTokenRespDTO issue(OAuthTokenReqMessageContext tokReqMsgCtx)
-            throws IdentityOAuth2Exception {
+            throws IdentityOAuth2Exception, InvalidRefreshTokenException {
         OAuth2AccessTokenRespDTO tokenRespDTO = super.issue(tokReqMsgCtx);
 
         // get the token from the OAuthTokenReqMessageContext which is stored while validating
