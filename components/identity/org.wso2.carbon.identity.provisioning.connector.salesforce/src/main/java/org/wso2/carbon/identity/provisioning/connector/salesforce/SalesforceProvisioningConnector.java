@@ -18,7 +18,12 @@
  */
 package org.wso2.carbon.identity.provisioning.connector.salesforce;
 
-import org.apache.commons.httpclient.*;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
@@ -30,10 +35,21 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.identity.application.common.model.Property;
-import org.wso2.carbon.identity.provisioning.*;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.identity.provisioning.AbstractOutboundProvisioningConnector;
+import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
+import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
+import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
+import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
+import org.wso2.carbon.identity.provisioning.ProvisioningEntityType;
+import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
 import org.wso2.carbon.utils.CarbonUtils;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -367,7 +383,10 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
 
         HttpClient httpclient = new HttpClient();
 
-        PostMethod post = new PostMethod(SalesforceConnectorConstants.OAUTH2_TOKEN_ENDPOINT);
+        String url = configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.OAUTH2_TOKEN_ENDPOINT);
+
+        PostMethod post = new PostMethod(url != null && !url.isEmpty() ?
+                                         url : IdentityApplicationConstants.SF_OAUTH2_TOKEN_ENDPOINT);
 
         post.addParameter(SalesforceConnectorConstants.CLIENT_ID,
                 configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.CLIENT_ID));

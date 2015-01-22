@@ -22,17 +22,25 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
 import org.wso2.carbon.identity.provisioning.cache.ProvisioningConnectorCache;
 import org.wso2.carbon.identity.provisioning.cache.ProvisioningConnectorCacheEntry;
 import org.wso2.carbon.identity.provisioning.cache.ProvisioningConnectorCacheKey;
+import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCache;
+import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheEntry;
+import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheKey;
+import org.wso2.carbon.identity.provisioning.dao.ProvisioningManagementDAO;
 import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtLister;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+
+import java.util.List;
 
 public class IdentityProviderMgtProvisioningListener implements IdentityProviderMgtLister {
 
     private static final Log log = LogFactory.getLog(IdentityProviderMgtProvisioningListener.class);
+    private static ProvisioningManagementDAO provisioningManagementDAO = new ProvisioningManagementDAO();
 
     @Override
     public void updateResidentIdP(IdentityProvider identityProvider) {
@@ -78,13 +86,6 @@ public class IdentityProviderMgtProvisioningListener implements IdentityProvider
 
         try {
 
-            String tenantDomainName = null;
-            int tenantId;
-
-            if (CarbonContext.getThreadLocalCarbonContext() != null) {
-
-            }
-
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
                     .getThreadLocalCarbonContext();
@@ -105,6 +106,32 @@ public class IdentityProviderMgtProvisioningListener implements IdentityProvider
                 if (log.isDebugEnabled()) {
                     log.debug("Provisioning cached entry not found for idp " + identityProviderName);
                 }
+            }
+
+            try {
+                List<String> serviceProviders = provisioningManagementDAO.getSPNamesOfProvisioningConnectorsByIDP(identityProviderName, tenantDomain);
+
+                for (String serviceProvider : serviceProviders) {
+
+                    ServiceProviderProvisioningConnectorCacheKey key = new ServiceProviderProvisioningConnectorCacheKey(serviceProvider, tenantDomain);
+                    ServiceProviderProvisioningConnectorCacheEntry cacheEntry = (ServiceProviderProvisioningConnectorCacheEntry)
+                            ServiceProviderProvisioningConnectorCache.getInstance().getValueFromCache(key);
+
+                    if (cacheEntry != null) {
+                        ServiceProviderProvisioningConnectorCache.getInstance().clearCacheEntry(key);
+
+                        if (log.isDebugEnabled()) {
+                            log.debug("Service Provider '" + serviceProvider + "' Provisioning cached entry removed for idp " + identityProviderName);
+                        }
+                    } else {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Service Provider '" + serviceProvider + "' Provisioning cached entry not found for idp " + identityProviderName);
+                        }
+                    }
+                }
+            } catch (IdentityApplicationManagementException e) {
+                throw new IdentityProvisioningException("Error occurred while removing cache entry from the " +
+                                                        "service provider provisioning connector cache", e);
             }
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
