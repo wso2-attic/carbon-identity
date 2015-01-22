@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -11,36 +11,33 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
 
 package org.wso2.carbon.identity.application.authenticator.iwa;
 
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.security.Principal;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
-import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
 import org.wso2.carbon.identity.application.authentication.framework.LocalApplicationAuthenticator;
-import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
-import org.wso2.carbon.identity.application.authentication.framework.exception.LogoutFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.authenticator.iwa.servlet.IWAServelet;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.security.Principal;
 
 /**
  * Username Password based Authenticator
@@ -50,45 +47,31 @@ public class IWAAuthenticator extends AbstractApplicationAuthenticator implement
         LocalApplicationAuthenticator {
 	
 	private static final long serialVersionUID = -713445365200141399L;
-	
-	private static Log log = LogFactory.getLog(IWAAuthenticator.class);
 
-    public static final String IWA_PARAM_STATE = "state";
-
+    public static final String AUTHENTICATOR_NAME = "IWAAuthenticator";
+    public static final String AUTHENTICATOR_FRIENDLY_NAME = "iwa";
     //the following param of the request will be set once the request is processed by the IWAServlet
     public static final String IWA_PROCESSED = "iwaauth";
+    private static Log log = LogFactory.getLog(IWAAuthenticator.class);
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.wso2.carbon.identity.application.authentication.framework.
-     * ApplicationAuthenticator#canHandle(javax.servlet.http.HttpServletRequest)
-     */
     @Override
     public boolean canHandle(HttpServletRequest request) {
-
-    	if (log.isTraceEnabled()) {
-    		log.trace("Inside canHandle()");
-    	}
-    	
-
         //check whether the OS is windows. IWA works only with windows
-        String osName = System.getProperty("os.name").toLowerCase();
-        return osName.contains("win") && request.getParameter(IWA_PROCESSED)!=null;
+        String osName = System.getProperty(IWAConstants.OS_NAME_PROPERTY);
+        return StringUtils.isNotEmpty(osName) && osName.contains(IWAConstants.WINDOWS_OS_MATCH_STRING) && request
+                .getParameter(IWA_PROCESSED) != null;
     }
     
     @Override
-	protected void initiateAuthenticationRequest(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationContext context)
-			throws AuthenticationFailedException {
-		sendToLoginPage(request, response, context.getContextIdentifier());
+    protected void initiateAuthenticationRequest(HttpServletRequest request, HttpServletResponse response,
+                                                 AuthenticationContext context) throws AuthenticationFailedException {
+        sendToLoginPage(request, response, context.getContextIdentifier());
 	}
     
     @Override
-	protected void processAuthenticationResponse(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationContext context)
-			throws AuthenticationFailedException {
-		
+    protected void processAuthenticationResponse(HttpServletRequest request, HttpServletResponse response,
+                                                 AuthenticationContext context) throws AuthenticationFailedException {
+        //Get the authenticated user principle
         Principal principal = request.getUserPrincipal();
         if (principal == null) {
             HttpSession session = request.getSession(false);
@@ -99,6 +82,9 @@ public class IWAAuthenticator extends AbstractApplicationAuthenticator implement
         }
 
         if (principal == null || principal.getName() == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Authenticated principal is null. Therefore authentication is failed.");
+            }
             throw new AuthenticationFailedException("Authentication Failed");
         }
 
@@ -106,64 +92,55 @@ public class IWAAuthenticator extends AbstractApplicationAuthenticator implement
         username = username.substring(username.indexOf("\\") + 1);
 
         if (log.isDebugEnabled()) {
-            log.debug("Authenticate request received : Authtype - " + request.getAuthType() +
-                      ", User - " + username);
+            log.debug("Authenticate request received : AuthType - " + request.getAuthType() + ", User - " + username);
         }
-
         boolean isAuthenticated;
-
         UserStoreManager userStoreManager;
-
         // Check the authentication
          try {
-         	userStoreManager = (UserStoreManager) CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager();
- 	        isAuthenticated = userStoreManager.isExistingUser(MultitenantUtils.getTenantAwareUsername(username));
+             userStoreManager = (UserStoreManager) CarbonContext.getThreadLocalCarbonContext().getUserRealm()
+                     .getUserStoreManager();
+             isAuthenticated = userStoreManager.isExistingUser(MultitenantUtils.getTenantAwareUsername(username));
          } catch (org.wso2.carbon.user.api.UserStoreException e) {
-         	log.error("IWAAuthenticator failed while trying to find user existence", e);
-         	throw new AuthenticationFailedException("Failed to find user existence");
+             throw new AuthenticationFailedException("IWAAuthenticator failed while trying to find user existence", e);
          }
          
          if (!isAuthenticated) {
              if (log.isDebugEnabled()) {
-                 log.debug("user authentication failed");
+                 log.debug("user authentication failed, user:" + username + " is not in the user store");
              }
-             
              throw new AuthenticationFailedException("Authentication Failed");
          }
          username = FrameworkUtils.prependUserStoreDomainToName(username);
          context.setSubject(username);
 	}
     
-    public void sendToLoginPage(HttpServletRequest request, HttpServletResponse response, String ctx) {
-
-        if (log.isTraceEnabled()) {
-            log.trace("Inside sendToLoginPage()");
-        }
+    public void sendToLoginPage(HttpServletRequest request, HttpServletResponse response, String ctx)
+            throws AuthenticationFailedException {
+        String iwaURL = null;
         try {
-            String iwaURL = CarbonUIUtil.getAdminConsoleURL(request).replace("commonauth", "iwa") + "?" + IWA_PARAM_STATE + "=" + URLEncoder.encode(ctx, "UTF-8");
+            iwaURL = CarbonUIUtil.getAdminConsoleURL(request).replace(IWAConstants.COMMON_AUTH_EP,
+                    IWAConstants.IWA_AUTH_EP) + "?" + IWAConstants.IWA_PARAM_STATE + "=" + URLEncoder.encode(ctx,
+                    IWAConstants.UTF_8);
             response.sendRedirect(response.encodeRedirectURL(iwaURL));
         } catch (IOException e) {
-            log.error("Error when sending to the login page", e);
+            log.error("Error when sending to the login page :" + iwaURL, e);
+            throw new AuthenticationFailedException("Authentication failed");
         }
-        return;
     }
 
 	@Override
 	public String getContextIdentifier(HttpServletRequest request) {
-		
-		if (log.isTraceEnabled()) {
-    		log.trace("Inside getContextIdentifier()");
-    	}
-
-        return request.getParameter(IWA_PARAM_STATE);
+        return request.getParameter(IWAConstants.IWA_PARAM_STATE);
     }
 
 	@Override
 	public String getFriendlyName() {
-		return "iwa";	}
+        return AUTHENTICATOR_FRIENDLY_NAME;
+    }
 
-	@Override
+    @Override
 	public String getName() {
-		 return "IWAAuthenticator";
-	}
+        return AUTHENTICATOR_NAME;
+    }
 }
