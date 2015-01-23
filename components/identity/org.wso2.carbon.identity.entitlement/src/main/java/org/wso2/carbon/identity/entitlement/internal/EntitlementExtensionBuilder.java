@@ -23,7 +23,6 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.identity.entitlement.PAPStatusDataHandler;
 import org.wso2.carbon.identity.entitlement.PDPConstants;
-import org.wso2.carbon.identity.entitlement.model.PEPEndpointInfo;
 import org.wso2.carbon.identity.entitlement.pap.EntitlementDataFinderModule;
 import org.wso2.carbon.identity.entitlement.pip.PIPAttributeFinder;
 import org.wso2.carbon.identity.entitlement.pip.PIPExtension;
@@ -40,8 +39,6 @@ import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.*;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -111,7 +108,6 @@ public class EntitlementExtensionBuilder {
             populatePolicyPostPublishers(properties, holder);
             populateAdminNotificationHandlers(properties, holder);
             populatePublisherVerificationHandler(properties, holder);
-            populatePepEndpoints(properties, holder);
         }
     }
 
@@ -251,31 +247,6 @@ public class EntitlementExtensionBuilder {
             holder.addDesignators(designator, designatorProps);
         }
     }
-
-	/**
-	 * reads entitlement.properties file and build pep endpoints from configurations
-	 * @param properties
-	 * @param holder
-	 * @throws Exception
-	 */
-    private void populatePepEndpoints(Properties properties, EntitlementConfigHolder holder){
-        int i = 1;
-        List<PEPEndpointInfo> pepEndpoints = new ArrayList<PEPEndpointInfo>();
-
-        while (properties.getProperty("PEP.Endpoint." + i) != null) {
-            String endpointInfo = properties.getProperty("PEP.Endpoint." + i);
-            String[] endpointInfoArray = endpointInfo.split(",");
-            PEPEndpointInfo pepEndpointInfo = new PEPEndpointInfo();
-            pepEndpointInfo.setEndpoint(endpointInfoArray[0]);
-            pepEndpointInfo.setUsername(endpointInfoArray[1]);
-            pepEndpointInfo.setPassword(endpointInfoArray[2]);
-            pepEndpoints.add(pepEndpointInfo);
-            i++;
-        }
-        holder.setPepEndpoints(pepEndpoints);
-    }
-
-
 
     /**
      *

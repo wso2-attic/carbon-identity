@@ -141,6 +141,7 @@
     String sfClientSecret = null;
     String sfUserName = null;
     String sfPassword = null;
+    String sfOauth2TokenEndpoint = null;
     
     boolean isScimProvEnabled = false;
     boolean isScimProvDefault = false;
@@ -514,7 +515,9 @@
                             sfUserName = sfProperty.getValue();
                         } else if ("sf-password".equals(sfProperty.getName())){
                             sfPassword = sfProperty.getValue();
-                        } 
+                        } else if ("sf-token-endpoint".equals(sfProperty.getName())){
+                            sfOauth2TokenEndpoint = sfProperty.getValue();
+                        }
                     }
                 }
                 if(salesforce.getEnabled()){
@@ -1004,6 +1007,9 @@
         }
         if(sfPassword == null){
             sfPassword = "";
+        }
+        if(sfOauth2TokenEndpoint == null){
+            sfOauth2TokenEndpoint = IdentityApplicationConstants.SF_OAUTH2_TOKEN_ENDPOINT;
         }
     %>
 
@@ -2778,6 +2784,11 @@
     		 CARBON.showWarningDialog('Salesforce Provisioning Configuration Password cannot be empty');
     		 return false;
     	 }
+
+         if($('#sf-token-endpoint').val() == ""){
+             CARBON.showWarningDialog('Salesforce Provisioning Configuration Oauth2 Token Endpoint cannot be empty');
+             return false;
+         }
      }
    	 
    	 
@@ -4257,6 +4268,12 @@
 									class="required">*</span></td>
 								<td><input class="text-box-big" id="sf-password"
 									name="sf-password" type="password" value=<%=sfPassword %>></td>
+							</tr>
+							<tr>
+								<td class="leftCol-med labelField">OAuth2 Token Endpoint:<span
+									class="required">*</span></td>
+								<td><input class="text-box-big" id="sf-token-endpoint"
+									name="sf-token-endpoint" type="text" value=<%=sfOauth2TokenEndpoint%>></td>
 							</tr>
 
 						</table>

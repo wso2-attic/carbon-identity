@@ -1,25 +1,22 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
-package org.wso2.carbon.identity.scim.provider.impl;
+ * Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+package org.wso2.carbon.identity.scim.provider.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,7 +39,6 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import org.wso2.charon.core.attributes.Attribute;
 import org.wso2.charon.core.exceptions.CharonException;
 import org.wso2.charon.core.exceptions.DuplicateResourceException;
@@ -54,13 +50,20 @@ import org.wso2.charon.core.objects.User;
 import org.wso2.charon.core.provisioning.ProvisioningHandler;
 import org.wso2.charon.core.schema.SCIMConstants;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class SCIMUserManager implements UserManager {
+    private static Log log = LogFactory.getLog(SCIMUserManager.class);
     private UserStoreManager carbonUM = null;
     private ClaimManager carbonClaimManager = null;
     private String consumerName;
-
-    private static Log log = LogFactory.getLog(SCIMUserManager.class);
-
     //to make provisioning to other providers asynchronously happen.
     private ExecutorService provisioningThreadPool = Executors.newCachedThreadPool();
 
@@ -72,17 +75,24 @@ public class SCIMUserManager implements UserManager {
     }
 
     public User createUser(User user) throws CharonException, DuplicateResourceException {
+        return createUser(user, false);
+    }
+    public User createUser(User user, boolean isBulkUserAdd) throws CharonException, DuplicateResourceException {
 
         try {
 
             ThreadLocalProvisioningServiceProvider threadLocalSP = IdentityApplicationManagementUtil
                     .getThreadLocalProvisioningServiceProvider();
+            //isBulkUserAdd is true indicates bulk user add
+            if (isBulkUserAdd) {
+                threadLocalSP.setBulkUserAdd(true);
+            }
 
             ServiceProvider serviceProvider = null;
             if (threadLocalSP.getServiceProviderType() == ProvisioningServiceProviderType.OAUTH) {
                 serviceProvider = ApplicationInfoProvider.getInstance()
-                        .getServiceProviderByClienId(threadLocalSP.getServiceProviderName(),
-                                "oauth2", threadLocalSP.getTenantDomain());
+                                                         .getServiceProviderByClienId(threadLocalSP.getServiceProviderName(),
+                                                                                      "oauth2", threadLocalSP.getTenantDomain());
             } else {
                 serviceProvider = ApplicationInfoProvider.getInstance().getServiceProvider(
                         threadLocalSP.getServiceProviderName(), threadLocalSP.getTenantDomain());
@@ -92,7 +102,7 @@ public class SCIMUserManager implements UserManager {
 
             if (serviceProvider != null && serviceProvider.getInboundProvisioningConfig() != null) {
                 userStoreName = serviceProvider.getInboundProvisioningConfig()
-                        .getProvisioningUserStore();
+                                               .getProvisioningUserStore();
 
             }
 
@@ -104,8 +114,8 @@ public class SCIMUserManager implements UserManager {
                 String currentUserName = user.getUserName();
                 currentUserName = UserCoreUtil.removeDomainFromName(currentUserName);
                 user.setUserName(userName.append(userStoreName)
-                        .append(CarbonConstants.DOMAIN_SEPARATOR).append(currentUserName)
-                        .toString());
+                                         .append(CarbonConstants.DOMAIN_SEPARATOR).append(currentUserName)
+                                         .toString());
             }
 
         } catch (IdentityApplicationManagementException e) {
@@ -153,9 +163,9 @@ public class SCIMUserManager implements UserManager {
                 log.info("User: " + user.getUserName() + " is created through SCIM.");
 
             } catch (UserStoreException e) {
-               String errMsg = e.getMessage()+ " ";
+                String errMsg = e.getMessage()+ " ";
                 errMsg += "Error in adding the user: " + user.getUserName() +
-                        " to the user store..";
+                          " to the user store..";
                 throw new CharonException(errMsg,e);
             }
             return user;

@@ -74,7 +74,8 @@ public class SalesforceConnectorConstants {
     	public static final String GRANT_TYPE = "grant_type";
     	public static final String USERNAME = "sf-username";
     	public static final String PASSWORD = "sf-password";
-    	
+    	public static final String OAUTH2_TOKEN_ENDPOINT = "sf-token-endpoint";
+
     }
 
 }

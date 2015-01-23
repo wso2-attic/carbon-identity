@@ -35,6 +35,9 @@
     <url>http://wso2.org</url>
 
     <modules>
+        <module>org.wso2.carbon.identity.notification.mgt</module>
+        <module>org.wso2.carbon.identity.notification.mgt.email</module>
+        <module>org.wso2.carbon.identity.notification.mgt.json</module>
         <module>org.wso2.carbon.identity.application.authentication.endpoint</module>
         <module>org.wso2.carbon.identity.sts.passive</module>
         <module>org.wso2.carbon.identity.sts.passive.ui</module>
@@ -353,7 +356,8 @@
         <rampart.wso2.version.identity>${rampart.wso2.version}</rampart.wso2.version.identity>
         <opensaml.wso2.version.identity>${opensaml.wso2.version}</opensaml.wso2.version.identity>
         <opensaml2.wso2.version.identity>${opensaml2.wso2.version}</opensaml2.wso2.version.identity>
-        <openid4java.wso2.version.identity>${openid4java.wso2.version}</openid4java.wso2.version.identity>
+        <openid4java.wso2.version.identity>${openid4java.wso2.version}
+        </openid4java.wso2.version.identity>
         <httpcomponents-httpclient.wso2.version.identity>${httpcomponents-httpclient.wso2.version}
         </httpcomponents-httpclient.wso2.version.identity>
         <httpcomponents-httpcore.wso2.version.identity>${httpcomponents-httpcore.wso2.version}
