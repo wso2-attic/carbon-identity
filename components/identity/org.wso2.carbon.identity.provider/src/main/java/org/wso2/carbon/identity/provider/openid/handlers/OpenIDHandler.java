@@ -26,6 +26,7 @@ import org.wso2.carbon.identity.application.authentication.framework.cache.Authe
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheKey;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
@@ -475,10 +476,11 @@ public class OpenIDHandler {
          * here.  
          */
         request.getSession().setAttribute(OpenIDConstants.SessionAttribute.OPENID, claimedID);
-        
-		String commonAuthURL = OpenIDUtil.getAdminConsoleURL(request);
-	    commonAuthURL = commonAuthURL.replace("carbon/", "commonauth");
-	    String selfPath = URLEncoder.encode("/openidserver", "UTF-8");
+
+        String commonAuthURL = OpenIDUtil.getAdminConsoleURL(request);
+        commonAuthURL = commonAuthURL.replace(FrameworkConstants.CARBON + "/",
+                FrameworkConstants.COMMONAUTH);
+        String selfPath = URLEncoder.encode("/" + FrameworkConstants.OPENID_SERVER, "UTF-8");
         String sessionDataKey = UUIDGenerator.generateUUID();
 
         //Authentication context keeps data which should be sent to commonAuth endpoint
@@ -487,29 +489,38 @@ public class OpenIDHandler {
         authenticationRequest.setRelyingParty(getRelyingParty(request));
         authenticationRequest.setCommonAuthCallerPath(selfPath);
         String username = null;
-        if (params.getParameterValue("openid.identity") != null) {
-            username = OpenIDUtil.getUserName(params.getParameterValue("openid.identity"));
-            authenticationRequest.addRequestQueryParam("username", new String[]{username});
+        if (params.getParameterValue(FrameworkConstants.OPENID_IDENTITY) != null) {
+            username = OpenIDUtil.getUserName(params.getParameterValue(FrameworkConstants
+                    .OPENID_IDENTITY));
+            authenticationRequest.addRequestQueryParam(FrameworkConstants.USERNAME,
+                    new String[]{username});
         }
 
-        //add request headers to authentication request context. ie to cache
+        //Add request headers to authentication request context. ie to cache
         authenticationRequest.setRequestQueryParams(request.getParameterMap());
-        for (Enumeration e = request.getHeaderNames(); e.hasMoreElements(); ) {
-            String headerName = e.nextElement().toString();
+        for (Enumeration headerNames = request.getHeaderNames(); headerNames.hasMoreElements(); ) {
+            String headerName = headerNames.nextElement().toString();
             authenticationRequest.addHeader(headerName, request.getHeader(headerName));
         }
 
-        AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry(authenticationRequest);
-        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest, request.getSession().getMaxInactiveInterval());
-        String queryParams = "?sessionDataKey=" + sessionDataKey
-                + "&" + "type" + "=" + "openid";
+        AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry
+                (authenticationRequest);
+        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest,
+                request.getSession().getMaxInactiveInterval());
+		StringBuilder queryStringBuilder = new StringBuilder();
+		queryStringBuilder.append(commonAuthURL).
+		  append("?").
+		  append(FrameworkConstants.SESSION_DATA_KEY).
+		  append("=").
+		  append(sessionDataKey).
+		  append("&").
+		  append(FrameworkConstants.RequestParams.TYPE).
+		  append("=").
+		  append(FrameworkConstants.RequestType.CLAIM_TYPE_OPENID);
+		// reading the authorization header for request path authentication
+		FrameworkUtils.setRequestPathCredentials(request);
 
-        loginPageUrl = commonAuthURL + queryParams;
-
-        // reading the authorization header for request path authentication
-        FrameworkUtils.setRequestPathCredentials(request);
-        
-		return loginPageUrl;
+		return queryStringBuilder.toString();
 	}
 
 	/**

@@ -37,7 +37,7 @@ public class AuthenticationResultCache extends BaseCache<CacheKey, CacheEntry> {
     public AuthenticationResultCache(String cacheName) {
 		super(cacheName);
 	}
-	
+
 	public AuthenticationResultCache(String cacheName, int timeout) {
 		super(cacheName, timeout);
         useCache = !Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Only"));
@@ -45,7 +45,7 @@ public class AuthenticationResultCache extends BaseCache<CacheKey, CacheEntry> {
             enableTemporaryCaches = Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
         }
 	}
-	
+
 	public static AuthenticationResultCache getInstance(int timeout) {
 		
     	if (instance == null) {

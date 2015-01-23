@@ -294,8 +294,6 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                                                   SAMLSSOReqValidationResponseDTO signInRespDTO, String relayState)
             throws ServletException, IOException {
 
-    	
-    	
         SAMLSSOSessionDTO sessionDTO = new SAMLSSOSessionDTO();
         sessionDTO.setHttpQueryString(req.getQueryString());
         sessionDTO.setDestination(signInRespDTO.getDestination());
@@ -306,15 +304,14 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         sessionDTO.setSubject(signInRespDTO.getSubject());
         sessionDTO.setRelyingPartySessionId(signInRespDTO.getRpSessionId());
         sessionDTO.setAssertionConsumerURL(signInRespDTO.getAssertionConsumerURL());
-        sessionDTO.setTenantDomain(req.getParameter("tenantDomain"));
+        sessionDTO.setTenantDomain(req.getParameter(FrameworkConstants.RequestParams.TENANT_DOMAIN));
 
         if (sessionDTO.getTenantDomain() == null
                 || "null".equalsIgnoreCase(sessionDTO.getTenantDomain())
                 || "".equals(sessionDTO.getTenantDomain())) {
             String issuer = sessionDTO.getIssuer();
             String[] splitIssuer = issuer.split("@");
-            if (splitIssuer != null && splitIssuer.length == 2 && !"".equals(splitIssuer[0])
-                    && !"".equals(splitIssuer[1])) {
+            if (splitIssuer.length == 2 && !"".equals(splitIssuer[0]) && !"".equals(splitIssuer[1])){
                 sessionDTO.setTenantDomain(splitIssuer[1]);
             } else {
                 sessionDTO.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
@@ -325,52 +322,47 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         sessionDTO.setPassiveAuth(signInRespDTO.isPassive());
         sessionDTO.setValidationRespDTO(signInRespDTO);
         SAMLSSOUtil.setTenantDomainInThreadLocal(sessionDTO.getTenantDomain());
-
-        
-        if(signInRespDTO.isIdPInitSSO()) {
-            sessionDTO.setIdPInitSSO(true);
-        } else {
-            sessionDTO.setIdPInitSSO(false);
-        }
+        sessionDTO.setIdPInitSSO(signInRespDTO.isIdPInitSSO());
 
         String sessionDataKey = UUIDGenerator.generateUUID();
         addSessionDataToCache(sessionDataKey, sessionDTO, req.getSession().getMaxInactiveInterval());
 
         String commonAuthURL = CarbonUIUtil.getAdminConsoleURL(req);
-        commonAuthURL = commonAuthURL.replace("samlsso/carbon/", "commonauth");
-
-        String selfPath = URLEncoder.encode("/samlsso", "UTF-8");
-        String forceAuthenticate = "false";
-        String passiveAuthenticate = "false";
-        
-        if (signInRespDTO.isForceAuthn()) {
-        	forceAuthenticate = "true";
-        }
-        
-        if (signInRespDTO.isPassive()) {
-            passiveAuthenticate = "true";
-        }
-
+        commonAuthURL = commonAuthURL.replace(FrameworkConstants.RequestType
+                .CLAIM_TYPE_SAML_SSO + "/"+FrameworkConstants.CARBON+"/",
+                FrameworkConstants.COMMONAUTH);
+        String selfPath = URLEncoder.encode("/" + FrameworkConstants.RequestType
+                .CLAIM_TYPE_SAML_SSO, "UTF-8");
+        // Setting authentication request context
         AuthenticationRequest authenticationRequest = new AuthenticationRequest();
         authenticationRequest.setRelyingParty(signInRespDTO.getIssuer());
         authenticationRequest.setCommonAuthCallerPath(selfPath);
-        authenticationRequest.setForceAuth(forceAuthenticate);
-        authenticationRequest.setPassiveAuth(passiveAuthenticate);
+        authenticationRequest.setForceAuth(signInRespDTO.isForceAuthn());
+        authenticationRequest.setPassiveAuth(signInRespDTO.isPassive());
         authenticationRequest.setTenantDomain(sessionDTO.getTenantDomain());
-
+        // Adding query parameters
         authenticationRequest.appendRequestQueryParams(req.getParameterMap());
-        for (Enumeration e = req.getHeaderNames(); e.hasMoreElements(); ) {
-            String headerName = e.nextElement().toString();
+        for (Enumeration headerNames = req.getHeaderNames(); headerNames.hasMoreElements(); ) {
+            String headerName = headerNames.nextElement().toString();
             authenticationRequest.addHeader(headerName, req.getHeader(headerName));
         }
-
-        AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry(authenticationRequest);
-        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest, req.getSession().getMaxInactiveInterval());
-        String queryParams = "?" + SAMLSSOConstants.SESSION_DATA_KEY + "=" + sessionDataKey
-                                            + "&" + "type" + "=" + "samlsso";
-
-        FrameworkUtils.setRequestPathCredentials(req);
-        resp.sendRedirect(commonAuthURL + queryParams);
+        // Creating cache entry and adding entry to the cache before calling to commonauth
+        AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry
+                (authenticationRequest);
+        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest,
+                req.getSession().getMaxInactiveInterval());
+	    StringBuilder queryStringBuilder = new StringBuilder();
+	    queryStringBuilder.append(commonAuthURL).
+	      append("?").
+	      append(SAMLSSOConstants.SESSION_DATA_KEY).
+	      append("=").
+	      append(sessionDataKey).
+	      append("&").
+	      append(FrameworkConstants.RequestParams.TYPE).
+	      append("=").
+	      append(FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO);
+	    FrameworkUtils.setRequestPathCredentials(req);
+	    resp.sendRedirect(queryStringBuilder.toString());
     }
     
     private void sendToFrameworkForLogout(HttpServletRequest request, HttpServletResponse response, 
