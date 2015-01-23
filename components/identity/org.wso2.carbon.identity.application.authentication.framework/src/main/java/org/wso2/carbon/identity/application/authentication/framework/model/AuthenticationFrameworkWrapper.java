@@ -36,12 +36,11 @@ import javax.servlet.http.HttpServletRequestWrapper;
 public class AuthenticationFrameworkWrapper extends HttpServletRequestWrapper {
 
     private static Log log = LogFactory.getLog(AuthenticationFrameworkWrapper.class);
-
-    //map which keeps parameters from authentication request cache
+    // Map which keeps parameters from authentication request cache
     private final Map<String, String[]> modifiableParameters;
     // This map will contain all the parameters including cache params and original req params
     private Map<String, String[]> allParameters = null;
-    //this map keeps headers which are appended from cache
+    // This map keeps headers which are appended from cache entry
     private final Map<String, String> modifiableHeaders;
 
     /**
@@ -74,7 +73,7 @@ public class AuthenticationFrameworkWrapper extends HttpServletRequestWrapper {
 
     public String getHeader(String name) {
         String header = super.getHeader(name);
-        return (header != null) ? header : modifiableHeaders.get(name).toString();
+        return (header != null) ? header : modifiableHeaders.get(name);
     }
 
     /**
@@ -84,11 +83,12 @@ public class AuthenticationFrameworkWrapper extends HttpServletRequestWrapper {
      */
     public Enumeration<String> getHeaderNames() {
         List<String> list = new ArrayList<String>();
-        for (Enumeration<String> e = super.getHeaderNames(); e.hasMoreElements(); ) {
-            list.add(e.nextElement().toString());
+        for (Enumeration<String> headerNames = super.getHeaderNames(); headerNames.
+                hasMoreElements(); ) {
+            list.add(headerNames.nextElement());
         }
-        for (Iterator<String> i = modifiableHeaders.keySet().iterator(); i.hasNext(); ) {
-            list.add(i.next());
+        for (String keys : modifiableHeaders.keySet()) {
+            list.add(keys);
         }
         return Collections.enumeration(list);
     }
@@ -96,7 +96,6 @@ public class AuthenticationFrameworkWrapper extends HttpServletRequestWrapper {
     /**
      * Will return params which were in original request and will append
      * all the params which were in authentication request cache entry
-     *
      */
     @Override
     public Map<String, String[]> getParameterMap() {
@@ -136,14 +135,19 @@ public class AuthenticationFrameworkWrapper extends HttpServletRequestWrapper {
                         .append('=')
                         .append(URLEncoder.encode(entry.getValue()[0], "UTF-8"));
             } catch (UnsupportedEncodingException e) {
-                log.error(e.getMessage(), e);
+                log.error("Error while encoding query string built using entry key : " + entry.
+                        getKey() + " and value : " + entry.getValue()[0], e);
             }
         }
         return sb.toString();
     }
 
+    /**
+     * Adds a header to the wrapper object
+     * @param key Key of the header
+     * @param values Value of the header
+     */
     public void addHeader(String key, String values) {
         modifiableHeaders.put(key, values);
     }
-
 }
