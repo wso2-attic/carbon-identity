@@ -59,6 +59,7 @@
         <module>org.wso2.carbon.identity.application.authenticator.samlsso</module>
         <module>org.wso2.carbon.identity.base</module>
         <module>org.wso2.carbon.identity.core</module>
+        <module>org.wso2.carbon.identity.fido.u2f</module>
         <module>org.wso2.carbon.identity.mgt</module>
         <module>org.wso2.carbon.identity.mgt.ui</module>
         <module>org.wso2.carbon.identity.menu.ui</module>

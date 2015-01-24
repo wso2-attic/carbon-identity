@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>identity</artifactId>
+        <groupId>org.wso2.carbon</groupId>
+        <version>4.2.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>org.wso2.carbon.identity.fido.u2f</artifactId>
+    <packaging>bundle</packaging>
+    <name>WSO2 Carbon - FIDO BE Service</name>
+    <dependencies>
+        <dependency>
+            <groupId>com.yubico</groupId>
+            <artifactId>u2flib-server-core</artifactId>
+            <version>0.13.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <!--<dependency>
+            <groupId>org.bouncycastle.wso2</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.49.0.wso2v2</version>
+        </dependency>-->
+        <!--<dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.51</version>
+            <scope>provided</scope>
+        </dependency>-->
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
+            <version>4.2.3</version>
+        </dependency>
+        <!--<dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.user.mgt</artifactId>
+        </dependency>-->
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.logging</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <!--<org.osgi.framework.system.packages.extra>sun.misc.*,org.bouncycastle.jce.provider,org.bouncycastle.jce.spec</org.osgi.framework.system.packages.extra>-->
+        <org.osgi.framework.system.packages.extra>sun.misc.*,</org.osgi.framework.system.packages.extra>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${pom.artifactId}</Bundle-Name>
+                        <Import-Package>
+                            org.wso2.carbon.identity.application.authentication.framework.exception; version="4.2.3",
+                            com.yubico.u2f.exceptions; version="1.0.0",
+                            com.yubico.u2f.data.messages; version="1.0.0",
+                            com.yubico.u2f.data; version="1.0.0",
+                            com.yubico.u2f; version="1.0.0",
+                            com.google.common.collect; version="18.0.0",
+                            org.apache.commons.logging.*
+                        </Import-Package>
+                        <Export-Package>org.wso2.carbon.identity.fido.u2f,</Export-Package>
+
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
