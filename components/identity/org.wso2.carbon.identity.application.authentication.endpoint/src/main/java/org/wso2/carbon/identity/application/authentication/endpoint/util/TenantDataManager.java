@@ -81,7 +81,7 @@ public class TenantDataManager {
     /**
      * Initialize Tenant data manager
      */
-    private static synchronized void init() {
+    public static synchronized void init() {
 
         if (!initialized) {
             InputStream inputStream =
@@ -180,9 +180,6 @@ public class TenantDataManager {
      */
     public static List<String> getAllActiveTenantDomains() {
 
-        if (!initialized) {
-            init();
-        }
         if (initialized && tenantDomainList.isEmpty()) {
             refreshActiveTenantDomainsList();
         }
@@ -194,10 +191,6 @@ public class TenantDataManager {
      * @param dataList List of active tenant domains
      */
     public static void setTenantDataList(String dataList) {
-
-        if (!initialized) {
-            init();
-        }
 
         if (!initialized) {
             if (log.isDebugEnabled()) {
@@ -307,9 +300,7 @@ public class TenantDataManager {
      * @return Tenant list enabled or disabled status
      */
     public static boolean isTenantListEnabled() {
-        if (!initialized) {
-            init();
-        }
+
         return (initialized && Boolean.parseBoolean(getPropertyValue(TENANT_LIST_ENABLED)));
     }
 }

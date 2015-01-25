@@ -13,6 +13,12 @@
         <servlet-class>org.wso2.carbon.identity.application.authentication.endpoint.TenantListRefreshEndpoint</servlet-class>
     </servlet>
 
+    <listener>
+        <listener-class>
+            org.wso2.carbon.identity.application.authentication.endpoint.listener.AuthenticationEndpointContextListener
+        </listener-class>
+    </listener>
+
     <servlet>
         <servlet-name>OAuth2Login</servlet-name>
         <servlet-class>org.wso2.carbon.identity.application.authentication.endpoint.oauth2.OAuth2Login</servlet-class>
