@@ -232,7 +232,7 @@ public class SCIMUserManager implements UserManager {
         List<User> filteredUsers = new ArrayList<User>();
         User scimUser = null;
         try {
-            //get the user name of the user with this id
+
         	String[] userNames = carbonUM.getUserList(attributeName, attributeValue, UserCoreConstants.DEFAULT_PROFILE);
 
             if (userNames == null || userNames.length == 0) {
