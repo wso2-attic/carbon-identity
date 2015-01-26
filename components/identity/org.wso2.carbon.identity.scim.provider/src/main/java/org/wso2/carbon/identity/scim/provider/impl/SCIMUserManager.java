@@ -233,16 +233,7 @@ public class SCIMUserManager implements UserManager {
         User scimUser = null;
         try {
             //get the user name of the user with this id
-        	String[] userNames = null;
-			if (attributeName.equals(SCIMConstants.USER_NAME_URI)) {
-				if (carbonUM.isExistingUser(attributeValue)) {
-					userNames = new String[] { attributeValue };
-				}
-			} else {
-				userNames =
-				            carbonUM.getUserList(attributeName, attributeValue,
-				                                 UserCoreConstants.DEFAULT_PROFILE);
-			}
+        	String[] userNames = carbonUM.getUserList(attributeName, attributeValue, UserCoreConstants.DEFAULT_PROFILE);
 
             if (userNames == null || userNames.length == 0) {
                 if (log.isDebugEnabled()) {
