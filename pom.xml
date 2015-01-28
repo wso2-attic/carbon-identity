@@ -394,14 +394,14 @@
             </dependency>
 
             <dependency>
-                <groupId>org.wso2.carbon</groupId>
+                <groupId>org.wso2.carbon.commons</groupId>
                 <artifactId>org.wso2.carbon.discovery.core</artifactId>
-                <version>${project.version}</version>
+                <version>${carbon.commons.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.carbon</groupId>
+                <groupId>org.wso2.carbon.commons</groupId>
                 <artifactId>org.wso2.carbon.discovery.ui</artifactId>
-                <version>${project.version}</version>
+                <version>${carbon.commons.version}</version>
             </dependency>
 
             <dependency>
@@ -545,9 +545,9 @@
             </dependency>
 
             <dependency>
-                <groupId>org.wso2.carbon</groupId>
+                <groupId>org.wso2.carbon.commons</groupId>
                 <artifactId>org.wso2.carbon.wsdl2form</artifactId>
-                <version>${project.version}</version>
+                <version>${carbon.commons.version}</version>
             </dependency>
 
             <dependency>
@@ -1814,6 +1814,10 @@
         <carbon.kernel.version>4.3.0</carbon.kernel.version>
         <carbon.kernel.package.import.version.range>[4.3.0, 4.4.0)</carbon.kernel.package.import.version.range>
 	<carbon.kernel.registry.imp.pkg.version>[1.0.1, 2.0.0)</carbon.kernel.registry.imp.pkg.version>
+
+        <!--Carbon commons version-->
+        <carbon.commons.version>4.3.0</carbon.commons.version>
+        <carbon.commons.imp.pkg.version>[4.3.0, 4.4.0)</carbon.commons.imp.pkg.version>
 
         <!-- Carbon platform version comes here-->
         <carbon.platform.version>4.3.0-SNAPSHOT</carbon.platform.version>
