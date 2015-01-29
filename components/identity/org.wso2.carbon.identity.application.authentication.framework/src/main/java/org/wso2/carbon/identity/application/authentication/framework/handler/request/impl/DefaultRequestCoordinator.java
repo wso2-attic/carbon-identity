@@ -275,14 +275,18 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                     context.setPreviousSessionFound(true);
                     sequenceConfig = previousAuthenticatedSeq;
                     String authenticatedUser = sequenceConfig.getAuthenticatedUser();
+                    String authenticatedUserTenantDomain = sequenceConfig.getAuthenticatedUserTenantDomain();
 
                     if (authenticatedUser != null) {
-                        // set the user for the current authentication/logout
-                        // flow
+                        // set the user for the current authentication/logout flow
                         context.setSubject(authenticatedUser);
+
+                        // set the user tenant domain for the current authentication/logout flow
+                        context.setProperty("user-tenant-domain", authenticatedUserTenantDomain);
 
                         if (log.isDebugEnabled()) {
                             log.debug("Already authenticated by username: " + authenticatedUser);
+                            log.debug("Authenticated user tenant domain: " + authenticatedUserTenantDomain);
                         }
                     }
                 }
