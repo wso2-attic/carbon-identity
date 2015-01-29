@@ -87,7 +87,8 @@ public class SessionDataStore {
     private static final String SQL_CHECK_SERIALIZED_OBJECT = "SELECT SESSION_ID FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID = ? AND SESSION_TYPE=?";
     private static final String SQL_DELETE_SERIALIZED_OBJECT = "DELETE FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID = ? AND SESSION_TYPE=?";
     private static final String SQL_DELETE_SERIALIZED_OBJECT_TASK = "DELETE FROM IDN_AUTH_SESSION_STORE WHERE TIME_CREATED<?";
-    private static final String SQL_SELECT_TIME_CREATED = "SELECT TIME_CREATED FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID =? AND SESSION_TYPE =?";
+    private static final String SQL_SELECT_TIME_CREATED =
+            "SELECT TIME_CREATED FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID =? AND SESSION_TYPE =?";
 
     private static volatile SessionDataStore instance;
 
@@ -342,9 +343,9 @@ public class SessionDataStore {
                 preparedStatement.setString(1, key);
                 preparedStatement.setString(2, type);
                 resultSet = preparedStatement.executeQuery();
-                if(resultSet.next()){
+                if (resultSet.next()) {
                     timestamp = resultSet.getTimestamp(1);
-                    if(preparedStatement != null){
+                    if (preparedStatement != null) {
                         preparedStatement.close();
                     }
                 }
