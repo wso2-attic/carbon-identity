@@ -303,11 +303,20 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                         sequenceConfig.setUserAttributes(FrameworkUtils
                                 .buildClaimMappings(mappedAttrs));
 
+                        sequenceConfig.setAuthenticatedUserTenantDomain(tenantDomain);
+
+                        if (log.isDebugEnabled()) {
+                            log.debug("Authenticated User: " + sequenceConfig.getAuthenticatedUser());
+                            log.debug("Authenticated User Tenant Domain: " + tenantDomain);
+                        }
                     } else {
 
                         // there is no mapped local user found. set the value we got as the subject
                         // identifier.
                         sequenceConfig.setAuthenticatedUser(stepConfig.getAuthenticatedUser());
+
+                        // Only place we do not set the setAuthenticatedUserTenantDomain into the sequenceConfig
+                        // TODO : Check whether not setting setAuthenticatedUserTenantDomain is correct
 
                     }
 
@@ -362,6 +371,13 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                 if (stepConfig.isSubjectIdentifierStep()) {
                     subjectFoundInStep = true;
                     sequenceConfig.setAuthenticatedUser(stepConfig.getAuthenticatedUser());
+
+                    String authenticatedUserTenantDomain = (String)context.getProperty("user-tenant-domain");
+                    sequenceConfig.setAuthenticatedUserTenantDomain(authenticatedUserTenantDomain);
+
+                    if (log.isDebugEnabled()) {
+                        log.debug("Authenticated User: " + sequenceConfig.getAuthenticatedUser());
+                    }   log.debug("Authenticated User Tenant Domain: " + authenticatedUserTenantDomain);
                 }
 
                 if (stepConfig.isSubjectAttributeStep()) {
@@ -406,6 +422,14 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
             }
             if (subjectValue != null) {
                 sequenceConfig.setAuthenticatedUser(subjectValue);
+
+                String authenticatedUserTenantDomain = (String)context.getProperty("user-tenant-domain");
+                sequenceConfig.setAuthenticatedUserTenantDomain(authenticatedUserTenantDomain);
+
+                if (log.isDebugEnabled()) {
+                    log.debug("Authenticated User: " + sequenceConfig.getAuthenticatedUser());
+                    log.debug("Authenticated User Tenant Domain: " + authenticatedUserTenantDomain);
+                }
             }
         }
 
