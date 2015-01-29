@@ -162,7 +162,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
             if (userIdClaimURL != null && !StringUtils.isEmpty(requiredAttributes.get(userIdClaimURL))) {
                 userId = requiredAttributes.get(userIdClaimURL);
             }
-            userId =  provisioningEntity.getEntityName();
+            userId = provisioningEntity.getEntityName();
 
             String userIdFromPattern = null;
 

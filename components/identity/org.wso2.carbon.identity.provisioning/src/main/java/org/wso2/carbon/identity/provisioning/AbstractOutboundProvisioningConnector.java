@@ -155,11 +155,12 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
 
     /**
      * Build User Id with provisioning pattern
-     * @param provisioningEntity   - Provisioning Entity
-     * @param provisioningPattern  - Provisioning Pattern
-     * @param separator            - Provisioning Separator
-     * @param idpName              - IDP Name
-     * @return  generated user id
+     *
+     * @param provisioningEntity  - Provisioning Entity
+     * @param provisioningPattern - Provisioning Pattern
+     * @param separator           - Provisioning Separator
+     * @param idpName             - IDP Name
+     * @return generated user id
      * @throws IdentityProvisioningException
      */
     protected String buildUserId(ProvisioningEntity provisioningEntity, String provisioningPattern,
@@ -199,6 +200,7 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
 
     /**
      * Build provisioning entries
+     *
      * @param provisioningPattern - Provisioning Pattern
      * @return pattern entries as array
      * @throws IdentityProvisioningException
@@ -215,6 +217,7 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
 
     /**
      * Get domain from user name
+     *
      * @param username - User name
      * @return domain name
      */
@@ -229,8 +232,9 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
 
     /**
      * Remove domain from user name
+     *
      * @param username - User name
-     * @return  user name
+     * @return user name
      */
     private String removeDomainFromUserName(String username) {
         int index;
