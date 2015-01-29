@@ -27,6 +27,7 @@
         <module>components/user-manager</module>
         <!--<module>components/stratos-sso-mgt</module>-->
         <module>components/captcha-mgt</module>
+        <module>components/tenant-mgt</module>
 
         <module>features/security-mgt</module>
         <module>features/authenticators</module>
