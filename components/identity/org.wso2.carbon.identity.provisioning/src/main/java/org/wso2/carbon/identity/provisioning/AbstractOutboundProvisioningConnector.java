@@ -194,7 +194,6 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
                 }
             }
         }
-
         return provIdentifier.toLowerCase();
     }
 
@@ -210,7 +209,6 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
         if (!provisioningPattern.contains("{") || !provisioningPattern.contains("}")) {
             throw new IdentityProvisioningException("Invalid Provisioning Pattern : " + provisioningPattern);
         }
-
         String provisioningPatternWithoutCurlBrace = provisioningPattern.replaceAll("\\{", "").replaceAll("\\}", "");
         return provisioningPatternWithoutCurlBrace.split(",");
     }
@@ -222,6 +220,7 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
      * @return domain name
      */
     private String getDomainFromUserName(String username) {
+
         int index;
         if ((index = username.indexOf("/")) > 0) {
             String domain = username.substring(0, index);
@@ -237,6 +236,7 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
      * @return user name
      */
     private String removeDomainFromUserName(String username) {
+
         int index;
         if ((index = username.indexOf(CarbonConstants.DOMAIN_SEPARATOR)) >= 0) {
             // remove domain name if exist
