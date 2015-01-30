@@ -67,7 +67,7 @@
                         <configuration>
                             <artifactItems>
 				<artifactItem>
-                                    <groupId>org.wso2.carbon</groupId>
+                                    <groupId>org.wso2.carbon.identity</groupId>
                                     <artifactId>org.wso2.carbon.identity.application.authentication.endpoint</artifactId>
                                     <version>${project.version}</version>
                                     <type>war</type>
