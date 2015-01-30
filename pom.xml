@@ -1863,7 +1863,7 @@
 	    <carbon.kernel.registry.imp.pkg.version>[1.0.1, 2.0.0)</carbon.kernel.registry.imp.pkg.version>
 
         <!--Carbon commons version-->
-        <carbon.identity.version>4.3.0-SNAPSHOT</carbon.identity.version>
+        <carbon.identity.version>${project.version}</carbon.identity.version>
         <carbon.commons.version>4.3.0</carbon.commons.version>
         <carbon.commons.imp.pkg.version>[4.3.0, 4.4.0)</carbon.commons.imp.pkg.version>
 
