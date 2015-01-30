@@ -83,8 +83,8 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
             mapSignatureAlgorithm(signatureAlgorithm);
         }
         String issuer = config.getOpenIDConnectIDTokenIssuerIdentifier();
-        long lifetime = Integer.parseInt(config.getOpenIDConnectIDTokenExpiration()) * 1000;
-        long curTime = Calendar.getInstance().getTimeInMillis();
+        long lifetime = Integer.parseInt(config.getOpenIDConnectIDTokenExpiration());
+        long curTime = Calendar.getInstance().getTimeInMillis()/1000;
         // setting subject
         String subject = request.getAuthorizedUser();
 
@@ -137,7 +137,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
             nonceValue = getNonce(request);
         }
         // Get access token issued time
-        long accessTokenIssuedTime = getAccessTokenIssuedTime(tokenRespDTO.getAccessToken(), request);
+        long accessTokenIssuedTime = getAccessTokenIssuedTime(tokenRespDTO.getAccessToken(), request)/1000;
         String atHash = new String(Base64.encodeBase64(tokenRespDTO.getAccessToken().getBytes()));
         //if signature algorithm is NONE do not sign ID Token
         signatureAlgorithm = OAuthServerConfiguration.getInstance().getSignatureAlgorithm();
