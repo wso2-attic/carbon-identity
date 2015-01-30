@@ -114,7 +114,7 @@
             <!--version>1.6.wso2v1</version-->
         </dependency>
         <dependency>
-            <groupId>com.nimbusds</groupId>
+            <groupId>com.nimbusds.wso2</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
         </dependency>
         <dependency>

@@ -33,9 +33,7 @@
 
 			<modules>
 				<module>saml2-sso-authenticator</module>
-<!--
-				<module>webseal-authenticator</module>
--->
 				<module>iwa-authenticator</module>
+                <module>signedjwt-authenticator</module>
 			</modules>
 </project>
