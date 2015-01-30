@@ -19,7 +19,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<parent>
-		<groupId>org.wso2.carbon</groupId>
+		<groupId>org.wso2.carbon.identity</groupId>
 		<artifactId>saml2-sso-authenticator-feature</artifactId>
 		<version>4.3.0-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
@@ -27,7 +27,6 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.ui.feature</artifactId>
-	<version>4.3.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>SAML2 based authenticator UI Feature</name>
 	<url>http://wso2.org</url>
@@ -35,24 +34,20 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.ui</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.common</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.stub</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
 	<dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.sso.saml.stub</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>opensaml.wso2</groupId>
@@ -83,10 +78,10 @@
 								</properties>
 							</adviceFile>
 							<bundles>
-								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.saml2.sso.ui</bundleDef>
-								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.saml2.sso.stub</bundleDef>
-								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.saml2.sso.common</bundleDef>	
-								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.sso.saml.stub</bundleDef>
+								<bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.authenticator.saml2.sso.ui</bundleDef>
+								<bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.authenticator.saml2.sso.stub</bundleDef>
+								<bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.authenticator.saml2.sso.common</bundleDef>
+								<bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.sso.saml.stub</bundleDef>
                                 <bundleDef>opensaml.wso2:opensaml2</bundleDef>
 							</bundles>
 							<importFeatures>

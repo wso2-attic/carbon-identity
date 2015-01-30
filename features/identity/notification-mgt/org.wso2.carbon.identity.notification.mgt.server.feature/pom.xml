@@ -19,7 +19,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.wso2.carbon</groupId>
+        <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>identity-notification-mgt-feature</artifactId>
         <version>4.3.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -28,26 +28,22 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.identity.notification.mgt.server.feature</artifactId>
     <packaging>pom</packaging>
-    <version>4.3.0-SNAPSHOT</version>
     <name>Notification-mgt server feature</name>
     <url>http://wso2.org</url>
     <description>This feature contains the bundles required for Notification mgt</description>
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.notification.mgt</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.notification.mgt.email</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.notification.mgt.json</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
@@ -99,9 +95,9 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.notification.mgt</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.notification.mgt.email</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.notification.mgt.json</bundleDef>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.notification.mgt</bundleDef>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.notification.mgt.email</bundleDef>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.notification.mgt.json</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.core.server:${carbon.kernel.version}</importFeatureDef>

@@ -16,13 +16,12 @@ limitations under the License.
 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<parent>
-		<groupId>org.wso2.carbon</groupId>
+		<groupId>org.wso2.carbon.identity</groupId>
 		<artifactId>identity</artifactId>
 		<version>4.3.0-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.wso2.carbon</groupId>
 	<artifactId>org.wso2.carbon.identity.sso.saml</artifactId>
 	<packaging>bundle</packaging>
 	<name>WSO2 Carbon - SAML Web Browser SSO</name>
@@ -34,17 +33,17 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 			<artifactId>org.wso2.carbon.utils</artifactId>
 		</dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.base</artifactId>
             <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
 		<dependency>
-			<groupId>org.wso2.carbon</groupId>
+			<groupId>org.wso2.carbon.identity</groupId>
 			<artifactId>org.wso2.carbon.identity.core</artifactId>
 			<!--<version>4.3.0-SNAPSHOT</version>-->
 		</dependency>
 		<dependency>
-			<groupId>org.wso2.carbon</groupId>
+			<groupId>org.wso2.carbon.identity</groupId>
 			<artifactId>org.wso2.carbon.identity.provider</artifactId>
 			<!--<version>4.3.0-SNAPSHOT</version>-->
 		</dependency>
@@ -53,7 +52,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 			<artifactId>org.wso2.carbon.core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.wso2.carbon</groupId>
+			<groupId>org.wso2.carbon.identity</groupId>
 			<artifactId>org.wso2.carbon.security.mgt</artifactId>
 			<!--<version>4.3.0-SNAPSHOT</version>-->
 		</dependency>
@@ -71,12 +70,12 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 			<!--<version>132</version>-->
 		</dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.common</artifactId>
             <!--version>4.2.0</version-->
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
         </dependency>
 	</dependencies>

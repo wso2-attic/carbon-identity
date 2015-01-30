@@ -19,7 +19,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<parent>
-		<groupId>org.wso2.carbon</groupId>
+		<groupId>org.wso2.carbon.identity</groupId>
 		<artifactId>tools-saml-feature</artifactId>
 		<version>4.3.0-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
@@ -27,7 +27,6 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.wso2.carbon.identity.tools.saml.validator.feature</artifactId>
-	<version>4.3.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>User Profiles Feature</name>
 	<url>http://wso2.org</url>
@@ -35,12 +34,12 @@
 
 	<dependencies>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.tools.saml.validator.server.feature</artifactId>
             <type>zip</type>
 	    </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.tools.saml.validator.ui.feature</artifactId>
             <type>zip</type>
 	    </dependency>
@@ -66,8 +65,8 @@
                                 <importFeatureDef>org.wso2.carbon.identity.core:${project.version}</importFeatureDef>
                             </importFeatures>
                             <includedFeatures>
-                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.tools.saml.validator.server.feature</includedFeatureDef>
-                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.tools.saml.validator.ui.feature</includedFeatureDef>
+                                <includedFeatureDef>org.wso2.carbon.identity:org.wso2.carbon.identity.tools.saml.validator.server.feature</includedFeatureDef>
+                                <includedFeatureDef>org.wso2.carbon.identity:org.wso2.carbon.identity.tools.saml.validator.ui.feature</includedFeatureDef>
                             </includedFeatures>
 						</configuration>
 					</execution>

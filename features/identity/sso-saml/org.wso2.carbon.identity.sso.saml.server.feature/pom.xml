@@ -20,7 +20,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.wso2.carbon</groupId>
+        <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>sso-saml-feature</artifactId>
         <version>4.3.0-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
@@ -37,7 +37,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.sso.saml</artifactId>
         </dependency>
         <dependency>
@@ -45,7 +45,7 @@
             <artifactId>opensaml2</artifactId>
         </dependency>
 	<dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.application.authentication.endpoint</artifactId>
             <!--<version>4.3.0-SNAPSHOT</version>-->
             <type>war</type>
@@ -70,7 +70,7 @@
 				<artifactItem>
                                     <groupId>org.wso2.carbon</groupId>
                                     <artifactId>org.wso2.carbon.identity.application.authentication.endpoint</artifactId>
-                                    <version>4.3.0-SNAPSHOT</version>
+                                    <version>${project.version}</version>
                                     <type>war</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${basedir}/src/main/resources/</outputDirectory>
@@ -133,7 +133,7 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.sso.saml</bundleDef>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.sso.saml</bundleDef>
                                 <bundleDef>opensaml.wso2:opensaml2</bundleDef>
                             </bundles>
                             <importFeatures>

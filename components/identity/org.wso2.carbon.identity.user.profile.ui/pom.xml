@@ -14,7 +14,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<parent>
-		<groupId>org.wso2.carbon</groupId>
+		<groupId>org.wso2.carbon.identity</groupId>
 		<artifactId>identity</artifactId>
 		<version>4.3.0-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
@@ -23,7 +23,6 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.wso2.carbon.identity.user.profile.ui</artifactId>
 	<packaging>bundle</packaging>
-	<version>4.3.0-SNAPSHOT</version>
 	<name>WSO2 Carbon - User Profile Management UI</name>
 	<description>This is the core module of the project.</description>
 
@@ -39,7 +38,7 @@
             <artifactId>org.wso2.carbon.logging</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.user.profile.stub</artifactId>
         </dependency>
 	</dependencies>

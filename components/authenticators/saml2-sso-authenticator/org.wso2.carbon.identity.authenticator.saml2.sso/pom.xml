@@ -20,7 +20,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.wso2.carbon</groupId>
+        <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>saml2-sso-authenticator</artifactId>
         <version>4.3.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -29,7 +29,6 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.identity.authenticator.saml2.sso</artifactId>
     <packaging>bundle</packaging>
-    <version>4.3.0-SNAPSHOT</version>
     <name>SAML2 SSO Authenticator - BE bundle</name>
     <description>SAML2 based SSO Authenticator - BE bundle</description>
     <url>http://wso2.org</url>
@@ -60,7 +59,7 @@
 		<artifactId>opensaml2</artifactId>
 	    </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.common</artifactId>
         </dependency>
     </dependencies>

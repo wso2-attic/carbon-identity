@@ -20,7 +20,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.wso2.carbon</groupId>
+        <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>carbon-service-stubs</artifactId>
         <version>4.3.0-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
@@ -90,7 +90,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.carbon.identity.user.store.configuration.stub.*;version="${carbon.platform.package.export.version}",
+                            org.wso2.carbon.identity.user.store.configuration.stub.*;version="${carbon.identity.package.export.version}",
 				org.wso2.carbon.ndatasource.common.xsd.*
                         </Export-Package>
                         <Import-Package>
