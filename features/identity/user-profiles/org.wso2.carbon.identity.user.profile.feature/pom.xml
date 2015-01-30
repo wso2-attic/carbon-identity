@@ -36,13 +36,11 @@
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.user.profile.server.feature</artifactId>
-            <!--version>4.3.0-SNAPSHOT</version-->
             <type>zip</type>
 	    </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.user.profile.ui.feature</artifactId>
-            <!--version>4.3.0-SNAPSHOT</version-->
             <type>zip</type>
 	    </dependency>
     </dependencies>
