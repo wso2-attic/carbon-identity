@@ -36,19 +36,16 @@
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.oauth.server.feature</artifactId>
-            <!--version>4.3.0-SNAPSHOT</version-->
             <type>zip</type>
 	    </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.oauth.ui.feature</artifactId>
-            <!--version>4.3.0-SNAPSHOT</version-->
             <type>zip</type>
 	    </dependency>
 		<dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.oauth.common.feature</artifactId>
-            <!--version>4.3.0-SNAPSHOT</version-->
             <type>zip</type>
 	    </dependency>
     </dependencies>

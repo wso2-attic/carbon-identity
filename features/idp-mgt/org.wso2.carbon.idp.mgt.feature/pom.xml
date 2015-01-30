@@ -36,14 +36,12 @@
         	<dependency>
         		<groupId>org.wso2.carbon.identity</groupId>
         		<artifactId>org.wso2.carbon.idp.mgt.server.feature</artifactId>
-                <!--version>4.3.0-SNAPSHOT</version-->
-            		<type>zip</type>
+            	<type>zip</type>
 	 	</dependency>
-         	<dependency>
-            		<groupId>org.wso2.carbon.identity</groupId>
-            		<artifactId>org.wso2.carbon.idp.mgt.ui.feature</artifactId>
-            		<!--version>4.3.0-SNAPSHOT</version-->
-            		<type>zip</type>
+        <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.idp.mgt.ui.feature</artifactId>
+                <type>zip</type>
 	 	</dependency>
     	</dependencies>
 

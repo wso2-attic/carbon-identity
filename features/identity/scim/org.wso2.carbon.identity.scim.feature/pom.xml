@@ -36,19 +36,16 @@
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.scim.provider.feature</artifactId>
-            <!--version>4.3.0-SNAPSHOT</version-->
             <type>zip</type>
 	</dependency>
 	<dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.scim.common.feature</artifactId>
-            <!--version>4.3.0-SNAPSHOT</version-->
             <type>zip</type>
 	</dependency>
 	<dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.scim.ui.feature</artifactId>
-            <!--version>4.3.0-SNAPSHOT</version-->
             <type>zip</type>
 	</dependency>
     </dependencies>

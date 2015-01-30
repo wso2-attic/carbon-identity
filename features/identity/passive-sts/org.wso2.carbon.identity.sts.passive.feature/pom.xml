@@ -38,13 +38,11 @@
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.sts.passive.server.feature</artifactId>
-            <!--version>${project.version}</version-->
             <type>zip</type>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.sts.passive.ui.feature</artifactId>
-            <!--version>4.3.0-SNAPSHOT</version-->
             <type>zip</type>
         </dependency>
     </dependencies>
