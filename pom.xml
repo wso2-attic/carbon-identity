@@ -10,6 +10,19 @@
     <name>WSO2 Carbon - Platform Aggregator Pom</name>
     <url>http://wso2.org</url>
 
+    <parent>
+        <groupId>org.wso2</groupId>
+        <artifactId>wso2</artifactId>
+        <version>1</version>
+    </parent>
+
+    <scm>
+        <url>https://github.com/wso2/carbon-identity.git</url>
+        <developerConnection>scm:git:https://github.com/wso2/carbon-identity.git</developerConnection>
+        <connection>scm:git:https://github.com/wso2/carbon-identity.git</connection>
+        <tag>HEAD</tag>
+    </scm>
+
     <modules>
         <module>service-stubs/identity</module>
 
@@ -1998,6 +2011,7 @@
         <kaptcha.wso2.version>2.3.0.wso2v1</kaptcha.wso2.version>
         <json.wso2.version>2.0.0.wso2v1</json.wso2.version>
 
+        <project.scm.id>my-scm-server</project.scm.id>
     </properties>
 
     <build>
@@ -2024,6 +2038,18 @@
                     <configuration>
                         <obrRepository>NONE</obrRepository>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <configuration>
+                        <preparationGoals>clean install</preparationGoals>
+                        <autoVersionSubmodules>true</autoVersionSubmodules>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
                 </plugin>
             </plugins>
         </pluginManagement>
