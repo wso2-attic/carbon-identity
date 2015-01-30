@@ -34,13 +34,11 @@
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.sts.server.feature</artifactId>
-            <!--version>4.3.0-SNAPSHOT</version-->
             <type>zip</type>
 	    </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.sts.ui.feature</artifactId>
-            <!--version>4.3.0-SNAPSHOT</version-->
             <type>zip</type>
 	    </dependency>
     </dependencies>
