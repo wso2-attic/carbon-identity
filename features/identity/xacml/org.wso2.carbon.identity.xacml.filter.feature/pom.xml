@@ -33,12 +33,10 @@
 		<dependency>
 			<groupId>org.wso2.carbon.identity</groupId>
 			<artifactId>org.wso2.carbon.identity.entitlement.filter</artifactId>
-			<!--<version>4.3.0-SNAPSHOT</version>-->
 		</dependency>
 		<dependency>
                         <groupId>org.wso2.carbon.identity</groupId>
                         <artifactId>org.wso2.carbon.identity.entitlement.proxy</artifactId>
-                        <!--<version>4.3.0-SNAPSHOT</version>-->
                 </dependency>
 		<dependency>
             		<groupId>org.wso2.carbon.identity</groupId>
