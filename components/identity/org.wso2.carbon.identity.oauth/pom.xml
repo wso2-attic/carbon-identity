@@ -16,17 +16,15 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<parent>
-		<groupId>org.wso2.carbon</groupId>
+		<groupId>org.wso2.carbon.identity</groupId>
 		<artifactId>identity</artifactId>
 		<version>4.3.0-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.wso2.carbon</groupId>
 	<artifactId>org.wso2.carbon.identity.oauth</artifactId>
 	<packaging>bundle</packaging>
-	<version>4.3.0-SNAPSHOT</version>
 	<name>WSO2 Carbon - OAuth</name>
 	<description>A custom wso2 products or solution</description>
 	<url>http://wso2.org</url>
@@ -74,7 +72,7 @@
             <artifactId>org.wso2.carbon.registry.core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.core</artifactId>
             <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
@@ -84,25 +82,25 @@
             <!--<version>0.22.1358727.wso2v4</version>-->
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.oauth.common</artifactId>
             <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.idp.mgt</artifactId>
             <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.application.mgt</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.application.common</artifactId>
         </dependency>
 		<dependency>
-			<groupId>org.wso2.carbon</groupId>
+			<groupId>org.wso2.carbon.identity</groupId>
 			<artifactId>org.wso2.carbon.identity.entitlement</artifactId>
 			<!--<version>4.3.0-SNAPSHOT</version>-->
 		</dependency>

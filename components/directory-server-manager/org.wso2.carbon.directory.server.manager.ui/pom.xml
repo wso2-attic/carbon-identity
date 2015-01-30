@@ -17,7 +17,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.wso2.carbon</groupId>
+        <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>directory-server-manager</artifactId>
         <version>4.3.0-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
@@ -28,7 +28,6 @@
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Service Principle Management UI</name>
     <description>This is the core module of the project.</description>
-	<version>4.3.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
@@ -37,7 +36,7 @@
             <!--<version>${axis2.wso2.version}</version>-->
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.directory.server.manager.common</artifactId>
             <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
@@ -46,7 +45,7 @@
             <artifactId>org.wso2.carbon.logging</artifactId>
         </dependency>
 	<dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.directory.server.manager.stub</artifactId>
         </dependency>
     </dependencies>
@@ -70,8 +69,8 @@
                          <Import-Package>
                              !org.wso2.carbon.directory.server.manager.ui.i18n,
                              javax.xml.namespace.*;version="0.0.0",
-                             org.wso2.carbon.directory.server.manager.stub.*;version="${carbon.platform.package.import.version.range}",
-							 org.wso2.carbon.directory.server.manager.xsd.*;version="${carbon.platform.package.import.version.range}", 
+                             org.wso2.carbon.directory.server.manager.stub.*;version="${carbon.identity.package.import.version.range}",
+							 org.wso2.carbon.directory.server.manager.xsd.*;version="${carbon.identity.package.import.version.range}",
                              *;resolution:=optional
                          </Import-Package>
                          <Carbon-Component>UIBundle</Carbon-Component>

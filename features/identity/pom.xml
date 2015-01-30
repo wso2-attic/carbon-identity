@@ -17,7 +17,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.wso2.carbon</groupId>
+        <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>carbon-identity</artifactId>
         <version>4.3.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
@@ -397,8 +397,8 @@
     </dependencyManagement-->
 
     <properties>
-        <identity.version>${wso2carbon.version}</identity.version>
-        <wso2carbon.version.identity>${wso2carbon.version}</wso2carbon.version.identity>
+        <!--<identity.version>${wso2carbon.version}</identity.version>-->
+        <!--<wso2carbon.version.identity>${wso2carbon.version}</wso2carbon.version.identity>-->
         <libthrift.wso2.version>0.8.0.wso2v1</libthrift.wso2.version>
         <charon.wso2.version.identity>2.0.0</charon.wso2.version.identity>
     </properties>

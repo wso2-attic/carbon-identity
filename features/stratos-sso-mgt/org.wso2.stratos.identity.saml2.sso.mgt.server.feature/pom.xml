@@ -32,12 +32,6 @@
 	<name>WSO2 Carbon - Stratos SSO Management Server Feature</name>
 	<url>http://wso2.org</url>
 	<description>This feature contains the bundles required for Back-end Stratos SSO Management functionality</description>
-	<dependencies>
-		<dependency>
-			<groupId>org.wso2.carbon</groupId>
-			<artifactId>org.wso2.stratos.identity.saml2.sso.mgt</artifactId>
-		</dependency>
-	</dependencies>
 	<build>
 		<plugins>
 			<plugin>
@@ -84,9 +78,6 @@
 								    <!--propertyDef>org.eclipse.equinox.p2.type.group:false</propertyDef-->
 								</properties>
 						    	</adviceFile>
-							<bundles>
-								<bundleDef>org.wso2.carbon:org.wso2.stratos.identity.saml2.sso.mgt</bundleDef>
-							</bundles>
 							<importFeatures>
 								<importFeatureDef>org.wso2.carbon.core.server:${carbon.kernel.version}</importFeatureDef>
 	                               				<importFeatureDef>org.wso2.carbon.identity.sso.saml.server</importFeatureDef>

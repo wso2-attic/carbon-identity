@@ -20,17 +20,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.wso2.carbon</groupId>
+        <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>identity</artifactId>
         <version>4.3.0-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.wso2.carbon</groupId>
     <artifactId>org.wso2.carbon.identity.sts.passive</artifactId>
     <packaging>bundle</packaging>
-    <version>4.3.0-SNAPSHOT</version>
     <name>WSO2 Carbon - Passive  STS</name>
     <description>A custom wso2 products or solution</description>
     <url>http://www.wso2.com</url>
@@ -45,17 +43,17 @@
             <artifactId>axis2</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.core</artifactId>
             <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
+         <!--<dependency>-->
+      		<!--<groupId>org.wso2.carbon</groupId>-->
+      		<!--<artifactId>org.wso2.carbon.xfer</artifactId>-->
+      		<!--&lt;!&ndash;<version>${identity.version}</version>&ndash;&gt;-->
+    	 <!--</dependency>-->
          <dependency>
-      		<groupId>org.wso2.carbon</groupId>
-      		<artifactId>org.wso2.carbon.xfer</artifactId>
-      		<!--<version>${identity.version}</version>-->
-    	 </dependency>
-         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.provider</artifactId>
             <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
@@ -75,7 +73,7 @@
         </dependency>
 
 		<dependency>
-			<groupId>org.wso2.carbon</groupId>
+			<groupId>org.wso2.carbon.identity</groupId>
 			<artifactId>org.wso2.carbon.security.mgt</artifactId>
 			<!--<version>4.3.0-SNAPSHOT</version>-->
 		</dependency>	

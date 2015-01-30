@@ -20,7 +20,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.wso2.carbon</groupId>
+        <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>oauth-request-path-authenticator-feature</artifactId>
         <version>4.3.0-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
@@ -28,7 +28,6 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.identity.application.authenticator.requestpath.oauth.server.feature</artifactId>
-    <version>4.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>OAuth Request Path Application Authenticator Server Feature</name>
     <url>http://wso2.org</url>
@@ -37,11 +36,11 @@
 
     <dependencies>
 		<dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.application.authenticator.requestpath.oauth</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
         </dependency>
     </dependencies>
@@ -63,7 +62,7 @@
                             <id>org.wso2.carbon.identity.application.authenticator.requestpath.oauth.server</id>
                             <propertiesFile>../../../../../etc/feature.properties</propertiesFile>
                             <bundles>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.application.authenticator.requestpath.oauth</bundleDef>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.application.authenticator.requestpath.oauth</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.identity.application.authentication.framework.server</importFeatureDef>

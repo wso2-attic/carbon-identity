@@ -20,7 +20,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.wso2.carbon</groupId>
+        <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>security-mgt-feature</artifactId>
         <version>4.3.0-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
@@ -28,7 +28,6 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.security.mgt.ui.feature</artifactId>
-    <version>4.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>WSO2 Carbon - Security Management UI Feature</name>
     <url>http://wso2.org</url>
@@ -36,11 +35,11 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.security.mgt.ui</artifactId>
         </dependency>
 	<dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.security.mgt.stub</artifactId>
         </dependency>
         <dependency>
@@ -84,8 +83,8 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.security.mgt.ui</bundleDef>
-				<bundleDef>org.wso2.carbon:org.wso2.carbon.security.mgt.stub</bundleDef>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.security.mgt.ui</bundleDef>
+				                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.security.mgt.stub</bundleDef>
                             </bundles>
                             <importBundles>
                                 <importBundleDef>org.apache.rampart.wso2:rampart-policy</importBundleDef>

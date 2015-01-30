@@ -3,16 +3,14 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	
 <parent>
-        <groupId>org.wso2.carbon</groupId>
+        <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>identity</artifactId>
         <version>4.3.0-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
     </parent>
 
 	<modelVersion>4.0.0</modelVersion>
-    	<groupId>org.wso2.carbon</groupId>
 	<artifactId>org.wso2.carbon.identity.application.authentication.endpoint</artifactId>
-	<version>4.3.0-SNAPSHOT</version>
     	<packaging>war</packaging>
     	<name>WSO2 Carbon - Identity Application Authentication Endpoint</name>
     	<description>Identity Application Authentication Endpoint</description>

@@ -19,16 +19,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
    <parent>
-       <groupId>org.wso2.carbon</groupId>
+       <groupId>org.wso2.carbon.identity</groupId>
        <artifactId>identity</artifactId>
        <version>4.3.0-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.wso2.carbon</groupId>
     <artifactId>org.wso2.carbon.identity.entitlement.proxy</artifactId>
-    <version>4.3.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Identity Entitlement PDP Proxy</name>
     <description>A custom wso2 products or solution</description>
@@ -36,14 +34,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.commons</groupId>
             <artifactId>org.wso2.carbon.user.mgt.stub</artifactId>
             <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.entitlement.stub</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -145,11 +142,11 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.utils</artifactId>
         </dependency>
-        <!--dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.context</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency-->
+        <!--<dependency>-->
+            <!--<groupId>org.wso2.carbon</groupId>-->
+            <!--<artifactId>org.wso2.carbon.context</artifactId>-->
+            <!--<version>4.3.0-SNAPSHOT</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.wso2.balana</groupId>
             <artifactId>org.wso2.balana</artifactId>
@@ -195,7 +192,7 @@
 							!org.apache.axis2.databinding.utils.reader,
 							!org.pache.axis2.databinding.utils.writer,
                             !org.wso2.carbon.identity.entitlement.proxy.*,
-                            org.wso2.carbon.identity.entitlement.stub.*;version="${carbon.platform.package.import.version.range}",
+                            org.wso2.carbon.identity.entitlement.stub.*;version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.authenticator.stub.*;version="${carbon.kernel.package.import.version.range}",
                             *; resolution:=optional
                         </Import-Package>
