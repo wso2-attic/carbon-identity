@@ -74,22 +74,18 @@
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.core</artifactId>
-            <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
         <dependency>
             <groupId>org.apache.amber.wso2</groupId>
             <artifactId>amber</artifactId>
-            <!--<version>0.22.1358727.wso2v4</version>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.oauth.common</artifactId>
-            <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.idp.mgt</artifactId>
-            <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
@@ -102,7 +98,6 @@
 		<dependency>
 			<groupId>org.wso2.carbon.identity</groupId>
 			<artifactId>org.wso2.carbon.identity.entitlement</artifactId>
-			<!--<version>4.3.0-SNAPSHOT</version>-->
 		</dependency>
         <dependency>
             <groupId>tomcat</groupId>
@@ -111,7 +106,6 @@
         <dependency>
             <groupId>com.github.dblock.waffle.wso2</groupId>
             <artifactId>waffle-jna</artifactId>
-            <!--version>1.6.wso2v1</version-->
         </dependency>
         <dependency>
             <groupId>com.nimbusds.wso2</groupId>
@@ -129,10 +123,6 @@
 
 	<build>
 		<plugins>
-			<!--plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-scr-plugin</artifactId>
-			</plugin-->
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>

@@ -35,7 +35,6 @@
 		<dependency>
 			<groupId>org.wso2.carbon.identity</groupId>
 			<artifactId>org.wso2.carbon.identity.authorization.core</artifactId>
-			<!--<version>4.3.0-SNAPSHOT</version>-->
         	</dependency>
 	</dependencies>
 	<build>
