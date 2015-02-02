@@ -87,8 +87,8 @@
                             javax.servlet.http;version="${imp.pkg.version.javax.servlet}",
                             javax.xml.stream.*; version=1.0.1,
                             org.wso2.carbon.identity.oauth2,
-                            org.wso2.carbon.identity.oauth.stub.*;version="${carbon.platform.package.import.version.range}",
-                            org.wso2.carbon.identity.oauth2.stub.*;version="${carbon.platform.package.import.version.range}",
+                            org.wso2.carbon.identity.oauth.stub.*;version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.oauth2.stub.*;version="${carbon.identity.package.import.version.range}",
                             *;resolution:=optional
                         </Import-Package>
                         <Export-Package>org.wso2.carbon.identity.oauth.ui.*</Export-Package>
