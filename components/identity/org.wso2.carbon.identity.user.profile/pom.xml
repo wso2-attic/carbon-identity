@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.wso2.carbon.identity</groupId>
 		<artifactId>identity</artifactId>
-		<version>4.3.0-SNAPSHOT</version>
+		<version>4.3.1-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -76,7 +76,7 @@
 						<WSO2-Bundle-StartLevel>
 							50
 						</WSO2-Bundle-StartLevel>
-						<!---->
+						
 						<!--<Bundle-Description>-->
 						<!--${pom.description}-->
 						<!--</Bundle-Description>-->
@@ -84,8 +84,7 @@
 						<!--
 							Bundle-Activator>
 							org.wso2.carbon.identity.user.profile.mgt.internal.Activator
-							</Bundle-Activator
-						-->
+							</Bundle-Activator -->
 						<Private-Package>
 							org.wso2.carbon.identity.user.profile.mgt.internal
 						</Private-Package>
