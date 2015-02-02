@@ -82,11 +82,13 @@ public class SessionDataStore {
 
 
     private static final String SQL_SERIALIZE_OBJECT = "INSERT INTO IDN_AUTH_SESSION_STORE(SESSION_ID, SESSION_TYPE, SESSION_OBJECT, TIME_CREATED) VALUES (?, ?, ?, ?)";
-    private static final String SQL_UPDATE_SERIALIZED_OBJECT = "UPDATE IDN_AUTH_SESSION_STORE SET SESSION_OBJECT =? WHERE SESSION_ID =? AND SESSION_TYPE=?";
+    private static final String SQL_UPDATE_SERIALIZED_OBJECT = "UPDATE IDN_AUTH_SESSION_STORE SET SESSION_OBJECT =?, TIME_CREATED =? WHERE SESSION_ID =? AND SESSION_TYPE=?";
     private static final String SQL_DESERIALIZE_OBJECT = "SELECT SESSION_OBJECT FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID =? AND SESSION_TYPE=?";
     private static final String SQL_CHECK_SERIALIZED_OBJECT = "SELECT SESSION_ID FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID = ? AND SESSION_TYPE=?";
     private static final String SQL_DELETE_SERIALIZED_OBJECT = "DELETE FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID = ? AND SESSION_TYPE=?";
     private static final String SQL_DELETE_SERIALIZED_OBJECT_TASK = "DELETE FROM IDN_AUTH_SESSION_STORE WHERE TIME_CREATED<?";
+    private static final String SQL_SELECT_TIME_CREATED =
+            "SELECT TIME_CREATED FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID =? AND SESSION_TYPE =?";
 
     private static volatile SessionDataStore instance;
 
@@ -331,21 +333,34 @@ public class SessionDataStore {
 
         Connection connection = null;
         PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        Timestamp timestamp = new java.sql.Timestamp(new java.util.Date().getTime());
         try {
             connection = jdbcPersistenceManager.getDBConnection();
             connection.setAutoCommit(false);
             if (isExist) {
+                preparedStatement = connection.prepareStatement(SQL_SELECT_TIME_CREATED);
+                preparedStatement.setString(1, key);
+                preparedStatement.setString(2, type);
+                resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    timestamp = resultSet.getTimestamp(1);
+                    if (preparedStatement != null) {
+                        preparedStatement.close();
+                    }
+                }
                 preparedStatement = connection.prepareStatement(sqlUpdate);
                 setBlobObject(preparedStatement, entry, 1);
-                preparedStatement.setString(2, key);
-                preparedStatement.setString(3, type);
+                preparedStatement.setTimestamp(2, timestamp);
+                preparedStatement.setString(3, key);
+                preparedStatement.setString(4, type);
             } else {
                 preparedStatement = connection.prepareStatement(sqlStore);
                 preparedStatement.setString(1, key);
                 preparedStatement.setString(2, type);
                 setBlobObject(preparedStatement, entry, 3);
+                preparedStatement.setTimestamp(4, timestamp);
             }
-            preparedStatement.setTimestamp(4, new java.sql.Timestamp(new java.util.Date().getTime()));
             preparedStatement.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {
