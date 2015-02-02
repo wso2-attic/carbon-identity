@@ -4,7 +4,7 @@
     <groupId>org.wso2.carbon.identity</groupId>
     <artifactId>carbon-identity</artifactId>
     <packaging>pom</packaging>
-    <version>4.3.2-SNAPSHOT</version>
+    <version>4.3.1</version>
     <name>WSO2 Carbon - Platform Aggregator Pom</name>
     <url>http://wso2.org</url>
 
@@ -18,7 +18,7 @@
         <url>https://github.com/wso2/carbon-identity.git</url>
         <developerConnection>scm:git:https://github.com/wso2/carbon-identity.git</developerConnection>
         <connection>scm:git:https://github.com/wso2/carbon-identity.git</connection>
-        <tag>HEAD</tag>
+        <tag>carbon-identity-4.3.1</tag>
     </scm>
 
     <modules>
@@ -1852,7 +1852,7 @@
         <carbon.commons.imp.pkg.version>[4.3.0, 4.4.0)</carbon.commons.imp.pkg.version>
 
         <!--Carbon identity version-->
-        <carbon.identity.version>4.3.2-SNAPSHOT</carbon.identity.version>
+        <carbon.identity.version>4.3.1</carbon.identity.version>
         <carbon.identity.package.export.version>4.3.1</carbon.identity.package.export.version>
         <carbon.identity.package.import.version.range>[4.3.0, 4.4.0)</carbon.identity.package.import.version.range>
 
