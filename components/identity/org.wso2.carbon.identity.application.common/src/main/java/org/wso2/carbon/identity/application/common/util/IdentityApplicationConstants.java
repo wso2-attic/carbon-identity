@@ -28,6 +28,7 @@ public class IdentityApplicationConstants {
     public static final String DEFAULT_IDP_CONFIG = "default";
 
     public static final String WSO2CARBON_CLAIM_DIALECT = "http://wso2.org/claims";
+    public static final String SF_OAUTH2_TOKEN_ENDPOINT = "https://login.salesforce.com/services/oauth2/token";
 
 
     public static class ConfigElements {
@@ -64,6 +65,7 @@ public class IdentityApplicationConstants {
             public static final String IS_LOGOUT_REQ_SIGNED = "IsLogoutReqSigned";
             public static final String IS_AUTHN_RESP_SIGNED = "IsAuthnRespSigned";
             public static final String IS_USER_ID_IN_CLAIMS = "IsUserIdInClaims";
+            public static final String REQUEST_METHOD = "RequestMethod";
         }
 
         public static class OIDC extends OAuth2 {
@@ -86,6 +88,7 @@ public class IdentityApplicationConstants {
             public static final String NAME = "facebook";
             public static final String CLIENT_ID = "ClientId";
             public static final String CLIENT_SECRET = "ClientSecret";
+			public static final String SCOPE = "Scope";
         }
 
         public static class WSTrust {
