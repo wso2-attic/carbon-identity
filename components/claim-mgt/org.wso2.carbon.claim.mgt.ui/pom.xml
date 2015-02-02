@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>claim-mgt</artifactId>
-        <version>4.3.1-SNAPSHOT</version>
+        <version>4.3.2-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -63,7 +63,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Import-Package>
-                            org.wso2.carbon.claim.mgt.stub.*;version="${carbon.platform.package.import.version.range}",
+                            org.wso2.carbon.claim.mgt.stub.*;version="${carbon.identity.package.import.version.range}",
                             !javax.xml.namespace,
                             javax.xml.namespace; version=0.0.0,
                             javax.xml.stream.*; version=1.0.1,

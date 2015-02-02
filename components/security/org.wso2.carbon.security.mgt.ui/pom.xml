@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>security</artifactId>
-        <version>4.3.1-SNAPSHOT</version>
+        <version>4.3.2-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -77,7 +77,7 @@
                             org.wso2.carbon.registry.core.*,
                             org.wso2.carbon.user.mgt.common.*,
                             org.wso2.carbon.user.mgt.ui.*,
-                            org.wso2.carbon.security.mgt.stub.*;version="${carbon.platform.package.import.version.range}",
+                            org.wso2.carbon.security.mgt.stub.*;version="${carbon.identity.package.import.version.range}",
                             org.apache.commons.fileupload.*; version="0.0.0",
                             *;resolution:=optional
                         </Import-Package>
