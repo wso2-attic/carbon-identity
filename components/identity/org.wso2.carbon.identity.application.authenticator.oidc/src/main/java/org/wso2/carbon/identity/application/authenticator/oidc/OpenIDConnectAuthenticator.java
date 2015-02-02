@@ -42,7 +42,9 @@ import org.wso2.carbon.identity.application.authentication.framework.FederatedAp
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.ui.CarbonUIUtil;
 
 public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator implements
@@ -341,8 +343,25 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                         }
                         context.setSubjectAttributes(claims);
 
-                        String authenticatedUser = (String) jsonObject.get("sub");
+                        String authenticatedUser = null;
+                        String isSubjectInClaimsProp = context.getAuthenticatorProperties().get(
+                                IdentityApplicationConstants.Authenticator.SAML2SSO.IS_USER_ID_IN_CLAIMS);
+
+                        if ("true".equalsIgnoreCase(isSubjectInClaimsProp)) {
+                            authenticatedUser = getSubjectFromUserIDClaimURI(context);
+                            if(authenticatedUser == null){
+                                log.warn("Subject claim could not be found amongst subject attributes. " +
+                                        "Defaulting to sub attribute in IDToken.");
+                            }
+                        }
+                        if(authenticatedUser == null){
+                            authenticatedUser = (String) jsonObject.get("sub");
+                        }
+                        if(authenticatedUser == null){
+                            throw new AuthenticationFailedException("Cannot find federated User Identifier");
+                        }
                         context.setSubject(authenticatedUser);
+
                     } else {
                         if (log.isDebugEnabled()) {
                             log.debug("Decoded json object is null");
@@ -397,5 +416,25 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
     @Override
     public String getName() {
         return OIDCAuthenticatorConstants.AUTHENTICATOR_NAME;
+    }
+
+    @Override
+    public String getClaimDialectURI() {
+        return "http://wso2.org/oidc/claim";
+    }
+
+
+    /**
+     *
+     * @subject
+     */
+    protected String getSubjectFromUserIDClaimURI(AuthenticationContext context) {
+        String subject = null;
+        try {
+            subject = FrameworkUtils.getFederatedSubjectFromClaims(context, getClaimDialectURI());
+        } catch (Exception e) {
+            log.warn("Couldn't find the subject claim from claim mappings ");
+        }
+        return subject;
     }
 }
