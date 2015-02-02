@@ -281,7 +281,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
 
         if (SSOUtils.isAssertionEncryptionEnabled(properties)) {
             List<EncryptedAssertion> encryptedAssertions = samlResponse.getEncryptedAssertions();
-            EncryptedAssertion encryptedAssertion;
+            EncryptedAssertion encryptedAssertion = null;
             if (encryptedAssertions != null && encryptedAssertions.size() > 0) {
                 encryptedAssertion = encryptedAssertions.get(0);
                 try {

@@ -27,11 +27,14 @@ import org.wso2.carbon.identity.application.authentication.framework.context.Aut
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.exception.LogoutFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+import org.wso2.carbon.identity.application.authenticator.samlsso.internal.SAMLSSOAuthenticatorServiceComponent;
 import org.wso2.carbon.identity.application.authenticator.samlsso.manager.DefaultSAML2SSOManager;
 import org.wso2.carbon.identity.application.authenticator.samlsso.manager.SAML2SSOManager;
 import org.wso2.carbon.identity.application.authenticator.samlsso.model.StateInfo;
 import org.wso2.carbon.identity.application.authenticator.samlsso.exception.SAMLSSOException;
 import org.wso2.carbon.identity.application.authenticator.samlsso.util.SSOConstants;
+import org.wso2.carbon.identity.application.authenticator.samlsso.util.SSOUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -41,6 +44,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.io.*;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -69,56 +74,68 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
                                                  AuthenticationContext context)
 			throws AuthenticationFailedException {
 		
-		String idpURL = context.getAuthenticatorProperties().get(
-                IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL);
+        Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
+        
+        String idpURL = authenticatorProperties
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL);
 		String ssoUrl = "";
-
+		boolean isPost = false;
+		
         try {
-            if (getAuthenticatorConfig().getParameterMap() != null &&
-                    Boolean.parseBoolean(getAuthenticatorConfig().getParameterMap().
-                            get("HttpPostBindingEnabled"))) {
-
-                sendPostAuthRequest(request, response, false, false, idpURL, context);
+            String requestMethod = authenticatorProperties
+                    .get(IdentityApplicationConstants.Authenticator.SAML2SSO.REQUEST_METHOD);
+            
+            if (requestMethod != null && requestMethod.trim().length() != 0) {
+                if (requestMethod.equalsIgnoreCase("POST")) {
+                    isPost = true;
+                } else if (requestMethod.equalsIgnoreCase("REDIRECT")) {
+                    isPost = false;
+                } else if (requestMethod.equalsIgnoreCase("AS_REQUEST")) {
+                    isPost = Boolean.parseBoolean(context.getAuthenticationRequest().isPost());
+                }
+            } else {
+                isPost = false;
+            }
+            
+            if(isPost){ 
+                sendPostRequest(request, response, false, false, idpURL, context);
                 return;
 
             } else {
                 SAML2SSOManager saml2SSOManager = getSAML2SSOManagerInstance();
                 saml2SSOManager.init(context.getTenantDomain(), context.getAuthenticatorProperties(),
-                        context.getExternalIdP().getIdentityProvider());
+                        context.getExternalIdP().getIdentityProvider());                
                 ssoUrl = saml2SSOManager.buildRequest(request, false, false, idpURL, context);
+                
+                try {
+                    String domain = request.getParameter("domain");
+                    
+                    if (domain != null) {
+                        ssoUrl = ssoUrl + "&fidp=" + domain;
+                    }
+
+                    if (authenticatorProperties != null) {
+                        String queryString = authenticatorProperties
+                                .get(FrameworkConstants.QUERY_PARAMS);
+                        if (queryString != null) {
+                            if (!queryString.startsWith("&")) {
+                                ssoUrl = ssoUrl + "&" + queryString;
+                            } else {
+                                ssoUrl = ssoUrl + queryString;
+                            }
+                        }
+                    }
+                    response.sendRedirect(ssoUrl);
+                } catch (IOException e) {
+                    throw new AuthenticationFailedException(
+                            "Error while sending the redirect to federated SAML IdP", e);
+                }
             }
         } catch (SAMLSSOException e) {
-            throw new AuthenticationFailedException(e.getMessage(), e);
-        }
-
-        try {
-            String domain = request.getParameter("domain");
-
-            if (domain != null) {
-                ssoUrl = ssoUrl + "&fidp=" + domain;
-            }
-
-            Map<String, String> authenticatorProperties = context
-                    .getAuthenticatorProperties();
-
-
-                if (authenticatorProperties != null) {
-				String queryString = authenticatorProperties
-						.get(FrameworkConstants.QUERY_PARAMS);
-				if (queryString != null) {
-					if (!queryString.startsWith("&")) {
-						ssoUrl = ssoUrl + "&" + queryString;
-					} else {
-						ssoUrl = ssoUrl + queryString;
-					}
-				}
-			}
-			
-	        response.sendRedirect(ssoUrl);
-        } catch (IOException e) {
         	throw new AuthenticationFailedException(e.getMessage(), e);
         }
-		return;
+
+        return;
 	}
     
     @Override
@@ -136,7 +153,25 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
                     .getSession(false).getAttribute("samlssoAttributes");
 	        
 	        context.setSubjectAttributes(receivedClaims);
-	        
+
+            String subject = null;
+            String isSubjectInClaimsProp = context.getAuthenticatorProperties().get(
+                    IdentityApplicationConstants.Authenticator.SAML2SSO.IS_USER_ID_IN_CLAIMS);
+            if ("true".equalsIgnoreCase(isSubjectInClaimsProp)) {
+                subject = FrameworkUtils.getFederatedSubjectFromClaims(
+                        context.getExternalIdP().getIdentityProvider(), receivedClaims);
+                if(subject == null){
+                    log.warn("Subject claim could not be found amongst attribute statements. " +
+                            "Defaulting to Name Identifier.");
+                }
+            }
+            if(subject == null){
+                subject = (String)request.getSession().getAttribute("username");
+            }
+            if(subject == null){
+                throw new SAMLSSOException("Cannot find federated User Identifier");
+            }
+
 	        Object sessionIndexObj = request.getSession(false).getAttribute(SSOConstants.IDP_SESSION);
 			String sessionIndex = null;
 			
@@ -220,18 +255,44 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
 	        AuthenticatorStateInfo stateInfo = context.getStateInfo();
 	        
 	        if (stateInfo instanceof StateInfo) {
-	            request.getSession().setAttribute("logoutSessionIndex", ((StateInfo)stateInfo).getSessionIndex());
-	            request.getSession().setAttribute("logoutUsername", ((StateInfo)stateInfo).getSubject());
-	        }
-	        
-	        try {
-	            SAML2SSOManager saml2SSOManager = getSAML2SSOManagerInstance();
+                request.getSession().setAttribute("logoutSessionIndex",
+                        ((StateInfo) stateInfo).getSessionIndex());
+                request.getSession().setAttribute("logoutUsername",
+                        ((StateInfo) stateInfo).getSubject());
+            }
+
+            try {
+                SAML2SSOManager saml2SSOManager = getSAML2SSOManagerInstance();
                 saml2SSOManager.init(context.getTenantDomain(), context
                         .getAuthenticatorProperties(), context.getExternalIdP()
                         .getIdentityProvider());
-	            String logoutURL = saml2SSOManager.buildRequest(request, true, false, idpLogoutURL, context);
-	            response.sendRedirect(logoutURL);
-	        } catch (IOException e) {
+
+                boolean isPost = false;
+                Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
+
+                String requestMethod = authenticatorProperties
+                        .get(IdentityApplicationConstants.Authenticator.SAML2SSO.REQUEST_METHOD);
+
+                if (requestMethod != null && requestMethod.trim().length() != 0) {
+                    if (requestMethod.equalsIgnoreCase("POST")) {
+                        isPost = true;
+                    } else if (requestMethod.equalsIgnoreCase("REDIRECT")) {
+                        isPost = false;
+                    } else if (requestMethod.equalsIgnoreCase("AS_REQUEST")) {
+                        isPost = Boolean.parseBoolean(context.getAuthenticationRequest().isPost());
+                    }
+                } else {
+                    isPost = false;
+                }
+
+                if (isPost) {
+                    sendPostRequest(request, response, true, false, idpLogoutURL, context);
+                } else {
+                    String logoutURL = saml2SSOManager.buildRequest(request, true, false,
+                            idpLogoutURL, context);
+                    response.sendRedirect(logoutURL);
+                }
+            } catch (IOException e) {
 	            throw new LogoutFailedException(e.getMessage(), e);
 	        } catch (SAMLSSOException e) {
 	            throw new LogoutFailedException(e.getMessage(), e);
@@ -247,9 +308,9 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
 			throws LogoutFailedException {
 	}
 
-    private void sendPostAuthRequest(HttpServletRequest request, HttpServletResponse response,
+    private void sendPostRequest(HttpServletRequest request, HttpServletResponse response,
                                      boolean isLogout, boolean isPassive,
-                                     String loginPage, AuthenticationContext context) throws SAMLSSOException {
+                                     String loginPage, AuthenticationContext context) throws SAMLSSOException{
 
         SAML2SSOManager saml2SSOManager = getSAML2SSOManagerInstance();
         saml2SSOManager.init(context.getTenantDomain(), context.getAuthenticatorProperties(),
@@ -259,67 +320,15 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
             throw new SAMLSSOException("HTTP-POST is not supported");
         }
 
-        String encodedRequest = ((DefaultSAML2SSOManager) saml2SSOManager).buildPostRequest(request,
-                isLogout, isPassive, loginPage);
-
+        String encodedRequest = ((DefaultSAML2SSOManager) saml2SSOManager).buildPostRequest(
+                request, isLogout, isPassive, loginPage);
         String relayState = context.getContextIdentifier();
-
-        try {
-            if (getAuthenticatorConfig().getParameterMap() != null &&
-                    Boolean.parseBoolean(getAuthenticatorConfig().getParameterMap().get("HttpPostRedirectPageEnabled"))) {
-
-                String redirectHtmlPath = CarbonUtils.getCarbonHome() + File.separator + "repository"
-                        + File.separator + "resources" + File.separator + "security" + File.separator + "sso_redirect.html";
-                FileInputStream fis = new FileInputStream(new File(redirectHtmlPath));
-                String ssoRedirectPage = new Scanner(fis, "UTF-8").useDelimiter("\\A").next();
-                log.debug("sso_redirect.html " + ssoRedirectPage);
-
-                if (ssoRedirectPage != null) {
-                    String finalPage;
-
-                    String pageWithAcs = ssoRedirectPage.replace("$acUrl", loginPage);
-                    String pageWithAcsResponse = pageWithAcs.replace("$response", encodedRequest);
-                    if (relayState != null) {
-                        finalPage = pageWithAcsResponse.replace("$relayState", relayState);
-                    } else {
-                        finalPage = pageWithAcsResponse.replace("$relayState", "");
-                    }
-
-                    PrintWriter out = response.getWriter();
-                    out.print(finalPage);
-
-                    if (log.isDebugEnabled()) {
-                        log.debug("sso_redirect.html " + finalPage);
-                    }
-                } else {
-                    throw new SAMLSSOException("POST redirect page is not defined");
-                }
-            } else {
-                PrintWriter out = response.getWriter();
-                out.println("<html>");
-                out.println("<body>");
-                out.println("<p>You are now redirected back to " + loginPage);
-                out.println(" If the redirection fails, please click the post button.</p>");
-                out.println("<form method='post' action='" + loginPage + "'>");
-                out.println("<p>");
-                out.println("<input type='hidden' name='SAMLRequest' value='" + encodedRequest + "'>");
-                if (relayState != null) {
-                    out.println("<input type='hidden' name='RelayState' value='" + relayState + "'>");
-                }
-                out.println("<button type='submit'>POST</button>");
-                out.println("</p>");
-                out.println("</form>");
-                out.println("<script type='text/javascript'>");
-                out.println("document.forms[0].submit();");
-                out.println("</script>");
-                out.println("</body>");
-                out.println("</html>");
-            }
-        } catch (Exception e) {
-            throw new SAMLSSOException(e.getMessage(), e);
-        }
+        
+        Map<String, String> reqParamMap = getAdditionalRequestParams(request, context);
+        String postPageInputs = buildPostPageInputs(encodedRequest, relayState, reqParamMap);
+        printPostPage(response, loginPage, postPageInputs);
     }
-
+    
     private SAML2SSOManager getSAML2SSOManagerInstance() throws SAMLSSOException {
 
         String managerClassName = getAuthenticatorConfig().getParameterMap()
@@ -337,6 +346,85 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
             }
         } else {
             return new DefaultSAML2SSOManager();
+        }
+    }
+    
+    private String buildPostPageInputs(String encodedRequest, String relayState,
+            Map<String, String> reqParamMap) {
+        StringBuilder hiddenInputBuilder = new StringBuilder("");
+        hiddenInputBuilder.append("<input type='hidden' name='SAMLRequest' value='")
+                .append(encodedRequest).append("'>");
+
+        if (relayState != null) {
+            hiddenInputBuilder.append("<input type='hidden' name='RelayState' value='")
+                    .append(relayState).append("'>");
+        }
+
+        for (Map.Entry<String, String> reqParam : reqParamMap.entrySet()) {
+            String paramName = reqParam.getKey();
+            String paramValue = reqParam.getValue();
+            hiddenInputBuilder.append("<input type='hidden' name='").append(paramName)
+                    .append("' value='").append(paramValue).append("'>");
+        }
+
+        return hiddenInputBuilder.toString();
+    }
+    
+    private Map<String, String> getAdditionalRequestParams(HttpServletRequest request,
+            AuthenticationContext context) {
+        Map<String, String> reqParamMap = new HashMap<String, String>();
+        Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
+
+        if (authenticatorProperties != null) {
+            String queryString = authenticatorProperties.get(FrameworkConstants.QUERY_PARAMS);
+            if (queryString != null) {
+                reqParamMap = SSOUtils.getQueryMap(queryString);
+            }
+        }
+
+        String fidp = request.getParameter("domain");
+        if (fidp != null) {
+            reqParamMap.put("fidp", fidp);
+        }
+
+        return reqParamMap;
+    }
+    
+    private void printPostPage(HttpServletResponse response, String url, String postPageInputs)
+            throws SAMLSSOException {
+
+        try {
+            String postPage = SAMLSSOAuthenticatorServiceComponent.getPostPage();
+
+            if (postPage != null) {
+                String pageWithURL = postPage.replace("$url", url);
+                String finalPage = pageWithURL.replace("<!--$params-->", postPageInputs);
+                PrintWriter out = response.getWriter();
+                out.print(finalPage);
+
+                if (log.isDebugEnabled()) {
+                    log.debug("HTTP-POST page: " + finalPage);
+                }
+            } else {
+                PrintWriter out = response.getWriter();
+                out.println("<html>");
+                out.println("<body>");
+                out.println("<p>You are now redirected to " + url);
+                out.println(" If the redirection fails, please click the post button.</p>");
+                out.println("<form method='post' action='" + url + "'>");
+                out.println("<p>");
+                out.println(postPageInputs);
+                out.println("<button type='submit'>POST</button>");
+                out.println("</p>");
+                out.println("</form>");
+                out.println("<script type='text/javascript'>");
+                out.println("document.forms[0].submit();");
+                out.println("</script>");
+                out.println("</body>");
+                out.println("</html>");
+            }
+        } catch (Exception e) {
+            throw new SAMLSSOException("Error while sending POST request", e);
         }
     }
 }
