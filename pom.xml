@@ -1852,8 +1852,8 @@
         <carbon.commons.imp.pkg.version>[4.3.0, 4.4.0)</carbon.commons.imp.pkg.version>
 
         <!--Carbon identity version-->
-        <carbon.identity.version>4.3.2-SNAPSHOT</carbon.identity.version>
-        <carbon.identity.package.export.version>4.3.1</carbon.identity.package.export.version>
+        <carbon.identity.version>4.3.3-SNAPSHOT</carbon.identity.version>
+        <carbon.identity.package.export.version>4.3.2</carbon.identity.package.export.version>
         <carbon.identity.package.import.version.range>[4.3.0, 4.4.0)</carbon.identity.package.import.version.range>
 
         <!-- Axis2 Version -->
@@ -1929,11 +1929,11 @@
         <orbit.version.maven-scm>1.7.0.wso2v1</orbit.version.maven-scm>
 
         <!-- Rampart -->
-        <rampart.version>1.6.1-wso2v13</rampart.version>
-        <rampart.wso2.version>1.6.1.wso2v13</rampart.wso2.version>
-        <rampart.mar.version>1.6.1-wso2v13</rampart.mar.version>
-        <rampart.osgi.version>1.6.1.wso2v13</rampart.osgi.version>
-        <orbit.version.rampart>1.6.1.wso2v13</orbit.version.rampart>
+        <rampart.version>1.6.1-wso2v14</rampart.version>
+        <rampart.wso2.version>1.6.1.wso2v14</rampart.wso2.version>
+        <rampart.mar.version>1.6.1-wso2v14</rampart.mar.version>
+        <rampart.osgi.version>1.6.1.wso2v14</rampart.osgi.version>
+        <orbit.version.rampart>1.6.1.wso2v14</orbit.version.rampart>
 
         <!-- Equinox -->
         <version.equinox.osgi.services>3.3.100.v20120522-1822</version.equinox.osgi.services>
