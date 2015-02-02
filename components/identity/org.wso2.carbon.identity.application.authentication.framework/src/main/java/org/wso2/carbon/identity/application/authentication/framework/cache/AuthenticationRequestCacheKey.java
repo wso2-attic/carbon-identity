@@ -54,8 +54,6 @@ public class AuthenticationRequestCacheKey extends CacheKey {
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + resultId.hashCode();
-        return result;
+        return resultId.hashCode();
     }
 }

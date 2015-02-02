@@ -154,7 +154,9 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
                     // Provision user
                     Map<String, String> userClaim = new HashMap<String, String>();
                     for (Map.Entry<String, String> entry : attributes.entrySet()) {
-                        userClaim.put(entry.getKey(), entry.getValue());
+                        if (entry.getValue() != null && !entry.getValue().isEmpty()) {
+                            userClaim.put(entry.getKey(), entry.getValue());
+                        }
                     }
 
                     userstore.addUser(username, generatePassword(username),

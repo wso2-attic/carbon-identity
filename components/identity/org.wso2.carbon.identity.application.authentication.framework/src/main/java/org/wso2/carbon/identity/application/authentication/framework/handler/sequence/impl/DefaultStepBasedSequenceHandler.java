@@ -32,6 +32,7 @@ import org.wso2.carbon.identity.application.common.util.IdentityApplicationManag
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.identity.user.profile.mgt.UserProfileAdmin;
 import org.wso2.carbon.identity.user.profile.mgt.UserProfileException;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler {
 
@@ -234,38 +235,16 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                 Map<ClaimMapping, String> extAttrs = null;
                 Map<String, String> extAttibutesValueMap = null;
                 Map<String, String> localClaimValues = null;
+                Map<String, String> idpClaimValues = null;
 
                 extAttrs = stepConfig.getAuthenticatedUserAttributes();
-                extAttibutesValueMap = FrameworkUtils.getClaimMappings(extAttrs, true);
+                extAttibutesValueMap = FrameworkUtils.getClaimMappings(extAttrs, false);
 
                 if (stepConfig.isSubjectIdentifierStep()) {
                     // there can be only step for subject attributes.
 
                     subjectFoundInStep = true;
                     String associatedID = null;
-                    String userIdClaimUri = externalIdPConfig.getUserIdClaimUri();
-
-                    if (userIdClaimUri != null) {
-                        String subjectIdFromClaim = null;
-                        // get the subject id from the attributes.
-
-                        if (extAttrs != null && !extAttrs.isEmpty()) {
-                            // do claim handling
-                            mappedAttrs = handleClaimMappings(stepConfig, context,
-                                    extAttibutesValueMap, true);
-
-                            subjectIdFromClaim = mappedAttrs.get(userIdClaimUri);
-
-                        }
-
-                        if (subjectIdFromClaim != null) {
-                            // if we found any value - then we can update the step configuration.
-                            sequenceConfig.setAuthenticatedUser(subjectIdFromClaim);
-                            // TODO : this may not be needed.
-                            stepConfig.setAuthenticatedUser(subjectIdFromClaim);
-                            originalExternalIdpSubjectValueForThisStep = subjectIdFromClaim;
-                        }
-                    }
 
                     // now we know the value of the subject - from the external identity provider.
 
@@ -284,11 +263,15 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                         }
                     }
 
-                    // external claim values mapped to local claim uris.
-                    localClaimValues = (Map<String, String>) context
-                            .getProperty(FrameworkConstants.UNFILTERED_LOCAL_CLAIM_VALUES);
 
                     if (associatedID != null && associatedID.trim().length() > 0) {
+                    	
+                        handleClaimMappings(stepConfig, context, extAttibutesValueMap, true);
+                        localClaimValues = (Map<String, String>) context
+                                .getProperty(FrameworkConstants.UNFILTERED_LOCAL_CLAIM_VALUES);
+
+                        idpClaimValues = (Map<String, String>) context
+                                .getProperty(FrameworkConstants.UNFILTERED_IDP_CLAIM_VALUES);
                         // we found an associated user identifier
                         sequenceConfig.setAuthenticatedUser(associatedID);
                         // TODO : this may not be needed.
@@ -300,8 +283,32 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                         // that user - this will load local claim values for the user.
                         mappedAttrs = handleClaimMappings(stepConfig, context, null, false);
 
+                        // if no requested claims are selected, send all local mapped claim values or idp claim values
+                        if (context.getSequenceConfig().getApplicationConfig().getRequestedClaimMappings() == null ||
+                                context.getSequenceConfig().getApplicationConfig().getRequestedClaimMappings().size() == 0) {
+
+                            if (localClaimValues != null && localClaimValues.size() != 0) {
+                                mappedAttrs = localClaimValues;
+                            } else if (idpClaimValues != null && idpClaimValues.size() != 0) {
+                                mappedAttrs = idpClaimValues;
+                            }
+                        }
+
+
                         sequenceConfig.setUserAttributes(FrameworkUtils
                                 .buildClaimMappings(mappedAttrs));
+                        
+                        // in this case associatedID is a local user name - belongs to a tenant in IS.
+                        String tenantDomain = MultitenantUtils.getTenantDomain(associatedID);
+                        Map<String, Object> authProperties = context.getProperties();
+                        
+                        if (authProperties==null){
+                        	authProperties = new HashMap<String, Object>();
+                        	context.setProperties(authProperties);
+                        }
+                        
+                        //TODO: user tenant domain has to be an attribute in the AuthenticationContext
+                        authProperties.put("user-tenant-domain", tenantDomain);
 
                     } else {
 
@@ -322,7 +329,7 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                     List<String> locallyMappedUserRoles = getLocallyMappedUserRoles(sequenceConfig,
                             externalIdPConfig, extAttibutesValueMap, idpRoleClaimUri);
 
-                    if (idpRoleClaimUri != null && locallyMappedUserRoles != null && locallyMappedUserRoles.size() > 0) {
+                    if (idpRoleClaimUri != null && getServiceProviderMappedUserRoles(sequenceConfig, locallyMappedUserRoles) != null) {
                         extAttibutesValueMap.put(
                                 idpRoleClaimUri,
                                 getServiceProviderMappedUserRoles(sequenceConfig,
@@ -334,11 +341,28 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                         // do claim handling
                         mappedAttrs = handleClaimMappings(stepConfig, context,
                                 extAttibutesValueMap, true);
+                        // external claim values mapped to local claim uris.
+                        localClaimValues = (Map<String, String>) context
+                                .getProperty(FrameworkConstants.UNFILTERED_LOCAL_CLAIM_VALUES);
+
+                        idpClaimValues = (Map<String, String>) context
+                                .getProperty(FrameworkConstants.UNFILTERED_IDP_CLAIM_VALUES);
                     }
 
                     if (!sequenceConfig.getApplicationConfig().isMappedSubjectIDSelected()) {
                         // if we found the mapped subject - then we do not need to worry about
                         // finding attributes.
+
+                        // if no requested claims are selected, send all local mapped claim values or idp claim values
+                        if (context.getSequenceConfig().getApplicationConfig().getRequestedClaimMappings() == null ||
+                                context.getSequenceConfig().getApplicationConfig().getRequestedClaimMappings().size() == 0) {
+
+                            if (localClaimValues != null && localClaimValues.size() != 0) {
+                                mappedAttrs = localClaimValues;
+                            } else if (idpClaimValues != null && idpClaimValues.size() != 0) {
+                                mappedAttrs = idpClaimValues;
+                            }
+                        }
                         sequenceConfig.setUserAttributes(FrameworkUtils
                                 .buildClaimMappings(mappedAttrs));
                     }
@@ -348,7 +372,7 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                     if (externalIdPConfig.isProvisioningEnabled()) {
 
                         if (localClaimValues == null) {
-                            localClaimValues = extAttibutesValueMap;
+                            localClaimValues = new HashMap<String, String>();
                         }
 
                         handleJitProvisioning(originalExternalIdpSubjectValueForThisStep, context,
@@ -389,24 +413,12 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
             }
         }
 
-        if (context.getSequenceConfig().getApplicationConfig().getSubjectClaimUri() != null
-                && context.getSequenceConfig().getApplicationConfig().getSubjectClaimUri().trim()
-                        .length() > 0) {
-            Map<String, String> unfilteredClaimValues = (Map<String, String>) context
-                    .getProperty(FrameworkConstants.UNFILTERED_LOCAL_CLAIM_VALUES);
-
-            String subjectValue = null;
-
-            if (unfilteredClaimValues != null) {
-                subjectValue = unfilteredClaimValues.get(context.getSequenceConfig()
-                        .getApplicationConfig().getSubjectClaimUri().trim());
-            } else {
-                subjectValue = mappedAttrs.get(context.getSequenceConfig().getApplicationConfig()
-                        .getSubjectClaimUri().trim());
-            }
-            if (subjectValue != null) {
-                sequenceConfig.setAuthenticatedUser(subjectValue);
-            }
+        String subjectClaimURI = sequenceConfig.getApplicationConfig().getSubjectClaimUri();
+        String subjectValue = (String)context.getProperty("ServiceProviderSubjectClaimValue");
+        if (subjectClaimURI != null && !subjectClaimURI.isEmpty() && subjectValue != null) {
+            sequenceConfig.setAuthenticatedUser(subjectValue);
+        } else if(subjectClaimURI != null && !subjectClaimURI.isEmpty()){
+            log.warn("Subject claim could not be found. Defaulting to Name Identifier.");
         }
 
     }
