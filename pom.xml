@@ -4,7 +4,7 @@
     <groupId>org.wso2.carbon.identity</groupId>
     <artifactId>carbon-identity</artifactId>
     <packaging>pom</packaging>
-    <version>4.3.1-SNAPSHOT</version>
+    <version>4.3.2-SNAPSHOT</version>
     <name>WSO2 Carbon - Platform Aggregator Pom</name>
     <url>http://wso2.org</url>
 
@@ -1115,7 +1115,7 @@
             <dependency>
                 <groupId>org.apache.amber</groupId>
                 <artifactId>openidconnect-authzserver</artifactId>
-                <version>0.22.1358727-wso2v3</version>
+                <version>0.22.1358727-wso2v7</version>
             </dependency>
             <!--dependency>
                 <groupId>org.wso2.carbon</groupId>
@@ -1845,15 +1845,15 @@
         <!-- Carbon kernel version -->
         <carbon.kernel.version>4.3.0</carbon.kernel.version>
         <carbon.kernel.package.import.version.range>[4.3.0, 4.4.0)</carbon.kernel.package.import.version.range>
-	    <carbon.kernel.registry.imp.pkg.version>[1.0.1, 2.0.0)</carbon.kernel.registry.imp.pkg.version>
+	<carbon.kernel.registry.imp.pkg.version>[1.0.1, 2.0.0)</carbon.kernel.registry.imp.pkg.version>
 
         <!--Carbon commons version-->
-        <carbon.commons.version>4.3.0</carbon.commons.version>
+        <carbon.commons.version>4.3.2</carbon.commons.version>
         <carbon.commons.imp.pkg.version>[4.3.0, 4.4.0)</carbon.commons.imp.pkg.version>
 
         <!--Carbon identity version-->
-        <carbon.identity.version>4.3.1-SNAPSHOT</carbon.identity.version>
-        <carbon.identity.package.export.version>4.3.0</carbon.identity.package.export.version>
+        <carbon.identity.version>4.3.2-SNAPSHOT</carbon.identity.version>
+        <carbon.identity.package.export.version>4.3.1</carbon.identity.package.export.version>
         <carbon.identity.package.import.version.range>[4.3.0, 4.4.0)</carbon.identity.package.import.version.range>
 
         <!-- Axis2 Version -->
@@ -1891,7 +1891,7 @@
         <derby.version>10.4.2.0</derby.version>
         <activation.version>1.1</activation.version>
         <javamail.version>1.4</javamail.version>
-        <wss4j.version>1.5.11.wso2v8</wss4j.version>
+        <wss4j.version>1.5.11.wso2v9</wss4j.version>
         <imp.pkg.version.wss4j>[1.5.11.wso2v8,2)</imp.pkg.version.wss4j>
         <wsdl4j.wso2.version>1.6.2.wso2v4</wsdl4j.wso2.version>
         <jetty.version>6.1.5</jetty.version>
