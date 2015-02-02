@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.Property;
 
@@ -32,6 +34,10 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
     private static final long serialVersionUID = 2196864101772627178L;
     
     protected boolean jitProvisioningEnabled;
+    private static final String PROVISIONING_IDP = "IDP";
+    private static final String PROVISIONING_TENANT = "TD";
+    private static final String PROVISIONING_DOMAIN = "UD";
+    private static final String PROVISIONING_USER = "UN";
 
     /**
      * 
@@ -145,6 +151,68 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
         // return null by default. concrete implementations can override this value whenever
         // required.
         return null;
+    }
+
+    protected String buildUserId(ProvisioningEntity provisioningEntity, String provisioningPattern,
+                                 String separator, String idpName) throws IdentityProvisioningException {
+
+        Map<String, String> provValues = new HashMap<String, String>();
+        String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        String username = provisioningEntity.getEntityName();
+        String userStoreDomain = getDomainFromUserName(username);
+
+        String provIdentifier = "";
+        provValues.put(PROVISIONING_TENANT, tenantDomain.replaceAll(separator, ""));
+        if (username != null) {
+            provValues.put(PROVISIONING_USER, removeDomainFromUserName(username).replaceAll("@", "."));
+        }
+        provValues.put(PROVISIONING_IDP, idpName.replaceAll("@", ".").replaceAll(separator, ""));
+
+        if (userStoreDomain != null) {
+            provValues.put(PROVISIONING_DOMAIN, userStoreDomain.replaceAll(separator, ""));
+        }
+
+        String[] provisioningEntries = buildProvisioningEntries(provisioningPattern);
+
+        for (int i = 0; i < provisioningEntries.length; i++) {
+            if (provisioningEntries[i] != null && provValues.get(provisioningEntries[i].trim()) != null) {
+                if (provIdentifier.equals("")) {
+                    provIdentifier = provValues.get(provisioningEntries[i].trim());
+                } else {
+                    provIdentifier = provIdentifier.concat(separator).concat(provValues.get(provisioningEntries[i].trim()));
+                }
+            }
+        }
+
+        return provIdentifier.toLowerCase();
+    }
+
+    private String[] buildProvisioningEntries(String provisioningPattern) throws IdentityProvisioningException {
+
+        if (!provisioningPattern.contains("}") || !provisioningPattern.contains("}") || !provisioningPattern.contains(",")) {
+            throw new IdentityProvisioningException("Invalid Provisioning Pattern");
+        }
+
+        String provisioningPatternWithoutCurlBrace = provisioningPattern.replaceAll("\\{", "").replaceAll("\\}", "");
+        return provisioningPatternWithoutCurlBrace.split(",");
+    }
+
+    private String getDomainFromUserName(String username) {
+        int index;
+        if ((index = username.indexOf("/")) > 0) {
+            String domain = username.substring(0, index);
+            return domain;
+        }
+        return "PRIMARY";
+    }
+
+    private String removeDomainFromUserName(String username) {
+        int index;
+        if ((index = username.indexOf(CarbonConstants.DOMAIN_SEPARATOR)) >= 0) {
+            // remove domain name if exist
+            username = username.substring(index + 1);
+        }
+        return username;
     }
 
 }

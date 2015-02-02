@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -92,7 +93,7 @@ public class OutboundProvisioningManager {
      * @throws UserStoreException
      */
     private Map<String, RuntimeProvisioningConfig> getOutboundProvisioningConnectors(
-            ServiceProvider serviceProvider, String tenantDomainName) throws UserStoreException {
+            ServiceProvider serviceProvider, String tenantDomainName) throws IdentityProvisioningException{
 
         Map<String, RuntimeProvisioningConfig> connectors = new HashMap<String, RuntimeProvisioningConfig>();
 
@@ -211,7 +212,7 @@ public class OutboundProvisioningManager {
                     }
 
                 } catch (IdentityApplicationManagementException e) {
-                    throw new UserStoreException("Error while retrieving idp configuration for "
+                    throw new IdentityProvisioningException("Error while retrieving idp configuration for "
                             + fIdP.getIdentityProviderName(), e);
                 }
             }
@@ -260,7 +261,7 @@ public class OutboundProvisioningManager {
             IdentityProvider fIdP,
             Map<String, AbstractProvisioningConnectorFactory> registeredConnectorFactories,
             String tenantDomainName, boolean enableJitProvisioning)
-            throws IdentityApplicationManagementException, UserStoreException {
+            throws IdentityApplicationManagementException, IdentityProvisioningException {
 
         String idpName = fIdP.getIdentityProviderName();
 
@@ -274,7 +275,7 @@ public class OutboundProvisioningManager {
             // This is an exceptional situation. If service provider has connected to an
             // identity provider, that identity provider must be present in the system.
             // If not its an exception.
-            throw new UserStoreException(
+            throw new IdentityProvisioningException(
                     "Provisioning identity provider not available in the system. Idp Name : "
                             + idpName);
         }
@@ -312,7 +313,23 @@ public class OutboundProvisioningManager {
                             provisioningProperties, new Property[] { jitEnabled });
                 }
 
-                // get the runtime provisioning connector associate the provisioning
+                Property userIdClaimURL = new Property();
+                userIdClaimURL.setName("userIdClaimUri");
+
+                if (fIdP.getClaimConfig() != null && fIdP.getClaimConfig().getUserClaimURI() != null) {
+                    userIdClaimURL.setValue(fIdP.getClaimConfig().getUserClaimURI());
+                } else {
+                    userIdClaimURL.setValue("");
+                }
+
+                ArrayList<Property> provisioningPropertiesList = new ArrayList<Property>(Arrays.asList(provisioningProperties));
+
+                provisioningPropertiesList.add(userIdClaimURL);
+
+                provisioningProperties = new Property[provisioningPropertiesList.size()];
+                provisioningProperties = provisioningPropertiesList.toArray(provisioningProperties);
+
+                     // get the runtime provisioning connector associate the provisioning
                 // identity provider. any given time, a given provisioning identity provider
                 // can only be associated with a single provisioning connector.
                 return factory.getConnector(idpName, provisioningProperties, tenantDomainName);
@@ -370,7 +387,7 @@ public class OutboundProvisioningManager {
             }
 
             for (Iterator<Entry<String, RuntimeProvisioningConfig>> iterator = connectors
-                    .entrySet().iterator(); iterator.hasNext();) {
+                    .entrySet().iterator(); iterator.hasNext(); ) {
 
                 Entry<String, RuntimeProvisioningConfig> entry = iterator.next();
 
@@ -460,13 +477,32 @@ public class OutboundProvisioningManager {
                 outboundProEntity.setIdentifier(provisionedIdentifier);
                 outboundProEntity.setJitProvisioning(jitProvisioning);
 
-                ProvisioningThread proThread = new ProvisioningThread(outboundProEntity,
+                Callable<Boolean> proThread = new ProvisioningThread(outboundProEntity,
                         tenantDomainName, connector, connectorType, idPName, dao);
 
                 if (!entry.getValue().isBlocking()) {
-                    executors.execute(proThread);
+                    executors.submit(proThread);
                 } else {
-                    proThread.run();
+                    try {
+
+                        boolean success = proThread.call();
+                        if (!success) {
+                            if (executors != null) {
+                                executors.shutdown();
+                            }
+                            throw new IdentityProvisioningException
+                                    (generateMessageOnFailureProvisioningOperation(idPName,
+                                            connectorType, provisioningEntity));
+                            //DO Rollback
+                        }
+                    } catch (Exception e) { //call() of Callable interface throws this exception
+                        if (executors != null) {
+                            executors.shutdown();
+                        }
+                        throw new IdentityProvisioningException
+                                (generateMessageOnFailureProvisioningOperation(idPName,
+                                        connectorType, provisioningEntity));
+                    }
                 }
 
             }
@@ -475,10 +511,34 @@ public class OutboundProvisioningManager {
                 executors.shutdown();
             }
 
-        } catch (Exception e) {
-            log.error("Error while out-bound provisioning.", e);
+        }catch (CarbonException e) {
+            throw new IdentityProvisioningException("Error occurred while checking for user " +
+                    "provisioning", e);
+        } catch (IdentityApplicationManagementException e) {
+            throw new IdentityProvisioningException("Error occured while checking for provision " +
+                    "entity identifier provisioning", e);
+        } catch (UserStoreException e) {
+            throw new IdentityProvisioningException(e.getMessage(), e);
         }
 
+    }
+
+    private String generateMessageOnFailureProvisioningOperation(String idPName,
+                                                                String connectorType,
+                                                               ProvisioningEntity provisioningEntity) {
+        if(log.isDebugEnabled()){
+            String errMsg = "Provisioning failed for IDP = "+ idPName + " " +
+                    "Connector Type =" + connectorType + " ";
+
+            errMsg += " Provisioned entity name = " +
+                    provisioningEntity.getEntityName() +
+                    " For operation = " + provisioningEntity.getOperation() + " " +
+                    "failed  ";
+
+            log.debug(errMsg);
+        }
+        return "Provisioning failed for IDP = " + idPName + " " +
+                "with Entity name="+provisioningEntity.getEntityName();
     }
 
     /**
@@ -551,14 +611,14 @@ public class OutboundProvisioningManager {
                 // we have read the claim mapping from service provider claim
                 // configuration.
                 return IdentityApplicationManagementUtil.getMappedClaims(outboundClaimDialect,
-                        inboundAttributes, spClaimMappings, outboundClaimValueMappings,
+                        inboundAttributes, spClaimMappings, provisioningEntity.getAttributes(),
                         tenantDomainName);
             } else {
                 // in-bound claim dialect is not service provider specific.
                 // its been supplied by the corresponding in-bound provisioning servlet
                 // or listener.
                 return IdentityApplicationManagementUtil.getMappedClaims(outboundClaimDialect,
-                        inboundAttributes, inboundClaimDialect, outboundClaimValueMappings,
+                        inboundAttributes, inboundClaimDialect, provisioningEntity.getAttributes(),
                         tenantDomainName);
             }
         } else {
@@ -571,13 +631,13 @@ public class OutboundProvisioningManager {
                 // we have read the claim mapping from service provider claim
                 // configuration.
                 return IdentityApplicationManagementUtil.getMappedClaims(idpClaimMappings,
-                        inboundAttributes, spClaimMappings, outboundClaimValueMappings);
+                        inboundAttributes, spClaimMappings, provisioningEntity.getAttributes());
             } else {
                 // in-bound claim dialect is not service provider specific.
                 // its been supplied by the corresponding in-bound provisioning servlet
                 // or listener.
                 return IdentityApplicationManagementUtil.getMappedClaims(idpClaimMappings,
-                        inboundAttributes, inboundClaimDialect, outboundClaimValueMappings,
+                        inboundAttributes, inboundClaimDialect, provisioningEntity.getAttributes(),
                         tenantDomainName);
             }
         }
@@ -683,6 +743,11 @@ public class OutboundProvisioningManager {
         String[] newRoles = userstore.getRoleListOfUser(userName);
         return Arrays.asList(newRoles);
     }
+
+    private String getUserIdClaimValue(String userIdClaimURI, String tenantDomainName) {
+        return null;
+    }
+
 
     /**
      * 
