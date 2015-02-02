@@ -27,13 +27,13 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.provisioning.AbstractOutboundProvisioningConnector;
@@ -43,7 +43,6 @@ import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntityType;
 import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
-import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -132,6 +131,16 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
 
         boolean isDebugEnabled = log.isDebugEnabled();
 
+        String provisioningPatternKey = "sf-prov-pattern";
+        String provisioningSeparatorKey = "sf-prov-separator";
+        String idpName_key = "identityProviderName";
+        String userIdClaimUriKey = "userIdClaimUri";
+        String provisioningDomainKey = "sf-prov-domainName";
+
+        String provisioningPattern = this.configHolder.getValue(provisioningPatternKey);
+        String provisioningSeparator = this.configHolder.getValue(provisioningSeparatorKey);
+        String idpName = this.configHolder.getValue(idpName_key);
+
         JSONObject user = new JSONObject();
 
         try {
@@ -146,11 +155,28 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
             Map<String, String> requiredAttributes = getSingleValuedClaims(provisioningEntity
                     .getAttributes());
 
-            ServerConfiguration serverConfiguration = CarbonUtils.getServerConfiguration();
-            if ("true".equals(serverConfiguration.getFirstProperty("EnableEmailUserName"))) {
-                String userName = getUserNames(provisioningEntity.getAttributes()).get(0);
-                requiredAttributes.put("Username", userName);
+            String userIdClaimURL = this.configHolder.getValue(userIdClaimUriKey);
+            String provisioningDomain = this.configHolder.getValue(provisioningDomainKey);
+            String userId;
+
+            if (userIdClaimURL != null && !StringUtils.isEmpty(requiredAttributes.get(userIdClaimURL))) {
+                userId = requiredAttributes.get(userIdClaimURL);
             }
+            userId = provisioningEntity.getEntityName();
+
+            String userIdFromPattern = null;
+
+            if (provisioningPattern != null) {
+                userIdFromPattern = buildUserId(provisioningEntity, provisioningPattern,
+                        provisioningSeparator, idpName);
+            }
+            if (!StringUtils.isEmpty(userIdFromPattern)) {
+                userId = userIdFromPattern;
+            }
+            if (!StringUtils.isEmpty(provisioningDomain) && !userId.endsWith(provisioningDomain)) {
+                userId = userId.replaceAll("@", ".").concat("@").concat(provisioningDomain);
+            }
+            requiredAttributes.put(SalesforceConnectorConstants.USERNAME_ATTRIBUTE, userId);
 
             Iterator<Entry<String, String>> iterator = requiredAttributes.entrySet().iterator();
 
