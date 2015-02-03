@@ -17,7 +17,7 @@ limitations under the License.
 	<parent>
 		<groupId>org.wso2.carbon.identity</groupId>
 		<artifactId>identity</artifactId>
-		<version>4.3.2-SNAPSHOT</version>
+		<version>4.3.2</version>
         <relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
