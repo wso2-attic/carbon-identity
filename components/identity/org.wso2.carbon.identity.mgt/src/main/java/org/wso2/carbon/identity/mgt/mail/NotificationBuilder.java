@@ -18,6 +18,8 @@
  */
 package org.wso2.carbon.identity.mgt.mail;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Map;
 
 public class NotificationBuilder {
@@ -56,10 +58,10 @@ public class NotificationBuilder {
 		}
 		return notificatoin;
 	}
-	
-	private static String replaceTags(Map<String,String> tagsData, String content) {
-		
+
+    private static String replaceTags(Map<String,String> tagsData, String content) throws UnsupportedEncodingException {
 		for (String key : tagsData.keySet()) {
+            content = content.replaceAll("\\{url:"+ key +"\\}", URLEncoder.encode(tagsData.get(key), "UTF-8"));
 			content = content.replaceAll("\\{"+ key +"\\}", tagsData.get(key));
 		}
 		return content;

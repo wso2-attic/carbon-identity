@@ -17,6 +17,8 @@ package org.wso2.carbon.identity.mgt.policy.password;
 
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.mgt.policy.AbstractPasswordPolicyEnforcer;
 
 /**
@@ -26,6 +28,7 @@ import org.wso2.carbon.identity.mgt.policy.AbstractPasswordPolicyEnforcer;
  */
 public class DefaultPasswordLengthPolicy extends AbstractPasswordPolicyEnforcer{
 
+	private static final Log log = LogFactory.getLog(DefaultPasswordLengthPolicy.class);
 	
 	private int MIN_LENGTH = 6;
 	private int MAX_LENGTH = 10;

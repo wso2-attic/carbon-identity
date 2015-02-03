@@ -22,6 +22,7 @@ import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
@@ -146,7 +147,12 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
 
             String userIdClaimURL = this.configHolder.getValue(userIdClaimUriKey);
             String provisioningDomain = this.configHolder.getValue(provisioningDomainKey);
-            String userId = requiredAttributes.get(userIdClaimURL);
+            String userId;
+
+            if (userIdClaimURL != null && !StringUtils.isEmpty(requiredAttributes.get(userIdClaimURL))) {
+                userId = requiredAttributes.get(userIdClaimURL);
+            }
+            userId =  provisioningEntity.getEntityName();
 
             String userIdFromPattern = null;
 
@@ -157,8 +163,10 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
             if (userIdFromPattern != null && !userIdFromPattern.equals("")) {
                 userId = userIdFromPattern;
             }
-
-            requiredAttributes.put("Username", userId.concat("@").concat(provisioningDomain));
+            if (!StringUtils.isEmpty(provisioningDomain) && !userId.endsWith(provisioningDomain)) {
+                userId = userId.replaceAll("@", ".").concat("@").concat(provisioningDomain);
+            }
+            requiredAttributes.put(SalesforceConnectorConstants.USERNAME_ATTRIBUTE, userId);
 
             Iterator<Entry<String, String>> iterator = requiredAttributes.entrySet().iterator();
 

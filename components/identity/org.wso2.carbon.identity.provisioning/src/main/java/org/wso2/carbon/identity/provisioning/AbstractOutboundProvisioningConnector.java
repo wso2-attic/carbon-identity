@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
@@ -163,10 +164,11 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
 
         String provIdentifier = "";
         provValues.put(PROVISIONING_TENANT, tenantDomain.replaceAll(separator, ""));
+
         if (username != null) {
-            provValues.put(PROVISIONING_USER, removeDomainFromUserName(username).replaceAll("@", "."));
+            provValues.put(PROVISIONING_USER, removeDomainFromUserName(username));
         }
-        provValues.put(PROVISIONING_IDP, idpName.replaceAll("@", ".").replaceAll(separator, ""));
+        provValues.put(PROVISIONING_IDP, idpName.replaceAll(separator, ""));
 
         if (userStoreDomain != null) {
             provValues.put(PROVISIONING_DOMAIN, userStoreDomain.replaceAll(separator, ""));
@@ -175,8 +177,8 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
         String[] provisioningEntries = buildProvisioningEntries(provisioningPattern);
 
         for (int i = 0; i < provisioningEntries.length; i++) {
-            if (provisioningEntries[i] != null && provValues.get(provisioningEntries[i].trim()) != null) {
-                if (provIdentifier.equals("")) {
+            if (!StringUtils.isEmpty(provisioningEntries[i])) {
+                if (StringUtils.isEmpty(provIdentifier)) {
                     provIdentifier = provValues.get(provisioningEntries[i].trim());
                 } else {
                     provIdentifier = provIdentifier.concat(separator).concat(provValues.get(provisioningEntries[i].trim()));
@@ -189,7 +191,7 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
 
     private String[] buildProvisioningEntries(String provisioningPattern) throws IdentityProvisioningException {
 
-        if (!provisioningPattern.contains("}") || !provisioningPattern.contains("}") || !provisioningPattern.contains(",")) {
+        if (!provisioningPattern.contains("{") || !provisioningPattern.contains("}")) {
             throw new IdentityProvisioningException("Invalid Provisioning Pattern");
         }
 
