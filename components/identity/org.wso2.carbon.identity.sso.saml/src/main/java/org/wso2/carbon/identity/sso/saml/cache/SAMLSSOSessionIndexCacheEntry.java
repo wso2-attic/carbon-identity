@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.sso.saml.cache;
 public class SAMLSSOSessionIndexCacheEntry extends CacheEntry {
 
     private static final long serialVersionUID = 4801575844801219844L;
-    
+
     private String sessionIndex;
 
     public String getSessionIndex() {

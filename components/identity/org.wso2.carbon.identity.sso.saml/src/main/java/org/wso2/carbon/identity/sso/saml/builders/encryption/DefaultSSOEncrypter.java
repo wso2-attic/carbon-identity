@@ -28,13 +28,13 @@ import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.security.x509.X509Credential;
 import org.wso2.carbon.identity.base.IdentityException;
 
-public class DefaultSSOEncrypter implements SSOEncrypter{
+public class DefaultSSOEncrypter implements SSOEncrypter {
     @Override
     public void init() throws IdentityException {
     }
 
     @Override
-    public EncryptedAssertion doEncryptedAssertion(Assertion assertion,X509Credential cred, String alias, String encryptionAlgorithm) throws IdentityException {
+    public EncryptedAssertion doEncryptedAssertion(Assertion assertion, X509Credential cred, String alias, String encryptionAlgorithm) throws IdentityException {
         try {
 
             Credential symmetricCredential = SecurityHelper.getSimpleCredential(
