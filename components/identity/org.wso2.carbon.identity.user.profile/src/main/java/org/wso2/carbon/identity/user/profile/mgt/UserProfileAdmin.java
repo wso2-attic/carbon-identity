@@ -123,8 +123,11 @@ public class UserProfileAdmin extends AbstractAdmin {
             }
 
             UserStoreManager admin = realm.getUserStoreManager();
-            admin.setUserClaimValues(MultitenantUtils.getTenantAwareUsername(username), map,
-                                     profile.getProfileName());
+
+            // User store manager expects tenant aware username
+            admin.setUserClaimValues(MultitenantUtils.getTenantAwareUsername(username),
+                                                map,
+                                                profile.getProfileName());
 
         } catch (UserStoreException e) {
             // Not logging. Already logged.
@@ -149,8 +152,9 @@ public class UserProfileAdmin extends AbstractAdmin {
 
             ClaimManager claimManager = realm.getClaimManager();
             String[] claims = claimManager.getAllClaimUris();
-            username = MultitenantUtils.getTenantAwareUsername(username);
 
+            // User store manager expects tenant aware username
+            username = MultitenantUtils.getTenantAwareUsername(username);
             UserStoreManager admin = realm.getUserStoreManager();
             admin.deleteUserClaimValues(username, claims, profileName);
             admin.deleteUserClaimValue(username, UserCoreConstants.PROFILE_CONFIGURATION,
@@ -176,9 +180,9 @@ public class UserProfileAdmin extends AbstractAdmin {
 
             UserRealm realm = getUserRealm();
 
-            UserStoreManager ur = realm.getUserStoreManager(); 
+            UserStoreManager userStoreManager = realm.getUserStoreManager();
             
-            boolean isReadOnly = ur.isReadOnly();
+            boolean isReadOnly = userStoreManager.isReadOnly();
             
 			int index;
 			index = username.indexOf("/");
@@ -190,8 +194,8 @@ public class UserProfileAdmin extends AbstractAdmin {
 				// Using the short-circuit. User name comes with the domain name.
 				String domain = username.substring(0, index);
 
-				if (ur instanceof AbstractUserStoreManager) {
-					secUserStoreManager = ((AbstractUserStoreManager) ur)
+				if (userStoreManager instanceof AbstractUserStoreManager) {
+					secUserStoreManager = ((AbstractUserStoreManager) userStoreManager)
 							.getSecondaryUserStoreManager(domain);
 					if (secUserStoreManager != null) {
 						isReadOnly = secUserStoreManager.isReadOnly();
@@ -205,13 +209,14 @@ public class UserProfileAdmin extends AbstractAdmin {
                 availableProfileConfigurations = getAvailableProfileConfiguration(profileAdmin);
             }
 
+            // User store manager expects tenant aware username
             username = MultitenantUtils.getTenantAwareUsername(username);
-            String[] profileNames;
+            String[] profileNames = null;
 
             if(secUserStoreManager != null){
                 profileNames = secUserStoreManager.getProfileNames(username);
             } else {
-                profileNames = ur.getProfileNames(username);
+                profileNames = userStoreManager.getProfileNames(username);
             }
             
             profiles = new UserProfileDTO[profileNames.length];
@@ -225,7 +230,8 @@ public class UserProfileAdmin extends AbstractAdmin {
 
             for (int i = 0; i < profileNames.length; i++) {
                 String profile = profileNames[i];
-                Map<String, String> valueMap = ur.getUserClaimValues(username, claimUris, profile);
+                Map<String, String> valueMap =
+                        userStoreManager.getUserClaimValues(username, claimUris, profile);
                 ArrayList<UserFieldDTO> userFields = new ArrayList<UserFieldDTO>();
                 for (int j = 0; j < claims.length; j++) {
                     UserFieldDTO data = new UserFieldDTO();
@@ -334,9 +340,9 @@ public class UserProfileAdmin extends AbstractAdmin {
 
             UserRealm realm = getUserRealm();
 
-            UserStoreManager ur = realm.getUserStoreManager();
+            UserStoreManager userStoreManager = realm.getUserStoreManager();
             
-            boolean isReadOnly = ur.isReadOnly();
+            boolean isReadOnly = userStoreManager.isReadOnly();
 
             int indexOne;
 			indexOne = username.indexOf("/");
@@ -363,8 +369,8 @@ public class UserProfileAdmin extends AbstractAdmin {
 				// Using the short-circuit. User name comes with the domain name.
 				String domain = username.substring(0, index);
 
-				if (ur instanceof AbstractUserStoreManager) {
-					secUserStoreManager = ((AbstractUserStoreManager) ur)
+				if (userStoreManager instanceof AbstractUserStoreManager) {
+					secUserStoreManager = ((AbstractUserStoreManager) userStoreManager)
 							.getSecondaryUserStoreManager(domain);
 					if (secUserStoreManager != null) {
 						isReadOnly = secUserStoreManager.isReadOnly();
@@ -375,13 +381,14 @@ public class UserProfileAdmin extends AbstractAdmin {
             ProfileConfigurationManager profileAdmin = realm
                     .getProfileConfigurationManager();
 
+            // User store manager expects tenant aware username
             username = MultitenantUtils.getTenantAwareUsername(username);
-            String[] profileNames;
+            String[] profileNames = null;
             
             if(secUserStoreManager != null){
                 profileNames = secUserStoreManager.getProfileNames(username);
             } else {
-                profileNames = ur.getProfileNames(username);
+                profileNames = userStoreManager.getProfileNames(username);
             }
             
             boolean found = false;
@@ -411,7 +418,9 @@ public class UserProfileAdmin extends AbstractAdmin {
 
             claimUris[claims.length] = UserCoreConstants.PROFILE_CONFIGURATION;
 
-            Map<String, String> valueMap = ur.getUserClaimValues(username, claimUris, profileName);
+            Map<String, String> valueMap =
+                    userStoreManager
+                            .getUserClaimValues(username, claimUris, profileName);
             ArrayList<UserFieldDTO> userFields = new ArrayList<UserFieldDTO>();
 
             for (int j = 0; j < claims.length; j++) {
@@ -697,16 +706,4 @@ public class UserProfileAdmin extends AbstractAdmin {
 
     }
 
-//    private String getUserNameWithDomain(String userName){
-//        if(userName == null){
-//            userName = CarbonContext.getThreadLocalCarbonContext().getUsername();
-//        }
-//        if(MultitenantUtils.getTenantDomain(userName) == null){
-//            if(CarbonContext.getThreadLocalCarbonContext().getTenantDomain() != null){
-//                userName = userName + "@" + CarbonContext.getThreadLocalCarbonContext().getTenantDomain(); //TODO no constant for @
-//            }
-//        }
-//
-//        return userName;
-//    }
 }
