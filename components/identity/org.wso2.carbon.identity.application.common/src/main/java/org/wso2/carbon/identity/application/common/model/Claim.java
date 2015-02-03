@@ -65,9 +65,29 @@ public class Claim implements Serializable {
         this.claimId = claimId;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Claim claim = (Claim) o;
+
+        if (claimId != claim.claimId) return false;
+        if (claimUri != null ? !claimUri.equals(claim.claimUri) : claim.claimUri != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = claimUri != null ? claimUri.hashCode() : 0;
+        result = 31 * result + claimId;
+        return result;
+    }
+
     /*
-     * <Claim> <ClaimUri></ClaimUri></Claim>
-     */
+         * <Claim> <ClaimUri></ClaimUri></Claim>
+         */
     public static Claim build(OMElement claimOM) {
 
         if (claimOM == null) {
