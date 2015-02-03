@@ -60,7 +60,6 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
 
         log.trace("Inside FacebookAuthenticator.canHandle()");
 
-        // Check commonauth got an OIDC response
         if (request.getParameter(FacebookAuthenticatorConstants.OAUTH2_GRANT_TYPE_CODE) != null &&
                 request.getParameter(FacebookAuthenticatorConstants.OAUTH2_PARAM_STATE) != null &&
                 FacebookAuthenticatorConstants.FACEBOOK_LOGIN_TYPE.equals(getLoginType(request))) {
