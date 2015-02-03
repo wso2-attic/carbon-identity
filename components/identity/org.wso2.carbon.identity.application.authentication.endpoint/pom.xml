@@ -39,6 +39,10 @@
 			<groupId>org.apache.ws.commons.axiom</groupId>
 			<artifactId>axiom-api</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.wso2.securevault</groupId>
+			<artifactId>org.wso2.securevault</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -62,6 +66,7 @@
                         </resource>
                     </webResources>
                     <warName>authenticationendpoint</warName>
+                    <packagingExcludes>WEB-INF/lib/commons-logging*.jar</packagingExcludes>					
                 </configuration>
             </plugin>
         </plugins>
