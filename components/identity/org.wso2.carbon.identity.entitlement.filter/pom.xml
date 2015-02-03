@@ -14,21 +14,17 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <groupId>org.wso2.carbon</groupId>
+        <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>identity</artifactId>
-        <version>4.3.0-SNAPSHOT</version>
+        <version>4.3.1-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.wso2.carbon</groupId>
     <artifactId>org.wso2.carbon.identity.entitlement.filter</artifactId>
-    <version>4.3.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Identity Entitlement Filter</name>
     <description>A custom WSO2 product or solution</description>
@@ -36,36 +32,28 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.entitlement.stub</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>javax.servlet</artifactId>
-            <!--<version>${version.javax.servlet}</version>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.utils</artifactId>
         </dependency>
-        <!--dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.context</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency-->
         <dependency>
             <groupId>libthrift.wso2</groupId>
             <artifactId>libthrift</artifactId>
-            <!--<version>0.8.0.wso2v1</version>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.authenticator.stub</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.entitlement.proxy</artifactId>
-            <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
     </dependencies>
 
@@ -114,7 +102,7 @@
                             !org.apache.axis2.databinding.utils.reader,
                             !org.pache.axis2.databinding.utils.writer,
                             !org.wso2.carbon.identity.entitlement.filter.*,
-                            org.wso2.carbon.identity.entitlement.stub.*;version="${carbon.platform.package.import.version.range}",
+                            org.wso2.carbon.identity.entitlement.stub.*;version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.authenticator.stub.*;version="${carbon.kernel.package.import.version.range}",
                             *; resolution:=optional
                         </Import-Package>

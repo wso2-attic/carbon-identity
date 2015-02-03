@@ -205,7 +205,7 @@ public class TokenValidationHandler {
 
         // Check whether the grant is expired
         long issuedTimeInMillis = accessTokenDO.getIssuedTime().getTime();
-        long validityPeriodInMillis = accessTokenDO.getValidityPeriod();
+        long validityPeriodInMillis = accessTokenDO.getValidityPeriodInMillis();
         long timestampSkew = OAuthServerConfiguration.getInstance()
                 .getTimeStampSkewInSeconds() * 1000;
         long currentTimeInMillis = System.currentTimeMillis();

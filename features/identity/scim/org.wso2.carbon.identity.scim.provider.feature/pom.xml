@@ -1,18 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <groupId>org.wso2.carbon</groupId>
+        <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>scim-feature</artifactId>
-        <version>4.3.0-SNAPSHOT</version>
+        <version>4.3.1-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.identity.scim.provider.feature</artifactId>
-    <version>4.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>WSO2 Carbon - SCIM - Service Provider Feature</name>
     <url>http://wso2.org</url>
@@ -20,9 +17,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.scim.provider</artifactId>
-	    <!--<version>4.3.0-SNAPSHOT</version>-->
             <type>war</type>
         </dependency>
 	<dependency>
@@ -57,7 +53,7 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.wso2.carbon</groupId>
+                                    <groupId>org.wso2.carbon.identity</groupId>
                                     <artifactId>org.wso2.carbon.identity.scim.provider</artifactId>
                                     <type>war</type>
                                     <overWrite>true</overWrite>
@@ -125,7 +121,7 @@
                             </importFeatures>
                             <includedFeatures>
                                 <!--<includedFeatureDef>org.wso2.carbon:org.wso2.carbon.jaxws.webapp.mgt.server.feature</includedFeatureDef>-->
-                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.webapp.mgt.server.feature</includedFeatureDef>
+                                <!--<includedFeatureDef>org.wso2.carbon:org.wso2.carbon.webapp.mgt.server.feature</includedFeatureDef>-->
                             </includedFeatures>
                         </configuration>
                     </execution>

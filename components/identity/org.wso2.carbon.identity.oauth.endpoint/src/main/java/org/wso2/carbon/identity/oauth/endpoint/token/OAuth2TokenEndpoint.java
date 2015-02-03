@@ -29,7 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.openidconnect.as.OIDC;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.identity.oauth.common.CarbonOAuthTokenRequest;
+import org.wso2.carbon.identity.oauth2.model.CarbonOAuthTokenRequest;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.exception.OAuthClientException;
@@ -225,6 +225,9 @@ public class OAuth2TokenEndpoint {
             tokenReqDTO.setTenantDomain(oauthRequest.getTenantDomain());
         } else if (org.wso2.carbon.identity.oauth.common.GrantType.IWA_NTLM.toString().equals(grantType)){
             tokenReqDTO.setWindowsToken(oauthRequest.getWindowsToken());           
+        }else{
+            // Set all request parameters to the OAuth2AccessTokenReqDTO
+            tokenReqDTO.setRequestParameters(oauthRequest.getRequestParameters());
         }
 
         return EndpointUtil.getOAuth2Service().issueAccessToken(tokenReqDTO);

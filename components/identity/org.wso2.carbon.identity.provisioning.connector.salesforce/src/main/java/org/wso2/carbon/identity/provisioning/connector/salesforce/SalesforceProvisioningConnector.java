@@ -28,12 +28,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.provisioning.*;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.*;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -116,6 +120,16 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
 
         boolean isDebugEnabled = log.isDebugEnabled();
 
+        String provisioningPatternKey = "sf-prov-pattern";
+        String provisioningSeparatorKey = "sf-prov-separator";
+        String idpName_key = "identityProviderName";
+        String userIdClaimUriKey = "userIdClaimUri";
+        String provisioningDomainKey = "sf-prov-domainName";
+
+        String provisioningPattern = this.configHolder.getValue(provisioningPatternKey);
+        String provisioningSeparator = this.configHolder.getValue(provisioningSeparatorKey);
+        String idpName = this.configHolder.getValue(idpName_key);
+
         JSONObject user = new JSONObject();
 
         try {
@@ -130,11 +144,21 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
             Map<String, String> requiredAttributes = getSingleValuedClaims(provisioningEntity
                     .getAttributes());
 
-            ServerConfiguration serverConfiguration = CarbonUtils.getServerConfiguration();
-            if ("true".equals(serverConfiguration.getFirstProperty("EnableEmailUserName"))) {
-                String userName = getUserNames(provisioningEntity.getAttributes()).get(0);
-                requiredAttributes.put("Username", userName);
+            String userIdClaimURL = this.configHolder.getValue(userIdClaimUriKey);
+            String provisioningDomain = this.configHolder.getValue(provisioningDomainKey);
+            String userId = requiredAttributes.get(userIdClaimURL);
+
+            String userIdFromPattern = null;
+
+            if (provisioningPattern != null && provisioningSeparator != null) {
+                userIdFromPattern = buildUserId(provisioningEntity, provisioningPattern,
+                        provisioningSeparator, idpName);
             }
+            if (userIdFromPattern != null && !userIdFromPattern.equals("")) {
+                userId = userIdFromPattern;
+            }
+
+            requiredAttributes.put("Username", userId.concat("@").concat(provisioningDomain));
 
             Iterator<Entry<String, String>> iterator = requiredAttributes.entrySet().iterator();
 
@@ -367,7 +391,10 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
 
         HttpClient httpclient = new HttpClient();
 
-        PostMethod post = new PostMethod(SalesforceConnectorConstants.OAUTH2_TOKEN_ENDPOINT);
+        String url = configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.OAUTH2_TOKEN_ENDPOINT);
+
+        PostMethod post = new PostMethod(url != null && !url.isEmpty() ?
+                                         url : IdentityApplicationConstants.SF_OAUTH2_TOKEN_ENDPOINT);
 
         post.addParameter(SalesforceConnectorConstants.CLIENT_ID,
                 configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.CLIENT_ID));

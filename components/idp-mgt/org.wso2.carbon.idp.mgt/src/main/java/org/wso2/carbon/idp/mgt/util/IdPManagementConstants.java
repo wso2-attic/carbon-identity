@@ -1,34 +1,38 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.idp.mgt.util;
 
 public class IdPManagementConstants {
 
+    public static final String SHARED_IDP_PREFIX = "SHARED_";
+
     public static class SQLQueries {
 
-        public static final String GET_IDPS_SQL = "SELECT NAME, IS_PRIMARY, HOME_REALM_ID, DESCRIPTION, IS_FEDERATION_HUB, IS_LOCAL_CLAIM_DIALECT, IS_ENABLED, DISPLAY_NAME "
-                + "FROM IDP WHERE (TENANT_ID=? OR (TENANT_ID=? AND NAME LIKE 'SHARED_%'))";
+        public static final String GET_IDPS_SQL = "SELECT NAME, IS_PRIMARY, HOME_REALM_ID, DESCRIPTION, " +
+                "IS_FEDERATION_HUB, IS_LOCAL_CLAIM_DIALECT, IS_ENABLED, DISPLAY_NAME FROM IDP WHERE (TENANT_ID = ? OR" +
+                " (TENANT_ID = ? AND NAME LIKE '" + SHARED_IDP_PREFIX +"%'))";
 
-        public static final String GET_IDP_BY_NAME_SQL = "SELECT ID, IS_PRIMARY, HOME_REALM_ID, "
-                + "CERTIFICATE, ALIAS, INBOUND_PROV_ENABLED, INBOUND_PROV_USER_STORE_ID, "
-                + "USER_CLAIM_URI, ROLE_CLAIM_URI,DEFAULT_AUTHENTICATOR_NAME,DEFAULT_PRO_CONNECTOR_NAME, DESCRIPTION," +
-                " IS_FEDERATION_HUB, IS_LOCAL_CLAIM_DIALECT, PROVISIONING_ROLE, IS_ENABLED, DISPLAY_NAME FROM IDP WHERE (TENANT_ID=? OR (TENANT_ID=? AND NAME LIKE 'SHARED_%')) AND NAME=?";
+        public static final String GET_IDP_BY_NAME_SQL = "SELECT ID, IS_PRIMARY, HOME_REALM_ID, CERTIFICATE, ALIAS, " +
+                "INBOUND_PROV_ENABLED, INBOUND_PROV_USER_STORE_ID, USER_CLAIM_URI, ROLE_CLAIM_URI," +
+                "DEFAULT_AUTHENTICATOR_NAME,DEFAULT_PRO_CONNECTOR_NAME, DESCRIPTION, IS_FEDERATION_HUB, " +
+                "IS_LOCAL_CLAIM_DIALECT, PROVISIONING_ROLE, IS_ENABLED, DISPLAY_NAME FROM IDP WHERE (TENANT_ID = ? OR" +
+                " (TENANT_ID = ? AND NAME LIKE '" + SHARED_IDP_PREFIX + "%')) AND NAME = ?";
 
         public static final String GET_IDP_ID_BY_NAME_SQL = "SELECT ID "
                 + "FROM IDP WHERE TENANT_ID=? AND NAME=?";
@@ -53,7 +57,8 @@ public class IdPManagementConstants {
         
         public static final String DELETE_PROVISIONING_CONNECTORS = "DELETE FROM IDP_PROVISIONING_CONFIG WHERE IDP_ID=?";
 
-        public static final String GET_IDP_NAME_BY_REALM_ID_SQL = "SELECT NAME FROM IDP WHERE (TENANT_ID=? OR (TENANT_ID=? AND NAME LIKE 'SHARED_%')) AND HOME_REALM_ID=?";
+        public static final String GET_IDP_NAME_BY_REALM_ID_SQL = "SELECT NAME FROM IDP WHERE (TENANT_ID = ? OR " +
+                "(TENANT_ID = ? AND NAME LIKE '" + SHARED_IDP_PREFIX + "%')) AND HOME_REALM_ID=?";
 
         public static final String GET_IDP_CLAIM_MAPPINGS_SQL = "SELECT IDP_CLAIM.CLAIM, IDP_CLAIM_MAPPING.LOCAL_CLAIM, IDP_CLAIM_MAPPING.DEFAULT_VALUE, IDP_CLAIM_MAPPING.IS_REQUESTED "
                 + "FROM IDP_CLAIM_MAPPING INNER JOIN IDP_CLAIM ON IDP_CLAIM_MAPPING.IDP_CLAIM_ID= IDP_CLAIM.ID WHERE IDP_CLAIM.IDP_ID=?";
@@ -136,8 +141,8 @@ public class IdPManagementConstants {
 
         public static final String DELETE_IDP_SQL = "DELETE FROM IDP WHERE (TENANT_ID=? AND NAME=?)";
 
-        public static final String GET_IDP_ROW_ID_SQL = "SELECT ID FROM IDP "
-                + "WHERE ((TENANT_ID=? OR (TENANT_ID=? AND NAME LIKE 'SHARED_%')) AND NAME=?)";
+        public static final String GET_IDP_ROW_ID_SQL = "SELECT ID FROM IDP WHERE ((TENANT_ID = ? OR (TENANT_ID = ? " +
+                "AND NAME LIKE '" + SHARED_IDP_PREFIX + "%')) AND NAME = ?)";
 
         public static final String GET_PRIMARY_IDP_SQL = "SELECT NAME, HOME_REALM_ID, IS_FEDERATION_HUB, IS_LOCAL_CLAIM_DIALECT  "
                 + "FROM IDP WHERE (TENANT_ID=? AND IS_PRIMARY=?)";
@@ -166,10 +171,9 @@ public class IdPManagementConstants {
         public static final String RENAME_CLAIM_SQL = "UPDATE IDP_CLAIM_MAPPING SET LOCAL_CLAIM=? "
                 + "WHERE (TENANT_ID=? AND LOCAL_CLAIM=?)";
         
-        public static final String GET_SP_FEDERATED_IDP_REFS = "SELECT COUNT(*) FROM SP_FEDERATED_IDP A JOIN IDP_AUTHENTICATOR B "
-        		+ "ON A.AUTHENTICATOR_ID = B.ID WHERE B.IDP_ID = (SELECT ID FROM IDP C WHERE (C.TENANT_ID=? OR " +
-                "(C.TENANT_ID=? AND C.NAME LIKE 'SHARED_%')) AND C" +
-                ".NAME =?)";
+        public static final String GET_SP_FEDERATED_IDP_REFS = "SELECT COUNT(*) FROM SP_FEDERATED_IDP A JOIN " +
+                "IDP_AUTHENTICATOR B ON A.AUTHENTICATOR_ID = B.ID WHERE B.IDP_ID = (SELECT ID FROM IDP C WHERE (C" +
+                ".TENANT_ID = ? OR (C.TENANT_ID = ? AND C.NAME LIKE '" + SHARED_IDP_PREFIX + "%')) AND C.NAME = ?)";
 
         public static final String GET_SP_PROVISIONING_CONNECTOR_REFS = "SELECT COUNT(*) FROM SP_PROVISIONING_CONNECTOR "
                 + "WHERE (TENANT_ID=? AND IDP_NAME=?)";

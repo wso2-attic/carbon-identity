@@ -138,7 +138,13 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
 
             return true;
         } finally {
-            IdentityApplicationManagementUtil.resetThreadLocalProvisioningServiceProvider();
+            ThreadLocalProvisioningServiceProvider threadLocalSP = IdentityApplicationManagementUtil
+                    .getThreadLocalProvisioningServiceProvider();
+            //check bulk user flag before reset ThreadLocalProvisioningServiceProvider, reset does not happen in the
+            // middle of bulk user add operation
+            if (!threadLocalSP.isBulkUserAdd()) {
+                IdentityApplicationManagementUtil.resetThreadLocalProvisioningServiceProvider();
+            }
         }
     }
 

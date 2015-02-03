@@ -19,8 +19,12 @@ package org.wso2.carbon.identity.scim.provider.resources;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.application.common.model.ThreadLocalProvisioningServiceProvider;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.scim.provider.impl.IdentitySCIMManager;
 import org.wso2.carbon.identity.scim.provider.util.JAXRSResponseBuilder;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import org.wso2.charon.core.encoder.Encoder;
 import org.wso2.charon.core.exceptions.BadRequestException;
 import org.wso2.charon.core.exceptions.CharonException;
@@ -369,4 +373,60 @@ public class UserResource extends AbstractResource {
         }
     }
 
+    @GET
+    @Path("/me")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAuthorizedUser(
+            @HeaderParam(SCIMConstants.ACCEPT_HEADER) String format,
+            @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization) {
+                Encoder encoder = null;
+                try {
+                    IdentitySCIMManager identitySCIMManager = IdentitySCIMManager.getInstance();
+                    String filter = "userNameEq"+ MultitenantUtils.getTenantAwareUsername(authorization);
+
+                    // defaults to application/json.
+                    format = identifyOutputFormat(format);
+                    // obtain the encoder at this layer in case exceptions needs to be encoded.
+                    encoder = identitySCIMManager.getEncoder(SCIMConstants.identifyFormat(format));
+                    // perform authentication
+                    /*
+                    * Map<String, String> headerMap = new HashMap<String, String>();
+                    * headerMap.put(SCIMConstants.AUTHORIZATION_HEADER, authorization); //authenticate the
+                    * request AuthenticationInfo authInfo =
+                    * identitySCIMManager.handleAuthentication(headerMap);
+                    */
+
+                    // obtain the user store manager
+
+                    String SCIM_LIST_USER_PERMISSION = "/permission/admin/login";
+                    UserManager userManager = IdentitySCIMManager.getInstance().getUserManager(
+                            authorization, SCIM_LIST_USER_PERMISSION);
+
+                    // create charon-SCIM user endpoint and hand-over the request.
+                    UserResourceEndpoint userResourceEndpoint = new UserResourceEndpoint();
+                    SCIMResponse scimResponse = null;
+                    scimResponse = userResourceEndpoint.listByFilter(filter, userManager, format);
+
+
+                    return new JAXRSResponseBuilder().buildResponse(scimResponse);
+
+                } catch (CharonException e) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(e.getMessage(), e);
+                    }
+                    // create SCIM response with code as the same of exception and message as error message
+                    // of the exception
+                    if (e.getCode() == -1) {
+                        e.setCode(ResponseCodeConstants.CODE_INTERNAL_SERVER_ERROR);
+                    }
+                    return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
+                            .encodeSCIMException(encoder, e));
+                } catch (FormatNotSupportedException e) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(e.getMessage(), e);
+                    }
+                    return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
+                            .encodeSCIMException(encoder, e));
+                }
+            }
 }

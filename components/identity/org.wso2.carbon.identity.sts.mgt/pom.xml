@@ -12,21 +12,18 @@
 		limitations under the License.
 	-->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<parent>
-		<groupId>org.wso2.carbon</groupId>
+		<groupId>org.wso2.carbon.identity</groupId>
 		<artifactId>identity</artifactId>
-		<version>4.3.0-SNAPSHOT</version>
+		<version>4.3.1-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.wso2.carbon</groupId>
 	<artifactId>org.wso2.carbon.identity.sts.mgt</artifactId>
 	<packaging>bundle</packaging>
-	<version>4.3.0-SNAPSHOT</version>
 	<name>WSO2 Carbon - Identity STS Management</name>
 	<description>A custom wso2 products or solution</description>
 	<url>http://www.wso2.com</url>
@@ -37,28 +34,16 @@
 			<artifactId>axis2</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.wso2.carbon</groupId>
+			<groupId>org.wso2.carbon.identity</groupId>
 			<artifactId>org.wso2.carbon.identity.core</artifactId>
-            <!--<version>4.3.0-SNAPSHOT</version>-->
-		</dependency>
-		<!--<dependency>
-			<groupId>org.wso2.carbon</groupId>
-			<artifactId>org.wso2.carbon.identity.sts</artifactId>
-            <version>${identity.version}</version>
-		</dependency> -->
-		<dependency>
-			<groupId>org.wso2.carbon</groupId>
-			<artifactId>org.wso2.carbon.xfer</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.wso2.carbon</groupId>
+			<groupId>org.wso2.carbon.identity</groupId>
 			<artifactId>org.wso2.carbon.identity.provider</artifactId>
-            <!--<version>4.3.0-SNAPSHOT</version>-->
 		</dependency>
 		<dependency>
-			<groupId>org.wso2.carbon</groupId>
+			<groupId>org.wso2.carbon.identity</groupId>
 			<artifactId>org.wso2.carbon.sts</artifactId>
-			<!--<version>4.3.0-SNAPSHOT</version>-->
 		</dependency>
 		<dependency>
 			<groupId>org.wso2.carbon</groupId>
@@ -77,7 +62,7 @@
 			<artifactId>rampart-trust</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.wso2.carbon</groupId>
+			<groupId>org.wso2.carbon.identity</groupId>
 			<artifactId>org.wso2.carbon.security.mgt</artifactId>
 		</dependency>
         <dependency>

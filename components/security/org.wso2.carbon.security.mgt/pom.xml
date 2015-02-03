@@ -17,16 +17,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.wso2.carbon</groupId>
+        <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>security</artifactId>
-        <version>4.3.0-SNAPSHOT</version>
+        <version>4.3.1-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.wso2.carbon</groupId>
     <artifactId>org.wso2.carbon.security.mgt</artifactId>
-    <version>4.3.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Security BE</name>
     <description>A custom wso2 products or solution</description>
@@ -52,40 +50,26 @@
         <dependency>
             <groupId>org.apache.ws.security.wso2</groupId>
             <artifactId>wss4j</artifactId>
-            <!--<version>${wss4j.version.security}</version>-->
         </dependency>
         <dependency>
             <groupId>org.apache.rampart.wso2</groupId>
             <artifactId>rampart-core</artifactId>
-            <!--<version>1.6.1.wso2v12</version>-->
         </dependency>
         <dependency>
             <groupId>org.apache.rampart.wso2</groupId>
             <artifactId>rampart-policy</artifactId>
-            <!--<version>1.6.1.wso2v12</version>-->
         </dependency>
         <dependency>
             <groupId>org.apache.rampart.wso2</groupId>
             <artifactId>rampart-trust</artifactId>
-            <!--<version>1.6.1.wso2v12</version>-->
         </dependency>
-        <!--dependency>
-            <groupId>org.wso2.xkms.wso2</groupId>
-            <artifactId>xkms</artifactId>
-        </dependency-->
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>javax.cache.wso2</artifactId>
         </dependency>
-        <!--dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>javax.cache.wso2</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency-->
 		<dependency>
 			<groupId>backport-util-concurrent.wso2</groupId>
 			<artifactId>backport-util-concurrent</artifactId>
-			<!--<version>${orbit.version.backport.util}</version>-->
 		</dependency>
 
     </dependencies>

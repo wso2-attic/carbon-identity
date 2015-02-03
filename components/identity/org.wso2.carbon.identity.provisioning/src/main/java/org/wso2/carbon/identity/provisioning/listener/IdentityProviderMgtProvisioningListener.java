@@ -130,7 +130,8 @@ public class IdentityProviderMgtProvisioningListener implements IdentityProvider
                     }
                 }
             } catch (IdentityApplicationManagementException e) {
-                log.error(e.getMessage(), e);
+                throw new IdentityProvisioningException("Error occurred while removing cache entry from the " +
+                                                        "service provider provisioning connector cache", e);
             }
         } finally {
             PrivilegedCarbonContext.endTenantFlow();

@@ -81,13 +81,19 @@
                     userStoreDTO.setProperties(propertyList.toArray(new PropertyDTO[propertyList.size()]));
 
                     if(domain != null && domain != "") {
-        	            if(previousDomain != null && previousDomain != "" && previousDomain != domain) {
-        	            	// update with domain name change
-        	            	userStoreConfigAdminServiceClient.updateUserStoreWithDomainName(previousDomain, userStoreDTO);
+        	            if(previousDomain != null && previousDomain != "") {
+        	                    // This is an update
+        	                    if(previousDomain != domain) {
+        	                            // update userstore with domain name change
+        	                            userStoreConfigAdminServiceClient.updateUserStoreWithDomainName(previousDomain, userStoreDTO);
+        	                    } else {
+        	                            // update userstore with same domain name
+        	                            userStoreConfigAdminServiceClient.editUserStore(userStoreDTO);
+        	                    }
         	            }
         	            else {
-        	            	// update without domain name change or a add
-        	            	userStoreConfigAdminServiceClient.addUserStore(userStoreDTO);
+        	                    // This is an add
+        	                    userStoreConfigAdminServiceClient.addUserStore(userStoreDTO);
         	            }
 
         	            // Session need to be update according to new user store info 
