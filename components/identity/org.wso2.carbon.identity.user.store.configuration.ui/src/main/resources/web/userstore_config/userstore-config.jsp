@@ -622,11 +622,13 @@
                             }
                             String name = "propertyName_" + i;
                             String value = "propertyValue_" + i;
+
                     %>
                     <tr>
                         <%
                             if (propertyName != null && propertyName.trim().length() > 0) {
 
+                                if( !("UniqueID".equalsIgnoreCase(propertyName) ) ){
                         %>
                         <td class="leftCol-med" width="50%" style="text-align:left;" id="<%=name%>"><%=propertyName%>
                         </td>
@@ -662,6 +664,23 @@
 
                     </tr>
                     <%
+                                }else{
+                                    %>
+                                   <td class="leftCol-med" width="50%" style="display:none;" id="<%=name%>"><%=propertyName%>
+                                    </td>
+                                    <input type="hidden" name=<%=name%> id=<%=name%> value="<%=optionals[x].getName()%>"/>
+                                    </td>
+                                    <td style="width:30%" style="display:none;">
+                                        <input type="hidden" name=<%=value%> id=<%=value%>
+                                        style="width:95%"
+                                               value="<%=propertyValue%>"/>
+
+                                    </td>
+                                    <td class="sectionHelp" width="50%" style="display:none;">
+                                        <%=description%>
+                                    </td>
+                                    <%
+                                }
                                 i++;
                             } else {
                                 //no property name
