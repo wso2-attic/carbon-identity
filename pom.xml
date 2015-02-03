@@ -23,7 +23,6 @@
 
     <modules>
         <module>service-stubs/identity</module>
-
         <module>components/idp-mgt</module>
         <module>components/authenticators</module>
         <module>components/cassandra-userstore</module>
