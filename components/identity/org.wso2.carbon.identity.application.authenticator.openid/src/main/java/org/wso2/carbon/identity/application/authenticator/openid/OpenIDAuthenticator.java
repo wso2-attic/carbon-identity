@@ -18,7 +18,7 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.application.authenticator.openid.exception.OpenIDException;
 import org.wso2.carbon.identity.application.authenticator.openid.manager.DefaultOpenIDManager;
 import org.wso2.carbon.identity.application.authenticator.openid.manager.OpenIDManager;
-import org.wso2.carbon.identity.application.authenticator.openid.util.OpenIDConstants;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 
 public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implements
         FederatedApplicationAuthenticator {
@@ -60,7 +60,9 @@ public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implem
                 if (getOpenIDServerUrl() != null) {
                     // this is useful in case someone wants to overrode the default OpenID
                     // authenticator.
-                    authenticatorProperties.put(OpenIDConstants.OPEN_ID_URL, getOpenIDServerUrl());
+                    authenticatorProperties.put(
+                            IdentityApplicationConstants.Authenticator.OpenID.OPEN_ID_URL,
+                            getOpenIDServerUrl());
                 }
 
                 String loginPage = manager.doOpenIDLogin(request, response, context);
@@ -119,6 +121,25 @@ public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implem
 
         try {
             manager.processOpenIDLoginResponse(request, response, context);
+
+            String authenticatedSubject = context.getSubject();
+            String subject = null;
+            String isSubjectInClaimsProp = context.getAuthenticatorProperties().get(
+                    IdentityApplicationConstants.Authenticator.SAML2SSO.IS_USER_ID_IN_CLAIMS);
+            if ("true".equalsIgnoreCase(isSubjectInClaimsProp)) {
+                subject = getSubjectFromUserIDClaimURI(context);
+            }
+
+            if (subject == null) {
+                subject = authenticatedSubject;
+            }
+            
+            if (subject == null) {
+                throw new OpenIDException("Cannot find federated User Identifier");
+            }
+
+            context.setSubject(subject);
+
         } catch (OpenIDException e) {
             log.error("Error when processing response from OpenID Provider", e);
             throw new AuthenticationFailedException(e.getMessage(), e);
@@ -184,4 +205,19 @@ public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implem
     protected String getOpenIDServerUrl() {
         return null;
     }
+
+    /**
+	 * 
+	 * @subject
+	 */
+    protected String getSubjectFromUserIDClaimURI(AuthenticationContext context) {
+        String subject = null;
+        try {
+            subject = FrameworkUtils.getFederatedSubjectFromClaims(context, getClaimDialectURI());
+        } catch (Exception e) {
+            log.warn("Couldn't find the subject claim from claim mappings ");
+        }
+        return subject;
+    }
+
 }
