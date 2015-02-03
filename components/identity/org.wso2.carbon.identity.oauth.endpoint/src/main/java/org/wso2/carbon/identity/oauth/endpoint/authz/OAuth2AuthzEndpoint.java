@@ -33,6 +33,7 @@ import org.wso2.carbon.identity.application.authentication.framework.cache.Authe
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheKey;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
+import org.wso2.carbon.identity.application.common.model.Claim;
 import org.wso2.carbon.identity.oauth.cache.*;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
@@ -43,7 +44,9 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeReqDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeRespDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientValidationResponseDTO;
 import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
+import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
@@ -58,9 +61,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Path("/authorize")
 public class OAuth2AuthzEndpoint {
@@ -85,7 +87,7 @@ public class OAuth2AuthzEndpoint {
                 OAuthConstants.SESSION_DATA_KEY));
         String sessionDataKeyFromConsent = EndpointUtil.getSafeText(request.getParameter(
                 OAuthConstants.SESSION_DATA_KEY_CONSENT));
-        CacheKey cacheKey;
+        CacheKey cacheKey = null;
         Object resultFromLogin = null;
         Object resultFromConsent = null;
         if(sessionDataKeyFromLogin != null && !sessionDataKeyFromLogin.equals("")) {
@@ -164,9 +166,11 @@ public class OAuth2AuthzEndpoint {
                             username = tenantAwareUserName + "@" + tenantDomain;
                             username = username.toLowerCase();
                             sessionDataCacheEntry.setLoggedInUser(username);
-                            sessionDataCacheEntry.setUserAttributes(authnResult.getUserAttributes());
+                            if (authnResult.getUserAttributes() != null) {
+                                sessionDataCacheEntry.setUserAttributes(new ConcurrentHashMap<ClaimMapping, String>(authnResult.getUserAttributes()));
+                            }
                             sessionDataCacheEntry.setAuthenticatedIdPs(authnResult.getAuthenticatedIdPs());
-
+                            SessionDataCache.getInstance().addToCache(cacheKey, sessionDataCacheEntry);
                             redirectURL = doUserAuthz(request, sessionDataKeyFromLogin, sessionDataCacheEntry);
                             return Response.status(HttpServletResponse.SC_FOUND).location(new URI(redirectURL)).build();
 
@@ -424,7 +428,7 @@ public class OAuth2AuthzEndpoint {
         params.setClientId(clientId);
         params.setRedirectURI(clientDTO.getCallbackURL());
         params.setResponseType(oauthRequest.getResponseType());
-        params.setScopes(oauthRequest.getScopes());
+        params.setScopes(Collections.synchronizedSet(oauthRequest.getScopes()));
         if(params.getScopes() == null){ // to avoid null pointers
             Set<String> scopeSet = new HashSet<String>();
             scopeSet.add("");
@@ -514,11 +518,15 @@ public class OAuth2AuthzEndpoint {
         sessionDataCacheEntry = new SessionDataCacheEntry();
         sessionDataCacheEntry.setoAuth2Parameters(params);
         sessionDataCacheEntry.setQueryString(req.getQueryString());
-        sessionDataCacheEntry.setParamMap(req.getParameterMap());
+
+        if (req.getParameterMap() != null) {
+            sessionDataCacheEntry.setParamMap(new ConcurrentHashMap<String, String[]>(req.getParameterMap()));
+        }
         SessionDataCache.getInstance().addToCache(cacheKey, sessionDataCacheEntry);
 
         try {
-            return EndpointUtil.getLoginPageURL(clientId, sessionDataKey, forceAuthenticate, checkAuthentication, oauthRequest.getScopes());
+            return EndpointUtil.getLoginPageURL(clientId, sessionDataKey, forceAuthenticate,
+                    checkAuthentication, oauthRequest.getScopes(), req.getParameterMap());
         } catch (UnsupportedEncodingException e) {
             log.debug(e.getMessage(), e);
             throw new OAuthSystemException("Error when encoding login page URL");
