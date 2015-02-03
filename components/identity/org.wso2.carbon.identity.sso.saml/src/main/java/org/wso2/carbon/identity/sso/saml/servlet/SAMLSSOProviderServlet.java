@@ -349,6 +349,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         authenticationRequest.setForceAuth(signInRespDTO.isForceAuthn());
         authenticationRequest.setPassiveAuth(signInRespDTO.isPassive());
         authenticationRequest.setTenantDomain(sessionDTO.getTenantDomain());
+		authenticationRequest.setPost(isPost);
+
         // Adding query parameters
         authenticationRequest.appendRequestQueryParams(req.getParameterMap());
         for (Enumeration headerNames = req.getHeaderNames(); headerNames.hasMoreElements(); ) {
@@ -374,9 +376,9 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 	    resp.sendRedirect(queryStringBuilder.toString());
     }
     
-    private void sendToFrameworkForLogout(HttpServletRequest request, HttpServletResponse response, 
-    								SAMLSSOReqValidationResponseDTO signInRespDTO, String relayState, String sessionId, boolean invalid)
-    										throws ServletException, IOException {
+    private void sendToFrameworkForLogout(HttpServletRequest request, HttpServletResponse response,
+            SAMLSSOReqValidationResponseDTO signInRespDTO, String relayState, String sessionId,
+            boolean invalid, boolean isPost) throws ServletException, IOException {
     	
         if (sessionId != null) {
             
@@ -414,6 +416,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                     new String[]{"true"});
             authenticationRequest.setRequestQueryParams(request.getParameterMap());
             authenticationRequest.setCommonAuthCallerPath(selfPath);
+            authenticationRequest.setPost(isPost);
 
             if (signInRespDTO != null) {
                 authenticationRequest.setRelyingParty(signInRespDTO.getIssuer());
@@ -450,7 +453,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
      */
     private void sendResponse(HttpServletRequest req, HttpServletResponse resp, String relayState,
             String response, String acUrl, String subject, String authenticatedIdPs)
-            throws ServletException, IOException {
+            throws ServletException, IOException, IdentityException {
 
         if(relayState != null){
             relayState = URLDecoder.decode(relayState, "UTF-8");
