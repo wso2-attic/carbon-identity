@@ -150,9 +150,9 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
 
             } else {
 
+                Map<String, String> userClaim = new HashMap<String, String>();
                 if (attributes != null && attributes.size() > 0) {
                     // Provision user
-                    Map<String, String> userClaim = new HashMap<String, String>();
                     for (Map.Entry<String, String> entry : attributes.entrySet()) {
                         if (entry.getValue() != null && !entry.getValue().isEmpty()) {
                             userClaim.put(entry.getKey(), entry.getValue());
@@ -163,7 +163,7 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
                             addingRoles.toArray(new String[0]), userClaim, null);
                 } else {
                     userstore.addUser(username, generatePassword(username),
-                            addingRoles.toArray(new String[0]), null, null);
+                            addingRoles.toArray(new String[0]), userClaim, null);
                 }
 
                 if (log.isDebugEnabled()) {
@@ -209,7 +209,7 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
      * @param username
      * @return
      */
-    private String generatePassword(String username) {
+    protected String generatePassword(String username) {
         return new BigInteger(130, random).toString(32);
     }
 

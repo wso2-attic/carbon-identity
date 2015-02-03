@@ -142,36 +142,6 @@ public class DefaultClaimHandler implements ClaimHandler {
         Map<String,String> spUnfilteredClaims = new HashMap<String, String>();
         Map<String,String> spFilteredClaims = new HashMap<String, String>();
 
-        if (idPStandardDialect != null && spStandardDialect != null
-                && spStandardDialect.equals(idPStandardDialect)) {
-            if(log.isDebugEnabled()){
-                log.debug("Federated IDP and SP are using common dialect. " +
-                        "NO claim mapping required. Continuing!");
-            }
-
-            // if SP and IdP follow the same dialect set unfiltered remote claims
-            // to following property
-            context.setProperty(FrameworkConstants.UNFILTERED_SP_CLAIM_VALUES, remoteClaims);
-            // if SP and IdP follow the default carbon dialect then set unfiltered remote claims
-            // to following property
-            if(ApplicationConstants.LOCAL_IDP_DEFAULT_CLAIM_DIALECT.equals(spStandardDialect)){
-                context.setProperty(FrameworkConstants.UNFILTERED_LOCAL_CLAIM_VALUES, remoteClaims);
-            }
-
-            // now we need to filter service provider requested attributes out of this.
-            for (Iterator<Entry<String, String>> iterator = remoteClaims.entrySet().iterator();
-                 iterator.hasNext(); ) {
-                Entry<String, String> entry = iterator.next();
-                if (entry.getKey() != null && entry.getValue() != null) {
-                    spUnfilteredClaims.put(entry.getKey(), entry.getValue());
-                    if(spRequestedClaimMappings.get(entry.getKey()) !=  null){
-                        spFilteredClaims.put(entry.getKey(), entry.getValue());
-                    }
-                }
-            }
-            setSubjectClaimForFederatedClaims(spUnfilteredClaims, spStandardDialect, context);
-            return spFilteredClaims;
-        }
 
         // claim mapping from local IDP to remote IDP : local-claim-uri / idp-claim-uri
 

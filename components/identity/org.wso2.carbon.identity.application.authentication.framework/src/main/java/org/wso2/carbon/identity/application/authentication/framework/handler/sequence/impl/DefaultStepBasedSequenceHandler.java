@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
@@ -309,12 +310,32 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                         
                         //TODO: user tenant domain has to be an attribute in the AuthenticationContext
                         authProperties.put("user-tenant-domain", tenantDomain);
+                        sequenceConfig.setAuthenticatedUserTenantDomain(tenantDomain);
+
+                        if (log.isDebugEnabled()) {
+                            log.debug("Authenticated User: " + sequenceConfig.getAuthenticatedUser());
+                            log.debug("Authenticated User Tenant Domain: " + tenantDomain);
+                        }
 
                     } else {
 
                         // there is no mapped local user found. set the value we got as the subject
                         // identifier.
                         sequenceConfig.setAuthenticatedUser(stepConfig.getAuthenticatedUser());
+
+                        // all local authenticator must set the value of userTenantDomain.
+                        // if userTenantDomain is null that means, there is no local authenticator or
+                        // the assert with local ID is set. In that case, this should be coming from
+                        // federated authentication. In that case, we treat SP domain is equal to user domain.
+                        // userTenantDomain = spTenantDomain;
+
+//                        String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+//                        sequenceConfig.setAuthenticatedUserTenantDomain(tenantDomain);
+//
+//                        if (log.isDebugEnabled()) {
+//                            log.debug("Authenticated User: " + sequenceConfig.getAuthenticatedUser());
+//                            log.debug("Authenticated User Tenant Domain: " + tenantDomain);
+//                        }
 
                     }
 
@@ -386,6 +407,14 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                 if (stepConfig.isSubjectIdentifierStep()) {
                     subjectFoundInStep = true;
                     sequenceConfig.setAuthenticatedUser(stepConfig.getAuthenticatedUser());
+
+                    String authenticatedUserTenantDomain = (String)context.getProperty("user-tenant-domain");
+                    sequenceConfig.setAuthenticatedUserTenantDomain(authenticatedUserTenantDomain);
+
+                    if (log.isDebugEnabled()) {
+                        log.debug("Authenticated User: " + sequenceConfig.getAuthenticatedUser());
+                        log.debug("Authenticated User Tenant Domain: " + authenticatedUserTenantDomain);
+                    }
                 }
 
                 if (stepConfig.isSubjectAttributeStep()) {
@@ -417,6 +446,14 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
         String subjectValue = (String)context.getProperty("ServiceProviderSubjectClaimValue");
         if (subjectClaimURI != null && !subjectClaimURI.isEmpty() && subjectValue != null) {
             sequenceConfig.setAuthenticatedUser(subjectValue);
+
+            String authenticatedUserTenantDomain = (String)context.getProperty("user-tenant-domain");
+            sequenceConfig.setAuthenticatedUserTenantDomain(authenticatedUserTenantDomain);
+
+            if (log.isDebugEnabled()) {
+                log.debug("Authenticated User: " + sequenceConfig.getAuthenticatedUser());
+                log.debug("Authenticated User Tenant Domain: " + authenticatedUserTenantDomain);
+            }
         } else if(subjectClaimURI != null && !subjectClaimURI.isEmpty()){
             log.warn("Subject claim could not be found. Defaulting to Name Identifier.");
         }

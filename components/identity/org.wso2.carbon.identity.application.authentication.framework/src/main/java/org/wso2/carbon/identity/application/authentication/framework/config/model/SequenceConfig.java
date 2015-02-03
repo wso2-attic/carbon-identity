@@ -45,6 +45,7 @@ public class SequenceConfig implements Serializable {
 	private boolean completed;
 	
 	private String authenticatedUser;
+    private String authenticatedUserTenantDomain;
     private Map<ClaimMapping, String> userAttributes = new HashMap<ClaimMapping, String>();
 	private String authenticatedIdPs;
 	
@@ -121,12 +122,20 @@ public class SequenceConfig implements Serializable {
         return authenticatedUser;
     }
 
+    public String getAuthenticatedUserTenantDomain() {
+        return authenticatedUserTenantDomain;
+    }
+
     public Map<ClaimMapping, String> getUserAttributes() {
         return userAttributes;
     }
 
     public void setAuthenticatedUser(String authenticatedUser) {
         this.authenticatedUser = authenticatedUser;
+    }
+
+    public void setAuthenticatedUserTenantDomain(String authenticatedUserTenantDomain) {
+        this.authenticatedUserTenantDomain = authenticatedUserTenantDomain;
     }
 
     public void setUserAttributes(Map<ClaimMapping, String> userAttributes) {
