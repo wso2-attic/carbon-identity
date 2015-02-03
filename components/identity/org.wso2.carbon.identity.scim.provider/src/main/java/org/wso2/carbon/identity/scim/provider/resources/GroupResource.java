@@ -378,11 +378,12 @@ public class GroupResource extends AbstractResource {
             //create charon-SCIM user endpoint and hand-over the request.
             GroupResourceEndpoint groupResourceEndpoint = new GroupResourceEndpoint();
 
-            SCIMResponse response =
-                    groupResourceEndpoint.updateWithPATCH(id, resourceString, inputFormat, outputFormat, userManager);
+            //            SCIMResponse response =
+//                    groupResourceEndpoint.updateWithPATCH(id, resourceString, inputFormat, outputFormat, userManager);
+//
+//            return new JAXRSResponseBuilder().buildResponse(response);
 
-            return new JAXRSResponseBuilder().buildResponse(response);
-
+            return null;
         } catch (CharonException e) {
             if (logger.isDebugEnabled()) {
                 logger.debug(e.getMessage(), e);
