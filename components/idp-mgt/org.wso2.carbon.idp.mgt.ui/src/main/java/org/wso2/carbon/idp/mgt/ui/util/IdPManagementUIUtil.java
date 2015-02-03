@@ -486,6 +486,12 @@ public class IdPManagementUIUtil {
             appName.setValue(paramMap.get("google_prov_application_name"));
         }
 
+        if (paramMap.get("google_prov_pattern") != null) {
+            appName = new Property();
+            appName.setName("google_prov_pattern");
+            appName.setValue(paramMap.get("google_prov_pattern"));
+        }
+
         Property[] proProperties = new Property[] { appName, adminEmail, privateKey,
                 serviceAccEmail, familyNameDefault, familyNameClaim, givenNameDefaultVal,
                 givenNameClaim, emailClaim, domainName };
@@ -598,6 +604,7 @@ public class IdPManagementUIUtil {
         Property clientSecretProp = null;
         Property apiVersionProp = null;
         Property domainNameProp = null;
+        Property tokenEndpointProp = null;
 
         if (paramMap.get("sfProvEnabled") != null && "on".equals(paramMap.get("sfProvEnabled"))) {
             proConnector.setEnabled(true);
@@ -653,8 +660,14 @@ public class IdPManagementUIUtil {
             domainNameProp.setValue(paramMap.get("sf-domain-name"));
         }
 
+        if (paramMap.get("sf-token-endpoint") != null) {
+            tokenEndpointProp = new Property();
+            tokenEndpointProp.setName("sf-token-endpoint");
+            tokenEndpointProp.setValue(paramMap.get("sf-token-endpoint"));
+        }
+
         Property[] proProperties = new Property[] { userNameProp, passwordProp, clentIdProp,
-                clientSecretProp, apiVersionProp, domainNameProp };
+                clientSecretProp, apiVersionProp, domainNameProp, tokenEndpointProp };
 
         proConnector.setProvisioningProperties(proProperties);
 
@@ -947,7 +960,7 @@ public class IdPManagementUIUtil {
 
         property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.OpenID.IS_USER_ID_IN_CLAIMS);
-        if ("on".equals(paramMap.get("open_id_user_id_location"))) {
+        if ("1".equals(paramMap.get("open_id_user_id_location"))) {
             property.setValue("true");
         } else {
             property.setValue("false");
@@ -999,7 +1012,7 @@ public class IdPManagementUIUtil {
             fedIdp.setDefaultAuthenticatorConfig(facebookAuthnConfig);
         }
 
-        Property[] properties = new Property[2];
+        Property[] properties = new Property[3];
         Property property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.Facebook.CLIENT_ID);
         property.setValue(paramMap.get("fbClientId"));
@@ -1010,6 +1023,11 @@ public class IdPManagementUIUtil {
         property.setValue(paramMap.get("fbClientSecret"));
         property.setConfidential(true);
         properties[1] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.Facebook.SCOPE);
+        property.setValue(paramMap.get("fbScope"));
+        properties[2] = property;
 
         facebookAuthnConfig.setProperties(properties);
 
@@ -1074,7 +1092,7 @@ public class IdPManagementUIUtil {
         property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.OIDC.IS_USER_ID_IN_CLAIMS);
         properties[4] = property;
-        if ("on".equals(paramMap.get("oidc_user_id_location"))) {
+        if ("1".equals(paramMap.get("oidc_user_id_location"))) {
             property.setValue("true");
             ;
         } else {
@@ -1141,7 +1159,7 @@ public class IdPManagementUIUtil {
         property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.OIDC.IS_USER_ID_IN_CLAIMS);
         properties[2] = property;
-        if ("on".equals(paramMap.get("passive_sts_user_id_location"))) {
+        if ("1".equals(paramMap.get("passive_sts_user_id_location"))) {
             property.setValue("true");
             ;
         } else {
@@ -1290,7 +1308,7 @@ public class IdPManagementUIUtil {
             fedIdp.setDefaultAuthenticatorConfig(saml2SSOAuthnConfig);
         }
 
-        Property[] properties = new Property[12];
+        Property[] properties = new Property[13];
         Property property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
         property.setValue(paramMap.get("idPEntityId"));
@@ -1349,7 +1367,7 @@ public class IdPManagementUIUtil {
 
         property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_USER_ID_IN_CLAIMS);
-        if ("on".equals(paramMap.get("saml2_sso_user_id_location"))) {
+        if ("1".equals(paramMap.get("saml2_sso_user_id_location"))) {
             property.setValue("true");
         } else {
             property.setValue("false");
@@ -1383,6 +1401,12 @@ public class IdPManagementUIUtil {
         }
 
         properties[11] = property;
+        
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.REQUEST_METHOD);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.REQUEST_METHOD));
+        properties[12] = property;
 
         saml2SSOAuthnConfig.setProperties(properties);
 

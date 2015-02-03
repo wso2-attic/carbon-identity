@@ -86,6 +86,7 @@
     boolean isEnableAssertionEncription = false;
     boolean isEnableAssertionSigning = true;
 
+    String requestMethod="redirect";
     boolean isSLOEnabled = false;
     boolean isLogoutRequestSigned = false;
     String logoutUrl = null;
@@ -108,6 +109,7 @@
     boolean isFBAuthDefault = false;
     String fbClientId = null;
     String fbClientSecret = null;
+    String fbScope = null;
     boolean isFBUserIdInClaims = false;
     
 
@@ -131,6 +133,7 @@
     String googleProvServiceAccEmail = null;
     String googleProvAdminEmail = null;
     String googleProvApplicationName = null;
+    String googleProvPattern = null;
     String googleProvPrivateKeyData = null;
     
     boolean isSfProvEnabled = false;
@@ -141,6 +144,7 @@
     String sfClientSecret = null;
     String sfUserName = null;
     String sfPassword = null;
+    String sfOauth2TokenEndpoint = null;
     
     boolean isScimProvEnabled = false;
     boolean isScimProvDefault = false;
@@ -248,7 +252,7 @@
                         }
                         
                         Property isOpenIdUserIdInClaimsProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-                                IdentityApplicationConstants.Authenticator.OpenID.REALM_ID);
+                                IdentityApplicationConstants.Authenticator.OpenID.IS_USER_ID_IN_CLAIMS);
                         if(isOpenIdUserIdInClaimsProp != null){
                             isOpenIdUserIdInClaims = Boolean.parseBoolean(isOpenIdUserIdInClaimsProp.getValue());
                         }
@@ -264,6 +268,12 @@
                                 IdentityApplicationConstants.Authenticator.Facebook.CLIENT_SECRET);
                         if(fbClientSecretProp != null){
                             fbClientSecret = fbClientSecretProp.getValue();
+                        }
+                        Property fbScopeProp = IdPManagementUIUtil
+                                .getProperty(fedAuthnConfig.getProperties(),
+                                             IdentityApplicationConstants.Authenticator.Facebook.SCOPE);
+                        if(fbScopeProp != null){
+                            fbScope = fbScopeProp.getValue();
                         }
             		}else if(fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME)){
             			allFedAuthConfigs.remove(fedAuthnConfig.getName());
@@ -379,6 +389,15 @@
                         if(isAuthnResponseSignedProp != null){
                             isAuthnResponseSigned = Boolean.parseBoolean(isAuthnResponseSignedProp.getValue());
                         }
+                        
+                        Property requestMethodProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                                                                IdentityApplicationConstants.Authenticator.SAML2SSO.REQUEST_METHOD);
+	                    if(requestMethodProp != null){
+	                        requestMethod = requestMethodProp.getValue();
+	                    } else{
+	                        requestMethod = "redirect";
+	                    }
+                        
                         Property isSAMLSSOUserIdInClaimsProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
                                 IdentityApplicationConstants.Authenticator.SAML2SSO.IS_USER_ID_IN_CLAIMS);
                         if(isSAMLSSOUserIdInClaimsProp != null){
@@ -514,7 +533,9 @@
                             sfUserName = sfProperty.getValue();
                         } else if ("sf-password".equals(sfProperty.getName())){
                             sfPassword = sfProperty.getValue();
-                        } 
+                        } else if ("sf-token-endpoint".equals(sfProperty.getName())){
+                            sfOauth2TokenEndpoint = sfProperty.getValue();
+                        }
                     }
                 }
                 if(salesforce.getEnabled()){
@@ -570,6 +591,7 @@
             googleProvServiceAccEmail = "";
             googleProvAdminEmail = "";
             googleProvApplicationName = "";
+            googleProvPattern= "";
             //if(identityProvider.getCertificate() != null){
             //    googleProvPrivateKeyData = IdPMgtUtil.getCertData(identityProvider.getCertificate());
             //}
@@ -606,6 +628,8 @@
             				googleFamilyNameClaim = googleProperty.getValue();
             			}else if ("google_prov_private_key".equals(googleProperty.getName())){
                             googleProvPrivateKeyData = googleProperty.getValue();
+                        } else if ("google_prov_pattern".equals(googleProperty.getName())) {
+                            googleProvPattern = googleProperty.getValue();
                         }
             			
             			
@@ -852,7 +876,10 @@
         }
         if(fbClientSecret == null){
         	fbClientSecret = "";
-        }  
+        }
+        if(fbScope == null){
+            fbScope = "email";
+        }
         String fbUserIdInClaims = "";
         if(identityProvider != null){
             if(isFBUserIdInClaims){
@@ -914,6 +941,10 @@
         }
         if(googleProvApplicationName == null){
             googleProvApplicationName = "";
+        }
+
+        if(googleProvPattern == null) {
+            googleProvPattern = "";
         }
         
         String spmlProvEnabledChecked = "";
@@ -1004,6 +1035,9 @@
         }
         if(sfPassword == null){
             sfPassword = "";
+        }
+        if(sfOauth2TokenEndpoint == null){
+            sfOauth2TokenEndpoint = IdentityApplicationConstants.SF_OAUTH2_TOKEN_ENDPOINT;
         }
     %>
 
@@ -2778,6 +2812,11 @@
     		 CARBON.showWarningDialog('Salesforce Provisioning Configuration Password cannot be empty');
     		 return false;
     	 }
+
+         if($('#sf-token-endpoint').val() == ""){
+             CARBON.showWarningDialog('Salesforce Provisioning Configuration Oauth2 Token Endpoint cannot be empty');
+             return false;
+         }
      }
    	 
    	 
@@ -3504,6 +3543,27 @@
                             </div>
                         </td>
                     </tr>
+                    
+                    <tr>
+						<td class="leftCol-med labelField"><fmt:message key='request.method'/>:</td>
+						<td>
+							<label>
+								<input type="radio" name="RequestMethod" value="redirect" 
+								<% if(requestMethod != null && requestMethod.equals("redirect")){%>checked="checked"<%}%>/>HTTP-Redirect
+							</label>
+							<label><input type="radio" name="RequestMethod" value="post" 
+								<% if(requestMethod != null && requestMethod.equals("post")){%>checked="checked"<%}%>/>HTTP-POST
+							</label>
+							<label><input type="radio" name="RequestMethod" value="as_request" 
+								<% if(requestMethod != null && requestMethod.equals("as_request")){%>checked="checked"<%}%>/>As Per Request
+							</label>
+							
+							<div class="sectionHelp" style="margin-top: 5px" >
+								<fmt:message key='request.method.help'/>
+							</div>
+						</td>
+					</tr>
+                    
                     <tr>
                         <td class="leftCol-med labelField" ><fmt:message key='query.param'/>:</td>
                         <td>
@@ -3755,6 +3815,17 @@
 			                <div class="sectionHelp"> <fmt:message key='fbauth.client.secret.help' /> </div>
                         </td>
                             
+                    </tr>
+                    <tr>
+                        <td class="leftCol-med labelField"><fmt:message key='fbauth.scope'/>:</td>
+                        <td>
+                            <input id="fbScope" name="fbScope" type="text"
+                                   value="<%=fbScope%>"/>
+
+                            <div class="sectionHelp">
+                                <fmt:message key='fbauth.scope.help'/>
+                            </div>
+                        </td>
                     </tr>
                 </table>
             </div>
@@ -4176,6 +4247,22 @@
 									</div>
 								</td>
 							</tr>
+
+                            <tr>
+                                <td class="leftCol-med labelField"><fmt:message
+                                        key='google.provisioning.pattern' />:<span class="required">*</span></td>
+                                <td>
+                                    <div>
+                                        <input id="google_prov_pattern"
+                                               name="google_prov_pattern" type="text"
+                                               value="<%=googleProvPattern%>" />
+                                    </div>
+                                    <div class="sectionHelp">
+                                        <fmt:message key='google_prov_pattern.help' />
+                                    </div>
+                                </td>
+                            </tr>
+
 						</table>
 					</div>
 
@@ -4257,6 +4344,12 @@
 									class="required">*</span></td>
 								<td><input class="text-box-big" id="sf-password"
 									name="sf-password" type="password" value=<%=sfPassword %>></td>
+							</tr>
+							<tr>
+								<td class="leftCol-med labelField">OAuth2 Token Endpoint:<span
+									class="required">*</span></td>
+								<td><input class="text-box-big" id="sf-token-endpoint"
+									name="sf-token-endpoint" type="text" value=<%=sfOauth2TokenEndpoint%>></td>
 							</tr>
 
 						</table>
