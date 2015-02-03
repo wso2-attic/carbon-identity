@@ -202,10 +202,8 @@ public class RecoveryProcessor {
             	emailTemplate = config.getProperty(IdentityMgtConstants.Notification.ACCOUNT_ID_RECOVERY);
             	persistData = false;
             } else if(IdentityMgtConstants.Notification.ASK_PASSWORD.equals(notification)){
-                if (firstName == null || firstName.isEmpty()) {
-                    emailNotificationData.setTagData("first-name", userId);
-                }
-                internalCode = generateUserCode(2, userId);
+            	emailNotificationData.setTagData("first-name", userId);
+            	internalCode = generateUserCode(2, userId);
                 try {
 					confirmationKey = getUserExternalCodeStr(internalCode);
 				} catch (Exception e) {
