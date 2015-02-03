@@ -91,7 +91,7 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
                 } else if (requestMethod.equalsIgnoreCase("REDIRECT")) {
                     isPost = false;
                 } else if (requestMethod.equalsIgnoreCase("AS_REQUEST")) {
-                    isPost = Boolean.parseBoolean(context.getAuthenticationRequest().isPost());
+                    isPost = context.getAuthenticationRequest().isPost();
                 }
             } else {
                 isPost = false;
@@ -278,7 +278,7 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
                     } else if (requestMethod.equalsIgnoreCase("REDIRECT")) {
                         isPost = false;
                     } else if (requestMethod.equalsIgnoreCase("AS_REQUEST")) {
-                        isPost = Boolean.parseBoolean(context.getAuthenticationRequest().isPost());
+                        isPost = context.getAuthenticationRequest().isPost();
                     }
                 } else {
                     isPost = false;
