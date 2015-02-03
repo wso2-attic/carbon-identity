@@ -50,14 +50,14 @@ public class UserStoreConfigComponent {
     protected void activate(ComponentContext ctxt) {
 
         if (log.isDebugEnabled()) {
-            log.info("Identity User Store bundle is activated.");
+            log.debug("Identity User Store bundle is activated.");
         }
         try {
         } catch (Throwable e) {
             log.error("Failed to load user store org.wso2.carbon.identity.user.store.configuration details.", e);
         }
         if (log.isDebugEnabled()) {
-            log.info("Identity User Store-Config bundle is activated.");
+            log.debug("Identity User Store-Config bundle is activated.");
 
         }
     }
@@ -68,21 +68,21 @@ public class UserStoreConfigComponent {
      */
     protected void deactivate(ComponentContext ctxt) {
         if (log.isDebugEnabled()) {
-            log.info("Identity User Store-Config bundle is deactivated");
+            log.debug("Identity User Store-Config bundle is deactivated");
         }
     }
 
     protected void setRealmService(RealmService realmService) {
         UserStoreConfigComponent.realmService = realmService;
         if (log.isDebugEnabled()) {
-            log.info("Set the Realm Service");
+            log.debug("Set the Realm Service");
         }
     }
 
     protected void unsetRealmService(RealmService realmService) {
         UserStoreConfigComponent.realmService = null;
         if (log.isDebugEnabled()) {
-            log.info("Unset the Realm Service");
+            log.debug("Unset the Realm Service");
         }
     }
 
@@ -109,7 +109,7 @@ public class UserStoreConfigComponent {
 
     protected void unsetServerConfigurationService(ServerConfigurationService serverConfigurationService) {
         if (log.isDebugEnabled()) {
-            log.info("Unsetting the ServerConfigurationService");
+            log.debug("Unset the ServerConfiguration Service");
         }
         UserStoreConfigComponent.serverConfigurationService = null;
     }
