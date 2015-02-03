@@ -15,12 +15,12 @@
 ~ specific language governing permissions and limitations
 ~ under the License.
 -->
-<%@page import="org.wso2.carbon.identity.application.authentication.endpoint.oauth2.OAuth2Login"%>
+<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder"%>
 <%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.Constants" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%
-    String loggedInUser = OAuth2Login.getSafeText(request.getParameter("loggedInUser"));
-    String scopeString = OAuth2Login.getSafeText(request.getParameter("scope"));
+    String loggedInUser = CharacterEncoder.getSafeText(request.getParameter("loggedInUser"));
+    String scopeString = CharacterEncoder.getSafeText(request.getParameter("scope"));
 %>
 
 <!DOCTYPE html>
@@ -63,7 +63,10 @@
 	    <div class="container">
 	        <div class="row">
 	            <div class="span12 content-section">
-	            	You are logged in as <strong><%=loggedInUser%></strong>. <strong><%=request.getParameter("application")%></strong> requests access to your profile information
+	            	You are logged in as <strong><%=loggedInUser%></strong>.
+	            	<strong>
+	            	    <%=CharacterEncoder.getSafeText(request.getParameter("application"))%>
+	            	</strong> requests access to your profile information
 	            </div>
 	        </div>
 	   </div>
@@ -102,7 +105,8 @@
                                        value="Deny" onclick="javascript: deny(); return false;" />
 
                                 <input type="hidden" name="<%=Constants.SESSION_DATA_KEY_CONSENT%>"
-                                       value="<%=request.getParameter(Constants.SESSION_DATA_KEY_CONSENT)%>" />
+                                       value="<%=CharacterEncoder.getSafeText(request
+                                       .getParameter(Constants.SESSION_DATA_KEY_CONSENT))%>" />
                                 <input type="hidden" name="consent" id="consent"
                                        value="deny" />
                             </td>

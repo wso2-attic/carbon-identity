@@ -1,11 +1,12 @@
+<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder"%>
 <div id="loginTable1" class="identity-box">
     <%
-        loginFailed = request.getParameter("loginFailed");
+        loginFailed = CharacterEncoder.getSafeText(request.getParameter("loginFailed"));
         if (loginFailed != null) {
 
     %>
     <div class="alert alert-error">
-        <fmt:message key='<%=request.getParameter("errorMessage")%>'/>
+        <fmt:message key='<%=CharacterEncoder.getSafeText(request.getParameter("errorMessage"))%>'/>
     </div>
     <% } %>
 
@@ -14,7 +15,7 @@
 
         <div class="controls">
             <input class="input-large" type="text" id="claimed_id" name="claimed_id" size='30'/>
-            <input type="hidden" name="sessionDataKey" value='<%=request.getParameter("sessionDataKey")%>'/>
+            <input type="hidden" name="sessionDataKey" value='<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>'/>
         </div>
     </div>
 

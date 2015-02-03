@@ -36,8 +36,8 @@
         <meta name="author" content="">
 
         <!-- Le styles -->
-        <link href="/authenticationendpoint/assets/css/bootstrap.min.css" rel="stylesheet">
-        <link href="/authenticationendpoint/css/localstyles.css" rel="stylesheet">
+        <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/localstyles.css" rel="stylesheet">
         <!--[if lt IE 8]>
         <link href="css/localstyles-ie7.css" rel="stylesheet">
         <![endif]-->
@@ -46,8 +46,8 @@
         <!--[if lt IE 9]>
         <script src="assets/js/html5.js"></script>
         <![endif]-->
-        <script src="/authenticationendpoint/assets/js/jquery-1.7.1.min.js"></script>
-        <script src="/authenticationendpoint/js/scripts.js"></script>
+        <script src="assets/js/jquery-1.7.1.min.js"></script>
+        <script src="js/scripts.js"></script>
 	<style>
 	div.different-login-container a.truncate {
 	  width: 148px;
@@ -100,12 +100,15 @@
         String errorMessage = "Authentication Failed! Please Retry";
         String loginFailed = "false";
         
-        if (request.getParameter(Constants.AUTH_FAILURE) != null &&
-                "true".equals(request.getParameter(Constants.AUTH_FAILURE))) {
+        if (CharacterEncoder.getSafeText(request.getParameter(Constants.AUTH_FAILURE)) != null &&
+                "true".equals(CharacterEncoder.getSafeText(request.getParameter(Constants
+                .AUTH_FAILURE)))) {
             loginFailed = "true";
             
-            if(request.getParameter(Constants.AUTH_FAILURE_MSG) != null){
-                errorMessage = (String) request.getParameter(Constants.AUTH_FAILURE_MSG);
+            if(CharacterEncoder.getSafeText(request.getParameter(Constants.AUTH_FAILURE_MSG)) !=
+            null){
+                errorMessage = (String) CharacterEncoder.getSafeText(request.getParameter
+                (Constants.AUTH_FAILURE_MSG));
                 
                 if (errorMessage.equalsIgnoreCase("login.fail.message")) {
                     errorMessage = "Authentication Failed! Please Retry";
@@ -146,7 +149,7 @@ if (idpAuthenticatorMapping.get(IdentityApplicationConstants.RESIDENT_IDP_RESERV
             </div>
 	    <% } %>
 
-        <form action="../../commonauth" method="post" id="loginForm" class="form-horizontal" >
+        <form action="../commonauth" method="post" id="loginForm" class="form-horizontal" >
             <%
                 if(localAuthenticatorNames.size()>0) {
 
@@ -277,9 +280,9 @@ if (idpAuthenticatorMapping.get(IdentityApplicationConstants.RESIDENT_IDP_RESERV
 
             if (domain != "")
             {
-                document.location = "../../commonauth?idp=" + key + "&authenticator=" + value + "&sessionDataKey=<%=request.getParameter("sessionDataKey")%>&domain=" + domain;
+                document.location = "../commonauth?idp=" + key + "&authenticator=" + value + "&sessionDataKey=<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>&domain=" + domain;
             } else {
-                document.location = "../../commonauth?idp=" + key + "&authenticator=" + value + "&sessionDataKey=<%=request.getParameter("sessionDataKey")%>";
+                document.location = "../commonauth?idp=" + key + "&authenticator=" + value + "&sessionDataKey=<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>";
             }
         }
         
@@ -287,7 +290,7 @@ if (idpAuthenticatorMapping.get(IdentityApplicationConstants.RESIDENT_IDP_RESERV
         {
 
 
-          document.location = "../../commonauth?idp=" + key + "&authenticator=" + value + "&sessionDataKey=<%=request.getParameter("sessionDataKey")%>";
+          document.location = "../commonauth?idp=" + key + "&authenticator=" + value + "&sessionDataKey=<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>";
             
         }
         

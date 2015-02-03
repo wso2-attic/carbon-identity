@@ -1,15 +1,18 @@
+<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder"%>
 <div id="loginTable1" class="identity-box">
     <%
-        loginFailed = request.getParameter("loginFailed");
+        loginFailed = CharacterEncoder.getSafeText(request.getParameter("loginFailed"));
         if (loginFailed != null) {
 
     %>
             <div class="alert alert-error">
-                <fmt:message key='<%=request.getParameter("errorMessage")%>'/>
+                <fmt:message key='<%=CharacterEncoder.getSafeText(request.getParameter
+                ("errorMessage"))%>'/>
             </div>
     <% } %>
 
-    <% if (request.getParameter("username") == null || "".equals(request.getParameter("username").trim())) { %>
+    <% if (CharacterEncoder.getSafeText(request.getParameter("username")) == null || "".equals
+    (CharacterEncoder.getSafeText(request.getParameter("username")).trim())) { %>
 
         <!-- Username -->
         <div class="control-group">
@@ -22,7 +25,8 @@
 
     <%} else { %>
 
-        <input type="hidden" id='username' name='username' value='<%=request.getParameter("username")%>'/>
+        <input type="hidden" id='username' name='username' value='<%=CharacterEncoder.getSafeText
+        (request.getParameter("username"))%>'/>
 
     <% } %>
 
@@ -32,7 +36,7 @@
 
         <div class="controls">
             <input type="password" id='password' name="password"  class="input-xlarge" size='30'/>
-            <input type="hidden" name="sessionDataKey" value='<%=request.getParameter("sessionDataKey")%>'/>
+            <input type="hidden" name="sessionDataKey" value='<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>'/>
             <label class="checkbox" style="margin-top:10px"><input type="checkbox" id="chkRemember" name="chkRemember"><fmt:message key='remember.me'/></label>
         </div>
     </div>

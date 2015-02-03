@@ -20,8 +20,8 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%
-    String stat = CharacterEncoder.getSafeText((String) request.getParameter(Constants.STATUS));
-    String statusMessage = CharacterEncoder.getSafeText( (String) request.getParameter(Constants.STATUS_MSG));
+    String stat = CharacterEncoder.getSafeText(request.getParameter(Constants.STATUS));
+    String statusMessage = CharacterEncoder.getSafeText(request.getParameter(Constants.STATUS_MSG));
     if(stat == null || statusMessage == null){
         stat = "Authentication Error !";
         statusMessage = "Something went wrong during the authentication process. Please try signing in again.";
