@@ -33,39 +33,48 @@ public interface SSOSigner {
     public void init() throws IdentityException;
 
     /**
-     * Validate the  Signature in the SAML Assertion
+     *  Validate the  Signature in the SAML Assertion
      *
-     * @param request SAML Assertion, this could be either a SAML Request or a LogoutRequest
-     * @param cred    Signature signing credential
-     * @param alias   Certificate alias against which the signature is validated.
-     * @return true, if the signature is valid.
+     * @param request
+     *          SAML Assertion, this could be either a SAML Request or a LogoutRequest
+     * @param cred
+     *          Signature signing credential
+     * @param alias
+     *          Certificate alias against which the signature is validated.
+     * @return  true, if the signature is valid.
      * @throws IdentityException
      */
 
-    public boolean doValidateXMLSignature(RequestAbstractType request, X509Credential cred, String alias) throws IdentityException;
+    public boolean doValidateXMLSignature(RequestAbstractType request,X509Credential cred, String alias) throws IdentityException;
 
     /**
      * Set the signature to the SAML assertion
      *
-     * @param assertion          SAML assertion to be signed
-     * @param signatureAlgorithm Signature algorithm
-     * @param cred               Signature signing credential
-     * @return SAML Assertion with a signature
+     * @param assertion
+     *          SAML assertion to be signed
+     * @param signatureAlgorithm
+     *          Signature algorithm
+     * @param cred
+     *          Signature signing credential
+     * @return  SAML Assertion with a signature
      * @throws IdentityException
      */
     public Assertion doSetSignature(Assertion assertion, String signatureAlgorithm,
-                                    X509Credential cred) throws IdentityException;
+                                  X509Credential cred) throws IdentityException;
 
     /**
      * Sign the Response
      *
-     * @param response           Response to be signed
-     * @param signatureAlgorithm Signature algorithm
-     * @param cred               Signature signing credential
+     * @param response
+     *          Response to be signed
+     * @param signatureAlgorithm
+     *          Signature algorithm
+     * @param cred
+     *          Signature signing credential
      * @return
      * @throws IdentityException
      */
     public StatusResponseType doSignResponse(StatusResponseType response, String signatureAlgorithm,
-                                             X509Credential cred) throws IdentityException;
+                                                   X509Credential cred) throws IdentityException;
 }
 

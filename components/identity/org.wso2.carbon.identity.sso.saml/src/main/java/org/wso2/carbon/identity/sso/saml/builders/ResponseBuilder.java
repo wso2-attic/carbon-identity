@@ -23,6 +23,6 @@ import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
 
 public interface ResponseBuilder {
 
-    Response buildResponse(SAMLSSOAuthnReqDTO authnReqDTO, String sessionIndexId) throws IdentityException;
+	Response buildResponse(SAMLSSOAuthnReqDTO authnReqDTO, String sessionIndexId) throws IdentityException;
 
 }

@@ -38,7 +38,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import java.util.Iterator;
 import java.util.Map;
 
-public class DefaultResponseBuilder implements ResponseBuilder {
+public class DefaultResponseBuilder implements ResponseBuilder{
 
     private static Log log = LogFactory.getLog(DefaultResponseBuilder.class);
 
@@ -56,7 +56,7 @@ public class DefaultResponseBuilder implements ResponseBuilder {
         Response response = new org.opensaml.saml2.core.impl.ResponseBuilder().buildObject();
         response.setIssuer(SAMLSSOUtil.getIssuer());
         response.setID(SAMLSSOUtil.createID());
-        if (!authReqDTO.isIdPInitSSO()) {
+        if(!authReqDTO.isIdPInitSSO()){
             response.setInResponseTo(authReqDTO.getId());
         }
         response.setDestination(authReqDTO.getAssertionConsumerURL());
@@ -66,17 +66,15 @@ public class DefaultResponseBuilder implements ResponseBuilder {
         DateTime notOnOrAfter = new DateTime(issueInstant.getMillis()
                 + SAMLSSOUtil.getSAMLResponseValidityPeriod() * 60 * 1000);
         response.setIssueInstant(issueInstant);
-//        Assertion assertion = buildSAMLAssertion(authReqDTO, notOnOrAfter, sessionId);
-        Assertion assertion = SAMLSSOUtil.buildSAMLAssertion(authReqDTO, notOnOrAfter, sessionId);
-
+        Assertion assertion = buildSAMLAssertion(authReqDTO, notOnOrAfter, sessionId);
         if (authReqDTO.isDoEnableEncryptedAssertion()) {
 
             String domainName = authReqDTO.getTenantDomain();
             String alias = authReqDTO.getCertAlias();
-            if (alias != null) {
-                EncryptedAssertion encryptedAssertion = SAMLSSOUtil.setEncryptedAssertion(assertion,
-                        EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256, alias, domainName);
-                response.getEncryptedAssertions().add(encryptedAssertion);
+            if(alias != null)   {
+            EncryptedAssertion encryptedAssertion = SAMLSSOUtil.setEncryptedAssertion(assertion,
+                    EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256, alias, domainName);
+            response.getEncryptedAssertions().add(encryptedAssertion);
             }
         } else {
             response.getAssertions().add(assertion);
@@ -88,30 +86,30 @@ public class DefaultResponseBuilder implements ResponseBuilder {
         }
         return response;
     }
-
+    
     public Response buildResponse(SAMLSSOAuthnReqDTO authReqDTO, Assertion assertion)
-            throws IdentityException {
+			throws IdentityException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("Building SAML Response for the consumer '"
-                    + authReqDTO.getAssertionConsumerURL() + "'");
-        }
-        Response response = new org.opensaml.saml2.core.impl.ResponseBuilder().buildObject();
-        response.setIssuer(SAMLSSOUtil.getIssuer());
-        response.setID(SAMLSSOUtil.createID());
-        response.setInResponseTo(authReqDTO.getId());
-        response.setDestination(authReqDTO.getAssertionConsumerURL());
-        response.setStatus(buildStatus(SAMLSSOConstants.StatusCodes.SUCCESS_CODE, null));
-        response.setVersion(SAMLVersion.VERSION_20);
-        DateTime issueInstant = new DateTime();
-        response.setIssueInstant(issueInstant);
-        response.getAssertions().add(assertion);
-        if (authReqDTO.isDoSignResponse()) {
-            SAMLSSOUtil.setSignature(response, XMLSignature.ALGO_ID_SIGNATURE_RSA,
-                    new SignKeyDataHolder(authReqDTO.getUsername()));
-        }
-        return response;
-    }
+		if (log.isDebugEnabled()) {
+			log.debug("Building SAML Response for the consumer '"
+					+ authReqDTO.getAssertionConsumerURL() + "'");
+		}
+		Response response = new org.opensaml.saml2.core.impl.ResponseBuilder().buildObject();
+		response.setIssuer(SAMLSSOUtil.getIssuer());
+		response.setID(SAMLSSOUtil.createID());
+		response.setInResponseTo(authReqDTO.getId());
+		response.setDestination(authReqDTO.getAssertionConsumerURL());
+		response.setStatus(buildStatus(SAMLSSOConstants.StatusCodes.SUCCESS_CODE, null));
+		response.setVersion(SAMLVersion.VERSION_20);
+		DateTime issueInstant = new DateTime();
+		response.setIssueInstant(issueInstant);
+		response.getAssertions().add(assertion);
+		if (authReqDTO.isDoSignResponse()) {
+			SAMLSSOUtil.setSignature(response, XMLSignature.ALGO_ID_SIGNATURE_RSA,
+					new SignKeyDataHolder(authReqDTO.getUsername()));
+		}
+		return response;
+	}
 
     private Assertion buildSAMLAssertion(SAMLSSOAuthnReqDTO authReqDTO, DateTime notOnOrAfter,
                                          String sessionId) throws IdentityException {
@@ -147,21 +145,21 @@ public class DefaultResponseBuilder implements ResponseBuilder {
             SubjectConfirmationData scData = new SubjectConfirmationDataBuilder().buildObject();
             scData.setRecipient(authReqDTO.getAssertionConsumerURL());
             scData.setNotOnOrAfter(notOnOrAfter);
-            if (!authReqDTO.isIdPInitSSO()) {
+            if(!authReqDTO.isIdPInitSSO()){
                 scData.setInResponseTo(authReqDTO.getId());
             }
             subjectConfirmation.setSubjectConfirmationData(scData);
             subject.getSubjectConfirmations().add(subjectConfirmation);
 
-            if (authReqDTO.getRequestedRecipients() != null && authReqDTO.getRequestedRecipients().length > 0) {
-                for (String recipient : authReqDTO.getRequestedRecipients()) {
+            if(authReqDTO.getRequestedRecipients() != null && authReqDTO.getRequestedRecipients().length > 0){
+                for(String recipient : authReqDTO.getRequestedRecipients()){
                     subjectConfirmation = new SubjectConfirmationBuilder()
                             .buildObject();
                     subjectConfirmation.setMethod(SAMLSSOConstants.SUBJECT_CONFIRM_BEARER);
                     scData = new SubjectConfirmationDataBuilder().buildObject();
                     scData.setRecipient(recipient);
                     scData.setNotOnOrAfter(notOnOrAfter);
-                    if (!authReqDTO.isIdPInitSSO()) {
+                    if(!authReqDTO.isIdPInitSSO()){
                         scData.setInResponseTo(authReqDTO.getId());
                     }
                     subjectConfirmation.setSubjectConfirmationData(scData);
@@ -185,7 +183,7 @@ public class DefaultResponseBuilder implements ResponseBuilder {
             samlAssertion.getAuthnStatements().add(authStmt);
 
 			/*
-             * If <AttributeConsumingServiceIndex> element is in the <AuthnRequest> and according to
+			 * If <AttributeConsumingServiceIndex> element is in the <AuthnRequest> and according to
 			 * the spec 2.0 the subject MUST be in the assertion
 			 */
             Map<String, String> claims = SAMLSSOUtil.getAttributes(authReqDTO);
@@ -253,7 +251,7 @@ public class DefaultResponseBuilder implements ResponseBuilder {
                 Attribute attrib = new AttributeBuilder().buildObject();
                 String claimUri = ite.next();
                 attrib.setName(claimUri);
-                //setting NAMEFORMAT attribute value to basic attribute profile
+		//setting NAMEFORMAT attribute value to basic attribute profile
                 attrib.setNameFormat(SAMLSSOConstants.NAME_FORMAT_BASIC);
                 // look
                 // https://wiki.shibboleth.net/confluence/display/OpenSAML/OSTwoUsrManJavaAnyTypes

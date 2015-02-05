@@ -35,32 +35,13 @@ import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DefaultSSOSigner implements SSOSigner {
-    /**
-     * Builds SAML Elements
-     *
-     * @param objectQName
-     * @return
-     * @throws IdentityException
-     */
-    private static XMLObject buildXMLObject(QName objectQName) throws IdentityException {
-        XMLObjectBuilder builder =
-                org.opensaml.xml.Configuration.getBuilderFactory()
-                        .getBuilder(objectQName);
-        if (builder == null) {
-            throw new IdentityException("Unable to retrieve builder for object QName " +
-                    objectQName);
-        }
-        return builder.buildObject(objectQName.getNamespaceURI(), objectQName.getLocalPart(),
-                objectQName.getPrefix());
-    }
-
+public class DefaultSSOSigner implements SSOSigner{
     @Override
     public void init() throws IdentityException {
     }
 
     @Override
-    public boolean doValidateXMLSignature(RequestAbstractType request, X509Credential cred, String alias) throws IdentityException {
+    public boolean doValidateXMLSignature(RequestAbstractType request, X509Credential cred, String alias) throws IdentityException{
         boolean isSignatureValid = false;
 
         if (request.getSignature() != null) {
@@ -79,44 +60,44 @@ public class DefaultSSOSigner implements SSOSigner {
 
     @Override
     public Assertion doSetSignature(Assertion assertion, String signatureAlgorithm, X509Credential cred) throws IdentityException {
+       try{
+        Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
+        signature.setSigningCredential(cred);
+        signature.setSignatureAlgorithm(signatureAlgorithm);
+        signature.setCanonicalizationAlgorithm(Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
+
         try {
-            Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
-            signature.setSigningCredential(cred);
-            signature.setSignatureAlgorithm(signatureAlgorithm);
-            signature.setCanonicalizationAlgorithm(Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
-
-            try {
-                KeyInfo keyInfo = (KeyInfo) buildXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
-                X509Data data = (X509Data) buildXMLObject(X509Data.DEFAULT_ELEMENT_NAME);
-                X509Certificate cert = (X509Certificate) buildXMLObject(X509Certificate.DEFAULT_ELEMENT_NAME);
-                String value = org.apache.xml.security.utils.Base64.encode(cred
-                        .getEntityCertificate().getEncoded());
-                cert.setValue(value);
-                data.getX509Certificates().add(cert);
-                keyInfo.getX509Datas().add(data);
-                signature.setKeyInfo(keyInfo);
-            } catch (CertificateEncodingException e) {
-                throw new IdentityException("errorGettingCert");
-            }
-
-            assertion.setSignature(signature);
-
-            List<Signature> signatureList = new ArrayList<Signature>();
-            signatureList.add(signature);
-
-            // Marshall and Sign
-            MarshallerFactory marshallerFactory = org.opensaml.xml.Configuration
-                    .getMarshallerFactory();
-            Marshaller marshaller = marshallerFactory.getMarshaller(assertion);
-
-            marshaller.marshall(assertion);
-
-            org.apache.xml.security.Init.init();
-            Signer.signObjects(signatureList);
-            return assertion;
-        } catch (Exception e) {
-            throw new IdentityException("Error while signing the SAML Response message.", e);
+            KeyInfo keyInfo = (KeyInfo) buildXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
+            X509Data data = (X509Data) buildXMLObject(X509Data.DEFAULT_ELEMENT_NAME);
+            X509Certificate cert = (X509Certificate) buildXMLObject(X509Certificate.DEFAULT_ELEMENT_NAME);
+            String value = org.apache.xml.security.utils.Base64.encode(cred
+                    .getEntityCertificate().getEncoded());
+            cert.setValue(value);
+            data.getX509Certificates().add(cert);
+            keyInfo.getX509Datas().add(data);
+            signature.setKeyInfo(keyInfo);
+        } catch (CertificateEncodingException e) {
+            throw new IdentityException("errorGettingCert");
         }
+
+        assertion.setSignature(signature);
+
+        List<Signature> signatureList = new ArrayList<Signature>();
+        signatureList.add(signature);
+
+        // Marshall and Sign
+        MarshallerFactory marshallerFactory = org.opensaml.xml.Configuration
+                .getMarshallerFactory();
+        Marshaller marshaller = marshallerFactory.getMarshaller(assertion);
+
+        marshaller.marshall(assertion);
+
+        org.apache.xml.security.Init.init();
+        Signer.signObjects(signatureList);
+        return assertion;
+    } catch (Exception e) {
+        throw new IdentityException("Error while signing the SAML Response message.", e);
+    }
     }
 
     @Override
@@ -162,5 +143,24 @@ public class DefaultSSOSigner implements SSOSigner {
         } catch (Exception e) {
             throw new IdentityException("Error while signing the SAML Response message.", e);
         }
+    }
+
+    /**
+     * Builds SAML Elements
+     *
+     * @param objectQName
+     * @return
+     * @throws IdentityException
+     */
+    private static XMLObject buildXMLObject(QName objectQName) throws IdentityException {
+        XMLObjectBuilder builder =
+                org.opensaml.xml.Configuration.getBuilderFactory()
+                        .getBuilder(objectQName);
+        if (builder == null) {
+            throw new IdentityException("Unable to retrieve builder for object QName " +
+                    objectQName);
+        }
+        return builder.buildObject(objectQName.getNamespaceURI(), objectQName.getLocalPart(),
+                objectQName.getPrefix());
     }
 }

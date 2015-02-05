@@ -59,13 +59,13 @@ public class ErrorResponseBuilder {
      * @return
      */
     public Response buildResponse(String inResponseToID, List<String> statusCodes, String statusMsg) throws IdentityException {
-        if (statusCodes == null || statusCodes.size() == 0) {
+        if(statusCodes == null || statusCodes.size() == 0){
             throw new IdentityException("No Status Values");
         }
         response.setIssuer(SAMLSSOUtil.getIssuer());
         Status status = new StatusBuilder().buildObject();
         StatusCode statusCode = null;
-        for (String statCode : statusCodes) {
+        for(String statCode:statusCodes){
             statusCode = buildStatusCode(statCode, statusCode);
         }
         status.setStatusCode(statusCode);
@@ -73,7 +73,7 @@ public class ErrorResponseBuilder {
         response.setStatus(status);
         response.setVersion(SAMLVersion.VERSION_20);
         response.setID(SAMLSSOUtil.createID());
-        if (inResponseToID != null) {
+        if(inResponseToID != null){
             response.setInResponseTo(inResponseToID);
         }
         response.setIssueInstant(new DateTime());
@@ -87,9 +87,9 @@ public class ErrorResponseBuilder {
      * @param childStatusCode
      * @return
      */
-    private StatusCode buildStatusCode(String parentStatusCode, StatusCode childStatusCode) throws IdentityException {
+    private StatusCode buildStatusCode(String parentStatusCode, StatusCode childStatusCode) throws IdentityException{
 
-        if (parentStatusCode == null) {
+        if(parentStatusCode == null){
             throw new IdentityException("Invalid SAML Response Status Code");
         }
 
@@ -97,7 +97,7 @@ public class ErrorResponseBuilder {
         statusCode.setValue(parentStatusCode);
 
         //Set the status Message
-        if (childStatusCode != null) {
+        if(childStatusCode != null){
             statusCode.setStatusCode(childStatusCode);
             return statusCode;
         } else {

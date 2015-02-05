@@ -21,8 +21,8 @@ package org.wso2.carbon.identity.sso.saml.exception;
 /**
  * Exception implementation to be used inside SAML2 SSO Identity Provider impl.
  */
-public class IdentitySAML2SSOException extends Exception {
-
+public class IdentitySAML2SSOException extends Exception{
+    
     public IdentitySAML2SSOException() {
         super();
     }

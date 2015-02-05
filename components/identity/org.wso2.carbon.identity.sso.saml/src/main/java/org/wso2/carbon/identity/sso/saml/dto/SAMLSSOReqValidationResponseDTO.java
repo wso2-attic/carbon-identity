@@ -137,6 +137,7 @@ public class SAMLSSOReqValidationResponseDTO implements Serializable {
     }
 
     /**
+     *
      * @return
      */
     public String getRequestMessageString() {
@@ -144,6 +145,7 @@ public class SAMLSSOReqValidationResponseDTO implements Serializable {
     }
 
     /**
+     *
      * @param requestMessageString
      */
     public void setRequestMessageString(String requestMessageString) {
@@ -200,11 +202,11 @@ public class SAMLSSOReqValidationResponseDTO implements Serializable {
         this.isIdPInitSSO = isIdPInitSSO;
     }
 
-    public boolean isForceAuthn() {
-        return isForceAuthn;
-    }
+	public boolean isForceAuthn() {
+		return isForceAuthn;
+	}
 
-    public void setForceAuthn(boolean isForceAuthn) {
-        this.isForceAuthn = isForceAuthn;
-    }
+	public void setForceAuthn(boolean isForceAuthn) {
+		this.isForceAuthn = isForceAuthn;
+	}
 }

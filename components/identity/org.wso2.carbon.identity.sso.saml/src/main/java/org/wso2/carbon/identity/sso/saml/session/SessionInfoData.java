@@ -17,24 +17,26 @@
 */
 package org.wso2.carbon.identity.sso.saml.session;
 
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SessionInfoData implements Serializable {
 
     private static final long serialVersionUID = -2997545986276529377L;
-
+    
     private String subject;
-    private Map<String, String> rpSessionList = new ConcurrentHashMap<String, String>();
+    private Map<String, String> rpSessionList = new ConcurrentHashMap<String,  String>();
     private Map<String, SAMLSSOServiceProviderDO> serviceProviderList = new ConcurrentHashMap<String, SAMLSSOServiceProviderDO>();
     /*private String authenticators;
     private Map<ClaimMapping, String> attributes = new HashMap<ClaimMapping, String>();*/
     private String tenantDomain;
 
-    public SessionInfoData(String subject, String tenantDomain) {
+	public SessionInfoData(String subject, String tenantDomain){
         this.subject = subject;
         this.tenantDomain = tenantDomain;
     }
@@ -47,24 +49,24 @@ public class SessionInfoData implements Serializable {
         return serviceProviderList;
     }
 
-    public void addServiceProvider(String issuer, SAMLSSOServiceProviderDO spDO, String rpSessionId) {
+    public void addServiceProvider(String issuer,SAMLSSOServiceProviderDO spDO, String rpSessionId){
         this.serviceProviderList.put(issuer, spDO);
         if (rpSessionId != null) {
             this.rpSessionList.put(issuer, rpSessionId);
         }
     }
 
-    public void removeServiceProvider(String issuer) {
+    public void removeServiceProvider(String issuer){
         serviceProviderList.remove(issuer);
         rpSessionList.remove(issuer);
     }
 
-    public Map<String, String> getRPSessionsList() {
+    public Map<String, String> getRPSessionsList(){
         return rpSessionList;
     }
 
 	/*public String getAuthenticators() {
-        return authenticators;
+		return authenticators;
 	}
 
 	public void setAuthenticators(String authenticators) {
@@ -79,7 +81,7 @@ public class SessionInfoData implements Serializable {
 		this.attributes = attributes;
 	}*/
 
-    public String getTenantDomain() {
+    public String getTenantDomain(){
         return tenantDomain;
     }
 }

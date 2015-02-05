@@ -25,5 +25,5 @@ public interface SAML2HTTPRedirectSignatureValidator {
     public void init() throws IdentityException;
 
     public boolean validateSignature(String queryString, String issuer, String alias,
-                                     String domainName) throws org.opensaml.xml.security.SecurityException, IdentitySAML2SSOException;
+                                            String domainName) throws org.opensaml.xml.security.SecurityException,IdentitySAML2SSOException;
 }

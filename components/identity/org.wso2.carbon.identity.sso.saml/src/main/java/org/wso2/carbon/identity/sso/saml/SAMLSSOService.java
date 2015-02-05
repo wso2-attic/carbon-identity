@@ -29,46 +29,17 @@ import org.wso2.carbon.identity.sso.saml.dto.SAMLSSORespDTO;
 import org.wso2.carbon.identity.sso.saml.processors.IdPInitSSOAuthnRequestProcessor;
 import org.wso2.carbon.identity.sso.saml.processors.LogoutRequestProcessor;
 import org.wso2.carbon.identity.sso.saml.processors.SPInitSSOAuthnRequestProcessor;
+import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 import org.wso2.carbon.identity.sso.saml.validators.IdPInitSSOAuthnRequestValidator;
 import org.wso2.carbon.identity.sso.saml.validators.SPInitSSOAuthnRequestValidator;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SAMLSSOService {
-
-    /**
-     * Get the SSO session's timeout
-     *
-     * @return timeout for SSO session
-     */
-    public static int getSSOSessionTimeout() {
-        if (IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_SESSION_TIMEOUT) != null &&
-                !IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_SESSION_TIMEOUT).trim().equals("")) {
-            return Integer.parseInt(IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_SESSION_TIMEOUT).trim());
-        } else {
-            return 36000;
-        }
-    }
-
-    public static boolean isOpenIDLoginAccepted() {
-        if (IdentityUtil.getProperty(IdentityConstants.ServerConfig.ACCEPT_OPENID_LOGIN) != null &&
-                !IdentityUtil.getProperty(IdentityConstants.ServerConfig.ACCEPT_OPENID_LOGIN).trim().equals("")) {
-            return Boolean.parseBoolean(IdentityUtil.getProperty(IdentityConstants.ServerConfig.ACCEPT_OPENID_LOGIN).trim());
-        } else {
-            return false;
-        }
-    }
-
-    public static boolean isSAMLSSOLoginAccepted() {
-        if (IdentityUtil.getProperty(IdentityConstants.ServerConfig.ACCEPT_SAMLSSO_LOGIN) != null &&
-                !IdentityUtil.getProperty(IdentityConstants.ServerConfig.ACCEPT_SAMLSSO_LOGIN).trim().equals("")) {
-            return Boolean.parseBoolean(IdentityUtil.getProperty(IdentityConstants.ServerConfig.ACCEPT_SAMLSSO_LOGIN).trim());
-        } else {
-            return false;
-        }
-    }
 
     /**
      * Validates the SAMLRquest, the request can be the type AuthnRequest or
@@ -135,7 +106,7 @@ public class SAMLSSOService {
                                                                      HttpServletResponse httpServletResponse,
                                                                      String spEntityID, String relayState,
                                                                      String queryString, String sessionId,
-                                                                     String rpSessionId, String authnMode)
+                                                                     String rpSessionId,String authnMode)
             throws IdentityException {
 
         IdPInitSSOAuthnRequestValidator authnRequestValidator = new IdPInitSSOAuthnRequestValidator(httpServletRequest, httpServletResponse, spEntityID, relayState);
@@ -143,11 +114,12 @@ public class SAMLSSOService {
         validationResp.setQueryString(queryString);
         validationResp.setRpSessionId(rpSessionId);
         validationResp.setIdPInitSSO(true);
-
+        
         return validationResp;
     }
 
     /**
+     *
      * @param authReqDTO
      * @param sessionId
      * @return
@@ -155,7 +127,7 @@ public class SAMLSSOService {
      */
     public SAMLSSORespDTO authenticate(SAMLSSOAuthnReqDTO authReqDTO, String sessionId, boolean authenticated, String authenticators, String authMode)
             throws IdentityException {
-        if (authReqDTO.isIdPInitSSO()) {
+        if(authReqDTO.isIdPInitSSO()){
             IdPInitSSOAuthnRequestProcessor authnRequestProcessor = new IdPInitSSOAuthnRequestProcessor();
             try {
                 return authnRequestProcessor.process(authReqDTO, sessionId, authenticated, authenticators, authMode);
@@ -175,7 +147,6 @@ public class SAMLSSOService {
 
     /**
      * Invalidates the SSO session for the given session ID
-     *
      * @param sessionId
      * @return
      * @throws IdentityException
@@ -188,6 +159,38 @@ public class SAMLSSOService {
                         sessionId,
                         null);
         return validationResponseDTO;
+    }
+
+    /**
+     * Get the SSO session's timeout
+     *
+     * @return timeout for SSO session
+     */
+    public static int getSSOSessionTimeout() {
+        if(IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_SESSION_TIMEOUT) != null &&
+                !IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_SESSION_TIMEOUT).trim().equals("")){
+            return Integer.parseInt(IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_SESSION_TIMEOUT).trim());
+        } else {
+            return 36000;
+        }
+    }
+
+    public static boolean isOpenIDLoginAccepted(){
+        if(IdentityUtil.getProperty(IdentityConstants.ServerConfig.ACCEPT_OPENID_LOGIN) != null &&
+                !IdentityUtil.getProperty(IdentityConstants.ServerConfig.ACCEPT_OPENID_LOGIN).trim().equals("")){
+            return Boolean.parseBoolean(IdentityUtil.getProperty(IdentityConstants.ServerConfig.ACCEPT_OPENID_LOGIN).trim());
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean isSAMLSSOLoginAccepted(){
+        if(IdentityUtil.getProperty(IdentityConstants.ServerConfig.ACCEPT_SAMLSSO_LOGIN) != null &&
+                !IdentityUtil.getProperty(IdentityConstants.ServerConfig.ACCEPT_SAMLSSO_LOGIN).trim().equals("")){
+            return Boolean.parseBoolean(IdentityUtil.getProperty(IdentityConstants.ServerConfig.ACCEPT_SAMLSSO_LOGIN).trim());
+        } else {
+            return false;
+        }
     }
 
 }
