@@ -317,12 +317,6 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                             log.debug("Authenticated User Tenant Domain: " + tenantDomain);
                         }
 
-                        sequenceConfig.setAuthenticatedUserTenantDomain(tenantDomain);
-
-                        if (log.isDebugEnabled()) {
-                            log.debug("Authenticated User: " + sequenceConfig.getAuthenticatedUser());
-                            log.debug("Authenticated User Tenant Domain: " + tenantDomain);
-                        }
                     } else {
 
                         // there is no mapped local user found. set the value we got as the subject

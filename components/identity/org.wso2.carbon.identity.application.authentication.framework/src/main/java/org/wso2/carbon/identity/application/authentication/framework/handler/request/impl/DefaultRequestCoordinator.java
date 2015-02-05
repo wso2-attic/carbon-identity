@@ -281,17 +281,12 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                         // set the user for the current authentication/logout flow
                         context.setSubject(authenticatedUser);
 
-                        // set the user tenant domain for the current authentication/logout flow
-                        context.setProperty("user-tenant-domain", authenticatedUserTenantDomain);
-
                         if (log.isDebugEnabled()) {
                             log.debug("Already authenticated by username: " + authenticatedUser);
-                            log.debug("Authenticated user tenant domain: " + authenticatedUserTenantDomain);
                         }
 
                         if (authenticatedUserTenantDomain != null) {
-                            // set the user tenant domain for the current authentication/logout
-                            // flow
+                            // set the user tenant domain for the current authentication/logout flow
                             context.setProperty("user-tenant-domain", authenticatedUserTenantDomain);
 
                             if (log.isDebugEnabled()) {
