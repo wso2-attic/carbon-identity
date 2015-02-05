@@ -93,6 +93,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             handleRequest(httpServletRequest, httpServletResponse, false);
         } finally {
             SAMLSSOUtil.removeSaaSApplicationThreaLocal();
+            SAMLSSOUtil.removeUserTenantDomainThreaLocal();;
         }
     }
 
@@ -103,6 +104,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             handleRequest(req, resp, true);
         } finally {
             SAMLSSOUtil.removeSaaSApplicationThreaLocal();
+            SAMLSSOUtil.removeUserTenantDomainThreaLocal();;
         }
     }
 
@@ -152,8 +154,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
         try {
             if (sessionDataKey != null) { //Response from common authentication framework.
+                
             	SAMLSSOSessionDTO sessionDTO = getSessionDataFromCache(sessionDataKey);
-            	
             	if (sessionDTO != null) {
                     tenantDomain = sessionDTO.getTenantDomain();
                     if(tenantDomain != null) {
@@ -175,7 +177,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             		removeAuthenticationResultFromCache(sessionDataKey);
             		
             	} else {
-            	    log.error("Failed to retrieve sessionDTO from the cache.");
+            	    log.error("Failed to retrieve sessionDTO from the cache for key " + sessionDataKey);
 		            sendNotification(SAMLSSOConstants.Notification.EXCEPTION_STATUS,
 		                    SAMLSSOConstants.Notification.EXCEPTION_MESSAGE, req, resp);
 		            return;
@@ -192,7 +194,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                             SAMLSSOConstants.Notification.INVALID_MESSAGE_MESSAGE, req, resp);
                 } else {
                  // Non-SAML request are assumed to be logout requests
-                    sendToFrameworkForLogout(req, resp, null, null, sessionId, true);
+                    sendToFrameworkForLogout(req, resp, null, null, sessionId, true, false);
                 }
             }
         } catch (IdentityException e) {
@@ -232,7 +234,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                 spEntityID, relayState, queryString, sessionId, rpSessionId, authMode);
 
         if (signInRespDTO.isValid()) {
-            sendToFrameworkForAuthentication(req, resp, signInRespDTO, relayState);
+            sendToFrameworkForAuthentication(req, resp, signInRespDTO, relayState, false);
         } else {
             log.debug("Invalid SAML SSO Request");
             throw new IdentityException("Invalid SAML SSO Request");
@@ -270,13 +272,20 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         
         if (!signInRespDTO.isLogOutReq()) { // an <AuthnRequest> received
         	 if (signInRespDTO.isValid()) {
-                sendToFrameworkForAuthentication(req, resp, signInRespDTO, relayState);
+                sendToFrameworkForAuthentication(req, resp, signInRespDTO, relayState, isPost);
             } else {
+                // send invalid response to SP TODO
                 log.debug("Invalid SAML SSO Request");
                 throw new IdentityException("Invalid SAML SSO Request");
             }
         } else { // a <LogoutRequest> received
-        	sendToFrameworkForLogout(req, resp, signInRespDTO, relayState, sessionId, false);
+            if(signInRespDTO.isValid()) {
+        	    sendToFrameworkForLogout(req, resp, signInRespDTO, relayState, sessionId, false, isPost);
+            } else {
+                // send invalid response to SP TODO
+                log.debug("Invalid SAML SSO Logout Request");
+                throw new IdentityException("Invalid SAML SSO Logout Request");
+            }
         }
     }
 
@@ -291,7 +300,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
      * @throws IOException
      */
     private void sendToFrameworkForAuthentication(HttpServletRequest req, HttpServletResponse resp,
-                                                  SAMLSSOReqValidationResponseDTO signInRespDTO, String relayState)
+                                    SAMLSSOReqValidationResponseDTO signInRespDTO, String relayState, boolean isPost)
             throws ServletException, IOException {
 
         SAMLSSOSessionDTO sessionDTO = new SAMLSSOSessionDTO();
@@ -340,6 +349,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         authenticationRequest.setForceAuth(signInRespDTO.isForceAuthn());
         authenticationRequest.setPassiveAuth(signInRespDTO.isPassive());
         authenticationRequest.setTenantDomain(sessionDTO.getTenantDomain());
+		authenticationRequest.setPost(isPost);
+
         // Adding query parameters
         authenticationRequest.appendRequestQueryParams(req.getParameterMap());
         for (Enumeration headerNames = req.getHeaderNames(); headerNames.hasMoreElements(); ) {
@@ -365,9 +376,9 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 	    resp.sendRedirect(queryStringBuilder.toString());
     }
     
-    private void sendToFrameworkForLogout(HttpServletRequest request, HttpServletResponse response, 
-    								SAMLSSOReqValidationResponseDTO signInRespDTO, String relayState, String sessionId, boolean invalid)
-    										throws ServletException, IOException {
+    private void sendToFrameworkForLogout(HttpServletRequest request, HttpServletResponse response,
+            SAMLSSOReqValidationResponseDTO signInRespDTO, String relayState, String sessionId,
+            boolean invalid, boolean isPost) throws ServletException, IOException {
     	
         if (sessionId != null) {
             
@@ -405,6 +416,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                     new String[]{"true"});
             authenticationRequest.setRequestQueryParams(request.getParameterMap());
             authenticationRequest.setCommonAuthCallerPath(selfPath);
+            authenticationRequest.setPost(isPost);
 
             if (signInRespDTO != null) {
                 authenticationRequest.setRelyingParty(signInRespDTO.getIssuer());
@@ -441,7 +453,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
      */
     private void sendResponse(HttpServletRequest req, HttpServletResponse resp, String relayState,
             String response, String acUrl, String subject, String authenticatedIdPs)
-            throws ServletException, IOException {
+            throws ServletException, IOException, IdentityException {
 
         if(relayState != null){
             relayState = URLDecoder.decode(relayState, "UTF-8");
@@ -452,7 +464,19 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         }
 
         acUrl = getACSUrlWithTenantPartitioning(acUrl, subject);
-        
+
+        if(acUrl == null || acUrl.trim().length() == 0){
+            // if ACS is null. Send to error page
+            log.error("ACS Url is Null");
+            throw new IdentityException("Unexpected error in sending message out");
+        }
+
+        if(response == null || response.trim().length() == 0){
+            // if response is null
+            log.error("Response message is Null");
+            throw new IdentityException("Unexpected error in sending message out");
+        }
+
         if(IdentitySAMLSSOServiceComponent.getSsoRedirectHtml() != null) {
         	
             String finalPage = null;
@@ -525,7 +549,14 @@ public class SAMLSSOProviderServlet extends HttpServlet {
     private void handleAuthenticationReponseFromFramework(HttpServletRequest req, HttpServletResponse resp,
                                             String sessionId, SAMLSSOSessionDTO sessionDTO) throws IdentityException, IOException, ServletException {
 
-    	AuthenticationResult authResult = getAuthenticationResultFromCache(req.getParameter("sessionDataKey"));
+        String sessionDataKey = req.getParameter("sessionDataKey");
+    	AuthenticationResult authResult = getAuthenticationResultFromCache(sessionDataKey);
+
+        if(log.isDebugEnabled()){
+            if(authResult == null){
+                log.debug("Session data is not found for key : " + sessionDataKey);
+            }
+        }
     	SAMLSSOReqValidationResponseDTO reqValidationDTO = sessionDTO.getValidationRespDTO();
     	SAMLSSOAuthnReqDTO authnReqDTO = new SAMLSSOAuthnReqDTO();
     	
@@ -598,8 +629,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
     }
     
     private void handleLogoutReponseFromFramework(HttpServletRequest request, 
-    		HttpServletResponse response, SAMLSSOSessionDTO sessionDTO) 
-    					throws ServletException, IOException{
+    		HttpServletResponse response, SAMLSSOSessionDTO sessionDTO)
+            throws ServletException, IOException, IdentityException {
 
     	SAMLSSOReqValidationResponseDTO validatonResponseDTO = sessionDTO.getValidationRespDTO();
 
@@ -649,6 +680,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         authnReqDTO.setTenantDomain(sessionDTO.getTenantDomain());
         
         SAMLSSOUtil.setIsSaaSApplication(authResult.isSaaSApp());
+        SAMLSSOUtil.setUserTenantDomain(authResult.getAuthenticatedUserTenantDomain());
     }
 
     /**

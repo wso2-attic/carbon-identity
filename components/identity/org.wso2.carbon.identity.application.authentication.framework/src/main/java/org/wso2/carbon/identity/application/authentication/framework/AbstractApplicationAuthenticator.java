@@ -44,6 +44,8 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
  */
 public abstract class AbstractApplicationAuthenticator implements ApplicationAuthenticator {
 
+    private static final long serialVersionUID = -4406878411547612129L;
+
     @Override
     public AuthenticatorFlowStatus process(HttpServletRequest request,
             HttpServletResponse response, AuthenticationContext context)

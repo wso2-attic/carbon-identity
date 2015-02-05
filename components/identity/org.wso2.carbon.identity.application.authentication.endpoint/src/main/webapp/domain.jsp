@@ -17,16 +17,17 @@
  ~ under the License.
  -->
 
-
+<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder"%>
 <%
     String errorMessage = "Authentication Failed";
     boolean loginFailed = false;
     
-    if (request.getParameter("authFailure") != null && "true".equals(request.getParameter("authFailure"))) {
+    if (CharacterEncoder.getSafeText(request.getParameter("authFailure")) != null && "true"
+    .equals(CharacterEncoder.getSafeText(request.getParameter("authFailure")))) {
 	    loginFailed = true;
 	    
-	    if(request.getParameter("authFailureMsg") != null){
-	        errorMessage = (String) request.getParameter("authFailureMsg");
+	    if(CharacterEncoder.getSafeText(request.getParameter("authFailureMsg")) != null){
+	        errorMessage = CharacterEncoder.getSafeText(request.getParameter("authFailureMsg"));
 	        
 	        if (errorMessage.equalsIgnoreCase("domain.unknown")) {
 	        	errorMessage = "Domain cannot be identified! Please retry.";
@@ -54,8 +55,8 @@
         <meta name="author" content="">
 
         <!-- Le styles -->
-        <link href="/authenticationendpoint/assets/css/bootstrap.min.css" rel="stylesheet">
-        <link href="/authenticationendpoint/css/localstyles.css" rel="stylesheet">
+        <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/localstyles.css" rel="stylesheet">
         <!--[if lt IE 8]>
         <link href="samlsso/css/localstyles-ie7.css" rel="stylesheet">
         <![endif]-->
@@ -64,8 +65,8 @@
         <!--[if lt IE 9]>
         <script src="samlsso/assets/js/html5.js"></script>
         <![endif]-->
-        <script src="/authenticationendpoint/realm-disc/assets/js/jquery-1.7.1.min.js"></script>
-        <script src="/authenticationendpoint/realm-disc/js/scripts.js"></script>
+        <script src="realm-disc/assets/js/jquery-1.7.1.min.js"></script>
+        <script src="realm-disc/js/scripts.js"></script>
 
 
     </head>
@@ -100,7 +101,7 @@
     <div class="container main-login-container" style="margin-top:10px;">
 	<div class="row">
                 <div class="span12">
-<form action="../../commonauth" method="post" id="loginForm" class="form-horizontal" >
+<form action="../commonauth" method="post" id="loginForm" class="form-horizontal" >
 				<div id="loginTable1" class="identity-box">
 					<div class="control-group">
 					   <% if (loginFailed) { %>
@@ -112,7 +113,7 @@
 
 						<div class="controls">
 							<input class="input-large" type="text" id="fidp" name="fidp" size="15"/>
-							<input type="hidden" name="sessionDataKey" value='<%=request.getParameter("sessionDataKey")%>'/>
+							<input type="hidden" name="sessionDataKey" value='<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>'/>
 						</div>
 					</div>
 

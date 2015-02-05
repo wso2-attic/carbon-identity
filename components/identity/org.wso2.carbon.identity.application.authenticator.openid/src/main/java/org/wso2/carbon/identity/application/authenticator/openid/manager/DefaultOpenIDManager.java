@@ -44,10 +44,12 @@ import org.openid4java.message.ax.FetchResponse;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+import org.wso2.carbon.identity.application.authenticator.openid.OpenIDAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.openid.exception.OpenIDException;
-import org.wso2.carbon.identity.application.authenticator.openid.util.OpenIDConstants;
 import org.wso2.carbon.identity.application.common.model.Claim;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.ui.CarbonUIUtil;
 
 public class DefaultOpenIDManager implements OpenIDManager {
@@ -62,7 +64,8 @@ public class DefaultOpenIDManager implements OpenIDManager {
         String claimed_id = request.getParameter("claimed_id");
         
         if (claimed_id == null) {
-        	claimed_id = context.getAuthenticatorProperties().get(OpenIDConstants.OPEN_ID_URL);
+        	claimed_id = context.getAuthenticatorProperties().get(
+                    IdentityApplicationConstants.Authenticator.OpenID.OPEN_ID_URL);
         }
 
         try {
@@ -182,14 +185,9 @@ public class DefaultOpenIDManager implements OpenIDManager {
                     context.setSubjectAttributes(externalIDPClaims);
                 }
 
-                Map<String,String> authenticatorProperties = context.getAuthenticatorProperties();
-                if ("1".equals(authenticatorProperties.get(OpenIDConstants.IS_USER_ID_IN_CLAIMS))) {
-                    ExternalIdPConfig externalIdPConfig = context.getExternalIdP();
-                    String userIdClaimUri = externalIdPConfig.getUserIdClaimUri();
-                    context.setSubject((String)context.getSubjectAttributes().get(userIdClaimUri));
-                } else {
-                    context.setSubject(authSuccess.getClaimed());
-                }
+                String subject = authSuccess.getClaimed();
+
+                context.setSubject(subject);
 
             } else {
                 throw new OpenIDException("OpenID verification failed");

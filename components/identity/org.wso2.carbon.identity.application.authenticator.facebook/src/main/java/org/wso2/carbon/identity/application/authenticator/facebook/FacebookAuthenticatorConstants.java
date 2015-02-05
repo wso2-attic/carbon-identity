@@ -24,16 +24,14 @@ public class FacebookAuthenticatorConstants {
     // TODO : Change login type
     public static final String FACEBOOK_LOGIN_TYPE = "facebook";
 
-    public static final String LOGIN_TYPE = "loginType";
-
     public static final String OAUTH2_GRANT_TYPE_CODE = "code";
     public static final String OAUTH2_PARAM_STATE = "state";
-    public static final String USERNAME = "id";
+    public static final String EMAIL = "email";
 
     public static final String FB_AUTHZ_URL = "http://www.facebook.com/dialog/oauth";
     public static final String FB_TOKEN_URL = "https://graph.facebook.com/oauth/access_token";
     public static final String FB_USER_INFO_URL = "https://graph.facebook.com/me";
-    public static final String SCOPE = "email";
+    public static final String SCOPE = "Scope";
 
     public static final String CLIENT_ID = "ClientId";
     public static final String CLIENT_SECRET = "ClientSecret";

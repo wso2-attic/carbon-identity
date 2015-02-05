@@ -17,8 +17,6 @@
 */
 package org.wso2.carbon.identity.sso.saml.session;
 
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -28,23 +26,20 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
-import org.wso2.carbon.identity.sso.saml.cache.SAMLSSOParticipantCache;
-import org.wso2.carbon.identity.sso.saml.cache.SAMLSSOParticipantCacheEntry;
-import org.wso2.carbon.identity.sso.saml.cache.SAMLSSOParticipantCacheKey;
-import org.wso2.carbon.identity.sso.saml.cache.SAMLSSOSessionIndexCache;
-import org.wso2.carbon.identity.sso.saml.cache.SAMLSSOSessionIndexCacheEntry;
-import org.wso2.carbon.identity.sso.saml.cache.SAMLSSOSessionIndexCacheKey;
+import org.wso2.carbon.identity.sso.saml.cache.*;
 import org.wso2.carbon.registry.core.Registry;
+
+import java.util.Map;
 
 /**
  * This class is used to persist the sessions established with Service providers
  */
 public class SSOSessionPersistenceManager {
 
+    private static final int CACHE_TIME_OUT = 157680000;
     private static Log log = LogFactory.getLog(SSOSessionPersistenceManager.class);
     private static SSOSessionPersistenceManager sessionPersistenceManager;
-    private static final int CACHE_TIME_OUT = 157680000;
-    
+
     public static SSOSessionPersistenceManager getPersistenceManager() {
         if (sessionPersistenceManager == null) {
             sessionPersistenceManager = new SSOSessionPersistenceManager();
@@ -52,6 +47,65 @@ public class SSOSessionPersistenceManager {
         return sessionPersistenceManager;
     }
 
+    public static void addSessionInfoDataToCache(String key, SessionInfoData sessionInfoData,
+                                                 int cacheTimeout) {
+
+        SAMLSSOParticipantCacheKey cacheKey = new SAMLSSOParticipantCacheKey(key);
+        SAMLSSOParticipantCacheEntry cacheEntry = new SAMLSSOParticipantCacheEntry();
+        cacheEntry.setSessionInfoData(sessionInfoData);
+        SAMLSSOParticipantCache.getInstance(cacheTimeout).addToCache(cacheKey, cacheEntry);
+    }
+
+    public static void addSessionIndexToCache(String key, String sessionIndex,
+                                              int cacheTimeout) {
+
+        SAMLSSOSessionIndexCacheKey cacheKey = new SAMLSSOSessionIndexCacheKey(key);
+        SAMLSSOSessionIndexCacheEntry cacheEntry = new SAMLSSOSessionIndexCacheEntry();
+        cacheEntry.setSessionIndex(sessionIndex);
+        SAMLSSOSessionIndexCache.getInstance(cacheTimeout).addToCache(cacheKey, cacheEntry);
+    }
+
+    public static SessionInfoData getSessionInfoDataFromCache(String key) {
+
+        SessionInfoData sessionInfoData = null;
+        SAMLSSOParticipantCacheKey cacheKey = new SAMLSSOParticipantCacheKey(key);
+        Object cacheEntryObj = SAMLSSOParticipantCache.getInstance(0).getValueFromCache(cacheKey);
+
+        if (cacheEntryObj != null) {
+            sessionInfoData = ((SAMLSSOParticipantCacheEntry) cacheEntryObj).getSessionInfoData();
+        }
+
+        return sessionInfoData;
+    }
+
+    public static String getSessionIndexFromCache(String key) {
+
+        String sessionIndex = null;
+        SAMLSSOSessionIndexCacheKey cacheKey = new SAMLSSOSessionIndexCacheKey(key);
+        Object cacheEntryObj = SAMLSSOSessionIndexCache.getInstance(0).getValueFromCache(cacheKey);
+
+        if (cacheEntryObj != null) {
+            sessionIndex = ((SAMLSSOSessionIndexCacheEntry) cacheEntryObj).getSessionIndex();
+        }
+
+        return sessionIndex;
+    }
+
+    public static void removeSessionInfoDataFromCache(String key) {
+
+        if (key != null) {
+            SAMLSSOParticipantCacheKey cacheKey = new SAMLSSOParticipantCacheKey(key);
+            SAMLSSOParticipantCache.getInstance(0).clearCacheEntry(cacheKey);
+        }
+    }
+
+    public static void removeSessionIndexFromCache(String key) {
+
+        if (key != null) {
+            SAMLSSOSessionIndexCacheKey cacheKey = new SAMLSSOSessionIndexCacheKey(key);
+            SAMLSSOSessionIndexCache.getInstance(0).clearCacheEntry(cacheKey);
+        }
+    }
 
     /**
      * Persist session in memory
@@ -64,18 +118,17 @@ public class SSOSessionPersistenceManager {
                                String rpSessionId, String authenticators, Map<ClaimMapping, String> userAttributes,
                                String tenantDomain)
             throws IdentityException {
-        
+
         SessionInfoData sessionInfoData = getSessionInfoDataFromCache(sessionIndex);
-        
+
         if (sessionInfoData == null) {
-            
-            sessionInfoData = new SessionInfoData(subject,tenantDomain);
+
+            sessionInfoData = new SessionInfoData(subject, tenantDomain);
             sessionInfoData.addServiceProvider(spDO.getIssuer(), spDO, rpSessionId);
             /*sessionInfoData.setAuthenticators(authenticators);
             sessionInfoData.setAttributes(userAttributes);*/
             addSessionInfoDataToCache(sessionIndex, sessionInfoData, CACHE_TIME_OUT);
-        }
-        else{
+        } else {
             persistSession(sessionId, sessionIndex, spDO.getIssuer(), spDO.getAssertionConsumerUrl(), rpSessionId);
         }
     }
@@ -84,16 +137,16 @@ public class SSOSessionPersistenceManager {
             throws IdentityException {
         try {
             if (sessionIndex != null) {
-                
+
                 SessionInfoData sessionInfoData = getSessionInfoDataFromCache(sessionIndex);
-                
+
                 if (sessionInfoData != null) {
                     String subject = sessionInfoData.getSubject();
                     SAMLSSOServiceProviderDO spDO = SSOServiceProviderConfigManager.getInstance().getServiceProvider(issuer);
                     if (spDO == null) {
                         IdentityPersistenceManager identityPersistenceManager = IdentityPersistenceManager
                                 .getPersistanceManager();
-                        Registry registry = (Registry)PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_CONFIGURATION);
+                        Registry registry = (Registry) PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_CONFIGURATION);
                         spDO = identityPersistenceManager.getServiceProvider(registry, issuer);
                     }
                     //give priority to assertion consuming URL if specified in the request
@@ -185,18 +238,18 @@ public class SSOSessionPersistenceManager {
         return false;
     }
 
-    public void persistSession(String tokenId, String sessionIndex){
-        if(tokenId == null){
+    public void persistSession(String tokenId, String sessionIndex) {
+        if (tokenId == null) {
             log.debug("SSO Token Id is null.");
             return;
         }
-        if(sessionIndex == null){
+        if (sessionIndex == null) {
             log.debug("SessionIndex is null.");
             return;
         }
-    	addSessionIndexToCache(tokenId, sessionIndex, CACHE_TIME_OUT);
+        addSessionIndexToCache(tokenId, sessionIndex, CACHE_TIME_OUT);
     }
-    
+
     public boolean isExistingTokenId(String tokenId) {
 
         String sessionIndex = getSessionIndexFromCache(tokenId);
@@ -210,68 +263,8 @@ public class SSOSessionPersistenceManager {
     public String getSessionIndexFromTokenId(String tokenId) {
         return getSessionIndexFromCache(tokenId);
     }
-    
+
     public void removeTokenId(String sessionId) {
         removeSessionIndexFromCache(sessionId);
-    }
-    
-    public static void addSessionInfoDataToCache(String key, SessionInfoData sessionInfoData,
-            int cacheTimeout) {
-
-        SAMLSSOParticipantCacheKey cacheKey = new SAMLSSOParticipantCacheKey(key);
-        SAMLSSOParticipantCacheEntry cacheEntry = new SAMLSSOParticipantCacheEntry();
-        cacheEntry.setSessionInfoData(sessionInfoData);
-        SAMLSSOParticipantCache.getInstance(cacheTimeout).addToCache(cacheKey, cacheEntry);
-    }
-    
-    public static void addSessionIndexToCache(String key, String sessionIndex,
-            int cacheTimeout) {
-
-        SAMLSSOSessionIndexCacheKey cacheKey = new SAMLSSOSessionIndexCacheKey(key);
-        SAMLSSOSessionIndexCacheEntry cacheEntry = new SAMLSSOSessionIndexCacheEntry();
-        cacheEntry.setSessionIndex(sessionIndex);
-        SAMLSSOSessionIndexCache.getInstance(cacheTimeout).addToCache(cacheKey, cacheEntry);
-    }
-    
-    public static SessionInfoData getSessionInfoDataFromCache(String key) {
-
-        SessionInfoData sessionInfoData = null;
-        SAMLSSOParticipantCacheKey cacheKey = new SAMLSSOParticipantCacheKey(key);
-        Object cacheEntryObj = SAMLSSOParticipantCache.getInstance(0).getValueFromCache(cacheKey);
-
-        if (cacheEntryObj != null) {
-            sessionInfoData = ((SAMLSSOParticipantCacheEntry) cacheEntryObj).getSessionInfoData();
-        }
-
-        return sessionInfoData;
-    }
-    
-    public static String getSessionIndexFromCache(String key) {
-
-        String sessionIndex = null;
-        SAMLSSOSessionIndexCacheKey cacheKey = new SAMLSSOSessionIndexCacheKey(key);
-        Object cacheEntryObj = SAMLSSOSessionIndexCache.getInstance(0).getValueFromCache(cacheKey);
-
-        if (cacheEntryObj != null) {
-            sessionIndex = ((SAMLSSOSessionIndexCacheEntry) cacheEntryObj).getSessionIndex();
-        }
-
-        return sessionIndex;
-    }
-
-    public static void removeSessionInfoDataFromCache(String key) {
-        
-        if (key != null) {
-            SAMLSSOParticipantCacheKey cacheKey = new SAMLSSOParticipantCacheKey(key);
-            SAMLSSOParticipantCache.getInstance(0).clearCacheEntry(cacheKey);
-        }
-    }
-    
-    public static void removeSessionIndexFromCache(String key) {
-        
-        if (key != null) {
-            SAMLSSOSessionIndexCacheKey cacheKey = new SAMLSSOSessionIndexCacheKey(key);
-            SAMLSSOSessionIndexCache.getInstance(0).clearCacheEntry(cacheKey);
-        }
     }
 }

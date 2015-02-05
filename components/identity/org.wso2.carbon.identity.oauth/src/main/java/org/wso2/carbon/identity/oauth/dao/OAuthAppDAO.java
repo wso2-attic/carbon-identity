@@ -30,9 +30,13 @@ import org.wso2.carbon.identity.oauth.OAuthUtil;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
+import org.wso2.carbon.identity.oauth.internal.OAuthComponentServiceHolder;
 import org.wso2.carbon.identity.oauth.tokenprocessor.PlainTextPersistenceProcessor;
 import org.wso2.carbon.identity.oauth.tokenprocessor.TokenPersistenceProcessor;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
+import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -142,10 +146,16 @@ public class OAuthAppDAO {
         ResultSet rSet = null;
         OAuthAppDO[] oauthAppsOfUser;
         try {
+        	RealmService realmService = OAuthComponentServiceHolder.getRealmService();
+			String tenantDomain = realmService.getTenantManager().getDomain(tenantId);
+			String tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(username);
+			String tenantUnawareUserName = tenantAwareUserName + "@" + tenantDomain;
+			
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
-            prepStmt = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.GET_APPS_OF_USER);
-            prepStmt.setString(1, username);
-            prepStmt.setInt(2, tenantId);
+			prepStmt = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.GET_APPS_OF_USER_WITH_TENANTAWARE_OR_TENANTUNAWARE_USERNAME);
+            prepStmt.setString(1, tenantAwareUserName);
+            prepStmt.setString(2, tenantUnawareUserName);
+            prepStmt.setInt(3, tenantId);
 
             rSet = prepStmt.executeQuery();
             List<OAuthAppDO> oauthApps = new ArrayList<OAuthAppDO>();
@@ -172,6 +182,12 @@ public class OAuthAppDAO {
             log.error("Error when executing the SQL : " + SQLQueries.OAuthAppDAOSQLQueries.GET_APPS_OF_USER);
             log.error(e.getMessage(), e);
             throw new IdentityOAuthAdminException("Error when reading the application information from the persistence store.");
+        } catch (UserStoreException e) {
+			log.error("Error while retrieving Tenant Domain for tenant ID : " + tenantId);
+			log.error(e.getMessage(), e);
+			throw new IdentityOAuthAdminException(
+			                                      "Error while retrieving Tenant Domain for tenant ID : " +
+			                                              tenantId);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }

@@ -43,6 +43,7 @@ import org.opensaml.saml1.core.NameIdentifier;
 import org.opensaml.saml1.core.Subject;
 import org.opensaml.saml1.core.SubjectStatement;
 
+import org.opensaml.saml2.core.Assertion;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.io.Unmarshaller;
@@ -57,9 +58,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.authenticator.passive.sts.exception.PassiveSTSException;
 import org.wso2.carbon.identity.application.authenticator.passive.sts.util.CarbonEntityResolver;
 import org.wso2.carbon.identity.application.authenticator.passive.sts.util.PassiveSTSConstants;
+import org.wso2.carbon.identity.application.common.model.Claim;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.xml.sax.SAXException;
 
@@ -219,12 +224,23 @@ public class PassiveSTSManager {
             }
         }
 
-        if(subject == null){
-            throw new PassiveSTSException("SAML Response does not contain the name of the subject");
+        Map<ClaimMapping,String> claimMappingStringMap = getClaimMappingsMap(attributeMap);
+        String isSubjectInClaimsProp = context.getAuthenticatorProperties().get(
+                IdentityApplicationConstants.Authenticator.SAML2SSO.IS_USER_ID_IN_CLAIMS);
+        if ("true".equalsIgnoreCase(isSubjectInClaimsProp)) {
+            subject = FrameworkUtils.getFederatedSubjectFromClaims(
+                    context.getExternalIdP().getIdentityProvider(), claimMappingStringMap);
+            if(subject == null){
+                log.warn("Subject claim could not be found amongst attribute statements. " +
+                        "Defaulting to Name Identifier.");
+            }
         }
-        
+        if(subject == null){
+            throw new PassiveSTSException("Cannot find federated User Identifier");
+        }
+       
         context.setSubject(subject);
-        request.getSession().setAttribute("userAttributes", attributeMap);
+        context.setSubjectAttributes(claimMappingStringMap);
     }
 
     /**
@@ -302,5 +318,21 @@ public class PassiveSTSManager {
                 throw new PassiveSTSException("Signature validation failed for SAML Assertion");
             }
         }
+    }
+
+    /*
+     * Process the response and returns the results
+     */
+    private Map<ClaimMapping, String> getClaimMappingsMap(Map<String,String> userAttributes) {
+
+        Map<ClaimMapping, String> results = new HashMap<ClaimMapping, String>();
+        for (Map.Entry<String,String> entry : userAttributes.entrySet()) {
+            ClaimMapping claimMapping = new ClaimMapping();
+            Claim claim = new Claim();
+            claim.setClaimUri(entry.getKey());
+            claimMapping.setRemoteClaim(claim);
+            results.put(claimMapping, entry.getValue());
+        }
+        return results;
     }
 }

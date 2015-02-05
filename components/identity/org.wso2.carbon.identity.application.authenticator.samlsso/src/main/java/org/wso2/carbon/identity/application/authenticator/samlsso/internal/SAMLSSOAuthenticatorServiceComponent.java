@@ -18,7 +18,11 @@
 
 package org.wso2.carbon.identity.application.authenticator.samlsso.internal;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.Hashtable;
+import java.util.Scanner;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,6 +30,7 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.samlsso.SAMLSSOAuthenticator;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.utils.CarbonUtils;
 
 /**
  * @scr.reference name="user.realmservice.default"
@@ -39,6 +44,7 @@ public class SAMLSSOAuthenticatorServiceComponent{
 
     private static Log log = LogFactory.getLog(SAMLSSOAuthenticatorServiceComponent.class);
 	private static RealmService realmService;
+	private static String postPage = null;
     
     protected void activate(ComponentContext ctxt) {
 
@@ -46,6 +52,18 @@ public class SAMLSSOAuthenticatorServiceComponent{
         Hashtable<String, String> props = new Hashtable<String, String>();
 
         ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(), samlSSOAuthenticator, props);
+        
+        try {
+            String postPagePath = CarbonUtils.getCarbonHome() + File.separator + "repository"
+                    + File.separator + "resources" + File.separator + "security" + File.separator
+                    + "samlsso_federate.html";
+            FileInputStream fis = new FileInputStream(new File(postPagePath));
+            postPage = new Scanner(fis,"UTF-8").useDelimiter("\\A").next();
+        } catch (FileNotFoundException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Failed to find SAMLSSO POST page for federation");
+            }
+        }
 
         if (log.isDebugEnabled()) {
             log.info("SAML2 SSO Authenticator bundle is activated");
@@ -74,5 +92,9 @@ public class SAMLSSOAuthenticatorServiceComponent{
 
     public static RealmService getRealmService() {
         return SAMLSSOAuthenticatorServiceComponent.realmService;
+    }
+
+    public static String getPostPage() {
+        return postPage;
     }
 }

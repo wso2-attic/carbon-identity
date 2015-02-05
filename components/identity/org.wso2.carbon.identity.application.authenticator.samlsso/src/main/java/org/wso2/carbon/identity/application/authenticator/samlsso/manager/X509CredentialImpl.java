@@ -18,15 +18,6 @@
 
 package org.wso2.carbon.identity.application.authenticator.samlsso.manager;
 
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.cert.CertificateException;
-import java.security.cert.X509CRL;
-import java.security.cert.X509Certificate;
-import java.util.Collection;
-
-import javax.crypto.SecretKey;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.xml.security.credential.Credential;
@@ -39,6 +30,14 @@ import org.wso2.carbon.identity.application.authenticator.samlsso.exception.SAML
 import org.wso2.carbon.identity.application.authenticator.samlsso.internal.SAMLSSOAuthenticatorServiceComponent;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.user.api.UserStoreException;
+
+import javax.crypto.SecretKey;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.cert.CertificateException;
+import java.security.cert.X509CRL;
+import java.security.cert.X509Certificate;
+import java.util.Collection;
 
 /**
  * X509Credential implementation for signing and verification.

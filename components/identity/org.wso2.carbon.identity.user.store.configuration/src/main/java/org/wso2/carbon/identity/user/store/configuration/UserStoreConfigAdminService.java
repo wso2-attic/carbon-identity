@@ -263,6 +263,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
             if (!userStore.exists()) {
                 if (new File(deploymentDirectory).mkdir()) {
                     //folder 'userstores' created
+                    log.info("folder 'userstores' created for  super tenant " + fileName);
                 } else {
                     log.error("Error at creating 'userstores' directory to store configurations for super tenant");
                 }
@@ -276,6 +277,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
             if (!userStore.exists()) {
                 if (new File(tenantFilePath).mkdir()) {
                     //folder 'userstores' created
+                    log.info("folder 'userstores' created for tenant " + tenantId);
                 } else {
                     log.error("Error at creating 'userstores' directory to store configurations for tenant:" + tenantId);
                 }
@@ -286,13 +288,11 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
 
         if (!previousUserStoreConfigFile.exists()) {
             String msg = "Cannot update user store domain name. Previous domain name " + previousDomainName + " does not exists.";
-            log.error(msg);
             throw new UserStoreException(msg);
         }
 
         if (userStoreConfigFile.exists()) {
             String msg = "Cannot update user store domain name. An user store already exists with new domain " + domainName + ".";
-            log.error(msg);
             throw new UserStoreException(msg);
         }
 
@@ -453,7 +453,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
         });
         for (File file1 : deleteCandidates) {
             if (file1.delete()) {
-                //file deleted successfully
+                log.info("File " + file.getName() + " deleted successfully");
             } else {
                 log.error("error at deleting file:" + file.getName());
             }
@@ -502,39 +502,41 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
             log.debug("New state :" + isDisable + " of the user store \'" + domain + "\' successfully written to the file system");
         }
     }
-    
-    public boolean testRDBMSConnection(String domainName, String driverName, String connectionURL, String username, String connectionPassword) throws DataSourceException{
-    	
-    	WSDataSourceMetaInfo wSDataSourceMetaInfo = new WSDataSourceMetaInfo();
-    	
-    	RDBMSConfiguration rdbmsConfiguration = new RDBMSConfiguration();
-    	rdbmsConfiguration.setUrl(connectionURL);
-    	rdbmsConfiguration.setUsername(username);
-    	rdbmsConfiguration.setPassword(connectionPassword);
-    	rdbmsConfiguration.setDriverClassName(driverName);
-    	
-    	WSDataSourceDefinition wSDataSourceDefinition = new WSDataSourceDefinition();
-    	ByteArrayOutputStream out = new ByteArrayOutputStream();
-		JAXBContext context;
-		try {
-			context = JAXBContext.newInstance(RDBMSConfiguration.class);
-			Marshaller m = context.createMarshaller();
-			m.marshal(rdbmsConfiguration, out);			
-			
-		} catch (JAXBException e) {
-			log.error("Error in marshelling User Store Configuration info");
-		}
-		wSDataSourceDefinition.setDsXMLConfiguration(out.toString());
-		wSDataSourceDefinition.setType("RDBMS");
-		
-		wSDataSourceMetaInfo.setName(domainName);
-		wSDataSourceMetaInfo.setDefinition(wSDataSourceDefinition);
-		try {
-			return DataSourceManager.getInstance().getDataSourceRepository().testDataSourceConnection(wSDataSourceMetaInfo.extractDataSourceMetaInfo());
-		} catch (DataSourceException e) {
-			throw e;
-		}
-		
+
+    public boolean testRDBMSConnection(String domainName, String driverName, String connectionURL, String username,
+                                       String connectionPassword) throws DataSourceException {
+
+        WSDataSourceMetaInfo wSDataSourceMetaInfo = new WSDataSourceMetaInfo();
+
+        RDBMSConfiguration rdbmsConfiguration = new RDBMSConfiguration();
+        rdbmsConfiguration.setUrl(connectionURL);
+        rdbmsConfiguration.setUsername(username);
+        rdbmsConfiguration.setPassword(connectionPassword);
+        rdbmsConfiguration.setDriverClassName(driverName);
+
+        WSDataSourceDefinition wSDataSourceDefinition = new WSDataSourceDefinition();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        JAXBContext context;
+        try {
+            context = JAXBContext.newInstance(RDBMSConfiguration.class);
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.marshal(rdbmsConfiguration, out);
+
+        } catch (JAXBException e) {
+            log.error("Error in marshelling User Store Configuration info", e);
+        }
+        wSDataSourceDefinition.setDsXMLConfiguration(out.toString());
+        wSDataSourceDefinition.setType("RDBMS");
+
+        wSDataSourceMetaInfo.setName(domainName);
+        wSDataSourceMetaInfo.setDefinition(wSDataSourceDefinition);
+        try {
+            return DataSourceManager.getInstance().getDataSourceRepository().testDataSourceConnection(wSDataSourceMetaInfo.
+                    extractDataSourceMetaInfo());
+        } catch (DataSourceException e) {
+            String errMsg = "Data source error occurred";
+            throw new DataSourceException(errMsg, e);
+        }
     }
     
     private boolean isAuthorized() throws UserStoreException {
@@ -548,9 +550,9 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
         return false;
     }
 
-    private File createConfigurationFile(String domainName){
+    private File createConfigurationFile(String domainName) {
         String fileName = domainName.replace(".", "_");
-        File userStoreConfigFile=null;
+        File userStoreConfigFile;
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 
         if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
@@ -558,6 +560,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
             if (!userStore.exists()) {
                 if (new File(deploymentDirectory).mkdir()) {
                     //folder 'userstores' created
+                    log.info("folder 'userstores' created to store configurations for super tenant");
                 } else {
                     log.error("Error at creating 'userstores' directory to store configurations for super tenant");
                 }
@@ -570,6 +573,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
             if (!userStore.exists()) {
                 if (new File(tenantFilePath).mkdir()) {
                     //folder 'userstores' created
+                    log.info("folder 'userstores' created to store configurations for tenant = " + tenantId);
                 } else {
                     log.error("Error at creating 'userstores' directory to store configurations for tenant:" + tenantId);
                 }
@@ -611,8 +615,12 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
             transformer.setOutputProperty(OutputKeys.METHOD, "xml");
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "6");
             transformer.transform(source, result);
-        } catch (Exception ex) {
-            throw new UserStoreException(ex);
+        }catch (ParserConfigurationException e) {
+            String errMsg = " Error occured due to serious parser configuration exception of " + userStoreConfigFile;
+            throw new UserStoreException(errMsg, e);
+        }catch (TransformerException e) {
+            String errMsg = " Error occured during the transformation process of " + userStoreConfigFile;
+            throw new UserStoreException(errMsg, e);
         }
     }
 
@@ -635,19 +643,10 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      * @return                      returns true if the property should be encrypted
      */
     private boolean isPropertyToBeEncrypted(Property[] mandatoryProperties,
-                                            String propertyName){
-        if(mandatoryProperties != null && propertyName != null){
-            for(Property property : mandatoryProperties){
-                if(property != null ){
-                    if(propertyName.equalsIgnoreCase(property.getName())){
-                        if(property.getDescription().contains(IdentityUserStoreMgtConstants.ENCRYPT_TEXT))
-                        {
-                            return true;
-                        }else{
-                            return false;
-                        }
-                    }
-                }
+                                            String propertyName) {
+        for (Property property : mandatoryProperties) {
+            if (propertyName.equalsIgnoreCase(property.getName())) {
+                return property.getDescription().contains(IdentityUserStoreMgtConstants.ENCRYPT_TEXT);
             }
         }
         return false;

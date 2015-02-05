@@ -275,6 +275,7 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                     context.setPreviousSessionFound(true);
                     sequenceConfig = previousAuthenticatedSeq;
                     String authenticatedUser = sequenceConfig.getAuthenticatedUser();
+                    String authenticatedUserTenantDomain = sequenceConfig.getAuthenticatedUserTenantDomain();
 
                     if (authenticatedUser != null) {
                         // set the user for the current authentication/logout
@@ -283,6 +284,16 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
 
                         if (log.isDebugEnabled()) {
                             log.debug("Already authenticated by username: " + authenticatedUser);
+                        }
+
+                        if (authenticatedUserTenantDomain != null) {
+                            // set the user tenant domain for the current authentication/logout
+                            // flow
+                            context.setProperty("user-tenant-domain", authenticatedUserTenantDomain);
+
+                            if (log.isDebugEnabled()) {
+                                log.debug("Authenticated user tenant domain: " + authenticatedUserTenantDomain);
+                            }
                         }
                     }
                 }
@@ -294,8 +305,9 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                 }
             }
         }
-
+        
         context.setServiceProviderName(sequenceConfig.getApplicationConfig().getApplicationName());
+
         // set the sequence for the current authentication/logout flow
         context.setSequenceConfig(sequenceConfig);
     }

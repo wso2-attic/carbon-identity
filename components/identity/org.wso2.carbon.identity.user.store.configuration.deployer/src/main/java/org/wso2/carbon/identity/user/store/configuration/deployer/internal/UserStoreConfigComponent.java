@@ -57,7 +57,7 @@ public class UserStoreConfigComponent {
      */
     protected void activate(ComponentContext ctxt) {
         if (log.isDebugEnabled()) {
-            log.info("Identity userstore bundle is activated.");
+            log.debug("Identity userstore bundle is activated.");
         }
 //        BundleContext bundleCtx = ctxt.getBundleContext();
 //        Dictionary properties = new Hashtable();
@@ -73,20 +73,20 @@ public class UserStoreConfigComponent {
      */
     protected void deactivate(ComponentContext ctxt) {
         if (log.isDebugEnabled()) {
-            log.info("Identity Userstore-Config bundle is deactivated");
+            log.debug("Identity Userstore-Config bundle is deactivated");
         }
     }
 
     protected void setRealmService(RealmService realmService) {
         if (log.isDebugEnabled()) {
-            log.info("Setting the Realm Service");
+            log.debug("Setting the Realm Service");
         }
         UserStoreConfigComponent.realmService = realmService;
     }
 
     protected void unsetRealmService(RealmService realmService) {
         if (log.isDebugEnabled()) {
-            log.info("Unsetting the Realm Service");
+            log.debug("Unsetting the Realm Service");
         }
         UserStoreConfigComponent.realmService = null;
     }
@@ -103,23 +103,20 @@ public class UserStoreConfigComponent {
 
     protected void unsetConfigurationContextService(ConfigurationContextService contextService) {
         if (log.isDebugEnabled()) {
-            log.info("Unsetting the ConfigurationContextService");
+            log.debug("Unset the ConfigurationContextService");
         }
     }
 
 	protected void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-		if (serverConfigurationService == null) {
-			String msg = "Before activating Carbon Core bundle, an instance of "
-			             + "ServerConfigurationService should be in existence";
-			log.error(msg);
-		}
-
+        if (log.isDebugEnabled()) {
+            log.debug("Setting the serverConfigurationService");
+        }
 		UserStoreConfigComponent.serverConfigurationService = serverConfigurationService;
 	}
 
 	protected void unsetServerConfigurationService(ServerConfigurationService serverConfigurationService) {
 		if (log.isDebugEnabled()) {
-			log.info("Unsetting the ServerConfigurationService");
+            log.debug("Unsetting the ServerConfigurationService");
 		}
 		UserStoreConfigComponent.serverConfigurationService = null;
 	}
@@ -177,7 +174,7 @@ public class UserStoreConfigComponent {
         if(ext != null){
             if(UserStoreConfigurationConstants.XML_EXTENSION .equalsIgnoreCase(ext)){
                 return true;
-            } if(UserStoreConfigurationConstants.ENC_EXTENSION .equalsIgnoreCase(ext)){
+            } else if(UserStoreConfigurationConstants.ENC_EXTENSION .equalsIgnoreCase(ext)){
                 return true;
             }
         }

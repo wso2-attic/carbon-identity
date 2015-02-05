@@ -65,6 +65,7 @@ public class IdentityApplicationConstants {
             public static final String IS_LOGOUT_REQ_SIGNED = "IsLogoutReqSigned";
             public static final String IS_AUTHN_RESP_SIGNED = "IsAuthnRespSigned";
             public static final String IS_USER_ID_IN_CLAIMS = "IsUserIdInClaims";
+            public static final String REQUEST_METHOD = "RequestMethod";
         }
 
         public static class OIDC extends OAuth2 {
@@ -87,6 +88,7 @@ public class IdentityApplicationConstants {
             public static final String NAME = "facebook";
             public static final String CLIENT_ID = "ClientId";
             public static final String CLIENT_SECRET = "ClientSecret";
+			public static final String SCOPE = "Scope";
         }
 
         public static class WSTrust {

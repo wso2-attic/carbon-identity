@@ -16,12 +16,12 @@
 ~ specific language governing permissions and limitations
 ~ under the License.
 -->
-<%@page import="org.wso2.carbon.identity.application.authentication.endpoint.oauth2.OAuth2Login"%>
+<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
 <%
-	String errorCode = OAuth2Login.getSafeText(request.getParameter("oauthErrorCode"));
-	String errorMsg = OAuth2Login.getSafeText(request.getParameter("oauthErrorMsg"));
+	String errorCode = CharacterEncoder.getSafeText(request.getParameter("oauthErrorCode"));
+	String errorMsg = CharacterEncoder.getSafeText(request.getParameter("oauthErrorMsg"));
 %>
 <!DOCTYPE html>
 <html lang="en">

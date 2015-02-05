@@ -16,11 +16,12 @@
  ~ under the License.
  -->
 
+<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%
-    String stat = request.getParameter("status");
-    String statusMessage = request.getParameter("statusMsg");
+    String stat = CharacterEncoder.getSafeText(request.getParameter("status"));
+    String statusMessage = CharacterEncoder.getSafeText(request.getParameter("statusMsg"));
     if(stat == null || statusMessage == null){
         stat = "Authentication Error !";
         statusMessage = "Something went wrong during the authentication process. Please try signing in again.";

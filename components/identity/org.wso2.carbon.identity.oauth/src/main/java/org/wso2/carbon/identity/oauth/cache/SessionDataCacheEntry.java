@@ -23,6 +23,8 @@ import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class SessionDataCacheEntry  extends CacheEntry {
 
@@ -32,13 +34,13 @@ public class SessionDataCacheEntry  extends CacheEntry {
 
     String loggedInUser;
 
-    private Map<ClaimMapping, String> userAttributes;
+    private ConcurrentMap<ClaimMapping, String> userAttributes;
     
     private String authenticatedIdPs;
 
     private String queryString = null;
 
-    private Map<String,String[]> paramMap = new HashMap<String, String[]>();
+    private ConcurrentMap<String,String[]> paramMap = new ConcurrentHashMap<String, String[]>();
 
     public OAuth2Parameters getoAuth2Parameters() {
         return oAuth2Parameters;
@@ -60,7 +62,7 @@ public class SessionDataCacheEntry  extends CacheEntry {
         return userAttributes;
     }
 
-    public void setUserAttributes(Map<ClaimMapping, String> userAttributes) {
+    public void setUserAttributes(ConcurrentMap<ClaimMapping, String> userAttributes) {
         this.userAttributes = userAttributes;
     }
 
@@ -76,7 +78,7 @@ public class SessionDataCacheEntry  extends CacheEntry {
         return paramMap;
     }
 
-    public void setParamMap(Map<String, String[]> paramMap) {
+    public void setParamMap(ConcurrentMap<String, String[]> paramMap) {
         this.paramMap = paramMap;
     }
 
