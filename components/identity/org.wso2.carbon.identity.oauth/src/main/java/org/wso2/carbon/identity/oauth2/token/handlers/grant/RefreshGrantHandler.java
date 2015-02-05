@@ -195,11 +195,20 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
         //remove the previous access token from cache and add the access token info to the cache,
         // if it's enabled.
         if(cacheEnabled){
-            CacheKey cacheKey = new OAuthCacheKey(consumerKey + ":" + authorizedUser + ":" + scope);
-            // Remove the old access token from the cache
-            oauthCache.clearCacheEntry(cacheKey);
-            // Add new access token to the cache
-            oauthCache.addToCache(cacheKey, accessTokenDO);
+            // Remove the old access token from the OAuthCache
+            CacheKey oauthCacheKey = new OAuthCacheKey(clientId + ":" + authorizedUser + ":" + scope);
+            oauthCache.clearCacheEntry(oauthCacheKey);
+
+            // Remove the old access token from the AccessTokenCache
+            CacheKey accessTokenCacheKey = new OAuthCacheKey(oldAccessToken);
+            oauthCache.clearCacheEntry(accessTokenCacheKey);
+
+            // Add new access token to the OAuthCache
+            oauthCache.addToCache(oauthCacheKey, accessTokenDO);
+
+            // Add new access token to the AccessTokenCache
+            accessTokenCacheKey = new OAuthCacheKey(accessToken);
+            oauthCache.addToCache(accessTokenCacheKey, accessTokenDO);
 
             if(log.isDebugEnabled()){
                 log.debug("Access Token info for the refresh token was added to the cache for " +

@@ -48,7 +48,7 @@ import java.util.Map;
 public class TenantMgtAdminServiceClient {
 
 	/**
-	 * Logger for MutualSSLClient class
+	 * Logger for TenantMgtAdminServiceClient class
 	 */
 	private static final Log log = LogFactory.getLog(TenantMgtAdminServiceClient.class);
 

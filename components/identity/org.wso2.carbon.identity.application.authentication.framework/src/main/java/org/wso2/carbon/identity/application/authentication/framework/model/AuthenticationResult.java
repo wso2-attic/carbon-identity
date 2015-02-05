@@ -33,6 +33,8 @@ public class AuthenticationResult implements Serializable {
 	private String authenticatedIdPs;
 	private String authenticatedAuthenticators;
 	private boolean isSaaSApp;
+	// This will be only populated by local authenticators.
+	private String authenticatedUserTenantDomain;
 	private boolean loggedOut;
 	private Map<String, String> claimMapping;
 	
@@ -110,5 +112,14 @@ public class AuthenticationResult implements Serializable {
     public void setSaaSApp(boolean isSaaSApp) {
         this.isSaaSApp = isSaaSApp;
     }
+
+	public String getAuthenticatedUserTenantDomain() {
+		return authenticatedUserTenantDomain;
+	}
+
+	public void setAuthenticatedUserTenantDomain(
+			String authenticatedUserTenantDomain) {
+		this.authenticatedUserTenantDomain = authenticatedUserTenantDomain;
+	}
 	
 }

@@ -40,21 +40,20 @@ public class AuthenticationRequestCacheKey extends CacheKey {
     }
 
     @Override
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        if (!super.equals(object)) {
-            return false;
-        }
-        AuthenticationRequestCacheKey cacheKey;
-        cacheKey = (AuthenticationRequestCacheKey) object;
-        return resultId.equals(cacheKey.resultId);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        AuthenticationRequestCacheKey that = (AuthenticationRequestCacheKey) o;
+
+        if (!resultId.equals(that.resultId)) return false;
+
+        return true;
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + resultId.hashCode();
-        return result;
+        return resultId.hashCode();
     }
 }

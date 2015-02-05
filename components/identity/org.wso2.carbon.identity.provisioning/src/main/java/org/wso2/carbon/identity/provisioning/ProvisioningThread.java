@@ -1,6 +1,7 @@
 package org.wso2.carbon.identity.provisioning;
 
-import org.wso2.carbon.context.CarbonContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.provisioning.dao.CacheBackedProvisioningMgtDAO;
@@ -8,9 +9,11 @@ import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 import org.wso2.carbon.user.api.UserStoreException;
 
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
-public class ProvisioningThread implements Runnable {
+public class ProvisioningThread implements Callable<Boolean> {
 
+    private static final Log log = LogFactory.getLog(ProvisioningThread.class);
     private ProvisioningEntity provisioningEntity;
     private String tenantDomainName;
     private AbstractOutboundProvisioningConnector connector;
@@ -30,21 +33,15 @@ public class ProvisioningThread implements Runnable {
         this.dao = dao;
     }
 
-    @Override
-    public void run() {
+    public Boolean call() throws IdentityProvisioningException{
 
-        String tenantDomainName = null;
-
-        if (CarbonContext.getThreadLocalCarbonContext() != null) {
-            tenantDomainName = this.tenantDomainName;
-        }
+        boolean success = false;
+        String tenantDomainName = this.tenantDomainName;
 
         try {
 
             PrivilegedCarbonContext.startTenantFlow();
-            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
-                    .getThreadLocalCarbonContext();
-            carbonContext.setTenantDomain(tenantDomainName);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomainName);
 
             ProvisionedIdentifier provisionedIdentifier = null;
             // real provisioning happens now.
@@ -66,9 +63,16 @@ public class ProvisioningThread implements Runnable {
                 storeProvisionedEntityIdentifier(idPName, connectorType, provisioningEntity,
                         tenantDomainName);
             }
-        } catch (Exception e) {
 
-        } finally {
+            success = true;
+        } catch (IdentityApplicationManagementException e) {
+            String errMsg = " Provisioning for Entity " + provisioningEntity.getEntityName() +
+                    " For operation = " + provisioningEntity.getOperation();
+            throw new IdentityProvisioningException(errMsg, e);
+        } catch (Exception e) {
+            throw new IdentityProvisioningException(e.getMessage(), e);
+        }
+        finally {
             PrivilegedCarbonContext.endTenantFlow();
 
             if (tenantDomainName != null) {
@@ -76,6 +80,8 @@ public class ProvisioningThread implements Runnable {
                         tenantDomainName);
             }
         }
+
+       return success;
     }
 
     /**

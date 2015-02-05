@@ -187,6 +187,13 @@ public class TokenMgtDAO {
             prepStmt.setString(9, accessTokenDO.getTokenType());
             prepStmt.execute();
             connection.commit();
+        } catch (SQLIntegrityConstraintViolationException e) {
+            log.debug("SQLIntegrityConstraintViolationException because token for the provided CONSUMER_KEY, " +
+                    "AUTHZ_USER,USER_TYPE, TOKEN_SCOPE, TOKEN_STATE and TOKEN_STATE_ID already exists in the table.",
+                    e);
+            throw new IdentityOAuth2Exception("Request failed. Please retry.");
+        } catch (DataTruncation e) {
+            throw new IdentityOAuth2Exception("Invalid request.",e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
@@ -224,25 +231,18 @@ public class TokenMgtDAO {
             return true;
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
-            log.error(errorMsg, e);
             throw new IdentityOAuth2Exception(errorMsg, e);
         } catch (SQLException e) {
-            //Could be due to failiing unique key constraint
             String errorMsg = "Error saving Access Token :" + e.getMessage();
-            log.error(errorMsg, e);
-            //throw e;
-            //log.error(errorMsg, e);
-            //throw new IdentityOAuth2Exception(errorMsg, e);
+            throw new IdentityOAuth2Exception(errorMsg, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, null);
         }
-        return false;
     }
 
     public AccessTokenDO getValidAccessTokenIfExist(String consumerKey, String userName,
                                                                String userStoreDomain, String scope)
             throws IdentityOAuth2Exception {
-
         return getValidAccessTokenIfExist(consumerKey, userName, userStoreDomain,scope, false);
     }
 
@@ -648,9 +648,7 @@ public class TokenMgtDAO {
 
             postgreSqlQuery = "SELECT * FROM (SELECT ACCESS_TOKEN, AUTHZ_USER, TOKEN_SCOPE, TOKEN_STATE, TIME_CREATED" +
                     " FROM " + accessTokenStoreTable + " WHERE CONSUMER_KEY = ? " +
-                    " AND REFRESH_TOKEN = ? " +
-                    " ORDER BY TIME_CREATED DESC) AS TOKEN " +
-                    " LIMIT 1 ";
+                    " AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC) AS TOKEN LIMIT 1 ";
 
             if (connection.getMetaData().getDriverName().contains("MySQL")
                     || connection.getMetaData().getDriverName().contains("H2")) {

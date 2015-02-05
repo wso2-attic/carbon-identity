@@ -52,10 +52,12 @@ public final class SAML2SSOAuthenticatorConstants {
     public static final String LANDING_PAGE = "LandingPage";
     public static final String EXTERNAL_LOGOUT_PAGE = "ExternalLogoutPage";
     public static final String ASSERTION_CONSUMER_SERVICE_URL = "AssertionConsumerServiceURL";
+    public static final String ASSERTION_CONSUMER_URL = "AssertionConsumerServiceURL";
     public static final String FEDERATION_CONFIG = "FederationConfig";
     public static final String FEDERATION_CONFIG_USER = "FederationConfigUser";
     public static final String FEDERATION_CONFIG_PASSWORD = "FederationConfigPassword";
     public static final String LOGIN_ATTRIBUTE_NAME = "LoginAttributeName";
+    public static final String IDENTITY_PROVIDER_SLO_SERVICE_URL = "IdentityProviderSLOServiceURL";
 
 
 

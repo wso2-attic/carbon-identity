@@ -15,19 +15,17 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<parent>
-		<groupId>org.wso2.carbon</groupId>
+		<groupId>org.wso2.carbon.identity</groupId>
 		<artifactId>user-profiles-feature</artifactId>
-		<version>4.3.0-SNAPSHOT</version>
+		<version>4.3.3-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.wso2.carbon.identity.user.profile.ui.feature</artifactId>
-	<version>4.3.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Identity User Profiles UI Feature</name>
 	<url>http://wso2.org</url>
@@ -35,14 +33,12 @@
 
     <dependencies>
 		<dependency>
-			<groupId>org.wso2.carbon</groupId>
+			<groupId>org.wso2.carbon.identity</groupId>
 			<artifactId>org.wso2.carbon.identity.user.profile.ui</artifactId>
-			<!--<version>4.3.0-SNAPSHOT</version>-->
 		</dependency>
                 <dependency>
-                        <groupId>org.wso2.carbon</groupId>
+                        <groupId>org.wso2.carbon.identity</groupId>
                         <artifactId>org.wso2.carbon.identity.user.profile.stub</artifactId>
-			<!--<version>4.3.0-SNAPSHOT</version>-->
                 </dependency>
 	</dependencies>
 
@@ -69,8 +65,8 @@
                                 </properties>
                             </adviceFile>
 							<bundles>
-								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.user.profile.ui</bundleDef>
-								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.user.profile.stub</bundleDef>
+								<bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.user.profile.ui</bundleDef>
+								<bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.user.profile.stub</bundleDef>
 							</bundles>
 							<importFeatures>
 								<importFeatureDef>org.wso2.carbon.identity.core.ui</importFeatureDef>

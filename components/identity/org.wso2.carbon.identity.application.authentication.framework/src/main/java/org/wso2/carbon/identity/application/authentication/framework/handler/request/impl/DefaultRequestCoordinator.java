@@ -288,6 +288,16 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                             log.debug("Already authenticated by username: " + authenticatedUser);
                             log.debug("Authenticated user tenant domain: " + authenticatedUserTenantDomain);
                         }
+
+                        if (authenticatedUserTenantDomain != null) {
+                            // set the user tenant domain for the current authentication/logout
+                            // flow
+                            context.setProperty("user-tenant-domain", authenticatedUserTenantDomain);
+
+                            if (log.isDebugEnabled()) {
+                                log.debug("Authenticated user tenant domain: " + authenticatedUserTenantDomain);
+                            }
+                        }
                     }
                 }
 
@@ -298,8 +308,9 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                 }
             }
         }
-
+        
         context.setServiceProviderName(sequenceConfig.getApplicationConfig().getApplicationName());
+
         // set the sequence for the current authentication/logout flow
         context.setSequenceConfig(sequenceConfig);
     }

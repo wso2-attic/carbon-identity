@@ -1070,6 +1070,17 @@ public class ApplicationBean {
                 .size()]));
         serviceProvider.setPermissionAndRoleConfig(permAndRoleConfig);
 
+        if (serviceProvider.getClaimConfig() == null) {
+            serviceProvider.setClaimConfig(new ClaimConfig());
+        }
+
+        if (request.getParameter("claim_dialect") != null
+                && request.getParameter("claim_dialect").equals("custom")) {
+            serviceProvider.getClaimConfig().setLocalClaimDialect(false);
+        } else {
+            serviceProvider.getClaimConfig().setLocalClaimDialect(true);
+        }
+
         // update claim configuration.
         int claimCount = Integer.parseInt(request.getParameter("number_of_claimmappings"));
         List<ClaimMapping> claimMappingList = new ArrayList<ClaimMapping>();
@@ -1093,7 +1104,8 @@ public class ApplicationBean {
             mapping.setLocalClaim(localClaim);
             mapping.setRemoteClaim(spClaim);
 
-            if (mapping.getRemoteClaim().getClaimUri() == null || mapping.getRemoteClaim().getClaimUri().isEmpty()) {
+            if (isLocalClaimsSelected() || mapping.getRemoteClaim().getClaimUri() == null ||
+                    mapping.getRemoteClaim().getClaimUri().isEmpty()) {
                 mapping.getRemoteClaim().setClaimUri(mapping.getLocalClaim().getClaimUri());
             }
 

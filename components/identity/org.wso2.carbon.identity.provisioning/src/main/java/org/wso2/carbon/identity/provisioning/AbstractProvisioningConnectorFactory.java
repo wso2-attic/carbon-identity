@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.provisioning;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -26,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provisioning.cache.ProvisioningConnectorCache;
 import org.wso2.carbon.identity.provisioning.cache.ProvisioningConnectorCacheEntry;
 import org.wso2.carbon.identity.provisioning.cache.ProvisioningConnectorCacheKey;
@@ -80,7 +82,18 @@ public abstract class AbstractProvisioningConnectorFactory {
 
             AbstractOutboundProvisioningConnector connector;
 
-            connector = buildConnector(provisoningProperties);
+            Property idpName = new Property();
+            idpName.setName("identityProviderName");
+            idpName.setValue(identityProviderName);
+
+            ArrayList<Property> provisioningPropertiesList = new ArrayList<Property>(Arrays.asList(provisoningProperties));
+
+            provisioningPropertiesList.add(idpName);
+
+            Property[] provisioningProperties = new Property[provisioningPropertiesList.size()];
+            provisioningProperties = provisioningPropertiesList.toArray(provisioningProperties);
+
+            connector = buildConnector(provisioningProperties);
             entry = new ProvisioningConnectorCacheEntry();
             entry.setProvisioningConnector(connector);
             ProvisioningConnectorCache.getInstance().addToCache(cacheKey, entry);

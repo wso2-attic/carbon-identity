@@ -15,19 +15,17 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<parent>
-		<groupId>org.wso2.carbon</groupId>
+		<groupId>org.wso2.carbon.identity</groupId>
 		<artifactId>identity-relyingparty-feature</artifactId>
-		<version>4.3.0-SNAPSHOT</version>
+		<version>4.3.3-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.wso2.carbon.identity.relying.party.ui.feature</artifactId>
-	<version>4.3.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Identity Relying Party UI Feature</name>
 	<url>http://wso2.org</url>
@@ -36,39 +34,28 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.relyingparty.ui</artifactId>
-	    <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.provider.openid.ui</artifactId>
-	       <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
-        <!--dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.identity.provider.openid</artifactId>
-	        <version>4.3.0-SNAPSHOT</version>
-        </dependency-->
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.relyingparty.stub</artifactId>
-	    <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.provider.openid.stub</artifactId>
-	    <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
         <dependency>
             <groupId>com.google.step2.wso2</groupId>
             <artifactId>step2</artifactId>
-            <!--<version>${google.step2.wso2.version}</version>-->
         </dependency>
         <dependency>
             <groupId>com.google.guice.wso2</groupId>
             <artifactId>guice</artifactId>
-            <!--<version>${google.guice.wso2.version}</version>-->
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents.wso2</groupId>
@@ -77,7 +64,6 @@
         <dependency>
             <groupId>jdom.wso2</groupId>
             <artifactId>jdom</artifactId>
-            <!--<version>1.0.0.wso2v1</version>-->
         </dependency>
         <dependency>
 		<groupId>com.google.guava.wso2</groupId>
@@ -107,11 +93,11 @@
                                                             </properties>
                                                         </adviceFile>
                                                         <bundles>
-                                                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.relyingparty.ui</bundleDef>
-                                                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.provider.openid.ui</bundleDef>
+                                                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.relyingparty.ui</bundleDef>
+                                                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.provider.openid.ui</bundleDef>
                                                                 <!--bundleDef>org.wso2.carbon:org.wso2.carbon.identity.provider.openid</bundleDef-->
-                                                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.relyingparty.stub</bundleDef>
-                                                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.provider.openid.stub</bundleDef>
+                                                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.relyingparty.stub</bundleDef>
+                                                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.provider.openid.stub</bundleDef>
                                                         </bundles>
                                                         <importBundles>
                                                                 <importBundleDef>com.google.step2.wso2:step2</importBundleDef>

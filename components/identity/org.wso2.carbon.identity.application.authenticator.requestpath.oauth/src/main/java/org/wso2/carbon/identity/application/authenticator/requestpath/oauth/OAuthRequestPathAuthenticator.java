@@ -17,6 +17,9 @@
  */
 package org.wso2.carbon.identity.application.authenticator.requestpath.oauth;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -96,11 +99,22 @@ public class OAuthRequestPathAuthenticator extends AbstractApplicationAuthentica
 			}
 			
 			String user = validationResponse.getAuthorizedUser();
+            String tenantDomain = MultitenantUtils.getTenantDomain(user);
 			
-			if(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(MultitenantUtils.getTenantDomain(user))) {
-				user = MultitenantUtils.getTenantAwareUsername(user);
-			}
-			context.setSubject(user);
+            if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
+                user = MultitenantUtils.getTenantAwareUsername(user);
+            }
+
+			Map<String, Object> authProperties = context.getProperties();
+
+            if (authProperties == null) {
+                authProperties = new HashMap<String, Object>();
+                context.setProperties(authProperties);
+            }
+
+            // TODO: user tenant domain has to be an attribute in the
+            // AuthenticationContext
+            authProperties.put("user-tenant-domain", tenantDomain);
 			
 			if(log.isDebugEnabled()) {
 				log.debug("Authenticated user " + user);

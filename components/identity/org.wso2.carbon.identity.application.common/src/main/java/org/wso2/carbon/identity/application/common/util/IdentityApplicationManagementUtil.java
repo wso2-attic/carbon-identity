@@ -778,14 +778,14 @@ public class IdentityApplicationManagementUtil {
 
             // out-bound is not in wso2 carbon dialect. we need to find how it maps to wso2
             // carbon dialect.
-            Map<String, String> inboundToCarbonClaimMappping = null;
+            Map<String, String> carbonToInboundClaimMapping = null;
 
             // we only know the dialect - it is standard claim dialect.
             // returns the carbon claim mapping corresponding to claims in the the in-bound
             // provisioning request with carbon in-bound claim uris as the key.
-            inboundToCarbonClaimMappping = ClaimManagerHandler.getInstance()
+            carbonToInboundClaimMapping = ClaimManagerHandler.getInstance()
                     .getMappingsMapFromOtherDialectToCarbon(inboundClaimMappingDialect,
-                            inboundClaimValueMap.keySet(), tenantDomain, false);
+                            inboundClaimValueMap.keySet(), tenantDomain, true);
 
             // {in-bound claim dialect / out-bound claim dialect}
             claimMap = new HashMap<String, String>();
@@ -797,7 +797,7 @@ public class IdentityApplicationManagementUtil {
                 String inboundClaim = null;
 
                 if (outboundClaimMapping.getLocalClaim() != null) {
-                    inboundClaim = inboundToCarbonClaimMappping.get(outboundClaimMapping
+                    inboundClaim = carbonToInboundClaimMapping.get(outboundClaimMapping
                             .getLocalClaim().getClaimUri());
                 }
 

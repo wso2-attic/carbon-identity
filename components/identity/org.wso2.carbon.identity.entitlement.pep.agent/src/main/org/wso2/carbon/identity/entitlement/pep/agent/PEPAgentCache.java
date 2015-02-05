@@ -136,7 +136,7 @@ class PEPAgentCache {
         }else if(isCarbonCache){
         	Cache<IdentityCacheKey, IdentityCacheEntry> carbonCache = getCommonCache();
         	if(carbonCache != null){
-	            int tenantId = CarbonContext.getCurrentContext().getTenantId();
+	            int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 	            IdentityCacheKey identityKey = new IdentityCacheKey(tenantId,key);
 	            IdentityCacheEntry identityEntry = new IdentityCacheEntry(entry);
 	            carbonCache.put(identityKey,identityEntry);
@@ -155,7 +155,7 @@ class PEPAgentCache {
         }else if(isCarbonCache){
         	Cache<IdentityCacheKey, IdentityCacheEntry> carbonCache = getCommonCache();
         	if(carbonCache != null){
-	            int tenantId = CarbonContext.getCurrentContext().getTenantId();
+	            int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 	            IdentityCacheKey identityKey = new IdentityCacheKey(tenantId,key);
 	            IdentityCacheEntry identityCacheEntry = (IdentityCacheEntry)carbonCache.get(identityKey);
 	            if(identityCacheEntry != null){
