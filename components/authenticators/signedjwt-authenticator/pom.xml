@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>identity.authenticators</artifactId>
-        <version>4.3.3-SNAPSHOT</version>
+        <version>4.3.3</version>
 	<relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -29,7 +29,7 @@
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - SignedJWT Authenticator</name>
     <url>http://wso2.org</url>
-    <version>4.2.0</version>
+    <version>4.3.3</version>
 
     <dependencies>
         <dependency>
