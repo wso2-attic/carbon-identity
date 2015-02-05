@@ -28,7 +28,6 @@ import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
-import org.wso2.carbon.identity.oauth2.InvalidRefreshTokenException;
 import org.wso2.carbon.identity.oauth2.ResponseHeader;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenRespDTO;
@@ -95,7 +94,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
 
     @Override
     public OAuth2AccessTokenRespDTO issue(OAuthTokenReqMessageContext tokReqMsgCtx)
-            throws IdentityOAuth2Exception, InvalidRefreshTokenException {
+            throws IdentityOAuth2Exception {
         OAuth2AccessTokenRespDTO tokenRespDTO = new OAuth2AccessTokenRespDTO();
         OAuth2AccessTokenReqDTO oauth2AccessTokenReqDTO = tokReqMsgCtx.getOauth2AccessTokenReqDTO();
         String scope = OAuth2Util.buildScopeString(tokReqMsgCtx.getScope());
@@ -120,8 +119,6 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
                     long skew = OAuthServerConfiguration.getInstance().getTimeStampSkewInSeconds() * 1000;
                     if(issuedAt + refreshValidity - (System.currentTimeMillis() + skew) > 1000){
                         refreshToken = oauth2AccessTokenReqDTO.getRefreshToken();
-                    } else {
-                        throw new InvalidRefreshTokenException("Refresh token has been expired");
                     }
                 }
             }

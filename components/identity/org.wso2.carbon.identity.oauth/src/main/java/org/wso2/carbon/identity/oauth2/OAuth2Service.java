@@ -183,15 +183,6 @@ public class OAuth2Service extends AbstractAdmin {
             tokenRespDTO.setErrorCode(OAuth2ErrorCodes.INVALID_CLIENT);
             tokenRespDTO.setErrorMsg(e.getMessage());
             return tokenRespDTO;
-        } catch (InvalidRefreshTokenException e) {
-            if (log.isDebugEnabled()) {
-                log.debug(e.getMessage());
-            }
-            OAuth2AccessTokenRespDTO tokenRespDTO = new OAuth2AccessTokenRespDTO();
-            tokenRespDTO.setError(true);
-            tokenRespDTO.setErrorCode(OAuth2ErrorCodes.INVALID_GRANT);
-            tokenRespDTO.setErrorMsg(e.getMessage());
-            return tokenRespDTO;
         } catch (Exception e) { // in case of an error, consider it as a system error
             log.error("Error when issuing the access token. ", e);
             OAuth2AccessTokenRespDTO tokenRespDTO = new OAuth2AccessTokenRespDTO();
