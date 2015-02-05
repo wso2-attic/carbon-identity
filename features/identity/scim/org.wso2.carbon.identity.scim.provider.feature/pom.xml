@@ -119,10 +119,6 @@
                                 <importFeatureDef>org.wso2.carbon.claim.mgt</importFeatureDef>
 				<importFeatureDef>org.wso2.carbon.identity.scim.common</importFeatureDef>
                             </importFeatures>
-                            <includedFeatures>
-                                <!--<includedFeatureDef>org.wso2.carbon:org.wso2.carbon.jaxws.webapp.mgt.server.feature</includedFeatureDef>-->
-                                <!--<includedFeatureDef>org.wso2.carbon:org.wso2.carbon.webapp.mgt.server.feature</includedFeatureDef>-->
-                            </includedFeatures>
                         </configuration>
                     </execution>
                 </executions>
