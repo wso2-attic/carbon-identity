@@ -202,33 +202,34 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
             try {
                 accessToken = oauthIssuerImpl.accessToken();
                 refreshToken = oauthIssuerImpl.refreshToken();
+
+                if (OAuth2Util.checkUserNameAssertionEnabled()) {
+                    String userName = tokReqMsgCtx.getAuthorizedUser();
+                    //use ':' for token & userStoreDomain separation
+                    String accessTokenStrToEncode = accessToken + ":" + userName;
+                    accessToken = Base64Utils.encode(accessTokenStrToEncode.getBytes());
+
+                    String refreshTokenStrToEncode = refreshToken + ":" + userName;
+                    refreshToken = Base64Utils.encode(refreshTokenStrToEncode.getBytes());
+                }
+
                 AccessTokenDO accessTokenDO = tokenMgtDAO.getValidAccessTokenIfExist(consumerKey, authorizedUser, userStoreDomain, true);
-                if(accessTokenDO != null){
+                if (accessTokenDO != null) {
                     RefreshTokenValidationDataDO refreshTokenValidationDataDO = tokenMgtDAO.validateRefreshToken(
                             consumerKey, accessTokenDO.getRefreshToken());
                     String state = refreshTokenValidationDataDO.getRefreshTokenState();
-                    if(state != null){
+                    if (state != null) {
                         long createdTime = refreshTokenValidationDataDO.getIssuedAt();
                         long refreshValidity = OAuthServerConfiguration.getInstance().getTimeStampSkewInSeconds() * 1000;
-                        if(OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED.equals(state) &&
+                        if (OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED.equals(state) &&
                                 createdTime + accessTokenDO.getValidityPeriodInMillis()
-                                        - refreshTokenValidationDataDO.getIssuedAt() + refreshValidity > 1000){
+                                        - refreshTokenValidationDataDO.getIssuedAt() + refreshValidity > 1000) {
                             refreshToken = accessTokenDO.getRefreshToken();
                         }
                     }
                 }
             } catch (OAuthSystemException e) {
                 throw new IdentityOAuth2Exception("Error when generating the tokens.", e);
-            }
-
-            if (OAuth2Util.checkUserNameAssertionEnabled()) {
-                String userName = tokReqMsgCtx.getAuthorizedUser();
-                //use ':' for token & userStoreDomain separation
-                String accessTokenStrToEncode = accessToken + ":" + userName;
-                accessToken = Base64Utils.encode(accessTokenStrToEncode.getBytes());
-
-                String refreshTokenStrToEncode = refreshToken + ":" + userName;
-                refreshToken = Base64Utils.encode(refreshTokenStrToEncode.getBytes());
             }
 
             Timestamp timestamp = new Timestamp(new Date().getTime());
