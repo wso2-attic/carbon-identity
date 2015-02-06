@@ -422,7 +422,7 @@ public class SCIMUserManager implements UserManager {
                 //modify display name if no domain is specified, in order to support multiple user store feature
                 String originalName = group.getDisplayName();
                 String roleNameWithDomain = null;
-                String domainName = "";
+                String domainName = null;
                 if (originalName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
                     roleNameWithDomain = originalName;
                     domainName = originalName.split(UserCoreConstants.DOMAIN_SEPARATOR)[0];
@@ -446,6 +446,9 @@ public class SCIMUserManager implements UserManager {
                 user store*/
                 List<String> userIds = group.getMembers();
                 List<String> userDisplayNames = group.getMembersWithDisplayName();
+                /* compare user store domain of group and user store domain of user name , if there is a mismatch do not
+                 update the group */
+                validateDomain(originalName, userDisplayNames);
                 if (userIds != null && userIds.size() != 0) {
                     List<String> members = new ArrayList<String>();
                     for (String userId : userIds) {
@@ -455,8 +458,8 @@ public class SCIMUserManager implements UserManager {
                             String error = "User: " + userId + " doesn't exist in the user store. " +
                                            "Hence, can not create the group: " + group.getDisplayName();
                             throw new IdentitySCIMException(error);
-                        }
-                        else if(userNames[0].indexOf(UserCoreConstants.DOMAIN_SEPARATOR) > 0 && !userNames[0].contains(domainName)){
+                        } else if (userNames[0].indexOf(UserCoreConstants.DOMAIN_SEPARATOR) > 0 &&
+                                   !domainName.equalsIgnoreCase(UserCoreUtil.extractDomainFromName(userNames[0]))) {
                             String error = "User: " + userId + " doesn't exist in the same user store. " +
                                     "Hence, can not create the group: " + group.getDisplayName();
                             throw new IdentitySCIMException(error);
@@ -661,54 +664,27 @@ public class SCIMUserManager implements UserManager {
                 List<String> userDisplayNames = newGroup.getMembersWithDisplayName();
 
                 String groupName = newGroup.getDisplayName();
-                String userStoreDomainForGroup = null;
-                //Check domain name of the group
-                int domainSeparatorIndexForGroup = groupName.indexOf(UserCoreConstants
-                        .DOMAIN_SEPARATOR);
-                if (domainSeparatorIndexForGroup > 0) {
-                    userStoreDomainForGroup = groupName.substring(0, domainSeparatorIndexForGroup);
-                                        /*User list and role should belong to same domain. throw exceptions if there
-                     is mismatch*/
-                    for (int i = 0; i < userDisplayNames.size(); i++) {
-                        String userDisplayName = userDisplayNames.get(i);
-                        int userDomainSeparatorIndex = userDisplayName.indexOf(UserCoreConstants
-                                .DOMAIN_SEPARATOR);
-                        if (userDomainSeparatorIndex > 0) {
-                            String userStoreDomainForUser = groupName.substring(0,
-                                    userDomainSeparatorIndex);
-                            if (userStoreDomainForGroup.equals(userStoreDomainForUser)) {
-                                continue;
-                            } else {
-                                throw new IdentitySCIMException(userDisplayName + " does not " +
-                                        "belongs to user store " + userStoreDomainForGroup);
-                            }
-
-                        } else {
-                            throw new IdentitySCIMException(userDisplayName + " does not " +
-                                    "belongs to user store " + userStoreDomainForGroup);
-                        }
-                    }
-                }
+                String userStoreDomainForGroup = UserCoreUtil.extractDomainFromName(groupName);
+                /* compare user store domain of group and user store domain of user name , if there is a mismatch do not
+                 update the group */
+                validateDomain(groupName, userDisplayNames);
 
                 if (userIds != null && userIds.size() != 0) {
                     String[] userNames = null;
                     for (String userId : userIds) {
-                        userNames = carbonUM.getUserList(SCIMConstants.ID_URI, userId,
+
+                        userNames = carbonUM.getUserList(SCIMConstants.ID_URI,
+                                                         UserCoreUtil.addDomainToName(userId, userStoreDomainForGroup),
                                                          UserCoreConstants.DEFAULT_PROFILE);
-                        if (userStoreDomainForGroup != null) {
-                            userNames = carbonUM.getUserList(SCIMConstants.ID_URI,
-                                    userStoreDomainForGroup + UserCoreConstants.DOMAIN_SEPARATOR + userId,
-                                    UserCoreConstants.DEFAULT_PROFILE);
-                        } else {
-                            userNames = carbonUM.getUserList(SCIMConstants.ID_URI, userId,
-                                    UserCoreConstants.DEFAULT_PROFILE);
-                        }
+
                         if (userNames == null || userNames.length == 0) {
                             String error = "User: " + userId + " doesn't exist in the user store. " +
                                            "Hence, can not update the group: " + oldGroup.getDisplayName();
                             throw new IdentitySCIMException(error);
                         } else {
-                            if (!userDisplayNames.contains(userNames[0])) {
+                            if (!UserCoreUtil.isContain(UserCoreUtil.removeDomainFromName(userNames[0]),
+                                                        UserCoreUtil.removeDomainFromNames(userDisplayNames.toArray(
+                                                                new String[userDisplayNames.size()])))) {
                                 throw new IdentitySCIMException("Given SCIM user Id and name not matching..");
                             }
                         }
@@ -717,7 +693,7 @@ public class SCIMUserManager implements UserManager {
                 //we do not update Identity_SCIM DB here since it is updated in SCIMUserOperationListener's methods.
 
                 //update name if it is changed
-                if (!(oldGroup.getDisplayName().equals(newGroup.getDisplayName()))) {
+                if (!(oldGroup.getDisplayName().equalsIgnoreCase(newGroup.getDisplayName()))) {
                     //update group name in carbon UM
                     carbonUM.updateRoleName(oldGroup.getDisplayName(), newGroup.getDisplayName());
 
@@ -982,6 +958,19 @@ public class SCIMUserManager implements UserManager {
             throw new CharonException("Error in initializing provisioning handler", e);
         } catch (IllegalAccessException e) {
             throw new CharonException("Error in initializing provisioning handler", e);
+        }
+    }
+
+    private void validateDomain(String groupNameWithDomain, List<String> userDisplayNames)
+            throws IdentitySCIMException {
+        String userStoreDomainForGroup = UserCoreUtil.extractDomainFromName(groupNameWithDomain);
+        for (String userDisplayName : userDisplayNames) {
+            String userStoreDomainForUser = UserCoreUtil.extractDomainFromName(userDisplayName);
+            if (!userStoreDomainForGroup.equalsIgnoreCase(userStoreDomainForUser)) {
+                throw new IdentitySCIMException(userDisplayName + " does not " +
+                                                "belongs to user store " + userStoreDomainForGroup);
+            }
+
         }
     }
 }
