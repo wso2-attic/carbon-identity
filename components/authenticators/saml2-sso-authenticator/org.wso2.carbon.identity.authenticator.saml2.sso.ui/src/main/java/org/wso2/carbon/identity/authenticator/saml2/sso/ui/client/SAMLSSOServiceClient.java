@@ -45,7 +45,8 @@ public class SAMLSSOServiceClient {
     }
 
     /**
-     *
+     * 
+     * @param authnRequest
      * @param sessionId
      * @param rpSessionId
      * @param authnMode
@@ -57,7 +58,7 @@ public class SAMLSSOServiceClient {
 	                                                String authnMode,boolean isPost)
 	                                                                                     throws IdentityException {
 		try {
-			return stub.validateSPInitSSORequest(samlReq,queryString,sessionId,rpSessionId,authnMode,isPost);
+			return stub.validateRequest(samlReq, queryString, sessionId, rpSessionId, authnMode,isPost);
 		} catch (Exception e) {
 			log.error("Error validating the Authentication Request", e);
 			throw new IdentityException("Error in parsing authentication request", e);
