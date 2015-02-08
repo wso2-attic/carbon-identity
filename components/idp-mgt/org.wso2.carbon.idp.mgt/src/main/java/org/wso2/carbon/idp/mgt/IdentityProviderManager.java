@@ -29,7 +29,15 @@ import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.application.common.ApplicationAuthenticatorService;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.ProvisioningConnectorService;
-import org.wso2.carbon.identity.application.common.model.*;
+import org.wso2.carbon.identity.application.common.model.ClaimConfig;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.LocalRole;
+import org.wso2.carbon.identity.application.common.model.PermissionsAndRoleConfig;
+import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
+import org.wso2.carbon.identity.application.common.model.RoleMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.idp.mgt.dao.CacheBackedIdPMgtDAO;
@@ -46,7 +54,13 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import java.security.KeyStore;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class IdentityProviderManager {
 
@@ -474,7 +488,7 @@ public class IdentityProviderManager {
      * @param idPName Unique name of the Identity provider of whose information is requested
      * @param tenantDomain Tenant domain whose information is requested
      * @return <code>IdentityProvider</code> Identity Provider information
-     * @throws IdentityApplicationManagementException Error when getting Identity Provider
+     * @throws IdentityApplicationManagementException Error when enetting Identity Provider
      *         information by IdP name
      */
     public IdentityProvider getIdPByName(String idPName, String tenantDomain)
