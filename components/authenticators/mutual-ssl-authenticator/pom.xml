@@ -15,20 +15,23 @@
  ~ limitations under the License.
 -->
         
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>identity.authenticators</artifactId>
         <version>4.3.4-SNAPSHOT</version>
-	<relativePath>../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>signedjwt-authenticator</artifactId>
+    <artifactId>org.wso2.carbon.identity.authenticator.mutualssl</artifactId>
     <packaging>bundle</packaging>
-    <name>WSO2 Carbon - SignedJWT Authenticator</name>
+    <name>WSO2 Carbon - 2 way SSL Authentictor</name>
     <url>http://wso2.org</url>
+
 
     <dependencies>
         <dependency>
@@ -52,12 +55,8 @@
             <artifactId>org.wso2.carbon.utils</artifactId>
         </dependency>
         <dependency>
-            <groupId>opensaml.wso2</groupId>
-            <artifactId>opensaml2</artifactId>
-        </dependency>
-       <dependency>
-            <groupId>com.nimbusds.wso2</groupId>
-            <artifactId>nimbus-jose-jwt</artifactId>
+            <groupId>commons-lang.wso2</groupId>
+            <artifactId>commons-lang</artifactId>
         </dependency>
     </dependencies>
 
@@ -76,11 +75,11 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Private-Package>
-                            org.wso2.carbon.identity.authenticator.signedjwt.internal
+                            org.wso2.carbon.identity.authenticator.mutualssl.internal
                         </Private-Package>
                         <Export-Package>
-                            !org.wso2.carbon.identity.authenticator.signedjwt.internal,
-                            org.wso2.carbon.identity.authenticator.signedjwt.*,
+                            !org.wso2.carbon.identity.authenticator.mutualssl.internal,
+                            org.wso2.carbon.identity.authenticator.mutualssl.*,
                         </Export-Package>
                         <Import-Package>
                             javax.servlet;version="${imp.pkg.version.javax.servlet}",

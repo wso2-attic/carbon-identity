@@ -323,19 +323,8 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                         // identifier.
                         sequenceConfig.setAuthenticatedUser(stepConfig.getAuthenticatedUser());
 
-                        // all local authenticator must set the value of userTenantDomain.
-                        // if userTenantDomain is null that means, there is no local authenticator or
-                        // the assert with local ID is set. In that case, this should be coming from
-                        // federated authentication. In that case, we treat SP domain is equal to user domain.
-                        // userTenantDomain = spTenantDomain;
-
-//                        String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-//                        sequenceConfig.setAuthenticatedUserTenantDomain(tenantDomain);
-//
-//                        if (log.isDebugEnabled()) {
-//                            log.debug("Authenticated User: " + sequenceConfig.getAuthenticatedUser());
-//                            log.debug("Authenticated User Tenant Domain: " + tenantDomain);
-//                        }
+                        // Only place we do not set the setAuthenticatedUserTenantDomain into the sequenceConfig
+                        // TODO : Check whether not setting setAuthenticatedUserTenantDomain is correct
 
                     }
 

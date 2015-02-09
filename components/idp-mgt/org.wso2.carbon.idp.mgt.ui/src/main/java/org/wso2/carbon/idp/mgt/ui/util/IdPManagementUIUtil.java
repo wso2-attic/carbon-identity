@@ -731,7 +731,7 @@ public class IdPManagementUIUtil {
                 if (paramMap.get("advancedDefault_" + i) != null) {
                     advancedMapping.put(paramMap.get("advancnedIdpClaim_" + i),
                             paramMap.get("advancedDefault_" + i));
-                } else { // if default valiu is not set. But still it is under advanced claim
+                } else { // if default value is not set. But still it is under advanced claim
                          // mapping
                     advancedMapping.put(paramMap.get("advancnedIdpClaim_" + i), "");
                 }

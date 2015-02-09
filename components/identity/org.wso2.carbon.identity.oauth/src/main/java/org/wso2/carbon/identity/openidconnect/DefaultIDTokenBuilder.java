@@ -278,7 +278,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
 
         // Cache miss, load the access token info from the database.
         if (accessTokenDO == null) {
-            accessTokenDO = tokenMgtDAO.retrieveAccessToken(accessToken);
+            accessTokenDO = tokenMgtDAO.retrieveAccessToken(accessToken, false);
         }
 
         // if the access token or client id is not valid
