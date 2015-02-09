@@ -37,13 +37,13 @@ public class SAMLApplicationDAOImpl implements SAMLApplicationDAO {
     /*SAMLSSOConfigService samlService = new SAMLSSOConfigService();*/
 
     public void removeServiceProviderConfiguration(String issuer) throws IdentityApplicationManagementException {
-         try {
-        	IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
-             Registry configSystemRegistry = (Registry) PrivilegedCarbonContext.getThreadLocalCarbonContext().
-                     getRegistry(RegistryType.SYSTEM_CONFIGURATION);
-             persistenceManager.removeServiceProvider(configSystemRegistry, issuer);
+        try {
+            IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
+            Registry configSystemRegistry = (Registry) PrivilegedCarbonContext.getThreadLocalCarbonContext().
+                    getRegistry(RegistryType.SYSTEM_CONFIGURATION);
+            persistenceManager.removeServiceProvider(configSystemRegistry, issuer);
         } catch (IdentityException e) {
-	        throw new IdentityApplicationManagementException("Error while deleting SAML issuer "+ e.getMessage());
+            throw new IdentityApplicationManagementException("Error while deleting SAML issuer " + e.getMessage());
         }
     }
 
