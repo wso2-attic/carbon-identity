@@ -197,26 +197,6 @@ public class SSOUtils {
         }
     }
 
-    @Deprecated
-    public static void addDeflateSignatureToHTTPQueryString(StringBuilder httpQueryString) throws SAMLSSOException {
-        try {
-            httpQueryString.append("&SigAlg="
-                    + URLEncoder.encode(XMLSignature.ALGO_ID_SIGNATURE_RSA, "UTF-8").trim());
-
-            java.security.Signature signature = java.security.Signature.getInstance("SHA1withRSA");
-            signature.initSign(KeyStoreManager.getInstance(MultitenantConstants.SUPER_TENANT_ID).getDefaultPrivateKey());
-            signature.update(httpQueryString.toString().getBytes());
-            byte[] signatureByteArray = signature.sign();
-
-            String signatureBase64encodedString = Base64.encodeBytes(signatureByteArray,
-                    Base64.DONT_BREAK_LINES);
-            httpQueryString.append("&Signature="
-                    + URLEncoder.encode(signatureBase64encodedString, "UTF-8").trim());
-        } catch (Exception e) {
-            throw new SAMLSSOException("Error applying SAML2 Redirect Binding signature", e);
-        }
-    }
-
     /**
      * Appends the RSA-SHA1 signature to the query string
      *
