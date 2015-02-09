@@ -77,6 +77,10 @@
         <servlet-name>PassiveSTSLogin</servlet-name>
         <servlet-class>org.wso2.carbon.identity.application.authentication.endpoint.passivests.PassiveSTSLogin</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>TOTPLogin</servlet-name>
+        <servlet-class>org.wso2.carbon.identity.application.authentication.endpoint.totp.TOTPLogin</servlet-class>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>AuthenticationEndpoint</servlet-name>
@@ -134,6 +138,14 @@
     <servlet-mapping>
         <servlet-name>PassiveSTSLogin</servlet-name>
         <url-pattern>/passivests_login.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>TOTPLogin</servlet-name>
+        <url-pattern>/totp_login.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>TOTPLogin</servlet-name>
+        <url-pattern>/totp_error.do</url-pattern>
     </servlet-mapping>
     <error-page>
         <exception-type>java.lang.Throwable</exception-type>

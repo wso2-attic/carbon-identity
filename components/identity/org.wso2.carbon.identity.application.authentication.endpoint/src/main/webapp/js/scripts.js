@@ -22,3 +22,22 @@ $(document).ready(function(){
 			$('#denyForm').submit();
 	});
 });
+
+
+function requestTOTPToken(){
+
+        var str = "../../commonauth";
+        $.ajax({
+            url:str,
+            type:"GET",
+            data:"&sessionDataKey="+document.getElementById("sessionDataKey").value+"&sendToken=true",
+            success: function(response){
+                alert("TOTP Token is generated and sent");
+                console.log(response);
+            },
+            error: function(request, error){
+                alert(error);
+            }
+        });
+
+}
