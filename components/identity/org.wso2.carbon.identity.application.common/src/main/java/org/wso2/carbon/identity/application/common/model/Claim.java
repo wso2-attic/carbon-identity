@@ -99,7 +99,7 @@ public class Claim implements Serializable {
         Claim claim = (Claim) o;
 
         if (claimId != claim.claimId) return false;
-        if (!claimUri.equals(claim.claimUri)) return false;
+        if (claimUri != null ? !claimUri.equals(claim.claimUri) : claim.claimUri != null) return false;
 
         return true;
     }
