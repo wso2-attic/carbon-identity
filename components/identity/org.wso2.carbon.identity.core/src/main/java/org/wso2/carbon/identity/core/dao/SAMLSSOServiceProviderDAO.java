@@ -292,9 +292,6 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
      */
     public boolean removeServiceProvider(String issuer) throws IdentityException {
 
-        if(StringUtils.isEmpty(issuer)){
-            throw new IllegalArgumentException("Trying to delete issuer \'" + issuer + "\'");
-        }
         if(StringUtils.isEmpty(issuer.trim())){
             throw new IllegalArgumentException("Trying to delete issuer \'" + issuer + "\'");
         }
