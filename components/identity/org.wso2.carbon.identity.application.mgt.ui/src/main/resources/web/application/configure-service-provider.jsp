@@ -539,7 +539,6 @@ var roleMappinRowID = -1;
     }
     
     function changeDialectUIs(element){
-    	debugger;
 	    $("#roleClaim option").filter(function() {
 	           return $(this).val().length > 0;
 	    }).remove();
@@ -1346,7 +1345,7 @@ var roleMappinRowID = -1;
                     			 <tr>
                     			 <td>
                     			 	<input name="req_path_auth" id="req_path_auth" type="hidden" value="<%=reqAth.getName()%>" />
-                    			 	<input name="req_path_auth_<%=reqAth.getName()%>" id="req_path_auth_<%=reqAth.getName()%>" type="hidden" value="<%=reqAth.getDisplayName()%>" />
+                    			 	<input name="req_path_auth_<%=reqAth.getName()%>" id="req_path_auth_<%=reqAth.getName()%>" type="hidden" value="<%=reqAth.getName()%>" />
                     			 	
                     			 	<%=reqAth.getName()%>
                     			 </td>

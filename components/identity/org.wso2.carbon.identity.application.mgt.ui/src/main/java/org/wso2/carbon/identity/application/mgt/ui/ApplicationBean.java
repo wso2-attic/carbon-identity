@@ -1115,19 +1115,8 @@ public class ApplicationBean {
             }
         }
 
-        if (serviceProvider.getClaimConfig() == null) {
-            serviceProvider.setClaimConfig(new ClaimConfig());
-        }
-
         serviceProvider.getClaimConfig().setClaimMappings(
                 claimMappingList.toArray(new ClaimMapping[claimMappingList.size()]));
-
-        if (request.getParameter("claim_dialect") != null
-                && request.getParameter("claim_dialect").equals("custom")) {
-            serviceProvider.getClaimConfig().setLocalClaimDialect(false);
-        } else {
-            serviceProvider.getClaimConfig().setLocalClaimDialect(true);
-        }
 
         serviceProvider.getClaimConfig().setRoleClaimURI(CharacterEncoder.getSafeText(request.getParameter("roleClaim")));
 
