@@ -103,11 +103,9 @@
 						attrList.add(attr);
 					}
 				} else {
-					ClaimAttributeDTO attr = new ClaimAttributeDTO();
-					attr.setAttributeName(attributes[i]);
-					attr.setDomainName(null);
-					attrList.add(attr);				}
+					mapping.setMappedAttribute(attributes[i]);
 				}
+			}
 			
 			if (attrList.size()>0){
 				mapping.setMappedAttributes(attrList.toArray(new ClaimAttributeDTO[attrList.size()]));
