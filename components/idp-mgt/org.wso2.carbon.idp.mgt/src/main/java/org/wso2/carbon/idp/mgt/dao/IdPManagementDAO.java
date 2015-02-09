@@ -2213,26 +2213,24 @@ public class IdPManagementDAO {
             return;
         }
 
-        if (newClaimConfig.getIdpClaims() == null || newClaimConfig.getIdpClaims().length == 0) {
-            // we cannot add claim mappings without claims.
-            return;
-        }
-
         if (newClaimConfig.isLocalClaimDialect()) {
-            addDefaultClaimValuesForLocalIdP(conn, idPId, tenantId,
-                    newClaimConfig.getClaimMappings());
-        } else {
-            // add identity provider claims.
-            addIdPClaims(conn, idPId, tenantId, newClaimConfig.getIdpClaims());
-
-            if (newClaimConfig.getClaimMappings() == null
-                    || newClaimConfig.getClaimMappings().length == 0) {
-                // we do not have any claim mappings - we either didn't have.
-                return;
+            if(newClaimConfig.getClaimMappings() != null && newClaimConfig.getClaimMappings().length > 0){
+                // add claim mappings only.
+                addDefaultClaimValuesForLocalIdP(conn, idPId, tenantId, newClaimConfig.getClaimMappings());
             }
-            addIdPClaimMappings(conn, idPId, tenantId, newClaimConfig.getClaimMappings());
+        } else {
+            boolean addedClaims = false;
+            if(newClaimConfig.getIdpClaims() != null && newClaimConfig.getIdpClaims().length > 0){
+                // add identity provider claims.
+                addIdPClaims(conn, idPId, tenantId, newClaimConfig.getIdpClaims());
+                addedClaims = true;
+            }
+            if (addedClaims && newClaimConfig.getClaimMappings() != null &&
+                    newClaimConfig.getClaimMappings().length > 0) {
+                // add identity provider claim mappings if and only if IdP claims are not empty.
+                addIdPClaimMappings(conn, idPId, tenantId, newClaimConfig.getClaimMappings());
+            }
         }
-
     }
 
     /**

@@ -192,7 +192,7 @@ public class TokenValidationHandler {
         }
         // Cache miss, load the access token info from the database.
         if (accessTokenDO == null) {
-            accessTokenDO = tokenMgtDAO.retrieveAccessToken(accessTokenIdentifier);
+            accessTokenDO = tokenMgtDAO.retrieveAccessToken(accessTokenIdentifier, false);
 
             // No data retrieved due to invalid input.
             if(accessTokenDO == null) {

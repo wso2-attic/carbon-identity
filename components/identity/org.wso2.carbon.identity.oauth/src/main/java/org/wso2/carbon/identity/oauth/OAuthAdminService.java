@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.identity.oauth;
 
-import java.util.Arrays;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
@@ -43,7 +43,10 @@ import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class OAuthAdminService extends AbstractAdmin {
 
@@ -143,7 +146,7 @@ public class OAuthAdminService extends AbstractAdmin {
     /**
      * Get OAuth application data by the application name.
      *
-     * @param consumerKey Consumer Key
+     * @param appName OAuth application name
      * @return  <code>OAuthConsumerAppDTO</code> with application information
      * @throws Exception Error when reading application information from persistence store.
      */
@@ -299,26 +302,76 @@ public class OAuthAdminService extends AbstractAdmin {
         String tenantAwareUserName = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
         String username = tenantAwareUserName + "@" + tenantDomain;
         username = username.toLowerCase();
-        OAuthConsumerAppDTO[] appDTOs = null;
-        try {
-            OAuthAppDO[] appDOs = tokenMgtDAO.getAppsAuthorizedByUser(username);
-            appDTOs = new OAuthConsumerAppDTO[appDOs.length];
-            for(int i = 0; i < appDTOs.length ; i++){
-                OAuthAppDO appDO = appDAO.getAppInformation(appDOs[i].getOauthConsumerKey());
-                OAuthConsumerAppDTO appDTO = new OAuthConsumerAppDTO();
-                appDTO.setApplicationName(appDO.getApplicationName());
-                appDTO.setUsername(appDO.getUserName());
-                appDTO.setGrantTypes(appDO.getGrantTypes());
-                appDTOs[i] = appDTO;
+
+        String userStoreDomain = null;
+            if (OAuth2Util.checkAccessTokenPartitioningEnabled() && OAuth2Util.checkUserNameAssertionEnabled()) {
+            try {
+                userStoreDomain = OAuth2Util.getUserStoreDomainFromUserId(username);
+            } catch (IdentityOAuth2Exception e) {
+                String errorMsg = "Error occurred while getting user store domain for User ID : " + username;
+                log.error(errorMsg, e);
+                throw new IdentityOAuthAdminException(errorMsg, e);
             }
-        } catch (IdentityOAuth2Exception e) {
-            log.error(e.getMessage());
-            throw new IdentityOAuthAdminException("Error while retrieving OAuth application information");
-        } catch (InvalidOAuthClientException e) {
-            log.error(e.getMessage());
-            throw new IdentityOAuthAdminException("Error while retrieving OAuth application information");
         }
-        return appDTOs;
+
+        Set<String> clientIds = null;
+        try {
+            clientIds = tokenMgtDAO.getAllTimeAuthorizedClientIds(username);
+        } catch (IdentityOAuth2Exception e) {
+            String errorMsg = "Error occurred while retrieving apps authorized by User ID : " + username;
+            log.error(errorMsg, e);
+            throw new IdentityOAuthAdminException(errorMsg, e);
+        }
+        Set<OAuthConsumerAppDTO> appDTOs = new HashSet<OAuthConsumerAppDTO>();
+        for(String clientId : clientIds){
+            Set<AccessTokenDO> accessTokenDOs = null;
+            try {
+                accessTokenDOs = tokenMgtDAO.retrieveAccessTokens(clientId, username, userStoreDomain, true);
+            } catch (IdentityOAuth2Exception e) {
+                String errorMsg = "Error occurred while retrieving access tokens issued for " +
+                        "Client ID : " + clientId + ", User ID : " + username;
+                log.error(errorMsg, e);
+                throw new IdentityOAuthAdminException(errorMsg, e);
+            }
+            if(!accessTokenDOs.isEmpty()){
+                for(AccessTokenDO accessTokenDO : accessTokenDOs){
+                    AccessTokenDO scopedToken = null;
+                    try {
+                        scopedToken = tokenMgtDAO.retrieveLatestAccessToken(
+                                clientId, username, userStoreDomain,
+                        OAuth2Util.buildScopeString(accessTokenDO.getScope()), true);
+                    } catch (IdentityOAuth2Exception e) {
+                        String errorMsg = "Error occurred while retrieving latest " +
+                                "access token issued for Client ID : " +
+                                clientId + ", User ID : " + username + " and Scope : " +
+                                OAuth2Util.buildScopeString(accessTokenDO.getScope());
+                        log.error(errorMsg, e);
+                        throw new IdentityOAuthAdminException(errorMsg, e);
+                    }
+                    if(scopedToken != null){
+                        OAuthConsumerAppDTO appDTO = new OAuthConsumerAppDTO();
+                        OAuthAppDO appDO = null;
+                        try {
+                            appDO = appDAO.getAppInformation(scopedToken.getConsumerKey());
+                            appDTO.setOauthConsumerKey(scopedToken.getConsumerKey());
+                            appDTO.setApplicationName(appDO.getApplicationName());
+                            appDTO.setUsername(appDO.getUserName());
+                            appDTO.setGrantTypes(appDO.getGrantTypes());
+                            appDTOs.add(appDTO);
+                        } catch (InvalidOAuthClientException e) {
+                            String errorMsg = "Invalid Client ID : " + scopedToken.getConsumerKey();
+                            log.error(errorMsg, e);
+                        } catch (IdentityOAuth2Exception e) {
+                            String errorMsg = "Error occurred while retrieving app information " +
+                                    "for Client ID : " + scopedToken.getConsumerKey();
+                            log.error(errorMsg, e);
+                            throw new IdentityOAuthAdminException(errorMsg, e);
+                        }
+                    }
+                }
+            }
+        }
+        return appDTOs.toArray(new OAuthConsumerAppDTO[appDTOs.size()]);
     }
 
     /**
@@ -326,62 +379,84 @@ public class OAuthAdminService extends AbstractAdmin {
      * @param revokeRequestDTO DTO representing authorized user and apps[]
      * @return revokeRespDTO DTO representing success or failure message
      */
-    public OAuthRevocationResponseDTO revokeAuthzForAppsByResoureOwner(OAuthRevocationRequestDTO revokeRequestDTO)
-                                                                                    throws IdentityOAuthAdminException{
+    public OAuthRevocationResponseDTO revokeAuthzForAppsByResoureOwner(
+            OAuthRevocationRequestDTO revokeRequestDTO) throws IdentityOAuthAdminException{
 
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
-        try {
-            if(revokeRequestDTO.getApps() != null && revokeRequestDTO.getApps().length > 0) {
-                String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-                String tenantAwareUserName = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
-                String userName = tenantAwareUserName + "@" + tenantDomain;
-                userName = userName.toLowerCase();
+        if(revokeRequestDTO.getApps() != null && revokeRequestDTO.getApps().length > 0) {
+            String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            String tenantAwareUserName = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
+            String userName = tenantAwareUserName + "@" + tenantDomain;
+            userName = userName.toLowerCase();
 
-                //Retrieving the AccessTokenDO before revoking
-                List<AccessTokenDO> accessTokenDOs = new ArrayList<AccessTokenDO>();
-                OAuthAppDAO appDAO = new OAuthAppDAO();
-                String userStoreDomain = null;
-                if (OAuth2Util.checkAccessTokenPartitioningEnabled() &&
-                        OAuth2Util.checkUserNameAssertionEnabled()) {
+            String userStoreDomain = null;
+            if (OAuth2Util.checkAccessTokenPartitioningEnabled() &&
+                    OAuth2Util.checkUserNameAssertionEnabled()) {
+                try {
                     userStoreDomain = OAuth2Util.getUserStoreDomainFromUserId(userName);
+                } catch (IdentityOAuth2Exception e) {
+                    throw new IdentityOAuthAdminException(
+                            "Error occurred while getting user store domain from User ID : " + userName, e);
                 }
-                //Retrieving the OAuthAppDO since revokeRequestDTO doesn't
-                // contain (empty string) ConsumerKey to retrieve the AccessTokenDO
-                OAuthAppDO[] appDOs = tokenMgtDAO.getAppsAuthorizedByUser(userName);
-                for (String appName : revokeRequestDTO.getApps()) {
-                    for (OAuthAppDO appDO : appDOs) {
-                        appDO = appDAO.getAppInformation(appDO.getOauthConsumerKey());
-                        if (appDO.getApplicationName().equals(appName)) {
-                            AccessTokenDO accessTokenDO = tokenMgtDAO.getValidAccessTokenIfExist(appDO.getOauthConsumerKey(),
-                                    userName, userStoreDomain, true);
-                            accessTokenDOs.add(accessTokenDO);
+            }
+            OAuthConsumerAppDTO[] appDTOs = getAppsAuthorizedByUser();
+            for (String appName : revokeRequestDTO.getApps()) {
+                for (OAuthConsumerAppDTO appDTO : appDTOs) {
+                    if (appDTO.getApplicationName().equals(appName)) {
+                        Set<AccessTokenDO> accessTokenDOs = null;
+                        try {
+                            // retrieve all ACTIVE or EXPIRED access tokens for particular client authorized by this user
+                            accessTokenDOs = tokenMgtDAO.retrieveAccessTokens(
+                                    appDTO.getOauthConsumerKey(), userName, userStoreDomain, true);
+                        } catch (IdentityOAuth2Exception e) {
+                            String errorMsg = "Error occurred while retrieving access tokens issued for " +
+                                    "Client ID : " + appDTO.getOauthConsumerKey() + ", User ID : " + userName;
+                            log.error(errorMsg, e);
+                            throw new IdentityOAuthAdminException(errorMsg, e);
+                        }
+                        for(AccessTokenDO accessTokenDO : accessTokenDOs){
+                            //Clear cache with AccessTokenDO
+                            OAuthUtil.clearOAuthCache(accessTokenDO.getConsumerKey(), accessTokenDO.getAuthzUser(),
+                                    OAuth2Util.buildScopeString(accessTokenDO.getScope()));
+                            OAuthUtil.clearOAuthCache(accessTokenDO.getConsumerKey(), accessTokenDO.getAuthzUser());
+                            OAuthUtil.clearOAuthCache(accessTokenDO.getAccessToken());
+                            AccessTokenDO scopedToken = null;
+                            try {
+                                // retrieve latest access token for particular client, user and scope combination if its ACTIVE or EXPIRED
+                                scopedToken = tokenMgtDAO.retrieveLatestAccessToken(
+                                        appDTO.getOauthConsumerKey(), userName, userStoreDomain,
+                                        OAuth2Util.buildScopeString(accessTokenDO.getScope()), true);
+                            } catch (IdentityOAuth2Exception e) {
+                                String errorMsg = "Error occurred while retrieving latest " +
+                                        "access token issued for Client ID : " +
+                                        appDTO.getOauthConsumerKey() + ", User ID : " + userName +
+                                        " and Scope : " + OAuth2Util.buildScopeString(accessTokenDO.getScope());
+                                log.error(errorMsg, e);
+                                throw new IdentityOAuthAdminException(errorMsg, e);
+                            }
+                            if(scopedToken != null){
+                                //Revoking token from database
+                                try {
+                                    tokenMgtDAO.revokeToken(scopedToken.getAccessToken());
+                                } catch (IdentityOAuth2Exception e) {
+                                    String errorMsg = "Error occurred while revoking " +
+                                            "Access Token : " + scopedToken.getAccessToken();
+                                    log.error(errorMsg, e);
+                                    throw new IdentityOAuthAdminException(errorMsg, e);
+                                }
+                            }
                         }
                     }
                 }
-
-                //Revoking the tokens
-                tokenMgtDAO.revokeTokensByResourceOwner(revokeRequestDTO.getApps(), userName);
-
-                //Clear cache with AccessTokenDO
-                for (AccessTokenDO accessTokenDO : accessTokenDOs) {
-                    OAuthUtil.clearOAuthCache(accessTokenDO.getConsumerKey(), accessTokenDO.getAuthzUser(),
-                            OAuth2Util.buildScopeString(accessTokenDO.getScope()));
-                }
-            } else {
-                OAuthRevocationResponseDTO revokeRespDTO = new OAuthRevocationResponseDTO();
-                revokeRespDTO.setError(true);
-                revokeRespDTO.setErrorCode(OAuth2ErrorCodes.INVALID_REQUEST);
-                revokeRespDTO.setErrorMsg("Invalid revocation request");
-                return revokeRespDTO;
             }
-            return new OAuthRevocationResponseDTO();
-        } catch (IdentityOAuth2Exception e){
-            log.error(e.getMessage(), e);
-            throw new IdentityOAuthAdminException("Error occurred while revoking OAuth2 authorization grant(s)");
-        } catch (InvalidOAuthClientException e) {
-            log.error(e.getMessage(), e);
-            throw new IdentityOAuthAdminException("Error occurred while revoking OAuth2 authorization grant(s)");
+        } else {
+            OAuthRevocationResponseDTO revokeRespDTO = new OAuthRevocationResponseDTO();
+            revokeRespDTO.setError(true);
+            revokeRespDTO.setErrorCode(OAuth2ErrorCodes.INVALID_REQUEST);
+            revokeRespDTO.setErrorMsg("Invalid revocation request");
+            return revokeRespDTO;
         }
+        return new OAuthRevocationResponseDTO();
     }
 
     public String[] getAllowedGrantTypes(){

@@ -247,6 +247,7 @@ public class RecoveryProcessor {
             notificationData.setNotificationSent(true);
         } else {
             notificationData.setNotificationSent(false);
+            notificationData.setNotificationCode(confirmationKey);
         }
 
         return notificationData; 
@@ -524,6 +525,7 @@ public class RecoveryProcessor {
           notificationData.setNotificationSent(true);
       } else {
           notificationData.setNotificationSent(false);
+          notificationData.setNotificationCode(confirmationKey);
       }
 
       return notificationData; 

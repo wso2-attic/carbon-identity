@@ -109,13 +109,13 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
             boolean renew = OAuthServerConfiguration.getInstance().isRefreshTokenRenewalEnabled();
             if(!renew){
                 RefreshTokenValidationDataDO refreshTokenValidationDataDO =
-                    tokenMgtDAO.validateRefreshToken(oauth2AccessTokenReqDTO.getClientId(),
-                    oauth2AccessTokenReqDTO.getRefreshToken());
+                        tokenMgtDAO.validateRefreshToken(oauth2AccessTokenReqDTO.getClientId(),
+                                oauth2AccessTokenReqDTO.getRefreshToken());
                 if(OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE.equals(
-                    refreshTokenValidationDataDO.getRefreshTokenState())){
+                        refreshTokenValidationDataDO.getRefreshTokenState())){
                     long issuedAt = refreshTokenValidationDataDO.getIssuedAt();
                     long refreshValidity =
-                    OAuthServerConfiguration.getInstance().getRefreshTokenValidityPeriodInSeconds() * 1000;
+                            OAuthServerConfiguration.getInstance().getRefreshTokenValidityPeriodInSeconds() * 1000;
                     long skew = OAuthServerConfiguration.getInstance().getTimeStampSkewInSeconds() * 1000;
                     if(issuedAt + refreshValidity - (System.currentTimeMillis() + skew) > 1000){
                         refreshToken = oauth2AccessTokenReqDTO.getRefreshToken();
@@ -141,12 +141,6 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
             }
         }
 
-        boolean isValidGrant = this.validateGrant(tokReqMsgCtx);
-        if (!isValidGrant) {
-            throw new IdentityOAuth2Exception("Provided refresh token is invalid: "+
-                    oauth2AccessTokenReqDTO.getRefreshToken());
-        }
-
         Timestamp timestamp = new Timestamp(new Date().getTime());
 
         // Default Validity Period (in seconds)
@@ -160,36 +154,31 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
             validityPeriod = callbackValidityPeriod;
         }
 
-        //String refreshToken = oauth2AccessTokenReqDTO.getRefreshToken();
-
         String tokenType;
         if(GrantType.CLIENT_CREDENTIALS.toString().equals(oauth2AccessTokenReqDTO.getGrantType())) {
             tokenType = OAuthConstants.USER_TYPE_FOR_APPLICATION_TOKEN;
         } else {
             tokenType = OAuthConstants.USER_TYPE_FOR_USER_TOKEN;
         }
-        AccessTokenDO accessTokenDO = new AccessTokenDO(oauth2AccessTokenReqDTO.getClientId(),tokReqMsgCtx.getAuthorizedUser(),
+
+        String clientId = oauth2AccessTokenReqDTO.getClientId();
+        AccessTokenDO accessTokenDO = new AccessTokenDO(clientId,tokReqMsgCtx.getAuthorizedUser(),
                 tokReqMsgCtx.getScope(), timestamp, validityPeriod, tokenType);
         accessTokenDO.setTokenState(OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE);
         accessTokenDO.setRefreshToken(refreshToken);
         accessTokenDO.setAccessToken(accessToken);
 
-        String clientId = oauth2AccessTokenReqDTO.getClientId();
         String oldAccessToken = (String)tokReqMsgCtx.getProperty(PREV_ACCESS_TOKEN);
 
-        String consumerKey = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientId();
         String authorizedUser = tokReqMsgCtx.getAuthorizedUser();
         // set the previous access token state to "INACTIVE"
-        tokenMgtDAO.setAccessTokenState(consumerKey, authorizedUser, "INACTIVE",
-                UUID.randomUUID().toString(), userStoreDomain, scope);
+        tokenMgtDAO.setAccessTokenState(accessTokenDO.getAccessToken(), "INACTIVE",
+                UUID.randomUUID().toString(), userStoreDomain);
 
         // store the new access token
         tokenMgtDAO.storeAccessToken(accessToken, clientId, accessTokenDO, userStoreDomain);
 
-        // Remove the previous access token (this is already a preprocessed token)
-        //tokenMgtDAO.cleanUpAccessToken(oldAccessToken);
-
-        //remove the previous access token from cache and add the access token info to the cache,
+        //remove the previous access token from cache and add the new access token info to the cache,
         // if it's enabled.
         if(cacheEnabled){
             // Remove the old access token from the OAuthCache
@@ -228,6 +217,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
         tokenRespDTO.setAccessToken(accessToken);
         tokenRespDTO.setRefreshToken(refreshToken);
         tokenRespDTO.setExpiresIn(validityPeriod);
+        tokenRespDTO.setAuthorizedScopes(scope);
 
         ArrayList<ResponseHeader> respHeaders = new ArrayList<ResponseHeader>();
         ResponseHeader header = new ResponseHeader();

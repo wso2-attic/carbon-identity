@@ -374,6 +374,11 @@ public class OAuth2Util {
     }
 
 	public static long getTokenExpireTimeMillis(AccessTokenDO accessTokenDO) {
+
+        if(accessTokenDO == null){
+            throw new IllegalArgumentException("accessTokenDO is " + "\'NULL\'");
+        }
+
 		long currentTime;
 		long validityPeriodMillis = accessTokenDO.getValidityPeriodInMillis();
 		long issuedTime = accessTokenDO.getIssuedTime().getTime();

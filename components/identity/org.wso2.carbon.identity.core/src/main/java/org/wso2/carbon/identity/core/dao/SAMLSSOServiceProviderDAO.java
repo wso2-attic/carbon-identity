@@ -17,6 +17,7 @@
 package org.wso2.carbon.identity.core.dao;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.core.IdentityRegistryResources;
 import org.wso2.carbon.identity.base.IdentityException;
@@ -290,6 +291,14 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
      * @throws IdentityException
      */
     public boolean removeServiceProvider(String issuer) throws IdentityException {
+
+        if(StringUtils.isEmpty(issuer)){
+            throw new IllegalArgumentException("Trying to delete issuer \'" + issuer + "\'");
+        }
+        if(StringUtils.isEmpty(issuer.trim())){
+            throw new IllegalArgumentException("Trying to delete issuer \'" + issuer + "\'");
+        }
+
         String path = IdentityRegistryResources.SAML_SSO_SERVICE_PROVIDERS + encodePath(issuer);
         boolean isTransactionStarted = Transaction.isStarted();
         try {

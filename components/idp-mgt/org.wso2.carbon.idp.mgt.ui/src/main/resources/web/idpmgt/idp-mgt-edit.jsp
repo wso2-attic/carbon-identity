@@ -1460,7 +1460,7 @@
         jQuery('#advancedClaimMappingAddLink').click(function(){
         	var selectedIDPClaimName = $('select[name=idpClaimsList2]').val();
         	if(selectedIDPClaimName == "" || selectedIDPClaimName == null ){
-       			CARBON.showWarningDialog('Add valied attribute');
+       			CARBON.showWarningDialog('Add valid attribute');
        			return false;
         	}
         	advancedClaimMappinRowID++;
@@ -2744,7 +2744,7 @@
        		 CARBON.showWarningDialog('Google connector Service Account Email cannot be empty');
     		 return false;
     	 } else if(errorMsg == "notValied") {
-       		 CARBON.showWarningDialog('Google connector Service Account Email is not valied');
+       		 CARBON.showWarningDialog('Google connector Service Account Email is not valid');
     		 return false;
     	 }
     	 
@@ -2753,7 +2753,7 @@
        		 CARBON.showWarningDialog('Google connector Administrator\'s Email cannot be empty');
     		 return false;
     	 } else if(errorMsgAdmin == "notValied") {
-       		 CARBON.showWarningDialog('Google connector Administrator\'s Email is not valied');
+       		 CARBON.showWarningDialog('Google connector Administrator\'s Email is not valid');
     		 return false;
     	 }
     	    	 
