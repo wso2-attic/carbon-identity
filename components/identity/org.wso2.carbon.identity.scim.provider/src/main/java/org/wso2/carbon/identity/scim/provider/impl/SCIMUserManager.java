@@ -24,6 +24,7 @@ import java.util.concurrent.Executors;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ProvisioningServiceProviderType;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
@@ -661,54 +662,38 @@ public class SCIMUserManager implements UserManager {
                 List<String> userDisplayNames = newGroup.getMembersWithDisplayName();
 
                 String groupName = newGroup.getDisplayName();
-                String userStoreDomainForGroup = null;
-                //Check domain name of the group
-                int domainSeparatorIndexForGroup = groupName.indexOf(UserCoreConstants
-                        .DOMAIN_SEPARATOR);
-                if (domainSeparatorIndexForGroup > 0) {
-                    userStoreDomainForGroup = groupName.substring(0, domainSeparatorIndexForGroup);
-                                        /*User list and role should belong to same domain. throw exceptions if there
-                     is mismatch*/
-                    for (int i = 0; i < userDisplayNames.size(); i++) {
-                        String userDisplayName = userDisplayNames.get(i);
-                        int userDomainSeparatorIndex = userDisplayName.indexOf(UserCoreConstants
-                                .DOMAIN_SEPARATOR);
-                        if (userDomainSeparatorIndex > 0) {
-                            String userStoreDomainForUser = groupName.substring(0,
-                                    userDomainSeparatorIndex);
-                            if (userStoreDomainForGroup.equals(userStoreDomainForUser)) {
-                                continue;
-                            } else {
-                                throw new IdentitySCIMException(userDisplayName + " does not " +
-                                        "belongs to user store " + userStoreDomainForGroup);
-                            }
-
-                        } else {
-                            throw new IdentitySCIMException(userDisplayName + " does not " +
-                                    "belongs to user store " + userStoreDomainForGroup);
-                        }
+                String userStoreDomainForGroup = UserCoreUtil.extractDomainFromName(groupName);
+                /* compare user store domain of group and user store domain of user name , if there is a mismatch do not
+                 update the group */
+                for (String userDisplayName : userDisplayNames) {
+                    String userStoreDomainForUser =
+                            UserCoreUtil.extractDomainFromName(userDisplayName);
+                    if (!(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(userStoreDomainForGroup)) &&
+                        (UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(userStoreDomainForUser))) {
+                        throw new IdentitySCIMException(
+                                "User store domain is not indicated for user :" + userDisplayName);
                     }
+                    if (!userStoreDomainForGroup.equalsIgnoreCase(userStoreDomainForUser)) {
+                        throw new IdentitySCIMException(
+                                userDisplayName + " does not " + "belongs to user store " + userStoreDomainForGroup);
+                    }
+
                 }
 
                 if (userIds != null && userIds.size() != 0) {
                     String[] userNames = null;
                     for (String userId : userIds) {
-                        userNames = carbonUM.getUserList(SCIMConstants.ID_URI, userId,
+                        userNames = carbonUM.getUserList(SCIMConstants.ID_URI,
+                                                         UserCoreUtil.addDomainToName(userId, userStoreDomainForGroup),
                                                          UserCoreConstants.DEFAULT_PROFILE);
-                        if (userStoreDomainForGroup != null) {
-                            userNames = carbonUM.getUserList(SCIMConstants.ID_URI,
-                                    userStoreDomainForGroup + UserCoreConstants.DOMAIN_SEPARATOR + userId,
-                                    UserCoreConstants.DEFAULT_PROFILE);
-                        } else {
-                            userNames = carbonUM.getUserList(SCIMConstants.ID_URI, userId,
-                                    UserCoreConstants.DEFAULT_PROFILE);
-                        }
                         if (userNames == null || userNames.length == 0) {
                             String error = "User: " + userId + " doesn't exist in the user store. " +
                                            "Hence, can not update the group: " + oldGroup.getDisplayName();
                             throw new IdentitySCIMException(error);
                         } else {
-                            if (!userDisplayNames.contains(userNames[0])) {
+                            if (!UserCoreUtil.isContain(UserCoreUtil.removeDomainFromName(userNames[0]),
+                                                        UserCoreUtil.removeDomainFromNames(userDisplayNames.toArray(
+                                                                new String[userDisplayNames.size()])))) {
                                 throw new IdentitySCIMException("Given SCIM user Id and name not matching..");
                             }
                         }
@@ -717,7 +702,7 @@ public class SCIMUserManager implements UserManager {
                 //we do not update Identity_SCIM DB here since it is updated in SCIMUserOperationListener's methods.
 
                 //update name if it is changed
-                if (!(oldGroup.getDisplayName().equals(newGroup.getDisplayName()))) {
+                if (!(oldGroup.getDisplayName().equalsIgnoreCase(newGroup.getDisplayName()))) {
                     //update group name in carbon UM
                     carbonUM.updateRoleName(oldGroup.getDisplayName(), newGroup.getDisplayName());
 
