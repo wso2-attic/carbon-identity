@@ -29,7 +29,6 @@
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - SignedJWT Authenticator</name>
     <url>http://wso2.org</url>
-    <version>4.2.0</version>
 
     <dependencies>
         <dependency>
