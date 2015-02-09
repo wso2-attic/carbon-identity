@@ -134,7 +134,6 @@
     String googleProvAdminEmail = null;
     String googleProvApplicationName = null;
     String googleProvPattern = null;
-    String googleProvisioningSeparator = null;
     String googleProvPrivateKeyData = null;
     
     boolean isSfProvEnabled = false;
@@ -144,9 +143,6 @@
     String sfClientId = null;
     String sfClientSecret = null;
     String sfUserName = null;
-    String sfProvPattern = null;
-    String sfProvSeparator = null;
-    String sfProvDomainName = null;
     String sfPassword = null;
     String sfOauth2TokenEndpoint = null;
     
@@ -539,12 +535,6 @@
                             sfPassword = sfProperty.getValue();
                         } else if ("sf-token-endpoint".equals(sfProperty.getName())){
                             sfOauth2TokenEndpoint = sfProperty.getValue();
-                        } else if ("sf-prov-pattern".equals(sfProperty.getName())) {
-                            sfProvPattern = sfProperty.getValue();
-                        } else if ("sf-prov-separator".equals(sfProperty.getName())) {
-                            sfProvSeparator = sfProperty.getValue();
-                        } else if ("sf-prov-domainName".equals(sfProperty.getName())) {
-                            sfProvDomainName = sfProperty.getValue();
                         }
                     }
                 }
@@ -602,7 +592,6 @@
             googleProvAdminEmail = "";
             googleProvApplicationName = "";
             googleProvPattern= "";
-            googleProvisioningSeparator = "";
             //if(identityProvider.getCertificate() != null){
             //    googleProvPrivateKeyData = IdPMgtUtil.getCertData(identityProvider.getCertificate());
             //}
@@ -641,8 +630,6 @@
                             googleProvPrivateKeyData = googleProperty.getValue();
                         } else if ("google_prov_pattern".equals(googleProperty.getName())) {
                             googleProvPattern = googleProperty.getValue();
-                        } else if("google_prov_separator".equals(googleProperty.getName())) {
-                            googleProvisioningSeparator = googleProperty.getValue();
                         }
             			
             			
@@ -915,53 +902,49 @@
                 }
             }
         }
-
-        if (googleDomainName == null) {
+        
+        if(googleDomainName == null){
             googleDomainName = "";
         }
-        if (googleUserIDClaim == null) {
+        if(googleUserIDClaim == null){
             googleUserIDClaim = "";
         }
-        if (googleUserIDDefaultValue == null) {
+        if(googleUserIDDefaultValue == null){
             googleUserIDDefaultValue = "";
         }
-        if (googlePrimaryEmailClaim == null) {
+        if(googlePrimaryEmailClaim == null){
             googlePrimaryEmailClaim = "";
         }
-        if (googlePrimaryEmailDefaultValue == null) {
+        if(googlePrimaryEmailDefaultValue == null){
             googlePrimaryEmailDefaultValue = "";
         }
-        if (googlePasswordClaim == null) {
+        if(googlePasswordClaim == null){
             googlePasswordClaim = "";
         }
-        if (googlePasswordDefaultValue == null) {
+        if(googlePasswordDefaultValue == null){
             googlePasswordDefaultValue = "";
         }
-        if (googleGivenNameDefaultValue == null) {
+        if(googleGivenNameDefaultValue == null){
             googleGivenNameDefaultValue = "";
         }
-        if (googleFamilyNameClaim == null) {
+        if(googleFamilyNameClaim == null){
             googleFamilyNameClaim = "";
         }
-        if (googleFamilyNameDefaultValue == null) {
+        if(googleFamilyNameDefaultValue == null){
             googleFamilyNameDefaultValue = "";
         }
-        if (googleProvServiceAccEmail == null) {
+        if(googleProvServiceAccEmail == null){
             googleProvServiceAccEmail = "";
         }
-        if (googleProvAdminEmail == null) {
+        if(googleProvAdminEmail== null){
             googleProvAdminEmail = "";
         }
-        if (googleProvApplicationName == null) {
+        if(googleProvApplicationName == null){
             googleProvApplicationName = "";
         }
 
-        if (googleProvPattern == null) {
+        if(googleProvPattern == null) {
             googleProvPattern = "";
-        }
-
-        if (googleProvisioningSeparator == null ) {
-            googleProvisioningSeparator = "";
         }
         
         String spmlProvEnabledChecked = "";
@@ -1055,17 +1038,6 @@
         }
         if(sfOauth2TokenEndpoint == null){
             sfOauth2TokenEndpoint = IdentityApplicationConstants.SF_OAUTH2_TOKEN_ENDPOINT;
-        }
-        if(sfProvPattern == null) {
-            sfProvPattern = "";
-        }
-
-        if(sfProvSeparator == null) {
-            sfProvSeparator = "";
-        }
-
-        if(sfProvDomainName == null) {
-            sfProvDomainName = "";
         }
     %>
 
@@ -2760,36 +2732,37 @@
    	
    	 
    	 if(jQuery('#googleProvEnabled').attr('checked')) {
-
-         if ($('#google_prov_domain_name').val() == "") {
-             CARBON.showWarningDialog('Google Domain cannot be empty');
-             return false;
-         }
-
-
-         var errorMsg = emailValidator($('#google_prov_service_acc_email').val());
-         if (errorMsg == "null") {
-             CARBON.showWarningDialog('Google connector Service Account Email cannot be empty');
-             return false;
-         } else if (errorMsg == "notValied") {
-             CARBON.showWarningDialog('Google connector Service Account Email is not valid');
-             return false;
-         }
-
-         var errorMsgAdmin = emailValidator($('#google_prov_admin_email').val());
-         if (errorMsgAdmin == "null") {
-             CARBON.showWarningDialog('Google connector Administrator\'s Email cannot be empty');
-             return false;
-         } else if (errorMsgAdmin == "notValied") {
-             CARBON.showWarningDialog('Google connector Administrator\'s Email is not valid');
-             return false;
-         }
-
-
-         if ($('#google_prov_application_name').val() == "") {
-             CARBON.showWarningDialog('Google connector Application Name cannot be empty');
-             return false;
-         }
+    	 
+    	 if($('#google_prov_domain_name').val() == ""){
+    		 CARBON.showWarningDialog('Google Domain cannot be empty');
+    		 return false;
+    	 }
+    	 
+    
+    	 var errorMsg = emailValidator($('#google_prov_service_acc_email').val());    
+    	 if(errorMsg == "null"){
+       		 CARBON.showWarningDialog('Google connector Service Account Email cannot be empty');
+    		 return false;
+    	 } else if(errorMsg == "notValied") {
+       		 CARBON.showWarningDialog('Google connector Service Account Email is not valid');
+    		 return false;
+    	 }
+    	 
+    	 var errorMsgAdmin = emailValidator($('#google_prov_admin_email').val());    
+    	 if(errorMsgAdmin == "null"){
+       		 CARBON.showWarningDialog('Google connector Administrator\'s Email cannot be empty');
+    		 return false;
+    	 } else if(errorMsgAdmin == "notValied") {
+       		 CARBON.showWarningDialog('Google connector Administrator\'s Email is not valid');
+    		 return false;
+    	 }
+    	    	 
+    	 
+    	 if($('#google_prov_application_name').val() == ""){
+    		 CARBON.showWarningDialog('Google connector Application Name cannot be empty');
+    		 return false;
+    	 }
+    	 
     	 
     	 if($('#google_prov_email_claim_dropdown').val() == ""){
     		 CARBON.showWarningDialog('Google connector Primary Email claim URI should be selected ');
@@ -4277,7 +4250,7 @@
 
                             <tr>
                                 <td class="leftCol-med labelField"><fmt:message
-                                        key='google.provisioning.pattern' />:</td>
+                                        key='google.provisioning.pattern' />:<span class="required">*</span></td>
                                 <td>
                                     <div>
                                         <input id="google_prov_pattern"
@@ -4286,21 +4259,6 @@
                                     </div>
                                     <div class="sectionHelp">
                                         <fmt:message key='google_prov_pattern.help' />
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td class="leftCol-med labelField"><fmt:message
-                                        key='google.provisioning.separator' />:</td>
-                                <td>
-                                    <div>
-                                        <input id="google_prov_separator"
-                                               name="google_prov_separator" type="text"
-                                               value="<%=googleProvisioningSeparator%>" />
-                                    </div>
-                                    <div class="sectionHelp">
-                                        <fmt:message key='google.provisioning.separator.help' />
                                     </div>
                                 </td>
                             </tr>
@@ -4393,23 +4351,6 @@
 								<td><input class="text-box-big" id="sf-token-endpoint"
 									name="sf-token-endpoint" type="text" value=<%=sfOauth2TokenEndpoint%>></td>
 							</tr>
-                            <tr>
-                                <td class="leftCol-med labelField">Provisioning Pattern:</td>
-                                <td><input class="text-box-big" id="sf-prov-pattern"
-                                           name="sf-prov-pattern" type="text" value=<%=sfProvPattern%>></td>
-                            </tr>
-
-                            <tr>
-                                <td class="leftCol-med labelField">Provisioning Separator:</td>
-                                <td><input class="text-box-big" id="sf-prov-separator"
-                                           name="sf-prov-separator" type="text" value=<%=sfProvSeparator%>></td>
-                            </tr>
-
-                            <tr>
-                                <td class="leftCol-med labelField">Provisioning Domain:</td>
-                                <td><input class="text-box-big" id="sf-prov-domainName"
-                                           name="sf-prov-domainName" type="text" value=<%=sfProvDomainName%>></td>
-                            </tr>
 
 						</table>
 

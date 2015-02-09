@@ -87,8 +87,8 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
             throws IdentityOAuth2Exception {
 
         String issuer = config.getOpenIDConnectIDTokenIssuerIdentifier();
-        long lifetime = Integer.parseInt(config.getOpenIDConnectIDTokenExpiration());
-        long curTime = Calendar.getInstance().getTimeInMillis()/1000;
+        long lifetime = Integer.parseInt(config.getOpenIDConnectIDTokenExpiration()) * 1000;
+        long curTime = Calendar.getInstance().getTimeInMillis();
         // setting subject
         String subject = request.getAuthorizedUser();
         ApplicationManagementService applicationMgtService = OAuth2ServiceComponentHolder.getApplicationMgtService();
@@ -135,7 +135,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
             }
         }
         // Get access token issued time
-        long accessTokenIssuedTime = getAccessTokenIssuedTime(tokenRespDTO.getAccessToken(), request)/1000;
+        long accessTokenIssuedTime = getAccessTokenIssuedTime(tokenRespDTO.getAccessToken(), request);
         String atHash = new String(Base64.encodeBase64(tokenRespDTO.getAccessToken().getBytes()));
 
         if (log.isDebugEnabled()) {
@@ -278,7 +278,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
 
         // Cache miss, load the access token info from the database.
         if (accessTokenDO == null) {
-            accessTokenDO = tokenMgtDAO.retrieveAccessToken(accessToken);
+            accessTokenDO = tokenMgtDAO.retrieveAccessToken(accessToken, false);
         }
 
         // if the access token or client id is not valid

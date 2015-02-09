@@ -33,6 +33,7 @@
 			<modules>
 				<module>saml2-sso-authenticator</module>
 				<module>iwa-authenticator</module>
-                <module>signedjwt-authenticator</module>
+                                <module>signedjwt-authenticator</module>
+				<module>mutual-ssl-authenticator</module>
 			</modules>
 </project>

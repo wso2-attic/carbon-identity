@@ -89,7 +89,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
         if (activeAttributeValue != null) {
             isUserActive = Boolean.parseBoolean(activeAttributeValue);
             if (isUserActive) {
-                return true;
+                return authenticated;
             } else {
                 log.error("Trying to login from an inactive account of user: " + userName);
                 return false;

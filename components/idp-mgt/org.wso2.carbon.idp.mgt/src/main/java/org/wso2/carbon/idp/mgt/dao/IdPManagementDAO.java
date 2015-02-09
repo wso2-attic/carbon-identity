@@ -22,7 +22,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
-import org.wso2.carbon.identity.application.common.model.*;
+import org.wso2.carbon.identity.application.common.model.Claim;
+import org.wso2.carbon.identity.application.common.model.ClaimConfig;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.JustInTimeProvisioningConfig;
+import org.wso2.carbon.identity.application.common.model.LocalRole;
+import org.wso2.carbon.identity.application.common.model.PermissionsAndRoleConfig;
+import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
+import org.wso2.carbon.identity.application.common.model.RoleMapping;
 import org.wso2.carbon.identity.application.common.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.application.common.util.CharacterEncoder;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
@@ -30,12 +40,21 @@ import org.wso2.carbon.identity.application.common.util.IdentityApplicationManag
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.utils.DBUtils;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class IdPManagementDAO {
 
@@ -2195,13 +2214,10 @@ public class IdPManagementDAO {
         }
 
         if (newClaimConfig.isLocalClaimDialect()) {
-
             if(newClaimConfig.getClaimMappings() != null && newClaimConfig.getClaimMappings().length > 0){
                 // add claim mappings only.
-                addDefaultClaimValuesForLocalIdP(conn, idPId, tenantId,
-                        newClaimConfig.getClaimMappings());
+                addDefaultClaimValuesForLocalIdP(conn, idPId, tenantId, newClaimConfig.getClaimMappings());
             }
-
         } else {
             boolean addedClaims = false;
             if(newClaimConfig.getIdpClaims() != null && newClaimConfig.getIdpClaims().length > 0){
@@ -2209,15 +2225,12 @@ public class IdPManagementDAO {
                 addIdPClaims(conn, idPId, tenantId, newClaimConfig.getIdpClaims());
                 addedClaims = true;
             }
-
             if (addedClaims && newClaimConfig.getClaimMappings() != null &&
                     newClaimConfig.getClaimMappings().length > 0) {
                 // add identity provider claim mappings if and only if IdP claims are not empty.
                 addIdPClaimMappings(conn, idPId, tenantId, newClaimConfig.getClaimMappings());
             }
-
         }
-
     }
 
     /**

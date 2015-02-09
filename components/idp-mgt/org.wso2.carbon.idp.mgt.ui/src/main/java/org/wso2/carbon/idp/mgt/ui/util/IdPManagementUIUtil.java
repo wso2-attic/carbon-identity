@@ -397,8 +397,6 @@ public class IdPManagementUIUtil {
         Property privateKey = null;
         Property adminEmail = null;
         Property appName = null;
-        Property googleProvPatten = null;
-        Property googleProvSeparator = null;
         String oldGooglePvtKey = null;
         String newGooglePvtKey = null;
 
@@ -489,20 +487,14 @@ public class IdPManagementUIUtil {
         }
 
         if (paramMap.get("google_prov_pattern") != null) {
-            googleProvPatten = new Property();
-            googleProvPatten.setName("google_prov_pattern");
-            googleProvPatten.setValue(paramMap.get("google_prov_pattern"));
-        }
-
-        if (paramMap.get("google_prov_separator") != null) {
-            googleProvSeparator = new Property();
-            googleProvSeparator.setName("google_prov_separator");
-            googleProvSeparator.setValue(paramMap.get("google_prov_separator"));
+            appName = new Property();
+            appName.setName("google_prov_pattern");
+            appName.setValue(paramMap.get("google_prov_pattern"));
         }
 
         Property[] proProperties = new Property[] { appName, adminEmail, privateKey,
                 serviceAccEmail, familyNameDefault, familyNameClaim, givenNameDefaultVal,
-                givenNameClaim, emailClaim, domainName, googleProvPatten, googleProvSeparator };
+                givenNameClaim, emailClaim, domainName };
 
         proConnector.setProvisioningProperties(proProperties);
 
@@ -613,9 +605,6 @@ public class IdPManagementUIUtil {
         Property apiVersionProp = null;
         Property domainNameProp = null;
         Property tokenEndpointProp = null;
-        Property provisioningPattern = null;
-        Property provisioningSeparator = null;
-        Property provisioningDomain = null;
 
         if (paramMap.get("sfProvEnabled") != null && "on".equals(paramMap.get("sfProvEnabled"))) {
             proConnector.setEnabled(true);
@@ -677,27 +666,8 @@ public class IdPManagementUIUtil {
             tokenEndpointProp.setValue(paramMap.get("sf-token-endpoint"));
         }
 
-        if (paramMap.get("sf-prov-pattern") != null) {
-            provisioningPattern = new Property();
-            provisioningPattern.setName("sf-prov-pattern");
-            provisioningPattern.setValue(paramMap.get("sf-prov-pattern"));
-        }
-
-        if (paramMap.get("sf-prov-separator") != null) {
-            provisioningSeparator = new Property();
-            provisioningSeparator.setName("sf-prov-separator");
-            provisioningSeparator.setValue(paramMap.get("sf-prov-separator"));
-        }
-
-        if (paramMap.get("sf-prov-domainName") != null) {
-            provisioningDomain = new Property();
-            provisioningDomain.setName("sf-prov-domainName");
-            provisioningDomain.setValue(paramMap.get("sf-prov-domainName"));
-        }
-
         Property[] proProperties = new Property[] { userNameProp, passwordProp, clentIdProp,
-                clientSecretProp, apiVersionProp, domainNameProp, tokenEndpointProp, provisioningPattern,
-                provisioningSeparator, provisioningDomain };
+                clientSecretProp, apiVersionProp, domainNameProp, tokenEndpointProp };
 
         proConnector.setProvisioningProperties(proProperties);
 
