@@ -45,8 +45,8 @@ public class SequenceConfig implements Serializable {
 	private boolean completed;
 	
 	private String authenticatedUser;
-    private String authenticatedUserTenantDomain;
-    private Map<ClaimMapping, String> userAttributes = new HashMap<ClaimMapping, String>();
+	private String authenticatedUserTenantDomain;
+	private Map<ClaimMapping, String> userAttributes = new HashMap<ClaimMapping, String>();
 	private String authenticatedIdPs;
 	
 	private AuthenticatorConfig authenticatedReqPathAuthenticator;

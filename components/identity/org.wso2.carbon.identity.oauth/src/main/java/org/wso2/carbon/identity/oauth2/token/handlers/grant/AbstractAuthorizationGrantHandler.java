@@ -217,7 +217,6 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
             }
             String accessToken;
             String refreshToken;
-
             try {
                 accessToken = oauthIssuerImpl.accessToken();
                 refreshToken = oauthIssuerImpl.refreshToken();
@@ -225,6 +224,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                 throw new IdentityOAuth2Exception(
                         "Error occurred while generating access token and refresh token", e);
             }
+            
             accessTokenDO = tokenMgtDAO.retrieveLatestAccessToken(
                     consumerKey, authorizedUser, userStoreDomain, scope, true);
             if(accessTokenDO != null){
