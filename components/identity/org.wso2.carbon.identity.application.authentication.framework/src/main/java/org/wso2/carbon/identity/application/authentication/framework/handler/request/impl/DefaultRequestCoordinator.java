@@ -278,8 +278,7 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                     String authenticatedUserTenantDomain = sequenceConfig.getAuthenticatedUserTenantDomain();
 
                     if (authenticatedUser != null) {
-                        // set the user for the current authentication/logout
-                        // flow
+                        // set the user for the current authentication/logout flow
                         context.setSubject(authenticatedUser);
 
                         if (log.isDebugEnabled()) {
@@ -287,8 +286,7 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                         }
 
                         if (authenticatedUserTenantDomain != null) {
-                            // set the user tenant domain for the current authentication/logout
-                            // flow
+                            // set the user tenant domain for the current authentication/logout flow
                             context.setProperty("user-tenant-domain", authenticatedUserTenantDomain);
 
                             if (log.isDebugEnabled()) {
