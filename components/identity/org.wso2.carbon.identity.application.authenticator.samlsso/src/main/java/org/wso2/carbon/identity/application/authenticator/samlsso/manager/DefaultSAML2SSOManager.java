@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.application.authenticator.samlsso.manager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xerces.impl.Constants;
 import org.apache.xml.security.signature.XMLSignature;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
@@ -88,6 +89,7 @@ import org.xml.sax.SAXException;
 
 import javax.crypto.SecretKey;
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -113,6 +115,10 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
     private IdentityProvider identityProvider = null;
     private Map<String,String> properties;
     private String tenantDomain;
+
+    private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
+            Constants.SECURITY_MANAGER_PROPERTY;
+    private static final int ENTITY_EXPANSION_LIMIT = 0;
 
     public static void doBootstrap() {
         /* Initializing the OpenSAML library */
@@ -519,11 +525,15 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
 
     private XMLObject unmarshall(String samlString) throws SAMLSSOException {
 
-        //String decodedString = decodeHTMLCharacters(samlString);
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        documentBuilderFactory.setNamespaceAware(true);
-        documentBuilderFactory.setExpandEntityReferences(false);
         try {
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setNamespaceAware(true);
+            documentBuilderFactory.setExpandEntityReferences(false);
+            documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            org.apache.xerces.util.SecurityManager securityManager = new org.apache.xerces.util.SecurityManager();
+            securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
+            documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
+
             DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
             docBuilder.setEntityResolver(new CarbonEntityResolver());
             ByteArrayInputStream is = new ByteArrayInputStream(samlString.getBytes());

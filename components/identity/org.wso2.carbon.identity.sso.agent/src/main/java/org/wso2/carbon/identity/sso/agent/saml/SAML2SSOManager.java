@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.sso.agent.saml;
 
+import org.apache.xerces.impl.Constants;
 import org.apache.xml.security.signature.XMLSignature;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
@@ -59,6 +60,7 @@ import javax.crypto.SecretKey;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -83,6 +85,10 @@ public class SAML2SSOManager {
 
     private static volatile boolean bootStrapped = false;
     private SSOAgentConfig ssoAgentConfig = null;
+
+    private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
+            Constants.SECURITY_MANAGER_PROPERTY;
+    private static final int ENTITY_EXPANSION_LIMIT = 0;
 
 	public SAML2SSOManager(SSOAgentConfig ssoAgentConfig) throws SSOAgentException {
 
@@ -546,11 +552,17 @@ public class SAML2SSOManager {
 
 	protected XMLObject unmarshall(String saml2SSOString) throws SSOAgentException {
 
-        String decodedString = decodeHTMLCharacters(saml2SSOString);
-		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        documentBuilderFactory.setExpandEntityReferences(false);
-		documentBuilderFactory.setNamespaceAware(true);
         try {
+            String decodedString = decodeHTMLCharacters(saml2SSOString);
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setNamespaceAware(true);
+
+            documentBuilderFactory.setExpandEntityReferences(false);
+            documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            org.apache.xerces.util.SecurityManager securityManager = new org.apache.xerces.util.SecurityManager();
+            securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
+            documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
+
             DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
             docBuilder.setEntityResolver(new CarbonEntityResolver());
             ByteArrayInputStream is = new ByteArrayInputStream(decodedString.getBytes());

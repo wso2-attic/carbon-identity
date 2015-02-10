@@ -29,12 +29,15 @@ import java.util.Map;
 
 
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xerces.impl.Constants;
+import org.apache.xerces.util.SecurityManager;
 import org.opensaml.Configuration;
 import org.opensaml.DefaultBootstrap;
 import org.opensaml.saml1.core.Attribute;
@@ -74,6 +77,10 @@ public class PassiveSTSManager {
 	
     private X509Credential credential = null;
     private static boolean bootStrapped = false;
+
+    private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
+            Constants.SECURITY_MANAGER_PROPERTY;
+    private static final int ENTITY_EXPANSION_LIMIT = 0;
 
 	public PassiveSTSManager(ExternalIdPConfig externalIdPConfig) throws PassiveSTSException {
 		String credentialImplClass = "org.wso2.carbon.identity.application.authenticator.passive.sts.manager.STSAgentKeyStoreCredential";
@@ -252,11 +259,16 @@ public class PassiveSTSManager {
 	private XMLObject unmarshall(String samlString) throws PassiveSTSException {
         
         samlString = decodeHTMLCharacters(samlString);
-		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        documentBuilderFactory.setExpandEntityReferences(false);
-		documentBuilderFactory.setNamespaceAware(true);
-
         try {
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setNamespaceAware(true);
+
+            documentBuilderFactory.setExpandEntityReferences(false);
+            documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            SecurityManager securityManager = new SecurityManager();
+            securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
+            documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
+
             DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
             docBuilder.setEntityResolver(new CarbonEntityResolver());
             ByteArrayInputStream is = new ByteArrayInputStream(samlString.getBytes(Charset.forName("UTF-8")));

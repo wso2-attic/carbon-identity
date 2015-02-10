@@ -15,6 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
+
 package org.wso2.carbon.identity.entitlement.wsxacml;
 
 import org.apache.axiom.om.OMAbstractFactory;
@@ -29,6 +30,8 @@ import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.rpc.receivers.RPCMessageReceiver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xerces.impl.Constants;
+import org.apache.xerces.util.SecurityManager;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.signature.XMLSignature;
 import org.joda.time.DateTime;
@@ -74,6 +77,7 @@ import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.entitlement.EntitlementException;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -98,7 +102,9 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
     private static boolean isBootStrapped = false;
     private static OMNamespace xacmlContextNS = OMAbstractFactory.getOMFactory()
             .createOMNamespace("urn:oasis:names:tc:xacml:2.0:context:schema:os", "xacml-context");
-
+    private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
+            Constants.SECURITY_MANAGER_PROPERTY;
+    private static final int ENTITY_EXPANSION_LIMIT = 0;
 
     @Override
     public void invokeBusinessLogic(MessageContext inMessageContext, MessageContext outMessageContext)
@@ -218,18 +224,24 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
      *
      */
     public XMLObject unmarshall(String xmlString) throws EntitlementException {
-        Unmarshaller unmarshaller;
+
         try {
             doBootstrap();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setExpandEntityReferences(false);
             documentBuilderFactory.setNamespaceAware(true);
+
+            documentBuilderFactory.setExpandEntityReferences(false);
+            documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            SecurityManager securityManager = new SecurityManager();
+            securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
+            documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
+
             DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
             docBuilder.setEntityResolver(new CarbonEntityResolver());
             Document document = docBuilder.parse(new ByteArrayInputStream(xmlString.trim().getBytes()));
             Element element = document.getDocumentElement();
             UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
-            unmarshaller = unmarshallerFactory.getUnmarshaller(element);
+            Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(element);
             return unmarshaller.unmarshall(element);
         } catch (Exception e) {
             log.error("Error in constructing XML(SAML or XACML) Object from the encoded String", e);

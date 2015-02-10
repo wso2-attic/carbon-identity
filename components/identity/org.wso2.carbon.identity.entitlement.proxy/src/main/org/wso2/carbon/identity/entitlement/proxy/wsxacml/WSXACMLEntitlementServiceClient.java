@@ -1,5 +1,8 @@
 package org.wso2.carbon.identity.entitlement.proxy.wsxacml;
 
+
+import org.apache.xerces.impl.Constants;
+import org.apache.xerces.util.SecurityManager;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.util.AXIOMUtil;
@@ -61,6 +64,7 @@ import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.identity.entitlement.proxy.exception.EntitlementProxyException;
 import org.wso2.carbon.identity.entitlement.proxy.util.CarbonEntityResolver;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -79,6 +83,10 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
             ("urn:oasis:names:tc:xacml:2.0:context:schema:os", "xacml-context");
     private static final Log log = LogFactory.getLog(WSXACMLEntitlementServiceClient.class);
     HttpTransportProperties.Authenticator authenticator;
+
+    private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
+            Constants.SECURITY_MANAGER_PROPERTY;
+    private static final int ENTITY_EXPANSION_LIMIT = 0;
 
     public WSXACMLEntitlementServiceClient(String serverUrl, String userName, String password){
         this.serverUrl = serverUrl;
@@ -391,11 +399,18 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
      *
      */
     private XMLObject unmarshall(String xmlString) throws EntitlementProxyException {
+
         try {
             doBootstrap();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setExpandEntityReferences(false);
             documentBuilderFactory.setNamespaceAware(true);
+
+            documentBuilderFactory.setExpandEntityReferences(false);
+            documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            SecurityManager securityManager = new SecurityManager();
+            securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
+            documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
+
             DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
             docBuilder.setEntityResolver(new CarbonEntityResolver());
             Document document = docBuilder.parse(new ByteArrayInputStream(xmlString.trim().getBytes()));
