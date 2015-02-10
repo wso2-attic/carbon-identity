@@ -112,7 +112,7 @@ public class TOTPTokenGenerator {
 				}
 				try {
 					token = getCode(secretkey, getTimeIndex());
-					sendNotification("token : " + token, username);
+					//sendNotification("token : " + token, username);
 					if (log.isDebugEnabled()) {
 						log.debug("Token is sent to via email. token : " + token);
 					}

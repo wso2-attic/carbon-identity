@@ -26,9 +26,9 @@ $(document).ready(function(){
 
 function requestTOTPToken(){
 
-        var str = "../../commonauth";
+        var endpointURL = "../../commonauth";
         $.ajax({
-            url:str,
+            url:endpointURL,
             type:"GET",
             data:"&sessionDataKey="+document.getElementById("sessionDataKey").value+"&sendToken=true",
             success: function(response){
