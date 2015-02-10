@@ -496,6 +496,24 @@ public class OpenIDHandler {
                     new String[]{username});
         }
 
+        String forceAuthenticate = "false";
+        if (!claimedID.endsWith("/openid/")) {
+            String authenticatedUser = (String) request.getSession().getAttribute(
+                    OpenIDConstants.SessionAttribute.AUTHENTICATED_OPENID);
+            if (log.isDebugEnabled()) {
+                log.debug("claimedID : " + claimedID + ", authenticated user : " + authenticatedUser);
+            }
+            if (authenticatedUser != null && !"".equals(authenticatedUser.trim())
+                    && !claimedID.equals(authenticatedUser.trim())) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Overriding previously authenticated OpenID : " + authenticatedUser
+                            + " with the OpenID in the current request :" + claimedID
+                            + " and setting forceAuthenticate.");
+                }
+                forceAuthenticate = "true";
+            }
+        }
+        authenticationRequest.setForceAuth(forceAuthenticate);
         //Add request headers to authentication request context. ie to cache
         authenticationRequest.setRequestQueryParams(request.getParameterMap());
         for (Enumeration headerNames = request.getHeaderNames(); headerNames.hasMoreElements(); ) {
