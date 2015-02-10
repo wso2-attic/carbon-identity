@@ -20,47 +20,48 @@ import java.util.TreeMap;
 
 public class TOTPAuthenticationValve extends ValveBase {
 
-    private static Log log = LogFactory.getLog(TOTPAuthenticationValve.class);
+	private static Log log = LogFactory.getLog(TOTPAuthenticationValve.class);
 
-    Map<Integer, TOTPAuthenticationHandler> totpAuthenticationHandlers = new TreeMap<Integer, TOTPAuthenticationHandler>();
+	Map<Integer, TOTPAuthenticationHandler> totpAuthenticationHandlers = new TreeMap<Integer, 
+			TOTPAuthenticationHandler>();
 
-    @Override
-    public void invoke(Request request, Response response) throws IOException, ServletException {
+	@Override
+	public void invoke(Request request, Response response) throws IOException, ServletException {
 
-        if (!Constants.CONTEXT_PATH.equals(request.getContextPath().trim())) {
-            getNext().invoke(request, response);
-            return;
-        }
-        TOTPAuthenticationHandler authenticationHandler = getAuthenticator(request);
+		if (!Constants.CONTEXT_PATH.equals(request.getContextPath().trim())) {
+			getNext().invoke(request, response);
+			return;
+		}
+		TOTPAuthenticationHandler authenticationHandler = getAuthenticator(request);
 
-        if (authenticationHandler != null) {
-            if (!authenticationHandler.isAuthenticated(request)) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                return;
-            }
-        }
-        getNext().invoke(request, response);
-    }
+		if (authenticationHandler != null) {
+			if (!authenticationHandler.isAuthenticated(request)) {
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+				return;
+			}
+		}
+		getNext().invoke(request, response);
+	}
 
-    @Override
-    protected void initInternal() throws LifecycleException {
-        super.initInternal();
-        BasicAuthHandler basicAuthHandler = new BasicAuthHandler();
-        basicAuthHandler.setDefaultPriority();
-        totpAuthenticationHandlers.put(basicAuthHandler.getPriority(), basicAuthHandler);
+	@Override
+	protected void initInternal() throws LifecycleException {
+		super.initInternal();
+		BasicAuthHandler basicAuthHandler = new BasicAuthHandler();
+		basicAuthHandler.setDefaultPriority();
+		totpAuthenticationHandlers.put(basicAuthHandler.getPriority(), basicAuthHandler);
 
-        OAuthHandler oAuthHandler = new OAuthHandler();
-        oAuthHandler.setDefaultPriority();
-        oAuthHandler.setDefaultAuthzServer();
-        totpAuthenticationHandlers.put(oAuthHandler.getPriority(), oAuthHandler);
-    }
+		OAuthHandler oAuthHandler = new OAuthHandler();
+		oAuthHandler.setDefaultPriority();
+		oAuthHandler.setDefaultAuthzServer();
+		totpAuthenticationHandlers.put(oAuthHandler.getPriority(), oAuthHandler);
+	}
 
-    private TOTPAuthenticationHandler getAuthenticator(Request request) {
-        for (TOTPAuthenticationHandler authenticationHandler : totpAuthenticationHandlers.values()) {
-            if (authenticationHandler.canHandler(request)) {
-                return authenticationHandler;
-            }
-        }
-        return null;
-    }
+	private TOTPAuthenticationHandler getAuthenticator(Request request) {
+		for (TOTPAuthenticationHandler authenticationHandler : totpAuthenticationHandlers.values()) {
+			if (authenticationHandler.canHandler(request)) {
+				return authenticationHandler;
+			}
+		}
+		return null;
+	}
 }

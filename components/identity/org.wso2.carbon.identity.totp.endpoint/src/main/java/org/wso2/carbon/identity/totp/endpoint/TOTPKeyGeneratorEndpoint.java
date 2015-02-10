@@ -37,60 +37,62 @@ import javax.ws.rs.core.Response;
 @Path("/keygen")
 public class TOTPKeyGeneratorEndpoint {
 
-    private static Log log = LogFactory.getLog(TOTPKeyGeneratorEndpoint.class);
+	private static Log log = LogFactory.getLog(TOTPKeyGeneratorEndpoint.class);
 
-    @POST
-    @Path("/local")
-    @Consumes("application/x-www-form-urlencoded")
-    @Produces("application/json")
-    public Response totpKeyGenLocal(@Context HttpServletRequest request) {
+	@POST
+	@Path("/local")
+	@Consumes("application/x-www-form-urlencoded")
+	@Produces("application/json")
+	public Response totpKeyGenLocal(@Context HttpServletRequest request) {
 
-        TOTPManager totpManager = (TOTPManager) PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService(TOTPManager.class);
-        if (totpManager != null) {
-            String username = request.getParameter("username");
-            TOTPDTO totpdto = null;
-            try {
-                totpdto = totpManager.generateTOTPKeyLocal(username);
-                String json = createJsonPayload(totpdto.getSecretkey(), totpdto.getQRCodeURL());
-                return Response.ok(json, MediaType.APPLICATION_JSON_TYPE).build();
-            } catch (TOTPException e) {
-                log.error("TOTPKeyGenerator endpoint could not generate keys for local user", e);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error when generating the key")
-                        .type(MediaType.APPLICATION_JSON_TYPE).build();
-            }
-        } else {
-            log.error("TOTPKeyGenerator endpoint could not generate keys for local user");
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error when generating the key")
-                    .type(MediaType.APPLICATION_JSON_TYPE).build();
-        }
-    }
-
-
-    @POST
-    @Path("/external")
-    @Consumes("application/x-www-form-urlencoded")
-    @Produces("application/json")
-    public Response totpKeyGenExternal(@Context HttpServletRequest request) {
-
-        TOTPManager totpManager = (TOTPManager) PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService(TOTPManager.class);
-        if (totpManager != null) {
-            String username = request.getParameter("username");
-            TOTPDTO totpdto = totpManager.generateTOTPKey(username);
-            String json = createJsonPayload(totpdto.getSecretkey(), totpdto.getQRCodeURL());
-            return Response.ok(json, MediaType.APPLICATION_JSON_TYPE).build();
-        } else {
-            log.error("TOTPKeyGenerator endpoint could not generate the key");
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error when generating the key")
-                    .type(MediaType.APPLICATION_JSON_TYPE).build();
-        }
-    }
+		TOTPManager totpManager = (TOTPManager) PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService
+				(TOTPManager.class);
+		if (totpManager != null) {
+			String username = request.getParameter("username");
+			TOTPDTO totpdto = null;
+			try {
+				totpdto = totpManager.generateTOTPKeyLocal(username);
+				String json = createJsonPayload(totpdto.getSecretkey(), totpdto.getQRCodeURL());
+				return Response.ok(json, MediaType.APPLICATION_JSON_TYPE).build();
+			} catch (TOTPException e) {
+				log.error("TOTPKeyGenerator endpoint could not generate keys for local user", e);
+				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error when generating the key")
+						.type(MediaType.APPLICATION_JSON_TYPE).build();
+			}
+		} else {
+			log.error("TOTPKeyGenerator endpoint could not generate keys for local user");
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error when generating the key")
+					.type(MediaType.APPLICATION_JSON_TYPE).build();
+		}
+	}
 
 
-    private String createJsonPayload(String secretKey, String qrCodeURL) {
+	@POST
+	@Path("/external")
+	@Consumes("application/x-www-form-urlencoded")
+	@Produces("application/json")
+	public Response totpKeyGenExternal(@Context HttpServletRequest request) {
 
-        return "{\"secretkey\":\"" + secretKey + "\"," +
-               "\"qrcode\":\"" + qrCodeURL + "\"}";
-    }
+		TOTPManager totpManager = (TOTPManager) PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService
+				(TOTPManager.class);
+		if (totpManager != null) {
+			String username = request.getParameter("username");
+			TOTPDTO totpdto = totpManager.generateTOTPKey(username);
+			String json = createJsonPayload(totpdto.getSecretkey(), totpdto.getQRCodeURL());
+			return Response.ok(json, MediaType.APPLICATION_JSON_TYPE).build();
+		} else {
+			log.error("TOTPKeyGenerator endpoint could not generate the key");
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error when generating the key")
+					.type(MediaType.APPLICATION_JSON_TYPE).build();
+		}
+	}
+
+
+	private String createJsonPayload(String secretKey, String qrCodeURL) {
+
+		return "{\"secretkey\":\"" + secretKey + "\"," +
+		       "\"qrcode\":\"" + qrCodeURL + "\"}";
+	}
 
 
 }

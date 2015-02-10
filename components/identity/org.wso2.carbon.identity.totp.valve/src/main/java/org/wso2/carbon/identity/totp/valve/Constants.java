@@ -20,15 +20,15 @@ package org.wso2.carbon.identity.totp.valve;
 
 public class Constants {
 
-    public static final String CONTEXT_PATH = "/totp";
-    public static final String AUTHORIZATION_HEADER = "Authorization";
-    public static final String BASIC_AUTH_HEADER = "Basic";
-    public static final String BEARER_AUTH_HEADER = "Bearer";
-    public static final String LOCAL_AUTH_SERVER = "local://services";
-    public static final String LOCAL_PREFIX = "local";
+	public static final String CONTEXT_PATH = "/totp";
+	public static final String AUTHORIZATION_HEADER = "Authorization";
+	public static final String BASIC_AUTH_HEADER = "Basic";
+	public static final String BEARER_AUTH_HEADER = "Bearer";
+	public static final String LOCAL_AUTH_SERVER = "local://services";
+	public static final String LOCAL_PREFIX = "local";
 
-    public static final String PROPERTY_NAME_PRIORITY = "Priority";
-    public static final String PROPERTY_NAME_AUTH_SERVER = "AuthorizationServer";
-    public static final String PROPERTY_NAME_USERNAME = "UserName";
-    public static final String PROPERTY_NAME_PASSWORD = "Password";
+	public static final String PROPERTY_NAME_PRIORITY = "Priority";
+	public static final String PROPERTY_NAME_AUTH_SERVER = "AuthorizationServer";
+	public static final String PROPERTY_NAME_USERNAME = "UserName";
+	public static final String PROPERTY_NAME_PASSWORD = "Password";
 }

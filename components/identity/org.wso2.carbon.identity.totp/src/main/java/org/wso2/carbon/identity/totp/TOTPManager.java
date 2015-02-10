@@ -23,21 +23,21 @@ import org.wso2.carbon.identity.totp.exception.TOTPException;
 
 public interface TOTPManager {
 
-    public TOTPDTO generateTOTPKeyLocal(String username) throws TOTPException;
+	public TOTPDTO generateTOTPKeyLocal(String username) throws TOTPException;
 
-    public TOTPDTO generateTOTPKey(String username);
+	public TOTPDTO generateTOTPKey(String username);
 
-    public String generateTOTPTokenLocal(String username) throws TOTPException;
+	public String generateTOTPTokenLocal(String username) throws TOTPException;
 
-    public String generateTOTPToken(String secretKey) throws TOTPException;
+	public String generateTOTPToken(String secretKey) throws TOTPException;
 
-    public boolean isTOTPEnabledForLocalUser(String username) throws TOTPException;
+	public boolean isTOTPEnabledForLocalUser(String username) throws TOTPException;
 
-    public boolean isValidTokenLocalUser(int token, String username) throws TOTPException;
+	public boolean isValidTokenLocalUser(int token, String username) throws TOTPException;
 
-    public boolean isValidToken(int token, String secretKey);
+	public boolean isValidToken(int token, String secretKey);
 
-    public String[] getSupportedEncodingMethods();
+	public String[] getSupportedEncodingMethods();
 
-    public String[] getSupportedHashingMethods();
+	public String[] getSupportedHashingMethods();
 }

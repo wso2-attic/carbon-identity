@@ -19,7 +19,7 @@
 package org.wso2.carbon.identity.totp;
 
 public abstract class Constants {
-    public static final String QR_CODE_URL = "http://wso2.org/claims/identity/qrcodeurl";
-    public static final String SECRET_KEY = "http://wso2.org/claims/identity/secretkey";
-    public static final String Encoding = "http://wso2.org/claims/identity/encoding";
+	public static final String QR_CODE_URL = "http://wso2.org/claims/identity/qrcodeurl";
+	public static final String SECRET_KEY = "http://wso2.org/claims/identity/secretkey";
+	public static final String Encoding = "http://wso2.org/claims/identity/encoding";
 }

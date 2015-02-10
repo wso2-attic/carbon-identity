@@ -31,73 +31,73 @@ import org.wso2.carbon.utils.CarbonUtils;
 import java.rmi.RemoteException;
 
 public class OAuthServiceClient {
-    private OAuth2TokenValidationServiceStub stub = null;
-    private static final Log log = LogFactory.getLog(OAuthServiceClient.class);
-    public static final String BEARER_TOKEN_TYPE = "bearer";
+	private OAuth2TokenValidationServiceStub stub = null;
+	private static final Log log = LogFactory.getLog(OAuthServiceClient.class);
+	public static final String BEARER_TOKEN_TYPE = "bearer";
 
-    /**
-     * OAuth2TokenValidationService Admin Service Client
-     *
-     * @param backendServerURL
-     * @param username
-     * @param password
-     * @param configCtx
-     * @throws Exception
-     */
-    public OAuthServiceClient(String backendServerURL, String username, String password,
-                              ConfigurationContext configCtx) throws Exception {
-        String serviceURL = backendServerURL + "OAuth2TokenValidationService";
-        try {
-            stub = new OAuth2TokenValidationServiceStub(configCtx, serviceURL);
-            CarbonUtils.setBasicAccessSecurityHeaders(username, password, true, stub._getServiceClient());
-        } catch (AxisFault e) {
-            log.error("Error initializing OAuth2 Client");
-            throw new Exception("Error initializing OAuth Client", e);
-        }
-    }
+	/**
+	 * OAuth2TokenValidationService Admin Service Client
+	 *
+	 * @param backendServerURL
+	 * @param username
+	 * @param password
+	 * @param configCtx
+	 * @throws Exception
+	 */
+	public OAuthServiceClient(String backendServerURL, String username, String password,
+	                          ConfigurationContext configCtx) throws Exception {
+		String serviceURL = backendServerURL + "OAuth2TokenValidationService";
+		try {
+			stub = new OAuth2TokenValidationServiceStub(configCtx, serviceURL);
+			CarbonUtils.setBasicAccessSecurityHeaders(username, password, true, stub._getServiceClient());
+		} catch (AxisFault e) {
+			log.error("Error initializing OAuth2 Client");
+			throw new Exception("Error initializing OAuth Client", e);
+		}
+	}
 
-    /**
-     * Validates the OAuth 2.0 request
-     *
-     * @param accessTokenIdentifier
-     * @return
-     * @throws Exception
-     */
-    public OAuth2TokenValidationResponseDTO validateAccessToken(String accessTokenIdentifier)
-            throws Exception {
-        OAuth2TokenValidationRequestDTO oauthReq = new OAuth2TokenValidationRequestDTO();
-        OAuth2TokenValidationRequestDTO_OAuth2AccessToken accessToken =
-                new OAuth2TokenValidationRequestDTO_OAuth2AccessToken();
-        accessToken.setTokenType(BEARER_TOKEN_TYPE);
-        accessToken.setIdentifier(accessTokenIdentifier);
-        oauthReq.setAccessToken(accessToken);
-        try {
-            return stub.validate(oauthReq);
-        } catch (RemoteException e) {
-            log.error("Error while validating OAuth2 request");
-            throw new Exception("Error while validating OAuth2 request", e);
-        }
-    }
+	/**
+	 * Validates the OAuth 2.0 request
+	 *
+	 * @param accessTokenIdentifier
+	 * @return
+	 * @throws Exception
+	 */
+	public OAuth2TokenValidationResponseDTO validateAccessToken(String accessTokenIdentifier)
+			throws Exception {
+		OAuth2TokenValidationRequestDTO oauthReq = new OAuth2TokenValidationRequestDTO();
+		OAuth2TokenValidationRequestDTO_OAuth2AccessToken accessToken =
+				new OAuth2TokenValidationRequestDTO_OAuth2AccessToken();
+		accessToken.setTokenType(BEARER_TOKEN_TYPE);
+		accessToken.setIdentifier(accessTokenIdentifier);
+		oauthReq.setAccessToken(accessToken);
+		try {
+			return stub.validate(oauthReq);
+		} catch (RemoteException e) {
+			log.error("Error while validating OAuth2 request");
+			throw new Exception("Error while validating OAuth2 request", e);
+		}
+	}
 
-    /**
-     * @param accessTokenIdentifier
-     * @return
-     * @throws Exception
-     */
-    public OAuth2ClientApplicationDTO findOAuthConsumerIfTokenIsValid(String accessTokenIdentifier)
-            throws Exception {
-        OAuth2TokenValidationRequestDTO oauthReq = new OAuth2TokenValidationRequestDTO();
-        OAuth2TokenValidationRequestDTO_OAuth2AccessToken accessToken =
-                new OAuth2TokenValidationRequestDTO_OAuth2AccessToken();
-        accessToken.setTokenType(BEARER_TOKEN_TYPE);
-        accessToken.setIdentifier(accessTokenIdentifier);
-        oauthReq.setAccessToken(accessToken);
-        try {
-            return stub.findOAuthConsumerIfTokenIsValid(oauthReq);
-        } catch (RemoteException e) {
-            log.error("Error while validating OAuth2 request");
-            throw new Exception("Error while validating OAuth2 request", e);
-        }
-    }
+	/**
+	 * @param accessTokenIdentifier
+	 * @return
+	 * @throws Exception
+	 */
+	public OAuth2ClientApplicationDTO findOAuthConsumerIfTokenIsValid(String accessTokenIdentifier)
+			throws Exception {
+		OAuth2TokenValidationRequestDTO oauthReq = new OAuth2TokenValidationRequestDTO();
+		OAuth2TokenValidationRequestDTO_OAuth2AccessToken accessToken =
+				new OAuth2TokenValidationRequestDTO_OAuth2AccessToken();
+		accessToken.setTokenType(BEARER_TOKEN_TYPE);
+		accessToken.setIdentifier(accessTokenIdentifier);
+		oauthReq.setAccessToken(accessToken);
+		try {
+			return stub.findOAuthConsumerIfTokenIsValid(oauthReq);
+		} catch (RemoteException e) {
+			log.error("Error while validating OAuth2 request");
+			throw new Exception("Error while validating OAuth2 request", e);
+		}
+	}
 
 }

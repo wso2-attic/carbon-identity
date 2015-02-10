@@ -34,175 +34,176 @@ import java.util.Map;
  */
 public class OAuthHandler implements TOTPAuthenticationHandler {
 
-    private String remoteServiceURL;
-    private String userName;
-    private String password;
-    private int priority;
+	private String remoteServiceURL;
+	private String userName;
+	private String password;
+	private int priority;
 
-    private final int DEFAULT_PRIORITY = 10;
+	private final int DEFAULT_PRIORITY = 10;
 
-    private Map<String, String> properties;
+	private Map<String, String> properties;
 
 
-    /**
-     * Set default AuthzServer.
-     */
-    public void setDefaultAuthzServer() {
-        this.remoteServiceURL = Constants.LOCAL_AUTH_SERVER;
-    }
+	/**
+	 * Set default AuthzServer.
+	 */
+	public void setDefaultAuthzServer() {
+		this.remoteServiceURL = Constants.LOCAL_AUTH_SERVER;
+	}
 
-    /**
-     * Set properties.
-     *
-     * @param authenticatorProperties
-     */
-    @Override
-    public void setProperties(Map<String, String> authenticatorProperties) {
-        this.properties = authenticatorProperties;
-        String priorityString = properties.get(Constants.PROPERTY_NAME_PRIORITY);
-        if (priorityString != null) {
-            priority = Integer.parseInt(priorityString);
-        } else {
-            priority = DEFAULT_PRIORITY;
-        }
-        String remoteURLString = properties.get(Constants.PROPERTY_NAME_AUTH_SERVER);
-        if (remoteURLString != null) {
-            remoteServiceURL = remoteURLString;
-        } else {
-            remoteServiceURL = Constants.LOCAL_AUTH_SERVER;
-        }
-        userName = properties.get(Constants.PROPERTY_NAME_USERNAME);
-        password = properties.get(Constants.PROPERTY_NAME_PASSWORD);
-    }
+	/**
+	 * Set properties.
+	 *
+	 * @param authenticatorProperties
+	 */
+	@Override
+	public void setProperties(Map<String, String> authenticatorProperties) {
+		this.properties = authenticatorProperties;
+		String priorityString = properties.get(Constants.PROPERTY_NAME_PRIORITY);
+		if (priorityString != null) {
+			priority = Integer.parseInt(priorityString);
+		} else {
+			priority = DEFAULT_PRIORITY;
+		}
+		String remoteURLString = properties.get(Constants.PROPERTY_NAME_AUTH_SERVER);
+		if (remoteURLString != null) {
+			remoteServiceURL = remoteURLString;
+		} else {
+			remoteServiceURL = Constants.LOCAL_AUTH_SERVER;
+		}
+		userName = properties.get(Constants.PROPERTY_NAME_USERNAME);
+		password = properties.get(Constants.PROPERTY_NAME_PASSWORD);
+	}
 
-    /**
-     * get the OAuthzServerURL.
-     *
-     * @return
-     */
-    private String getOAuthAuthzServerURL() {
-        if (remoteServiceURL != null) {
-            if (!remoteServiceURL.endsWith("/")) {
-                remoteServiceURL += "/";
-            }
-        }
-        return remoteServiceURL;
-    }
+	/**
+	 * get the OAuthzServerURL.
+	 *
+	 * @return
+	 */
+	private String getOAuthAuthzServerURL() {
+		if (remoteServiceURL != null) {
+			if (!remoteServiceURL.endsWith("/")) {
+				remoteServiceURL += "/";
+			}
+		}
+		return remoteServiceURL;
+	}
 
-    /**
-     * extended can handle method.
-     *
-     * @param request
-     * @return
-     */
-    @Override
-    public boolean canHandler(Request request) {
+	/**
+	 * extended can handle method.
+	 *
+	 * @param request
+	 * @return
+	 */
+	@Override
+	public boolean canHandler(Request request) {
 
-        String authheader = request.getHeader(Constants.AUTHORIZATION_HEADER);
-        if (authheader != null && authheader.startsWith(Constants.BEARER_AUTH_HEADER)) {
-            return true;
-        }
-        return false;
-    }
+		String authheader = request.getHeader(Constants.AUTHORIZATION_HEADER);
+		if (authheader != null && authheader.startsWith(Constants.BEARER_AUTH_HEADER)) {
+			return true;
+		}
+		return false;
+	}
 
-    /**
-     * Check whether a given credentials in the request is authenticated or not.
-     *
-     * @param request request from the client
-     * @return true if authenticated, false otherwise
-     */
-    @Override
-    public boolean isAuthenticated(Request request) {
+	/**
+	 * Check whether a given credentials in the request is authenticated or not.
+	 *
+	 * @param request request from the client
+	 * @return true if authenticated, false otherwise
+	 */
+	@Override
+	public boolean isAuthenticated(Request request) {
 
-        String authheader = request.getHeader(Constants.AUTHORIZATION_HEADER);
-        if (authheader != null && authheader.startsWith(Constants.BEARER_AUTH_HEADER)) {
+		String authheader = request.getHeader(Constants.AUTHORIZATION_HEADER);
+		if (authheader != null && authheader.startsWith(Constants.BEARER_AUTH_HEADER)) {
 
-            String accessToken = authheader.substring(Constants.BEARER_AUTH_HEADER.length()).trim();
+			String accessToken = authheader.substring(Constants.BEARER_AUTH_HEADER.length()).trim();
 
-            try {
-                OAuth2ClientApplicationDTO validationApp = this.validateAccessToken(accessToken);
-                OAuth2TokenValidationResponseDTO validationResponse = null;
+			try {
+				OAuth2ClientApplicationDTO validationApp = this.validateAccessToken(accessToken);
+				OAuth2TokenValidationResponseDTO validationResponse = null;
 
-                if (validationApp != null) {
-                    validationResponse = validationApp.getAccessTokenValidationResponse();
-                }
+				if (validationApp != null) {
+					validationResponse = validationApp.getAccessTokenValidationResponse();
+				}
 
-                if (validationResponse != null) {
-                    if (validationResponse.isValid()) {
-                        String userName = validationResponse.getAuthorizedUser();
-                        return true;
-                    }
-                }
-            } catch (Exception e) {
+				if (validationResponse != null) {
+					if (validationResponse.isValid()) {
+						String userName = validationResponse.getAuthorizedUser();
+						return true;
+					}
+				}
+			} catch (Exception e) {
 
-            }
-        }
+			}
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    @Override
-    public int getPriority() {
-        return this.priority;
-    }
+	@Override
+	public int getPriority() {
+		return this.priority;
+	}
 
-    @Override
-    public void setPriority(int priority) {
-        this.priority = priority;
-    }
+	@Override
+	public void setPriority(int priority) {
+		this.priority = priority;
+	}
 
-    /**
-     * Validate the access token sent.
-     *
-     * @param accessTokenIdentifier
-     * @return
-     * @throws Exception
-     */
-    private OAuth2ClientApplicationDTO validateAccessToken(String accessTokenIdentifier)
-            throws Exception {
+	/**
+	 * Validate the access token sent.
+	 *
+	 * @param accessTokenIdentifier
+	 * @return
+	 * @throws Exception
+	 */
+	private OAuth2ClientApplicationDTO validateAccessToken(String accessTokenIdentifier)
+			throws Exception {
 
-        // if it is specified to use local authz server (i.e: local://services)
-        if (remoteServiceURL.startsWith(Constants.LOCAL_PREFIX)) {
-            OAuth2TokenValidationRequestDTO oauthValidationRequest = new OAuth2TokenValidationRequestDTO();
-            OAuth2TokenValidationRequestDTO.OAuth2AccessToken accessToken = oauthValidationRequest.new OAuth2AccessToken();
-            accessToken.setTokenType(OAuthServiceClient.BEARER_TOKEN_TYPE);
-            accessToken.setIdentifier(accessTokenIdentifier);
-            oauthValidationRequest.setAccessToken(accessToken);
+		// if it is specified to use local authz server (i.e: local://services)
+		if (remoteServiceURL.startsWith(Constants.LOCAL_PREFIX)) {
+			OAuth2TokenValidationRequestDTO oauthValidationRequest = new OAuth2TokenValidationRequestDTO();
+			OAuth2TokenValidationRequestDTO.OAuth2AccessToken accessToken = oauthValidationRequest.new 
+					OAuth2AccessToken();
+			accessToken.setTokenType(OAuthServiceClient.BEARER_TOKEN_TYPE);
+			accessToken.setIdentifier(accessTokenIdentifier);
+			oauthValidationRequest.setAccessToken(accessToken);
 
-            OAuth2TokenValidationService oauthValidationService = new OAuth2TokenValidationService();
-            OAuth2ClientApplicationDTO oauthValidationResponse = oauthValidationService
-                    .findOAuthConsumerIfTokenIsValid(oauthValidationRequest);
+			OAuth2TokenValidationService oauthValidationService = new OAuth2TokenValidationService();
+			OAuth2ClientApplicationDTO oauthValidationResponse = oauthValidationService
+					.findOAuthConsumerIfTokenIsValid(oauthValidationRequest);
 
-            return oauthValidationResponse;
-        }
+			return oauthValidationResponse;
+		}
 
-        // else do a web service call to the remote authz server
-        try {
-            ConfigurationContext configContext = ConfigurationContextFactory
-                    .createConfigurationContextFromFileSystem(null, null);
-            OAuthServiceClient oauthClient = new OAuthServiceClient(getOAuthAuthzServerURL(),
-                                                                    userName, password, configContext);
-            org.wso2.carbon.identity.oauth2.stub.dto.OAuth2ClientApplicationDTO validationResponse;
-            validationResponse = oauthClient.findOAuthConsumerIfTokenIsValid(accessTokenIdentifier);
+		// else do a web service call to the remote authz server
+		try {
+			ConfigurationContext configContext = ConfigurationContextFactory
+					.createConfigurationContextFromFileSystem(null, null);
+			OAuthServiceClient oauthClient = new OAuthServiceClient(getOAuthAuthzServerURL(),
+			                                                        userName, password, configContext);
+			org.wso2.carbon.identity.oauth2.stub.dto.OAuth2ClientApplicationDTO validationResponse;
+			validationResponse = oauthClient.findOAuthConsumerIfTokenIsValid(accessTokenIdentifier);
 
-            OAuth2ClientApplicationDTO appDTO = new OAuth2ClientApplicationDTO();
-            appDTO.setConsumerKey(validationResponse.getConsumerKey());
+			OAuth2ClientApplicationDTO appDTO = new OAuth2ClientApplicationDTO();
+			appDTO.setConsumerKey(validationResponse.getConsumerKey());
 
-            OAuth2TokenValidationResponseDTO validationDto = new OAuth2TokenValidationResponseDTO();
-            validationDto.setAuthorizedUser(validationResponse.getAccessTokenValidationResponse()
-                                                    .getAuthorizedUser());
-            validationDto
-                    .setValid(validationResponse.getAccessTokenValidationResponse().getValid());
-            appDTO.setAccessTokenValidationResponse(validationDto);
-            return appDTO;
-        } catch (AxisFault axisFault) {
-            throw axisFault;
-        } catch (Exception exception) {
-            throw exception;
-        }
-    }
+			OAuth2TokenValidationResponseDTO validationDto = new OAuth2TokenValidationResponseDTO();
+			validationDto.setAuthorizedUser(validationResponse.getAccessTokenValidationResponse()
+					                                .getAuthorizedUser());
+			validationDto
+					.setValid(validationResponse.getAccessTokenValidationResponse().getValid());
+			appDTO.setAccessTokenValidationResponse(validationDto);
+			return appDTO;
+		} catch (AxisFault axisFault) {
+			throw axisFault;
+		} catch (Exception exception) {
+			throw exception;
+		}
+	}
 
-    public void setDefaultPriority() {
-        priority = DEFAULT_PRIORITY;
-    }
+	public void setDefaultPriority() {
+		priority = DEFAULT_PRIORITY;
+	}
 }

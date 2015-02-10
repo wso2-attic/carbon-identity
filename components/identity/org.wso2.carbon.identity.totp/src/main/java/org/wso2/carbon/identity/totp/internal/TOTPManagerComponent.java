@@ -27,7 +27,7 @@ import org.wso2.carbon.user.core.service.RealmService;
 
 import java.util.Hashtable;
 
-//import org.wso2.carbon.identity.notification.mgt.NotificationSender;
+import org.wso2.carbon.identity.notification.mgt.NotificationSender;
 
 /**
  * @scr.component name="identity.totp.component" immediate="true"
@@ -39,58 +39,58 @@ import java.util.Hashtable;
 
 public class TOTPManagerComponent {
 
-    private static Log log = LogFactory.getLog(TOTPManagerComponent.class);
-    private static RealmService realmService;
-    //private static NotificationSender notificationSender;
+	private static Log log = LogFactory.getLog(TOTPManagerComponent.class);
+	private static RealmService realmService;
+	private static NotificationSender notificationSender;
 
-    protected void activate(ComponentContext ctxt) {
+	protected void activate(ComponentContext ctxt) {
 
-        TOTPManagerImpl totpService = new TOTPManagerImpl();
-        Hashtable<String, String> props = new Hashtable<String, String>();
+		TOTPManagerImpl totpService = new TOTPManagerImpl();
+		Hashtable<String, String> props = new Hashtable<String, String>();
 
-        ctxt.getBundleContext().registerService(TOTPManager.class.getName(), totpService, props);
+		ctxt.getBundleContext().registerService(TOTPManager.class.getName(), totpService, props);
 
-        if (log.isDebugEnabled()) {
-            log.info("TOTPServiceComponent bundle is activated");
-        }
-    }
+		if (log.isDebugEnabled()) {
+			log.info("TOTPServiceComponent bundle is activated");
+		}
+	}
 
-    protected void deactivate(ComponentContext ctxt) {
-        if (log.isDebugEnabled()) {
-            log.info("TOTPServiceComponent bundle is deactivated");
-        }
-    }
+	protected void deactivate(ComponentContext ctxt) {
+		if (log.isDebugEnabled()) {
+			log.info("TOTPServiceComponent bundle is deactivated");
+		}
+	}
 
-    protected void setRealmService(RealmService realmService) {
-        log.debug("Setting the Realm Service");
-        TOTPManagerComponent.realmService = realmService;
-    }
+	protected void setRealmService(RealmService realmService) {
+		log.debug("Setting the Realm Service");
+		TOTPManagerComponent.realmService = realmService;
+	}
 
-    protected void unsetRealmService(RealmService realmService) {
-        log.debug("UnSetting the Realm Service");
-        TOTPManagerComponent.realmService = null;
-    }
+	protected void unsetRealmService(RealmService realmService) {
+		log.debug("UnSetting the Realm Service");
+		TOTPManagerComponent.realmService = null;
+	}
 
-//    protected void setNotificationSender(NotificationSender notificationSender) {
-//        if (log.isDebugEnabled()) {
-//            log.debug("Un-setting notification sender in Entitlement bundle");
-//        }
-//        this.notificationSender = notificationSender;
-//    }
-//
-//    protected void unsetNotificationSender(NotificationSender notificationSender) {
-//        if (log.isDebugEnabled()) {
-//            log.debug("Setting notification sender in Entitlement bundle");
-//        }
-//        this.notificationSender = null;
-//    }
+	protected void setNotificationSender(NotificationSender notificationSender) {
+		if (log.isDebugEnabled()) {
+			log.debug("Un-setting notification sender in Entitlement bundle");
+		}
+		this.notificationSender = notificationSender;
+	}
 
-    public static RealmService getRealmService() {
-        return realmService;
-    }
+	protected void unsetNotificationSender(NotificationSender notificationSender) {
+		if (log.isDebugEnabled()) {
+			log.debug("Setting notification sender in Entitlement bundle");
+		}
+		this.notificationSender = null;
+	}
 
-//    public static NotificationSender getNotificationSender(){
-//        return notificationSender;
-//    }
+	public static RealmService getRealmService() {
+		return realmService;
+	}
+
+	public static NotificationSender getNotificationSender() {
+		return notificationSender;
+	}
 
 }

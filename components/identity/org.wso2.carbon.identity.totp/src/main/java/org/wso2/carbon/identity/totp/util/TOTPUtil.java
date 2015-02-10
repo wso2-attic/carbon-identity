@@ -33,33 +33,34 @@ import org.wso2.carbon.idp.mgt.IdentityProviderManager;
  * TOTP Util class.
  */
 public class TOTPUtil {
-    private static Log log = LogFactory.getLog(TOTPUtil.class);
+	private static Log log = LogFactory.getLog(TOTPUtil.class);
 
-    /**
-     * Get locally stored encoding method.
-     *
-     * @return
-     * @throws IdentityApplicationManagementException
-     */
-    public static String getEncodingMethod() throws IdentityApplicationManagementException {
+	/**
+	 * Get locally stored encoding method.
+	 *
+	 * @return
+	 * @throws IdentityApplicationManagementException
+	 */
+	public static String getEncodingMethod() throws IdentityApplicationManagementException {
 
-        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        IdentityProviderManager identityProviderManager = IdentityProviderManager.getInstance();
+		String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+		IdentityProviderManager identityProviderManager = IdentityProviderManager.getInstance();
 
-        IdentityProvider identityProvider = identityProviderManager.getResidentIdP(tenantDomain);
-        FederatedAuthenticatorConfig federatedAuthenticatorConfig = IdentityApplicationManagementUtil
-                .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs()
-                        , IdentityApplicationConstants.Authenticator.TOTP.NAME);
-        Property property = IdentityApplicationManagementUtil.
-                getProperty(federatedAuthenticatorConfig.getProperties()
-                        , IdentityApplicationConstants.Authenticator.TOTP.ENCODING_METHOD);
-        if (log.isDebugEnabled()) {
-            log.debug("Read the encoding method from Resident Idp for tenant id : " + CarbonContext.getThreadLocalCarbonContext().getTenantId());
-        }
+		IdentityProvider identityProvider = identityProviderManager.getResidentIdP(tenantDomain);
+		FederatedAuthenticatorConfig federatedAuthenticatorConfig = IdentityApplicationManagementUtil
+				.getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs()
+						, IdentityApplicationConstants.Authenticator.TOTP.NAME);
+		Property property = IdentityApplicationManagementUtil.
+				getProperty(federatedAuthenticatorConfig.getProperties()
+						, IdentityApplicationConstants.Authenticator.TOTP.ENCODING_METHOD);
+		if (log.isDebugEnabled()) {
+			log.debug("Read the encoding method from Resident Idp for tenant id : " + CarbonContext
+					.getThreadLocalCarbonContext().getTenantId());
+		}
 
-        if ("Base32".equals(property.getValue())) {
-            return "Base32";
-        }
-        return "Base64";
-    }
+		if ("Base32".equals(property.getValue())) {
+			return "Base32";
+		}
+		return "Base64";
+	}
 }

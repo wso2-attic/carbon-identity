@@ -36,56 +36,58 @@ import javax.ws.rs.core.Response;
 @Path("/verify")
 public class TOTPTokenVerifierEndpoint {
 
-    private static Log log = LogFactory.getLog(TOTPTokenVerifierEndpoint.class);
+	private static Log log = LogFactory.getLog(TOTPTokenVerifierEndpoint.class);
 
 
-    @GET
-    @Path("/local")
-    @Consumes("application/x-www-form-urlencoded")
-    @Produces("application/json")
-    public Response isValidToken(@Context HttpServletRequest request) {
+	@GET
+	@Path("/local")
+	@Consumes("application/x-www-form-urlencoded")
+	@Produces("application/json")
+	public Response isValidToken(@Context HttpServletRequest request) {
 
-        TOTPManager totpManager = (TOTPManager) PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService(TOTPManager.class);
-        String username = request.getParameter("username");
-        int token = Integer.parseInt(request.getParameter("token"));
-        boolean isvalid = false;
-        try {
-            isvalid = totpManager.isValidTokenLocalUser(token, username);
-            if (isvalid) {
-                log.info("TOTP token is accepted");
-                return Response.status(Response.Status.ACCEPTED).type(MediaType.APPLICATION_JSON_TYPE)
-                        .entity("Token is verified").build();
-            } else {
-                log.info("TOTP token is not valid");
-                return Response.status(Response.Status.BAD_REQUEST).type(MediaType.APPLICATION_JSON_TYPE)
-                        .entity("Token is not valid").build();
-            }
-        } catch (TOTPException e) {
-            log.error("Error when validating the token", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).type(MediaType.APPLICATION_JSON_TYPE)
-                    .entity("Error while validating the token").build();
-        }
+		TOTPManager totpManager = (TOTPManager) PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService
+				(TOTPManager.class);
+		String username = request.getParameter("username");
+		int token = Integer.parseInt(request.getParameter("token"));
+		boolean isvalid = false;
+		try {
+			isvalid = totpManager.isValidTokenLocalUser(token, username);
+			if (isvalid) {
+				log.info("TOTP token is accepted");
+				return Response.status(Response.Status.ACCEPTED).type(MediaType.APPLICATION_JSON_TYPE)
+						.entity("Token is verified").build();
+			} else {
+				log.info("TOTP token is not valid");
+				return Response.status(Response.Status.BAD_REQUEST).type(MediaType.APPLICATION_JSON_TYPE)
+						.entity("Token is not valid").build();
+			}
+		} catch (TOTPException e) {
+			log.error("Error when validating the token", e);
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).type(MediaType.APPLICATION_JSON_TYPE)
+					.entity("Error while validating the token").build();
+		}
 
-    }
+	}
 
-    @GET
-    @Path("/external")
-    @Consumes("application/x-www-form-urlencoded")
-    @Produces("application/json")
-    public Response isValidTokenByKey(@Context HttpServletRequest request) {
+	@GET
+	@Path("/external")
+	@Consumes("application/x-www-form-urlencoded")
+	@Produces("application/json")
+	public Response isValidTokenByKey(@Context HttpServletRequest request) {
 
-        TOTPManager totpManager = (TOTPManager) PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService(TOTPManager.class);
-        String secretKey = request.getParameter("secretKey");
-        int token = Integer.parseInt(request.getParameter("token"));
-        if (totpManager.isValidToken(token, secretKey)) {
-            log.info("TOTP token is accepted");
-            return Response.status(Response.Status.ACCEPTED).type(MediaType.APPLICATION_JSON_TYPE)
-                    .entity("Token is a verified").build();
-        } else {
-            log.info("TOTP token is not valid");
-            return Response.status(Response.Status.BAD_REQUEST).type(MediaType.APPLICATION_JSON_TYPE)
-                    .entity("Token is not valid").build();
-        }
-    }
+		TOTPManager totpManager = (TOTPManager) PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService
+				(TOTPManager.class);
+		String secretKey = request.getParameter("secretKey");
+		int token = Integer.parseInt(request.getParameter("token"));
+		if (totpManager.isValidToken(token, secretKey)) {
+			log.info("TOTP token is accepted");
+			return Response.status(Response.Status.ACCEPTED).type(MediaType.APPLICATION_JSON_TYPE)
+					.entity("Token is a verified").build();
+		} else {
+			log.info("TOTP token is not valid");
+			return Response.status(Response.Status.BAD_REQUEST).type(MediaType.APPLICATION_JSON_TYPE)
+					.entity("Token is not valid").build();
+		}
+	}
 
 }

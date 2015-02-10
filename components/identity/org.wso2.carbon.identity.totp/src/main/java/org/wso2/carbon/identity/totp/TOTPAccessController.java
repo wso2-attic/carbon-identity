@@ -35,58 +35,67 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 public class TOTPAccessController {
 
-    private static Log log = LogFactory.getLog(TOTPAccessController.class);
-    private static volatile TOTPAccessController instance;
+	private static Log log = LogFactory.getLog(TOTPAccessController.class);
+	private static volatile TOTPAccessController instance;
 
-    private TOTPAccessController() {
-    }
+	private TOTPAccessController() {
+	}
 
-    public static TOTPAccessController getInstance() {
-        if (instance == null) {
-            synchronized (TOTPAccessController.class) {
-                if (instance == null) {
-                    instance = new TOTPAccessController();
-                }
-            }
-        }
-        return instance;
-    }
+	public static TOTPAccessController getInstance() {
+		if (instance == null) {
+			synchronized (TOTPAccessController.class) {
+				if (instance == null) {
+					instance = new TOTPAccessController();
+				}
+			}
+		}
+		return instance;
+	}
 
-    public boolean isTOTPEnabledForLocalUser(String username) throws TOTPException {
+	public boolean isTOTPEnabledForLocalUser(String username) throws TOTPException {
 
-        try {
-            int tenantId = IdentityUtil.getTenantIdOFUser(username);
-            UserRealm userRealm = TOTPManagerComponent.getRealmService().getTenantUserRealm(tenantId);
-            if (userRealm != null) {
-                UserStoreManager userStoreManager = userRealm.getUserStoreManager();
-                String secretKey = userStoreManager.getUserClaimValue(MultitenantUtils.getTenantAwareUsername(username), Constants.SECRET_KEY, null);
-                String currentEncoding = TOTPUtil.getEncodingMethod();
-                String storedEncoding = userStoreManager.getUserClaimValue(MultitenantUtils.getTenantAwareUsername(username), Constants.Encoding, null);
+		try {
+			int tenantId = IdentityUtil.getTenantIdOFUser(username);
+			UserRealm userRealm = TOTPManagerComponent.getRealmService().getTenantUserRealm(tenantId);
+			if (userRealm != null) {
+				UserStoreManager userStoreManager = userRealm.getUserStoreManager();
+				String secretKey = userStoreManager.getUserClaimValue(MultitenantUtils.getTenantAwareUsername
+						(username), Constants.SECRET_KEY, null);
+				String currentEncoding = TOTPUtil.getEncodingMethod();
+				String storedEncoding = userStoreManager.getUserClaimValue(MultitenantUtils.getTenantAwareUsername
+						(username), Constants.Encoding, null);
 
-                if (!currentEncoding.equals(storedEncoding)) {
-                    userStoreManager.setUserClaimValue(MultitenantUtils.getTenantAwareUsername(username), Constants.SECRET_KEY, "", null);
-                    userStoreManager.setUserClaimValue(MultitenantUtils.getTenantAwareUsername(username), Constants.QR_CODE_URL, "", null);
-                    userStoreManager.setUserClaimValue(MultitenantUtils.getTenantAwareUsername(username), Constants.Encoding, "Invalid", null);
-                    if (log.isDebugEnabled()) {
-                        log.debug("TOTP user claims was cleared of the user : " + username);
-                    }
-                    return false;
-                }
+				if (!currentEncoding.equals(storedEncoding)) {
+					userStoreManager.setUserClaimValue(MultitenantUtils.getTenantAwareUsername(username), 
+					                                   Constants.SECRET_KEY, "", null);
+					userStoreManager.setUserClaimValue(MultitenantUtils.getTenantAwareUsername(username), 
+					                                   Constants.QR_CODE_URL, "", null);
+					userStoreManager.setUserClaimValue(MultitenantUtils.getTenantAwareUsername(username), 
+					                                   Constants.Encoding, "Invalid", null);
+					if (log.isDebugEnabled()) {
+						log.debug("TOTP user claims was cleared of the user : " + username);
+					}
+					return false;
+				}
 
-                if ("".equals(secretKey) || secretKey == null) {
-                    return false;
-                } else {
-                    return true;
-                }
-            } else {
-                throw new TOTPException("Cannot find the user realm for the given tenant domain : " + CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
-            }
-        } catch (IdentityException e) {
-            throw new TOTPException("TOTPAccessController failed while trying to get the tenant ID of the user : " + username, e);
-        } catch (UserStoreException e) {
-            throw new TOTPException("TOTPAccessController failed while trying to access userRealm of the user : " + username, e);
-        } catch (IdentityApplicationManagementException e) {
-            throw new TOTPException("TOTPAccessController failed while trying to access encoding method of the user : " + username, e);
-        }
-    }
+				if ("".equals(secretKey) || secretKey == null) {
+					return false;
+				} else {
+					return true;
+				}
+			} else {
+				throw new TOTPException("Cannot find the user realm for the given tenant domain : " + CarbonContext
+						.getThreadLocalCarbonContext().getTenantDomain());
+			}
+		} catch (IdentityException e) {
+			throw new TOTPException("TOTPAccessController failed while trying to get the tenant ID of the user : " + 
+			                        username, e);
+		} catch (UserStoreException e) {
+			throw new TOTPException("TOTPAccessController failed while trying to access userRealm of the user : " + 
+			                        username, e);
+		} catch (IdentityApplicationManagementException e) {
+			throw new TOTPException("TOTPAccessController failed while trying to access encoding method of the user : " +
+			                        "" + username, e);
+		}
+	}
 }

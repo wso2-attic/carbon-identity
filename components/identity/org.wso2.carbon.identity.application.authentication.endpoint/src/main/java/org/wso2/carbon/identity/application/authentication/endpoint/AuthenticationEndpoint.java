@@ -18,18 +18,20 @@
 
 package org.wso2.carbon.identity.application.authentication.endpoint;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.Map;
 
 public class AuthenticationEndpoint extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws AuthenticationException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
         try {
             String loadPage = null;
@@ -46,7 +48,7 @@ public class AuthenticationEndpoint extends HttpServlet {
                     for (int i = 1; i < authenticatorIdPMapArr.length; i++) {
                         if (idpAuthenticatorMapping.containsKey(authenticatorIdPMapArr[i])) {
                             idpAuthenticatorMapping.put(authenticatorIdPMapArr[i],
-                                                        idpAuthenticatorMapping.get(authenticatorIdPMapArr[i]) + "," + authenticatorIdPMapArr[0]);
+                                    idpAuthenticatorMapping.get(authenticatorIdPMapArr[i]) + "," + authenticatorIdPMapArr[0]);
                         } else {
                             idpAuthenticatorMapping.put(authenticatorIdPMapArr[i], authenticatorIdPMapArr[0]);
                         }
@@ -76,9 +78,9 @@ public class AuthenticationEndpoint extends HttpServlet {
                 loadPage = "passivests_login.do";
             } else if (request.getParameter("type").equals("oauth2") || request.getParameter("type").equals("oidc")) {
                 loadPage = "oauth2_login.do";
-            } else if (request.getParameter("type").equals("totp")) {
+            }else if (request.getParameter("type").equals("totp")) {
                 loadPage = "totp_login.do";
-            } else if (request.getParameter("type").equals("totp_error")) {
+            }else if(request.getParameter("type").equals("totp_error")){
                 loadPage = "totp_error.do";
             }
             request.getRequestDispatcher(loadPage).forward(request, response);

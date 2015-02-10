@@ -20,19 +20,19 @@ package org.wso2.carbon.identity.totp;
 
 public class TOTPDTO {
 
-    String secretkey;
-    String QRCodeURL;
+	String secretkey;
+	String QRCodeURL;
 
-    public TOTPDTO(String secretkey, String QRCodeURL) {
-        this.secretkey = secretkey;
-        this.QRCodeURL = QRCodeURL;
-    }
+	public TOTPDTO(String secretkey, String QRCodeURL) {
+		this.secretkey = secretkey;
+		this.QRCodeURL = QRCodeURL;
+	}
 
-    public String getSecretkey() {
-        return secretkey;
-    }
+	public String getSecretkey() {
+		return secretkey;
+	}
 
-    public String getQRCodeURL() {
-        return QRCodeURL;
-    }
+	public String getQRCodeURL() {
+		return QRCodeURL;
+	}
 }
