@@ -41,11 +41,15 @@
         encodedReq = Util.encode(Util.marshall(logoutReq));
         relayState = UUIDGenerator.generateUUID();
     } else {
+         boolean isPassive = false;
+         if(request.getSession().getAttribute(CarbonSecuredHttpContext.LOGGED_USER) != null){
+            isPassive = true;
+         }
     	 AuthenticationRequestBuilder authnReqGenerator = new AuthenticationRequestBuilder();
          AuthenticatorsConfiguration authenticatorsConfiguration = AuthenticatorsConfiguration.getInstance();
          AuthenticatorsConfiguration.AuthenticatorConfig authenticatorConfig =
                  authenticatorsConfiguration.getAuthenticatorConfig(SAML2SSOAuthenticatorConstants.AUTHENTICATOR_NAME); 
-         AuthnRequest authRequest = authnReqGenerator.buildAuthenticationRequest(null,authenticatorConfig.getParameters().get(SAML2SSOAuthenticatorConstants.NAMEID_POLICY_FORMAT));;
+         AuthnRequest authRequest = authnReqGenerator.buildAuthenticationRequest(null,authenticatorConfig.getParameters().get(SAML2SSOAuthenticatorConstants.NAMEID_POLICY_FORMAT), isPassive);
          encodedReq = Util.encode(Util.marshall(authRequest));
          relayState = UUIDGenerator.generateUUID();
          domain = (String)request.getAttribute(MultitenantConstants.TENANT_DOMAIN);
@@ -60,7 +64,7 @@
     <p><input type="hidden" name="<%=SAML2SSOAuthenticatorConstants.HTTP_POST_PARAM_SAML2_AUTH_REQ%>"
               value="<%= encodedReq %>"/>
         <input type="hidden" name="RelayState" value="<%= relayState %>"/>
-        <input type="hidden" name="<%= MultitenantConstants.TENANT_DOMAIN %>" value="<%= domain %>"/>
+        <input type="hidden" name="<%= MultitenantConstants.TENANT_DOMAIN %>" value="carbon.super"/>
         <input type="hidden" name="<%= MultitenantConstants.SSO_AUTH_SESSION_ID %>" value="<%= session.getId() %>"/>
         <button type="submit">POST</button>
     </p>

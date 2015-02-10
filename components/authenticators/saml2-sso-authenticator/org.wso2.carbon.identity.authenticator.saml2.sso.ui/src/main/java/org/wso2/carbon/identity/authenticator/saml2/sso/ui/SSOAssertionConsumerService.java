@@ -164,6 +164,17 @@ public class SSOAssertionConsumerService extends HttpServlet {
         }
 
 		if (assertion == null) {
+            // This condition would succeed if Passive Login Request was sent because SP session has timed out
+            if (samlResponse.getStatus() != null &&
+                    samlResponse.getStatus().getStatusCode() != null &&
+                    samlResponse.getStatus().getStatusCode().getValue().equals("urn:oasis:names:tc:SAML:2.0:status:Responder") &&
+                    samlResponse.getStatus().getStatusCode().getStatusCode() != null &&
+                    samlResponse.getStatus().getStatusCode().getStatusCode().getValue().equals("urn:oasis:names:tc:SAML:2.0:status:NoPassive")) {
+
+                RequestDispatcher requestDispatcher = req.getRequestDispatcher("/carbon/admin/login.jsp");
+                requestDispatcher.forward(req, resp);
+                return;
+            }
 			if (samlResponse.getStatus() != null &&
 			    samlResponse.getStatus().getStatusMessage() != null) {
 				log.error(samlResponse.getStatus().getStatusMessage().getMessage());
@@ -192,8 +203,8 @@ public class SSOAssertionConsumerService extends HttpServlet {
 		boolean isFederated = false;
 
 		if (relayState != null) {
-			FederatedSSOToken federatedSSOToken = org.wso2.carbon.identity.authenticator.saml2.sso.common.SSOSessionManager
-					.getFederatedToken(relayState);
+            FederatedSSOToken federatedSSOToken = org.wso2.carbon.identity.authenticator.saml2.sso.common.SSOSessionManager
+                    .getFederatedToken(relayState);
 			if (federatedSSOToken != null) {
 				isFederated = true;
 				HttpServletRequest fedRequest = federatedSSOToken.getHttpServletRequest();
@@ -271,6 +282,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
      * @param resp Corresponding HttpServletResponse
      */
     private void handleSingleLogoutRequest(HttpServletRequest req, HttpServletResponse resp) {
+
         String logoutReqStr = decodeHTMLCharacters(req.getParameter(
                 SAML2SSOAuthenticatorConstants.HTTP_POST_PARAM_SAML2_AUTH_REQ));
         
@@ -288,11 +300,11 @@ public class SSOAssertionConsumerService extends HttpServlet {
             List<SessionIndex> sessionIndexList = logoutRequest.getSessionIndexes();
             if (sessionIndexList.size() > 0) {
                 SSOSessionManager.getInstance().handleLogout(
-                        sessionIndexList.get(0).getSessionIndex());
+                sessionIndexList.get(0).getSessionIndex());
             }
         }
     }
-    
+
     /**
      * Get the admin console url from the request.
      *
