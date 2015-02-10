@@ -42,7 +42,6 @@ import org.wso2.carbon.identity.entitlement.stub.EntitlementPolicyAdminServiceSt
 import org.wso2.carbon.identity.entitlement.stub.EntitlementServiceStub;
 import org.wso2.carbon.identity.entitlement.stub.dto.EntitledAttributesDTO;
 import org.wso2.carbon.identity.entitlement.stub.dto.EntitledResultSetDTO;
-import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -58,7 +57,7 @@ public class BasicAuthEntitlementServiceClient extends AbstractEntitlementServic
     private static final String DEFAULT_CLIENT_REPO = "repository" + File.separator + "deployment" +
                                                       File.separator + "client";
     private static final String DEFAULT_AXIS2_XML = "repository" + File.separator + "conf" + File.separator +
-                                                    "axis2"+File.separator+"axis2_blocking_client.xml";
+                                                    "axis2" + File.separator + "axis2_blocking_client.xml";
     private static final int MAX_CONNECTIONS_PER_HOST = 200;
     private static final String XACML_DECISION_PERMIT = "Permit";
 
@@ -66,7 +65,7 @@ public class BasicAuthEntitlementServiceClient extends AbstractEntitlementServic
     private String serverUrl;
     private GenericObjectPool serviceStubPool;
     private HttpTransportProperties.Authenticator authenticator;
-    protected ConfigurationContext configurationContext;
+    private ConfigurationContext configurationContext;
 
     public BasicAuthEntitlementServiceClient(String serverUrl, String userName, String password) {
         this.serverUrl = serverUrl;
@@ -74,8 +73,6 @@ public class BasicAuthEntitlementServiceClient extends AbstractEntitlementServic
         authenticator.setUsername(userName);
         authenticator.setPassword(password);
         authenticator.setPreemptiveAuthentication(true);
-        //
-        CarbonUtils.getCarbonConfigDirPath();
 
         try {
             initConfigurationContext();
@@ -83,7 +80,6 @@ public class BasicAuthEntitlementServiceClient extends AbstractEntitlementServic
             log.error("Error initializing Axis2 configuration context", e);
         }catch (Exception e) {
             log.error("Error initializing default Axis2 configuration context", e);
-            CarbonUtils.getAxis2Xml();
         }
     }
 
@@ -241,6 +237,10 @@ public class BasicAuthEntitlementServiceClient extends AbstractEntitlementServic
     }
 
     private EntitlementServiceStub getEntitlementStub(String serverUrl) throws Exception {
+
+        if (configurationContext == null){
+            throw new Exception("Cannot initialize EntitlementServiceStub with null Axis2 configuration context.");
+        }
         if (serviceStubPool == null) {
             serviceStubPool = new GenericObjectPool(new EntitlementServiceStubFactory(configurationContext,
                                                                                       serverUrl +
