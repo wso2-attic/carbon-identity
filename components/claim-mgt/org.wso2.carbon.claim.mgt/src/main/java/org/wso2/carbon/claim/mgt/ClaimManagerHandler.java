@@ -526,6 +526,7 @@ public class ClaimManagerHandler {
         }
 
         if (otherDialectURI.equals("http://wso2.org/claims") && otherClaimURIs != null) {
+            validateClaims(otherClaimURIs);
             for (String claimURI : otherClaimURIs) {
                 org.wso2.carbon.claim.mgt.ClaimMapping claimMapping = new org.wso2.carbon.claim.mgt.ClaimMapping(
                         otherDialectURI, claimURI, claimURI);
@@ -656,6 +657,20 @@ public class ClaimManagerHandler {
             return true;
         }
         return false;
+    }
+
+    /*
+     * validate input claims are belongs to wso2 default claim dialect. Check only the first attribute and assume other
+     * are also same as frist attribute
+     */
+    private Set<String> validateClaims(Set<String> attributeKeys) {
+        if (attributeKeys != null) {
+            String claimURI = (String) new ArrayList(attributeKeys).get(0);
+            if (!claimURI.startsWith("http://wso2.org/claims")) {
+                return new HashSet<String>();
+            }
+        }
+        return attributeKeys;
     }
 
 }
