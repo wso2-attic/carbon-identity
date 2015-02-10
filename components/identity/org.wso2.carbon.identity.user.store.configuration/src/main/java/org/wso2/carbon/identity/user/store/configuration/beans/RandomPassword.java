@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -16,7 +16,7 @@
 * under the License.
 */
 
-package org.wso2.carbon.identity.user.store.configuration.randompasswordcache.randompasswordobject;
+package org.wso2.carbon.identity.user.store.configuration.beans;
 
 import java.io.Serializable;
 
@@ -28,7 +28,8 @@ public class RandomPassword implements Serializable{
 
     private String propertyName;
 
-    private String password;
+    //private String password;
+    private char[] passwordArray;
     private String randomPhrase;
 
     public String getRandomPhrase() {
@@ -48,11 +49,11 @@ public class RandomPassword implements Serializable{
     }
 
     public String getPassword() {
-        return password;
+        return new String(passwordArray);
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.passwordArray = password.toCharArray();
     }
 
 }

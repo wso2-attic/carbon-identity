@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -16,7 +16,9 @@
 * under the License.
 */
 
-package org.wso2.carbon.identity.user.store.configuration.randompasswordcache.randompasswordobject;
+package org.wso2.carbon.identity.user.store.configuration.beans;
+
+import org.wso2.carbon.identity.user.store.configuration.beans.RandomPassword;
 
 import java.io.Serializable;
 
@@ -27,13 +29,13 @@ import java.io.Serializable;
 public class RandomPasswordContainer implements Serializable{
 
     private RandomPassword[] randomPasswords;
-    private long uniqueID;
+    private String uniqueID;
 
-    public long getUniqueID() {
+    public String getUniqueID() {
         return uniqueID;
     }
 
-    public void setUniqueID(long uniqueID) {
+    public void setUniqueID(String uniqueID) {
         this.uniqueID = uniqueID;
     }
 
