@@ -28,8 +28,6 @@ import org.wso2.carbon.identity.mgt.policy.AbstractPasswordPolicyEnforcer;
  */
 public class DefaultPasswordLengthPolicy extends AbstractPasswordPolicyEnforcer{
 
-	private static final Log log = LogFactory.getLog(DefaultPasswordLengthPolicy.class);
-	
 	private int MIN_LENGTH = 6;
 	private int MAX_LENGTH = 10;
 
