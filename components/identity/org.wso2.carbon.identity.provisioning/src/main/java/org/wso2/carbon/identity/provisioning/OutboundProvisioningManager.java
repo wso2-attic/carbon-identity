@@ -327,7 +327,7 @@ public class OutboundProvisioningManager {
                 provisioningProperties = new Property[provisioningPropertiesList.size()];
                 provisioningProperties = provisioningPropertiesList.toArray(provisioningProperties);
 
-                     // get the runtime provisioning connector associate the provisioning
+                // get the runtime provisioning connector associate the provisioning
                 // identity provider. any given time, a given provisioning identity provider
                 // can only be associated with a single provisioning connector.
                 return factory.getConnector(idpName, provisioningProperties, tenantDomainName);

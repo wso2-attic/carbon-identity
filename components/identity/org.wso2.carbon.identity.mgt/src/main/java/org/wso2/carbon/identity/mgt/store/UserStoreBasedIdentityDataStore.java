@@ -91,11 +91,19 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
 		if (userIdentityDTO != null) {
 			return userIdentityDTO;
 		}
-		
+        // check for thread local variable to avoid infinite recursive on this method ( load() )
+        // which happen calling getUserClaimValues()
 		if (userStoreInvoked.get().equals("TRUE")) {
-			return null;
-		} else {
-			userStoreInvoked.set("TRUE");
+            if (log.isDebugEnabled()) {
+                log.debug("UserStoreBasedIdentityDataStore.load() already been called in the stack." +
+                        "Hence returning without processing load() again.");
+            }
+            return null;
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("Set flag to indicate method UserStoreBasedIdentityDataStore.load() been called");
+            }
+            userStoreInvoked.set("TRUE");
 		}
 		
 		Map<String, String> userDataMap = new HashMap<String, String>();
@@ -110,13 +118,22 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
                     String claimUri = claim.getClaimUri();
                     if (claimUri.contains(UserCoreConstants.ClaimTypeURIs.IDENTITY_CLAIM_URI) ||
                             claimUri.contains(UserCoreConstants.ClaimTypeURIs.CHALLENGE_QUESTION_URI)) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Adding UserIdentityClaim : " + claimUri + " with the value : " + claim.getValue());
+                        }
                         userDataMap.put(claimUri, claim.getValue());
                     }
                 }
             }
 		} catch (UserStoreException e) {
 			// ignore may be user is not exist
-		}
+        } finally {
+            // reset to initial value
+            if (log.isDebugEnabled()) {
+                log.debug("Reset flag to indicate method UserStoreBasedIdentityDataStore.load() being completing");
+            }
+            userStoreInvoked.set("FALSE");
+    }
 		// if user is exiting there must be at least one user attribute.
 		if (userDataMap != null && userDataMap.size() > 0) {
 			userIdentityDTO = new UserIdentityClaimsDO(userName, userDataMap);

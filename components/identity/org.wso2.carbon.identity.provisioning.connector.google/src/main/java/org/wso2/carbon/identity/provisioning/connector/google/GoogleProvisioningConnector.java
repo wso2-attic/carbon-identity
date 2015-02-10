@@ -24,15 +24,14 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import org.apache.axiom.util.base64.Base64Utils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.provisioning.AbstractOutboundProvisioningConnector;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
@@ -65,7 +64,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
 
     @Override
     /**
-     * 
+     *
      */
     public void init(Property[] provisioningProperties) throws IdentityProvisioningException {
         Properties configs = new Properties();
@@ -107,7 +106,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
 
     @Override
     /**
-     * 
+     *
      */
     public ProvisionedIdentifier provision(ProvisioningEntity provisioningEntity)
             throws IdentityProvisioningException {
@@ -235,7 +234,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
 
     /**
      * Delete provisioned user from google account
-     * 
+     *
      * @param provisioningEntity
      * @throws IdentityProvisioningException
      */
@@ -280,7 +279,6 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
     }
 
     /**
-     * 
      * @return
      * @throws IdentityProvisioningException
      */
@@ -328,7 +326,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
     /**
      * Build and returns a Directory service object authorized with the service accounts that act on
      * behalf of the given user.
-     * 
+     *
      * @param userEmail The email of the user.
      * @return Directory service object that is ready to make requests.
      * @throws IdentityProvisioningException
@@ -392,11 +390,11 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
 
     /**
      * Buld Google user object to provision
-     * 
+     *
      * @param provisioningEntity
      * @return
      */
-    protected User buildGoogleUser(ProvisioningEntity provisioningEntity) {
+    protected User buildGoogleUser(ProvisioningEntity provisioningEntity) throws IdentityProvisioningException {
         User newUser = new User();
         UserName username = new UserName();
 
@@ -416,9 +414,42 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
 
         String familyNameClaimKey = "google_prov_familyname_claim_dropdown";
         String givenNameClaimKey = "google_prov_givenname_claim_dropdown";
+        String provisioningPatternKey = "google_prov_pattern";
+        String provisioningSeparatorKey = "google_prov_separator";
+        String idpName_key = "identityProviderName";
+        String userIdClaimUriKey = "userIdClaimUri";
 
         Map<String, String> requiredAttributes = getSingleValuedClaims(provisioningEntity
                 .getAttributes());
+
+        /** Provisioning Pattern */
+        String provisioningPattern = this.configHolder.getValue(provisioningPatternKey);
+        String provisioningSeparator = this.configHolder.getValue(provisioningSeparatorKey);
+        String idpName = this.configHolder.getValue(idpName_key);
+        String userIdClaimURL = this.configHolder.getValue(userIdClaimUriKey);
+        String provisioningDomain = this.configHolder.getValue(domainNameKey);
+
+
+        String userId = provisioningEntity.getEntityName();
+
+        if (userIdClaimURL != null && !StringUtils.isEmpty(requiredAttributes.get(userIdClaimURL))) {
+            userId = requiredAttributes.get(userIdClaimURL);
+        }
+
+        String userIdFromPattern = null;
+
+        if (provisioningPattern != null) {
+            userIdFromPattern = buildUserId(provisioningEntity, provisioningPattern,
+                    provisioningSeparator, idpName);
+        }
+
+        if (!StringUtils.isEmpty(userIdFromPattern)) {
+            userId = userIdFromPattern;
+        }
+
+        if (!StringUtils.isEmpty(provisioningDomain) && !userId.endsWith(provisioningDomain)) {
+            userId = userId.replaceAll("@", ".").concat("@").concat(provisioningDomain);
+        }
 
         // Set given name
         String givenNameClaim = this.configHolder.getValue(givenNameClaimKey);
@@ -428,7 +459,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
             if (defaultGivenNameValue != null && !defaultGivenNameValue.isEmpty()) {
                 givenNameValue = defaultGivenNameValue;
             } else {
-                givenNameValue = wso2IsUsername + "-givenName";
+                givenNameValue = wso2IsUsername;
             }
         }
         if (log.isDebugEnabled()) {
@@ -444,7 +475,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
             if (defaultFamilyNameValue != null && !defaultFamilyNameValue.isEmpty()) {
                 familyNameValue = defaultFamilyNameValue;
             } else {
-                familyNameValue = wso2IsUsername + "-familyName";
+                familyNameValue = wso2IsUsername;
             }
         }
         if (log.isDebugEnabled()) {
@@ -455,27 +486,18 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         newUser.setName(username);
         newUser.setPassword(generatePassword());
 
-        // Set primary email
-        String primaryEmailClaim = this.configHolder.getValue(primaryEmailClaimKey);
-        String primaryEmailValue = requiredAttributes.get(primaryEmailClaim);
-        if (primaryEmailValue == null || primaryEmailValue.isEmpty()) {
-            primaryEmailValue = provisioningEntity.getEntityName();
-            String googleDomainName = this.configHolder.getValue(domainNameKey);
-            if (googleDomainName != null && !primaryEmailValue.contains("@")) {
-                primaryEmailValue = primaryEmailValue + "@" + googleDomainName;
-            }
-        }
+        //set primary email
         if (log.isDebugEnabled()) {
-            log.debug("New Google user primary email : " + primaryEmailValue);
+            log.debug("New Google user primary email : " + userId);
         }
-        newUser.setPrimaryEmail(primaryEmailValue);
+        newUser.setPrimaryEmail(userId);
 
         return newUser;
     }
 
     /**
      * Buld Google user object to provision
-     * 
+     *
      * @param provisioningEntity
      * @return
      */
@@ -534,11 +556,12 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
 
     /**
      * Generates (random) password for user to be provisioned
-     * 
+     *
      * @param username
      * @return
      */
     protected String generatePassword() {
         return new BigInteger(130, random).toString(32);
     }
+
 }
