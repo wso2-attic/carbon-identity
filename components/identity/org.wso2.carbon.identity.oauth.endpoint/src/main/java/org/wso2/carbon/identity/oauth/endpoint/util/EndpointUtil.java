@@ -276,13 +276,6 @@ public class EndpointUtil {
         }
         SessionDataCacheEntry entry = (SessionDataCacheEntry)SessionDataCache.getInstance()
                 .getValueFromCache(new SessionDataCacheKey(sessionDataKey));
-        if (entry == null) {
-            if (log.isDebugEnabled()) {
-                log.debug("Cache Entry is Null from SessionDataCache ");
-            }
-        }else{
-            queryString = URLEncoder.encode(entry.getQueryString(), "UTF-8");
-        }
 
 
         if (entry == null) {
