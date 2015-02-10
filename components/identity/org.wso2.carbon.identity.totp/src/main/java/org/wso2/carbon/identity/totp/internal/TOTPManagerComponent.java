@@ -57,17 +57,21 @@ public class TOTPManagerComponent {
 
 	protected void deactivate(ComponentContext ctxt) {
 		if (log.isDebugEnabled()) {
-			log.info("TOTPServiceComponent bundle is deactivated");
+			log.debug("TOTPServiceComponent bundle is deactivated");
 		}
 	}
 
 	protected void setRealmService(RealmService realmService) {
-		log.debug("Setting the Realm Service");
+		if(log.isDebugEnabled()){
+			log.debug("Setting the Realm Service");
+		}
 		TOTPManagerComponent.realmService = realmService;
 	}
 
 	protected void unsetRealmService(RealmService realmService) {
-		log.debug("UnSetting the Realm Service");
+		if(log.isDebugEnabled()){
+			log.debug("UnSetting the Realm Service");
+		}
 		TOTPManagerComponent.realmService = null;
 	}
 

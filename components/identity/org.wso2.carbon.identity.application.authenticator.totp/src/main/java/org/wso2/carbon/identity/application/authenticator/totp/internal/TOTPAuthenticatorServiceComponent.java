@@ -35,13 +35,13 @@ public class TOTPAuthenticatorServiceComponent {
         ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(), totpAuth, props);
 
         if (log.isDebugEnabled()) {
-            log.info("TOTPAuthenticator bundle is activated");
+            log.debug("TOTPAuthenticator bundle is activated");
         }
     }
 
     protected void deactivate(ComponentContext ctxt) {
         if (log.isDebugEnabled()) {
-            log.info("TOTPAuthenticator bundle is deactivated");
+            log.debug("TOTPAuthenticator bundle is deactivated");
         }
     }
 

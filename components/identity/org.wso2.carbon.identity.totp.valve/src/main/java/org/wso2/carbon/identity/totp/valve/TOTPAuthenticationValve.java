@@ -1,4 +1,4 @@
-package org.wso2.carbon.identity.totp.valve.impl;
+package org.wso2.carbon.identity.totp.valve;
 
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Request;
@@ -6,10 +6,6 @@ import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.totp.valve.BasicAuthHandler;
-import org.wso2.carbon.identity.totp.valve.Constants;
-import org.wso2.carbon.identity.totp.valve.OAuthHandler;
-import org.wso2.carbon.identity.totp.valve.TOTPAuthenticationHandler;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;

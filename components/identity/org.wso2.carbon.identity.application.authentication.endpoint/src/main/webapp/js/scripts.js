@@ -32,11 +32,15 @@ function requestTOTPToken(){
             type:"GET",
             data:"&sessionDataKey="+document.getElementById("sessionDataKey").value+"&sendToken=true",
             success: function(response){
-                alert("TOTP Token is generated and sent");
+                if(response==""){
+                    alert("Token sent");
+                }else{
+                    alert("Error");
+                }
                 console.log(response);
             },
             error: function(request, error){
-                alert(error);
+                console.log("Error when generating a token ");
             }
         });
 

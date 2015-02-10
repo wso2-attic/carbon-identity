@@ -175,7 +175,7 @@ public class TOTPKeyGenerator {
 				encoding = KeyRepresentation.BASE64;
 			}
 		} catch (IdentityApplicationManagementException e) {
-			log.error("Error when reading the tenant encoding method");
+			log.error("Error when reading the tenant encoding method",e);
 		}
 
 		GoogleAuthenticatorConfig.GoogleAuthenticatorConfigBuilder gacb = new GoogleAuthenticatorConfig

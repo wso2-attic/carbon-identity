@@ -22,6 +22,8 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.catalina.connector.Request;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.oauth2.OAuth2TokenValidationService;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientApplicationDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationRequestDTO;
@@ -33,7 +35,7 @@ import java.util.Map;
  * OAuthHandler class.
  */
 public class OAuthHandler implements TOTPAuthenticationHandler {
-
+	private static Log log = LogFactory.getLog(OAuthHandler.class);
 	private String remoteServiceURL;
 	private String userName;
 	private String password;
@@ -134,7 +136,7 @@ public class OAuthHandler implements TOTPAuthenticationHandler {
 					}
 				}
 			} catch (Exception e) {
-
+				log.error("Error when calling the remote service ",e);
 			}
 		}
 

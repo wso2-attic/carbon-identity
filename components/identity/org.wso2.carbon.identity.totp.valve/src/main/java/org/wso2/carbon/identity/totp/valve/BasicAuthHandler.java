@@ -26,6 +26,7 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.nio.charset.Charset;
@@ -84,7 +85,7 @@ public class BasicAuthHandler implements TOTPAuthenticationHandler {
 						.getThreadLocalCarbonContext().getOSGiService(RealmService.class);
 				if (realmService != null) {
 					int tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
-					if (tenantId == -1) {
+					if (tenantId == MultitenantConstants.INVALID_TENANT_ID) {
 						log.error("Invalid tenant domain " + tenantDomain);
 						return false;
 					}
@@ -93,7 +94,7 @@ public class BasicAuthHandler implements TOTPAuthenticationHandler {
 					return userRealm.getUserStoreManager().authenticate(tenantLessUserName, password);
 				}
 			} catch (UserStoreException e) {
-				log.error("Can't access the user realm of the user : " + username);
+				log.error("Can't access the user realm of the user : " + username,e);
 			}
 		}
 		return false;
