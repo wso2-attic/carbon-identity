@@ -110,21 +110,20 @@ public class RecoveryProcessor {
         String userId = recoveryDTO.getUserId();
         String domainName = recoveryDTO.getTenantDomain();
         int tenantId = recoveryDTO.getTenantId();
-        NotificationDataDTO notificationData = new NotificationDataDTO();
-        String internalCode = null;
-
 
         TenantManager tenantManager = IdentityMgtServiceComponent.getRealmService().getTenantManager();
         try {
             Tenant tenant = tenantManager.getTenant(tenantId);
-            if(tenant != null) {
+            if (tenant != null) {
                 domainName = tenant.getDomain();
             }
 
         } catch (UserStoreException e) {
             log.warn("No Tenant domain for tenant id " + tenantId);
         }
-
+        NotificationDataDTO notificationData = new NotificationDataDTO();
+        String internalCode = null;
+        
         String type = recoveryDTO.getNotificationType();
         if(type != null){
             module =  modules.get(type);
@@ -202,8 +201,10 @@ public class RecoveryProcessor {
             	emailTemplate = config.getProperty(IdentityMgtConstants.Notification.ACCOUNT_ID_RECOVERY);
             	persistData = false;
             } else if(IdentityMgtConstants.Notification.ASK_PASSWORD.equals(notification)){
-            	emailNotificationData.setTagData("first-name", userId);
-            	internalCode = generateUserCode(2, userId);
+                if (firstName == null || firstName.isEmpty()) {
+                    emailNotificationData.setTagData("first-name", userId);
+                }
+                internalCode = generateUserCode(2, userId);
                 try {
 					confirmationKey = getUserExternalCodeStr(internalCode);
 				} catch (Exception e) {
@@ -499,7 +500,6 @@ public class RecoveryProcessor {
               notificationData.setNotificationCode(confirmationKey);
               emailNotificationData.setTagData("confirmation-code", confirmationKey);
               emailNotificationData.setTagData("tenant-domain", domainName);
-
               emailTemplate = config.getProperty(IdentityMgtConstants.Notification.ASK_PASSWORD);
               
           } 

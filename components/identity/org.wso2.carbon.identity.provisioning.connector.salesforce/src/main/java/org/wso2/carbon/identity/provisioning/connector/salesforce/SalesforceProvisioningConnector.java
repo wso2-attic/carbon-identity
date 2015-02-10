@@ -29,16 +29,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.provisioning.*;
-import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.*;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -147,20 +142,19 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
 
             String userIdClaimURL = this.configHolder.getValue(userIdClaimUriKey);
             String provisioningDomain = this.configHolder.getValue(provisioningDomainKey);
-            String userId;
+            String userId = provisioningEntity.getEntityName();
 
             if (userIdClaimURL != null && !StringUtils.isEmpty(requiredAttributes.get(userIdClaimURL))) {
                 userId = requiredAttributes.get(userIdClaimURL);
             }
-            userId =  provisioningEntity.getEntityName();
 
             String userIdFromPattern = null;
 
-            if (provisioningPattern != null && provisioningSeparator != null) {
+            if (provisioningPattern != null) {
                 userIdFromPattern = buildUserId(provisioningEntity, provisioningPattern,
                         provisioningSeparator, idpName);
             }
-            if (userIdFromPattern != null && !userIdFromPattern.equals("")) {
+            if (!StringUtils.isEmpty(userIdFromPattern)) {
                 userId = userIdFromPattern;
             }
             if (!StringUtils.isEmpty(provisioningDomain) && !userId.endsWith(provisioningDomain)) {

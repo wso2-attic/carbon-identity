@@ -42,6 +42,7 @@ import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
@@ -358,6 +359,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
 
         try {
             String[] roleList = userStoreManager.getRoleListOfUser(userName);
+            Map<String, String> inboundAttributes = new HashMap<String, String>();
 
             Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<ClaimMapping, List<String>>();
 
@@ -394,6 +396,15 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
             ProvisioningEntity provisioningEntity = new ProvisioningEntity(
                     ProvisioningEntityType.USER, domainAwareName, ProvisioningOperation.PUT,
                     outboundAttributes);
+
+            Claim[] claimArray = userStoreManager.getUserClaimValues(userName, null);
+            if (claimArray != null) {
+                for (Claim claim : claimArray) {
+                    inboundAttributes.put(claim.getClaimUri(), claim.getValue());
+                }
+            }
+
+            provisioningEntity.setInboundAttributes(inboundAttributes);
 
             String tenantDomainName = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
 
