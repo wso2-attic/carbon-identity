@@ -21,11 +21,13 @@ package org.wso2.carbon.identity.totp.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
-//import org.wso2.carbon.identity.notification.mgt.NotificationSender;
 import org.wso2.carbon.identity.totp.TOTPManager;
 import org.wso2.carbon.identity.totp.TOTPManagerImpl;
 import org.wso2.carbon.user.core.service.RealmService;
+
 import java.util.Hashtable;
+
+//import org.wso2.carbon.identity.notification.mgt.NotificationSender;
 
 /**
  * @scr.component name="identity.totp.component" immediate="true"
@@ -86,9 +88,9 @@ public class TOTPManagerComponent {
     public static RealmService getRealmService() {
         return realmService;
     }
-    
+
 //    public static NotificationSender getNotificationSender(){
 //        return notificationSender;
 //    }
-    
+
 }

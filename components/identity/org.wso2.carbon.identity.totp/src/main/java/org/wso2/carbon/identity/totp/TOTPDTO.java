@@ -19,7 +19,7 @@
 package org.wso2.carbon.identity.totp;
 
 public class TOTPDTO {
-    
+
     String secretkey;
     String QRCodeURL;
 

@@ -18,6 +18,13 @@
 
 package org.wso2.carbon.identity.totp.endpoint;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.totp.TOTPDTO;
+import org.wso2.carbon.identity.totp.TOTPManager;
+import org.wso2.carbon.identity.totp.exception.TOTPException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -26,12 +33,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.identity.totp.TOTPDTO;
-import org.wso2.carbon.identity.totp.TOTPManager;
-import org.wso2.carbon.identity.totp.exception.TOTPException;
 
 @Path("/keygen")
 public class TOTPKeyGeneratorEndpoint {
@@ -42,42 +43,42 @@ public class TOTPKeyGeneratorEndpoint {
     @Path("/local")
     @Consumes("application/x-www-form-urlencoded")
     @Produces("application/json")
-    public Response totpKeyGenLocal(@Context HttpServletRequest request){
+    public Response totpKeyGenLocal(@Context HttpServletRequest request) {
 
         TOTPManager totpManager = (TOTPManager) PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService(TOTPManager.class);
-        if(totpManager!=null) {
+        if (totpManager != null) {
             String username = request.getParameter("username");
             TOTPDTO totpdto = null;
             try {
                 totpdto = totpManager.generateTOTPKeyLocal(username);
-                String json = createJsonPayload(totpdto.getSecretkey(),totpdto.getQRCodeURL());
+                String json = createJsonPayload(totpdto.getSecretkey(), totpdto.getQRCodeURL());
                 return Response.ok(json, MediaType.APPLICATION_JSON_TYPE).build();
             } catch (TOTPException e) {
-                log.error("TOTPKeyGenerator endpoint could not generate keys for local user",e);
+                log.error("TOTPKeyGenerator endpoint could not generate keys for local user", e);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error when generating the key")
                         .type(MediaType.APPLICATION_JSON_TYPE).build();
             }
-        }else{
+        } else {
             log.error("TOTPKeyGenerator endpoint could not generate keys for local user");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error when generating the key")
                     .type(MediaType.APPLICATION_JSON_TYPE).build();
         }
     }
 
-    
+
     @POST
     @Path("/external")
     @Consumes("application/x-www-form-urlencoded")
     @Produces("application/json")
-    public Response totpKeyGenExternal(@Context HttpServletRequest request){
+    public Response totpKeyGenExternal(@Context HttpServletRequest request) {
 
         TOTPManager totpManager = (TOTPManager) PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService(TOTPManager.class);
-        if(totpManager!=null) {
+        if (totpManager != null) {
             String username = request.getParameter("username");
             TOTPDTO totpdto = totpManager.generateTOTPKey(username);
-            String json = createJsonPayload(totpdto.getSecretkey(),totpdto.getQRCodeURL());
+            String json = createJsonPayload(totpdto.getSecretkey(), totpdto.getQRCodeURL());
             return Response.ok(json, MediaType.APPLICATION_JSON_TYPE).build();
-        }else{
+        } else {
             log.error("TOTPKeyGenerator endpoint could not generate the key");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error when generating the key")
                     .type(MediaType.APPLICATION_JSON_TYPE).build();
@@ -85,12 +86,11 @@ public class TOTPKeyGeneratorEndpoint {
     }
 
 
-    private String createJsonPayload(String secretKey, String qrCodeURL){
+    private String createJsonPayload(String secretKey, String qrCodeURL) {
 
-        return "{\"secretkey\":\""+secretKey+"\"," +
-               "\"qrcode\":\""+qrCodeURL+"\"}";
+        return "{\"secretkey\":\"" + secretKey + "\"," +
+               "\"qrcode\":\"" + qrCodeURL + "\"}";
     }
-
 
 
 }

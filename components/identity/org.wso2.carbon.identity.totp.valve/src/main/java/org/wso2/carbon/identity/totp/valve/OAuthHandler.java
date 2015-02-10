@@ -26,8 +26,12 @@ import org.wso2.carbon.identity.oauth2.OAuth2TokenValidationService;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientApplicationDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationRequestDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
+
 import java.util.Map;
 
+/**
+ * OAuthHandler class.
+ */
 public class OAuthHandler implements TOTPAuthenticationHandler {
 
     private String remoteServiceURL;
@@ -39,12 +43,19 @@ public class OAuthHandler implements TOTPAuthenticationHandler {
 
     private Map<String, String> properties;
 
-    
-    
+
+    /**
+     * Set default AuthzServer.
+     */
     public void setDefaultAuthzServer() {
         this.remoteServiceURL = Constants.LOCAL_AUTH_SERVER;
     }
-    
+
+    /**
+     * Set properties.
+     *
+     * @param authenticatorProperties
+     */
     @Override
     public void setProperties(Map<String, String> authenticatorProperties) {
         this.properties = authenticatorProperties;
@@ -63,7 +74,12 @@ public class OAuthHandler implements TOTPAuthenticationHandler {
         userName = properties.get(Constants.PROPERTY_NAME_USERNAME);
         password = properties.get(Constants.PROPERTY_NAME_PASSWORD);
     }
-    
+
+    /**
+     * get the OAuthzServerURL.
+     *
+     * @return
+     */
     private String getOAuthAuthzServerURL() {
         if (remoteServiceURL != null) {
             if (!remoteServiceURL.endsWith("/")) {
@@ -72,7 +88,13 @@ public class OAuthHandler implements TOTPAuthenticationHandler {
         }
         return remoteServiceURL;
     }
-    
+
+    /**
+     * extended can handle method.
+     *
+     * @param request
+     * @return
+     */
     @Override
     public boolean canHandler(Request request) {
 
@@ -83,12 +105,18 @@ public class OAuthHandler implements TOTPAuthenticationHandler {
         return false;
     }
 
+    /**
+     * Check whether a given credentials in the request is authenticated or not.
+     *
+     * @param request request from the client
+     * @return true if authenticated, false otherwise
+     */
     @Override
     public boolean isAuthenticated(Request request) {
 
         String authheader = request.getHeader(Constants.AUTHORIZATION_HEADER);
         if (authheader != null && authheader.startsWith(Constants.BEARER_AUTH_HEADER)) {
-            
+
             String accessToken = authheader.substring(Constants.BEARER_AUTH_HEADER.length()).trim();
 
             try {
@@ -105,12 +133,11 @@ public class OAuthHandler implements TOTPAuthenticationHandler {
                         return true;
                     }
                 }
-            }
-            catch (Exception e){
-                
+            } catch (Exception e) {
+
             }
         }
-        
+
         return false;
     }
 
@@ -124,7 +151,15 @@ public class OAuthHandler implements TOTPAuthenticationHandler {
         this.priority = priority;
     }
 
-    private OAuth2ClientApplicationDTO validateAccessToken(String accessTokenIdentifier) throws Exception{
+    /**
+     * Validate the access token sent.
+     *
+     * @param accessTokenIdentifier
+     * @return
+     * @throws Exception
+     */
+    private OAuth2ClientApplicationDTO validateAccessToken(String accessTokenIdentifier)
+            throws Exception {
 
         // if it is specified to use local authz server (i.e: local://services)
         if (remoteServiceURL.startsWith(Constants.LOCAL_PREFIX)) {

@@ -24,13 +24,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.UserRealm;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.nio.charset.Charset;
 import java.util.Map;
 
-public class BasicAuthHandler implements TOTPAuthenticationHandler{
+/**
+ * Basic Authentication handler class.
+ */
+public class BasicAuthHandler implements TOTPAuthenticationHandler {
     private static Log log = LogFactory.getLog(BasicAuthHandler.class);
     private int priority;
     private Map<String, String> properties;
@@ -45,9 +49,15 @@ public class BasicAuthHandler implements TOTPAuthenticationHandler{
         }
         return false;
     }
-    
+
+    /**
+     * Check whether a given request is authenticated or not.
+     *
+     * @param request
+     * @return
+     */
     @Override
-    public boolean isAuthenticated(Request request){
+    public boolean isAuthenticated(Request request) {
 
         String authheader = request.getHeader(Constants.AUTHORIZATION_HEADER);
 
@@ -62,7 +72,7 @@ public class BasicAuthHandler implements TOTPAuthenticationHandler{
             String username = values[0];
             String password = values[1];
 
-            if("".equals(username) || username==null || "".equals(password) || password==null){
+            if ("".equals(username) || username == null || "".equals(password) || password == null) {
                 return false;
             }
 
@@ -82,8 +92,8 @@ public class BasicAuthHandler implements TOTPAuthenticationHandler{
                     UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
                     return userRealm.getUserStoreManager().authenticate(tenantLessUserName, password);
                 }
-            }catch(Exception e){
-
+            } catch (UserStoreException e) {
+                log.error("Can't access the user realm of the user : " + username);
             }
         }
         return false;

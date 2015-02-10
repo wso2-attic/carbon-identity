@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.identity.totp.util;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
@@ -27,10 +29,20 @@ import org.wso2.carbon.identity.application.common.util.IdentityApplicationConst
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 
+/**
+ * TOTP Util class.
+ */
 public class TOTPUtil {
+    private static Log log = LogFactory.getLog(TOTPUtil.class);
 
+    /**
+     * Get locally stored encoding method.
+     *
+     * @return
+     * @throws IdentityApplicationManagementException
+     */
     public static String getEncodingMethod() throws IdentityApplicationManagementException {
-        
+
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         IdentityProviderManager identityProviderManager = IdentityProviderManager.getInstance();
 
@@ -41,7 +53,11 @@ public class TOTPUtil {
         Property property = IdentityApplicationManagementUtil.
                 getProperty(federatedAuthenticatorConfig.getProperties()
                         , IdentityApplicationConstants.Authenticator.TOTP.ENCODING_METHOD);
-        if("Base32".equals(property.getValue())) {
+        if (log.isDebugEnabled()) {
+            log.debug("Read the encoding method from Resident Idp for tenant id : " + CarbonContext.getThreadLocalCarbonContext().getTenantId());
+        }
+
+        if ("Base32".equals(property.getValue())) {
             return "Base32";
         }
         return "Base64";

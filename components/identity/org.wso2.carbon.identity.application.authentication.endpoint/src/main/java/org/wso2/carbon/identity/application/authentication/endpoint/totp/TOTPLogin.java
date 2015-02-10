@@ -27,13 +27,14 @@ import java.io.IOException;
 
 public class TOTPLogin extends HttpServlet {
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,
-    IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException,
+                   IOException {
 
-        if(request.getRequestURI().contains("/totp_login.do")){
+        if (request.getRequestURI().contains("/totp_login.do")) {
             request.getRequestDispatcher("totp.jsp").forward(request, response);
-        }else if(request.getRequestURI().contains("/totp_error.do")){
-            request.getRequestDispatcher("totp_error.jsp").forward(request,response);
+        } else if (request.getRequestURI().contains("/totp_error.do")) {
+            request.getRequestDispatcher("totp_error.jsp").forward(request, response);
         }
     }
 

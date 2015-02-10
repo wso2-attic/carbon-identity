@@ -20,20 +20,23 @@ package org.wso2.carbon.identity.totp;
 
 import org.wso2.carbon.identity.totp.exception.TOTPException;
 
+/**
+ * TOTPManager implementation class.
+ */
 public class TOTPManagerImpl implements TOTPManager {
-    
+
     private TOTPKeyGenerator totpKeyGenerator;
     private TOTPTokenGenerator totpTokenGenerator;
     private TOTPAccessController totpAccessController;
     private TOTPTokenVerifier totpTokenVerifier;
-    
-    public TOTPManagerImpl(){
+
+    public TOTPManagerImpl() {
         this.totpKeyGenerator = TOTPKeyGenerator.getInstance();
         this.totpTokenGenerator = TOTPTokenGenerator.getInstance();
         this.totpAccessController = TOTPAccessController.getInstance();
         this.totpTokenVerifier = TOTPTokenVerifier.getInstance();
     }
-    
+
     @Override
     public TOTPDTO generateTOTPKeyLocal(String username) throws TOTPException {
         return totpKeyGenerator.generateTOTPKeyLocal(username);
@@ -50,7 +53,7 @@ public class TOTPManagerImpl implements TOTPManager {
     }
 
     @Override
-    public String generateTOTPToken(String secretKey) throws TOTPException{
+    public String generateTOTPToken(String secretKey) throws TOTPException {
         return totpTokenGenerator.generateTOTPToken(secretKey);
     }
 
@@ -61,22 +64,22 @@ public class TOTPManagerImpl implements TOTPManager {
 
     @Override
     public boolean isValidTokenLocalUser(int token, String username) throws TOTPException {
-        return totpTokenVerifier.isValidTokenLocalUser(token,username);
+        return totpTokenVerifier.isValidTokenLocalUser(token, username);
     }
 
     @Override
     public boolean isValidToken(int token, String secretKey) {
-        return totpTokenVerifier.isValidToken(token,secretKey);
+        return totpTokenVerifier.isValidToken(token, secretKey);
     }
 
     @Override
     public String[] getSupportedEncodingMethods() {
-        return  new String[]{"Base32","Base64"};
+        return new String[]{"Base32", "Base64"};
     }
 
     @Override
     public String[] getSupportedHashingMethods() {
-        return new String[]{"SHA-1","MD5"};
+        return new String[]{"SHA-1", "MD5"};
     }
 
 

@@ -27,6 +27,7 @@ import org.wso2.carbon.identity.oauth2.stub.dto.OAuth2TokenValidationRequestDTO;
 import org.wso2.carbon.identity.oauth2.stub.dto.OAuth2TokenValidationRequestDTO_OAuth2AccessToken;
 import org.wso2.carbon.identity.oauth2.stub.dto.OAuth2TokenValidationResponseDTO;
 import org.wso2.carbon.utils.CarbonUtils;
+
 import java.rmi.RemoteException;
 
 public class OAuthServiceClient {
@@ -66,7 +67,7 @@ public class OAuthServiceClient {
             throws Exception {
         OAuth2TokenValidationRequestDTO oauthReq = new OAuth2TokenValidationRequestDTO();
         OAuth2TokenValidationRequestDTO_OAuth2AccessToken accessToken =
-                new OAuth2TokenValidationRequestDTO_OAuth2AccessToken ();
+                new OAuth2TokenValidationRequestDTO_OAuth2AccessToken();
         accessToken.setTokenType(BEARER_TOKEN_TYPE);
         accessToken.setIdentifier(accessTokenIdentifier);
         oauthReq.setAccessToken(accessToken);
@@ -77,9 +78,8 @@ public class OAuthServiceClient {
             throw new Exception("Error while validating OAuth2 request", e);
         }
     }
-    
+
     /**
-     * 
      * @param accessTokenIdentifier
      * @return
      * @throws Exception
@@ -88,7 +88,7 @@ public class OAuthServiceClient {
             throws Exception {
         OAuth2TokenValidationRequestDTO oauthReq = new OAuth2TokenValidationRequestDTO();
         OAuth2TokenValidationRequestDTO_OAuth2AccessToken accessToken =
-                new OAuth2TokenValidationRequestDTO_OAuth2AccessToken ();
+                new OAuth2TokenValidationRequestDTO_OAuth2AccessToken();
         accessToken.setTokenType(BEARER_TOKEN_TYPE);
         accessToken.setIdentifier(accessTokenIdentifier);
         oauthReq.setAccessToken(accessToken);

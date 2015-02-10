@@ -22,14 +22,12 @@ import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
-//import org.wso2.carbon.identity.notification.mgt.NotificationManagementException;
-//import org.wso2.carbon.identity.notification.mgt.NotificationSender;
-//import org.wso2.carbon.identity.notification.mgt.bean.PublisherEvent;
-import org.wso2.carbon.identity.totp.internal.TOTPManagerComponent;
 import org.wso2.carbon.identity.totp.exception.TOTPException;
+import org.wso2.carbon.identity.totp.internal.TOTPManagerComponent;
 import org.wso2.carbon.identity.totp.util.TOTPUtil;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -42,8 +40,14 @@ import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
+//import org.wso2.carbon.identity.notification.mgt.NotificationManagementException;
+//import org.wso2.carbon.identity.notification.mgt.NotificationSender;
+//import org.wso2.carbon.identity.notification.mgt.bean.PublisherEvent;
 
-//stop the description comment with a fullstop /class/method
+
+/**
+ * TOTP Token generator class.
+ */
 public class TOTPTokenGenerator {
 
     private static Log log = LogFactory.getLog(TOTPTokenGenerator.class);
@@ -51,23 +55,38 @@ public class TOTPTokenGenerator {
     private final String eventName = "userOperation";
     private final String usernameLabel = "username";
     private final String operationLabel = "operation";
-    
-    private TOTPTokenGenerator(){};
-    
-    public static TOTPTokenGenerator getInstance(){
-        if(instance==null){
-            synchronized (TOTPTokenGenerator.class){
-                if(instance==null){
-                    instance= new TOTPTokenGenerator();
+
+    private TOTPTokenGenerator() {
+    }
+
+    ;
+
+    /**
+     * Singleton method to get instance of TOTPTokenGenerator.
+     *
+     * @return instance of TOTPTokenGenerator
+     */
+    public static TOTPTokenGenerator getInstance() {
+        if (instance == null) {
+            synchronized (TOTPTokenGenerator.class) {
+                if (instance == null) {
+                    instance = new TOTPTokenGenerator();
                 }
             }
         }
         return instance;
     }
-    
+
+    /**
+     * Generate TOTP token for a locally stored user.
+     *
+     * @param username username of the user
+     * @return TOTP token as a String
+     * @throws TOTPException
+     */
     public String generateTOTPTokenLocal(String username)
-            throws TOTPException{
-                
+            throws TOTPException {
+
         long token = 0;
         try {
             int tenantId = IdentityUtil.getTenantIdOFUser(username);
@@ -76,7 +95,7 @@ public class TOTPTokenGenerator {
                 UserStoreManager userStoreManager = userRealm.getUserStoreManager();
                 String secretKey = userStoreManager.getUserClaimValue(MultitenantUtils.getTenantAwareUsername(username), Constants.SECRET_KEY, null);
 
-                byte[] secretkey ;
+                byte[] secretkey;
                 String encoding = "Base32";
                 try {
                     encoding = TOTPUtil.getEncodingMethod();
@@ -84,10 +103,10 @@ public class TOTPTokenGenerator {
                     log.error("Error when fetching the encoding method");
                 }
 
-                if("Base32".equals(encoding)){
+                if ("Base32".equals(encoding)) {
                     Base32 codec32 = new Base32();
                     secretkey = codec32.decode(secretKey);
-                }else{
+                } else {
                     Base64 code64 = new Base64();
                     secretkey = code64.decode(secretKey);
                 }
@@ -95,44 +114,50 @@ public class TOTPTokenGenerator {
                     token = getCode(secretkey, getTimeIndex());
                     //Send notificaton via email to the user
                     //sendNotification("TOTP Token",username);
-                    log.info("Generated token : "+token); //space both sides of +
-                    
+                    if (log.isDebugEnabled()) {
+                        log.debug("Token is sent to via email. token : " + token);
+                    }
+                    log.info("Generated token : " + token); //space both sides of +
+
                 } catch (NoSuchAlgorithmException e) {
-                   throw new TOTPException("TOTPTokenGenerator can't find the configured hashing algorithm",e);
+                    throw new TOTPException("TOTPTokenGenerator can't find the configured hashing algorithm", e);
                 } catch (InvalidKeyException e) {
                     throw new TOTPException("Secret key is not valid", e);
                 }
-            }else{
-                //log.error("Cannot find the user realm for the given tenant: " + tenantId); don't logg and throw
-                //don't use tenant id, use tenat domain 
-                throw new TOTPException("Cannot find the user realm for the given tenant: " + tenantId);
+            } else {
+                throw new TOTPException("Cannot find the user realm for the given tenant domain : " + CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
             }
         } catch (IdentityException e) {
-            log.error("TOTPTokenGenerator failed while trying to get the tenant ID of the use", e); // use username
-            throw new TOTPException(e.getMessage(),e);//don't use e.getmessage , use the messsage + veriable info
+            throw new TOTPException("TOTPTokenGenerator failed while trying to get the tenant ID of the user " + username, e);
         } catch (UserStoreException e) {
-            log.error("TOTPTokenGenerator failed while trying to access userRealm", e);
-            throw new TOTPException(e.getMessage(),e);
+            throw new TOTPException("TOTPTokenGenerator failed while trying to access userRealm of the user : " + username, e);
         }
         return Long.toString(token);
     }
 
+    /**
+     * Generate TOTP token for a given Secretkey
+     *
+     * @param secretKey Secret key
+     * @return TOTP token as a string
+     * @throws TOTPException
+     */
     public String generateTOTPToken(String secretKey) throws TOTPException {
-        
+
         long token = 0;
 
-        byte[] secretkey ;
+        byte[] secretkey;
         String encoding = "Base32";
         try {
             encoding = TOTPUtil.getEncodingMethod();
         } catch (IdentityApplicationManagementException e) {
             log.error("Error when fetching the encoding method");
         }
-        
-        if("Base32".equals(encoding)){
+
+        if ("Base32".equals(encoding)) {
             Base32 codec32 = new Base32();
             secretkey = codec32.decode(secretKey);
-        }else{
+        } else {
             Base64 code64 = new Base64();
             secretkey = code64.decode(secretKey);
         }
@@ -140,13 +165,22 @@ public class TOTPTokenGenerator {
         try {
             token = getCode(secretkey, getTimeIndex());
         } catch (NoSuchAlgorithmException e) {
-            throw new TOTPException("TOTPTokenGenerator can't find the configured hashing algorithm",e);
+            throw new TOTPException("TOTPTokenGenerator can't find the configured hashing algorithm", e);
         } catch (InvalidKeyException e) {
-            throw new TOTPException("Secret key is not valid",e);
+            throw new TOTPException("Secret key is not valid", e);
         }
         return Long.toString(token);
     }
-    
+
+    /**
+     * Create the TOTP token for a given secret key and time index
+     *
+     * @param secret    Secret key
+     * @param timeIndex Number of Time elapse from the unix epoch time
+     * @return TOTP token value as a long
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeyException
+     */
     private long getCode(byte[] secret, long timeIndex)
             throws NoSuchAlgorithmException, InvalidKeyException {
         //One line between
@@ -167,6 +201,11 @@ public class TOTPTokenGenerator {
         return truncatedHash;
     }
 
+    /**
+     * Get Time steps from unix epoch time.
+     *
+     * @return
+     */
     private static long getTimeIndex() {
         return System.currentTimeMillis() / 1000 / 30;
     }

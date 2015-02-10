@@ -8,37 +8,33 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.totp.valve.BasicAuthHandler;
 import org.wso2.carbon.identity.totp.valve.Constants;
+import org.wso2.carbon.identity.totp.valve.OAuthHandler;
+import org.wso2.carbon.identity.totp.valve.TOTPAuthenticationHandler;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
-import org.wso2.carbon.identity.totp.valve.OAuthHandler;
-import org.wso2.carbon.identity.totp.valve.TOTPAuthenticationHandler;
-import org.wso2.carbon.utils.CarbonUtils;
 
 
-public class TOTPAuthenticationValve extends ValveBase{
+public class TOTPAuthenticationValve extends ValveBase {
 
     private static Log log = LogFactory.getLog(TOTPAuthenticationValve.class);
-    
-    Map<Integer,TOTPAuthenticationHandler> totpAuthenticationHandlers = new TreeMap<Integer, TOTPAuthenticationHandler>();
-    
+
+    Map<Integer, TOTPAuthenticationHandler> totpAuthenticationHandlers = new TreeMap<Integer, TOTPAuthenticationHandler>();
+
     @Override
     public void invoke(Request request, Response response) throws IOException, ServletException {
 
-        if(!Constants.CONTEXT_PATH.equals(request.getContextPath().trim())){
+        if (!Constants.CONTEXT_PATH.equals(request.getContextPath().trim())) {
             getNext().invoke(request, response);
             return;
         }
         TOTPAuthenticationHandler authenticationHandler = getAuthenticator(request);
-        
-        if(authenticationHandler!=null){
-            if(!authenticationHandler.isAuthenticated(request)){
+
+        if (authenticationHandler != null) {
+            if (!authenticationHandler.isAuthenticated(request)) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
@@ -51,17 +47,17 @@ public class TOTPAuthenticationValve extends ValveBase{
         super.initInternal();
         BasicAuthHandler basicAuthHandler = new BasicAuthHandler();
         basicAuthHandler.setDefaultPriority();
-        totpAuthenticationHandlers.put(basicAuthHandler.getPriority(),basicAuthHandler);
+        totpAuthenticationHandlers.put(basicAuthHandler.getPriority(), basicAuthHandler);
 
         OAuthHandler oAuthHandler = new OAuthHandler();
         oAuthHandler.setDefaultPriority();
         oAuthHandler.setDefaultAuthzServer();
-        totpAuthenticationHandlers.put(oAuthHandler.getPriority(),oAuthHandler);
+        totpAuthenticationHandlers.put(oAuthHandler.getPriority(), oAuthHandler);
     }
-    
-    private TOTPAuthenticationHandler getAuthenticator(Request request){
-        for(TOTPAuthenticationHandler authenticationHandler : totpAuthenticationHandlers.values()){
-            if(authenticationHandler.canHandler(request)){
+
+    private TOTPAuthenticationHandler getAuthenticator(Request request) {
+        for (TOTPAuthenticationHandler authenticationHandler : totpAuthenticationHandlers.values()) {
+            if (authenticationHandler.canHandler(request)) {
                 return authenticationHandler;
             }
         }

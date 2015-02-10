@@ -26,7 +26,7 @@ public class TOTPAuthenticatorServiceComponent {
 
     private static RealmService realmService;
     private static TOTPManager totpManager;
-    
+
     protected void activate(ComponentContext ctxt) {
 
         TOTPAuthenticator totpAuth = new TOTPAuthenticator();

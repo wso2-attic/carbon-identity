@@ -19,12 +19,12 @@
 package org.wso2.carbon.identity.totp.exception;
 
 public class TOTPException extends Exception {
-    
-    public TOTPException(String msg){
+
+    public TOTPException(String msg) {
         super(msg);
     }
-    
-    public TOTPException(String msg, Throwable cause){
-        super(msg,cause);
+
+    public TOTPException(String msg, Throwable cause) {
+        super(msg, cause);
     }
 }

@@ -29,15 +29,15 @@ public interface TOTPManager {
 
     public String generateTOTPTokenLocal(String username) throws TOTPException;
 
-    public String generateTOTPToken(String secretKey)throws TOTPException;
+    public String generateTOTPToken(String secretKey) throws TOTPException;
 
     public boolean isTOTPEnabledForLocalUser(String username) throws TOTPException;
 
-    public boolean isValidTokenLocalUser(int token,String username) throws TOTPException;
+    public boolean isValidTokenLocalUser(int token, String username) throws TOTPException;
 
-    public boolean isValidToken(int token,String secretKey);
-    
+    public boolean isValidToken(int token, String secretKey);
+
     public String[] getSupportedEncodingMethods();
-    
+
     public String[] getSupportedHashingMethods();
 }

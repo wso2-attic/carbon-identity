@@ -23,11 +23,15 @@ import org.apache.catalina.connector.Request;
 import java.util.Map;
 
 public interface TOTPAuthenticationHandler {
-    
+
     public boolean canHandler(Request request);
+
     public boolean isAuthenticated(Request request);
+
     public int getPriority();
+
     public void setPriority(int property);
+
     public void setProperties(Map<String, String> authenticatorProperties);
-    
+
 }
