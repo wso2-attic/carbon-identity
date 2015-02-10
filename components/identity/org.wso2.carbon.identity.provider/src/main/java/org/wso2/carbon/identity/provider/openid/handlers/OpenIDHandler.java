@@ -496,7 +496,7 @@ public class OpenIDHandler {
                     new String[]{username});
         }
 
-        String forceAuthenticate = "false";
+        boolean forceAuthenticate = false;
         if (!claimedID.endsWith("/openid/")) {
             String authenticatedUser = (String) request.getSession().getAttribute(
                     OpenIDConstants.SessionAttribute.AUTHENTICATED_OPENID);
@@ -510,7 +510,7 @@ public class OpenIDHandler {
                             + " with the OpenID in the current request :" + claimedID
                             + " and setting forceAuthenticate.");
                 }
-                forceAuthenticate = "true";
+                forceAuthenticate = true;
             }
         }
         authenticationRequest.setForceAuth(forceAuthenticate);
