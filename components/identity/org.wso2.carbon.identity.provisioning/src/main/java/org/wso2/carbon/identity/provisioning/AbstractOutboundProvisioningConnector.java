@@ -162,6 +162,10 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
         String username = provisioningEntity.getEntityName();
         String userStoreDomain = getDomainFromUserName(username);
 
+        if (separator == null) {
+            separator = "";
+        }
+
         String provIdentifier = "";
         provValues.put(PROVISIONING_TENANT, tenantDomain.replaceAll(separator, ""));
 

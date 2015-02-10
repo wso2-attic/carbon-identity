@@ -20,22 +20,22 @@ import junit.framework.TestCase;
 public class DefaultPasswordLengthPolicyTest extends TestCase {
 
 	DefaultPasswordLengthPolicy policy = new DefaultPasswordLengthPolicy();
-
+	
 	public void testMaxLength() {
-
+		
 		assertFalse("max length check failed", policy.enforce("password123"));
 		assertTrue("max length check failed", policy.enforce("password"));
 	}
-
+	
 	public void testMinLength() {
-
+		
 		assertFalse("min length check failed", policy.enforce("passw"));
 		assertTrue("min length check failed", policy.enforce("password"));
 		
 	}
 	
 	public void testNullInput() {
-
+		
 		assertTrue("null input check failed", policy.enforce(null));
 	}
 }

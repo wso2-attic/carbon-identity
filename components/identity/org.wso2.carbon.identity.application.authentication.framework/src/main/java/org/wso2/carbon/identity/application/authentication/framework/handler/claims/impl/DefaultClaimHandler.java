@@ -33,7 +33,6 @@ import org.wso2.carbon.claim.mgt.ClaimManagerHandler;
 import org.wso2.carbon.core.util.AnonymousSessionUtil;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ApplicationConfig;
-import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.StepConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
@@ -65,9 +64,6 @@ public class DefaultClaimHandler implements ClaimHandler {
         return instance;
     }
 
-    /**
-     * 
-     */
     public Map<String, String> handleClaimMappings(StepConfig stepConfig,
             AuthenticationContext context, Map<String, String> remoteClaims,
             boolean isFederatedClaims) throws FrameworkException {

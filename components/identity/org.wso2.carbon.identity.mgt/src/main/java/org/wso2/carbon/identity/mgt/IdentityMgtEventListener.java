@@ -157,7 +157,6 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                 log.debug("Username :" + userName + "does not exists in the system, ErrorCode :" + UserCoreConstants.ErrorCode.USER_DOES_NOT_EXIST);
             }
             if (config.isAuthPolicyAccountExistCheck()) {
-                log.warn("User name does not exist in system : " + userName);
                 throw new UserStoreException(UserCoreConstants.ErrorCode.USER_DOES_NOT_EXIST);
             }
         } else {
@@ -617,6 +616,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 			}
 		}
 
+
         // When claims available in user add request like http://wso2.org/claims/identity/accountLocked
         if (!config.isEnableUserAccountVerification() &&
                 !config.isAuthPolicyAccountLockOnCreation() && userIdentityClaimsDO != null) {
@@ -630,8 +630,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             }
         }
 
-
-		return true;	
+		return true;
 	}
 
 	/**
