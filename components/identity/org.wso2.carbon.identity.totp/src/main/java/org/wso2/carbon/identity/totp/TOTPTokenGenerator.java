@@ -51,9 +51,10 @@ public class TOTPTokenGenerator {
 
 	private static Log log = LogFactory.getLog(TOTPTokenGenerator.class);
 	private static volatile TOTPTokenGenerator instance;
-	private final String eventName = "userOperation";
+	private final String eventName = "TOTPOperation";
 	private final String usernameLabel = "username";
 	private final String operationLabel = "operation";
+	private final String tokenLabel = "token";
 
 	private TOTPTokenGenerator() {
 	}
@@ -112,11 +113,10 @@ public class TOTPTokenGenerator {
 				}
 				try {
 					token = getCode(secretkey, getTimeIndex());
-					//sendNotification("token : " + token, username);
+					sendNotification("TOTP token Generator",username,Long.toString(token));
 					if (log.isDebugEnabled()) {
-						log.debug("Token is sent to via email. token : " + token);
+						log.debug("Token is sent to via email to the user : " + username);
 					}
-					log.info("Generated token : " + token); //space both sides of +
 
 				} catch (NoSuchAlgorithmException e) {
 					throw new TOTPException("TOTPTokenGenerator can't find the configured hashing algorithm", e);
@@ -213,13 +213,14 @@ public class TOTPTokenGenerator {
 	}
 
 
-	private void sendNotification(String operation, String username) {
+	private void sendNotification(String operation, String username, String token) {
 		NotificationSender notificationSender = TOTPManagerComponent.getNotificationSender();
 		if (notificationSender != null) {
 			try {
 				PublisherEvent event = new PublisherEvent(eventName);
 				event.addEventProperty(operationLabel, operation);
 				event.addEventProperty(usernameLabel, username);
+				event.addEventProperty(tokenLabel,token);
 				if (log.isDebugEnabled()) {
 					log.debug("Invoking notification sender");
 				}

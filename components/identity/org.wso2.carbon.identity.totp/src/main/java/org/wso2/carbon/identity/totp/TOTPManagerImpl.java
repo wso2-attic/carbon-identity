@@ -43,7 +43,7 @@ public class TOTPManagerImpl implements TOTPManager {
 	}
 
 	@Override
-	public TOTPDTO generateTOTPKey(String username) {
+	public TOTPDTO generateTOTPKey(String username) throws TOTPException {
 		return totpKeyGenerator.generateTOTPKey(username);
 	}
 

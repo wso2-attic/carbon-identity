@@ -34,6 +34,10 @@ import org.wso2.carbon.identity.notification.mgt.NotificationSender;
  * @scr.reference name="realm.service"
  * interface="org.wso2.carbon.user.core.service.RealmService"cardinality="1..1"
  * policy="dynamic" bind="setRealmService" unbind="unsetRealmService"
+ * @scr.reference name="carbon.identity.notification.mgt"
+ * interface="org.wso2.carbon.identity.notification.mgt.NotificationSender"
+ * cardinality="1..1" policy="dynamic" bind="setNotificationSender"
+ * unbind="unsetNotificationSender"
  */
 
 
@@ -77,16 +81,16 @@ public class TOTPManagerComponent {
 
 	protected void setNotificationSender(NotificationSender notificationSender) {
 		if (log.isDebugEnabled()) {
-			log.debug("Un-setting notification sender in Entitlement bundle");
+			log.debug("Un-setting notification sender");
 		}
-		this.notificationSender = notificationSender;
+		TOTPManagerComponent.notificationSender = notificationSender;
 	}
 
 	protected void unsetNotificationSender(NotificationSender notificationSender) {
 		if (log.isDebugEnabled()) {
-			log.debug("Setting notification sender in Entitlement bundle");
+			log.debug("Setting notification sender");
 		}
-		this.notificationSender = null;
+		TOTPManagerComponent.notificationSender = null;
 	}
 
 	public static RealmService getRealmService() {

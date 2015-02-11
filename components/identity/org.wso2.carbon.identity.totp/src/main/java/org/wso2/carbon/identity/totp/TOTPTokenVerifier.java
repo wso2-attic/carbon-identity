@@ -104,8 +104,7 @@ public class TOTPTokenVerifier {
 			throw new TOTPException("TOTPTokenVerifier failed while trying to get the tenant ID of the user : " + 
 			                        username, e);
 		} catch (UserStoreException e) {
-			log.error("TOTPTokenVerifier failed while trying to access userRealm", e);
-			throw new TOTPException("TOTPTokenVerifier failed while trying to access userRealm of the user : " + 
+			throw new TOTPException("TOTPTokenVerifier failed while trying to access userRealm of the user : " +
 			                        username, e);
 		}
 	}

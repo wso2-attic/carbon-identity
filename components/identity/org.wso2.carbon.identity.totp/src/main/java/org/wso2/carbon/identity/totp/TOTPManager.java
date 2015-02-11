@@ -25,7 +25,7 @@ public interface TOTPManager {
 
 	public TOTPDTO generateTOTPKeyLocal(String username) throws TOTPException;
 
-	public TOTPDTO generateTOTPKey(String username);
+	public TOTPDTO generateTOTPKey(String username) throws TOTPException;
 
 	public String generateTOTPTokenLocal(String username) throws TOTPException;
 

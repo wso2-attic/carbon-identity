@@ -77,9 +77,17 @@ public class TOTPKeyGeneratorEndpoint {
 				(TOTPManager.class);
 		if (totpManager != null) {
 			String username = request.getParameter("username");
-			TOTPDTO totpdto = totpManager.generateTOTPKey(username);
-			String json = createJsonPayload(totpdto.getSecretkey(), totpdto.getQRCodeURL());
-			return Response.ok(json, MediaType.APPLICATION_JSON_TYPE).build();
+			TOTPDTO totpdto = null;
+			try {
+				totpdto = totpManager.generateTOTPKey(username);
+				String json = createJsonPayload(totpdto.getSecretkey(), totpdto.getQRCodeURL());
+				return Response.ok(json, MediaType.APPLICATION_JSON_TYPE).build();
+			} catch (TOTPException e) {
+				log.error("TOTPKeyGenerator endpoint could not generate the key for the user : "+username,e);
+				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error when generating the key")
+						.type(MediaType.APPLICATION_JSON_TYPE).build();
+			}
+			
 		} else {
 			log.error("TOTPKeyGenerator endpoint could not generate the key");
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error when generating the key")

@@ -152,7 +152,7 @@ public class TOTPKeyGenerator {
 	 * @param username of the user, this will be embedded in the qr code
 	 * @return TOTPDTO object with secret key and QR code url
 	 */
-	public TOTPDTO generateTOTPKey(String username) {
+	public TOTPDTO generateTOTPKey(String username) throws TOTPException {
 
 		String secretkey = null;
 		String qrCodeURL = null;
@@ -168,14 +168,14 @@ public class TOTPKeyGenerator {
 	 *
 	 * @return GoogleAuthenticatorKey object
 	 */
-	private GoogleAuthenticatorKey generateKey() {
+	private GoogleAuthenticatorKey generateKey() throws TOTPException {
 		KeyRepresentation encoding = KeyRepresentation.BASE32;
 		try {
 			if ("Base64".equals(TOTPUtil.getEncodingMethod())) {
 				encoding = KeyRepresentation.BASE64;
 			}
 		} catch (IdentityApplicationManagementException e) {
-			log.error("Error when reading the tenant encoding method",e);
+			throw new TOTPException("Error when reading the encoding method for tenant",e);
 		}
 
 		GoogleAuthenticatorConfig.GoogleAuthenticatorConfigBuilder gacb = new GoogleAuthenticatorConfig
