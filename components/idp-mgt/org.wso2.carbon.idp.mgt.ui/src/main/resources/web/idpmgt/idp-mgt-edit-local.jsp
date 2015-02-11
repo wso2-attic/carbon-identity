@@ -24,6 +24,8 @@
 <%@ page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"  %>
+<%@ page isELIgnored="false" %>
 
 <carbon:breadcrumb label="identity.providers" resourceBundle="org.wso2.carbon.idp.mgt.ui.i18n.Resources"
                    topPage="true" request="<%=request%>" />
@@ -43,6 +45,8 @@
     String tokenUrl = null;
     String userInfoUrl = null;
     String passiveSTSUrl = null;
+    String encodingMethod = null;
+    String[] encodingMethodOptions = {"Base32","Base64"};
     FederatedAuthenticatorConfig[] federatedAuthenticators = residentIdentityProvider.getFederatedAuthenticatorConfigs();
     for(FederatedAuthenticatorConfig federatedAuthenticator : federatedAuthenticators){
         Property[] properties = federatedAuthenticator.getProperties();
@@ -66,6 +70,9 @@
         } else if(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME.equals(federatedAuthenticator.getName())){
             passiveSTSUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.PassiveSTS.PASSIVE_STS_URL).getValue();
+        } else if(IdentityApplicationConstants.Authenticator.TOTP.NAME.equals(federatedAuthenticator.getName())){
+             encodingMethod = IdPManagementUIUtil.getProperty(properties,
+                     IdentityApplicationConstants.Authenticator.TOTP.ENCODING_METHOD).getValue();
         }
     }
     String scimUserEp = null;
@@ -86,6 +93,7 @@
             }
         }
     }
+    request.setAttribute("encodingMethod", encodingMethod);
     session.setAttribute("returnToPath", "../idpmgt/idp-mgt-edit-local.jsp");
     session.setAttribute("cancelLink", "../idpmgt/idp-mgt-edit-local.jsp");
     session.setAttribute("backLink", "../idpmgt/idp-mgt-edit-local.jsp");
@@ -246,6 +254,26 @@ jQuery(document).ready(function(){
                         </tr>
               
                     </table>
+                    </div>
+                    <h2 id="totpconfighead"  class="sectionSeperator trigger active" style="background-color: beige;">
+                    <a href="#">TOTP Configuration</a>
+                    </h2>
+                    <div class="toggle_container sectionSub" style="margin-bottom:10px;display:none" id="totpconfighead">
+                    <table class="carbonFormTable">
+                        <tr>
+                            <td class="leftCol-med labelField"><fmt:message key='totp.secretkey.encoding'/>:</td>
+                            <td>
+                                <select id="totpEncodingID" name="totpEncodingID">
+                                    <c:forEach var="encodingVal" items="<%=encodingMethodOptions%>">
+                                        <option value="<c:out value="${encodingVal}"/>"
+                                        ${encodingVal==encodingMethod ? 'selected' : ''}><c:out value="${encodingVal}"/></option>
+                                    </c:forEach>
+                                </select>
+
+                            </td>
+                        </tr>
+                    </table>
+
                     </div>
                 </div>
                 

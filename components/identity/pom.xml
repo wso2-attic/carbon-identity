@@ -56,6 +56,7 @@
         <module>org.wso2.carbon.identity.application.authenticator.requestpath.basicauth</module>
         <module>org.wso2.carbon.identity.application.authenticator.requestpath.oauth</module>
         <module>org.wso2.carbon.identity.application.authenticator.samlsso</module>
+        <module>org.wso2.carbon.identity.application.authenticator.totp</module>
         <module>org.wso2.carbon.identity.base</module>
         <module>org.wso2.carbon.identity.core</module>
         <module>org.wso2.carbon.identity.mgt</module>
@@ -109,6 +110,9 @@
         <module>org.wso2.carbon.identity.provisioning.connector.scim</module>
         <module>org.wso2.carbon.identity.tools.saml.validator</module>
         <module>org.wso2.carbon.identity.tools.saml.validator.ui</module>
+        <module>org.wso2.carbon.identity.totp</module>
+        <module>org.wso2.carbon.identity.totp.endpoint</module>
+        <module>org.wso2.carbon.identity.totp.valve</module>
     </modules>
 
     <!--dependencyManagement>

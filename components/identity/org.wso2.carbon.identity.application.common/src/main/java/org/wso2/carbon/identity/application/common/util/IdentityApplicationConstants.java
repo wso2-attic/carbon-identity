@@ -95,6 +95,13 @@ public class IdentityApplicationConstants {
             public static final String NAME = "wstrust";
         }
 
+        public static class TOTP{
+
+            public static final String NAME = "totp";
+            public static final String ENCODING_METHOD ="encoding method";
+
+        }
+
     }
 
     public static class OAuth10A {

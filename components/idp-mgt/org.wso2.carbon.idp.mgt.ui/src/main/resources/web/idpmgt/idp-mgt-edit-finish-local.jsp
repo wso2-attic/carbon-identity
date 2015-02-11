@@ -53,8 +53,18 @@
         property.setValue(CharacterEncoder.getSafeText(request.getParameter("idPEntityId")));
         properties[0] = property;
         samlFedAuthn.setProperties(properties);
-        FederatedAuthenticatorConfig[] federatedAuthenticators = new FederatedAuthenticatorConfig[1];
+        FederatedAuthenticatorConfig totpFedAuth = new FederatedAuthenticatorConfig();
+        totpFedAuth.setName(IdentityApplicationConstants.Authenticator.TOTP.NAME);
+        properties = new Property[1];
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.TOTP.ENCODING_METHOD);
+        property.setValue(CharacterEncoder.getSafeText(request.getParameter("totpEncodingID")));
+        properties[0]=property;
+        totpFedAuth.setProperties(properties);        
+        
+        FederatedAuthenticatorConfig[] federatedAuthenticators = new FederatedAuthenticatorConfig[2];
         federatedAuthenticators[0] = samlFedAuthn;
+        federatedAuthenticators[1] = totpFedAuth;
         identityProvider.setFederatedAuthenticatorConfigs(federatedAuthenticators);
         client.updateResidentIdP(identityProvider);
         String message = MessageFormat.format(resourceBundle.getString("success.updating.resident.idp"),null);
