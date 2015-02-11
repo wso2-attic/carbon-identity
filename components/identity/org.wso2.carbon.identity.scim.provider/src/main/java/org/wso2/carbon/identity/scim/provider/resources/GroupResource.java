@@ -34,7 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.scim.provider.impl.IdentitySCIMManager;
 import org.wso2.carbon.identity.scim.provider.util.JAXRSResponseBuilder;
 import org.wso2.carbon.identity.scim.provider.util.SCIMProviderConstants;
-import org.wso2.identity.jaxrs.designator.PATCH;
+import org.wso2.carbon.identity.core.jaxrs.designator.PATCH;
 import org.wso2.charon.core.encoder.Encoder;
 import org.wso2.charon.core.exceptions.BadRequestException;
 import org.wso2.charon.core.exceptions.CharonException;
