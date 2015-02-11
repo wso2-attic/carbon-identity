@@ -360,7 +360,6 @@
         <httpcomponents-httpcore.wso2.version.identity>${httpcomponents-httpcore.wso2.version}
         </httpcomponents-httpcore.wso2.version.identity>
         <neethi.osgi.version.identity>${neethi.osgi.version}</neethi.osgi.version.identity>
-        <charon.wso2.version.identity>2.0.0</charon.wso2.version.identity>
         <libthrift.wso2.version>0.8.0.wso2v1</libthrift.wso2.version>
     </properties>
 
