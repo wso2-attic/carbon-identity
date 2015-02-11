@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2005 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -15,24 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.identity.authenticator.saml2.sso.common;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.security.cert.CertificateEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.xml.XMLConstants;
-import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,15 +25,7 @@ import org.apache.xerces.util.SecurityManager;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.opensaml.Configuration;
 import org.opensaml.DefaultBootstrap;
-import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.Attribute;
-import org.opensaml.saml2.core.AttributeStatement;
-import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.Attribute;
-import org.opensaml.saml2.core.AttributeStatement;
-import org.opensaml.saml2.core.AuthnRequest;
-import org.opensaml.saml2.core.LogoutRequest;
-import org.opensaml.saml2.core.Response;
+import org.opensaml.saml2.core.*;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.XMLObjectBuilder;
@@ -58,11 +34,7 @@ import org.opensaml.xml.io.MarshallerFactory;
 import org.opensaml.xml.io.Unmarshaller;
 import org.opensaml.xml.io.UnmarshallerFactory;
 import org.opensaml.xml.security.x509.X509Credential;
-import org.opensaml.xml.signature.KeyInfo;
-import org.opensaml.xml.signature.Signature;
-import org.opensaml.xml.signature.Signer;
-import org.opensaml.xml.signature.X509Certificate;
-import org.opensaml.xml.signature.X509Data;
+import org.opensaml.xml.signature.*;
 import org.opensaml.xml.util.Base64;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -74,10 +46,22 @@ import org.wso2.carbon.core.security.AuthenticatorsConfiguration;
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.builders.SignKeyDataHolder;
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.util.CarbonEntityResolver;
 
+import javax.xml.XMLConstants;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.security.cert.CertificateEncodingException;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * This class contains all the utility methods required by SAML2 SSO Authenticator module.
  */
 public class Util {
+
 	private static boolean bootStrapped = false;
 	private static Log log = LogFactory.getLog(Util.class);
 	private static Random random = new Random();
@@ -86,7 +70,8 @@ public class Util {
 	private static String serviceProviderId = null;
 	private static String identityProviderSSOServiceURL = null;
     private static Map<String, String> parameters = new HashMap<String, String>();
-    private static String identityProviderSLOServiceURL = parameters.get(SAML2SSOAuthenticatorConstants.IDENTITY_PROVIDER_SLO_SERVICE_URL);
+    private static String identityProviderSLOServiceURL = parameters.get(
+            SAML2SSOAuthenticatorConstants.IDENTITY_PROVIDER_SLO_SERVICE_URL);
 	private static String loginPage = "/carbon/admin/login.jsp";
 	private static String landingPage = null;
 	private static String externalLogoutPage = null;
@@ -143,7 +128,8 @@ public class Util {
 	 * @throws org.wso2.carbon.identity.authenticator.saml2.sso.ui.SAML2SSOUIAuthenticatorException
 	 */
 	public static String marshall(XMLObject xmlObject) throws SAML2SSOUIAuthenticatorException {
-		try {
+
+        try {
 			doBootstrap();
 			System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
 					"org.apache.xerces.jaxp.DocumentBuilderFactoryImpl");
@@ -175,7 +161,8 @@ public class Util {
 	 * @return encoded String
 	 */
 	public static String encode(String xmlString) throws Exception {
-		String encodedRequestMessage = Base64.encodeBytes(xmlString.getBytes(), Base64.DONT_BREAK_LINES);
+
+        String encodedRequestMessage = Base64.encodeBytes(xmlString.getBytes(), Base64.DONT_BREAK_LINES);
 		return encodedRequestMessage.trim();
 	}
 
@@ -187,6 +174,7 @@ public class Util {
 	 * @return decoded AuthReq
 	 */
     public static String decode(String encodedStr) throws SAML2SSOUIAuthenticatorException {
+
         try {
             org.apache.commons.codec.binary.Base64 base64Decoder = new org.apache.commons.codec.binary.Base64();
             byte[] xmlBytes = encodedStr.getBytes("UTF-8");
@@ -217,7 +205,10 @@ public class Util {
 
 	public static AuthnRequest setSignature(AuthnRequest authnRequest, String signatureAlgorithm,
 			X509Credential cred) throws Exception {
-		log.debug("Signing the AuthnRequest");
+
+        if(log.isDebugEnabled()){
+            log.debug("Signing the AuthnRequest");
+        }
 		doBootstrap();
 		try {
 			Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
@@ -262,7 +253,10 @@ public class Util {
 
 	public static LogoutRequest setSignature(LogoutRequest logoutReq, String signatureAlgorithm,
 			SignKeyDataHolder cred) throws Exception {
-		log.debug("Signing the AuthnRequest");
+
+        if(log.isDebugEnabled()){
+            log.debug("Signing the AuthnRequest");
+        }
 		doBootstrap();
 		try {
 			Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
@@ -343,7 +337,8 @@ public class Util {
 	 * authenticators.xml
 	 */
 	public static boolean initSSOConfigParams() {
-		AuthenticatorsConfiguration authenticatorsConfiguration = AuthenticatorsConfiguration
+
+        AuthenticatorsConfiguration authenticatorsConfiguration = AuthenticatorsConfiguration
 				.getInstance();
 		AuthenticatorsConfiguration.AuthenticatorConfig authenticatorConfig = authenticatorsConfiguration
 				.getAuthenticatorConfig(SAML2SSOAuthenticatorConstants.AUTHENTICATOR_NAME);
@@ -370,7 +365,8 @@ public class Util {
 	 * @return True/False
 	 */
 	public static boolean isAuthenticatorEnabled() {
-		AuthenticatorsConfiguration authenticatorsConfiguration = AuthenticatorsConfiguration
+
+        AuthenticatorsConfiguration authenticatorsConfiguration = AuthenticatorsConfiguration
 				.getInstance();
 		AuthenticatorsConfiguration.AuthenticatorConfig authenticatorConfig = authenticatorsConfiguration
 				.getAuthenticatorConfig(SAML2SSOAuthenticatorConstants.AUTHENTICATOR_NAME);
@@ -384,7 +380,8 @@ public class Util {
 	 * @return service provider ID
 	 */
 	public static String getServiceProviderId() {
-		if (!initSuccess) {
+
+        if (!initSuccess) {
 			initSSOConfigParams();
 		}
 		return serviceProviderId;
@@ -396,7 +393,8 @@ public class Util {
 	 * @return dentity Provider SSO Service URL
 	 */
 	public static String getIdentityProviderSSOServiceURL() {
-		if (!initSuccess) {
+
+        if (!initSuccess) {
 			initSSOConfigParams();
 		}
 		return identityProviderSSOServiceURL;
@@ -407,6 +405,7 @@ public class Util {
      * @return dentity Provider SSO Service URL
      */
     public static String getIdentityProviderSLOServiceURL() {
+
         if (!initSuccess) {
             initSSOConfigParams();
         }
@@ -419,6 +418,7 @@ public class Util {
      * @return Assertion Consumer Service URL
      */
     public static String getAssertionConsumerServiceURL() {
+
         if (!initSuccess) {
             initSSOConfigParams();
         }
@@ -431,7 +431,8 @@ public class Util {
 	 * @return
 	 */
 	public static String getIdentityProviderSSOServiceURL(String federatedDomain) {
-		if (!initSuccess) {
+
+        if (!initSuccess) {
 			initSSOConfigParams();
 		}
 
@@ -501,6 +502,7 @@ public class Util {
      * @return Name of the login attribute
      */
     public static String getLoginAttributeName() {
+
         if (!initSuccess) {
             initSSOConfigParams();
         }
@@ -514,7 +516,8 @@ public class Util {
      * @return username
      */
     public static String getUsername(XMLObject xmlObject) {
-    	if(xmlObject instanceof Response){
+
+        if(xmlObject instanceof Response){
     		return getUsernameFromResponse((Response) xmlObject);
     	} else if (xmlObject instanceof Assertion){
     		return getUsernameFromAssertion((Assertion) xmlObject);
@@ -530,7 +533,8 @@ public class Util {
      * @return username username contained in the SAML Response
      */
 	public static String getUsernameFromResponse(Response response) {
-		List<Assertion> assertions = response.getAssertions();
+
+        List<Assertion> assertions = response.getAssertions();
 		Assertion assertion = null;
 		if (assertions != null && assertions.size() > 0) {
 			// There can be only one assertion in a SAML Response, so get the
@@ -549,7 +553,8 @@ public class Util {
      * @return username
      */
     public static String getUsernameFromAssertion(Assertion assertion) {
-		String loginAttributeName = getLoginAttributeName();
+
+        String loginAttributeName = getLoginAttributeName();
 
 		if (loginAttributeName != null) {
 			// There can be multiple AttributeStatements in Assertion

@@ -1,20 +1,20 @@
 /*
-*Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*WSO2 Inc. licenses this file to you under the Apache License,
-*Version 2.0 (the "License"); you may not use this file except
-*in compliance with the License.
-*You may obtain a copy of the License at
-*
-*http://www.apache.org/licenses/LICENSE-2.0
-*
-*Unless required by applicable law or agreed to in writing,
-*software distributed under the License is distributed on an
-*"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*KIND, either express or implied.  See the License for the
-*specific language governing permissions and limitations
-*under the License.
-*/
+ * Copyright (c) 2012, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.oauth2.token.handlers.grant.saml;
 
@@ -22,6 +22,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.impl.Constants;
+import org.apache.xerces.util.SecurityManager;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.DefaultBootstrap;
@@ -91,13 +92,13 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
         try {
             DefaultBootstrap.bootstrap();
         } catch (ConfigurationException e) {
-            log.error(e.getMessage(),e);
+            log.error(e.getMessage(), e);
             throw new IdentityOAuth2Exception("Error in bootstrapping the OpenSAML2 library");
         } finally {
             thread.setContextClassLoader(loader);
         }
 
-        profileValidator =  new SAMLSignatureProfileValidator();
+        profileValidator = new SAMLSignatureProfileValidator();
     }
 
     /**
@@ -117,6 +118,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
      */
     @Override
     public boolean validateGrant(OAuthTokenReqMessageContext tokReqMsgCtx) throws IdentityOAuth2Exception {
+
         super.validateGrant(tokReqMsgCtx);
 
         Assertion assertion = null;
@@ -130,13 +132,14 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
         // Logging the SAML token
         if (log.isDebugEnabled()) {
             log.debug("Received SAML assertion : " +
-                    new String(Base64.decodeBase64(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getAssertion()))
+                            new String(Base64.decodeBase64(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getAssertion()))
             );
         }
 
 
         try {
-            XMLObject samlObject = unmarshall(new String(Base64.decodeBase64(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getAssertion())));
+            XMLObject samlObject = unmarshall(new String(Base64.decodeBase64(
+                    tokReqMsgCtx.getOauth2AccessTokenReqDTO().getAssertion())));
             assertion = (Assertion) samlObject;
         } catch (IdentityOAuth2Exception e) {
             // fault in the saml token
@@ -174,50 +177,57 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             return false;
         } else {
             try {
-				identityProvider = IdentityProviderManager.getInstance().getIdPByAuthenticatorPropertyValue("IdPEntityId",
-				                   assertion.getIssuer().getValue(), tenantDomain, false);
-				// IF Federated IDP not found get the resident IDP and check,
-				// resident IDP entitiID == issuer
-				if (identityProvider != null) {
-					if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(identityProvider.getIdentityProviderName())) {
-						identityProvider = IdentityProviderManager.getInstance().getResidentIdP(tenantDomain);
+                identityProvider = IdentityProviderManager.getInstance().
+                        getIdPByAuthenticatorPropertyValue("IdPEntityId",
+                        assertion.getIssuer().getValue(), tenantDomain, false);
+                // IF Federated IDP not found get the resident IDP and check,
+                // resident IDP entitiID == issuer
+                if (identityProvider != null) {
+                    if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(
+                            identityProvider.getIdentityProviderName())) {
+                        identityProvider = IdentityProviderManager.getInstance().getResidentIdP(tenantDomain);
 
-						FederatedAuthenticatorConfig[] fedAuthnConfigs = identityProvider.getFederatedAuthenticatorConfigs();
-						String idpEntityId = null;
+                        FederatedAuthenticatorConfig[] fedAuthnConfigs =
+                                identityProvider.getFederatedAuthenticatorConfigs();
+                        String idpEntityId = null;
 
-						// Get SAML authenticator
-						FederatedAuthenticatorConfig samlAuthenticatorConfig = IdentityApplicationManagementUtil.getFederatedAuthenticator(fedAuthnConfigs,
-						                                                                                                                   IdentityApplicationConstants.Authenticator.SAML2SSO.NAME);
-						// Get Entity ID from SAML authenticator
-						Property samlProperty = IdentityApplicationManagementUtil.getProperty(samlAuthenticatorConfig.getProperties(),
-						                                                                      IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
-						if (samlProperty != null) {
-							idpEntityId = samlProperty.getValue();
-						}
+                        // Get SAML authenticator
+                        FederatedAuthenticatorConfig samlAuthenticatorConfig =
+                                IdentityApplicationManagementUtil.getFederatedAuthenticator(fedAuthnConfigs,
+                                        IdentityApplicationConstants.Authenticator.SAML2SSO.NAME);
+                        // Get Entity ID from SAML authenticator
+                        Property samlProperty = IdentityApplicationManagementUtil.getProperty(
+                                samlAuthenticatorConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
+                        if (samlProperty != null) {
+                            idpEntityId = samlProperty.getValue();
+                        }
 
-						if (idpEntityId == null || !assertion.getIssuer().getValue().equals(idpEntityId)) {
-							log.debug("SAML Token Issuer verification failed or Issuer not registered");
-							return false;
-						}
+                        if (idpEntityId == null || !assertion.getIssuer().getValue().equals(idpEntityId)) {
+                            log.debug("SAML Token Issuer verification failed or Issuer not registered");
+                            return false;
+                        }
 
-						// Get OpenIDConnect authenticator == OAuth
-						// authenticator
-						FederatedAuthenticatorConfig oauthAuthenticatorConfig = IdentityApplicationManagementUtil.getFederatedAuthenticator(fedAuthnConfigs,
-						                                                                                                                    IdentityApplicationConstants.Authenticator.OIDC.NAME);
-						// Get OAuth token endpoint
-						Property oauthProperty = IdentityApplicationManagementUtil.getProperty(oauthAuthenticatorConfig.getProperties(),
-						                                                                       IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_TOKEN_URL);
-						if (oauthProperty != null) {
-							tokenEndpointAlias = oauthProperty.getValue();
-						}
-					} else {
-						// Get Alias from Federated IDP
-						tokenEndpointAlias = identityProvider.getAlias();
-					}
-				} else {
-					log.debug("SAML Token Issuer verification failed or Issuer not registered");
-					return false;
-				}
+                        // Get OpenIDConnect authenticator == OAuth
+                        // authenticator
+                        FederatedAuthenticatorConfig oauthAuthenticatorConfig =
+                                IdentityApplicationManagementUtil.getFederatedAuthenticator(fedAuthnConfigs,
+                                IdentityApplicationConstants.Authenticator.OIDC.NAME);
+                        // Get OAuth token endpoint
+                        Property oauthProperty = IdentityApplicationManagementUtil.getProperty(
+                                oauthAuthenticatorConfig.getProperties(),
+                                IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_TOKEN_URL);
+                        if (oauthProperty != null) {
+                            tokenEndpointAlias = oauthProperty.getValue();
+                        }
+                    } else {
+                        // Get Alias from Federated IDP
+                        tokenEndpointAlias = identityProvider.getAlias();
+                    }
+                } else {
+                    log.debug("SAML Token Issuer verification failed or Issuer not registered");
+                    return false;
+                }
             } catch (IdentityApplicationManagementException e) {
                 log.debug("Error while getting Federated Identity Provider ");
             }
@@ -231,7 +241,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
          * server MUST verify that it is an intended audience for the Assertion.
          */
 
-        if(tokenEndpointAlias == null || tokenEndpointAlias.equals("")){
+        if (tokenEndpointAlias == null || tokenEndpointAlias.equals("")) {
             String errorMsg = "Token Endpoint alias of the local Identity Provider has not been " +
                     "configured for " + identityProvider.getIdentityProviderName();
             log.debug(errorMsg);
@@ -245,33 +255,33 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                 boolean audienceFound = false;
                 for (AudienceRestriction audienceRestriction : audienceRestrictions) {
                     if (audienceRestriction.getAudiences() != null && audienceRestriction.getAudiences().size() > 0) {
-                        for(Audience audience: audienceRestriction.getAudiences()){
-                            if(audience.getAudienceURI().equals(tokenEndpointAlias)){
+                        for (Audience audience : audienceRestriction.getAudiences()) {
+                            if (audience.getAudienceURI().equals(tokenEndpointAlias)) {
                                 audienceFound = true;
                                 break;
                             }
                         }
                     }
-                    if(audienceFound){
+                    if (audienceFound) {
                         break;
                     }
                 }
-                if(!audienceFound){
-                    if(log.isDebugEnabled()){
+                if (!audienceFound) {
+                    if (log.isDebugEnabled()) {
                         String message = "SAML Assertion Audience Restriction validation failed";
-                         log.debug(message);
+                        log.debug(message);
                     }
                     return false;
                 }
             } else {
-                if(log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     String message = "SAML Assertion doesn't contain AudienceRestrictions";
                     log.debug(message);
                 }
                 return false;
             }
         } else {
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 String message = "SAML Assertion doesn't contain Conditions";
                 log.debug(message);
             }
@@ -313,7 +323,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
         List<SubjectConfirmation> subjectConfirmations = assertion.getSubject().getSubjectConfirmations();
         if (subjectConfirmations != null && !subjectConfirmations.isEmpty()) {
             for (SubjectConfirmation s : subjectConfirmations) {
-                if(s.getMethod() != null){
+                if (s.getMethod() != null) {
                     if (s.getMethod().equals(OAuthConstants.OAUTH_SAML2_BEARER_METHOD)) {
                         bearerFound = true;
                     }
@@ -322,16 +332,16 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                     return false;
                 }
 
-                if(s.getSubjectConfirmationData() != null) {
-                    if(s.getSubjectConfirmationData().getRecipient() != null){
+                if (s.getSubjectConfirmationData() != null) {
+                    if (s.getSubjectConfirmationData().getRecipient() != null) {
                         recipientURLS.add(s.getSubjectConfirmationData().getRecipient());
                     }
-                    if(s.getSubjectConfirmationData().getNotOnOrAfter() != null){
+                    if (s.getSubjectConfirmationData().getNotOnOrAfter() != null) {
                         notOnOrAfterFromSubjectConfirmations.add(s.getSubjectConfirmationData().getNotOnOrAfter());
                     } else {
                         log.debug("Cannot find NotOnOrAfter attribute in SubjectConfirmationData " +
                                 s.getSubjectConfirmationData().toString());
-                       return false;
+                        return false;
                     }
                 } else if (s.getSubjectConfirmationData() == null && notOnOrAfterFromConditions == null) {
                     log.debug("Neither can find NotOnOrAfter attribute in Conditions nor SubjectConfirmationData" +
@@ -350,8 +360,8 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             return false;
         }
 
-        if(recipientURLS.size() > 0){
-            if(!recipientURLS.contains(tokenEndpointAlias)){
+        if (recipientURLS.size() > 0) {
+            if (!recipientURLS.contains(tokenEndpointAlias)) {
                 log.debug("None of the recipient URLs match the token endpoint or an acceptable alias");
                 return false;
             }
@@ -372,14 +382,14 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             return false;
         }
         boolean validSubjectConfirmationDataExists = false;
-        if(!notOnOrAfterFromSubjectConfirmations.isEmpty()){
-            for(DateTime entry : notOnOrAfterFromSubjectConfirmations){
-                if(entry.compareTo(new DateTime()) >= 1){
+        if (!notOnOrAfterFromSubjectConfirmations.isEmpty()) {
+            for (DateTime entry : notOnOrAfterFromSubjectConfirmations) {
+                if (entry.compareTo(new DateTime()) >= 1) {
                     validSubjectConfirmationDataExists = true;
                 }
             }
         }
-        if(notOnOrAfterFromConditions == null && !validSubjectConfirmationDataExists){
+        if (notOnOrAfterFromConditions == null && !validSubjectConfirmationDataExists) {
             log.debug("No valid NotOnOrAfter element found in SubjectConfirmations");
             return false;
         }
@@ -399,7 +409,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
 
         X509Certificate x509Certificate = null;
         try {
-            x509Certificate = (X509Certificate)IdentityApplicationManagementUtil
+            x509Certificate = (X509Certificate) IdentityApplicationManagementUtil
                     .decodeCertificate(identityProvider.getCertificate());
         } catch (CertificateException e) {
             log.error(e.getMessage(), e);
@@ -433,26 +443,26 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
         // Storing the Assertion. This will be used in OpenID Connect for example
         tokReqMsgCtx.addProperty(OAuthConstants.OAUTH_SAML2_ASSERTION, assertion);
 
-		// Invoking extension
-		SAML2TokenCallbackHandler callback =
-		                                     OAuthServerConfiguration.getInstance()
-		                                                             .getSAML2TokenCallbackHandler();
-		if (callback != null) {
-			log.debug("Invoking the SAML2 Token callback handler ");
-			callback.handleSAML2Token(tokReqMsgCtx);
-		}
+        // Invoking extension
+        SAML2TokenCallbackHandler callback =
+                OAuthServerConfiguration.getInstance()
+                        .getSAML2TokenCallbackHandler();
+        if (callback != null) {
+            log.debug("Invoking the SAML2 Token callback handler ");
+            callback.handleSAML2Token(tokReqMsgCtx);
+        }
 
         return true;
     }
 
     /**
      * Constructing the SAML or XACML Objects from a String
+     *
      * @param xmlString Decoded SAML or XACML String
      * @return SAML or XACML Object
      * @throws org.wso2.carbon.identity.base.IdentityException
-     *
      */
-    private XMLObject unmarshall(String xmlString) throws IdentityOAuth2Exception{
+    private XMLObject unmarshall(String xmlString) throws IdentityOAuth2Exception {
 
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -460,7 +470,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
 
             documentBuilderFactory.setExpandEntityReferences(false);
             documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-            org.apache.xerces.util.SecurityManager securityManager = new org.apache.xerces.util.SecurityManager();
+            SecurityManager securityManager = new SecurityManager();
             securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
             documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
 
@@ -485,6 +495,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
      * @throws org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception
      */
     private int getTenantId(String tenantDomain) throws IdentityOAuth2Exception {
+
         //get tenant domain from user name
         RealmService realmService = OAuthComponentServiceHolder.getRealmService();
         try {
