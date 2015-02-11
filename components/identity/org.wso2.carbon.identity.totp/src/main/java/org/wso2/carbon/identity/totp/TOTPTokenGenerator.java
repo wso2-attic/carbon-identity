@@ -153,7 +153,7 @@ public class TOTPTokenGenerator {
 		try {
 			encoding = TOTPUtil.getEncodingMethod();
 		} catch (IdentityApplicationManagementException e) {
-			log.error("Error when fetching the encoding method");
+			throw new TOTPException("Error when fetching the encoding method",e);
 		}
 
 		if ("Base32".equals(encoding)) {
