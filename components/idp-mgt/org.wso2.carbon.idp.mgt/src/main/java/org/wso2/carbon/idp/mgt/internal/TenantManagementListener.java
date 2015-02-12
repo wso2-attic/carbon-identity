@@ -59,6 +59,11 @@ public class TenantManagementListener implements TenantMgtListener {
     }
 
     @Override
+    public void onPreDelete(int tenantId) throws StratosException{
+
+    }
+
+    @Override
     public void onTenantDelete(int i) {
         //todo: IDENTITY-2639
     }

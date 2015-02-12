@@ -25,21 +25,16 @@ import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.wso2.securevault.SecretResolver;
+import org.wso2.securevault.SecretResolverFactory;
+import org.wso2.securevault.SecurityConstants;
 import org.xml.sax.InputSource;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Properties;
-import java.util.Map;
-import java.util.Collections;
+import java.io.*;
+import java.util.*;
 
 public class TenantDataManager {
 
@@ -52,8 +47,9 @@ public class TenantDataManager {
     private static final String PORT = "identity.server.port";
     private static final String CLIENT_KEY_STORE = "client.keyStore";
     private static final String CLIENT_TRUST_STORE = "client.trustStore";
-    private static final String CLIENT_KEY_STORE_PASSWORD = "client.keyStore.password";
-    private static final String CLIENT_TRUST_STORE_PASSWORD = "client.trustStore.password";
+    private static final String CLIENT_KEY_STORE_PASSWORD = "Carbon.Security.KeyStore.Password";
+    private static final String CLIENT_TRUST_STORE_PASSWORD = "Carbon.Security.TrustStore.Password";
+    private static final String HOSTNAME_VERIFICATION_ENABLED = "hostname.verification.enabled";
     private static final String TENANT_CONFIG_PROPERTIES = "TenantConfig.properties";
     private static final String TENANT_LIST_ENABLED = "tenantListEnabled";
 
@@ -70,28 +66,38 @@ public class TenantDataManager {
     private static final String TENANT_DATA_SEPARATOR = ",";
     private static final String RELATIVE_PATH_START_CHAR = ".";
     private static final String CHARACTER_ENCODING = "UTF-8";
-
+	private static final String CONFIG_RELATIVE_PATH = "./repository/conf/TenantConfig.properties";
     private static Properties prop;
     private static String carbonLogin = "";
     private static String serviceURL;
     private static String usernameHeaderName = "";
     private static List<String> tenantDomainList = new ArrayList<String>();
     private static boolean initialized = false;
+	private static boolean configFileExist = true;
 
     /**
      * Initialize Tenant data manager
      */
     public static synchronized void init() {
 
-        if (!initialized) {
-            InputStream inputStream =
-                    TenantDataManager.class.getClassLoader().getResourceAsStream(TENANT_CONFIG_PROPERTIES);
-            prop = new Properties();
+		FileInputStream fileInputStream = null;
 
-            if (inputStream != null) {
-                try {
-                    prop.load(inputStream);
+		try{
+        if (!initialized) {
+            prop = new Properties();
+                String configFilePath = buildFilePath(CONFIG_RELATIVE_PATH);
+                File configFile = new File(configFilePath);
+
+                if(configFile.exists()){
+                    configFileExist = true;
+                    fileInputStream = new FileInputStream(configFile);
+
+                    prop.load(fileInputStream);
+                    // Resolve encrypted properties with secure vault
+                    resolveSecrets(prop);
+
                     usernameHeaderName = getPropertyValue(USERNAME_HEADER);
+
                     carbonLogin = getPropertyValue(USERNAME);
 
                     // Base64 encoded username
@@ -112,21 +118,24 @@ public class TenantDataManager {
                             .append(getPropertyValue(PORT)).append(TENANT_MGT_ADMIN_SERVICE_URL).toString();
 
                     initialized = true;
+                } else {
+                    configFileExist = false;
 
-                } catch (Exception e) {
-                    // Catching the general exception as for any exception server should not proceed further.
-                    log.error("Error when initializing TenantDataManager for listing tenant domains dropdown", e);
-                } finally {
-                    if (inputStream != null) {
-                        try {
-                            inputStream.close();
-                        } catch (IOException e) {
-                            log.error("Error when closing stream for " + TENANT_CONFIG_PROPERTIES, e);
-                        }
+                    if (log.isDebugEnabled()) {
+                        log.debug("Configuration file " + configFilePath + " not found");
                     }
                 }
-            } else {
-                log.error("Configuration file " + TENANT_CONFIG_PROPERTIES + " not found");
+            }
+
+        } catch (Exception e) {
+            log.error("Initialization failed : ", e);
+        } finally {
+            if (fileInputStream != null) {
+                try {
+                    fileInputStream.close();
+                } catch (IOException e) {
+                    log.error("Failed to close the FileInputStream, file : " + CONFIG_RELATIVE_PATH, e);
+                }
             }
         }
     }
@@ -300,7 +309,44 @@ public class TenantDataManager {
      * @return Tenant list enabled or disabled status
      */
     public static boolean isTenantListEnabled() {
+        if (configFileExist && !initialized) {
+            init();
+        }
+        if (configFileExist) {
+            return Boolean.parseBoolean(getPropertyValue(TENANT_LIST_ENABLED));
+        }
 
-        return (initialized && Boolean.parseBoolean(getPropertyValue(TENANT_LIST_ENABLED)));
+        return false;
+    }
+
+    /**
+     * There can be sensitive information like passwords in configuration file. If they are encrypted using secure
+     * vault, this method will resolve them and replace with original values.
+     */
+    private static void resolveSecrets(Properties properties) {
+
+        SecretResolver secretResolver = SecretResolverFactory.create(properties);
+        Enumeration propertyNames = properties.propertyNames();
+        if (secretResolver != null && secretResolver.isInitialized()) {
+            // Iterate through whole config file and find encrypted properties and resolve them
+            while (propertyNames.hasMoreElements()) {
+                String key = (String) propertyNames.nextElement();
+                if (secretResolver.isTokenProtected(key)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Resolving and replacing secret for " + key);
+                    }
+                    // Resolving the secret password.
+                    String value = secretResolver.resolve(key);
+                    // Replaces the original encrypted property with resolved property
+                    properties.put(key, value);
+                } else {
+                    if (log.isDebugEnabled()) {
+                        log.debug("No encryption done for value with key :" + key);
+                    }
+                }
+            }
+        } else {
+            log.warn("Secret Resolver is not present. Will not resolve encryptions in " + CONFIG_RELATIVE_PATH + " file");
+        }
     }
 }

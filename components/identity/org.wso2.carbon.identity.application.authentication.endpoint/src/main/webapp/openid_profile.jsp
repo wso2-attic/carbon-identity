@@ -16,14 +16,15 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
+<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
            
 <%
     String[] profiles = request.getParameterValues("profile");
     String[] claimTags = request.getParameterValues("claimTag");
     String[] claimValues = request.getParameterValues("claimValue");
-    String openidreturnto = request.getParameter("openid.return_to");
-    String openididentity = request.getParameter("openid.identity");
+    String openidreturnto = CharacterEncoder.getSafeText(request.getParameter("openid.return_to"));
+    String openididentity = CharacterEncoder.getSafeText(request.getParameter("openid.identity"));
     if (openidreturnto!=null && openidreturnto.indexOf("?") > 0){
         openidreturnto = openidreturnto.substring(0,openidreturnto.indexOf("?"));
     }
@@ -99,7 +100,7 @@
             <div class="span12 content-section">
                 <h3 style="text-align:left;margin-bottom:10px;">OpenID User Claims</h3>
 	                <div>
-			            <form action="../../openidserver" id="profile" name="profile" class="form-horizontal">
+			            <form action="../openidserver" id="profile" name="profile" class="form-horizontal">
                                 <div class="control-group">
                                     <div class="controls" style="margin-left: 0px !important;">
 
@@ -111,9 +112,11 @@
                                                 <th>Claim Value</th>
                                             </tr>
                                             <%for (int i = 0; i < claimTags.length; i++) {
-                                                String claimTag = claimTags[i];
+                                                String claimTag = CharacterEncoder.getSafeText
+                                                (claimTags[i]);
                                             %>
-                                                <tr><td><%=claimTag%></td><td><%=claimValues[i]%></td></tr>
+                                                <tr><td><%=claimTag%></td><td><%=CharacterEncoder
+                                                .getSafeText(claimValues[i])%></td></tr>
                                             <%
                                             } %>
                                             </table>
@@ -130,7 +133,7 @@
                                 <input type="button" class="btn" id="chkApprovedAlways" onclick="javascript: approvedAlways();" value="<fmt:message key='approve.always'/>"/>
                                 <input type="hidden" id="hasApprovedAlways" name="hasApprovedAlways" value="false" />
                                 <input class="btn" type="reset" value="<fmt:message key='cancel'/>"
-                                   onclick="javascript:document.location.href='../../carbon/admin/login.jsp'"/>
+                                   onclick="javascript:document.location.href='../carbon/admin/login.jsp'"/>
                             </div>
 			            </form>
 			

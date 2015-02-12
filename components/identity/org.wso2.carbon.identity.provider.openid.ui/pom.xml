@@ -14,17 +14,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<parent>
-		<groupId>org.wso2.carbon</groupId>
+		<groupId>org.wso2.carbon.identity</groupId>
 		<artifactId>identity</artifactId>
-		<version>4.3.0-SNAPSHOT</version>
+		<version>4.3.4-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.wso2.carbon</groupId>
 	<artifactId>org.wso2.carbon.identity.provider.openid.ui</artifactId>
 	<packaging>bundle</packaging>
-	<version>4.3.0-SNAPSHOT</version>
 	<name>WSO2 Carbon - OpenID Provider UI</name>
 	<description>OpenID Provider UI component for WSO2 Carbon</description>
 	<url>http://www.wso2.com</url>
@@ -36,9 +34,8 @@
 			<artifactId>org.wso2.carbon.ui</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.wso2.carbon</groupId>
+			<groupId>org.wso2.carbon.identity</groupId>
 			<artifactId>org.wso2.carbon.identity.base</artifactId>
-            		<!--version>4.3.0-SNAPSHOT</version-->
 		</dependency>
 		<dependency>
 			<groupId>org.openid4java.wso2</groupId>
@@ -53,14 +50,12 @@
             <artifactId>org.wso2.carbon.logging</artifactId>
         </dependency>
          <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.provider.openid.stub</artifactId>
-	    <!--<version>4.3.0-SNAPSHOT</version>	-->
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.provider</artifactId>
-            <!--<version>4.3.0-SNAPSHOT</version>   -->
         </dependency>
 	</dependencies>
 

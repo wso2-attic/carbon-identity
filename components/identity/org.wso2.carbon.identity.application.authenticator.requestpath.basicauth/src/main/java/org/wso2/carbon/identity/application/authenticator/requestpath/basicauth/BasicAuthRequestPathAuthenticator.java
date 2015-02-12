@@ -17,6 +17,9 @@
  */
 package org.wso2.carbon.identity.application.authenticator.requestpath.basicauth;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -32,7 +35,6 @@ import org.wso2.carbon.identity.application.authenticator.requestpath.basicauth.
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
-import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 
 public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthenticator implements RequestPathApplicationAuthenticator {
 
@@ -94,7 +96,20 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
 			if(log.isDebugEnabled()) {
 				log.debug("Authenticated user " + cred[0]);
 			}
-			context.setSubject(FrameworkUtils.prependUserStoreDomainToName(cred[0]));
+
+            Map<String, Object> authProperties = context.getProperties();
+            String tenantDomain = MultitenantUtils.getTenantDomain(cred[0]);
+
+            if (authProperties == null) {
+                authProperties = new HashMap<String, Object>();
+                context.setProperties(authProperties);
+            }
+
+            // TODO: user tenant domain has to be an attribute in the
+            // AuthenticationContext
+            authProperties.put("user-tenant-domain", tenantDomain);
+
+            context.setSubject(FrameworkUtils.prependUserStoreDomainToName(cred[0]));
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new AuthenticationFailedException("Authentication Failed");

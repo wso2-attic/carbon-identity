@@ -224,9 +224,10 @@ public class AccessTokenIssuer {
         AuthorizationGrantCacheKey oldCacheKey = new AuthorizationGrantCacheKey(tokenReqDTO.getAuthorizationCode());
         //checking getUserAttributesId vale of cacheKey before retrieve entry from cache as it causes to NPE
         if(oldCacheKey.getUserAttributesId() != null){
-            CacheEntry userAttributesCacheEntry = AuthorizationGrantCache.getInstance().getValueFromCache(oldCacheKey);
+            CacheEntry authorizationGrantCacheEntry = AuthorizationGrantCache.getInstance()
+                    .getValueFromCache(oldCacheKey);
             AuthorizationGrantCacheKey newCacheKey = new AuthorizationGrantCacheKey(tokenRespDTO.getAccessToken());
-            AuthorizationGrantCache.getInstance().addToCache(newCacheKey,userAttributesCacheEntry);
+            AuthorizationGrantCache.getInstance().addToCache(newCacheKey,authorizationGrantCacheEntry);
             AuthorizationGrantCache.getInstance().clearCacheEntry(oldCacheKey);
         }
     }

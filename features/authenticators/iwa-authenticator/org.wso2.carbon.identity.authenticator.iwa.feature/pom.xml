@@ -15,35 +15,31 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<parent>
-		<groupId>org.wso2.carbon</groupId>
+		<groupId>org.wso2.carbon.identity</groupId>
 		<artifactId>iwa-authenticator-feature</artifactId>
-		<version>4.3.0-SNAPSHOT</version>
+		<version>4.3.4-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.wso2.carbon.identity.authenticator.iwa.feature</artifactId>
 	<packaging>pom</packaging>
-        <version>4.3.0-SNAPSHOT</version>
 	<name>IWA based authenticator Feature</name>
 	<url>http://wso2.org</url>
 	<description>This feature contains the bundles required for IWA based authentication functionality</description>
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.authenticator.iwa.server.feature</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
             <type>zip</type>
 	    </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.authenticator.iwa.ui.feature</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
             <type>zip</type>
 	    </dependency>
     </dependencies>
@@ -65,8 +61,8 @@
 							<id>org.wso2.carbon.identity.authenticator.iwa</id>
 							<propertiesFile>../../../../etc/feature.properties</propertiesFile>
 							 <includedFeatures>
-                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.iwa.server.feature</includedFeatureDef>
-                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.iwa.ui.feature</includedFeatureDef>
+                                <includedFeatureDef>org.wso2.carbon.identity:org.wso2.carbon.identity.authenticator.iwa.server.feature</includedFeatureDef>
+                                <includedFeatureDef>org.wso2.carbon.identity:org.wso2.carbon.identity.authenticator.iwa.ui.feature</includedFeatureDef>
                             </includedFeatures>
 						</configuration>
 					</execution>

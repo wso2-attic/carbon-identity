@@ -223,6 +223,11 @@ public class AuthenticationEndpointTenantActivityListener implements TenantMgtLi
 
     }
 
+    @Override
+    public void onPreDelete(int tenantId) throws StratosException{
+
+    }
+
     @Override public void onTenantDelete(int tenantId) {
 
     }

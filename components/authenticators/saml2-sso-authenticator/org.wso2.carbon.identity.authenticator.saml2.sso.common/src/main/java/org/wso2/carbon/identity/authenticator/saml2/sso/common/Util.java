@@ -41,6 +41,9 @@ import org.opensaml.DefaultBootstrap;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AttributeStatement;
+import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.Attribute;
+import org.opensaml.saml2.core.AttributeStatement;
 import org.opensaml.saml2.core.AuthnRequest;
 import org.opensaml.saml2.core.LogoutRequest;
 import org.opensaml.saml2.core.Response;
@@ -79,11 +82,12 @@ public class Util {
 			'k', 'l', 'm', 'n', 'o', 'p' };
 	private static String serviceProviderId = null;
 	private static String identityProviderSSOServiceURL = null;
+    private static Map<String, String> parameters = new HashMap<String, String>();
+    private static String identityProviderSLOServiceURL = parameters.get(SAML2SSOAuthenticatorConstants.IDENTITY_PROVIDER_SLO_SERVICE_URL);
 	private static String loginPage = "/carbon/admin/login.jsp";
 	private static String landingPage = null;
 	private static String externalLogoutPage = null;
 	private static String assertionConsumerServiceUrl = null;
-	private static Map<String, String> parameters = new HashMap<String, String>();
 	private static boolean initSuccess = false;
 	private static Properties saml2IdpProperties = new Properties();
 	private static Map<String, String> cachedIdps = new ConcurrentHashMap<String, String>();
@@ -334,10 +338,13 @@ public class Util {
 			serviceProviderId = parameters.get(SAML2SSOAuthenticatorConstants.SERVICE_PROVIDER_ID);
 			identityProviderSSOServiceURL = parameters
 					.get(SAML2SSOAuthenticatorConstants.IDENTITY_PROVIDER_SSO_SERVICE_URL);
+            identityProviderSLOServiceURL = parameters
+                    .get(SAML2SSOAuthenticatorConstants.IDENTITY_PROVIDER_SLO_SERVICE_URL);
 			loginPage = parameters.get(SAML2SSOAuthenticatorConstants.LOGIN_PAGE);
 			landingPage = parameters.get(SAML2SSOAuthenticatorConstants.LANDING_PAGE);
 			externalLogoutPage = parameters.get(SAML2SSOAuthenticatorConstants.EXTERNAL_LOGOUT_PAGE);
 			assertionConsumerServiceUrl = parameters.get(SAML2SSOAuthenticatorConstants.ASSERTION_CONSUMER_SERVICE_URL);
+
 			initSuccess = true;
 		}
 		return initSuccess;
@@ -380,18 +387,29 @@ public class Util {
 		}
 		return identityProviderSSOServiceURL;
 	}
-	
-	/**
-	 * returns the Assertion Consumer Service URL
-	 * 
-	 * @return Assertion Consumer Service URL
-	 */
-	public static String getAssertionConsumerServiceURL() {
-		if (!initSuccess) {
-			initSSOConfigParams();
-		}
-		return assertionConsumerServiceUrl;
-	}
+
+    /**
+     * returns the Identity Provider SSO Service URL
+     * @return dentity Provider SSO Service URL
+     */
+    public static String getIdentityProviderSLOServiceURL() {
+        if (!initSuccess) {
+            initSSOConfigParams();
+        }
+        return identityProviderSLOServiceURL;
+    }
+
+    /**
+     * returns the Assertion Consumer Service URL
+     *
+     * @return Assertion Consumer Service URL
+     */
+    public static String getAssertionConsumerServiceURL() {
+        if (!initSuccess) {
+            initSSOConfigParams();
+        }
+        return assertionConsumerServiceUrl;
+    }
 
 	/**
 	 * 

@@ -380,8 +380,10 @@ public class OpenIDUserRPDAO {
 		} catch (SQLException e) {
 			log.error("Failed to load RP: " + rpDo.getRpUrl() + " for user: " + rpDo.getUserName() +
 			          ". Error while accessing the databse", e);
-		} finally {
-			IdentityDatabaseUtil.closeResultSet(results);
+        } catch (RuntimeException e) {
+            log.error("Error while trying to load RP : Username = " + rpDo.getUserName(), e);
+        } finally {
+            IdentityDatabaseUtil.closeResultSet(results);
 			IdentityDatabaseUtil.closeStatement(prepStmt);
 
 		}

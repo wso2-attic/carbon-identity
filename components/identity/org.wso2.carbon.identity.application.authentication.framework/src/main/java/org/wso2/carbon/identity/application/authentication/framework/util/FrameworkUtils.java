@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.application.authentication.framework.util;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.claim.mgt.ClaimManagerHandler;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.cache.*;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
@@ -30,6 +31,7 @@ import org.wso2.carbon.identity.application.authentication.framework.config.mode
 import org.wso2.carbon.identity.application.authentication.framework.config.model.SequenceConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.StepConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
 import org.wso2.carbon.identity.application.authentication.framework.context.SessionContext;
 import org.wso2.carbon.identity.application.authentication.framework.handler.claims.ClaimHandler;
 import org.wso2.carbon.identity.application.authentication.framework.handler.claims.impl.DefaultClaimHandler;
@@ -55,14 +57,9 @@ import org.wso2.carbon.identity.application.authentication.framework.internal.Fr
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedIdPData;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationFrameworkWrapper;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
-import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
-import org.wso2.carbon.identity.application.common.model.IdentityProvider;
-import org.wso2.carbon.identity.application.common.model.Property;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.application.common.model.*;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
-import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -109,7 +106,7 @@ public class FrameworkUtils {
 	 * @param key Key of the cache entry
 	 * @return
 	 */
-    public static AuthenticationRequestCacheEntry getAuthenticationReqFromCache(String key) {
+    public static AuthenticationRequestCacheEntry getAuthenticationRequestFromCache(String key) {
 
         AuthenticationRequestCacheEntry authRequest = null;
         AuthenticationRequestCacheKey cacheKey = new AuthenticationRequestCacheKey(key);
@@ -134,18 +131,17 @@ public class FrameworkUtils {
         }
     }
 
-    /**
-     * Builds the wrapper, wrapping incoming request and information take from cache entry
-     *
-     * @param request    Original request coming to authentication framework
-     * @param cacheEntry Cache entry from the cache, which is added from calling servlets
-     * @return
-     */
-    public static HttpServletRequest getCommonAuthReqWithParams(
-            HttpServletRequest request, AuthenticationRequestCacheEntry cacheEntry) {
+	/**
+	 * Builds the wrapper, wrapping incoming request and information take from cache entry
+	 * @param request Original request coming to authentication framework
+	 * @param cacheEntry Cache entry from the cache, which is added from calling servlets
+	 * @return
+	 */
+    public static HttpServletRequest getCommonAuthReqWithParams(HttpServletRequest request,
+                                                                AuthenticationRequestCacheEntry cacheEntry) {
 
+        // add this functionality as a constructor
         Map<String, String[]> modifiableParameters = new TreeMap<String, String[]>();
-
         if (cacheEntry != null) {
             AuthenticationRequest authenticationRequest = cacheEntry.getAuthenticationRequest();
             // Adding field variables to wrapper
@@ -703,47 +699,59 @@ public class FrameworkUtils {
     }
 
     /**
-     * @param remoteIdpClaimMapping
+     * @param claimMappings
      * @return
      */
-    public static Map<String, String> getClaimMappings(ClaimMapping[] remoteIdpClaimMapping,
-                                                       boolean useRemoteAsClaimKey) {
+    public static Map<String, String> getClaimMappings(ClaimMapping[] claimMappings,
+                                                       boolean useLocalDialectAsKey) {
 
-        Map<String, String> idpToLocalClaimMap = new HashMap<String, String>();
+        Map<String, String> remoteToLocalClaimMap = new HashMap<String, String>();
 
-        for (ClaimMapping claimMapping : remoteIdpClaimMapping) {
-            if (useRemoteAsClaimKey) {
-                idpToLocalClaimMap.put(claimMapping.getRemoteClaim().getClaimUri(), claimMapping
-                        .getLocalClaim().getClaimUri());
-            } else {
-                idpToLocalClaimMap.put(claimMapping.getLocalClaim().getClaimUri(), claimMapping
+        for (ClaimMapping claimMapping : claimMappings) {
+            if (useLocalDialectAsKey) {
+                remoteToLocalClaimMap.put(claimMapping.getLocalClaim().getClaimUri(), claimMapping
                         .getRemoteClaim().getClaimUri());
+            } else {
+                remoteToLocalClaimMap.put(claimMapping.getRemoteClaim().getClaimUri(), claimMapping
+                        .getLocalClaim().getClaimUri());
             }
         }
-        return idpToLocalClaimMap;
+        return remoteToLocalClaimMap;
     }
 
     /**
-     * @param remoteIdpClaimMapping
-     * @param useRemoteAsClaimKey
+     * @param claimMappings
+     * @param useLocalDialectAsKey
      * @return
      */
-    public static Map<String, String> getClaimMappings(
-            Map<ClaimMapping, String> remoteIdpClaimMapping, boolean useRemoteAsClaimKey) {
+    public static Map<String, String> getClaimMappings(Map<ClaimMapping, String> claimMappings,
+                                                       boolean useLocalDialectAsKey) {
 
-        Map<String, String> idpToLocalClaimMap = new HashMap<String, String>();
+        Map<String, String> remoteToLocalClaimMap = new HashMap<String, String>();
 
-        for (Entry<ClaimMapping, String> entry : remoteIdpClaimMapping.entrySet()) {
+        for (Entry<ClaimMapping, String> entry : claimMappings.entrySet()) {
             ClaimMapping claimMapping = entry.getKey();
-            if (useRemoteAsClaimKey) {
-                idpToLocalClaimMap.put(claimMapping.getRemoteClaim().getClaimUri(),
-                        entry.getValue());
+            if (useLocalDialectAsKey) {
+                remoteToLocalClaimMap.put(claimMapping.getLocalClaim().getClaimUri(), entry.getValue());
             } else {
-                idpToLocalClaimMap
-                        .put(claimMapping.getLocalClaim().getClaimUri(), entry.getValue());
+                remoteToLocalClaimMap.put(claimMapping.getRemoteClaim().getClaimUri(), entry.getValue());
             }
         }
-        return idpToLocalClaimMap;
+        return remoteToLocalClaimMap;
+    }
+
+    /**
+     * @param claimMappings
+     * @return
+     */
+    public static Map<String, String> getLocalToSPClaimMappings(Map<String, String> claimMappings) {
+
+        Map<String, String> remoteToLocalClaimMap = new HashMap<String, String>();
+
+        for (Entry<String, String> entry : claimMappings.entrySet()) {
+            remoteToLocalClaimMap.put(entry.getValue(), entry.getKey());
+        }
+        return remoteToLocalClaimMap;
     }
 
     public static String getQueryStringWithFrameworkContextId(String originalQueryStr,
@@ -867,16 +875,17 @@ public class FrameworkUtils {
 	 * @return
 	 */
     public static String getQueryStringWithConfiguredParams(HttpServletRequest request) {
-
-        boolean configAvailable = FileBasedConfigurationBuilder.getInstance().isAuthEndpointQueryParamsConfigAvailable();
+        
+        boolean configAvailable = FileBasedConfigurationBuilder.getInstance()
+                .isAuthEndpointQueryParamsConfigAvailable();
         List<String> queryParams = FileBasedConfigurationBuilder.getInstance()
                 .getAuthEndpointQueryParams();
         String action = FileBasedConfigurationBuilder.getInstance()
                 .getAuthEndpointQueryParamsAction();
-
+        
         StringBuilder queryStrBuilder = new StringBuilder("");
         Map<String, String[]> reqParamMap = request.getParameterMap();
-
+        
         if (configAvailable) {
             if (action != null
                     && action.equals(FrameworkConstants.AUTH_ENDPOINT_QUERY_PARAMS_ACTION_EXCLUDE)) {
@@ -884,7 +893,7 @@ public class FrameworkUtils {
                     for (Map.Entry<String, String[]> entry : reqParamMap.entrySet()) {
                         String paramName = entry.getKey();
                         String paramValue = entry.getValue()[0];
-
+                        
                         //skip the sessionDataKey sent from the servlet.
                         if (paramName.equals("sessionDataKey")) {
                             continue;
@@ -894,7 +903,7 @@ public class FrameworkUtils {
                             if (queryStrBuilder.length() > 0) {
                                 queryStrBuilder.append('&');
                             }
-
+                            
                             try {
                                 queryStrBuilder.append(URLEncoder.encode(paramName, "UTF-8")).append('=')
                                         .append(URLEncoder.encode(paramValue, "UTF-8"));
@@ -907,22 +916,15 @@ public class FrameworkUtils {
                     }
                 }
             } else {
-                if (reqParamMap != null) {
-                    for (Map.Entry<String, String[]> entry : reqParamMap.entrySet()) {
-                        String paramName = entry.getKey();
-                        String paramValue = entry.getValue()[0];
-
-                        //skip the sessionDataKey sent from the servlet.
-                        if (paramName.equals("sessionDataKey")) {
-                            continue;
-                        }
-
+                for (String param : queryParams) {
+                    String paramValue = request.getParameter(param);
+                    
+                    if (paramValue != null) {
                         if (queryStrBuilder.length() > 0) {
                             queryStrBuilder.append('&');
                         }
-
                         try {
-                            queryStrBuilder.append(URLEncoder.encode(paramName, "UTF-8")).append('=')
+                            queryStrBuilder.append(URLEncoder.encode(param, "UTF-8")).append('=')
                                     .append(URLEncoder.encode(paramValue, "UTF-8"));
                         } catch (UnsupportedEncodingException e) {
                             log.error(
@@ -933,15 +935,22 @@ public class FrameworkUtils {
                 }
             }
         } else {
-            for (String param : queryParams) {
-                String paramValue = request.getParameter(param);
+            if (reqParamMap != null) {
+                for (Map.Entry<String, String[]> entry : reqParamMap.entrySet()) {
+                    String paramName = entry.getKey();
+                    String paramValue = entry.getValue()[0];
+                    
+                    //skip the sessionDataKey sent from the servlet.
+                    if (paramName.equals("sessionDataKey")) {
+                        continue;
+                    }
 
-                if (paramValue != null) {
                     if (queryStrBuilder.length() > 0) {
                         queryStrBuilder.append('&');
                     }
+                    
                     try {
-                        queryStrBuilder.append(URLEncoder.encode(param, "UTF-8")).append('=')
+                        queryStrBuilder.append(URLEncoder.encode(paramName, "UTF-8")).append('=')
                                 .append(URLEncoder.encode(paramValue, "UTF-8"));
                     } catch (UnsupportedEncodingException e) {
                         log.error(
@@ -951,6 +960,7 @@ public class FrameworkUtils {
                 }
             }
         }
+        
         return queryStrBuilder.toString();
     }
 
@@ -980,5 +990,47 @@ public class FrameworkUtils {
                    + "\'");
         }
         return authenticatedSubject;
+    }
+
+    /*
+     * Find the Subject identifier among federated claims
+     */
+    public static String getFederatedSubjectFromClaims(IdentityProvider identityProvider,
+                                                       Map<ClaimMapping, String> claimMappings){
+
+        String userIdClaimURI = identityProvider.getClaimConfig().getUserClaimURI();
+        ClaimMapping claimMapping = new ClaimMapping();
+        Claim claim = new Claim();
+        claim.setClaimUri(userIdClaimURI);
+        claimMapping.setRemoteClaim(claim);
+        claimMapping.setLocalClaim(claim);
+        String value = claimMappings.get(claimMapping);
+        return value;
+    }
+
+    /*
+     * Find the Subject identifier among federated claims
+     */
+    public static String getFederatedSubjectFromClaims(AuthenticationContext context, String otherDialect) throws Exception {
+        String value;
+        boolean useLocalClaimDialect = context.getExternalIdP().useDefaultLocalIdpDialect();
+        String userIdClaimURI = context.getExternalIdP().getUserIdClaimUri();
+        Map<ClaimMapping, String> claimMappings = context.getSubjectAttributes();
+
+        if (useLocalClaimDialect) {
+            Map<String, String> extAttributesValueMap = FrameworkUtils.getClaimMappings(claimMappings, false);
+            Map<String, String> mappedAttrs = ClaimManagerHandler.getInstance().getMappingsMapFromOtherDialectToCarbon(otherDialect,
+                    extAttributesValueMap.keySet(), context.getTenantDomain(), true);
+
+            String spUserIdClaimURI = mappedAttrs.get(userIdClaimURI);
+            value = extAttributesValueMap.get(spUserIdClaimURI);
+        } else {
+            ClaimMapping claimMapping = new ClaimMapping();
+            Claim claim = new Claim();
+            claim.setClaimUri(userIdClaimURI);
+            claimMapping.setRemoteClaim(claim);
+            value = claimMappings.get(claimMapping);
+        }
+        return value;
     }
 }

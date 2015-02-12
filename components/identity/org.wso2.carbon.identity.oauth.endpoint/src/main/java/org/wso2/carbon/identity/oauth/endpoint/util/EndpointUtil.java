@@ -41,6 +41,8 @@ import org.wso2.carbon.ui.CarbonUIUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Enumeration;
+import java.util.Map;
 import java.util.Set;
 
 public class EndpointUtil {
@@ -182,23 +184,42 @@ public class EndpointUtil {
      * @return
      */
     public static String getLoginPageURL(String clientId, String sessionDataKey,
-                                         boolean forceAuthenticate, boolean checkAuthentication, Set<String> scopes)
+            boolean forceAuthenticate, boolean checkAuthentication, Set<String> scopes)
             throws UnsupportedEncodingException {
-    	
-    	try {
-    	String type = FrameworkConstants.OAUTH2;
-    	if(scopes != null && scopes.contains(FrameworkConstants.RequestType.CLAIM_TYPE_OPENID)) {
-    		type = FrameworkConstants.OIDC;
-    	}
-    	
-        SessionDataCacheEntry entry = (SessionDataCacheEntry)SessionDataCache.getInstance()
-                .getValueFromCache(new SessionDataCacheKey(sessionDataKey));
 
-            if (entry == null) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Cache Entry is null from SessionDataCache for session data key :"
-                            + sessionDataKey);
-                }
+        try {
+            SessionDataCacheEntry entry = (SessionDataCacheEntry) SessionDataCache.getInstance()
+                    .getValueFromCache(new SessionDataCacheKey(sessionDataKey));
+
+            return getLoginPageURL(clientId, sessionDataKey, forceAuthenticate,
+                    checkAuthentication, scopes, entry.getParamMap());
+        } finally {
+            OAuth2Util.clearClientTenantId();
+        }
+    }
+    
+    /**
+     * Returns the login page URL.
+     * 
+     * @param clientId
+     * @param sessionDataKey
+     * @param reqParams
+     * @param forceAuthenticate
+     * @param checkAuthentication
+     * @param scopes
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    public static String getLoginPageURL(String clientId, String sessionDataKey,
+            boolean forceAuthenticate, boolean checkAuthentication, Set<String> scopes,
+            Map<String, String[]> reqParams) throws UnsupportedEncodingException {
+
+        try {
+
+            String type = "oauth2";
+
+            if (scopes != null && scopes.contains("openid")) {
+                type = "oidc";
             }
             String commonAuthURL = CarbonUIUtil.getAdminConsoleURL("/");
             commonAuthURL = commonAuthURL.replace(FrameworkConstants.CARBON,
@@ -213,7 +234,7 @@ public class EndpointUtil {
             authenticationRequest.setRelyingParty(clientId);
             authenticationRequest.addRequestQueryParam(FrameworkConstants.RequestParams.TENANT_ID,
                     new String[]{String.valueOf(OAuth2Util.getClientTenatId())});
-            authenticationRequest.setRequestQueryParams(entry.getParamMap());
+            authenticationRequest.setRequestQueryParams(reqParams);
 
             //Build an AuthenticationRequestCacheEntry which wraps AuthenticationRequestContext
             AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry

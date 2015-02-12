@@ -162,7 +162,15 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
         FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult,
                                 FrameworkUtils.getMaxInactiveInterval());
         
-        FrameworkUtils.removeAuthenticationContextFromCache(context.getContextIdentifier());
+        /*
+         * TODO Cache retaining is a temporary fix. Remove after Google fixes
+         * http://code.google.com/p/gdata-issues/issues/detail?id=6628
+         */
+        String retainCache = System.getProperty("retainCache");
+
+        if (retainCache == null) {
+            FrameworkUtils.removeAuthenticationContextFromCache(context.getContextIdentifier());
+        }
 
         if (log.isDebugEnabled()) {
             log.debug("Sending response back to: " + context.getCallerPath() + "...\n"

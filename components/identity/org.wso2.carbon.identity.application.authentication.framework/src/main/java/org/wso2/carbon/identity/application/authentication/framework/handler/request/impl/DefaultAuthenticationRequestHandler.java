@@ -212,6 +212,15 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
         AuthenticationResult authenticationResult = new AuthenticationResult();
         boolean isAuthenticated = context.isRequestAuthenticated();
         authenticationResult.setAuthenticated(isAuthenticated);
+
+		String authenticatedUserTenantDomain = null;
+		if (context.getProperties() != null) {
+			authenticatedUserTenantDomain = (String) context.getProperties()
+					.get("user-tenant-domain");
+			if (authenticatedUserTenantDomain!=null){
+				authenticationResult.setAuthenticatedUserTenantDomain(authenticatedUserTenantDomain);
+			}
+		}        
         
         authenticationResult.setSaaSApp(sequenceConfig.getApplicationConfig().isSaaSApp());
 
@@ -257,13 +266,12 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
                         sequenceConfig);
                 sessionContext.setAuthenticatedIdPs(context.getCurrentAuthenticatedIdPs());
                 sessionContext.setRememberMe(context.isRememberMe());
-
                 String sessionKey = UUIDGenerator.generateUUID();
                 FrameworkUtils.addSessionContextToCache(sessionKey, sessionContext,
                                             FrameworkUtils.getMaxInactiveInterval());
-
+                
                 Integer authCookieAge = null;
-
+                
                 if (context.isRememberMe()) {
                     String rememberMePeriod = IdentityUtil
                             .getProperty("JDBCPersistenceManager.SessionDataPersist.RememberMePeriod");
@@ -290,7 +298,15 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
         FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(),
                 authenticationResult, FrameworkUtils.getMaxInactiveInterval());
 
-        FrameworkUtils.removeAuthenticationContextFromCache(context.getContextIdentifier());
+        /*
+         * TODO Cache retaining is a temporary fix. Remove after Google fixes
+         * http://code.google.com/p/gdata-issues/issues/detail?id=6628
+         */
+        String retainCache = System.getProperty("retainCache");
+
+        if (retainCache == null) {
+            FrameworkUtils.removeAuthenticationContextFromCache(context.getContextIdentifier());
+        }
         
         sendResponse(request, response, context);
     }

@@ -34,6 +34,7 @@ import org.opensaml.saml2.core.impl.NameIDPolicyBuilder;
 import org.opensaml.saml2.core.impl.SubjectBuilder;
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.SAML2SSOAuthenticatorConstants;
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.Util;
+import org.wso2.carbon.ui.CarbonUIUtil;
 
 /**
  * This class is used to generate Authentication Requests. When there is an unauthenticated user
@@ -46,7 +47,7 @@ public class AuthenticationRequestBuilder {
 
     /**
      * Generate an authentication request.
-     * 
+     *
      * @return AuthnRequest Object
      * @throws org.wso2.carbon.identity.authenticator.saml2.sso.ui.SAML2SSOUIAuthenticatorException
      *             error when bootstrapping
@@ -69,8 +70,56 @@ public class AuthenticationRequestBuilder {
 		String acs = Util.getAssertionConsumerServiceURL();
 		if (acs != null && acs.trim().length() > 0) {
 			authnRequest.setAssertionConsumerServiceURL(acs);
+		} else {
+			authnRequest.setAssertionConsumerServiceURL(CarbonUIUtil.getAdminConsoleURL("").replace("carbon/","acs"));
 		}
-        
+
+        if (subjectName != null) {
+            Subject subject = new SubjectBuilder().buildObject();
+            NameID nameId = new NameIDBuilder().buildObject();
+            nameId.setValue(subjectName);
+            nameId.setFormat(NameIdentifier.EMAIL);
+            subject.setNameID(nameId);
+            authnRequest.setSubject(subject);
+
+        }
+
+        Util.setSignature(authnRequest, XMLSignature.ALGO_ID_SIGNATURE_RSA, new SignKeyDataHolder());
+
+        return authnRequest;
+    }
+
+    /**
+     * Generate an authentication request with passive support.
+     *
+     * @return AuthnRequest Object
+     * @throws org.wso2.carbon.identity.authenticator.saml2.sso.ui.SAML2SSOUIAuthenticatorException
+     *             error when bootstrapping
+     */
+    public AuthnRequest buildAuthenticationRequest(String subjectName,
+                                                   String nameIdPolicyFormat, boolean passiveLogin)
+            throws Exception {
+
+        if (log.isDebugEnabled()) {
+            log.debug("Building Authentication Request");
+        }
+        Util.doBootstrap();
+        AuthnRequest authnRequest = (AuthnRequest) Util
+                .buildXMLObject(AuthnRequest.DEFAULT_ELEMENT_NAME);
+        authnRequest.setID(Util.createID());
+        authnRequest.setVersion(SAMLVersion.VERSION_20);
+        authnRequest.setIssueInstant(new DateTime());
+        authnRequest.setIssuer(buildIssuer());
+        authnRequest.setNameIDPolicy(buildNameIDPolicy(nameIdPolicyFormat));
+        authnRequest.setIsPassive(passiveLogin);
+        authnRequest.setDestination(Util.getIdentityProviderSSOServiceURL());
+        String acs = Util.getAssertionConsumerServiceURL();
+        if (acs != null && acs.trim().length() > 0) {
+            authnRequest.setAssertionConsumerServiceURL(acs);
+        } else {
+            authnRequest.setAssertionConsumerServiceURL(CarbonUIUtil.getAdminConsoleURL("").replace("carbon/","acs"));
+        }
+
         if (subjectName != null) {
             Subject subject = new SubjectBuilder().buildObject();
             NameID nameId = new NameIDBuilder().buildObject();
