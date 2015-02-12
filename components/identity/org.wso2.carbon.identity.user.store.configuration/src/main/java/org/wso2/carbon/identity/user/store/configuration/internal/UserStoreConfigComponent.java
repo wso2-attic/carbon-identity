@@ -98,13 +98,11 @@ public class UserStoreConfigComponent {
 
 
     protected void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-        if (serverConfigurationService == null) {
-            String msg = "Before activating Carbon Core bundle, an instance of "
-                    + "ServerConfigurationService should be in existence";
-            log.error(msg);
+        if (log.isDebugEnabled()) {
+            log.debug("Set the ServerConfiguration Service");
         }
-
         UserStoreConfigComponent.serverConfigurationService = serverConfigurationService;
+
     }
 
     protected void unsetServerConfigurationService(ServerConfigurationService serverConfigurationService) {
