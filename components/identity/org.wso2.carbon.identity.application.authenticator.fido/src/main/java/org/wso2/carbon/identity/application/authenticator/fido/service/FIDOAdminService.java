@@ -42,7 +42,7 @@ public class FIDOAdminService {
 	@SuppressWarnings(FIDOAuthenticatorConstants.UNUSED)
 	public String startRegistration(String username, String appID) throws IdentityException {
 		IdentityUtil.getTenantIdOFUser(username);
-		//TODO
+		//TODO enhancement: tenant domain, user store domain
 		FIDOUser user = new FIDOUser(username, "", "", appID);
 		return U_2_F_SERVICE.startRegistration(user).toJson();
 	}
@@ -52,13 +52,11 @@ public class FIDOAdminService {
 	 *
 	 * @param response response from client.
 	 * @param username username associated with initiate request.
-	 * @param appID    Application ID associated with the initiate.
-	 * @return String "success or failure".
 	 * @throws IdentityException when U2F validation fails.
 	 */
 	@SuppressWarnings(FIDOAuthenticatorConstants.UNUSED)
 	public void finishRegistration(String response, String username) throws IdentityException {
-		//TODO
+		//TODO enhancement: tenant domain, user store domain
 		FIDOUser user = new FIDOUser(username, "", "", RegisterResponse.fromJson(response));
 		U_2_F_SERVICE.finishRegistration(user);
 	}

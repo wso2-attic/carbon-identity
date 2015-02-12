@@ -62,7 +62,7 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator implemen
 		//		String username = request.getParameter("username");
 
 		U2FService u2FService = U2FService.getInstance();
-		//TODO
+		//TODO enhancement: tenant domain, user store domain
 		FIDOUser fidoUser = new FIDOUser(username, "", "", AuthenticateResponse.fromJson(tokenResponse));
 		fidoUser.setAppID(appID);
 		u2FService.finishAuthentication(fidoUser);
@@ -106,7 +106,7 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator implemen
 			//origin as appID eg.: http://example.com:8080
 			String appID = Util.getOrigin(request);
 			//calls BE service method to generate challenge.
-			//TODO
+			//TODO enhancement: tenant domain, user store domain
 			FIDOUser fidoUser = new FIDOUser(user, "", "", appID);
 			AuthenticateRequestData data = u2FService.startAuthentication(fidoUser);
 			//redirect to FIDO login page
