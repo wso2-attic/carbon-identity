@@ -21,10 +21,10 @@
         <transports>
             <transport>https</transport>
         </transports>
-        <parameter name="ServiceClass">org.wso2.carbon.identity.fido.service.FIDOAdminService</parameter>
+        <parameter name="ServiceClass">org.wso2.carbon.identity.application.authenticator.fido.service.FIDOAdminService</parameter>
     </service>
 
-    <!--<parameter name="adminService" locked="true">true</parameter>-->
+    <parameter name="adminService" locked="true">true</parameter>
     <parameter name="hiddenService" locked="true">true</parameter>
     <parameter name="AuthorizationAction" locked="true">/permission/protected/manage</parameter>
 </serviceGroup>

@@ -16,14 +16,16 @@
  *  under the License.
  */
 
-package org.wso2.carbon.identity.application.authenticator.fido.u2f.utils;
+package org.wso2.carbon.identity.application.authenticator.fido.util;
 
 /**
- * Utils class for SCIM Samples related operations.
+ * Utils class for FIDO Authenticator Constants.
  */
 public class FIDOAuthenticatorConstants {
 
 	public static final String AUTHENTICATOR_NAME = "FIDOAuthenticator";
-	public static final String AUTHENTICATOR_FRIENDLY_NAME = "FIDO";
+	public static final String AUTHENTICATOR_FRIENDLY_NAME = "fido";
+
+	public static final String UNUSED = "unused";
 }
 

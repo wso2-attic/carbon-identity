@@ -28,7 +28,7 @@ import org.wso2.carbon.identity.fido.u2f.U2FService;
 /**
  * FIDO service class for FIDO registration.
  */
-public class FIDORegistrationService {
+public class FIDOAdminService {
 	private static final U2FService U_2_F_SERVICE = new U2FService();
 
 	/**
@@ -37,7 +37,7 @@ public class FIDORegistrationService {
 	 * @param username username.
 	 * @param appID    Application ID.
 	 * @return RegisterRequestData.
-	 * @throws IdentityException
+	 * @throws IdentityException when U2F can not generate challenge.
 	 */
 	public String startRegistration(String username, String appID)
 			throws IdentityException {
@@ -51,10 +51,10 @@ public class FIDORegistrationService {
 	 * @param username username associated with initiate request.
 	 * @param appID    Application ID associated with the initiate.
 	 * @return String "success or failure".
-	 * @throws IdentityException
+	 * @throws IdentityException when U2F validation fails.
 	 */
 	public String finishRegistration(String response, String username, String appID)
 			throws IdentityException {
-		return U_2_F_SERVICE.finishRegistration(response, username, appID);
+		return U_2_F_SERVICE.finishRegistration(response, username);
 	}
 }

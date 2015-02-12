@@ -16,19 +16,21 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.application.authenticator.fido.u2f.internal;
+package org.wso2.carbon.identity.application.authenticator.fido.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
-import org.wso2.carbon.identity.application.authenticator.fido.u2f.FIDOAuthenticator;
+import org.wso2.carbon.identity.application.authenticator.fido.FIDOAuthenticator;
+import org.wso2.carbon.identity.application.authenticator.fido.u2f.U2FService;
 import org.wso2.carbon.user.core.service.RealmService;
 
 import java.util.Hashtable;
 
 /**
- * @scr.component name="identity.application.authenticator.fido.u2f.component" immediate="true"
+ * @scr.component name="identity.application.authenticator.fido.component" immediate="true"
  * @scr.reference name="realm.service"
  * interface="org.wso2.carbon.user.core.service.RealmService"cardinality="1..1"
  * policy="dynamic" bind="setRealmService" unbind="unsetRealmService"
@@ -39,21 +41,33 @@ public class FIDOAuthenticatorServiceComponent {
 
 	private static RealmService realmService;
 
-	protected void activate(ComponentContext ctxt) {
-
-		FIDOAuthenticator basicAuth = new FIDOAuthenticator();
+	protected void activate(ComponentContext context) {
+		BundleContext bundleContext = context.getBundleContext();
+		FIDOAuthenticator fidoAuthenticator = FIDOAuthenticator.getInstance();
 		Hashtable<String, String> props = new Hashtable<String, String>();
-
-		ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(), basicAuth, props);
-
-		if (log.isDebugEnabled()) {
-			log.info("FIDOAuthenticator bundle is activated");
+		try {
+			bundleContext.registerService(ApplicationAuthenticator.class.getName(), fidoAuthenticator, props);
+			if (log.isDebugEnabled()) {
+				log.debug("FIDOAuthenticator service is registered");
+			}
+		} catch (Throwable e) {
+			log.error("Error registering FIDOAuthenticator service", e);
 		}
+
+		U2FService u2FService = U2FService.getInstance();
+		try {
+			bundleContext.registerService(U2FService.class, u2FService, null);
+			if (log.isDebugEnabled()) {
+				log.debug("U2FService service is registered");
+			}
+			}catch(Throwable e){
+				log.error("Error registering U2FService service", e);
+			}
 	}
 
-	protected void deactivate(ComponentContext ctxt) {
+	protected void deactivate(ComponentContext context) {
 		if (log.isDebugEnabled()) {
-			log.info("FIDOAuthenticator bundle is deactivated");
+			log.debug("Deactivating FIDOAuthenticator bundle...");
 		}
 	}
 
