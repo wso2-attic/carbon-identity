@@ -65,7 +65,7 @@ public class TenantDataManager {
     private static final String TENANT_DATA_SEPARATOR = ",";
     private static final String RELATIVE_PATH_START_CHAR = ".";
     private static final String CHARACTER_ENCODING = "UTF-8";
-	private static final String CONFIG_RELATIVE_PATH = "./repository/conf/TenantConfig.properties";
+    private static final String CONFIG_RELATIVE_PATH = "./repository/conf/TenantConfig.properties";
     private static final String CONFIG_FILE_NAME = "TenantConfig.properties";
     private static Properties prop;
     private static String carbonLogin = "";
@@ -73,7 +73,7 @@ public class TenantDataManager {
     private static String usernameHeaderName = "";
     private static List<String> tenantDomainList = new ArrayList<String>();
     private static boolean initialized = false;
-	private static boolean initAttempted = false;
+    private static boolean initAttempted = false;
 
     /**
      * Initialize Tenant data manager
