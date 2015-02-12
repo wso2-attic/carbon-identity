@@ -27,6 +27,10 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -131,8 +135,9 @@ public class TenantMgtAdminServiceClient {
 	 * @throws IOException
 	 * @throws UnrecoverableKeyException
 	 */
-	public static void initMutualSSLConnection() throws NoSuchAlgorithmException, KeyStoreException,
-	        KeyManagementException, IOException, UnrecoverableKeyException {
+	public static void initMutualSSLConnection(boolean hostNameVerificationEnabled)
+			throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException,
+			       UnrecoverableKeyException {
 
 		KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(keyManagerType);
 		keyManagerFactory.init(keyStore, keyStorePassword);
@@ -141,8 +146,53 @@ public class TenantMgtAdminServiceClient {
 
 		// Create and initialize SSLContext for HTTPS communication
 		SSLContext sslContext = SSLContext.getInstance(protocol);
-		sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), null);
-		sslSocketFactory = sslContext.getSocketFactory();
+
+		if (hostNameVerificationEnabled) {
+			sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), null);
+			sslSocketFactory = sslContext.getSocketFactory();
+
+			if (log.isDebugEnabled()) {
+				log.debug("Mutual SSL Client initialized with Hostname Verification enabled");
+			}
+		} else {
+			// All the code below is to overcome host name verification failure we get in certificate
+			// validation due to selfsigned certificate.
+
+			// Create empty HostnameVerifier
+			HostnameVerifier hv = new HostnameVerifier() {
+				public boolean verify(String urlHostName, SSLSession session) {
+					return true;
+				}
+			};
+
+			// Create a trust manager that does not validate certificate chains
+			TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+				public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+					return null;
+				}
+
+				public void checkClientTrusted(java.security.cert.X509Certificate[] certs,
+				                               String authType) {
+				}
+
+				public void checkServerTrusted(java.security.cert.X509Certificate[] certs,
+				                               String authType) {
+				}
+			} };
+
+			sslContext.init(keyManagerFactory.getKeyManagers(), trustAllCerts, new java.security.SecureRandom());
+
+			if (log.isDebugEnabled()) {
+				log.debug("SSL Context is initialized with trust manager for excluding certificate validation");
+			}
+			SSLContext.setDefault(sslContext);
+			sslSocketFactory = sslContext.getSocketFactory();
+			HttpsURLConnection.setDefaultHostnameVerifier(hv);
+
+			if (log.isDebugEnabled()) {
+				log.debug("Mutual SSL Client initialized with Hostname Verification disabled");
+			}
+		}
 	}
 
 	/**

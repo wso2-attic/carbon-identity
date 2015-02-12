@@ -110,7 +110,8 @@ public class TenantDataManager {
                             .loadKeyStore(clientKeyStorePath, getPropertyValue(CLIENT_KEY_STORE_PASSWORD));
                     TenantMgtAdminServiceClient
                             .loadTrustStore(clientTrustStorePath, getPropertyValue(CLIENT_TRUST_STORE_PASSWORD));
-                    TenantMgtAdminServiceClient.initMutualSSLConnection();
+                    TenantMgtAdminServiceClient.initMutualSSLConnection(Boolean.parseBoolean(
+                            getPropertyValue(HOSTNAME_VERIFICATION_ENABLED)));
 
                     // Build the service URL of tenant management admin service
                     StringBuilder builder = new StringBuilder();
