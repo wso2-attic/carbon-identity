@@ -49,10 +49,10 @@ public class UserStoreUtil {
             throw new UserStoreException(errMsg);
         }
 
-        String filePath = config.getFirstProperty(UserStoreConfigurationConstants.SERVER_REGISTRY_KEYSTORE_FILE);
-        String keyStoreType = config.getFirstProperty(UserStoreConfigurationConstants.SERVER_REGISTRY_KEYSTORE_TYPE);
-        String password = config.getFirstProperty(UserStoreConfigurationConstants.SERVER_REGISTRY_KEYSTORE_PASSWORD);
-        String keyAlias = config.getFirstProperty(UserStoreConfigurationConstants.SERVER_REGISTRY_KEYSTORE_KEY_ALIAS);
+        String filePath = config.getFirstProperty(UserStoreConfigurationConstants.SERVER_KEYSTORE_FILE);
+        String keyStoreType = config.getFirstProperty(UserStoreConfigurationConstants.SERVER_KEYSTORE_TYPE);
+        String password = config.getFirstProperty(UserStoreConfigurationConstants.SERVER_KEYSTORE_PASSWORD);
+        String keyAlias = config.getFirstProperty(UserStoreConfigurationConstants.SERVER_KEYSTORE_KEY_ALIAS);
 
         KeyStore store;
         InputStream inputStream = null;
