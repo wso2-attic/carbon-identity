@@ -34,10 +34,10 @@ public class UserStoreConfigurationConstants {
     public static final String SECRET_ALIAS         = "";
 
     //these changes are introduced in chunkccesible from chunk 1
-    public static final String SERVER_REGISTRY_KEYSTORE_FILE = "Security.RegistryKeyStore.Location";
-    public static final String SERVER_REGISTRY_KEYSTORE_TYPE = "Security.RegistryKeyStore.Type";
-    public static final String SERVER_REGISTRY_KEYSTORE_PASSWORD = "Security.RegistryKeyStore.Password";
-    public static final String SERVER_REGISTRY_KEYSTORE_KEY_ALIAS = "Security.RegistryKeyStore.KeyAlias";
+    public static final String SERVER_KEYSTORE_FILE = "Security.KeyStore.Location";
+    public static final String SERVER_KEYSTORE_TYPE = "Security.KeyStore.Type";
+    public static final String SERVER_KEYSTORE_PASSWORD = "Security.KeyStore.Password";
+    public static final String SERVER_KEYSTORE_KEY_ALIAS = "Security.KeyStore.KeyAlias";
 
 
     private UserStoreConfigurationConstants(){

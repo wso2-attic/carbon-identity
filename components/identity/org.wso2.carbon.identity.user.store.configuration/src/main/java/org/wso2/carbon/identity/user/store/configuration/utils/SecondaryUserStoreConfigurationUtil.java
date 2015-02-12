@@ -39,10 +39,10 @@ import java.security.cert.Certificate;
 public class SecondaryUserStoreConfigurationUtil {
 
     private static Cipher cipher = null;
-    private static final String SERVER_REGISTRY_KEYSTORE_FILE = "Security.RegistryKeyStore.Location";
-    private static final String SERVER_REGISTRY_KEYSTORE_TYPE = "Security.RegistryKeyStore.Type";
-    private static final String SERVER_REGISTRY_KEYSTORE_PASSWORD = "Security.RegistryKeyStore.Password";
-    private static final String SERVER_REGISTRY_KEYSTORE_KEY_ALIAS = "Security.RegistryKeyStore.KeyAlias";
+    private static final String SERVER_KEYSTORE_FILE = "Security.KeyStore.Location";
+    private static final String SERVER_KEYSTORE_TYPE = "Security.KeyStore.Type";
+    private static final String SERVER_KEYSTORE_PASSWORD = "Security.KeyStore.Password";
+    private static final String SERVER_KEYSTORE_KEY_ALIAS = "Security.KeyStore.KeyAlias";
 
     public static final Log log = LogFactory.getLog(SecondaryUserStoreConfigurationUtil.class);
 
@@ -62,10 +62,10 @@ public class SecondaryUserStoreConfigurationUtil {
                     UserStoreConfigComponent.getServerConfigurationService();
 
             if (config != null) {
-                String filePath = config.getFirstProperty(SERVER_REGISTRY_KEYSTORE_FILE);
-                String keyStoreType = config.getFirstProperty(SERVER_REGISTRY_KEYSTORE_TYPE);
-                String password = config.getFirstProperty(SERVER_REGISTRY_KEYSTORE_PASSWORD);
-                String keyAlias = config.getFirstProperty(SERVER_REGISTRY_KEYSTORE_KEY_ALIAS);
+                String filePath = config.getFirstProperty(SERVER_KEYSTORE_FILE);
+                String keyStoreType = config.getFirstProperty(SERVER_KEYSTORE_TYPE);
+                String password = config.getFirstProperty(SERVER_KEYSTORE_PASSWORD);
+                String keyAlias = config.getFirstProperty(SERVER_KEYSTORE_KEY_ALIAS);
 
                 KeyStore store;
                 InputStream inputStream = null;
