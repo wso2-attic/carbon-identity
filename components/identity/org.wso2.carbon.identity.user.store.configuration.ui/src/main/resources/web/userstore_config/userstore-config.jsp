@@ -125,6 +125,12 @@
         optionals = properties.getOptionalProperties();
         advancedProperties = properties.getAdvancedProperties();
 
+        // Get updated advanced properties from Secondary Realm Configuratoins
+        Map<String, String> updatedAdvancedProperties =
+                userStoreConfigAdminServiceClient.getUserStoreManagerPropertiesFromSecondaryRealmConfigurations(domain);
+        for (Property advancedProperty: advancedProperties) {
+            advancedProperty.setValue(updatedAdvancedProperties.get(advancedProperty.getName()));
+        }
 
     } else {
         if ((session.getAttribute(UserStoreUIConstants.DOMAIN)) != null) {

@@ -24,8 +24,12 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.wso2.carbon.identity.user.store.configuration.stub.UserStoreConfigAdminServiceDataSourceException;
 import org.wso2.carbon.identity.user.store.configuration.stub.UserStoreConfigAdminServiceStub;
 import org.wso2.carbon.identity.user.store.configuration.stub.api.Properties;
+import org.wso2.carbon.identity.user.store.configuration.stub.dto.PropertyDTO;
 import org.wso2.carbon.identity.user.store.configuration.stub.dto.UserStoreDTO;
 import org.wso2.carbon.ndatasource.common.DataSourceException;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class UserStoreConfigAdminServiceClient {
     private UserStoreConfigAdminServiceStub stub;
@@ -80,6 +84,27 @@ public class UserStoreConfigAdminServiceClient {
 
     }
 
+    /**
+     * Get user store manager properties from secondary realm configurations
+     *
+     * @return Map of properties
+     * @throws Exception
+     */
+    public Map<String, String> getUserStoreManagerPropertiesFromSecondaryRealmConfigurations(String domain) throws Exception {
+        Map<String, String> propertyMap = new HashMap<String, String>();
+        UserStoreDTO[] userStoreDTOs = getActiveDomains();
+        for(UserStoreDTO userStoreDTO: userStoreDTOs){
+            if(userStoreDTO.getDomainId().equals(domain)){
+                PropertyDTO[] propertyDTOs = userStoreDTO.getProperties();
+                for (PropertyDTO propertyDTO : propertyDTOs) {
+                    propertyMap.put(propertyDTO.getName(), propertyDTO.getValue());
+                }
+                break;
+            }
+        }
+
+        return propertyMap;
+    }
 
     /**
      * Save configuration to file system
