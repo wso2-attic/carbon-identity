@@ -87,9 +87,17 @@ public class SignKeyDataHolder implements X509Credential {
 
         try {
 
-            userTenantDomain =  MultitenantUtils.getTenantDomain(username);
+            userTenantDomain =  SAMLSSOUtil.getUserTenantDomain();
             spTenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             
+            if (userTenantDomain==null){
+            	// all local authenticator must set the value of userTenantDomain.
+            	// if userTenantDomain is null that means, there is no local authenticator or
+            	// the assert with local ID is set. In that case, this should be coming from 
+            	// federated authentication. In that case, we treat SP domain is equal to user domain.
+            	userTenantDomain = spTenantDomain;
+            }
+
             if (!SAMLSSOUtil.isSaaSApplication() && !spTenantDomain.equalsIgnoreCase(userTenantDomain)) {
                 throw new IdentityException("Service Provider tenant domian must be equal to user tenant domain"
                         + " for non-SaaS applications");

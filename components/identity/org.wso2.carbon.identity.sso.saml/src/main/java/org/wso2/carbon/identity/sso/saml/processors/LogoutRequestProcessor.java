@@ -163,8 +163,6 @@ public class LogoutRequestProcessor {
 						.size() - 1];
 				LogoutRequest logoutReq = logoutMsgBuilder.buildLogoutRequest(subject, sessionIndex,
 						SAMLSSOConstants.SingleLogoutCodes.LOGOUT_USER);
-                logoutReq.setIssuer(SAMLSSOUtil.getIssuer());
-				String logoutReqString = SAMLSSOUtil.encode(SAMLSSOUtil.marshall(logoutReq));
 				int index = 0;
 				for (String key : sessionsList.keySet()) {
 					if (!key.equals(issuer)) {
@@ -175,6 +173,8 @@ public class LogoutRequestProcessor {
 							logoutReqDTO.setAssertionConsumerURL(sessionsList.get(key)
 									.getAssertionConsumerUrl());
 						}
+                        logoutReq.setIssuer(SAMLSSOUtil.getIssuer());
+                        String logoutReqString = SAMLSSOUtil.encode(SAMLSSOUtil.marshall(logoutReq));
 						logoutReqDTO.setLogoutResponse(logoutReqString);
 						logoutReqDTO.setRpSessionId(rpSessionsList.get(key));
 						singleLogoutReqDTOs[index] = logoutReqDTO;

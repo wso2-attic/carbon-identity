@@ -84,7 +84,7 @@ public class LogoutRequestSender {
                 try {
                     log.debug("SAMLRequest : " + SAMLSSOUtil.decodeForPost(logoutReqDTO.getLogoutResponse()));
                 } catch (IdentityException e) {
-                    log.debug(e);
+                    log.debug("Error in decoding logout request.", e);
                 }
             }
 

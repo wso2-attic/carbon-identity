@@ -47,6 +47,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.util.SecurityManager;
+import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.DefaultBootstrap;
 import org.opensaml.saml2.core.Assertion;
@@ -97,6 +98,7 @@ import org.wso2.carbon.identity.sso.saml.builders.DefaultResponseBuilder;
 import org.wso2.carbon.identity.sso.saml.builders.ErrorResponseBuilder;
 import org.wso2.carbon.identity.sso.saml.builders.ResponseBuilder;
 import org.wso2.carbon.identity.sso.saml.builders.X509CredentialImpl;
+import org.wso2.carbon.identity.sso.saml.builders.assertion.SAMLAssertionBuilder;
 import org.wso2.carbon.identity.sso.saml.builders.encryption.SSOEncrypter;
 import org.wso2.carbon.identity.sso.saml.builders.signature.SSOSigner;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
@@ -109,7 +111,6 @@ import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 public class SAMLSSOUtil {
 
@@ -129,11 +130,14 @@ public class SAMLSSOUtil {
     private static final Set<Character> UNRESERVED_CHARACTERS = new HashSet<Character>();
     private static String responseBuilderClassName = null;
 
+    private static SAMLAssertionBuilder samlAssertionBuilder = null;
     private static SSOEncrypter ssoEncrypter = null;
     private static SSOSigner ssoSigner = null;
     private static SAML2HTTPRedirectSignatureValidator samlHTTPRedirectSignatureValidator = null;
     private static ThreadLocal tenantDomainInThreadLocal = new ThreadLocal();
-    private static ThreadLocal<Boolean> isSaaSApplication = null;
+    private static final ThreadLocal<Boolean> isSaaSApplication = new ThreadLocal<Boolean>();
+    private static final ThreadLocal<String> userTenantDomainThreadLocal = new ThreadLocal<String>();
+    private static final String DefaultAssertionBuilder = "org.wso2.carbon.identity.sso.saml.builders.assertion.DefaultSAMLAssertionBuilder";
 
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
             Constants.SECURITY_MANAGER_PROPERTY;
@@ -173,15 +177,29 @@ public class SAMLSSOUtil {
         }
 
     public static void setIsSaaSApplication(boolean isSaaSApp) {
-        isSaaSApplication = new ThreadLocal<Boolean>();
         isSaaSApplication.set(isSaaSApp);
     }
     
-    public static void removeSaaSApplicationThreaLocal() {
-        if (isSaaSApplication != null) {
-            isSaaSApplication.remove();
-            isSaaSApplication = null;
+    public static String getUserTenantDomain() {
+
+        if (userTenantDomainThreadLocal == null) {
+            // this is the default behavior.
+            return null;
         }
+
+        return userTenantDomainThreadLocal.get();
+    }
+    
+    public static void removeUserTenantDomainThreaLocal() {
+    	userTenantDomainThreadLocal.remove();
+    }
+    
+    public static void setUserTenantDomain(String userTenantDomain) {
+    	userTenantDomainThreadLocal.set(userTenantDomain);
+    }
+    
+    public static void removeSaaSApplicationThreaLocal() {
+        isSaaSApplication.remove();
     }
     
     public static void setRegistryService(RegistryService registryService) {
@@ -409,7 +427,7 @@ public class SAMLSSOUtil {
     public static Issuer getIssuer() throws IdentityException {
         Issuer issuer = new IssuerBuilder().buildObject();
         String idPEntityId = null;
-        IdentityProvider identityProvider = null;
+        IdentityProvider identityProvider;
         String tenantDomain = null;
         try {
             tenantDomain = getTenantDomainFromThreadLocal();
@@ -615,6 +633,43 @@ public class SAMLSSOUtil {
                     + IdentityUtil.getProperty("SSOService.SAMLSSOEncrypter"), e);
         } catch (Exception e) {
             throw new IdentityException("Error while signing the SAML Response message.", e);
+        }
+    }
+
+    public static Assertion buildSAMLAssertion(SAMLSSOAuthnReqDTO authReqDTO, DateTime notOnOrAfter,
+                                               String sessionId) throws IdentityException {
+
+        doBootstrap();
+        String assertionBuilderClass = null;
+        try{
+            assertionBuilderClass = IdentityUtil.getProperty( "SSOService.SAMLSSOAssertionBuilder").trim();
+            if(assertionBuilderClass == null || assertionBuilderClass.equals("")){
+                assertionBuilderClass = DefaultAssertionBuilder;
+            }
+        }   catch (Exception e)  {
+            log.debug("SAMLSSOAssertionBuilder configuration is set to default builder ");
+            assertionBuilderClass = DefaultAssertionBuilder;
+        }
+
+        try {
+
+            synchronized (Runtime.getRuntime().getClass()){
+                samlAssertionBuilder = (SAMLAssertionBuilder)Class.forName(assertionBuilderClass).newInstance();
+                samlAssertionBuilder.init();
+            }
+            return  samlAssertionBuilder.buildAssertion(authReqDTO, notOnOrAfter, sessionId);
+
+        } catch (ClassNotFoundException e) {
+            throw new IdentityException("Class not found: "
+                    + assertionBuilderClass, e);
+        } catch (InstantiationException e) {
+            throw new IdentityException("Error while instantiating class: "
+                    + assertionBuilderClass, e);
+        } catch (IllegalAccessException e) {
+            throw new IdentityException("Illegal access to class: "
+                    + assertionBuilderClass, e);
+        } catch (Exception e) {
+            throw new IdentityException("Error while building the saml assertion", e);
         }
     }
 
