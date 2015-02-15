@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-package org.wso2.carbon.identity.sso.saml.builders;
+*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
+package org.wso2.carbon.identity.sso.saml.builders.assertion;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,11 +26,11 @@ import org.opensaml.common.SAMLVersion;
 import org.opensaml.saml1.core.NameIdentifier;
 import org.opensaml.saml2.core.*;
 import org.opensaml.saml2.core.impl.*;
-import org.opensaml.xml.encryption.EncryptionConstants;
 import org.opensaml.xml.schema.XSString;
 import org.opensaml.xml.schema.impl.XSStringBuilder;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
+import org.wso2.carbon.identity.sso.saml.builders.SignKeyDataHolder;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -38,83 +38,15 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import java.util.Iterator;
 import java.util.Map;
 
-public class DefaultResponseBuilder implements ResponseBuilder{
+public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
 
-    private static Log log = LogFactory.getLog(DefaultResponseBuilder.class);
-
-    static {
-        SAMLSSOUtil.doBootstrap();
+    private static Log log = LogFactory.getLog(DefaultSAMLAssertionBuilder.class);
+    @Override
+    public void init() throws IdentityException {
     }
 
-    public Response buildResponse(SAMLSSOAuthnReqDTO authReqDTO, String sessionId)
-            throws IdentityException {
-
-        if (log.isDebugEnabled()) {
-            log.debug("Building SAML Response for the consumer '"
-                    + authReqDTO.getAssertionConsumerURL() + "'");
-        }
-        Response response = new org.opensaml.saml2.core.impl.ResponseBuilder().buildObject();
-        response.setIssuer(SAMLSSOUtil.getIssuer());
-        response.setID(SAMLSSOUtil.createID());
-        if(!authReqDTO.isIdPInitSSO()){
-            response.setInResponseTo(authReqDTO.getId());
-        }
-        response.setDestination(authReqDTO.getAssertionConsumerURL());
-        response.setStatus(buildStatus(SAMLSSOConstants.StatusCodes.SUCCESS_CODE, null));
-        response.setVersion(SAMLVersion.VERSION_20);
-        DateTime issueInstant = new DateTime();
-        DateTime notOnOrAfter = new DateTime(issueInstant.getMillis()
-                + SAMLSSOUtil.getSAMLResponseValidityPeriod() * 60 * 1000);
-        response.setIssueInstant(issueInstant);
-//        Assertion assertion = buildSAMLAssertion(authReqDTO, notOnOrAfter, sessionId);
-        Assertion assertion = SAMLSSOUtil.buildSAMLAssertion(authReqDTO, notOnOrAfter, sessionId);
-
-        if (authReqDTO.isDoEnableEncryptedAssertion()) {
-
-            String domainName = authReqDTO.getTenantDomain();
-            String alias = authReqDTO.getCertAlias();
-            if(alias != null)   {
-            EncryptedAssertion encryptedAssertion = SAMLSSOUtil.setEncryptedAssertion(assertion,
-                    EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256, alias, domainName);
-            response.getEncryptedAssertions().add(encryptedAssertion);
-            }
-        } else {
-            response.getAssertions().add(assertion);
-        }
-
-        if (authReqDTO.isDoSignResponse()) {
-            SAMLSSOUtil.setSignature(response, XMLSignature.ALGO_ID_SIGNATURE_RSA,
-                    new SignKeyDataHolder(authReqDTO.getUsername()));
-        }
-        return response;
-    }
-    
-    public Response buildResponse(SAMLSSOAuthnReqDTO authReqDTO, Assertion assertion)
-			throws IdentityException {
-
-		if (log.isDebugEnabled()) {
-			log.debug("Building SAML Response for the consumer '"
-					+ authReqDTO.getAssertionConsumerURL() + "'");
-		}
-		Response response = new org.opensaml.saml2.core.impl.ResponseBuilder().buildObject();
-		response.setIssuer(SAMLSSOUtil.getIssuer());
-		response.setID(SAMLSSOUtil.createID());
-		response.setInResponseTo(authReqDTO.getId());
-		response.setDestination(authReqDTO.getAssertionConsumerURL());
-		response.setStatus(buildStatus(SAMLSSOConstants.StatusCodes.SUCCESS_CODE, null));
-		response.setVersion(SAMLVersion.VERSION_20);
-		DateTime issueInstant = new DateTime();
-		response.setIssueInstant(issueInstant);
-		response.getAssertions().add(assertion);
-		if (authReqDTO.isDoSignResponse()) {
-			SAMLSSOUtil.setSignature(response, XMLSignature.ALGO_ID_SIGNATURE_RSA,
-					new SignKeyDataHolder(authReqDTO.getUsername()));
-		}
-		return response;
-	}
-
-    private Assertion buildSAMLAssertion(SAMLSSOAuthnReqDTO authReqDTO, DateTime notOnOrAfter,
-                                         String sessionId) throws IdentityException {
+    @Override
+    public Assertion buildAssertion(SAMLSSOAuthnReqDTO authReqDTO, DateTime notOnOrAfter, String sessionId) throws IdentityException {
         try {
             DateTime currentTime = new DateTime();
             Assertion samlAssertion = new AssertionBuilder().buildObject();
@@ -134,8 +66,22 @@ public class DefaultResponseBuilder implements ResponseBuilder{
                     nameId.setFormat(NameIdentifier.EMAIL);
                 }
             } else {
-                nameId.setValue(MultitenantUtils.getTenantAwareUsername(authReqDTO
-                        .getUsername()));
+            	// get tenant domain name from the username
+                String tenantDomainFromUserName = MultitenantUtils.getTenantDomain(authReqDTO
+                        .getUsername());
+                String authenticatedUserTenantDomain = SAMLSSOUtil.getUserTenantDomain();
+
+                if (authenticatedUserTenantDomain == null
+                        || !authenticatedUserTenantDomain.equals(tenantDomainFromUserName)) {
+                    // this means username comes from a federated Idp. no local
+                    // authenticator used.
+                    // no asserted identity for the user.
+                    nameId.setValue(authReqDTO.getUsername());
+                } else {
+                    nameId.setValue(MultitenantUtils.getTenantAwareUsername(authReqDTO
+                            .getUsername()));
+                }
+            	
                 nameId.setFormat(authReqDTO.getNameIDFormat());
             }
 
@@ -184,10 +130,10 @@ public class DefaultResponseBuilder implements ResponseBuilder{
             }
             samlAssertion.getAuthnStatements().add(authStmt);
 
-			/*
-			 * If <AttributeConsumingServiceIndex> element is in the <AuthnRequest> and according to
-			 * the spec 2.0 the subject MUST be in the assertion
-			 */
+            /*
+                * If <AttributeConsumingServiceIndex> element is in the <AuthnRequest> and according to
+                * the spec 2.0 the subject MUST be in the assertion
+                */
             Map<String, String> claims = SAMLSSOUtil.getAttributes(authReqDTO);
             if (claims != null) {
                 samlAssertion.getAttributeStatements().add(buildAttributeStatement(claims));
@@ -224,25 +170,6 @@ public class DefaultResponseBuilder implements ResponseBuilder{
         }
     }
 
-    private Status buildStatus(String status, String statMsg) {
-
-        Status stat = new StatusBuilder().buildObject();
-
-        // Set the status code
-        StatusCode statCode = new StatusCodeBuilder().buildObject();
-        statCode.setValue(status);
-        stat.setStatusCode(statCode);
-
-        // Set the status Message
-        if (statMsg != null) {
-            StatusMessage statMesssage = new StatusMessageBuilder().buildObject();
-            statMesssage.setMessage(statMsg);
-            stat.setStatusMessage(statMesssage);
-        }
-
-        return stat;
-    }
-
     private AttributeStatement buildAttributeStatement(Map<String, String> claims) {
         AttributeStatement attStmt = null;
         if (claims != null) {
@@ -253,7 +180,7 @@ public class DefaultResponseBuilder implements ResponseBuilder{
                 Attribute attrib = new AttributeBuilder().buildObject();
                 String claimUri = ite.next();
                 attrib.setName(claimUri);
-		//setting NAMEFORMAT attribute value to basic attribute profile
+                //setting NAMEFORMAT attribute value to basic attribute profile
                 attrib.setNameFormat(SAMLSSOConstants.NAME_FORMAT_BASIC);
                 // look
                 // https://wiki.shibboleth.net/confluence/display/OpenSAML/OSTwoUsrManJavaAnyTypes
@@ -268,5 +195,4 @@ public class DefaultResponseBuilder implements ResponseBuilder{
         }
         return attStmt;
     }
-
 }
