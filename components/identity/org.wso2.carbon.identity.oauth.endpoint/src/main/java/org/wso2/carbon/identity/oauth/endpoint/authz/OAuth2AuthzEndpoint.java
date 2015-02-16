@@ -28,12 +28,12 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.openidconnect.as.OIDC;
 import org.apache.oltu.openidconnect.as.util.OIDCAuthzServerUtil;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheKey;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
-import org.wso2.carbon.identity.application.common.model.Claim;
+import org.wso2.carbon.identity.application.common.cache.CacheEntry;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.oauth.cache.*;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
@@ -44,9 +44,7 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeReqDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeRespDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientValidationResponseDTO;
 import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
-import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
@@ -61,7 +59,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Path("/authorize")
@@ -350,6 +351,7 @@ public class OAuth2AuthzEndpoint {
                 addUserAttributesToCache(sessionDataCacheEntry, code);
             } else if (ResponseType.TOKEN.toString().equals(oauth2Params.getResponseType())) {
                 builder.setAccessToken(authzRespDTO.getAccessToken());
+                builder.setParam(OAuthConstants.TOKEN_TYPE, authzRespDTO.getTokenType());
                 builder.setExpiresIn(String.valueOf(60 * 60));
             }
             builder.setParam("state", oauth2Params.getState());

@@ -25,6 +25,7 @@ public class OAuth2AuthorizeRespDTO {
     private String callbackURI;
     private String errorCode;
     private String errorMsg;
+    private String tokenType;
     private String[] scope;
     private long validityPeriod;
 
@@ -82,5 +83,13 @@ public class OAuth2AuthorizeRespDTO {
 
     public void setScope(String[] scope) {
         this.scope = scope;
+    }
+
+    public String getTokenType() {
+        return tokenType;
+    }
+
+    public void setTokenType(String tokenType) {
+        this.tokenType = tokenType;
     }
 }

@@ -25,7 +25,6 @@ import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
-import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
@@ -56,6 +55,8 @@ public class OAuth2Service extends AbstractAdmin {
 
     private static Log log = LogFactory.getLog(OAuth2Service.class);
 
+    public static final String TOKEN_TYPE = "bearer";
+
     /**
      * Process the authorization request and issue an authorization code or access token depending
      * on the Response Type available in the request.
@@ -79,7 +80,10 @@ public class OAuth2Service extends AbstractAdmin {
         try {
             AuthorizationHandlerManager authzHandlerManager =
                     AuthorizationHandlerManager.getInstance();
-            return authzHandlerManager.handleAuthorization(oAuth2AuthorizeReqDTO);
+            OAuth2AuthorizeRespDTO oAuth2AuthorizeRespDTO =
+                    authzHandlerManager.handleAuthorization(oAuth2AuthorizeReqDTO);
+            oAuth2AuthorizeRespDTO.setTokenType(TOKEN_TYPE);
+            return oAuth2AuthorizeRespDTO;
         } catch (Exception e) {
             log.error("Error occurred when processing the authorization request. " +
                     "Returning an error back to client.", e);
