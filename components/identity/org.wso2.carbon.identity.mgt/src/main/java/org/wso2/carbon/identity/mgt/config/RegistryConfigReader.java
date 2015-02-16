@@ -58,8 +58,7 @@ public class RegistryConfigReader implements ConfigReader {
 			}
 
 		} catch (ResourceNotFoundException re) {
-			log.error("No resource found in registry data", re);
-
+			// Ignore error since still no data has written.
 		} catch (RegistryException rnfe) {
 			log.error("Error while reading registry data", rnfe);
 		}
