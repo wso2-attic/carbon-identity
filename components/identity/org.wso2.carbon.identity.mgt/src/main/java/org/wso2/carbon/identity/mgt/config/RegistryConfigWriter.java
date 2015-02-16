@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -30,6 +32,8 @@ import org.wso2.carbon.registry.core.session.UserRegistry;
 
 public class RegistryConfigWriter implements ConfigWriter {
 
+	private static final Log log = LogFactory.getLog(RegistryConfigWriter.class);
+	
 	@Override
 	public void write(int tenantId, Properties props, String resourcePath) {
 		
@@ -50,8 +54,7 @@ public class RegistryConfigWriter implements ConfigWriter {
 			userReg.put(resourcePath, resource);
 
 		} catch (RegistryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Error while writing registry data", e);
 		}
 
 	}

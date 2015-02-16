@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -30,6 +32,8 @@ import org.wso2.carbon.registry.core.session.UserRegistry;
 
 public class RegistryConfigReader implements ConfigReader {
 
+	private static final Log log = LogFactory.getLog(RegistryConfigReader.class);
+			
 	@Override
 	public Properties read(int tenantId, String resourcePath) {
 
@@ -39,11 +43,12 @@ public class RegistryConfigReader implements ConfigReader {
 				.getRegistryService();
 
 		try {
+			readerProps = new Properties();
 			UserRegistry userReg = registry.getConfigSystemRegistry(tenantId);
 			resource = userReg.get(resourcePath);
 
 			Properties props = resource.getProperties();
-			readerProps = new Properties();
+
 			
 			for (Map.Entry<Object, Object> entry : props.entrySet()) {
 				String key = (String) entry.getKey();
@@ -53,10 +58,10 @@ public class RegistryConfigReader implements ConfigReader {
 			}
 
 		} catch (ResourceNotFoundException re) {
-			readerProps = new Properties();
+			log.error("No resource found in registry data", re);
 
 		} catch (RegistryException rnfe) {
-			rnfe.printStackTrace();
+			log.error("Error while reading registry data", rnfe);
 		}
 
 		return readerProps;
