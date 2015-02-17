@@ -40,6 +40,7 @@ public class EmailEndpointInfo {
 
     /**
      * Return the template of the email
+     *
      * @return template of the email
      */
     public String getTemplate() {
@@ -60,6 +61,7 @@ public class EmailEndpointInfo {
 
     /**
      * Set of properties which are specific for endpoint level
+     *
      * @return Map of properties.
      */
     public Properties getProperties() {
