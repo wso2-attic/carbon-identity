@@ -68,14 +68,12 @@ import java.util.Map;
 
 public class PassiveSTSManager {
 
-    private static Log log = LogFactory.getLog(PassiveSTSManager.class);
-
-    private X509Credential credential = null;
-    private static boolean bootStrapped = false;
-
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
             Constants.SECURITY_MANAGER_PROPERTY;
     private static final int ENTITY_EXPANSION_LIMIT = 0;
+    private static Log log = LogFactory.getLog(PassiveSTSManager.class);
+    private static boolean bootStrapped = false;
+    private X509Credential credential = null;
 
     public PassiveSTSManager(ExternalIdPConfig externalIdPConfig) throws PassiveSTSException {
 
