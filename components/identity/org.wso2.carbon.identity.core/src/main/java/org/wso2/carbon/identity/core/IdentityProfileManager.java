@@ -23,57 +23,52 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.user.core.UserRealm;
 
 public class IdentityProfileManager {
-	private static Log log = LogFactory.getLog(IdentityClaimManager.class);
+    private static Log log = LogFactory.getLog(IdentityClaimManager.class);
+    // Maintains a single instance of UserStore.
+    private static IdentityProfileManager profileManager;
+    // To enable attempted thread-safety using double-check locking
+    private static Object lock = new Object();
+    // The effective realm instance used to extract user information.
+    private UserRealm realm;
 
-	// The effective realm instance used to extract user information.
-	private UserRealm realm;
+    // Making the class singleton
+    private IdentityProfileManager() throws IdentityException {
+    }
 
-	// Maintains a single instance of UserStore.
-	private static IdentityProfileManager profileManager;
+    public static IdentityProfileManager getInstance() throws IdentityException {
 
-	// To enable attempted thread-safety using double-check locking
-	private static Object lock = new Object();
+        // Enables attempted thread-safety using double-check locking
+        if (profileManager == null) {
+            synchronized (lock) {
+                if (profileManager == null) {
+                    profileManager = new IdentityProfileManager();
+                    if (log.isDebugEnabled()) {
+                        log.debug("IdentityClaimManager singleton instance created successfully");
+                    }
+                }
+            }
+        }
+        return profileManager;
+    }
 
-	// Making the class singleton
-	private IdentityProfileManager() throws IdentityException {
-	}
+    /**
+     * @return
+     */
+    public UserRealm getRealm() {
+        return realm;
+    }
 
-	public static IdentityProfileManager getInstance() throws IdentityException {
-
-		// Enables attempted thread-safety using double-check locking
-		if (profileManager == null) {
-			synchronized (lock) {
-				if (profileManager == null) {
-					profileManager = new IdentityProfileManager();
-					if (log.isDebugEnabled()) {
-						log.debug("IdentityClaimManager singleton instance created successfully");
-					}
-				}
-			}
-		}
-		return profileManager;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public UserRealm getRealm() {
-		return realm;
-	}
-
-	/**
-	 * 
-	 * @param realm
-	 */
-	public void setRealm(UserRealm realm) {
-		this.realm = realm;
-		if (log.isDebugEnabled()) {
-			if (realm != null) {
-				log.debug("IdentityProfileManager UserRealm set successfully: "
-						+ realm.getClass().getName());
-			}
-		}
-	}
+    /**
+     * @param realm
+     */
+    public void setRealm(UserRealm realm) {
+        this.realm = realm;
+        if (log.isDebugEnabled()) {
+            if (realm != null) {
+                log.debug("IdentityProfileManager UserRealm set successfully: "
+                        + realm.getClass().getName());
+            }
+        }
+    }
 
 }

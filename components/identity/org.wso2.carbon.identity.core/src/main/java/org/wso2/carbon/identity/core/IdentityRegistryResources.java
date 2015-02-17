@@ -57,7 +57,7 @@ public class IdentityRegistryResources {
     public final static String OAUTH_APP_CONSUMER_SECRET = "ConsumerSecret";
     public final static String OAUTH_APP_NAME = "OAuthAppName";
     public final static String SAML_SSO_GEN_KEY = IDENTITY_PATH + "generated-key";
-    
+
     // common
     public final static String PROP_USER_ID = "UserID";
 
@@ -124,13 +124,13 @@ public class IdentityRegistryResources {
     public final static String PROP_SAML_SSO_ISSUER = "Issuer";
     public final static String PROP_SAML_SSO_ASSERTION_CONS_URL = "SAMLSSOAssertionConsumerURL";
     public final static String PROP_SAML_SSO_ISSUER_CERT_ALIAS = "IssuerCertAlias";
-    public final static String PROP_SAML_SSO_USE_FULLY_QUALIFIED_USERNAME_AS_SUBJECT ="useFullyQualifiedUsername";
-    public final static String PROP_SAML_SSO_DO_SINGLE_LOGOUT="doSingleLogout";
-    public final static String PROP_SAML_SSO_LOGOUT_URL="logoutURL";
-    public final static String PROP_SAML_SSO_LOGIN_PAGE_URL="loginPageURL";
+    public final static String PROP_SAML_SSO_USE_FULLY_QUALIFIED_USERNAME_AS_SUBJECT = "useFullyQualifiedUsername";
+    public final static String PROP_SAML_SSO_DO_SINGLE_LOGOUT = "doSingleLogout";
+    public final static String PROP_SAML_SSO_LOGOUT_URL = "logoutURL";
+    public final static String PROP_SAML_SSO_LOGIN_PAGE_URL = "loginPageURL";
     public final static String PROP_SAML_SSO_DO_SIGN_RESPONSE = "doSignResponse";
     public final static String PROP_SAML_SSO_DO_SIGN_ASSERTIONS = "doSignAssertions";
-    public static final String PROP_SAML_SSO_PUB_KEY_FILE_PATH = "pub-Key-file-path";    
+    public static final String PROP_SAML_SSO_PUB_KEY_FILE_PATH = "pub-Key-file-path";
     public final static String PROP_SAML_SSO_GEN_KEY_PASS = "private-key-password";
     public static final String PROP_SAML_SSO_ATTRIB_CONSUMING_SERVICE_INDEX = "AttributeConsumingServiceIndex";
     public static final String PROP_SAML_SSO_REQUESTED_CLAIMS = "RequestedClaims";
@@ -140,13 +140,11 @@ public class IdentityRegistryResources {
     public static final String PROP_SAML_SSO_ENABLE_NAMEID_CLAIMURI = "EnableNameIDClaimUri";
     public static final String PROP_SAML_SSO_NAMEID_CLAIMURI = "NameIDClaimUri";
     public static final String PROP_SAML_SSO_NAMEID_FORMAT = "NameIDFormat";
-    public static final String PROP_SAML_SSO_IDP_INIT_SSO_ENABLED= "IdPInitSSOEnabled";
+    public static final String PROP_SAML_SSO_IDP_INIT_SSO_ENABLED = "IdPInitSSOEnabled";
     public static final String PROP_SAML_SSO_ENABLE_ENCRYPTED_ASSERTION = "doEnableEncryptedAssertion";
-    public static final String PROP_SAML_SSO_VALIDATE_SIGNATURE_IN_REQUESTS ="doValidateSignatureInRequests";
+    public static final String PROP_SAML_SSO_VALIDATE_SIGNATURE_IN_REQUESTS = "doValidateSignatureInRequests";
 
 
-
-    
     // OpenID Admin
     public final static String SUB_DOMAIN = "SubDomain";
     public final static String OPENID_PATTERN = "OpenIDPattern";

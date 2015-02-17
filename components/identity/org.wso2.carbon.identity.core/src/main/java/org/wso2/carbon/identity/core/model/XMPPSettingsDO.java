@@ -42,7 +42,6 @@ public class XMPPSettingsDO {
 
 
     /**
-     *
      * @return XMPP server name
      */
     public String getXmppServer() {
@@ -50,7 +49,6 @@ public class XMPPSettingsDO {
     }
 
     /**
-     *
      * @param xmppServer
      */
     public void setXmppServer(String xmppServer) {
@@ -58,7 +56,6 @@ public class XMPPSettingsDO {
     }
 
     /**
-     *
      * @return XMPP username
      */
     public String getXmppUserName() {
@@ -66,7 +63,6 @@ public class XMPPSettingsDO {
     }
 
     /**
-     *
      * @param xmppUserName
      */
     public void setXmppUserName(String xmppUserName) {
@@ -74,7 +70,6 @@ public class XMPPSettingsDO {
     }
 
     /**
-     *
      * @return usercode
      */
     public String getUserCode() {
@@ -82,7 +77,6 @@ public class XMPPSettingsDO {
     }
 
     /**
-     * 
      * @param userCode
      */
     public void setUserCode(String userCode) {

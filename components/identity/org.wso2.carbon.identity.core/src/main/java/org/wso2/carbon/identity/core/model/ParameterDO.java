@@ -17,24 +17,24 @@ package org.wso2.carbon.identity.core.model;
 
 public class ParameterDO {
 
-	public static final int USERMAN_PARAM = 1;
-	private String value = null;
-	private String name = null;
+    public static final int USERMAN_PARAM = 1;
+    private String value = null;
+    private String name = null;
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getValue() {
-		return value;
-	}
+    public String getValue() {
+        return value;
+    }
 
-	public void setValue(String value) {
-		this.value = value;
-	}
+    public void setValue(String value) {
+        this.value = value;
+    }
 
 }

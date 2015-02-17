@@ -28,115 +28,111 @@ import org.wso2.carbon.registry.core.exceptions.RegistryException;
 
 public class ParameterDAO extends AbstractDAO<ParameterDO> {
 
-	protected Log log = LogFactory.getLog(ParameterDAO.class);
+    protected Log log = LogFactory.getLog(ParameterDAO.class);
 
-	/**
-	 * 
-	 * @param registry
-	 */
-	public ParameterDAO(Registry registry) {
-		this.registry = registry;
-	}
+    /**
+     * @param registry
+     */
+    public ParameterDAO(Registry registry) {
+        this.registry = registry;
+    }
 
-	/**
-	 * 
-	 * @param parameterDO
-	 * @throws IdentityException
-	 */
-	public void createOrUpdateParameter(ParameterDO parameterDO) throws IdentityException {
-		String path = null;
-		Resource resource = null;
+    /**
+     * @param parameterDO
+     * @throws IdentityException
+     */
+    public void createOrUpdateParameter(ParameterDO parameterDO) throws IdentityException {
+        String path = null;
+        Resource resource = null;
 
-		if (log.isDebugEnabled()) {
-			log.debug("Creating or updating parameter");
-		}
+        if (log.isDebugEnabled()) {
+            log.debug("Creating or updating parameter");
+        }
 
-		try {
-			path = IdentityRegistryResources.CARD_ISSUER;
-			if (registry.resourceExists(path)) {
-				resource = registry.get(path);
-			} else {
-				resource = registry.newResource();
-			}
+        try {
+            path = IdentityRegistryResources.CARD_ISSUER;
+            if (registry.resourceExists(path)) {
+                resource = registry.get(path);
+            } else {
+                resource = registry.newResource();
+            }
 
-			if (resource.getProperty(parameterDO.getName()) != null) {
-				resource.removeProperty(parameterDO.getName());
-			}
+            if (resource.getProperty(parameterDO.getName()) != null) {
+                resource.removeProperty(parameterDO.getName());
+            }
 
-			resource.addProperty(parameterDO.getName(), parameterDO.getValue());
-			registry.put(path, resource);
-		} catch (RegistryException e) {
-			log.error("Error while creating or updating parameter", e);
-			throw new IdentityException("Error while creating or updating parameter", e);
-		}
-	}
+            resource.addProperty(parameterDO.getName(), parameterDO.getValue());
+            registry.put(path, resource);
+        } catch (RegistryException e) {
+            log.error("Error while creating or updating parameter", e);
+            throw new IdentityException("Error while creating or updating parameter", e);
+        }
+    }
 
-	/**
-	 * 
-	 * @param paramName
-	 * @return
-	 * @throws IdentityException
-	 */
-	public ParameterDO getParameter(String paramName) throws IdentityException {
-		ParameterDO param = null;
-		String path = null;
-		Resource resource = null;
+    /**
+     * @param paramName
+     * @return
+     * @throws IdentityException
+     */
+    public ParameterDO getParameter(String paramName) throws IdentityException {
+        ParameterDO param = null;
+        String path = null;
+        Resource resource = null;
 
-		if (log.isDebugEnabled()) {
-			log.debug("Retrieving parameter " + paramName);
-		}
+        if (log.isDebugEnabled()) {
+            log.debug("Retrieving parameter " + paramName);
+        }
 
-		try {
-			path = IdentityRegistryResources.CARD_ISSUER;
-			param = new ParameterDO();
-			if (registry.resourceExists(path)) {
-				resource = registry.get(path);
-				if (resource != null) {
-					param.setName(paramName);
-					param.setValue(resource.getProperty(paramName));
-				}
-			}
-		} catch (RegistryException e) {
-			log.error("Error while retrieving parameter " + paramName, e);
-			throw new IdentityException("Error while retrieving parameter " + paramName, e);
-		}
-		return param;
-	}
+        try {
+            path = IdentityRegistryResources.CARD_ISSUER;
+            param = new ParameterDO();
+            if (registry.resourceExists(path)) {
+                resource = registry.get(path);
+                if (resource != null) {
+                    param.setName(paramName);
+                    param.setValue(resource.getProperty(paramName));
+                }
+            }
+        } catch (RegistryException e) {
+            log.error("Error while retrieving parameter " + paramName, e);
+            throw new IdentityException("Error while retrieving parameter " + paramName, e);
+        }
+        return param;
+    }
 
-	/**
-	 * 
-	 * @param parameterDO
-	 * @throws IdentityException
-	 */
-	public void removeParameter(ParameterDO parameterDO) throws IdentityException {
-		String path = null;
-		Resource resource = null;
+    /**
+     * @param parameterDO
+     * @throws IdentityException
+     */
+    public void removeParameter(ParameterDO parameterDO) throws IdentityException {
+        String path = null;
+        Resource resource = null;
 
-		if (log.isDebugEnabled()) {
-			log.debug("Removing parameter");
-		}
+        if (log.isDebugEnabled()) {
+            log.debug("Removing parameter");
+        }
 
-		try {
-			path = IdentityRegistryResources.CARD_ISSUER;
-			if (registry.resourceExists(path)) {
-				resource = registry.get(path);
-				if (resource != null) {
-					resource.removeProperty(parameterDO.getName());
-					registry.put(path, resource);
-				}
-			}
-		} catch (RegistryException e) {
-			log.error("Error while removing parameter", e);
-			throw new IdentityException("Error while removing parameter", e);
-		}
-	}
+        try {
+            path = IdentityRegistryResources.CARD_ISSUER;
+            if (registry.resourceExists(path)) {
+                resource = registry.get(path);
+                if (resource != null) {
+                    resource.removeProperty(parameterDO.getName());
+                    registry.put(path, resource);
+                }
+            }
+        } catch (RegistryException e) {
+            log.error("Error while removing parameter", e);
+            throw new IdentityException("Error while removing parameter", e);
+        }
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	protected ParameterDO resourceToObject(Resource resource) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    protected ParameterDO resourceToObject(Resource resource) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

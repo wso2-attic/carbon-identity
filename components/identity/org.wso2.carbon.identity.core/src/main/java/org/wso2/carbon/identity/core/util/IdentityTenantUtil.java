@@ -17,9 +17,6 @@
 */
 package org.wso2.carbon.identity.core.util;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
@@ -37,31 +34,34 @@ import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 public class IdentityTenantUtil {
 
     private static RealmService realmService;
     private static RegistryService registryService;
     private static Log log = LogFactory.getLog(IdentityTenantUtil.class);
-    
+
     public static Registry getConfigRegistry(int tenantId) throws RegistryException {
         return registryService.getConfigSystemRegistry(tenantId);
     }
-    
+
 
     public static Registry getRegistry(String domainName, String username) throws IdentityException {
         HttpSession httpSess = getHttpSession();
 
-		if (httpSess != null) {
-			if (httpSess.getAttribute(ServerConstants.USER_LOGGED_IN) != null) {
-				try {
-					return AdminServicesUtil.getSystemRegistry();
-				} catch (CarbonException e) {
-					log.error("Error obtaining a registry instance", e);
-					throw new IdentityException(
-							"Error obtaining a registry instance", e);
-				}
-			}
-		}
+        if (httpSess != null) {
+            if (httpSess.getAttribute(ServerConstants.USER_LOGGED_IN) != null) {
+                try {
+                    return AdminServicesUtil.getSystemRegistry();
+                } catch (CarbonException e) {
+                    log.error("Error obtaining a registry instance", e);
+                    throw new IdentityException(
+                            "Error obtaining a registry instance", e);
+                }
+            }
+        }
         return getRegistryForAnonymousSession(domainName, username);
     }
 
@@ -117,15 +117,7 @@ public class IdentityTenantUtil {
             log.error("Error obtaining the realm", e);
             throw new IdentityException("Error Obtaining a realm", e);
         }
-		return null;
-    }
-
-    public static void setRealmService(RealmService realmService) {
-        IdentityTenantUtil.realmService = realmService;
-    }
-
-    public static void setRegistryService(RegistryService registryService) {
-        IdentityTenantUtil.registryService = registryService;
+        return null;
     }
 
     public static String getGlobalUserName(String userName) {
@@ -155,8 +147,16 @@ public class IdentityTenantUtil {
     public static RegistryService getRegistryService() {
         return registryService;
     }
-    
-    public static RealmService getRealmService(){
+
+    public static void setRegistryService(RegistryService registryService) {
+        IdentityTenantUtil.registryService = registryService;
+    }
+
+    public static RealmService getRealmService() {
         return realmService;
+    }
+
+    public static void setRealmService(RealmService realmService) {
+        IdentityTenantUtil.realmService = realmService;
     }
 }
