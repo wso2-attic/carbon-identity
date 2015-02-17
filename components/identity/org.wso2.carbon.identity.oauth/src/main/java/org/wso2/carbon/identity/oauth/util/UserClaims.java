@@ -24,6 +24,11 @@ import java.util.SortedMap;
 
 public class UserClaims extends CacheEntry {
     private static final long serialVersionUID = -8123522530178387354L;
+    private SortedMap<String, String> claimValues;
+
+    public UserClaims(SortedMap<String, String> claims) {
+        this.claimValues = claims;
+    }
 
     public SortedMap<String, String> getClaimValues() {
         return claimValues;
@@ -31,12 +36,5 @@ public class UserClaims extends CacheEntry {
 
     public void setClaimValues(SortedMap<String, String> claimValues) {
         this.claimValues = claimValues;
-    }
-
-    private SortedMap<String, String> claimValues;
-
-
-    public UserClaims(SortedMap<String, String> claims) {
-        this.claimValues = claims;
     }
 }

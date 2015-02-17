@@ -32,16 +32,6 @@ import javax.security.auth.callback.Callback;
  */
 public class OAuthCallback implements Callback {
     /**
-     * Used to evaluate the type of the callback
-     */
-    public enum OAuthCallbackType {
-        ACCESS_DELEGATION_AUTHZ,
-        SCOPE_VALIDATION_AUTHZ,
-        ACCESS_DELEGATION_TOKEN,
-        SCOPE_VALIDATION_TOKEN
-    }
-
-    /**
      * Callback Type
      */
     private OAuthCallbackType callbackType;
@@ -49,7 +39,6 @@ public class OAuthCallback implements Callback {
      * Claimed resource owner
      */
     private String resourceOwner;
-
     /**
      * OAuth2 Grant Type
      */
@@ -62,7 +51,6 @@ public class OAuthCallback implements Callback {
      * OAuth2 grant type
      */
     private org.wso2.carbon.identity.oauth.common.GrantType carbonGrantType;
-
     /**
      * Client who will be accessing the resource
      */
@@ -71,22 +59,18 @@ public class OAuthCallback implements Callback {
      * A set of strings represents the resource + action used in callback req.
      */
     private String[] requestedScope;
-
     /**
      * A set of strings represents the resource + action used in token req.
      */
     private String[] approvedScope;
-
     /**
      * Whether the callback is authorized
      */
     private boolean authorized;
-
     /**
      * Requested scope is invalid.
      */
     private boolean validScope;
-
     /**
      * validity period for
      */
@@ -144,66 +128,21 @@ public class OAuthCallback implements Callback {
     }
 
     /**
-     * Returns the Scope corresponding to the token Request
-     *
-     * @return <Code>String</Code> array representing the scope
-     */
-    public String[] getApprovedScope() {
-        return approvedScope;
-    }
-
-    /**
-     * Returns the OAuth2 Grant Type
-     *
-     * @return
-     */
-    public ResponseType getResponseType() {
-        return responseType;
-    }
-
-    /**
-     * Whether the callback is authorized or not
-     *
-     * @return <Code>true</Code> if the callback is authorized, <code>false</code> otherwise.
-     */
-    public boolean isAuthorized() {
-        return authorized;
-    }
-
-    /**
-     * Whether the requested scope is invalid.
-     *
-     * @return <Code>true</Code> if scope is invalid, <code>false</code> otherwise.
-     */
-    public boolean isValidScope() {
-        return validScope;
-    }
-
-    /**
-     * Set whether the callback is authorized or not.
-     *
-     * @param authorized <Code>true</Code> if callback is authorized, <code>false</code> otherwise.
-     */
-    public void setAuthorized(boolean authorized) {
-        this.authorized = authorized;
-    }
-
-    /**
-     * set whether the scope is invalid or not
-     *
-     * @param invalidScope <code>true</code> if scope is invalid.
-     */
-    public void setValidScope(boolean invalidScope) {
-        this.validScope = invalidScope;
-    }
-
-    /**
      * Set the scope for callback request
      *
      * @param requestedScope <Code>String</Code> array representing the scope
      */
     public void setRequestedScope(String[] requestedScope) {
         this.requestedScope = requestedScope;
+    }
+
+    /**
+     * Returns the Scope corresponding to the token Request
+     *
+     * @return <Code>String</Code> array representing the scope
+     */
+    public String[] getApprovedScope() {
+        return approvedScope;
     }
 
     /**
@@ -216,12 +155,57 @@ public class OAuthCallback implements Callback {
     }
 
     /**
+     * Returns the OAuth2 Grant Type
+     *
+     * @return
+     */
+    public ResponseType getResponseType() {
+        return responseType;
+    }
+
+    /**
      * Sets the response type
      *
      * @param responseType
      */
     public void setResponseType(ResponseType responseType) {
         this.responseType = responseType;
+    }
+
+    /**
+     * Whether the callback is authorized or not
+     *
+     * @return <Code>true</Code> if the callback is authorized, <code>false</code> otherwise.
+     */
+    public boolean isAuthorized() {
+        return authorized;
+    }
+
+    /**
+     * Set whether the callback is authorized or not.
+     *
+     * @param authorized <Code>true</Code> if callback is authorized, <code>false</code> otherwise.
+     */
+    public void setAuthorized(boolean authorized) {
+        this.authorized = authorized;
+    }
+
+    /**
+     * Whether the requested scope is invalid.
+     *
+     * @return <Code>true</Code> if scope is invalid, <code>false</code> otherwise.
+     */
+    public boolean isValidScope() {
+        return validScope;
+    }
+
+    /**
+     * set whether the scope is invalid or not
+     *
+     * @param invalidScope <code>true</code> if scope is invalid.
+     */
+    public void setValidScope(boolean invalidScope) {
+        this.validScope = invalidScope;
     }
 
     /**
@@ -233,10 +217,6 @@ public class OAuthCallback implements Callback {
         return grantType;
     }
 
-    public org.wso2.carbon.identity.oauth.common.GrantType getCarbonGrantType() {
-        return carbonGrantType;
-    }
-
     /**
      * Set the Grant Type
      *
@@ -246,13 +226,17 @@ public class OAuthCallback implements Callback {
         this.grantType = grantType;
     }
 
+    public org.wso2.carbon.identity.oauth.common.GrantType getCarbonGrantType() {
+        return carbonGrantType;
+    }
+
     public void setCarbonGrantType(org.wso2.carbon.identity.oauth.common.GrantType carbonGrantType) {
         this.carbonGrantType = carbonGrantType;
     }
 
-
     /**
      * Get the validity period
+     *
      * @return validity period of the next token when applicable
      */
     public long getValidityPeriod() {
@@ -261,9 +245,20 @@ public class OAuthCallback implements Callback {
 
     /**
      * Set the validity period
+     *
      * @return validity period of the next token when applicable
      */
     public void setValidityPeriod(long validityPeriod) {
         this.validityPeriod = validityPeriod;
+    }
+
+    /**
+     * Used to evaluate the type of the callback
+     */
+    public enum OAuthCallbackType {
+        ACCESS_DELEGATION_AUTHZ,
+        SCOPE_VALIDATION_AUTHZ,
+        ACCESS_DELEGATION_TOKEN,
+        SCOPE_VALIDATION_TOKEN
     }
 }

@@ -32,7 +32,7 @@ public class OAuth2TokenValidationResponseDTO {
     private boolean valid;
 
     private String errorMsg;
-    
+
     private AuthorizationContextToken authorizationContextToken;
 
     public AuthorizationContextToken getAuthorizationContextToken() {
@@ -89,7 +89,7 @@ public class OAuth2TokenValidationResponseDTO {
 
         String tokenString;
 
-        public AuthorizationContextToken(String tokenType, String tokenString){
+        public AuthorizationContextToken(String tokenType, String tokenString) {
             this.tokenType = tokenType;
             this.tokenString = tokenString;
         }

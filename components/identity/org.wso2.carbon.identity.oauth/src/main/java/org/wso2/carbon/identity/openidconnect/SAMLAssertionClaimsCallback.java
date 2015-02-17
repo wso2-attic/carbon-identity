@@ -31,7 +31,6 @@ import java.util.List;
 
 /**
  * Returns the claims of the SAML assertion
- *
  */
 public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler {
 

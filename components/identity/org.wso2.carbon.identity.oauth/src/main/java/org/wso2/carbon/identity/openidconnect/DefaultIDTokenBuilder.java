@@ -88,7 +88,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
 
         String issuer = config.getOpenIDConnectIDTokenIssuerIdentifier();
         long lifetime = Integer.parseInt(config.getOpenIDConnectIDTokenExpiration());
-        long curTime = Calendar.getInstance().getTimeInMillis()/1000;
+        long curTime = Calendar.getInstance().getTimeInMillis() / 1000;
         // setting subject
         String subject = request.getAuthorizedUser();
         ApplicationManagementService applicationMgtService = OAuth2ServiceComponentHolder.getApplicationMgtService();
@@ -112,8 +112,8 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
                 try {
                     subject =
                             IdentityTenantUtil.getRealm(domainName, username)
-                                              .getUserStoreManager()
-                                              .getUserClaimValue(tenantUser, claim, null);
+                                    .getUserStoreManager()
+                                    .getUserClaimValue(tenantUser, claim, null);
                     if (subject == null) {
                         subject = request.getAuthorizedUser();
                     }
@@ -135,37 +135,37 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
             }
         }
         // Get access token issued time
-        long accessTokenIssuedTime = getAccessTokenIssuedTime(tokenRespDTO.getAccessToken(), request)/1000;
+        long accessTokenIssuedTime = getAccessTokenIssuedTime(tokenRespDTO.getAccessToken(), request) / 1000;
         String atHash = new String(Base64.encodeBase64(tokenRespDTO.getAccessToken().getBytes()));
 
         if (log.isDebugEnabled()) {
             StringBuilder stringBuilder = (new StringBuilder()).
-            append("Using issuer " + issuer).
-            append("\n").
+                    append("Using issuer " + issuer).
+                    append("\n").
 
-            append("Subject " + subject).
-            append("\n").
+                    append("Subject " + subject).
+                    append("\n").
 
-            append("ID Token life time " + lifetime).
-            append("\n").
+                    append("ID Token life time " + lifetime).
+                    append("\n").
 
-            append("Current time " + curTime).
-            append("\n").
+                    append("Current time " + curTime).
+                    append("\n").
 
-            append("Nonce Value " + nonceValue).
-            append("\n").
+                    append("Nonce Value " + nonceValue).
+                    append("\n").
 
-            append("Signature Algorithm " + signatureAlgorithm).
-            append("\n");
+                    append("Signature Algorithm " + signatureAlgorithm).
+                    append("\n");
             log.debug(stringBuilder.toString());
         }
 
         IDTokenBuilder builder =
                 new IDTokenBuilder().setIssuer(issuer).setSubject(subject)
-                                    .setAudience(request.getOauth2AccessTokenReqDTO().getClientId())
-                                    .setAuthorizedParty(request.getOauth2AccessTokenReqDTO().getClientId())
-                                    .setExpiration(curTime + lifetime).setAuthTime(accessTokenIssuedTime)
-                                    .setAtHash(atHash).setIssuedAt(curTime);
+                        .setAudience(request.getOauth2AccessTokenReqDTO().getClientId())
+                        .setAuthorizedParty(request.getOauth2AccessTokenReqDTO().getClientId())
+                        .setExpiration(curTime + lifetime).setAuthTime(accessTokenIssuedTime)
+                        .setAtHash(atHash).setIssuedAt(curTime);
         if (nonceValue != null) {
             builder.setNonce(nonceValue);
         }
@@ -187,7 +187,9 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         }
     }
 
-    /** sign JWT token from RSA algorithm
+    /**
+     * sign JWT token from RSA algorithm
+     *
      * @param payLoad contains JWT body
      * @param request
      * @return signed JWT token
@@ -201,9 +203,9 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
             if (tenantDomain == null) {
                 tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
             }
-           	if (tenantId == 0) {
-				tenantId = OAuth2Util.getTenantId(tenantDomain);
-			}
+            if (tenantId == 0) {
+                tenantId = OAuth2Util.getTenantId(tenantDomain);
+            }
             Key privateKey = null;
 
             if (!(privateKeys.containsKey(tenantId))) {
@@ -233,7 +235,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
             }
             JWSSigner signer = new RSASSASigner((RSAPrivateKey) privateKey);
             SignedJWT signedJWT = new SignedJWT(new JWSHeader((JWSAlgorithm) signatureAlgorithm),
-                                                PlainJWT.parse(payLoad).getJWTClaimsSet());
+                    PlainJWT.parse(payLoad).getJWTClaimsSet());
             signedJWT.sign(signer);
             return signedJWT.serialize();
         } catch (JOSEException e) {
@@ -268,7 +270,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         OAuthCache oauthCache = OAuthCache.getInstance();
         CacheKey cacheKey = new OAuthCacheKey(
                 request.getOauth2AccessTokenReqDTO().getClientId() + ":" + request.getAuthorizedUser().toLowerCase() +
-                ":" + OAuth2Util.buildScopeString(request.getScope()));
+                        ":" + OAuth2Util.buildScopeString(request.getScope()));
         CacheEntry result = oauthCache.getValueFromCache(cacheKey);
 
         // cache hit, do the type check.
@@ -301,10 +303,10 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
             throws IdentityOAuth2Exception {
 
         if (JWSAlgorithm.RS256.equals(signatureAlgorithm) || JWSAlgorithm.RS384.equals(signatureAlgorithm) ||
-            JWSAlgorithm.RS512.equals(signatureAlgorithm)) {
+                JWSAlgorithm.RS512.equals(signatureAlgorithm)) {
             return signJWTWithRSA(payLoad, request);
         } else if (JWSAlgorithm.HS256.equals(signatureAlgorithm) || JWSAlgorithm.HS384.equals(signatureAlgorithm) ||
-                   JWSAlgorithm.HS512.equals(signatureAlgorithm)) {
+                JWSAlgorithm.HS512.equals(signatureAlgorithm)) {
             // return signWithHMAC(payLoad,jwsAlgorithm,request); implementation need to be done
             return null;
         } else {

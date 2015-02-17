@@ -49,30 +49,29 @@ public class AuthorizationHandlerManager {
 
     private AppInfoCache appInfoCache;
 
+    private AuthorizationHandlerManager() throws IdentityOAuth2Exception {
+        responseHandlers = OAuthServerConfiguration.getInstance().getSupportedResponseTypes();
+        appInfoCache = AppInfoCache.getInstance();
+        if (appInfoCache != null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Successfully created AppInfoCache under " + OAuthConstants.OAUTH_CACHE_MANAGER);
+            }
+        } else {
+            log.error("Error while creating AppInfoCache");
+        }
+    }
+
     public static AuthorizationHandlerManager getInstance() throws IdentityOAuth2Exception {
 
         CarbonUtils.checkSecurity();
-        if(instance == null){
-            synchronized (AuthorizationHandlerManager.class){
-                if(instance == null){
+        if (instance == null) {
+            synchronized (AuthorizationHandlerManager.class) {
+                if (instance == null) {
                     instance = new AuthorizationHandlerManager();
                 }
             }
         }
         return instance;
-    }
-
-    private AuthorizationHandlerManager() throws IdentityOAuth2Exception {
-        responseHandlers = OAuthServerConfiguration.getInstance().getSupportedResponseTypes();
-        appInfoCache = AppInfoCache.getInstance();
-        if(appInfoCache != null) {
-            if (log.isDebugEnabled()) {
-                log.debug("Successfully created AppInfoCache under "+ OAuthConstants.OAUTH_CACHE_MANAGER);
-            }
-        }
-        else {
-            log.error("Error while creating AppInfoCache");
-        }
     }
 
     public OAuth2AuthorizeRespDTO handleAuthorization(OAuth2AuthorizeReqDTO authzReqDTO)
@@ -81,8 +80,8 @@ public class AuthorizationHandlerManager {
         String responseType = authzReqDTO.getResponseType();
         OAuth2AuthorizeRespDTO authorizeRespDTO = new OAuth2AuthorizeRespDTO();
 
-        if(!responseHandlers.containsKey(responseType)) {
-            log.warn("Unsupported Response Type : " + responseType  +
+        if (!responseHandlers.containsKey(responseType)) {
+            log.warn("Unsupported Response Type : " + responseType +
                     " provided  for user : " + authzReqDTO.getUsername());
             handleErrorRequest(authorizeRespDTO, OAuth2ErrorCodes.UNSUPPORTED_RESP_TYPE,
                     "Unsupported Response Type!");
@@ -93,18 +92,18 @@ public class AuthorizationHandlerManager {
         // loading the stored application data
         OAuthAppDO oAuthAppDO = getAppInformation(authzReqDTO);
         // If the application has defined a limited set of grant types, then check the grant
-        if(oAuthAppDO.getGrantTypes() != null) {
-            if(responseType.equals("code")){
+        if (oAuthAppDO.getGrantTypes() != null) {
+            if (responseType.equals("code")) {
                 //Do not change this log format as these logs use by external applications
-                if(!oAuthAppDO.getGrantTypes().contains("authorization_code")){
+                if (!oAuthAppDO.getGrantTypes().contains("authorization_code")) {
                     log.debug("Unsupported Response Type : " + responseType +
                             " for client id : " + authzReqDTO.getConsumerKey());
                     handleErrorRequest(authorizeRespDTO, OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE,
                             "Unsupported Response Type!");
                     return authorizeRespDTO;
                 }
-            } else if (responseType.equals("token")){
-                if(!oAuthAppDO.getGrantTypes().contains("implicit")){
+            } else if (responseType.equals("token")) {
+                if (!oAuthAppDO.getGrantTypes().contains("implicit")) {
                     //Do not change this log format as these logs use by external applications
                     log.debug("Unsupported Response Type : " + responseType +
                             " for client id : " + authzReqDTO.getConsumerKey());
@@ -119,7 +118,7 @@ public class AuthorizationHandlerManager {
         OAuthAuthzReqMessageContext authzReqMsgCtx = new OAuthAuthzReqMessageContext(authzReqDTO);
 
         boolean accessDelegationAuthzStatus = authzHandler.validateAccessDelegation(authzReqMsgCtx);
-        if(!accessDelegationAuthzStatus){
+        if (!accessDelegationAuthzStatus) {
             log.warn("User : " + authzReqDTO.getUsername() +
                     " doesn't have necessary rights to grant access to the resource(s) " +
                     OAuth2Util.buildScopeString(authzReqDTO.getScopes()));
@@ -162,12 +161,12 @@ public class AuthorizationHandlerManager {
     private OAuthAppDO getAppInformation(OAuth2AuthorizeReqDTO authzReqDTO) throws IdentityOAuth2Exception, InvalidOAuthClientException {
         OAuthAppDO oAuthAppDO;
         Object obj = appInfoCache.getValueFromCache(authzReqDTO.getConsumerKey());
-        if(obj != null){
-            oAuthAppDO = (OAuthAppDO)obj;
+        if (obj != null) {
+            oAuthAppDO = (OAuthAppDO) obj;
             return oAuthAppDO;
-        }else{
+        } else {
             oAuthAppDO = new OAuthAppDAO().getAppInformation(authzReqDTO.getConsumerKey());
-            appInfoCache.addToCache(authzReqDTO.getConsumerKey(),oAuthAppDO);
+            appInfoCache.addToCache(authzReqDTO.getConsumerKey(), oAuthAppDO);
             return oAuthAppDO;
         }
     }

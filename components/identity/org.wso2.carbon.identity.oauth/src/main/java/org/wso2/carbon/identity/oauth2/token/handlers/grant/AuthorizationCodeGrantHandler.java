@@ -51,14 +51,14 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
 
         AuthzCodeDO authzCodeDO = null;
         // if cache is enabled, check in the cache first.
-        if(cacheEnabled){
+        if (cacheEnabled) {
             CacheKey cacheKey = new OAuthCacheKey(OAuth2Util.buildCacheKeyStringForAuthzCode(
                     clientId, authorizationCode));
             authzCodeDO = (AuthzCodeDO) oauthCache.getValueFromCache(cacheKey);
         }
 
-        if(log.isDebugEnabled()){
-            if (authzCodeDO != null ) {
+        if (log.isDebugEnabled()) {
+            if (authzCodeDO != null) {
                 log.debug("Authorization Code Info was available in cache for client id : "
                         + clientId);
             } else {
@@ -84,17 +84,17 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
         }
 
         // Validate redirect_uri if it was presented in authorization request
-        if(authzCodeDO.getCallbackUrl() != null && !authzCodeDO.getCallbackUrl().equals("")){
-            if(oAuth2AccessTokenReqDTO.getCallbackURI() == null){
-                if(log.isDebugEnabled()){
+        if (authzCodeDO.getCallbackUrl() != null && !authzCodeDO.getCallbackUrl().equals("")) {
+            if (oAuth2AccessTokenReqDTO.getCallbackURI() == null) {
+                if (log.isDebugEnabled()) {
                     log.debug("Invalid access token request with " +
                             "Client Id : " + clientId +
                             " , Authorization Code : " + oAuth2AccessTokenReqDTO.getAuthorizationCode() +
                             " : redirect_uri not present in request");
                 }
                 return false;
-            } else if (!oAuth2AccessTokenReqDTO.getCallbackURI().equals(authzCodeDO.getCallbackUrl())){
-                if(log.isDebugEnabled()){
+            } else if (!oAuth2AccessTokenReqDTO.getCallbackURI().equals(authzCodeDO.getCallbackUrl())) {
+                if (log.isDebugEnabled()) {
                     log.debug("Invalid access token request with " +
                             "Client Id : " + clientId +
                             " , Authorization Code : " + oAuth2AccessTokenReqDTO.getAuthorizationCode() +
@@ -123,7 +123,7 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
 
             // remove the authorization code from the database.
             tokenMgtDAO.cleanUpAuthzCode(authorizationCode);
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 log.debug("Expired Authorization code : " + authorizationCode +
                         " issued for client " + clientId +
                         " was removed from the database.");
@@ -134,7 +134,7 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
                     OAuth2Util.buildCacheKeyStringForAuthzCode(clientId,
                             authorizationCode)));
 
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 log.debug("Expired Authorization code : " + authorizationCode +
                         " issued for client " + clientId +
                         " was removed from the cache.");
@@ -166,14 +166,14 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
 
         // get the token from the OAuthTokenReqMessageContext which is stored while validating
         // the authorization code.
-        String authzCode = (String)tokReqMsgCtx.getProperty(AUTHZ_CODE);
+        String authzCode = (String) tokReqMsgCtx.getProperty(AUTHZ_CODE);
         // if it's not there (which is unlikely), recalculate it.
         if (authzCode == null) {
             authzCode = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getAuthorizationCode();
         }
 
         // Clear the cache entry
-        if(cacheEnabled){
+        if (cacheEnabled) {
             String clientId = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientId();
             OAuthCacheKey cacheKey = new OAuthCacheKey(OAuth2Util.buildCacheKeyStringForAuthzCode(
                     clientId, authzCode));

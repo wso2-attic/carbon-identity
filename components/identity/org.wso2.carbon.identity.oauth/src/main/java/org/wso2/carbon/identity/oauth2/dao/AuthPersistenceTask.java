@@ -27,11 +27,10 @@ import java.util.concurrent.BlockingDeque;
 /**
  *
  */
-public class AuthPersistenceTask implements Runnable{
-
-    private BlockingDeque<AuthContextTokenDO> authContextTokenQueue;
+public class AuthPersistenceTask implements Runnable {
 
     private static Log log = LogFactory.getLog(TokenPersistenceTask.class);
+    private BlockingDeque<AuthContextTokenDO> authContextTokenQueue;
 
     public AuthPersistenceTask(BlockingDeque<AuthContextTokenDO> authContextTokenQueue) {
         this.authContextTokenQueue = authContextTokenQueue;
@@ -42,11 +41,11 @@ public class AuthPersistenceTask implements Runnable{
 
         log.debug("Auth Token context persist consumer is started");
 
-        while(true){
+        while (true) {
             try {
-                AuthContextTokenDO authContextTokenDO =  authContextTokenQueue.take();
-                if(authContextTokenDO != null){
-                    if(authContextTokenDO.getAuthzCodeDO() == null){
+                AuthContextTokenDO authContextTokenDO = authContextTokenQueue.take();
+                if (authContextTokenDO != null) {
+                    if (authContextTokenDO.getAuthzCodeDO() == null) {
                         log.debug("Auth Token Data removing Task is started to run");
                         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
                         tokenMgtDAO.removeAuthzCode(authContextTokenDO.getAuthzCode());

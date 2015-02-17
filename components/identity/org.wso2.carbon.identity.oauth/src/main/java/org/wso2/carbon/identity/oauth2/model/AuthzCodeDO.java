@@ -64,7 +64,7 @@ public class AuthzCodeDO extends CacheEntry {
         return validityPeriod;
     }
 
-    public String getCallbackUrl(){
+    public String getCallbackUrl() {
         return callbackUrl;
     }
 }

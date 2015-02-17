@@ -16,7 +16,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class CarbonKeyStoreCredentialResolver extends KeyStoreCredentialResolver{
+public class CarbonKeyStoreCredentialResolver extends KeyStoreCredentialResolver {
 
     private static Log log = LogFactory.getLog(CarbonKeyStoreCredentialResolver.class);
 
@@ -32,12 +32,12 @@ public class CarbonKeyStoreCredentialResolver extends KeyStoreCredentialResolver
         try {
             credentialSet = new HashSet<Credential>();
             Enumeration<String> en = keyStore.aliases();
-            while(en.hasMoreElements()){
+            while (en.hasMoreElements()) {
                 String alias = en.nextElement();
-                X509Certificate cert = (X509Certificate)keyStore.getCertificate(alias);
+                X509Certificate cert = (X509Certificate) keyStore.getCertificate(alias);
                 Credential credential = new X509CredentialImpl(cert);
-                if(criteriaSet.get(EntityIDCriteria.class) != null){
-                    if(criteriaSet.get(EntityIDCriteria.class).getEntityID().equals(alias)){
+                if (criteriaSet.get(EntityIDCriteria.class) != null) {
+                    if (criteriaSet.get(EntityIDCriteria.class).getEntityID().equals(alias)) {
                         credentialSet.add(credential);
                         break;
                     }
