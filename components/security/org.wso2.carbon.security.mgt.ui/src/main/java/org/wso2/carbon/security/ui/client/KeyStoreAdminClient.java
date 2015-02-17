@@ -23,34 +23,19 @@ import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.security.mgt.stub.keystore.AddKeyStore;
-import org.wso2.carbon.security.mgt.stub.keystore.DeleteStore;
-import org.wso2.carbon.security.mgt.stub.keystore.GetKeyStoresResponse;
-import org.wso2.carbon.security.mgt.stub.keystore.GetKeystoreInfo;
-import org.wso2.carbon.security.mgt.stub.keystore.GetKeystoreInfoResponse;
-import org.wso2.carbon.security.mgt.stub.keystore.GetPaginatedKeystoreInfo;
-import org.wso2.carbon.security.mgt.stub.keystore.GetPaginatedKeystoreInfoResponse;
-import org.wso2.carbon.security.mgt.stub.keystore.GetStoreEntries;
-import org.wso2.carbon.security.mgt.stub.keystore.GetStoreEntriesResponse;
-import org.wso2.carbon.security.mgt.stub.keystore.ImportCertToStore;
-import org.wso2.carbon.security.mgt.stub.keystore.KeyStoreAdminServiceStub;
-import org.wso2.carbon.security.mgt.stub.keystore.RemoveCertFromStore;
+import org.wso2.carbon.security.mgt.stub.keystore.*;
 import org.wso2.carbon.security.mgt.stub.keystore.xsd.KeyStoreData;
 import org.wso2.carbon.security.mgt.stub.keystore.xsd.PaginatedKeyStoreData;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.security.KeyStore;
 import java.util.Enumeration;
 
 public class KeyStoreAdminClient {
 
+    private static Log log = LogFactory.getLog(KeyStoreAdminClient.class);
     private String serviceEndPoint = null;
     private KeyStoreAdminServiceStub stub = null;
-    private static Log log = LogFactory.getLog(KeyStoreAdminClient.class);
 
     public KeyStoreAdminClient(String cookie, String url, ConfigurationContext configContext)
             throws java.lang.Exception {
@@ -79,7 +64,7 @@ public class KeyStoreAdminClient {
     }
 
     public void addKeyStore(byte[] content, String filename, String password, String provider,
-            String type, String pvtkspass) throws java.lang.Exception {
+                            String type, String pvtkspass) throws java.lang.Exception {
         try {
             String data = Base64.encode(content);
             AddKeyStore request = new AddKeyStore();
@@ -201,30 +186,31 @@ public class KeyStoreAdminClient {
             throw e;
         }
     }
-    
-    public void removeCertificateFromKeyStore(String keySoreName, String CertificateAlias) throws java.lang.Exception{
-    	RemoveCertFromStore request = new RemoveCertFromStore();
-    	request.setKeyStoreName(keySoreName);
-    	request.setAlias(CertificateAlias);
-    	try {
-	        stub.removeCertFromStore(request);
+
+    public void removeCertificateFromKeyStore(String keySoreName, String CertificateAlias) throws java.lang.Exception {
+        RemoveCertFromStore request = new RemoveCertFromStore();
+        request.setKeyStoreName(keySoreName);
+        request.setAlias(CertificateAlias);
+        try {
+            stub.removeCertFromStore(request);
         } catch (java.lang.Exception e) {
-	       log.error(e);
-	       throw e;
+            log.error(e);
+            throw e;
         }
     }
-     public PaginatedKeyStoreData getPaginatedKeystoreInfo(String keyStoreName, int pageNumber) throws java.lang.Exception {
-            try {
-                GetPaginatedKeystoreInfo request = new GetPaginatedKeystoreInfo();
-                request.setKeyStoreName(keyStoreName);
-                request.setPageNumber(pageNumber);
 
-                GetPaginatedKeystoreInfoResponse response = stub.getPaginatedKeystoreInfo(request);
-                return response.get_return();
-            } catch (java.lang.Exception e) {
-                log.error(e);
-                throw e;
-            }
+    public PaginatedKeyStoreData getPaginatedKeystoreInfo(String keyStoreName, int pageNumber) throws java.lang.Exception {
+        try {
+            GetPaginatedKeystoreInfo request = new GetPaginatedKeystoreInfo();
+            request.setKeyStoreName(keyStoreName);
+            request.setPageNumber(pageNumber);
+
+            GetPaginatedKeystoreInfoResponse response = stub.getPaginatedKeystoreInfo(request);
+            return response.get_return();
+        } catch (java.lang.Exception e) {
+            log.error(e);
+            throw e;
         }
+    }
 
 }

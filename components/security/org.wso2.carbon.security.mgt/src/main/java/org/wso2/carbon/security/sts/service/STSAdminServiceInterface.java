@@ -22,44 +22,38 @@ import org.wso2.carbon.security.sts.service.util.TrustedServiceData;
 
 public interface STSAdminServiceInterface {
 
-	/**
-	 * Add a the given service end-point as a trusted end-point address
-	 * 
-	 * @param serviceAddress
-	 *            Address of the service end-point
-	 * @param certAlias
-	 *            Alias of the service certificate
-	 * @throws SecurityConfigException
-	 */
-	public void addTrustedService(String serviceAddress, String certAlias)
-			throws SecurityConfigException;
+    /**
+     * Add a the given service end-point as a trusted end-point address
+     *
+     * @param serviceAddress Address of the service end-point
+     * @param certAlias      Alias of the service certificate
+     * @throws SecurityConfigException
+     */
+    public void addTrustedService(String serviceAddress, String certAlias)
+            throws SecurityConfigException;
 
-	/**
-	 * 
-	 * @param keyType
-	 * @throws SecurityConfigException
-	 */
-	public void setProofKeyType(String keyType) throws SecurityConfigException;
+    /**
+     * @return
+     * @throws SecurityConfigException
+     */
+    public TrustedServiceData[] getTrustedServices() throws SecurityConfigException;
 
-	/**
-	 * 
-	 * @return
-	 * @throws SecurityConfigException
-	 */
-	public TrustedServiceData[] getTrustedServices() throws SecurityConfigException;
+    /**
+     * @return
+     * @throws SecurityConfigException
+     */
+    public String getProofKeyType() throws SecurityConfigException;
 
-	/**
-	 * 
-	 * @return
-	 * @throws SecurityConfigException
-	 */
-	public String getProofKeyType() throws SecurityConfigException;
+    /**
+     * @param keyType
+     * @throws SecurityConfigException
+     */
+    public void setProofKeyType(String keyType) throws SecurityConfigException;
 
-	/**
-	 * 
-	 * @return
-	 * @throws SecurityConfigException
-	 */
-	public String[] getCertAliasOfPrimaryKeyStore() throws SecurityConfigException;
+    /**
+     * @return
+     * @throws SecurityConfigException
+     */
+    public String[] getCertAliasOfPrimaryKeyStore() throws SecurityConfigException;
 
 }

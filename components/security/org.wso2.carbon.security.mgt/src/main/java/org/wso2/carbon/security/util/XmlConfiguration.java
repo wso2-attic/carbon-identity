@@ -53,7 +53,7 @@ public class XmlConfiguration {
         } catch (Exception e) {
             String msg =
                     "Error occurred while trying to instantiate StAXOMBuilder for XML file " +
-                    xmlFile;
+                            xmlFile;
             log.error(msg, e);
             throw new CarbonException(msg, e);
         }
@@ -69,7 +69,7 @@ public class XmlConfiguration {
         } catch (Exception e) {
             String msg =
                     "Error occurred while trying to instantiate StAXOMBuilder for XML file " +
-                    xmlFile;
+                            xmlFile;
             log.error(msg, e);
             throw new CarbonException(msg, e);
         }
