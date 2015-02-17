@@ -32,16 +32,16 @@ public class SSOSessionManager {
 
     /**
      * Verify whether the response is valid with the given RELAY - STATE Id
+     *
      * @param relayStateId RELAY STATE sent with the request
      * @return true, if it is a valid response
      */
-    public static boolean isValidResponse(String relayStateId){
-        if(relayStateId == null){
+    public static boolean isValidResponse(String relayStateId) {
+        if (relayStateId == null) {
             return false;
-        }
-        else if(relayStateList.contains((String)relayStateId)){
+        } else if (relayStateList.contains((String) relayStateId)) {
             // remove the relay state id from the list, and return TRUE
-            relayStateList.remove(relayStateId) ;
+            relayStateList.remove(relayStateId);
             return true;
         }
         return false;
@@ -49,17 +49,18 @@ public class SSOSessionManager {
 
     /**
      * Add a new authentication request which is sent for authentication.
-     * @param relayStateId RELAY STATE sent with the request                  
+     *
+     * @param relayStateId RELAY STATE sent with the request
      */
-    public static void addAuthnRequest(String relayStateId){
+    public static void addAuthnRequest(String relayStateId) {
         relayStateList.add(relayStateId);
     }
-    
-    public static void addFederatedToken(String tokenId, FederatedSSOToken token){
-    	federatedTokenHolder.put(tokenId, token);
+
+    public static void addFederatedToken(String tokenId, FederatedSSOToken token) {
+        federatedTokenHolder.put(tokenId, token);
     }
-    
-    public static FederatedSSOToken getFederatedToken(String tokenId){
-    	return federatedTokenHolder.remove(tokenId);
+
+    public static FederatedSSOToken getFederatedToken(String tokenId) {
+        return federatedTokenHolder.remove(tokenId);
     }
 }

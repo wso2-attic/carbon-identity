@@ -62,40 +62,39 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Util {
 
-	private static boolean bootStrapped = false;
-	private static Log log = LogFactory.getLog(Util.class);
-	private static Random random = new Random();
-	private static final char[] charMapping = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
-			'k', 'l', 'm', 'n', 'o', 'p' };
-	private static String serviceProviderId = null;
-	private static String identityProviderSSOServiceURL = null;
-    private static Map<String, String> parameters = new HashMap<String, String>();
-    private static String identityProviderSLOServiceURL = parameters.get(
-            SAML2SSOAuthenticatorConstants.IDENTITY_PROVIDER_SLO_SERVICE_URL);
-	private static String loginPage = "/carbon/admin/login.jsp";
-	private static String landingPage = null;
-	private static String externalLogoutPage = null;
-	private static String assertionConsumerServiceUrl = null;
-	private static boolean initSuccess = false;
-	private static Properties saml2IdpProperties = new Properties();
-	private static Map<String, String> cachedIdps = new ConcurrentHashMap<String, String>();
-
+    private static final char[] charMapping = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+            'k', 'l', 'm', 'n', 'o', 'p'};
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
             Constants.SECURITY_MANAGER_PROPERTY;
     private static final int ENTITY_EXPANSION_LIMIT = 0;
+    private static boolean bootStrapped = false;
+    private static Log log = LogFactory.getLog(Util.class);
+    private static Random random = new Random();
+    private static String serviceProviderId = null;
+    private static String identityProviderSSOServiceURL = null;
+    private static Map<String, String> parameters = new HashMap<String, String>();
+    private static String identityProviderSLOServiceURL = parameters.get(
+            SAML2SSOAuthenticatorConstants.IDENTITY_PROVIDER_SLO_SERVICE_URL);
+    private static String loginPage = "/carbon/admin/login.jsp";
+    private static String landingPage = null;
+    private static String externalLogoutPage = null;
+    private static String assertionConsumerServiceUrl = null;
+    private static boolean initSuccess = false;
+    private static Properties saml2IdpProperties = new Properties();
+    private static Map<String, String> cachedIdps = new ConcurrentHashMap<String, String>();
 
-	/**
-	 * Constructing the XMLObject Object from a String
-	 * 
-	 * @param authReqStr
-	 * @return Corresponding XMLObject which is a SAML2 object
-	 * @throws org.wso2.carbon.identity.authenticator.saml2.sso.ui.SAML2SSOUIAuthenticatorException
-	 */
-	public static XMLObject unmarshall(String authReqStr) throws SAML2SSOUIAuthenticatorException {
+    /**
+     * Constructing the XMLObject Object from a String
+     *
+     * @param authReqStr
+     * @return Corresponding XMLObject which is a SAML2 object
+     * @throws org.wso2.carbon.identity.authenticator.saml2.sso.ui.SAML2SSOUIAuthenticatorException
+     */
+    public static XMLObject unmarshall(String authReqStr) throws SAML2SSOUIAuthenticatorException {
 
         try {
-			doBootstrap();
-			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            doBootstrap();
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
 
             documentBuilderFactory.setExpandEntityReferences(false);
@@ -104,75 +103,72 @@ public class Util {
             securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
             documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
 
-			DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
+            DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
             docBuilder.setEntityResolver(new CarbonEntityResolver());
             Document document = docBuilder.parse(new ByteArrayInputStream(authReqStr.trim()
-					.getBytes()));
-			Element element = document.getDocumentElement();
-			UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
-			Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(element);
-			return unmarshaller.unmarshall(element);
-		} catch (Exception e) {
-			log.error("Error in constructing AuthRequest from the encoded String", e);
-			throw new SAML2SSOUIAuthenticatorException("Error in constructing AuthRequest from "
-					+ "the encoded String ", e);
-		}
-	}
+                    .getBytes()));
+            Element element = document.getDocumentElement();
+            UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
+            Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(element);
+            return unmarshaller.unmarshall(element);
+        } catch (Exception e) {
+            log.error("Error in constructing AuthRequest from the encoded String", e);
+            throw new SAML2SSOUIAuthenticatorException("Error in constructing AuthRequest from "
+                    + "the encoded String ", e);
+        }
+    }
 
-	/**
-	 * Serializing a SAML2 object into a String
-	 * 
-	 * @param xmlObject
-	 *            object that needs to serialized.
-	 * @return serialized object
-	 * @throws org.wso2.carbon.identity.authenticator.saml2.sso.ui.SAML2SSOUIAuthenticatorException
-	 */
-	public static String marshall(XMLObject xmlObject) throws SAML2SSOUIAuthenticatorException {
+    /**
+     * Serializing a SAML2 object into a String
+     *
+     * @param xmlObject object that needs to serialized.
+     * @return serialized object
+     * @throws org.wso2.carbon.identity.authenticator.saml2.sso.ui.SAML2SSOUIAuthenticatorException
+     */
+    public static String marshall(XMLObject xmlObject) throws SAML2SSOUIAuthenticatorException {
 
         try {
-			doBootstrap();
-			System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-					"org.apache.xerces.jaxp.DocumentBuilderFactoryImpl");
+            doBootstrap();
+            System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
+                    "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl");
 
-			MarshallerFactory marshallerFactory = org.opensaml.xml.Configuration
-					.getMarshallerFactory();
-			Marshaller marshaller = marshallerFactory.getMarshaller(xmlObject);
-			Element element = marshaller.marshall(xmlObject);
+            MarshallerFactory marshallerFactory = org.opensaml.xml.Configuration
+                    .getMarshallerFactory();
+            Marshaller marshaller = marshallerFactory.getMarshaller(xmlObject);
+            Element element = marshaller.marshall(xmlObject);
 
-			ByteArrayOutputStream byteArrayOutputStrm = new ByteArrayOutputStream();
-			DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
-			DOMImplementationLS impl = (DOMImplementationLS) registry.getDOMImplementation("LS");
-			LSSerializer writer = impl.createLSSerializer();
-			LSOutput output = impl.createLSOutput();
-			output.setByteStream(byteArrayOutputStrm);
-			writer.write(element, output);
-			return byteArrayOutputStrm.toString();
-		} catch (Exception e) {
-			log.error("Error Serializing the SAML Response");
-			throw new SAML2SSOUIAuthenticatorException("Error Serializing the SAML Response", e);
-		}
-	}
+            ByteArrayOutputStream byteArrayOutputStrm = new ByteArrayOutputStream();
+            DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
+            DOMImplementationLS impl = (DOMImplementationLS) registry.getDOMImplementation("LS");
+            LSSerializer writer = impl.createLSSerializer();
+            LSOutput output = impl.createLSOutput();
+            output.setByteStream(byteArrayOutputStrm);
+            writer.write(element, output);
+            return byteArrayOutputStrm.toString();
+        } catch (Exception e) {
+            log.error("Error Serializing the SAML Response");
+            throw new SAML2SSOUIAuthenticatorException("Error Serializing the SAML Response", e);
+        }
+    }
 
-	/**
-	 * Encoding the response
-	 * 
-	 * @param xmlString
-	 *            String to be encoded
-	 * @return encoded String
-	 */
-	public static String encode(String xmlString) throws Exception {
+    /**
+     * Encoding the response
+     *
+     * @param xmlString String to be encoded
+     * @return encoded String
+     */
+    public static String encode(String xmlString) throws Exception {
 
         String encodedRequestMessage = Base64.encodeBytes(xmlString.getBytes(), Base64.DONT_BREAK_LINES);
-		return encodedRequestMessage.trim();
-	}
+        return encodedRequestMessage.trim();
+    }
 
-	/**
-	 * Decoding and deflating the encoded AuthReq
-	 * 
-	 * @param encodedStr
-	 *            encoded AuthReq
-	 * @return decoded AuthReq
-	 */
+    /**
+     * Decoding and deflating the encoded AuthReq
+     *
+     * @param encodedStr encoded AuthReq
+     * @return decoded AuthReq
+     */
     public static String decode(String encodedStr) throws SAML2SSOUIAuthenticatorException {
 
         try {
@@ -188,220 +184,221 @@ public class Util {
 
     }
 
-	/**
-	 * This method is used to initialize the OpenSAML2 library. It calls the bootstrap method, if it
-	 * is not initialized yet.
-	 */
-	public static void doBootstrap() {
-		if (!bootStrapped) {
-			try {
-				DefaultBootstrap.bootstrap();
-				bootStrapped = true;
-			} catch (ConfigurationException e) {
-				log.error("Error in bootstrapping the OpenSAML2 library", e);
-			}
-		}
-	}
+    /**
+     * This method is used to initialize the OpenSAML2 library. It calls the bootstrap method, if it
+     * is not initialized yet.
+     */
+    public static void doBootstrap() {
+        if (!bootStrapped) {
+            try {
+                DefaultBootstrap.bootstrap();
+                bootStrapped = true;
+            } catch (ConfigurationException e) {
+                log.error("Error in bootstrapping the OpenSAML2 library", e);
+            }
+        }
+    }
 
-	public static AuthnRequest setSignature(AuthnRequest authnRequest, String signatureAlgorithm,
-			X509Credential cred) throws Exception {
+    public static AuthnRequest setSignature(AuthnRequest authnRequest, String signatureAlgorithm,
+                                            X509Credential cred) throws Exception {
 
-        if(log.isDebugEnabled()){
+        if (log.isDebugEnabled()) {
             log.debug("Signing the AuthnRequest");
         }
-		doBootstrap();
-		try {
-			Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
-			signature.setSigningCredential(cred);
-			signature.setSignatureAlgorithm(signatureAlgorithm);
-			signature.setCanonicalizationAlgorithm(Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
+        doBootstrap();
+        try {
+            Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
+            signature.setSigningCredential(cred);
+            signature.setSignatureAlgorithm(signatureAlgorithm);
+            signature.setCanonicalizationAlgorithm(Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
 
-			try {
-				KeyInfo keyInfo = (KeyInfo) buildXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
-				X509Data data = (X509Data) buildXMLObject(X509Data.DEFAULT_ELEMENT_NAME);
-				X509Certificate cert = (X509Certificate) buildXMLObject(X509Certificate.DEFAULT_ELEMENT_NAME);
-				String value = org.apache.xml.security.utils.Base64.encode(cred
-						.getEntityCertificate().getEncoded());
-				cert.setValue(value);
-				data.getX509Certificates().add(cert);
-				keyInfo.getX509Datas().add(data);
-				signature.setKeyInfo(keyInfo);
-			} catch (CertificateEncodingException e) {
-				throw new SAML2SSOUIAuthenticatorException("errorGettingCert");
-			}
+            try {
+                KeyInfo keyInfo = (KeyInfo) buildXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
+                X509Data data = (X509Data) buildXMLObject(X509Data.DEFAULT_ELEMENT_NAME);
+                X509Certificate cert = (X509Certificate) buildXMLObject(X509Certificate.DEFAULT_ELEMENT_NAME);
+                String value = org.apache.xml.security.utils.Base64.encode(cred
+                        .getEntityCertificate().getEncoded());
+                cert.setValue(value);
+                data.getX509Certificates().add(cert);
+                keyInfo.getX509Datas().add(data);
+                signature.setKeyInfo(keyInfo);
+            } catch (CertificateEncodingException e) {
+                throw new SAML2SSOUIAuthenticatorException("errorGettingCert");
+            }
 
-			authnRequest.setSignature(signature);
+            authnRequest.setSignature(signature);
 
-			List<Signature> signatureList = new ArrayList<Signature>();
-			signatureList.add(signature);
+            List<Signature> signatureList = new ArrayList<Signature>();
+            signatureList.add(signature);
 
-			// Marshall and Sign
-			MarshallerFactory marshallerFactory = org.opensaml.xml.Configuration
-					.getMarshallerFactory();
-			Marshaller marshaller = marshallerFactory.getMarshaller(authnRequest);
+            // Marshall and Sign
+            MarshallerFactory marshallerFactory = org.opensaml.xml.Configuration
+                    .getMarshallerFactory();
+            Marshaller marshaller = marshallerFactory.getMarshaller(authnRequest);
 
-			marshaller.marshall(authnRequest);
+            marshaller.marshall(authnRequest);
 
-			org.apache.xml.security.Init.init();
-			Signer.signObjects(signatureList);
-			return authnRequest;
+            org.apache.xml.security.Init.init();
+            Signer.signObjects(signatureList);
+            return authnRequest;
 
-		} catch (Exception e) {
-			throw new Exception("Error While signing the assertion.", e);
-		}
-	}
+        } catch (Exception e) {
+            throw new Exception("Error While signing the assertion.", e);
+        }
+    }
 
-	public static LogoutRequest setSignature(LogoutRequest logoutReq, String signatureAlgorithm,
-			SignKeyDataHolder cred) throws Exception {
+    public static LogoutRequest setSignature(LogoutRequest logoutReq, String signatureAlgorithm,
+                                             SignKeyDataHolder cred) throws Exception {
 
-        if(log.isDebugEnabled()){
+        if (log.isDebugEnabled()) {
             log.debug("Signing the AuthnRequest");
         }
-		doBootstrap();
-		try {
-			Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
-			signature.setSigningCredential(cred);
-			signature.setSignatureAlgorithm(signatureAlgorithm);
-			signature.setCanonicalizationAlgorithm(Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
+        doBootstrap();
+        try {
+            Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
+            signature.setSigningCredential(cred);
+            signature.setSignatureAlgorithm(signatureAlgorithm);
+            signature.setCanonicalizationAlgorithm(Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
 
-			try {
-				KeyInfo keyInfo = (KeyInfo) buildXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
-				X509Data data = (X509Data) buildXMLObject(X509Data.DEFAULT_ELEMENT_NAME);
-				X509Certificate cert = (X509Certificate) buildXMLObject(X509Certificate.DEFAULT_ELEMENT_NAME);
-				String value = org.apache.xml.security.utils.Base64.encode(cred
-						.getEntityCertificate().getEncoded());
-				cert.setValue(value);
-				data.getX509Certificates().add(cert);
-				keyInfo.getX509Datas().add(data);
-				signature.setKeyInfo(keyInfo);
-			} catch (CertificateEncodingException e) {
-				throw new Exception("errorGettingCert");
-			}
+            try {
+                KeyInfo keyInfo = (KeyInfo) buildXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
+                X509Data data = (X509Data) buildXMLObject(X509Data.DEFAULT_ELEMENT_NAME);
+                X509Certificate cert = (X509Certificate) buildXMLObject(X509Certificate.DEFAULT_ELEMENT_NAME);
+                String value = org.apache.xml.security.utils.Base64.encode(cred
+                        .getEntityCertificate().getEncoded());
+                cert.setValue(value);
+                data.getX509Certificates().add(cert);
+                keyInfo.getX509Datas().add(data);
+                signature.setKeyInfo(keyInfo);
+            } catch (CertificateEncodingException e) {
+                throw new Exception("errorGettingCert");
+            }
 
-			logoutReq.setSignature(signature);
+            logoutReq.setSignature(signature);
 
-			List<Signature> signatureList = new ArrayList<Signature>();
-			signatureList.add(signature);
+            List<Signature> signatureList = new ArrayList<Signature>();
+            signatureList.add(signature);
 
-			// Marshall and Sign
-			MarshallerFactory marshallerFactory = org.opensaml.xml.Configuration
-					.getMarshallerFactory();
-			Marshaller marshaller = marshallerFactory.getMarshaller(logoutReq);
+            // Marshall and Sign
+            MarshallerFactory marshallerFactory = org.opensaml.xml.Configuration
+                    .getMarshallerFactory();
+            Marshaller marshaller = marshallerFactory.getMarshaller(logoutReq);
 
-			marshaller.marshall(logoutReq);
+            marshaller.marshall(logoutReq);
 
-			org.apache.xml.security.Init.init();
-			Signer.signObjects(signatureList);
-			return logoutReq;
+            org.apache.xml.security.Init.init();
+            Signer.signObjects(signatureList);
+            return logoutReq;
 
-		} catch (Exception e) {
-			throw new Exception("Error While signing the assertion.", e);
-		}
-	}
+        } catch (Exception e) {
+            throw new Exception("Error While signing the assertion.", e);
+        }
+    }
 
-	public static XMLObject buildXMLObject(QName objectQName) throws Exception {
+    public static XMLObject buildXMLObject(QName objectQName) throws Exception {
 
-		XMLObjectBuilder builder = org.opensaml.xml.Configuration.getBuilderFactory().getBuilder(
-				objectQName);
-		if (builder == null) {
-			throw new Exception("Unable to retrieve builder for object QName " + objectQName);
-		}
-		return builder.buildObject(objectQName.getNamespaceURI(), objectQName.getLocalPart(),
-				objectQName.getPrefix());
-	}
+        XMLObjectBuilder builder = org.opensaml.xml.Configuration.getBuilderFactory().getBuilder(
+                objectQName);
+        if (builder == null) {
+            throw new Exception("Unable to retrieve builder for object QName " + objectQName);
+        }
+        return builder.buildObject(objectQName.getNamespaceURI(), objectQName.getLocalPart(),
+                objectQName.getPrefix());
+    }
 
-	/**
-	 * Generates a unique Id for Authentication Requests
-	 * 
-	 * @return generated unique ID
-	 */
-	public static String createID() {
+    /**
+     * Generates a unique Id for Authentication Requests
+     *
+     * @return generated unique ID
+     */
+    public static String createID() {
 
-		byte[] bytes = new byte[20]; // 160 bits
-		random.nextBytes(bytes);
+        byte[] bytes = new byte[20]; // 160 bits
+        random.nextBytes(bytes);
 
-		char[] chars = new char[40];
+        char[] chars = new char[40];
 
-		for (int i = 0; i < bytes.length; i++) {
-			int left = (bytes[i] >> 4) & 0x0f;
-			int right = bytes[i] & 0x0f;
-			chars[i * 2] = charMapping[left];
-			chars[i * 2 + 1] = charMapping[right];
-		}
+        for (int i = 0; i < bytes.length; i++) {
+            int left = (bytes[i] >> 4) & 0x0f;
+            int right = bytes[i] & 0x0f;
+            chars[i * 2] = charMapping[left];
+            chars[i * 2 + 1] = charMapping[right];
+        }
 
-		return String.valueOf(chars);
-	}
+        return String.valueOf(chars);
+    }
 
-	/**
-	 * Sets the issuerID and IDP SSO Service URL during the server start-up by reading
-	 * authenticators.xml
-	 */
-	public static boolean initSSOConfigParams() {
+    /**
+     * Sets the issuerID and IDP SSO Service URL during the server start-up by reading
+     * authenticators.xml
+     */
+    public static boolean initSSOConfigParams() {
 
         AuthenticatorsConfiguration authenticatorsConfiguration = AuthenticatorsConfiguration
-				.getInstance();
-		AuthenticatorsConfiguration.AuthenticatorConfig authenticatorConfig = authenticatorsConfiguration
-				.getAuthenticatorConfig(SAML2SSOAuthenticatorConstants.AUTHENTICATOR_NAME);
-		if (authenticatorConfig != null) {
-			parameters = authenticatorConfig.getParameters();
-			serviceProviderId = parameters.get(SAML2SSOAuthenticatorConstants.SERVICE_PROVIDER_ID);
-			identityProviderSSOServiceURL = parameters
-					.get(SAML2SSOAuthenticatorConstants.IDENTITY_PROVIDER_SSO_SERVICE_URL);
+                .getInstance();
+        AuthenticatorsConfiguration.AuthenticatorConfig authenticatorConfig = authenticatorsConfiguration
+                .getAuthenticatorConfig(SAML2SSOAuthenticatorConstants.AUTHENTICATOR_NAME);
+        if (authenticatorConfig != null) {
+            parameters = authenticatorConfig.getParameters();
+            serviceProviderId = parameters.get(SAML2SSOAuthenticatorConstants.SERVICE_PROVIDER_ID);
+            identityProviderSSOServiceURL = parameters
+                    .get(SAML2SSOAuthenticatorConstants.IDENTITY_PROVIDER_SSO_SERVICE_URL);
             identityProviderSLOServiceURL = parameters
                     .get(SAML2SSOAuthenticatorConstants.IDENTITY_PROVIDER_SLO_SERVICE_URL);
-			loginPage = parameters.get(SAML2SSOAuthenticatorConstants.LOGIN_PAGE);
-			landingPage = parameters.get(SAML2SSOAuthenticatorConstants.LANDING_PAGE);
-			externalLogoutPage = parameters.get(SAML2SSOAuthenticatorConstants.EXTERNAL_LOGOUT_PAGE);
-			assertionConsumerServiceUrl = parameters.get(SAML2SSOAuthenticatorConstants.ASSERTION_CONSUMER_SERVICE_URL);
+            loginPage = parameters.get(SAML2SSOAuthenticatorConstants.LOGIN_PAGE);
+            landingPage = parameters.get(SAML2SSOAuthenticatorConstants.LANDING_PAGE);
+            externalLogoutPage = parameters.get(SAML2SSOAuthenticatorConstants.EXTERNAL_LOGOUT_PAGE);
+            assertionConsumerServiceUrl = parameters.get(SAML2SSOAuthenticatorConstants.ASSERTION_CONSUMER_SERVICE_URL);
 
-			initSuccess = true;
-		}
-		return initSuccess;
-	}
+            initSuccess = true;
+        }
+        return initSuccess;
+    }
 
-	/**
-	 * checks whether authenticator enable ot disable
-	 * 
-	 * @return True/False
-	 */
-	public static boolean isAuthenticatorEnabled() {
+    /**
+     * checks whether authenticator enable ot disable
+     *
+     * @return True/False
+     */
+    public static boolean isAuthenticatorEnabled() {
 
         AuthenticatorsConfiguration authenticatorsConfiguration = AuthenticatorsConfiguration
-				.getInstance();
-		AuthenticatorsConfiguration.AuthenticatorConfig authenticatorConfig = authenticatorsConfiguration
-				.getAuthenticatorConfig(SAML2SSOAuthenticatorConstants.AUTHENTICATOR_NAME);
-		// if the authenticator is disabled, then do not register the servlet filter.
-		return !authenticatorConfig.isDisabled();
-	}
+                .getInstance();
+        AuthenticatorsConfiguration.AuthenticatorConfig authenticatorConfig = authenticatorsConfiguration
+                .getAuthenticatorConfig(SAML2SSOAuthenticatorConstants.AUTHENTICATOR_NAME);
+        // if the authenticator is disabled, then do not register the servlet filter.
+        return !authenticatorConfig.isDisabled();
+    }
 
-	/**
-	 * returns the service provider ID of a particular server
-	 * 
-	 * @return service provider ID
-	 */
-	public static String getServiceProviderId() {
-
-        if (!initSuccess) {
-			initSSOConfigParams();
-		}
-		return serviceProviderId;
-	}
-
-	/**
-	 * returns the Identity Provider SSO Service URL
-	 * 
-	 * @return dentity Provider SSO Service URL
-	 */
-	public static String getIdentityProviderSSOServiceURL() {
+    /**
+     * returns the service provider ID of a particular server
+     *
+     * @return service provider ID
+     */
+    public static String getServiceProviderId() {
 
         if (!initSuccess) {
-			initSSOConfigParams();
-		}
-		return identityProviderSSOServiceURL;
-	}
+            initSSOConfigParams();
+        }
+        return serviceProviderId;
+    }
 
     /**
      * returns the Identity Provider SSO Service URL
+     *
+     * @return dentity Provider SSO Service URL
+     */
+    public static String getIdentityProviderSSOServiceURL() {
+
+        if (!initSuccess) {
+            initSSOConfigParams();
+        }
+        return identityProviderSSOServiceURL;
+    }
+
+    /**
+     * returns the Identity Provider SSO Service URL
+     *
      * @return dentity Provider SSO Service URL
      */
     public static String getIdentityProviderSLOServiceURL() {
@@ -425,80 +422,81 @@ public class Util {
         return assertionConsumerServiceUrl;
     }
 
-	/**
-	 * 
-	 * @param federatedDomain
-	 * @return
-	 */
-	public static String getIdentityProviderSSOServiceURL(String federatedDomain) {
+    /**
+     * @param federatedDomain
+     * @return
+     */
+    public static String getIdentityProviderSSOServiceURL(String federatedDomain) {
 
         if (!initSuccess) {
-			initSSOConfigParams();
-		}
+            initSSOConfigParams();
+        }
 
-		String fedeartedIdp = null;
+        String fedeartedIdp = null;
 
-		if (federatedDomain == null) {
-			return null;
-		}
-		
-		String selfDomain = parameters.get("IdpSelfDomain");
-		federatedDomain = federatedDomain.trim().toUpperCase();
+        if (federatedDomain == null) {
+            return null;
+        }
 
-		if (selfDomain!=null && selfDomain.trim().toUpperCase().equals(federatedDomain)) {
-			return null;
-		}
+        String selfDomain = parameters.get("IdpSelfDomain");
+        federatedDomain = federatedDomain.trim().toUpperCase();
 
-		fedeartedIdp = cachedIdps.get(federatedDomain);
+        if (selfDomain != null && selfDomain.trim().toUpperCase().equals(federatedDomain)) {
+            return null;
+        }
 
-		if (federatedDomain == null) {
-			fedeartedIdp = parameters.get("Federated_IdP_" + federatedDomain);
-		}
+        fedeartedIdp = cachedIdps.get(federatedDomain);
 
-		if (fedeartedIdp == null) {
-			fedeartedIdp = saml2IdpProperties.getProperty(federatedDomain);
-		}
+        if (federatedDomain == null) {
+            fedeartedIdp = parameters.get("Federated_IdP_" + federatedDomain);
+        }
 
-		if (log.isDebugEnabled()) {
-			log.debug("Federated domain : " + fedeartedIdp);
-		}
+        if (fedeartedIdp == null) {
+            fedeartedIdp = saml2IdpProperties.getProperty(federatedDomain);
+        }
 
-		if (fedeartedIdp != null) {
-			cachedIdps.put(federatedDomain, fedeartedIdp);
-		}
+        if (log.isDebugEnabled()) {
+            log.debug("Federated domain : " + fedeartedIdp);
+        }
 
-		return fedeartedIdp;
-	}
+        if (fedeartedIdp != null) {
+            cachedIdps.put(federatedDomain, fedeartedIdp);
+        }
 
-	/**
-	 * Gets the login page URL that needs to be filtered.
-	 * 
-	 * @return login page URL.
-	 */
-	public static String getLoginPage() {
-		return loginPage;
-	}
+        return fedeartedIdp;
+    }
 
-	/**
-	 * Returns the landing page to which the login requests will be redirected to.
-	 * 
-	 * @return URL of the landing page
-	 */
-	public static String getLandingPage() {
-		return landingPage;
-	}
+    /**
+     * Gets the login page URL that needs to be filtered.
+     *
+     * @return login page URL.
+     */
+    public static String getLoginPage() {
+        return loginPage;
+    }
 
-	/**
-	 * Returns the external logout page url, to which user-agent is redirected
-	 * after invalidating the local carbon session
-	 * @return
-	 */
-	public static String getExternalLogoutPage() {
-		return externalLogoutPage;
-	}
-	
+    /**
+     * Returns the landing page to which the login requests will be redirected to.
+     *
+     * @return URL of the landing page
+     */
+    public static String getLandingPage() {
+        return landingPage;
+    }
+
+    /**
+     * Returns the external logout page url, to which user-agent is redirected
+     * after invalidating the local carbon session
+     *
+     * @return
+     */
+    public static String getExternalLogoutPage() {
+        return externalLogoutPage;
+    }
+
     /**
      * Returns the login attribute name which use to get the username from the SAML2 Response.
+     *
      * @return Name of the login attribute
      */
     public static String getLoginAttributeName() {
@@ -506,8 +504,8 @@ public class Util {
         if (!initSuccess) {
             initSSOConfigParams();
         }
-        return parameters.get(SAML2SSOAuthenticatorConstants.LOGIN_ATTRIBUTE_NAME);		
-	}
+        return parameters.get(SAML2SSOAuthenticatorConstants.LOGIN_ATTRIBUTE_NAME);
+    }
 
     /**
      * Get the username from the SAML2 XMLObject
@@ -517,13 +515,13 @@ public class Util {
      */
     public static String getUsername(XMLObject xmlObject) {
 
-        if(xmlObject instanceof Response){
-    		return getUsernameFromResponse((Response) xmlObject);
-    	} else if (xmlObject instanceof Assertion){
-    		return getUsernameFromAssertion((Assertion) xmlObject);
-    	} else {
-    		return null;
-    	}
+        if (xmlObject instanceof Response) {
+            return getUsernameFromResponse((Response) xmlObject);
+        } else if (xmlObject instanceof Assertion) {
+            return getUsernameFromAssertion((Assertion) xmlObject);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -532,20 +530,20 @@ public class Util {
      * @param response SAML2 Response
      * @return username username contained in the SAML Response
      */
-	public static String getUsernameFromResponse(Response response) {
+    public static String getUsernameFromResponse(Response response) {
 
         List<Assertion> assertions = response.getAssertions();
-		Assertion assertion = null;
-		if (assertions != null && assertions.size() > 0) {
-			// There can be only one assertion in a SAML Response, so get the
-			// first one
-			assertion = assertions.get(0);
-    		return getUsernameFromAssertion(assertion);
-			
-		}
-		return null;
-	}
-	
+        Assertion assertion = null;
+        if (assertions != null && assertions.size() > 0) {
+            // There can be only one assertion in a SAML Response, so get the
+            // first one
+            assertion = assertions.get(0);
+            return getUsernameFromAssertion(assertion);
+
+        }
+        return null;
+    }
+
     /**
      * Get the username from the SAML2 Assertion
      *
@@ -556,34 +554,34 @@ public class Util {
 
         String loginAttributeName = getLoginAttributeName();
 
-		if (loginAttributeName != null) {
-			// There can be multiple AttributeStatements in Assertion
-			List<AttributeStatement> attributeStatements = assertion
-					.getAttributeStatements();
-			if (attributeStatements != null) {
-				for (AttributeStatement attributeStatement : attributeStatements) {
-					// There can be multiple Attributes in a
-					// attributeStatement
-					List<Attribute> attributes = attributeStatement
-							.getAttributes();
-					if (attributes != null) {
-						for (Attribute attribute : attributes) {
-							String attributeName = attribute.getDOM()
-									.getAttribute("Name");
-							if (attributeName.equals(loginAttributeName)) {
-								List<XMLObject> attributeValues = attribute
-										.getAttributeValues();
-								// There can be multiple attribute values in
-								// a attribute, but get the first one
-								return attributeValues.get(0).getDOM()
-										.getTextContent();
-							}
-						}
-					}
-				}
-			}
-		}
-		return assertion.getSubject().getNameID().getValue();
+        if (loginAttributeName != null) {
+            // There can be multiple AttributeStatements in Assertion
+            List<AttributeStatement> attributeStatements = assertion
+                    .getAttributeStatements();
+            if (attributeStatements != null) {
+                for (AttributeStatement attributeStatement : attributeStatements) {
+                    // There can be multiple Attributes in a
+                    // attributeStatement
+                    List<Attribute> attributes = attributeStatement
+                            .getAttributes();
+                    if (attributes != null) {
+                        for (Attribute attribute : attributes) {
+                            String attributeName = attribute.getDOM()
+                                    .getAttribute("Name");
+                            if (attributeName.equals(loginAttributeName)) {
+                                List<XMLObject> attributeValues = attribute
+                                        .getAttributeValues();
+                                // There can be multiple attribute values in
+                                // a attribute, but get the first one
+                                return attributeValues.get(0).getDOM()
+                                        .getTextContent();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return assertion.getSubject().getNameID().getValue();
     }
 
 }

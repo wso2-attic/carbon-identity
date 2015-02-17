@@ -23,11 +23,7 @@ import org.apache.xml.security.signature.XMLSignature;
 import org.joda.time.DateTime;
 import org.opensaml.common.SAMLVersion;
 import org.opensaml.saml1.core.NameIdentifier;
-import org.opensaml.saml2.core.AuthnRequest;
-import org.opensaml.saml2.core.Issuer;
-import org.opensaml.saml2.core.NameID;
-import org.opensaml.saml2.core.NameIDPolicy;
-import org.opensaml.saml2.core.Subject;
+import org.opensaml.saml2.core.*;
 import org.opensaml.saml2.core.impl.IssuerBuilder;
 import org.opensaml.saml2.core.impl.NameIDBuilder;
 import org.opensaml.saml2.core.impl.NameIDPolicyBuilder;
@@ -46,11 +42,37 @@ public class AuthenticationRequestBuilder {
     private static Log log = LogFactory.getLog(AuthenticationRequestBuilder.class);
 
     /**
+     * Build the issuer object
+     *
+     * @return Issuer object
+     */
+    private static Issuer buildIssuer() {
+        IssuerBuilder issuerBuilder = new IssuerBuilder();
+        Issuer issuer = issuerBuilder.buildObject();
+        issuer.setValue(Util.getServiceProviderId());
+        return issuer;
+    }
+
+    /**
+     * Build the NameIDPolicy object
+     *
+     * @return NameIDPolicy object
+     */
+    private static NameIDPolicy buildNameIDPolicy(String nameIdPolicyFormat) {
+        NameIDPolicy nameIDPolicy = new NameIDPolicyBuilder().buildObject();
+        if (nameIdPolicyFormat == null) {
+            nameIdPolicyFormat = SAML2SSOAuthenticatorConstants.SAML2_NAME_ID_POLICY_UNSPECIFIED;
+        }
+        nameIDPolicy.setFormat(nameIdPolicyFormat);
+        nameIDPolicy.setAllowCreate(true);
+        return nameIDPolicy;
+    }
+
+    /**
      * Generate an authentication request.
      *
      * @return AuthnRequest Object
-     * @throws org.wso2.carbon.identity.authenticator.saml2.sso.ui.SAML2SSOUIAuthenticatorException
-     *             error when bootstrapping
+     * @throws org.wso2.carbon.identity.authenticator.saml2.sso.ui.SAML2SSOUIAuthenticatorException error when bootstrapping
      */
     public AuthnRequest buildAuthenticationRequest(String subjectName, String nameIdPolicyFormat)
             throws Exception {
@@ -67,12 +89,12 @@ public class AuthenticationRequestBuilder {
         authnRequest.setIssuer(buildIssuer());
         authnRequest.setNameIDPolicy(buildNameIDPolicy(nameIdPolicyFormat));
         authnRequest.setDestination(Util.getIdentityProviderSSOServiceURL());
-		String acs = Util.getAssertionConsumerServiceURL();
-		if (acs != null && acs.trim().length() > 0) {
-			authnRequest.setAssertionConsumerServiceURL(acs);
-		} else {
-			authnRequest.setAssertionConsumerServiceURL(CarbonUIUtil.getAdminConsoleURL("").replace("carbon/","acs"));
-		}
+        String acs = Util.getAssertionConsumerServiceURL();
+        if (acs != null && acs.trim().length() > 0) {
+            authnRequest.setAssertionConsumerServiceURL(acs);
+        } else {
+            authnRequest.setAssertionConsumerServiceURL(CarbonUIUtil.getAdminConsoleURL("").replace("carbon/", "acs"));
+        }
 
         if (subjectName != null) {
             Subject subject = new SubjectBuilder().buildObject();
@@ -93,8 +115,7 @@ public class AuthenticationRequestBuilder {
      * Generate an authentication request with passive support.
      *
      * @return AuthnRequest Object
-     * @throws org.wso2.carbon.identity.authenticator.saml2.sso.ui.SAML2SSOUIAuthenticatorException
-     *             error when bootstrapping
+     * @throws org.wso2.carbon.identity.authenticator.saml2.sso.ui.SAML2SSOUIAuthenticatorException error when bootstrapping
      */
     public AuthnRequest buildAuthenticationRequest(String subjectName,
                                                    String nameIdPolicyFormat, boolean passiveLogin)
@@ -117,7 +138,7 @@ public class AuthenticationRequestBuilder {
         if (acs != null && acs.trim().length() > 0) {
             authnRequest.setAssertionConsumerServiceURL(acs);
         } else {
-            authnRequest.setAssertionConsumerServiceURL(CarbonUIUtil.getAdminConsoleURL("").replace("carbon/","acs"));
+            authnRequest.setAssertionConsumerServiceURL(CarbonUIUtil.getAdminConsoleURL("").replace("carbon/", "acs"));
         }
 
         if (subjectName != null) {
@@ -134,31 +155,4 @@ public class AuthenticationRequestBuilder {
 
         return authnRequest;
     }
-
-    /**
-     * Build the issuer object
-     * 
-     * @return Issuer object
-     */
-    private static Issuer buildIssuer() {
-        IssuerBuilder issuerBuilder = new IssuerBuilder();
-        Issuer issuer = issuerBuilder.buildObject();
-        issuer.setValue(Util.getServiceProviderId());
-        return issuer;
-    }
-
-    /**
-     * Build the NameIDPolicy object
-     * 
-     * @return NameIDPolicy object
-     */
-    private static NameIDPolicy buildNameIDPolicy(String nameIdPolicyFormat) {
-		NameIDPolicy nameIDPolicy = new NameIDPolicyBuilder().buildObject();
-        if (nameIdPolicyFormat == null) {
-            nameIdPolicyFormat = SAML2SSOAuthenticatorConstants.SAML2_NAME_ID_POLICY_UNSPECIFIED;
-        }
-		nameIDPolicy.setFormat(nameIdPolicyFormat);
-		nameIDPolicy.setAllowCreate(true);
-		return nameIDPolicy;
-	}
 }
