@@ -61,8 +61,15 @@ public class NotificationBuilder {
 
     private static String replaceTags(Map<String,String> tagsData, String content) throws UnsupportedEncodingException {
 		for (String key : tagsData.keySet()) {
-            content = content.replaceAll("\\{url:"+ key +"\\}", URLEncoder.encode(tagsData.get(key), "UTF-8"));
-			content = content.replaceAll("\\{"+ key +"\\}", tagsData.get(key));
+			String data = tagsData.get(key);
+			
+			if(data != null) {
+	            content = content.replaceAll("\\{url:"+ key +"\\}", URLEncoder.encode(data, "UTF-8"));
+				content = content.replaceAll("\\{"+ key +"\\}", data);
+			} else {
+	            content = content.replaceAll("\\{url:"+ key +"\\}", "");
+				content = content.replaceAll("\\{"+ key +"\\}", "");
+			}
 		}
 		return content;
 	}

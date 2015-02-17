@@ -175,6 +175,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                     try {
                         module.store(userIdentityDTO, userStoreManager);
                     } catch (IdentityException e) {
+                    	log.error("Error while saving user", e);
                         throw new UserStoreException("Error while saving user", e);
                     }
                 } else {
@@ -270,8 +271,9 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 						                                              StorageType.REGISTRY,
 						                                              tenantId);
 					} catch (Exception e1) {
-						throw new UserStoreException(
-						                             "Could not load the email template configuration");
+						String msg = "Could not load the email template configuration";
+						log.error(msg, e1);
+						throw new UserStoreException(msg, e1);
 					}
 
 					emailTemplate = emailConfig.getProperty("otp");
@@ -283,7 +285,9 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 						                                                           emailTemplate,
 						                                                           emailNotificationData);
 					} catch (Exception e) {
-						throw new UserStoreException("Could not create the email notification");
+						String msg = "Could not create the email notification";
+						log.error(msg, e);
+						throw new UserStoreException(msg, e);
 					}
 					NotificationSender sender = new NotificationSender();
 
@@ -385,7 +389,9 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                 try {
                     module.store(userIdentityDTO, userStoreManager);
                 } catch (IdentityException e) {
-                    throw new UserStoreException("Error while doPostAuthenticate", e);
+                	String msg = "Error while doPostAuthenticate";
+                	log.error(msg, e);
+                    throw new UserStoreException(msg, e);
                 }
             } else {
                 if (log.isDebugEnabled()) {
@@ -403,7 +409,9 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 				try {
 					module.store(userIdentityDTO, userStoreManager);
 				} catch (IdentityException e) {
-					throw new UserStoreException("Error while doPostAuthenticate", e);
+					String msg = "Error while doPostAuthenticate";
+					log.error(msg, e);
+					throw new UserStoreException(msg, e);
 				}
 			}
 		}
@@ -439,8 +447,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 			}
             
         }catch(PolicyViolationException pe) {
-            log.error(pe.getMessage());
-            throw new UserStoreException(pe.getMessage());
+            log.error(pe.getMessage(), pe);
+            throw new UserStoreException(pe.getMessage(), pe);
         }
 
 
@@ -519,7 +527,9 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 				try {
 					module.store(userIdentityClaimsDO, userStoreManager);
 				} catch (IdentityException e) {
-					throw new UserStoreException("Error while doPostAddUser", e);
+					String msg = "Error while doPostAddUser";
+					log.error(msg, e);
+					throw new UserStoreException(msg, e);
 				}
 				// store identity metadata
 				UserRecoveryDataDO metadataDO = new UserRecoveryDataDO();
@@ -539,8 +549,9 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 				try {
 					verificationBean = processor.updateConfirmationCode(1, userName, userStoreManager.getTenantId());
 				} catch (IdentityException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					String msg = "Error while updating confiramation code";
+					log.error(msg, e);
+					throw new UserStoreException(msg, e);
 				}
 				
 				// preparing a bean to send the email
@@ -560,10 +571,9 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 		        try {
 					notificationDto = processor.recoverWithNotification(recoveryDto);
 				} catch (IdentityException e) {
-					if(log.isDebugEnabled()) {
-						log.debug(e.getMessage());
-					}
-					throw new UserStoreException("Error while sending notification. " + e.getMessage());
+					String msg = "Error while sending notification";
+					log.error(msg, e);
+					throw new UserStoreException(msg + e);
 				}
 
 		        if(notificationDto != null && notificationDto.isNotificationSent()) {
@@ -612,7 +622,9 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 			try {
 				config.getIdentityDataStore().store(userIdentityClaimsDO, userStoreManager);
 			} catch (IdentityException e) {
-				throw new UserStoreException("Error while doPostAddUser", e);
+				String msg = "Error while doPostAddUser";
+				log.error(msg, e);
+				throw new UserStoreException(msg, e);
 			}
 		}
 
@@ -626,7 +638,9 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                 }
                 module.store(userIdentityClaimsDO, userStoreManager);
             } catch (IdentityException e) {
-                throw new UserStoreException("Error while doPostAddUser when storing User Identity Data ", e);
+            	String msg = "Error while doPostAddUser when storing User Identity Data ";
+            	log.error(msg, e);
+                throw new UserStoreException(msg, e);
             }
         }
 
@@ -660,8 +674,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 			}
 
 		} catch (PolicyViolationException pe) {
-			log.error(pe.getMessage());
-			throw new UserStoreException(pe.getMessage());
+			log.error(pe);
+			throw new UserStoreException(pe);
 
 		}
 
@@ -695,8 +709,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 			}
 
 		} catch (PolicyViolationException pe) {
-			log.error(pe.getMessage());
-			throw new UserStoreException(pe.getMessage());
+			log.error(pe);
+			throw new UserStoreException(pe);
 		}
         
 		if (newCredential == null ||
@@ -805,7 +819,9 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 		try {
 			identityDataStore.store(identityDTO, userStoreManager);
 		} catch (IdentityException e) {
-			throw new UserStoreException("Error while doPreSetUserClaimValues", e);
+			String msg = "Error while doPreSetUserClaimValues";
+			log.error(msg, e);
+			throw new UserStoreException(msg, e);
 		}
 		return true;
 	}
@@ -825,7 +841,9 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 		try {
 			IdentityMgtConfig.getInstance().getIdentityDataStore().remove(userName, userStoreManager);
 		} catch (IdentityException e) {
-			throw new UserStoreException("Error while doPostDeleteUser", e);
+			String msg = "Error while doPostDeleteUser";
+			log.error(msg, e);
+			throw new UserStoreException(msg, e);
 		}
 		// deleting registry meta-data
 		UserRegistry registry = null;
@@ -945,7 +963,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 				module.store(userIdentityDTO, userStoreManager);
 
 			} catch (IdentityException e) {
-				throw new UserStoreException(e.getMessage());
+				log.error(e);
+				throw new UserStoreException(e.getMessage(), e);
 			}
 
 		}
