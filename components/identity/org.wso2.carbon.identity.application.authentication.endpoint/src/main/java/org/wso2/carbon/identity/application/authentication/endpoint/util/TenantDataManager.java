@@ -27,13 +27,15 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
-import org.wso2.securevault.SecurityConstants;
 import org.xml.sax.InputSource;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.*;
 
 public class TenantDataManager {
@@ -66,29 +68,29 @@ public class TenantDataManager {
     private static final String TENANT_DATA_SEPARATOR = ",";
     private static final String RELATIVE_PATH_START_CHAR = ".";
     private static final String CHARACTER_ENCODING = "UTF-8";
-	private static final String CONFIG_RELATIVE_PATH = "./repository/conf/TenantConfig.properties";
+    private static final String CONFIG_RELATIVE_PATH = "./repository/conf/TenantConfig.properties";
     private static Properties prop;
     private static String carbonLogin = "";
     private static String serviceURL;
     private static String usernameHeaderName = "";
     private static List<String> tenantDomainList = new ArrayList<String>();
     private static boolean initialized = false;
-	private static boolean configFileExist = true;
+    private static boolean configFileExist = true;
 
     /**
      * Initialize Tenant data manager
      */
     public static synchronized void init() {
 
-		FileInputStream fileInputStream = null;
+        FileInputStream fileInputStream = null;
 
-		try{
-        if (!initialized) {
-            prop = new Properties();
+        try {
+            if (!initialized) {
+                prop = new Properties();
                 String configFilePath = buildFilePath(CONFIG_RELATIVE_PATH);
                 File configFile = new File(configFilePath);
 
-                if(configFile.exists()){
+                if (configFile.exists()) {
                     configFileExist = true;
                     fileInputStream = new FileInputStream(configFile);
 
@@ -143,6 +145,7 @@ public class TenantDataManager {
 
     /**
      * Build the absolute path of a give file path
+     *
      * @param path File path
      * @return Absolute file path
      * @throws IOException
@@ -163,6 +166,7 @@ public class TenantDataManager {
 
     /**
      * Get property value by key
+     *
      * @param key Property key
      * @return Property value
      */
@@ -172,6 +176,7 @@ public class TenantDataManager {
 
     /**
      * Call service and return response
+     *
      * @param url Service URL
      * @return Response from service
      */
@@ -186,6 +191,7 @@ public class TenantDataManager {
 
     /**
      * Get active tenants list
+     *
      * @return List of tenant domains
      */
     public static List<String> getAllActiveTenantDomains() {
@@ -198,6 +204,7 @@ public class TenantDataManager {
 
     /**
      * Set the updated tenant domains list
+     *
      * @param dataList List of active tenant domains
      */
     public static void setTenantDataList(String dataList) {
@@ -307,6 +314,7 @@ public class TenantDataManager {
 
     /**
      * Get status of the tenant list dropdown enabled or disabled
+     *
      * @return Tenant list enabled or disabled status
      */
     public static boolean isTenantListEnabled() {

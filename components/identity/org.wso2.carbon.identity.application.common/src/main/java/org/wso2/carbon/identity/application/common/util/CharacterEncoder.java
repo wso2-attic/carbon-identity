@@ -35,5 +35,5 @@ public class CharacterEncoder {
         }
         return text;
     }
-    
+
 }

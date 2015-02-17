@@ -26,11 +26,9 @@ import org.wso2.balana.utils.policy.dto.*;
 import org.wso2.carbon.identity.entitlement.common.PolicyEditorException;
 import org.wso2.carbon.identity.entitlement.ui.client.EntitlementPolicyAdminServiceClient;
 import org.wso2.carbon.identity.entitlement.ui.dto.*;
-import org.wso2.carbon.identity.entitlement.ui.dto.PolicySetDTO;
 import org.wso2.carbon.identity.entitlement.ui.util.PolicyCreatorUtil;
 import org.wso2.carbon.identity.entitlement.ui.util.PolicyEditorUtil;
 
-import java.lang.*;
 import java.util.List;
 
 /**
@@ -44,12 +42,12 @@ public class EntitlementPolicyCreator {
      * Create XACML policy using the data received from basic policy wizard
      *
      * @param basicPolicyDTO BasicPolicyDTO
-     * @return  String object of the XACML policy
+     * @return String object of the XACML policy
      * @throws PolicyEditorException throws
      */
     public String createBasicPolicy(BasicPolicyDTO basicPolicyDTO) throws PolicyEditorException {
 
-        if(basicPolicyDTO == null){
+        if (basicPolicyDTO == null) {
             throw new PolicyEditorException("Policy object can not be null");
         }
 
@@ -66,12 +64,12 @@ public class EntitlementPolicyCreator {
      * Create XACML policy using the data received from basic policy wizard
      *
      * @param policyDTO PolicyDTO
-     * @return  String object of the XACML policy
+     * @return String object of the XACML policy
      * @throws PolicyEditorException throws
      */
     public String createPolicy(PolicyDTO policyDTO) throws PolicyEditorException {
 
-        if(policyDTO == null){
+        if (policyDTO == null) {
             throw new PolicyEditorException("Policy object can not be null");
         }
 
@@ -81,22 +79,22 @@ public class EntitlementPolicyCreator {
         policyElementDTO.setPolicyDescription(policyDTO.getDescription());
         policyElementDTO.setVersion(policyDTO.getVersion());
 
-        if(policyDTO.getTargetDTO() != null){
+        if (policyDTO.getTargetDTO() != null) {
             TargetElementDTO targetElementDTO = PolicyEditorUtil.
-                                                createTargetElementDTO(policyDTO.getTargetDTO());
+                    createTargetElementDTO(policyDTO.getTargetDTO());
             policyElementDTO.setTargetElementDTO(targetElementDTO);
         }
 
-        if(policyDTO.getRuleDTOs() != null){
-            for(RuleDTO ruleDTO : policyDTO.getRuleDTOs()){
+        if (policyDTO.getRuleDTOs() != null) {
+            for (RuleDTO ruleDTO : policyDTO.getRuleDTOs()) {
                 RuleElementDTO ruleElementDTO = PolicyEditorUtil.createRuleElementDTO(ruleDTO);
                 policyElementDTO.addRuleElementDTO(ruleElementDTO);
             }
         }
 
-        if(policyDTO.getObligationDTOs() != null){
+        if (policyDTO.getObligationDTOs() != null) {
             List<ObligationElementDTO> obligationElementDTOs = PolicyEditorUtil.
-                                                    createObligation(policyDTO.getObligationDTOs());
+                    createObligation(policyDTO.getObligationDTOs());
             policyElementDTO.setObligationElementDTOs(obligationElementDTOs);
         }
 
@@ -110,9 +108,9 @@ public class EntitlementPolicyCreator {
 
     /**
      * Create XACML policy using the data received from basic policy wizard
-     * 
+     *
      * @param policyEditorDTO complete policy editor object
-     * @return  String object of the XACML policy
+     * @return String object of the XACML policy
      * @throws PolicyEditorException throws
      */
     public String createSOAPolicy(SimplePolicyEditorDTO policyEditorDTO) throws PolicyEditorException {
@@ -124,15 +122,15 @@ public class EntitlementPolicyCreator {
     /**
      * Create policy set using the added policy ot policy sets
      *
-     * @param policySetDTO   policy set element
+     * @param policySetDTO policy set element
      * @param client
      * @return String object of the XACML policy Set
-     * @throws PolicyEditorException  throws
+     * @throws PolicyEditorException throws
      */
     public String createPolicySet(PolicySetDTO policySetDTO,
-                          EntitlementPolicyAdminServiceClient client) throws PolicyEditorException {
+                                  EntitlementPolicyAdminServiceClient client) throws PolicyEditorException {
 
-        if(policySetDTO == null){
+        if (policySetDTO == null) {
             throw new PolicyEditorException("Policy Set object can not be null");
         }
 
@@ -142,30 +140,30 @@ public class EntitlementPolicyCreator {
         policyElementDTO.setDescription(policySetDTO.getDescription());
         policyElementDTO.setVersion(policySetDTO.getVersion());
 
-        if(policySetDTO.getTargetDTO() != null){
+        if (policySetDTO.getTargetDTO() != null) {
             TargetElementDTO targetElementDTO = PolicyEditorUtil.
                     createTargetElementDTO(policySetDTO.getTargetDTO());
             policyElementDTO.setTargetElementDTO(targetElementDTO);
         }
 
-        if(policySetDTO.getPolicyIdReferences() != null){
+        if (policySetDTO.getPolicyIdReferences() != null) {
 
-            for(PolicyRefIdDTO dto : policySetDTO.getPolicyRefIdDTOs()){
-                if(dto.isReferenceOnly()){
-                    if(dto.isPolicySet()){
+            for (PolicyRefIdDTO dto : policySetDTO.getPolicyRefIdDTOs()) {
+                if (dto.isReferenceOnly()) {
+                    if (dto.isPolicySet()) {
                         policyElementDTO.getPolicySetIdReferences().add(dto.getId());
                     } else {
-                        policyElementDTO.getPolicyIdReferences().add(dto.getId());    
+                        policyElementDTO.getPolicyIdReferences().add(dto.getId());
                     }
                 } else {
                     org.wso2.carbon.identity.entitlement.stub.dto.PolicyDTO policyDTO = null;
-                    try{
+                    try {
                         policyDTO = client.getPolicy(dto.getId(), false);
                     } catch (Exception e) {
                         //ignore
                     }
-                    if(policyDTO != null && policyDTO.getPolicy() != null){
-                        if(dto.isPolicySet()){
+                    if (policyDTO != null && policyDTO.getPolicy() != null) {
+                        if (dto.isPolicySet()) {
                             policyElementDTO.getPolicySets().add(policyDTO.getPolicy());
                         } else {
                             policyElementDTO.getPolicies().add(policyDTO.getPolicy());
@@ -175,7 +173,7 @@ public class EntitlementPolicyCreator {
             }
         }
 
-        if(policySetDTO.getObligations() != null){
+        if (policySetDTO.getObligations() != null) {
             List<ObligationElementDTO> obligationElementDTOs = PolicyEditorUtil.
                     createObligation(policySetDTO.getObligations());
             policyElementDTO.setObligationElementDTOs(obligationElementDTOs);
@@ -192,9 +190,9 @@ public class EntitlementPolicyCreator {
     /**
      * Create basic XACML request
      *
-     * @param requestDTO  request element
+     * @param requestDTO request element
      * @return String object of the XACML request
-     * @throws EntitlementPolicyCreationException  throws
+     * @throws EntitlementPolicyCreationException throws
      */
     public String createBasicRequest(RequestDTO requestDTO)
             throws EntitlementPolicyCreationException, PolicyEditorException {

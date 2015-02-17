@@ -19,31 +19,31 @@ import java.util.ArrayList;
 
 public class PolicyRegistry {
 
-	private ArrayList<PolicyEnforcer> policyCollection = new ArrayList<PolicyEnforcer>();
-	
-	public PolicyRegistry() {
+    private ArrayList<PolicyEnforcer> policyCollection = new ArrayList<PolicyEnforcer>();
+
+    public PolicyRegistry() {
 
     }
-	
-	public void enforcePasswordPolicies(Object... args) throws PolicyViolationException {
 
-		if (args != null) {
+    public void enforcePasswordPolicies(Object... args) throws PolicyViolationException {
 
-			for (PolicyEnforcer policy : policyCollection) {
+        if (args != null) {
 
-				if (policy instanceof AbstractPasswordPolicyEnforcer) {
+            for (PolicyEnforcer policy : policyCollection) {
 
-					if (!policy.enforce(args)) {
-						throw new PolicyViolationException(policy.getErrorMessage());
-					}
-				}
+                if (policy instanceof AbstractPasswordPolicyEnforcer) {
 
-			}
-		}
-	}
-	
-	public void addPolicy(PolicyEnforcer policy) {
-		
-		policyCollection.add(policy);
-	}
+                    if (!policy.enforce(args)) {
+                        throw new PolicyViolationException(policy.getErrorMessage());
+                    }
+                }
+
+            }
+        }
+    }
+
+    public void addPolicy(PolicyEnforcer policy) {
+
+        policyCollection.add(policy);
+    }
 }

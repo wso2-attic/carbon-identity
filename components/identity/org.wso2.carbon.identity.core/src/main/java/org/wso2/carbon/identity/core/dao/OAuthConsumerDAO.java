@@ -26,15 +26,14 @@ import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.Resource;
-import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
 
 public class OAuthConsumerDAO extends AbstractDAO<OAuthConsumerDO> {
 
     protected Log log = LogFactory.getLog(OAuthConsumerDAO.class);
 
     /**
-     * 
      * @param registry
      */
     public OAuthConsumerDAO(Registry registry) {
@@ -42,7 +41,6 @@ public class OAuthConsumerDAO extends AbstractDAO<OAuthConsumerDO> {
     }
 
     /**
-     * 
      * @param ppid
      * @throws IdentityException
      */
@@ -99,7 +97,6 @@ public class OAuthConsumerDAO extends AbstractDAO<OAuthConsumerDO> {
     }
 
     /**
-     * 
      * @param ppid
      * @return
      * @throws IdentityException

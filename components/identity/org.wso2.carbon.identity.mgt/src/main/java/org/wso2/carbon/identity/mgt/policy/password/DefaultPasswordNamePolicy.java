@@ -15,35 +15,35 @@
  */
 package org.wso2.carbon.identity.mgt.policy.password;
 
-import java.util.Map;
-
 import org.wso2.carbon.identity.mgt.policy.AbstractPasswordPolicyEnforcer;
 
-public class DefaultPasswordNamePolicy extends AbstractPasswordPolicyEnforcer{
+import java.util.Map;
 
-	@Override
+public class DefaultPasswordNamePolicy extends AbstractPasswordPolicyEnforcer {
+
+    @Override
     public boolean enforce(Object... args) {
-	    
-		if(args != null){
-			
-			String password = args[0].toString();
-			String username = args[1].toString();
-			
-			if(password.equalsIgnoreCase(username)) {
-				errorMessage = "Cannot use the username as the password";
-				return false;
-			}else {
-				return true;
-			}
-		} else {
-			return true;
-		}
+
+        if (args != null) {
+
+            String password = args[0].toString();
+            String username = args[1].toString();
+
+            if (password.equalsIgnoreCase(username)) {
+                errorMessage = "Cannot use the username as the password";
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return true;
+        }
     }
 
-	@Override
-    public void init(Map<String,String> params) {
-	    // Nothing to init 
-	    
+    @Override
+    public void init(Map<String, String> params) {
+        // Nothing to init
+
     }
 
 }

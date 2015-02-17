@@ -33,7 +33,7 @@ public class OAuthUIServiceComponentHolder {
     private ServerConfigurationService serverConfigurationService;
     private HttpService httpService;
 
-    public static OAuthUIServiceComponentHolder getInstance(){
+    public static OAuthUIServiceComponentHolder getInstance() {
         return instance;
     }
 
@@ -42,7 +42,7 @@ public class OAuthUIServiceComponentHolder {
     }
 
     public void setConfigurationContextService(ConfigurationContextService configurationContextService) {
-       this.configurationContextService = configurationContextService;
+        this.configurationContextService = configurationContextService;
     }
 
     public ServerConfigurationService getServerConfigurationService() {

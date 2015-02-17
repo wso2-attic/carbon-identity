@@ -17,10 +17,6 @@
  */
 package org.wso2.carbon.identity.mgt.config;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
@@ -30,40 +26,43 @@ import org.wso2.carbon.registry.core.exceptions.ResourceNotFoundException;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 public class RegistryConfigReader implements ConfigReader {
 
-	private static final Log log = LogFactory.getLog(RegistryConfigReader.class);
-			
-	@Override
-	public Properties read(int tenantId, String resourcePath) {
+    private static final Log log = LogFactory
+            .getLog(RegistryConfigReader.class);
 
-		Resource resource = null;
-		Properties readerProps = null;
-		RegistryService registry = IdentityMgtServiceComponent
-				.getRegistryService();
+    @Override
+    public Properties read(int tenantId, String resourcePath) {
 
-		try {
-			readerProps = new Properties();
-			UserRegistry userReg = registry.getConfigSystemRegistry(tenantId);
-			resource = userReg.get(resourcePath);
+        Resource resource = null;
+        Properties readerProps = null;
+        RegistryService registry = IdentityMgtServiceComponent.getRegistryService();
 
-			Properties props = resource.getProperties();
+        try {
+            readerProps = new Properties();
+            UserRegistry userReg = registry.getConfigSystemRegistry(tenantId);
+            resource = userReg.get(resourcePath);
 
-			
-			for (Map.Entry<Object, Object> entry : props.entrySet()) {
-				String key = (String) entry.getKey();
-				List<String> listValue = (List<String>) entry.getValue();
-				String value = listValue.get(0);
-				readerProps.put(key, value);
-			}
+            Properties props = resource.getProperties();
 
-		} catch (ResourceNotFoundException re) {
-			// Ignore error since still no data has written.
-		} catch (RegistryException rnfe) {
-			log.error("Error while reading registry data", rnfe);
-		}
+            for (Map.Entry<Object, Object> entry : props.entrySet()) {
+                String key = (String) entry.getKey();
+                List<String> listValue = (List<String>) entry.getValue();
+                String value = listValue.get(0);
+                readerProps.put(key, value);
+            }
 
-		return readerProps;
-	}
+        } catch (ResourceNotFoundException re) {
+            // Ignore error since still no data has written.
+        } catch (RegistryException rnfe) {
+            log.error("Error while reading registry data", rnfe);
+        }
+
+        return readerProps;
+    }
 
 }

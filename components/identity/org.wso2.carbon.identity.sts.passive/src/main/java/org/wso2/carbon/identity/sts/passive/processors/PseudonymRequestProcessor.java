@@ -21,7 +21,7 @@ import org.apache.rahas.TrustException;
 import org.wso2.carbon.identity.sts.passive.RequestToken;
 import org.wso2.carbon.identity.sts.passive.ResponseToken;
 
-public class PseudonymRequestProcessor extends RequestProcessor  {
+public class PseudonymRequestProcessor extends RequestProcessor {
 
     public ResponseToken process(RequestToken request) throws TrustException {
         // TODO Auto-generated method stub

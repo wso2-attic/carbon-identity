@@ -21,23 +21,23 @@ package org.wso2.carbon.identity.application.authenticator.samlsso.model;
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorStateInfo;
 
 public class StateInfo extends AuthenticatorStateInfo {
-	
-	private String sessionIndex;
-	private String subject;
 
-	public String getSessionIndex() {
-		return sessionIndex;
-	}
+    private String sessionIndex;
+    private String subject;
 
-	public void setSessionIndex(String sessionIndex) {
-		this.sessionIndex = sessionIndex;
-	}
+    public String getSessionIndex() {
+        return sessionIndex;
+    }
 
-	public String getSubject() {
-		return subject;
-	}
+    public void setSessionIndex(String sessionIndex) {
+        this.sessionIndex = sessionIndex;
+    }
 
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
 }

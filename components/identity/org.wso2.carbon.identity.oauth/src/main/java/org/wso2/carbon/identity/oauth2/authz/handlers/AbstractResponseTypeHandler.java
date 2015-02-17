@@ -32,11 +32,11 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeReqDTO;
 
 public abstract class AbstractResponseTypeHandler implements ResponseTypeHandler {
 
-    private OAuthCallbackManager callbackManager;
     protected OAuthIssuerImpl oauthIssuerImpl;
     protected TokenMgtDAO tokenMgtDAO;
     protected boolean cacheEnabled;
     protected OAuthCache oauthCache;
+    private OAuthCallbackManager callbackManager;
 
     // protected OAuthCache<CacheKey, AccessTokenDO> oauthCache;
 

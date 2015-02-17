@@ -18,54 +18,55 @@ package org.wso2.carbon.identity.tools.saml.validator.dto;
 
 public class GeneratedResponseDTO {
 
-	private boolean success;
-	private String message;
-	private String xmlResponse;
-	private String encodedResponse;
+    private boolean success;
+    private String message;
+    private String xmlResponse;
+    private String encodedResponse;
 
-	public GeneratedResponseDTO(){}
-	
-	public GeneratedResponseDTO(boolean success, String message){
-		this.success = success;
-		this.message = message;
-	}
-	
-	public GeneratedResponseDTO(boolean success, String message, String xmlResponse, String encodedResponse){
-		this.success = success;
-		this.message = message;
-		this.xmlResponse = xmlResponse;
-		this.encodedResponse = encodedResponse;
-	}
+    public GeneratedResponseDTO() {
+    }
 
-	public boolean isSuccess() {
-		return success;
-	}
+    public GeneratedResponseDTO(boolean success, String message) {
+        this.success = success;
+        this.message = message;
+    }
 
-	public void setSuccess(boolean success) {
-		this.success = success;
-	}
+    public GeneratedResponseDTO(boolean success, String message, String xmlResponse, String encodedResponse) {
+        this.success = success;
+        this.message = message;
+        this.xmlResponse = xmlResponse;
+        this.encodedResponse = encodedResponse;
+    }
 
-	public String getMessage() {
-		return message;
-	}
+    public boolean isSuccess() {
+        return success;
+    }
 
-	public void setMessage(String message) {
-		this.message = message;
-	}
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
 
-	public String getXmlResponse() {
-		return xmlResponse;
-	}
+    public String getMessage() {
+        return message;
+    }
 
-	public void setXmlResponse(String xmlResponse) {
-		this.xmlResponse = xmlResponse;
-	}
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
-	public String getEncodedResponse() {
-		return encodedResponse;
-	}
+    public String getXmlResponse() {
+        return xmlResponse;
+    }
 
-	public void setEncodedResponse(String encodedResponse) {
-		this.encodedResponse = encodedResponse;
-	}
+    public void setXmlResponse(String xmlResponse) {
+        this.xmlResponse = xmlResponse;
+    }
+
+    public String getEncodedResponse() {
+        return encodedResponse;
+    }
+
+    public void setEncodedResponse(String encodedResponse) {
+        this.encodedResponse = encodedResponse;
+    }
 }

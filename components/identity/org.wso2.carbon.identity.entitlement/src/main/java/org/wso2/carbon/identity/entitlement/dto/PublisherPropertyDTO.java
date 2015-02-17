@@ -29,7 +29,7 @@ public class PublisherPropertyDTO {
 
     private String value;
 
-    private boolean  required;
+    private boolean required;
 
     private int displayOrder;
 

@@ -17,6 +17,10 @@
  */
 package org.wso2.carbon.identity.mgt.config;
 
+import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
+import org.wso2.carbon.identity.mgt.dto.EmailTemplateDTO;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -24,14 +28,10 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
-import org.wso2.carbon.identity.mgt.dto.EmailTemplateDTO;
 
 /**
  * This class is used to transform <code>Properties</code> to <code>EmailTemplateDTO</code>
  * and vice versa.
- *
  */
 public class EmailConfigTransformer {
 	

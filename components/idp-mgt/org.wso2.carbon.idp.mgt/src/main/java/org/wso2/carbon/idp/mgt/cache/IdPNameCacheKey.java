@@ -28,7 +28,8 @@ public class IdPNameCacheKey extends CacheKey {
         this.idPName = idPName;
         this.tenantDomain = tenantDomain.toLowerCase();
     }
-    public String getIdPName(){
+
+    public String getIdPName() {
         return idPName;
     }
 

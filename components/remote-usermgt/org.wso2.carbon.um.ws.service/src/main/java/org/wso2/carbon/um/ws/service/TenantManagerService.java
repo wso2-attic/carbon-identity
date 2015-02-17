@@ -17,8 +17,6 @@
  */
 package org.wso2.carbon.um.ws.service;
 
-import javax.swing.AbstractAction;
-
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.um.ws.service.internal.UMRemoteServicesDSComponent;
 import org.wso2.carbon.user.core.UserStoreException;

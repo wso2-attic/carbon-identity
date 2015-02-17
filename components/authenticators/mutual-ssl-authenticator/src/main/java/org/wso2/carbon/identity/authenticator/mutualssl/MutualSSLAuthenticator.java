@@ -18,20 +18,13 @@
 
 package org.wso2.carbon.identity.authenticator.mutualssl;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
+import org.apache.axiom.om.util.Base64;
 import org.apache.axiom.soap.SOAPEnvelope;
 import org.apache.axiom.soap.SOAPHeader;
 import org.apache.axiom.soap.SOAPHeaderBlock;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
@@ -44,8 +37,14 @@ import org.wso2.carbon.user.api.TenantManager;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.utils.AuthenticationObserver;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
-import org.apache.axiom.om.util.Base64;
-import org.apache.commons.lang.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Authenticator for certificate based two-way authentication
@@ -87,7 +86,7 @@ public class MutualSSLAuthenticator implements CarbonServerAuthenticator {
     private static final Log log = LogFactory.getLog(MutualSSLAuthenticator.class);
 
     private static String usernameHeaderName = "UserName";
-    private static String [] whiteList;
+    private static String[] whiteList;
     private static boolean whiteListEnabled = false;
     private static boolean authenticatorInitialized = false;
 
@@ -131,7 +130,7 @@ public class MutualSSLAuthenticator implements CarbonServerAuthenticator {
                             whiteList[index] = thumbprint;
 
                             if (log.isDebugEnabled()) {
-                               log.debug("Client thumbprint " + thumbprint + " added to the white list" );
+                                log.debug("Client thumbprint " + thumbprint + " added to the white list");
                             }
                             index++;
                         }
@@ -153,9 +152,9 @@ public class MutualSSLAuthenticator implements CarbonServerAuthenticator {
     @Override
     public int getPriority() {
         AuthenticatorsConfiguration authenticatorsConfiguration =
-                                                                  AuthenticatorsConfiguration.getInstance();
+                AuthenticatorsConfiguration.getInstance();
         AuthenticatorsConfiguration.AuthenticatorConfig authenticatorConfig =
-                                                                              authenticatorsConfiguration.getAuthenticatorConfig(AUTHENTICATOR_NAME);
+                authenticatorsConfiguration.getAuthenticatorConfig(AUTHENTICATOR_NAME);
         if (authenticatorConfig != null && authenticatorConfig.getPriority() > 0) {
             return authenticatorConfig.getPriority();
         }
@@ -165,9 +164,9 @@ public class MutualSSLAuthenticator implements CarbonServerAuthenticator {
     @Override
     public boolean isDisabled() {
         AuthenticatorsConfiguration authenticatorsConfiguration =
-                                                                  AuthenticatorsConfiguration.getInstance();
+                AuthenticatorsConfiguration.getInstance();
         AuthenticatorsConfiguration.AuthenticatorConfig authenticatorConfig =
-                                                                              authenticatorsConfiguration.getAuthenticatorConfig(AUTHENTICATOR_NAME);
+                authenticatorsConfiguration.getAuthenticatorConfig(AUTHENTICATOR_NAME);
         if (authenticatorConfig != null) {
             return authenticatorConfig.isDisabled();
         }
@@ -215,7 +214,7 @@ public class MutualSSLAuthenticator implements CarbonServerAuthenticator {
                             log.debug("Client certificate thumbprint is " + thumbprint);
                         }
 
-                        for(String whiteThumbprint : whiteList) {
+                        for (String whiteThumbprint : whiteList) {
                             if (thumbprint.equals(whiteThumbprint)) {
                                 // Thumbprint of the client certificate is in the trusted list
                                 trustedThumbprint = true;
@@ -306,7 +305,7 @@ public class MutualSSLAuthenticator implements CarbonServerAuthenticator {
                             isAuthenticated = false;
                         }
                     }
-                } else{
+                } else {
                     if (log.isDebugEnabled()) {
                         log.debug("Client Thumbprint " + thumbprint + " is not in the White List of " + AUTHENTICATOR_NAME);
                     }
@@ -347,7 +346,7 @@ public class MutualSSLAuthenticator implements CarbonServerAuthenticator {
                     if (header != null) {
                         ArrayList<SOAPHeaderBlock> headers = header.getHeaderBlocksWithNSURI(MUTUAL_SSL_URL);
                         if (headers != null) {
-                            for(SOAPHeaderBlock soapHeaderBlock : headers ) {
+                            for (SOAPHeaderBlock soapHeaderBlock : headers) {
                                 if (usernameHeaderName.equals(soapHeaderBlock.getLocalName())) {
                                     //Username can be in SOAP Header
                                     canHandle = true;
@@ -375,7 +374,7 @@ public class MutualSSLAuthenticator implements CarbonServerAuthenticator {
                     }
                 }
             }
-        } else{
+        } else {
             if (log.isDebugEnabled()) {
                 log.debug("MutualSSLAuthenticator is Disabled.");
             }
@@ -385,6 +384,7 @@ public class MutualSSLAuthenticator implements CarbonServerAuthenticator {
 
     /**
      * Helper method to retrieve the thumbprint of a X509 certificate
+     *
      * @param cert X509 certificate
      * @return Thumbprint of the X509 certificate
      * @throws NoSuchAlgorithmException
@@ -399,12 +399,13 @@ public class MutualSSLAuthenticator implements CarbonServerAuthenticator {
 
     /**
      * Helper method to hexify a byte array.
+     *
      * @param bytes Bytes of message digest
      * @return Hexadecimal representation
      */
     private String hexify(byte bytes[]) {
         StringBuilder builder = new StringBuilder(bytes.length * 2);
-        char[] hexDigits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+        char[] hexDigits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
         for (byte byteValue : bytes) {
             builder.append(hexDigits[(byteValue & 0xf0) >> 4]).append(hexDigits[byteValue & 0x0f]);

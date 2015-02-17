@@ -18,15 +18,6 @@
 
 package org.wso2.carbon.identity.provisioning.dao;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
@@ -39,433 +30,432 @@ import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProvisioningManagementDAO {
 
-	private static final Log log = LogFactory.getLog(ProvisioningManagementDAO.class);
+    private static final Log log = LogFactory.getLog(ProvisioningManagementDAO.class);
 
-	/**
-	 * 
-	 * @param identityProviderName
-	 * @param connectorType
-	 * @param provisioningEntity
-	 * @param tenantId
-	 * @throws IdentityApplicationManagementException
-	 */
-	public void addProvisioningEntity(String identityProviderName, String connectorType,
-	                                  ProvisioningEntity provisioningEntity, int tenantId)
-	                                                                                       throws IdentityApplicationManagementException {
+    /**
+     * @param identityProviderName
+     * @param connectorType
+     * @param provisioningEntity
+     * @param tenantId
+     * @throws IdentityApplicationManagementException
+     */
+    public void addProvisioningEntity(String identityProviderName, String connectorType,
+                                      ProvisioningEntity provisioningEntity, int tenantId)
+            throws IdentityApplicationManagementException {
 
-		Connection dbConnection = null;
-		try {
-			dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
+        Connection dbConnection = null;
+        try {
+            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
 
-			PreparedStatement prepStmt = null;
+            PreparedStatement prepStmt = null;
 
-			// id of the identity provider
-			int idpId = getIdentityProviderIdentifier(dbConnection, identityProviderName, tenantId);
+            // id of the identity provider
+            int idpId = getIdentityProviderIdentifier(dbConnection, identityProviderName, tenantId);
 
-			// id of the provisioning configuration
-			int provisioningConfigId = getProvisioningConfigurationIdentifier(dbConnection, idpId,
-			                                                               connectorType);
-			
-			// PROVISIONING_CONFIG_ID, ENTITY_TYPE,
-			// ENTITY_LOCAL_USERSTORE, ENTITY_NAME, ENTITY_VALUE,
-			// TENANT_ID
-			String sqlStmt = IdentityProvisioningConstants.SQLQueries.ADD_PROVISIONING_ENTITY_SQL;
+            // id of the provisioning configuration
+            int provisioningConfigId = getProvisioningConfigurationIdentifier(dbConnection, idpId,
+                    connectorType);
 
-			prepStmt = dbConnection.prepareStatement(sqlStmt);
-			prepStmt.setInt(1, provisioningConfigId);
-			prepStmt.setString(2, provisioningEntity.getEntityType().toString());
-			prepStmt.setString(3, UserCoreUtil.extractDomainFromName(provisioningEntity.getEntityName()));
-			prepStmt.setString(4, UserCoreUtil.removeDomainFromName(provisioningEntity.getEntityName()));
-			prepStmt.setString(5, provisioningEntity.getIdentifier().getIdentifier());
-			prepStmt.setInt(6, tenantId);
+            // PROVISIONING_CONFIG_ID, ENTITY_TYPE,
+            // ENTITY_LOCAL_USERSTORE, ENTITY_NAME, ENTITY_VALUE,
+            // TENANT_ID
+            String sqlStmt = IdentityProvisioningConstants.SQLQueries.ADD_PROVISIONING_ENTITY_SQL;
 
-            prepStmt.execute();
-			dbConnection.commit();
-		} catch (SQLException e) {
-			IdentityApplicationManagementUtil.rollBack(dbConnection);
-			String msg = "Error occurred while adding Provisioning entity for tenant " + tenantId;
-			throw new IdentityApplicationManagementException(msg, e);
-		} finally {
-			IdentityApplicationManagementUtil.closeConnection(dbConnection);
-		}
-	}
-
-	/**
-	 * 
-	 * @param identityProviderName
-	 * @param connectorType
-	 * @param provisioningEntity
-	 * @param tenantId
-	 * @throws IdentityApplicationManagementException
-	 */
-	public void deleteProvisioningEntity(String identityProviderName, String connectorType,
-	                                  ProvisioningEntity provisioningEntity, int tenantId)
-	                                                                                       throws IdentityApplicationManagementException {
-
-		Connection dbConnection = null;
-		try {
-			dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
-
-			PreparedStatement prepStmt = null;
-
-			// id of the identity provider
-			int idpId = getIdentityProviderIdentifier(dbConnection, identityProviderName, tenantId);
-
-			// id of the provisioning configuration
-			int provisioningConfigId = getProvisioningConfigurationIdentifier(dbConnection, idpId,
-			                                                               connectorType);
-			
-			// PROVISIONING_CONFIG_ID, ENTITY_TYPE,
-			// ENTITY_LOCAL_USERSTORE, ENTITY_NAME, TENANT_ID
-			String sqlStmt = IdentityProvisioningConstants.SQLQueries.DELETE_PROVISIONING_ENTITY_SQL;
-
-			prepStmt = dbConnection.prepareStatement(sqlStmt);
-			prepStmt.setInt(1, provisioningConfigId);
-			prepStmt.setString(2, provisioningEntity.getEntityType().toString());
-			prepStmt.setString(3, UserCoreUtil.extractDomainFromName(provisioningEntity.getEntityName()));
-			prepStmt.setString(4, UserCoreUtil.removeDomainFromName(provisioningEntity.getEntityName()));
-			prepStmt.setInt(5, tenantId);
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setInt(1, provisioningConfigId);
+            prepStmt.setString(2, provisioningEntity.getEntityType().toString());
+            prepStmt.setString(3, UserCoreUtil.extractDomainFromName(provisioningEntity.getEntityName()));
+            prepStmt.setString(4, UserCoreUtil.removeDomainFromName(provisioningEntity.getEntityName()));
+            prepStmt.setString(5, provisioningEntity.getIdentifier().getIdentifier());
+            prepStmt.setInt(6, tenantId);
 
             prepStmt.execute();
-			dbConnection.commit();
-		} catch (SQLException e) {
-			IdentityApplicationManagementUtil.rollBack(dbConnection);
-			String msg = "Error occurred while deleting Provisioning entity for tenant " + tenantId;
-			throw new IdentityApplicationManagementException(msg, e);
-		} finally {
-			IdentityApplicationManagementUtil.closeConnection(dbConnection);
-		}
-	}
+            dbConnection.commit();
+        } catch (SQLException e) {
+            IdentityApplicationManagementUtil.rollBack(dbConnection);
+            String msg = "Error occurred while adding Provisioning entity for tenant " + tenantId;
+            throw new IdentityApplicationManagementException(msg, e);
+        } finally {
+            IdentityApplicationManagementUtil.closeConnection(dbConnection);
+        }
+    }
 
-	/**
-	 * 
-	 * @param identityProviderName
-	 * @param connectorType
-	 * @param provisioningEntity
-	 * @param tenantId
-	 * @throws IdentityApplicationManagementException
-	 */
-	public ProvisionedIdentifier getProvisionedIdentifier(String identityProviderName, String connectorType,
-	                                  ProvisioningEntity provisioningEntity, int tenantId)
-	                                                                                       throws IdentityApplicationManagementException {
+    /**
+     * @param identityProviderName
+     * @param connectorType
+     * @param provisioningEntity
+     * @param tenantId
+     * @throws IdentityApplicationManagementException
+     */
+    public void deleteProvisioningEntity(String identityProviderName, String connectorType,
+                                         ProvisioningEntity provisioningEntity, int tenantId)
+            throws IdentityApplicationManagementException {
 
-		Connection dbConnection = null;
-		try {
-			dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
+        Connection dbConnection = null;
+        try {
+            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
 
-			PreparedStatement prepStmt = null;
+            PreparedStatement prepStmt = null;
 
-			// id of the identity provider
-			int idpId = getIdentityProviderIdentifier(dbConnection, identityProviderName, tenantId);
+            // id of the identity provider
+            int idpId = getIdentityProviderIdentifier(dbConnection, identityProviderName, tenantId);
 
-			// id of the provisioning configuration
-			int provisioningConfigId = getProvisioningConfigurationIdentifier(dbConnection, idpId,
-			                                                               connectorType);
-			
-			// PROVISIONING_CONFIG_ID, ENTITY_TYPE,
-			// ENTITY_LOCAL_USERSTORE, ENTITY_NAME, ENTITY_VALUE,
-			// TENANT_ID
-			String sqlStmt = IdentityProvisioningConstants.SQLQueries.GET_PROVISIONING_ENTITY_SQL;
+            // id of the provisioning configuration
+            int provisioningConfigId = getProvisioningConfigurationIdentifier(dbConnection, idpId,
+                    connectorType);
 
-			prepStmt = dbConnection.prepareStatement(sqlStmt);
-			prepStmt.setInt(1, provisioningConfigId);
-			prepStmt.setString(2, provisioningEntity.getEntityType().toString());
-			prepStmt.setString(3, UserCoreUtil.extractDomainFromName(provisioningEntity.getEntityName()));
-			prepStmt.setString(4, UserCoreUtil.removeDomainFromName(provisioningEntity.getEntityName()));
-			prepStmt.setInt(5, tenantId);
-			
+            // PROVISIONING_CONFIG_ID, ENTITY_TYPE,
+            // ENTITY_LOCAL_USERSTORE, ENTITY_NAME, TENANT_ID
+            String sqlStmt = IdentityProvisioningConstants.SQLQueries.DELETE_PROVISIONING_ENTITY_SQL;
 
-			ResultSet rs = prepStmt.executeQuery();
-			if (rs.next()) {
-				String entityId = rs.getString(1);
-				ProvisionedIdentifier provisionedIdentifier = new ProvisionedIdentifier();
-				provisionedIdentifier.setIdentifier(entityId);
-				return provisionedIdentifier;
-			} else {
-				return null;
-			}
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setInt(1, provisioningConfigId);
+            prepStmt.setString(2, provisioningEntity.getEntityType().toString());
+            prepStmt.setString(3, UserCoreUtil.extractDomainFromName(provisioningEntity.getEntityName()));
+            prepStmt.setString(4, UserCoreUtil.removeDomainFromName(provisioningEntity.getEntityName()));
+            prepStmt.setInt(5, tenantId);
 
-		} catch (SQLException e) {
-			IdentityApplicationManagementUtil.rollBack(dbConnection);
-			String msg = "Error occurred while adding Provisioning entity for tenant " + tenantId;
-			throw new IdentityApplicationManagementException(msg, e);
-		} finally {
-			IdentityApplicationManagementUtil.closeConnection(dbConnection);
-		}
-	}
+            prepStmt.execute();
+            dbConnection.commit();
+        } catch (SQLException e) {
+            IdentityApplicationManagementUtil.rollBack(dbConnection);
+            String msg = "Error occurred while deleting Provisioning entity for tenant " + tenantId;
+            throw new IdentityApplicationManagementException(msg, e);
+        } finally {
+            IdentityApplicationManagementUtil.closeConnection(dbConnection);
+        }
+    }
 
-	/**
-	 * 
-	 * @param newIdentityProvider
-	 * @param currentIdentityProvider
-	 * @param tenantId
-	 * @throws IdentityApplicationManagementException
-	 */
-	public void updateProvisionedIdentifier(IdentityProvider newIdentityProvider,
-	                      IdentityProvider currentIdentityProvider, int tenantId)
-	                                                                             throws IdentityApplicationManagementException {
+    /**
+     * @param identityProviderName
+     * @param connectorType
+     * @param provisioningEntity
+     * @param tenantId
+     * @throws IdentityApplicationManagementException
+     */
+    public ProvisionedIdentifier getProvisionedIdentifier(String identityProviderName, String connectorType,
+                                                          ProvisioningEntity provisioningEntity, int tenantId)
+            throws IdentityApplicationManagementException {
 
-		Connection dbConnection = null;
+        Connection dbConnection = null;
+        try {
+            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
 
-		try {
+            PreparedStatement prepStmt = null;
 
-			dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
+            // id of the identity provider
+            int idpId = getIdentityProviderIdentifier(dbConnection, identityProviderName, tenantId);
 
-			int idPId =
-			            getIdentityProviderIdByName(dbConnection,
-			                                        newIdentityProvider.getIdentityProviderName(),
-			                                        tenantId);
+            // id of the provisioning configuration
+            int provisioningConfigId = getProvisioningConfigurationIdentifier(dbConnection, idpId,
+                    connectorType);
 
-			if (idPId <= 0) {
-				String msg =
-				             "Trying to update non-existent Identity Provider for tenant " +
-				                     tenantId;
-				throw new IdentityApplicationManagementException(msg);
-			}
+            // PROVISIONING_CONFIG_ID, ENTITY_TYPE,
+            // ENTITY_LOCAL_USERSTORE, ENTITY_NAME, ENTITY_VALUE,
+            // TENANT_ID
+            String sqlStmt = IdentityProvisioningConstants.SQLQueries.GET_PROVISIONING_ENTITY_SQL;
 
-			PreparedStatement prepStmt = null;
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setInt(1, provisioningConfigId);
+            prepStmt.setString(2, provisioningEntity.getEntityType().toString());
+            prepStmt.setString(3, UserCoreUtil.extractDomainFromName(provisioningEntity.getEntityName()));
+            prepStmt.setString(4, UserCoreUtil.removeDomainFromName(provisioningEntity.getEntityName()));
+            prepStmt.setInt(5, tenantId);
 
-			// SP_IDP_NAME=?, SP_IDP_PRIMARY=?,SP_IDP_HOME_REALM_ID=?,
-			// SP_IDP_THUMBPRINT=?,
-			// SP_IDP_TOKEN_EP_ALIAS=?,
-			// SP_IDP_INBOUND_PROVISIONING_ENABLED=?,SP_IDP_INBOUND_PROVISIONING_USER_STORE_ID=?,SP_IDP_USER_CLAIM_URI=?,
-			// SP_IDP_ROLE_CLAIM_URI=?,SP_IDP_DEFAULT_AUTHENTICATOR_NAME=?,SP_IDP_DEFAULT_PRO_CONNECTOR_NAME=?
-			String sqlStmt = IdPManagementConstants.SQLQueries.UPDATE_IDP_SQL;
-			prepStmt = dbConnection.prepareStatement(sqlStmt);
 
-			prepStmt.setString(1, newIdentityProvider.getIdentityProviderName());
+            ResultSet rs = prepStmt.executeQuery();
+            if (rs.next()) {
+                String entityId = rs.getString(1);
+                ProvisionedIdentifier provisionedIdentifier = new ProvisionedIdentifier();
+                provisionedIdentifier.setIdentifier(entityId);
+                return provisionedIdentifier;
+            } else {
+                return null;
+            }
 
-			if (newIdentityProvider.isPrimary()) {
-				prepStmt.setString(2, "1");
-			} else {
-				prepStmt.setString(2, "0");
-			}
+        } catch (SQLException e) {
+            IdentityApplicationManagementUtil.rollBack(dbConnection);
+            String msg = "Error occurred while adding Provisioning entity for tenant " + tenantId;
+            throw new IdentityApplicationManagementException(msg, e);
+        } finally {
+            IdentityApplicationManagementUtil.closeConnection(dbConnection);
+        }
+    }
 
-			prepStmt.setString(3, newIdentityProvider.getHomeRealmId());
-			prepStmt.setBinaryStream(4, setBlobValue(newIdentityProvider.getCertificate()));
-			prepStmt.setString(5, newIdentityProvider.getAlias());
+    /**
+     * @param newIdentityProvider
+     * @param currentIdentityProvider
+     * @param tenantId
+     * @throws IdentityApplicationManagementException
+     */
+    public void updateProvisionedIdentifier(IdentityProvider newIdentityProvider,
+                                            IdentityProvider currentIdentityProvider, int tenantId)
+            throws IdentityApplicationManagementException {
 
-			if (newIdentityProvider.getJustInTimeProvisioningConfig() != null &&
-			    newIdentityProvider.getJustInTimeProvisioningConfig().isProvisioningEnabled()) {
-				prepStmt.setString(6, "1");
-				prepStmt.setString(7, newIdentityProvider.getJustInTimeProvisioningConfig()
-				                                         .getProvisioningUserStore());
+        Connection dbConnection = null;
 
-			} else {
-				prepStmt.setString(6, "0");
-				prepStmt.setString(7, null);
-			}
+        try {
 
-			if (newIdentityProvider.getClaimConfig() != null) {
-				prepStmt.setString(8, newIdentityProvider.getClaimConfig().getUserClaimURI());
-				prepStmt.setString(9, newIdentityProvider.getClaimConfig().getRoleClaimURI());
-			} else {
-				prepStmt.setString(8, null);
-				prepStmt.setString(9, null);
-			}
+            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
 
-			// update the default authenticator
-			if (newIdentityProvider.getDefaultAuthenticatorConfig() != null &&
-			    newIdentityProvider.getDefaultAuthenticatorConfig().getName() != null) {
-				prepStmt.setString(10, newIdentityProvider.getDefaultAuthenticatorConfig()
-				                                          .getName());
-			} else {
-				// its not a must to have a default authenticator.
-				prepStmt.setString(10, null);
-			}
+            int idPId =
+                    getIdentityProviderIdByName(dbConnection,
+                            newIdentityProvider.getIdentityProviderName(),
+                            tenantId);
 
-			// update the default provisioning connector.
-			if (newIdentityProvider.getDefaultProvisioningConnectorConfig() != null &&
-			    newIdentityProvider.getDefaultProvisioningConnectorConfig().getName() != null) {
-				prepStmt.setString(11, newIdentityProvider.getDefaultProvisioningConnectorConfig()
-				                                          .getName());
-			} else {
-				// its not a must to have a default provisioning connector..
-				prepStmt.setString(11, null);
-			}
+            if (idPId <= 0) {
+                String msg =
+                        "Trying to update non-existent Identity Provider for tenant " +
+                                tenantId;
+                throw new IdentityApplicationManagementException(msg);
+            }
 
-			prepStmt.setString(12, newIdentityProvider.getIdentityProviderDescription());
+            PreparedStatement prepStmt = null;
 
-			prepStmt.setInt(13, tenantId);
-			prepStmt.setString(14, currentIdentityProvider.getIdentityProviderName());
+            // SP_IDP_NAME=?, SP_IDP_PRIMARY=?,SP_IDP_HOME_REALM_ID=?,
+            // SP_IDP_THUMBPRINT=?,
+            // SP_IDP_TOKEN_EP_ALIAS=?,
+            // SP_IDP_INBOUND_PROVISIONING_ENABLED=?,SP_IDP_INBOUND_PROVISIONING_USER_STORE_ID=?,SP_IDP_USER_CLAIM_URI=?,
+            // SP_IDP_ROLE_CLAIM_URI=?,SP_IDP_DEFAULT_AUTHENTICATOR_NAME=?,SP_IDP_DEFAULT_PRO_CONNECTOR_NAME=?
+            String sqlStmt = IdPManagementConstants.SQLQueries.UPDATE_IDP_SQL;
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
 
-			prepStmt.executeUpdate();
+            prepStmt.setString(1, newIdentityProvider.getIdentityProviderName());
 
-			prepStmt.clearParameters();
-			IdentityApplicationManagementUtil.closeStatement(prepStmt);
+            if (newIdentityProvider.isPrimary()) {
+                prepStmt.setString(2, "1");
+            } else {
+                prepStmt.setString(2, "0");
+            }
 
-			sqlStmt = IdPManagementConstants.SQLQueries.GET_IDP_BY_NAME_SQL;
-			prepStmt = dbConnection.prepareStatement(sqlStmt);
-			prepStmt.setInt(1, tenantId);
-			prepStmt.setString(2, newIdentityProvider.getIdentityProviderName());
-			ResultSet rs = prepStmt.executeQuery();
+            prepStmt.setString(3, newIdentityProvider.getHomeRealmId());
+            prepStmt.setBinaryStream(4, setBlobValue(newIdentityProvider.getCertificate()));
+            prepStmt.setString(5, newIdentityProvider.getAlias());
 
-			if (rs.next()) {
+            if (newIdentityProvider.getJustInTimeProvisioningConfig() != null &&
+                    newIdentityProvider.getJustInTimeProvisioningConfig().isProvisioningEnabled()) {
+                prepStmt.setString(6, "1");
+                prepStmt.setString(7, newIdentityProvider.getJustInTimeProvisioningConfig()
+                        .getProvisioningUserStore());
 
-				// id of the updated identity provider.
-				int idpId = rs.getInt(1);
+            } else {
+                prepStmt.setString(6, "0");
+                prepStmt.setString(7, null);
+            }
 
-			}
+            if (newIdentityProvider.getClaimConfig() != null) {
+                prepStmt.setString(8, newIdentityProvider.getClaimConfig().getUserClaimURI());
+                prepStmt.setString(9, newIdentityProvider.getClaimConfig().getRoleClaimURI());
+            } else {
+                prepStmt.setString(8, null);
+                prepStmt.setString(9, null);
+            }
 
-			dbConnection.commit();
-		} catch (SQLException e) {
-			log.error(e.getMessage(), e);
-			IdentityApplicationManagementUtil.rollBack(dbConnection);
-			String msg =
-			             "Error occurred while updating Identity Provider information  for tenant " +
-			                     tenantId;
-			throw new IdentityApplicationManagementException(msg, e);
-		} finally {
-			IdentityApplicationManagementUtil.closeConnection(dbConnection);
-		}
-	}
+            // update the default authenticator
+            if (newIdentityProvider.getDefaultAuthenticatorConfig() != null &&
+                    newIdentityProvider.getDefaultAuthenticatorConfig().getName() != null) {
+                prepStmt.setString(10, newIdentityProvider.getDefaultAuthenticatorConfig()
+                        .getName());
+            } else {
+                // its not a must to have a default authenticator.
+                prepStmt.setString(10, null);
+            }
 
-	/**
-	 * 
-	 * @param idPName
-	 * @param tenantId
-	 * @param tenantDomain
-	 * @throws IdentityApplicationManagementException
-	 */
-	public void deleteProvisionedIdentifier(String idPName, int tenantId, String tenantDomain)
-	                                                                        throws IdentityApplicationManagementException {
+            // update the default provisioning connector.
+            if (newIdentityProvider.getDefaultProvisioningConnectorConfig() != null &&
+                    newIdentityProvider.getDefaultProvisioningConnectorConfig().getName() != null) {
+                prepStmt.setString(11, newIdentityProvider.getDefaultProvisioningConnectorConfig()
+                        .getName());
+            } else {
+                // its not a must to have a default provisioning connector..
+                prepStmt.setString(11, null);
+            }
 
-		Connection dbConnection = null;
-	}
+            prepStmt.setString(12, newIdentityProvider.getIdentityProviderDescription());
 
-	/**
-	 * 
-	 * @param conn
-	 * @param tenantId
-	 * @param idPName
-	 * @throws SQLException
-	 */
-	private void deleteIdP(Connection conn, int tenantId, String idPName) throws SQLException {
+            prepStmt.setInt(13, tenantId);
+            prepStmt.setString(14, currentIdentityProvider.getIdentityProviderName());
 
-		PreparedStatement prepStmt = null;
-		String sqlStmt = IdPManagementConstants.SQLQueries.DELETE_IDP_SQL;
+            prepStmt.executeUpdate();
 
-		try {
-			prepStmt = conn.prepareStatement(sqlStmt);
-			prepStmt.setInt(1, tenantId);
-			prepStmt.setString(2, idPName);
-			prepStmt.executeUpdate();
-		} finally {
-			IdentityApplicationManagementUtil.closeStatement(prepStmt);
-		}
-	}
+            prepStmt.clearParameters();
+            IdentityApplicationManagementUtil.closeStatement(prepStmt);
 
-	/**
-	 * 
-	 * @param dbConnection
-	 * @param idpName
-	 * @param tenantId
-	 * @return
-	 * @throws SQLException
-	 * @throws IdentityApplicationManagementException
-	 */
-	private int getIdentityProviderIdByName(Connection dbConnection, String idpName, int tenantId)
-	                                                                                              throws SQLException,
-	                                                                                              IdentityApplicationManagementException {
+            sqlStmt = IdPManagementConstants.SQLQueries.GET_IDP_BY_NAME_SQL;
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setInt(1, tenantId);
+            prepStmt.setString(2, newIdentityProvider.getIdentityProviderName());
+            ResultSet rs = prepStmt.executeQuery();
 
-		boolean dbConnInitialized = true;
-		PreparedStatement prepStmt = null;
-		ResultSet rs = null;
-		try {
-			if (dbConnection == null) {
-				dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
-			} else {
-				dbConnInitialized = false;
-			}
-			String sqlStmt = IdPManagementConstants.SQLQueries.GET_IDP_ROW_ID_SQL;
-			prepStmt = dbConnection.prepareStatement(sqlStmt);
-			prepStmt.setInt(1, tenantId);
-			prepStmt.setString(2, idpName);
-			rs = prepStmt.executeQuery();
-			if (rs.next()) {
-				return rs.getInt(1);
-			}
-		} finally {
-			IdentityApplicationManagementUtil.closeStatement(prepStmt);
-			IdentityApplicationManagementUtil.closeResultSet(rs);
-			if (dbConnInitialized) {
-				IdentityApplicationManagementUtil.closeConnection(dbConnection);
-			}
-		}
-		return 0;
-	}
+            if (rs.next()) {
 
-	/**
-	 * 
-	 * @param dbConnection
-	 * @param idPName
-	 * @param tenantId
-	 * @return
-	 * @throws SQLException
-	 * @throws IdentityApplicationManagementException
-	 */
-	private int getIdentityProviderIdentifier(Connection dbConnection, String idPName, int tenantId)
-	                                                                                                throws SQLException,
-	                                                                                                IdentityApplicationManagementException {
+                // id of the updated identity provider.
+                int idpId = rs.getInt(1);
 
-		String sqlStmt = null;
-		PreparedStatement prepStmt = null;
-		ResultSet rs = null;
-		try {
-			sqlStmt = IdPManagementConstants.SQLQueries.GET_IDP_ID_BY_NAME_SQL;
-			prepStmt = dbConnection.prepareStatement(sqlStmt);
-			prepStmt.setInt(1, tenantId);
-			prepStmt.setString(2, idPName);
-			rs = prepStmt.executeQuery();
-			if (rs.next()) {
-				return rs.getInt(1);
-			} else {
-				throw new IdentityApplicationManagementException("Invalid Identity Provider Name " +
-				                                                 idPName);
-			}
-		} finally {
-			IdentityApplicationManagementUtil.closeResultSet(rs);
-			IdentityApplicationManagementUtil.closeStatement(prepStmt);
-		}
-	}
+            }
 
-	/**
-	 * 
-	 * @param dbConnection
-	 * @param idPId
-	 * @param connectorType
-	 * @return
-	 * @throws SQLException
-	 * @throws IdentityApplicationManagementException
-	 */
-	private int getProvisioningConfigurationIdentifier(Connection dbConnection, int idPId,
-	                                                   String connectorType) throws SQLException,
-	                                                                        IdentityApplicationManagementException {
+            dbConnection.commit();
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+            IdentityApplicationManagementUtil.rollBack(dbConnection);
+            String msg =
+                    "Error occurred while updating Identity Provider information  for tenant " +
+                            tenantId;
+            throw new IdentityApplicationManagementException(msg, e);
+        } finally {
+            IdentityApplicationManagementUtil.closeConnection(dbConnection);
+        }
+    }
 
-		String sqlStmt = null;
-		PreparedStatement prepStmt = null;
-		ResultSet rs = null;
-		try {
-			sqlStmt = IdentityProvisioningConstants.SQLQueries.GET_IDP_PROVISIONING_CONFIG_ID_SQL;
-			prepStmt = dbConnection.prepareStatement(sqlStmt);
-			prepStmt.setInt(1, idPId);
-			prepStmt.setString(2, connectorType);
-			rs = prepStmt.executeQuery();
-			if (rs.next()) {
-				return rs.getInt(1);
-			} else {
-				throw new IdentityApplicationManagementException("Invalid connector type " +
-				                                                 connectorType);
-			}
-		} finally {
-			IdentityApplicationManagementUtil.closeResultSet(rs);
-			IdentityApplicationManagementUtil.closeStatement(prepStmt);
-		}
-	}
+    /**
+     * @param idPName
+     * @param tenantId
+     * @param tenantDomain
+     * @throws IdentityApplicationManagementException
+     */
+    public void deleteProvisionedIdentifier(String idPName, int tenantId, String tenantDomain)
+            throws IdentityApplicationManagementException {
+
+        Connection dbConnection = null;
+    }
+
+    /**
+     * @param conn
+     * @param tenantId
+     * @param idPName
+     * @throws SQLException
+     */
+    private void deleteIdP(Connection conn, int tenantId, String idPName) throws SQLException {
+
+        PreparedStatement prepStmt = null;
+        String sqlStmt = IdPManagementConstants.SQLQueries.DELETE_IDP_SQL;
+
+        try {
+            prepStmt = conn.prepareStatement(sqlStmt);
+            prepStmt.setInt(1, tenantId);
+            prepStmt.setString(2, idPName);
+            prepStmt.executeUpdate();
+        } finally {
+            IdentityApplicationManagementUtil.closeStatement(prepStmt);
+        }
+    }
+
+    /**
+     * @param dbConnection
+     * @param idpName
+     * @param tenantId
+     * @return
+     * @throws SQLException
+     * @throws IdentityApplicationManagementException
+     */
+    private int getIdentityProviderIdByName(Connection dbConnection, String idpName, int tenantId)
+            throws SQLException,
+            IdentityApplicationManagementException {
+
+        boolean dbConnInitialized = true;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        try {
+            if (dbConnection == null) {
+                dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
+            } else {
+                dbConnInitialized = false;
+            }
+            String sqlStmt = IdPManagementConstants.SQLQueries.GET_IDP_ROW_ID_SQL;
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setInt(1, tenantId);
+            prepStmt.setString(2, idpName);
+            rs = prepStmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } finally {
+            IdentityApplicationManagementUtil.closeStatement(prepStmt);
+            IdentityApplicationManagementUtil.closeResultSet(rs);
+            if (dbConnInitialized) {
+                IdentityApplicationManagementUtil.closeConnection(dbConnection);
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * @param dbConnection
+     * @param idPName
+     * @param tenantId
+     * @return
+     * @throws SQLException
+     * @throws IdentityApplicationManagementException
+     */
+    private int getIdentityProviderIdentifier(Connection dbConnection, String idPName, int tenantId)
+            throws SQLException,
+            IdentityApplicationManagementException {
+
+        String sqlStmt = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        try {
+            sqlStmt = IdPManagementConstants.SQLQueries.GET_IDP_ID_BY_NAME_SQL;
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setInt(1, tenantId);
+            prepStmt.setString(2, idPName);
+            rs = prepStmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            } else {
+                throw new IdentityApplicationManagementException("Invalid Identity Provider Name " +
+                        idPName);
+            }
+        } finally {
+            IdentityApplicationManagementUtil.closeResultSet(rs);
+            IdentityApplicationManagementUtil.closeStatement(prepStmt);
+        }
+    }
+
+    /**
+     * @param dbConnection
+     * @param idPId
+     * @param connectorType
+     * @return
+     * @throws SQLException
+     * @throws IdentityApplicationManagementException
+     */
+    private int getProvisioningConfigurationIdentifier(Connection dbConnection, int idPId,
+                                                       String connectorType) throws SQLException,
+            IdentityApplicationManagementException {
+
+        String sqlStmt = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        try {
+            sqlStmt = IdentityProvisioningConstants.SQLQueries.GET_IDP_PROVISIONING_CONFIG_ID_SQL;
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setInt(1, idPId);
+            prepStmt.setString(2, connectorType);
+            rs = prepStmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            } else {
+                throw new IdentityApplicationManagementException("Invalid connector type " +
+                        connectorType);
+            }
+        } finally {
+            IdentityApplicationManagementUtil.closeResultSet(rs);
+            IdentityApplicationManagementUtil.closeStatement(prepStmt);
+        }
+    }
 
     private InputStream setBlobValue(String value) throws SQLException {
         if (value != null) {
@@ -485,7 +475,7 @@ public class ProvisioningManagementDAO {
         try {
             dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
             String sqlStmt = null;
-            if(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
+            if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
                 sqlStmt = IdentityProvisioningConstants.SQLQueries.GET_SP_NAMES_OF_SUPER_TENANT_PROV_CONNECTORS_BY_IDP;
                 prepStmt = dbConnection.prepareStatement(sqlStmt);
                 prepStmt.setString(1, idPName);

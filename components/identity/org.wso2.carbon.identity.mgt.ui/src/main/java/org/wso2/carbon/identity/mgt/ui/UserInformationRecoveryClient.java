@@ -31,19 +31,18 @@ import org.wso2.carbon.identity.mgt.stub.dto.ChallengeQuestionDTO;
 
 public class UserInformationRecoveryClient {
 
-	protected UserInformationRecoveryServiceStub stub;
-	
     protected static Log log = LogFactory.getLog(UserInformationRecoveryClient.class);
-    
-    public UserInformationRecoveryClient(String url, ConfigurationContext configContext) throws Exception{
-    	try {
+    protected UserInformationRecoveryServiceStub stub;
+
+    public UserInformationRecoveryClient(String url, ConfigurationContext configContext) throws Exception {
+        try {
             stub = new UserInformationRecoveryServiceStub(configContext, url + "UserInformationRecoveryService");
         } catch (java.lang.Exception e) {
             handleException(e.getMessage(), e);
         }
-	}
-    
-    public UserInformationRecoveryClient(String cookie, String url, ConfigurationContext configContext) throws Exception{
+    }
+
+    public UserInformationRecoveryClient(String cookie, String url, ConfigurationContext configContext) throws Exception {
         try {
             stub = new UserInformationRecoveryServiceStub(configContext, url + "UserInformationRecoveryService");
             ServiceClient client = stub._getServiceClient();
@@ -53,33 +52,33 @@ public class UserInformationRecoveryClient {
         } catch (java.lang.Exception e) {
             handleException(e.getMessage(), e);
         }
-	}
-    
-  public CaptchaInfoBean generateRandomCaptcha() throws AxisFault {
+    }
 
-      try {
-          return stub.getCaptcha();
-      } catch (Exception e) {
-          handleException(e.getMessage(), e);
-      }
-      return null;
-  }
-  
-  public VerificationBean verifyUser(String username, CaptchaInfoBean captcha) throws AxisFault{
-	  
-      try {
-          return stub.verifyUser(username, captcha);
-      } catch (Exception e) {
-          handleException(e.getMessage(), e);
-      }
-      return null;
-  }
-    
-    private String[] handleException(String msg, Exception e)  throws AxisFault {
+    public CaptchaInfoBean generateRandomCaptcha() throws AxisFault {
+
+        try {
+            return stub.getCaptcha();
+        } catch (Exception e) {
+            handleException(e.getMessage(), e);
+        }
+        return null;
+    }
+
+    public VerificationBean verifyUser(String username, CaptchaInfoBean captcha) throws AxisFault {
+
+        try {
+            return stub.verifyUser(username, captcha);
+        } catch (Exception e) {
+            handleException(e.getMessage(), e);
+        }
+        return null;
+    }
+
+    private String[] handleException(String msg, Exception e) throws AxisFault {
         log.error(msg, e);
         throw new AxisFault(msg, e);
     }
-    
+
     public ChallengeQuestionDTO[] getChallengeQuestions() throws AxisFault {
 
         try {

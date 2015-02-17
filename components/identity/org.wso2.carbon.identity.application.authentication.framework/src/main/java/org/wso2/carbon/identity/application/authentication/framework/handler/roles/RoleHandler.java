@@ -3,5 +3,5 @@ package org.wso2.carbon.identity.application.authentication.framework.handler.ro
 
 public interface RoleHandler {
 
-   
+
 }

@@ -29,7 +29,7 @@ public class SCIMProviderConstants {
 
     public static final String ATTRIBUTE_NAME_NAME = "name";
     public static final String ATTRIBUTE_NAME_CLASS = "class";
-    
+
     public static final String DEFAULT_SCIM_DIALECT = "urn:scim:schemas:core:1.0";
 
     public static final String ID = "ID";

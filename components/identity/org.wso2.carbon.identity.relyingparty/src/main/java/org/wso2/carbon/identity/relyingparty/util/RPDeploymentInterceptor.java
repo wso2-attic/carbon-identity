@@ -42,22 +42,6 @@ public class RPDeploymentInterceptor implements AxisObserver {
     private static final Log log = LogFactory.getLog(RPDeploymentInterceptor.class);
 
     /**
-     * {@inheritDoc}
-     */
-    public void serviceUpdate(AxisEvent event, AxisService service) {
-        if (event.getEventType() == AxisEvent.SERVICE_DEPLOY
-                && RP_SERVICE_NAME.equals(service.getName())) {
-            try {
-                populateRampartConfig(service.getAxisConfiguration());
-            } catch (Exception e) {
-                log.error("Error while updating " + RP_SERVICE_NAME
-                        + " in RPDeploymentInterceptor", e);
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    /**
      * Updates RelyingPartyService with Crypto information
      *
      * @param config AxisConfiguration
@@ -80,6 +64,22 @@ public class RPDeploymentInterceptor implements AxisObserver {
         // Add the RampartConfig to service policy
         service.getPolicySubject().attachPolicy(rampartConfig);
 
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void serviceUpdate(AxisEvent event, AxisService service) {
+        if (event.getEventType() == AxisEvent.SERVICE_DEPLOY
+                && RP_SERVICE_NAME.equals(service.getName())) {
+            try {
+                populateRampartConfig(service.getAxisConfiguration());
+            } catch (Exception e) {
+                log.error("Error while updating " + RP_SERVICE_NAME
+                        + " in RPDeploymentInterceptor", e);
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     /**

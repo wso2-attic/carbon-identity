@@ -18,14 +18,6 @@
 
 package org.wso2.carbon.identity.application.authenticator.passive.sts;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
@@ -37,81 +29,88 @@ import org.wso2.carbon.identity.application.authenticator.passive.sts.exception.
 import org.wso2.carbon.identity.application.authenticator.passive.sts.manager.PassiveSTSManager;
 import org.wso2.carbon.identity.application.authenticator.passive.sts.util.PassiveSTSConstants;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.Map;
+
 public class PassiveSTSAuthenticator extends AbstractApplicationAuthenticator {
 
-	private static final long serialVersionUID = -8097512332218044090L;
-	
-	private static Log log = LogFactory.getLog(PassiveSTSAuthenticator.class);
-	
-	@Override
+    private static final long serialVersionUID = -8097512332218044090L;
+
+    private static Log log = LogFactory.getLog(PassiveSTSAuthenticator.class);
+
+    @Override
     public boolean canHandle(HttpServletRequest request) {
-    	
-    	if (log.isTraceEnabled()) {
-			log.trace("Inside canHandle()");
-		}
+
+        if (log.isTraceEnabled()) {
+            log.trace("Inside canHandle()");
+        }
 
         if (request.getParameter(PassiveSTSConstants.HTTP_PARAM_PASSIVE_STS_RESULT) != null) {
-        	return true;
+            return true;
         }
 
         return false;
     }
 
-	@Override
-	protected void initiateAuthenticationRequest(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationContext context)
-			throws AuthenticationFailedException {
+    @Override
+    protected void initiateAuthenticationRequest(HttpServletRequest request,
+                                                 HttpServletResponse response, AuthenticationContext context)
+            throws AuthenticationFailedException {
 
 
         ExternalIdPConfig externalIdPConfig = context.getExternalIdP();
-		String idpURL = context.getAuthenticatorProperties().get(PassiveSTSConstants.PASSIVE_STS_URL);
-		String loginPage = "";
+        String idpURL = context.getAuthenticatorProperties().get(PassiveSTSConstants.PASSIVE_STS_URL);
+        String loginPage = "";
 
         try {
-	        loginPage = new PassiveSTSManager(externalIdPConfig).buildRequest(request, idpURL, externalIdPConfig, context.getContextIdentifier(), context.getAuthenticatorProperties());
+            loginPage = new PassiveSTSManager(externalIdPConfig).buildRequest(request, idpURL, externalIdPConfig, context.getContextIdentifier(), context.getAuthenticatorProperties());
         } catch (PassiveSTSException e) {
-        	log.error("Exception while building the WS-Federation request", e);
-        	throw new AuthenticationFailedException(e.getMessage(), e);
+            log.error("Exception while building the WS-Federation request", e);
+            throw new AuthenticationFailedException(e.getMessage(), e);
         }
-        
-		try {
-			String domain = request.getParameter("domain");
-			
-			if (domain != null) {
-				loginPage = loginPage + "&fidp=" + domain;
-			}
-			
-			Map<String, String> authenticatorProperties = context
-					.getAuthenticatorProperties();
 
-			if (authenticatorProperties != null) {
-				String queryString = authenticatorProperties
-						.get(FrameworkConstants.QUERY_PARAMS);
-				if (queryString != null) {
-					if (!queryString.startsWith("&")) {
-						loginPage = loginPage + "&" + queryString;
-					} else {
-						loginPage = loginPage + queryString;
-					}
-				}
-			}
-			
-	        response.sendRedirect(loginPage);
+        try {
+            String domain = request.getParameter("domain");
+
+            if (domain != null) {
+                loginPage = loginPage + "&fidp=" + domain;
+            }
+
+            Map<String, String> authenticatorProperties = context
+                    .getAuthenticatorProperties();
+
+            if (authenticatorProperties != null) {
+                String queryString = authenticatorProperties
+                        .get(FrameworkConstants.QUERY_PARAMS);
+                if (queryString != null) {
+                    if (!queryString.startsWith("&")) {
+                        loginPage = loginPage + "&" + queryString;
+                    } else {
+                        loginPage = loginPage + queryString;
+                    }
+                }
+            }
+
+            response.sendRedirect(loginPage);
         } catch (IOException e) {
-        	log.error("Exception while sending to the login page", e);
-        	throw new AuthenticationFailedException(e.getMessage(), e);
+            log.error("Exception while sending to the login page", e);
+            throw new AuthenticationFailedException(e.getMessage(), e);
         }
-		return;
-	}
-    
-	@Override
-	protected void processAuthenticationResponse(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationContext context)
-			throws AuthenticationFailedException {
-		
-    	ExternalIdPConfig externalIdPConfig = context.getExternalIdP();
+        return;
+    }
 
-        if(request.getParameter(PassiveSTSConstants.HTTP_PARAM_PASSIVE_STS_RESULT) != null){
+    @Override
+    protected void processAuthenticationResponse(HttpServletRequest request,
+                                                 HttpServletResponse response, AuthenticationContext context)
+            throws AuthenticationFailedException {
+
+        ExternalIdPConfig externalIdPConfig = context.getExternalIdP();
+
+        if (request.getParameter(PassiveSTSConstants.HTTP_PARAM_PASSIVE_STS_RESULT) != null) {
             try {
                 new PassiveSTSManager(externalIdPConfig).processResponse(request, context);
             } catch (PassiveSTSException e) {
@@ -122,41 +121,41 @@ public class PassiveSTSAuthenticator extends AbstractApplicationAuthenticator {
             log.error("wresult can not be found in request");
             throw new AuthenticationFailedException("wresult can not be found in request");
         }
-		
-	}
-    
-	@Override
-	public String getContextIdentifier(HttpServletRequest request) {
-		
-		if (log.isTraceEnabled()) {
-			log.trace("Inside getContextIdentifier()");
-		}
-		
-		String identifier = request.getParameter("sessionDataKey");
-		
-		if (identifier == null) {
-			identifier = request.getParameter("wctx");
-			
-			if (identifier != null) {
-				// TODO SHOULD ensure that the value has not been tampered with by using a checksum, a pseudo-random value, or similar means.
-				try {
-					return URLDecoder.decode(identifier, "UTF-8");
-				} catch (UnsupportedEncodingException e) {
-					log.error("Exception while URL decoding the Relay State", e);
-				}
-			}
-		}
-		
-		return identifier;
-	}
 
-	@Override
-	public String getFriendlyName() {
-		return "passivests";
-	}
+    }
 
-	@Override
-	public String getName() {
-		return PassiveSTSConstants.AUTHENTICATOR_NAME;
-	}
+    @Override
+    public String getContextIdentifier(HttpServletRequest request) {
+
+        if (log.isTraceEnabled()) {
+            log.trace("Inside getContextIdentifier()");
+        }
+
+        String identifier = request.getParameter("sessionDataKey");
+
+        if (identifier == null) {
+            identifier = request.getParameter("wctx");
+
+            if (identifier != null) {
+                // TODO SHOULD ensure that the value has not been tampered with by using a checksum, a pseudo-random value, or similar means.
+                try {
+                    return URLDecoder.decode(identifier, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    log.error("Exception while URL decoding the Relay State", e);
+                }
+            }
+        }
+
+        return identifier;
+    }
+
+    @Override
+    public String getFriendlyName() {
+        return "passivests";
+    }
+
+    @Override
+    public String getName() {
+        return PassiveSTSConstants.AUTHENTICATOR_NAME;
+    }
 }

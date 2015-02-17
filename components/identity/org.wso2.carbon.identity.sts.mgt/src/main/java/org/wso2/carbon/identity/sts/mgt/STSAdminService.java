@@ -17,8 +17,6 @@
 */
 package org.wso2.carbon.identity.sts.mgt;
 
-import java.util.ArrayList;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityConstants;
@@ -29,6 +27,8 @@ import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.sts.mgt.dto.CardIssuerDTO;
 import org.wso2.carbon.identity.sts.mgt.dto.CardIssuerTokenDTO;
 import org.wso2.carbon.registry.core.Registry;
+
+import java.util.ArrayList;
 
 public class STSAdminService {
 

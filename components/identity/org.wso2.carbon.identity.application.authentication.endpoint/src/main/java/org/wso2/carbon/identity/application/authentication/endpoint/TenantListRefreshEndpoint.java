@@ -18,12 +18,12 @@
 
 package org.wso2.carbon.identity.application.authentication.endpoint;
 
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.application.authentication.endpoint.util.TenantDataManager;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.lang.StringUtils;
 
 /**
  * Class for receiving the list of tenants upon any modification to a tenant

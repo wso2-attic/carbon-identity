@@ -32,7 +32,7 @@ public class SessionDataCache extends BaseCache<CacheKey, CacheEntry> {
         super(cacheName);
     }
 
-    public static SessionDataCache getInstance(){
+    public static SessionDataCache getInstance() {
         CarbonUtils.checkSecurity();
         return instance;
     }

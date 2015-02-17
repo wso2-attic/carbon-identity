@@ -43,11 +43,7 @@ import org.wso2.carbon.identity.notification.mgt.bean.Subscription;
 import org.wso2.carbon.identity.notification.mgt.email.bean.EmailEndpointInfo;
 import org.wso2.carbon.identity.notification.mgt.email.bean.EmailSubscription;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 
 /**
@@ -57,14 +53,15 @@ import java.util.Properties;
  */
 @SuppressWarnings("unused")
 public class EmailSendingModule extends AbstractNotificationSendingModule {
+    private static final Log log = LogFactory.getLog(EmailSendingModule.class);
     /**
      * Subscription map which has all the subscriptions by email module
      */
     private Map<String, EmailSubscription> subscriptionMap;
-    private static final Log log = LogFactory.getLog(EmailSendingModule.class);
 
     /**
      * Logic for sending email on publisher event from Notification Management component
+     *
      * @param publisherEvent Publisher event from publisher. Includes event name and properties
      * @throws NotificationManagementException
      */
@@ -131,8 +128,8 @@ public class EmailSendingModule extends AbstractNotificationSendingModule {
                                 "on event " + publisherEvent.getEventName());
                     }
                 } catch (AxisFault axisFault) {
-                        log.error("Error while sending email notification to address " + endpointInfo.
-                                getEmailAddress() + "on event " + publisherEvent.getEventName(), axisFault);
+                    log.error("Error while sending email notification to address " + endpointInfo.
+                            getEmailAddress() + "on event " + publisherEvent.getEventName(), axisFault);
                 }
             }
             // Ultimately close tenant flow.
@@ -152,6 +149,7 @@ public class EmailSendingModule extends AbstractNotificationSendingModule {
 
     /**
      * Initialize Email Module with configurations.
+     *
      * @param configurations Configurations which are relevant to this module. Passed by Notification Management
      *                       Component
      */

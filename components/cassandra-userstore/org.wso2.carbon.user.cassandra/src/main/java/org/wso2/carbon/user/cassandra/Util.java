@@ -13,10 +13,6 @@ package org.wso2.carbon.user.cassandra;/*
                                         * under the License.
                                         */
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Random;
-
 import me.prettyprint.cassandra.serializers.StringSerializer;
 import me.prettyprint.hector.api.Keyspace;
 import me.prettyprint.hector.api.Serializer;
@@ -24,7 +20,6 @@ import me.prettyprint.hector.api.beans.HColumn;
 import me.prettyprint.hector.api.factory.HFactory;
 import me.prettyprint.hector.api.query.ColumnQuery;
 import me.prettyprint.hector.api.query.QueryResult;
-
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,11 +29,15 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 import org.wso2.carbon.user.core.multiplecredentials.Credential;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Random;
+
 public class Util {
 
+    protected static Random random = new Random();
     private static Log log = LogFactory.getLog(Util.class);
     private static RealmConfiguration realmConfig;
-    protected static Random random = new Random();
     private static Serializer<String> stringSerializer = StringSerializer.get();
 
     public static RealmConfiguration getRealmConfig() {

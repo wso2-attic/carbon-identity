@@ -31,120 +31,104 @@ import java.util.Comparator;
 
 public class UserProfileCient {
 
-	private UserProfileMgtServiceStub stub = null;
-	private String serviceEndPoint = null;
+    private static Log log = LogFactory.getLog(UserProfileCient.class);
+    private UserProfileMgtServiceStub stub = null;
+    private String serviceEndPoint = null;
 
-	private static Log log = LogFactory.getLog(UserProfileCient.class);
+    public UserProfileCient(String cookie, String url,
+                            ConfigurationContext configContext) throws java.lang.Exception {
+        try {
+            this.serviceEndPoint = url + "UserProfileMgtService";
+            stub = new UserProfileMgtServiceStub(configContext, serviceEndPoint);
 
-	public UserProfileCient(String cookie, String url,
-			ConfigurationContext configContext) throws java.lang.Exception {
-		try {
-			this.serviceEndPoint = url + "UserProfileMgtService";
-			stub = new UserProfileMgtServiceStub(configContext, serviceEndPoint);
+            ServiceClient client = stub._getServiceClient();
+            Options option = client.getOptions();
+            option.setManageSession(true);
+            option
+                    .setProperty(
+                            org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING,
+                            cookie);
+        } catch (java.lang.Exception e) {
+            log.error(e);
+            throw e;
+        }
+    }
 
-			ServiceClient client = stub._getServiceClient();
-			Options option = client.getOptions();
-			option.setManageSession(true);
-			option
-					.setProperty(
-							org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING,
-							cookie);
-		} catch (java.lang.Exception e) {
-			log.error(e);
-			throw e;
-		}
-	}
+    public static String extractDomainFromName(String nameWithDomain) {
+        int index;
+        if ((index = nameWithDomain.indexOf("/")) > 0) {
+            // extract the domain name if exist
+            String names[] = nameWithDomain.split("/");
+            return names[0];
+        }
+        return null;
+    }
 
-	public void setUserProfile(String username, UserProfileDTO profile)
-			throws Exception {
-		try {
-			stub.setUserProfile(username, profile);
-		} catch (Exception e) {
-			log.error(e);
-			throw e;
-		}
-	}
+    public void setUserProfile(String username, UserProfileDTO profile)
+            throws Exception {
+        try {
+            stub.setUserProfile(username, profile);
+        } catch (Exception e) {
+            log.error(e);
+            throw e;
+        }
+    }
 
-	public void deleteUserProfile(String username, String profileName)
-			throws Exception {
-		try {
-			stub.deleteUserProfile(username, profileName);
-		} catch (Exception e) {
-			log.error(e);
-			throw e;
-		}
-	}
+    public void deleteUserProfile(String username, String profileName)
+            throws Exception {
+        try {
+            stub.deleteUserProfile(username, profileName);
+        } catch (Exception e) {
+            log.error(e);
+            throw e;
+        }
+    }
 
-	public UserProfileDTO[] getUserProfiles(String userName)
-			throws Exception {
-		try {
-			return stub.getUserProfiles(userName);
-		} catch (Exception e) {
-			log.error(e);
-			throw e;
-		}
-	}
+    public UserProfileDTO[] getUserProfiles(String userName)
+            throws Exception {
+        try {
+            return stub.getUserProfiles(userName);
+        } catch (Exception e) {
+            log.error(e);
+            throw e;
+        }
+    }
 
-	public UserProfileDTO getProfileFieldsForInternalStore() throws Exception {
-		try {
-			return stub.getProfileFieldsForInternalStore();
-		} catch (Exception e) {
-			log.error(e);
-			throw e;
-		}
-	}
-	
-	 public boolean isReadOnlyUserStore() throws Exception {
-	     try {
-	            return stub.isReadOnlyUserStore();
-	        } catch (Exception e) {
-	            log.error(e);
-	            throw e;
-	        }
-	 }
+    public UserProfileDTO getProfileFieldsForInternalStore() throws Exception {
+        try {
+            return stub.getProfileFieldsForInternalStore();
+        } catch (Exception e) {
+            log.error(e);
+            throw e;
+        }
+    }
 
-	public UserProfileDTO getUserProfile(String username,
-			String profile) throws Exception {
-		try {
-			return stub.getUserProfile(username, profile);
-		} catch (Exception e) {
-			log.error(e);
-			throw e;
-		}
-	}
+    public boolean isReadOnlyUserStore() throws Exception {
+        try {
+            return stub.isReadOnlyUserStore();
+        } catch (Exception e) {
+            log.error(e);
+            throw e;
+        }
+    }
 
-	public UserFieldDTO[] getOrderedUserFields(UserFieldDTO[] userFields)
-			throws Exception {
-		Arrays.sort(userFields, new UserFieldComparator());
-		return userFields;
-	}
+    public UserProfileDTO getUserProfile(String username,
+                                         String profile) throws Exception {
+        try {
+            return stub.getUserProfile(username, profile);
+        } catch (Exception e) {
+            log.error(e);
+            throw e;
+        }
+    }
 
-	class UserFieldComparator implements Comparator<UserFieldDTO> {
+    public UserFieldDTO[] getOrderedUserFields(UserFieldDTO[] userFields)
+            throws Exception {
+        Arrays.sort(userFields, new UserFieldComparator());
+        return userFields;
+    }
 
-		public int compare(UserFieldDTO filed1, UserFieldDTO filed2) {
-			if (filed1.getDisplayOrder() == 0) {
-				filed1.setDisplayOrder(Integer.MAX_VALUE);
-			}
-
-			if (filed2.getDisplayOrder() == 0) {
-				filed2.setDisplayOrder(Integer.MAX_VALUE);
-			}
-
-			if (filed1.getDisplayOrder() < filed2.getDisplayOrder()) {
-				return -1;
-			}
-			if (filed1.getDisplayOrder() == filed2.getDisplayOrder()) {
-				return 0;
-			}
-			if (filed1.getDisplayOrder() > filed2.getDisplayOrder()) {
-				return 1;
-			}
-			return 0;
-		}
-
-	}
-
-    public boolean isAddProfileEnabled() throws Exception{
+    public boolean isAddProfileEnabled() throws Exception {
         try {
             return stub.isAddProfileEnabled();
         } catch (Exception e) {
@@ -153,7 +137,7 @@ public class UserProfileCient {
         }
     }
 
-    public boolean isAddProfileEnabledForDomain(String domain) throws Exception{
+    public boolean isAddProfileEnabledForDomain(String domain) throws Exception {
         try {
             return stub.isAddProfileEnabledForDomain(domain);
         } catch (Exception e) {
@@ -162,15 +146,28 @@ public class UserProfileCient {
         }
     }
 
+    class UserFieldComparator implements Comparator<UserFieldDTO> {
 
+        public int compare(UserFieldDTO filed1, UserFieldDTO filed2) {
+            if (filed1.getDisplayOrder() == 0) {
+                filed1.setDisplayOrder(Integer.MAX_VALUE);
+            }
 
-    public static String extractDomainFromName(String nameWithDomain) {
-        int index;
-		if ((index = nameWithDomain.indexOf("/")) > 0) {
-			// extract the domain name if exist
-            String names[] = nameWithDomain.split("/");
-			return names[0];
-		}
-		return null;
+            if (filed2.getDisplayOrder() == 0) {
+                filed2.setDisplayOrder(Integer.MAX_VALUE);
+            }
+
+            if (filed1.getDisplayOrder() < filed2.getDisplayOrder()) {
+                return -1;
+            }
+            if (filed1.getDisplayOrder() == filed2.getDisplayOrder()) {
+                return 0;
+            }
+            if (filed1.getDisplayOrder() > filed2.getDisplayOrder()) {
+                return 1;
+            }
+            return 0;
+        }
+
     }
 }

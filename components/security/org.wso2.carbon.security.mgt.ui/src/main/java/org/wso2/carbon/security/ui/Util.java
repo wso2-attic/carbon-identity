@@ -18,11 +18,11 @@
 */
 package org.wso2.carbon.security.ui;
 
-import java.util.ArrayList;
-
 import org.wso2.carbon.security.mgt.stub.keystore.xsd.CertData;
 import org.wso2.carbon.security.mgt.stub.keystore.xsd.KeyStoreData;
 import org.wso2.carbon.user.mgt.stub.types.carbon.FlaggedName;
+
+import java.util.ArrayList;
 
 public class Util {
 
@@ -44,7 +44,7 @@ public class Util {
 
         return returnedCertDataSet;
     }
-    
+
     public static KeyStoreData[] doPaging(int pageNumber, KeyStoreData[] keyStoreDataSet) {
 
         int itemsPerPageInt = SecurityUIConstants.KEYSTORE_DEFAULT_ITEMS_PER_PAGE;
@@ -66,22 +66,22 @@ public class Util {
 
         int startIndex = pageNumber * itemsPerPageInt;
         int endIndex = (pageNumber + 1) * itemsPerPageInt;
-        if (itemsPerPageInt < flaggedName.length -1) {
+        if (itemsPerPageInt < flaggedName.length - 1) {
             returnedFlaggedNameSet = new FlaggedName[itemsPerPageInt];
         } else {
-            returnedFlaggedNameSet = new FlaggedName[flaggedName.length -1];
+            returnedFlaggedNameSet = new FlaggedName[flaggedName.length - 1];
         }
-        for (int i = startIndex, j = 0; i < endIndex && i < flaggedName.length -1; i++, j++) {
+        for (int i = startIndex, j = 0; i < endIndex && i < flaggedName.length - 1; i++, j++) {
             returnedFlaggedNameSet[j] = flaggedName[i];
         }
 
         return returnedFlaggedNameSet;
     }
-    
+
     public static KeyStoreData[] doFilter(String filter, KeyStoreData[] keyStoreDataSet) {
         String regPattern = filter.replace("*", ".*");
         ArrayList<KeyStoreData> list = new ArrayList<KeyStoreData>();
-        
+
         for (KeyStoreData keyStore : keyStoreDataSet) {
             if (keyStore != null && keyStore.getKeyStoreName().toLowerCase().matches(regPattern.toLowerCase())) {
                 list.add(keyStore);
@@ -90,23 +90,23 @@ public class Util {
 
         return list.toArray(new KeyStoreData[list.size()]);
     }
-    
-	public static CertData[] doFilter(String filter, CertData[] certDataSet) {
 
-		if (certDataSet == null || certDataSet.length == 0) {
-			return new CertData[0];
-		}
+    public static CertData[] doFilter(String filter, CertData[] certDataSet) {
 
-		String regPattern = filter.replace("*", ".*");
-		ArrayList<CertData> list = new ArrayList<CertData>();
+        if (certDataSet == null || certDataSet.length == 0) {
+            return new CertData[0];
+        }
 
-		for (CertData cert : certDataSet) {
-			if (cert != null
-					&& cert.getAlias().toLowerCase()
-							.matches(regPattern.toLowerCase())) {
-				list.add(cert);
-			}
-		}
+        String regPattern = filter.replace("*", ".*");
+        ArrayList<CertData> list = new ArrayList<CertData>();
+
+        for (CertData cert : certDataSet) {
+            if (cert != null
+                    && cert.getAlias().toLowerCase()
+                    .matches(regPattern.toLowerCase())) {
+                list.add(cert);
+            }
+        }
 
         return list.toArray(new CertData[list.size()]);
     }

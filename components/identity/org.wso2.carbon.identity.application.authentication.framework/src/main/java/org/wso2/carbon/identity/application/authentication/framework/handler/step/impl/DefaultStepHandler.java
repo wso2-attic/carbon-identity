@@ -1,15 +1,7 @@
 package org.wso2.carbon.identity.application.authentication.framework.handler.step.impl;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
@@ -27,7 +19,12 @@ import org.wso2.carbon.identity.application.authentication.framework.model.Authe
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
-import org.wso2.carbon.user.core.util.UserCoreUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public class DefaultStepHandler implements StepHandler {
 
@@ -48,7 +45,7 @@ public class DefaultStepHandler implements StepHandler {
     }
 
     public void handle(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationContext context) throws FrameworkException {
+                       AuthenticationContext context) throws FrameworkException {
 
         StepConfig stepConfig = context.getSequenceConfig().getStepMap()
                 .get(context.getCurrentStep());
@@ -60,10 +57,10 @@ public class DefaultStepHandler implements StepHandler {
         Map<String, AuthenticatedIdPData> authenticatedIdPs = context.getPreviousAuthenticatedIdPs();
         Map<String, AuthenticatorConfig> authenticatedStepIdps = FrameworkUtils
                 .getAuthenticatedStepIdPs(stepConfig, authenticatedIdPs);
-        
+
         // check passive authentication
         if (context.isPassiveAuthenticate()) {
-            
+
             if (authenticatedStepIdps.isEmpty()) {
                 context.setRequestAuthenticated(false);
             } else {
@@ -71,11 +68,11 @@ public class DefaultStepHandler implements StepHandler {
                 AuthenticatedIdPData authenticatedIdPData = authenticatedIdPs.get(authenticatedIdP);
                 populateStepConfigWithAuthenticationDetails(stepConfig, authenticatedIdPData);
             }
-            
+
             stepConfig.setCompleted(true);
             return;
-        } 
-        
+        }
+
         // if Request has fidp param and if this is the first step
         if (fidp != null && stepConfig.getOrder() == 1) {
             handleHomeRealmDiscovery(request, response, context);
@@ -84,7 +81,7 @@ public class DefaultStepHandler implements StepHandler {
             // if this is a request from the multi-option page
             if (request.getParameter(FrameworkConstants.RequestParams.AUTHENTICATOR) != null
                     && !request.getParameter(FrameworkConstants.RequestParams.AUTHENTICATOR)
-                            .isEmpty()) {
+                    .isEmpty()) {
                 handleRequestFromLoginPage(request, response, context);
                 return;
             } else {
@@ -176,9 +173,9 @@ public class DefaultStepHandler implements StepHandler {
                     if (log.isDebugEnabled()) {
                         log.debug("Sending to the Multi Option page");
                     }
-                    
+
                     String retryParam = "";
-                    
+
                     if (stepConfig.isRetrying()) {
                         context.setCurrentAuthenticator(null);
                         retryParam = "&authFailure=true&authFailureMsg=login.fail.message";
@@ -199,7 +196,7 @@ public class DefaultStepHandler implements StepHandler {
     }
 
     protected void handleHomeRealmDiscovery(HttpServletRequest request,
-            HttpServletResponse response, AuthenticationContext context) throws FrameworkException {
+                                            HttpServletResponse response, AuthenticationContext context) throws FrameworkException {
 
         if (log.isDebugEnabled()) {
             log.debug("Request contains fidp parameter. Initiating Home Realm Discovery");
@@ -291,7 +288,7 @@ public class DefaultStepHandler implements StepHandler {
     }
 
     protected void handleRequestFromLoginPage(HttpServletRequest request,
-            HttpServletResponse response, AuthenticationContext context) throws FrameworkException {
+                                              HttpServletResponse response, AuthenticationContext context) throws FrameworkException {
 
         if (log.isDebugEnabled()) {
             log.debug("Recieved a request from the multi option page");
@@ -326,14 +323,14 @@ public class DefaultStepHandler implements StepHandler {
                 return;
             }
         }
-        
+
         // TODO handle idp null
 
         // TODO handle authenticator name unmatching
     }
 
     protected void handleResponse(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationContext context) throws FrameworkException {
+                                  AuthenticationContext context) throws FrameworkException {
 
         if (log.isDebugEnabled()) {
             log.debug("Receive a response from the external party");
@@ -350,7 +347,7 @@ public class DefaultStepHandler implements StepHandler {
             // Call authenticate if canHandle
             if (authenticator != null && authenticator.canHandle(request)
                     && (context.getCurrentAuthenticator() == null || authenticator.getName()
-                            .equals(context.getCurrentAuthenticator()))) {
+                    .equals(context.getCurrentAuthenticator()))) {
 
                 if (log.isDebugEnabled()) {
                     log.debug(authenticator.getName() + " can handle the request.");
@@ -364,7 +361,7 @@ public class DefaultStepHandler implements StepHandler {
     }
 
     protected void doAuthentication(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationContext context, AuthenticatorConfig authenticatorConfig)
+                                    AuthenticationContext context, AuthenticatorConfig authenticatorConfig)
             throws FrameworkException {
 
         SequenceConfig sequenceConfig = context.getSequenceConfig();
@@ -372,7 +369,7 @@ public class DefaultStepHandler implements StepHandler {
         StepConfig stepConfig = sequenceConfig.getStepMap().get(currentStep);
         ApplicationAuthenticator authenticator = authenticatorConfig.getApplicationAuthenticator();
 
-        if(authenticator == null) {
+        if (authenticator == null) {
             log.error("Authenticator is null");
             return;
         }
@@ -394,7 +391,7 @@ public class DefaultStepHandler implements StepHandler {
             }
 
             AuthenticatedIdPData authenticatedIdPData = new AuthenticatedIdPData();
-            
+
             // store authenticated user
             String authenticatedUser = context.getSubject();
             stepConfig.setAuthenticatedUser(authenticatedUser);
@@ -436,7 +433,7 @@ public class DefaultStepHandler implements StepHandler {
     }
 
     protected void populateStepConfigWithAuthenticationDetails(StepConfig stepConfig,
-            AuthenticatedIdPData authenticatedIdPData) {
+                                                               AuthenticatedIdPData authenticatedIdPData) {
 
         stepConfig.setAuthenticatedUser(authenticatedIdPData.getUsername());
         stepConfig.setAuthenticatedUserAttributes(authenticatedIdPData.getUserAttributes());

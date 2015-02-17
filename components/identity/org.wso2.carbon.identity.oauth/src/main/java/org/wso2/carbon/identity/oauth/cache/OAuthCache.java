@@ -30,7 +30,7 @@ public class OAuthCache extends BaseCache<CacheKey, CacheEntry> {
         super(cacheName);
     }
 
-    public static OAuthCache getInstance(){
+    public static OAuthCache getInstance() {
         CarbonUtils.checkSecurity();
         return instance;
     }

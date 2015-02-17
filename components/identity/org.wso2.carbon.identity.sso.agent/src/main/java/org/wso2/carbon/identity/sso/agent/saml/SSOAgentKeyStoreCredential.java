@@ -30,6 +30,45 @@ public class SSOAgentKeyStoreCredential implements SSOAgentCredential {
     private static PrivateKey privateKey = null;
     private static X509Certificate entityCertificate = null;
 
+    private static void readX509Credentials() throws SSOAgentException {
+
+        String privateKeyAlias = SSOAgentConfigs.getPrivateKeyAlias();
+        String privateKeyPassword = SSOAgentConfigs.getPrivateKeyPassword();
+        String idpCertAlias = SSOAgentConfigs.getIdPCertAlias();
+
+        KeyStore keyStore = SSOAgentConfigs.getKeyStore();
+        X509Certificate cert = null;
+        PrivateKey privateKey = null;
+
+        try {
+            if (privateKeyAlias != null) {
+                if (SSOAgentConfigs.isRequestSigned()) {
+                    privateKey = (PrivateKey) keyStore.getKey(privateKeyAlias, privateKeyPassword.toCharArray());
+
+                    if (privateKey == null) {
+                        throw new SSOAgentException("RequestSigning is enabled, but cannot find private key with the alias " +
+                                privateKeyAlias + " in the key store");
+                    }
+                }
+            }
+
+            cert = (X509Certificate) keyStore.getCertificate(idpCertAlias);
+            if (cert == null) {
+                throw new SSOAgentException("Cannot find IDP certificate with the alias " + idpCertAlias + " in the trust store");
+            }
+        } catch (KeyStoreException e) {
+            throw new SSOAgentException("Error when reading keystore", e);
+        } catch (UnrecoverableKeyException e) {
+            throw new SSOAgentException("Error when reading keystore", e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new SSOAgentException("Error when reading keystore", e);
+        }
+
+        publicKey = cert.getPublicKey();
+        SSOAgentKeyStoreCredential.privateKey = privateKey;
+        entityCertificate = cert;
+    }
+
     @Override
     public void init() throws SSOAgentException {
         readX509Credentials();
@@ -48,44 +87,5 @@ public class SSOAgentKeyStoreCredential implements SSOAgentCredential {
     @Override
     public X509Certificate getEntityCertificate() {
         return entityCertificate;
-    }
-
-    private static void readX509Credentials() throws SSOAgentException {
-
-        String privateKeyAlias = SSOAgentConfigs.getPrivateKeyAlias();
-        String privateKeyPassword = SSOAgentConfigs.getPrivateKeyPassword();
-        String idpCertAlias = SSOAgentConfigs.getIdPCertAlias();
-        
-        KeyStore keyStore = SSOAgentConfigs.getKeyStore();
-        X509Certificate cert = null;
-        PrivateKey privateKey = null;
-        
-        try{
-            if (privateKeyAlias != null) {
-                if(SSOAgentConfigs.isRequestSigned()){
-                    privateKey = (PrivateKey) keyStore.getKey(privateKeyAlias, privateKeyPassword.toCharArray());
-                    
-                    if(privateKey == null){
-                        throw new SSOAgentException("RequestSigning is enabled, but cannot find private key with the alias " +
-                                privateKeyAlias + " in the key store");
-                    }
-                }
-            }
-            
-            cert = (X509Certificate) keyStore.getCertificate(idpCertAlias);
-            if(cert == null){
-                throw new SSOAgentException("Cannot find IDP certificate with the alias " + idpCertAlias + " in the trust store");
-            }
-        } catch (KeyStoreException e) {
-            throw new SSOAgentException("Error when reading keystore", e);
-        } catch (UnrecoverableKeyException e) {
-            throw new SSOAgentException("Error when reading keystore", e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new SSOAgentException("Error when reading keystore", e);
-        }
-        
-        publicKey = cert.getPublicKey();
-        SSOAgentKeyStoreCredential.privateKey = privateKey;
-        entityCertificate = cert;
     }
 }

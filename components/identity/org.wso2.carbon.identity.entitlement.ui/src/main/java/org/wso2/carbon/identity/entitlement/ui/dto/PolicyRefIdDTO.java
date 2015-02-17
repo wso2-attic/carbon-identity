@@ -21,9 +21,9 @@ package org.wso2.carbon.identity.entitlement.ui.dto;
  *
  */
 public class PolicyRefIdDTO {
-    
+
     private String id;
-    
+
     private boolean referenceOnly;
 
     private boolean policySet;

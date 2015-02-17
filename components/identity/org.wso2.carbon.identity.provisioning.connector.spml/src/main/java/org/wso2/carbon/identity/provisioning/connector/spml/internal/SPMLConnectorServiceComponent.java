@@ -26,27 +26,27 @@ import org.wso2.carbon.identity.provisioning.connector.spml.SPMLProvisioningConn
 
 /**
  * @scr.component name=
- *                "org.wso2.carbon.identity.provisioning.connector.spml.internal.SPMLConnectorServiceComponent"
- *                immediate="true"
+ * "org.wso2.carbon.identity.provisioning.connector.spml.internal.SPMLConnectorServiceComponent"
+ * immediate="true"
  */
 public class SPMLConnectorServiceComponent {
-	private static Log log = LogFactory.getLog(SPMLConnectorServiceComponent.class);
+    private static Log log = LogFactory.getLog(SPMLConnectorServiceComponent.class);
 
-	protected void activate(ComponentContext context) {
+    protected void activate(ComponentContext context) {
 
-		if (log.isDebugEnabled()) {
-			log.debug("Activating SPMLConnectorServiceComponent");
-		}
-		
-    	try {
-    		SPMLProvisioningConnectorFactory spmlProvisioningConnectorFactory = new SPMLProvisioningConnectorFactory();
-    	
-    		context.getBundleContext().registerService(AbstractProvisioningConnectorFactory.class.getName(), spmlProvisioningConnectorFactory, null);
-    		if(log.isDebugEnabled()) {
-    			log.debug("SPML Provisioning Connector bundle is activated");
-    		}
-    	} catch (Throwable e) {
-    		log.fatal(" Error while activating SPML Provisioning Connector ", e);
-    	}
-	}
+        if (log.isDebugEnabled()) {
+            log.debug("Activating SPMLConnectorServiceComponent");
+        }
+
+        try {
+            SPMLProvisioningConnectorFactory spmlProvisioningConnectorFactory = new SPMLProvisioningConnectorFactory();
+
+            context.getBundleContext().registerService(AbstractProvisioningConnectorFactory.class.getName(), spmlProvisioningConnectorFactory, null);
+            if (log.isDebugEnabled()) {
+                log.debug("SPML Provisioning Connector bundle is activated");
+            }
+        } catch (Throwable e) {
+            log.fatal(" Error while activating SPML Provisioning Connector ", e);
+        }
+    }
 }

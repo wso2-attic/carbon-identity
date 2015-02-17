@@ -31,9 +31,9 @@ public class IdentityAttributeServiceStore {
     public static IdentityAttributeService[] getAttributeServices() {
         return attributeServices.toArray(new IdentityAttributeService[attributeServices.size()]);
     }
-    
+
     public static void removeAttributeService(IdentityAttributeService service) {
         attributeServices.remove(service);
     }
-    
+
 }

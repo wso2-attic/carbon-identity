@@ -18,5 +18,5 @@
 package org.wso2.carbon.identity.mgt.config;
 
 public enum ConfigType {
-	EMAIL, CREDENTIALMGT
+    EMAIL, CREDENTIALMGT
 }

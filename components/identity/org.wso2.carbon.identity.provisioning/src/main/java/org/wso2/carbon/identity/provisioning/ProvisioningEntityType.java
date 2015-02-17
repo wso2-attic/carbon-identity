@@ -22,9 +22,9 @@ import java.io.Serializable;
 
 public enum ProvisioningEntityType implements Serializable {
 
-	USER("USER"),
-	GROUP("GROUP");
-	
+    USER("USER"),
+    GROUP("GROUP");
+
     private final String textValue;
 
     private ProvisioningEntityType(String textValue) {
@@ -33,6 +33,6 @@ public enum ProvisioningEntityType implements Serializable {
 
     @Override
     public String toString() {
-         return textValue;
+        return textValue;
     }
 }

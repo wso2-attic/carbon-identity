@@ -3,17 +3,16 @@ package org.wso2.carbon.identity.provisioning;
 import java.io.Serializable;
 import java.util.Map.Entry;
 
-public class RuntimeProvisioningConfig implements Serializable{
+public class RuntimeProvisioningConfig implements Serializable {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -2629523092537958531L;
     private boolean blocking;
     private Entry<String, AbstractOutboundProvisioningConnector> provisioningConnectorEntry;
 
     /**
-     * 
      * @return
      */
     public boolean isBlocking() {
@@ -21,7 +20,6 @@ public class RuntimeProvisioningConfig implements Serializable{
     }
 
     /**
-     * 
      * @param blocking
      */
     public void setBlocking(boolean blocking) {
@@ -29,7 +27,6 @@ public class RuntimeProvisioningConfig implements Serializable{
     }
 
     /**
-     * 
      * @return
      */
     public Entry<String, AbstractOutboundProvisioningConnector> getProvisioningConnectorEntry() {
@@ -37,7 +34,6 @@ public class RuntimeProvisioningConfig implements Serializable{
     }
 
     /**
-     * 
      * @param provisioningConnectorEntry
      */
     public void setProvisioningConnectorEntry(

@@ -22,10 +22,10 @@ import org.wso2.carbon.user.core.UserStoreException;
 
 public class IdentityProvisioningException extends UserStoreException {
 
-	/**
-	 * IdentityProvisionException serial
-	 */
-	private static final long serialVersionUID = 94923692231163839L;
+    /**
+     * IdentityProvisionException serial
+     */
+    private static final long serialVersionUID = 94923692231163839L;
 
     public IdentityProvisioningException() {
         super();
@@ -34,7 +34,7 @@ public class IdentityProvisioningException extends UserStoreException {
     public IdentityProvisioningException(String message, Throwable cause) {
         super(message, cause);
     }
-    
+
     public IdentityProvisioningException(String message) {
         super(message);
     }

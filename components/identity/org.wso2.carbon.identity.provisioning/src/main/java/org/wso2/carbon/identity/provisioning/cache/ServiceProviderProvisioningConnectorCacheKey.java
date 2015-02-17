@@ -22,25 +22,23 @@ import org.wso2.carbon.identity.application.common.cache.CacheKey;
 
 public class ServiceProviderProvisioningConnectorCacheKey extends CacheKey {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
-	
-	private String spProvisioningConnectorKey;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
+
+    private String spProvisioningConnectorKey;
 
     /**
-     * 
      * @param spProvisioningConnectorKey
      */
     public ServiceProviderProvisioningConnectorCacheKey(String spProvisioningConnectorKey, String tenantDomain) {
         this.spProvisioningConnectorKey = spProvisioningConnectorKey;
         this.tenantDomain = tenantDomain.toLowerCase();
     }
-    
+
     /**
-     * 
      * @return
      */
     public String getSPProvisioningConnectorKey() {

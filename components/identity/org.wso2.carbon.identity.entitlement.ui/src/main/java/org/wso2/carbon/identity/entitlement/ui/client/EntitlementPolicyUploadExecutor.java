@@ -36,7 +36,7 @@ import java.util.Map;
 /**
  * This class is responsible for uploading entitlement policy files.
  * And this uses the <code>AbstractFileUploadExecutor</code>
- * which has written to handle the carbon specific file uploading 
+ * which has written to handle the carbon specific file uploading
  */
 public class EntitlementPolicyUploadExecutor extends AbstractFileUploadExecutor {
 
@@ -51,20 +51,20 @@ public class EntitlementPolicyUploadExecutor extends AbstractFileUploadExecutor 
         String webContext = (String) httpServletRequest.getAttribute(CarbonConstants.WEB_CONTEXT);
         String serverURL = (String) httpServletRequest.getAttribute(CarbonConstants.SERVER_URL);
         String cookie = (String) httpServletRequest.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
-        errorRedirectionPage  =  getContextRoot(httpServletRequest) + "/" + webContext
-                                        + "/entitlement/index.jsp";
+        errorRedirectionPage = getContextRoot(httpServletRequest) + "/" + webContext
+                + "/entitlement/index.jsp";
 
         Map<String, ArrayList<FileItemData>> fileItemsMap = getFileItemsMap();
         if (fileItemsMap == null || fileItemsMap.isEmpty()) {
             String msg = "File uploading failed. No files are specified";
             log.error(msg);
             CarbonUIMessage.sendCarbonUIMessage(msg, CarbonUIMessage.ERROR, httpServletRequest,
-                                                httpServletResponse, errorRedirectionPage);
+                    httpServletResponse, errorRedirectionPage);
             return false;
         }
 
         EntitlementPolicyAdminServiceClient client =
-                new EntitlementPolicyAdminServiceClient(cookie, serverURL,configurationContext);
+                new EntitlementPolicyAdminServiceClient(cookie, serverURL, configurationContext);
         List<FileItemData> fileItems = fileItemsMap.get("policyFromFileSystem");
         String msg;
         try {
@@ -74,12 +74,12 @@ public class EntitlementPolicyUploadExecutor extends AbstractFileUploadExecutor 
 
                 if (!filename.endsWith(".xml")) {
                     throw new CarbonException("File with extension " +
-                            getFileName(fileItem.getFileItem().getName())  + " is not supported!");
+                            getFileName(fileItem.getFileItem().getName()) + " is not supported!");
                 } else {
                     BufferedReader br = new BufferedReader(new InputStreamReader(fileItem.getDataHandler().getInputStream()));
                     String temp;
                     String policyContent = "";
-                    while ((temp=br.readLine()) != null){
+                    while ((temp = br.readLine()) != null) {
                         policyContent += temp;
                     }
                     if (!"".equals(policyContent)) {
@@ -91,14 +91,14 @@ public class EntitlementPolicyUploadExecutor extends AbstractFileUploadExecutor 
             httpServletResponse.setContentType("text/html; charset=utf-8");
             msg = "Policy have been uploaded successfully.";
             CarbonUIMessage.sendCarbonUIMessage(msg, CarbonUIMessage.INFO, httpServletRequest,
-                                                httpServletResponse, getContextRoot(httpServletRequest)
-                                                + "/" + webContext + "/entitlement/index.jsp");
+                    httpServletResponse, getContextRoot(httpServletRequest)
+                            + "/" + webContext + "/entitlement/index.jsp");
             return true;
         } catch (Exception e) {
             msg = "Policy uploading failed. " + e.getMessage();
             log.error(msg);
             CarbonUIMessage.sendCarbonUIMessage(msg, CarbonUIMessage.ERROR, httpServletRequest,
-                                                httpServletResponse, errorRedirectionPage);
+                    httpServletResponse, errorRedirectionPage);
         }
         return false;
     }

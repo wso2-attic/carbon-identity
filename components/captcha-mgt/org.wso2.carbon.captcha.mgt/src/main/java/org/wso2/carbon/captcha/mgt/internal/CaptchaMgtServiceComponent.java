@@ -41,6 +41,16 @@ public class CaptchaMgtServiceComponent {
     private static ConfigurationContextService configurationContextService;
     private static RegistryService registryService;
 
+    public static ConfigurationContext getConfigurationContext() {
+        if (configurationContextService.getServerConfigContext() == null) {
+            return null;
+        }
+        return configurationContextService.getServerConfigContext();
+    }
+
+    public static UserRegistry getConfigSystemRegistry(int tenantId) throws RegistryException {
+        return registryService.getConfigSystemRegistry(tenantId);
+    }
 
     protected void activate(ComponentContext context) {
         try {
@@ -70,23 +80,12 @@ public class CaptchaMgtServiceComponent {
         this.configurationContextService = null;
     }
 
-    public static ConfigurationContext getConfigurationContext() {
-        if (configurationContextService.getServerConfigContext() == null) {
-            return null;
-        }
-        return configurationContextService.getServerConfigContext();
-    }
-
     protected void setRegistryService(RegistryService registryService) {
         this.registryService = registryService;
     }
 
     protected void unsetRegistryService(RegistryService registryService) {
         this.registryService = null;
-    }
-
-    public static UserRegistry getConfigSystemRegistry(int tenantId) throws RegistryException {
-        return registryService.getConfigSystemRegistry(tenantId);
     }
 
 }

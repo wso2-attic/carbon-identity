@@ -46,18 +46,18 @@ public class DefaultPolicyVersionManager implements PolicyVersionManager {
 
     private static Log log = LogFactory.getLog(DefaultPolicyVersionManager.class);
 
-    private static int DEFAULT_MAX_VERSION = 5; 
-    
+    private static int DEFAULT_MAX_VERSION = 5;
+
     private int maxVersions;
 
     @Override
     public void init(Properties properties) {
-        try{
+        try {
             maxVersions = Integer.parseInt(properties.getProperty("maxVersions"));
-        } catch (Exception e){
+        } catch (Exception e) {
             // ignore
         }
-        if(maxVersions == 0){
+        if (maxVersions == 0) {
             maxVersions = DEFAULT_MAX_VERSION;
         }
     }
@@ -66,18 +66,18 @@ public class DefaultPolicyVersionManager implements PolicyVersionManager {
     public PolicyDTO getPolicy(String policyId, String version) throws EntitlementException {
 
         // Zero means current version
-        if(version == null || version.trim().length() == 0){
+        if (version == null || version.trim().length() == 0) {
             Registry registry = EntitlementServiceComponent.
                     getGovernanceRegistry(CarbonContext.getThreadLocalCarbonContext().getTenantId());
-            try{
-                Collection collection = (Collection)registry.
+            try {
+                Collection collection = (Collection) registry.
                         get(PDPConstants.ENTITLEMENT_POLICY_VERSION + policyId);
-                if(collection != null){
+                if (collection != null) {
                     version = collection.getProperty("version");
                 }
             } catch (RegistryException e) {
                 log.error(e);
-                throw  new EntitlementException("Invalid policy version");
+                throw new EntitlementException("Invalid policy version");
             }
         }
 
@@ -85,10 +85,10 @@ public class DefaultPolicyVersionManager implements PolicyVersionManager {
         PAPPolicyStoreReader reader = new PAPPolicyStoreReader(policyStore);
 
         Resource resource = policyStore.getPolicy(version,
-                                    PDPConstants.ENTITLEMENT_POLICY_VERSION + policyId +
-                                            RegistryConstants.PATH_SEPARATOR);
-        if(resource == null){
-            throw  new EntitlementException("Invalid policy version");
+                PDPConstants.ENTITLEMENT_POLICY_VERSION + policyId +
+                        RegistryConstants.PATH_SEPARATOR);
+        if (resource == null) {
+            throw new EntitlementException("Invalid policy version");
         }
 
         return reader.readPolicyDTO(resource);
@@ -103,23 +103,23 @@ public class DefaultPolicyVersionManager implements PolicyVersionManager {
 
         String version = "0";
 
-        try{
+        try {
 
             Collection collection = null;
-            try{
-                collection = (Collection)registry.
-                    get(PDPConstants.ENTITLEMENT_POLICY_VERSION + policyDTO.getPolicyId());
-            } catch (ResourceNotFoundException e){
+            try {
+                collection = (Collection) registry.
+                        get(PDPConstants.ENTITLEMENT_POLICY_VERSION + policyDTO.getPolicyId());
+            } catch (ResourceNotFoundException e) {
                 // ignore
             }
 
-            if(collection != null){
+            if (collection != null) {
                 version = collection.getProperty("version");
             } else {
                 collection = registry.newCollection();
                 collection.setProperty("version", "1");
                 registry.put(PDPConstants.ENTITLEMENT_POLICY_VERSION +
-                                                            policyDTO.getPolicyId(), collection);
+                        policyDTO.getPolicyId(), collection);
             }
 
             int versionInt = Integer.parseInt(version);
@@ -127,10 +127,10 @@ public class DefaultPolicyVersionManager implements PolicyVersionManager {
                     policyDTO.getPolicyId() + RegistryConstants.PATH_SEPARATOR;
 
             // check whether this is larger than max version
-            if(versionInt > maxVersions){
+            if (versionInt > maxVersions) {
                 // delete the older version
                 int olderVersion = versionInt - maxVersions;
-                if(registry.resourceExists(policyPath + olderVersion)){
+                if (registry.resourceExists(policyPath + olderVersion)) {
                     registry.delete(policyPath + olderVersion);
                 }
             }
@@ -159,8 +159,8 @@ public class DefaultPolicyVersionManager implements PolicyVersionManager {
 
         Registry registry = EntitlementServiceComponent.
                 getGovernanceRegistry(CarbonContext.getThreadLocalCarbonContext().getTenantId());
-        try{
-            if(registry.resourceExists(PDPConstants.ENTITLEMENT_POLICY_VERSION + policyId)){
+        try {
+            if (registry.resourceExists(PDPConstants.ENTITLEMENT_POLICY_VERSION + policyId)) {
                 registry.delete(PDPConstants.ENTITLEMENT_POLICY_VERSION + policyId);
             }
         } catch (RegistryException e) {
@@ -175,16 +175,16 @@ public class DefaultPolicyVersionManager implements PolicyVersionManager {
         Registry registry = EntitlementServiceComponent.
                 getGovernanceRegistry(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         Collection collection = null;
-        try{
-            try{
-                collection = (Collection)registry.
+        try {
+            try {
+                collection = (Collection) registry.
                         get(PDPConstants.ENTITLEMENT_POLICY_VERSION + policyId);
-            } catch (ResourceNotFoundException e){
+            } catch (ResourceNotFoundException e) {
                 // ignore
             }
-            if(collection != null && collection.getChildren() != null){
-                String[] children =  collection.getChildren();
-                for(String child : children){
+            if (collection != null && collection.getChildren() != null) {
+                String[] children = collection.getChildren();
+                for (String child : children) {
                     versions.add(RegistryUtils.getResourceName(child));
                 }
             }

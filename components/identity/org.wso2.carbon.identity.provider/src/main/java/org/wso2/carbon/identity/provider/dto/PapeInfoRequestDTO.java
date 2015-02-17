@@ -17,8 +17,6 @@
 */
 package org.wso2.carbon.identity.provider.dto;
 
-import java.util.Collections;
-
 public class PapeInfoRequestDTO {
 
     private OpenIDParameterDTO[] paramList;

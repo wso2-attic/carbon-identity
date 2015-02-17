@@ -17,31 +17,13 @@
 */
 package org.wso2.carbon.identity.provider.saml;
 
-import java.security.cert.CertificateEncodingException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.rahas.RahasData;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.utils.Base64;
 import org.joda.time.DateTime;
-import org.opensaml.saml2.core.Audience;
-import org.opensaml.saml2.core.AudienceRestriction;
-import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.Attribute;
-import org.opensaml.saml2.core.AttributeStatement;
-import org.opensaml.saml2.core.AttributeValue;
-import org.opensaml.saml2.core.Conditions;
-import org.opensaml.saml2.core.Issuer;
-import org.opensaml.saml2.core.Subject;
-import org.opensaml.saml2.core.SubjectConfirmation;
-import org.opensaml.saml2.core.SubjectConfirmationData;
+import org.opensaml.saml2.core.*;
 import org.opensaml.xml.Configuration;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.XMLObjectBuilder;
@@ -54,29 +36,40 @@ import org.opensaml.xml.schema.XSString;
 import org.opensaml.xml.schema.impl.XSBase64BinaryBuilder;
 import org.opensaml.xml.schema.impl.XSStringBuilder;
 import org.opensaml.xml.security.x509.X509Credential;
-import org.opensaml.xml.signature.KeyInfo;
-import org.opensaml.xml.signature.Signature;
-import org.opensaml.xml.signature.Signer;
-import org.opensaml.xml.signature.X509Certificate;
-import org.opensaml.xml.signature.X509Data;
+import org.opensaml.xml.signature.*;
 import org.w3c.dom.Element;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.provider.GenericIdentityProviderData;
 import org.wso2.carbon.identity.provider.IdentityProviderException;
 import org.wso2.carbon.identity.provider.RequestedClaimData;
-import org.wso2.carbon.base.ServerConfiguration;
+
+import javax.xml.namespace.QName;
+import java.security.cert.CertificateEncodingException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class SAML2TokenBuilder implements SAMLTokenBuilder {
 
+    public static final String CONF_KEY = "urn:oasis:names:tc:SAML:2.0:cm:holder-of-key";
     private static Log log = LogFactory.getLog(SAML2TokenBuilder.class);
-
     protected Assertion assertion = null;
     protected AttributeStatement attributeStmt = null;
     protected List<Signature> signatureList = new ArrayList<Signature>();
     protected Element signedAssertion = null;
     protected String appilesTo = null;
 
-    public static final String CONF_KEY = "urn:oasis:names:tc:SAML:2.0:cm:holder-of-key";
+    protected static XMLObject buildXMLObject(QName objectQName) throws IdentityProviderException {
+        XMLObjectBuilder builder = Configuration.getBuilderFactory().getBuilder(objectQName);
+        if (builder == null) {
+            throw new IdentityProviderException("Unable to retrieve builder for object QName "
+                    + objectQName);
+        }
+        return builder.buildObject(objectQName.getNamespaceURI(), objectQName.getLocalPart(),
+                objectQName.getPrefix());
+    }
 
     public void createStatement(GenericIdentityProviderData ipData, RahasData rahasData)
             throws IdentityProviderException {
@@ -211,16 +204,6 @@ public class SAML2TokenBuilder implements SAMLTokenBuilder {
 
     public Element getSAMLasDOM() throws IdentityProviderException {
         return signedAssertion;
-    }
-
-    protected static XMLObject buildXMLObject(QName objectQName) throws IdentityProviderException {
-        XMLObjectBuilder builder = Configuration.getBuilderFactory().getBuilder(objectQName);
-        if (builder == null) {
-            throw new IdentityProviderException("Unable to retrieve builder for object QName "
-                    + objectQName);
-        }
-        return builder.buildObject(objectQName.getNamespaceURI(), objectQName.getLocalPart(),
-                objectQName.getPrefix());
     }
 
 }

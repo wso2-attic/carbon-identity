@@ -29,11 +29,11 @@ public class SAMLSSOLogin extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,
             IOException {
 
-        if(request.getRequestURI().contains("/samlsso_login.do")){
+        if (request.getRequestURI().contains("/samlsso_login.do")) {
             request.getRequestDispatcher("login.jsp").forward(request, response);
-        } else if (request.getRequestURI().contains("/samlsso_redirect.do")){
+        } else if (request.getRequestURI().contains("/samlsso_redirect.do")) {
             request.getRequestDispatcher("samlsso_redirect.jsp").forward(request, response);
-        }  else if (request.getRequestURI().contains("/samlsso_notification.do")){
+        } else if (request.getRequestURI().contains("/samlsso_notification.do")) {
             request.getRequestDispatcher("samlsso_notification.jsp").forward(request, response);
         }
 

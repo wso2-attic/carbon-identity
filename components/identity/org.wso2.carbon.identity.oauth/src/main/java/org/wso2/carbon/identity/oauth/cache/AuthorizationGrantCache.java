@@ -33,7 +33,7 @@ public class AuthorizationGrantCache extends BaseCache<CacheKey, CacheEntry> {
         super(cacheName);
     }
 
-    public static AuthorizationGrantCache getInstance(){
+    public static AuthorizationGrantCache getInstance() {
         CarbonUtils.checkSecurity();
         return instance;
     }

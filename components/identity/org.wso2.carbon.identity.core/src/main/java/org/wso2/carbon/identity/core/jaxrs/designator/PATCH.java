@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
 /**
  * Creates the PATCH HTTP method, since JAX-RS does not support it natively yet
  */
-@Target({ ElementType.METHOD })
+@Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @HttpMethod("PATCH")
 public @interface PATCH {

@@ -1,7 +1,5 @@
 package org.wso2.carbon.identity.provisioning.connector.spml;
 
-import java.util.*;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openspml.v2.client.Spml2Client;
@@ -10,24 +8,20 @@ import org.openspml.v2.profiles.dsml.DSMLAttr;
 import org.openspml.v2.util.Spml2Exception;
 import org.openspml.v2.util.xml.ReflectiveXMLMarshaller;
 import org.wso2.carbon.identity.application.common.model.Property;
-import org.wso2.carbon.identity.provisioning.AbstractOutboundProvisioningConnector;
-import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
-import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
-import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
-import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
-import org.wso2.carbon.identity.provisioning.ProvisioningEntityType;
-import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
+import org.wso2.carbon.identity.provisioning.*;
+
+import java.util.*;
 
 public class SPMLProvisioningConnector extends AbstractOutboundProvisioningConnector {
 
     private static final long serialVersionUID = -1046148327813739881L;
-    
+
     private static final Log log = LogFactory.getLog(SPMLProvisioningConnector.class);
     private SPMLProvisioningConnectorConfig configHolder;
 
     @Override
     /**
-     * 
+     *
      */
     public void init(Property[] provisioningProperties) throws IdentityProvisioningException {
 
@@ -52,7 +46,7 @@ public class SPMLProvisioningConnector extends AbstractOutboundProvisioningConne
 
     @Override
     /**
-     * 
+     *
      */
     public ProvisionedIdentifier provision(ProvisioningEntity provisioningEntity)
             throws IdentityProvisioningException {
@@ -87,7 +81,6 @@ public class SPMLProvisioningConnector extends AbstractOutboundProvisioningConne
     }
 
     /**
-     * 
      * @param provisioningEntity
      */
     private void updateUser(ProvisioningEntity provisioningEntity) {
@@ -100,7 +93,7 @@ public class SPMLProvisioningConnector extends AbstractOutboundProvisioningConne
             spml2Client.setTrace(log.isDebugEnabled());
             spml2Client.setSOAPAction("SPMLModifyRequest");
 
-            if(provisioningEntity != null && provisioningEntity.getIdentifier() != null) {
+            if (provisioningEntity != null && provisioningEntity.getIdentifier() != null) {
                 provisioningIdentifier = provisioningEntity.getIdentifier().getIdentifier();
             } else {
                 if (isDebugEnabled) {
@@ -118,7 +111,7 @@ public class SPMLProvisioningConnector extends AbstractOutboundProvisioningConne
             Iterator claimsKeySet = claims.entrySet().iterator();
 
             while (claimsKeySet.hasNext()) {
-                Map.Entry pairs = (Map.Entry)claimsKeySet.next();
+                Map.Entry pairs = (Map.Entry) claimsKeySet.next();
                 modification.addOpenContentElement(new DSMLAttr(pairs.getKey().toString(), pairs.getValue().toString()));
             }
 
@@ -148,7 +141,6 @@ public class SPMLProvisioningConnector extends AbstractOutboundProvisioningConne
     }
 
     /**
-     * 
      * @param provisioningEntity
      * @return
      * @throws IdentityProvisioningException
@@ -190,7 +182,7 @@ public class SPMLProvisioningConnector extends AbstractOutboundProvisioningConne
             Iterator claimsKeySet = claims.entrySet().iterator();
 
             while (claimsKeySet.hasNext()) {
-                Map.Entry pairs = (Map.Entry)claimsKeySet.next();
+                Map.Entry pairs = (Map.Entry) claimsKeySet.next();
                 attrs.addOpenContentElement(new DSMLAttr(pairs.getKey().toString(), pairs.getValue().toString()));
             }
 
@@ -232,7 +224,6 @@ public class SPMLProvisioningConnector extends AbstractOutboundProvisioningConne
     }
 
     /**
-     * 
      * @param provisioningEntity
      */
     private void deleteUser(ProvisioningEntity provisioningEntity) {
@@ -246,7 +237,7 @@ public class SPMLProvisioningConnector extends AbstractOutboundProvisioningConne
             spml2Client.setTrace(log.isDebugEnabled());
             spml2Client.setSOAPAction("SPMLDeleteRequest");
 
-            if(provisioningEntity != null && provisioningEntity.getIdentifier() != null) {
+            if (provisioningEntity != null && provisioningEntity.getIdentifier() != null) {
                 provisioningIdentifier = provisioningEntity.getIdentifier().getIdentifier();
             } else {
                 if (isDebugEnabled) {

@@ -17,28 +17,24 @@
 */
 package org.wso2.carbon.identity.entitlement.policy;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.wso2.balana.AbstractPolicy;
 import org.wso2.balana.ParsingException;
 import org.wso2.balana.Policy;
 import org.wso2.balana.PolicySet;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.wso2.balana.finder.PolicyFinder;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 public class PolicyReader implements ErrorHandler {
 
@@ -50,14 +46,10 @@ public class PolicyReader implements ErrorHandler {
 
     // the standard attribute for specifying schema source
     private static final String JAXP_SCHEMA_SOURCE = "http://java.sun.com/xml/jaxp/properties/schemaSource";
-
-    private static Log log = LogFactory.getLog(PolicyReader.class);
-
-    private static volatile PolicyReader reader;
-
     // To enable attempted thread-safety using double-check locking
     private static final Object lock = new Object();
-
+    private static Log log = LogFactory.getLog(PolicyReader.class);
+    private static volatile PolicyReader reader;
     // the builder used to create DOM documents
     private DocumentBuilder builder;
 
@@ -81,7 +73,6 @@ public class PolicyReader implements ErrorHandler {
     }
 
     /**
-     *
      * @param policyFinder
      * @return
      */
@@ -97,7 +88,6 @@ public class PolicyReader implements ErrorHandler {
     }
 
     /**
-     * 
      * @param policy
      * @return
      */
@@ -113,7 +103,6 @@ public class PolicyReader implements ErrorHandler {
     }
 
     /**
-     * 
      * @param policy
      * @return
      */
@@ -130,6 +119,7 @@ public class PolicyReader implements ErrorHandler {
 
     /**
      * Reads policy target from the policy
+     *
      * @param policy policy as a String
      * @return target as PolicyTarget object
      */
@@ -149,7 +139,6 @@ public class PolicyReader implements ErrorHandler {
     }
 
     /**
-     * 
      * @param doc
      * @return
      * @throws ParsingException

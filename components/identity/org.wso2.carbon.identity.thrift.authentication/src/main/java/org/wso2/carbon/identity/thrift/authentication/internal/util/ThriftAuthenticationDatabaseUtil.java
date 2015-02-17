@@ -29,11 +29,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class ThriftAuthenticationDatabaseUtil {
-    
+
     private static final Log log = LogFactory.getLog(ThriftAuthenticationDatabaseUtil.class);
 
     /**
      * Get a database connection instance from the Thrift Identity Persistence Manager
+     *
      * @return Database Connection
      * @throws AuthenticationException Error when getting an instance of the identity Persistence Manager
      */
@@ -47,7 +48,7 @@ public class ThriftAuthenticationDatabaseUtil {
         }
     }
 
-    public static void closeAllConnections(Connection dbConnection, ResultSet rs, PreparedStatement prepStmt){
+    public static void closeAllConnections(Connection dbConnection, ResultSet rs, PreparedStatement prepStmt) {
         closeResultSet(rs);
         closeStatement(prepStmt);
         closeConnection(dbConnection);

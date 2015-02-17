@@ -24,7 +24,7 @@ import org.wso2.carbon.identity.application.common.util.IdentityApplicationManag
 public class PassiveSTSFederatedAuthenticatorConfig extends FederatedAuthenticatorConfig {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 2265391150645470497L;
 
@@ -34,7 +34,7 @@ public class PassiveSTSFederatedAuthenticatorConfig extends FederatedAuthenticat
         if (IdentityApplicationManagementUtil.getProperty(properties,
                 IdentityApplicationConstants.Authenticator.PassiveSTS.PASSIVE_STS_URL) != null
                 && !"".equals(IdentityApplicationManagementUtil.getProperty(properties,
-                        IdentityApplicationConstants.Authenticator.PassiveSTS.PASSIVE_STS_URL))) {
+                IdentityApplicationConstants.Authenticator.PassiveSTS.PASSIVE_STS_URL))) {
             return true;
         }
         return false;

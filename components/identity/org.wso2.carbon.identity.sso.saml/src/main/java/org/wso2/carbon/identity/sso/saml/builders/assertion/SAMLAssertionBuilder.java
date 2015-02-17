@@ -19,8 +19,6 @@ package org.wso2.carbon.identity.sso.saml.builders.assertion;
 
 import org.joda.time.DateTime;
 import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.EncryptedAssertion;
-import org.opensaml.xml.security.x509.X509Credential;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
 
@@ -30,17 +28,15 @@ public interface SAMLAssertionBuilder {
 
     /**
      * Encrypt the SAML assertion
-     * @param authReqDTO
-     *          SAML assertion to be encrypted
-     * @param notOnOrAfter
-     *          Encrypting credential
-     * @param sessionId
-     *          Certificate alias against which use to Encrypt the assertion.
-     * @return  Assertion
+     *
+     * @param authReqDTO   SAML assertion to be encrypted
+     * @param notOnOrAfter Encrypting credential
+     * @param sessionId    Certificate alias against which use to Encrypt the assertion.
+     * @return Assertion
      * @throws IdentityException
      */
 
     public Assertion buildAssertion(SAMLSSOAuthnReqDTO authReqDTO, DateTime notOnOrAfter,
-                       String sessionId) throws IdentityException ;
+                                    String sessionId) throws IdentityException;
 
 }

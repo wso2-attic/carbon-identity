@@ -17,9 +17,6 @@
 */
 package org.wso2.carbon.um.ws.api;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.commons.logging.Log;
@@ -32,6 +29,8 @@ import org.wso2.carbon.um.ws.api.stub.RemoteTenantManagerServiceStub;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.core.tenant.TenantManager;
+
+import java.util.TimerTask;
 
 /**
  * This is the Tenant manager used with WSRealm.
@@ -224,7 +223,7 @@ public class WSRealmTenantManager implements TenantManager {
             option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING,
                     sessionCookie);
             //Timer timer = new Timer();
-           // timer.scheduleAtFixedRate(sender, 10000, 10000);
+            // timer.scheduleAtFixedRate(sender, 10000, 10000);
         }
         return stub;
     }
@@ -234,7 +233,7 @@ public class WSRealmTenantManager implements TenantManager {
      * Hence no implementation currently in this context.
      */
     public void initializeExistingPartitions() {
-        
+
     }
 
     private class LoginSender extends TimerTask {

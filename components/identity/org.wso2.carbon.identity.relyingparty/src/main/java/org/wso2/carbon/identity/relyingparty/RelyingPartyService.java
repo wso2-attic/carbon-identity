@@ -16,14 +16,7 @@
 
 package org.wso2.carbon.identity.relyingparty;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
+import com.google.step2.Step2;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
@@ -58,12 +51,38 @@ import org.wso2.carbon.user.mgt.UserMgtConstants;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import com.google.step2.Step2;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class RelyingPartyService extends AbstractAdmin {
 
     private static final Log log = LogFactory.getLog(RelyingPartyService.class);
     private static final String GOOGLE_APPS_IDP_NAME = "GoogleApps";
+
+    /**
+     * @param openID
+     * @return
+     * @throws Exception
+     */
+    public static String getUserNameFromOpenID(String openID) throws Exception {
+
+        String user = null;
+
+        String openIDPattern = IdentityUtil.getProperty(ServerConfig.OPENID_USER_PATTERN);
+
+        if (openID.length() > openIDPattern.length()) {
+            user = openID.substring(openIDPattern.length());
+            if (!openID.equals(openIDPattern + user)) {
+                return null;
+            }
+        }
+
+        return user;
+    }
 
     /**
      * @param openID
@@ -88,11 +107,11 @@ public class RelyingPartyService extends AbstractAdmin {
         RealmService realmService = IdentityRPServiceComponent.getRealmService();
 
         String tenantAwareUserName = null;
-        
-        if (user!=null) {
-        	tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(user);
+
+        if (user != null) {
+            tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(user);
         }
-        
+
         if (user != null && userRealm.getUserStoreManager().isExistingUser(tenantAwareUserName)) {
             //this.onUserLogin(tenantAwareUserName, domainName, httpSess);
             dto.setAuthenticated(true);
@@ -160,35 +179,13 @@ public class RelyingPartyService extends AbstractAdmin {
         dto = new OpenIDAuthInfoDTO();
         dto.setOptionalClaims(optional.toArray(new String[optional.size()]));
         dto.setRequiredClaims(required.toArray(new String[required.size()]));
-        dto.setRequestTypes(new String[] { IdentityConstants.OpenId.SIMPLE_REGISTRATION });
+        dto.setRequestTypes(new String[]{IdentityConstants.OpenId.SIMPLE_REGISTRATION});
         dto.setRealm(openidRealm);
         dto.setRequestClaimsFromIdP(requestClaimsFromIdP);
         return dto;
     }
 
     /**
-     * @param openID
-     * @return
-     * @throws Exception
-     */
-    public static String getUserNameFromOpenID(String openID) throws Exception {
-
-        String user = null;
-
-        String openIDPattern = IdentityUtil.getProperty(ServerConfig.OPENID_USER_PATTERN);
-
-        if (openID.length() > openIDPattern.length()) {
-            user = openID.substring(openIDPattern.length());
-            if (!openID.equals(openIDPattern + user)) {
-                return null;
-            }
-        }
-
-        return user;
-    }
-
-    /**
-     * 
      * @param dto
      * @return
      * @throws IdentityException
@@ -265,10 +262,10 @@ public class RelyingPartyService extends AbstractAdmin {
                     Permission permission = new Permission("/permission/admin/login",
                             UserMgtConstants.EXECUTE_ACTION);
                     userStore.addRole(IdentityConstants.IDENTITY_DEFAULT_ROLE, null,
-                            new Permission[] { permission }, false);
+                            new Permission[]{permission}, false);
                 }
                 userStore.addUser(username, password,
-                        new String[] { IdentityConstants.IDENTITY_DEFAULT_ROLE }, null, null);
+                        new String[]{IdentityConstants.IDENTITY_DEFAULT_ROLE}, null, null);
                 IdentityPersistenceManager manager = IdentityPersistenceManager
                         .getPersistanceManager();
                 registry = IdentityRPServiceComponent.getRegistryService().getConfigSystemRegistry(
@@ -318,7 +315,6 @@ public class RelyingPartyService extends AbstractAdmin {
     }
 
     /**
-     * 
      * @param userName
      * @param openId
      * @return
@@ -334,7 +330,7 @@ public class RelyingPartyService extends AbstractAdmin {
     }
 
     private void addUserClaims(String userName, String firstName, String lastName,
-            String emailAddress, int tenantId) throws Exception {
+                               String emailAddress, int tenantId) throws Exception {
         try {
             Map<String, String> claimsMap = new HashMap<String, String>();
 

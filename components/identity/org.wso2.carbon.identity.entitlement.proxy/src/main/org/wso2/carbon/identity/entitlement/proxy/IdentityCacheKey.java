@@ -19,16 +19,15 @@
 package org.wso2.carbon.identity.entitlement.proxy;
 
 import java.io.Serializable;
-import org.wso2.carbon.base.MultitenantConstants;
 
 /**
  * Identity Cache key which wraps the identity related cache key values
  */
 public class IdentityCacheKey implements Serializable {
 
+    private static final long serialVersionUID = -7700438046096986522L;
     //private int tenantId;
     private String key;
-    private static final long serialVersionUID = -7700438046096986522L;
 
     public IdentityCacheKey(String key) {
         //this.tenantId = tenantId;
@@ -47,7 +46,7 @@ public class IdentityCacheKey implements Serializable {
         }
         IdentityCacheKey cacheKey = (IdentityCacheKey) obj;
 
-        return cacheKey.getKey() != null &&  cacheKey.getKey().equals(key);// && cacheKey.getTenantId() == tenantId;
+        return cacheKey.getKey() != null && cacheKey.getKey().equals(key);// && cacheKey.getTenantId() == tenantId;
 
     }
 

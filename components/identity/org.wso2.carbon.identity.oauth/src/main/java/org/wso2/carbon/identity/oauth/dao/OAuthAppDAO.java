@@ -146,13 +146,13 @@ public class OAuthAppDAO {
         ResultSet rSet = null;
         OAuthAppDO[] oauthAppsOfUser;
         try {
-        	RealmService realmService = OAuthComponentServiceHolder.getRealmService();
-			String tenantDomain = realmService.getTenantManager().getDomain(tenantId);
-			String tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(username);
-			String tenantUnawareUserName = tenantAwareUserName + "@" + tenantDomain;
-			
+            RealmService realmService = OAuthComponentServiceHolder.getRealmService();
+            String tenantDomain = realmService.getTenantManager().getDomain(tenantId);
+            String tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(username);
+            String tenantUnawareUserName = tenantAwareUserName + "@" + tenantDomain;
+
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
-			prepStmt = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.GET_APPS_OF_USER_WITH_TENANTAWARE_OR_TENANTUNAWARE_USERNAME);
+            prepStmt = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.GET_APPS_OF_USER_WITH_TENANTAWARE_OR_TENANTUNAWARE_USERNAME);
             prepStmt.setString(1, tenantAwareUserName);
             prepStmt.setString(2, tenantUnawareUserName);
             prepStmt.setInt(3, tenantId);
@@ -183,11 +183,11 @@ public class OAuthAppDAO {
             log.error(e.getMessage(), e);
             throw new IdentityOAuthAdminException("Error when reading the application information from the persistence store.");
         } catch (UserStoreException e) {
-			log.error("Error while retrieving Tenant Domain for tenant ID : " + tenantId);
-			log.error(e.getMessage(), e);
-			throw new IdentityOAuthAdminException(
-			                                      "Error while retrieving Tenant Domain for tenant ID : " +
-			                                              tenantId);
+            log.error("Error while retrieving Tenant Domain for tenant ID : " + tenantId);
+            log.error(e.getMessage(), e);
+            throw new IdentityOAuthAdminException(
+                    "Error while retrieving Tenant Domain for tenant ID : " +
+                            tenantId);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }
@@ -220,7 +220,7 @@ public class OAuthAppDAO {
                     oauthApp = new OAuthAppDO();
                     oauthApp.setOauthConsumerKey(consumerKey);
                     oauthApp.setOauthConsumerSecret(persistenceProcessor.getPreprocessedClientSecret(rSet.getString(1)));
-                    oauthApp.setUserName(rSet.getString(2)); 
+                    oauthApp.setUserName(rSet.getString(2));
                     oauthApp.setApplicationName(rSet.getString(3));
                     oauthApp.setOauthVersion(rSet.getString(4));
                     oauthApp.setCallbackUrl(rSet.getString(5));
@@ -230,7 +230,7 @@ public class OAuthAppDAO {
                 }
             }
             if (!rSetHasRows) {
-         /**
+                /**
                  * We come here because user submitted a key that doesn't have any associated application with it.
                  * We're throwing an error here because we cannot continue without this info. Otherwise it'll throw
                  * a null values not supported error when it tries to cache this info
@@ -250,7 +250,7 @@ public class OAuthAppDAO {
         }
         return oauthApp;
     }
-    
+
     public OAuthAppDO getAppInformationByAppName(String appName) throws InvalidOAuthClientException, IdentityOAuth2Exception {
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -264,7 +264,7 @@ public class OAuthAppDAO {
             prepStmt.setString(1, persistenceProcessor.getProcessedClientId(appName));
             prepStmt.setInt(2, tenantID);
 
-            
+
             //"SELECT CONSUMER_SECRET,USERNAME,CONSUMER_KEY, OAUTH_VERSION, CALLBACK_URL,GRANT_TYPES FROM " +
             //"IDN_OAUTH_CONSUMER_APPS WHERE APP_NAME=? AND TENANT_ID=? ";
 
@@ -293,7 +293,7 @@ public class OAuthAppDAO {
                 }
             }
             if (!rSetHasRows) {
-         /**
+                /**
                  * We come here because user submitted a key that doesn't have any associated application with it.
                  * We're throwing an error here because we cannot continue without this info. Otherwise it'll throw
                  * a null values not supported error when it tries to cache this info

@@ -73,13 +73,11 @@ import java.util.Set;
  */
 public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
 
-    private static Log log = LogFactory.getLog(SAML2BearerGrantHandler.class);
-
-    SAMLSignatureProfileValidator profileValidator = null;
-
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
             Constants.SECURITY_MANAGER_PROPERTY;
     private static final int ENTITY_EXPANSION_LIMIT = 0;
+    private static Log log = LogFactory.getLog(SAML2BearerGrantHandler.class);
+    SAMLSignatureProfileValidator profileValidator = null;
 
     public void init() throws IdentityOAuth2Exception {
 
@@ -179,7 +177,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             try {
                 identityProvider = IdentityProviderManager.getInstance().
                         getIdPByAuthenticatorPropertyValue("IdPEntityId",
-                        assertion.getIssuer().getValue(), tenantDomain, false);
+                                assertion.getIssuer().getValue(), tenantDomain, false);
                 // IF Federated IDP not found get the resident IDP and check,
                 // resident IDP entitiID == issuer
                 if (identityProvider != null) {
@@ -212,7 +210,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                         // authenticator
                         FederatedAuthenticatorConfig oauthAuthenticatorConfig =
                                 IdentityApplicationManagementUtil.getFederatedAuthenticator(fedAuthnConfigs,
-                                IdentityApplicationConstants.Authenticator.OIDC.NAME);
+                                        IdentityApplicationConstants.Authenticator.OIDC.NAME);
                         // Get OAuth token endpoint
                         Property oauthProperty = IdentityApplicationManagementUtil.getProperty(
                                 oauthAuthenticatorConfig.getProperties(),

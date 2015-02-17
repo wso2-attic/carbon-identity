@@ -24,6 +24,7 @@ import org.wso2.carbon.identity.user.profile.mgt.util.ServiceHodler;
 import org.wso2.carbon.user.core.UserRealm;
 
 //@scr.reference name="user.realm.hybrid" interface="org.wso2.carbon.user.core.UserRealm" cardinality="1..1" policy="dynamic" target="(RealmGenre=Hybrid)" bind="setUserRealmHybrid" unbind="unsetUserRealmHybrid"
+
 /**
  * @scr.component name="identity.user.profile.mgt.component"" immediate="true"
  * @scr.reference name="user.realm.default" interface="org.wso2.carbon.user.core.UserRealm" cardinality="1..1" policy="dynamic" target="(RealmGenre=Default)" bind="setUserRealmDefault" unbind="unsetUserRealmDefault"
@@ -31,10 +32,10 @@ import org.wso2.carbon.user.core.UserRealm;
 public class IdentityUserProfileServiceComponent {
 
     private static final Log log = LogFactory.getLog(IdentityUserProfileServiceComponent.class);
-    
+
     protected void activate(ComponentContext ctxt) {
         try {
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 log.debug("User Profile Mgt bundle is activated ");
             }
         } catch (Throwable e) {
@@ -57,5 +58,5 @@ public class IdentityUserProfileServiceComponent {
         }
         ServiceHodler.setInternalUserStore(null);
     }
-    
+
 }

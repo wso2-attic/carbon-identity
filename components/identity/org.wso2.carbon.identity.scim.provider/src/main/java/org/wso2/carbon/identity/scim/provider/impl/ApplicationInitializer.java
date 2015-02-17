@@ -17,15 +17,9 @@
 */
 package org.wso2.carbon.identity.scim.provider.impl;
 
-import org.wso2.carbon.base.ServerConfigurationException;
-import org.wso2.carbon.identity.core.util.IdentityConfigParser;
-import org.wso2.carbon.identity.scim.provider.auth.BasicAuthHandler;
-import org.wso2.carbon.identity.scim.provider.auth.OAuthHandler;
-import org.wso2.carbon.identity.scim.provider.auth.SCIMAuthConfigReader;
-import org.wso2.carbon.identity.scim.provider.auth.SCIMAuthenticationHandler;
-import org.wso2.carbon.identity.scim.provider.auth.SCIMAuthenticatorRegistry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.scim.provider.auth.*;
 import org.wso2.charon.core.exceptions.CharonException;
 
 import javax.servlet.ServletContextEvent;
@@ -52,7 +46,7 @@ public class ApplicationInitializer implements ServletContextListener {
 
         } catch (CharonException e) {
             logger.error("Error in initializing the IdentitySCIMManager at the initialization of " +
-                         "SCIM webapp");
+                    "SCIM webapp");
         }
     }
 
@@ -70,7 +64,7 @@ public class ApplicationInitializer implements ServletContextListener {
                 for (SCIMAuthenticationHandler scimAuthenticator : SCIMAuthenticators) {
                     scimAuthRegistry.setAuthenticator(scimAuthenticator);
                 }
-                                
+
             } else {
                 //initialize default basic auth authenticator & OAuth authenticator and set it in the auth registry.
                 BasicAuthHandler basicAuthHandler = new BasicAuthHandler();

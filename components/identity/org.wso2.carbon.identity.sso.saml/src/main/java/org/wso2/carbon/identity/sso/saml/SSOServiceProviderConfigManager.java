@@ -38,54 +38,57 @@ public class SSOServiceProviderConfigManager {
     // This map is used to store the service provider info against the issuer name
     private ConcurrentHashMap<String, SAMLSSOServiceProviderDO> serviceProviderMap;
 
-    private SSOServiceProviderConfigManager(){
-        this.serviceProviderMap = new ConcurrentHashMap<String, SAMLSSOServiceProviderDO>();    
+    private SSOServiceProviderConfigManager() {
+        this.serviceProviderMap = new ConcurrentHashMap<String, SAMLSSOServiceProviderDO>();
     }
 
-    public static SSOServiceProviderConfigManager getInstance(){
-        if(instance == null){
-            synchronized (SSOServiceProviderConfigManager.class){
-                if(instance == null){
+    public static SSOServiceProviderConfigManager getInstance() {
+        if (instance == null) {
+            synchronized (SSOServiceProviderConfigManager.class) {
+                if (instance == null) {
                     instance = new SSOServiceProviderConfigManager();
                 }
             }
         }
         return instance;
     }
+
     /**
      * Add Service Providers to the list
+     *
      * @param issuerName issuer name used by the service provider
-     * @param spDO SAMLSSOServiceProviderDO bean representing the Service Provider
+     * @param spDO       SAMLSSOServiceProviderDO bean representing the Service Provider
      */
-    public void addServiceProvider(String issuerName, SAMLSSOServiceProviderDO spDO){
-        if(serviceProviderMap.containsKey(issuerName)){
+    public void addServiceProvider(String issuerName, SAMLSSOServiceProviderDO spDO) {
+        if (serviceProviderMap.containsKey(issuerName)) {
             log.warn("Duplicate Service Providers detected.");
             return;
-        }
-        else{
+        } else {
             serviceProviderMap.put(issuerName, spDO);
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 log.debug("A Service Provider is added to the Service Provider Map with the " +
-                          "issuer name : " + issuerName);
+                        "issuer name : " + issuerName);
             }
         }
     }
 
     /**
      * Get the Service Provider with the given issuer name
+     *
      * @param issuerName issuer name
      * @return SAMLSSOServiceProviderDO bean representing the Service Provider
      */
-    public SAMLSSOServiceProviderDO getServiceProvider(String issuerName){
+    public SAMLSSOServiceProviderDO getServiceProvider(String issuerName) {
         return serviceProviderMap.get(issuerName);
     }
 
     /**
      * Get all the SAMLSSOServiceProviderDO objects which are registered through the OSGi service.
+     *
      * @return Enumeration of SAMLSSOServiceProviderDO objects
      */
-    public Enumeration<SAMLSSOServiceProviderDO> getAllServiceProviders(){
+    public Enumeration<SAMLSSOServiceProviderDO> getAllServiceProviders() {
         return serviceProviderMap.elements();
     }
-    
+
 }

@@ -18,17 +18,16 @@
  */
 package org.wso2.carbon.identity.provisioning.cache;
 
-import java.io.Serializable;
-import java.util.Map;
-
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.provisioning.RuntimeProvisioningConfig;
+
+import java.util.Map;
 
 public class ServiceProviderProvisioningConnectorCacheEntry extends CacheEntry {
 
     /**
-	 * 
-	 */
+     *
+     */
     private static final long serialVersionUID = 1L;
 
     private Map<String, RuntimeProvisioningConfig> connectors = null;

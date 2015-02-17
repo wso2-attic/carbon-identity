@@ -18,15 +18,15 @@
 
 package org.wso2.carbon.identity.application.common.model;
 
+import org.apache.axiom.om.OMElement;
+
 import java.util.ArrayList;
 import java.util.Iterator;
-
-import org.apache.axiom.om.OMElement;
 
 public class RequestPathAuthenticatorConfig extends LocalAuthenticatorConfig {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -753652473009612026L;
 

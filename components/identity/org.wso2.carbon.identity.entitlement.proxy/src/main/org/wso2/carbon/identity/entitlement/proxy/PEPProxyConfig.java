@@ -22,13 +22,13 @@ import java.util.Map;
 
 public class PEPProxyConfig {
 
-    private Map<String, Map<String,String>> appToPDPClientConfigMap;
+    private Map<String, Map<String, String>> appToPDPClientConfigMap;
     private String defaultAppId;
     private String cacheType;
     private int invalidationInterval;
     private int maxCacheEntries;
 
-    public PEPProxyConfig(Map<String, Map<String,String>> appToPDPClientConfigMap, String defaultAppId,
+    public PEPProxyConfig(Map<String, Map<String, String>> appToPDPClientConfigMap, String defaultAppId,
                           String cacheType, int invalidationInterval, int maxCacheEntries) {
         this.defaultAppId = defaultAppId;
         this.appToPDPClientConfigMap = appToPDPClientConfigMap;
@@ -52,7 +52,7 @@ public class PEPProxyConfig {
         return invalidationInterval;
     }
 
-    public Map<String, Map<String,String>> getAppToPDPClientConfigMap() {
+    public Map<String, Map<String, String>> getAppToPDPClientConfigMap() {
         return appToPDPClientConfigMap;
     }
 

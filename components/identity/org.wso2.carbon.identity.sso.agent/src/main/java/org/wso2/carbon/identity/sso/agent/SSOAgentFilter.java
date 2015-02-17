@@ -45,10 +45,10 @@ public class SSOAgentFilter implements Filter {
 
     }
 
-	/**
-	 * @see Filter#doFilter(ServletRequest, ServletResponse, FilterChain)
-	 */
-	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
+    /**
+     * @see Filter#doFilter(ServletRequest, ServletResponse, FilterChain)
+     */
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
                          FilterChain chain) throws IOException, ServletException {
 
         try {
@@ -56,9 +56,9 @@ public class SSOAgentFilter implements Filter {
             HttpServletRequest request = (HttpServletRequest) servletRequest;
             HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-            SSOAgentConfig ssoAgentConfig = (SSOAgentConfig)request.
+            SSOAgentConfig ssoAgentConfig = (SSOAgentConfig) request.
                     getAttribute(SSOAgentConstants.CONFIG_BEAN_NAME);
-            if(ssoAgentConfig == null){
+            if (ssoAgentConfig == null) {
                 throw new SSOAgentException("Cannot find " + SSOAgentConstants.CONFIG_BEAN_NAME +
                         " set a request attribute. Unable to proceed further");
             }
@@ -66,7 +66,7 @@ public class SSOAgentFilter implements Filter {
             SSOAgentRequestResolver resolver =
                     new SSOAgentRequestResolver(request, response, ssoAgentConfig);
 
-            if(resolver.isURLToSkip()){
+            if (resolver.isURLToSkip()) {
                 chain.doFilter(servletRequest, servletResponse);
                 return;
             }
@@ -76,12 +76,12 @@ public class SSOAgentFilter implements Filter {
             SAML2GrantManager saml2GrantManager = null;
 
 
-            if(resolver.isSLORequest()){
+            if (resolver.isSLORequest()) {
 
                 samlSSOManager = new SAML2SSOManager(ssoAgentConfig);
                 samlSSOManager.doSLO(request);
 
-            } else if(resolver.isSAML2SSOResponse()){
+            } else if (resolver.isSAML2SSOResponse()) {
 
                 samlSSOManager = new SAML2SSOManager(ssoAgentConfig);
                 try {
@@ -90,22 +90,22 @@ public class SSOAgentFilter implements Filter {
                     handleException(request, e);
                 }
 
-            } else if(resolver.isOpenIdLoginResponse()){
+            } else if (resolver.isOpenIdLoginResponse()) {
 
                 openIdManager = new OpenIDManager(ssoAgentConfig);
                 try {
                     openIdManager.processOpenIDLoginResponse(request, response);
-                } catch (SSOAgentException e){
+                } catch (SSOAgentException e) {
                     handleException(request, e);
                 }
 
-            } else if (resolver.isSLOURL()){
+            } else if (resolver.isSLOURL()) {
 
                 samlSSOManager = new SAML2SSOManager(ssoAgentConfig);
-                if(resolver.isHttpPostBinding()) {
+                if (resolver.isHttpPostBinding()) {
 
                     ssoAgentConfig.getSAML2().setPassiveAuthn(false);
-                    String htmlPayload = samlSSOManager.buildPostRequest(request,response,true);
+                    String htmlPayload = samlSSOManager.buildPostRequest(request, response, true);
                     SSOAgentUtils.sendPostResponse(request, response, htmlPayload);
 
                 } else {
@@ -115,12 +115,12 @@ public class SSOAgentFilter implements Filter {
                 }
                 return;
 
-            } else if(resolver.isSAML2SSOURL()){
+            } else if (resolver.isSAML2SSOURL()) {
 
                 samlSSOManager = new SAML2SSOManager(ssoAgentConfig);
-                if(resolver.isHttpPostBinding()){
+                if (resolver.isHttpPostBinding()) {
                     ssoAgentConfig.getSAML2().setPassiveAuthn(false);
-                    String htmlPayload = samlSSOManager.buildPostRequest(request,response,false);
+                    String htmlPayload = samlSSOManager.buildPostRequest(request, response, false);
                     SSOAgentUtils.sendPostResponse(request, response, htmlPayload);
                     return;
                 } else {
@@ -129,7 +129,7 @@ public class SSOAgentFilter implements Filter {
                 }
                 return;
 
-            } else if(resolver.isOpenIdURL()){
+            } else if (resolver.isOpenIdURL()) {
 
                 openIdManager = new OpenIDManager(ssoAgentConfig);
                 response.sendRedirect(openIdManager.doOpenIDLogin(request, response));
@@ -151,11 +151,11 @@ public class SSOAgentFilter implements Filter {
             // pass the request along the filter chain
             chain.doFilter(request, response);
 
-        } catch (SSOAgentException e){
+        } catch (SSOAgentException e) {
             LOGGER.log(Level.SEVERE, "An error has occurred", e);
             throw e;
         }
-	}
+    }
 
 
     /**
@@ -168,7 +168,7 @@ public class SSOAgentFilter implements Filter {
     protected void handleException(HttpServletRequest request, SSOAgentException e)
             throws SSOAgentException {
 
-        if(request.getSession(false) != null){
+        if (request.getSession(false) != null) {
             request.getSession(false).removeAttribute(SSOAgentConstants.SESSION_BEAN_NAME);
         }
         throw e;

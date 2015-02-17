@@ -63,13 +63,13 @@ public class SAMLSSOUIUtil {
                                                        SAMLSSOServiceProviderDTO[] serviceProviderSet) {
         String regPattern = filter.replace("*", ".*");
         ArrayList<SAMLSSOServiceProviderDTO> list = new ArrayList<SAMLSSOServiceProviderDTO>();
-        for(SAMLSSOServiceProviderDTO serviceProvider : serviceProviderSet){
-            if(serviceProvider.getIssuer().toLowerCase().matches(regPattern.toLowerCase())){
+        for (SAMLSSOServiceProviderDTO serviceProvider : serviceProviderSet) {
+            if (serviceProvider.getIssuer().toLowerCase().matches(regPattern.toLowerCase())) {
                 list.add(serviceProvider);
             }
         }
         SAMLSSOServiceProviderDTO[] filteredProviders = new SAMLSSOServiceProviderDTO[list.size()];
-        for(int i = 0; i < list.size(); i++){
+        for (int i = 0; i < list.size(); i++) {
             filteredProviders[i] = list.get(i);
 
         }

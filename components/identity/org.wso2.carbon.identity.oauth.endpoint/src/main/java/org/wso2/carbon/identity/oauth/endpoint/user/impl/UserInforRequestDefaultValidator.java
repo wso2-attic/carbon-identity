@@ -26,31 +26,31 @@ import javax.ws.rs.core.HttpHeaders;
 
 /**
  * Validates the schema and authorization header according to the specification
- * 
+ *
  * @see http://openid.net/specs/openid-connect-basic-1_0-22.html#anchor6
  */
 public class UserInforRequestDefaultValidator implements UserInfoRequestValidator {
 
-	public String validateRequest(HttpServletRequest request) throws UserInfoEndpointException {
+    public String validateRequest(HttpServletRequest request) throws UserInfoEndpointException {
 
-		String schema = request.getParameter("schema");
-		String authzHeaders = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String schema = request.getParameter("schema");
+        String authzHeaders = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-		if (!"openid".equals(schema)) {
-			throw new UserInfoEndpointException(UserInfoEndpointException.ERROR_CODE_INVALID_SCHEMA,
-			                                    "Schema should be openid");
-		}
+        if (!"openid".equals(schema)) {
+            throw new UserInfoEndpointException(UserInfoEndpointException.ERROR_CODE_INVALID_SCHEMA,
+                    "Schema should be openid");
+        }
 
-		if (authzHeaders == null) {
-			throw new UserInfoEndpointException(OAuthError.ResourceResponse.INVALID_REQUEST,
-			                                    "Authorization header missing");
-		}
-		
-		String[] authzHeaderInfo = ((String) authzHeaders).trim().split(" ");
-		if (!"Bearer".equals(authzHeaderInfo[0])) {
-			throw new UserInfoEndpointException(OAuthError.ResourceResponse.INVALID_REQUEST, "Bearer token missing");
-		}
-		return authzHeaderInfo[1];
-	}
+        if (authzHeaders == null) {
+            throw new UserInfoEndpointException(OAuthError.ResourceResponse.INVALID_REQUEST,
+                    "Authorization header missing");
+        }
+
+        String[] authzHeaderInfo = ((String) authzHeaders).trim().split(" ");
+        if (!"Bearer".equals(authzHeaderInfo[0])) {
+            throw new UserInfoEndpointException(OAuthError.ResourceResponse.INVALID_REQUEST, "Bearer token missing");
+        }
+        return authzHeaderInfo[1];
+    }
 
 }

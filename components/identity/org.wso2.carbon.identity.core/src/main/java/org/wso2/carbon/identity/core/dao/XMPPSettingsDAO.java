@@ -25,8 +25,8 @@ import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.Resource;
-import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
 
 public class XMPPSettingsDAO extends AbstractDAO<XMPPSettingsDO> {
 
@@ -75,7 +75,7 @@ public class XMPPSettingsDAO extends AbstractDAO<XMPPSettingsDO> {
 
     /**
      * Adding XMPP Settings corresponding to a user
-     * 
+     *
      * @param userId
      * @param xmppServer
      * @param xmppUserName
@@ -83,7 +83,7 @@ public class XMPPSettingsDAO extends AbstractDAO<XMPPSettingsDO> {
      * @throws IdentityException
      */
     public void addXmppSettings(String userId, String xmppServer, String xmppUserName,
-            String xmppUserCode, boolean enabled, boolean pinEnabled) throws IdentityException {
+                                String xmppUserCode, boolean enabled, boolean pinEnabled) throws IdentityException {
 
         String path = null;
         Resource resource = null;
@@ -125,14 +125,14 @@ public class XMPPSettingsDAO extends AbstractDAO<XMPPSettingsDO> {
                 }
                 registry.put(path, resource);
 
-                if (!registry.resourceExists(RegistryConstants.PROFILES_PATH  + userId)) {
+                if (!registry.resourceExists(RegistryConstants.PROFILES_PATH + userId)) {
                     userResource = registry.newCollection();
-                    registry.put(RegistryConstants.PROFILES_PATH  + userId, userResource);
+                    registry.put(RegistryConstants.PROFILES_PATH + userId, userResource);
                 } else {
                     //userResource = (Collection) registry.get(RegistryConstants.PROFILES_PATH  + userId);
                 }
 
-                registry.addAssociation(RegistryConstants.PROFILES_PATH  + userId, path,
+                registry.addAssociation(RegistryConstants.PROFILES_PATH + userId, path,
                         IdentityRegistryResources.ASSOCIATION_USER_XMPP_SETTINGS);
                 if (!transactionStarted) {
                     registry.commitTransaction();
@@ -142,7 +142,7 @@ public class XMPPSettingsDAO extends AbstractDAO<XMPPSettingsDO> {
                     registry.rollbackTransaction();
                 }
                 if (e instanceof RegistryException) {
-                    throw (RegistryException)e;
+                    throw (RegistryException) e;
                 } else {
                     throw new IdentityException("Error occured while adding XMPP Settings", e);
                 }
@@ -160,7 +160,7 @@ public class XMPPSettingsDAO extends AbstractDAO<XMPPSettingsDO> {
 
     /**
      * Update XMPP Settings of a user
-     * 
+     *
      * @param userId
      * @param xmppServer
      * @param xmppUserName
@@ -168,7 +168,7 @@ public class XMPPSettingsDAO extends AbstractDAO<XMPPSettingsDO> {
      * @throws IdentityException
      */
     public void updateXmppSettings(String userId, String xmppServer, String xmppUserName,
-            String xmppUserCode, boolean enabled, boolean pinEnabled) throws IdentityException {
+                                   String xmppUserCode, boolean enabled, boolean pinEnabled) throws IdentityException {
         String path = null;
         Resource resource = null;
 
@@ -216,7 +216,7 @@ public class XMPPSettingsDAO extends AbstractDAO<XMPPSettingsDO> {
 
     /**
      * retrieve XMPP Settings of a user by providing the userId
-     * 
+     *
      * @param userId
      * @return
      */
@@ -238,7 +238,7 @@ public class XMPPSettingsDAO extends AbstractDAO<XMPPSettingsDO> {
 
     /**
      * Checks whether the given user has enabled XMPP based multifactor auth.
-     * 
+     *
      * @param userId
      * @return
      */

@@ -2,24 +2,24 @@ package org.wso2.carbon.claim.mgt.dto;
 
 public class ClaimAttributeDTO {
 
-	private String domainName;
-	
-	private String attributeName;
+    private String domainName;
 
-	public String getDomainName() {
-		return domainName;
-	}
+    private String attributeName;
 
-	public void setDomainName(String domainName) {
-		this.domainName = domainName;
-	}
+    public String getDomainName() {
+        return domainName;
+    }
 
-	public String getAttributeName() {
-		return attributeName;
-	}
+    public void setDomainName(String domainName) {
+        this.domainName = domainName;
+    }
 
-	public void setAttributeName(String attributeName) {
-		this.attributeName = attributeName;
-	}	
-	
+    public String getAttributeName() {
+        return attributeName;
+    }
+
+    public void setAttributeName(String attributeName) {
+        this.attributeName = attributeName;
+    }
+
 }

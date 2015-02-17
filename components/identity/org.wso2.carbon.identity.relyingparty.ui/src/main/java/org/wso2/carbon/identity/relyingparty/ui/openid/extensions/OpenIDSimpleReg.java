@@ -16,13 +16,6 @@
 
 package org.wso2.carbon.identity.relyingparty.ui.openid.extensions;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openid4java.message.AuthSuccess;
@@ -35,118 +28,123 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.relyingparty.stub.dto.ClaimDTO;
 import org.wso2.carbon.identity.relyingparty.ui.openid.OpenIDAuthenticationRequest;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 public class OpenIDSimpleReg implements OpenIDExtension {
 
-	private AuthSuccess authSuccess;
-	private static Log log = LogFactory.getLog(OpenIDSimpleReg.class);
+    private static Log log = LogFactory.getLog(OpenIDSimpleReg.class);
+    private AuthSuccess authSuccess;
 
-	/**
-	 * Default constructor
-	 */
-	public OpenIDSimpleReg() {
-	}
+    /**
+     * Default constructor
+     */
+    public OpenIDSimpleReg() {
+    }
 
-	/**
-	 * Constructed during building the response
-	 * 
-	 * @param authSuccess An instance of AuthSuccess
-	 */
-	public OpenIDSimpleReg(AuthSuccess authSuccess) {
-		this.authSuccess = authSuccess;
-	}
+    /**
+     * Constructed during building the response
+     *
+     * @param authSuccess An instance of AuthSuccess
+     */
+    public OpenIDSimpleReg(AuthSuccess authSuccess) {
+        this.authSuccess = authSuccess;
+    }
 
-	/**
-	 * Creates an instance of MessageExtension for the OpenID authentication request
-	 * 
-	 * @param request OpenID authentication request
-	 * @return An instance of MessageExtension
-	 * @throws RelyingPartyException
-	 */
-	public MessageExtension getMessageExtension(OpenIDAuthenticationRequest request)
-			throws IdentityException {
+    /**
+     * Creates an instance of MessageExtension for the OpenID authentication request
+     *
+     * @param request OpenID authentication request
+     * @return An instance of MessageExtension
+     * @throws RelyingPartyException
+     */
+    public MessageExtension getMessageExtension(OpenIDAuthenticationRequest request)
+            throws IdentityException {
 
-		SRegRequest sregReq = null;
+        SRegRequest sregReq = null;
 
-		sregReq = SRegRequest.createFetchRequest();
+        sregReq = SRegRequest.createFetchRequest();
 
-		if (request.getRequiredClaims() != null && request.getRequiredClaims().size() > 0) {
-			for (Object requiredClaim : request.getRequiredClaims()) {
-				if (requiredClaim instanceof String) {
-					sregReq.addAttribute((String) requiredClaim, true);
-				}
-			}
-		}
+        if (request.getRequiredClaims() != null && request.getRequiredClaims().size() > 0) {
+            for (Object requiredClaim : request.getRequiredClaims()) {
+                if (requiredClaim instanceof String) {
+                    sregReq.addAttribute((String) requiredClaim, true);
+                }
+            }
+        }
 
-		if (request.getOptionalClaims() != null && request.getOptionalClaims().size() > 0) {
-			for (Object optionalClaim : request.getOptionalClaims()) {
-				if (optionalClaim instanceof String) {
-					sregReq.addAttribute((String) optionalClaim, false);
-				}
-			}
-		}
+        if (request.getOptionalClaims() != null && request.getOptionalClaims().size() > 0) {
+            for (Object optionalClaim : request.getOptionalClaims()) {
+                if (optionalClaim instanceof String) {
+                    sregReq.addAttribute((String) optionalClaim, false);
+                }
+            }
+        }
 
-		return sregReq;
-	}
+        return sregReq;
+    }
 
-	/**
-	 * Set request attributes for OpenID simple registration
-	 * 
-	 * @param request HttpServletRequest
-	 */
-	public void setSessionAttributes(List<ClaimDTO> claimList) throws IdentityException {
+    /**
+     * Set request attributes for OpenID simple registration
+     *
+     * @param request HttpServletRequest
+     */
+    public void setSessionAttributes(List<ClaimDTO> claimList) throws IdentityException {
 
-		try {
+        try {
 
-			SRegResponse sregResp = null;
-			Iterator iterator = null;
-			Map attributes = null;
-			Entry entry = null;
+            SRegResponse sregResp = null;
+            Iterator iterator = null;
+            Map attributes = null;
+            Entry entry = null;
 
-			if (authSuccess.hasExtension(SRegResponse.OPENID_NS_SREG)) {
-				sregResp = (SRegResponse) authSuccess.getExtension(SRegResponse.OPENID_NS_SREG);
-			} else if (authSuccess
-					.hasExtension(IdentityConstants.OpenId.SimpleRegAttributes.NS_SREG)) {
-				sregResp = (SRegResponse) authSuccess
-						.getExtension(IdentityConstants.OpenId.SimpleRegAttributes.NS_SREG);
+            if (authSuccess.hasExtension(SRegResponse.OPENID_NS_SREG)) {
+                sregResp = (SRegResponse) authSuccess.getExtension(SRegResponse.OPENID_NS_SREG);
+            } else if (authSuccess
+                    .hasExtension(IdentityConstants.OpenId.SimpleRegAttributes.NS_SREG)) {
+                sregResp = (SRegResponse) authSuccess
+                        .getExtension(IdentityConstants.OpenId.SimpleRegAttributes.NS_SREG);
 
-			} else if (authSuccess
-					.hasExtension(IdentityConstants.OpenId.SimpleRegAttributes.NS_SREG_1)) {
-				sregResp = (SRegResponse) authSuccess
-						.getExtension(IdentityConstants.OpenId.SimpleRegAttributes.NS_SREG_1);
-			}
+            } else if (authSuccess
+                    .hasExtension(IdentityConstants.OpenId.SimpleRegAttributes.NS_SREG_1)) {
+                sregResp = (SRegResponse) authSuccess
+                        .getExtension(IdentityConstants.OpenId.SimpleRegAttributes.NS_SREG_1);
+            }
 
-			if (sregResp != null) {
-				ClaimDTO claim = null;
-				attributes = sregResp.getAttributes();
-				iterator = attributes.entrySet().iterator();
-				while (iterator.hasNext()) {
-					entry = (Entry) iterator.next();		
-					claim = new ClaimDTO();
-					claim.setClaimUri((String) entry.getKey());
-					claim.setClaimValue((String) entry.getValue());
-					claimList.add(claim);
-				}
-			}
+            if (sregResp != null) {
+                ClaimDTO claim = null;
+                attributes = sregResp.getAttributes();
+                iterator = attributes.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    entry = (Entry) iterator.next();
+                    claim = new ClaimDTO();
+                    claim.setClaimUri((String) entry.getKey());
+                    claim.setClaimValue((String) entry.getValue());
+                    claimList.add(claim);
+                }
+            }
 
-		} catch (MessageException e) {
-			log
-					.error(
-							"Error while adding retrieved user attributes to the session in OpenIDSimpleReg",
-							e);
-			throw new IdentityException(
-					"Error while adding retrieved user attributes to the session in OpenIDSimpleReg",
-					e);
-		}
-	}
+        } catch (MessageException e) {
+            log
+                    .error(
+                            "Error while adding retrieved user attributes to the session in OpenIDSimpleReg",
+                            e);
+            throw new IdentityException(
+                    "Error while adding retrieved user attributes to the session in OpenIDSimpleReg",
+                    e);
+        }
+    }
 
-	/**
-	 * If no attribute set by the user for simple registration request, by default we set all the
-	 * attributes.
-	 * 
-	 * @param request Simple registration request
-	 */
-	protected void setDefaultRequestParams(SRegRequest request) {
+    /**
+     * If no attribute set by the user for simple registration request, by default we set all the
+     * attributes.
+     *
+     * @param request Simple registration request
+     */
+    protected void setDefaultRequestParams(SRegRequest request) {
 
-	}
+    }
 
 }

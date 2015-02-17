@@ -25,12 +25,7 @@ import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
 
 
@@ -69,8 +64,7 @@ public class PolicyEditorService {
             in.close();
 
             policy = fBuf.toString();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new AxisFault(e.getMessage());
         }
 

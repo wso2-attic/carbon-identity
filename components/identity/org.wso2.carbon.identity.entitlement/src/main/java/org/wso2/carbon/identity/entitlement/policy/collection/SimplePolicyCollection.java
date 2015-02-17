@@ -23,11 +23,13 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.balana.*;
 import org.wso2.balana.combine.PolicyCombiningAlgorithm;
 import org.wso2.balana.ctx.EvaluationCtx;
-import org.wso2.balana.ctx.Status;
 import org.wso2.carbon.identity.entitlement.EntitlementException;
 
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * simple implementation of Policy collection interface. This uses in-memory map to maintain policies
@@ -35,37 +37,34 @@ import java.util.*;
  */
 public class SimplePolicyCollection implements PolicyCollection {
 
+    private static Log log = LogFactory.getLog(SimplePolicyCollection.class);
     /**
      * the actual collection of policies
      * to maintain the order of the policies, <code>LinkedHashMap</code> has been used.
-     * Map with  policy identifier policy as <code>AbstractPolicy</code> object 
+     * Map with  policy identifier policy as <code>AbstractPolicy</code> object
      */
     private LinkedHashMap<URI, AbstractPolicy> policyCollection = new LinkedHashMap<URI, AbstractPolicy>();
-
     /**
      * the optional combining algorithm used when wrapping multiple policies
      * if no algorithm is defined, only one applicable algorithm is used
      */
     private PolicyCombiningAlgorithm combiningAlg;
-
     /**
      * the optional policy id used when wrapping multiple policies
      */
     private URI parentId;
 
-    private static Log log = LogFactory.getLog(SimplePolicyCollection.class);
-
     @Override
     public void init(Properties properties) throws Exception {
-        String parentIdProperty  = properties.getProperty("parentId");
-        if(parentIdProperty != null){
+        String parentIdProperty = properties.getProperty("parentId");
+        if (parentIdProperty != null) {
             parentId = new URI(parentIdProperty);
         }
     }
 
     @Override
     public boolean addPolicy(AbstractPolicy policy) {
-       return addPolicy(policy.getId(), policy);
+        return addPolicy(policy.getId(), policy);
     }
 
     @Override
@@ -74,7 +73,7 @@ public class SimplePolicyCollection implements PolicyCollection {
         // setup a list of matching policies
         ArrayList<AbstractPolicy> list = new ArrayList<AbstractPolicy>();
 
-        for(Map.Entry<URI, AbstractPolicy> entry : policyCollection.entrySet()){
+        for (Map.Entry<URI, AbstractPolicy> entry : policyCollection.entrySet()) {
 
             AbstractPolicy policy = entry.getValue();
 
@@ -93,7 +92,7 @@ public class SimplePolicyCollection implements PolicyCollection {
                 // ...first checking if this is the first match and if
                 // we automatically nest policies
 
-                if(log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     log.debug("Matching XACML policy found " + policy.getId().toString());
                 }
 
@@ -109,15 +108,15 @@ public class SimplePolicyCollection implements PolicyCollection {
         // no errors happened during the search, so now take the right
         // action based on how many policies we found
         switch (list.size()) {
-        case 0:
-            if(log.isDebugEnabled()){
-                log.debug("No matching XACML policy found");
-            }
-            return null;
-        case 1:
-            return ((AbstractPolicy) (list.get(0)));
-        default:
-            return new PolicySet(parentId, combiningAlg, null, list);
+            case 0:
+                if (log.isDebugEnabled()) {
+                    log.debug("No matching XACML policy found");
+                }
+                return null;
+            case 1:
+                return ((AbstractPolicy) (list.get(0)));
+            default:
+                return new PolicySet(parentId, combiningAlg, null, list);
         }
 
     }
@@ -131,8 +130,8 @@ public class SimplePolicyCollection implements PolicyCollection {
     public AbstractPolicy getPolicy(URI identifier, int type, VersionConstraints constraints) {
 
         AbstractPolicy policy = policyCollection.get(identifier);
-        
-        if(policy != null){
+
+        if (policy != null) {
             // we found a valid version, so see if it's the right kind,
             // and if it is then we return it
             if (type == PolicyReference.POLICY_REFERENCE) {
@@ -147,7 +146,7 @@ public class SimplePolicyCollection implements PolicyCollection {
         return null;
     }
 
-    private synchronized boolean addPolicy(URI identifier, AbstractPolicy policy){
+    private synchronized boolean addPolicy(URI identifier, AbstractPolicy policy) {
         return policyCollection.put(identifier, policy) != null;
     }
 

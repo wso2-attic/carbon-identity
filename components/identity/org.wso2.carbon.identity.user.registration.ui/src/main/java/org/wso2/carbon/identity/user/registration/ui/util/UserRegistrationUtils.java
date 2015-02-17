@@ -28,13 +28,13 @@ public class UserRegistrationUtils {
 
     public static UserDTO getUserDTO(HttpServletRequest request) {
 
-        Map map = request.getParameterMap();  
+        Map map = request.getParameterMap();
         UserDTO userDTO = new UserDTO();
         UserFieldDTO[] fieldDTOs = new UserFieldDTO[map.size()];
 
         int index = 0;
         UserFieldDTO fieldDTO;
-        for (Object mapEntry : map.entrySet()){
+        for (Object mapEntry : map.entrySet()) {
             String[] value = (String[]) mapEntry;
             fieldDTO = new UserFieldDTO();
             fieldDTO.setFieldName((String) mapEntry);

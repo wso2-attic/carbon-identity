@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.application.common.model;
 public class GoogleAppsProvisioningConnectorConfig extends ProvisioningConnectorConfig {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -1808966618183375456L;
 

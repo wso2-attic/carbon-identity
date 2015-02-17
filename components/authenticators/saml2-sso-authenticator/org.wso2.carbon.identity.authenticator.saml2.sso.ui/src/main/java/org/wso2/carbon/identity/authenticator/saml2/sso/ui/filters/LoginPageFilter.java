@@ -20,13 +20,7 @@ package org.wso2.carbon.identity.authenticator.saml2.sso.ui.filters;
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.SAML2SSOAuthenticatorConstants;
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.Util;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -41,20 +35,20 @@ public class LoginPageFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
                          FilterChain filterChain) throws IOException, ServletException {
 
-        if(!(servletRequest instanceof HttpServletRequest)){
+        if (!(servletRequest instanceof HttpServletRequest)) {
             return;
         }
 
-        if(servletResponse.isCommitted()){
-            return;    
+        if (servletResponse.isCommitted()) {
+            return;
         }
 
-        if("false".equals(servletRequest.getParameter("loginStatus")) ||
-                          "failed".equals(servletRequest.getParameter("loginStatus"))){
+        if ("false".equals(servletRequest.getParameter("loginStatus")) ||
+                "failed".equals(servletRequest.getParameter("loginStatus"))) {
             ((HttpServletRequest) servletRequest).getSession().setAttribute(
                     SAML2SSOAuthenticatorConstants.NOTIFICATIONS_ERROR_MSG,
                     "Service Temporarily Unavailable.");
-            ((HttpServletResponse)servletResponse).sendRedirect("../sso-acs/authFailure.jsp");
+            ((HttpServletResponse) servletResponse).sendRedirect("../sso-acs/authFailure.jsp");
             return;
         }
 
@@ -63,14 +57,13 @@ public class LoginPageFilter implements Filter {
             if (Boolean.parseBoolean(servletRequest.getParameter(
                     SAML2SSOAuthenticatorConstants.HTTP_ATTR_IS_LOGOUT_REQ))) {
                 String logoutReq = "../sso-acs/redirect_ajaxprocessor.jsp?" +
-                                   SAML2SSOAuthenticatorConstants.LOG_OUT_REQ + "=true";
+                        SAML2SSOAuthenticatorConstants.LOG_OUT_REQ + "=true";
                 RequestDispatcher reqDispatcher = servletRequest.getRequestDispatcher(logoutReq);
                 reqDispatcher.forward(servletRequest, servletResponse);
             }
-        } else if(Util.getLandingPage() != null){
-            ((HttpServletResponse)servletResponse).sendRedirect(Util.getLandingPage());
-        }
-        else {
+        } else if (Util.getLandingPage() != null) {
+            ((HttpServletResponse) servletResponse).sendRedirect(Util.getLandingPage());
+        } else {
             RequestDispatcher reqDispatcher = servletRequest.getRequestDispatcher("../sso-acs/redirect_ajaxprocessor.jsp");
             reqDispatcher.forward(servletRequest, servletResponse);
         }

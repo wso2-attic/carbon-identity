@@ -26,49 +26,48 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 
 /**
  * This class validates the access token using the IS token validation end point
- * 
  */
 public class UserInfoISAccessTokenValidator implements UserInfoAccessTokenValidator {
 
-	/**
-	 * Validates the access token with WSO2 IS token validation OSGI service.
-	 * Scope is checked.
-	 */
-	public OAuth2TokenValidationResponseDTO validateToken(String accessTokenIdentifier)
-	                                                                         throws UserInfoEndpointException {
+    /**
+     * Validates the access token with WSO2 IS token validation OSGI service.
+     * Scope is checked.
+     */
+    public OAuth2TokenValidationResponseDTO validateToken(String accessTokenIdentifier)
+            throws UserInfoEndpointException {
 
-		OAuth2TokenValidationRequestDTO dto = new OAuth2TokenValidationRequestDTO();
+        OAuth2TokenValidationRequestDTO dto = new OAuth2TokenValidationRequestDTO();
         OAuth2TokenValidationRequestDTO.OAuth2AccessToken accessToken = dto.new OAuth2AccessToken();
         accessToken.setTokenType("bearer");
         accessToken.setIdentifier(accessTokenIdentifier);
         dto.setAccessToken(accessToken);
-		OAuth2TokenValidationResponseDTO response =
-		                                            EndpointUtil.getOAuth2TokenValidationService()
-		                                                        .validate(dto);
-		// invalid access token
-		if (!response.isValid()) {
-			throw new UserInfoEndpointException(OAuthError.ResourceResponse.INVALID_TOKEN,
-			                                    "Access token validation failed");
-		}
-		// check the scope
-		boolean isOpenIDScope = false;
-		String[] scope = response.getScope();
-		for (String curScope : scope) {
-			if ("openid".equals(curScope)) {
-				isOpenIDScope = true;
-			}
-		}
-		if (!isOpenIDScope) {
-			throw new UserInfoEndpointException(OAuthError.ResourceResponse.INSUFFICIENT_SCOPE,
-			                                    "Access token does not have the openid scope");
-		}
-		if (response.getAuthorizedUser() == null) {
-			throw new UserInfoEndpointException(OAuthError.ResourceResponse.INVALID_TOKEN,
-			                                    "Access token is not valid. No authorized user found. Invalid grant");
-		}
-        OAuth2TokenValidationResponseDTO.AuthorizationContextToken authorizationContextToken = response.new AuthorizationContextToken(accessToken.getTokenType(),accessToken.getIdentifier());
+        OAuth2TokenValidationResponseDTO response =
+                EndpointUtil.getOAuth2TokenValidationService()
+                        .validate(dto);
+        // invalid access token
+        if (!response.isValid()) {
+            throw new UserInfoEndpointException(OAuthError.ResourceResponse.INVALID_TOKEN,
+                    "Access token validation failed");
+        }
+        // check the scope
+        boolean isOpenIDScope = false;
+        String[] scope = response.getScope();
+        for (String curScope : scope) {
+            if ("openid".equals(curScope)) {
+                isOpenIDScope = true;
+            }
+        }
+        if (!isOpenIDScope) {
+            throw new UserInfoEndpointException(OAuthError.ResourceResponse.INSUFFICIENT_SCOPE,
+                    "Access token does not have the openid scope");
+        }
+        if (response.getAuthorizedUser() == null) {
+            throw new UserInfoEndpointException(OAuthError.ResourceResponse.INVALID_TOKEN,
+                    "Access token is not valid. No authorized user found. Invalid grant");
+        }
+        OAuth2TokenValidationResponseDTO.AuthorizationContextToken authorizationContextToken = response.new AuthorizationContextToken(accessToken.getTokenType(), accessToken.getIdentifier());
         response.setAuthorizationContextToken(authorizationContextToken);
-		return response;
-	}
+        return response;
+    }
 
 }

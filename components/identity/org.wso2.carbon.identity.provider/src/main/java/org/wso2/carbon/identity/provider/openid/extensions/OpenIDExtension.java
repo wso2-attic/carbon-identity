@@ -16,25 +16,18 @@
 
 package org.wso2.carbon.identity.provider.openid.extensions;
 
+import org.openid4java.message.MessageExtension;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.provider.IdentityProviderException;
+import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
+import org.wso2.carbon.identity.provider.dto.OpenIDClaimDTO;
+import org.wso2.carbon.identity.relyingparty.RelyingPartyException;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.openid4java.message.MessageExtension;
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
-import org.wso2.carbon.identity.base.IdentityConstants;
-import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.IdentityClaimManager;
-import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.identity.provider.IdentityProviderException;
-import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
-import org.wso2.carbon.identity.provider.dto.OpenIDClaimDTO;
-import org.wso2.carbon.identity.provider.openid.OpenIDUtil;
-import org.wso2.carbon.identity.relyingparty.RelyingPartyException;
-import org.wso2.carbon.user.core.claim.Claim;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 /**
  * Base class for all OpenID extensions. Any OpenID extension added should
@@ -43,48 +36,44 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 public abstract class OpenIDExtension {
 
-	/**
-	 * Creates an instance of MessageExtension for the OpenID authentication
-	 * response
-	 * @param requestDTO 
-	 * 
-	 * @param requestDTO
-	 *            OpenID authentication request
-	 * @return An instance of MessageExtension
-	 * @throws RelyingPartyException
-	 */
-	public abstract MessageExtension getMessageExtension(String userId, String profileName, OpenIDAuthRequestDTO requestDTO)
-	                                                                                       throws IdentityException;
+    /**
+     * Creates an instance of MessageExtension for the OpenID authentication
+     * response
+     *
+     * @param requestDTO
+     * @param requestDTO OpenID authentication request
+     * @return An instance of MessageExtension
+     * @throws RelyingPartyException
+     */
+    public abstract MessageExtension getMessageExtension(String userId, String profileName, OpenIDAuthRequestDTO requestDTO)
+            throws IdentityException;
 
-	/**
-	 * Add required attributes.
-	 * 
-	 * @param requiredAttributes
-	 *            Required attributes as per the OpenID authentication request.
-	 * @throws IdentityProviderException
-	 */
-	public abstract void addRequiredAttributes(List<String> requiredAttributes)
-	                                                                           throws IdentityException;
+    /**
+     * Add required attributes.
+     *
+     * @param requiredAttributes Required attributes as per the OpenID authentication request.
+     * @throws IdentityProviderException
+     */
+    public abstract void addRequiredAttributes(List<String> requiredAttributes)
+            throws IdentityException;
 
-	/**
-	 * Populate the required claims with claim values.
-	 * 
-	 * @param requiredClaims
-	 *            Required claims as requested by the RP.
-	 * @param requestDTO 
-	 * @param userId
-	 *            User ID.
-	 * @return A map, populated with ClaimDO objects which have OpenIDTag, that
-	 *         is OpenID supported
-	 *         claims.
-	 * @throws IdentityProviderException
-	 */
-	protected Map<String, OpenIDClaimDTO> populateAttributeValues(List<String> requiredClaims,
-	                                                              String openId, String profileName, OpenIDAuthRequestDTO requestDTO)
-	                                                                                                throws IdentityException {
-		Map<String, OpenIDClaimDTO> map = null;
-		map = new HashMap<String, OpenIDClaimDTO>();
-		OpenIDClaimDTO[] claims = null;
+    /**
+     * Populate the required claims with claim values.
+     *
+     * @param requiredClaims Required claims as requested by the RP.
+     * @param requestDTO
+     * @param userId         User ID.
+     * @return A map, populated with ClaimDO objects which have OpenIDTag, that
+     * is OpenID supported
+     * claims.
+     * @throws IdentityProviderException
+     */
+    protected Map<String, OpenIDClaimDTO> populateAttributeValues(List<String> requiredClaims,
+                                                                  String openId, String profileName, OpenIDAuthRequestDTO requestDTO)
+            throws IdentityException {
+        Map<String, OpenIDClaimDTO> map = null;
+        map = new HashMap<String, OpenIDClaimDTO>();
+        OpenIDClaimDTO[] claims = null;
 
         try {
             if (requestDTO.getResponseClaims() == null || requestDTO.getResponseClaims().size() == 0) {
@@ -107,22 +96,22 @@ public abstract class OpenIDExtension {
         }
     }
 
-	private OpenIDClaimDTO[] getClaimValues(String openId, String profileId, List<String> requiredClaims,
+    private OpenIDClaimDTO[] getClaimValues(String openId, String profileId, List<String> requiredClaims,
                                             Map<ClaimMapping, String> receivedClaims) throws Exception {
 
-		List<OpenIDClaimDTO> claims = new ArrayList<OpenIDClaimDTO>();
+        List<OpenIDClaimDTO> claims = new ArrayList<OpenIDClaimDTO>();
 
-        if(requiredClaims.isEmpty()){
-            for(Map.Entry<ClaimMapping, String> entry : receivedClaims.entrySet()){
+        if (requiredClaims.isEmpty()) {
+            for (Map.Entry<ClaimMapping, String> entry : receivedClaims.entrySet()) {
                 OpenIDClaimDTO openIDClaimDTO = new OpenIDClaimDTO();
                 openIDClaimDTO.setClaimUri(entry.getKey().getRemoteClaim().getClaimUri());
                 openIDClaimDTO.setClaimValue(entry.getValue());
                 claims.add(openIDClaimDTO);
             }
         } else {
-            for(String requiredClaim:requiredClaims){
+            for (String requiredClaim : requiredClaims) {
                 ClaimMapping mapping = getClaimMappingFromMap(receivedClaims, requiredClaim);
-                if(mapping != null){
+                if (mapping != null) {
                     OpenIDClaimDTO openIDClaimDTO = new OpenIDClaimDTO();
                     openIDClaimDTO.setClaimUri(mapping.getRemoteClaim().getClaimUri());
                     openIDClaimDTO.setClaimValue(receivedClaims.get(mapping));
@@ -131,14 +120,14 @@ public abstract class OpenIDExtension {
             }
         }
         return claims.toArray(new OpenIDClaimDTO[claims.size()]);
-	}
+    }
 
-    private ClaimMapping getClaimMappingFromMap(Map<ClaimMapping, String> claimMappings, String requiredClaimURI){
-        
+    private ClaimMapping getClaimMappingFromMap(Map<ClaimMapping, String> claimMappings, String requiredClaimURI) {
+
         ClaimMapping mapping = null;
-        
-        for(ClaimMapping claimMapping : claimMappings.keySet()){
-            if(claimMapping.getRemoteClaim().getClaimUri().equals(requiredClaimURI)){
+
+        for (ClaimMapping claimMapping : claimMappings.keySet()) {
+            if (claimMapping.getRemoteClaim().getClaimUri().equals(requiredClaimURI)) {
                 mapping = claimMapping;
                 break;
             }

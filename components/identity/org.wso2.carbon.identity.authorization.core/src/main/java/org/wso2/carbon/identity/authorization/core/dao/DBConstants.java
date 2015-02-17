@@ -19,32 +19,31 @@
 package org.wso2.carbon.identity.authorization.core.dao;
 
 /**
- * 
  * @author venura
  * @date May 17, 2013
  */
 public abstract class DBConstants {
-	public static final byte INSERT = 1;
+    public static final byte INSERT = 1;
 
-	public static final byte UPDATE = 2;
+    public static final byte UPDATE = 2;
 
-	public static final byte DELETE = 3;
+    public static final byte DELETE = 3;
 
-	public abstract String getUserPermissionsForModuleSql(boolean userNameProvided);
+    public abstract String getUserPermissionsForModuleSql(boolean userNameProvided);
 
-	public abstract String getRolePermissionsForModuleSql(boolean roleNameProvided);
+    public abstract String getRolePermissionsForModuleSql(boolean roleNameProvided);
 
-	public abstract String getUserPermissionsForResourceSql(boolean moduleProvided,
-	                                                        boolean actionSpecific);
+    public abstract String getUserPermissionsForResourceSql(boolean moduleProvided,
+                                                            boolean actionSpecific);
 
-	public abstract String getRolePermissionsForResourceSql(boolean moduleProvided,
-	                                                        boolean actionSpecific);
+    public abstract String getRolePermissionsForResourceSql(boolean moduleProvided,
+                                                            boolean actionSpecific);
 
-	public abstract String getClearModulePermForUsersSql();
+    public abstract String getClearModulePermForUsersSql();
 
-	public abstract String getClearModulePermForRolesSql();
+    public abstract String getClearModulePermForRolesSql();
 
-	public abstract String getClearUserPermSql(boolean moduleProvided);
+    public abstract String getClearUserPermSql(boolean moduleProvided);
 
-	public abstract String getClearRolePermSql(boolean moduleProvided);
+    public abstract String getClearRolePermSql(boolean moduleProvided);
 }

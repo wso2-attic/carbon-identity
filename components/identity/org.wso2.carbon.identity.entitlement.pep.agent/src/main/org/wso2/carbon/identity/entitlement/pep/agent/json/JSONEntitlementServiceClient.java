@@ -64,7 +64,7 @@ public class JSONEntitlementServiceClient extends AbstractEntitlementServiceClie
 
     @Override
     public List<String> getActionableChildResourcesForAlias(String alias, String parentResource,
-                                                           String action, String appId) throws Exception {
+                                                            String action, String appId) throws Exception {
         // TODO Auto-generated method stub
         return null;
     }

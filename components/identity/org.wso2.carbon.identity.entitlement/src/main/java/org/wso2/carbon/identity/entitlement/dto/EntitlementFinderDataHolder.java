@@ -24,17 +24,17 @@ import java.util.Arrays;
  * Encapsulates the data of entitlement data finder modules
  */
 public class EntitlementFinderDataHolder {
-    
+
     private String name;
-    
+
     private String[] applicationIds = new String[0];
-    
+
     private String[] supportedCategory = new String[0];
 
     private int hierarchicalLevels;
 
     private boolean fullPathSupported;
-    
+
     private boolean hierarchicalTree;
 
     private boolean searchSupported;

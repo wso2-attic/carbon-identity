@@ -24,40 +24,44 @@ import java.util.Set;
 
 public class NotificationData {
 
-	private String sendTo;
-	private String sendFrom;
-	private Map<String, String> tagData;
-	
-	public NotificationData() {
-		this.tagData = new HashMap<String, String>();
-	}
-	
-	public String getSendTo() {
-		return sendTo;
-	}
-	public void setSendTo(String sendTo) {
-		this.sendTo = sendTo;
-	}
-	public String getSendFrom() {
-		return sendFrom;
-	}
-	public void setSendFrom(String sendFrom) {
-		this.sendFrom = sendFrom;
-	}
-	
-	public String getTagData(String key) {
-		return this.tagData.get(key);
-	}
-	public void setTagData(String key, String value) {
-		this.tagData.put(key, value);
-	}
-	
-	public Set<String> getTagKeys() {
-		return tagData.keySet();
-	}
-	
-	public Map<String, String> getTagsData() {
-		return this.tagData;
-	}
-	
+    private String sendTo;
+    private String sendFrom;
+    private Map<String, String> tagData;
+
+    public NotificationData() {
+        this.tagData = new HashMap<String, String>();
+    }
+
+    public String getSendTo() {
+        return sendTo;
+    }
+
+    public void setSendTo(String sendTo) {
+        this.sendTo = sendTo;
+    }
+
+    public String getSendFrom() {
+        return sendFrom;
+    }
+
+    public void setSendFrom(String sendFrom) {
+        this.sendFrom = sendFrom;
+    }
+
+    public String getTagData(String key) {
+        return this.tagData.get(key);
+    }
+
+    public void setTagData(String key, String value) {
+        this.tagData.put(key, value);
+    }
+
+    public Set<String> getTagKeys() {
+        return tagData.keySet();
+    }
+
+    public Map<String, String> getTagsData() {
+        return this.tagData;
+    }
+
 }

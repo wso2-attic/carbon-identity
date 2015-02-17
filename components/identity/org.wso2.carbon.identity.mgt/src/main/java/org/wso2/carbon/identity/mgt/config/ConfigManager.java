@@ -17,50 +17,50 @@
  */
 package org.wso2.carbon.identity.mgt.config;
 
-/** 
+/**
  * This is used to manage the tenant specific server configurations.
  */
 public interface ConfigManager {
 
-	/**
-	 * This loads a tenant specific configuration.
-	 * 
-	 * @param tenantId - tenant Id which the configuration belongs.
-	 * @return the populated configuration object.
-	 */
-	Config loadConfig(int tenantId);
-	
-	/**
-	 * This saves the given configuration in specific tenant space.
-	 * 
-	 * @param config - Configuration that needs to be saved.
-	 * @param tenantId - The tenant Id of the tenant that this configuration needs to be saved.
-	 */
-	void saveConfig(Config config, int tenantId);
-	
-	/**
-	 * This is used to set the specific configuration reader impl. 
-	 * 
-	 * @param reader - Configuration reader implementation.
-	 */
-	void setReader(ConfigReader reader);
-	
-	/*
-	 * TODO - is this method needed?
-	 */
-	void setConfig(Config config);
-	
-	/**
-	 * This is used to set the resource path in which the configuration going to be saved.
-	 * 
-	 * @param path - path to be saved.
-	 */
-	void setResourcePath(String path);
-	
-	/**
-	 * This is used to set the specific configuration writer impl.
-	 * 
-	 * @param writer - Configuration writer implementation.
-	 */
-	void setWriter(ConfigWriter writer);
+    /**
+     * This loads a tenant specific configuration.
+     *
+     * @param tenantId - tenant Id which the configuration belongs.
+     * @return the populated configuration object.
+     */
+    Config loadConfig(int tenantId);
+
+    /**
+     * This saves the given configuration in specific tenant space.
+     *
+     * @param config   - Configuration that needs to be saved.
+     * @param tenantId - The tenant Id of the tenant that this configuration needs to be saved.
+     */
+    void saveConfig(Config config, int tenantId);
+
+    /**
+     * This is used to set the specific configuration reader impl.
+     *
+     * @param reader - Configuration reader implementation.
+     */
+    void setReader(ConfigReader reader);
+
+    /*
+     * TODO - is this method needed?
+     */
+    void setConfig(Config config);
+
+    /**
+     * This is used to set the resource path in which the configuration going to be saved.
+     *
+     * @param path - path to be saved.
+     */
+    void setResourcePath(String path);
+
+    /**
+     * This is used to set the specific configuration writer impl.
+     *
+     * @param writer - Configuration writer implementation.
+     */
+    void setWriter(ConfigWriter writer);
 }

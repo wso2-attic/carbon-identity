@@ -20,9 +20,6 @@ package org.wso2.carbon.identity.scim.ui.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.utils.CarbonUtils;
-
-import java.io.File;
 
 /**
  * @scr.component name="identity.scim.ui" immediate="true"
@@ -31,7 +28,7 @@ public class SCIMUIServiceComponent {
     private static Log logger = LogFactory.getLog(SCIMUIServiceComponent.class);
 
     protected void activate(ComponentContext ctx) {
-        
+
         if (logger.isDebugEnabled()) {
             logger.debug("SCIM Common component activated successfully.");
         }

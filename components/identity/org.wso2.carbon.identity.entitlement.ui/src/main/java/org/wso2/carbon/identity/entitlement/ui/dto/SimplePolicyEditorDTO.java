@@ -18,7 +18,8 @@
 
 package org.wso2.carbon.identity.entitlement.ui.dto;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -44,9 +45,9 @@ public class SimplePolicyEditorDTO {
     private String function;
 
     private String environmentId;
-    
+
     private List<SimplePolicyEditorElementDTO> SimplePolicyEditorElementDTOs =
-                                                    new ArrayList<SimplePolicyEditorElementDTO>();
+            new ArrayList<SimplePolicyEditorElementDTO>();
 
     public String getPolicyId() {
         return policyId;
@@ -81,8 +82,8 @@ public class SimplePolicyEditorDTO {
         this.SimplePolicyEditorElementDTOs = simplePolicyEditorElementDTOs;
     }
 
-     public void setBasicPolicyEditorElementDTO(SimplePolicyEditorElementDTO
-                                                        SimplePolicyEditorElementDTO) {
+    public void setBasicPolicyEditorElementDTO(SimplePolicyEditorElementDTO
+                                                       SimplePolicyEditorElementDTO) {
         this.SimplePolicyEditorElementDTOs.add(SimplePolicyEditorElementDTO);
     }
 

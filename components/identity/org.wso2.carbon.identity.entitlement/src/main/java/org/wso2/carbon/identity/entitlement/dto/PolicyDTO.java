@@ -17,7 +17,7 @@
 */
 package org.wso2.carbon.identity.entitlement.dto;
 
-import java.util.*;
+import java.util.Arrays;
 
 /**
  * This class encapsulate the XACML policy related the data
@@ -27,7 +27,7 @@ public class PolicyDTO {
     private String policy;
 
     private String policyId;
-    
+
     private boolean active;
 
     private boolean promote;
@@ -68,14 +68,13 @@ public class PolicyDTO {
         this.policy = policy;
     }
 
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
     public boolean isActive() {
         return active;
     }
 
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public String getPolicyType() {
         return policyType;
@@ -99,7 +98,7 @@ public class PolicyDTO {
 
     public void setPolicyEditorData(String[] policyEditorData) {
         this.policyEditorData = Arrays.copyOf(policyEditorData,
-                                                                policyEditorData.length);
+                policyEditorData.length);
     }
 
     public AttributeDTO[] getAttributeDTOs() {

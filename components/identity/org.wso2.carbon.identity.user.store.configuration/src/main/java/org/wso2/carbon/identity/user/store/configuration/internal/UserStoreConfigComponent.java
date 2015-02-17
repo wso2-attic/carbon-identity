@@ -30,7 +30,6 @@ import org.wso2.carbon.user.core.service.RealmService;
  * interface="org.wso2.carbon.user.core.service.RealmService"
  * cardinality="1..1" policy="dynamic" bind="setRealmService"
  * unbind="unsetRealmService"
- *
  * @scr.reference name="server.configuration.service"
  * interface="org.wso2.carbon.base.api.ServerConfigurationService" cardinality="1..1"
  * policy="dynamic"  bind="setServerConfigurationService"
@@ -41,7 +40,36 @@ public class UserStoreConfigComponent {
     private static RealmService realmService = null;
     private static RealmConfiguration realmConfiguration = null;
     private static ServerConfigurationService serverConfigurationService = null;
+
     public UserStoreConfigComponent() {
+    }
+
+    public static RealmService getRealmService() {
+        return realmService;
+    }
+
+    protected void setRealmService(RealmService realmService) {
+        UserStoreConfigComponent.realmService = realmService;
+        if (log.isDebugEnabled()) {
+            log.debug("Set the Realm Service");
+        }
+    }
+
+    public static RealmConfiguration getRealmConfiguration() {
+        realmConfiguration = UserStoreConfigComponent.getRealmService().getBootstrapRealmConfiguration();
+        return realmConfiguration;
+    }
+
+    public static ServerConfigurationService getServerConfigurationService() {
+        return UserStoreConfigComponent.serverConfigurationService;
+    }
+
+    protected void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        if (log.isDebugEnabled()) {
+            log.debug("Set the ServerConfiguration Service");
+        }
+        UserStoreConfigComponent.serverConfigurationService = serverConfigurationService;
+
     }
 
     /**
@@ -62,20 +90,12 @@ public class UserStoreConfigComponent {
         }
     }
 
-
     /**
      * @param ctxt
      */
     protected void deactivate(ComponentContext ctxt) {
         if (log.isDebugEnabled()) {
             log.debug("Identity User Store-Config bundle is deactivated");
-        }
-    }
-
-    protected void setRealmService(RealmService realmService) {
-        UserStoreConfigComponent.realmService = realmService;
-        if (log.isDebugEnabled()) {
-            log.debug("Set the Realm Service");
         }
     }
 
@@ -86,34 +106,11 @@ public class UserStoreConfigComponent {
         }
     }
 
-    public static RealmService getRealmService() {
-        return realmService;
-    }
-
-
-    public static RealmConfiguration getRealmConfiguration() {
-        realmConfiguration = UserStoreConfigComponent.getRealmService().getBootstrapRealmConfiguration();
-        return realmConfiguration;
-    }
-
-
-    protected void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-        if (log.isDebugEnabled()) {
-            log.debug("Set the ServerConfiguration Service");
-        }
-        UserStoreConfigComponent.serverConfigurationService = serverConfigurationService;
-
-    }
-
     protected void unsetServerConfigurationService(ServerConfigurationService serverConfigurationService) {
         if (log.isDebugEnabled()) {
             log.debug("Unset the ServerConfiguration Service");
         }
         UserStoreConfigComponent.serverConfigurationService = null;
-    }
-
-    public static ServerConfigurationService getServerConfigurationService(){
-        return UserStoreConfigComponent.serverConfigurationService;
     }
 
 }

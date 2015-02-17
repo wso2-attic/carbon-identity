@@ -16,12 +16,11 @@
  */
 package org.wso2.carbon.identity.relyingparty.ui.openid;
 
-import org.openid4java.consumer.ConsumerAssociationStore;
-import org.openid4java.consumer.InMemoryConsumerAssociationStore;
-
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.step2.ConsumerHelper;
+import org.openid4java.consumer.ConsumerAssociationStore;
+import org.openid4java.consumer.InMemoryConsumerAssociationStore;
 
 /**
  * Simple wrapper around Guice for applications that use other

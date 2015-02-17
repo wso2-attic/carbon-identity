@@ -63,130 +63,6 @@ public class LogoutRequestSender {
     private static LogoutRequestSender instance = new LogoutRequestSender();
 
     /**
-     * This class is used to model a single logout request that is being sent to a session participant.
-     * It will send the logout req. to the session participant in its 'run' method when this job is
-     * submitted to the thread pool.
-     */
-    private class LogoutReqSenderTask implements Runnable {
-
-        private SingleLogoutRequestDTO logoutReqDTO;
-
-        public LogoutReqSenderTask(SingleLogoutRequestDTO logoutReqDTO) {
-            this.logoutReqDTO = logoutReqDTO;
-        }
-
-        public void run() {
-            List<NameValuePair> logoutReqParams = new ArrayList<NameValuePair>();
-            // set the logout request
-            logoutReqParams.add(new BasicNameValuePair("SAMLRequest", logoutReqDTO.getLogoutResponse()));
-
-            if(log.isDebugEnabled()) {
-                try {
-                    log.debug("SAMLRequest : " + SAMLSSOUtil.decodeForPost(logoutReqDTO.getLogoutResponse()));
-                } catch (IdentityException e) {
-                    log.debug("Error in decoding logout request.", e);
-                }
-            }
-
-            try {
-                int port = derivePortFromAssertionConsumerURL(logoutReqDTO.getAssertionConsumerURL());
-                UrlEncodedFormEntity entity = new UrlEncodedFormEntity(logoutReqParams, "UTF-8");
-                HttpPost httpPost = new HttpPost(logoutReqDTO.getAssertionConsumerURL());
-                httpPost.setEntity(entity);
-                httpPost.addHeader("Cookie", "JSESSIONID=" + logoutReqDTO.getRpSessionId());
-                TrustManager easyTrustManager = new X509TrustManager() {
-                    public void checkClientTrusted(
-                            java.security.cert.X509Certificate[] x509Certificates,
-                            String s)
-                            throws java.security.cert.CertificateException {
-                    }
-
-                    public void checkServerTrusted(
-                            java.security.cert.X509Certificate[] x509Certificates,
-                            String s)
-                            throws java.security.cert.CertificateException {
-                    }
-
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                        return null;
-                    }
-                };
-
-                SSLContext sslContext = SSLContext.getInstance("TLS");
-                sslContext.init(null, new TrustManager[]{easyTrustManager}, null);
-                SSLSocketFactory sf = new SSLSocketFactory(sslContext);
-                sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-                Scheme httpsScheme = new Scheme("https", sf, port);
-
-                HttpClient httpClient = new DefaultHttpClient();
-                httpClient.getConnectionManager().getSchemeRegistry().register(httpsScheme);
-                
-                HttpResponse response = null;
-                boolean isSuccessfullyLogout = false;
-                for (int currentRetryCount = 0; currentRetryCount < SAMLSSOUtil.getSingleLogoutRetryCount(); currentRetryCount++) {
-                    int statusCode = 0;
-                    
-                    //Completely consume the previous response before retrying 
-                    if (response != null) {
-                    	HttpEntity httpEntity = response.getEntity();
-    					if (httpEntity != null && httpEntity.isStreaming()) {
-    						InputStream instream = httpEntity.getContent();
-    						if (instream != null)
-    							instream.close();
-    					}
-                    }
-                    
-                    // send the logout request as a POST
-                    try {
-                        response = httpClient.execute(httpPost);
-                        statusCode = response.getStatusLine().getStatusCode();
-                    } catch (IOException e) {
-                        // ignore this exception since retrying is enabled if response is null.
-                    }
-                    if (response != null && SAMLSSOUtil.isHttpSuccessStatusCode(statusCode)) {
-                        log.info("single logout request is sent to : " + logoutReqDTO.getAssertionConsumerURL() +
-                                 " is returned with " + HttpStatus.getStatusText(response.getStatusLine().getStatusCode()));
-                        isSuccessfullyLogout = true;
-                        break;
-                    } else {
-                        if (statusCode != 0) {
-                            log.warn("Failed single logout response from " +
-                                     logoutReqDTO.getAssertionConsumerURL() + " with status code " +
-                                     HttpStatus.getStatusText(statusCode));
-                        }
-                        try {
-                            synchronized (Thread.currentThread()) {
-                                Thread.currentThread().wait(SAMLSSOUtil.getSingleLogoutRetryInterval());
-                            }
-                            log.info("Sending single log out request again with retry count " +
-                                     (currentRetryCount + 1) + " after waiting for " +
-                                     SAMLSSOUtil.getSingleLogoutRetryInterval() + " milli seconds to " +
-                                     logoutReqDTO.getAssertionConsumerURL());
-                        } catch (InterruptedException e) {
-                            //Todo: handle this in better way.
-                        }
-                    }
-
-                }
-                if (!isSuccessfullyLogout) {
-                    log.error("Single logout failed after retrying " + SAMLSSOUtil.getSingleLogoutRetryCount() +
-                              " times with time interval " + SAMLSSOUtil.getSingleLogoutRetryInterval() + " in milli seconds.");
-                }
-
-            } catch (IOException e) {
-                log.error("Error sending logout requests to : " +
-                          logoutReqDTO.getAssertionConsumerURL(), e);
-            } catch (GeneralSecurityException e) {
-                log.error("Error registering the EasySSLProtocolSocketFactory", e);
-            } catch (RuntimeException e) {
-                log.error("Runtime exception occurred.", e);
-            } catch (URISyntaxException e) {
-                log.error("Error deriving port from the assertion consumer url", e);
-            }
-        }
-    }
-
-    /**
      * A private constructor since we are implementing a singleton here
      */
     private LogoutRequestSender() {
@@ -244,6 +120,130 @@ public class LogoutRequestSender {
             throw e;
         }
         return port;
+    }
+
+    /**
+     * This class is used to model a single logout request that is being sent to a session participant.
+     * It will send the logout req. to the session participant in its 'run' method when this job is
+     * submitted to the thread pool.
+     */
+    private class LogoutReqSenderTask implements Runnable {
+
+        private SingleLogoutRequestDTO logoutReqDTO;
+
+        public LogoutReqSenderTask(SingleLogoutRequestDTO logoutReqDTO) {
+            this.logoutReqDTO = logoutReqDTO;
+        }
+
+        public void run() {
+            List<NameValuePair> logoutReqParams = new ArrayList<NameValuePair>();
+            // set the logout request
+            logoutReqParams.add(new BasicNameValuePair("SAMLRequest", logoutReqDTO.getLogoutResponse()));
+
+            if (log.isDebugEnabled()) {
+                try {
+                    log.debug("SAMLRequest : " + SAMLSSOUtil.decodeForPost(logoutReqDTO.getLogoutResponse()));
+                } catch (IdentityException e) {
+                    log.debug("Error in decoding logout request.", e);
+                }
+            }
+
+            try {
+                int port = derivePortFromAssertionConsumerURL(logoutReqDTO.getAssertionConsumerURL());
+                UrlEncodedFormEntity entity = new UrlEncodedFormEntity(logoutReqParams, "UTF-8");
+                HttpPost httpPost = new HttpPost(logoutReqDTO.getAssertionConsumerURL());
+                httpPost.setEntity(entity);
+                httpPost.addHeader("Cookie", "JSESSIONID=" + logoutReqDTO.getRpSessionId());
+                TrustManager easyTrustManager = new X509TrustManager() {
+                    public void checkClientTrusted(
+                            java.security.cert.X509Certificate[] x509Certificates,
+                            String s)
+                            throws java.security.cert.CertificateException {
+                    }
+
+                    public void checkServerTrusted(
+                            java.security.cert.X509Certificate[] x509Certificates,
+                            String s)
+                            throws java.security.cert.CertificateException {
+                    }
+
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+                };
+
+                SSLContext sslContext = SSLContext.getInstance("TLS");
+                sslContext.init(null, new TrustManager[]{easyTrustManager}, null);
+                SSLSocketFactory sf = new SSLSocketFactory(sslContext);
+                sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+                Scheme httpsScheme = new Scheme("https", sf, port);
+
+                HttpClient httpClient = new DefaultHttpClient();
+                httpClient.getConnectionManager().getSchemeRegistry().register(httpsScheme);
+
+                HttpResponse response = null;
+                boolean isSuccessfullyLogout = false;
+                for (int currentRetryCount = 0; currentRetryCount < SAMLSSOUtil.getSingleLogoutRetryCount(); currentRetryCount++) {
+                    int statusCode = 0;
+
+                    //Completely consume the previous response before retrying
+                    if (response != null) {
+                        HttpEntity httpEntity = response.getEntity();
+                        if (httpEntity != null && httpEntity.isStreaming()) {
+                            InputStream instream = httpEntity.getContent();
+                            if (instream != null)
+                                instream.close();
+                        }
+                    }
+
+                    // send the logout request as a POST
+                    try {
+                        response = httpClient.execute(httpPost);
+                        statusCode = response.getStatusLine().getStatusCode();
+                    } catch (IOException e) {
+                        // ignore this exception since retrying is enabled if response is null.
+                    }
+                    if (response != null && SAMLSSOUtil.isHttpSuccessStatusCode(statusCode)) {
+                        log.info("single logout request is sent to : " + logoutReqDTO.getAssertionConsumerURL() +
+                                " is returned with " + HttpStatus.getStatusText(response.getStatusLine().getStatusCode()));
+                        isSuccessfullyLogout = true;
+                        break;
+                    } else {
+                        if (statusCode != 0) {
+                            log.warn("Failed single logout response from " +
+                                    logoutReqDTO.getAssertionConsumerURL() + " with status code " +
+                                    HttpStatus.getStatusText(statusCode));
+                        }
+                        try {
+                            synchronized (Thread.currentThread()) {
+                                Thread.currentThread().wait(SAMLSSOUtil.getSingleLogoutRetryInterval());
+                            }
+                            log.info("Sending single log out request again with retry count " +
+                                    (currentRetryCount + 1) + " after waiting for " +
+                                    SAMLSSOUtil.getSingleLogoutRetryInterval() + " milli seconds to " +
+                                    logoutReqDTO.getAssertionConsumerURL());
+                        } catch (InterruptedException e) {
+                            //Todo: handle this in better way.
+                        }
+                    }
+
+                }
+                if (!isSuccessfullyLogout) {
+                    log.error("Single logout failed after retrying " + SAMLSSOUtil.getSingleLogoutRetryCount() +
+                            " times with time interval " + SAMLSSOUtil.getSingleLogoutRetryInterval() + " in milli seconds.");
+                }
+
+            } catch (IOException e) {
+                log.error("Error sending logout requests to : " +
+                        logoutReqDTO.getAssertionConsumerURL(), e);
+            } catch (GeneralSecurityException e) {
+                log.error("Error registering the EasySSLProtocolSocketFactory", e);
+            } catch (RuntimeException e) {
+                log.error("Runtime exception occurred.", e);
+            } catch (URISyntaxException e) {
+                log.error("Error deriving port from the assertion consumer url", e);
+            }
+        }
     }
 
 

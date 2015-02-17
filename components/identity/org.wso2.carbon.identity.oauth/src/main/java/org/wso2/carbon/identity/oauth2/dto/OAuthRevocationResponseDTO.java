@@ -23,16 +23,13 @@ import org.wso2.carbon.identity.oauth2.ResponseHeader;
 
 public class OAuthRevocationResponseDTO {
 
+    ResponseHeader[] responseHeaders;
     private boolean error;
-
     private String errorCode;
-
     private String errorMsg;
 
-    ResponseHeader[] responseHeaders;
-
     public ResponseHeader[] getResponseHeaders() {
-        if (responseHeaders ==null){
+        if (responseHeaders == null) {
             return new ResponseHeader[0];
         }
         return responseHeaders;

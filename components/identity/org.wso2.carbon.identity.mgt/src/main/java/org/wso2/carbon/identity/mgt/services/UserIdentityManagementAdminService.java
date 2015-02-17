@@ -17,20 +17,13 @@
 */
 package org.wso2.carbon.identity.mgt.services;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.ChallengeQuestionProcessor;
 import org.wso2.carbon.identity.mgt.IdentityMgtServiceException;
-import org.wso2.carbon.identity.mgt.beans.VerificationBean;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.dto.*;
 import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
@@ -38,43 +31,45 @@ import org.wso2.carbon.identity.mgt.util.UserIdentityManagementUtil;
 import org.wso2.carbon.identity.mgt.util.Utils;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
-import org.wso2.carbon.user.core.Permission;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
-import org.wso2.carbon.user.mgt.UserMgtConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This is the admin service for the identity management. Some of these
  * operations are can only be carried out by admins. The other operations are
  * allowed to all logged in users.
- * 
+ *
  * @author sga
- * 
  */
 public class UserIdentityManagementAdminService {
 
-	private static Log log = LogFactory.getLog(UserIdentityManagementAdminService.class);
+    private static Log log = LogFactory.getLog(UserIdentityManagementAdminService.class);
 
-	// --------Operations require Admin permissions ---------//
+    // --------Operations require Admin permissions ---------//
 
 /*	*//**
-	 * Admin adds a user to the system. The returning
-	 * {@code UserRecoveryDTO} contains the temporary password or the
-	 * account confirmation code to be sent to the user to complete the
-	 * registration process.
-	 * 
-	 * @param userName
-	 * @param credential
-	 * @param roleList
-	 * @param claims
-	 * @param profileName
-	 * @return
-	 * @throws IdentityMgtServiceException
-	 *//*
-	public UserRecoveryDTO addUser(String userName, String credential, String[] roleList,
+     * Admin adds a user to the system. The returning
+     * {@code UserRecoveryDTO} contains the temporary password or the
+     * account confirmation code to be sent to the user to complete the
+     * registration process.
+     *
+     * @param userName
+     * @param credential
+     * @param roleList
+     * @param claims
+     * @param profileName
+     * @return
+     * @throws IdentityMgtServiceException
+     *//*
+    public UserRecoveryDTO addUser(String userName, String credential, String[] roleList,
 	                                       UserIdentityClaimDTO[] claims, String profileName)
 	                                                                                         throws IdentityMgtServiceException {
 		int tenantId = Utils.getTenantId(MultitenantUtils.getTenantDomain(userName));
@@ -104,15 +99,15 @@ public class UserIdentityManagementAdminService {
 		}
 	}*/
 
-	/**
-	 * Admin can get the user account registration data if it was not read from
-	 * {@code UserRecoveryDTO} contains the temporary password or the
-	 * confirmation code.
-	 * 
-	 * @param userName
-	 * @return
-	 * @throws IdentityMgtServiceException
-	 */
+    /**
+     * Admin can get the user account registration data if it was not read from
+     * {@code UserRecoveryDTO} contains the temporary password or the
+     * confirmation code.
+     *
+     * @param userName
+     * @return
+     * @throws IdentityMgtServiceException
+     */
 //	public UserRecoveryDTO getUserIdentityRegistrationData(String userName)
 //	                                                                               throws IdentityMgtServiceException {
 //		int tenantId = Utils.getTenantId(MultitenantUtils.getTenantDomain(userName));
@@ -132,59 +127,59 @@ public class UserIdentityManagementAdminService {
 //		}
 //	}
 
-	/**
-	 * Admin deletes a user from the system. This is an irreversible operation.
-	 *
-	 * @param userName
-	 * @throws IdentityMgtServiceException
-	 */
-	public void deleteUser(String userName) throws IdentityMgtServiceException {
+    /**
+     * Admin deletes a user from the system. This is an irreversible operation.
+     *
+     * @param userName
+     * @throws IdentityMgtServiceException
+     */
+    public void deleteUser(String userName) throws IdentityMgtServiceException {
 
         try {
-			UserStoreManager userStoreManager = IdentityMgtServiceComponent.getRealmService().
+            UserStoreManager userStoreManager = IdentityMgtServiceComponent.getRealmService().
                     getTenantUserRealm(CarbonContext.getThreadLocalCarbonContext().getTenantId()).getUserStoreManager();
-			userStoreManager.deleteUser(userName);
-		} catch (UserStoreException e) {
-			log.error("Error while deleting user", e);
-			throw new IdentityMgtServiceException("Error while deleting user");
-		}
-	}
+            userStoreManager.deleteUser(userName);
+        } catch (UserStoreException e) {
+            log.error("Error while deleting user", e);
+            throw new IdentityMgtServiceException("Error while deleting user");
+        }
+    }
 
-	/**
-	 * Admin locks the user account. Only the admin can unlock the account using
-	 * the {@literal unlockUserAccount} method.
-	 *
-	 * @param userName
-	 * @throws IdentityMgtServiceException
-	 */
-	public void lockUserAccount(String userName) throws IdentityMgtServiceException {
+    /**
+     * Admin locks the user account. Only the admin can unlock the account using
+     * the {@literal unlockUserAccount} method.
+     *
+     * @param userName
+     * @throws IdentityMgtServiceException
+     */
+    public void lockUserAccount(String userName) throws IdentityMgtServiceException {
 
-		try {
-            UserStoreManager userStoreManager =  getUserStore(userName);
+        try {
+            UserStoreManager userStoreManager = getUserStore(userName);
             userName = UserCoreUtil.removeDomainFromName(userName);
-			UserIdentityManagementUtil.lockUserAccount(userName, userStoreManager);
-			log.info("User account " + userName + " locked");
-		} catch (UserStoreException e) {
-			log.error("Error while loading user store", e);
-			throw new IdentityMgtServiceException("Unable to lock the account");
-		} catch (IdentityException e) {
-			log.error("Error while reading registration info", e);
-			throw new IdentityMgtServiceException("Unable to lock the account");
-		}
-	}
+            UserIdentityManagementUtil.lockUserAccount(userName, userStoreManager);
+            log.info("User account " + userName + " locked");
+        } catch (UserStoreException e) {
+            log.error("Error while loading user store", e);
+            throw new IdentityMgtServiceException("Unable to lock the account");
+        } catch (IdentityException e) {
+            log.error("Error while reading registration info", e);
+            throw new IdentityMgtServiceException("Unable to lock the account");
+        }
+    }
 
-	/**
-	 * Admin unlocks the user account.
-	 *
-	 * @param userName
-	 * @throws IdentityMgtServiceException
-	 */
-	public void unlockUserAccount(String userName, String notificationType) throws IdentityMgtServiceException {
-		try {
-            UserStoreManager userStoreManager =  getUserStore(userName);
+    /**
+     * Admin unlocks the user account.
+     *
+     * @param userName
+     * @throws IdentityMgtServiceException
+     */
+    public void unlockUserAccount(String userName, String notificationType) throws IdentityMgtServiceException {
+        try {
+            UserStoreManager userStoreManager = getUserStore(userName);
             userName = UserCoreUtil.removeDomainFromName(userName);
-			UserIdentityManagementUtil.unlockUserAccount(userName, userStoreManager);
-            if(notificationType != null){
+            UserIdentityManagementUtil.unlockUserAccount(userName, userStoreManager);
+            if (notificationType != null) {
                 UserRecoveryDTO dto = new UserRecoveryDTO(userName);
                 dto.setNotification(IdentityMgtConstants.Notification.ACCOUNT_UNLOCK);
                 dto.setNotificationType(notificationType);
@@ -194,40 +189,40 @@ public class UserIdentityManagementAdminService {
                     throw new IdentityMgtServiceException("Error while password recovery");
                 }
             }
-		} catch (UserStoreException e) {
-			log.error("Error while loading user store", e);
-			throw new IdentityMgtServiceException("Unable to unlock the account");
-		} catch (IdentityException e) {
-			log.error("Error while reading registration info", e);
-			throw new IdentityMgtServiceException("Unable to unlock the account");
-		}
-	}
+        } catch (UserStoreException e) {
+            log.error("Error while loading user store", e);
+            throw new IdentityMgtServiceException("Unable to unlock the account");
+        } catch (IdentityException e) {
+            log.error("Error while reading registration info", e);
+            throw new IdentityMgtServiceException("Unable to unlock the account");
+        }
+    }
 
-	/**
-	 * Admin resets the password of the user.
-	 *
-	 * @param userName
-	 * @param newPassword
-	 * @throws IdentityMgtServiceException
-	 */
-	public void resetUserPassword(String userName, String newPassword)
-	                                                                  throws IdentityMgtServiceException {
-		try {
-            UserStoreManager userStoreManager =  getUserStore(userName);
+    /**
+     * Admin resets the password of the user.
+     *
+     * @param userName
+     * @param newPassword
+     * @throws IdentityMgtServiceException
+     */
+    public void resetUserPassword(String userName, String newPassword)
+            throws IdentityMgtServiceException {
+        try {
+            UserStoreManager userStoreManager = getUserStore(userName);
             userName = UserCoreUtil.removeDomainFromName(userName);
-			userStoreManager.updateCredentialByAdmin(userName, newPassword);
-		} catch (UserStoreException e) {
-			log.error("Error while resetting the password", e);
-			throw new IdentityMgtServiceException("Unable reset the password");
-		}
-	}
+            userStoreManager.updateCredentialByAdmin(userName, newPassword);
+        } catch (UserStoreException e) {
+            log.error("Error while resetting the password", e);
+            throw new IdentityMgtServiceException("Unable reset the password");
+        }
+    }
 
     /**
      * get challenges of user
      *
      * @param userName bean class that contains user and tenant Information
      * @return array of challenges  if null, return empty array
-     * @throws org.wso2.carbon.identity.mgt.IdentityMgtServiceException  if fails
+     * @throws org.wso2.carbon.identity.mgt.IdentityMgtServiceException if fails
      */
     public UserChallengesDTO[] getChallengeQuestionsOfUser(String userName)
             throws IdentityMgtServiceException {
@@ -243,7 +238,7 @@ public class UserIdentityManagementAdminService {
      * get all promoted user challenges
      *
      * @return array of user challenges
-     * @throws IdentityMgtServiceException  if fails
+     * @throws IdentityMgtServiceException if fails
      */
     public UserChallengesSetDTO[] getAllPromotedUserChallenge() throws IdentityMgtServiceException {
 
@@ -258,10 +253,10 @@ public class UserIdentityManagementAdminService {
             throw new IdentityMgtServiceException("Error while loading user challenges");
         }
         Map<String, List<UserChallengesDTO>> listMap = new HashMap<String, List<UserChallengesDTO>>();
-        for(ChallengeQuestionDTO dto : questionDTOs){
+        for (ChallengeQuestionDTO dto : questionDTOs) {
 
-            List<UserChallengesDTO>  dtoList = listMap.get(dto.getQuestionSetId());
-            if(dtoList == null){
+            List<UserChallengesDTO> dtoList = listMap.get(dto.getQuestionSetId());
+            if (dtoList == null) {
                 dtoList = new ArrayList<UserChallengesDTO>();
             }
 
@@ -274,10 +269,10 @@ public class UserIdentityManagementAdminService {
             listMap.put(dto.getQuestionSetId(), dtoList);
         }
 
-        for(Map.Entry<String, List<UserChallengesDTO>> listEntry : listMap.entrySet()){
+        for (Map.Entry<String, List<UserChallengesDTO>> listEntry : listMap.entrySet()) {
             UserChallengesSetDTO dto = new UserChallengesSetDTO();
             dto.setId(listEntry.getKey());
-            List<UserChallengesDTO>  dtoList  = listEntry.getValue();
+            List<UserChallengesDTO> dtoList = listEntry.getValue();
             dto.setChallengesDTOs(dtoList.toArray(new UserChallengesDTO[dtoList.size()]));
             challengeQuestionSetDTOs.add(dto);
         }
@@ -309,7 +304,7 @@ public class UserIdentityManagementAdminService {
     /**
      * set all challenge questions
      *
-     * @param challengeQuestionDTOs  array of questions
+     * @param challengeQuestionDTOs array of questions
      * @throws IdentityMgtServiceException if fails
      */
     public void setChallengeQuestions(ChallengeQuestionDTO[] challengeQuestionDTOs)
@@ -328,12 +323,12 @@ public class UserIdentityManagementAdminService {
     /**
      * set challenges of user
      *
-     * @param   userName bean class that contains user and tenant Information
-     * @throws IdentityMgtServiceException  if fails
+     * @param userName bean class that contains user and tenant Information
+     * @throws IdentityMgtServiceException if fails
      */
     public void setChallengeQuestionsOfUser(String userName, UserChallengesDTO[] challengesDTOs) throws IdentityMgtServiceException {
 
-        if(challengesDTOs == null || challengesDTOs.length < 1){
+        if (challengesDTOs == null || challengesDTOs.length < 1) {
             log.error("no challenges provided by user");
             throw new IdentityMgtServiceException("no challenges provided by user");
         }
@@ -346,129 +341,128 @@ public class UserIdentityManagementAdminService {
         } catch (IdentityException e) {
             log.error("Error while persisting user challenges for user : " + userName, e);
             throw new IdentityMgtServiceException("Error while persisting user " +
-                    "challenges for user : " + userName,  e);
+                    "challenges for user : " + userName, e);
         }
     }
-    
-    
-    
-	/**
-	 * User updates/add account recovery data such as the email address or the
-	 * phone number etc.
-	 *
-	 * @param userIdentityClaims
-	 * @throws IdentityMgtServiceException
-	 */
-	public void updateUserIdentityClaims(UserIdentityClaimDTO[] userIdentityClaims)
-                                                               throws IdentityMgtServiceException {
-		String userName = CarbonContext.getThreadLocalCarbonContext().getUsername();
 
-		try {
-			UserStoreManager userStoreManager = IdentityMgtServiceComponent.getRealmService()
-                                   .getTenantUserRealm(CarbonContext.getThreadLocalCarbonContext().getTenantId())
-                                   .getUserStoreManager();
 
-			Map<String, String> claims = new HashMap<String, String>();
-			for (UserIdentityClaimDTO dto : userIdentityClaims) {
-				if (dto.getClaimUri().contains(UserCoreConstants.ClaimTypeURIs.IDENTITY_CLAIM_URI)) {
-					log.warn("WARNING! User " + userName + " tried to alter " + dto.getClaimUri());
-					throw new IdentityException("Updates to the claim " + dto.getClaimUri() +
-					                            " are not allowed");
-				}
-				claims.put(dto.getClaimUri(), dto.getClaimValue());
-			}
-			userStoreManager.setUserClaimValues(userName, claims, null);
+    /**
+     * User updates/add account recovery data such as the email address or the
+     * phone number etc.
+     *
+     * @param userIdentityClaims
+     * @throws IdentityMgtServiceException
+     */
+    public void updateUserIdentityClaims(UserIdentityClaimDTO[] userIdentityClaims)
+            throws IdentityMgtServiceException {
+        String userName = CarbonContext.getThreadLocalCarbonContext().getUsername();
 
-		} catch (UserStoreException e) {
-			log.error("Error while updating user identity recovery data", e);
-			throw new IdentityMgtServiceException(
-			                                      "Error while updating user identity recovery data");
-		} catch (IdentityException e) {
-			log.error("Error while updating user identity recovery data", e);
-			throw new IdentityMgtServiceException(
-			                                      "Error while updating user identity recovery data");
-		}
-	}
+        try {
+            UserStoreManager userStoreManager = IdentityMgtServiceComponent.getRealmService()
+                    .getTenantUserRealm(CarbonContext.getThreadLocalCarbonContext().getTenantId())
+                    .getUserStoreManager();
 
-	/**
-	 * Returns all user claims which can be used in the identity recovery
-	 * process
-	 * such as the email address, telephone number etc
-	 *
-	 * @return
-	 * @throws IdentityMgtServiceException
-	 */
-	public UserIdentityClaimDTO[] getAllUserIdentityClaims() throws IdentityMgtServiceException {
-		String userName = CarbonContext.getThreadLocalCarbonContext().getUsername();
-		return UserIdentityManagementUtil.getAllUserIdentityClaims(userName);
-	}
+            Map<String, String> claims = new HashMap<String, String>();
+            for (UserIdentityClaimDTO dto : userIdentityClaims) {
+                if (dto.getClaimUri().contains(UserCoreConstants.ClaimTypeURIs.IDENTITY_CLAIM_URI)) {
+                    log.warn("WARNING! User " + userName + " tried to alter " + dto.getClaimUri());
+                    throw new IdentityException("Updates to the claim " + dto.getClaimUri() +
+                            " are not allowed");
+                }
+                claims.put(dto.getClaimUri(), dto.getClaimValue());
+            }
+            userStoreManager.setUserClaimValues(userName, claims, null);
 
-	/**
-	 * User change the password of the user.
-	 *
-	 * @param newPassword
-	 * @throws IdentityMgtServiceException
-	 */
-	public void changeUserPassword(String newPassword, String oldPassword) throws IdentityMgtServiceException {
+        } catch (UserStoreException e) {
+            log.error("Error while updating user identity recovery data", e);
+            throw new IdentityMgtServiceException(
+                    "Error while updating user identity recovery data");
+        } catch (IdentityException e) {
+            log.error("Error while updating user identity recovery data", e);
+            throw new IdentityMgtServiceException(
+                    "Error while updating user identity recovery data");
+        }
+    }
+
+    /**
+     * Returns all user claims which can be used in the identity recovery
+     * process
+     * such as the email address, telephone number etc
+     *
+     * @return
+     * @throws IdentityMgtServiceException
+     */
+    public UserIdentityClaimDTO[] getAllUserIdentityClaims() throws IdentityMgtServiceException {
+        String userName = CarbonContext.getThreadLocalCarbonContext().getUsername();
+        return UserIdentityManagementUtil.getAllUserIdentityClaims(userName);
+    }
+
+    /**
+     * User change the password of the user.
+     *
+     * @param newPassword
+     * @throws IdentityMgtServiceException
+     */
+    public void changeUserPassword(String newPassword, String oldPassword) throws IdentityMgtServiceException {
 
         String userName = CarbonContext.getThreadLocalCarbonContext().getUsername();
 
-		try {
-            UserStoreManager userStoreManager =  getUserStore(userName);
+        try {
+            UserStoreManager userStoreManager = getUserStore(userName);
             userName = UserCoreUtil.removeDomainFromName(userName);
-			userStoreManager.updateCredential(userName, newPassword, oldPassword);
-		} catch (UserStoreException e) {
-			log.error("Error while resetting the password", e);
-			throw new IdentityMgtServiceException("Unable reset the password");
-		}
-	}
-	
-	/**
-	 * This method is used to check the user's user store is read only.
-	 * 
-	 * @param userName
-	 * @param tenantDomain
-	 * @return
-	 * @throws IdentityMgtServiceException
-	 */
-	public boolean isReadOnlyUserStore(String userName, String tenantDomain)
-			throws IdentityMgtServiceException {
+            userStoreManager.updateCredential(userName, newPassword, oldPassword);
+        } catch (UserStoreException e) {
+            log.error("Error while resetting the password", e);
+            throw new IdentityMgtServiceException("Unable reset the password");
+        }
+    }
 
-		boolean isReadOnly = false;
-		
-		org.wso2.carbon.user.core.UserStoreManager userStoreManager = null;
+    /**
+     * This method is used to check the user's user store is read only.
+     *
+     * @param userName
+     * @param tenantDomain
+     * @return
+     * @throws IdentityMgtServiceException
+     */
+    public boolean isReadOnlyUserStore(String userName, String tenantDomain)
+            throws IdentityMgtServiceException {
 
-		if (tenantDomain == null || tenantDomain.equals("")) {
-			tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
-		}
+        boolean isReadOnly = false;
 
-		RealmService realmService = IdentityMgtServiceComponent.getRealmService();
-		int tenantId;
+        org.wso2.carbon.user.core.UserStoreManager userStoreManager = null;
 
-		try {
-			tenantId = Utils.getTenantId(tenantDomain);
-			
-			if (realmService.getTenantUserRealm(tenantId) != null) {
-				userStoreManager = (org.wso2.carbon.user.core.UserStoreManager) getUserStore(userName);
-			}
+        if (tenantDomain == null || tenantDomain.equals("")) {
+            tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+        }
 
-		} catch (Exception e) {
-			String msg = "Error retrieving the user store manager for the tenant";
-			throw new IdentityMgtServiceException(msg, e);
-		}
-		
-		try {
-			if(userStoreManager != null && userStoreManager.isReadOnly()) {
-				isReadOnly = true;
-			}else
-				isReadOnly = false;
+        RealmService realmService = IdentityMgtServiceComponent.getRealmService();
+        int tenantId;
 
-		} catch (org.wso2.carbon.user.core.UserStoreException e) {
-			throw new IdentityMgtServiceException("Error while retrieving user store manager");
-		}
-		
-		return isReadOnly;
-	}
+        try {
+            tenantId = Utils.getTenantId(tenantDomain);
+
+            if (realmService.getTenantUserRealm(tenantId) != null) {
+                userStoreManager = (org.wso2.carbon.user.core.UserStoreManager) getUserStore(userName);
+            }
+
+        } catch (Exception e) {
+            String msg = "Error retrieving the user store manager for the tenant";
+            throw new IdentityMgtServiceException(msg, e);
+        }
+
+        try {
+            if (userStoreManager != null && userStoreManager.isReadOnly()) {
+                isReadOnly = true;
+            } else
+                isReadOnly = false;
+
+        } catch (org.wso2.carbon.user.core.UserStoreException e) {
+            throw new IdentityMgtServiceException("Error while retrieving user store manager");
+        }
+
+        return isReadOnly;
+    }
 
     private UserStoreManager getUserStore(String userName) throws UserStoreException {
         UserStoreManager userStoreManager = IdentityMgtServiceComponent.getRealmService().
@@ -482,7 +476,7 @@ public class UserIdentityManagementAdminService {
         }
     }
 
-    private String getUserStoreDomainName(String userName){
+    private String getUserStoreDomainName(String userName) {
         int index;
         if ((index = userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR)) >= 0) {
             // remove domain name if exist

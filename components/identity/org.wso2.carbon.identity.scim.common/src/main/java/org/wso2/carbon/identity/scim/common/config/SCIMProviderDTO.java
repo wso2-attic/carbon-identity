@@ -17,9 +17,6 @@
 */
 package org.wso2.carbon.identity.scim.common.config;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class SCIMProviderDTO {
 
     private String providerId;

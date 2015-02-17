@@ -18,19 +18,19 @@
 
 package org.wso2.carbon.identity.application.common.model;
 
+import org.apache.axiom.om.OMElement;
+import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import org.apache.axiom.om.OMElement;
-import org.apache.commons.lang.StringUtils;
-import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
-
 public class ProvisioningConnectorConfig implements Serializable {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 8270617885506096420L;
 
@@ -38,79 +38,6 @@ public class ProvisioningConnectorConfig implements Serializable {
     protected String name;
     protected boolean enabled;
     protected boolean blocking;
-
-    /**
-     * 
-     * @return
-     */
-    public Property[] getProvisioningProperties() {
-        return provisioningProperties;
-    }
-
-    /**
-     * 
-     * @param provisioningProperties
-     */
-    public void setProvisioningProperties(Property[] provisioningProperties) {
-        if (this.provisioningProperties != null && this.provisioningProperties.length > 0
-                && provisioningProperties != null) {
-            this.provisioningProperties = IdentityApplicationManagementUtil.concatArrays(
-                    this.provisioningProperties, provisioningProperties);
-        } else {
-            this.provisioningProperties = provisioningProperties;
-        }
-
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public boolean isValid() {
-        return false;
-    }
-
-   
-    /**
-     * 
-     * @param string
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    
-    /**
-     * 
-     * @return
-     */
-    public boolean isEnabled() {
-		return enabled;
-	}
-
-    /**
-     * 
-     * @param string
-     */
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
-
-    public boolean isBlocking() {
-        return blocking;
-    }
-
-    public void setBlocking(boolean blocking) {
-        this.blocking = blocking;
-    }
 
     /*
          * <ProvisioningConnectorConfig> <Name></Name> <ProvisioningProperties></ProvisioningProperties>
@@ -141,13 +68,77 @@ public class ProvisioningConnectorConfig implements Serializable {
                     provisioningConnectorConfig.setProvisioningProperties(propertiesArr);
                 }
             }
-            
+
             if (elementName.equals("Name")) {
                 provisioningConnectorConfig.setName(element.getText());
             }
         }
 
         return provisioningConnectorConfig;
+    }
+
+    /**
+     * @return
+     */
+    public Property[] getProvisioningProperties() {
+        return provisioningProperties;
+    }
+
+    /**
+     * @param provisioningProperties
+     */
+    public void setProvisioningProperties(Property[] provisioningProperties) {
+        if (this.provisioningProperties != null && this.provisioningProperties.length > 0
+                && provisioningProperties != null) {
+            this.provisioningProperties = IdentityApplicationManagementUtil.concatArrays(
+                    this.provisioningProperties, provisioningProperties);
+        } else {
+            this.provisioningProperties = provisioningProperties;
+        }
+
+    }
+
+    /**
+     * @return
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param string
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return
+     */
+    public boolean isValid() {
+        return false;
+    }
+
+    /**
+     * @return
+     */
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    /**
+     * @param string
+     */
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public boolean isBlocking() {
+        return blocking;
+    }
+
+    public void setBlocking(boolean blocking) {
+        this.blocking = blocking;
     }
 
     @Override
@@ -157,7 +148,7 @@ public class ProvisioningConnectorConfig implements Serializable {
 
         ProvisioningConnectorConfig that = (ProvisioningConnectorConfig) o;
 
-        if(!StringUtils.equals(name, that.name)) return false;
+        if (!StringUtils.equals(name, that.name)) return false;
         if (!Arrays.equals(provisioningProperties, that.provisioningProperties)) return false;
 
         return true;

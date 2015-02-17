@@ -34,25 +34,24 @@ import org.wso2.carbon.utils.ConfigurationContextService;
 /**
  * @scr.component name="iwa.authenticator.dscomponent" immediate="true"
  * @scr.reference name="registry.service"
- *                interface="org.wso2.carbon.registry.core.service.RegistryService"
- *                cardinality="1..1" policy="dynamic" bind="setRegistryService"
- *                unbind="unsetRegistryService"
+ * interface="org.wso2.carbon.registry.core.service.RegistryService"
+ * cardinality="1..1" policy="dynamic" bind="setRegistryService"
+ * unbind="unsetRegistryService"
  * @scr.reference name="user.realmservice.default"
- *                interface="org.wso2.carbon.user.core.service.RealmService"
- *                cardinality="1..1" policy="dynamic" bind="setRealmService"
- *                unbind="unsetRealmService"
+ * interface="org.wso2.carbon.user.core.service.RealmService"
+ * cardinality="1..1" policy="dynamic" bind="setRealmService"
+ * unbind="unsetRealmService"
  * @scr.reference name="configuration.context.service"
- *                interface="org.wso2.carbon.utils.ConfigurationContextService"
- *                cardinality="1..1" policy="dynamic"
- *                bind="setConfigurationContextService"
- *                unbind="unsetConfigurationContextService"
+ * interface="org.wso2.carbon.utils.ConfigurationContextService"
+ * cardinality="1..1" policy="dynamic"
+ * bind="setConfigurationContextService"
+ * unbind="unsetConfigurationContextService"
  */
 public class IWAAuthenticatorDSComponent {
 
+    private static final Log log = LogFactory.getLog(IWAAuthenticatorDSComponent.class);
     private static LoginSubscriptionManagerServiceImpl loginSubscriptionManagerServiceImpl =
             new LoginSubscriptionManagerServiceImpl();
-
-    private static final Log log = LogFactory.getLog(IWAAuthenticatorDSComponent.class);
     private static ConfigurationContextService configurationContextService;
 
     protected void activate(ComponentContext ctxt) {
@@ -75,7 +74,7 @@ public class IWAAuthenticatorDSComponent {
     protected void deactivate(ComponentContext ctxt) {
         log.debug("Carbon Core Services bundle is deactivated ");
     }
-   
+
     protected void setRegistryService(RegistryService registryService) {
         IWABEDataHolder.getInstance().setRegistryService(registryService);
     }
@@ -92,12 +91,12 @@ public class IWAAuthenticatorDSComponent {
         IWABEDataHolder.getInstance().setRealmService(null);
     }
 
-    protected void setConfigurationContextService(ConfigurationContextService configurationContextService){
+    protected void setConfigurationContextService(ConfigurationContextService configurationContextService) {
         log.debug("Receiving ConfigurationContext Service");
         IWAAuthenticatorDSComponent.configurationContextService = configurationContextService;
     }
 
-    protected void unsetConfigurationContextService(ConfigurationContextService configurationContextService){
+    protected void unsetConfigurationContextService(ConfigurationContextService configurationContextService) {
         log.debug("Unsetting ConfigurationContext Service");
         setConfigurationContextService(null);
     }

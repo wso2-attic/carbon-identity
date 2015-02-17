@@ -31,7 +31,7 @@ import org.wso2.carbon.identity.application.common.cache.CacheKey;
 public class AuthenticationRequestCache extends BaseCache<CacheKey, CacheEntry> {
 
     private static final String AUTHENTICATION_REQUEST_CACHE_NAME = "AuthenticationRequestCache";
-    private static volatile AuthenticationRequestCache instance ;
+    private static volatile AuthenticationRequestCache instance;
 
     private AuthenticationRequestCache(String cacheName) {
         super(cacheName);

@@ -16,31 +16,31 @@
 
 package org.wso2.carbon.identity.relyingparty.ui.openid.extensions;
 
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.openid4java.message.MessageExtension;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.relyingparty.stub.dto.ClaimDTO;
 import org.wso2.carbon.identity.relyingparty.ui.openid.OpenIDAuthenticationRequest;
 
+import java.util.List;
+
 public interface OpenIDExtension {
 
-	/**
-	 * Creates an instance of MessageExtension for the OpenID authentication request
-	 * @param request OpenID authentication request
-	 * @return An instance of MessageExtension
-	 * @throws RelyingPartyException
-	 */
-	public MessageExtension getMessageExtension(OpenIDAuthenticationRequest request)
-			throws IdentityException;
+    /**
+     * Creates an instance of MessageExtension for the OpenID authentication request
+     *
+     * @param request OpenID authentication request
+     * @return An instance of MessageExtension
+     * @throws RelyingPartyException
+     */
+    public MessageExtension getMessageExtension(OpenIDAuthenticationRequest request)
+            throws IdentityException;
 
-	/**
-	 * Set session attributes with the received OpenID response
-	 * @param claimList List<ClaimDTO>
-	 * @throws RelyingPartyException
-	 */
-	public void setSessionAttributes(List<ClaimDTO> claimList) throws IdentityException;
+    /**
+     * Set session attributes with the received OpenID response
+     *
+     * @param claimList List<ClaimDTO>
+     * @throws RelyingPartyException
+     */
+    public void setSessionAttributes(List<ClaimDTO> claimList) throws IdentityException;
 
 }

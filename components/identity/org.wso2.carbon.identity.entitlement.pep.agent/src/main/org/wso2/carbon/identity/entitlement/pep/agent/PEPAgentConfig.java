@@ -19,13 +19,13 @@ import java.util.Map;
 
 public class PEPAgentConfig {
 
-    private Map<String, Map<String,String>> appToPDPClientConfigMap;
+    private Map<String, Map<String, String>> appToPDPClientConfigMap;
     private String defaultAppId;
     private String cacheType;
     private int invalidationInterval;
     private int maxCacheEntries;
 
-    public PEPAgentConfig(Map<String, Map<String,String>> appToPDPClientConfigMap, String defaultAppId,
+    public PEPAgentConfig(Map<String, Map<String, String>> appToPDPClientConfigMap, String defaultAppId,
                           String cacheType, int invalidationInterval, int maxCacheEntries) {
         this.defaultAppId = defaultAppId;
         this.appToPDPClientConfigMap = appToPDPClientConfigMap;
@@ -49,7 +49,7 @@ public class PEPAgentConfig {
         return invalidationInterval;
     }
 
-    public Map<String, Map<String,String>> getAppToPDPClientConfigMap() {
+    public Map<String, Map<String, String>> getAppToPDPClientConfigMap() {
         return appToPDPClientConfigMap;
     }
 

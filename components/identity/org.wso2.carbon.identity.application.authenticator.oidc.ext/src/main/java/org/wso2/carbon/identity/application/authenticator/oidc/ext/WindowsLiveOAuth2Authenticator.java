@@ -17,6 +17,15 @@
  */
 package org.wso2.carbon.identity.application.authenticator.oidc.ext;
 
+import org.apache.amber.oauth2.client.response.OAuthClientResponse;
+import org.apache.amber.oauth2.common.utils.JSONUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticatorConstants;
+import org.wso2.carbon.identity.application.authenticator.oidc.OpenIDConnectAuthenticator;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.application.common.model.Property;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,15 +35,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.amber.oauth2.client.response.OAuthClientResponse;
-import org.apache.amber.oauth2.common.utils.JSONUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticatorConstants;
-import org.wso2.carbon.identity.application.authenticator.oidc.OpenIDConnectAuthenticator;
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
-import org.wso2.carbon.identity.application.common.model.Property;
 
 public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
@@ -55,7 +55,6 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
     private static Log log = LogFactory.getLog(WindowsLiveOAuth2Authenticator.class);
 
     /**
-     * 
      * @return
      */
     protected String getAuthorizationServerEndpoint(Map<String, String> authenticatorProperties) {
@@ -63,7 +62,6 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * 
      * @return
      */
     protected String getCallbackUrl(Map<String, String> authenticatorProperties) {
@@ -71,7 +69,6 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * 
      * @return
      */
     protected String getTokenEndpoint(Map<String, String> authenticatorProperties) {
@@ -79,7 +76,6 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * 
      * @param state
      * @return
      */
@@ -88,7 +84,6 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * 
      * @return
      */
     protected String getScope(String scope, Map<String, String> authenticatorProperties) {
@@ -96,7 +91,6 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * 
      * @return
      */
     protected boolean requiredIDToken(Map<String, String> authenticatorProperties) {
@@ -104,7 +98,6 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * 
      * @param token
      * @return
      */
@@ -113,7 +106,6 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * 
      * @param token
      * @return
      */
@@ -197,7 +189,6 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * 
      * @param fbKey
      * @return
      */

@@ -52,7 +52,7 @@ public class IdentityProviderUtil {
     }
 
     public static OMElement createRequestedDisplayToken(OMElement parent,
-            GenericIdentityProviderData data) {
+                                                        GenericIdentityProviderData data) {
 
         return createOMElement(parent, IdentityConstants.NS,
                 IdentityConstants.LocalNames.REQUESTED_DISPLAY_TOKEN, IdentityConstants.PREFIX);
@@ -68,7 +68,7 @@ public class IdentityProviderUtil {
     }
 
     public static OMElement createDisplayClaim(OMElement parent, String displayTag,
-            String displayValue, String uri) {
+                                               String displayValue, String uri) {
         OMElement claimElem = createOMElement(parent, IdentityConstants.NS,
                 IdentityConstants.LocalNames.DISPLAY_CLAIM, IdentityConstants.PREFIX);
 
@@ -110,8 +110,8 @@ public class IdentityProviderUtil {
         infoCard = new File(workdir + File.separator + "dump_cards");
 
         if (!infoCard.exists()) {
-            if(!infoCard.mkdirs()){
-               
+            if (!infoCard.mkdirs()) {
+
             }
         }
 
@@ -140,7 +140,7 @@ public class IdentityProviderUtil {
 
     /**
      * Obtain the applies to host name from the WS-Trust request.
-     * 
+     *
      * @param data Data from WS-Trust request.
      * @return applies to host name if found.
      * @throws IdentityProviderException

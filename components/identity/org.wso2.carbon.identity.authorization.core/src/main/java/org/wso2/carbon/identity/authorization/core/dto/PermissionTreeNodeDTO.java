@@ -68,14 +68,14 @@ public class PermissionTreeNodeDTO {
     }
 
     public PermissionTreeNodeDTO[] getChildNodes() {
-        return  Arrays.copyOf(childNodes, childNodes.length);
+        return Arrays.copyOf(childNodes, childNodes.length);
     }
 
     public void setChildNodes(PermissionTreeNodeDTO[] childNodes) {
         this.childNodes = Arrays.copyOf(childNodes, childNodes.length);
     }
 
-    public void addChildNode(PermissionTreeNodeDTO node){
+    public void addChildNode(PermissionTreeNodeDTO node) {
         Set<PermissionTreeNodeDTO> valueNodes = new HashSet<PermissionTreeNodeDTO>(Arrays.asList(this.childNodes));
         valueNodes.add(node);
         this.childNodes = valueNodes.toArray(new PermissionTreeNodeDTO[valueNodes.size()]);

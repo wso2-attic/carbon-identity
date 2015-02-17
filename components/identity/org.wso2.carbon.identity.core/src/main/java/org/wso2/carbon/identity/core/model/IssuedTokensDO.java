@@ -19,41 +19,41 @@ import java.util.Date;
 
 public class IssuedTokensDO {
 
-	private InfoCardDO card = null;
-	private String tokenType = null;
-	private Date dateIssued = null;
-	private Date dateExpires = null;
+    private InfoCardDO card = null;
+    private String tokenType = null;
+    private Date dateIssued = null;
+    private Date dateExpires = null;
 
-	public String getTokenType() {
-		return tokenType;
-	}
+    public String getTokenType() {
+        return tokenType;
+    }
 
-	public void setTokenType(String tokenType) {
-		this.tokenType = tokenType;
-	}
+    public void setTokenType(String tokenType) {
+        this.tokenType = tokenType;
+    }
 
-	public Date getDateIssued() {
-		return new Date(dateIssued.getTime());
-	}
+    public Date getDateIssued() {
+        return new Date(dateIssued.getTime());
+    }
 
-	public void setDateIssued(Date dateIssued) {
-		this.dateIssued = new Date(dateIssued.getTime());
-	}
+    public void setDateIssued(Date dateIssued) {
+        this.dateIssued = new Date(dateIssued.getTime());
+    }
 
-	public Date getDateExpires() {
-		return new Date(dateExpires.getTime());
-	}
+    public Date getDateExpires() {
+        return new Date(dateExpires.getTime());
+    }
 
-	public void setDateExpires(Date dateExpires) {
-		this.dateExpires = new Date(dateExpires.getTime());
-	}
+    public void setDateExpires(Date dateExpires) {
+        this.dateExpires = new Date(dateExpires.getTime());
+    }
 
-	public InfoCardDO getCard() {
-		return card;
-	}
+    public InfoCardDO getCard() {
+        return card;
+    }
 
-	public void setCard(InfoCardDO card) {
-		this.card = card;
-	}
+    public void setCard(InfoCardDO card) {
+        this.card = card;
+    }
 
 }

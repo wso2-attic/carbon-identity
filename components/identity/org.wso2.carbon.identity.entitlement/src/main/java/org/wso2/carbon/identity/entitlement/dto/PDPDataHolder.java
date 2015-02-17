@@ -22,7 +22,7 @@ package org.wso2.carbon.identity.entitlement.dto;
 import java.util.Arrays;
 
 /**
- * 
+ *
  */
 public class PDPDataHolder {
 

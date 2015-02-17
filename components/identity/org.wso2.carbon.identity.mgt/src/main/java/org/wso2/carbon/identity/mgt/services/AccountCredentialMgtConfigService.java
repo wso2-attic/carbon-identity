@@ -39,59 +39,61 @@ import org.wso2.carbon.identity.mgt.dto.EmailTemplateDTO;
  */
 public class AccountCredentialMgtConfigService {
 
-	Log log = LogFactory.getLog(AccountCredentialMgtConfigService.class);
+    Log log = LogFactory.getLog(AccountCredentialMgtConfigService.class);
 
-	/**
-	 * This method is used to save the Email template configurations which is specific to tenant.
-	 * 
-	 * @param emailTemplates - Email templates to be saved.
-	 * @throws IdentityMgtServiceException
-	 */
-	public void saveEmailConfig(EmailTemplateDTO[] emailTemplates)
-			throws IdentityMgtServiceException {
+    /**
+     * This method is used to save the Email template configurations which is specific to tenant.
+     *
+     * @param emailTemplates - Email templates to be saved.
+     * @throws IdentityMgtServiceException
+     */
+    public void saveEmailConfig(EmailTemplateDTO[] emailTemplates)
+            throws IdentityMgtServiceException {
 
-		int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext()
-				.getTenantId();
-		EmailNotificationConfig emailConfig = new EmailNotificationConfig();
-		ConfigBuilder configBuilder = ConfigBuilder.getInstance();
+        int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext()
+                .getTenantId();
+        EmailNotificationConfig emailConfig = new EmailNotificationConfig();
+        ConfigBuilder configBuilder = ConfigBuilder.getInstance();
 
-		try {
-			Properties props = EmailConfigTransformer.transform(emailTemplates);
-			emailConfig.setProperties(props);
+        try {
+            Properties props = EmailConfigTransformer.transform(emailTemplates);
+            emailConfig.setProperties(props);
 
 			configBuilder.saveConfiguration(StorageType.REGISTRY, tenantId,
 					emailConfig);
 		} catch (Exception e) {
-			log.error("Error while saving email config", e);
-			throw new IdentityMgtServiceException("Error while saving email config", e);
+		    String msg = "Error while saving email config";
+			log.error(msg, e);
+			throw new IdentityMgtServiceException(msg, e);
 		}
 	}
 
-	/**
-	 * This method is used to load the tenant specific Email template configurations.
-	 * 
-	 * @return an array of templates.
-	 * @throws IdentityMgtServiceException
-	 */
-	public EmailTemplateDTO[] getEmailConfig() throws IdentityMgtServiceException {
+    /**
+     * This method is used to load the tenant specific Email template configurations.
+     *
+     * @return an array of templates.
+     * @throws IdentityMgtServiceException
+     */
+    public EmailTemplateDTO[] getEmailConfig() throws IdentityMgtServiceException {
 
-		int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext()
-				.getTenantId();
-		Config emailConfig = null;
-		EmailTemplateDTO[] templates = null;
-		ConfigBuilder configBuilder = ConfigBuilder.getInstance();
-		try {
-			emailConfig = configBuilder.loadConfiguration(ConfigType.EMAIL,
-					StorageType.REGISTRY, tenantId);
-			if (emailConfig != null) {
+        int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext()
+                .getTenantId();
+        Config emailConfig = null;
+        EmailTemplateDTO[] templates = null;
+        ConfigBuilder configBuilder = ConfigBuilder.getInstance();
+        try {
+            emailConfig = configBuilder.loadConfiguration(ConfigType.EMAIL,
+                    StorageType.REGISTRY, tenantId);
+            if (emailConfig != null) {
 
 				templates = EmailConfigTransformer.transform(emailConfig.getProperties());
 			}
 		} catch (Exception e) {
-			log.error("Error while getting email config", e);
-			throw new IdentityMgtServiceException("Error while getting email config", e);
+		    String msg = "Error while getting email config";
+			log.error(msg, e);
+			throw new IdentityMgtServiceException(msg, e);
 		}
 
-		return templates;
-	}
+        return templates;
+    }
 }

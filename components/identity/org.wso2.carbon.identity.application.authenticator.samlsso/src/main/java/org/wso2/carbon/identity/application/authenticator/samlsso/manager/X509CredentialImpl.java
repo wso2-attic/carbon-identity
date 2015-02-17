@@ -57,8 +57,8 @@ public class X509CredentialImpl implements X509Credential {
      * Otherwise the object will hold the private key, public key and the cert for the respective
      * tenant domain.
      *
-     * @param tenantDomain  tenant domain
-     * @param idpCert       certificate of the IDP
+     * @param tenantDomain tenant domain
+     * @param idpCert      certificate of the IDP
      * @throws SAMLSSOException
      */
     public X509CredentialImpl(String tenantDomain, String idpCert) throws SAMLSSOException {
@@ -82,11 +82,11 @@ public class X509CredentialImpl implements X509Credential {
 
             try {
                 tenantId = SAMLSSOAuthenticatorServiceComponent.getRealmService().getTenantManager()
-                                                               .getTenantId(tenantDomain);
+                        .getTenantId(tenantDomain);
             } catch (UserStoreException e) {
                 throw new SAMLSSOException(
                         "Exception occurred while retrieving Tenant ID from tenant domain " +
-                        tenantDomain, e);
+                                tenantDomain, e);
             }
 
             KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(tenantId);
@@ -104,7 +104,7 @@ public class X509CredentialImpl implements X509Credential {
                     privateKey =
                             (PrivateKey) keyStoreManager.getPrivateKey(jksName, tenantDomain);
                     cert = (X509Certificate) keyStoreManager.getKeyStore(jksName)
-                                                            .getCertificate(tenantDomain);
+                            .getCertificate(tenantDomain);
                 } else {
                     privateKey = keyStoreManager.getDefaultPrivateKey();
                     cert = keyStoreManager.getDefaultPrimaryCertificate();
@@ -113,7 +113,7 @@ public class X509CredentialImpl implements X509Credential {
             } catch (Exception e) {
                 throw new SAMLSSOException(
                         "Error retrieving private key and the certificate for tenant " +
-                        tenantDomain, e);
+                                tenantDomain, e);
             }
 
             if (privateKey == null) {
@@ -186,6 +186,6 @@ public class X509CredentialImpl implements X509Credential {
 
     public UsageType getUsageType() {
         // TODO Auto-generated method stub
-		return null;
-	}
+        return null;
+    }
 }

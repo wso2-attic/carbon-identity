@@ -19,38 +19,38 @@ package org.wso2.carbon.identity.sts.passive;
 
 public class PassiveRequestorConstants {
 
-	public final static String REQUESTOR_ACTION_ATTRIBUTES_10 = "wattr1.0";
-	
-	public final static String REQUESTOR_ACTION_SIGNIN_10 = "wsignin1.0";
-	
-	public final static String REQUESTOR_ACTION_SIGNOUT_10 = "wsignout1.0";
-	
-	public final static String REQUESTOR_ACTION_PSEUDONYM_10 = "wpseudo1.0";
-	
-	public final static String ACTION = "wa";
-	
-	public final static String REPLY_TO = "wreply";
-	
-	public final static String RESPONSE = "wres";
-	
-	public final static String CONTEXT = "wctx";
-	
-	public final static String POLCY = "wp";
-	
-	public final static String TIME_AT_RECIPIENT = "wct";
-	
-	public final static String REALM = "wtrealm";
-	
-	public final static String REQUEST = "wreq";
-	
-	public final static String REQUEST_POINTER = "wreqptr";
-	
-	public final static String RESULT = "wresult";
-	
-	public final static String RESPONSE_POINTER = "wresultptr";
-	
-	public final static String ATTRIBUTE = "wattr";
-	
-	public final static String PSEUDO = "wpseudo";
+    public final static String REQUESTOR_ACTION_ATTRIBUTES_10 = "wattr1.0";
+
+    public final static String REQUESTOR_ACTION_SIGNIN_10 = "wsignin1.0";
+
+    public final static String REQUESTOR_ACTION_SIGNOUT_10 = "wsignout1.0";
+
+    public final static String REQUESTOR_ACTION_PSEUDONYM_10 = "wpseudo1.0";
+
+    public final static String ACTION = "wa";
+
+    public final static String REPLY_TO = "wreply";
+
+    public final static String RESPONSE = "wres";
+
+    public final static String CONTEXT = "wctx";
+
+    public final static String POLCY = "wp";
+
+    public final static String TIME_AT_RECIPIENT = "wct";
+
+    public final static String REALM = "wtrealm";
+
+    public final static String REQUEST = "wreq";
+
+    public final static String REQUEST_POINTER = "wreqptr";
+
+    public final static String RESULT = "wresult";
+
+    public final static String RESPONSE_POINTER = "wresultptr";
+
+    public final static String ATTRIBUTE = "wattr";
+
+    public final static String PSEUDO = "wpseudo";
 
 }

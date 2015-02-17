@@ -34,6 +34,7 @@ public abstract class AbstractNotificationSendingModule implements NotificationS
 
     /**
      * Returns the simple name of the class
+     *
      * @return Simple name of the class
      */
     @Override

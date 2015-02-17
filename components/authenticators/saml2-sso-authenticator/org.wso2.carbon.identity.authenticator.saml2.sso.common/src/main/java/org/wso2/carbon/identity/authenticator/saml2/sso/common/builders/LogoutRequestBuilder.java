@@ -17,7 +17,6 @@
 */
 package org.wso2.carbon.identity.authenticator.saml2.sso.common.builders;
 
-import org.apache.axiom.om.util.UUIDGenerator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xml.security.signature.XMLSignature;
@@ -36,23 +35,24 @@ import org.wso2.carbon.identity.authenticator.saml2.sso.common.Util;
  * This class is used to generate the Logout Requests.
  */
 public class LogoutRequestBuilder {
-	
-	private static Log log = LogFactory.getLog(LogoutRequestBuilder.class);
+
+    private static Log log = LogFactory.getLog(LogoutRequestBuilder.class);
 
     /**
      * Build the logout request
+     *
      * @param subject name of the user
-     * @param reason reason for generating logout request.
+     * @param reason  reason for generating logout request.
      * @return LogoutRequest object
-     * @throws Exception 
+     * @throws Exception
      */
     public LogoutRequest buildLogoutRequest(String subject, String reason, String sessionIndexStr) throws Exception {
-    	log.info("Building logout request");
+        log.info("Building logout request");
         Util.doBootstrap();
         LogoutRequest logoutReq = new org.opensaml.saml2.core.impl.LogoutRequestBuilder().buildObject();
         logoutReq.setID(Util.createID());
         logoutReq.setDestination(Util.getIdentityProviderSSOServiceURL());
-        
+
         DateTime issueInstant = new DateTime();
         logoutReq.setIssueInstant(issueInstant);
         logoutReq.setNotOnOrAfter(new DateTime(issueInstant.getMillis() + 5 * 60 * 1000));
@@ -72,7 +72,7 @@ public class LogoutRequestBuilder {
         logoutReq.getSessionIndexes().add(sessionIndex);
 
         logoutReq.setReason(reason);
-        
+
         Util.setSignature(logoutReq, XMLSignature.ALGO_ID_SIGNATURE_RSA, new SignKeyDataHolder());
 
         return logoutReq;

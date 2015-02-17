@@ -47,25 +47,25 @@ import java.util.Properties;
  * this bundle it self.The default file ships with the bundle only includes
  * org.wso2.carbon.identity.entitlement.pip.DefaultAttributeFinder as an AttributeDesignator and
  * default caching configurations.
- * 
- * 
- * PDP.OnDemangPolicyLoading.Enable=false 
+ * <p/>
+ * <p/>
+ * PDP.OnDemangPolicyLoading.Enable=false
  * PDP.OnDemangPolicyLoading.MaxInMemoryPolicies=1000
- * PDP.DecisionCaching.Enable=true 
+ * PDP.DecisionCaching.Enable=true
  * PDP.DecisionCaching.CachingInterval=30000
- * PDP.AttributeCaching.Enable=true 
+ * PDP.AttributeCaching.Enable=true
  * PDP.DecisionCaching.CachingInterval=30000
- * PDP.ResourceCaching.Enable=true 
+ * PDP.ResourceCaching.Enable=true
  * PDP.ResourceCaching.CachingInterval=30000
- * 
+ * <p/>
  * PDP.Extensions.Extension.1=org.wso2.carbon.identity.entitlement.pdp.DefaultExtension
- * 
+ * <p/>
  * PIP.AttributeDesignators.Designator.1=org.wso2.carbon.identity.entitlement.pip.DefaultAttributeFinder
  * PIP.ResourceFinders.Finder.1="org.wso2.carbon.identity.entitlement.pip.DefaultResourceFinder
- * 
+ * <p/>
  * PAP.MetaDataFinders.Finder.1=org.wso2.carbon.identity.entitlement.pap.CarbonEntitlementDataFinder
  * PAP.PolicyPublishers.Publisher.1=org.wso2.carbon.identity.entitlement.policy.publisher.CarbonBasicPolicyPublisherModule
- * 
+ * <p/>
  * # Properties needed for each extension. #
  * org.wso2.carbon.identity.entitlement.pip.DefaultAttributeFinder.1=name,value #
  * org.wso2.carbon.identity.entitlement.pip.DefaultAttributeFinder.2=name,value #
@@ -77,7 +77,7 @@ import java.util.Properties;
 public class EntitlementExtensionBuilder {
 
 
-    public static final String PDP_SCHEMA_VALIDATION ="PDP.SchemaValidation.Enable";
+    public static final String PDP_SCHEMA_VALIDATION = "PDP.SchemaValidation.Enable";
 
     private static final String ENTITLEMENT_CONFIG = "entitlement.properties";
 
@@ -112,7 +112,6 @@ public class EntitlementExtensionBuilder {
     }
 
     /**
-     * 
      * @return properties
      * @throws IOException
      */
@@ -124,7 +123,7 @@ public class EntitlementExtensionBuilder {
 
         File pipConfigXml = new File(CarbonUtils.getCarbonSecurityConfigDirPath(), ENTITLEMENT_CONFIG);
 
-        try{
+        try {
             if (pipConfigXml.exists()) {
                 inStream = new FileInputStream(pipConfigXml);
             } else {
@@ -158,21 +157,21 @@ public class EntitlementExtensionBuilder {
             properties.load(inStream);
 
         } catch (FileNotFoundException e) {
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 log.debug(e);
             }
             throw e;
         } catch (IOException e) {
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 log.debug(e);
             }
             throw e;
         } finally {
-            try{
-                if(inStream != null){
+            try {
+                if (inStream != null) {
                     inStream.close();
                 }
-            } catch (Exception e){
+            } catch (Exception e) {
                 log.error("Error while closing input stream ", e);
             }
         }
@@ -181,38 +180,37 @@ public class EntitlementExtensionBuilder {
     }
 
     /**
-     * 
      * @param properties which are used to populate pdp properties
-     * @param holder holder of properties
+     * @param holder     holder of properties
      */
     private void populateEntitlementAttributes(Properties properties, EntitlementConfigHolder holder) {
 
         Properties pdpProperties = new Properties();
-        
-        setProperty(properties,pdpProperties, PDPConstants.ON_DEMAND_POLICY_LOADING);
-        setProperty(properties,pdpProperties, PDPConstants.ON_DEMAND_POLICY_MAX_POLICY_ENTRIES);
-        setProperty(properties,pdpProperties, PDPConstants.DECISION_CACHING);
-        setProperty(properties,pdpProperties, PDPConstants.DECISION_CACHING_INTERVAL);
-        setProperty(properties,pdpProperties, PDPConstants.ATTRIBUTE_CACHING);
-        setProperty(properties,pdpProperties, PDPConstants.ATTRIBUTE_CACHING_INTERVAL);
-        setProperty(properties,pdpProperties, PDPConstants.RESOURCE_CACHING);
-        setProperty(properties,pdpProperties, PDPConstants.RESOURCE_CACHING_INTERVAL);
-        setProperty(properties,pdpProperties, PDPConstants.PDP_ENABLE);
-        setProperty(properties,pdpProperties, PDPConstants.PAP_ENABLE);
-        setProperty(properties,pdpProperties, PDPConstants.BALANA_CONFIG_ENABLE);
-        setProperty(properties,pdpProperties, PDPConstants.MULTIPLE_DECISION_PROFILE_ENABLE);
-        setProperty(properties,pdpProperties, PDPConstants.MAX_POLICY_REFERENCE_ENTRIES);
-        setProperty(properties,pdpProperties, PDPConstants.FILESYSTEM_POLICY_PATH);
-        setProperty(properties,pdpProperties, PDPConstants.POLICY_ID_REGEXP_PATTERN);
-        setProperty(properties,pdpProperties, PDPConstants.PDP_GLOBAL_COMBINING_ALGORITHM);
-        setProperty(properties,pdpProperties, PDPConstants.ENTITLEMENT_ITEMS_PER_PAGE);
-        setProperty(properties,pdpProperties, PDPConstants.START_UP_POLICY_ADDING);
-        setProperty(properties,pdpProperties, PDP_SCHEMA_VALIDATION);
+
+        setProperty(properties, pdpProperties, PDPConstants.ON_DEMAND_POLICY_LOADING);
+        setProperty(properties, pdpProperties, PDPConstants.ON_DEMAND_POLICY_MAX_POLICY_ENTRIES);
+        setProperty(properties, pdpProperties, PDPConstants.DECISION_CACHING);
+        setProperty(properties, pdpProperties, PDPConstants.DECISION_CACHING_INTERVAL);
+        setProperty(properties, pdpProperties, PDPConstants.ATTRIBUTE_CACHING);
+        setProperty(properties, pdpProperties, PDPConstants.ATTRIBUTE_CACHING_INTERVAL);
+        setProperty(properties, pdpProperties, PDPConstants.RESOURCE_CACHING);
+        setProperty(properties, pdpProperties, PDPConstants.RESOURCE_CACHING_INTERVAL);
+        setProperty(properties, pdpProperties, PDPConstants.PDP_ENABLE);
+        setProperty(properties, pdpProperties, PDPConstants.PAP_ENABLE);
+        setProperty(properties, pdpProperties, PDPConstants.BALANA_CONFIG_ENABLE);
+        setProperty(properties, pdpProperties, PDPConstants.MULTIPLE_DECISION_PROFILE_ENABLE);
+        setProperty(properties, pdpProperties, PDPConstants.MAX_POLICY_REFERENCE_ENTRIES);
+        setProperty(properties, pdpProperties, PDPConstants.FILESYSTEM_POLICY_PATH);
+        setProperty(properties, pdpProperties, PDPConstants.POLICY_ID_REGEXP_PATTERN);
+        setProperty(properties, pdpProperties, PDPConstants.PDP_GLOBAL_COMBINING_ALGORITHM);
+        setProperty(properties, pdpProperties, PDPConstants.ENTITLEMENT_ITEMS_PER_PAGE);
+        setProperty(properties, pdpProperties, PDPConstants.START_UP_POLICY_ADDING);
+        setProperty(properties, pdpProperties, PDP_SCHEMA_VALIDATION);
 
         holder.setEngineProperties(pdpProperties);
     }
 
-    
+
     private void setProperty(Properties inProp, Properties outProp, String name) {
         String value;
         if ((value = inProp.getProperty(name)) != null) {
@@ -221,7 +219,6 @@ public class EntitlementExtensionBuilder {
     }
 
     /**
-     * 
      * @param properties
      * @param holder
      * @throws Exception
@@ -249,7 +246,6 @@ public class EntitlementExtensionBuilder {
     }
 
     /**
-     *
      * @param properties
      * @param holder
      * @throws Exception
@@ -278,7 +274,6 @@ public class EntitlementExtensionBuilder {
     }
 
     /**
-     * 
      * @param properties
      * @param holder
      * @throws Exception
@@ -307,7 +302,6 @@ public class EntitlementExtensionBuilder {
     }
 
     /**
-     *
      * @param properties
      * @param holder
      * @throws Exception
@@ -331,15 +325,14 @@ public class EntitlementExtensionBuilder {
             }
 
             finderModule.init(finderModuleProps);
-            if(finderModule instanceof PolicyStoreManageModule){
-                holder.addPolicyStore((PolicyStoreManageModule)finderModule, finderModuleProps);
+            if (finderModule instanceof PolicyStoreManageModule) {
+                holder.addPolicyStore((PolicyStoreManageModule) finderModule, finderModuleProps);
             }
             holder.addPolicyFinderModule(finderModule, finderModuleProps);
         }
     }
 
     /**
-     *
      * @param properties
      * @param holder
      * @throws Exception
@@ -350,7 +343,7 @@ public class EntitlementExtensionBuilder {
         PolicyCollection collection = null;
 
         //only one policy collection can be there
-        if(properties.getProperty("PDP.Policy.Collection") != null) {
+        if (properties.getProperty("PDP.Policy.Collection") != null) {
             String className = properties.getProperty("PDP.Policy.Collection");
             Class clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
             collection = (PolicyCollection) clazz.newInstance();
@@ -368,7 +361,6 @@ public class EntitlementExtensionBuilder {
     }
 
     /**
-     *
      * @param properties
      * @param holder
      * @throws Exception
@@ -378,7 +370,7 @@ public class EntitlementExtensionBuilder {
 
         PolicyStoreManageModule policyStoreStore = null;
 
-        if(properties.getProperty("PDP.Policy.Store.Module") != null) {
+        if (properties.getProperty("PDP.Policy.Store.Module") != null) {
             String className = properties.getProperty("PDP.Policy.Store.Module");
             Class clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
             policyStoreStore = (PolicyStoreManageModule) clazz.newInstance();
@@ -396,7 +388,6 @@ public class EntitlementExtensionBuilder {
     }
 
     /**
-     *
      * @param properties
      * @param holder
      * @throws Exception
@@ -406,7 +397,7 @@ public class EntitlementExtensionBuilder {
 
         PolicyDataStore policyDataStore = null;
 
-        if(properties.getProperty("PDP.Policy.Data.Store.Module") != null) {
+        if (properties.getProperty("PDP.Policy.Data.Store.Module") != null) {
             String className = properties.getProperty("PDP.Policy.Data.Store.Module");
             Class clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
             policyDataStore = (PolicyDataStore) clazz.newInstance();
@@ -424,7 +415,6 @@ public class EntitlementExtensionBuilder {
     }
 
     /**
-     *
      * @param properties
      * @param holder
      * @throws Exception
@@ -443,7 +433,7 @@ public class EntitlementExtensionBuilder {
             Properties metadataProps = new Properties();
             while (properties.getProperty(className + "." + j) != null) {
                 String value = properties.getProperty(className + "." + j++);
-                metadataProps.put(value.substring(0,value.indexOf(",")),
+                metadataProps.put(value.substring(0, value.indexOf(",")),
                         value.substring(value.indexOf(",") + 1));
             }
 
@@ -454,7 +444,6 @@ public class EntitlementExtensionBuilder {
 
 
     /**
-     * 
      * @param properties
      * @param holder
      * @throws Exception
@@ -483,7 +472,6 @@ public class EntitlementExtensionBuilder {
     }
 
     /**
-     *
      * @param properties
      * @param holder
      * @throws Exception
@@ -491,9 +479,9 @@ public class EntitlementExtensionBuilder {
     private void populatePolicyVersionModule(Properties properties, EntitlementConfigHolder holder)
             throws Exception {
 
-        PolicyVersionManager versionManager= null;
+        PolicyVersionManager versionManager = null;
 
-        if(properties.getProperty("PAP.Policy.Version.Module") != null) {
+        if (properties.getProperty("PAP.Policy.Version.Module") != null) {
             String className = properties.getProperty("PAP.Policy.Version.Module");
             Class clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
             versionManager = (PolicyVersionManager) clazz.newInstance();
@@ -512,7 +500,6 @@ public class EntitlementExtensionBuilder {
     }
 
     /**
-     *
      * @param properties
      * @param holder
      * @throws Exception
@@ -541,7 +528,6 @@ public class EntitlementExtensionBuilder {
     }
 
     /**
-     *
      * @param properties
      * @param holder
      * @throws Exception
@@ -549,9 +535,9 @@ public class EntitlementExtensionBuilder {
     private void populatePublisherVerificationHandler(Properties properties, EntitlementConfigHolder holder)
             throws Exception {
 
-        PublisherVerificationModule verificationModule= null;
+        PublisherVerificationModule verificationModule = null;
 
-        if(properties.getProperty("PAP.Policy.Publisher.Verification.Handler") != null) {
+        if (properties.getProperty("PAP.Policy.Publisher.Verification.Handler") != null) {
             String className = properties.getProperty("PAP.Policy.Publisher.Verification.Handler");
             Class clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
             verificationModule = (PublisherVerificationModule) clazz.newInstance();
@@ -569,7 +555,6 @@ public class EntitlementExtensionBuilder {
     }
 
     /**
-     *
      * @param properties
      * @param holder
      * @throws Exception

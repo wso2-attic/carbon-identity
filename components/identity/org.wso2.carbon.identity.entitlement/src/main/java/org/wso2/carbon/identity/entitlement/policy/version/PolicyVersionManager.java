@@ -36,7 +36,6 @@ public interface PolicyVersionManager {
     public void init(Properties properties);
 
     /**
-     *
      * @param policyId
      * @param version
      * @return
@@ -45,7 +44,6 @@ public interface PolicyVersionManager {
     public PolicyDTO getPolicy(String policyId, String version) throws EntitlementException;
 
     /**
-     *
      * @param policyDTO
      * @return
      * @throws EntitlementException
@@ -53,14 +51,12 @@ public interface PolicyVersionManager {
     public String createVersion(PolicyDTO policyDTO) throws EntitlementException;
 
     /**
-     *
      * @param policyId
      * @throws EntitlementException
      */
     public void deletePolicy(String policyId) throws EntitlementException;
 
     /**
-     *
      * @param policyId
      * @return
      * @throws EntitlementException

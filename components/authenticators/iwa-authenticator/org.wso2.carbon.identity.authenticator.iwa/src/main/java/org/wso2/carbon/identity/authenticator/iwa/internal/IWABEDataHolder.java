@@ -32,10 +32,10 @@ public class IWABEDataHolder {
     private RealmService realmService;
     private BundleContext context;
 
-    private IWABEDataHolder(){
+    private IWABEDataHolder() {
     }
 
-    public static IWABEDataHolder getInstance(){
+    public static IWABEDataHolder getInstance() {
         return instance;
     }
 
@@ -55,11 +55,11 @@ public class IWABEDataHolder {
         this.realmService = realmService;
     }
 
-    public void setContext(BundleContext context) {
-        this.context = context;
-    }
-
     public BundleContext getContext() {
         return context;
+    }
+
+    public void setContext(BundleContext context) {
+        this.context = context;
     }
 }

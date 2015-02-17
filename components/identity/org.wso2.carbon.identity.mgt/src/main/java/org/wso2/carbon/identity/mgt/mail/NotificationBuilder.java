@@ -24,53 +24,55 @@ import java.util.Map;
 
 public class NotificationBuilder {
 
-	public static Notification createNotification(String notificationType, String template, NotificationData data) throws Exception{
+    public static Notification createNotification(String notificationType, String template, NotificationData data) throws Exception {
 
-		String subject = null;
-		String body = null;
-		String footer = null;
-		Notification notificatoin = null;
-		
-		if("EMAIL".equals(notificationType)) {
-			String[] contents = template.split("\\|");
-			
-			if(contents.length > 3) {
-				throw new Exception("Contents must be 3 or less");
-			}
-			
-			subject = contents[0];
-			body = contents[1];
-			footer = contents[2];
-			
+        String subject = null;
+        String body = null;
+        String footer = null;
+        Notification notificatoin = null;
+
+        if ("EMAIL".equals(notificationType)) {
+            String[] contents = template.split("\\|");
+
+            if (contents.length > 3) {
+                throw new Exception("Contents must be 3 or less");
+            }
+
+            subject = contents[0];
+            body = contents[1];
+            footer = contents[2];
+
 //			Replace all the tags in the NotificationData.
-			Map<String, String> tagsData = data.getTagsData();
-			subject = replaceTags(tagsData, subject);
-			body = replaceTags(tagsData, body);
-			footer = replaceTags(tagsData, footer);
-			
-			notificatoin = new EmailNotification();
-			notificatoin.setSubject(subject);
-			notificatoin.setBody(body);
-			notificatoin.setFooter(footer);
-			notificatoin.setSendFrom(data.getSendFrom());
-			notificatoin.setSendTo(data.getSendTo());			
-			
-		}
-		return notificatoin;
-	}
+            Map<String, String> tagsData = data.getTagsData();
+            subject = replaceTags(tagsData, subject);
+            body = replaceTags(tagsData, body);
+            footer = replaceTags(tagsData, footer);
 
-    private static String replaceTags(Map<String,String> tagsData, String content) throws UnsupportedEncodingException {
-		for (String key : tagsData.keySet()) {
-			String data = tagsData.get(key);
-			
-			if(data != null) {
-	            content = content.replaceAll("\\{url:"+ key +"\\}", URLEncoder.encode(data, "UTF-8"));
-				content = content.replaceAll("\\{"+ key +"\\}", data);
-			} else {
-	            content = content.replaceAll("\\{url:"+ key +"\\}", "");
-				content = content.replaceAll("\\{"+ key +"\\}", "");
-			}
-		}
-		return content;
-	}
+            notificatoin = new EmailNotification();
+            notificatoin.setSubject(subject);
+            notificatoin.setBody(body);
+            notificatoin.setFooter(footer);
+            notificatoin.setSendFrom(data.getSendFrom());
+            notificatoin.setSendTo(data.getSendTo());
+
+        }
+        return notificatoin;
+    }
+
+    private static String replaceTags(Map<String, String> tagsData, String content) 
+            throws UnsupportedEncodingException {
+        for (String key : tagsData.keySet()) {
+            String data = tagsData.get(key);
+
+            if (data != null) {
+                content = content.replaceAll("\\{url:" + key + "\\}",
+                        URLEncoder.encode(data, "UTF-8"));
+                content = content.replaceAll("\\{" + key + "\\}", data);
+            } else {
+                content = content.replaceAll("\\{url:" + key + "\\}", "");
+                content = content.replaceAll("\\{" + key + "\\}", "");
+            }
+        }
+        return content;
+    }
 }

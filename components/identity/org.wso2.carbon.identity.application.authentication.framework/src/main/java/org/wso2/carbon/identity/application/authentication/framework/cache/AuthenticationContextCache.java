@@ -27,41 +27,41 @@ import org.wso2.carbon.identity.core.util.IdentityUtil;
 public class AuthenticationContextCache extends BaseCache<CacheKey, CacheEntry> {
 
     private static final String AUTHENTICATION_CONTEXT_CACHE_NAME = "AuthenticationContextCache";
-    private static volatile AuthenticationContextCache instance ;
+    private static volatile AuthenticationContextCache instance;
     private boolean useCache = true;
     private boolean enableTemporaryCaches = true;
 
     private AuthenticationContextCache(String cacheName) {
         super(cacheName);
     }
-    
+
     private AuthenticationContextCache(String cacheName, int timeout) {
         super(cacheName, timeout);
         useCache = !Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Only"));
-        if(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null){
+        if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
             enableTemporaryCaches = Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
         }
     }
 
     public static AuthenticationContextCache getInstance(int timeout) {
-    	if (instance == null) {
-    		synchronized (AuthenticationContextCache.class) {
-				if (instance == null) {
-					instance = new AuthenticationContextCache(AUTHENTICATION_CONTEXT_CACHE_NAME, timeout);
-				}
-			}
-    	}
+        if (instance == null) {
+            synchronized (AuthenticationContextCache.class) {
+                if (instance == null) {
+                    instance = new AuthenticationContextCache(AUTHENTICATION_CONTEXT_CACHE_NAME, timeout);
+                }
+            }
+        }
         return instance;
     }
 
     @Override
     public void addToCache(CacheKey key, CacheEntry entry) {
-    	String keyValue = ((AuthenticationContextCacheKey) key).getContextId();
-        if(useCache){
+        String keyValue = ((AuthenticationContextCacheKey) key).getContextId();
+        if (useCache) {
             super.addToCache(keyValue, entry);
         }
-        if(enableTemporaryCaches){            
-            SessionDataStore.getInstance().storeSessionData(keyValue, AUTHENTICATION_CONTEXT_CACHE_NAME ,entry);
+        if (enableTemporaryCaches) {
+            SessionDataStore.getInstance().storeSessionData(keyValue, AUTHENTICATION_CONTEXT_CACHE_NAME, entry);
         }
     }
 
@@ -69,12 +69,12 @@ public class AuthenticationContextCache extends BaseCache<CacheKey, CacheEntry> 
     public CacheEntry getValueFromCache(CacheKey key) {
         String keyValue = ((AuthenticationContextCacheKey) key).getContextId();
         CacheEntry cacheEntry = null;
-        if(useCache){
+        if (useCache) {
             cacheEntry = super.getValueFromCache(keyValue);
         }
-        if(cacheEntry == null){
+        if (cacheEntry == null) {
             cacheEntry = (AuthenticationContextCacheEntry) SessionDataStore.getInstance().
-                                                        getSessionData(keyValue, AUTHENTICATION_CONTEXT_CACHE_NAME);
+                    getSessionData(keyValue, AUTHENTICATION_CONTEXT_CACHE_NAME);
         }
         return cacheEntry;
     }
@@ -82,11 +82,11 @@ public class AuthenticationContextCache extends BaseCache<CacheKey, CacheEntry> 
     @Override
     public void clearCacheEntry(CacheKey key) {
         String keyValue = ((AuthenticationContextCacheKey) key).getContextId();
-        if(useCache){
+        if (useCache) {
             super.clearCacheEntry(keyValue);
         }
-        if(enableTemporaryCaches){
-                SessionDataStore.getInstance().clearSessionData(keyValue, AUTHENTICATION_CONTEXT_CACHE_NAME);
+        if (enableTemporaryCaches) {
+            SessionDataStore.getInstance().clearSessionData(keyValue, AUTHENTICATION_CONTEXT_CACHE_NAME);
         }
     }
 }

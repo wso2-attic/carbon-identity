@@ -50,6 +50,35 @@ public class ClaimManagementServiceComponent {
 
     }
 
+    public static BundleContext getBundleContext() {
+        return bundleContext;
+    }
+
+    public static RealmService getRealmService() {
+        return realmService;
+    }
+
+    /**
+     * @param realmService
+     */
+    protected void setRealmService(RealmService realmService) {
+        ClaimManagementServiceComponent.realmService = realmService;
+        if (log.isDebugEnabled()) {
+            log.debug("RealmService set in Claim Management bundle");
+        }
+    }
+
+    public static RegistryService getRegistryService() {
+        return registryService;
+    }
+
+    protected void setRegistryService(RegistryService registryService) {
+        ClaimManagementServiceComponent.registryService = registryService;
+        if (log.isDebugEnabled()) {
+            log.debug("RegistryService set in Claim Management bundle");
+        }
+    }
+
     /**
      * @param ctxt
      */
@@ -73,27 +102,10 @@ public class ClaimManagementServiceComponent {
         }
     }
 
-    protected void setRegistryService(RegistryService registryService) {
-        ClaimManagementServiceComponent.registryService = registryService;
-        if (log.isDebugEnabled()) {
-            log.debug("RegistryService set in Claim Management bundle");
-        }
-    }
-
     protected void unsetRegistryService(RegistryService registryService) {
         ClaimManagementServiceComponent.registryService = null;
         if (log.isDebugEnabled()) {
             log.debug("RegistryService unset in Claim Management bundle");
-        }
-    }
-
-    /**
-     * @param realmService
-     */
-    protected void setRealmService(RealmService realmService) {
-        ClaimManagementServiceComponent.realmService = realmService;
-        if (log.isDebugEnabled()) {
-            log.debug("RealmService set in Claim Management bundle");
         }
     }
 
@@ -105,18 +117,6 @@ public class ClaimManagementServiceComponent {
         if (log.isDebugEnabled()) {
             log.debug("RealmService unset in Claim Management bundle");
         }
-    }
-
-    public static BundleContext getBundleContext() {
-        return bundleContext;
-    }
-
-    public static RealmService getRealmService() {
-        return realmService;
-    }
-
-    public static RegistryService getRegistryService(){
-        return registryService;
     }
 
 }

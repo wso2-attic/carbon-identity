@@ -25,25 +25,23 @@ import java.util.Properties;
 /**
  * PIPExtensions will be fired for each and every XACML request - which will give a handle to the
  * incoming request.
- * 
  */
 public interface PIPExtension {
 
-	/**
-	 * initializes the PIPExtension  module
-	 *
-	 * @param properties properties, that need to initialize the module. These properties can be
-     * defined in entitlement-config.xml file
+    /**
+     * initializes the PIPExtension  module
+     *
+     * @param properties properties, that need to initialize the module. These properties can be
+     *                   defined in entitlement-config.xml file
      * @throws Exception throws when initialization is failed
-	 */
+     */
     public void init(Properties properties) throws Exception;
-    
+
     /**
      * Gives a handle to the XACML request built. Can be used to carry out custom checks or updates
      * before sending to the PDP.
-     * 
-     * @param request
-     *            Incoming XACML request.
+     *
+     * @param request Incoming XACML request.
      */
     public void update(AbstractRequestCtx request);
 

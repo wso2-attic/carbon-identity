@@ -40,7 +40,7 @@ import java.io.InputStream;
 /**
  *
  */
-public class PAPPolicyReader  implements ErrorHandler {
+public class PAPPolicyReader implements ErrorHandler {
 
     // the standard attribute for specifying the XML schema language
     private static final String JAXP_SCHEMA_LANGUAGE = "http://java.sun.com/xml/jaxp/properties/schemaLanguage";
@@ -50,14 +50,10 @@ public class PAPPolicyReader  implements ErrorHandler {
 
     // the standard attribute for specifying schema source
     private static final String JAXP_SCHEMA_SOURCE = "http://java.sun.com/xml/jaxp/properties/schemaSource";
-
-    private static Log log = LogFactory.getLog(PAPPolicyReader.class);
-
-    private static volatile PAPPolicyReader reader;
-
     // To enable attempted thread-safety using double-check locking
     private static final Object lock = new Object();
-
+    private static Log log = LogFactory.getLog(PAPPolicyReader.class);
+    private static volatile PAPPolicyReader reader;
     // the builder used to create DOM documents
     private DocumentBuilder builder;
 
@@ -81,7 +77,6 @@ public class PAPPolicyReader  implements ErrorHandler {
     }
 
     /**
-     *
      * @param policyFinder
      * @return
      */
@@ -97,7 +92,6 @@ public class PAPPolicyReader  implements ErrorHandler {
     }
 
     /**
-     *
      * @param policy
      * @return
      */
@@ -113,7 +107,6 @@ public class PAPPolicyReader  implements ErrorHandler {
     }
 
     /**
-     *
      * @param policy
      * @return
      */
@@ -130,6 +123,7 @@ public class PAPPolicyReader  implements ErrorHandler {
 
     /**
      * Reads policy target from the policy
+     *
      * @param policy policy as a String
      * @return target as PolicyTarget object
      */
@@ -149,7 +143,6 @@ public class PAPPolicyReader  implements ErrorHandler {
     }
 
     /**
-     *
      * @param doc
      * @return
      * @throws org.wso2.balana.ParsingException

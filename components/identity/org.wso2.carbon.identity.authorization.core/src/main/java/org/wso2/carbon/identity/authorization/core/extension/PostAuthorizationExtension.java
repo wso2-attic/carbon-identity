@@ -38,28 +38,28 @@ public interface PostAuthorizationExtension {
     public static final String REMOVE = "remove";
 
     /**
-     * identify retrieve of authorization 
+     * identify retrieve of authorization
      */
     public static final String GET = "get";
 
-	/**
-	 * Initializes the Post Authorization Extension
-	 *
-	 * @param properties properties, that need to initialize the module.
+    /**
+     * Initializes the Post Authorization Extension
+     *
+     * @param properties properties, that need to initialize the module.
      * @throws Exception throws when initialization is failed
-	 */
-	public void init(Properties properties) throws Exception;
+     */
+    public void init(Properties properties) throws Exception;
 
     /**
      * Does the post actions based on authorization data
      *
-     * @param subject subject value
-     * @param resource resource value
-     * @param action action value
-     * @param authorized whether authorized or not
+     * @param subject             subject value
+     * @param resource            resource value
+     * @param action              action value
+     * @param authorized          whether authorized or not
      * @param authorizationAction whether this is authorization adding,removing or retrieve
      */
-    public void doPostAuthorization(String subject, String resource,  String action,
+    public void doPostAuthorization(String subject, String resource, String action,
                                     boolean authorized, String authorizationAction);
 
 }

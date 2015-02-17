@@ -18,42 +18,41 @@
 
 package org.wso2.carbon.identity.authorization.core.dao;
 
-import java.sql.Connection;
-
 import org.wso2.carbon.identity.authorization.core.dto.UserPermission;
 import org.wso2.carbon.user.core.UserStoreException;
 
+import java.sql.Connection;
+
 /**
- * 
  * @author venura
  * @date May 15, 2013
  */
 public abstract class UserPermissionDAO extends PermissionAssignmentDAO {
-	private String userName;
+    private String userName;
 
-	public String getUserName() {
-		return userName;
-	}
+    public String getUserName() {
+        return userName;
+    }
 
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
-	public void map(UserPermission userPerm) {
-		super.map(userPerm);
-		userName = userPerm.getUserName();
-	}
+    public void map(UserPermission userPerm) {
+        super.map(userPerm);
+        userName = userPerm.getUserName();
+    }
 
-	@Override
-	protected void saveDependentModules(Connection connection, boolean commit)
-	                                                                          throws UserStoreException {
-	}
+    @Override
+    protected void saveDependentModules(Connection connection, boolean commit)
+            throws UserStoreException {
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder(super.toString());
-		builder.append("{").append(getClass()).append(" User Name: ").append(userName).append("}");
-		return builder.toString();
-	}
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder(super.toString());
+        builder.append("{").append(getClass()).append(" User Name: ").append(userName).append("}");
+        return builder.toString();
+    }
 
 }

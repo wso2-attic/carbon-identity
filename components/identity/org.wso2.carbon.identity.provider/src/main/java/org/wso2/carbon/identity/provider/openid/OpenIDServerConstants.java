@@ -19,13 +19,13 @@ package org.wso2.carbon.identity.provider.openid;
 
 /**
  * This class contains all OpenID Provider related constants
- * @author WSO2 Inc
  *
+ * @author WSO2 Inc
  */
 public class OpenIDServerConstants {
-	
-	public static final String ASSOCIATION_STORE_TYPE_SHARED = "SHARED";
-	public static final String ASSOCIATION_STORE_TYPE_PRIVATE = "PRIVATE";
-	
-	public static final String OPENID_LOGGEDIN_USER = "OPENID_LOGGEDIN_USER";
+
+    public static final String ASSOCIATION_STORE_TYPE_SHARED = "SHARED";
+    public static final String ASSOCIATION_STORE_TYPE_PRIVATE = "PRIVATE";
+
+    public static final String OPENID_LOGGEDIN_USER = "OPENID_LOGGEDIN_USER";
 }

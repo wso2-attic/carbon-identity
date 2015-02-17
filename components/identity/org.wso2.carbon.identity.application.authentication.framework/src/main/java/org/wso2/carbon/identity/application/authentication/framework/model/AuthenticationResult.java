@@ -24,78 +24,79 @@ import java.io.Serializable;
 import java.util.Map;
 
 public class AuthenticationResult implements Serializable {
-	
-	private static final long serialVersionUID = -2555005773164092641L;
-	
-	private boolean authenticated;
-	private String subject;
-	private Map<ClaimMapping, String> userAttributes;
-	private String authenticatedIdPs;
-	private String authenticatedAuthenticators;
-	private boolean isSaaSApp;
-	// This will be only populated by local authenticators.
-	private String authenticatedUserTenantDomain;
-	private boolean loggedOut;
-	private Map<String, String> claimMapping;
-	
-	public AuthenticationResult(){}
-	
-	public AuthenticationResult(boolean authenticated, String subject,
+
+    private static final long serialVersionUID = -2555005773164092641L;
+
+    private boolean authenticated;
+    private String subject;
+    private Map<ClaimMapping, String> userAttributes;
+    private String authenticatedIdPs;
+    private String authenticatedAuthenticators;
+    private boolean isSaaSApp;
+    // This will be only populated by local authenticators.
+    private String authenticatedUserTenantDomain;
+    private boolean loggedOut;
+    private Map<String, String> claimMapping;
+
+    public AuthenticationResult() {
+    }
+
+    public AuthenticationResult(boolean authenticated, String subject,
                                 Map<ClaimMapping, String> userAttributes, String authenticatedAuthenticators) {
 
         this.authenticated = authenticated;
-		this.subject = subject;
-		this.userAttributes = userAttributes;
-		this.authenticatedAuthenticators = authenticatedAuthenticators;
-	}
-	
-	public boolean isAuthenticated() {
-		return authenticated;
-	}
-	
-	public void setAuthenticated(boolean authenticated) {
-		this.authenticated = authenticated;
-	}
-	
-	public String getSubject() {
-		return subject;
-	}
-	
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
-	
-	public Map<ClaimMapping, String> getUserAttributes() {
-		return userAttributes;
-	}
-	
-	public void setUserAttributes(Map<ClaimMapping, String> userAttributes) {
-		this.userAttributes = userAttributes;
-	}
-	
-	public String getAuthenticatedAuthenticators() {
-		return authenticatedAuthenticators;
-	}
-	
-	public void setAuthenticatedAuthenticators(String authenticatedAuthenticators) {
-		this.authenticatedAuthenticators = authenticatedAuthenticators;
-	}
+        this.subject = subject;
+        this.userAttributes = userAttributes;
+        this.authenticatedAuthenticators = authenticatedAuthenticators;
+    }
 
-	public boolean isLoggedOut() {
-		return loggedOut;
-	}
+    public boolean isAuthenticated() {
+        return authenticated;
+    }
 
-	public void setLoggedOut(boolean loggedOut) {
-		this.loggedOut = loggedOut;
-	}
+    public void setAuthenticated(boolean authenticated) {
+        this.authenticated = authenticated;
+    }
 
-	public Map<String, String> getClaimMapping() {
-		return claimMapping;
-	}
+    public String getSubject() {
+        return subject;
+    }
 
-	public void setClaimMapping(Map<String, String> claimMapping) {
-		this.claimMapping = claimMapping;
-	}
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public Map<ClaimMapping, String> getUserAttributes() {
+        return userAttributes;
+    }
+
+    public void setUserAttributes(Map<ClaimMapping, String> userAttributes) {
+        this.userAttributes = userAttributes;
+    }
+
+    public String getAuthenticatedAuthenticators() {
+        return authenticatedAuthenticators;
+    }
+
+    public void setAuthenticatedAuthenticators(String authenticatedAuthenticators) {
+        this.authenticatedAuthenticators = authenticatedAuthenticators;
+    }
+
+    public boolean isLoggedOut() {
+        return loggedOut;
+    }
+
+    public void setLoggedOut(boolean loggedOut) {
+        this.loggedOut = loggedOut;
+    }
+
+    public Map<String, String> getClaimMapping() {
+        return claimMapping;
+    }
+
+    public void setClaimMapping(Map<String, String> claimMapping) {
+        this.claimMapping = claimMapping;
+    }
 
     public String getAuthenticatedIdPs() {
         return authenticatedIdPs;
@@ -113,13 +114,13 @@ public class AuthenticationResult implements Serializable {
         this.isSaaSApp = isSaaSApp;
     }
 
-	public String getAuthenticatedUserTenantDomain() {
-		return authenticatedUserTenantDomain;
-	}
+    public String getAuthenticatedUserTenantDomain() {
+        return authenticatedUserTenantDomain;
+    }
 
-	public void setAuthenticatedUserTenantDomain(
-			String authenticatedUserTenantDomain) {
-		this.authenticatedUserTenantDomain = authenticatedUserTenantDomain;
-	}
-	
+    public void setAuthenticatedUserTenantDomain(
+            String authenticatedUserTenantDomain) {
+        this.authenticatedUserTenantDomain = authenticatedUserTenantDomain;
+    }
+
 }

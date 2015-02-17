@@ -28,7 +28,6 @@ public class ProvisioningEntityCache extends BaseCache<CacheKey, CacheEntry> {
     private static volatile ProvisioningEntityCache instance;
 
     /**
-     * 
      * @param cacheName
      */
     private ProvisioningEntityCache(String cacheName) {
@@ -36,7 +35,6 @@ public class ProvisioningEntityCache extends BaseCache<CacheKey, CacheEntry> {
     }
 
     /**
-     *
      * @return
      */
     public static ProvisioningEntityCache getInstance() {

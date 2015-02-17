@@ -18,38 +18,38 @@
 
 package org.wso2.carbon.identity.application.mgt.internal;
 
+import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener;
-
 /**
  * @scr.component name="org.wso2.carbon.identity.application.mgt.listener"
- *                immediate="true"
+ * immediate="true"
  * @scr.reference name="application.mgt.event.listener.service"
- *                interface="org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener"
- *                cardinality="0..n" policy="dynamic"
- *                bind="setApplicationMgtListenerService"
- *                unbind="unsetApplicationMgtListenerService" *
+ * interface="org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener"
+ * cardinality="0..n" policy="dynamic"
+ * bind="setApplicationMgtListenerService"
+ * unbind="unsetApplicationMgtListenerService" *
  */
 public class ApplicationMgtListenerServiceComponent {
-	
-	private static List<ApplicationMgtListener> listners = new ArrayList<ApplicationMgtListener>();
 
-	public static void setApplicationMgtListenerService(
-			ApplicationMgtListener identityProviderMgtListerService) {
-		
-		listners.add(identityProviderMgtListerService);
-	}
+    private static List<ApplicationMgtListener> listners = new ArrayList<ApplicationMgtListener>();
 
-	public static void unsetApplicationMgtListenerService(
-			ApplicationMgtListener identityProviderMgtListerService) {
-		
-		listners.remove(identityProviderMgtListerService);
-	}
-	
-	public static List<ApplicationMgtListener> getListners() {
-		return listners;
-	}
+    public static void setApplicationMgtListenerService(
+            ApplicationMgtListener identityProviderMgtListerService) {
+
+        listners.add(identityProviderMgtListerService);
+    }
+
+    public static void unsetApplicationMgtListenerService(
+            ApplicationMgtListener identityProviderMgtListerService) {
+
+        listners.remove(identityProviderMgtListerService);
+    }
+
+    public static List<ApplicationMgtListener> getListners() {
+        return listners;
+    }
 
 }

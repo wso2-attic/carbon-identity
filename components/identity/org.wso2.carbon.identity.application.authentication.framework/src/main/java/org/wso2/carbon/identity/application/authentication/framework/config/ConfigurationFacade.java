@@ -18,12 +18,8 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.config;
 
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.UIBasedConfigurationBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
@@ -32,6 +28,9 @@ import org.wso2.carbon.identity.application.authentication.framework.exception.F
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
+
+import java.util.List;
+import java.util.Map;
 
 public class ConfigurationFacade {
 
@@ -137,6 +136,7 @@ public class ConfigurationFacade {
 
     /**
      * Get the tenant list receiving urls
+     *
      * @return Tenant list receiving urls
      */
     public List<String> getTenantDataEndpointURLs() {
@@ -145,6 +145,7 @@ public class ConfigurationFacade {
 
     /**
      * Get the value for tenant list dropdown enable or disable
+     *
      * @return Tenant list dropdown enabled or disabled value
      */
     public boolean getTenantDropdownEnabled() {

@@ -42,25 +42,45 @@ import java.util.concurrent.ConcurrentHashMap;
 public class EntitlementAdminEngine {
 
     private static final Object lock = new Object();
-
+    private static ConcurrentHashMap<String, EntitlementAdminEngine> entitlementAdminEngines =
+            new ConcurrentHashMap<String, EntitlementAdminEngine>();
+    private static Log log = LogFactory.getLog(EntitlementAdminEngine.class);
     private PolicyPublisher policyPublisher;
-
     private PolicyVersionManager versionManager;
-
     private EntitlementDataFinder entitlementDataFinder;
-
     private PolicyDataStore policyDataStore;
-
     private PolicyStoreManager policyStoreManager;
-
     private PAPPolicyStoreManager papPolicyStoreManager;
-
     private Set<PAPStatusDataHandler> papStatusDataHandlers;
 
-    private static ConcurrentHashMap<String, EntitlementAdminEngine> entitlementAdminEngines =
-                                                new ConcurrentHashMap<String, EntitlementAdminEngine>();
+    public EntitlementAdminEngine() {
 
-    private static Log log = LogFactory.getLog(EntitlementAdminEngine.class);
+        this.entitlementDataFinder = new EntitlementDataFinder();
+        this.policyPublisher = new PolicyPublisher();
+        this.papPolicyStoreManager = new PAPPolicyStoreManager();
+        Map<PolicyVersionManager, Properties> versionManagers = EntitlementServiceComponent.
+                getEntitlementConfig().getPolicyVersionModule();
+        if (versionManagers != null && versionManagers.size() > 0) {
+            this.versionManager = versionManagers.entrySet().iterator().next().getKey();
+        } else {
+            //init without init()
+            this.versionManager = new DefaultPolicyVersionManager();
+        }
+        Map<PolicyDataStore, Properties> dataStoreModules = EntitlementServiceComponent.
+                getEntitlementConfig().getPolicyDataStore();
+        if (dataStoreModules != null && dataStoreModules.size() > 0) {
+            this.policyDataStore = dataStoreModules.entrySet().iterator().next().getKey();
+        } else {
+            //init without init()
+            this.policyDataStore = new DefaultPolicyDataStore();
+        }
+
+        Map<PAPStatusDataHandler, Properties> statusDataHandlers = EntitlementServiceComponent.
+                getEntitlementConfig().getPapStatusDataHandlers();
+        papStatusDataHandlers = statusDataHandlers.keySet();
+        this.policyPublisher.setPapStatusDataHandlers(papStatusDataHandlers);
+        this.policyStoreManager = new PolicyStoreManager(policyDataStore);
+    }
 
     /**
      * Get a EntitlementEngine instance for that tenant. This method will return an
@@ -72,42 +92,13 @@ public class EntitlementAdminEngine {
 
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         if (!entitlementAdminEngines.containsKey(Integer.toString(tenantId))) {
-            synchronized (lock){
+            synchronized (lock) {
                 if (!entitlementAdminEngines.containsKey(Integer.toString(tenantId))) {
                     entitlementAdminEngines.put(Integer.toString(tenantId), new EntitlementAdminEngine());
                 }
             }
         }
         return entitlementAdminEngines.get(Integer.toString(tenantId));
-    }
-
-    public EntitlementAdminEngine() {
-
-        this.entitlementDataFinder = new EntitlementDataFinder();
-        this.policyPublisher = new PolicyPublisher();
-        this.papPolicyStoreManager = new PAPPolicyStoreManager();
-        Map<PolicyVersionManager, Properties> versionManagers  = EntitlementServiceComponent.
-                getEntitlementConfig().getPolicyVersionModule();
-        if(versionManagers != null && versionManagers.size() > 0){
-            this.versionManager =  versionManagers.entrySet().iterator().next().getKey();
-        } else {
-            //init without init()
-            this.versionManager = new DefaultPolicyVersionManager();
-        }
-        Map<PolicyDataStore, Properties> dataStoreModules  = EntitlementServiceComponent.
-                getEntitlementConfig().getPolicyDataStore();
-        if(dataStoreModules != null && dataStoreModules.size() > 0){
-            this.policyDataStore =  dataStoreModules.entrySet().iterator().next().getKey();
-        } else {
-            //init without init()
-            this.policyDataStore = new DefaultPolicyDataStore();
-        }
-
-        Map<PAPStatusDataHandler, Properties> statusDataHandlers  = EntitlementServiceComponent.
-                getEntitlementConfig().getPapStatusDataHandlers();
-        papStatusDataHandlers = statusDataHandlers.keySet();
-        this.policyPublisher.setPapStatusDataHandlers(papStatusDataHandlers);
-        this.policyStoreManager = new PolicyStoreManager(policyDataStore);
     }
 
     /**
@@ -120,7 +111,6 @@ public class EntitlementAdminEngine {
     }
 
     /**
-     *
      * @return
      */
     public PolicyVersionManager getVersionManager() {
@@ -130,14 +120,13 @@ public class EntitlementAdminEngine {
     /**
      * This method returns the entitlement data finder
      *
-     * @return  EntitlementDataFinder
+     * @return EntitlementDataFinder
      */
     public EntitlementDataFinder getEntitlementDataFinder() {
         return entitlementDataFinder;
     }
 
     /**
-     *
      * @return
      */
     public PolicyDataStore getPolicyDataStore() {
@@ -154,7 +143,6 @@ public class EntitlementAdminEngine {
     }
 
     /**
-     *
      * @return
      */
     public PAPPolicyStoreManager getPapPolicyStoreManager() {

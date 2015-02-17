@@ -26,8 +26,8 @@ import org.wso2.carbon.identity.provisioning.connector.salesforce.SalesforceProv
 
 /**
  * @scr.component name=
- *                "org.wso2.carbon.identity.provisioning.salesforce.internal.SalesforceConnectorServiceComponent"
- *                immediate="true"
+ * "org.wso2.carbon.identity.provisioning.salesforce.internal.SalesforceConnectorServiceComponent"
+ * immediate="true"
  */
 public class SalesforceConnectorServiceComponent {
 

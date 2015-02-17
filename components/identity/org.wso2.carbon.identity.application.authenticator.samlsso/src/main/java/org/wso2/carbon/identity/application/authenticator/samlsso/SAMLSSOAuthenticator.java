@@ -28,63 +28,61 @@ import org.wso2.carbon.identity.application.authentication.framework.exception.A
 import org.wso2.carbon.identity.application.authentication.framework.exception.LogoutFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+import org.wso2.carbon.identity.application.authenticator.samlsso.exception.SAMLSSOException;
 import org.wso2.carbon.identity.application.authenticator.samlsso.internal.SAMLSSOAuthenticatorServiceComponent;
 import org.wso2.carbon.identity.application.authenticator.samlsso.manager.DefaultSAML2SSOManager;
 import org.wso2.carbon.identity.application.authenticator.samlsso.manager.SAML2SSOManager;
 import org.wso2.carbon.identity.application.authenticator.samlsso.model.StateInfo;
-import org.wso2.carbon.identity.application.authenticator.samlsso.exception.SAMLSSOException;
 import org.wso2.carbon.identity.application.authenticator.samlsso.util.SSOConstants;
 import org.wso2.carbon.identity.application.authenticator.samlsso.util.SSOUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
-import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import java.io.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator implements FederatedApplicationAuthenticator {
 
-	private static final long serialVersionUID = -8097512332218044859L;
-	
-	private static Log log = LogFactory.getLog(SAMLSSOAuthenticator.class);
+    private static final long serialVersionUID = -8097512332218044859L;
 
-	@Override
+    private static Log log = LogFactory.getLog(SAMLSSOAuthenticator.class);
+
+    @Override
     public boolean canHandle(HttpServletRequest request) {
-    	
-    	if (log.isTraceEnabled()) {
-			log.trace("Inside canHandle()");
-		}
-    	
+
+        if (log.isTraceEnabled()) {
+            log.trace("Inside canHandle()");
+        }
+
         if (request.getParameter("SAMLResponse") != null) {
-        	return true;
+            return true;
         }
 
         return false;
     }
-    
+
     @Override
-	protected void initiateAuthenticationRequest(HttpServletRequest request, HttpServletResponse response,
+    protected void initiateAuthenticationRequest(HttpServletRequest request, HttpServletResponse response,
                                                  AuthenticationContext context)
-			throws AuthenticationFailedException {
-		
+            throws AuthenticationFailedException {
+
         Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
-        
+
         String idpURL = authenticatorProperties
                 .get(IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL);
-		String ssoUrl = "";
-		boolean isPost = false;
-		
+        String ssoUrl = "";
+        boolean isPost = false;
+
         try {
             String requestMethod = authenticatorProperties
                     .get(IdentityApplicationConstants.Authenticator.SAML2SSO.REQUEST_METHOD);
-            
+
             if (requestMethod != null && requestMethod.trim().length() != 0) {
                 if (requestMethod.equalsIgnoreCase("POST")) {
                     isPost = true;
@@ -96,20 +94,20 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
             } else {
                 isPost = false;
             }
-            
-            if(isPost){ 
+
+            if (isPost) {
                 sendPostRequest(request, response, false, false, idpURL, context);
                 return;
 
             } else {
                 SAML2SSOManager saml2SSOManager = getSAML2SSOManagerInstance();
                 saml2SSOManager.init(context.getTenantDomain(), context.getAuthenticatorProperties(),
-                        context.getExternalIdP().getIdentityProvider());                
+                        context.getExternalIdP().getIdentityProvider());
                 ssoUrl = saml2SSOManager.buildRequest(request, false, false, idpURL, context);
-                
+
                 try {
                     String domain = request.getParameter("domain");
-                    
+
                     if (domain != null) {
                         ssoUrl = ssoUrl + "&fidp=" + domain;
                     }
@@ -132,26 +130,26 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
                 }
             }
         } catch (SAMLSSOException e) {
-        	throw new AuthenticationFailedException(e.getMessage(), e);
+            throw new AuthenticationFailedException(e.getMessage(), e);
         }
 
         return;
-	}
-    
-    @Override
-	protected void processAuthenticationResponse(HttpServletRequest request, HttpServletResponse response,
-                                                 AuthenticationContext context)
-			throws AuthenticationFailedException {
+    }
 
-    	try {
+    @Override
+    protected void processAuthenticationResponse(HttpServletRequest request, HttpServletResponse response,
+                                                 AuthenticationContext context)
+            throws AuthenticationFailedException {
+
+        try {
             SAML2SSOManager saml2SSOManager = getSAML2SSOManagerInstance();
             saml2SSOManager.init(context.getTenantDomain(), context.getAuthenticatorProperties(),
                     context.getExternalIdP().getIdentityProvider());
             saml2SSOManager.processResponse(request);
             Map<ClaimMapping, String> receivedClaims = (Map<ClaimMapping, String>) request
                     .getSession(false).getAttribute("samlssoAttributes");
-	        
-	        context.setSubjectAttributes(receivedClaims);
+
+            context.setSubjectAttributes(receivedClaims);
 
             String subject = null;
             String isSubjectInClaimsProp = context.getAuthenticatorProperties().get(
@@ -159,101 +157,101 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
             if ("true".equalsIgnoreCase(isSubjectInClaimsProp)) {
                 subject = FrameworkUtils.getFederatedSubjectFromClaims(
                         context.getExternalIdP().getIdentityProvider(), receivedClaims);
-                if(subject == null){
+                if (subject == null) {
                     log.warn("Subject claim could not be found amongst attribute statements. " +
                             "Defaulting to Name Identifier.");
                 }
             }
-            if(subject == null){
-                subject = (String)request.getSession().getAttribute("username");
+            if (subject == null) {
+                subject = (String) request.getSession().getAttribute("username");
             }
-            if(subject == null){
+            if (subject == null) {
                 throw new SAMLSSOException("Cannot find federated User Identifier");
             }
 
-	        Object sessionIndexObj = request.getSession(false).getAttribute(SSOConstants.IDP_SESSION);
-			String sessionIndex = null;
-			
-			if (sessionIndexObj != null) {
-				sessionIndex = (String)sessionIndexObj;
-			}
-			
-			StateInfo stateInfoDO = new StateInfo();
-			stateInfoDO.setSessionIndex(sessionIndex);
-			stateInfoDO.setSubject(subject);
-			context.setStateInfo(stateInfoDO);
-			context.setSubject(subject);
+            Object sessionIndexObj = request.getSession(false).getAttribute(SSOConstants.IDP_SESSION);
+            String sessionIndex = null;
+
+            if (sessionIndexObj != null) {
+                sessionIndex = (String) sessionIndexObj;
+            }
+
+            StateInfo stateInfoDO = new StateInfo();
+            stateInfoDO.setSessionIndex(sessionIndex);
+            stateInfoDO.setSubject(subject);
+            context.setStateInfo(stateInfoDO);
+            context.setSubject(subject);
         } catch (SAMLSSOException e) {
-	        throw new AuthenticationFailedException(e.getMessage(), e);
+            throw new AuthenticationFailedException(e.getMessage(), e);
         }
-	}
-    
-	@Override
-	public String getContextIdentifier(HttpServletRequest request) {
-		
-		if (log.isTraceEnabled()) {
-			log.trace("Inside getContextIdentifier()");
-		}
-		
-		String identifier = request.getParameter("sessionDataKey");
-		
-		if (identifier == null) {
-			identifier = request.getParameter("RelayState");
-			
-			if (identifier != null) {
-				// TODO: SHOULD ensure that the value has not been tampered with by using a checksum, a pseudo-random value, or similar means.
-				try {
-					return URLDecoder.decode(identifier, "UTF-8");
-				} catch (UnsupportedEncodingException e) {
-					log.error("Exception while URL decoding the Relay State", e);
-				}
-			}
-		}
-		
-		return identifier;
-	}
+    }
 
-	@Override
-	public String getFriendlyName() {
-		return SSOConstants.AUTHENTICATOR_FRIENDLY_NAME;
-	}
+    @Override
+    public String getContextIdentifier(HttpServletRequest request) {
 
-	@Override
-	public String getName() {
-		return SSOConstants.AUTHENTICATOR_NAME;
-	}
-	
-	@Override
-	protected void initiateLogoutRequest(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationContext context)
-			throws LogoutFailedException {
-		
-	    boolean logoutEnabled = false;
-	    String logoutEnabledProp = context.getAuthenticatorProperties().get(
+        if (log.isTraceEnabled()) {
+            log.trace("Inside getContextIdentifier()");
+        }
+
+        String identifier = request.getParameter("sessionDataKey");
+
+        if (identifier == null) {
+            identifier = request.getParameter("RelayState");
+
+            if (identifier != null) {
+                // TODO: SHOULD ensure that the value has not been tampered with by using a checksum, a pseudo-random value, or similar means.
+                try {
+                    return URLDecoder.decode(identifier, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    log.error("Exception while URL decoding the Relay State", e);
+                }
+            }
+        }
+
+        return identifier;
+    }
+
+    @Override
+    public String getFriendlyName() {
+        return SSOConstants.AUTHENTICATOR_FRIENDLY_NAME;
+    }
+
+    @Override
+    public String getName() {
+        return SSOConstants.AUTHENTICATOR_NAME;
+    }
+
+    @Override
+    protected void initiateLogoutRequest(HttpServletRequest request,
+                                         HttpServletResponse response, AuthenticationContext context)
+            throws LogoutFailedException {
+
+        boolean logoutEnabled = false;
+        String logoutEnabledProp = context.getAuthenticatorProperties().get(
                 IdentityApplicationConstants.Authenticator.SAML2SSO.IS_LOGOUT_ENABLED);
-	    
-	    if (logoutEnabledProp != null && "true".equalsIgnoreCase(logoutEnabledProp)) {
-	        logoutEnabled = true;
-	    }
-	    
-	    if (logoutEnabled) {
-	      //send logout request to external idp
-	        String idpLogoutURL = context.getAuthenticatorProperties().get(
-	                IdentityApplicationConstants.Authenticator.SAML2SSO.LOGOUT_REQ_URL);
-	        
+
+        if (logoutEnabledProp != null && "true".equalsIgnoreCase(logoutEnabledProp)) {
+            logoutEnabled = true;
+        }
+
+        if (logoutEnabled) {
+            //send logout request to external idp
+            String idpLogoutURL = context.getAuthenticatorProperties().get(
+                    IdentityApplicationConstants.Authenticator.SAML2SSO.LOGOUT_REQ_URL);
+
             if (idpLogoutURL == null || idpLogoutURL.trim().length() == 0) {
                 idpLogoutURL = context.getAuthenticatorProperties().get(
                         IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL);
             }
-            
+
             if (idpLogoutURL == null || idpLogoutURL.trim().length() == 0) {
                 throw new LogoutFailedException(
                         "Logout is enabled for the IdP but Logout URL is not configured");
             }
 
-	        AuthenticatorStateInfo stateInfo = context.getStateInfo();
-	        
-	        if (stateInfo instanceof StateInfo) {
+            AuthenticatorStateInfo stateInfo = context.getStateInfo();
+
+            if (stateInfo instanceof StateInfo) {
                 request.getSession().setAttribute("logoutSessionIndex",
                         ((StateInfo) stateInfo).getSessionIndex());
                 request.getSession().setAttribute("logoutUsername",
@@ -292,24 +290,24 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
                     response.sendRedirect(logoutURL);
                 }
             } catch (IOException e) {
-	            throw new LogoutFailedException(e.getMessage(), e);
-	        } catch (SAMLSSOException e) {
-	            throw new LogoutFailedException(e.getMessage(), e);
+                throw new LogoutFailedException(e.getMessage(), e);
+            } catch (SAMLSSOException e) {
+                throw new LogoutFailedException(e.getMessage(), e);
             }
-	    } else {
-	        throw new UnsupportedOperationException();
-	    }
-	}
-	
-	@Override
-	protected void processLogoutResponse(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationContext context)
-			throws LogoutFailedException {
-	}
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    @Override
+    protected void processLogoutResponse(HttpServletRequest request,
+                                         HttpServletResponse response, AuthenticationContext context)
+            throws LogoutFailedException {
+    }
 
     private void sendPostRequest(HttpServletRequest request, HttpServletResponse response,
-                                     boolean isLogout, boolean isPassive,
-                                     String loginPage, AuthenticationContext context) throws SAMLSSOException{
+                                 boolean isLogout, boolean isPassive,
+                                 String loginPage, AuthenticationContext context) throws SAMLSSOException {
 
         SAML2SSOManager saml2SSOManager = getSAML2SSOManagerInstance();
         saml2SSOManager.init(context.getTenantDomain(), context.getAuthenticatorProperties(),
@@ -322,12 +320,12 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
         String encodedRequest = ((DefaultSAML2SSOManager) saml2SSOManager).buildPostRequest(
                 request, isLogout, isPassive, loginPage);
         String relayState = context.getContextIdentifier();
-        
+
         Map<String, String> reqParamMap = getAdditionalRequestParams(request, context);
         String postPageInputs = buildPostPageInputs(encodedRequest, relayState, reqParamMap);
         printPostPage(response, loginPage, postPageInputs);
     }
-    
+
     private SAML2SSOManager getSAML2SSOManagerInstance() throws SAMLSSOException {
 
         String managerClassName = getAuthenticatorConfig().getParameterMap()
@@ -347,9 +345,9 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
             return new DefaultSAML2SSOManager();
         }
     }
-    
+
     private String buildPostPageInputs(String encodedRequest, String relayState,
-            Map<String, String> reqParamMap) {
+                                       Map<String, String> reqParamMap) {
         StringBuilder hiddenInputBuilder = new StringBuilder("");
         hiddenInputBuilder.append("<input type='hidden' name='SAMLRequest' value='")
                 .append(encodedRequest).append("'>");
@@ -368,9 +366,9 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
 
         return hiddenInputBuilder.toString();
     }
-    
+
     private Map<String, String> getAdditionalRequestParams(HttpServletRequest request,
-            AuthenticationContext context) {
+                                                           AuthenticationContext context) {
         Map<String, String> reqParamMap = new HashMap<String, String>();
         Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
 
@@ -388,7 +386,7 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
 
         return reqParamMap;
     }
-    
+
     private void printPostPage(HttpServletResponse response, String url, String postPageInputs)
             throws SAMLSSOException {
 

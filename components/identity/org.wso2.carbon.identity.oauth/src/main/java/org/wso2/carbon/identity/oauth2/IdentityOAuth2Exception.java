@@ -20,7 +20,7 @@ package org.wso2.carbon.identity.oauth2;
 
 import org.wso2.carbon.identity.base.IdentityException;
 
-public class IdentityOAuth2Exception extends IdentityException{
+public class IdentityOAuth2Exception extends IdentityException {
     public IdentityOAuth2Exception(String message) {
         super(message);
     }

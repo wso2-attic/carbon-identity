@@ -41,14 +41,14 @@ public interface ClaimsRetriever {
 
     /**
      * Method that retrieves user claims
-     * @param requestedClaims TODO
      *
+     * @param requestedClaims TODO
      * @return a sorted map
-     *                  keys - claimURIs
-     *                  values - claim values.
+     * keys - claimURIs
+     * values - claim values.
      * @throws IdentityOAuth2Exception
      */
-    public SortedMap<String,String> getClaims(String endUserName, String[] requestedClaims) throws IdentityOAuth2Exception;
+    public SortedMap<String, String> getClaims(String endUserName, String[] requestedClaims) throws IdentityOAuth2Exception;
 
     /**
      * Method that retrieves user defaultClaims

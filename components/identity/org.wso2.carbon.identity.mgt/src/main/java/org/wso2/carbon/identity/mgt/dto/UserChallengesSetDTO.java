@@ -20,6 +20,7 @@
 package org.wso2.carbon.identity.mgt.dto;
 
 import java.util.Arrays;
+
 /**
  * user challenge set data
  */

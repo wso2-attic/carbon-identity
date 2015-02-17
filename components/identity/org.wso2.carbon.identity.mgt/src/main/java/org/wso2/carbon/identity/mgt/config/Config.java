@@ -20,9 +20,12 @@ package org.wso2.carbon.identity.mgt.config;
 import java.util.Properties;
 
 public interface Config {
-	
-	String getProperty(String key);
-	void setProperty(String key, String value);
-	Properties getProperties();
-	void setProperties(Properties props);
+
+    String getProperty(String key);
+
+    void setProperty(String key, String value);
+
+    Properties getProperties();
+
+    void setProperties(Properties props);
 }

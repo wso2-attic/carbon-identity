@@ -27,7 +27,6 @@ import org.wso2.carbon.user.api.Claim;
 import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
-import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 
@@ -65,7 +64,7 @@ public class ClaimManagerHandler {
 
     /**
      * Returns all supported claims.
-     * 
+     *
      * @return
      * @throws Exception
      */
@@ -96,7 +95,6 @@ public class ClaimManagerHandler {
     }
 
     /**
-     * 
      * @return
      * @throws Exception
      */
@@ -124,7 +122,6 @@ public class ClaimManagerHandler {
     }
 
     /**
-     * 
      * @return
      * @throws Exception
      */
@@ -224,7 +221,6 @@ public class ClaimManagerHandler {
     }
 
     /**
-     * 
      * @return
      * @throws Exception
      */
@@ -252,7 +248,7 @@ public class ClaimManagerHandler {
 
     /**
      * Returns all supported claims for the given dialect.
-     * 
+     *
      * @return
      * @throws Exception
      */
@@ -327,7 +323,6 @@ public class ClaimManagerHandler {
     }
 
     /**
-     * 
      * @param mapping
      * @throws Exception
      */
@@ -348,7 +343,6 @@ public class ClaimManagerHandler {
     }
 
     /**
-     * 
      * @param dialectUri
      * @param claimUri
      * @throws Exception
@@ -376,7 +370,6 @@ public class ClaimManagerHandler {
     }
 
     /**
-     * 
      * @param mappings
      */
     public void addNewClaimDialect(ClaimDialect mappings) throws Exception {
@@ -398,7 +391,6 @@ public class ClaimManagerHandler {
     }
 
     /**
-     * 
      * @param dialectUri
      * @throws Exception
      */
@@ -433,9 +425,9 @@ public class ClaimManagerHandler {
 
     /**
      * Creates an IdentityException instance wrapping the given error message and
-     * 
+     *
      * @param message Error message
-     * @param e Exception
+     * @param e       Exception
      * @throws Exception
      */
     private void getException(String message, Exception e) throws Exception {
@@ -483,7 +475,7 @@ public class ClaimManagerHandler {
                             if (mappedAttr.equals(carbonClaimMapping.getMappedAttribute())) {
                                 returnSet.add(new org.wso2.carbon.claim.mgt.ClaimMapping(
                                         otherDialectURI, requestedClaimURI, carbonClaimMapping
-                                                .getClaim().getClaimUri()));
+                                        .getClaim().getClaimUri()));
                             }
                         }
                     }
@@ -494,7 +486,7 @@ public class ClaimManagerHandler {
     }
 
     public Map<String, String> getMappingsMapFromCarbonDialectToOther(String otherDialectURI,
-            Set<String> carbonClaimURIs, String tenantDomain) throws Exception {
+                                                                      Set<String> carbonClaimURIs, String tenantDomain) throws Exception {
 
         Map<String, String> returnMap = new HashMap<String, String>();
         Set<org.wso2.carbon.claim.mgt.ClaimMapping> mappings = getMappingsFromCarbonDialectToOther(
@@ -506,7 +498,6 @@ public class ClaimManagerHandler {
     }
 
     /**
-     * 
      * @param otherDialectURI
      * @param otherClaimURIs
      * @param tenantDomain
@@ -551,7 +542,7 @@ public class ClaimManagerHandler {
                     if (mappedAttr.equals(carbonClaimMapping.getMappedAttribute())) {
                         returnSet.add(new org.wso2.carbon.claim.mgt.ClaimMapping(otherDialectURI,
                                 claimMapping.getClaim().getClaimUri(), carbonClaimMapping
-                                        .getClaim().getClaimUri()));
+                                .getClaim().getClaimUri()));
                         break;
                     }
                 }
@@ -569,7 +560,7 @@ public class ClaimManagerHandler {
                                 if (mappedAttr.equals(carbonClaimMapping.getMappedAttribute())) {
                                     returnSet.add(new org.wso2.carbon.claim.mgt.ClaimMapping(
                                             otherDialectURI, requestedClaimURI, carbonClaimMapping
-                                                    .getClaim().getClaimUri()));
+                                            .getClaim().getClaimUri()));
                                     break;
                                 }
                             }
@@ -583,7 +574,6 @@ public class ClaimManagerHandler {
     }
 
     /**
-     * 
      * @param otherDialectURI
      * @param otherClaimURIs
      * @param tenantDomain
@@ -591,14 +581,13 @@ public class ClaimManagerHandler {
      * @throws Exception
      */
     public Map<String, String> getMappingsMapFromOtherDialectToCarbon(String otherDialectURI,
-            Set<String> otherClaimURIs, String tenantDomain) throws Exception {
+                                                                      Set<String> otherClaimURIs, String tenantDomain) throws Exception {
 
         return getMappingsMapFromOtherDialectToCarbon(otherDialectURI, otherClaimURIs,
                 tenantDomain, false);
     }
 
     /**
-     * 
      * @param otherDialectURI
      * @param otherClaimURIs
      * @param tenantDomain
@@ -607,7 +596,7 @@ public class ClaimManagerHandler {
      * @throws Exception
      */
     public Map<String, String> getMappingsMapFromOtherDialectToCarbon(String otherDialectURI,
-            Set<String> otherClaimURIs, String tenantDomain, boolean useCarbonDialectAsKey)
+                                                                      Set<String> otherClaimURIs, String tenantDomain, boolean useCarbonDialectAsKey)
             throws Exception {
 
         Map<String, String> returnMap = new HashMap<String, String>();
@@ -624,7 +613,6 @@ public class ClaimManagerHandler {
     }
 
     /**
-     * 
      * @param tenantDomain
      * @return
      * @throws Exception

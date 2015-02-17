@@ -17,35 +17,13 @@
 */
 package org.wso2.carbon.identity.authenticator.saml2.sso.ui;
 
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.Enumeration;
-import java.util.List;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.LogoutRequest;
-import org.opensaml.saml2.core.LogoutResponse;
-import org.opensaml.saml2.core.Response;
-import org.opensaml.saml2.core.SessionIndex;
-import org.opensaml.saml2.core.Subject;
+import org.opensaml.saml2.core.*;
 import org.opensaml.xml.XMLObject;
 import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.identity.authenticator.saml2.sso.common.FederatedSSOToken;
-import org.wso2.carbon.identity.authenticator.saml2.sso.common.SAML2SSOAuthenticatorConstants;
-import org.wso2.carbon.identity.authenticator.saml2.sso.common.SAML2SSOUIAuthenticatorException;
-import org.wso2.carbon.identity.authenticator.saml2.sso.common.SAMLConstants;
-import org.wso2.carbon.identity.authenticator.saml2.sso.common.Util;
+import org.wso2.carbon.identity.authenticator.saml2.sso.common.*;
 import org.wso2.carbon.identity.authenticator.saml2.sso.ui.authenticator.SAML2SSOUIAuthenticator;
 import org.wso2.carbon.identity.authenticator.saml2.sso.ui.client.SAMLSSOServiceClient;
 import org.wso2.carbon.identity.authenticator.saml2.sso.ui.session.SSOSessionManager;
@@ -56,23 +34,29 @@ import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSORespDTO;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.*;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.Enumeration;
+import java.util.List;
+
 /**
- * 
+ *
  */
 public class SSOAssertionConsumerService extends HttpServlet {
-	
+
+    public static final Log log = LogFactory.getLog(SSOAssertionConsumerService.class);
+    public static final String SSO_TOKEN_ID = "ssoTokenId";
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 5451353570561170887L;
-	public static final Log log = LogFactory.getLog(SSOAssertionConsumerService.class);
-	
-	  /**
+     *
+     */
+    private static final long serialVersionUID = 5451353570561170887L;
+    /**
      * session timeout happens in 10 hours
      */
     private static final int SSO_SESSION_EXPIRE = 36000;
-    public static final String SSO_TOKEN_ID = "ssoTokenId";
-
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -114,7 +98,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
         if (samlRespString == null) {
             log.error("SAML Response is not present in the request.");
             handleMalformedResponses(req, resp,
-                                     SAML2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_NOT_PRESENT);
+                    SAML2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_NOT_PRESENT);
             return;
         }
 
@@ -137,20 +121,20 @@ public class SSOAssertionConsumerService extends HttpServlet {
             log.error("Error when processing the SAML Assertion in the request.", e);
             handleMalformedResponses(req, resp, SAML2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_MALFORMED);
         } catch (IdentityException e) {
-        	 log.error("Error when processing the Federated SAML Assertion in the request.", e);
-             handleMalformedResponses(req, resp, SAML2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_MALFORMED);
-		}
+            log.error("Error when processing the Federated SAML Assertion in the request.", e);
+            handleMalformedResponses(req, resp, SAML2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_MALFORMED);
+        }
     }
 
     /**
      * Handle SAML Responses and authenticate.
      *
-     * @param req   HttpServletRequest
-     * @param resp  HttpServletResponse
-     * @param samlObject    SAML Response object
-     * @throws ServletException Error when redirecting
-     * @throws IOException  Error when redirecting
-     * @throws IdentityException 
+     * @param req        HttpServletRequest
+     * @param resp       HttpServletResponse
+     * @param samlObject SAML Response object
+     * @throws ServletException  Error when redirecting
+     * @throws IOException       Error when redirecting
+     * @throws IdentityException
      */
     private void handleSAMLResponses(HttpServletRequest req, HttpServletResponse resp,
                                      XMLObject samlObject)
@@ -163,97 +147,97 @@ public class SSOAssertionConsumerService extends HttpServlet {
             assertion = assertions.get(0);
         }
 
-		if (assertion == null) {
-			if (samlResponse.getStatus() != null &&
-			    samlResponse.getStatus().getStatusMessage() != null) {
-				log.error(samlResponse.getStatus().getStatusMessage().getMessage());
-			} else {
-				log.error("SAML Assertion not found in the Response.");
-			}
-			throw new SAML2SSOUIAuthenticatorException("SAML Authentication Failed.");
-		}
+        if (assertion == null) {
+            if (samlResponse.getStatus() != null &&
+                    samlResponse.getStatus().getStatusMessage() != null) {
+                log.error(samlResponse.getStatus().getStatusMessage().getMessage());
+            } else {
+                log.error("SAML Assertion not found in the Response.");
+            }
+            throw new SAML2SSOUIAuthenticatorException("SAML Authentication Failed.");
+        }
 
         // Get the subject name from the Response Object and forward it to login_action.jsp
         String username = null;
-        if(assertion.getSubject() != null && assertion.getSubject().getNameID() != null){
-        	username = Util.getUsernameFromResponse(samlResponse);
+        if (assertion.getSubject() != null && assertion.getSubject().getNameID() != null) {
+            username = Util.getUsernameFromResponse(samlResponse);
         }
-        
-        if(log.isDebugEnabled()){
+
+        if (log.isDebugEnabled()) {
             log.debug("A username is extracted from the response. : " + username);
         }
 
-        if(username == null){
+        if (username == null) {
             log.error("SAMLResponse does not contain the name of the subject");
             throw new SAML2SSOUIAuthenticatorException("SAMLResponse does not contain the name of the subject");
         }
-        
-		String relayState = req.getParameter(SAMLConstants.RELAY_STATE);
-		boolean isFederated = false;
 
-		if (relayState != null) {
-			FederatedSSOToken federatedSSOToken = org.wso2.carbon.identity.authenticator.saml2.sso.common.SSOSessionManager
-					.getFederatedToken(relayState);
-			if (federatedSSOToken != null) {
-				isFederated = true;
-				HttpServletRequest fedRequest = federatedSSOToken.getHttpServletRequest();
-				HttpServletResponse fedResponse = federatedSSOToken.getHttpServletResponse();
+        String relayState = req.getParameter(SAMLConstants.RELAY_STATE);
+        boolean isFederated = false;
 
-				String samlRequest = fedRequest.getParameter("SAMLRequest");
-				String authMode = SAMLConstants.AuthnModes.USERNAME_PASSWORD;
-				String fedRelayState = fedRequest.getParameter(SAMLConstants.RELAY_STATE);
-				String rpSessionId = fedRequest.getParameter(MultitenantConstants.SSO_AUTH_SESSION_ID);
-								 
-				Enumeration<String> e = fedRequest.getAttributeNames();
+        if (relayState != null) {
+            FederatedSSOToken federatedSSOToken = org.wso2.carbon.identity.authenticator.saml2.sso.common.SSOSessionManager
+                    .getFederatedToken(relayState);
+            if (federatedSSOToken != null) {
+                isFederated = true;
+                HttpServletRequest fedRequest = federatedSSOToken.getHttpServletRequest();
+                HttpServletResponse fedResponse = federatedSSOToken.getHttpServletResponse();
 
-				while (e.hasMoreElements()) {
-					String name = e.nextElement();
-					req.setAttribute(name, fedRequest.getAttribute(name));
-				}
-				
-				Cookie[] cookies = fedRequest.getCookies();
+                String samlRequest = fedRequest.getParameter("SAMLRequest");
+                String authMode = SAMLConstants.AuthnModes.USERNAME_PASSWORD;
+                String fedRelayState = fedRequest.getParameter(SAMLConstants.RELAY_STATE);
+                String rpSessionId = fedRequest.getParameter(MultitenantConstants.SSO_AUTH_SESSION_ID);
 
-				if (cookies != null) {
-					for (int i = 0; i < cookies.length; i++) {
-						resp.addCookie(cookies[i]);
-					}
-				}
+                Enumeration<String> e = fedRequest.getAttributeNames();
 
-				HttpSession session = fedRequest.getSession();
+                while (e.hasMoreElements()) {
+                    String name = e.nextElement();
+                    req.setAttribute(name, fedRequest.getAttribute(name));
+                }
 
-		        // Use sessionID as the tokenID, if cookie is not set.
-		        String ssoTokenID = session.getId();
-		        Cookie tokenCookie = getSSOTokenCookie(fedRequest);
-		        if (tokenCookie != null) {
-		            ssoTokenID = tokenCookie.getValue();
-		        }
+                Cookie[] cookies = fedRequest.getCookies();
 
-				handleFederatedSAMLRequest(req, resp, ssoTokenID, samlRequest, fedRelayState, authMode,assertion.getSubject(),rpSessionId);
-			}
-		}
-        
-		if (!isFederated) {
-			// Set the SAML2 Response as a HTTP Attribute, so it is not required to build the
-			// assertion again.
-			req.setAttribute(SAML2SSOAuthenticatorConstants.HTTP_ATTR_SAML2_RESP_TOKEN,
-					samlResponse);
+                if (cookies != null) {
+                    for (int i = 0; i < cookies.length; i++) {
+                        resp.addCookie(cookies[i]);
+                    }
+                }
 
-			String url = req.getRequestURI();
-			url = url.replace("acs",
-					"carbon/admin/login_action.jsp?username=" + URLEncoder.encode(username));
-			RequestDispatcher reqDispatcher = req.getRequestDispatcher(url);
-			req.getSession().setAttribute("CarbonAuthenticator", new SAML2SSOUIAuthenticator());
-			reqDispatcher.forward(req, resp);
-		}
+                HttpSession session = fedRequest.getSession();
+
+                // Use sessionID as the tokenID, if cookie is not set.
+                String ssoTokenID = session.getId();
+                Cookie tokenCookie = getSSOTokenCookie(fedRequest);
+                if (tokenCookie != null) {
+                    ssoTokenID = tokenCookie.getValue();
+                }
+
+                handleFederatedSAMLRequest(req, resp, ssoTokenID, samlRequest, fedRelayState, authMode, assertion.getSubject(), rpSessionId);
+            }
+        }
+
+        if (!isFederated) {
+            // Set the SAML2 Response as a HTTP Attribute, so it is not required to build the
+            // assertion again.
+            req.setAttribute(SAML2SSOAuthenticatorConstants.HTTP_ATTR_SAML2_RESP_TOKEN,
+                    samlResponse);
+
+            String url = req.getRequestURI();
+            url = url.replace("acs",
+                    "carbon/admin/login_action.jsp?username=" + URLEncoder.encode(username));
+            RequestDispatcher reqDispatcher = req.getRequestDispatcher(url);
+            req.getSession().setAttribute("CarbonAuthenticator", new SAML2SSOUIAuthenticator());
+            reqDispatcher.forward(req, resp);
+        }
     }
 
     /**
      * Handle malformed Responses.
      *
-     * @param req   HttpServletRequest
-     * @param resp  HttpServletResponse
-     * @param errorMsg  Error message to be displayed in HttpServletResponse.jsp
-     * @throws IOException  Error when redirecting
+     * @param req      HttpServletRequest
+     * @param resp     HttpServletResponse
+     * @param errorMsg Error message to be displayed in HttpServletResponse.jsp
+     * @throws IOException Error when redirecting
      */
     private void handleMalformedResponses(HttpServletRequest req, HttpServletResponse resp,
                                           String errorMsg) throws IOException {
@@ -273,7 +257,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
     private void handleSingleLogoutRequest(HttpServletRequest req, HttpServletResponse resp) {
         String logoutReqStr = decodeHTMLCharacters(req.getParameter(
                 SAML2SSOAuthenticatorConstants.HTTP_POST_PARAM_SAML2_AUTH_REQ));
-        
+
         XMLObject samlObject = null;
 
         try {
@@ -292,7 +276,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
             }
         }
     }
-    
+
     /**
      * Get the admin console url from the request.
      *
@@ -321,103 +305,103 @@ public class SSOAssertionConsumerService extends HttpServlet {
                 .replaceAll("&quot;", "\"").replaceAll("&apos;", "'");
 
     }
-    
-	private void handleFederatedSAMLRequest(HttpServletRequest req, HttpServletResponse resp,
-	                                        String ssoTokenID, String samlRequest,
-	                                        String relayState, String authMode, Subject subject,
-	                                        String rpSessionId) throws IdentityException,
-	                                                           IOException, ServletException {
-		// Instantiate the service client.
-		HttpSession session = req.getSession();
-		String serverURL = CarbonUIUtil.getServerURL(session.getServletContext(), session);
-		ConfigurationContext configContext =
-		                                     (ConfigurationContext) session.getServletContext()
-		                                                                   .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-		SAMLSSOServiceClient ssoServiceClient = new SAMLSSOServiceClient(serverURL, configContext);
-		
-		String method = req.getMethod();
-		boolean isPost = false;
-		
-		if ("post".equalsIgnoreCase(method)) {
-			isPost = true;
-		}
-		
-		SAMLSSOReqValidationResponseDTO signInRespDTO =
-		                                                ssoServiceClient.validate(samlRequest,
-		                                                                          null, ssoTokenID,
-		                                                                          rpSessionId,
-		                                                                          authMode,isPost);
-		if (signInRespDTO.getValid()) {
-			handleRequestFromLoginPage(req, resp, ssoTokenID,
-			                           signInRespDTO.getAssertionConsumerURL(),
-			                           signInRespDTO.getId(), signInRespDTO.getIssuer(),
-			                           subject.getNameID().getValue(), subject.getNameID()
-			                                                                  .getValue(),
-			                           signInRespDTO.getRpSessionId(),
-			                           signInRespDTO.getRequestMessageString(), relayState);
-		}
-	}
-	
-	private void handleRequestFromLoginPage(HttpServletRequest req, HttpServletResponse resp,
-			String ssoTokenID,String assertionConsumerUrl, String id, String issuer, String userName, String subject,
-			String rpSession, String requestMsgString,String relayState) throws IdentityException, IOException,
-			ServletException {
-		HttpSession session = req.getSession();
 
-		// instantiate the service client
-		String serverURL = CarbonUIUtil.getServerURL(session.getServletContext(), session);
-		ConfigurationContext configContext = (ConfigurationContext) session.getServletContext()
-				.getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-		SAMLSSOServiceClient ssoServiceClient = new SAMLSSOServiceClient(serverURL, configContext);
+    private void handleFederatedSAMLRequest(HttpServletRequest req, HttpServletResponse resp,
+                                            String ssoTokenID, String samlRequest,
+                                            String relayState, String authMode, Subject subject,
+                                            String rpSessionId) throws IdentityException,
+            IOException, ServletException {
+        // Instantiate the service client.
+        HttpSession session = req.getSession();
+        String serverURL = CarbonUIUtil.getServerURL(session.getServletContext(), session);
+        ConfigurationContext configContext =
+                (ConfigurationContext) session.getServletContext()
+                        .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+        SAMLSSOServiceClient ssoServiceClient = new SAMLSSOServiceClient(serverURL, configContext);
 
-		// Create SAMLSSOAuthnReqDTO using the request Parameters
-		SAMLSSOAuthnReqDTO authnReqDTO = new SAMLSSOAuthnReqDTO();
-		
-		authnReqDTO.setAssertionConsumerURL(assertionConsumerUrl);
-		authnReqDTO.setId(id);
-		authnReqDTO.setIssuer(issuer);
-		authnReqDTO.setUsername(userName);
-		authnReqDTO.setPassword("federated_idp_login");
-		authnReqDTO.setSubject(subject);
-		authnReqDTO.setRpSessionId(rpSession);
-		authnReqDTO.setRequestMessageString(requestMsgString);
-		
-		// authenticate the user
-		SAMLSSORespDTO authRespDTO = ssoServiceClient.authenticate(authnReqDTO, ssoTokenID);
+        String method = req.getMethod();
+        boolean isPost = false;
 
-		if (authRespDTO.getSessionEstablished()) { // authentication is SUCCESSFUL
-		   // Store the cookie
-			storeSSOTokenCookie(ssoTokenID, req, resp);
-			// add relay state, assertion string and ACS URL as request parameters.
+        if ("post".equalsIgnoreCase(method)) {
+            isPost = true;
+        }
+
+        SAMLSSOReqValidationResponseDTO signInRespDTO =
+                ssoServiceClient.validate(samlRequest,
+                        null, ssoTokenID,
+                        rpSessionId,
+                        authMode, isPost);
+        if (signInRespDTO.getValid()) {
+            handleRequestFromLoginPage(req, resp, ssoTokenID,
+                    signInRespDTO.getAssertionConsumerURL(),
+                    signInRespDTO.getId(), signInRespDTO.getIssuer(),
+                    subject.getNameID().getValue(), subject.getNameID()
+                            .getValue(),
+                    signInRespDTO.getRpSessionId(),
+                    signInRespDTO.getRequestMessageString(), relayState);
+        }
+    }
+
+    private void handleRequestFromLoginPage(HttpServletRequest req, HttpServletResponse resp,
+                                            String ssoTokenID, String assertionConsumerUrl, String id, String issuer, String userName, String subject,
+                                            String rpSession, String requestMsgString, String relayState) throws IdentityException, IOException,
+            ServletException {
+        HttpSession session = req.getSession();
+
+        // instantiate the service client
+        String serverURL = CarbonUIUtil.getServerURL(session.getServletContext(), session);
+        ConfigurationContext configContext = (ConfigurationContext) session.getServletContext()
+                .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+        SAMLSSOServiceClient ssoServiceClient = new SAMLSSOServiceClient(serverURL, configContext);
+
+        // Create SAMLSSOAuthnReqDTO using the request Parameters
+        SAMLSSOAuthnReqDTO authnReqDTO = new SAMLSSOAuthnReqDTO();
+
+        authnReqDTO.setAssertionConsumerURL(assertionConsumerUrl);
+        authnReqDTO.setId(id);
+        authnReqDTO.setIssuer(issuer);
+        authnReqDTO.setUsername(userName);
+        authnReqDTO.setPassword("federated_idp_login");
+        authnReqDTO.setSubject(subject);
+        authnReqDTO.setRpSessionId(rpSession);
+        authnReqDTO.setRequestMessageString(requestMsgString);
+
+        // authenticate the user
+        SAMLSSORespDTO authRespDTO = ssoServiceClient.authenticate(authnReqDTO, ssoTokenID);
+
+        if (authRespDTO.getSessionEstablished()) { // authentication is SUCCESSFUL
+            // Store the cookie
+            storeSSOTokenCookie(ssoTokenID, req, resp);
+            // add relay state, assertion string and ACS URL as request parameters.
             req.setAttribute(SAMLConstants.RELAY_STATE, relayState);
             req.setAttribute(SAMLConstants.ASSERTION_STR, authRespDTO.getRespString());
             req.setAttribute(SAMLConstants.ASSRTN_CONSUMER_URL, authRespDTO.getAssertionConsumerURL());
             req.setAttribute(SAMLConstants.SUBJECT, authRespDTO.getSubject());
-			RequestDispatcher reqDispatcher = req.getRequestDispatcher("/carbon/sso-acs/federation_ajaxprocessor.jsp");
+            RequestDispatcher reqDispatcher = req.getRequestDispatcher("/carbon/sso-acs/federation_ajaxprocessor.jsp");
             reqDispatcher.forward(req, resp);
             return;
-		}
-	}
+        }
+    }
 
-	private void storeSSOTokenCookie(String ssoTokenID, HttpServletRequest req,
-			HttpServletResponse resp) {
-		Cookie ssoTokenCookie = getSSOTokenCookie(req);
-		if (ssoTokenCookie == null) {
-			ssoTokenCookie = new Cookie(SSO_TOKEN_ID, ssoTokenID);
-		}
-		ssoTokenCookie.setMaxAge(SSO_SESSION_EXPIRE);
-		resp.addCookie(ssoTokenCookie);
-	}
-	
-	private Cookie getSSOTokenCookie(HttpServletRequest req) {
-		Cookie[] cookies = req.getCookies();
-		if (cookies != null) {
-			for (Cookie cookie : cookies) {
-				if (cookie.getName().equals("ssoTokenId")) {
-					return cookie;
-				}
-			}
-		}
-		return null;
-	}
+    private void storeSSOTokenCookie(String ssoTokenID, HttpServletRequest req,
+                                     HttpServletResponse resp) {
+        Cookie ssoTokenCookie = getSSOTokenCookie(req);
+        if (ssoTokenCookie == null) {
+            ssoTokenCookie = new Cookie(SSO_TOKEN_ID, ssoTokenID);
+        }
+        ssoTokenCookie.setMaxAge(SSO_SESSION_EXPIRE);
+        resp.addCookie(ssoTokenCookie);
+    }
+
+    private Cookie getSSOTokenCookie(HttpServletRequest req) {
+        Cookie[] cookies = req.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("ssoTokenId")) {
+                    return cookie;
+                }
+            }
+        }
+        return null;
+    }
 }

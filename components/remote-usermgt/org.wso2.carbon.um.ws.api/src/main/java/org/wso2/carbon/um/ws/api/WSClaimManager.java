@@ -25,25 +25,24 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.um.ws.api.stub.RemoteClaimManagerServiceStub;
 import org.wso2.carbon.um.ws.api.stub.RemoteClaimManagerServiceUserStoreExceptionException;
+import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.claim.ClaimManager;
-import org.wso2.carbon.user.api.ClaimMapping;
 
 import java.rmi.RemoteException;
 
 public class WSClaimManager implements ClaimManager {
 
+    private static Log log = LogFactory.getLog(WSClaimManager.class);
     private RemoteClaimManagerServiceStub stub = null;
 
-    private static Log log = LogFactory.getLog(WSClaimManager.class);
-
     public WSClaimManager(String serverUrl, String cookie, ConfigurationContext configCtxt)
-                                                                                           throws UserStoreException {
+            throws UserStoreException {
         try {
             stub =
-                   new RemoteClaimManagerServiceStub(configCtxt, serverUrl +
-                                                                 "RemoteClaimManagerService");
+                    new RemoteClaimManagerServiceStub(configCtxt, serverUrl +
+                            "RemoteClaimManagerService");
 
             ServiceClient client = stub._getServiceClient();
             Options option = client.getOptions();

@@ -25,7 +25,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.rahas.impl.SAMLTokenIssuerConfig;
 import org.apache.ws.security.handler.WSHandlerConstants;
-
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.base.IdentityConstants;
@@ -34,7 +33,6 @@ import org.wso2.carbon.identity.provider.IdentityProviderException;
 import org.wso2.carbon.identity.provider.IdentityProviderUtil;
 import org.wso2.carbon.identity.sts.mgt.IPPasswordCallbackHandler;
 import org.wso2.carbon.identity.sts.mgt.internal.IdentitySTSMgtServiceComponent;
-
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.security.config.SecurityConfigAdmin;
 import org.wso2.carbon.security.config.SecurityServiceAdmin;
@@ -66,7 +64,7 @@ public class STSConfigAdmin {
             if (log.isDebugEnabled()) {
                 log.debug("Applying identity security policy for service " + serviceName);
             }
-            
+
             if (IdentityProviderUtil.isIntial()) {
 
                 if (IdentityConstants.SERVICE_NAME_STS_UT.equals(serviceName)) {
@@ -77,19 +75,19 @@ public class STSConfigAdmin {
                             "scenario19", null, null, null, null);
                 } else if (IdentityConstants.SERVICE_NAME_STS_IC.equals(serviceName)) {
                     admin.applySecurity(IdentityConstants.SERVICE_NAME_STS_IC, "scenario18",
-                            null, new String[] { ksName }, ksName, null);
+                            null, new String[]{ksName}, ksName, null);
                 } else if (IdentityConstants.OpenId.SERVICE_NAME_STS_IC_OPENID.equals(serviceName)) {
                     admin.applySecurity(IdentityConstants.OpenId.SERVICE_NAME_STS_IC_OPENID,
-                            "scenario18", null, new String[] { ksName }, ksName, null);
+                            "scenario18", null, new String[]{ksName}, ksName, null);
                 } else if (IdentityConstants.SERVICE_NAME_STS_UT_SYMM.equals(serviceName)) {
                     admin.applySecurity(IdentityConstants.SERVICE_NAME_STS_UT_SYMM, "scenario18",
-                            null, new String[] { ksName }, ksName, null);
+                            null, new String[]{ksName}, ksName, null);
                 } else if (IdentityConstants.SERVICE_NAME_STS_IC_SYMM.equals(serviceName)) {
                     admin.applySecurity(IdentityConstants.SERVICE_NAME_STS_IC_SYMM, "scenario18",
-                            null, new String[] { ksName }, ksName, null);
+                            null, new String[]{ksName}, ksName, null);
                 }
             }
-            
+
             if (IdentityConstants.SERVICE_NAME_STS_UT.equals(serviceName)) {
                 overrideCallbackHandler(axisConfig, IdentityConstants.SERVICE_NAME_STS_UT);
             } else if (IdentityConstants.SERVICE_NAME_STS_UT_SYMM.equals(serviceName)) {
@@ -196,21 +194,21 @@ public class STSConfigAdmin {
                 }
                 if (axisConfig.getService(IdentityConstants.SERVICE_NAME_STS_IC) != null) {
                     admin.applySecurity(IdentityConstants.SERVICE_NAME_STS_IC, "scenario18",
-                            null, new String[] { ksName }, ksName, null);
+                            null, new String[]{ksName}, ksName, null);
                 }
                 if (axisConfig.getService(IdentityConstants.OpenId.SERVICE_NAME_STS_IC_OPENID) != null) {
                     admin.applySecurity(IdentityConstants.OpenId.SERVICE_NAME_STS_IC_OPENID,
-                            "scenario18", null, new String[] { ksName }, ksName, null);
+                            "scenario18", null, new String[]{ksName}, ksName, null);
                 }
                 if (axisConfig.getService(IdentityConstants.SERVICE_NAME_STS_UT_SYMM) != null) {
                     admin.applySecurity(IdentityConstants.SERVICE_NAME_STS_UT_SYMM, "scenario18",
-                            null, new String[] { ksName }, ksName, null);
+                            null, new String[]{ksName}, ksName, null);
                 }
                 if (axisConfig.getService(IdentityConstants.SERVICE_NAME_STS_IC_SYMM) != null) {
                     admin.applySecurity(IdentityConstants.SERVICE_NAME_STS_IC_SYMM, "scenario18",
-                            null, new String[] { ksName }, ksName, null);
+                            null, new String[]{ksName}, ksName, null);
                 }
-            }          
+            }
 
             if (axisConfig.getService(IdentityConstants.SERVICE_NAME_STS_UT) != null) {
                 overrideCallbackHandler(axisConfig, IdentityConstants.SERVICE_NAME_STS_UT);
@@ -235,7 +233,7 @@ public class STSConfigAdmin {
 
     /**
      * Override WSAS callback handler to be able to auth users with usermanager.
-     * 
+     *
      * @param axisConfig
      * @throws AxisFault
      */

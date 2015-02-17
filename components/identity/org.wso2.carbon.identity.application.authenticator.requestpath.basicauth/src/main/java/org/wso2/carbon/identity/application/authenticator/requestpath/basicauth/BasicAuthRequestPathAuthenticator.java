@@ -17,12 +17,6 @@
  */
 package org.wso2.carbon.identity.application.authenticator.requestpath.basicauth;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,66 +30,71 @@ import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
+
 public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthenticator implements RequestPathApplicationAuthenticator {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private static final String AUTHORIZATION_HEADER_NAME = "Authorization";
-	private static final String BASIC_AUTH_SCHEMA = "Basic";
-	private static final String AUTHENTICATOR_NAME = "BasicAuthRequestPathAuthenticator";
-	private static Log log = LogFactory.getLog(BasicAuthRequestPathAuthenticator.class);
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+    private static final String AUTHORIZATION_HEADER_NAME = "Authorization";
+    private static final String BASIC_AUTH_SCHEMA = "Basic";
+    private static final String AUTHENTICATOR_NAME = "BasicAuthRequestPathAuthenticator";
+    private static Log log = LogFactory.getLog(BasicAuthRequestPathAuthenticator.class);
 
-	@Override
-	public boolean canHandle(HttpServletRequest request) {
-		
-		if (log.isTraceEnabled()) {
-    		log.trace("Inside canHandle()");
-    	}
-		
-		String headerValue = (String) request.getSession().getAttribute(AUTHORIZATION_HEADER_NAME);
-		
-		if (headerValue != null && !"".equals(headerValue.trim())) {
-			String[] headerPart = headerValue.trim().split(" ");
-			if (BASIC_AUTH_SCHEMA.equals(headerPart[0])) {
-				return true;
-			}
-		} else if(request.getParameter("sectoken") != null) {
-			return true;
-		}
-		
-		return false;
-	}
-	
-	@Override
-	protected void processAuthenticationResponse(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationContext context)
-			throws AuthenticationFailedException {
-		
-		// if this was set by the relevant servlet
-		String headerValue =(String) request.getSession().getAttribute(AUTHORIZATION_HEADER_NAME);
-		String credential = null;
-		
-		if(headerValue != null) {
-			credential = headerValue.trim().split(" ")[1];
-		} else {
-			credential = request.getParameter("sectoken");
-		}
-		
-		try {
-			String[] cred = new String(Base64.decode(credential)).split(":");
-			int tenantId = IdentityUtil.getTenantIdOFUser(cred[0]);
-			UserStoreManager userStoreManager = (UserStoreManager) BasicAuthRequestPathAuthenticatorServiceComponent.getRealmService().getTenantUserRealm(tenantId).getUserStoreManager();
-			boolean isAuthenticated = userStoreManager.authenticate(MultitenantUtils.getTenantAwareUsername(cred[0]), cred[1]);
-			
-			if(!isAuthenticated) {
-				log.error("Authentication failed for user " + cred[0]);
-				throw new AuthenticationFailedException("Authentication Failed");
-			}
-			if(log.isDebugEnabled()) {
-				log.debug("Authenticated user " + cred[0]);
-			}
+    @Override
+    public boolean canHandle(HttpServletRequest request) {
+
+        if (log.isTraceEnabled()) {
+            log.trace("Inside canHandle()");
+        }
+
+        String headerValue = (String) request.getSession().getAttribute(AUTHORIZATION_HEADER_NAME);
+
+        if (headerValue != null && !"".equals(headerValue.trim())) {
+            String[] headerPart = headerValue.trim().split(" ");
+            if (BASIC_AUTH_SCHEMA.equals(headerPart[0])) {
+                return true;
+            }
+        } else if (request.getParameter("sectoken") != null) {
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    protected void processAuthenticationResponse(HttpServletRequest request,
+                                                 HttpServletResponse response, AuthenticationContext context)
+            throws AuthenticationFailedException {
+
+        // if this was set by the relevant servlet
+        String headerValue = (String) request.getSession().getAttribute(AUTHORIZATION_HEADER_NAME);
+        String credential = null;
+
+        if (headerValue != null) {
+            credential = headerValue.trim().split(" ")[1];
+        } else {
+            credential = request.getParameter("sectoken");
+        }
+
+        try {
+            String[] cred = new String(Base64.decode(credential)).split(":");
+            int tenantId = IdentityUtil.getTenantIdOFUser(cred[0]);
+            UserStoreManager userStoreManager = (UserStoreManager) BasicAuthRequestPathAuthenticatorServiceComponent.getRealmService().getTenantUserRealm(tenantId).getUserStoreManager();
+            boolean isAuthenticated = userStoreManager.authenticate(MultitenantUtils.getTenantAwareUsername(cred[0]), cred[1]);
+
+            if (!isAuthenticated) {
+                log.error("Authentication failed for user " + cred[0]);
+                throw new AuthenticationFailedException("Authentication Failed");
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Authenticated user " + cred[0]);
+            }
 
             Map<String, Object> authProperties = context.getProperties();
             String tenantDomain = MultitenantUtils.getTenantDomain(cred[0]);
@@ -110,24 +109,24 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
             authProperties.put("user-tenant-domain", tenantDomain);
 
             context.setSubject(FrameworkUtils.prependUserStoreDomainToName(cred[0]));
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			throw new AuthenticationFailedException("Authentication Failed");
-		}
-	}
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new AuthenticationFailedException("Authentication Failed");
+        }
+    }
 
-	@Override
-	public String getContextIdentifier(HttpServletRequest request) {
-		return null;
-	}
+    @Override
+    public String getContextIdentifier(HttpServletRequest request) {
+        return null;
+    }
 
-	@Override
-	public String getFriendlyName() {
-		return "basic-auth";
-	}
+    @Override
+    public String getFriendlyName() {
+        return "basic-auth";
+    }
 
-	@Override
-	public String getName() {
-		return AUTHENTICATOR_NAME;
-	}
+    @Override
+    public String getName() {
+        return AUTHENTICATOR_NAME;
+    }
 }

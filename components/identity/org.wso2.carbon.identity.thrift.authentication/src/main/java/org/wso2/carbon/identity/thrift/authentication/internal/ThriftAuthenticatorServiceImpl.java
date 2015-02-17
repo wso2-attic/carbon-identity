@@ -17,11 +17,6 @@
 */
 package org.wso2.carbon.identity.thrift.authentication.internal;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
@@ -36,6 +31,11 @@ import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.ThriftSession;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This is a utility class that performs authentication related functionality
@@ -272,7 +272,6 @@ public class ThriftAuthenticatorServiceImpl implements ThriftAuthenticatorServic
             }
         }
     }*/
-
     private boolean isSessionValid(ThriftSession thriftSession) {
         //check whether the session is expired.
         return ((System.currentTimeMillis() - thriftSession.getLastAccess()) < thriftSessionTimeOut);

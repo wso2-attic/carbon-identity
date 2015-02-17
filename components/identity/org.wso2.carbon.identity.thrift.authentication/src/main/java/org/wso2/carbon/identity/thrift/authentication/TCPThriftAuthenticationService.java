@@ -44,6 +44,8 @@ public class TCPThriftAuthenticationService {
     private final String keyStorePassword;
     private final int clientTimeout;
     private ThriftAuthenticatorService thriftAuthenticatorService;
+    private Log log = LogFactory.getLog(TCPThriftAuthenticationService.class);
+    private TServer authenticationServer;
 
     public TCPThriftAuthenticationService(String hostName, int port, String keyStore, String keyStorePassword, int clientTimeout, ThriftAuthenticatorService thriftAuthenticatorService) {
         this.hostName = hostName;
@@ -53,7 +55,6 @@ public class TCPThriftAuthenticationService {
         this.clientTimeout = clientTimeout;
         this.thriftAuthenticatorService = thriftAuthenticatorService;
     }
-
     public TCPThriftAuthenticationService(String hostName, int port, AuthenticationHandler authenticationHandler, long thriftSessionTimeOut) throws Exception {
         this.hostName = hostName;
         this.port = port;
@@ -74,9 +75,6 @@ public class TCPThriftAuthenticationService {
 
         this.thriftAuthenticatorService = new ThriftAuthenticatorServiceImpl(authenticationHandler, null, new InMemoryThriftSessionDAO(), thriftSessionTimeOut);
     }
-
-    private Log log = LogFactory.getLog(TCPThriftAuthenticationService.class);
-    private TServer authenticationServer;
 
     public void start() throws TTransportException, UnknownHostException {
         InetAddress inetAddress = InetAddress.getByName(hostName);
@@ -105,6 +103,14 @@ public class TCPThriftAuthenticationService {
         authenticationServer.stop();
     }
 
+    public boolean isAuthenticated(String sessionId) {
+        return thriftAuthenticatorService.isAuthenticated(sessionId);
+    }
+
+    public ThriftSession getSessionInfo(String sessionId) {
+        return thriftAuthenticatorService.getSessionInfo(sessionId);
+    }
+
     /**
      * Thread that starts thrift server
      */
@@ -118,14 +124,6 @@ public class TCPThriftAuthenticationService {
         public void run() {
             server.serve();
         }
-    }
-
-    public boolean isAuthenticated(String sessionId) {
-        return thriftAuthenticatorService.isAuthenticated(sessionId);
-    }
-
-    public ThriftSession getSessionInfo(String sessionId) {
-        return thriftAuthenticatorService.getSessionInfo(sessionId);
     }
 
 }

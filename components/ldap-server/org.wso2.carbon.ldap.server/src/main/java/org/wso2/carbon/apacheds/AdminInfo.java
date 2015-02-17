@@ -22,19 +22,19 @@ import java.util.Arrays;
 /**
  * Wraps Admin information.
  * <partitionAdmin>
- *  <Property name="uid">admin</Property>
- *  <Property name="commonName">admin</Property>
- *  <Property name="surName">admin</Property>
- *  <Property name="email">admin</Property>
- *  <Property name="password">admin</Property>
- *  <Property name="passwordType">SHA</Property>
+ * <Property name="uid">admin</Property>
+ * <Property name="commonName">admin</Property>
+ * <Property name="surName">admin</Property>
+ * <Property name="email">admin</Property>
+ * <Property name="password">admin</Property>
+ * <Property name="passwordType">SHA</Property>
  * </partitionAdmin>
  */
 @SuppressWarnings({"UnusedDeclaration"})
 public class AdminInfo extends DomainNameEntry {
-    
+
     private String usernameAttribute;
-    
+
     private String adminUserName;
 
     private String adminCommonName;
@@ -149,6 +149,6 @@ public class AdminInfo extends DomainNameEntry {
     public void setUsernameAttribute(String usernameAttribute) {
         this.usernameAttribute = usernameAttribute;
     }
-    
-    
+
+
 }

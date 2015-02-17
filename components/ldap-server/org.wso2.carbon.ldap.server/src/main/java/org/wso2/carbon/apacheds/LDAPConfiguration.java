@@ -20,31 +20,31 @@ package org.wso2.carbon.apacheds;
 /**
  * Encapsulates LDAP specific configurations.
  * <EmbeddedLDAP>
-    <Property name="enable">true</Property>
-    <Property name="instanceId">default</Property>
-    <Property name="port">10389</Property>
-    <Property name="connectionPassword">admin</Property>
-    <Property name="workingDirectory">.</Property>
-    <Property name="allowAnonymousAccess">false</Property>
-    <Property name="accessControlEnabled">true</Property>
-    <Property name="denormalizeOpAttrsEnabled">false</Property>
-    <Property name="maxPDUSize">2000000</Property>
-    <Property name="saslHostName">localhost</Property>
-    <Property name="saslPrincipalName">ldap/localhost@EXAMPLE.COM</Property>
-  </EmbeddedLDAP>
+ * <Property name="enable">true</Property>
+ * <Property name="instanceId">default</Property>
+ * <Property name="port">10389</Property>
+ * <Property name="connectionPassword">admin</Property>
+ * <Property name="workingDirectory">.</Property>
+ * <Property name="allowAnonymousAccess">false</Property>
+ * <Property name="accessControlEnabled">true</Property>
+ * <Property name="denormalizeOpAttrsEnabled">false</Property>
+ * <Property name="maxPDUSize">2000000</Property>
+ * <Property name="saslHostName">localhost</Property>
+ * <Property name="saslPrincipalName">ldap/localhost@EXAMPLE.COM</Property>
+ * </EmbeddedLDAP>
  */
 @SuppressWarnings({"UnusedDeclaration"})
 public class LDAPConfiguration {
 
     private final static String DEFAULT_INSTANCE_ID = "default";
-    private static final String ADMIN_ENTRY_OBJECT_CLASS="AdminEntryObjectClass";
+    private static final String ADMIN_ENTRY_OBJECT_CLASS = "AdminEntryObjectClass";
 
     /**
      * ====================================
      * LDAP server specific configurations
      * ====================================
      */
-    private boolean enable=false;
+    private boolean enable = false;
 
     private int ldapPort = 10389;
 
@@ -69,7 +69,7 @@ public class LDAPConfiguration {
     /*Object class used to create admin entry of a partition. It is hard coded to "inetOrgPerson"
     by default. And it is configurable.*/
 
-    private String adminEntryObjectClass="inetOrgPerson";
+    private String adminEntryObjectClass = "inetOrgPerson";
 
     private int maxTimeLimit = 15000;
 
@@ -102,16 +102,16 @@ public class LDAPConfiguration {
         return accessControlOn;
     }
 
+    public void setAccessControlOn(boolean accessControlOn) {
+        this.accessControlOn = accessControlOn;
+    }
+
     public String getAdminEntryObjectClass() {
         return adminEntryObjectClass;
     }
 
     public void setAdminEntryObjectClass(String adminEntryObjectClass) {
         this.adminEntryObjectClass = adminEntryObjectClass;
-    }
-
-    public void setAccessControlOn(boolean accessControlOn) {
-        this.accessControlOn = accessControlOn;
     }
 
     public boolean isDeNormalizedAttributesEnabled() {
@@ -128,7 +128,7 @@ public class LDAPConfiguration {
 
     public void setMaxPDUSize(int maxPDUSize) {
         if (maxPDUSize == -1) return;
-        
+
         this.maxPDUSize = maxPDUSize;
     }
 
@@ -146,7 +146,7 @@ public class LDAPConfiguration {
 
     public void setMaxTimeLimit(int maxTimeLimit) {
         if (maxTimeLimit == -1) return;
-        
+
         this.maxTimeLimit = maxTimeLimit;
     }
 
@@ -155,7 +155,7 @@ public class LDAPConfiguration {
     }
 
     public void setMaxSizeLimit(int maxSizeLimit) {
-        if (maxSizeLimit == -1) return;        
+        if (maxSizeLimit == -1) return;
 
         this.maxSizeLimit = maxSizeLimit;
     }
@@ -166,7 +166,7 @@ public class LDAPConfiguration {
 
     public void setSaslHostName(String saslHostName) {
         if (saslHostName == null) return;
-        
+
         this.saslHostName = saslHostName;
     }
 
@@ -176,7 +176,7 @@ public class LDAPConfiguration {
 
     public void setSaslPrincipalName(String saslPrincipalName) {
         if (saslPrincipalName == null) return;
-        
+
         this.saslPrincipalName = saslPrincipalName;
     }
 
@@ -186,7 +186,7 @@ public class LDAPConfiguration {
 
     public void setInstanceId(String instanceId) {
         if (instanceId == null) return;
-        
+
         this.instanceId = instanceId;
     }
 
@@ -196,7 +196,7 @@ public class LDAPConfiguration {
 
     public void setLdapPort(int ldapPort) {
         if (ldapPort == -1) return;
-        
+
         this.ldapPort = ldapPort;
     }
 
@@ -206,7 +206,7 @@ public class LDAPConfiguration {
 
     public void setWorkingDirectory(String workingDirectory) {
         if (workingDirectory == null) return;
-        
+
         this.workingDirectory = workingDirectory;
     }
 }

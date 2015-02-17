@@ -19,20 +19,23 @@ package org.wso2.carbon.identity.relyingparty.dto;
 
 public class ClaimDTO {
 
-	private String claimUri;
-	private String claimValue;
-	
-	public String getClaimUri() {
-		return claimUri;
-	}
-	public void setClaimUri(String claimUri) {
-		this.claimUri = claimUri;
-	}
-	public String getClaimValue() {
-		return claimValue;
-	}
-	public void setClaimValue(String claimValue) {
-		this.claimValue = claimValue;
-	}
+    private String claimUri;
+    private String claimValue;
+
+    public String getClaimUri() {
+        return claimUri;
+    }
+
+    public void setClaimUri(String claimUri) {
+        this.claimUri = claimUri;
+    }
+
+    public String getClaimValue() {
+        return claimValue;
+    }
+
+    public void setClaimValue(String claimValue) {
+        this.claimValue = claimValue;
+    }
 
 }

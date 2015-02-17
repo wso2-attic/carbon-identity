@@ -37,8 +37,8 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Locale;
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
 
 
 public class SimpleContext implements Context {
@@ -266,7 +266,7 @@ public class SimpleContext implements Context {
         return null;
     }
 
-   // @Override
+    // @Override
     public String[] findTaglibs() {
         return new String[0];
     }
@@ -312,6 +312,11 @@ public class SimpleContext implements Context {
     }
 
     @Override
+    public void setAltDDName(String arg0) {
+
+    }
+
+    @Override
     public boolean getAllowCasualMultipartParsing() {
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
@@ -327,13 +332,28 @@ public class SimpleContext implements Context {
     }
 
     @Override
+    public void setApplicationEventListeners(Object[] arg0) {
+
+    }
+
+    @Override
     public Object[] getApplicationLifecycleListeners() {
         return new Object[0];
     }
 
     @Override
+    public void setApplicationLifecycleListeners(Object[] arg0) {
+
+    }
+
+    @Override
     public boolean getAvailable() {
         return false;
+    }
+
+    //@Override
+    public void setAvailable(boolean arg0) {
+
     }
 
     @Override
@@ -342,8 +362,18 @@ public class SimpleContext implements Context {
     }
 
     @Override
+    public void setCharsetMapper(CharsetMapper arg0) {
+
+    }
+
+    @Override
     public URL getConfigFile() {
         return null;
+    }
+
+    //@Override
+    public void setConfigFile(String arg0) {
+
     }
 
     @Override
@@ -357,8 +387,18 @@ public class SimpleContext implements Context {
     }
 
     @Override
+    public void setConfigured(boolean arg0) {
+
+    }
+
+    @Override
     public boolean getCookies() {
         return false;
+    }
+
+    @Override
+    public void setCookies(boolean arg0) {
+
     }
 
     @Override
@@ -367,8 +407,18 @@ public class SimpleContext implements Context {
     }
 
     @Override
+    public void setCrossContext(boolean arg0) {
+
+    }
+
+    @Override
     public String getDisplayName() {
         return null;
+    }
+
+    @Override
+    public void setDisplayName(String arg0) {
+
     }
 
     @Override
@@ -377,8 +427,18 @@ public class SimpleContext implements Context {
     }
 
     @Override
+    public void setDistributable(boolean arg0) {
+
+    }
+
+    @Override
     public String getDocBase() {
         return null;
+    }
+
+    @Override
+    public void setDocBase(String arg0) {
+
     }
 
     @Override
@@ -392,8 +452,18 @@ public class SimpleContext implements Context {
     }
 
     @Override
+    public void setIgnoreAnnotations(boolean arg0) {
+
+    }
+
+    @Override
     public LoginConfig getLoginConfig() {
         return null;
+    }
+
+    @Override
+    public void setLoginConfig(LoginConfig arg0) {
+
     }
 
     @Override
@@ -407,8 +477,18 @@ public class SimpleContext implements Context {
     }
 
     @Override
+    public void setNamingResources(NamingResources arg0) {
+
+    }
+
+    @Override
     public boolean getOverride() {
         return false;
+    }
+
+    @Override
+    public void setOverride(boolean arg0) {
+
     }
 
     @Override
@@ -417,8 +497,18 @@ public class SimpleContext implements Context {
     }
 
     @Override
+    public void setPath(String arg0) {
+
+    }
+
+    @Override
     public boolean getPrivileged() {
         return false;
+    }
+
+    @Override
+    public void setPrivileged(boolean arg0) {
+
     }
 
     @Override
@@ -427,8 +517,18 @@ public class SimpleContext implements Context {
     }
 
     @Override
+    public void setPublicId(String arg0) {
+
+    }
+
+    @Override
     public boolean getReloadable() {
         return false;
+    }
+
+    @Override
+    public void setReloadable(boolean arg0) {
+
     }
 
     @Override
@@ -442,8 +542,18 @@ public class SimpleContext implements Context {
     }
 
     @Override
+    public void setSessionTimeout(int arg0) {
+
+    }
+
+    @Override
     public boolean getSwallowOutput() {
         return false;
+    }
+
+    @Override
+    public void setSwallowOutput(boolean arg0) {
+
     }
 
     @Override
@@ -452,8 +562,18 @@ public class SimpleContext implements Context {
     }
 
     @Override
+    public void setTldNamespaceAware(boolean arg0) {
+
+    }
+
+    @Override
     public boolean getTldValidation() {
         return false;
+    }
+
+    @Override
+    public void setTldValidation(boolean arg0) {
+
     }
 
     @Override
@@ -462,8 +582,18 @@ public class SimpleContext implements Context {
     }
 
     @Override
+    public void setUseHttpOnly(boolean arg0) {
+
+    }
+
+    @Override
     public String getWrapperClass() {
         return null;
+    }
+
+    @Override
+    public void setWrapperClass(String arg0) {
+
     }
 
     @Override
@@ -472,8 +602,18 @@ public class SimpleContext implements Context {
     }
 
     @Override
+    public void setXmlNamespaceAware(boolean arg0) {
+
+    }
+
+    @Override
     public boolean getXmlValidation() {
         return false;
+    }
+
+    @Override
+    public void setXmlValidation(boolean arg0) {
+
     }
 
     @Override
@@ -622,13 +762,13 @@ public class SimpleContext implements Context {
     }
 
     @Override
-    public void setResourceOnlyServlets(String s) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public String getResourceOnlyServlets() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public String getResourceOnlyServlets() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public void setResourceOnlyServlets(String s) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
@@ -642,17 +782,12 @@ public class SimpleContext implements Context {
     }
 
     @Override
-    public void setWebappVersion(String s) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
     public String getWebappVersion() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public void setFireRequestListenersOnForwards(boolean b) {
+    public void setWebappVersion(String s) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -662,7 +797,7 @@ public class SimpleContext implements Context {
     }
 
     @Override
-    public void setPreemptiveAuthentication(boolean b) {
+    public void setFireRequestListenersOnForwards(boolean b) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -672,13 +807,18 @@ public class SimpleContext implements Context {
     }
 
     @Override
-    public void setSendRedirectBody(boolean b) {
+    public void setPreemptiveAuthentication(boolean b) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public boolean getSendRedirectBody() {
         return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void setSendRedirectBody(boolean b) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
@@ -717,113 +857,8 @@ public class SimpleContext implements Context {
     }
 
     @Override
-    public void setAltDDName(String arg0) {
-
-    }
-
-    @Override
-    public void setApplicationEventListeners(Object[] arg0) {
-
-    }
-
-    @Override
-    public void setApplicationLifecycleListeners(Object[] arg0) {
-
-    }
-
-    //@Override
-    public void setAvailable(boolean arg0) {
-
-    }
-
-    @Override
-    public void setCharsetMapper(CharsetMapper arg0) {
-
-    }
-
-    @Override
     public String getCharset(Locale locale) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    //@Override
-    public void setConfigFile(String arg0) {
-
-    }
-
-    @Override
-    public void setConfigured(boolean arg0) {
-
-    }
-
-    @Override
-    public void setCookies(boolean arg0) {
-
-    }
-
-    @Override
-    public void setCrossContext(boolean arg0) {
-
-    }
-
-    @Override
-    public void setDisplayName(String arg0) {
-
-    }
-
-    @Override
-    public void setDistributable(boolean arg0) {
-
-    }
-
-    @Override
-    public void setDocBase(String arg0) {
-
-    }
-
-    @Override
-    public void setIgnoreAnnotations(boolean arg0) {
-
-    }
-
-    @Override
-    public void setLoginConfig(LoginConfig arg0) {
-
-    }
-
-    @Override
-    public void setNamingResources(NamingResources arg0) {
-
-    }
-
-    @Override
-    public void setOverride(boolean arg0) {
-
-    }
-
-    @Override
-    public void setPath(String arg0) {
-
-    }
-
-    @Override
-    public void setPrivileged(boolean arg0) {
-
-    }
-
-    @Override
-    public void setPublicId(String arg0) {
-
-    }
-
-    @Override
-    public void setReloadable(boolean arg0) {
-
-    }
-
-    @Override
-    public void setSessionTimeout(int arg0) {
-
     }
 
     @Override
@@ -834,16 +869,6 @@ public class SimpleContext implements Context {
     @Override
     public void setSwallowAbortedUploads(boolean b) {
         //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void setSwallowOutput(boolean arg0) {
-
-    }
-
-    @Override
-    public void setTldNamespaceAware(boolean arg0) {
-
     }
 
     @Override
@@ -872,13 +897,13 @@ public class SimpleContext implements Context {
     }
 
     @Override
-    public void setLogEffectiveWebXml(boolean b) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public boolean getLogEffectiveWebXml() {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public boolean getLogEffectiveWebXml() {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    public void setLogEffectiveWebXml(boolean b) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
@@ -892,42 +917,17 @@ public class SimpleContext implements Context {
     }
 
     @Override
-    public void setContainerSciFilter(String s) {
-
-    }
-
-    @Override
     public String getContainerSciFilter() {
         return null;
     }
 
     @Override
+    public void setContainerSciFilter(String s) {
+
+    }
+
+    @Override
     public void addApplicationListener(ApplicationListener applicationListener) {
-
-    }
-
-    @Override
-    public void setTldValidation(boolean arg0) {
-
-    }
-
-    @Override
-    public void setUseHttpOnly(boolean arg0) {
-
-    }
-
-    @Override
-    public void setWrapperClass(String arg0) {
-
-    }
-
-    @Override
-    public void setXmlNamespaceAware(boolean arg0) {
-
-    }
-
-    @Override
-    public void setXmlValidation(boolean arg0) {
 
     }
 
@@ -972,8 +972,18 @@ public class SimpleContext implements Context {
     }
 
     @Override
+    public void setBackgroundProcessorDelay(int arg0) {
+
+    }
+
+    @Override
     public Cluster getCluster() {
         return null;
+    }
+
+    @Override
+    public void setCluster(Cluster arg0) {
+
     }
 
     @Override
@@ -987,6 +997,11 @@ public class SimpleContext implements Context {
     }
 
     @Override
+    public void setLoader(Loader arg0) {
+
+    }
+
+    @Override
     public Log getLogger() {
         return null;
     }
@@ -994,6 +1009,11 @@ public class SimpleContext implements Context {
     @Override
     public Manager getManager() {
         return null;
+    }
+
+    @Override
+    public void setManager(Manager arg0) {
+
     }
 
     @Override
@@ -1007,6 +1027,11 @@ public class SimpleContext implements Context {
     }
 
     @Override
+    public void setName(String arg0) {
+
+    }
+
+    @Override
     public ObjectName getObjectName() {
         return null;
     }
@@ -1017,8 +1042,18 @@ public class SimpleContext implements Context {
     }
 
     @Override
+    public void setParent(Container arg0) {
+
+    }
+
+    @Override
     public ClassLoader getParentClassLoader() {
         return null;
+    }
+
+    @Override
+    public void setParentClassLoader(ClassLoader arg0) {
+
     }
 
     @Override
@@ -1032,8 +1067,18 @@ public class SimpleContext implements Context {
     }
 
     @Override
+    public void setRealm(Realm realm) {
+        _realm = realm;
+    }
+
+    @Override
     public DirContext getResources() {
         return null;
+    }
+
+    @Override
+    public void setResources(DirContext arg0) {
+
     }
 
     @Override
@@ -1063,62 +1108,7 @@ public class SimpleContext implements Context {
     }
 
     @Override
-    public void setBackgroundProcessorDelay(int arg0) {
-
-    }
-
-    @Override
-    public void setCluster(Cluster arg0) {
-
-    }
-
-    @Override
-    public void setLoader(Loader arg0) {
-
-    }
-
-    @Override
-    public void setManager(Manager arg0) {
-
-    }
-
-    @Override
-    public void setName(String arg0) {
-
-    }
-
-    @Override
-    public void setParent(Container arg0) {
-
-    }
-
-    @Override
-    public void setParentClassLoader(ClassLoader arg0) {
-
-    }
-
-    @Override
-    public void setRealm(Realm realm) {
-        _realm = realm;
-    }
-
-    @Override
-    public void setResources(DirContext arg0) {
-
-    }
-
-    @Override
     public String getSessionCookieDomain() {
-        return null;
-    }
-
-    @Override
-    public String getSessionCookieName() {
-        return null;
-    }
-
-    @Override
-    public String getSessionCookiePath() {
         return null;
     }
 
@@ -1128,8 +1118,18 @@ public class SimpleContext implements Context {
     }
 
     @Override
+    public String getSessionCookieName() {
+        return null;
+    }
+
+    @Override
     public void setSessionCookieName(String arg0) {
 
+    }
+
+    @Override
+    public String getSessionCookiePath() {
+        return null;
     }
 
     @Override

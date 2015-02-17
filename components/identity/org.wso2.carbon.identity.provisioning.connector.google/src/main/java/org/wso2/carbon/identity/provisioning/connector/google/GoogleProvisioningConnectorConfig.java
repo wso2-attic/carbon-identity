@@ -18,28 +18,27 @@
  */
 package org.wso2.carbon.identity.provisioning.connector.google;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
 
 public class GoogleProvisioningConnectorConfig implements Serializable {
-	
+
     private static final long serialVersionUID = -1198908568546067663L;
-    
+
     private static final Log log = LogFactory.getLog(GoogleProvisioningConnectorConfig.class);
-	private Properties configs;
-	
-	public GoogleProvisioningConnectorConfig(Properties configs) {
-		this.configs = configs;
-	}
+    private Properties configs;
+
+    public GoogleProvisioningConnectorConfig(Properties configs) {
+        this.configs = configs;
+    }
 
 //	public static final String SALESFORCE_LIST_USER_SIMPLE_QUERY = "SELECT Id, Alias, Email, LastName, Name, ProfileId, Username from User";
 //	public static final String SALESFORCE_LIST_USER_FULL_QUERY = "SELECT Id, Username, Name, Alias, Email, EmailEncodingKey, LanguageLocaleKey, LastName, LocaleSidKey, ProfileId, TimeZoneSidKey, UserPermissionsCallCenterAutoLogin, UserPermissionsMarketingUser, UserPermissionsOfflineUser from User";
@@ -47,44 +46,44 @@ public class GoogleProvisioningConnectorConfig implements Serializable {
 //	public static final String SALESFORCE_ENDPOINT_QUERY = "/query";
 //	
 //	public static final String IDENTITY_PROVISIONING_CONNECTOR = "Identity.Provisioning.Connector.Salesforce.Domain.Name";
-	
-	List<String> getRequiredAttributeNames() {
-		List<String> requiredAttributeList = new ArrayList<String>();
-		String requiredAttributes = this.configs.getProperty(GoogleConnectorConstants.PropertyConfig.REQUIRED_FIELDS);
-		if (requiredAttributes != null && !requiredAttributes.isEmpty()) {
-			requiredAttributeList = Arrays.asList(requiredAttributes.split(IdentityProvisioningConstants.PropertyConfig.DELIMATOR));
-		}
-		return requiredAttributeList;
-	}
-	
-	String getUserIdClaim() throws IdentityProvisioningException {
-		String userIDClaim = this.configs.getProperty(GoogleConnectorConstants.PropertyConfig.USER_ID_CLAIM);
-		if (userIDClaim == null || userIDClaim.isEmpty()) {
-			log.warn("Claim for user id is not defined in config. Using "+ GoogleConnectorConstants.ATTRIBUTE_PRIMARYEMAIL + "'s claim instead");
+
+    List<String> getRequiredAttributeNames() {
+        List<String> requiredAttributeList = new ArrayList<String>();
+        String requiredAttributes = this.configs.getProperty(GoogleConnectorConstants.PropertyConfig.REQUIRED_FIELDS);
+        if (requiredAttributes != null && !requiredAttributes.isEmpty()) {
+            requiredAttributeList = Arrays.asList(requiredAttributes.split(IdentityProvisioningConstants.PropertyConfig.DELIMATOR));
+        }
+        return requiredAttributeList;
+    }
+
+    String getUserIdClaim() throws IdentityProvisioningException {
+        String userIDClaim = this.configs.getProperty(GoogleConnectorConstants.PropertyConfig.USER_ID_CLAIM);
+        if (userIDClaim == null || userIDClaim.isEmpty()) {
+            log.warn("Claim for user id is not defined in config. Using " + GoogleConnectorConstants.ATTRIBUTE_PRIMARYEMAIL + "'s claim instead");
 
 //			userIDClaim = this.configs.getProperty(GoogleConnectorConstants.PropertyConfig.REQUIRED_CLAIM_PREFIX + GoogleConnectorConstants.ATTRIBUTE_PRIMARYEMAIL);
-			userIDClaim = this.configs.getProperty(GoogleConnectorConstants.ATTRIBUTE_PRIMARYEMAIL);
-		}
-		if (userIDClaim == null || userIDClaim.isEmpty()) {
-			log.warn("Claim for user id is set to default value : "+ "http://wso2.org/claims/streetaddress");
+            userIDClaim = this.configs.getProperty(GoogleConnectorConstants.ATTRIBUTE_PRIMARYEMAIL);
+        }
+        if (userIDClaim == null || userIDClaim.isEmpty()) {
+            log.warn("Claim for user id is set to default value : " + "http://wso2.org/claims/streetaddress");
 
-			//TODO make userIDClaim read from UI\DB
-			userIDClaim = "http://wso2.org/claims/streetaddress";
-		}
-			
-			
-		if (userIDClaim == null || userIDClaim.isEmpty()) {
-			log.error("UserId cannot mapped to a claim");
-			throw new IdentityProvisioningException("UserId cannot mapped to a claim");
-		}
-		
-		if(log.isDebugEnabled()) {
-			log.debug("Mapped claim for UserId is : " + userIDClaim);
-		}
-		return userIDClaim;
-	}
+            //TODO make userIDClaim read from UI\DB
+            userIDClaim = "http://wso2.org/claims/streetaddress";
+        }
 
-	public String getValue(String key) {
-		return this.configs.getProperty(key);
-	}
+
+        if (userIDClaim == null || userIDClaim.isEmpty()) {
+            log.error("UserId cannot mapped to a claim");
+            throw new IdentityProvisioningException("UserId cannot mapped to a claim");
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Mapped claim for UserId is : " + userIDClaim);
+        }
+        return userIDClaim;
+    }
+
+    public String getValue(String key) {
+        return this.configs.getProperty(key);
+    }
 }

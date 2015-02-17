@@ -18,35 +18,19 @@
 
 package org.wso2.carbon.identity.application.common.model;
 
+import org.apache.axiom.om.OMElement;
+
 import java.io.Serializable;
 import java.util.Iterator;
-
-import org.apache.axiom.om.OMElement;
 
 public class JustInTimeProvisioningConfig extends InboundProvisioningConfig implements Serializable {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 5899735295450764828L;
 
     private String userStoreClaimUri;
-
-    /**
-     * 
-     * @return
-     */
-    public String getUserStoreClaimUri() {
-        return userStoreClaimUri;
-    }
-
-    /**
-     * 
-     * @param userStoreClaimUri
-     */
-    public void setUserStoreClaimUri(String userStoreClaimUri) {
-        this.userStoreClaimUri = userStoreClaimUri;
-    }
 
     /*
      * <JustInTimeProvisioningConfig> <UserStoreClaimUri></UserStoreClaimUri>
@@ -79,6 +63,20 @@ public class JustInTimeProvisioningConfig extends InboundProvisioningConfig impl
         }
 
         return justInTimeProvisioningConfig;
+    }
+
+    /**
+     * @return
+     */
+    public String getUserStoreClaimUri() {
+        return userStoreClaimUri;
+    }
+
+    /**
+     * @param userStoreClaimUri
+     */
+    public void setUserStoreClaimUri(String userStoreClaimUri) {
+        this.userStoreClaimUri = userStoreClaimUri;
     }
 
 }

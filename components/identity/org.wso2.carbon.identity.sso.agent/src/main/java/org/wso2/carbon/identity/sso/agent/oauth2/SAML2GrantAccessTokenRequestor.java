@@ -38,24 +38,24 @@ public class SAML2GrantAccessTokenRequestor {
     public static void getAccessToken(HttpServletRequest request) throws SSOAgentException {
 
 
-        String samlAssertionString =  ((SSOAgentSessionBean)request.getSession().getAttribute(
+        String samlAssertionString = ((SSOAgentSessionBean) request.getSession().getAttribute(
                 SSOAgentConfigs.getSessionBeanName())).getSAMLSSOSessionBean().getSAMLAssertionString();
 
         try {
 
             String consumerKey = SSOAgentConfigs.getOAuth2ClientId();
-            String consumerSecret =  SSOAgentConfigs.getOAuth2ClientSecret();
+            String consumerSecret = SSOAgentConfigs.getOAuth2ClientSecret();
             String tokenEndpoint = SSOAgentConfigs.getTokenEndpoint();
 
             String accessTokenResponse = executePost(tokenEndpoint,
-                    "grant_type=urn:ietf:params:oauth:grant-type:saml2-bearer&assertion=" + URLEncoder.encode(Base64.encodeBytes(samlAssertionString.getBytes()).replaceAll("\n","")),
-                    Base64.encodeBytes(new String(consumerKey + ":" + consumerSecret).getBytes()).replace("\n",""));
+                    "grant_type=urn:ietf:params:oauth:grant-type:saml2-bearer&assertion=" + URLEncoder.encode(Base64.encodeBytes(samlAssertionString.getBytes()).replaceAll("\n", "")),
+                    Base64.encodeBytes(new String(consumerKey + ":" + consumerSecret).getBytes()).replace("\n", ""));
 
             Gson gson = new Gson();
             SSOAgentSessionBean.AccessTokenResponseBean accessTokenResp =
                     gson.fromJson(accessTokenResponse, SSOAgentSessionBean.AccessTokenResponseBean.class);
 
-            ((SSOAgentSessionBean)request.getSession().getAttribute(
+            ((SSOAgentSessionBean) request.getSession().getAttribute(
                     SSOAgentConfigs.getSessionBeanName())).getSAMLSSOSessionBean()
                     .setAccessTokenResponseBean(accessTokenResp);
 
@@ -72,40 +72,40 @@ public class SAML2GrantAccessTokenRequestor {
 
             //Create connection
             url = new URL(targetURL);
-            connection = (HttpURLConnection)url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            connection.setRequestProperty("Authorization","Basic " + clientCredentials);
+            connection.setRequestProperty("Authorization", "Basic " + clientCredentials);
 
             connection.setRequestProperty("Content-Length", "" +
                     Integer.toString(urlParameters.getBytes().length));
 
-            connection.setUseCaches (false);
+            connection.setUseCaches(false);
             connection.setDoInput(true);
             connection.setDoOutput(true);
 
             //Send request
-            DataOutputStream wr = new DataOutputStream (
-                    connection.getOutputStream ());
-            wr.writeBytes (urlParameters);
-            wr.flush ();
-            wr.close ();
+            DataOutputStream wr = new DataOutputStream(
+                    connection.getOutputStream());
+            wr.writeBytes(urlParameters);
+            wr.flush();
+            wr.close();
 
             //Get Response
             InputStream is = connection.getInputStream();
             BufferedReader rd = new BufferedReader(new InputStreamReader(is));
             String line;
             StringBuffer response = new StringBuffer();
-            while((line = rd.readLine()) != null) {
+            while ((line = rd.readLine()) != null) {
                 response.append(line);
                 response.append('\r');
             }
             rd.close();
             return response.toString();
 
-        }  finally {
+        } finally {
 
-            if(connection != null) {
+            if (connection != null) {
                 connection.disconnect();
             }
         }
