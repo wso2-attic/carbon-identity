@@ -17,8 +17,6 @@
 */
 package org.wso2.carbon.identity.base;
 
-import java.util.Properties;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.llom.util.AXIOMUtil;
 import org.apache.commons.logging.Log;
@@ -28,6 +26,8 @@ import org.apache.neethi.PolicyEngine;
 import org.apache.rampart.policy.model.CryptoConfig;
 import org.apache.rampart.policy.model.RampartConfig;
 import org.wso2.carbon.base.ServerConfiguration;
+
+import java.util.Properties;
 
 public class IdentityBaseUtil {
 
@@ -115,12 +115,12 @@ public class IdentityBaseUtil {
         props.setProperty("org.apache.ws.security.crypto.merlin.keystore.type", keyStoreType);
         props.setProperty("org.apache.ws.security.crypto.merlin.file", keyStore);
         props.setProperty("org.apache.ws.security.crypto.merlin.keystore.password", keyStorePassword);
-        
-	// This property is set in order to fix IDENTITY-1931.
-	// This issue is however not found in IS-4.5.0.
-	// The reason for the error is unknown. Suspecting JCE provider.
-	// Error occurrs when WSS4J tries to read the certificates in the JDK's cacerts store.
-	props.setProperty("org.apache.ws.security.crypto.merlin.load.cacerts", "false");
+
+        // This property is set in order to fix IDENTITY-1931.
+        // This issue is however not found in IS-4.5.0.
+        // The reason for the error is unknown. Suspecting JCE provider.
+        // Error occurrs when WSS4J tries to read the certificates in the JDK's cacerts store.
+        props.setProperty("org.apache.ws.security.crypto.merlin.load.cacerts", "false");
         sigCrypto.setProp(props);
 
         rampartConfig.setSigCryptoConfig(sigCrypto);
