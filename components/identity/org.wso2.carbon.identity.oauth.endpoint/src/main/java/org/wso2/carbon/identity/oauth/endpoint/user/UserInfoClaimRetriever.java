@@ -16,13 +16,11 @@
  */
 package org.wso2.carbon.identity.oauth.endpoint.user;
 
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
-import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 
 import java.util.Map;
 
 public interface UserInfoClaimRetriever {
 
-    public Map<String,Object> getClaimsMap(Map<ClaimMapping,String> userAttributes);
+    public Map<String, Object> getClaimsMap(Map<ClaimMapping, String> userAttributes);
 }

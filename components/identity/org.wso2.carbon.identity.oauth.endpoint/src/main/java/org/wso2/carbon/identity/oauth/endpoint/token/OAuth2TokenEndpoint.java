@@ -29,7 +29,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.openidconnect.as.OIDC;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.identity.oauth2.model.CarbonOAuthTokenRequest;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.exception.OAuthClientException;
@@ -38,6 +37,7 @@ import org.wso2.carbon.identity.oauth.endpoint.util.EndpointUtil;
 import org.wso2.carbon.identity.oauth2.ResponseHeader;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenRespDTO;
+import org.wso2.carbon.identity.oauth2.model.CarbonOAuthTokenRequest;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.servlet.http.HttpServletRequest;
@@ -63,7 +63,7 @@ public class OAuth2TokenEndpoint {
     @Consumes("application/x-www-form-urlencoded")
     @Produces("application/json")
     public Response issueAccessToken(@Context HttpServletRequest request,
-            MultivaluedMap<String, String> paramMap) throws  OAuthSystemException {
+                                     MultivaluedMap<String, String> paramMap) throws OAuthSystemException {
 
         try {
             PrivilegedCarbonContext.startTenantFlow();
@@ -187,12 +187,12 @@ public class OAuth2TokenEndpoint {
         // log the headers.
         log.debug("----------logging request headers.----------");
         Enumeration headerNames = request.getHeaderNames();
-            while (headerNames.hasMoreElements()) {
-                String headerName = (String)headerNames.nextElement();
-                Enumeration headers = request.getHeaders(headerName);
-                while (headers.hasMoreElements()) {
-                    log.debug(headerName + " : " + headers.nextElement());
-                }
+        while (headerNames.hasMoreElements()) {
+            String headerName = (String) headerNames.nextElement();
+            Enumeration headers = request.getHeaders(headerName);
+            while (headers.hasMoreElements()) {
+                log.debug(headerName + " : " + headers.nextElement());
+            }
         }
         // log the parameters.
         log.debug("----------logging request parameters.----------");
@@ -215,18 +215,18 @@ public class OAuth2TokenEndpoint {
         tokenReqDTO.setTenantDomain(oauthRequest.getTenantDomain());
 
         // Check the grant type and set the corresponding parameters
-        if(GrantType.AUTHORIZATION_CODE.toString().equals(grantType)){
+        if (GrantType.AUTHORIZATION_CODE.toString().equals(grantType)) {
             tokenReqDTO.setAuthorizationCode(oauthRequest.getCode());
-        } else if(GrantType.PASSWORD.toString().equals(grantType)){
+        } else if (GrantType.PASSWORD.toString().equals(grantType)) {
             tokenReqDTO.setResourceOwnerUsername(oauthRequest.getUsername().toLowerCase());
             tokenReqDTO.setResourceOwnerPassword(oauthRequest.getPassword());
-        } else if (GrantType.REFRESH_TOKEN.toString().equals(grantType)){
+        } else if (GrantType.REFRESH_TOKEN.toString().equals(grantType)) {
             tokenReqDTO.setRefreshToken(oauthRequest.getRefreshToken());
-        } else if (org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString().equals(grantType)){
+        } else if (org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString().equals(grantType)) {
             tokenReqDTO.setAssertion(oauthRequest.getAssertion());
-        } else if (org.wso2.carbon.identity.oauth.common.GrantType.IWA_NTLM.toString().equals(grantType)){
-            tokenReqDTO.setWindowsToken(oauthRequest.getWindowsToken());           
-        }else{
+        } else if (org.wso2.carbon.identity.oauth.common.GrantType.IWA_NTLM.toString().equals(grantType)) {
+            tokenReqDTO.setWindowsToken(oauthRequest.getWindowsToken());
+        } else {
             // Set all request parameters to the OAuth2AccessTokenReqDTO
             tokenReqDTO.setRequestParameters(oauthRequest.getRequestParameters());
         }
