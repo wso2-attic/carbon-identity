@@ -17,21 +17,11 @@
  */
 package org.wso2.carbon.um.ws.service;
 
-import java.util.Iterator;
-
-import javax.xml.namespace.QName;
-
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.soap.SOAPHeader;
-import org.apache.axis2.context.MessageContext;
 import org.wso2.carbon.core.AbstractAdmin;
-import org.wso2.carbon.registry.core.service.RegistryService;
-import org.wso2.carbon.um.ws.service.internal.UMRemoteServicesDSComponent;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.profile.ProfileConfiguration;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
-import org.wso2.carbon.user.core.service.RealmService;
 
 public class ProfileConfigurationManagerService extends AbstractAdmin {
 
