@@ -21,7 +21,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.identity.authenticator.saml2.sso.ui.SSOAssertionConsumerService;
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.Util;
 import org.wso2.carbon.identity.authenticator.saml2.sso.ui.authenticator.SAML2SSOUIAuthenticator;
 import org.wso2.carbon.identity.authenticator.saml2.sso.ui.filters.LoginPageFilter;
@@ -44,23 +43,23 @@ import java.util.Hashtable;
 /**
  * @scr.component name="saml2.sso.authenticator.ui.dscomponent" immediate="true"
  * @scr.reference name="registry.service"
- *                interface="org.wso2.carbon.registry.core.service.RegistryService"
- *                cardinality="1..1" policy="dynamic" bind="setRegistryService"
- *                unbind="unsetRegistryService"
+ * interface="org.wso2.carbon.registry.core.service.RegistryService"
+ * cardinality="1..1" policy="dynamic" bind="setRegistryService"
+ * unbind="unsetRegistryService"
  * @scr.reference name="user.realmservice.default"
- *                interface="org.wso2.carbon.user.core.service.RealmService"
- *                cardinality="1..1" policy="dynamic" bind="setRealmService"
- *                unbind="unsetRealmService"
+ * interface="org.wso2.carbon.user.core.service.RealmService"
+ * cardinality="1..1" policy="dynamic" bind="setRealmService"
+ * unbind="unsetRealmService"
  * @scr.reference name="config.context.service"
- *                interface="org.wso2.carbon.utils.ConfigurationContextService"
- *                cardinality="1..1" policy="dynamic"
- *                bind="setConfigurationContextService"
- *                unbind="unsetConfigurationContextService"
+ * interface="org.wso2.carbon.utils.ConfigurationContextService"
+ * cardinality="1..1" policy="dynamic"
+ * bind="setConfigurationContextService"
+ * unbind="unsetConfigurationContextService"
  * @scr.reference name="org.wso2.carbon.ui.CarbonSSOSessionManager"
- *                interface="org.wso2.carbon.ui.CarbonSSOSessionManager"
- *                cardinality="1..1" policy="dynamic"
- *                bind="setCarbonSSOSessionManagerInstance"
- *                unbind="unsetCarbonSSOSessionManagerInstance"
+ * interface="org.wso2.carbon.ui.CarbonSSOSessionManager"
+ * cardinality="1..1" policy="dynamic"
+ * bind="setCarbonSSOSessionManagerInstance"
+ * unbind="unsetCarbonSSOSessionManagerInstance"
  */
 
 public class SAML2SSOAuthenticatorUIDSComponent {
@@ -69,7 +68,7 @@ public class SAML2SSOAuthenticatorUIDSComponent {
 
     protected void activate(ComponentContext ctxt) {
 
-        if(Util.isAuthenticatorEnabled()){
+        if (Util.isAuthenticatorEnabled()) {
             // initialize the SSO Config params during the start-up
             boolean initSuccess = Util.initSSOConfigParams();
 
@@ -91,7 +90,7 @@ public class SAML2SSOAuthenticatorUIDSComponent {
                 redirectorParams.put("associated-filter", loginPageFilter);
                 redirectorParams.put("servlet-attributes", loginPageFilterProps);
                 ctxt.getBundleContext().registerService(Servlet.class.getName(),
-                                                                  loginServlet, redirectorParams);
+                        loginServlet, redirectorParams);
 
                 //Register the SSO Assertion Consumer Service Servlet
 //                HttpServlet acsServlet = new SSOAssertionConsumerService();
@@ -105,11 +104,11 @@ public class SAML2SSOAuthenticatorUIDSComponent {
                 Hashtable<String, String> props = new Hashtable<String, String>();
                 props.put(CarbonConstants.AUTHENTICATOR_TYPE, authenticator.getAuthenticatorName());
                 ctxt.getBundleContext().registerService(CarbonUIAuthenticator.class.getName(),
-                                                                            authenticator, props);
+                        authenticator, props);
                 if (log.isDebugEnabled()) {
                     log.debug("SAML2 SSO Authenticator BE Bundle activated successfully.");
                 }
-            } else{
+            } else {
                 log.warn("Initialization failed for SSO Authenticator. Starting with the default authenticator");
             }
         } else {

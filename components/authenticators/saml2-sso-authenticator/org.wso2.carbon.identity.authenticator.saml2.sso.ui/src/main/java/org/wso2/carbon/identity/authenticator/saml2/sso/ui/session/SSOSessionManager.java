@@ -1,11 +1,5 @@
 package org.wso2.carbon.identity.authenticator.saml2.sso.ui.session;
 
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.servlet.http.HttpSession;
-
 import org.apache.axis2.clustering.ClusteringAgent;
 import org.apache.axis2.clustering.ClusteringFault;
 import org.apache.commons.logging.Log;
@@ -15,15 +9,20 @@ import org.wso2.carbon.ui.CarbonSSOSessionManager;
 import org.wso2.carbon.ui.CarbonSecuredHttpContext;
 import org.wso2.carbon.ui.CarbonUIAuthenticator;
 
+import javax.servlet.http.HttpSession;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class SSOSessionManager {
-    
+
     public static final Log log = LogFactory.getLog(SSOSessionManager.class);
-    
+
     private static volatile SSOSessionManager instance;
     private Map sessionMap = new ConcurrentHashMap<String, HttpSession>();
-    
+
     public static SSOSessionManager getInstance() {
-        
+
         if (instance == null) {
             synchronized (SSOSessionManager.class) {
                 if (instance == null) {
@@ -31,50 +30,50 @@ public class SSOSessionManager {
                 }
             }
         }
-        
+
         return instance;
     }
-    
+
     public void addSession(String sessionIndex, HttpSession httpSession) {
         sessionMap.put(sessionIndex, httpSession);
     }
-    
+
     public void removeSession(String sessionIndex) {
         if (sessionMap.containsKey(sessionIndex)) {
             sessionMap.remove(sessionIndex);
         }
     }
-    
+
     public HttpSession getSession(String sessionIndex) {
-        
+
         Object session = sessionMap.get(sessionIndex);
-        
+
         if (session != null) {
-            return (HttpSession)session;
+            return (HttpSession) session;
         }
-        
+
         return null;
     }
-    
+
     public void handleLogout(String sessionIndex) {
 
-        HttpSession session = (HttpSession)sessionMap.get(sessionIndex);
-        
+        HttpSession session = (HttpSession) sessionMap.get(sessionIndex);
+
         if (session == null) {
             //send cluster message
             sendSessionInvalidationClusterMessage(sessionIndex);
             return;
         }
-        
+
         CarbonSSOSessionManager ssoSessionManager = SAML2SSOAuthFEDataHolder.getInstance()
                 .getCarbonSSOSessionManager();
-        
+
         // mark this session as invalid.
         ssoSessionManager.makeSessionInvalid(sessionIndex);
-       
+
         String username = (String) session.getAttribute(CarbonSecuredHttpContext.LOGGED_USER);
         log.info("Invalidating session for user " + username);
-        
+
         // invalidating backend session
         try {
             CarbonUIAuthenticator authenticator =
@@ -86,26 +85,26 @@ public class SSOSessionManager {
         } catch (Exception e) {
             log.error(e.getMessage());
         }
-        
+
         // clearing front end session
         session.setAttribute("authenticated", false);
         session.removeAttribute(CarbonSecuredHttpContext.LOGGED_USER);
         session.getServletContext().removeAttribute(CarbonSecuredHttpContext.LOGGED_USER);
-        
+
         removeSession(sessionIndex);
-        
+
         try {
             session.invalidate();
         } catch (Exception ignored) {
             log.error(ignored.getMessage());
         }
-        
+
         if (log.isDebugEnabled()) {
             log.debug("Cleared authenticated session " + session.getId());
         }
-        
+
     }
-    
+
     public void sendSessionInvalidationClusterMessage(String sessionIndex) {
 
         SessionClusterMessage clusterMessage = new SessionClusterMessage();
