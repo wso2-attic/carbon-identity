@@ -18,22 +18,6 @@
 
 package org.wso2.carbon.identity.application.authenticator.samlsso.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.security.cert.CertificateEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.zip.DataFormatException;
-import java.util.zip.Inflater;
-import java.util.zip.InflaterInputStream;
-
-import javax.xml.namespace.QName;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xml.security.c14n.Canonicalizer;
@@ -55,17 +39,26 @@ import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
-import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.application.authenticator.samlsso.exception.SAMLSSOException;
 import org.wso2.carbon.identity.application.authenticator.samlsso.manager.X509CredentialImpl;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+
+import javax.xml.namespace.QName;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.security.cert.CertificateEncodingException;
+import java.util.*;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
 
 public class SSOUtils {
 
     private static Log log = LogFactory.getLog(SSOUtils.class);
 
-	/**
+    /**
      * Generates a unique Id for Authentication Requests
      *
      * @return generated unique ID
@@ -74,9 +67,9 @@ public class SSOUtils {
     public static String createID() {
 
         byte[] bytes = new byte[20]; // 160 bit
-        
+
         new Random().nextBytes(bytes);
-        
+
         char[] charMapping = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p'};
 
         char[] chars = new char[40];
@@ -101,7 +94,7 @@ public class SSOUtils {
      * @throws org.wso2.carbon.identity.application.authenticator.samlsso.exception.SAMLSSOException
      */
     public static AuthnRequest setSignature(AuthnRequest authnRequest, String signatureAlgorithm,
-                                        X509Credential cred) throws SAMLSSOException {
+                                            X509Credential cred) throws SAMLSSOException {
         try {
             Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
             signature.setSigningCredential(cred);
@@ -154,7 +147,7 @@ public class SSOUtils {
      * @throws SAMLSSOException
      */
     public static LogoutRequest setSignature(LogoutRequest logoutRequest, String signatureAlgorithm,
-                                            X509Credential cred) throws SAMLSSOException {
+                                             X509Credential cred) throws SAMLSSOException {
         try {
             Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
             signature.setSigningCredential(cred);
@@ -173,7 +166,7 @@ public class SSOUtils {
                 keyInfo.getX509Datas().add(data);
                 signature.setKeyInfo(keyInfo);
             } catch (CertificateEncodingException e) {
-                throw new SAMLSSOException("Error getting certificate",e);
+                throw new SAMLSSOException("Error getting certificate", e);
             }
 
             logoutRequest.setSignature(signature);
@@ -200,8 +193,8 @@ public class SSOUtils {
     /**
      * Appends the RSA-SHA1 signature to the query string
      *
-     * @param tenantDomain      tenant domain
-     * @param httpQueryString   http query string to append the signature
+     * @param tenantDomain    tenant domain
+     * @param httpQueryString http query string to append the signature
      * @throws SAMLSSOException
      */
     public static void addSignatureToHTTPQueryString(String tenantDomain, StringBuilder
@@ -218,7 +211,7 @@ public class SSOUtils {
 
             byte[] signatureByteArray = signature.sign();
             String signatureBase64encodedString = Base64.encodeBytes(signatureByteArray,
-                                                                     Base64.DONT_BREAK_LINES);
+                    Base64.DONT_BREAK_LINES);
             httpQueryString.append("&Signature=");
             httpQueryString.append(URLEncoder.encode(signatureBase64encodedString, "UTF-8").trim());
         } catch (Exception e) {
@@ -248,8 +241,7 @@ public class SSOUtils {
     /**
      * Decoding and deflating the encoded AuthReq
      *
-     * @param encodedStr
-     *            encoded AuthReq
+     * @param encodedStr encoded AuthReq
      * @return decoded AuthReq
      */
     public static String decode(String encodedStr) throws SAMLSSOException {
@@ -273,7 +265,7 @@ public class SSOUtils {
 
                 inflater.end();
                 String decodedString = new String(xmlMessageBytes, 0, resultLength, "UTF-8");
-                if(log.isDebugEnabled()) {
+                if (log.isDebugEnabled()) {
                     log.debug("Request message " + decodedString);
                 }
                 return decodedString;
@@ -290,7 +282,7 @@ public class SSOUtils {
                 }
                 iis.close();
                 String decodedStr = new String(baos.toByteArray());
-                if(log.isDebugEnabled()) {
+                if (log.isDebugEnabled()) {
                     log.debug("Request message " + decodedStr);
                 }
                 return decodedStr;
@@ -363,66 +355,66 @@ public class SSOUtils {
         return encodedRequestMessage.trim();
     }
 
-    public static boolean isAuthnRequestSigned(Map<String,String> properties) {
+    public static boolean isAuthnRequestSigned(Map<String, String> properties) {
         if (properties != null) {
             String prop = properties.get(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_REQ_SIGNED);
-            if(prop != null){
+            if (prop != null) {
                 return Boolean.parseBoolean(prop);
             }
         }
         return false;
     }
 
-    public static boolean isLogoutEnabled(Map<String,String> properties) {
+    public static boolean isLogoutEnabled(Map<String, String> properties) {
         if (properties != null) {
-        	String prop = properties.get(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_LOGOUT_ENABLED);
-            if(prop != null){
+            String prop = properties.get(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_LOGOUT_ENABLED);
+            if (prop != null) {
                 return Boolean.parseBoolean(prop);
             }
         }
         return false;
     }
 
-    public static boolean isLogoutRequestSigned(Map<String,String> properties) {
+    public static boolean isLogoutRequestSigned(Map<String, String> properties) {
         if (properties != null) {
-        	String prop = properties.get(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_LOGOUT_REQ_SIGNED);
-            if(prop != null){
+            String prop = properties.get(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_LOGOUT_REQ_SIGNED);
+            if (prop != null) {
                 return Boolean.parseBoolean(prop);
             }
         }
         return false;
     }
 
-    public static boolean isAuthnResponseSigned(Map<String,String> properties) {
+    public static boolean isAuthnResponseSigned(Map<String, String> properties) {
         if (properties != null) {
-        	String prop = properties.get(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_RESP_SIGNED);
-            if(prop != null){
+            String prop = properties.get(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_RESP_SIGNED);
+            if (prop != null) {
                 return Boolean.parseBoolean(prop);
             }
         }
         return false;
     }
-    
-    public static boolean isAssertionSigningEnabled(Map<String,String> properties) {
+
+    public static boolean isAssertionSigningEnabled(Map<String, String> properties) {
         if (properties != null) {
-        	String prop = properties.get(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_ENABLE_ASSERTION_SIGNING);
-            if(prop != null){
+            String prop = properties.get(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_ENABLE_ASSERTION_SIGNING);
+            if (prop != null) {
                 return Boolean.parseBoolean(prop);
             }
         }
         return false;
     }
-    
+
     public static boolean isAssertionEncryptionEnabled(Map<String, String> properties) {
         if (properties != null) {
-        	String prop = properties.get(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_ENABLE_ASSERTION_ENCRYPTION);
-            if(prop != null){
+            String prop = properties.get(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_ENABLE_ASSERTION_ENCRYPTION);
+            if (prop != null) {
                 return Boolean.parseBoolean(prop);
             }
         }
         return false;
     }
-    
+
     public static Map<String, String> getQueryMap(String query) {
         String[] params = query.split("&");
         Map<String, String> map = new HashMap<String, String>();
