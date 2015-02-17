@@ -18,8 +18,6 @@
  */
 package org.wso2.carbon.captcha.mgt.beans;
 
-import java.lang.String;
-
 /**
  * Bean for captcha related functions
  */
