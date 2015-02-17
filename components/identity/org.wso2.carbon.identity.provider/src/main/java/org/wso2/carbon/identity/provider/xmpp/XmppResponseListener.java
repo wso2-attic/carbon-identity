@@ -17,8 +17,8 @@
 
 package org.wso2.carbon.identity.provider.xmpp;
 
-import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Packet;
 
 
 public class XmppResponseListener implements org.jivesoftware.smack.PacketListener {
@@ -28,11 +28,12 @@ public class XmppResponseListener implements org.jivesoftware.smack.PacketListen
 
     /**
      * Capturing the packets coming from the user and setting the responseReceived flag.
+     *
      * @param packet
      */
     public void processPacket(Packet packet) {
         Message message = (Message) packet;
-        if(message.getBody() == null){
+        if (message.getBody() == null) {
             return;
         }
         response = message.getBody();
@@ -40,7 +41,6 @@ public class XmppResponseListener implements org.jivesoftware.smack.PacketListen
     }
 
     /**
-     *
      * @return
      */
     public boolean isResponseReceived() {
@@ -48,18 +48,16 @@ public class XmppResponseListener implements org.jivesoftware.smack.PacketListen
     }
 
     /**
-     *
-     * @return
-     */
-    public String getResponse() {
-        return response;
-    }
-
-    /**
-     *
      * @param responseReceived
      */
     public void setResponseReceived(boolean responseReceived) {
         this.responseReceived = responseReceived;
+    }
+
+    /**
+     * @return
+     */
+    public String getResponse() {
+        return response;
     }
 }

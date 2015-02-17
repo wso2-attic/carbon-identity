@@ -19,24 +19,24 @@ package org.wso2.carbon.identity.provider.dto;
 
 public class UserProfileDTO {
 
-	private boolean defaultProfile;
-	
-	private OpenIDClaimDTO[] claims;
+    private boolean defaultProfile;
 
-	public boolean isDefaultProfile() {
-		return defaultProfile;
-	}
+    private OpenIDClaimDTO[] claims;
 
-	public void setDefaultProfile(boolean defaultProfile) {
-		this.defaultProfile = defaultProfile;
-	}
+    public boolean isDefaultProfile() {
+        return defaultProfile;
+    }
 
-	public OpenIDClaimDTO[] getClaims() {
-		return claims;
-	}
+    public void setDefaultProfile(boolean defaultProfile) {
+        this.defaultProfile = defaultProfile;
+    }
 
-	public void setClaims(OpenIDClaimDTO[] claims) {
-		this.claims = claims;
-	}	
-	
+    public OpenIDClaimDTO[] getClaims() {
+        return claims;
+    }
+
+    public void setClaims(OpenIDClaimDTO[] claims) {
+        this.claims = claims;
+    }
+
 }

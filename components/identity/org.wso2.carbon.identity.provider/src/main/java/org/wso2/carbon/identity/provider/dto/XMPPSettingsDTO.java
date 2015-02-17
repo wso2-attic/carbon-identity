@@ -24,6 +24,7 @@ public class XMPPSettingsDTO {
     private String userCode;
     private String userId;
     private boolean isXmppEnabled;
+    private boolean isPINEnabled;
 
     public boolean isPINEnabled() {
         return isPINEnabled;
@@ -33,10 +34,7 @@ public class XMPPSettingsDTO {
         isPINEnabled = PINEnabled;
     }
 
-    private boolean isPINEnabled;
-
     /**
-     *
      * @return whether the user has enabled XMPP Settings.
      */
     public boolean isXmppEnabled() {
@@ -44,7 +42,6 @@ public class XMPPSettingsDTO {
     }
 
     /**
-     *
      * @param xmppEnabled
      */
     public void setXmppEnabled(boolean xmppEnabled) {
@@ -53,7 +50,6 @@ public class XMPPSettingsDTO {
 
 
     /**
-     *
      * @return userId of a user
      */
     public String getUserId() {
@@ -61,7 +57,6 @@ public class XMPPSettingsDTO {
     }
 
     /**
-     *
      * @param userId
      */
     public void setUserId(String userId) {
@@ -69,7 +64,6 @@ public class XMPPSettingsDTO {
     }
 
     /**
-     *
      * @return XMPP Server Name
      */
     public String getXmppServer() {
@@ -77,7 +71,6 @@ public class XMPPSettingsDTO {
     }
 
     /**
-     *
      * @param xmppServer
      */
     public void setXmppServer(String xmppServer) {
@@ -85,7 +78,6 @@ public class XMPPSettingsDTO {
     }
 
     /**
-     *
      * @return XMPP UserName
      */
     public String getXmppUserName() {
@@ -93,7 +85,6 @@ public class XMPPSettingsDTO {
     }
 
     /**
-     *
      * @param xmppUserName
      */
     public void setXmppUserName(String xmppUserName) {
@@ -101,7 +92,6 @@ public class XMPPSettingsDTO {
     }
 
     /**
-     *
      * @return xmppUserCode
      */
     public String getUserCode() {
@@ -109,7 +99,6 @@ public class XMPPSettingsDTO {
     }
 
     /**
-     * 
      * @param userCode
      */
     public void setUserCode(String userCode) {

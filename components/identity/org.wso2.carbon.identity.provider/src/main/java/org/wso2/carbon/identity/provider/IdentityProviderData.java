@@ -15,11 +15,6 @@
  */
 package org.wso2.carbon.identity.provider;
 
-import java.util.Iterator;
-import java.util.Vector;
-
-import javax.xml.namespace.QName;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.context.MessageContext;
 import org.apache.commons.logging.Log;
@@ -29,21 +24,13 @@ import org.apache.ws.security.WSConstants;
 import org.apache.ws.security.WSSecurityEngineResult;
 import org.apache.ws.security.handler.WSHandlerConstants;
 import org.apache.ws.security.handler.WSHandlerResult;
-import org.apache.xml.security.keys.KeyInfo;
-import org.apache.xml.security.signature.XMLSignature;
 import org.opensaml.SAMLAssertion;
-import org.opensaml.SAMLAttribute;
-import org.opensaml.SAMLAttributeStatement;
 import org.wso2.carbon.identity.base.IdentityConstants;
-import org.wso2.carbon.identity.provider.IdentityProviderException;
-import org.wso2.carbon.identity.provider.internal.IdentityProviderServiceComponent;
-import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
-import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
-import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.Claim;
-import org.wso2.carbon.user.core.util.UserCoreUtil;
-import org.wso2.carbon.utils.TenantUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+
+import javax.xml.namespace.QName;
+import java.util.Vector;
 
 /**
  * Meta-data collection of related to CardSpace required for token issuance.
@@ -58,7 +45,6 @@ public class IdentityProviderData extends GenericIdentityProviderData {
     }
 
     /**
-     *
      * @param rst
      * @throws IdentityProviderException
      */
@@ -80,7 +66,6 @@ public class IdentityProviderData extends GenericIdentityProviderData {
     }
 
     /**
-     * 
      * @param data
      * @throws IdentityProviderException
      */
@@ -107,7 +92,7 @@ public class IdentityProviderData extends GenericIdentityProviderData {
                             .get(j);
                     int action = ((Integer) wser.get(WSSecurityEngineResult.TAG_ACTION)).intValue();
                     if (action == WSConstants.ST_UNSIGNED) {
-                        
+
                         this.authMechanism = IdentityConstants.AUTH_TYPE_SELF_ISSUED;
                         this.assertion = (SAMLAssertion) wser
                                 .get(WSSecurityEngineResult.TAG_SAML_ASSERTION);
@@ -127,25 +112,25 @@ public class IdentityProviderData extends GenericIdentityProviderData {
     public void setUserIdentifier(String userIdentifier) {
         this.userIdentifier = userIdentifier;
     }
-    
+
     public String getTenantDomain() throws IdentityProviderException {
-        if(this.authMechanism == IdentityConstants.AUTH_TYPE_SELF_ISSUED){ //only for tenant 0
+        if (this.authMechanism == IdentityConstants.AUTH_TYPE_SELF_ISSUED) { //only for tenant 0
             return null;
         }
-        
-        if(userIdentifier == null) {
+
+        if (userIdentifier == null) {
             // auth type is not self issued and still the user identifier is null. 
             // this is a invalid case
             throw new IllegalStateException("User identifier must NOT be null");
         }
-        
-        String domain = null;;
+
+        String domain = null;
+        ;
         domain = MultitenantUtils.getTenantDomain(userIdentifier);
         return domain;
     }
 
     /**
-     * 
      * @param URI
      * @return
      */

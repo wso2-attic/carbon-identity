@@ -25,19 +25,16 @@ import org.wso2.carbon.identity.core.util.IdentityUtil;
  * This class is the WSO2 Implementation of OpenID Provider role.
  * This is a singleton class which handles all OpenID Server related
  * configurations and this class initiates the <code>ServerManager</code>
- * 
+ *
  * @author WSO2 Inc
- * 
  */
 public class OpenIDProvider {
 
-    // Instantiate a ServerManager object.
-    private ServerManager manager = new OpenIDServerManager();
-
-    private String opAddress;
-
     // Guaranteed to be thread safe
     private static OpenIDProvider provider = new OpenIDProvider();
+    // Instantiate a ServerManager object.
+    private ServerManager manager = new OpenIDServerManager();
+    private String opAddress;
 
     /**
      * Configure the OpenID Provider's end-point URL
@@ -53,7 +50,7 @@ public class OpenIDProvider {
 
     /**
      * @return an instance of the OpenIDProvider
-    */
+     */
     public static OpenIDProvider getInstance() {
         return provider;
     }

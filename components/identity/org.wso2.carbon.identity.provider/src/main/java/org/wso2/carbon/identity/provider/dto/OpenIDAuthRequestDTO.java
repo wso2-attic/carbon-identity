@@ -38,7 +38,7 @@ public class OpenIDAuthRequestDTO {
     private String userSelectedClaimedId;
 
     private boolean authenticated;
-    
+
     private Map<ClaimMapping, String> responseClaims = null;
 
     public String getOpenID() {
@@ -105,12 +105,12 @@ public class OpenIDAuthRequestDTO {
         this.authenticated = authenticated;
     }
 
-	public Map<ClaimMapping, String> getResponseClaims() {
-		return responseClaims;
-	}
+    public Map<ClaimMapping, String> getResponseClaims() {
+        return responseClaims;
+    }
 
-	public void setResponseClaims(Map<ClaimMapping, String> responseClaims) {
-		this.responseClaims = responseClaims;
-	}
+    public void setResponseClaims(Map<ClaimMapping, String> responseClaims) {
+        this.responseClaims = responseClaims;
+    }
 
 }

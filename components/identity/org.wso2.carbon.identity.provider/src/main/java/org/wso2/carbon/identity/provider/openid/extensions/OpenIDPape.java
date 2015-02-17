@@ -16,9 +16,6 @@
 
 package org.wso2.carbon.identity.provider.openid.extensions;
 
-import java.util.List;
-import java.util.ArrayList;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openid4java.message.AuthRequest;
@@ -27,12 +24,13 @@ import org.openid4java.message.MessageExtension;
 import org.openid4java.message.pape.PapeMessage;
 import org.openid4java.message.pape.PapeRequest;
 import org.openid4java.message.pape.PapeResponse;
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.base.IdentityConstants;
-import org.wso2.carbon.identity.provider.openid.handlers.OpenIDAuthenticationRequest;
+import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
-import org.wso2.carbon.identity.provider.dto.PapeInfoResponseDTO;
 import org.wso2.carbon.identity.provider.dto.OpenIDParameterDTO;
+import org.wso2.carbon.identity.provider.openid.handlers.OpenIDAuthenticationRequest;
+
+import java.util.List;
 
 /**
  * Functionality related to OpenID Provider Authentication Policy Extension. This extension to the
@@ -47,77 +45,34 @@ import org.wso2.carbon.identity.provider.dto.OpenIDParameterDTO;
  */
 public class OpenIDPape extends OpenIDExtension {
 
-	private OpenIDAuthenticationRequest request;
-	private static Log log = LogFactory.getLog(OpenIDPape.class);
+    private static Log log = LogFactory.getLog(OpenIDPape.class);
+    private OpenIDAuthenticationRequest request;
 
-	/**
-	 * @param request An instance of OpenIDAuthenticationRequest
-	 */
-	public OpenIDPape(OpenIDAuthenticationRequest request) throws IdentityException {
-		if (request == null) {
-			log.debug("Request cannot be null while initializing OpenIDPape");
-			throw new IdentityException("Request cannot be null while initializing OpenIDPape");
-		}
-		this.request = request;
-	}
+    /**
+     * @param request An instance of OpenIDAuthenticationRequest
+     */
+    public OpenIDPape(OpenIDAuthenticationRequest request) throws IdentityException {
+        if (request == null) {
+            log.debug("Request cannot be null while initializing OpenIDPape");
+            throw new IdentityException("Request cannot be null while initializing OpenIDPape");
+        }
+        this.request = request;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void addRequiredAttributes(List<String> requiredAttributes) throws IdentityException {
+    /**
+     * @param authRequest OpenID authentication request
+     * @return A set of policies requested
+     * @throws Exception
+     */
+    public static String[] getAuthenticationPolicies(AuthRequest authRequest) throws Exception {
 
-	}
+        MessageExtension message = null;
+        PapeRequest papeRequest = null;
+        List preferredPolicies = null;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public MessageExtension getMessageExtension(String userId, String profileName, OpenIDAuthRequestDTO requestDTO)
-			throws IdentityException {
-
-		MessageExtension message = null;
-		PapeResponse papeResponse = null;
-		AuthRequest authRequest = null;
-
-		try {
-			authRequest = request.getAuthRequest();
-
-			if (authRequest != null) {
-				message = authRequest.getExtension(PapeMessage.OPENID_NS_PAPE);
-
-				if (message instanceof PapeRequest) {
-					papeResponse = PapeResponse.createPapeResponse();
-					if (request.isPhishingResistanceLogin()) {
-						papeResponse.addAuthPolicy(PapeMessage.PAPE_POLICY_PHISHING_RESISTANT);
-                        //papeResponse.setNistAuthLevel(1);  TODO
-					}
-					if (request.isMultifactorLogin()) {
-						papeResponse.addAuthPolicy(PapeMessage.PAPE_POLICY_MULTI_FACTOR);
-						//papeResponse.setNistAuthLevel(2);  TODO
-					}
-				}
-			}
-		} catch (MessageException e) {
-			log.error("Failed to create message extension for PAPE", e);
-			throw new IdentityException("Failed to create message extension for PAPE", e);
-		}
-
-		return papeResponse;
-	}
-
-	/**
-	 * @param authRequest OpenID authentication request
-	 * @return A set of policies requested
-	 * @throws Exception
-	 */
-	public static String[] getAuthenticationPolicies(AuthRequest authRequest) throws Exception {
-
-		MessageExtension message = null;
-		PapeRequest papeRequest = null;
-		List preferredPolicies = null;
-
-		try {
-			if (authRequest.hasExtension(PapeMessage.OPENID_NS_PAPE)) {
-				message = authRequest.getExtension(PapeMessage.OPENID_NS_PAPE);
+        try {
+            if (authRequest.hasExtension(PapeMessage.OPENID_NS_PAPE)) {
+                message = authRequest.getExtension(PapeMessage.OPENID_NS_PAPE);
 
                 if (message instanceof PapeRequest) {
                     papeRequest = (PapeRequest) message;
@@ -132,6 +87,49 @@ public class OpenIDPape extends OpenIDExtension {
             log.error("Failed retreive authenrtication policies", e);
             throw new IdentityException("Failed retreive authenrtication policies", e);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void addRequiredAttributes(List<String> requiredAttributes) throws IdentityException {
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public MessageExtension getMessageExtension(String userId, String profileName, OpenIDAuthRequestDTO requestDTO)
+            throws IdentityException {
+
+        MessageExtension message = null;
+        PapeResponse papeResponse = null;
+        AuthRequest authRequest = null;
+
+        try {
+            authRequest = request.getAuthRequest();
+
+            if (authRequest != null) {
+                message = authRequest.getExtension(PapeMessage.OPENID_NS_PAPE);
+
+                if (message instanceof PapeRequest) {
+                    papeResponse = PapeResponse.createPapeResponse();
+                    if (request.isPhishingResistanceLogin()) {
+                        papeResponse.addAuthPolicy(PapeMessage.PAPE_POLICY_PHISHING_RESISTANT);
+                        //papeResponse.setNistAuthLevel(1);  TODO
+                    }
+                    if (request.isMultifactorLogin()) {
+                        papeResponse.addAuthPolicy(PapeMessage.PAPE_POLICY_MULTI_FACTOR);
+                        //papeResponse.setNistAuthLevel(2);  TODO
+                    }
+                }
+            }
+        } catch (MessageException e) {
+            log.error("Failed to create message extension for PAPE", e);
+            throw new IdentityException("Failed to create message extension for PAPE", e);
+        }
+
+        return papeResponse;
     }
 
     public OpenIDParameterDTO[] getPapeInfoFromRequest() {

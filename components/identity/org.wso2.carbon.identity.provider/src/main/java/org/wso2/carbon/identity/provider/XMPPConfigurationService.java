@@ -43,7 +43,7 @@ public class XMPPConfigurationService {
 
     /**
      * Add XMPP Settings
-     * 
+     *
      * @param dto
      * @return success of the operation
      * @throws IdentityProviderException
@@ -52,9 +52,9 @@ public class XMPPConfigurationService {
         String message = "Invalid parameters provided to addUserXmppSettings";
         if (dto == null) {
             throw new IllegalArgumentException(message);
-        }else{
-            if(dto.getUserId() == null){
-                throw new IllegalArgumentException(message);    
+        } else {
+            if (dto.getUserId() == null) {
+                throw new IllegalArgumentException(message);
             }
         }
         validateInputParameters(new String[]{dto.getUserId(), dto.getXmppServer(),
@@ -65,9 +65,10 @@ public class XMPPConfigurationService {
         provider.addXmppSettings(dto);
         return true;
     }
+
     /**
      * Edit XMPP Settings of a user Edit XMPP Settings.
-     * 
+     *
      * @param dto
      * @throws IdentityProviderException
      */
@@ -75,8 +76,8 @@ public class XMPPConfigurationService {
         String message = "Invalid parameters provided to editXmppSettings";
         if (dto == null) {
             throw new IllegalArgumentException(message);
-        }else{
-            if(dto.getUserId() == null){
+        } else {
+            if (dto.getUserId() == null) {
                 throw new IllegalArgumentException(message);
             }
         }
@@ -89,7 +90,7 @@ public class XMPPConfigurationService {
 
     /**
      * Get XMPP Settings of a user
-     * 
+     *
      * @param userId
      * @return XmppSettingsDTO instance containing XMPP properties
      * @throws IdentityProviderException
@@ -104,7 +105,7 @@ public class XMPPConfigurationService {
 
     /**
      * Check whether the user has enabled XMPP based multi-factor authentication.
-     * 
+     *
      * @param userId
      * @return
      * @throws IdentityProviderException
@@ -119,7 +120,7 @@ public class XMPPConfigurationService {
 
     /**
      * Whether the user has added XMPP settings.
-     * 
+     *
      * @param userId
      * @return
      * @throws IdentityProviderException
@@ -134,7 +135,7 @@ public class XMPPConfigurationService {
 
     /**
      * Get the IM Address of an user to populate the IM field of XMPP Configuration page.
-     * 
+     *
      * @param userID
      * @return
      * @throws IdentityException
@@ -157,7 +158,6 @@ public class XMPPConfigurationService {
     }
 
     /**
-     * 
      * @param username
      * @param operation
      * @throws IdentityProviderException
@@ -181,7 +181,6 @@ public class XMPPConfigurationService {
     }
 
     /**
-     * 
      * @param params
      * @param message
      */

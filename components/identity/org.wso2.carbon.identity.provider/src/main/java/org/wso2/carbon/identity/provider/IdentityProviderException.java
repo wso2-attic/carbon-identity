@@ -19,11 +19,11 @@ public class IdentityProviderException extends Exception {
 
     private static final long serialVersionUID = 6512959880053806795L;
 
-	public IdentityProviderException(String messaage) {
-		super(messaage);
-	}
+    public IdentityProviderException(String messaage) {
+        super(messaage);
+    }
 
-	public IdentityProviderException(String messaage, Throwable e) {
-		super(messaage, e);
-	}
+    public IdentityProviderException(String messaage, Throwable e) {
+        super(messaage, e);
+    }
 }

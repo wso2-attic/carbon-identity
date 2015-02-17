@@ -149,8 +149,7 @@ public class MPAuthenticationProvider {
             try {
                 connection.connect();
                 return true;
-            }
-            catch (XMPPException ex) {
+            } catch (XMPPException ex) {
                 log.error("Failed to create connection with the server", ex);
                 if (log.isInfoEnabled()) {
                     log.info("Attempting to connect to the server again..");
@@ -175,8 +174,7 @@ public class MPAuthenticationProvider {
             try {
                 connection.login(userName, password, null);
                 return true;
-            }
-            catch (XMPPException ex) {
+            } catch (XMPPException ex) {
                 log.error("login failed. Trying again..", ex);
             }
         }
@@ -233,9 +231,7 @@ public class MPAuthenticationProvider {
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
-
-        finally {
+        } finally {
             roster.removeRosterListener(listener);
         }
 
