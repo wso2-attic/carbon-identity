@@ -37,26 +37,22 @@ import java.rmi.RemoteException;
 @SuppressWarnings({"UnusedDeclaration"})
 public class DirectoryServerManagerClient {
 
-    protected DirectoryServerManagerStub stub = null;
-
     public static String SERVER_MANAGER_CLIENT = "org.wso2.carbon.directory.server.manager";
+    protected static Log log = LogFactory.getLog(DirectoryServerManagerClient.class);
     private static String SERVER_MANAGER_SERVICE = "DirectoryServerManager";
-
+    protected DirectoryServerManagerStub stub = null;
     private String passwordRegularExpression;
     private String serviceNameRegularExpression;
 
-    protected static Log log = LogFactory.getLog(DirectoryServerManagerClient.class);
-
     public DirectoryServerManagerClient(String cookie, String url,
-            ConfigurationContext configContext) throws ServerManagerClientException {
+                                        ConfigurationContext configContext) throws ServerManagerClientException {
         try {
             stub = new DirectoryServerManagerStub(configContext, url + SERVER_MANAGER_SERVICE);
             ServiceClient client = stub._getServiceClient();
             Options option = client.getOptions();
             option.setManageSession(true);
             option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
-        }
-        catch (AxisFault e) {
+        } catch (AxisFault e) {
             log.error("Unable to instantiate DirectoryServerManagerClient.", e);
             throw new ServerManagerClientException(ServerManagerClientException.INIT_SERVICE_PRINCIPLE_ERROR, e);
         }
@@ -131,7 +127,7 @@ public class DirectoryServerManagerClient {
         }
     }
 
-    public String getPasswordConformanceRegularExpression () throws ServerManagerClientException {
+    public String getPasswordConformanceRegularExpression() throws ServerManagerClientException {
 
         if (this.passwordRegularExpression != null) {
             return this.passwordRegularExpression;
@@ -168,7 +164,7 @@ public class DirectoryServerManagerClient {
     }
 
     public boolean isKDCEnabled() {
-        
+
         try {
             return stub.isKDCEnabled();
         } catch (RemoteException e) {
