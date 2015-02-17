@@ -18,26 +18,10 @@
 
 package org.wso2.carbon.ldap.server.configuration;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.log4j.Logger;
-import org.wso2.carbon.apacheds.AdminGroupInfo;
-import org.wso2.carbon.apacheds.AdminInfo;
-import org.wso2.carbon.apacheds.KdcConfiguration;
-import org.wso2.carbon.apacheds.LDAPConfiguration;
-import org.wso2.carbon.apacheds.PartitionInfo;
-import org.wso2.carbon.apacheds.PasswordAlgorithm;
+import org.wso2.carbon.apacheds.*;
 import org.wso2.carbon.ldap.server.exception.DirectoryServerException;
 import org.wso2.carbon.ldap.server.util.EmbeddingLDAPException;
 import org.wso2.carbon.user.api.RealmConfiguration;
@@ -45,6 +29,16 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
 import org.wso2.carbon.utils.CarbonUtils;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * This class is responsible for building LDAP and KDC configurations. Given a file
@@ -54,10 +48,10 @@ import org.wso2.carbon.utils.CarbonUtils;
 
 public class LDAPConfigurationBuilder {
 
+    private static String CARBON_KDC_PORT_CONFIG_SECTION = "Ports.EmbeddedLDAP.KDCServerPort";
+    private static int DEFAULT_KDC_SERVER_PORT = 8000;
     private Logger logger = Logger.getLogger(LDAPConfigurationBuilder.class);
-
     private String userMgtXMLFilePath = null;
-
     private InputStream configurationFileStream;
     /*Password to connect with the embedded-ldap server*/
     private String connectionPassword;
@@ -67,11 +61,7 @@ public class LDAPConfigurationBuilder {
     private PartitionInfo partitionConfigurations;
     /*contains KDC server configurations*/
     private KdcConfiguration kdcConfigurations;
-
     private boolean kdcEnabled = false;
-
-    private static String CARBON_KDC_PORT_CONFIG_SECTION = "Ports.EmbeddedLDAP.KDCServerPort";
-    private static int DEFAULT_KDC_SERVER_PORT = 8000;
 
 
     /**
@@ -102,60 +92,59 @@ public class LDAPConfigurationBuilder {
      * Build separate sections of the configuration file and the configuration file as a whole, as
      * OMElements.
      *
-     * @throws org.wso2.carbon.ldap.server.util.EmbeddingLDAPException
-     *          Following is a sample configuration file:
-     *          <EmbeddedLDAPConfig>
-     *          <!-- LDAP server configurations -->
-     *          <EmbeddedLDAP>
-     *          <Property name="enable">true</Property>
-     *          <Property name="instanceId">default</Property>
-     *          <Property name="connectionPassword">admin</Property>
-     *          <Property name="workingDirectory">.</Property>
-     *          <Property name="allowAnonymousAccess">false</Property>
-     *          <Property name="accessControlEnabled">true</Property>
-     *          <Property name="denormalizeOpAttrsEnabled">false</Property>
-     *          <Property name="maxPDUSize">2000000</Property>
-     *          <Property name="saslHostName">localhost</Property>
-     *          <Property name="saslPrincipalName">ldap/localhost@EXAMPLE.COM</Property>
-     *          </EmbeddedLDAP>
-     *          <p/>
-     *          <!-- Default partition configurations -->
-     *          <DefaultPartition>
-     *          <Property name="id">root</Property>
-     *          <Property name="realm">wso2.com</Property>
-     *          <Property name="kdcPassword">secret</Property>
-     *          <Property name="ldapServerPrinciplePassword">randall</Property>
-     *          </DefaultPartition>
-     *          <p/>
-     *          <!-- Default partition admin configurations -->
-     *          <PartitionAdmin>
-     *          <Property name="uid">admin</Property>
-     *          <Property name="commonName">admin</Property>
-     *          <Property name="lastName">admin</Property>
-     *          <Property name="email">admin</Property>
-     *          <Property name="password">admin</Property>
-     *          <Property name="passwordType">SHA</Property>
-     *          </PartitionAdmin>
-     *          <p/>
-     *          <!-- Default partition admin's group configuration -->
-     *          <PartitionAdminGroup>
-     *          <Property name="adminRoleName">admin</Property>
-     *          <Property name="groupNameAttribute">cn</Property>
-     *          <Property name="memberNameAttribute">member</Property>
-     *          </PartitionAdminGroup>
-     *          <p/>
-     *          <!-- KDC configurations -->
-     *          <KDCServer>
-     *          <Property name="name">defaultKDC</Property>
-     *          <Property name="enabled">false</Property>
-     *          <Property name="protocol">UDP</Property>
-     *          <Property name="host">localhost</Property>
-     *          <Property name="maximumTicketLifeTime">8640000</Property>
-     *          <Property name="maximumRenewableLifeTime">604800000</Property>
-     *          <Property name="preAuthenticationTimeStampEnabled">true</Property>
-     *          </KDCServer>
-     *          <p/>
-     *          </EmbeddedLDAPConfig>
+     * @throws org.wso2.carbon.ldap.server.util.EmbeddingLDAPException Following is a sample configuration file:
+     *                                                                 <EmbeddedLDAPConfig>
+     *                                                                 <!-- LDAP server configurations -->
+     *                                                                 <EmbeddedLDAP>
+     *                                                                 <Property name="enable">true</Property>
+     *                                                                 <Property name="instanceId">default</Property>
+     *                                                                 <Property name="connectionPassword">admin</Property>
+     *                                                                 <Property name="workingDirectory">.</Property>
+     *                                                                 <Property name="allowAnonymousAccess">false</Property>
+     *                                                                 <Property name="accessControlEnabled">true</Property>
+     *                                                                 <Property name="denormalizeOpAttrsEnabled">false</Property>
+     *                                                                 <Property name="maxPDUSize">2000000</Property>
+     *                                                                 <Property name="saslHostName">localhost</Property>
+     *                                                                 <Property name="saslPrincipalName">ldap/localhost@EXAMPLE.COM</Property>
+     *                                                                 </EmbeddedLDAP>
+     *                                                                 <p/>
+     *                                                                 <!-- Default partition configurations -->
+     *                                                                 <DefaultPartition>
+     *                                                                 <Property name="id">root</Property>
+     *                                                                 <Property name="realm">wso2.com</Property>
+     *                                                                 <Property name="kdcPassword">secret</Property>
+     *                                                                 <Property name="ldapServerPrinciplePassword">randall</Property>
+     *                                                                 </DefaultPartition>
+     *                                                                 <p/>
+     *                                                                 <!-- Default partition admin configurations -->
+     *                                                                 <PartitionAdmin>
+     *                                                                 <Property name="uid">admin</Property>
+     *                                                                 <Property name="commonName">admin</Property>
+     *                                                                 <Property name="lastName">admin</Property>
+     *                                                                 <Property name="email">admin</Property>
+     *                                                                 <Property name="password">admin</Property>
+     *                                                                 <Property name="passwordType">SHA</Property>
+     *                                                                 </PartitionAdmin>
+     *                                                                 <p/>
+     *                                                                 <!-- Default partition admin's group configuration -->
+     *                                                                 <PartitionAdminGroup>
+     *                                                                 <Property name="adminRoleName">admin</Property>
+     *                                                                 <Property name="groupNameAttribute">cn</Property>
+     *                                                                 <Property name="memberNameAttribute">member</Property>
+     *                                                                 </PartitionAdminGroup>
+     *                                                                 <p/>
+     *                                                                 <!-- KDC configurations -->
+     *                                                                 <KDCServer>
+     *                                                                 <Property name="name">defaultKDC</Property>
+     *                                                                 <Property name="enabled">false</Property>
+     *                                                                 <Property name="protocol">UDP</Property>
+     *                                                                 <Property name="host">localhost</Property>
+     *                                                                 <Property name="maximumTicketLifeTime">8640000</Property>
+     *                                                                 <Property name="maximumRenewableLifeTime">604800000</Property>
+     *                                                                 <Property name="preAuthenticationTimeStampEnabled">true</Property>
+     *                                                                 </KDCServer>
+     *                                                                 <p/>
+     *                                                                 </EmbeddedLDAPConfig>
      */
     public void buildConfigurations() throws EmbeddingLDAPException {
 
@@ -175,7 +164,7 @@ public class LDAPConfigurationBuilder {
         /*Set properties in ldapConfiguration object from those read from the config element.*/
         buildLDAPConfigurations(embeddedLdap);
 
-        if(ldapConfiguration.isEnable()){
+        if (ldapConfiguration.isEnable()) {
             /*Set properties in partitionConfigurations object from those read from the config file.*/
             buildPartitionConfigurations(documentElement);
 
@@ -219,7 +208,6 @@ public class LDAPConfigurationBuilder {
      *
      * @param propertyMap : containing properties of EmbeddedLDAP Element.
      * @throws org.wso2.carbon.ldap.server.util.EmbeddingLDAPException
-     *
      */
     private void buildConnectionPassword(Map<String, String> propertyMap)
             throws EmbeddingLDAPException {
@@ -227,7 +215,7 @@ public class LDAPConfigurationBuilder {
         connectionPassword = propertyMap.get("connectionPassword");
         if (connectionPassword == null) {
             throw new EmbeddingLDAPException("Connection password not specified in the " +
-                                             "configuration file.");
+                    "configuration file.");
         }
 
     }
@@ -238,7 +226,6 @@ public class LDAPConfigurationBuilder {
      *
      * @param embeddedLDAP: part of the XML config file named: EmbeddedLDAP
      * @throws org.wso2.carbon.ldap.server.util.EmbeddingLDAPException
-     *
      */
     private void buildLDAPConfigurations(OMElement embeddedLDAP) throws EmbeddingLDAPException {
         /*Read the properties of EmbeddedLDAP XML element.*/
@@ -367,29 +354,29 @@ public class LDAPConfigurationBuilder {
 
         //read user-mgt.xml
         //RealmConfiguration realmConfig = getUserManagementXMLElement();
-        
+
         this.partitionConfigurations = new PartitionInfo();
 
-		OMElement defaultPartition = documentElement.getFirstChildWithName(new QName("DefaultPartition"));
-		Map<String, String> propertyMap = getChildPropertyElements(defaultPartition);
+        OMElement defaultPartition = documentElement.getFirstChildWithName(new QName("DefaultPartition"));
+        Map<String, String> propertyMap = getChildPropertyElements(defaultPartition);
 
-		this.partitionConfigurations.setPartitionId(propertyMap.get("id"));
-		this.partitionConfigurations.setRealm(propertyMap.get("realm"));
+        this.partitionConfigurations.setPartitionId(propertyMap.get("id"));
+        this.partitionConfigurations.setRealm(propertyMap.get("realm"));
 
-		this.partitionConfigurations.setPartitionKdcPassword(propertyMap.get("kdcPassword"));
-		this.partitionConfigurations.setLdapServerPrinciplePassword(propertyMap.get("ldapServerPrinciplePassword"));
-		this.partitionConfigurations.setRootDN(getDomainNameForRealm(propertyMap.get("realm")));
+        this.partitionConfigurations.setPartitionKdcPassword(propertyMap.get("kdcPassword"));
+        this.partitionConfigurations.setLdapServerPrinciplePassword(propertyMap.get("ldapServerPrinciplePassword"));
+        this.partitionConfigurations.setRootDN(getDomainNameForRealm(propertyMap.get("realm")));
 
         // Admin user config
-		OMElement partitionAdmin = documentElement.getFirstChildWithName(new QName("PartitionAdmin"));
+        OMElement partitionAdmin = documentElement.getFirstChildWithName(new QName("PartitionAdmin"));
         propertyMap = getChildPropertyElements(partitionAdmin);
         AdminInfo defaultPartitionAdmin = buildPartitionAdminConfigurations(propertyMap);
-        
+
         // Admin role config
         OMElement partitionAdminRole = documentElement.getFirstChildWithName(new QName("PartitionAdminGroup"));
         propertyMap = getChildPropertyElements(partitionAdminRole);
         AdminGroupInfo adminGroupInfo = buildPartitionAdminGroupConfigurations(propertyMap);
-        
+
         defaultPartitionAdmin.setGroupInformation(adminGroupInfo);
         this.partitionConfigurations.setPartitionAdministrator(defaultPartitionAdmin);
 
@@ -467,17 +454,16 @@ public class LDAPConfigurationBuilder {
      * kdcConfigurations object.
      *
      * @param kdcConfigElement
-     * @throws org.wso2.carbon.ldap.server.util.EmbeddingLDAPException
-     *          <!-- KDC configurations -->
-     *          <KDCServer>
-     *          <Property name="name">defaultKDC</Property>
-     *          <Property name="enabled">false</Property>
-     *          <Property name="protocol">UDP</Property>
-     *          <Property name="host">localhost</Property>
-     *          <Property name="maximumTicketLifeTime">8640000</Property>
-     *          <Property name="maximumRenewableLifeTime">604800000</Property>
-     *          <Property name="preAuthenticationTimeStampEnabled">true</Property>
-     *          </KDCServer>
+     * @throws org.wso2.carbon.ldap.server.util.EmbeddingLDAPException <!-- KDC configurations -->
+     *                                                                 <KDCServer>
+     *                                                                 <Property name="name">defaultKDC</Property>
+     *                                                                 <Property name="enabled">false</Property>
+     *                                                                 <Property name="protocol">UDP</Property>
+     *                                                                 <Property name="host">localhost</Property>
+     *                                                                 <Property name="maximumTicketLifeTime">8640000</Property>
+     *                                                                 <Property name="maximumRenewableLifeTime">604800000</Property>
+     *                                                                 <Property name="preAuthenticationTimeStampEnabled">true</Property>
+     *                                                                 </KDCServer>
      */
     private void buildKDCConfigurations(OMElement kdcConfigElement)
             throws EmbeddingLDAPException {
@@ -508,8 +494,8 @@ public class LDAPConfigurationBuilder {
         int port = getPort(propertyMap.get("port"));
         if (port == -1) {
             logger.warn("KDC port defined in carbon.xml's " + CARBON_KDC_PORT_CONFIG_SECTION +
-                        " config section or embedded-ldap.xml is invalid. " +
-                        "Setting KDC server port to default - " + DEFAULT_KDC_SERVER_PORT);
+                    " config section or embedded-ldap.xml is invalid. " +
+                    "Setting KDC server port to default - " + DEFAULT_KDC_SERVER_PORT);
             port = DEFAULT_KDC_SERVER_PORT;
         }
 
@@ -544,7 +530,7 @@ public class LDAPConfigurationBuilder {
         }
         try {
             File userMgtXMLFile = new File(userMgtXMLFilePath,
-                                           REALM_CONFIG_FILE);
+                    REALM_CONFIG_FILE);
             if (userMgtXMLFile.exists()) {
                 inStream = new FileInputStream(userMgtXMLFile);
             }
@@ -558,18 +544,18 @@ public class LDAPConfigurationBuilder {
             config = rmProcessor.buildRealmConfiguration(realmElement);
         } catch (XMLStreamException e) {
             String errorMsg = "User-mgt.xml is not found. " +
-                              "Hence admin properties will be read from embedded-ldap.xml";
+                    "Hence admin properties will be read from embedded-ldap.xml";
             if (logger.isDebugEnabled()) {
                 logger.debug(errorMsg);
             }
         } catch (FileNotFoundException e) {
             String errorMsg = "User-mgt.xml is not found. " +
-                              "Hence admin properties will be read from embedded-ldap.xml";
+                    "Hence admin properties will be read from embedded-ldap.xml";
             if (logger.isDebugEnabled()) {
                 logger.debug(errorMsg);
             }
         } catch (UserStoreException e) {
-            logger.error("Error occured while reading user-mgt.xml",e);
+            logger.error("Error occured while reading user-mgt.xml", e);
         }
 
         return config;

@@ -34,11 +34,7 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.apacheds.AdminGroupInfo;
-import org.wso2.carbon.apacheds.AdminInfo;
-import org.wso2.carbon.apacheds.PartitionInfo;
-import org.wso2.carbon.apacheds.PartitionManager;
-import org.wso2.carbon.apacheds.PasswordAlgorithm;
+import org.wso2.carbon.apacheds.*;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.ldap.server.exception.DirectoryServerException;
 
@@ -57,19 +53,38 @@ import java.util.Set;
  */
 class ApacheDirectoryPartitionManager implements PartitionManager {
 
+    /*Partition cache size is expressed as number of entries*/
+    private static final int PARTITION_CACHE_SIZE = 500;
+    private static final Logger logger = LoggerFactory.getLogger(
+            ApacheDirectoryPartitionManager.class);
     private DirectoryService directoryService = null;
     private String workingDirectory;
     private PartitionFactory partitionFactory = null;
-    /*Partition cache size is expressed as number of entries*/
-    private static final int PARTITION_CACHE_SIZE = 500;
-
-    private static final Logger logger = LoggerFactory.getLogger(
-            ApacheDirectoryPartitionManager.class);
 
     public ApacheDirectoryPartitionManager(DirectoryService directoryService, String wd) {
         this.directoryService = directoryService;
         this.workingDirectory = wd;
         this.partitionFactory = new JdbmPartitionFactory();
+    }
+
+    private static void throwDirectoryServerException(String message, Throwable e)
+            throws DirectoryServerException {
+
+        logger.error(message, e);
+        throw new DirectoryServerException(message, e);
+    }
+
+    private static void addObjectClasses(ServerEntry serverEntry, List<String> objectClasses)
+            throws DirectoryServerException {
+
+        for (String objectClass : objectClasses) {
+            try {
+                serverEntry.add("objectClass", objectClass);
+            } catch (LdapException e) {
+                throwDirectoryServerException("Could not add class to partition " +
+                        serverEntry.getDn().getName(), e);
+            }
+        }
     }
 
     /**
@@ -80,7 +95,7 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
 
         try {
             JdbmPartition partition = createNewPartition(partitionInformation.getPartitionId(),
-                                                         partitionInformation.getRootDN());
+                    partitionInformation.getRootDN());
             this.directoryService.addPartition(partition);
 
             CoreSession adminSession = this.directoryService.getAdminSession();
@@ -88,28 +103,28 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
             if (!adminSession.exists(partition.getSuffixDn())) {
 
                 addPartitionAttributes(partitionInformation.getRootDN(), partitionInformation.
-                        getObjectClasses(), partitionInformation.getRealm(),
-                                       partitionInformation.getPreferredDomainComponent());
+                                getObjectClasses(), partitionInformation.getRealm(),
+                        partitionInformation.getPreferredDomainComponent());
 
                 // Create user ou
                 addUserStoreToPartition(partition.getSuffix());
 
                 // Create group ou
                 addGroupStoreToPartition(partition.getSuffix());
-                
+
                 //Creates the shared groups ou
                 addSharedGroupToPartition(partition.getSuffix());
 
                 /*do not create admin user and admin group because it is anyway checked and created
                  *in user core.*/
-                
-                // create tenant administrator entry at the time of tenant-partition created.
-				addAdmin(partitionInformation.getPartitionAdministrator(), partition.getSuffix(),
-				         partitionInformation.getRealm(), partitionInformation.isKdcEnabled());
-				addAdminGroup(partitionInformation.getPartitionAdministrator(), partition.getSuffix());
 
-				addAdminACLEntry(partitionInformation.getPartitionAdministrator().getAdminUserName(),
-				                 partition.getSuffix());
+                // create tenant administrator entry at the time of tenant-partition created.
+                addAdmin(partitionInformation.getPartitionAdministrator(), partition.getSuffix(),
+                        partitionInformation.getRealm(), partitionInformation.isKdcEnabled());
+                addAdminGroup(partitionInformation.getPartitionAdministrator(), partition.getSuffix());
+
+                addAdminACLEntry(partitionInformation.getPartitionAdministrator().getAdminUserName(),
+                        partition.getSuffix());
 
                 this.directoryService.sync();
             }
@@ -174,7 +189,7 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
      * This method initializes a partition from existing partition directory.
      */
     public void initializeExistingPartition(PartitionInfo partitionInfo) throws
-                                                                         DirectoryServerException {
+            DirectoryServerException {
 
         Partition existingPartition = null;
         try {
@@ -223,7 +238,7 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
 
         if (partition == null) {
             String msg = "Error deleting partition. Could not find a partition with suffix " +
-                         partitionSuffix;
+                    partitionSuffix;
             logger.error(msg);
             throw new DirectoryServerException(msg);
         }
@@ -234,10 +249,9 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
             String msg = "Unable to delete partition with suffix " + partitionSuffix;
             logger.error(msg, e);
             throw new DirectoryServerException("Unable to delete partition with suffix " +
-                                               partitionSuffix, e);
+                    partitionSuffix, e);
         }
     }
-
 
     public void removeAllPartitions() throws DirectoryServerException {
         Set<? extends Partition> partitions = this.directoryService.getPartitions();
@@ -255,7 +269,7 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
                     this.directoryService.removePartition(partition);
                 } catch (Exception e) {
                     String msg = "Unable to remove partition with id " + partition.getId() +
-                                 " with suffix " + partition.getSuffix();
+                            " with suffix " + partition.getSuffix();
                     logger.error(msg, e);
                     throw new DirectoryServerException(msg, e);
                 }
@@ -283,26 +297,6 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
 
     }
 
-    private static void throwDirectoryServerException(String message, Throwable e)
-            throws DirectoryServerException {
-
-        logger.error(message, e);
-        throw new DirectoryServerException(message, e);
-    }
-
-    private static void addObjectClasses(ServerEntry serverEntry, List<String> objectClasses)
-            throws DirectoryServerException {
-
-        for (String objectClass : objectClasses) {
-            try {
-                serverEntry.add("objectClass", objectClass);
-            } catch (LdapException e) {
-                throwDirectoryServerException("Could not add class to partition " +
-                                              serverEntry.getDn().getName(), e);
-            }
-        }
-    }
-
     private void addAccessControlAttributes(ServerEntry serverEntry)
             throws LdapException {
         serverEntry.add("administrativeRole", "accessControlSpecificArea");
@@ -322,7 +316,7 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
 
             if (dc == null) {
                 logger.warn("Domain component not found for partition with DN - " + partitionDN +
-                            ". Not setting domain component.");
+                        ". Not setting domain component.");
             } else {
                 serverEntry.add("dc", dc);
             }
@@ -352,7 +346,7 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
 
         } catch (LdapInvalidDnException e) {
             String msg = "Could not add user store to partition - " + partitionSuffixDn +
-                         ". Cause - partition domain name is not valid.";
+                    ". Cause - partition domain name is not valid.";
             throwDirectoryServerException(msg, e);
 
         } catch (LdapException e) {
@@ -360,11 +354,11 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
             throwDirectoryServerException(msg, e);
         } catch (NamingException e) {
             String msg = "Could not add user store to partition - " + partitionSuffixDn +
-                         ". Cause - partition domain name is not valid.";
+                    ". Cause - partition domain name is not valid.";
             throwDirectoryServerException(msg, e);
         } catch (Exception e) {
             String msg = "Could not add user store to partition admin session. - " +
-                         partitionSuffixDn;
+                    partitionSuffixDn;
             throwDirectoryServerException(msg, e);
         }
 
@@ -385,20 +379,20 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
             this.directoryService.getAdminSession().add(groupsEntry);
         } catch (NamingException e) {
             String msg = "Could not add group store to partition - " + partitionSuffixDn +
-                         ". Cause - partition domain name is not valid.";
+                    ". Cause - partition domain name is not valid.";
             throwDirectoryServerException(msg, e);
         } catch (LdapException e) {
             String msg = "Could not add group store to partition - " + partitionSuffixDn;
             throwDirectoryServerException(msg, e);
         } catch (Exception e) {
             String msg = "Could not add group store to partition admin session. - " +
-                         partitionSuffixDn;
+                    partitionSuffixDn;
             throwDirectoryServerException(msg, e);
         }
 
     }
-    
-    private void addSharedGroupToPartition(String partitionSuffixDn) throws DirectoryServerException{
+
+    private void addSharedGroupToPartition(String partitionSuffixDn) throws DirectoryServerException {
         ServerEntry groupsEntry;
         try {
 
@@ -411,14 +405,14 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
             this.directoryService.getAdminSession().add(groupsEntry);
         } catch (NamingException e) {
             String msg = "Could not add shared group store to partition - " + partitionSuffixDn +
-                         ". Cause - partition domain name is not valid.";
+                    ". Cause - partition domain name is not valid.";
             throwDirectoryServerException(msg, e);
         } catch (LdapException e) {
             String msg = "Could not add shared group store to partition - " + partitionSuffixDn;
             throwDirectoryServerException(msg, e);
         } catch (Exception e) {
             String msg = "Could not add shared group store to partition admin session. - " +
-                         partitionSuffixDn;
+                    partitionSuffixDn;
             throwDirectoryServerException(msg, e);
         }
 
@@ -469,7 +463,7 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
 
             String message = MessageFormat.format(
                     "Partition created with following attributes, partition id - {0}, Partition " +
-                    "domain - {1}, Partition working directory {2}", partitionId,
+                            "domain - {1}, Partition working directory {2}", partitionId,
                     partitionSuffix, partitionDirectoryName);
 
             if (logger.isDebugEnabled()) {
@@ -481,7 +475,7 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
 
         } catch (LdapInvalidDnException e) {
             String msg = "Could not add a new partition with partition id " + partitionId +
-                         " and suffix " + partitionSuffix;
+                    " and suffix " + partitionSuffix;
             logger.error(msg, e);
             throw new DirectoryServerException(msg, e);
         }
@@ -499,40 +493,40 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
             adminACLEntry.add("cn", "adminACLEntry");
 
             String aclScript = "{ " +
-                               "identificationTag \"adminACLEntryTag\", " +
-                               "precedence 1, " +
-                               "authenticationLevel simple, " +
-                               "itemOrUserFirst userFirst: " +
-                               "{ " +
-                               "userClasses " +
-                               "{ " +
-                               "name { " +
-                               "\"uid=" + adminUid + ",ou=Users," + tenantSuffix + "\" " +
-                               "}  " +
-                               "}, " +
-                               "userPermissions " +
-                               "{ " +
-                               "{ " +
-                               "protectedItems { entry, allUserAttributeTypesAndValues }, " +
-                               "grantsAndDenials { " +
-                               "grantBrowse, " +
-                               "grantFilterMatch, " +
-                               "grantModify, " +
-                               "grantAdd, " +
-                               "grantCompare, " +
-                               "grantRename, " +
-                               "grantRead, " +
-                               "grantReturnDN, " +
-                               "grantImport, " +
-                               "grantInvoke, " +
-                               "grantRemove, " +
-                               "grantExport, " +
-                               "grantDiscloseOnError " +
-                               "} " +
-                               "} " +
-                               "} " +
-                               "} " +
-                               "}";
+                    "identificationTag \"adminACLEntryTag\", " +
+                    "precedence 1, " +
+                    "authenticationLevel simple, " +
+                    "itemOrUserFirst userFirst: " +
+                    "{ " +
+                    "userClasses " +
+                    "{ " +
+                    "name { " +
+                    "\"uid=" + adminUid + ",ou=Users," + tenantSuffix + "\" " +
+                    "}  " +
+                    "}, " +
+                    "userPermissions " +
+                    "{ " +
+                    "{ " +
+                    "protectedItems { entry, allUserAttributeTypesAndValues }, " +
+                    "grantsAndDenials { " +
+                    "grantBrowse, " +
+                    "grantFilterMatch, " +
+                    "grantModify, " +
+                    "grantAdd, " +
+                    "grantCompare, " +
+                    "grantRename, " +
+                    "grantRead, " +
+                    "grantReturnDN, " +
+                    "grantImport, " +
+                    "grantInvoke, " +
+                    "grantRemove, " +
+                    "grantExport, " +
+                    "grantDiscloseOnError " +
+                    "} " +
+                    "} " +
+                    "} " +
+                    "} " +
+                    "}";
 
             adminACLEntry.add("prescriptiveACI", aclScript);
             adminACLEntry.add("subtreeSpecification", "{ }");
@@ -541,16 +535,16 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
 
         } catch (LdapInvalidDnException e) {
             throwDirectoryServerException("Domain name invalid - cn=adminACLEntry," +
-                                          tenantSuffix, e);
+                    tenantSuffix, e);
         } catch (LdapException e) {
             throwDirectoryServerException("Unable to create ACL entry for user " + adminUid, e);
         } catch (NamingException e) {
             throwDirectoryServerException("Invalid domain name entry - cn=adminACLEntry," +
-                                          tenantSuffix, e);
+                    tenantSuffix, e);
         } catch (Exception e) {
             throwDirectoryServerException(
                     "Unable to add ACL entry for user - " + adminUid +
-                    " with DN - cn=adminACLEntry," + tenantSuffix, e);
+                            " with DN - cn=adminACLEntry," + tenantSuffix, e);
         }
 
     }
@@ -574,7 +568,7 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
                 if (kdcEnabled) {
                     logger.warn(
                             "KDC enabled. Enforcing passwords to be plain text. Cause - KDC " +
-                            "cannot operate with hashed passwords.");
+                                    "cannot operate with hashed passwords.");
                 }
 
                 passwordToStore = password;
@@ -584,7 +578,7 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
 
         } catch (NoSuchAlgorithmException e) {
             throwDirectoryServerException("Could not find matching hash algorithm - " +
-                                          algorithm.getAlgorithmName(), e);
+                    algorithm.getAlgorithmName(), e);
         }
 
     }
@@ -594,29 +588,29 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
 
         AdminGroupInfo groupInfo = adminInfo.getGroupInformation();
 
-        if(groupInfo.getAdminRoleName().contains("/")){
+        if (groupInfo.getAdminRoleName().contains("/")) {
             String adminRole = groupInfo.getAdminRoleName();
             adminRole = adminRole.substring(adminRole.indexOf("/") + 1);
             groupInfo.setAdminRoleName(adminRole);
         }
-        
+
         String domainName = "";
         try {
 
             if (groupInfo != null) {
 
                 domainName = groupInfo.getGroupNameAttribute() + "=" +
-                             groupInfo.getAdminRoleName() + "," + "ou=Groups," + partitionSuffix;
+                        groupInfo.getAdminRoleName() + "," + "ou=Groups," + partitionSuffix;
 
                 DN adminGroup = new DN(domainName);
                 ServerEntry adminGroupEntry = directoryService.newEntry(adminGroup);
                 addObjectClasses(adminGroupEntry, groupInfo.getObjectClasses());
 
                 adminGroupEntry.add(groupInfo.getGroupNameAttribute(),
-                                    groupInfo.getAdminRoleName());
+                        groupInfo.getAdminRoleName());
                 adminGroupEntry.add(groupInfo.getMemberNameAttribute(),
-                                    adminInfo.getUsernameAttribute() + "=" + adminInfo.getAdminUserName() + "," + "ou=Users," +
-                                    partitionSuffix);
+                        adminInfo.getUsernameAttribute() + "=" + adminInfo.getAdminUserName() + "," + "ou=Users," +
+                                partitionSuffix);
                 directoryService.getAdminSession().add(adminGroupEntry);
             }
 
@@ -629,67 +623,67 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
             throwDirectoryServerException("Domain name invalid - " + domainName, e);
         } catch (Exception e) {
             throwDirectoryServerException("Could not add group entry to admin session. DN - " +
-                                          domainName, e);
+                    domainName, e);
         }
     }
 
     private void addAdmin(AdminInfo adminInfo, String partitionSuffix, final String realm,
                           final boolean kdcEnabled) throws DirectoryServerException {
 
-        if(adminInfo.getAdminUserName().contains("/")){
+        if (adminInfo.getAdminUserName().contains("/")) {
             String admin = adminInfo.getAdminUserName();
             admin = admin.substring(admin.indexOf("/") + 1);
             adminInfo.setAdminUserName(admin);
         }
-        
-        String domainName =  adminInfo.getUsernameAttribute() + "=" + adminInfo.getAdminUserName() + "," + "ou=Users," + partitionSuffix;
+
+        String domainName = adminInfo.getUsernameAttribute() + "=" + adminInfo.getAdminUserName() + "," + "ou=Users," + partitionSuffix;
 
         try {
             DN adminDn = new DN(domainName);
 
-			ServerEntry adminEntry = directoryService.newEntry(adminDn);
+            ServerEntry adminEntry = directoryService.newEntry(adminDn);
 
-			List<String> objectClasses = adminInfo.getObjectClasses();
+            List<String> objectClasses = adminInfo.getObjectClasses();
 
-			// Add Kerberose specific object classes
-			objectClasses = new ArrayList<String>(adminInfo.getObjectClasses());
-			objectClasses.add("krb5principal");
-			objectClasses.add("krb5kdcentry");
+            // Add Kerberose specific object classes
+            objectClasses = new ArrayList<String>(adminInfo.getObjectClasses());
+            objectClasses.add("krb5principal");
+            objectClasses.add("krb5kdcentry");
 
-			addObjectClasses(adminEntry, objectClasses);
+            addObjectClasses(adminEntry, objectClasses);
 
-			adminEntry.add(adminInfo.getUsernameAttribute(),
-					adminInfo.getAdminUserName());
-			adminEntry.add("sn", adminInfo.getAdminLastName());
-			adminEntry.add("givenName", adminInfo.getAdminCommonName());
-			// setting admin full name as uid since 'cn' is a compulsory
-			// attribute when constructing a
-			// user entry.
-			adminEntry.add("cn", adminInfo.getAdminUserName());
+            adminEntry.add(adminInfo.getUsernameAttribute(),
+                    adminInfo.getAdminUserName());
+            adminEntry.add("sn", adminInfo.getAdminLastName());
+            adminEntry.add("givenName", adminInfo.getAdminCommonName());
+            // setting admin full name as uid since 'cn' is a compulsory
+            // attribute when constructing a
+            // user entry.
+            adminEntry.add("cn", adminInfo.getAdminUserName());
 
-			if (!"mail".equals(adminInfo.getUsernameAttribute())) {
-				adminEntry.add("mail", adminInfo.getAdminEmail());
-			}
+            if (!"mail".equals(adminInfo.getUsernameAttribute())) {
+                adminEntry.add("mail", adminInfo.getAdminEmail());
+            }
 
-			String principal = adminInfo.getAdminUserName() + "/" + MultitenantConstants.SUPER_TENANT_DOMAIN_NAME + "@" + realm;
-			adminEntry.put(KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, principal);
-			adminEntry.put(KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, "0");
+            String principal = adminInfo.getAdminUserName() + "/" + MultitenantConstants.SUPER_TENANT_DOMAIN_NAME + "@" + realm;
+            adminEntry.put(KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, principal);
+            adminEntry.put(KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, "0");
 
-			addAdminPassword(adminEntry, adminInfo.getAdminPassword(),
-					adminInfo.getPasswordAlgorithm(), kdcEnabled);
+            addAdminPassword(adminEntry, adminInfo.getAdminPassword(),
+                    adminInfo.getPasswordAlgorithm(), kdcEnabled);
 
-			directoryService.getAdminSession().add(adminEntry);
+            directoryService.getAdminSession().add(adminEntry);
 
         } catch (LdapInvalidDnException e) {
             throwDirectoryServerException("Domain name invalid " + domainName, e);
         } catch (LdapException e) {
             throwDirectoryServerException("Could not add entry to partition. DN - " +
-                                          domainName, e);
+                    domainName, e);
         } catch (NamingException e) {
             throwDirectoryServerException("Domain name invalid - " + domainName, e);
         } catch (Exception e) {
             throwDirectoryServerException("Could not add group entry to admin session. DN - " +
-                                          domainName, e);
+                    domainName, e);
         }
 
     }
