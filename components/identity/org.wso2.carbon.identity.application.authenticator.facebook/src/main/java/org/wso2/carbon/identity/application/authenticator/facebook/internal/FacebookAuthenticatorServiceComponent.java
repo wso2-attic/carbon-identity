@@ -18,16 +18,17 @@
 
 package org.wso2.carbon.identity.application.authenticator.facebook.internal;
 
-import java.util.Hashtable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.facebook.FacebookAuthenticator;
 
+import java.util.Hashtable;
+
 /**
  * @scr.component name="identity.application.authenticator.facebook.component"
- *                immediate="true"
+ * immediate="true"
  */
 public class FacebookAuthenticatorServiceComponent {
 
@@ -39,7 +40,7 @@ public class FacebookAuthenticatorServiceComponent {
             Hashtable<String, String> props = new Hashtable<String, String>();
 
             ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(),
-                                                    facebookAuthenticator, props);
+                    facebookAuthenticator, props);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Facebook Authenticator bundle is activated");
             }

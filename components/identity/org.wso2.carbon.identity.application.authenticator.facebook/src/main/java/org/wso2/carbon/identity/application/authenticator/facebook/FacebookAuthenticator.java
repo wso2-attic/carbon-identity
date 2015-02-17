@@ -18,19 +18,6 @@
 
 package org.wso2.carbon.identity.application.authenticator.facebook;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.Object;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.amber.oauth2.client.request.OAuthClientRequest;
 import org.apache.amber.oauth2.client.response.OAuthAuthzResponse;
 import org.apache.amber.oauth2.common.exception.OAuthProblemException;
@@ -48,6 +35,17 @@ import org.wso2.carbon.identity.application.authentication.framework.exception.A
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.ui.CarbonUIUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FacebookAuthenticator extends AbstractApplicationAuthenticator implements
         FederatedApplicationAuthenticator {
@@ -79,7 +77,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
             String clientId = authenticatorProperties.get(FacebookAuthenticatorConstants.CLIENT_ID);
             String authorizationEP = FacebookAuthenticatorConstants.FB_AUTHZ_URL;
             String scope = authenticatorProperties.get(FacebookAuthenticatorConstants.SCOPE);
-            if (StringUtils.isEmpty(scope)){
+            if (StringUtils.isEmpty(scope)) {
                 scope = FacebookAuthenticatorConstants.EMAIL;
             }
 
