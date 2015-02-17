@@ -25,6 +25,10 @@ package org.wso2.carbon.directory.server.manager.common;
 @SuppressWarnings({"ALL"})
 public class ServerPrinciple implements Comparable {
 
+    private String serverName;
+    private String serverDescription;
+    private String serverPassword;
+
     public ServerPrinciple(String serverName) {
         this.serverName = serverName;
     }
@@ -67,12 +71,8 @@ public class ServerPrinciple implements Comparable {
         this.serverPassword = serverPassword;
     }
 
-    private String serverName;
-    private String serverDescription;
-    private String serverPassword;
-
     public int compareTo(Object o) {
-        ServerPrinciple principle = (ServerPrinciple)o;
+        ServerPrinciple principle = (ServerPrinciple) o;
         return this.serverName.compareTo(principle.getServerName());
     }
 }
