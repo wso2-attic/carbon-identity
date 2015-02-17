@@ -71,8 +71,6 @@ public final class OAuthConstants {
     public final static String OAUTH_USER_NAME = "oauth_user_name";
     public final static String OAUTH_ACCESS_TOKEN_ISSUED = "oauth_access_token_issued";
 
-    public final static String TOKEN_TYPE = "token_type";
-
     // OAuth1.0a endpoints
     public static class OAuth10AEndpoints {
         public static final String ACCESS_TOKEN_URL = "/access-token";

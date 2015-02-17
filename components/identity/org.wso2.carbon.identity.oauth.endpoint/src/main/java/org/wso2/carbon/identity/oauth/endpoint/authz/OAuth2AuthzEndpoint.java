@@ -19,6 +19,7 @@ package org.wso2.carbon.identity.oauth.endpoint.authz;
 
 import org.apache.amber.oauth2.as.request.OAuthAuthzRequest;
 import org.apache.amber.oauth2.as.response.OAuthASResponse;
+import org.apache.amber.oauth2.common.OAuth;
 import org.apache.amber.oauth2.common.exception.OAuthProblemException;
 import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.amber.oauth2.common.message.OAuthResponse;
@@ -351,7 +352,7 @@ public class OAuth2AuthzEndpoint {
                 addUserAttributesToCache(sessionDataCacheEntry, code);
             } else if (ResponseType.TOKEN.toString().equals(oauth2Params.getResponseType())) {
                 builder.setAccessToken(authzRespDTO.getAccessToken());
-                builder.setParam(OAuthConstants.TOKEN_TYPE, authzRespDTO.getTokenType());
+                builder.setParam(OAuth.OAUTH_TOKEN_TYPE, authzRespDTO.getTokenType());
                 builder.setExpiresIn(String.valueOf(60 * 60));
             }
             builder.setParam("state", oauth2Params.getState());

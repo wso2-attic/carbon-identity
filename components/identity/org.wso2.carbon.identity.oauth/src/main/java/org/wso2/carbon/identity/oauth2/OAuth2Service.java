@@ -55,8 +55,6 @@ public class OAuth2Service extends AbstractAdmin {
 
     private static Log log = LogFactory.getLog(OAuth2Service.class);
 
-    public static final String BEARER_TOKEN_TYPE = "bearer";
-
     /**
      * Process the authorization request and issue an authorization code or access token depending
      * on the Response Type available in the request.
@@ -80,10 +78,7 @@ public class OAuth2Service extends AbstractAdmin {
         try {
             AuthorizationHandlerManager authzHandlerManager =
                     AuthorizationHandlerManager.getInstance();
-            OAuth2AuthorizeRespDTO oAuth2AuthorizeRespDTO =
-                    authzHandlerManager.handleAuthorization(oAuth2AuthorizeReqDTO);
-            oAuth2AuthorizeRespDTO.setTokenType(BEARER_TOKEN_TYPE);
-            return oAuth2AuthorizeRespDTO;
+            return authzHandlerManager.handleAuthorization(oAuth2AuthorizeReqDTO);
         } catch (Exception e) {
             log.error("Error occurred when processing the authorization request. " +
                     "Returning an error back to client.", e);
