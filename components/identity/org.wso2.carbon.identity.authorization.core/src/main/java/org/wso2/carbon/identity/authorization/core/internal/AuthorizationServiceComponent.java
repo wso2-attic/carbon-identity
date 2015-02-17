@@ -27,116 +27,112 @@ import org.wso2.carbon.user.core.service.RealmService;
 /**
  * @scr.component name="identity.authorization.component" immediate="true"
  * @scr.reference name="registry.service"
- *                interface=
- *                "org.wso2.carbon.registry.core.service.RegistryService"
- *                cardinality="1..1" policy="dynamic" bind="setRegistryService"
- *                unbind="unsetRegistryService"
+ * interface=
+ * "org.wso2.carbon.registry.core.service.RegistryService"
+ * cardinality="1..1" policy="dynamic" bind="setRegistryService"
+ * unbind="unsetRegistryService"
  * @scr.reference name="user.realmservice.default"
- *                interface="org.wso2.carbon.user.core.service.RealmService"
- *                cardinality="1..1"
- *                policy="dynamic" bind="setRealmService"
- *                unbind="unsetRealmService"
+ * interface="org.wso2.carbon.user.core.service.RealmService"
+ * cardinality="1..1"
+ * policy="dynamic" bind="setRealmService"
+ * unbind="unsetRealmService"
  */
 public class AuthorizationServiceComponent {
 
-	private static RegistryService registryService = null;
+    private static RegistryService registryService = null;
 
-	private static RealmService realmService;
+    private static RealmService realmService;
 
-	private static Log log = LogFactory.getLog(AuthorizationServiceComponent.class);
+    private static Log log = LogFactory.getLog(AuthorizationServiceComponent.class);
 
-	private static AuthorizationConfigHolder configHolder;
+    private static AuthorizationConfigHolder configHolder;
 
-	/**
-	 * @param ctxt
-	 */
-	protected void activate(ComponentContext ctxt) {
+    public static RegistryService getRegistryService() {
+        return registryService;
+    }
 
-		if (log.isDebugEnabled()) {
-			log.info("Identity Authorization bundle is activated");
-		}
+    /**
+     * sets registry service
+     *
+     * @param registryService <code>RegistryService</code>
+     */
+    protected void setRegistryService(RegistryService registryService) {
+        if (log.isDebugEnabled()) {
+            log.debug("RegistryService set in Authorization bundle");
+        }
+        AuthorizationServiceComponent.registryService = registryService;
+    }
 
-		try {
-			configHolder = new AuthorizationConfigHolder();
-			ExtensionBuilder builder = new ExtensionBuilder();
-			builder.buildAuthorizationConfig(configHolder);
-		} catch (Exception e) {
-			log.error("Failed to initialize Entitlement Service", e);
-		}
-	}
+    public static RealmService getRealmService() {
+        return realmService;
+    }
 
-	/**
-	 * @param ctxt
-	 */
-	protected void deactivate(ComponentContext ctxt) {
-		if (log.isDebugEnabled()) {
-			log.debug("Identity Authorization bundle is deactivated");
-		}
-	}
+    /**
+     * sets realm service
+     *
+     * @param realmService <code>RealmService</code>
+     */
+    protected void setRealmService(RealmService realmService) {
+        if (log.isDebugEnabled()) {
+            log.debug("DefaultUserRealm set in Authorization bundle");
+        }
+        AuthorizationServiceComponent.realmService = realmService;
+    }
 
-	/**
-	 * sets registry service
-	 * 
-	 * @param registryService
-	 *            <code>RegistryService</code>
-	 */
-	protected void setRegistryService(RegistryService registryService) {
-		if (log.isDebugEnabled()) {
-			log.debug("RegistryService set in Authorization bundle");
-		}
-		AuthorizationServiceComponent.registryService = registryService;
-	}
+    public static AuthorizationConfigHolder getConfigHolder() {
+        return configHolder;
+    }
 
-	/**
-	 * un-sets registry service
-	 * 
-	 * @param registryService
-	 *            <code>RegistryService</code>
-	 */
-	protected void unsetRegistryService(RegistryService registryService) {
-		if (log.isDebugEnabled()) {
-			log.debug("RegistryService unset in Authorization bundle");
-		}
-		AuthorizationServiceComponent.registryService = null;
-	}
+    /**
+     * @param ctxt
+     */
+    protected void activate(ComponentContext ctxt) {
 
-	/**
-	 * sets realm service
-	 * 
-	 * @param realmService
-	 *            <code>RealmService</code>
-	 */
-	protected void setRealmService(RealmService realmService) {
-		if (log.isDebugEnabled()) {
-			log.debug("DefaultUserRealm set in Authorization bundle");
-		}
-		AuthorizationServiceComponent.realmService = realmService;
-	}
+        if (log.isDebugEnabled()) {
+            log.info("Identity Authorization bundle is activated");
+        }
 
-	/**
-	 * unsets realm service
-	 * 
-	 * @param realmService
-	 *            <code>RealmService</code>
-	 */
-	protected void unsetRealmService(RealmService realmService) {
-		if (log.isDebugEnabled()) {
-			log.debug("DefaultUserRealm set in Authorization bundle");
-		}
-		AuthorizationServiceComponent.realmService = realmService;
-	}
+        try {
+            configHolder = new AuthorizationConfigHolder();
+            ExtensionBuilder builder = new ExtensionBuilder();
+            builder.buildAuthorizationConfig(configHolder);
+        } catch (Exception e) {
+            log.error("Failed to initialize Entitlement Service", e);
+        }
+    }
 
-	public static RegistryService getRegistryService() {
-		return registryService;
-	}
+    /**
+     * @param ctxt
+     */
+    protected void deactivate(ComponentContext ctxt) {
+        if (log.isDebugEnabled()) {
+            log.debug("Identity Authorization bundle is deactivated");
+        }
+    }
 
-	public static RealmService getRealmService() {
-		return realmService;
-	}
+    /**
+     * un-sets registry service
+     *
+     * @param registryService <code>RegistryService</code>
+     */
+    protected void unsetRegistryService(RegistryService registryService) {
+        if (log.isDebugEnabled()) {
+            log.debug("RegistryService unset in Authorization bundle");
+        }
+        AuthorizationServiceComponent.registryService = null;
+    }
 
-	public static AuthorizationConfigHolder getConfigHolder() {
-		return configHolder;
-	}
+    /**
+     * unsets realm service
+     *
+     * @param realmService <code>RealmService</code>
+     */
+    protected void unsetRealmService(RealmService realmService) {
+        if (log.isDebugEnabled()) {
+            log.debug("DefaultUserRealm set in Authorization bundle");
+        }
+        AuthorizationServiceComponent.realmService = realmService;
+    }
 //
 //	public static CacheInvalidator getCacheInvalidator() {
 //		return cacheInvalidator;

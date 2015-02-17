@@ -19,13 +19,13 @@
 package org.wso2.carbon.identity.authorization.core.jdbc;
 
 /**
- * 
+ *
  */
 public class JDBCConstants {
 
     public static final String GET_PERMISSIONS_OF_USER = "select UM_PERMISSION_ID, UM_IS_ALLOWED from UM_USER_PERMISSION where UM_USER_NAME=? AND UM_TENANT_ID=?";
 
-    public static final String GET_RESOURCE_ID = "select UM_RESOURCE_ID, UM_ACTION from UM_PERMISSION where UM_ID=? AND UM_TENANT_ID=?"; 
+    public static final String GET_RESOURCE_ID = "select UM_RESOURCE_ID, UM_ACTION from UM_PERMISSION where UM_ID=? AND UM_TENANT_ID=?";
 
     public static final String GET_PERMISSIONS_OF_ROLE = "select UM_PERMISSION_ID, UM_IS_ALLOWED from UM_ROLE_PERMISSION where UM_ROLE_NAME=? AND UM_TENANT_ID=?";
 

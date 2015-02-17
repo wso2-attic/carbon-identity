@@ -23,85 +23,85 @@ package org.wso2.carbon.identity.authorization.core.dto;
  */
 public class PermissionGroup {
 
-	/**
-	 * unique identifier to identify the permission instance.
-	 */
-	private int permissionId;
+    /**
+     * unique identifier to identify the permission instance.
+     */
+    private int permissionId;
 
-	/**
-	 * To which resource the permission is attached
-	 */
-	private String resource;
+    /**
+     * To which resource the permission is attached
+     */
+    private String resource;
 
-	/**
-	 * This will be the module (application domain), to which the permission is
-	 * applicable
-	 */
-	private String moduleName;
-	private int moduleId;
+    /**
+     * This will be the module (application domain), to which the permission is
+     * applicable
+     */
+    private String moduleName;
+    private int moduleId;
 
-	/**
-	 * Action which will be restricted based on the permission
-	 */
-	private String action;
+    /**
+     * Action which will be restricted based on the permission
+     */
+    private String action;
 
-	private UserPermission[] userPermissions;
-	private RolePermission[] rolePermissions;
+    private UserPermission[] userPermissions;
+    private RolePermission[] rolePermissions;
 
-	public String getAction() {
-		return action;
-	}
+    public String getAction() {
+        return action;
+    }
 
-	public void setAction(String action) {
-		this.action = action;
-	}
+    public void setAction(String action) {
+        this.action = action;
+    }
 
-	public int getPermissionId() {
-		return permissionId;
-	}
+    public int getPermissionId() {
+        return permissionId;
+    }
 
-	public void setPermissionId(int permissionId) {
-		this.permissionId = permissionId;
-	}
+    public void setPermissionId(int permissionId) {
+        this.permissionId = permissionId;
+    }
 
-	public String getResource() {
-		return resource;
-	}
+    public String getResource() {
+        return resource;
+    }
 
-	public void setResource(String resource) {
-		this.resource = resource;
-	}
+    public void setResource(String resource) {
+        this.resource = resource;
+    }
 
-	public String getModuleName() {
-		return moduleName;
-	}
+    public String getModuleName() {
+        return moduleName;
+    }
 
-	public void setModuleName(String moduleName) {
-		this.moduleName = moduleName;
-	}
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
+    }
 
-	public UserPermission[] getUserPermissions() {
-		return userPermissions;
-	}
+    public UserPermission[] getUserPermissions() {
+        return userPermissions;
+    }
 
-	public void setUserPermissions(UserPermission[] userPermissions) {
-		this.userPermissions = userPermissions;
-	}
+    public void setUserPermissions(UserPermission[] userPermissions) {
+        this.userPermissions = userPermissions;
+    }
 
-	public RolePermission[] getRolePermissions() {
-		return rolePermissions;
-	}
+    public RolePermission[] getRolePermissions() {
+        return rolePermissions;
+    }
 
-	public void setRolePermissions(RolePermission[] rolePermissions) {
-		this.rolePermissions = rolePermissions;
-	}
+    public void setRolePermissions(RolePermission[] rolePermissions) {
+        this.rolePermissions = rolePermissions;
+    }
 
-	public int getModuleId() {
-		return moduleId;
-	}
+    public int getModuleId() {
+        return moduleId;
+    }
 
-	public void setModuleId(int moduleId) {
-		this.moduleId = moduleId;
-	}
+    public void setModuleId(int moduleId) {
+        this.moduleId = moduleId;
+    }
 
 }
