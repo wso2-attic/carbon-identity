@@ -28,8 +28,8 @@ import org.wso2.carbon.user.core.service.RealmService;
 /**
  * @scr.component name="remote.user.store.mgt.dscomponent" immediate=true
  * @scr.reference name="user.realmservice.default"
- *                interface="org.wso2.carbon.user.core.service.RealmService" cardinality="1..1"
- *                policy="dynamic" bind="setRealmService" unbind="unsetRealmService"
+ * interface="org.wso2.carbon.user.core.service.RealmService" cardinality="1..1"
+ * policy="dynamic" bind="setRealmService" unbind="unsetRealmService"
  */
 public class CarbonRemoteUserStoreDSComponent {
     private static Log log = LogFactory.getLog(CarbonRemoteUserStoreDSComponent.class);

@@ -1,15 +1,5 @@
 package org.wso2.carbon.identity.application.authentication.framework.handler.provisioning.impl;
 
-import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonException;
@@ -26,6 +16,10 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.*;
 
 public class DefaultProvisioningHandler implements ProvisioningHandler {
 
@@ -45,7 +39,7 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
     }
 
     public void handle(List<String> roles, String subject, Map<String, String> attributes,
-            String provisioningUserStoreId, String tenantDomain) throws FrameworkException {
+                       String provisioningUserStoreId, String tenantDomain) throws FrameworkException {
 
         RegistryService registryService = FrameworkServiceComponent.getRegistryService();
         RealmService realmService = FrameworkServiceComponent.getRealmService();
@@ -76,7 +70,7 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
                 username = UserCoreUtil.removeDomainFromName(username);
             }
 
-            String[] newRoles = new String[] {};
+            String[] newRoles = new String[]{};
 
             if (roles != null) {
                 newRoles = roles.toArray(new String[roles.size()]);
@@ -186,7 +180,7 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
 
     /**
      * Compute the user store which user to be provisioned
-     * 
+     *
      * @return
      * @throws UserStoreException
      */
@@ -205,7 +199,7 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
 
     /**
      * Generates (random) password for user to be provisioned
-     * 
+     *
      * @param username
      * @return
      */
@@ -214,7 +208,7 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
     }
 
     private String getUserStoreClaimValueFromMap(Map<ClaimMapping, String> claimMappingStringMap,
-            String userStoreClaimURI) {
+                                                 String userStoreClaimURI) {
 
         for (Map.Entry<ClaimMapping, String> entry : claimMappingStringMap.entrySet()) {
             if (entry.getKey().getRemoteClaim().getClaimUri().equals(userStoreClaimURI)) {

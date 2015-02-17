@@ -18,16 +18,8 @@
 package org.wso2.carbon.identity.core.persistence;
 
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.dao.OpenIDAdminDAO;
-import org.wso2.carbon.identity.core.dao.OpenIDUserDAO;
-import org.wso2.carbon.identity.core.dao.ParameterDAO;
-import org.wso2.carbon.identity.core.dao.SAMLSSOServiceProviderDAO;
-import org.wso2.carbon.identity.core.dao.XMPPSettingsDAO;
-import org.wso2.carbon.identity.core.model.OpenIDAdminDO;
-import org.wso2.carbon.identity.core.model.OpenIDUserDO;
-import org.wso2.carbon.identity.core.model.ParameterDO;
-import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
-import org.wso2.carbon.identity.core.model.XMPPSettingsDO;
+import org.wso2.carbon.identity.core.dao.*;
+import org.wso2.carbon.identity.core.model.*;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.user.core.UserRealm;
 
@@ -40,7 +32,7 @@ public class IdentityPersistenceManager {
 
     /**
      * Returning the identity persistence manager instance : singleton pattern
-     * 
+     *
      * @return
      * @throws IdentityException
      */
@@ -49,7 +41,6 @@ public class IdentityPersistenceManager {
     }
 
     /**
-     * 
      * @param registry
      * @param paramName
      * @param value
@@ -76,7 +67,6 @@ public class IdentityPersistenceManager {
     }
 
     /**
-     * 
      * @param registry
      * @param paramName
      * @return
@@ -116,7 +106,7 @@ public class IdentityPersistenceManager {
 
     /**
      * Add XMPP settings.
-     * 
+     *
      * @param userId
      * @param xmppServer
      * @param xmppUserName
@@ -125,7 +115,7 @@ public class IdentityPersistenceManager {
      * @throws IdentityException
      */
     public void addXmppSettings(Registry registry, String userId, String xmppServer,
-            String xmppUserName, String xmppUserCode, boolean enabled, boolean isPINEnabled)
+                                String xmppUserName, String xmppUserCode, boolean enabled, boolean isPINEnabled)
             throws IdentityException {
         XMPPSettingsDAO dao = new XMPPSettingsDAO(registry);
         dao.addXmppSettings(userId, xmppServer, xmppUserName, xmppUserCode, enabled, isPINEnabled);
@@ -133,7 +123,7 @@ public class IdentityPersistenceManager {
 
     /**
      * get the existing settings.
-     * 
+     *
      * @param userId
      * @return XmppSettingsDAO instance representing the XMPP Settings
      */
@@ -144,7 +134,7 @@ public class IdentityPersistenceManager {
 
     /**
      * Update the existing settings.
-     * 
+     *
      * @param userId
      * @param xmppServer
      * @param xmppUserName
@@ -153,7 +143,7 @@ public class IdentityPersistenceManager {
      * @throws IdentityException
      */
     public void updateXmppSettings(Registry registry, String userId, String xmppServer,
-            String xmppUserName, String xmppUserCode, boolean enabled, boolean isPINEnabled)
+                                   String xmppUserName, String xmppUserCode, boolean enabled, boolean isPINEnabled)
             throws IdentityException {
         XMPPSettingsDAO dao = new XMPPSettingsDAO(registry);
         dao.updateXmppSettings(userId, xmppServer, xmppUserName, xmppUserCode, enabled,
@@ -162,7 +152,7 @@ public class IdentityPersistenceManager {
 
     /**
      * Checks whether the settings are enabled.
-     * 
+     *
      * @param userId
      * @return
      */
@@ -173,7 +163,7 @@ public class IdentityPersistenceManager {
 
     /**
      * Check whether the user has added the settings.
-     * 
+     *
      * @param userId
      * @return
      */
@@ -183,7 +173,6 @@ public class IdentityPersistenceManager {
     }
 
     /**
-     * 
      * @param openId
      * @param userId
      * @return
@@ -198,7 +187,6 @@ public class IdentityPersistenceManager {
     }
 
     /**
-     * 
      * @param openId
      * @return
      */
@@ -208,7 +196,6 @@ public class IdentityPersistenceManager {
     }
 
     /**
-     * 
      * @param openID
      * @return
      */
@@ -219,7 +206,7 @@ public class IdentityPersistenceManager {
 
     /**
      * Get all OpenIDs for a given user
-     * 
+     *
      * @param username
      * @return
      */
@@ -235,7 +222,7 @@ public class IdentityPersistenceManager {
 
     /**
      * Add a relying party service provider for SAML SSO
-     * 
+     *
      * @param serviceProviderDO
      * @return
      * @throws IdentityException
@@ -248,7 +235,7 @@ public class IdentityPersistenceManager {
 
     /**
      * Get all the relying party service providers
-     * 
+     *
      * @return
      * @throws IdentityException
      */

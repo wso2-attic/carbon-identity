@@ -30,81 +30,81 @@ import java.util.Date;
  */
 public class OpenIDAssociationCache extends OpenIDBaseCache<OpenIDIdentityCacheKey, OpenIDIdentityCacheEntry> {
 
+    private final static String OPENID_ASSOCIATION_CACHE = "OPENID_ASSOCIATION_CACHE";
     private static OpenIDAssociationCache associationCache = null;
-	private final static String OPENID_ASSOCIATION_CACHE = "OPENID_ASSOCIATION_CACHE";
-	private static Log log = LogFactory.getLog(OpenIDAssociationCache.class);
+    private static Log log = LogFactory.getLog(OpenIDAssociationCache.class);
 
-	/**
-	 * Private constructor
-	 * @param cacheName
-	 */
-	private OpenIDAssociationCache() {
-		super(OPENID_ASSOCIATION_CACHE);
-	}
+    /**
+     * Private constructor
+     *
+     * @param cacheName
+     */
+    private OpenIDAssociationCache() {
+        super(OPENID_ASSOCIATION_CACHE);
+    }
 
-	/**
-	 * Returns the singleton of the <code>AssociationCache</code>
-	 * 
-	 * @return
-	 */
-	public synchronized static OpenIDAssociationCache getCacheInstance() {
-		if (associationCache == null) {
-			associationCache = new OpenIDAssociationCache();
-		}
-		return associationCache;
-	}
-	
+    /**
+     * Returns the singleton of the <code>AssociationCache</code>
+     *
+     * @return
+     */
+    public synchronized static OpenIDAssociationCache getCacheInstance() {
+        if (associationCache == null) {
+            associationCache = new OpenIDAssociationCache();
+        }
+        return associationCache;
+    }
 
 
-	/**
-	 * Add the entry to the cache.
-	 * 
-	 * @param association
-	 */
-	public void addToCache(Association association) {
-		if (log.isDebugEnabled()) {
-			log.debug("Trying to add to cache.");
-		}
-		if (association != null && association.getHandle() != null) {
-			OpenIDIdentityCacheKey cacheKey = new OpenIDIdentityCacheKey(0, association.getHandle());
-			OpenIDIdentityCacheEntry cacheEntry =
-			                                new OpenIDIdentityCacheEntry(association.getType(),
-			                                                       association.getMacKey(),
-			                                                       association.getExpiry());
-			associationCache.addToCache(cacheKey, cacheEntry);
-			if (log.isDebugEnabled()) {
-				log.debug("New entry is added to cache  : " + association.getHandle());
-			}
-		}
-	}
+    /**
+     * Add the entry to the cache.
+     *
+     * @param association
+     */
+    public void addToCache(Association association) {
+        if (log.isDebugEnabled()) {
+            log.debug("Trying to add to cache.");
+        }
+        if (association != null && association.getHandle() != null) {
+            OpenIDIdentityCacheKey cacheKey = new OpenIDIdentityCacheKey(0, association.getHandle());
+            OpenIDIdentityCacheEntry cacheEntry =
+                    new OpenIDIdentityCacheEntry(association.getType(),
+                            association.getMacKey(),
+                            association.getExpiry());
+            associationCache.addToCache(cacheKey, cacheEntry);
+            if (log.isDebugEnabled()) {
+                log.debug("New entry is added to cache  : " + association.getHandle());
+            }
+        }
+    }
 
-	/**
-	 * Read entries from the cache. If no value found then returns null.
-	 * If the association is expired then returns null.
-	 * Else returns the <code>Association</code>
-	 * 
-	 * @param handle
-	 * @return <code>Association<code>
-	 */
-	public Association getFromCache(String handle) {
-		if (log.isDebugEnabled()) {
-			log.debug("Trying to get from cache.");
-		}
-		if (handle != null) {
-			OpenIDIdentityCacheKey cacheKey = new OpenIDIdentityCacheKey(0, handle);
-			OpenIDIdentityCacheEntry cacheEntry =
-			                                (OpenIDIdentityCacheEntry) associationCache.getValueFromCache(cacheKey);
-			if (cacheEntry != null) {
-				if (log.isDebugEnabled()) {
-					log.debug("Cache hit for handle : " + handle);
-				}
-				Date expiry = cacheEntry.getDate();
-				String type = cacheEntry.getCacheEntry();
-				Key secretKey = cacheEntry.getSecretKey();
+    /**
+     * Read entries from the cache. If no value found then returns null.
+     * If the association is expired then returns null.
+     * Else returns the <code>Association</code>
+     *
+     * @param handle
+     * @return <code>Association<code>
+     */
+    public Association getFromCache(String handle) {
+        if (log.isDebugEnabled()) {
+            log.debug("Trying to get from cache.");
+        }
+        if (handle != null) {
+            OpenIDIdentityCacheKey cacheKey = new OpenIDIdentityCacheKey(0, handle);
+            OpenIDIdentityCacheEntry cacheEntry =
+                    (OpenIDIdentityCacheEntry) associationCache.getValueFromCache(cacheKey);
+            if (cacheEntry != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Cache hit for handle : " + handle);
+                }
+                Date expiry = cacheEntry.getDate();
+                String type = cacheEntry.getCacheEntry();
+                Key secretKey = cacheEntry.getSecretKey();
 
-				if (expiry != null && type != null && secretKey != null) {
-					return new Association(type, handle, (SecretKey) secretKey, expiry);
-					/*
+                if (expiry != null && type != null && secretKey != null) {
+                    return new Association(type, handle, (SecretKey) secretKey, expiry);
+                    /*
 					 * We are not removing expired handles from the cache. If we
 					 * do, then at a lookup for a expired search, it will fall
 					 * back to a database lookup which costs a lot. JCache
@@ -116,24 +116,25 @@ public class OpenIDAssociationCache extends OpenIDBaseCache<OpenIDIdentityCacheK
 					 * log.debug("Expired entry in cache for handle : " +
 					 * handle); } } else { return association; }
 					 */
-				}
-			} else {
-				if (log.isDebugEnabled()) {
-					log.debug("Cache miss for handle : " + handle);
-				}
-			}
-		}
-		return null;
-	}
+                }
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Cache miss for handle : " + handle);
+                }
+            }
+        }
+        return null;
+    }
 
-	/**
-	 * Remove the cache entry from the cache
-	 * @param handle
-	 */
-	public void removeCacheEntry(String handle) {
-		if (handle != null) {
-			OpenIDIdentityCacheKey cacheKey = new OpenIDIdentityCacheKey(0, handle);
-			associationCache.clearCacheEntry(cacheKey);
-		}
-	}
+    /**
+     * Remove the cache entry from the cache
+     *
+     * @param handle
+     */
+    public void removeCacheEntry(String handle) {
+        if (handle != null) {
+            OpenIDIdentityCacheKey cacheKey = new OpenIDIdentityCacheKey(0, handle);
+            associationCache.clearCacheEntry(cacheKey);
+        }
+    }
 }

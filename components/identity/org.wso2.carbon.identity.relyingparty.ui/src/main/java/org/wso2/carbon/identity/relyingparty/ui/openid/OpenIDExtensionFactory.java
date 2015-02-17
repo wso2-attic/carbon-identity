@@ -28,62 +28,62 @@ import org.wso2.carbon.identity.relyingparty.ui.openid.extensions.OpenIDSimpleRe
 
 public class OpenIDExtensionFactory {
 
-	private static OpenIDExtensionFactory factory = new OpenIDExtensionFactory();
+    private static OpenIDExtensionFactory factory = new OpenIDExtensionFactory();
 
-	/**
-	 * Make the class singleton
-	 */
-	private OpenIDExtensionFactory() {
-	}
+    /**
+     * Make the class singleton
+     */
+    private OpenIDExtensionFactory() {
+    }
 
-	/**
-	 * Returns a singleton instance of OpenIDExtensionFactory
-	 * 
-	 * @return An instance of OpenIDExtensionFactory
-	 */
-	public static OpenIDExtensionFactory getInstance() {
-		return factory;
-	}
+    /**
+     * Returns a singleton instance of OpenIDExtensionFactory
+     *
+     * @return An instance of OpenIDExtensionFactory
+     */
+    public static OpenIDExtensionFactory getInstance() {
+        return factory;
+    }
 
-	/**
-	 * Create an instance of the OpenIDExtension based on the OpenID request type
-	 * 
-	 * @param type Type of the OpenID request
-	 * @return Appropriate OpenIDExtension instance
-	 */
-	public OpenIDExtension getExtension(String type) {
+    /**
+     * Create an instance of the OpenIDExtension based on the OpenID request type
+     *
+     * @param type Type of the OpenID request
+     * @return Appropriate OpenIDExtension instance
+     */
+    public OpenIDExtension getExtension(String type) {
 
-		if (IdentityConstants.OpenId.ATTRIBUTE_EXCHANGE.equals(type)) {
-			return new OpenIDAttributeExchange();
-		} else if (IdentityConstants.OpenId.SIMPLE_REGISTRATION.equals(type)) {
-			return new OpenIDSimpleReg();
-		} else if (IdentityConstants.OpenId.PAPE.equals(type)) {
-			return new OpenIDPape();
-		} else {
-			return null;
-		}
-	}
+        if (IdentityConstants.OpenId.ATTRIBUTE_EXCHANGE.equals(type)) {
+            return new OpenIDAttributeExchange();
+        } else if (IdentityConstants.OpenId.SIMPLE_REGISTRATION.equals(type)) {
+            return new OpenIDSimpleReg();
+        } else if (IdentityConstants.OpenId.PAPE.equals(type)) {
+            return new OpenIDPape();
+        } else {
+            return null;
+        }
+    }
 
-	/**
-	 * Create an instance of the OpenIDExtension based on the OpenID extension type
-	 * 
-	 * @param alias Extension alias
-	 * @param auth AuthSuccess instance
-	 * @return Appropriate OpenIDExtension instance
-	 */
-	public OpenIDExtension getExtension(String alias, AuthSuccess auth) {
+    /**
+     * Create an instance of the OpenIDExtension based on the OpenID extension type
+     *
+     * @param alias Extension alias
+     * @param auth  AuthSuccess instance
+     * @return Appropriate OpenIDExtension instance
+     */
+    public OpenIDExtension getExtension(String alias, AuthSuccess auth) {
 
-		if (alias.equals(AxMessage.OPENID_NS_AX)
-				|| alias.equals(IdentityConstants.OpenId.ExchangeAttributes.NS_AX)) {
-			return new OpenIDAttributeExchange(auth);
-		} else if (alias.equals(IdentityConstants.OpenId.SimpleRegAttributes.NS_SREG)
-				|| alias.equals(SRegMessage.OPENID_NS_SREG)
-				|| alias.equals(IdentityConstants.OpenId.SimpleRegAttributes.NS_SREG_1)) {
-			return new OpenIDSimpleReg(auth);
-		} else if (alias.equals(PapeMessage.OPENID_NS_PAPE)) {
-			return new OpenIDPape(auth);
-		}
+        if (alias.equals(AxMessage.OPENID_NS_AX)
+                || alias.equals(IdentityConstants.OpenId.ExchangeAttributes.NS_AX)) {
+            return new OpenIDAttributeExchange(auth);
+        } else if (alias.equals(IdentityConstants.OpenId.SimpleRegAttributes.NS_SREG)
+                || alias.equals(SRegMessage.OPENID_NS_SREG)
+                || alias.equals(IdentityConstants.OpenId.SimpleRegAttributes.NS_SREG_1)) {
+            return new OpenIDSimpleReg(auth);
+        } else if (alias.equals(PapeMessage.OPENID_NS_PAPE)) {
+            return new OpenIDPape(auth);
+        }
 
-		return null;
-	}
+        return null;
+    }
 }

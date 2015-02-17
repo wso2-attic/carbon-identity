@@ -22,13 +22,13 @@ public final class SAML2SSOAuthenticatorConstants {
 
     public static final String SAML2_NAME_ID_POLICY_TRANSIENT = "urn:oasis:names:tc:SAML:2.0:nameid-format:transient";
     public static final String SAML2_NAME_ID_POLICY_UNSPECIFIED = "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified";
-   
-    public static final String SAML2_NAME_ID_POLICY_PERSISTENT = "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent";    
+
+    public static final String SAML2_NAME_ID_POLICY_PERSISTENT = "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent";
     public static final String SAML2_NAME_ID_POLICY_EMAIL = "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress";
     public static final String SAML2_NAME_ID_POLICY_ENTITY = "urn:oasis:names:tc:SAML:2.0:nameid-format:entity";
 
     public static final String NAMEID_POLICY_FORMAT = "NameIDPolicyFormat";
-   
+
 
     public static final String LOGOUT_USER = "urn:oasis:names:tc:SAML:2.0:logout:user";
 
@@ -42,9 +42,9 @@ public final class SAML2SSOAuthenticatorConstants {
     public static final String NOTIFICATIONS_ERROR_MSG = "ErrorMessage";
     public static final String LOG_OUT_REQ = "logout";
     public static final String LOGGED_IN_USER = "loggedInUser";
-    
+
     public static final String IDP_SESSION_INDEX = "idpSessionIndex";
-    
+
     // SSO Configuration Params
     public static final String SERVICE_PROVIDER_ID = "ServiceProviderID";
     public static final String IDENTITY_PROVIDER_SSO_SERVICE_URL = "IdentityProviderSSOServiceURL";
@@ -58,17 +58,14 @@ public final class SAML2SSOAuthenticatorConstants {
     public static final String FEDERATION_CONFIG_PASSWORD = "FederationConfigPassword";
     public static final String LOGIN_ATTRIBUTE_NAME = "LoginAttributeName";
     public static final String IDENTITY_PROVIDER_SLO_SERVICE_URL = "IdentityProviderSLOServiceURL";
+    public static final String AUDIT_MESSAGE = "Initiator : %s | Action : %s | Target : %s | Data : { %s } | Result : %s ";
+    public static final String AUDIT_SUCCESS = "Success";
+    public static final String AUDIT_FAILED = "Failed";
 
-
-
-    public static final class ErrorMessageConstants{
+    public static final class ErrorMessageConstants {
         public static final String RESPONSE_NOT_PRESENT = "response.not.present";
         public static final String RESPONSE_INVALID = "response.invalid";
         public static final String RESPONSE_MALFORMED = "response.malformed";
         public static final String SUCCESSFUL_SIGN_OUT = "successful.signed.out";
     }
-
-    public static final String AUDIT_MESSAGE = "Initiator : %s | Action : %s | Target : %s | Data : { %s } | Result : %s ";
-    public static final String AUDIT_SUCCESS = "Success";
-    public static final String AUDIT_FAILED = "Failed";
 }

@@ -34,7 +34,7 @@ public class SAML2SSOAuthFEDataHolder {
     private ConfigurationContextService configurationContextService;
     private CarbonSSOSessionManager carbonSSOSessionManager;
 
-    private SAML2SSOAuthFEDataHolder(){
+    private SAML2SSOAuthFEDataHolder() {
     }
 
     public static SAML2SSOAuthFEDataHolder getInstance() {

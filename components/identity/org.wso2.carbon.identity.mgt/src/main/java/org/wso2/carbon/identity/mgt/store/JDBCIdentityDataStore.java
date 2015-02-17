@@ -16,13 +16,6 @@
 
 package org.wso2.carbon.identity.mgt.store;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
@@ -35,26 +28,33 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * //TODO remove method when user is deleted
  */
 public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
 
-	private static Log log = LogFactory.getLog(JDBCIdentityDataStore.class);
+    private static Log log = LogFactory.getLog(JDBCIdentityDataStore.class);
 
-	@Override
-	public void store(UserIdentityClaimsDO userIdentityDTO, UserStoreManager userStoreManager)
-                                                                        throws IdentityException {
+    @Override
+    public void store(UserIdentityClaimsDO userIdentityDTO, UserStoreManager userStoreManager)
+            throws IdentityException {
 
-		if(userIdentityDTO == null || userIdentityDTO.getUserDataMap().size() < 1) {
-			return;
-		}
+        if (userIdentityDTO == null || userIdentityDTO.getUserDataMap().size() < 1) {
+            return;
+        }
 
         // Before putting to cache, has to check this whether this available in the database
         // Putting into cache
 
         String userName = userIdentityDTO.getUserName();
-        String domainName = ((org.wso2.carbon.user.core.UserStoreManager)userStoreManager).getRealmConfiguration().
+        String domainName = ((org.wso2.carbon.user.core.UserStoreManager) userStoreManager).getRealmConfiguration().
                 getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
         userName = UserCoreUtil.addDomainToName(userName, domainName);
         userIdentityDTO.setUserName(userName);
@@ -71,18 +71,18 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
 
         Map<String, String> data = userIdentityDTO.getUserDataMap();
 
-        for(Map.Entry<String, String> entry : data.entrySet()){
+        for (Map.Entry<String, String> entry : data.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
-            if(isExistingUserDataValue(userName, tenantId, key)){
+            if (isExistingUserDataValue(userName, tenantId, key)) {
                 updateUserDataValue(userName, tenantId, key, value);
-            }  else {
+            } else {
                 addUserDataValue(userName, tenantId, key, value);
             }
         }
     }
 
-    private boolean isExistingUserDataValue(String userName, int tenantId,  String key) throws IdentityException {
+    private boolean isExistingUserDataValue(String userName, int tenantId, String key) throws IdentityException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -103,7 +103,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
             throw new IdentityException("Error while retrieving user identity data in database", e);
         } catch (IdentityException e) {
             log.error("Error while retrieving user identity data in database", e);
-            throw new IdentityException ("Error while retrieving user identity data in database", e);
+            throw new IdentityException("Error while retrieving user identity data in database", e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);
@@ -112,7 +112,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
     }
 
 
-    private void addUserDataValue(String userName, int tenantId,  String key, String value) throws IdentityException {
+    private void addUserDataValue(String userName, int tenantId, String key, String value) throws IdentityException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -131,7 +131,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
             throw new IdentityException("Error while persisting user identity data in database", e);
         } catch (IdentityException e) {
             log.error("Error while persisting user identity data in database", e);
-            throw new IdentityException ("Error while persisting user identity data in database", e);
+            throw new IdentityException("Error while persisting user identity data in database", e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);
@@ -139,7 +139,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
     }
 
 
-    private void updateUserDataValue(String userName, int tenantId,  String key, String value) throws IdentityException {
+    private void updateUserDataValue(String userName, int tenantId, String key, String value) throws IdentityException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -158,7 +158,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
             throw new IdentityException("Error while persisting user identity data in database", e);
         } catch (IdentityException e) {
             log.error("Error while persisting user identity data in database", e);
-            throw new IdentityException ("Error while persisting user identity data in database", e);
+            throw new IdentityException("Error while persisting user identity data in database", e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);
@@ -169,13 +169,13 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
     @Override
     public UserIdentityClaimsDO load(String userName, UserStoreManager userStoreManager) {
 
-        String domainName = ((org.wso2.carbon.user.core.UserStoreManager)userStoreManager).getRealmConfiguration().
+        String domainName = ((org.wso2.carbon.user.core.UserStoreManager) userStoreManager).getRealmConfiguration().
                 getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
         userName = UserCoreUtil.addDomainToName(userName, domainName);
 
         // Getting from cache
         UserIdentityClaimsDO dto = super.load(userName, userStoreManager);
-        if(dto != null){
+        if (dto != null) {
             return dto;
         }
 
@@ -220,7 +220,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
     public void remove(String userName, UserStoreManager userStoreManager) throws IdentityException {
 
         super.remove(userName, userStoreManager);
-        String domainName = ((org.wso2.carbon.user.core.UserStoreManager)userStoreManager).
+        String domainName = ((org.wso2.carbon.user.core.UserStoreManager) userStoreManager).
                 getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
         userName = UserCoreUtil.addDomainToName(userName, domainName);
         Connection connection = null;
@@ -250,7 +250,6 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
      * Schem:
      * ||TENANT_ID || USERR_NAME || DATA_KEY || DATA_VALUE ||
      * The primary key is tenantId, userName, DatKey combination
-     *
      */
     private static class SQLQuery {
         public static final String CHECK_EXIST_USER_DATA = "SELECT " + "DATA_VALUE "

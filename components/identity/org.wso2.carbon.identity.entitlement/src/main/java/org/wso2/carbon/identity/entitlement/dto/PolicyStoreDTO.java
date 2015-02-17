@@ -19,7 +19,6 @@
 package org.wso2.carbon.identity.entitlement.dto;
 
 import java.util.Arrays;
-import java.util.Set;
 
 /**
  * encapsulates the policy data that is stored in the policy store

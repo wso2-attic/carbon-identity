@@ -19,9 +19,9 @@ package org.wso2.carbon.identity.user.registration.dto;
 
 public class UserDTO {
 
-	private UserFieldDTO[] userFields;
-	private String userName;
-	private String password;
+    private UserFieldDTO[] userFields;
+    private String userName;
+    private String password;
     private String openID;
 
 
@@ -33,28 +33,28 @@ public class UserDTO {
         this.openID = openID;
     }
 
-	public UserFieldDTO[] getUserFields() {
-		return userFields;
-	}
+    public UserFieldDTO[] getUserFields() {
+        return userFields;
+    }
 
-	public void setUserFields(UserFieldDTO[] userFields) {
-		this.userFields = userFields;
-	}
+    public void setUserFields(UserFieldDTO[] userFields) {
+        this.userFields = userFields;
+    }
 
-	public String getUserName() {
-		return userName;
-	}
+    public String getUserName() {
+        return userName;
+    }
 
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
 }

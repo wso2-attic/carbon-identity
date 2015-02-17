@@ -19,10 +19,6 @@
 package org.wso2.carbon.identity.entitlement.policy;
 
 import org.wso2.balana.AbstractTarget;
-import org.wso2.balana.xacml2.Target;
-
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 
 /**
  * This class encapsulates the policy target data with org.wso2.balana.Target and policyId
@@ -51,7 +47,7 @@ public class PolicyTarget {
 
     @Override
     public int hashCode() {
-        if(this.target != null){
+        if (this.target != null) {
             return target.encode().hashCode();
         } else {
             return 0;

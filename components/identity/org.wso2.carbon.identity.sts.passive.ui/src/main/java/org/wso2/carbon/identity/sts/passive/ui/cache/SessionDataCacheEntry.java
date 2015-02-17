@@ -20,17 +20,17 @@ package org.wso2.carbon.identity.sts.passive.ui.cache;
 
 import org.wso2.carbon.identity.sts.passive.ui.dto.SessionDTO;
 
-public class SessionDataCacheEntry  extends CacheEntry {
+public class SessionDataCacheEntry extends CacheEntry {
 
-	private static final long serialVersionUID = 1595203870578930185L;
-	
-	private SessionDTO sessionDTO;
+    private static final long serialVersionUID = 1595203870578930185L;
 
-	public SessionDTO getSessionDTO() {
-		return sessionDTO;
-	}
+    private SessionDTO sessionDTO;
 
-	public void setSessionDTO(SessionDTO sessionDTO) {
-		this.sessionDTO = sessionDTO;
-	}
+    public SessionDTO getSessionDTO() {
+        return sessionDTO;
+    }
+
+    public void setSessionDTO(SessionDTO sessionDTO) {
+        this.sessionDTO = sessionDTO;
+    }
 }

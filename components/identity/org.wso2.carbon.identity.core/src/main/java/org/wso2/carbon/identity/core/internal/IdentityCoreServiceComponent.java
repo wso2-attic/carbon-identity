@@ -53,6 +53,10 @@ public class IdentityCoreServiceComponent {
     public IdentityCoreServiceComponent() {
     }
 
+    public static BundleContext getBundleContext() {
+        return bundleContext;
+    }
+
     /**
      * @param ctxt
      */
@@ -78,9 +82,9 @@ public class IdentityCoreServiceComponent {
                 // DB initialization was skipped, because DB initialization is done by apimgt components
                 log.debug("Identity Provider Database initialization attempt was skipped since '" +
                         IdentityConstants.ServerConfig.SKIP_DB_SCHEMA_CREATION + "' property has been set to \'true\'");
-            } else if (System.getProperty("setup") == null){
-                 log.info("Identity Database schema initialization check was skipped since " +
-                         "\'setup\' variable was not given during startup");
+            } else if (System.getProperty("setup") == null) {
+                log.info("Identity Database schema initialization check was skipped since " +
+                        "\'setup\' variable was not given during startup");
             } else {
                 jdbcPersistenceManager.initializeDatabase();
             }
@@ -88,7 +92,7 @@ public class IdentityCoreServiceComponent {
             //taking the service registration after DB initialization.
             ctxt.getBundleContext().registerService(IdentityUtil.class.getName(),
                     new IdentityUtil(), null);
-            
+
         } catch (Throwable e) {
             log.error("Error occurred while populating identity configuration properties", e);
         }
@@ -125,7 +129,6 @@ public class IdentityCoreServiceComponent {
         IdentityTenantUtil.setRealmService(null);
     }
 
-
     /**
      * @param securityConfig
      */
@@ -142,10 +145,6 @@ public class IdentityCoreServiceComponent {
         if (log.isDebugEnabled()) {
             log.debug("SecurityConfigAdmin unset in Identity Core bundle");
         }
-    }
-
-    public static BundleContext getBundleContext() {
-        return bundleContext;
     }
 
 }

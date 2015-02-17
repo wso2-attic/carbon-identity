@@ -18,16 +18,16 @@
 
 package org.wso2.carbon.identity.application.common.model;
 
+import org.apache.axiom.om.OMElement;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.apache.axiom.om.OMElement;
-
 public class LocalAndOutboundAuthenticationConfig implements Serializable {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -932772940989929376L;
 
@@ -38,7 +38,7 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
     private boolean alwaysSendBackAuthenticatedListOfIdPs;
     private String subjectClaimUri;
 
-	/*
+    /*
      * <LocalAndOutboundAuthenticationConfig> <AuthenticationSteps></AuthenticationSteps>
      * <AuthenticationType></AuthenticationType>
      * <AuthenticationStepForSubject></AuthenticationStepForSubject>
@@ -82,7 +82,7 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
                     localAndOutboundAuthenticationConfig
                             .setAuthenticationSteps(authenticationStepsArr);
                 }
-                
+
             } else if (member.getLocalName().equals("AuthenticationType")) {
                 localAndOutboundAuthenticationConfig.setAuthenticationType(member.getText());
             } else if (member.getLocalName().equals("AuthenticationStepForSubject")) {
@@ -96,11 +96,11 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
                     localAndOutboundAuthenticationConfig
                             .setAuthenticationStepForAttributes(authStep);
                 }
-			} else if (member.getLocalName().equals("alwaysSendBackAuthenticatedListOfIdPs")) {
-				if (member.getText() != null && "true".equals(member.getText())) {
-					localAndOutboundAuthenticationConfig.setAlwaysSendBackAuthenticatedListOfIdPs(true);
-				}
-			} else if (member.getLocalName().equals("subjectClaimUri")) {
+            } else if (member.getLocalName().equals("alwaysSendBackAuthenticatedListOfIdPs")) {
+                if (member.getText() != null && "true".equals(member.getText())) {
+                    localAndOutboundAuthenticationConfig.setAlwaysSendBackAuthenticatedListOfIdPs(true);
+                }
+            } else if (member.getLocalName().equals("subjectClaimUri")) {
                 localAndOutboundAuthenticationConfig.setSubjectClaimUri(member.getText());
             }
         }
@@ -109,7 +109,6 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public AuthenticationStep[] getAuthenticationSteps() {
@@ -117,7 +116,6 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
     }
 
     /**
-     * 
      * @param authSteps
      */
     public void setAuthenticationSteps(AuthenticationStep[] authenticationSteps) {
@@ -125,7 +123,6 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public String getAuthenticationType() {
@@ -133,7 +130,6 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
     }
 
     /**
-     * 
      * @param authenticationType
      */
     public void setAuthenticationType(String authenticationType) {
@@ -141,7 +137,6 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public AuthenticationStep getAuthenticationStepForSubject() {
@@ -149,7 +144,6 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
     }
 
     /**
-     * 
      * @param authenticationStepForSubject
      */
     public void setAuthenticationStepForSubject(AuthenticationStep authenticationStepForSubject) {
@@ -157,7 +151,6 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public AuthenticationStep getAuthenticationStepForAttributes() {
@@ -165,7 +158,6 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
     }
 
     /**
-     * 
      * @param authenticationStepForAttributes
      */
     public void setAuthenticationStepForAttributes(
@@ -174,35 +166,31 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
-	public boolean isAlwaysSendBackAuthenticatedListOfIdPs() {
-	    return alwaysSendBackAuthenticatedListOfIdPs;
+    public boolean isAlwaysSendBackAuthenticatedListOfIdPs() {
+        return alwaysSendBackAuthenticatedListOfIdPs;
     }
-
-	/**
-	 * 
-	 * @param alwaysSendBackAuthenticatedListOfIdPs
-	 */
-	public void setAlwaysSendBackAuthenticatedListOfIdPs(boolean alwaysSendBackAuthenticatedListOfIdPs) {
-	    this.alwaysSendBackAuthenticatedListOfIdPs = alwaysSendBackAuthenticatedListOfIdPs;
-    }
-	
-	/**
-	 * 
-	 * @return
-	 */
-    public String getSubjectClaimUri() {
-		return subjectClaimUri;
-	}
 
     /**
-     * 
+     * @param alwaysSendBackAuthenticatedListOfIdPs
+     */
+    public void setAlwaysSendBackAuthenticatedListOfIdPs(boolean alwaysSendBackAuthenticatedListOfIdPs) {
+        this.alwaysSendBackAuthenticatedListOfIdPs = alwaysSendBackAuthenticatedListOfIdPs;
+    }
+
+    /**
+     * @return
+     */
+    public String getSubjectClaimUri() {
+        return subjectClaimUri;
+    }
+
+    /**
      * @param subjectClaimUri
      */
-	public void setSubjectClaimUri(String subjectClaimUri) {
-		this.subjectClaimUri = subjectClaimUri;
-	}
+    public void setSubjectClaimUri(String subjectClaimUri) {
+        this.subjectClaimUri = subjectClaimUri;
+    }
 
 }

@@ -17,12 +17,12 @@
  */
 package org.wso2.carbon.identity.provider.ui.client;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.provider.stub.IdentityProviderAdminServiceStub;
 
 public class IdentityProviderClient {
@@ -32,7 +32,7 @@ public class IdentityProviderClient {
     private IdentityProviderAdminServiceStub stub = null;
 
     public IdentityProviderClient(String cookie, String backendServerURL,
-            ConfigurationContext configCtx) throws AxisFault {
+                                  ConfigurationContext configCtx) throws AxisFault {
         String serviceURL = backendServerURL + "IdentityProviderAdminService";
         stub = new IdentityProviderAdminServiceStub(configCtx, serviceURL);
         ServiceClient client = stub._getServiceClient();
@@ -60,9 +60,9 @@ public class IdentityProviderClient {
 
     /**
      * Logs and wraps the given exception.
-     * 
+     *
      * @param msg Error message
-     * @param e Exception
+     * @param e   Exception
      * @throws AxisFault
      */
     private void handleException(String msg, Exception e) throws AxisFault {

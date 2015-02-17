@@ -16,39 +16,39 @@
 
 package org.wso2.carbon.identity.relyingparty.saml.tokens;
 
-import java.util.Map;
-
 import org.opensaml.xml.io.UnmarshallingException;
 import org.opensaml.xml.signature.Signature;
 import org.w3c.dom.Element;
 
+import java.util.Map;
+
 public interface TokenHolder {
 
-	/**
-	 * Creates the SAML object from the element This method must be called first
-	 * 
-	 * @param elem
-	 * @throws UnmarshallingException If the token creation fails
-	 */
-	public void createToken(Element elem) throws UnmarshallingException;
+    /**
+     * Creates the SAML object from the element This method must be called first
+     *
+     * @param elem
+     * @throws UnmarshallingException If the token creation fails
+     */
+    public void createToken(Element elem) throws UnmarshallingException;
 
-	/**
-	 * @return the SAML signature.
-	 */
-	public Signature getSAMLSignature();
+    /**
+     * @return the SAML signature.
+     */
+    public Signature getSAMLSignature();
 
-	/**
-	 * Populates the attributes.
-	 * 
-	 * @param attributeTable
-	 */
-	public void populateAttributeTable(Map<String,String>  attributeTable);
+    /**
+     * Populates the attributes.
+     *
+     * @param attributeTable
+     */
+    public void populateAttributeTable(Map<String, String> attributeTable);
 
-	/**
-	 * Issuer of the SAML token
-	 * 
-	 * @return
-	 */
-	public String getIssuerName();
+    /**
+     * Issuer of the SAML token
+     *
+     * @return
+     */
+    public String getIssuerName();
 
 }

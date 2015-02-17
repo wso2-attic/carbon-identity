@@ -52,11 +52,11 @@ import java.security.cert.X509Certificate;
 
 public class Util {
 
-    private static boolean bootStrapped = false;
-    private static Log log = LogFactory.getLog(Util.class);
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
             Constants.SECURITY_MANAGER_PROPERTY;
     private static final int ENTITY_EXPANSION_LIMIT = 0;
+    private static boolean bootStrapped = false;
+    private static Log log = LogFactory.getLog(Util.class);
 
     /**
      * Constructing the XMLObject Object from a String
@@ -131,8 +131,7 @@ public class Util {
      *
      * @param domainName domain name
      * @return X509CredentialImpl object containing the public certificate of that tenant
-     * @throws org.wso2.carbon.identity.authenticator.saml2.sso.SAML2SSOAuthenticatorException
-     *         Error when creating X509CredentialImpl object
+     * @throws org.wso2.carbon.identity.authenticator.saml2.sso.SAML2SSOAuthenticatorException Error when creating X509CredentialImpl object
      */
     public static X509CredentialImpl getX509CredentialImplForTenant(String domainName)
             throws SAML2SSOAuthenticatorException {

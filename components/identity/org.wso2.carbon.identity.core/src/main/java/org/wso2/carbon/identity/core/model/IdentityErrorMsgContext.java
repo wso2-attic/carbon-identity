@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2005,2014 WSO2, Inc. http://www.wso2.org
  *

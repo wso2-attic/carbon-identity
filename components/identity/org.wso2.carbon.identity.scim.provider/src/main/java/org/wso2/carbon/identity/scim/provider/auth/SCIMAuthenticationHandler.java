@@ -61,6 +61,7 @@ public interface SCIMAuthenticationHandler {
 
     /**
      * To set the properties specific to each authenticator
+     *
      * @param authenticatorProperties
      */
     public void setProperties(Map<String, String> authenticatorProperties);

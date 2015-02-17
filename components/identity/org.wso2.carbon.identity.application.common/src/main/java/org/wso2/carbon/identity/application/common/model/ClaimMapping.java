@@ -18,15 +18,15 @@
 
 package org.wso2.carbon.identity.application.common.model;
 
+import org.apache.axiom.om.OMElement;
+
 import java.io.Serializable;
 import java.util.Iterator;
-
-import org.apache.axiom.om.OMElement;
 
 public class ClaimMapping implements Serializable {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -2530192004968748230L;
 
@@ -36,7 +36,66 @@ public class ClaimMapping implements Serializable {
     private boolean requested;
 
     /**
-     * 
+     * @param localClaimUri
+     * @param remoteClaimUri
+     * @return
+     */
+    public static ClaimMapping build(String localClaimUri, String remoteClaimUri,
+                                     String defaultValue, boolean requested) {
+        ClaimMapping mapping = new ClaimMapping();
+
+        Claim localClaim = new Claim();
+        localClaim.setClaimUri(localClaimUri);
+
+        Claim remoteClaim = new Claim();
+        remoteClaim.setClaimUri(remoteClaimUri);
+
+        mapping.setLocalClaim(localClaim);
+        mapping.setRemoteClaim(remoteClaim);
+
+        mapping.setDefaultValue(defaultValue);
+        mapping.setRequested(requested);
+
+        return mapping;
+    }
+
+    /*
+     * <ClaimMapping> <LocalClaim></LocalClaim> <RemoteClaim></RemoteClaim>
+     * <DefaultValue></DefaultValue> </ClaimMapping>
+     */
+    public static ClaimMapping build(OMElement claimMappingOM) {
+        ClaimMapping claimMapping = new ClaimMapping();
+
+        Iterator<?> iter = claimMappingOM.getChildElements();
+
+        while (iter.hasNext()) {
+            OMElement element = (OMElement) (iter.next());
+            String elementName = element.getLocalName();
+
+            if (elementName.equals("LocalClaim")) {
+                Claim claim = Claim.build(element);
+                if (claim != null) {
+                    claimMapping.setLocalClaim(claim);
+                }
+            }
+
+            if (elementName.equals("RemoteClaim")) {
+                Claim claim = Claim.build(element);
+                if (claim != null) {
+                    claimMapping.setRemoteClaim(Claim.build(element));
+                }
+            }
+
+            if (elementName.equals("DefaultValue")) {
+                claimMapping.setDefaultValue(element.getText());
+            }
+
+        }
+
+        return claimMapping;
+    }
+
+    /**
      * @return
      */
     public Claim getLocalClaim() {
@@ -44,7 +103,6 @@ public class ClaimMapping implements Serializable {
     }
 
     /**
-     * 
      * @param localClaim
      */
     public void setLocalClaim(Claim localClaim) {
@@ -52,7 +110,6 @@ public class ClaimMapping implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public Claim getRemoteClaim() {
@@ -60,7 +117,6 @@ public class ClaimMapping implements Serializable {
     }
 
     /**
-     * 
      * @param remoteClaim
      */
     public void setRemoteClaim(Claim remoteClaim) {
@@ -92,32 +148,6 @@ public class ClaimMapping implements Serializable {
     }
 
     /**
-     * 
-     * @param localClaimUri
-     * @param remoteClaimUri
-     * @return
-     */
-    public static ClaimMapping build(String localClaimUri, String remoteClaimUri,
-            String defaultValue, boolean requested) {
-        ClaimMapping mapping = new ClaimMapping();
-
-        Claim localClaim = new Claim();
-        localClaim.setClaimUri(localClaimUri);
-
-        Claim remoteClaim = new Claim();
-        remoteClaim.setClaimUri(remoteClaimUri);
-
-        mapping.setLocalClaim(localClaim);
-        mapping.setRemoteClaim(remoteClaim);
-
-        mapping.setDefaultValue(defaultValue);
-        mapping.setRequested(requested);
-
-        return mapping;
-    }
-
-    /**
-     * 
      * @return
      */
     public String getDefaultValue() {
@@ -125,51 +155,13 @@ public class ClaimMapping implements Serializable {
     }
 
     /**
-     * 
      * @param defaultValue
      */
     public void setDefaultValue(String defaultValue) {
         this.defaultValue = defaultValue;
     }
 
-    /*
-     * <ClaimMapping> <LocalClaim></LocalClaim> <RemoteClaim></RemoteClaim>
-     * <DefaultValue></DefaultValue> </ClaimMapping>
-     */
-    public static ClaimMapping build(OMElement claimMappingOM) {
-        ClaimMapping claimMapping = new ClaimMapping();
-
-        Iterator<?> iter = claimMappingOM.getChildElements();
-
-        while (iter.hasNext()) {
-            OMElement element = (OMElement) (iter.next());
-            String elementName = element.getLocalName();
-
-            if (elementName.equals("LocalClaim")) {
-                Claim claim = Claim.build(element);
-                if (claim != null) {
-                    claimMapping.setLocalClaim(claim);
-                }
-            }
-            
-            if (elementName.equals("RemoteClaim")) {
-                Claim claim = Claim.build(element);
-                if (claim != null) {
-                    claimMapping.setRemoteClaim(Claim.build(element));
-                }
-            }
-            
-            if (elementName.equals("DefaultValue")) {
-                claimMapping.setDefaultValue(element.getText());
-            }
-
-        }
-
-        return claimMapping;
-    }
-
     /**
-     * 
      * @return
      */
     public boolean isRequested() {
@@ -177,7 +169,6 @@ public class ClaimMapping implements Serializable {
     }
 
     /**
-     * 
      * @param requested
      */
     public void setRequested(boolean requested) {

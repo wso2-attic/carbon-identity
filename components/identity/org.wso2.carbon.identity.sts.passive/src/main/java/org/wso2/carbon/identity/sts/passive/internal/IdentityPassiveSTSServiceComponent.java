@@ -29,83 +29,83 @@ import org.wso2.carbon.user.core.service.RealmService;
 /**
  * @scr.component name="identity.passive.sts.component" immediate="true"
  * @scr.reference name="registry.service"
- *                interface="org.wso2.carbon.registry.core.service.RegistryService"
- *                cardinality="1..1" policy="dynamic" bind="setRegistryService"
- *                unbind="unsetRegistryService"
+ * interface="org.wso2.carbon.registry.core.service.RegistryService"
+ * cardinality="1..1" policy="dynamic" bind="setRegistryService"
+ * unbind="unsetRegistryService"
  * @scr.reference name="user.realmservice.default"
- *                interface="org.wso2.carbon.user.core.service.RealmService" cardinality="1..1"
- *                policy="dynamic" bind="setRealmService" unbind="unsetRealmService"
+ * interface="org.wso2.carbon.user.core.service.RealmService" cardinality="1..1"
+ * policy="dynamic" bind="setRealmService" unbind="unsetRealmService"
  */
 public class IdentityPassiveSTSServiceComponent {
-	private static Log log = LogFactory.getLog(IdentityPassiveSTSServiceComponent.class);
-	private static RealmService userRealmService = null;
-	private static RegistryService registryService;
+    private static Log log = LogFactory.getLog(IdentityPassiveSTSServiceComponent.class);
+    private static RealmService userRealmService = null;
+    private static RegistryService registryService;
 
-	/**
+    /**
      *
      */
-	public IdentityPassiveSTSServiceComponent() {
-	}
+    public IdentityPassiveSTSServiceComponent() {
+    }
 
-	/**
-	 * @param ctxt
-	 */
-	protected void activate(ComponentContext ctxt) {
+    /**
+     * @return
+     */
+    public static RealmService getRealmService() {
+        return userRealmService;
+    }
 
-	}
+    /**
+     * @param userRealmDelegating
+     */
+    protected void setRealmService(RealmService realm) {
+        if (log.isDebugEnabled()) {
+            log.info("DelegatingUserRealm set in Identity Provider bundle");
+        }
+        userRealmService = realm;
+    }
 
-	/**
-	 * @param userRealmDelegating
-	 */
-	protected void setRealmService(RealmService realm) {
-		if (log.isDebugEnabled()) {
-			log.info("DelegatingUserRealm set in Identity Provider bundle");
-		}
-		userRealmService = realm;
-	}
+    public static RegistryService getRegistryervice() {
+        return registryService;
+    }
 
-	/**
-	 * @param userRealmDelegating
-	 */
-	protected void unsetRealmService(RealmService realm) {
-		if (log.isDebugEnabled()) {
-			log.info("DelegatingUserRealm set in Identity Provider bundle");
-		}
-	}
+    public static Registry getGovernanceSystemRegistry() throws RegistryException {
+        return (Registry) CarbonContext.getThreadLocalCarbonContext().getRegistry(
+                RegistryType.SYSTEM_GOVERNANCE);
+    }
 
-	/**
-	 * @return
-	 */
-	public static RealmService getRealmService() {
-		return userRealmService;
-	}
+    public static Registry getConfigSystemRegistry() throws RegistryException {
+        return (Registry) CarbonContext.getThreadLocalCarbonContext().getRegistry(
+                RegistryType.SYSTEM_CONFIGURATION);
+    }
 
-	public static RegistryService getRegistryervice() {
-		return registryService;
-	}
+    /**
+     * @param ctxt
+     */
+    protected void activate(ComponentContext ctxt) {
 
-	protected void setRegistryService(RegistryService registryService) {
-		if (log.isDebugEnabled()) {
-			log.debug("RegistryService set in Passive STS bundle");
-		}
-		IdentityPassiveSTSServiceComponent.registryService = registryService;
-	}
+    }
 
-	protected void unsetRegistryService(RegistryService registryService) {
-		if (log.isDebugEnabled()) {
-			log.debug("RegistryService unset in Passive STS bundle");
-		}
-		registryService = null;
-	}
+    /**
+     * @param userRealmDelegating
+     */
+    protected void unsetRealmService(RealmService realm) {
+        if (log.isDebugEnabled()) {
+            log.info("DelegatingUserRealm set in Identity Provider bundle");
+        }
+    }
 
-	public static Registry getGovernanceSystemRegistry() throws RegistryException {
-		return (Registry) CarbonContext.getThreadLocalCarbonContext().getRegistry(
-				RegistryType.SYSTEM_GOVERNANCE);
-	}
+    protected void setRegistryService(RegistryService registryService) {
+        if (log.isDebugEnabled()) {
+            log.debug("RegistryService set in Passive STS bundle");
+        }
+        IdentityPassiveSTSServiceComponent.registryService = registryService;
+    }
 
-	public static Registry getConfigSystemRegistry() throws RegistryException {
-		return (Registry) CarbonContext.getThreadLocalCarbonContext().getRegistry(
-				RegistryType.SYSTEM_CONFIGURATION);
-	}
+    protected void unsetRegistryService(RegistryService registryService) {
+        if (log.isDebugEnabled()) {
+            log.debug("RegistryService unset in Passive STS bundle");
+        }
+        registryService = null;
+    }
 
 }

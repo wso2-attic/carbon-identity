@@ -16,7 +16,6 @@
 package org.wso2.carbon.identity.sts.store.dao;
 
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.rahas.Token;

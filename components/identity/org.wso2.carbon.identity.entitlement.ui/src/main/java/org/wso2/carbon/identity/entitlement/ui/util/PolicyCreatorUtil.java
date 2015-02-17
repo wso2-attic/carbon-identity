@@ -18,16 +18,13 @@
 
 package org.wso2.carbon.identity.entitlement.ui.util;
 
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.util.AXIOMUtil;
-import org.wso2.balana.utils.policy.dto.*;
+import org.wso2.balana.utils.policy.dto.AttributeElementDTO;
+import org.wso2.balana.utils.policy.dto.AttributesElementDTO;
+import org.wso2.balana.utils.policy.dto.RequestElementDTO;
 import org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyConstants;
-import org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyCreationException;
-import org.wso2.carbon.identity.entitlement.ui.PolicyEditorConstants;
-import org.wso2.carbon.identity.entitlement.ui.dto.*;
+import org.wso2.carbon.identity.entitlement.ui.dto.RequestDTO;
+import org.wso2.carbon.identity.entitlement.ui.dto.RowDTO;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 import java.util.*;
 
 /**
@@ -1425,34 +1422,35 @@ public class PolicyCreatorUtil {
 //        return targetElement;
 //    }
 //
+
     /**
      * Creates XML request from  RequestDTO object
      *
      * @param requestDTO
      * @return
      */
-    public static RequestElementDTO createRequestElementDTO(RequestDTO requestDTO){
+    public static RequestElementDTO createRequestElementDTO(RequestDTO requestDTO) {
 
         RequestElementDTO requestElement = new RequestElementDTO();
 
-        List<RowDTO> rowDTOs  = requestDTO.getRowDTOs();
-        if(rowDTOs == null || rowDTOs.size() < 1){
+        List<RowDTO> rowDTOs = requestDTO.getRowDTOs();
+        if (rowDTOs == null || rowDTOs.size() < 1) {
             return requestElement;
         }
 
         Map<String, AttributesElementDTO> dtoMap = new HashMap<String, AttributesElementDTO>();
         List<AttributesElementDTO> dtoList = new ArrayList<AttributesElementDTO>();
 
-        for(RowDTO rowDTO : rowDTOs){
+        for (RowDTO rowDTO : rowDTOs) {
             String category = rowDTO.getCategory();
             String value = rowDTO.getAttributeValue();
             String attributeId = rowDTO.getAttributeId();
-            if(category != null && category.trim().length() > 0 && value != null &&
-                value.trim().length() > 0 && attributeId != null && attributeId.trim().length() > 0){
+            if (category != null && category.trim().length() > 0 && value != null &&
+                    value.trim().length() > 0 && attributeId != null && attributeId.trim().length() > 0) {
 
-                if(requestDTO.isMultipleRequest()){
+                if (requestDTO.isMultipleRequest()) {
                     String[] values = value.split(EntitlementPolicyConstants.ATTRIBUTE_SEPARATOR);
-                    for(String attributeValue : values){
+                    for (String attributeValue : values) {
                         AttributesElementDTO attributesElementDTO = new AttributesElementDTO();
                         attributesElementDTO.setCategory(category);
 
@@ -1461,8 +1459,8 @@ public class PolicyCreatorUtil {
                         attributeElementDTO.setAttributeId(attributeId);
                         attributeElementDTO.setIncludeInResult(rowDTO.isNotCompleted());
                         attributesElementDTO.addAttributeElementDTO(attributeElementDTO);
-                        if(rowDTO.getAttributeDataType() != null && rowDTO.
-                                                            getAttributeDataType().trim().length() > 0){
+                        if (rowDTO.getAttributeDataType() != null && rowDTO.
+                                getAttributeDataType().trim().length() > 0) {
                             attributeElementDTO.setDataType(rowDTO.getAttributeDataType());
                         } else {
                             attributeElementDTO.setDataType(EntitlementPolicyConstants.STRING_DATA_TYPE);
@@ -1472,7 +1470,7 @@ public class PolicyCreatorUtil {
 
                 } else {
                     AttributesElementDTO attributesElementDTO = dtoMap.get(category);
-                    if(attributesElementDTO == null){
+                    if (attributesElementDTO == null) {
                         attributesElementDTO = new AttributesElementDTO();
                         attributesElementDTO.setCategory(category);
                     }
@@ -1483,8 +1481,8 @@ public class PolicyCreatorUtil {
                     attributeElementDTO.setAttributeId(attributeId);
                     attributeElementDTO.setIncludeInResult(rowDTO.isNotCompleted());
                     attributesElementDTO.addAttributeElementDTO(attributeElementDTO);
-                    if(rowDTO.getAttributeDataType() != null && rowDTO.
-                                                        getAttributeDataType().trim().length() > 0){
+                    if (rowDTO.getAttributeDataType() != null && rowDTO.
+                            getAttributeDataType().trim().length() > 0) {
                         attributeElementDTO.setDataType(rowDTO.getAttributeDataType());
                     } else {
                         attributeElementDTO.setDataType(EntitlementPolicyConstants.STRING_DATA_TYPE);
@@ -1497,16 +1495,15 @@ public class PolicyCreatorUtil {
         requestElement.setMultipleRequest(requestDTO.isMultipleRequest());
         requestElement.setCombinedDecision(requestDTO.isCombinedDecision());
         requestElement.setReturnPolicyIdList(requestDTO.isReturnPolicyIdList());
-        if(!requestDTO.isMultipleRequest()){
+        if (!requestDTO.isMultipleRequest()) {
             dtoList = new ArrayList<AttributesElementDTO>();
-            for(Map.Entry<String, AttributesElementDTO> entry :dtoMap.entrySet()){
+            for (Map.Entry<String, AttributesElementDTO> entry : dtoMap.entrySet()) {
                 dtoList.add(entry.getValue());
             }
         }
         requestElement.setAttributesElementDTOs(dtoList);
         return requestElement;
     }
-
 
 
 //    public static TargetElementDTO createTargetElementDTOs(String policy)
@@ -1530,8 +1527,6 @@ public class PolicyCreatorUtil {
 //        }
 //        return targetElementDTO;
 //    }
-
-
 
 
 //

@@ -29,73 +29,73 @@ import org.wso2.carbon.identity.sts.mgt.stub.dto.CardIssuerTokenDTO;
 
 public class STSAdminServiceClient {
 
-	private IdentitySTSAdminServiceStub stub;
-	private static final Log log = LogFactory.getLog(STSAdminServiceClient.class);
+    private static final Log log = LogFactory.getLog(STSAdminServiceClient.class);
+    private IdentitySTSAdminServiceStub stub;
 
-	/**
-	 * Instantiates STSAdminServiceClient
-	 * 
-	 * @param cookie For session management
-	 * @param backendServerURL URL of the back end server where IdentitySTSAdminService is running.
-	 * @param configCtx ConfigurationContext
-	 * @throws AxisFault
-	 */
-	public STSAdminServiceClient(String cookie, String backendServerURL,
-			ConfigurationContext configCtx) throws AxisFault {
-		String serviceURL = backendServerURL + "IdentitySTSAdminService";
-		stub = new IdentitySTSAdminServiceStub(configCtx, serviceURL);
-		ServiceClient client = stub._getServiceClient();
-		Options option = client.getOptions();
-		option.setManageSession(true);
-		option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
-	}
+    /**
+     * Instantiates STSAdminServiceClient
+     *
+     * @param cookie           For session management
+     * @param backendServerURL URL of the back end server where IdentitySTSAdminService is running.
+     * @param configCtx        ConfigurationContext
+     * @throws AxisFault
+     */
+    public STSAdminServiceClient(String cookie, String backendServerURL,
+                                 ConfigurationContext configCtx) throws AxisFault {
+        String serviceURL = backendServerURL + "IdentitySTSAdminService";
+        stub = new IdentitySTSAdminServiceStub(configCtx, serviceURL);
+        ServiceClient client = stub._getServiceClient();
+        Options option = client.getOptions();
+        option.setManageSession(true);
+        option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
+    }
 
-	public CardIssuerDTO readCardIssuerConfiguration() throws AxisFault {
-		try {
-			return stub.readCardIssuerConfiguration();
-		} catch (Exception e) {
-			handleException(
-					"Error ouccured while reading card issuer configurations from the backend service",
-					e);
-		}
-		return null;
-	}
+    public CardIssuerDTO readCardIssuerConfiguration() throws AxisFault {
+        try {
+            return stub.readCardIssuerConfiguration();
+        } catch (Exception e) {
+            handleException(
+                    "Error ouccured while reading card issuer configurations from the backend service",
+                    e);
+        }
+        return null;
+    }
 
-	public void updateCardIssueConfiguration(CardIssuerDTO issuer) throws AxisFault {
-		try {
-			stub.updateCardIssueConfiguration(issuer);
-		} catch (Exception e) {
-			handleException(
-					"Error ouccured while updating card issuer configurations at the backend service",
-					e);
-		}
-	}
+    public void updateCardIssueConfiguration(CardIssuerDTO issuer) throws AxisFault {
+        try {
+            stub.updateCardIssueConfiguration(issuer);
+        } catch (Exception e) {
+            handleException(
+                    "Error ouccured while updating card issuer configurations at the backend service",
+                    e);
+        }
+    }
 
-	public String getSupportingTokens(CardIssuerTokenDTO[] tokens) {
-		StringBuffer buffer = new StringBuffer();
+    public String getSupportingTokens(CardIssuerTokenDTO[] tokens) {
+        StringBuffer buffer = new StringBuffer();
 
-		for (int i = 0; i < tokens.length; i++) {
-			if (tokens[i].getSupported()) {
-				if (i < tokens.length - 1) {
-					buffer.append(tokens[i].getTokenType() + ",");
-				} else {
-					buffer.append(tokens[i].getTokenType());
-				}
-			}
-		}
-		return buffer.toString();
-	}
+        for (int i = 0; i < tokens.length; i++) {
+            if (tokens[i].getSupported()) {
+                if (i < tokens.length - 1) {
+                    buffer.append(tokens[i].getTokenType() + ",");
+                } else {
+                    buffer.append(tokens[i].getTokenType());
+                }
+            }
+        }
+        return buffer.toString();
+    }
 
-	/**
-	 * Logs and wraps the given exception.
-	 * 
-	 * @param msg Error message
-	 * @param e Exception
-	 * @throws AxisFault
-	 */
-	private void handleException(String msg, Exception e) throws AxisFault {
-		log.error(msg, e);
-		throw new AxisFault(msg, e);
-	}
+    /**
+     * Logs and wraps the given exception.
+     *
+     * @param msg Error message
+     * @param e   Exception
+     * @throws AxisFault
+     */
+    private void handleException(String msg, Exception e) throws AxisFault {
+        log.error(msg, e);
+        throw new AxisFault(msg, e);
+    }
 
 }

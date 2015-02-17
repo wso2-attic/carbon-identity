@@ -15,18 +15,18 @@
  */
 package org.wso2.carbon.identity.mgt.policy;
 
-public abstract class AbstractPasswordPolicyEnforcer implements PolicyEnforcer{
-	
-	/**
-	 * Error message holder.
-	 */
-	protected String errorMessage;
-	
-	/**
-	 * Returns the policy violation error message.
-	 */
-	public String getErrorMessage(){
-		
-		return errorMessage;
-	}
+public abstract class AbstractPasswordPolicyEnforcer implements PolicyEnforcer {
+
+    /**
+     * Error message holder.
+     */
+    protected String errorMessage;
+
+    /**
+     * Returns the policy violation error message.
+     */
+    public String getErrorMessage() {
+
+        return errorMessage;
+    }
 }

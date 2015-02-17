@@ -5,14 +5,13 @@ import org.wso2.carbon.identity.application.common.cache.CacheKey;
 public class IdentityServiceProviderCacheKey extends CacheKey {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 8263255365985309443L;
 
     private String serviceProviderKey;
 
     /**
-     *
      * @param serviceProviderName
      * @param tenantDomain
      */
@@ -22,7 +21,6 @@ public class IdentityServiceProviderCacheKey extends CacheKey {
     }
 
     /**
-     * 
      * @return
      */
     public String getServiceProviderKey() {

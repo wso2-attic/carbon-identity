@@ -36,41 +36,39 @@ public class CacheBackedProvisioningMgtDAO {
     private ProvisioningEntityCache provisioningEntityCache = null;
 
     /**
-     * 
      * @param provisioningManagementDAO
      */
     public CacheBackedProvisioningMgtDAO(ProvisioningManagementDAO provisioningManagementDAO) {
         this.provisioningMgtDAO = provisioningManagementDAO;
         this.provisioningEntityCache = ProvisioningEntityCache.getInstance();
     }
-    
+
     /**
-     * 
      * @param identityProviderName
      * @param connectorType
      * @param provisioningEntity
      * @param tenantId
      * @throws IdentityApplicationManagementException
      */
-	public void addProvisioningEntity(String identityProviderName, String connectorType,
-	                                  ProvisioningEntity provisioningEntity, int tenantId, String tenantDomain)
+    public void addProvisioningEntity(String identityProviderName, String connectorType,
+                                      ProvisioningEntity provisioningEntity, int tenantId, String tenantDomain)
             throws IdentityApplicationManagementException {
 
         provisioningMgtDAO.addProvisioningEntity(identityProviderName, connectorType, provisioningEntity, tenantId);
-		
-        if(log.isDebugEnabled()) {
-        	log.debug("Caching newly added Provisioning Entity : " +
-            		"identityProviderName=" + identityProviderName + 
-            		"&& connectorType=" + connectorType + 
-            		"&& provisioningEntityType=" + provisioningEntity.getEntityType() + 
-            		"&& provisioningEntityName=" + provisioningEntity.getEntityName() +
-            		"&& provisioningIdentifier=" + provisioningEntity.getIdentifier().getIdentifier());
+
+        if (log.isDebugEnabled()) {
+            log.debug("Caching newly added Provisioning Entity : " +
+                    "identityProviderName=" + identityProviderName +
+                    "&& connectorType=" + connectorType +
+                    "&& provisioningEntityType=" + provisioningEntity.getEntityType() +
+                    "&& provisioningEntityName=" + provisioningEntity.getEntityName() +
+                    "&& provisioningIdentifier=" + provisioningEntity.getIdentifier().getIdentifier());
         }
-        
-        
-		ProvisioningEntityCacheKey cacheKey = new ProvisioningEntityCacheKey(identityProviderName, connectorType,
+
+
+        ProvisioningEntityCacheKey cacheKey = new ProvisioningEntityCacheKey(identityProviderName, connectorType,
                 provisioningEntity, tenantDomain);
-		ProvisioningEntityCacheEntry entry = new ProvisioningEntityCacheEntry();
+        ProvisioningEntityCacheEntry entry = new ProvisioningEntityCacheEntry();
 
         ProvisioningEntity cachedProvisioningEntity = new ProvisioningEntity(provisioningEntity.getEntityType(),
                 provisioningEntity.getOperation());
@@ -78,114 +76,112 @@ public class CacheBackedProvisioningMgtDAO {
         cachedProvisioningEntity.setIdentifier(provisionedIdentifier);
         entry.setProvisioningEntity(cachedProvisioningEntity);
         provisioningEntityCache.addToCache(cacheKey, entry);
-        	
+
     }
-    
+
     /**
-     * 
      * @param identityProviderName
      * @param connectorType
      * @param provisioningEntity
      * @param tenantId
      * @throws IdentityApplicationManagementException
      */
-	public ProvisionedIdentifier getProvisionedIdentifier(String identityProviderName, String connectorType,
-	                                  ProvisioningEntity provisioningEntity, int tenantId, String tenantDomain)
+    public ProvisionedIdentifier getProvisionedIdentifier(String identityProviderName, String connectorType,
+                                                          ProvisioningEntity provisioningEntity, int tenantId, String tenantDomain)
             throws IdentityApplicationManagementException {
 
         ProvisioningEntityCacheKey cacheKey = new ProvisioningEntityCacheKey(identityProviderName, connectorType,
                 provisioningEntity, tenantDomain);
-		ProvisioningEntityCacheEntry entry = ((ProvisioningEntityCacheEntry) provisioningEntityCache.getValueFromCache(cacheKey));
+        ProvisioningEntityCacheEntry entry = ((ProvisioningEntityCacheEntry) provisioningEntityCache.getValueFromCache(cacheKey));
 
         if (entry != null) {
-        	if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("Cache entry found for Provisioning Entity : " +
-                		"identityProviderName=" + identityProviderName + 
-                		"&& connectorType=" + connectorType + 
-                		"&& provisioningEntityType=" + provisioningEntity.getEntityType() + 
-                		"&& provisioningEntityName=" + provisioningEntity.getEntityName());
-        	}
+                        "identityProviderName=" + identityProviderName +
+                        "&& connectorType=" + connectorType +
+                        "&& provisioningEntityType=" + provisioningEntity.getEntityType() +
+                        "&& provisioningEntityName=" + provisioningEntity.getEntityName());
+            }
             provisioningEntity = entry.getProvisioningEntity();
             return provisioningEntity.getIdentifier();
         } else {
-            if(log.isDebugEnabled()) {
-            	log.debug("Cache entry not found for Provisioning Entity : " +
-                		"identityProviderName=" + identityProviderName + 
-                		"&& connectorType=" + connectorType + 
-                		"&& provisioningEntityType=" + provisioningEntity.getEntityType() + 
-                		"&& provisioningEntityName=" + provisioningEntity.getEntityName() +
-                    	". Fetching entity from DB");
+            if (log.isDebugEnabled()) {
+                log.debug("Cache entry not found for Provisioning Entity : " +
+                        "identityProviderName=" + identityProviderName +
+                        "&& connectorType=" + connectorType +
+                        "&& provisioningEntityType=" + provisioningEntity.getEntityType() +
+                        "&& provisioningEntityName=" + provisioningEntity.getEntityName() +
+                        ". Fetching entity from DB");
             }
-            
+
             ProvisionedIdentifier provisionedIdentifier = provisioningMgtDAO.getProvisionedIdentifier(identityProviderName, connectorType, provisioningEntity, tenantId);
-            
+
             if (provisionedIdentifier != null) {
-            	if(log.isDebugEnabled()) {
-            		log.debug("Entry fetched from DB for Provisioning Entity : " +
-                		"identityProviderName=" + identityProviderName + 
-                		"&& connectorType=" + connectorType + 
-                		"&& provisioningEntityType=" + provisioningEntity.getEntityType() + 
-                		"&& provisioningEntityName=" + provisioningEntity.getEntityName() +
-                		". Updating cache");
-            	}
-            	
-            	ProvisioningEntity cachedProvisioningEntity = new ProvisioningEntity(provisioningEntity.getEntityType(),provisioningEntity.getOperation());
-            	cachedProvisioningEntity.setIdentifier(provisionedIdentifier);
-            	
-            	entry = new ProvisioningEntityCacheEntry();
-            	entry.setProvisioningEntity(cachedProvisioningEntity);
-            	provisioningEntityCache.addToCache(cacheKey, entry);
-            	
-            	return provisionedIdentifier;
+                if (log.isDebugEnabled()) {
+                    log.debug("Entry fetched from DB for Provisioning Entity : " +
+                            "identityProviderName=" + identityProviderName +
+                            "&& connectorType=" + connectorType +
+                            "&& provisioningEntityType=" + provisioningEntity.getEntityType() +
+                            "&& provisioningEntityName=" + provisioningEntity.getEntityName() +
+                            ". Updating cache");
+                }
+
+                ProvisioningEntity cachedProvisioningEntity = new ProvisioningEntity(provisioningEntity.getEntityType(), provisioningEntity.getOperation());
+                cachedProvisioningEntity.setIdentifier(provisionedIdentifier);
+
+                entry = new ProvisioningEntityCacheEntry();
+                entry.setProvisioningEntity(cachedProvisioningEntity);
+                provisioningEntityCache.addToCache(cacheKey, entry);
+
+                return provisionedIdentifier;
             } else {
-				if (log.isDebugEnabled()) {
-					log.debug("Entry for Provisioning Entity : " + "identityProviderName=" +
-					          identityProviderName + "&& connectorType=" + connectorType +
-					          "&& provisioningEntityType=" + provisioningEntity.getEntityType() +
-					          "&& provisioningEntityName=" + provisioningEntity.getEntityName() +
-					          " not found in cache or DB");
-				}
+                if (log.isDebugEnabled()) {
+                    log.debug("Entry for Provisioning Entity : " + "identityProviderName=" +
+                            identityProviderName + "&& connectorType=" + connectorType +
+                            "&& provisioningEntityType=" + provisioningEntity.getEntityType() +
+                            "&& provisioningEntityName=" + provisioningEntity.getEntityName() +
+                            " not found in cache or DB");
+                }
             }
         }
 
         return null;
     }
-    
+
     /**
-     * 
      * @param identityProviderName
      * @param connectorType
      * @param provisioningEntity
      * @param tenantId
      * @throws IdentityApplicationManagementException
      */
-	public void deleteProvisioningEntity(String identityProviderName, String connectorType,
-	                                  ProvisioningEntity provisioningEntity, int tenantId, String tenantDomain)
+    public void deleteProvisioningEntity(String identityProviderName, String connectorType,
+                                         ProvisioningEntity provisioningEntity, int tenantId, String tenantDomain)
             throws IdentityApplicationManagementException {
 
-		ProvisioningEntityCacheKey cacheKey = new ProvisioningEntityCacheKey(identityProviderName, connectorType,
+        ProvisioningEntityCacheKey cacheKey = new ProvisioningEntityCacheKey(identityProviderName, connectorType,
                 provisioningEntity, tenantDomain);
-		ProvisioningEntityCacheEntry entry = ((ProvisioningEntityCacheEntry) provisioningEntityCache.getValueFromCache(cacheKey));
+        ProvisioningEntityCacheEntry entry = ((ProvisioningEntityCacheEntry) provisioningEntityCache.getValueFromCache(cacheKey));
         if (entry != null) {
-        	if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("Cache entry found for Provisioning Entity : " +
-                		"identityProviderName=" + identityProviderName + 
-                		"&& connectorType=" + connectorType + 
-                		"&& provisioningEntityType=" + provisioningEntity.getEntityType() + 
-                		"&& provisioningEntityName=" + provisioningEntity.getEntityName() +
-                		". Hence remove from cache");
-        	}
-        	provisioningEntityCache.clearCacheEntry(cacheKey);
+                        "identityProviderName=" + identityProviderName +
+                        "&& connectorType=" + connectorType +
+                        "&& provisioningEntityType=" + provisioningEntity.getEntityType() +
+                        "&& provisioningEntityName=" + provisioningEntity.getEntityName() +
+                        ". Hence remove from cache");
+            }
+            provisioningEntityCache.clearCacheEntry(cacheKey);
         }
-        
-		provisioningMgtDAO.deleteProvisioningEntity(identityProviderName, connectorType, provisioningEntity, tenantId);
-        
-		if(log.isDebugEnabled()) {
-        		log.debug("Entry removed from DB for Provisioning Entity : " +
-            		"identityProviderName=" + identityProviderName + 
-            		"&& connectorType=" + connectorType + 
-            		"&& provisioningEntityType=" + provisioningEntity.getEntityType() + 
-            		"&& provisioningEntityName=" + provisioningEntity.getEntityName());
+
+        provisioningMgtDAO.deleteProvisioningEntity(identityProviderName, connectorType, provisioningEntity, tenantId);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Entry removed from DB for Provisioning Entity : " +
+                    "identityProviderName=" + identityProviderName +
+                    "&& connectorType=" + connectorType +
+                    "&& provisioningEntityType=" + provisioningEntity.getEntityType() +
+                    "&& provisioningEntityName=" + provisioningEntity.getEntityName());
         }
     }
 

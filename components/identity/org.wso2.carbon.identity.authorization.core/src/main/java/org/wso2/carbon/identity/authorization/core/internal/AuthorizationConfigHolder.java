@@ -31,11 +31,11 @@ import java.util.Properties;
 public class AuthorizationConfigHolder {
 
     private Map<PermissionFinderModule, Properties> permissionFinderModules =
-                                    new HashMap<PermissionFinderModule, Properties>();
+            new HashMap<PermissionFinderModule, Properties>();
 
 
     private Map<PostAuthorizationExtension, Properties> postExtensions =
-                            new HashMap<PostAuthorizationExtension, Properties>();
+            new HashMap<PostAuthorizationExtension, Properties>();
 
     public Map<PermissionFinderModule, Properties> getPermissionFinderModules() {
         return permissionFinderModules;

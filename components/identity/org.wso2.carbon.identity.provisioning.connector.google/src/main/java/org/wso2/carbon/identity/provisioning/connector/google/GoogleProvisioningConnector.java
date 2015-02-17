@@ -18,29 +18,6 @@
  */
 package org.wso2.carbon.identity.provisioning.connector.google;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.security.GeneralSecurityException;
-import java.security.SecureRandom;
-import java.util.*;
-
-import org.apache.axiom.util.base64.Base64Utils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.identity.application.common.model.Property;
-import org.wso2.carbon.identity.provisioning.AbstractOutboundProvisioningConnector;
-import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
-import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
-import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
-import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
-import org.wso2.carbon.identity.provisioning.ProvisioningEntityType;
-import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
-
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpTransport;
@@ -51,16 +28,29 @@ import com.google.api.services.admin.directory.DirectoryScopes;
 import com.google.api.services.admin.directory.model.User;
 import com.google.api.services.admin.directory.model.UserName;
 import com.google.api.services.admin.directory.model.Users;
+import org.apache.axiom.util.base64.Base64Utils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.provisioning.*;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.security.GeneralSecurityException;
+import java.security.SecureRandom;
+import java.util.*;
 
 public class GoogleProvisioningConnector extends AbstractOutboundProvisioningConnector {
 
     private static final long serialVersionUID = -6152718786151333233L;
 
     private static final Log log = LogFactory.getLog(GoogleProvisioningConnector.class);
-    private GoogleProvisioningConnectorConfig configHolder;
-
     private static SecureRandom random = new SecureRandom();
     private static File googlePrvKey = null;
+    private GoogleProvisioningConnectorConfig configHolder;
 
     @Override
     /**

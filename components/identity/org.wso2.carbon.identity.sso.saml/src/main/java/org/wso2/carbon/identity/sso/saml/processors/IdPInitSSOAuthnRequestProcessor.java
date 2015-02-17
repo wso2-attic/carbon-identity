@@ -20,31 +20,21 @@ package org.wso2.carbon.identity.sso.saml.processors;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml2.core.Response;
-import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
-import org.wso2.carbon.core.util.AnonymousSessionUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
 import org.wso2.carbon.identity.sso.saml.builders.ErrorResponseBuilder;
 import org.wso2.carbon.identity.sso.saml.builders.ResponseBuilder;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
-import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOReqValidationResponseDTO;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSORespDTO;
 import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
-import org.wso2.carbon.identity.sso.saml.session.SessionInfoData;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 import org.wso2.carbon.registry.core.Registry;
-import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
-import org.wso2.carbon.user.core.UserRealm;
-import org.wso2.carbon.user.core.UserStoreManager;
-import org.wso2.carbon.user.core.util.UserCoreUtil;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +59,7 @@ public class IdPInitSSOAuthnRequestProcessor {
                         SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, msg);
             }
 
-            if(!serviceProviderConfigs.isIdPInitSSOEnabled()){
+            if (!serviceProviderConfigs.isIdPInitSSOEnabled()) {
                 String msg = "IdP initiated SSO not enabled for service provider '" + authnReqDTO.getIssuer() + "'.";
                 log.debug(msg);
                 return buildErrorResponse(null,
@@ -221,7 +211,6 @@ public class IdPInitSSOAuthnRequestProcessor {
     }
 
     /**
-     *
      * @param id
      * @param status
      * @param statMsg

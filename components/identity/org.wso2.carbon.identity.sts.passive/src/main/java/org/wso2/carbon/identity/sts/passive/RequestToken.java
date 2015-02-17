@@ -65,7 +65,7 @@ public class RequestToken {
     // the attribute store being used and is not mandated by this specification. This
     // attribute is only present on the request.
     private String attributes;
-    
+
     //This required parameter specifies the pseudonym request and either contains a
     //SOAP envelope or an attribute request, such as <wsse:GetPseudonym>. This
     //attribute is only present on the request.
@@ -78,7 +78,7 @@ public class RequestToken {
     private String password;
 
     private String dialect;
-    
+
     public String getAttributes() {
         return attributes;
     }

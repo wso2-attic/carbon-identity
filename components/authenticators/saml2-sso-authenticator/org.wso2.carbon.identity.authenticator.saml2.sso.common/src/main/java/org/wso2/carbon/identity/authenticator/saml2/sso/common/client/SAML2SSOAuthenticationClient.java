@@ -33,13 +33,13 @@ import javax.servlet.http.HttpSession;
 import java.rmi.RemoteException;
 
 public class SAML2SSOAuthenticationClient {
-    
-    private SAML2SSOAuthenticationServiceStub stub;
+
     private static final Log log = LogFactory.getLog(SAML2SSOAuthenticationClient.class);
+    private SAML2SSOAuthenticationServiceStub stub;
     private HttpSession session;
 
     public SAML2SSOAuthenticationClient(ConfigurationContext ctx, String serverURL, String cookie,
-            HttpSession session) throws Exception {
+                                        HttpSession session) throws Exception {
         this.session = session;
         String serviceEPR = serverURL + "SAML2SSOAuthenticationService";
         stub = new SAML2SSOAuthenticationServiceStub(ctx, serviceEPR);
@@ -67,7 +67,7 @@ public class SAML2SSOAuthenticationClient {
 
     public void logout(HttpSession session) throws AuthenticationException {
         try {
-            if(!CarbonUtils.isRunningOnLocalTransportMode()){
+            if (!CarbonUtils.isRunningOnLocalTransportMode()) {
                 stub.logout();
             }
             session.removeAttribute(ServerConstants.ADMIN_SERVICE_AUTH_TOKEN);
@@ -85,5 +85,5 @@ public class SAML2SSOAuthenticationClient {
             session.setAttribute(ServerConstants.ADMIN_SERVICE_AUTH_TOKEN, cookie);
         }
     }
-    
+
 }

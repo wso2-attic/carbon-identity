@@ -31,7 +31,7 @@ public class SSOAgentHttpSessionListener implements HttpSessionListener {
 
     @Override
     public void sessionCreated(HttpSessionEvent httpSessionEvent) {
-        if(httpSessionEvent.getSession().getAttribute(SSOAgentConstants.SESSION_BEAN_NAME) == null){
+        if (httpSessionEvent.getSession().getAttribute(SSOAgentConstants.SESSION_BEAN_NAME) == null) {
             LOGGER.log(Level.WARNING, "HTTP Session created without LoggedInSessionBean");
         }
     }

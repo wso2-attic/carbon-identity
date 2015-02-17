@@ -23,9 +23,9 @@ import org.apache.log4j.Logger;
 import org.wso2.carbon.apacheds.AdminInfo;
 import org.wso2.carbon.apacheds.PartitionInfo;
 import org.wso2.carbon.apacheds.PartitionManager;
+import org.wso2.carbon.ldap.server.configuration.LDAPConfigurationBuilder;
 import org.wso2.carbon.ldap.server.exception.DirectoryServerException;
 import org.wso2.carbon.ldap.server.util.EmbeddingLDAPException;
-import org.wso2.carbon.ldap.server.configuration.LDAPConfigurationBuilder;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.tenant.LDAPTenantManager;
 import org.wso2.carbon.user.core.tenant.Tenant;
@@ -72,13 +72,13 @@ public class LDAPTenantManagerService implements LDAPTenantManager {
         } catch (DirectoryServerException e) {
             //exception can be caught if addPartition method fails.
             String errorMessage = "Could not create a new partition for tenant id - " +
-                                  tenant.getId() + "and for tenant domain - " + tenant.getDomain();
+                    tenant.getId() + "and for tenant domain - " + tenant.getDomain();
             logger.error(errorMessage, e);
             throw new UserStoreException(errorMessage, e);
         } catch (EmbeddingLDAPException e) {
             //exception can be caught if getPartitionInfo method fails.
             String errorMessage = "Could not create a new partition for tenant id - " +
-                                  tenant.getId() + "and for tenant domain - " + tenant.getDomain();
+                    tenant.getId() + "and for tenant domain - " + tenant.getDomain();
             logger.error(errorMessage, e);
             throw new UserStoreException(errorMessage, e);
 

@@ -19,16 +19,16 @@
 package org.wso2.carbon.identity.application.authenticator.oidc;
 
 public class OIDCAuthenticatorConstants {
-	
-	public static final String AUTHENTICATOR_NAME = "OpenIDConnectAuthenticator";
-	public static final String LOGIN_TYPE = "OIDC";
-	
-	public static final String OAUTH_OIDC_SCOPE = "openid";
+
+    public static final String AUTHENTICATOR_NAME = "OpenIDConnectAuthenticator";
+    public static final String LOGIN_TYPE = "OIDC";
+
+    public static final String OAUTH_OIDC_SCOPE = "openid";
     public static final String OAUTH2_GRANT_TYPE_CODE = "code";
     public static final String OAUTH2_PARAM_STATE = "state";
 
-	public static final String ACCESS_TOKEN = "access_token";
-	public static final String ID_TOKEN = "id_token";
+    public static final String ACCESS_TOKEN = "access_token";
+    public static final String ID_TOKEN = "id_token";
 
     public static final String CLIENT_ID = "ClientId";
     public static final String CLIENT_SECRET = "ClientSecret";
@@ -36,9 +36,9 @@ public class OIDCAuthenticatorConstants {
     public static final String OAUTH2_TOKEN_URL = "OAUTH2TokenUrl";
 
     public class AuthenticatorConfParams {
-    	public static final String DEFAULT_IDP_CONFIG = "DefaultIdPConfig";
+        public static final String DEFAULT_IDP_CONFIG = "DefaultIdPConfig";
     }
-    
+
     public class IdPConfParams {
         public static final String CLIENT_ID = "ClientId";
         public static final String CLIENT_SECRET = "ClientSecret";
@@ -46,27 +46,27 @@ public class OIDCAuthenticatorConstants {
         public static final String TOKEN_EP = "TokenEndPoint";
         public static final String USER_INFO_EP = "UserInfoEndPoint";
     }
-    
-   public class Claim {
-           public static final String SUB = "sub";
-           public static final String NAME = "name";
-           public static final String GIVEN_NAME = "given_name";
-           public static final String FAMILY_NAME = "family_name";
-           public static final String MIDDLE_NAME = "middle_name";
-           public static final String NICK_NAME = "nickname";
-           public static final String PREFERED_USERNAME = "preferred_username";
-           public static final String PROFILE = "profile";
-           public static final String PICTURE = "picture";
-           public static final String WEBSITE = "website";
-           public static final String EMAIL = "email";
-           public static final String EMAIL_VERIFIED = "email_verified";
-           public static final String GENDER = "gender";
-           public static final String BIRTH_DATE = "birthdate";
-           public static final String ZONE_INFO = "zoneinfo";
-           public static final String LOCALE = "locale";
-           public static final String PHONE_NUMBER = "phone_number";
-           public static final String PHONE_NUMBER_VERIFIED = "phone_number_verified";
-           public static final String ADDRESS = "address";
-           public static final String UPDATED_AT = "updated_at";
-   }
+
+    public class Claim {
+        public static final String SUB = "sub";
+        public static final String NAME = "name";
+        public static final String GIVEN_NAME = "given_name";
+        public static final String FAMILY_NAME = "family_name";
+        public static final String MIDDLE_NAME = "middle_name";
+        public static final String NICK_NAME = "nickname";
+        public static final String PREFERED_USERNAME = "preferred_username";
+        public static final String PROFILE = "profile";
+        public static final String PICTURE = "picture";
+        public static final String WEBSITE = "website";
+        public static final String EMAIL = "email";
+        public static final String EMAIL_VERIFIED = "email_verified";
+        public static final String GENDER = "gender";
+        public static final String BIRTH_DATE = "birthdate";
+        public static final String ZONE_INFO = "zoneinfo";
+        public static final String LOCALE = "locale";
+        public static final String PHONE_NUMBER = "phone_number";
+        public static final String PHONE_NUMBER_VERIFIED = "phone_number_verified";
+        public static final String ADDRESS = "address";
+        public static final String UPDATED_AT = "updated_at";
+    }
 }

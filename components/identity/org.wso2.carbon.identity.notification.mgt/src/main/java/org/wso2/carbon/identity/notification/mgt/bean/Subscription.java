@@ -35,8 +35,9 @@ public class Subscription {
      */
     protected Properties subscriptionProperties;
 
-    public void setSubscriptionProperties(Properties subscriptionProperties) {
+    public Subscription(String subscriptionName, Properties subscriptionProperties) {
         this.subscriptionProperties = subscriptionProperties;
+        this.subscriptionName = subscriptionName;
     }
 
     public String getSubscriptionName() {
@@ -47,8 +48,7 @@ public class Subscription {
         return subscriptionProperties;
     }
 
-    public Subscription(String subscriptionName, Properties subscriptionProperties) {
+    public void setSubscriptionProperties(Properties subscriptionProperties) {
         this.subscriptionProperties = subscriptionProperties;
-        this.subscriptionName = subscriptionName;
     }
 }

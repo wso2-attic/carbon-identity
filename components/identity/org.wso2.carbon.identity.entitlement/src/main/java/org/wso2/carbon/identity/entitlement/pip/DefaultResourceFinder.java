@@ -21,7 +21,6 @@ package org.wso2.carbon.identity.entitlement.pip;
 import org.wso2.balana.ctx.EvaluationCtx;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent;
-import org.wso2.carbon.identity.entitlement.pip.PIPResourceFinder;
 import org.wso2.carbon.registry.api.Resource;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
@@ -35,7 +34,7 @@ import java.util.Set;
  * This is the default implementation of the PIPResourceFinder.  DefaultResourceFinder finds the resources
  * of the underline registry
  */
-public class DefaultResourceFinder implements PIPResourceFinder{
+public class DefaultResourceFinder implements PIPResourceFinder {
 
     private Registry registry;
 
@@ -54,12 +53,12 @@ public class DefaultResourceFinder implements PIPResourceFinder{
         Set<String> resourceSet = new HashSet<String>();
         registry = EntitlementServiceComponent.getRegistryService().getSystemRegistry(CarbonContext.
                 getThreadLocalCarbonContext().getTenantId());
-        if(registry.resourceExists(parentResourceId)){
+        if (registry.resourceExists(parentResourceId)) {
             Resource resource = registry.get(parentResourceId);
-            if(resource instanceof Collection){
+            if (resource instanceof Collection) {
                 Collection collection = (Collection) resource;
                 String[] resources = collection.getChildren();
-                for(String res : resources){
+                for (String res : resources) {
                     resourceSet.add(res);
                     getChildResources(res, resourceSet);
                 }
@@ -87,8 +86,9 @@ public class DefaultResourceFinder implements PIPResourceFinder{
 
     /**
      * This helps to find resources un a recursive manner
-     * @param parentResource  parent resource Name
-     * @param childResources  child resource set
+     *
+     * @param parentResource parent resource Name
+     * @param childResources child resource set
      * @return child resource set
      * @throws RegistryException throws
      */
@@ -96,10 +96,10 @@ public class DefaultResourceFinder implements PIPResourceFinder{
             throws RegistryException {
 
         Resource resource = registry.get(parentResource);
-        if(resource instanceof Collection){
+        if (resource instanceof Collection) {
             Collection collection = (Collection) resource;
             String[] resources = collection.getChildren();
-            for(String res : resources){
+            for (String res : resources) {
                 childResources.add(res);
                 getChildResources(res, childResources);
             }

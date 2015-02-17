@@ -19,8 +19,8 @@
 package org.wso2.carbon.identity.application.authentication.framework.exception;
 
 public class ApplicationAuthenticatorException extends Exception {
-	
-	public ApplicationAuthenticatorException() {
+
+    public ApplicationAuthenticatorException() {
         super();
     }
 

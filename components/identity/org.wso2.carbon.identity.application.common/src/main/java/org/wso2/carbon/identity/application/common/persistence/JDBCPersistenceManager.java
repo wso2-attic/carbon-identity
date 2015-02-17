@@ -46,6 +46,10 @@ public class JDBCPersistenceManager {
     private static volatile JDBCPersistenceManager instance;
     private DataSource dataSource;
 
+    private JDBCPersistenceManager() throws IdentityApplicationManagementException {
+        initDataSource();
+    }
+
     /**
      * Get an instance of the JDBCPersistenceManager.
      * It implements a lazy initialization with double checked locking.
@@ -65,10 +69,6 @@ public class JDBCPersistenceManager {
         return instance;
     }
 
-    private JDBCPersistenceManager() throws IdentityApplicationManagementException {
-        initDataSource();
-    }
-
     private void initDataSource() throws IdentityApplicationManagementException {
 
         try {
@@ -80,11 +80,11 @@ public class JDBCPersistenceManager {
                     .getText();
             Context ctx = new InitialContext();
             dataSource = (DataSource) ctx.lookup(dataSourceName);
-        }  catch (NamingException e) {
+        } catch (NamingException e) {
             log.error(e.getMessage(), e);
             String errorMsg = "Error occurred while looking up the Identity Application Management data source";
             throw new IdentityApplicationManagementException(errorMsg);
-        }  catch (Exception e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
             String errorMsg = "Error occurred while reading " +
                     IdentityApplicationConstants.APPLICATION_AUTHENTICATION_CONGIG;
@@ -115,7 +115,7 @@ public class JDBCPersistenceManager {
      *
      * @return Database connection
      * @throws IdentityApplicationManagementException Error when getting DB connection
-     *         on the Identity Provider Management data source
+     *                                                on the Identity Provider Management data source
      */
     public Connection getDBConnection() throws IdentityApplicationManagementException {
 
@@ -131,7 +131,7 @@ public class JDBCPersistenceManager {
             String errorMsg = "Error occurred while trying to get a database connection on " +
                     "Identity Application Management data source";
             log.error(errorMsg, e);
-            if(dbConnection != null){
+            if (dbConnection != null) {
                 IdentityApplicationManagementUtil.closeConnection(dbConnection);
             }
             throw new IdentityApplicationManagementException(errorMsg);

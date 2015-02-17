@@ -34,13 +34,11 @@ public interface PostPublisherModule {
      * initializes policy publisher retriever module
      *
      * @param properties Properties, that are needed to initialize the module
-     *
      * @throws Exception throws when initialization is failed
      */
     public void init(Properties properties) throws Exception;
 
     /**
-     *
      * @param holder
      * @param statusHolders
      * @return if true, this would skip calling to other modules
@@ -48,5 +46,5 @@ public interface PostPublisherModule {
      */
     public boolean postPublish(PublisherDataHolder holder,
                                List<StatusHolder> statusHolders) throws EntitlementException;
-    
+
 }

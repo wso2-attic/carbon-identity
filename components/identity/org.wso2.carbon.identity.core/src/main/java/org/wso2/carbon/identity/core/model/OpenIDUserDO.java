@@ -17,7 +17,7 @@
 */
 package org.wso2.carbon.identity.core.model;
 
-public class OpenIDUserDO{
+public class OpenIDUserDO {
 
     private String OpenID;
     private String userName;
@@ -38,5 +38,5 @@ public class OpenIDUserDO{
         this.userName = userName;
     }
 
-    
+
 }

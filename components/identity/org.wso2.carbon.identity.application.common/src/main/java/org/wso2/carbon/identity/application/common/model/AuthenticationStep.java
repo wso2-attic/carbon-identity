@@ -18,15 +18,15 @@
 
 package org.wso2.carbon.identity.application.common.model;
 
+import org.apache.axiom.om.OMElement;
+
 import java.io.Serializable;
 import java.util.*;
-
-import org.apache.axiom.om.OMElement;
 
 public class AuthenticationStep implements Serializable {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -4001996659290645507L;
 
@@ -35,95 +35,6 @@ public class AuthenticationStep implements Serializable {
     private IdentityProvider[] federatedIdentityProviders = new IdentityProvider[0];
     private boolean subjectStep;
     private boolean attributeStep;
-
-    /**
-     * 
-     * @return
-     */
-    public int getStepOrder() {
-        return stepOrder;
-    }
-
-    /**
-     * 
-     * @param stepOrder
-     */
-    public void setStepOrder(int stepOrder) {
-        this.stepOrder = stepOrder;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public LocalAuthenticatorConfig[] getLocalAuthenticatorConfigs() {
-        return localAuthenticatorConfigs;
-    }
-
-    /**
-     * 
-     * @param localAuthenticatorConfigs
-     */
-    public void setLocalAuthenticatorConfigs(LocalAuthenticatorConfig[] localAuthenticatorConfigs) {
-        if(localAuthenticatorConfigs == null){
-            return;
-        }
-        Set<LocalAuthenticatorConfig> propertySet =
-                                new HashSet<LocalAuthenticatorConfig>(Arrays.asList(localAuthenticatorConfigs));
-        this.localAuthenticatorConfigs = propertySet.toArray(new LocalAuthenticatorConfig[propertySet.size()]);
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public IdentityProvider[] getFederatedIdentityProviders() {
-        return federatedIdentityProviders;
-    }
-
-    /**
-     * 
-     * @param federatedIdentityProviders
-     */
-    public void setFederatedIdentityProviders(IdentityProvider[] federatedIdentityProviders) {
-        if(federatedIdentityProviders == null){
-            return;
-        }
-        Set<IdentityProvider> propertySet = new HashSet<IdentityProvider>(Arrays.asList(federatedIdentityProviders));
-        this.federatedIdentityProviders = propertySet.toArray(new IdentityProvider[propertySet.size()]);
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public boolean isSubjectStep() {
-        return subjectStep;
-    }
-
-    /**
-     * 
-     * @param subjectStep
-     */
-    public void setSubjectStep(boolean subjectStep) {
-        this.subjectStep = subjectStep;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public boolean isAttributeStep() {
-        return attributeStep;
-    }
-
-    /**
-     * 
-     * @param attributeStep
-     */
-    public void setAttributeStep(boolean attributeStep) {
-        this.attributeStep = attributeStep;
-    }
 
     /*
      * <AuthenticationStep> <StepOrder></StepOrder>
@@ -196,5 +107,84 @@ public class AuthenticationStep implements Serializable {
             }
         }
         return authenticationStep;
+    }
+
+    /**
+     * @return
+     */
+    public int getStepOrder() {
+        return stepOrder;
+    }
+
+    /**
+     * @param stepOrder
+     */
+    public void setStepOrder(int stepOrder) {
+        this.stepOrder = stepOrder;
+    }
+
+    /**
+     * @return
+     */
+    public LocalAuthenticatorConfig[] getLocalAuthenticatorConfigs() {
+        return localAuthenticatorConfigs;
+    }
+
+    /**
+     * @param localAuthenticatorConfigs
+     */
+    public void setLocalAuthenticatorConfigs(LocalAuthenticatorConfig[] localAuthenticatorConfigs) {
+        if (localAuthenticatorConfigs == null) {
+            return;
+        }
+        Set<LocalAuthenticatorConfig> propertySet =
+                new HashSet<LocalAuthenticatorConfig>(Arrays.asList(localAuthenticatorConfigs));
+        this.localAuthenticatorConfigs = propertySet.toArray(new LocalAuthenticatorConfig[propertySet.size()]);
+    }
+
+    /**
+     * @return
+     */
+    public IdentityProvider[] getFederatedIdentityProviders() {
+        return federatedIdentityProviders;
+    }
+
+    /**
+     * @param federatedIdentityProviders
+     */
+    public void setFederatedIdentityProviders(IdentityProvider[] federatedIdentityProviders) {
+        if (federatedIdentityProviders == null) {
+            return;
+        }
+        Set<IdentityProvider> propertySet = new HashSet<IdentityProvider>(Arrays.asList(federatedIdentityProviders));
+        this.federatedIdentityProviders = propertySet.toArray(new IdentityProvider[propertySet.size()]);
+    }
+
+    /**
+     * @return
+     */
+    public boolean isSubjectStep() {
+        return subjectStep;
+    }
+
+    /**
+     * @param subjectStep
+     */
+    public void setSubjectStep(boolean subjectStep) {
+        this.subjectStep = subjectStep;
+    }
+
+    /**
+     * @return
+     */
+    public boolean isAttributeStep() {
+        return attributeStep;
+    }
+
+    /**
+     * @param attributeStep
+     */
+    public void setAttributeStep(boolean attributeStep) {
+        this.attributeStep = attributeStep;
     }
 }

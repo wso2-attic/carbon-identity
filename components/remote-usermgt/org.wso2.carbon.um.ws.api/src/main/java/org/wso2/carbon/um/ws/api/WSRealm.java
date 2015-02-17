@@ -16,8 +16,6 @@
 
 package org.wso2.carbon.um.ws.api;
 
-import java.util.Map;
-
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
@@ -38,16 +36,17 @@ import org.wso2.carbon.user.core.claim.ClaimMapping;
 import org.wso2.carbon.user.core.profile.ProfileConfiguration;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 
+import java.util.Map;
+
 public class WSRealm implements UserRealm {
 
     private static Log log = LogFactory.getLog(WSRealm.class);
-
+    private static String sessionCookie = null;
     private RealmConfiguration realmConfig = null;
     private WSUserStoreManager userStoreMan = null;
     private WSAuthorizationManager authzMan = null;
     private WSClaimManager claimManager = null;
     private WSProfileConfigurationManager profileManager = null;
-    private static String sessionCookie = null;
     private int tenantId = -1;
     private RemoteUserRealmServiceStub stub = null;
 
@@ -57,38 +56,39 @@ public class WSRealm implements UserRealm {
 
     /**
      * Initialize WSRealm by Carbon
+     *
      * @see org.wso2.carbon.user.core.UserRealm#init(org.wso2.carbon.user.api.RealmConfiguration, java.util.Map, int)
      */
     public void init(RealmConfiguration configBean, Map<String, Object> properties, int tenantId)
-                                                                                                 throws UserStoreException {
+            throws UserStoreException {
         ConfigurationContext configCtxt =
-                                          (ConfigurationContext) UserMgtWSAPIDSComponent.
-                                                                                        getCcServiceInstance().
-                                                                                        getClientConfigContext();
+                (ConfigurationContext) UserMgtWSAPIDSComponent.
+                        getCcServiceInstance().
+                        getClientConfigContext();
         init(configBean, configCtxt);
     }
 
     /**
      * Initialize WSRealm by Carbon
+     *
      * @see org.wso2.carbon.user.core.UserRealm#init(org.wso2.carbon.user.api.RealmConfiguration, java.util.Map, int)
      */
     public void init(RealmConfiguration configBean, Map<String, ClaimMapping> claimMapping,
                      Map<String, ProfileConfiguration> profileConfigs, int tenantId)
-                                                                                    throws UserStoreException {
+            throws UserStoreException {
         ConfigurationContext configCtxt =
-                                          (ConfigurationContext) UserMgtWSAPIDSComponent.
-                                                                                        getCcServiceInstance().
-                                                                                        getClientConfigContext();
+                (ConfigurationContext) UserMgtWSAPIDSComponent.
+                        getCcServiceInstance().
+                        getClientConfigContext();
         init(configBean, configCtxt);
     }
-    
+
 
     /**
      * Initialize WSRealm by Non-carbon environment
-     *
      */
     public void init(RealmConfiguration configBean, ConfigurationContext configCtxt)
-                                                                             throws UserStoreException {
+            throws UserStoreException {
         realmConfig = configBean;
 
         if (sessionCookie == null) {
@@ -104,15 +104,14 @@ public class WSRealm implements UserRealm {
         }
 
         init((String) realmConfig.getRealmProperty(WSRemoteUserMgtConstants.SERVER_URL),
-             sessionCookie, configCtxt);
+                sessionCookie, configCtxt);
     }
-    
+
     /**
      * Initialize WSRealm by Non-carbon environment
-     *
      */
     void init(String url, String cookie, ConfigurationContext configCtxt)
-                                                                                 throws UserStoreException {
+            throws UserStoreException {
         try {
 
             stub = new RemoteUserRealmServiceStub(configCtxt, url + "RemoteUserRealmService");
@@ -121,8 +120,8 @@ public class WSRealm implements UserRealm {
             Options option = client.getOptions();
             option.setManageSession(true);
             option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING,
-                               this
-                                   .getSessionCookie());
+                    this
+                            .getSessionCookie());
         } catch (AxisFault e) {
             throw new UserStoreException();
         }
@@ -170,8 +169,8 @@ public class WSRealm implements UserRealm {
             ConfigurationContext configContext = (ConfigurationContext) UserMgtWSAPIDSComponent
                     .getCcServiceInstance().getClientConfigContext();
             AuthenticationAdminClient client = new AuthenticationAdminClient(configContext,
-                                                                             realmConfig.getRealmProperty(WSRemoteUserMgtConstants.SERVER_URL),
-                                                                             sessionCookie, null, false);
+                    realmConfig.getRealmProperty(WSRemoteUserMgtConstants.SERVER_URL),
+                    sessionCookie, null, false);
             boolean isLogin = client.login(userName, password, "127.0.0.1"); // TODO
             if (isLogin) {
                 sessionCookie = client.getAdminCookie();

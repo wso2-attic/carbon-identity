@@ -18,104 +18,104 @@
 
 package org.wso2.carbon.identity.application.common;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.LocalAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.RequestPathAuthenticatorConfig;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ApplicationAuthenticatorService {
 
-	private static volatile ApplicationAuthenticatorService instance;
-	
-	private List<LocalAuthenticatorConfig> localAuthenticators = new ArrayList<LocalAuthenticatorConfig>();
-	private List<FederatedAuthenticatorConfig> federatedAuthenticators = new ArrayList<FederatedAuthenticatorConfig>();
-	private List<RequestPathAuthenticatorConfig> requestPathAuthenticators = new ArrayList<RequestPathAuthenticatorConfig>();
+    private static volatile ApplicationAuthenticatorService instance;
 
-	public static ApplicationAuthenticatorService getInstance() {
-		if (instance == null) {
-			synchronized (ApplicationAuthenticatorService.class) {
-				if (instance == null) {
-					instance = new ApplicationAuthenticatorService();
-				}
-			}
-		}
-		return instance;
-	}
-	
-	public List<LocalAuthenticatorConfig> getLocalAuthenticators() {
-		return this.localAuthenticators;
-	}
-	
-	public List<FederatedAuthenticatorConfig> getFederatedAuthenticators() {
-		return this.federatedAuthenticators;
-	}
-	
-	public List<RequestPathAuthenticatorConfig> getRequestPathAuthenticators() {
-		return this.requestPathAuthenticators;
-	}
-	
-	public LocalAuthenticatorConfig getLocalAuthenticatorByName(String name) {
-		for (LocalAuthenticatorConfig localAuthenticator : localAuthenticators) {
-			if (localAuthenticator.getName().equals(name)) {
-				return localAuthenticator;
-			}
-		}
-		return null;
-	}
-	
-	public FederatedAuthenticatorConfig getFederatedAuthenticatorByName(String name) {
-		for (FederatedAuthenticatorConfig federatedAuthenticator : federatedAuthenticators) {
-			if (federatedAuthenticator.getName().equals(name)) {
-				return federatedAuthenticator;
-			}
-		}
-		return null;
-	}
-	
-	public RequestPathAuthenticatorConfig getRequestPathAuthenticatorByName(String name) {
-		for (RequestPathAuthenticatorConfig reqPathAuthenticator : requestPathAuthenticators) {
-			if (reqPathAuthenticator.getName().equals(name)) {
-				return reqPathAuthenticator;
-			}
-		}
-		return null;
-	}
-	
-	public void addLocalAuthenticator(LocalAuthenticatorConfig authenticator) {
-		if (authenticator != null) {
-			localAuthenticators.add(authenticator);
-		}
-	}
-	
-	public void removeLocalAuthenticator(LocalAuthenticatorConfig authenticator) {
-		if (authenticator != null) {
-			localAuthenticators.remove(authenticator);
-		}
-	}
-	
-	public void addFederatedAuthenticator(FederatedAuthenticatorConfig authenticator) {
-		if (authenticator != null) {
-			federatedAuthenticators.add(authenticator);
-		}
-	}
-	
-	public void removeFederatedAuthenticator(FederatedAuthenticatorConfig authenticator) {
-		if (authenticator != null) {
-			federatedAuthenticators.remove(authenticator);
-		}
-	}
-	
-	public void addRequestPathAuthenticator(RequestPathAuthenticatorConfig authenticator) {
-		if (authenticator != null) {
-			requestPathAuthenticators.add(authenticator);
-		}
-	}
-	
-	public void removeRequestPathAuthenticator(RequestPathAuthenticatorConfig authenticator) {
-		if (authenticator != null) {
-			requestPathAuthenticators.remove(authenticator);
-		}
-	}
+    private List<LocalAuthenticatorConfig> localAuthenticators = new ArrayList<LocalAuthenticatorConfig>();
+    private List<FederatedAuthenticatorConfig> federatedAuthenticators = new ArrayList<FederatedAuthenticatorConfig>();
+    private List<RequestPathAuthenticatorConfig> requestPathAuthenticators = new ArrayList<RequestPathAuthenticatorConfig>();
+
+    public static ApplicationAuthenticatorService getInstance() {
+        if (instance == null) {
+            synchronized (ApplicationAuthenticatorService.class) {
+                if (instance == null) {
+                    instance = new ApplicationAuthenticatorService();
+                }
+            }
+        }
+        return instance;
+    }
+
+    public List<LocalAuthenticatorConfig> getLocalAuthenticators() {
+        return this.localAuthenticators;
+    }
+
+    public List<FederatedAuthenticatorConfig> getFederatedAuthenticators() {
+        return this.federatedAuthenticators;
+    }
+
+    public List<RequestPathAuthenticatorConfig> getRequestPathAuthenticators() {
+        return this.requestPathAuthenticators;
+    }
+
+    public LocalAuthenticatorConfig getLocalAuthenticatorByName(String name) {
+        for (LocalAuthenticatorConfig localAuthenticator : localAuthenticators) {
+            if (localAuthenticator.getName().equals(name)) {
+                return localAuthenticator;
+            }
+        }
+        return null;
+    }
+
+    public FederatedAuthenticatorConfig getFederatedAuthenticatorByName(String name) {
+        for (FederatedAuthenticatorConfig federatedAuthenticator : federatedAuthenticators) {
+            if (federatedAuthenticator.getName().equals(name)) {
+                return federatedAuthenticator;
+            }
+        }
+        return null;
+    }
+
+    public RequestPathAuthenticatorConfig getRequestPathAuthenticatorByName(String name) {
+        for (RequestPathAuthenticatorConfig reqPathAuthenticator : requestPathAuthenticators) {
+            if (reqPathAuthenticator.getName().equals(name)) {
+                return reqPathAuthenticator;
+            }
+        }
+        return null;
+    }
+
+    public void addLocalAuthenticator(LocalAuthenticatorConfig authenticator) {
+        if (authenticator != null) {
+            localAuthenticators.add(authenticator);
+        }
+    }
+
+    public void removeLocalAuthenticator(LocalAuthenticatorConfig authenticator) {
+        if (authenticator != null) {
+            localAuthenticators.remove(authenticator);
+        }
+    }
+
+    public void addFederatedAuthenticator(FederatedAuthenticatorConfig authenticator) {
+        if (authenticator != null) {
+            federatedAuthenticators.add(authenticator);
+        }
+    }
+
+    public void removeFederatedAuthenticator(FederatedAuthenticatorConfig authenticator) {
+        if (authenticator != null) {
+            federatedAuthenticators.remove(authenticator);
+        }
+    }
+
+    public void addRequestPathAuthenticator(RequestPathAuthenticatorConfig authenticator) {
+        if (authenticator != null) {
+            requestPathAuthenticators.add(authenticator);
+        }
+    }
+
+    public void removeRequestPathAuthenticator(RequestPathAuthenticatorConfig authenticator) {
+        if (authenticator != null) {
+            requestPathAuthenticators.remove(authenticator);
+        }
+    }
 }

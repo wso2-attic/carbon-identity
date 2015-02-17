@@ -17,8 +17,6 @@
  */
 package org.wso2.carbon.identity.authenticator.iwa.ui.internal;
 
-import java.util.Hashtable;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
@@ -27,9 +25,11 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.authenticator.iwa.ui.IWAUIAuthenticator;
 import org.wso2.carbon.ui.CarbonUIAuthenticator;
 
+import java.util.Hashtable;
+
 /**
  * This is one of the first bundles that start in Carbon.
- * 
+ * <p/>
  * ServerConfiguration object is not available to this bundle. Therefore we read properties but do
  * not keep a reference to it.
  */

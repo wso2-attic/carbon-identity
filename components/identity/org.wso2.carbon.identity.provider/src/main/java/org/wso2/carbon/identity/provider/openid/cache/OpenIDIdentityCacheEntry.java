@@ -4,22 +4,21 @@ package org.wso2.carbon.identity.provider.openid.cache;
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Set;
 
 /**
  * Identity Cache entry which wraps the identity related cache entry values
  */
 public class OpenIDIdentityCacheEntry extends OpenIDCacheEntry {
 
+    private static final long serialVersionUID = 3746964700806693258L;
     private String cacheEntry;
-//    private Set<String> cacheEntrySet;
+    //    private Set<String> cacheEntrySet;
     private String[] cacheEntryArray;
     private int hashEntry;
     private long cacheInterval;
     private boolean cacheClearing;
     private Key secretKey;
-    private Date date;    
-    private static final long serialVersionUID = 3746964700806693258L;
+    private Date date;
 
     public OpenIDIdentityCacheEntry(String cacheEntry) {
         this.cacheEntry = cacheEntry;

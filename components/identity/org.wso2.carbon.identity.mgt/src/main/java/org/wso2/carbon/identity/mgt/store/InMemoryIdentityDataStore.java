@@ -15,10 +15,6 @@
  */
 package org.wso2.carbon.identity.mgt.store;
 
-import javax.cache.Cache;
-import javax.cache.CacheManager;
-import javax.cache.Caching;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
@@ -26,70 +22,74 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.dto.UserIdentityClaimsDO;
 import org.wso2.carbon.user.api.UserStoreManager;
 
+import javax.cache.Cache;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
+
 /**
  *
  */
 public class InMemoryIdentityDataStore extends UserIdentityDataStore {
 
-	private static final String IDENTITY_LOGIN_DATA_CACHE_MANAGER = "IDENTITY_LOGIN_DATA_CACHE_MANAGER";
-	private static final String IDENTITY_LOGIN_DATA_CACHE = "IDENTITY_LOGIN_DATA_CACHE";
-	
-	//protected Cache<String, UserIdentityClaimsDO> cache = getCache();//CarbonUtils.getLocalCache("IDENTITY_LOGIN_DATA_CACHE");
+    private static final String IDENTITY_LOGIN_DATA_CACHE_MANAGER = "IDENTITY_LOGIN_DATA_CACHE_MANAGER";
+    private static final String IDENTITY_LOGIN_DATA_CACHE = "IDENTITY_LOGIN_DATA_CACHE";
 
-	private static Log log = LogFactory.getLog(InMemoryIdentityDataStore.class);
-	
-	protected Cache<String, UserIdentityClaimsDO> getCache() {
-    	CacheManager manager = Caching.getCacheManagerFactory().getCacheManager(InMemoryIdentityDataStore.IDENTITY_LOGIN_DATA_CACHE_MANAGER);
-    	Cache<String, UserIdentityClaimsDO> cache = manager.getCache(InMemoryIdentityDataStore.IDENTITY_LOGIN_DATA_CACHE);
+    //protected Cache<String, UserIdentityClaimsDO> cache = getCache();//CarbonUtils.getLocalCache("IDENTITY_LOGIN_DATA_CACHE");
+
+    private static Log log = LogFactory.getLog(InMemoryIdentityDataStore.class);
+
+    protected Cache<String, UserIdentityClaimsDO> getCache() {
+        CacheManager manager = Caching.getCacheManagerFactory().getCacheManager(InMemoryIdentityDataStore.IDENTITY_LOGIN_DATA_CACHE_MANAGER);
+        Cache<String, UserIdentityClaimsDO> cache = manager.getCache(InMemoryIdentityDataStore.IDENTITY_LOGIN_DATA_CACHE);
         return cache;
     }
 
-	@Override
-	public void store(UserIdentityClaimsDO userIdentityDTO, UserStoreManager userStoreManager)
-                                                                        throws IdentityException{
-		if (userIdentityDTO != null && userIdentityDTO.getUserName() != null) {
-			String key =
-			             CarbonContext.getThreadLocalCarbonContext().getTenantId() +
-			                     userIdentityDTO.getUserName();
+    @Override
+    public void store(UserIdentityClaimsDO userIdentityDTO, UserStoreManager userStoreManager)
+            throws IdentityException {
+        if (userIdentityDTO != null && userIdentityDTO.getUserName() != null) {
+            String key =
+                    CarbonContext.getThreadLocalCarbonContext().getTenantId() +
+                            userIdentityDTO.getUserName();
 //			if (cache.containsKey(key)) {
 //				invalidateCache(userIdentityDTO.getUserName());
 //			}
-			
-			Cache<String, UserIdentityClaimsDO> cache = getCache();
-			if(cache != null) {
-				cache.put(key, userIdentityDTO);
-			}
-		}
-	}
 
-	@Override
-	public UserIdentityClaimsDO load(String userName, UserStoreManager userStoreManager) {
-		
-		Cache<String, UserIdentityClaimsDO> cache = getCache();
-		if (userName != null && cache != null) {
-			return (UserIdentityClaimsDO) cache.get(CarbonContext.getThreadLocalCarbonContext().getTenantId() +
-			                                   userName);
-		}
-		return null;
-	}
+            Cache<String, UserIdentityClaimsDO> cache = getCache();
+            if (cache != null) {
+                cache.put(key, userIdentityDTO);
+            }
+        }
+    }
 
-	public void remove(String userName, UserStoreManager userStoreManager)  throws IdentityException {
-		Cache<String, UserIdentityClaimsDO> cache = getCache();
-		if (userName == null) {
-			return;
-		}
+    @Override
+    public UserIdentityClaimsDO load(String userName, UserStoreManager userStoreManager) {
 
-		cache.remove(CarbonContext.getThreadLocalCarbonContext().getTenantId() + userName);
+        Cache<String, UserIdentityClaimsDO> cache = getCache();
+        if (userName != null && cache != null) {
+            return (UserIdentityClaimsDO) cache.get(CarbonContext.getThreadLocalCarbonContext().getTenantId() +
+                    userName);
+        }
+        return null;
+    }
+
+    public void remove(String userName, UserStoreManager userStoreManager) throws IdentityException {
+        Cache<String, UserIdentityClaimsDO> cache = getCache();
+        if (userName == null) {
+            return;
+        }
+
+        cache.remove(CarbonContext.getThreadLocalCarbonContext().getTenantId() + userName);
 
 //		invalidateCache(userName);
-	}
+    }
 
 //	public void invalidateCache(String userName){
 //
 //		if (log.isDebugEnabled()) {
 //			log.debug("Init invalidation caching process");
 //		}
-		// sending cluster message
+    // sending cluster message
 //		CacheInvalidator invalidator = IdentityMgtServiceComponent.getCacheInvalidator();
 //		try {
 //			if (invalidator != null) {

@@ -18,10 +18,6 @@
 
 package org.wso2.carbon.identity.entitlement.pap;
 
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
-
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.entitlement.dto.EntitlementTreeNodeDTO;
@@ -33,13 +29,17 @@ import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
+
 /**
  * this is default implementation of the policy meta data finder module which finds the resource in the
  * under-line registry
  */
 public class CarbonEntitlementDataFinder implements EntitlementDataFinderModule {
 
-    private static final String MODULE_NAME =  "Carbon Attribute Finder Module";
+    private static final String MODULE_NAME = "Carbon Attribute Finder Module";
 
     private static final String SUBJECT_CATEGORY = "Subject";
 
@@ -50,7 +50,7 @@ public class CarbonEntitlementDataFinder implements EntitlementDataFinderModule 
     private Registry registry;
 
     private String[] defaultActions = new String[]{"read", "write", "delete", "edit"};
-    
+
     @Override
     public void init(Properties properties) throws Exception {
 
@@ -58,7 +58,7 @@ public class CarbonEntitlementDataFinder implements EntitlementDataFinderModule 
 
     @Override
     public String getModuleName() {
-        return  MODULE_NAME;
+        return MODULE_NAME;
     }
 
     @Override
@@ -77,32 +77,32 @@ public class CarbonEntitlementDataFinder implements EntitlementDataFinderModule 
 
     @Override
     public EntitlementTreeNodeDTO getEntitlementData(String category, String regex,
-                                                   int limit) throws Exception {
+                                                     int limit) throws Exception {
 
         registry = EntitlementServiceComponent.getRegistryService().getSystemRegistry(CarbonContext.
                 getThreadLocalCarbonContext().getTenantId());
-        if(RESOURCE_CATEGORY.equalsIgnoreCase(category)){
+        if (RESOURCE_CATEGORY.equalsIgnoreCase(category)) {
             EntitlementTreeNodeDTO nodeDTO = new EntitlementTreeNodeDTO("/");
             getChildResources(nodeDTO, "_system");
             return nodeDTO;
-        } else if(ACTION_CATEGORY.equalsIgnoreCase(category)){
+        } else if (ACTION_CATEGORY.equalsIgnoreCase(category)) {
             EntitlementTreeNodeDTO nodeDTO = new EntitlementTreeNodeDTO("");
-            for (String action : defaultActions){
+            for (String action : defaultActions) {
                 EntitlementTreeNodeDTO childNode = new EntitlementTreeNodeDTO(action);
                 nodeDTO.addChildNode(childNode);
             }
             return nodeDTO;
-        } else if(SUBJECT_CATEGORY.equalsIgnoreCase(category)){
+        } else if (SUBJECT_CATEGORY.equalsIgnoreCase(category)) {
             EntitlementTreeNodeDTO nodeDTO = new EntitlementTreeNodeDTO("");
-            int tenantId =  CarbonContext.getThreadLocalCarbonContext().getTenantId();
+            int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
             UserStoreManager userStoreManager = EntitlementServiceComponent.getRealmservice().
                     getTenantUserRealm(tenantId).getUserStoreManager();
 
             String[] roleNames = ((AbstractUserStoreManager) userStoreManager).
-                                                    getRoleNames(regex, limit, false, true, true);
+                    getRoleNames(regex, limit, false, true, true);
 
-            for(String roleName : roleNames){
-                if(CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME.equals(roleName)){
+            for (String roleName : roleNames) {
+                if (CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME.equals(roleName)) {
                     continue;
                 }
                 EntitlementTreeNodeDTO childNode = new EntitlementTreeNodeDTO(roleName);
@@ -146,24 +146,25 @@ public class CarbonEntitlementDataFinder implements EntitlementDataFinderModule 
 
     /**
      * This helps to find resources un a recursive manner
-     * @param node attribute value node
-     * @param parentResource  parent resource Name
+     *
+     * @param node           attribute value node
+     * @param parentResource parent resource Name
      * @return child resource set
      * @throws RegistryException throws
      */
     private EntitlementTreeNodeDTO getChildResources(EntitlementTreeNodeDTO node,
-                                                String parentResource)  throws RegistryException {
+                                                     String parentResource) throws RegistryException {
 
-        if(registry.resourceExists(parentResource)){
+        if (registry.resourceExists(parentResource)) {
             String[] resourcePath = parentResource.split("/");
             EntitlementTreeNodeDTO childNode =
-                                new EntitlementTreeNodeDTO(resourcePath[resourcePath.length-1]);
+                    new EntitlementTreeNodeDTO(resourcePath[resourcePath.length - 1]);
             node.addChildNode(childNode);
             Resource root = registry.get(parentResource);
-            if(root instanceof Collection){
+            if (root instanceof Collection) {
                 Collection collection = (Collection) root;
                 String[] resources = collection.getChildren();
-                for(String resource : resources){
+                for (String resource : resources) {
                     getChildResources(childNode, resource);
                 }
             }

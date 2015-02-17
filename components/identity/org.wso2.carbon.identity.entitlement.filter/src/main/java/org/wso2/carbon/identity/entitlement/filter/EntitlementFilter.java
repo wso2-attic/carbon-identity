@@ -19,11 +19,9 @@ package org.wso2.carbon.identity.entitlement.filter;
 
 
 import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.wso2.carbon.identity.entitlement.filter.callback.BasicAuthCallBackHandler;
 import org.wso2.carbon.identity.entitlement.filter.callback.EntitlementFilterCallBackHandler;
 import org.wso2.carbon.identity.entitlement.filter.exception.EntitlementFilterException;
@@ -58,7 +56,7 @@ public class EntitlementFilter implements Filter {
     private String subjectAttributeName;
     private String authRedirectURL;
 
-  /**
+    /**
      * In this init method the required attributes are taken from web.xml, if there are not provided they will be set to default.
      * authRedirectURL attribute have to provided
      */
@@ -75,39 +73,39 @@ public class EntitlementFilter implements Filter {
 
         //This Attributes are not mandatory
         client = filterConfig.getServletContext().getInitParameter(EntitlementConstants.CLIENT);
-        if(client == null){
+        if (client == null) {
             client = EntitlementConstants.defaultClient;
         }
         subjectScope = filterConfig.getServletContext().getInitParameter(EntitlementConstants.SUBJECT_SCOPE);
-        if(subjectScope == null){
+        if (subjectScope == null) {
             subjectScope = EntitlementConstants.defaultSubjectScope;
         }
         subjectAttributeName = filterConfig.getServletContext().getInitParameter(EntitlementConstants.SUBJECT_ATTRIBUTE_NAME);
-        if(subjectAttributeName==null){
-            subjectAttributeName=EntitlementConstants.defaultSubjectAttributeName;
+        if (subjectAttributeName == null) {
+            subjectAttributeName = EntitlementConstants.defaultSubjectAttributeName;
         }
         cacheType = filterConfig.getInitParameter(EntitlementConstants.CACHE_TYPE);
-        if(cacheType==null){
-            cacheType=EntitlementConstants.defaultCacheType;
+        if (cacheType == null) {
+            cacheType = EntitlementConstants.defaultCacheType;
         }
-        if(filterConfig.getInitParameter(EntitlementConstants.MAX_CACHE_ENTRIES) != null){
+        if (filterConfig.getInitParameter(EntitlementConstants.MAX_CACHE_ENTRIES) != null) {
             maxCacheEntries = Integer.parseInt(filterConfig.getInitParameter(EntitlementConstants.MAX_CACHE_ENTRIES));
         } else {
             maxCacheEntries = 0;
         }
-        if(filterConfig.getInitParameter(EntitlementConstants.INVALIDATION_INTERVAL) != null){
+        if (filterConfig.getInitParameter(EntitlementConstants.INVALIDATION_INTERVAL) != null) {
             invalidationInterval = Integer.parseInt(filterConfig.getInitParameter(EntitlementConstants.INVALIDATION_INTERVAL));
         } else {
             invalidationInterval = 0;
         }
 
-        if(filterConfig.getInitParameter(EntitlementConstants.THRIFT_HOST) != null){
+        if (filterConfig.getInitParameter(EntitlementConstants.THRIFT_HOST) != null) {
             thriftHost = filterConfig.getInitParameter(EntitlementConstants.THRIFT_HOST);
         } else {
             thriftHost = EntitlementConstants.defaultThriftHost;
         }
 
-        if(filterConfig.getInitParameter(EntitlementConstants.THRIFT_PORT) != null){
+        if (filterConfig.getInitParameter(EntitlementConstants.THRIFT_PORT) != null) {
             thriftPort = filterConfig.getInitParameter(EntitlementConstants.THRIFT_PORT);
         } else {
             thriftPort = EntitlementConstants.defaultThriftPort;
@@ -118,21 +116,21 @@ public class EntitlementFilter implements Filter {
         //System.setProperty("javax.net.ssl.trustStore","wso2carbon.jks");
         //System.setProperty("javax.net.ssl.trustStorePassword", "wso2carbon");
 
-        Map<String,Map<String,String>> appToPDPClientConfigMap = new HashMap<String, Map<String,String>>();
-        Map<String,String> clientConfigMap = new HashMap<String, String>();
+        Map<String, Map<String, String>> appToPDPClientConfigMap = new HashMap<String, Map<String, String>>();
+        Map<String, String> clientConfigMap = new HashMap<String, String>();
 
-        if(client !=null && client.equals(EntitlementConstants.SOAP)){
+        if (client != null && client.equals(EntitlementConstants.SOAP)) {
             clientConfigMap.put(EntitlementConstants.CLIENT, client);
             clientConfigMap.put(EntitlementConstants.SERVER_URL, remoteServiceUrl);
             clientConfigMap.put(EntitlementConstants.USERNAME, remoteServiceUserName);
             clientConfigMap.put(EntitlementConstants.PASSWORD, remoteServicePassword);
             clientConfigMap.put(EntitlementConstants.REUSE_SESSION, reuseSession);
-        }else if(client !=null && client.equals(EntitlementConstants.BASIC_AUTH)){
+        } else if (client != null && client.equals(EntitlementConstants.BASIC_AUTH)) {
             clientConfigMap.put(EntitlementConstants.CLIENT, client);
             clientConfigMap.put(EntitlementConstants.SERVER_URL, remoteServiceUrl);
             clientConfigMap.put(EntitlementConstants.USERNAME, remoteServiceUserName);
             clientConfigMap.put(EntitlementConstants.PASSWORD, remoteServicePassword);
-        }else if(client !=null && client.equals(EntitlementConstants.THRIFT)){
+        } else if (client != null && client.equals(EntitlementConstants.THRIFT)) {
             clientConfigMap.put(EntitlementConstants.CLIENT, client);
             clientConfigMap.put(EntitlementConstants.SERVER_URL, remoteServiceUrl);
             clientConfigMap.put(EntitlementConstants.USERNAME, remoteServiceUserName);
@@ -140,7 +138,7 @@ public class EntitlementFilter implements Filter {
             clientConfigMap.put(EntitlementConstants.REUSE_SESSION, reuseSession);
             clientConfigMap.put(EntitlementConstants.THRIFT_HOST, thriftHost);
             clientConfigMap.put(EntitlementConstants.THRIFT_PORT, thriftPort);
-        } else if(client == null){
+        } else if (client == null) {
             clientConfigMap.put(EntitlementConstants.SERVER_URL, remoteServiceUrl);
             clientConfigMap.put(EntitlementConstants.USERNAME, remoteServiceUserName);
             clientConfigMap.put(EntitlementConstants.PASSWORD, remoteServicePassword);
@@ -150,7 +148,7 @@ public class EntitlementFilter implements Filter {
         }
 
         appToPDPClientConfigMap.put("EntitlementMediator", clientConfigMap);
-        PEPProxyConfig config = new PEPProxyConfig(appToPDPClientConfigMap,"EntitlementMediator", cacheType, invalidationInterval, maxCacheEntries);
+        PEPProxyConfig config = new PEPProxyConfig(appToPDPClientConfigMap, "EntitlementMediator", cacheType, invalidationInterval, maxCacheEntries);
 
         try {
             pepProxy = new PEPProxy(config);
@@ -174,11 +172,11 @@ public class EntitlementFilter implements Filter {
         resource = findResource((HttpServletRequest) servletRequest);
         action = findAction((HttpServletRequest) servletRequest);
 
-        if(((HttpServletRequest) servletRequest).getRequestURI().contains("/updateCacheAuth.do")) {
+        if (((HttpServletRequest) servletRequest).getRequestURI().contains("/updateCacheAuth.do")) {
             try {
                 pepProxy.clear();
             } catch (Exception e) {
-                log.error("Error while Making the Decision " , e);
+                log.error("Error while Making the Decision ", e);
             }
 
         } else {
@@ -230,7 +228,7 @@ public class EntitlementFilter implements Filter {
             subject = (String) request.getAttribute(subjectAttributeName);
         } else if (subjectScope.equals(EntitlementConstants.BASIC_AUTH)) {
             EntitlementFilterCallBackHandler callBackHandler = new BasicAuthCallBackHandler(request);
-            subject=callBackHandler.getUserName();
+            subject = callBackHandler.getUserName();
         } else {
             log.error(subjectScope + " is an invalid"
                     + " configuration for subjectScope parameter in web.xml. Valid configurations are"

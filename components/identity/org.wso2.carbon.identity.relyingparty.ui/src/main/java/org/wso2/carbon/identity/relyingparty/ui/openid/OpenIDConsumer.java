@@ -17,13 +17,12 @@
  */
 package org.wso2.carbon.identity.relyingparty.ui.openid;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
+import com.google.step2.AuthRequestHelper;
+import com.google.step2.AuthResponseHelper;
+import com.google.step2.ConsumerHelper;
+import com.google.step2.Step2.AxSchema;
+import com.google.step2.discovery.IdpIdentifier;
+import com.google.step2.openid.ui.UiMessageRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openid4java.OpenIDException;
@@ -41,12 +40,11 @@ import org.wso2.carbon.identity.relyingparty.ui.openid.extensions.OpenIDExtensio
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 
-import com.google.step2.AuthRequestHelper;
-import com.google.step2.AuthResponseHelper;
-import com.google.step2.ConsumerHelper;
-import com.google.step2.Step2.AxSchema;
-import com.google.step2.discovery.IdpIdentifier;
-import com.google.step2.openid.ui.UiMessageRequest;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class OpenIDConsumer {
 
@@ -136,12 +134,12 @@ public class OpenIDConsumer {
 
         String pageTitle = request.getParameter("title");
         String forwardPage = request.getParameter("forwardPage");
-        
+
         if (receivingURL == null) {
             receivingURL = getAdminConsoleURL(request) + "relyingparty/openid_accept.jsp";
             if (cssLocation != null) {
                 receivingURL = receivingURL + "?forwardPage=" + forwardPage + "&css=" + cssLocation
-                    + "&title=" + pageTitle;
+                        + "&title=" + pageTitle;
             }
         }
 

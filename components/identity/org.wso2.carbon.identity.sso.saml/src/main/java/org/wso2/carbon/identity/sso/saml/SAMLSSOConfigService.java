@@ -40,138 +40,131 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 public class SAMLSSOConfigService extends AbstractAdmin {
 
-	private static Log log = LogFactory.getLog(SAMLSSOConfigService.class);
+    private static Log log = LogFactory.getLog(SAMLSSOConfigService.class);
 
-	/**
-	 * 
-	 * @param spDto
-	 * @return
-	 * @throws IdentityException
-	 */
-	public boolean addRPServiceProvider(SAMLSSOServiceProviderDTO spDto) throws IdentityException {
-		SAMLSSOConfigAdmin configAdmin = new SAMLSSOConfigAdmin(getConfigSystemRegistry());
-		return configAdmin.addRelyingPartyServiceProvider(spDto);
-	}
+    /**
+     * @param spDto
+     * @return
+     * @throws IdentityException
+     */
+    public boolean addRPServiceProvider(SAMLSSOServiceProviderDTO spDto) throws IdentityException {
+        SAMLSSOConfigAdmin configAdmin = new SAMLSSOConfigAdmin(getConfigSystemRegistry());
+        return configAdmin.addRelyingPartyServiceProvider(spDto);
+    }
 
-	/**
-	 * 
-	 * @return
-	 * @throws IdentityException
-	 */
-	public SAMLSSOServiceProviderInfoDTO getServiceProviders() throws IdentityException {
-		SAMLSSOConfigAdmin configAdmin = new SAMLSSOConfigAdmin(getConfigSystemRegistry());
-		return configAdmin.getServiceProviders();
-	}
+    /**
+     * @return
+     * @throws IdentityException
+     */
+    public SAMLSSOServiceProviderInfoDTO getServiceProviders() throws IdentityException {
+        SAMLSSOConfigAdmin configAdmin = new SAMLSSOConfigAdmin(getConfigSystemRegistry());
+        return configAdmin.getServiceProviders();
+    }
 
-	/**
-	 * 
-	 * @return
-	 * @throws IdentityException
-	 */
-	private KeyStoreData[] getKeyStores() throws IdentityException {
-		try {
-			KeyStoreAdmin admin = new KeyStoreAdmin(CarbonContext.getThreadLocalCarbonContext()
-					.getTenantId(), getGovernanceRegistry());
-			boolean isSuperAdmin = MultitenantConstants.SUPER_TENANT_ID == CarbonContext
-					.getThreadLocalCarbonContext().getTenantId() ? true : false;
-			return admin.getKeyStores(isSuperAdmin);
-		} catch (SecurityConfigException e) {
-			log.error("Error when loading the key stores from registry", e);
-			throw new IdentityException("Error when loading the key stores from registry", e);
-		}
-	}
+    /**
+     * @return
+     * @throws IdentityException
+     */
+    private KeyStoreData[] getKeyStores() throws IdentityException {
+        try {
+            KeyStoreAdmin admin = new KeyStoreAdmin(CarbonContext.getThreadLocalCarbonContext()
+                    .getTenantId(), getGovernanceRegistry());
+            boolean isSuperAdmin = MultitenantConstants.SUPER_TENANT_ID == CarbonContext
+                    .getThreadLocalCarbonContext().getTenantId() ? true : false;
+            return admin.getKeyStores(isSuperAdmin);
+        } catch (SecurityConfigException e) {
+            log.error("Error when loading the key stores from registry", e);
+            throw new IdentityException("Error when loading the key stores from registry", e);
+        }
+    }
 
-	/**
-	 * 
-	 * @return
-	 * @throws IdentityException
-	 */
-	public String[] getCertAliasOfPrimaryKeyStore() throws IdentityException {
-		KeyStoreData[] keyStores = getKeyStores();
-		KeyStoreData primaryKeyStore = null;
-		for (int i = 0; i < keyStores.length; i++) {
-			boolean superTenant = MultitenantConstants.SUPER_TENANT_ID == CarbonContext
-					.getThreadLocalCarbonContext().getTenantId() ? true : false;
-			if (superTenant && KeyStoreUtil.isPrimaryStore(keyStores[i].getKeyStoreName())) {
-				primaryKeyStore = keyStores[i];
-				break;
-			} else if (!superTenant
-					&& SAMLSSOUtil.generateKSNameFromDomainName(getTenantDomain()).equals(
-							keyStores[i].getKeyStoreName())) {
-				primaryKeyStore = keyStores[i];
-				break;
-			}
-		}
-		if (primaryKeyStore != null) {
-			return getStoreEntries(primaryKeyStore.getKeyStoreName());
-		}
-		throw new IdentityException("Primary Keystore cannot be found.");
-	}
+    /**
+     * @return
+     * @throws IdentityException
+     */
+    public String[] getCertAliasOfPrimaryKeyStore() throws IdentityException {
+        KeyStoreData[] keyStores = getKeyStores();
+        KeyStoreData primaryKeyStore = null;
+        for (int i = 0; i < keyStores.length; i++) {
+            boolean superTenant = MultitenantConstants.SUPER_TENANT_ID == CarbonContext
+                    .getThreadLocalCarbonContext().getTenantId() ? true : false;
+            if (superTenant && KeyStoreUtil.isPrimaryStore(keyStores[i].getKeyStoreName())) {
+                primaryKeyStore = keyStores[i];
+                break;
+            } else if (!superTenant
+                    && SAMLSSOUtil.generateKSNameFromDomainName(getTenantDomain()).equals(
+                    keyStores[i].getKeyStoreName())) {
+                primaryKeyStore = keyStores[i];
+                break;
+            }
+        }
+        if (primaryKeyStore != null) {
+            return getStoreEntries(primaryKeyStore.getKeyStoreName());
+        }
+        throw new IdentityException("Primary Keystore cannot be found.");
+    }
 
-	/**
-	 * 
-	 * @param issuer
-	 * @return
-	 * @throws IdentityException
-	 */
-	public boolean removeServiceProvider(String issuer) throws IdentityException {
-		SAMLSSOConfigAdmin ssoConfigAdmin = new SAMLSSOConfigAdmin(getConfigSystemRegistry());
-		return ssoConfigAdmin.removeServiceProvider(issuer);
-	}
+    /**
+     * @param issuer
+     * @return
+     * @throws IdentityException
+     */
+    public boolean removeServiceProvider(String issuer) throws IdentityException {
+        SAMLSSOConfigAdmin ssoConfigAdmin = new SAMLSSOConfigAdmin(getConfigSystemRegistry());
+        return ssoConfigAdmin.removeServiceProvider(issuer);
+    }
 
-	/**
-	 * 
-	 * @return
-	 * @throws IdentityException
-	 */
-	public String[] getClaimURIs() throws IdentityException {
-		String tenatUser = MultitenantUtils.getTenantAwareUsername(CarbonContext
-				.getThreadLocalCarbonContext().getUsername());
-		String domainName = MultitenantUtils.getTenantDomain(tenatUser);
-		String[] claimUris = null;
-		try {
-			UserRealm realm = IdentityTenantUtil.getRealm(domainName, tenatUser);
-			String claimDialect = IdentityUtil
-					.getProperty(IdentityConstants.ServerConfig.SSO_ATTRIB_CLAIM_DIALECT);
+    /**
+     * @return
+     * @throws IdentityException
+     */
+    public String[] getClaimURIs() throws IdentityException {
+        String tenatUser = MultitenantUtils.getTenantAwareUsername(CarbonContext
+                .getThreadLocalCarbonContext().getUsername());
+        String domainName = MultitenantUtils.getTenantDomain(tenatUser);
+        String[] claimUris = null;
+        try {
+            UserRealm realm = IdentityTenantUtil.getRealm(domainName, tenatUser);
+            String claimDialect = IdentityUtil
+                    .getProperty(IdentityConstants.ServerConfig.SSO_ATTRIB_CLAIM_DIALECT);
 
-			if (claimDialect == null || claimDialect.equals("")) {
-				// set default
-				claimDialect = "http://wso2.org/claims";
-			}
+            if (claimDialect == null || claimDialect.equals("")) {
+                // set default
+                claimDialect = "http://wso2.org/claims";
+            }
 
-			ClaimMapping[] claims = realm.getClaimManager().getAllClaimMappings(claimDialect);
-			claimUris = new String[claims.length];
+            ClaimMapping[] claims = realm.getClaimManager().getAllClaimMappings(claimDialect);
+            claimUris = new String[claims.length];
 
-			for (int i = 0; i < claims.length; i++) {
-				Claim claim = claims[i].getClaim();
-				claimUris[i] = claim.getClaimUri();
-			}
+            for (int i = 0; i < claims.length; i++) {
+                Claim claim = claims[i].getClaim();
+                claimUris[i] = claim.getClaimUri();
+            }
 
-		} catch (IdentityException e) {
-			log.error("Error while getting realm for " + tenatUser, e);
-			throw new IdentityException("Error while getting realm for " + tenatUser + e);
-		} catch (org.wso2.carbon.user.api.UserStoreException e) {
-			log.error("Error while getting claims for " + tenatUser, e);
-			throw new IdentityException("Error while getting claims for " + tenatUser + e);
-		}
-		return claimUris;
-	}
+        } catch (IdentityException e) {
+            log.error("Error while getting realm for " + tenatUser, e);
+            throw new IdentityException("Error while getting realm for " + tenatUser + e);
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            log.error("Error while getting claims for " + tenatUser, e);
+            throw new IdentityException("Error while getting claims for " + tenatUser + e);
+        }
+        return claimUris;
+    }
 
-	/**
-	 * 
-	 * @param keyStoreName
-	 * @return
-	 * @throws IdentityException
-	 */
-	private String[] getStoreEntries(String keyStoreName) throws IdentityException {
-		KeyStoreAdmin admin;
-		try {
-			admin = new KeyStoreAdmin(CarbonContext.getThreadLocalCarbonContext().getTenantId(),
-					getGovernanceRegistry());
-			return admin.getStoreEntries(keyStoreName);
-		} catch (SecurityConfigException e) {
-			log.error("Error reading entries from the key store : " + keyStoreName);
-			throw new IdentityException("Error reading entries from the keystore" + e);
-		}
-	}
+    /**
+     * @param keyStoreName
+     * @return
+     * @throws IdentityException
+     */
+    private String[] getStoreEntries(String keyStoreName) throws IdentityException {
+        KeyStoreAdmin admin;
+        try {
+            admin = new KeyStoreAdmin(CarbonContext.getThreadLocalCarbonContext().getTenantId(),
+                    getGovernanceRegistry());
+            return admin.getStoreEntries(keyStoreName);
+        } catch (SecurityConfigException e) {
+            log.error("Error reading entries from the key store : " + keyStoreName);
+            throw new IdentityException("Error reading entries from the keystore" + e);
+        }
+    }
 }

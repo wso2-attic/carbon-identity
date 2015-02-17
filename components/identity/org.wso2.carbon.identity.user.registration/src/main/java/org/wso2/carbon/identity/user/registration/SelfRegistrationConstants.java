@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.user.registration;
 /**
  * Constants values
  */
- public class SelfRegistrationConstants {
+public class SelfRegistrationConstants {
 
     public final static String ROLE_NAME_PROPERTY = "SelfSignUp.SignUpRole.Name";
 

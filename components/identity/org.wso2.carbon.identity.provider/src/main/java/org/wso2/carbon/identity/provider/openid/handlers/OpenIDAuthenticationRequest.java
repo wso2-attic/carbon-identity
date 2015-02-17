@@ -30,9 +30,9 @@ public class OpenIDAuthenticationRequest {
 
     private String extensionAlias;
 
-    private AuthRequest authRequest;  
+    private AuthRequest authRequest;
 
-	public boolean isPhishingResistanceLogin() {
+    public boolean isPhishingResistanceLogin() {
         return phishingResistanceLogin;
     }
 

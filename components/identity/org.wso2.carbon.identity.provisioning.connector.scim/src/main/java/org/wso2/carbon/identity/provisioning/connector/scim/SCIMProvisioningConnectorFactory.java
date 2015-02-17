@@ -25,18 +25,15 @@ import org.wso2.carbon.identity.provisioning.AbstractProvisioningConnectorFactor
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
 
 /**
- * 
  * @author
- * 
  */
 public class SCIMProvisioningConnectorFactory extends AbstractProvisioningConnectorFactory {
 
-    private static final Log log = LogFactory.getLog(SCIMProvisioningConnectorFactory.class);
     public static final String SCIM = "scim";
+    private static final Log log = LogFactory.getLog(SCIMProvisioningConnectorFactory.class);
 
     /**
      * @throws IdentityProvisioningException
-     * 
      */
     protected SCIMProvisioningConnector buildConnector(Property[] provisioningProperties)
             throws IdentityProvisioningException {
@@ -50,7 +47,7 @@ public class SCIMProvisioningConnectorFactory extends AbstractProvisioningConnec
     }
 
     /**
-     * 
+     *
      */
     public String getConnectorType() {
         return SCIM;

@@ -17,15 +17,6 @@
 */
 package org.wso2.carbon.identity.provider;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -70,23 +61,23 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
         String userIdentifier = null;
         String splitArr[] = null;
         IdentityAttributeService[] attributeCallbackServices = null;
-        
+
         try {
             if (callback instanceof SAMLAttributeCallback) {
                 attrCallback = (SAMLAttributeCallback) callback;
                 data = attrCallback.getData();
                 claimElem = data.getClaimElem();
                 userIdentifier = data.getPrincipal().getName();
-                
-                if(userIdentifier != null){
+
+                if (userIdentifier != null) {
                     /*Extract 'Common Name' as the user id if authenticated
                       via X.509 certificates*/
                     splitArr = userIdentifier.split(",")[0].split("=");
-                    if(splitArr.length == 2){
+                    if (splitArr.length == 2) {
                         userIdentifier = splitArr[1];
                     }
                 }
-                
+
                 loadClaims(claimElem, userIdentifier);
                 processClaimData(data, claimElem);
                 populateClaimValues(userIdentifier, attrCallback);
@@ -99,7 +90,7 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
                         log.error("Error occuerd while calling attribute callback", e);
                     }
                 }
-                
+
                 if (RahasConstants.TOK_TYPE_SAML_20.equals(data.getTokenType())) {
                     if (attrCallback.getSAML2Attributes() == null
                             || attrCallback.getSAML2Attributes().length == 0) {
@@ -111,7 +102,7 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
                             || attrCallback.getAttributes().length == 0) {
                         SAMLAttribute attribute = new SAMLAttribute("Name",
                                 "https://rahas.apache.org/saml/attrns", null, -1, Arrays
-                                        .asList(new String[]{"Colombo/Rahas"}));
+                                .asList(new String[]{"Colombo/Rahas"}));
                         attrCallback.addAttributes(attribute);
                     }
                 }
@@ -145,7 +136,7 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
 
     /**
      * This method loads claim according to the claim dialect that is defined in the request
-     * 
+     *
      * @param claimsElement
      * @param userIdentifier
      * @throws IdentityProviderException
@@ -155,13 +146,13 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
         Claim[] claims = null;
         String claimDialect = null;
 
-        if(claimsElement.getNamespace() != null){
+        if (claimsElement.getNamespace() != null) {
             claimDialect = claimsElement.
-                getAttributeValue(new QName(claimsElement.getNamespace().getNamespaceURI(), "Dialect"));
+                    getAttributeValue(new QName(claimsElement.getNamespace().getNamespaceURI(), "Dialect"));
         }
 
-        if(claimDialect == null || claimDialect.trim().length() == 0){
-            claimDialect = UserCoreConstants.DEFAULT_CARBON_DIALECT;    
+        if (claimDialect == null || claimDialect.trim().length() == 0) {
+            claimDialect = UserCoreConstants.DEFAULT_CARBON_DIALECT;
         }
 
         if (log.isDebugEnabled()) {
@@ -206,7 +197,6 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
     }
 
     /**
-     * 
      * @param rahasData
      * @param claims
      * @throws IdentityProviderException
@@ -241,7 +231,7 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
                 throw new IdentityProviderException(
                         "Empty claim uri found while procession claim data");
             }
-            
+
             if (uriClaim.startsWith("{") && uriClaim.endsWith("}")
                     && uriClaim.lastIndexOf("|") == uriClaim.indexOf("|")) {
                 String tmpUri = uriClaim;
@@ -249,7 +239,7 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
                 String claimValue = tmpUri.substring(tmpUri.indexOf("|") + 1, tmpUri.length() - 1);
                 requestedClaimValues.put(uriClaim, claimValue);
             }
-            
+
             claim.setUri(uriClaim);
             optional = (omElem.getAttributeValue(new QName(null, "Optional")));
             if (optional != null) {
@@ -306,7 +296,7 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
             } else {
                 mapValues = requestedClaimValues;
             }
-			
+
             ite = requestedClaims.values().iterator();
             while (ite.hasNext()) {
                 SAMLAttribute attribute = null;
@@ -326,7 +316,7 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
                             nameSpace = claimData.getUri();
                         } else {
                             nameSpace = claimData.getUri();
-                            if(nameSpace.contains("/") && nameSpace.length() > (nameSpace.lastIndexOf("/") + 1)){
+                            if (nameSpace.contains("/") && nameSpace.length() > (nameSpace.lastIndexOf("/") + 1)) {
                                 // Custom claim uri should be in a format of http(s)://nameSpace/name 
                                 name = nameSpace.substring(nameSpace.lastIndexOf("/") + 1);
                                 nameSpace = nameSpace.substring(0, nameSpace.lastIndexOf("/"));
@@ -334,14 +324,14 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
                                 name = nameSpace;
                             }
                         }
-                        String[]  values;
-                        if(claimData.getValue().contains(",")){
+                        String[] values;
+                        if (claimData.getValue().contains(",")) {
                             values = claimData.getValue().split(",");
                         } else {
                             values = new String[]{claimData.getValue()};
                         }
                         attribute = new SAMLAttribute(name, nameSpace, null, -1, Arrays.asList(values));
-                        callback.addAttributes(attribute);                        
+                        callback.addAttributes(attribute);
                     }
                 }
             }
@@ -349,6 +339,7 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
             throw new IdentityProviderException(e.getMessage(), e);
         }
     }
+
     protected RequestedClaimData getRequestedClaim() {
         return new RequestedClaimData();
     }

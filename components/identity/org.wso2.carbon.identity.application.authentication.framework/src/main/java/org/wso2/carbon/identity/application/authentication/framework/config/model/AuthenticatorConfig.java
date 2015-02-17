@@ -30,63 +30,62 @@ import java.util.Map;
 
 /**
  * This is a wrapper class for ApplicationAuthenticator
- *
  */
 public class AuthenticatorConfig implements Serializable {
 
-	private static final long serialVersionUID = 2811339541117886651L;
-	
-	private String name;
+    private static final long serialVersionUID = 2811339541117886651L;
+
+    private String name;
     private boolean enabled;
     private ApplicationAuthenticator applicationAuthenticator;
     private AuthenticatorStateInfo authenticatorStateInfo;
     private Map<String, String> parameterMap;
     private Map<String, IdentityProvider> idps = new HashMap<String, IdentityProvider>();
     private List<String> idpNames = new ArrayList<String>();
-    
+
     public AuthenticatorConfig() {
     }
 
-	public AuthenticatorConfig(String name, boolean enabled, 
-	                            Map<String, String> parameterMap) {
-		this.name = name;
-		this.enabled = enabled;
-		this.parameterMap = parameterMap;
-	}
+    public AuthenticatorConfig(String name, boolean enabled,
+                               Map<String, String> parameterMap) {
+        this.name = name;
+        this.enabled = enabled;
+        this.parameterMap = parameterMap;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public Map<String, String> getParameterMap() {
-		return parameterMap;
-	}
+    public Map<String, String> getParameterMap() {
+        return parameterMap;
+    }
 
-	public void setParameterMap(Map<String, String> parameterMap) {
-		this.parameterMap = parameterMap;
-	}
+    public void setParameterMap(Map<String, String> parameterMap) {
+        this.parameterMap = parameterMap;
+    }
 
-	public boolean isEnabled() {
-		return enabled;
-	}
+    public boolean isEnabled() {
+        return enabled;
+    }
 
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
-	public ApplicationAuthenticator getApplicationAuthenticator() {
-		return applicationAuthenticator;
-	}
+    public ApplicationAuthenticator getApplicationAuthenticator() {
+        return applicationAuthenticator;
+    }
 
-	public void setApplicationAuthenticator(
-			ApplicationAuthenticator applicationAuthenticator) {
-		this.applicationAuthenticator = applicationAuthenticator;
-	}
-	
+    public void setApplicationAuthenticator(
+            ApplicationAuthenticator applicationAuthenticator) {
+        this.applicationAuthenticator = applicationAuthenticator;
+    }
+
 	/*public Map<String, ExternalIdPConfig> getIdps() {
 		return idps;
 	}
@@ -95,18 +94,18 @@ public class AuthenticatorConfig implements Serializable {
 		this.idps = idps;
 	}*/
 
-	public AuthenticatorStateInfo getAuthenticatorStateInfo() {
-		return authenticatorStateInfo;
-	}
+    public AuthenticatorStateInfo getAuthenticatorStateInfo() {
+        return authenticatorStateInfo;
+    }
 
-	public void setAuthenticatorStateInfo(
-			AuthenticatorStateInfo authenticatorStateInfo) {
-		this.authenticatorStateInfo = authenticatorStateInfo;
-	}
+    public void setAuthenticatorStateInfo(
+            AuthenticatorStateInfo authenticatorStateInfo) {
+        this.authenticatorStateInfo = authenticatorStateInfo;
+    }
 
-	public List<String> getIdpNames() {
-		return idpNames;
-	}
+    public List<String> getIdpNames() {
+        return idpNames;
+    }
 
     public Map<String, IdentityProvider> getIdps() {
         return idps;

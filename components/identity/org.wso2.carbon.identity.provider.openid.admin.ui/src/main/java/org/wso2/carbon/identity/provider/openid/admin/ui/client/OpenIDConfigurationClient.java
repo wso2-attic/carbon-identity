@@ -17,8 +17,6 @@
 */
 package org.wso2.carbon.identity.provider.openid.admin.ui.client;
 
-import java.util.ArrayList;
-
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
@@ -30,23 +28,19 @@ import org.wso2.carbon.identity.provider.openid.admin.stub.dto.OpenIDConfigurati
 
 public class OpenIDConfigurationClient {
 
-    private OpenIDConfigurationServiceStub stub;
     private static final Log log = LogFactory.getLog(OpenIDConfigurationClient.class);
+    private OpenIDConfigurationServiceStub stub;
 
     /**
      * Instantiates RelyingPartyServiceClient
-     * 
-     * @param cookie
-     *            For session management
-     * @param backendServerURL
-     *            URL of the back end server where UserRegistrationAdminService is running.
-     * @param configCtx
-     *            ConfigurationContext
-     * @throws org.apache.axis2.AxisFault
-     *             if error occurs when instantiating the stub
+     *
+     * @param cookie           For session management
+     * @param backendServerURL URL of the back end server where UserRegistrationAdminService is running.
+     * @param configCtx        ConfigurationContext
+     * @throws org.apache.axis2.AxisFault if error occurs when instantiating the stub
      */
     public OpenIDConfigurationClient(String cookie, String backendServerURL,
-            ConfigurationContext configCtx) throws AxisFault {
+                                     ConfigurationContext configCtx) throws AxisFault {
         String serviceURL = backendServerURL + "OpenIDConfigurationService";
         stub = new OpenIDConfigurationServiceStub(configCtx, serviceURL);
         ServiceClient client = stub._getServiceClient();
@@ -62,8 +56,8 @@ public class OpenIDConfigurationClient {
             throw new AxisFault(e.getMessage(), e);
         }
     }
-    
-    public OpenIDConfigurationDTO getOpenIDAdmin(String userName,String domainName) throws AxisFault {
+
+    public OpenIDConfigurationDTO getOpenIDAdmin(String userName, String domainName) throws AxisFault {
         try {
             return stub.getOpenIDConfiguration(userName, domainName);
         } catch (Exception e) {

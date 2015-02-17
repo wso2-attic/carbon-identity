@@ -29,7 +29,7 @@ public class ApplicationMgtServiceComponentHolder {
 
     private ConfigurationContextService configurationContextService;
 
-    public static ApplicationMgtServiceComponentHolder getInstance(){
+    public static ApplicationMgtServiceComponentHolder getInstance() {
         return instance;
     }
 
@@ -38,7 +38,7 @@ public class ApplicationMgtServiceComponentHolder {
     }
 
     public void setConfigurationContextService(ConfigurationContextService configurationContextService) {
-       this.configurationContextService = configurationContextService;
+        this.configurationContextService = configurationContextService;
     }
 
 

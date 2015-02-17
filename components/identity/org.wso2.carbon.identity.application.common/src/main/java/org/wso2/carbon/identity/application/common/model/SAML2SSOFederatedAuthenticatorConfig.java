@@ -24,13 +24,13 @@ import org.wso2.carbon.identity.application.common.util.IdentityApplicationManag
 public class SAML2SSOFederatedAuthenticatorConfig extends FederatedAuthenticatorConfig {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -171672098979315832L;
 
     /**
-	 *  The IdP's Entity Issuer value
-	 */
+     * The IdP's Entity Issuer value
+     */
     private String idpEntityId;
 
     /**
@@ -93,21 +93,53 @@ public class SAML2SSOFederatedAuthenticatorConfig extends FederatedAuthenticator
      */
     private boolean isUserIdInClaims;
 
+    public SAML2SSOFederatedAuthenticatorConfig(FederatedAuthenticatorConfig federatedAuthenticatorConfig) {
+        for (Property property : federatedAuthenticatorConfig.getProperties()) {
+            if (IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID.equals(property.getName())) {
+                idpEntityId = property.getValue();
+            } else if (IdentityApplicationConstants.Authenticator.SAML2SSO.SP_ENTITY_ID.equals(property.getName())) {
+                spEntityId = property.getValue();
+            } else if (IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL.equals(property.getName())) {
+                saml2SSOUrl = property.getValue();
+            } else if (IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_REQ_SIGNED.equals(
+                    property.getName())) {
+                isAuthnRequestSigned = Boolean.parseBoolean(property.getValue());
+            } else if (IdentityApplicationConstants.Authenticator.SAML2SSO.IS_LOGOUT_ENABLED.equals(
+                    property.getName())) {
+                isLogoutEnabled = Boolean.parseBoolean(property.getValue());
+            } else if (IdentityApplicationConstants.Authenticator.SAML2SSO.IS_LOGOUT_REQ_SIGNED.equals(
+                    property.getName())) {
+                isLogoutRequestSigned = Boolean.parseBoolean(property.getValue());
+            } else if (IdentityApplicationConstants.Authenticator.SAML2SSO.LOGOUT_REQ_URL.equals(property.getName())) {
+                logoutRequestUrl = property.getValue();
+            } else if (IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_RESP_SIGNED.equals(
+                    property.getName())) {
+                isAuthnResponseSigned = Boolean.parseBoolean(property.getValue());
+            } else if (IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_RESP_SIGNED.equals(
+                    property.getName())) {
+                isAuthnResponseEncrypted = Boolean.parseBoolean(property.getValue());
+            } else if (IdentityApplicationConstants.Authenticator.SAML2SSO.IS_ENABLE_ASSERTION_ENCRYPTION.equals(
+                    property.getName())) {
+                isAuthnResponseEncrypted = Boolean.parseBoolean(property.getValue());
+            }
+        }
+    }
+
     @Override
     public boolean isValid() {
 
         if (IdentityApplicationManagementUtil.getProperty(properties,
                 IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID) != null
                 && !"".equals(IdentityApplicationManagementUtil.getProperty(properties,
-                        IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID))
+                IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID))
                 && IdentityApplicationManagementUtil.getProperty(properties,
-                        IdentityApplicationConstants.Authenticator.SAML2SSO.SP_ENTITY_ID) != null
+                IdentityApplicationConstants.Authenticator.SAML2SSO.SP_ENTITY_ID) != null
                 && !"".equals(IdentityApplicationManagementUtil.getProperty(properties,
-                        IdentityApplicationConstants.Authenticator.SAML2SSO.SP_ENTITY_ID))
+                IdentityApplicationConstants.Authenticator.SAML2SSO.SP_ENTITY_ID))
                 && IdentityApplicationManagementUtil.getProperty(properties,
-                        IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL) != null
+                IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL) != null
                 && !"".equals(IdentityApplicationManagementUtil.getProperty(properties,
-                        IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL))) {
+                IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL))) {
             return true;
         }
         return false;
@@ -116,38 +148,6 @@ public class SAML2SSOFederatedAuthenticatorConfig extends FederatedAuthenticator
     @Override
     public String getName() {
         return IdentityApplicationConstants.Authenticator.SAML2SSO.NAME;
-    }
-
-    public SAML2SSOFederatedAuthenticatorConfig(FederatedAuthenticatorConfig federatedAuthenticatorConfig){
-        for(Property property : federatedAuthenticatorConfig.getProperties()){
-            if(IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID.equals(property.getName())){
-                idpEntityId = property.getValue();
-            } else if(IdentityApplicationConstants.Authenticator.SAML2SSO.SP_ENTITY_ID.equals(property.getName())){
-                spEntityId = property.getValue();
-            } else if(IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL.equals(property.getName())){
-                saml2SSOUrl = property.getValue();
-            } else if(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_REQ_SIGNED.equals(
-                    property.getName())){
-                isAuthnRequestSigned = Boolean.parseBoolean(property.getValue());
-            } else if(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_LOGOUT_ENABLED.equals(
-                    property.getName())){
-                isLogoutEnabled = Boolean.parseBoolean(property.getValue());
-            } else if(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_LOGOUT_REQ_SIGNED.equals(
-                    property.getName())){
-                isLogoutRequestSigned = Boolean.parseBoolean(property.getValue());
-            } else if(IdentityApplicationConstants.Authenticator.SAML2SSO.LOGOUT_REQ_URL.equals(property.getName())){
-                logoutRequestUrl = property.getValue();
-            } else if(IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_RESP_SIGNED.equals(
-                    property.getName())){
-                isAuthnResponseSigned = Boolean.parseBoolean(property.getValue());
-            } else if (IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_RESP_SIGNED.equals(
-                    property.getName())){
-                isAuthnResponseEncrypted = Boolean.parseBoolean(property.getValue());
-            } else if (IdentityApplicationConstants.Authenticator.SAML2SSO.IS_ENABLE_ASSERTION_ENCRYPTION.equals(
-                    property.getName())){
-                isAuthnResponseEncrypted = Boolean.parseBoolean(property.getValue());
-            }
-        }
     }
 
     ////////////////////////////// Getters ///////////////////////////

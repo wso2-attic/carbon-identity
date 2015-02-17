@@ -16,12 +16,9 @@
 
 package org.wso2.carbon.identity.sts.store.util;
 
-import javax.cache.Cache;
-
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.rahas.Token;
 import org.apache.rahas.TrustException;
-import org.wso2.carbon.identity.sts.store.DBTokenStore;
 import org.wso2.carbon.identity.sts.store.SerializableToken;
 
 import javax.xml.stream.XMLStreamException;
@@ -30,8 +27,9 @@ import javax.xml.stream.XMLStreamException;
 public class STSStoreUtils {
     /**
      * This method used to  get Serialized object to cache
-     * @param token  Token
-     * @return  SerializableToken
+     *
+     * @param token Token
+     * @return SerializableToken
      */
     public static SerializableToken getSerializableToken(Token token) {
 
@@ -66,10 +64,11 @@ public class STSStoreUtils {
 
     /**
      * This method used to get Token from SerializableToken
-     * @param serializableToken  SerializableToken
-     * @return  Token
-     * @throws TrustException  if failed to get Token from SerializableToken
-     * @throws XMLStreamException  if failed to convert SerializableToken to Token
+     *
+     * @param serializableToken SerializableToken
+     * @return Token
+     * @throws TrustException     if failed to get Token from SerializableToken
+     * @throws XMLStreamException if failed to convert SerializableToken to Token
      */
     public static Token getToken(SerializableToken serializableToken) throws TrustException, XMLStreamException {
 

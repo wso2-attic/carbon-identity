@@ -15,19 +15,28 @@ import java.util.Hashtable;
  * interface="org.wso2.carbon.user.core.service.RealmService"cardinality="1..1"
  * policy="dynamic" bind="setRealmService" unbind="unsetRealmService"
  */
-public class OAuthRequestPathAuthenticatorServiceComponent{
+public class OAuthRequestPathAuthenticatorServiceComponent {
 
     private static Log log = LogFactory.getLog(OAuthRequestPathAuthenticatorServiceComponent.class);
-    
+
     private static RealmService realmService;
-    
+
+    public static RealmService getRealmService() {
+        return realmService;
+    }
+
+    protected void setRealmService(RealmService realmService) {
+        log.debug("Setting the Realm Service");
+        OAuthRequestPathAuthenticatorServiceComponent.realmService = realmService;
+    }
+
     protected void activate(ComponentContext ctxt) {
-    	
-    	OAuthRequestPathAuthenticator auth = new OAuthRequestPathAuthenticator();
-    	Hashtable<String, String> props = new Hashtable<String, String>();
-    	
+
+        OAuthRequestPathAuthenticator auth = new OAuthRequestPathAuthenticator();
+        Hashtable<String, String> props = new Hashtable<String, String>();
+
         ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(), auth, props);
-        
+
         if (log.isDebugEnabled()) {
             log.info("OAuthRequestPathAuthenticator bundle is activated");
         }
@@ -38,19 +47,10 @@ public class OAuthRequestPathAuthenticatorServiceComponent{
             log.info("OAuthRequestPathAuthenticator bundle is deactivated");
         }
     }
-    
-    protected void setRealmService(RealmService realmService) {
-        log.debug("Setting the Realm Service");
-        OAuthRequestPathAuthenticatorServiceComponent.realmService = realmService;
-    }
 
     protected void unsetRealmService(RealmService realmService) {
         log.debug("UnSetting the Realm Service");
         OAuthRequestPathAuthenticatorServiceComponent.realmService = null;
-    }
-
-    public static RealmService getRealmService() {
-        return realmService;
     }
 
 }

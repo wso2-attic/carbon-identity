@@ -34,6 +34,7 @@ public class AuthenticationEndpointContextListener implements ServletContextList
 
     /**
      * Method for calling after context initialization
+     *
      * @param servletContextEvent
      */
     public void contextInitialized(ServletContextEvent servletContextEvent) {
@@ -45,6 +46,7 @@ public class AuthenticationEndpointContextListener implements ServletContextList
 
     /**
      * Method for calling after context destroy
+     *
      * @param servletContextEvent
      */
     public void contextDestroyed(ServletContextEvent servletContextEvent) {

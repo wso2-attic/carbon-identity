@@ -21,9 +21,7 @@ import org.wso2.carbon.identity.application.common.IdentityApplicationManagement
 import org.wso2.carbon.identity.application.common.model.*;
 
 /**
- *
- * Application management service abstract class.  
- *
+ * Application management service abstract class.
  */
 public abstract class ApplicationManagementService {
 
@@ -43,8 +41,7 @@ public abstract class ApplicationManagementService {
      * the application.The
      * user will assigned to the created role.Internal roles used.
      *
-     * @param serviceProvider
-     *            Service Provider
+     * @param serviceProvider Service Provider
      * @return
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
@@ -54,8 +51,7 @@ public abstract class ApplicationManagementService {
     /**
      * Get Application for given application name
      *
-     * @param applicationName
-     *            Application Name
+     * @param applicationName Application Name
      * @return ServiceProvider
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
@@ -74,8 +70,7 @@ public abstract class ApplicationManagementService {
     /**
      * Update Application
      *
-     * @param serviceProvider
-     *            Service Provider
+     * @param serviceProvider Service Provider
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
     public abstract void updateApplication(ServiceProvider serviceProvider)
@@ -84,8 +79,7 @@ public abstract class ApplicationManagementService {
     /**
      * Delete Application
      *
-     * @param applicationName
-     *            Application name
+     * @param applicationName Application name
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
     public abstract void deleteApplication(String applicationName)
@@ -94,8 +88,7 @@ public abstract class ApplicationManagementService {
     /**
      * Get Identity Provider
      *
-     * @param federatedIdPName
-     *            Federated identity provider name
+     * @param federatedIdPName Federated identity provider name
      * @return IdentityProvider
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
@@ -140,10 +133,8 @@ public abstract class ApplicationManagementService {
     /**
      * Get application data for given client Id and type
      *
-     * @param clientId
-     *            Client Id
-     * @param type
-     *            Type
+     * @param clientId Client Id
+     * @param type     Type
      * @return ServiceProvider
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */

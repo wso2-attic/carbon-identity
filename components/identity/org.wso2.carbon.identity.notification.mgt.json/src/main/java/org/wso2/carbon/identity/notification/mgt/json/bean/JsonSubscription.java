@@ -26,7 +26,6 @@ import org.wso2.carbon.identity.notification.mgt.NotificationManagementUtils;
 import org.wso2.carbon.identity.notification.mgt.bean.Subscription;
 import org.wso2.carbon.identity.notification.mgt.json.JsonModuleConstants;
 
-import java.lang.Boolean;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -52,14 +51,14 @@ public class JsonSubscription extends Subscription {
     /**
      * Passes a generic subscription object and this builds specific json subscription object
      *
-     * @param subscription  A generic type subscription object
+     * @param subscription A generic type subscription object
      */
     public JsonSubscription(Subscription subscription) throws NotificationManagementException {
 
-	    super(subscription.getSubscriptionName(), subscription.getSubscriptionProperties());
-	    endpointInfoList = new ArrayList<JsonEndpointInfo>();
-	    // Build the json subscription object with parsed properties from management component
-	    build(getSubscriptionName(), getSubscriptionProperties());
+        super(subscription.getSubscriptionName(), subscription.getSubscriptionProperties());
+        endpointInfoList = new ArrayList<JsonEndpointInfo>();
+        // Build the json subscription object with parsed properties from management component
+        build(getSubscriptionName(), getSubscriptionProperties());
     }
 
     /**
@@ -99,7 +98,8 @@ public class JsonSubscription extends Subscription {
 
     /**
      * Set endpoints to the json subscription object
-     * @param prefix Prefix of the endpoint properties key. ie json.subscribe.eventName.endpoint.endpointName
+     *
+     * @param prefix              Prefix of the endpoint properties key. ie json.subscribe.eventName.endpoint.endpointName
      * @param endpointsProperties Properties which are relevant to endpoint.
      */
     private void setEndpoints(String prefix, Properties endpointsProperties) {

@@ -16,8 +16,6 @@
 
 package org.wso2.carbon.identity.provider.internal;
 
-import javax.servlet.ServletContext;
-
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,46 +32,78 @@ import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
+import javax.servlet.ServletContext;
+
 /**
  * @scr.component name="identity.provider.component" immediate="true"
  * @scr.reference name="registry.service"
- *                interface="org.wso2.carbon.registry.core.service.RegistryService"
- *                cardinality="1..1" policy="dynamic" bind="setRegistryService"
- *                unbind="unsetRegistryService"
+ * interface="org.wso2.carbon.registry.core.service.RegistryService"
+ * cardinality="1..1" policy="dynamic" bind="setRegistryService"
+ * unbind="unsetRegistryService"
  * @scr.reference name="config.context.service"
- *                interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
- *                policy="dynamic" bind="setConfigurationContextService"
- *                unbind="unsetConfigurationContextService"             
+ * interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
+ * policy="dynamic" bind="setConfigurationContextService"
+ * unbind="unsetConfigurationContextService"
  * @scr.reference name="user.realmservice.default" interface="org.wso2.carbon.user.core.service.RealmService"
- *                cardinality="1..1" policy="dynamic" bind="setRealmService"
- *                unbind="unsetRealmService"
+ * cardinality="1..1" policy="dynamic" bind="setRealmService"
+ * unbind="unsetRealmService"
  * @scr.reference name="identity.core.util.service"
- *                interface="org.wso2.carbon.identity.core.util.IdentityUtil" cardinality="1..1"
- *                policy="dynamic" bind="setIdentityUtil" unbind="unsetIdentityUtil"
+ * interface="org.wso2.carbon.identity.core.util.IdentityUtil" cardinality="1..1"
+ * policy="dynamic" bind="setIdentityUtil" unbind="unsetIdentityUtil"
  * @scr.reference name="identity.attribute.service"
- *                interface="org.wso2.carbon.identity.provider.IdentityAttributeService"
- *                cardinality="0..n" policy="dynamic" bind="addAttributeService"
- *                unbind="removeAttributeService"
+ * interface="org.wso2.carbon.identity.provider.IdentityAttributeService"
+ * cardinality="0..n" policy="dynamic" bind="addAttributeService"
+ * unbind="removeAttributeService"
  */
 public class IdentityProviderServiceComponent {
     private static Log log = LogFactory.getLog(IdentityProviderServiceComponent.class);
     private static ConfigurationContext configContext;
-    private static RealmService realmService;    
+    private static RealmService realmService;
     private static RegistryService registryService;
     private static ServiceRegistration userEventServiceRegistration;
+
+    /**
+     *
+     */
+    public IdentityProviderServiceComponent() {
+    }
 
     public static RealmService getRealmService() {
         return realmService;
     }
 
     /**
-     * 
+     * @param realmService
      */
-    public IdentityProviderServiceComponent() {
+    protected void setRealmService(RealmService realmService) {
+        if (log.isDebugEnabled()) {
+            log.info("ReleamService is set in Identity Provider Service Bundle");
+        }
+        this.realmService = realmService;
     }
 
     /**
-     * 
+     * @return
+     */
+    public static ConfigurationContext getConfigContext() {
+        return configContext;
+    }
+
+    public static RegistryService getRegistryService() {
+        return registryService;
+    }
+
+    /**
+     * @param registryService
+     */
+    protected void setRegistryService(RegistryService registryService) {
+        this.registryService = registryService;
+        if (log.isDebugEnabled()) {
+            log.info("RegistryService set in Identity Provider bundle");
+        }
+    }
+
+    /**
      * @param ctxt
      */
     protected void activate(ComponentContext ctxt) {
@@ -87,7 +117,7 @@ public class IdentityProviderServiceComponent {
             //register User Operation Event Listener for openID
             IdentityOpenIDUserEventListener openIDUserListener = new IdentityOpenIDUserEventListener();
             userEventServiceRegistration = ctxt.getBundleContext().registerService(UserOperationEventListener.class.getName(),
-                                                                                   openIDUserListener, null);
+                    openIDUserListener, null);
 
             String filter = "(objectclass=" + ServletContext.class.getName() + ")";
             ctxt.getBundleContext().addServiceListener(
@@ -98,7 +128,6 @@ public class IdentityProviderServiceComponent {
     }
 
     /**
-     * 
      * @param ctxt
      */
     protected void deactivate(ComponentContext ctxt) {
@@ -111,18 +140,6 @@ public class IdentityProviderServiceComponent {
     }
 
     /**
-     * 
-     * @param registryService
-     */
-    protected void setRegistryService(RegistryService registryService) {
-        this.registryService = registryService;
-        if (log.isDebugEnabled()) {
-            log.info("RegistryService set in Identity Provider bundle");
-        }
-    }
-
-    /**
-     * 
      * @param registryService
      */
     protected void unsetRegistryService(RegistryService registryService) {
@@ -133,7 +150,6 @@ public class IdentityProviderServiceComponent {
     }
 
     /**
-     * 
      * @param userRealmDelegating
      */
     protected void unsetUserRealmDelegating(UserRealm userRealmDelegating) {
@@ -143,7 +159,6 @@ public class IdentityProviderServiceComponent {
     }
 
     /**
-     * 
      * @param userRealmDefault
      */
     protected void unsetUserRealmDefault(UserRealm userRealmDefault) {
@@ -153,21 +168,9 @@ public class IdentityProviderServiceComponent {
     }
 
     /**
-     *
      * @param realmService
      */
-    protected void setRealmService(RealmService realmService){
-        if(log.isDebugEnabled()){
-            log.info("ReleamService is set in Identity Provider Service Bundle");
-        }        
-        this.realmService = realmService;
-    }
-
-    /**
-     * 
-     * @param realmService
-     */
-    protected void unsetRealmService(RealmService realmService){
+    protected void unsetRealmService(RealmService realmService) {
         if (log.isDebugEnabled()) {
             log.info("ReleamService is unset in Identity Provider Service Bundle");
         }
@@ -181,7 +184,6 @@ public class IdentityProviderServiceComponent {
     }
 
     /**
-     * 
      * @param attributeService
      */
     protected void removeAttributeService(IdentityAttributeService attributeService) {
@@ -192,7 +194,6 @@ public class IdentityProviderServiceComponent {
     }
 
     /**
-     * 
      * @param contextService
      */
     protected void setConfigurationContextService(ConfigurationContextService contextService) {
@@ -203,7 +204,6 @@ public class IdentityProviderServiceComponent {
     }
 
     /**
-     * 
      * @param contextService
      */
     protected void unsetConfigurationContextService(ConfigurationContextService contextService) {
@@ -211,9 +211,8 @@ public class IdentityProviderServiceComponent {
             log.info("ConfigurationContextService unset in Identity Provider bundle");
         }
     }
-    
+
     /**
-     * 
      * @param identityUtil
      */
     protected void setIdentityUtil(IdentityUtil identityUtil) {
@@ -223,25 +222,12 @@ public class IdentityProviderServiceComponent {
     }
 
     /**
-     * 
      * @param identityUtil
      */
     protected void unsetIdentityUtil(IdentityUtil identityUtil) {
         if (log.isDebugEnabled()) {
             log.info("IdentityUtil unset in Identity Provider bundle");
         }
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public static ConfigurationContext getConfigContext() {
-        return configContext;
-    }
-
-    public static RegistryService getRegistryService(){
-        return registryService;
     }
 
 }

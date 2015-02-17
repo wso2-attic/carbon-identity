@@ -31,7 +31,6 @@ public class OpenIDAdminDAO extends AbstractDAO<OpenIDAdminDO> {
     protected Log log = LogFactory.getLog(OpenIDAdminDAO.class);
 
     /**
-     * 
      * @param registry
      */
     public OpenIDAdminDAO(Registry registry) {
@@ -39,7 +38,6 @@ public class OpenIDAdminDAO extends AbstractDAO<OpenIDAdminDO> {
     }
 
     /**
-     * 
      * @param rp
      * @throws IdentityException
      */
@@ -73,7 +71,6 @@ public class OpenIDAdminDAO extends AbstractDAO<OpenIDAdminDO> {
     }
 
     /**
-     * 
      * @param hostName
      * @return
      * @throws IdentityException

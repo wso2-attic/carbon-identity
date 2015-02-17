@@ -24,23 +24,22 @@ import org.wso2.carbon.identity.application.common.util.IdentityApplicationManag
 public class FacebookFederatedAuthenticatorConfig extends FederatedAuthenticatorConfig {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -133425927850782196L;
 
     /**
-     * 
      * @return
      */
     public boolean isValid() {
-        if(IdentityApplicationManagementUtil.getProperty(properties,
+        if (IdentityApplicationManagementUtil.getProperty(properties,
                 IdentityApplicationConstants.Authenticator.Facebook.CLIENT_ID) != null &&
                 !"".equals(IdentityApplicationManagementUtil.getProperty(properties,
                         IdentityApplicationConstants.Authenticator.Facebook.CLIENT_ID)) &&
                 IdentityApplicationManagementUtil.getProperty(properties,
                         IdentityApplicationConstants.Authenticator.Facebook.CLIENT_SECRET) != null &&
                 !"".equals(IdentityApplicationManagementUtil.getProperty(properties,
-                        IdentityApplicationConstants.Authenticator.Facebook.CLIENT_SECRET))){
+                        IdentityApplicationConstants.Authenticator.Facebook.CLIENT_SECRET))) {
             return true;
         }
         return false;

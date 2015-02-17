@@ -28,7 +28,6 @@ public class XmppSubscriptionListener implements RosterListener {
     boolean isAccepted = false;
 
     /**
-     *
      * @param xmppUserId
      */
     public XmppSubscriptionListener(String xmppUserId) {
@@ -36,7 +35,6 @@ public class XmppSubscriptionListener implements RosterListener {
     }
 
     /**
-     *
      * @return
      */
     public boolean isAccepted() {
@@ -44,7 +42,6 @@ public class XmppSubscriptionListener implements RosterListener {
     }
 
     /**
-     *
      * @param strings
      */
     public void entriesAdded(Collection<String> strings) {
@@ -55,7 +52,6 @@ public class XmppSubscriptionListener implements RosterListener {
     }
 
     /**
-     *
      * @return
      */
     public boolean isOnline() {
@@ -63,7 +59,6 @@ public class XmppSubscriptionListener implements RosterListener {
     }
 
     /**
-     *
      * @param strings
      */
     public void entriesUpdated(Collection<String> strings) {
@@ -71,7 +66,6 @@ public class XmppSubscriptionListener implements RosterListener {
     }
 
     /**
-     *
      * @param strings
      */
     public void entriesDeleted(Collection<String> strings) {
@@ -80,6 +74,7 @@ public class XmppSubscriptionListener implements RosterListener {
 
     /**
      * Listennig for a change in presence of the user, eg: unavailable => available
+     *
      * @param presence
      */
     public void presenceChanged(Presence presence) {

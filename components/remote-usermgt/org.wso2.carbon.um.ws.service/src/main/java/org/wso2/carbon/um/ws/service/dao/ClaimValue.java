@@ -18,30 +18,34 @@
 package org.wso2.carbon.um.ws.service.dao;
 
 public class ClaimValue {
-    
+
     private String claimUri;
     private String claimValue;
-      
+
     public ClaimValue() {
 
     }
+
     public ClaimValue(String claimUri, String claimValue) {
         this.claimUri = claimUri;
         this.claimValue = claimValue;
     }
+
     public String getClaimUri() {
         return claimUri;
     }
-    public String getClaimValue() {
-        return claimValue;
-    }
+
     public void setClaimUri(String claimUri) {
         this.claimUri = claimUri;
     }
+
+    public String getClaimValue() {
+        return claimValue;
+    }
+
     public void setClaimValue(String claimValue) {
         this.claimValue = claimValue;
     }
-    
-    
+
 
 }

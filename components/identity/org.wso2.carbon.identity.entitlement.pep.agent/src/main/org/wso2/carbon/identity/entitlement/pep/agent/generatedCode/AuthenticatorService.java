@@ -25,19 +25,6 @@ public class AuthenticatorService {
     }
 
     public static class Client extends org.apache.thrift.TServiceClient implements Iface {
-        public static class Factory implements org.apache.thrift.TServiceClientFactory<Client> {
-            public Factory() {
-            }
-
-            public Client getClient(org.apache.thrift.protocol.TProtocol prot) {
-                return new Client(prot);
-            }
-
-            public Client getClient(org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot) {
-                return new Client(iprot, oprot);
-            }
-        }
-
         public Client(org.apache.thrift.protocol.TProtocol prot) {
             super(prot, prot);
         }
@@ -70,9 +57,33 @@ public class AuthenticatorService {
             throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "authenticate failed: unknown result");
         }
 
+        public static class Factory implements org.apache.thrift.TServiceClientFactory<Client> {
+            public Factory() {
+            }
+
+            public Client getClient(org.apache.thrift.protocol.TProtocol prot) {
+                return new Client(prot);
+            }
+
+            public Client getClient(org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot) {
+                return new Client(iprot, oprot);
+            }
+        }
+
     }
 
     public static class AsyncClient extends org.apache.thrift.async.TAsyncClient implements AsyncIface {
+        public AsyncClient(org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.async.TAsyncClientManager clientManager, org.apache.thrift.transport.TNonblockingTransport transport) {
+            super(protocolFactory, clientManager, transport);
+        }
+
+        public void authenticate(String userName, String password, org.apache.thrift.async.AsyncMethodCallback<authenticate_call> resultHandler) throws org.apache.thrift.TException {
+            checkReady();
+            authenticate_call method_call = new authenticate_call(userName, password, resultHandler, this, ___protocolFactory, ___transport);
+            this.___currentMethod = method_call;
+            ___manager.call(method_call);
+        }
+
         public static class Factory implements org.apache.thrift.async.TAsyncClientFactory<AsyncClient> {
             private org.apache.thrift.async.TAsyncClientManager clientManager;
             private org.apache.thrift.protocol.TProtocolFactory protocolFactory;
@@ -85,17 +96,6 @@ public class AuthenticatorService {
             public AsyncClient getAsyncClient(org.apache.thrift.transport.TNonblockingTransport transport) {
                 return new AsyncClient(protocolFactory, clientManager, transport);
             }
-        }
-
-        public AsyncClient(org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.async.TAsyncClientManager clientManager, org.apache.thrift.transport.TNonblockingTransport transport) {
-            super(protocolFactory, clientManager, transport);
-        }
-
-        public void authenticate(String userName, String password, org.apache.thrift.async.AsyncMethodCallback<authenticate_call> resultHandler) throws org.apache.thrift.TException {
-            checkReady();
-            authenticate_call method_call = new authenticate_call(userName, password, resultHandler, this, ___protocolFactory, ___transport);
-            this.___currentMethod = method_call;
-            ___manager.call(method_call);
         }
 
         public static class authenticate_call extends org.apache.thrift.async.TAsyncMethodCall {
@@ -168,81 +168,7 @@ public class AuthenticatorService {
     }
 
     public static class authenticate_args implements org.apache.thrift.TBase<authenticate_args, authenticate_args._Fields>, java.io.Serializable, Cloneable {
-        private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("authenticate_args");
-
-        private static final org.apache.thrift.protocol.TField USER_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("userName", org.apache.thrift.protocol.TType.STRING, (short) 1);
-        private static final org.apache.thrift.protocol.TField PASSWORD_FIELD_DESC = new org.apache.thrift.protocol.TField("password", org.apache.thrift.protocol.TType.STRING, (short) 2);
-
-        public String userName; // required
-        public String password; // required
-
-        /**
-         * The set of fields this struct contains, along with convenience methods for finding and manipulating them.
-         */
-        public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-            USER_NAME((short) 1, "userName"),
-            PASSWORD((short) 2, "password");
-
-            private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
-
-            static {
-                for (_Fields field : EnumSet.allOf(_Fields.class)) {
-                    byName.put(field.getFieldName(), field);
-                }
-            }
-
-            /**
-             * Find the _Fields constant that matches fieldId, or null if its not found.
-             */
-            public static _Fields findByThriftId(int fieldId) {
-                switch (fieldId) {
-                    case 1: // USER_NAME
-                        return USER_NAME;
-                    case 2: // PASSWORD
-                        return PASSWORD;
-                    default:
-                        return null;
-                }
-            }
-
-            /**
-             * Find the _Fields constant that matches fieldId, throwing an exception
-             * if it is not found.
-             */
-            public static _Fields findByThriftIdOrThrow(int fieldId) {
-                _Fields fields = findByThriftId(fieldId);
-                if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
-                return fields;
-            }
-
-            /**
-             * Find the _Fields constant that matches name, or null if its not found.
-             */
-            public static _Fields findByName(String name) {
-                return byName.get(name);
-            }
-
-            private final short _thriftId;
-            private final String _fieldName;
-
-            _Fields(short thriftId, String fieldName) {
-                _thriftId = thriftId;
-                _fieldName = fieldName;
-            }
-
-            public short getThriftFieldId() {
-                return _thriftId;
-            }
-
-            public String getFieldName() {
-                return _fieldName;
-            }
-        }
-
-        // isset id assignments
-
         public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
-
         static {
             Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
             tmpMap.put(_Fields.USER_NAME, new org.apache.thrift.meta_data.FieldMetaData("userName", org.apache.thrift.TFieldRequirementType.REQUIRED,
@@ -252,6 +178,13 @@ public class AuthenticatorService {
             metaDataMap = Collections.unmodifiableMap(tmpMap);
             org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(authenticate_args.class, metaDataMap);
         }
+        private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("authenticate_args");
+        private static final org.apache.thrift.protocol.TField USER_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("userName", org.apache.thrift.protocol.TType.STRING, (short) 1);
+        private static final org.apache.thrift.protocol.TField PASSWORD_FIELD_DESC = new org.apache.thrift.protocol.TField("password", org.apache.thrift.protocol.TType.STRING, (short) 2);
+        public String userName; // required
+
+        // isset id assignments
+        public String password; // required
 
         public authenticate_args() {
         }
@@ -563,23 +496,12 @@ public class AuthenticatorService {
             }
         }
 
-    }
-
-    public static class authenticate_result implements org.apache.thrift.TBase<authenticate_result, authenticate_result._Fields>, java.io.Serializable, Cloneable {
-        private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("authenticate_result");
-
-        private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.STRING, (short) 0);
-        private static final org.apache.thrift.protocol.TField AE_FIELD_DESC = new org.apache.thrift.protocol.TField("ae", org.apache.thrift.protocol.TType.STRUCT, (short) 1);
-
-        public String success; // required
-        public AuthenticationException ae; // required
-
         /**
          * The set of fields this struct contains, along with convenience methods for finding and manipulating them.
          */
         public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-            SUCCESS((short) 0, "success"),
-            AE((short) 1, "ae");
+            USER_NAME((short) 1, "userName"),
+            PASSWORD((short) 2, "password");
 
             private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -588,16 +510,23 @@ public class AuthenticatorService {
                     byName.put(field.getFieldName(), field);
                 }
             }
+            private final short _thriftId;
+            private final String _fieldName;
+
+            _Fields(short thriftId, String fieldName) {
+                _thriftId = thriftId;
+                _fieldName = fieldName;
+            }
 
             /**
              * Find the _Fields constant that matches fieldId, or null if its not found.
              */
             public static _Fields findByThriftId(int fieldId) {
                 switch (fieldId) {
-                    case 0: // SUCCESS
-                        return SUCCESS;
-                    case 1: // AE
-                        return AE;
+                    case 1: // USER_NAME
+                        return USER_NAME;
+                    case 2: // PASSWORD
+                        return PASSWORD;
                     default:
                         return null;
                 }
@@ -620,14 +549,6 @@ public class AuthenticatorService {
                 return byName.get(name);
             }
 
-            private final short _thriftId;
-            private final String _fieldName;
-
-            _Fields(short thriftId, String fieldName) {
-                _thriftId = thriftId;
-                _fieldName = fieldName;
-            }
-
             public short getThriftFieldId() {
                 return _thriftId;
             }
@@ -637,10 +558,10 @@ public class AuthenticatorService {
             }
         }
 
-        // isset id assignments
+    }
 
+    public static class authenticate_result implements org.apache.thrift.TBase<authenticate_result, authenticate_result._Fields>, java.io.Serializable, Cloneable {
         public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
-
         static {
             Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
             tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
@@ -650,6 +571,13 @@ public class AuthenticatorService {
             metaDataMap = Collections.unmodifiableMap(tmpMap);
             org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(authenticate_result.class, metaDataMap);
         }
+        private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("authenticate_result");
+        private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.STRING, (short) 0);
+        private static final org.apache.thrift.protocol.TField AE_FIELD_DESC = new org.apache.thrift.protocol.TField("ae", org.apache.thrift.protocol.TType.STRUCT, (short) 1);
+        public String success; // required
+
+        // isset id assignments
+        public AuthenticationException ae; // required
 
         public authenticate_result() {
         }
@@ -951,6 +879,68 @@ public class AuthenticatorService {
                 read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
             } catch (org.apache.thrift.TException te) {
                 throw new java.io.IOException(te);
+            }
+        }
+
+        /**
+         * The set of fields this struct contains, along with convenience methods for finding and manipulating them.
+         */
+        public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+            SUCCESS((short) 0, "success"),
+            AE((short) 1, "ae");
+
+            private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+            static {
+                for (_Fields field : EnumSet.allOf(_Fields.class)) {
+                    byName.put(field.getFieldName(), field);
+                }
+            }
+            private final short _thriftId;
+            private final String _fieldName;
+
+            _Fields(short thriftId, String fieldName) {
+                _thriftId = thriftId;
+                _fieldName = fieldName;
+            }
+
+            /**
+             * Find the _Fields constant that matches fieldId, or null if its not found.
+             */
+            public static _Fields findByThriftId(int fieldId) {
+                switch (fieldId) {
+                    case 0: // SUCCESS
+                        return SUCCESS;
+                    case 1: // AE
+                        return AE;
+                    default:
+                        return null;
+                }
+            }
+
+            /**
+             * Find the _Fields constant that matches fieldId, throwing an exception
+             * if it is not found.
+             */
+            public static _Fields findByThriftIdOrThrow(int fieldId) {
+                _Fields fields = findByThriftId(fieldId);
+                if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+                return fields;
+            }
+
+            /**
+             * Find the _Fields constant that matches name, or null if its not found.
+             */
+            public static _Fields findByName(String name) {
+                return byName.get(name);
+            }
+
+            public short getThriftFieldId() {
+                return _thriftId;
+            }
+
+            public String getFieldName() {
+                return _fieldName;
             }
         }
 

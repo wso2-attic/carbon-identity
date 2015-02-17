@@ -1,32 +1,32 @@
 package org.wso2.carbon.identity.application.authentication.framework.model;
 
-import java.io.Serializable;
-import java.util.Map;
-
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 
+import java.io.Serializable;
+import java.util.Map;
+
 public class AuthenticatedIdPData implements Serializable {
-    
+
     private static final long serialVersionUID = -1778751155155790874L;
-        
+
     private String idpName;
     private AuthenticatorConfig authenticator;
     private String username;
     private Map<ClaimMapping, String> userAttributes;
-    
+
     public String getIdpName() {
         return idpName;
     }
-    
+
     public void setIdpName(String idpName) {
         this.idpName = idpName;
     }
-    
+
     public String getUsername() {
         return username;
     }
-    
+
     public void setUsername(String username) {
         this.username = username;
     }

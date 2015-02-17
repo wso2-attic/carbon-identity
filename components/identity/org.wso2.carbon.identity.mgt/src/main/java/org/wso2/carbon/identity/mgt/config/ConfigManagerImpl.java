@@ -19,55 +19,55 @@ package org.wso2.carbon.identity.mgt.config;
 
 import java.util.Properties;
 import java.util.Set;
+
 /**
  * Implementation of the Configuration Manager which used to
  * manage a the configuration.
- *
  */
 public class ConfigManagerImpl implements ConfigManager {
 
-	private ConfigReader reader;
-	private ConfigWriter writer;
-	private Config config;
-	private String resourcePath;
+    private ConfigReader reader;
+    private ConfigWriter writer;
+    private Config config;
+    private String resourcePath;
 
-	public void setResourcePath(String resourcePath) {
-		this.resourcePath = resourcePath;
-	}
+    public void setResourcePath(String resourcePath) {
+        this.resourcePath = resourcePath;
+    }
 
-	public void setReader(ConfigReader reader) {
-		this.reader = reader;
-	}
+    public void setReader(ConfigReader reader) {
+        this.reader = reader;
+    }
 
-	public void setWriter(ConfigWriter writer) {
-		this.writer = writer;
-	}
+    public void setWriter(ConfigWriter writer) {
+        this.writer = writer;
+    }
 
-	public void setConfig(Config config) {
-		this.config = config;
-	}
-	
-	@Override
-	public Config loadConfig(int tenantId) {
-		Properties props = reader.read(tenantId, resourcePath);
+    public void setConfig(Config config) {
+        this.config = config;
+    }
 
-		if (!props.isEmpty()) {
-			Set<String> keySet = props.stringPropertyNames();
-			for (String key : keySet) {
-				this.config.setProperty(key, props.getProperty(key));
-			}
-		} else {
-			return null;
-		}
+    @Override
+    public Config loadConfig(int tenantId) {
+        Properties props = reader.read(tenantId, resourcePath);
 
-		return this.config;
-	}
+        if (!props.isEmpty()) {
+            Set<String> keySet = props.stringPropertyNames();
+            for (String key : keySet) {
+                this.config.setProperty(key, props.getProperty(key));
+            }
+        } else {
+            return null;
+        }
 
-	@Override
-	public void saveConfig(Config config, int tenantId) {
-		Properties props = config.getProperties();
-		this.writer.write(tenantId, props, resourcePath);
-		
-	}
+        return this.config;
+    }
+
+    @Override
+    public void saveConfig(Config config, int tenantId) {
+        Properties props = config.getProperties();
+        this.writer.write(tenantId, props, resourcePath);
+
+    }
 
 }

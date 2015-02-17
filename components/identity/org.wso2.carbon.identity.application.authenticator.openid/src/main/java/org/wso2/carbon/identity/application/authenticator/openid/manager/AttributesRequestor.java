@@ -24,7 +24,7 @@ public interface AttributesRequestor {
 
     String[] getRequestedAttributes(String claimed_id);
 
-    boolean isRequired(String claimed_id,String alias);
+    boolean isRequired(String claimed_id, String alias);
 
     String getTypeURI(String claimed_id, String alias);
 

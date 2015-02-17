@@ -23,7 +23,7 @@ import java.io.Serializable;
 /**
  * Class holds the information related to RandomPassword
  */
-public class RandomPassword implements Serializable{
+public class RandomPassword implements Serializable {
 
 
     private String propertyName;

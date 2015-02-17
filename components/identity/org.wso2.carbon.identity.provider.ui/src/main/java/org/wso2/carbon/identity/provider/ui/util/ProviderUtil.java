@@ -17,20 +17,20 @@
 */
 package org.wso2.carbon.identity.provider.ui.util;
 
-import java.util.List;
-
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.servlet.ServletRequestContext;
 
+import java.util.List;
+
 public class ProviderUtil {
 
-	public static List parseRequest(ServletRequestContext requestContext)
-			throws FileUploadException {
-		FileItemFactory factory = new DiskFileItemFactory();
-		ServletFileUpload upload = new ServletFileUpload(factory);
-		return upload.parseRequest(requestContext);
-	}
+    public static List parseRequest(ServletRequestContext requestContext)
+            throws FileUploadException {
+        FileItemFactory factory = new DiskFileItemFactory();
+        ServletFileUpload upload = new ServletFileUpload(factory);
+        return upload.parseRequest(requestContext);
+    }
 }

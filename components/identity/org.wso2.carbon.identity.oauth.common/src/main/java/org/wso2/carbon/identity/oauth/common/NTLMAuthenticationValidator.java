@@ -23,7 +23,7 @@ import org.apache.amber.oauth2.common.validators.AbstractValidator;
 import javax.servlet.http.HttpServletRequest;
 
 public class NTLMAuthenticationValidator extends AbstractValidator<HttpServletRequest> {
-    public NTLMAuthenticationValidator(){
+    public NTLMAuthenticationValidator() {
         requiredParams.add(OAuth.OAUTH_GRANT_TYPE);
         requiredParams.add(OAuth.OAUTH_WINDOWS_TOKEN);
     }

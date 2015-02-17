@@ -25,12 +25,11 @@ import org.wso2.carbon.identity.authorization.core.permission.CarbonPermissionFi
 import org.wso2.carbon.identity.authorization.core.permission.PermissionFinderModule;
 import org.wso2.carbon.utils.CarbonUtils;
 
-
 import java.io.*;
 import java.util.Properties;
 
 /**
- * 
+ *
  */
 public class ExtensionBuilder {
 
@@ -69,7 +68,7 @@ public class ExtensionBuilder {
             holder.addPermissionFinderModule(finderModule, designatorProps);
         }
 
-        if(holder.getPermissionFinderModules().size() == 0){
+        if (holder.getPermissionFinderModules().size() == 0) {
             CarbonPermissionFinderModule defaultModule = new CarbonPermissionFinderModule();
             // init is not needed for default module
             holder.addPermissionFinderModule(defaultModule, new Properties());
@@ -99,7 +98,6 @@ public class ExtensionBuilder {
     }
 
     /**
-     *
      * @return
      * @throws java.io.IOException
      */
@@ -110,7 +108,7 @@ public class ExtensionBuilder {
 
         File pipConfigXml = new File(CarbonUtils.getCarbonSecurityConfigDirPath(), ENTITLEMENT_CONFIG);
 
-        try{
+        try {
             if (pipConfigXml.exists()) {
                 inStream = new FileInputStream(pipConfigXml);
             } else {
@@ -123,7 +121,7 @@ public class ExtensionBuilder {
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         } finally {
-            if(inStream != null){
+            if (inStream != null) {
                 try {
                     inStream.close();
                 } catch (IOException e) {

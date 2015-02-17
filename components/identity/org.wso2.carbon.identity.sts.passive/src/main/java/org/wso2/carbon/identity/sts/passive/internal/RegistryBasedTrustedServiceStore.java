@@ -28,13 +28,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RegistryBasedTrustedServiceStore {
-    private static final Log log = LogFactory.getLog(RegistryBasedTrustedServiceStore.class);
     public static final String CLAIM_DIALECT = "claimDialect";
     public static final String CLAIMS = "claims";
     public static final String REALM_NAME = "realmName";
-    private String registryTrustedServicePath = "repository/identity/passiveSTSTrustedRP/";
+    private static final Log log = LogFactory.getLog(RegistryBasedTrustedServiceStore.class);
     private static final String SLASH_REPLACE_CHARACTER = "BACK_SLASH";
-
+    private String registryTrustedServicePath = "repository/identity/passiveSTSTrustedRP/";
 
     /**
      * Add a trusted service to which tokens are issued with given claims.

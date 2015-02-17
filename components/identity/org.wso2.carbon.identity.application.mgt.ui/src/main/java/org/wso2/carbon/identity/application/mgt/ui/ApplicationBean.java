@@ -21,7 +21,6 @@ import org.wso2.carbon.identity.application.common.model.xsd.*;
 import org.wso2.carbon.ui.util.CharacterEncoder;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -78,7 +77,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @return
      */
     public ServiceProvider getServiceProvider() {
@@ -86,7 +84,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @param serviceProvider
      */
     public void setServiceProvider(ServiceProvider serviceProvider) {
@@ -94,7 +91,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @return
      */
     public String getAuthenticationType() {
@@ -102,7 +98,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @param type
      */
     public void setAuthenticationType(String type) {
@@ -110,7 +105,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @param type
      * @return
      */
@@ -118,11 +112,11 @@ public class ApplicationBean {
         if (AUTH_TYPE_LOCAL.equalsIgnoreCase(type)) {
             if (serviceProvider.getLocalAndOutBoundAuthenticationConfig().getAuthenticationSteps() != null
                     && serviceProvider.getLocalAndOutBoundAuthenticationConfig()
-                            .getAuthenticationSteps().length > 0
+                    .getAuthenticationSteps().length > 0
                     && serviceProvider.getLocalAndOutBoundAuthenticationConfig()
-                            .getAuthenticationSteps()[0].getLocalAuthenticatorConfigs() != null
+                    .getAuthenticationSteps()[0].getLocalAuthenticatorConfigs() != null
                     && serviceProvider.getLocalAndOutBoundAuthenticationConfig()
-                            .getAuthenticationSteps()[0].getLocalAuthenticatorConfigs()[0] != null) {
+                    .getAuthenticationSteps()[0].getLocalAuthenticatorConfigs()[0] != null) {
                 return serviceProvider.getLocalAndOutBoundAuthenticationConfig()
                         .getAuthenticationSteps()[0].getLocalAuthenticatorConfigs()[0].getName();
             }
@@ -131,13 +125,13 @@ public class ApplicationBean {
         if (AUTH_TYPE_FEDERATED.equalsIgnoreCase(type)) {
             if (serviceProvider.getLocalAndOutBoundAuthenticationConfig().getAuthenticationSteps() != null
                     && serviceProvider.getLocalAndOutBoundAuthenticationConfig()
-                            .getAuthenticationSteps().length > 0
+                    .getAuthenticationSteps().length > 0
                     && serviceProvider.getLocalAndOutBoundAuthenticationConfig()
-                            .getAuthenticationSteps()[0].getFederatedIdentityProviders() != null
+                    .getAuthenticationSteps()[0].getFederatedIdentityProviders() != null
                     && serviceProvider.getLocalAndOutBoundAuthenticationConfig()
-                            .getAuthenticationSteps()[0].getFederatedIdentityProviders().length > 0
+                    .getAuthenticationSteps()[0].getFederatedIdentityProviders().length > 0
                     && serviceProvider.getLocalAndOutBoundAuthenticationConfig()
-                            .getAuthenticationSteps()[0].getFederatedIdentityProviders()[0] != null) {
+                    .getAuthenticationSteps()[0].getFederatedIdentityProviders()[0] != null) {
                 return serviceProvider.getLocalAndOutBoundAuthenticationConfig()
                         .getAuthenticationSteps()[0].getFederatedIdentityProviders()[0]
                         .getIdentityProviderName();
@@ -152,53 +146,50 @@ public class ApplicationBean {
             LocalAuthenticatorConfig localAuthenticator = new LocalAuthenticatorConfig();
             localAuthenticator.setName(name);
             AuthenticationStep authStep = new AuthenticationStep();
-            authStep.setLocalAuthenticatorConfigs(new LocalAuthenticatorConfig[] { localAuthenticator });
+            authStep.setLocalAuthenticatorConfigs(new LocalAuthenticatorConfig[]{localAuthenticator});
 
         }
 
     }
 
     /**
-     * 
      * @return
      */
-	public IdentityProvider[] getFederatedIdentityProviders() {
-		return federatedIdentityProviders;
-	}
-
-	public List<IdentityProvider> getEnabledFederatedIdentityProviders() {
-		if (enabledFederatedIdentityProviders != null) {
-			return enabledFederatedIdentityProviders;
-		}
-		if (federatedIdentityProviders != null && federatedIdentityProviders.length > 0) {
-			enabledFederatedIdentityProviders = new ArrayList<IdentityProvider>();
-			for (IdentityProvider idp : federatedIdentityProviders) {
-				if (idp.getEnable()) {
-					FederatedAuthenticatorConfig[] fedAuthConfigs = idp.getFederatedAuthenticatorConfigs();
-					if (fedAuthConfigs != null && fedAuthConfigs.length > 0) {
-						for (FederatedAuthenticatorConfig config : fedAuthConfigs) {
-							if(config.getEnabled()){
-								enabledFederatedIdentityProviders.add(idp);
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-		return enabledFederatedIdentityProviders;
-	}
+    public IdentityProvider[] getFederatedIdentityProviders() {
+        return federatedIdentityProviders;
+    }
 
     /**
-     * 
      * @param federatedIdentityProviders
      */
     public void setFederatedIdentityProviders(IdentityProvider[] federatedIdentityProviders) {
         this.federatedIdentityProviders = federatedIdentityProviders;
     }
 
+    public List<IdentityProvider> getEnabledFederatedIdentityProviders() {
+        if (enabledFederatedIdentityProviders != null) {
+            return enabledFederatedIdentityProviders;
+        }
+        if (federatedIdentityProviders != null && federatedIdentityProviders.length > 0) {
+            enabledFederatedIdentityProviders = new ArrayList<IdentityProvider>();
+            for (IdentityProvider idp : federatedIdentityProviders) {
+                if (idp.getEnable()) {
+                    FederatedAuthenticatorConfig[] fedAuthConfigs = idp.getFederatedAuthenticatorConfigs();
+                    if (fedAuthConfigs != null && fedAuthConfigs.length > 0) {
+                        for (FederatedAuthenticatorConfig config : fedAuthConfigs) {
+                            if (config.getEnabled()) {
+                                enabledFederatedIdentityProviders.add(idp);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return enabledFederatedIdentityProviders;
+    }
+
     /**
-     * 
      * @return
      */
     public LocalAuthenticatorConfig[] getLocalAuthenticatorConfigs() {
@@ -206,7 +197,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @param localAuthenticatorConfigs
      */
     public void setLocalAuthenticatorConfigs(LocalAuthenticatorConfig[] localAuthenticatorConfigs) {
@@ -214,7 +204,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @return
      */
     public RequestPathAuthenticatorConfig[] getRequestPathAuthenticators() {
@@ -222,7 +211,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @param requestPathAuthenticators
      */
     public void setRequestPathAuthenticators(
@@ -231,7 +219,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @return
      */
     public List<String> getPermissions() {
@@ -258,7 +245,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @param permissions
      */
     public void setPermissions(String[] permissions) {
@@ -271,7 +257,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @return
      */
     public String getRoleClaimUri() {
@@ -283,7 +268,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @param roleClaimUri
      */
     public void setRoleClaimUri(String roleClaimUri) {
@@ -300,7 +284,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @return
      */
     public String getUserClaimUri() {
@@ -312,7 +295,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @param roleClaimUri
      */
     public void setUserClaimUri(String userClaimUri) {
@@ -329,7 +311,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @return
      */
     public Map<String, String> getRoleMapping() {
@@ -357,7 +338,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @param roleMapping
      */
     public void addRoleMapping(String spRole, String localRole) {
@@ -365,7 +345,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @return
      */
     public Map<String, String> getClaimMapping() {
@@ -403,7 +382,7 @@ public class ApplicationBean {
 
     /**
      * Is Local Claims Selected
-     * 
+     *
      * @return
      */
     public boolean isLocalClaimsSelected() {
@@ -419,15 +398,15 @@ public class ApplicationBean {
         }
         return false;
     }
-    
+
     public boolean isAlwaysSendBackAuthenticatedListOfIdPs() {
         if (serviceProvider.getLocalAndOutBoundAuthenticationConfig() != null) {
-            return serviceProvider.getLocalAndOutBoundAuthenticationConfig().getAlwaysSendBackAuthenticatedListOfIdPs() ;
+            return serviceProvider.getLocalAndOutBoundAuthenticationConfig().getAlwaysSendBackAuthenticatedListOfIdPs();
         }
         return false;
     }
-    
-    public String getSubjectClaimUri(){
+
+    public String getSubjectClaimUri() {
         if (serviceProvider.getLocalAndOutBoundAuthenticationConfig() != null) {
             return serviceProvider.getLocalAndOutBoundAuthenticationConfig().getSubjectClaimUri();
         }
@@ -488,8 +467,11 @@ public class ApplicationBean {
         return null;
     }
 
+    public void setOauthConsumerSecret(String oauthConsumerSecret) {
+        this.oauthConsumerSecret = oauthConsumerSecret;
+    }
+
     /**
-     * 
      * @return
      */
     public String getSAMLIssuer() {
@@ -514,7 +496,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @param issuerName
      */
     public void setSAMLIssuer(String issuerName) {
@@ -550,7 +531,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @param oauthAppName
      */
     public void setOIDCAppName(String oauthAppName) {
@@ -613,7 +593,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @return
      */
     public String getOIDCClientId() {
@@ -638,7 +617,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @return
      */
     public String getOpenIDRealm() {
@@ -661,7 +639,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @return
      */
     public String getWstrustSP() {
@@ -684,7 +661,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @return
      */
     public String getPassiveSTSRealm() {
@@ -709,7 +685,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @return
      */
     public String[] getClaimUris() {
@@ -721,7 +696,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @param request
      */
     public void updateOutBoundAuthenticationConfig(HttpServletRequest request) {
@@ -787,7 +761,7 @@ public class ApplicationBean {
                             authenticator.setName(CharacterEncoder.getSafeText(request.getParameter("step_" + authstep + "_idp_"
                                     + name + "_fed_authenticator")));
                             idp.setDefaultAuthenticatorConfig(authenticator);
-                            idp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[] { authenticator });
+                            idp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[]{authenticator});
 
                             fedIdpList.add(idp);
                         }
@@ -802,7 +776,7 @@ public class ApplicationBean {
                 if ((authStep.getFederatedIdentityProviders() != null && authStep
                         .getFederatedIdentityProviders().length > 0)
                         || (authStep.getLocalAuthenticatorConfigs() != null && authStep
-                                .getLocalAuthenticatorConfigs().length > 0)) {
+                        .getLocalAuthenticatorConfigs().length > 0)) {
                     authStepList.add(authStep);
                 }
 
@@ -823,7 +797,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @param request
      */
     public void update(HttpServletRequest request) {
@@ -904,7 +877,7 @@ public class ApplicationBean {
                 if (name != null) {
                     RequestPathAuthenticatorConfig reqAuth = new RequestPathAuthenticatorConfig();
                     reqAuth.setName(name);
-                    reqAuth.setDisplayName(request.getParameter("req_path_auth_"+name));
+                    reqAuth.setDisplayName(request.getParameter("req_path_auth_" + name));
                     reqAuthList.add(reqAuth);
                 }
             }
@@ -931,7 +904,7 @@ public class ApplicationBean {
                 Property property = new Property();
                 property.setName("attrConsumServiceIndex");
                 property.setValue(attrConsumServiceIndex);
-                Property[] properties = { property };
+                Property[] properties = {property};
                 samlAuthenticationRequest.setProperties(properties);
             }
             authRequestList.add(samlAuthenticationRequest);
@@ -945,7 +918,7 @@ public class ApplicationBean {
                 Property property = new Property();
                 property.setName("oauthConsumerSecret");
                 property.setValue(oauthConsumerSecret);
-                Property[] properties = { property };
+                Property[] properties = {property};
                 opicAuthenticationRequest.setProperties(properties);
             }
             authRequestList.add(opicAuthenticationRequest);
@@ -1005,32 +978,32 @@ public class ApplicationBean {
                     }
                 }
             }
-            authStep.setLocalAuthenticatorConfigs(new LocalAuthenticatorConfig[] { localAuthenticator });
+            authStep.setLocalAuthenticatorConfigs(new LocalAuthenticatorConfig[]{localAuthenticator});
             serviceProvider.getLocalAndOutBoundAuthenticationConfig().setAuthenticationSteps(
-                    new AuthenticationStep[] { authStep });
+                    new AuthenticationStep[]{authStep});
         } else if (AUTH_TYPE_FEDERATED.equalsIgnoreCase(serviceProvider
                 .getLocalAndOutBoundAuthenticationConfig().getAuthenticationType())) {
             AuthenticationStep authStep = new AuthenticationStep();
             IdentityProvider idp = new IdentityProvider();
             idp.setIdentityProviderName(CharacterEncoder.getSafeText(request.getParameter("fed_idp")));
-            authStep.setFederatedIdentityProviders(new IdentityProvider[] { idp });
+            authStep.setFederatedIdentityProviders(new IdentityProvider[]{idp});
             serviceProvider.getLocalAndOutBoundAuthenticationConfig().setAuthenticationSteps(
-                    new AuthenticationStep[] { authStep });
+                    new AuthenticationStep[]{authStep});
         } else if (AUTH_TYPE_FLOW.equalsIgnoreCase(serviceProvider
                 .getLocalAndOutBoundAuthenticationConfig().getAuthenticationType())) {
             // already updated.
         }
-        
-		String alwaysSendAuthListOfIdPs = CharacterEncoder.getSafeText(request.getParameter("always_send_auth_list_of_idps"));
-		serviceProvider.getLocalAndOutBoundAuthenticationConfig()
-		               .setAlwaysSendBackAuthenticatedListOfIdPs(alwaysSendAuthListOfIdPs != null &&
-		                                                                 "on".equals(alwaysSendAuthListOfIdPs) ? true : false);
-        
 
-		String subjectClaimUri = CharacterEncoder.getSafeText(request.getParameter("subject_claim_uri"));
-		serviceProvider.getLocalAndOutBoundAuthenticationConfig()
-		               .setSubjectClaimUri((subjectClaimUri != null && !subjectClaimUri.isEmpty()) ? subjectClaimUri : null);
-		
+        String alwaysSendAuthListOfIdPs = CharacterEncoder.getSafeText(request.getParameter("always_send_auth_list_of_idps"));
+        serviceProvider.getLocalAndOutBoundAuthenticationConfig()
+                .setAlwaysSendBackAuthenticatedListOfIdPs(alwaysSendAuthListOfIdPs != null &&
+                        "on".equals(alwaysSendAuthListOfIdPs) ? true : false);
+
+
+        String subjectClaimUri = CharacterEncoder.getSafeText(request.getParameter("subject_claim_uri"));
+        serviceProvider.getLocalAndOutBoundAuthenticationConfig()
+                .setSubjectClaimUri((subjectClaimUri != null && !subjectClaimUri.isEmpty()) ? subjectClaimUri : null);
+
         // update application permissions.
         PermissionsAndRoleConfig permAndRoleConfig = new PermissionsAndRoleConfig();
         String[] permissions = request.getParameterValues("app_permission");
@@ -1129,7 +1102,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @return
      */
     public Map<String, String> getRequestedClaims() {
@@ -1137,7 +1109,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @param wstrustEp
      */
     public void setWstrustEp(String wstrustEp) {
@@ -1145,7 +1116,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @param passivests
      */
     public void setPassivests(String passivests) {
@@ -1153,7 +1123,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @param openid
      */
     public void setOpenid(String openid) {
@@ -1161,7 +1130,6 @@ public class ApplicationBean {
     }
 
     /**
-     * 
      * @param request
      */
     public void updateLocalSp(HttpServletRequest request) {
@@ -1196,7 +1164,6 @@ public class ApplicationBean {
                 }
 
 
-
                 if (connector != null) {
                     IdentityProvider proIdp = new IdentityProvider();
                     proIdp.setIdentityProviderName(proProvider);
@@ -1219,9 +1186,5 @@ public class ApplicationBean {
             }
         }
 
-    }
-
-    public void setOauthConsumerSecret(String oauthConsumerSecret) {
-        this.oauthConsumerSecret = oauthConsumerSecret;
     }
 }

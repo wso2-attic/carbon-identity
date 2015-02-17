@@ -18,31 +18,28 @@
  */
 package org.wso2.carbon.identity.provisioning;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.Property;
 
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 public abstract class AbstractOutboundProvisioningConnector implements Serializable {
 
     private static final long serialVersionUID = 2196864101772627178L;
-    
-    protected boolean jitProvisioningEnabled;
     private static final String PROVISIONING_IDP = "IDP";
     private static final String PROVISIONING_TENANT = "TD";
     private static final String PROVISIONING_DOMAIN = "UD";
     private static final String PROVISIONING_USER = "UN";
+    protected boolean jitProvisioningEnabled;
 
     /**
-     * 
-     * 
      * @param provisioningProperties
      * @throws IdentityProvisioningException
      */
@@ -50,7 +47,6 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
             throws IdentityProvisioningException;
 
     /**
-     * 
      * @param provisioningEntity
      * @throws IdentityProvisioningException
      */
@@ -60,16 +56,15 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
     /**
      * override only if needed - if claims are controlled by the identity provider, this will return
      * null. If it is connector specific this must return the corresponding claim dialect.
-     * 
+     *
      * @return
      * @throws IdentityProvisioningException
      */
     public String getClaimDialectUri() throws IdentityProvisioningException {
         return null;
     }
-    
+
     /**
-     * 
      * @return
      * @throws IdentityProvisioningException
      */
@@ -78,7 +73,6 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
     }
 
     /**
-     * 
      * @param attributeMap
      * @return
      */
@@ -88,7 +82,6 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
     }
 
     /**
-     * 
      * @param attributeMap
      * @return
      */
@@ -98,7 +91,6 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
     }
 
     /**
-     * 
      * @param attributeMap
      * @return
      */
@@ -115,7 +107,6 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
     }
 
     /**
-     * 
      * @param attributeMap
      * @param claimUri
      * @return
@@ -131,7 +122,7 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
 
                 if (!(IdentityProvisioningConstants.GROUP_CLAIM_URI.equals(claimUri)
                         || IdentityProvisioningConstants.PASSWORD_CLAIM_URI.equals(claimUri) || IdentityProvisioningConstants.USERNAME_CLAIM_URI
-                            .equals(claimUri))) {
+                        .equals(claimUri))) {
                     if (entry.getValue() != null && entry.getValue().get(0) != null) {
                         claimValues.put(claimUri, entry.getValue().get(0));
                     } else {
@@ -145,7 +136,6 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
     }
 
     /**
-     * 
      * @return
      */
     protected String getUserStoreDomainName() {

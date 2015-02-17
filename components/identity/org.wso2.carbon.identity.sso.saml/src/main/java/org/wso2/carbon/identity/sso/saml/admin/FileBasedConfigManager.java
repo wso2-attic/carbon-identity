@@ -43,10 +43,14 @@ public class FileBasedConfigManager {
 
     private static volatile FileBasedConfigManager instance = null;
 
-    public static FileBasedConfigManager getInstance(){
-        if(instance == null){
-            synchronized (FileBasedConfigManager.class){
-                if(instance == null){
+    private FileBasedConfigManager() {
+
+    }
+
+    public static FileBasedConfigManager getInstance() {
+        if (instance == null) {
+            synchronized (FileBasedConfigManager.class) {
+                if (instance == null) {
                     instance = new FileBasedConfigManager();
                 }
             }
@@ -54,19 +58,15 @@ public class FileBasedConfigManager {
         return instance;
     }
 
-    private FileBasedConfigManager(){
-
-    }
-
     /**
      * Read the service providers from file, create SAMLSSOServiceProviderDO beans and add them
      * to the service providers map.
      */
-    public void addServiceProviders(){
+    public void addServiceProviders() {
         SAMLSSOServiceProviderDO[] serviceProviders = readServiceProvidersFromFile();
-        if(serviceProviders != null){
+        if (serviceProviders != null) {
             SSOServiceProviderConfigManager configManager = SSOServiceProviderConfigManager.getInstance();
-            for(SAMLSSOServiceProviderDO spDO : serviceProviders){
+            for (SAMLSSOServiceProviderDO spDO : serviceProviders) {
                 configManager.addServiceProvider(spDO.getIssuer(), spDO);
                 log.info("A SSO Service Provider is registered for : " + spDO.getIssuer());
             }
@@ -76,16 +76,17 @@ public class FileBasedConfigManager {
     /**
      * Read the SP info from the sso-idp-config.xml and create an array of SAMLSSOServiceProviderDO
      * beans
+     *
      * @return An array of SAMLSSOServiceProviderDO beans
      */
-    private SAMLSSOServiceProviderDO[] readServiceProvidersFromFile(){
+    private SAMLSSOServiceProviderDO[] readServiceProvidersFromFile() {
         Document document = null;
         try {
             String configFilePath = CarbonUtils.getCarbonSecurityConfigDirPath() + File.separator + "sso-idp-config.xml";
 
-            if(!isFileExisting(configFilePath)){
+            if (!isFileExisting(configFilePath)) {
                 log.warn("sso-idp-config.xml does not exist in the 'conf' directory. The system may" +
-                         "depend on the service providers added through the UI.");
+                        "depend on the service providers added through the UI.");
                 return null;
             }
 
@@ -111,35 +112,35 @@ public class FileBasedConfigManager {
             spDO.setIssuer(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ISSUER));
             spDO.setAssertionConsumerUrl(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ASSERTION_CONSUMER_URL));
             spDO.setLoginPageURL(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.CUSTOM_LOGIN_PAGE));
-            if((getTextValue(elem , SAMLSSOConstants.FileBasedSPConfig.USE_FULLY_QUALIFY_USER_NAME)) != null){
-               fullQualifyUserName = Boolean.valueOf(getTextValue(elem , SAMLSSOConstants.FileBasedSPConfig.USE_FULLY_QUALIFY_USER_NAME));
+            if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.USE_FULLY_QUALIFY_USER_NAME)) != null) {
+                fullQualifyUserName = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.USE_FULLY_QUALIFY_USER_NAME));
             }
-            if((getTextValue(elem , SAMLSSOConstants.FileBasedSPConfig.SINGLE_LOGOUT)) != null){
-                singleLogout = Boolean.valueOf(getTextValue(elem , SAMLSSOConstants.FileBasedSPConfig.SINGLE_LOGOUT));
+            if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SINGLE_LOGOUT)) != null) {
+                singleLogout = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SINGLE_LOGOUT));
                 spDO.setLogoutURL(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.LOGOUT_URL));
             }
-            if((getTextValue(elem , SAMLSSOConstants.FileBasedSPConfig.SIGN_ASSERTION)) != null){
-                signAssertion = Boolean.valueOf(getTextValue(elem , SAMLSSOConstants.FileBasedSPConfig.SIGN_ASSERTION));
+            if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SIGN_ASSERTION)) != null) {
+                signAssertion = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SIGN_ASSERTION));
             }
-            if((getTextValue(elem , SAMLSSOConstants.FileBasedSPConfig.ENCRYPT_ASSERTION)) != null){
-                encryptAssertion = Boolean.valueOf(getTextValue(elem , SAMLSSOConstants.FileBasedSPConfig.ENCRYPT_ASSERTION));
+            if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ENCRYPT_ASSERTION)) != null) {
+                encryptAssertion = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ENCRYPT_ASSERTION));
             }
-            if(Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SIG_VALIDATION))){
-               spDO.setCertAlias(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.CERT_ALIAS));
+            if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SIG_VALIDATION))) {
+                spDO.setCertAlias(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.CERT_ALIAS));
             }
-            if(Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ATTRIBUTE_PROFILE))){
-                if(elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.CLAIMS) != null){
-               spDO.setRequestedClaims(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.CLAIM));
+            if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ATTRIBUTE_PROFILE))) {
+                if (elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.CLAIMS) != null) {
+                    spDO.setRequestedClaims(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.CLAIM));
                 }
                 spDO.setEnableAttributesByDefault(Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.INCLUDE_ATTRIBUTE)));
             }
-            if(Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.AUDIENCE_RESTRICTION))){
-                if(elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.AUDIENCE_LIST) != null){
-                 spDO.setRequestedAudiences(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.AUDIENCE));
+            if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.AUDIENCE_RESTRICTION))) {
+                if (elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.AUDIENCE_LIST) != null) {
+                    spDO.setRequestedAudiences(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.AUDIENCE));
                 }
             }
-            if(Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.RECIPIENT_VALIDATION))){
-                if(elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.RECIPIENT_LIST) != null){
+            if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.RECIPIENT_VALIDATION))) {
+                if (elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.RECIPIENT_LIST) != null) {
                     spDO.setRequestedRecipients(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.RECIPIENT));
                 }
             }
@@ -158,24 +159,25 @@ public class FileBasedConfigManager {
 
     /**
      * Read the element value for the given element
-     * @param element   Parent element
-     * @param tagName   name of the child element
+     *
+     * @param element Parent element
+     * @param tagName name of the child element
      * @return value of the element
      */
     private String getTextValue(Element element, String tagName) {
-		String textVal = null;
-		NodeList nl = element.getElementsByTagName(tagName);
-		if(nl != null && nl.getLength() > 0) {
-			Element el = (Element)nl.item(0);
-            if(el != null){
+        String textVal = null;
+        NodeList nl = element.getElementsByTagName(tagName);
+        if (nl != null && nl.getLength() > 0) {
+            Element el = (Element) nl.item(0);
+            if (el != null) {
                 String text = el.getTextContent();
-                if(text != null && text.length() > 0){
+                if (text != null && text.length() > 0) {
                     textVal = text;
                 }
             }
-		}
-		return textVal;
-	}
+        }
+        return textVal;
+    }
 
     private ArrayList<String> getTextValueList(Element element, String tagName) {
         ArrayList<String> textValList = new ArrayList<String>();
@@ -183,9 +185,9 @@ public class FileBasedConfigManager {
         if (nl != null && nl.getLength() > 0) {
             for (int i = 0; i < nl.getLength(); i++) {
                 Element el = (Element) nl.item(i);
-                if(el != null){
+                if (el != null) {
                     String text = el.getTextContent();
-                    if(text != null && text.length() > 0){
+                    if (text != null && text.length() > 0) {
                         textValList.add(text);
                     }
                 }
@@ -196,12 +198,13 @@ public class FileBasedConfigManager {
 
     /**
      * Check whether a given file exists in the system
+     *
      * @param path file path
      * @return true, if file exists. False otherwise
      */
-    private boolean isFileExisting(String path){
+    private boolean isFileExisting(String path) {
         File file = new File(path);
-        if(file.exists()){
+        if (file.exists()) {
             return true;
         }
         return false;

@@ -19,13 +19,13 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.dto.UserRecoveryDataDO;
 
 /**
- *  TODO add java comments
+ * TODO add java comments
  */
 public interface UserRecoveryDataStore {
 
-    public static  final String EXPIRE_TIME = "expireTime";
-    public static  final String SECRET_KEY = "secretKey";
-    public static  final String USER_ID = "userId";
+    public static final String EXPIRE_TIME = "expireTime";
+    public static final String SECRET_KEY = "secretKey";
+    public static final String USER_ID = "userId";
     public static final String TENANT_ID = "tenantId";
 
     public void store(UserRecoveryDataDO recoveryDataDO) throws IdentityException;

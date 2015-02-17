@@ -25,29 +25,36 @@ public class OpenIDRememberMeDO {
     private String openID;
     private String token;
     private Timestamp timestamp;
-    
+
     public String getUserName() {
         return userName;
     }
+
     public void setUserName(String userName) {
         this.userName = userName;
     }
+
     public String getOpenID() {
         return openID;
     }
+
     public void setOpenID(String openID) {
         this.openID = openID;
     }
+
     public String getToken() {
         return token;
     }
+
     public void setToken(String token) {
         this.token = token;
     }
-	public Timestamp getTimestamp() {
-	    return timestamp;
+
+    public Timestamp getTimestamp() {
+        return timestamp;
     }
-	public void setTimestamp(Timestamp timestamp) {
-	    this.timestamp = timestamp;
+
+    public void setTimestamp(Timestamp timestamp) {
+        this.timestamp = timestamp;
     }
 }

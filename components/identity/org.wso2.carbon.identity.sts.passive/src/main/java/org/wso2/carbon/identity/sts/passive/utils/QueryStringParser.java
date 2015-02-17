@@ -17,9 +17,8 @@
 */
 package org.wso2.carbon.identity.sts.passive.utils;
 
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 public class QueryStringParser {
 

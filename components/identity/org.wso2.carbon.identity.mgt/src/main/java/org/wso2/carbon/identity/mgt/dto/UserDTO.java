@@ -1,19 +1,19 @@
 /**
- * 
+ *
  */
 package org.wso2.carbon.identity.mgt.dto;
 
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 /**
- * 
+ *
  */
 public class UserDTO {
-    
+
     private String userId;
-    
+
     private String tenantDomain;
-    
+
     private int tenantId;
 
     public UserDTO(String userName) {

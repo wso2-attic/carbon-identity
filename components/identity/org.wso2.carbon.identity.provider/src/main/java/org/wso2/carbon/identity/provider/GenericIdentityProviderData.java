@@ -44,26 +44,23 @@ import java.util.*;
 
 public class GenericIdentityProviderData {
 
-    private static Log log = LogFactory.getLog(GenericIdentityProviderData.class);
     public static final String USERMAN_SERVICE = "UserManServiceURL";
     public static final String USER_CLASS = "UserClass";
-
+    private static Log log = LogFactory.getLog(GenericIdentityProviderData.class);
+    private static KeyStore cacerts;
     public String userClass = null;
-
     protected String cardID = null;
     protected Map<String, RequestedClaimData> requestedClaims = new HashMap<String, RequestedClaimData>();
     protected Map<String, Claim> supportedClaims = new HashMap<String, Claim>();
     protected String displayTokenLang = null;
     protected int authMechanism = -1;
-
     protected X509Certificate rpCert;
-    private static KeyStore cacerts;
     protected String userIdentifier = null;
     protected String requiredTokenType = null;
 
     /**
      * Populate CardSpace specific meta-data.
-     * 
+     *
      * @param data WS-Trust information in the issue request.
      * @throws IdentityProviderException
      * @throws ClassNotFoundException
@@ -85,14 +82,6 @@ public class GenericIdentityProviderData {
         extracAndValidatetRPCert(data);
     }
 
-    /**
-     * 
-     * @param requestedClaims
-     */
-    public void setRequestedClaims(Map<String, RequestedClaimData> requestedClaims) {
-        this.requestedClaims = requestedClaims;
-    }
-
     public String getRequiredTokenType() {
         return requiredTokenType;
     }
@@ -109,7 +98,7 @@ public class GenericIdentityProviderData {
      * parameter can be omitted if the STS and the Web site front-end have a mutual understanding
      * about what token type will be provided, or if the Web site is willing to accept any token
      * type.
-     * 
+     *
      * @return Default Token Type
      */
     public String getDefautTokenType() {
@@ -139,8 +128,8 @@ public class GenericIdentityProviderData {
     public String getTenantDomain() throws IdentityProviderException {
         return null;
     }
+
     /**
-     * 
      * @throws IdentityProviderException
      */
     protected void loadClaims() throws IdentityProviderException {
@@ -153,12 +142,12 @@ public class GenericIdentityProviderData {
 
         try {
             claimManager = IdentityClaimManager.getInstance();
-            claims = claimManager.getAllSupportedClaims(IdentityConstants.INFOCARD_DIALECT,IdentityTenantUtil
-                            .getRealm(null, userIdentifier));
+            claims = claimManager.getAllSupportedClaims(IdentityConstants.INFOCARD_DIALECT, IdentityTenantUtil
+                    .getRealm(null, userIdentifier));
             for (int i = 0; i < claims.length; i++) {
                 Claim temp = claims[i];
                 supportedClaims.put(temp.getClaimUri(), temp);
-            }            
+            }
             Claim tenant = new Claim();
             tenant.setClaimUri(IdentityConstants.CLAIM_TENANT_DOMAIN);
             tenant.setDescription("Tenant");
@@ -173,7 +162,6 @@ public class GenericIdentityProviderData {
     }
 
     /**
-     * 
      * @param rahasData
      * @param claims
      * @throws IdentityProviderException
@@ -221,7 +209,6 @@ public class GenericIdentityProviderData {
     }
 
     /**
-     * 
      * @param rst
      * @throws IdentityProviderException
      */
@@ -230,7 +217,6 @@ public class GenericIdentityProviderData {
     }
 
     /**
-     * 
      * @param data
      * @throws IdentityProviderException
      */
@@ -240,17 +226,16 @@ public class GenericIdentityProviderData {
 
     /**
      * Extract the relying party certificate and validate it.
-     * 
+     *
      * @param data Information in the RST extracted by Rahas.
      */
     protected void extracAndValidatetRPCert(RahasData data) throws IdentityProviderException {
-    	
+
     }
-     
 
     /**
      * Obtain the user identifier depending on the authentication mechanism used.
-     * 
+     *
      * @param rahasData
      */
     protected void processUserIdentifier(RahasData rahasData) throws IdentityProviderException {
@@ -261,7 +246,6 @@ public class GenericIdentityProviderData {
     }
 
     /**
-     * 
      * @param rahasData
      * @throws IdentityProviderException
      */
@@ -318,9 +302,9 @@ public class GenericIdentityProviderData {
 
     /**
      * Validate the given ds:KeyInfo element against the stored ds:KeyInfo element.
-     * 
+     *
      * @param issuerInfo Stored ds:KeyInfo element as a <code>java.lang.String</code>.
-     * @param keyInfo The incoming ds:KeyInfo element as a <code>org.w3c.dom.Element</code>.
+     * @param keyInfo    The incoming ds:KeyInfo element as a <code>org.w3c.dom.Element</code>.
      * @return true if the information matches, otherwise false.
      */
     protected boolean validateKeyInfo(String issuerInfo, Element keyInfo)
@@ -337,12 +321,12 @@ public class GenericIdentityProviderData {
             OMElement keyValueElem = elem.getFirstElement();
             if (keyValueElem != null
                     && keyValueElem.getQName().equals(
-                            new QName(WSConstants.SIG_NS, Constants._TAG_KEYVALUE))) {
+                    new QName(WSConstants.SIG_NS, Constants._TAG_KEYVALUE))) {
                 // KeyValue structure : expect an RSAKeyValue
                 OMElement rsaKeyValueElem = keyValueElem.getFirstElement();
                 if (rsaKeyValueElem != null
                         && rsaKeyValueElem.getQName().equals(
-                                new QName(WSConstants.SIG_NS, Constants._TAG_RSAKEYVALUE))) {
+                        new QName(WSConstants.SIG_NS, Constants._TAG_RSAKEYVALUE))) {
                     String modulus = rsaKeyValueElem.getFirstChildWithName(
                             new QName(WSConstants.SIG_NS, Constants._TAG_MODULUS)).getText().trim();
                     String exponent = rsaKeyValueElem.getFirstChildWithName(
@@ -357,7 +341,7 @@ public class GenericIdentityProviderData {
                     OMElement receivedKeyValueElem = receivedKeyInfoElem.getFirstElement();
                     if (receivedKeyValueElem != null
                             && receivedKeyValueElem.getQName().equals(
-                                    new QName(WSConstants.SIG_NS, Constants._TAG_KEYVALUE))) {
+                            new QName(WSConstants.SIG_NS, Constants._TAG_KEYVALUE))) {
                         OMElement receivedRsaKeyValueElem = receivedKeyValueElem
                                 .getFirstChildWithName(new QName(WSConstants.SIG_NS,
                                         Constants._TAG_RSAKEYVALUE));
@@ -406,6 +390,13 @@ public class GenericIdentityProviderData {
 
     public Map<String, RequestedClaimData> getRequestedClaims() {
         return requestedClaims;
+    }
+
+    /**
+     * @param requestedClaims
+     */
+    public void setRequestedClaims(Map<String, RequestedClaimData> requestedClaims) {
+        this.requestedClaims = requestedClaims;
     }
 
     protected RequestedClaimData getRequestedClaim() {

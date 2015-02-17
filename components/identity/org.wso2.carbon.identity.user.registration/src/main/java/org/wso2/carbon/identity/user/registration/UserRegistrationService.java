@@ -38,11 +38,7 @@ import org.wso2.carbon.identity.user.registration.dto.UserFieldDTO;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
-import org.wso2.carbon.user.core.Permission;
-import org.wso2.carbon.user.core.UserCoreConstants;
-import org.wso2.carbon.user.core.UserRealm;
-import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.*;
 import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
@@ -55,57 +51,53 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class UserRegistrationService {
 
     private static Log log = LogFactory.getLog(UserRegistrationService.class);
 
-	/**
-	 * This service method will return back all available password validation regular expressions
-	 * against the corresponding domain names.
-	 * 
-	 * @return
-	 * @throws IdentityException
-	 */
-	public PasswordRegExDTO[] getPasswordRegularExpressions() throws IdentityException {
-		UserRealm realm = null;
-		realm = IdentityTenantUtil.getRealm(null, null);
-		List<PasswordRegExDTO> passwordRegExList = new ArrayList<PasswordRegExDTO>();
-		PasswordRegExDTO passwordRegEx;
+    /**
+     * This service method will return back all available password validation regular expressions
+     * against the corresponding domain names.
+     *
+     * @return
+     * @throws IdentityException
+     */
+    public PasswordRegExDTO[] getPasswordRegularExpressions() throws IdentityException {
+        UserRealm realm = null;
+        realm = IdentityTenantUtil.getRealm(null, null);
+        List<PasswordRegExDTO> passwordRegExList = new ArrayList<PasswordRegExDTO>();
+        PasswordRegExDTO passwordRegEx;
 
-		try {
+        try {
 
-			UserStoreManager manager = realm.getUserStoreManager();
-			String domainName;
-			String regEx;
+            UserStoreManager manager = realm.getUserStoreManager();
+            String domainName;
+            String regEx;
 
-			while (manager != null) {
-				domainName = manager.getRealmConfiguration().getUserStoreProperty(
-						UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
-				regEx = manager.getRealmConfiguration().getUserStoreProperty(
-						UserCoreConstants.RealmConfig.PROPERTY_JS_REG_EX);
-				if (regEx != null && regEx.length() > 0) {
-					passwordRegEx = new PasswordRegExDTO();
-					passwordRegEx.setDomainName(domainName);
-					passwordRegEx.setRegEx(regEx);
-					passwordRegExList.add(passwordRegEx);
-				}
-				manager = manager.getSecondaryUserStoreManager();
-			}
+            while (manager != null) {
+                domainName = manager.getRealmConfiguration().getUserStoreProperty(
+                        UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+                regEx = manager.getRealmConfiguration().getUserStoreProperty(
+                        UserCoreConstants.RealmConfig.PROPERTY_JS_REG_EX);
+                if (regEx != null && regEx.length() > 0) {
+                    passwordRegEx = new PasswordRegExDTO();
+                    passwordRegEx.setDomainName(domainName);
+                    passwordRegEx.setRegEx(regEx);
+                    passwordRegExList.add(passwordRegEx);
+                }
+                manager = manager.getSecondaryUserStoreManager();
+            }
 
-		} catch (UserStoreException e) {
-			log.error(e);
-			throw new IdentityException(
-					"Error occured while loading password validation regular expressions.");
-		}
+        } catch (UserStoreException e) {
+            log.error(e);
+            throw new IdentityException(
+                    "Error occured while loading password validation regular expressions.");
+        }
 
-		return passwordRegExList.toArray(new PasswordRegExDTO[passwordRegExList.size()]);
-	}
+        return passwordRegExList.toArray(new PasswordRegExDTO[passwordRegExList.size()]);
+    }
 
     public UserFieldDTO[] readUserFieldsForUserRegistration(String dialect)
             throws IdentityException {
@@ -127,14 +119,14 @@ public class UserRegistrationService {
         for (Claim claim : claims) {
             if (claim.getDisplayTag() != null
                     && !IdentityConstants.PPID_DISPLAY_VALUE.equals(claim.getDisplayTag())) {
-                if(UserCoreConstants.ClaimTypeURIs.ACCOUNT_STATUS.equals(claim.getClaimUri())){
+                if (UserCoreConstants.ClaimTypeURIs.ACCOUNT_STATUS.equals(claim.getClaimUri())) {
                     continue;
                 }
-				if (!claim.isReadOnly()) {
-					claimList.add(getUserFieldDTO(claim.getClaimUri(),
-							claim.getDisplayTag(), claim.isRequired(),
-							claim.getDisplayOrder(), claim.getRegEx()));
-				}
+                if (!claim.isReadOnly()) {
+                    claimList.add(getUserFieldDTO(claim.getClaimUri(),
+                            claim.getDisplayTag(), claim.isRequired(),
+                            claim.getDisplayOrder(), claim.getRegEx()));
+                }
             }
         }
 
@@ -193,7 +185,7 @@ public class UserRegistrationService {
     }
 
     private UserFieldDTO getUserFieldDTO(String claimUri, String displayName, boolean isRequired,
-            int displayOrder, String regex) {
+                                         int displayOrder, String regex) {
         UserFieldDTO fieldDTO = null;
         fieldDTO = new UserFieldDTO();
         fieldDTO.setClaimUri(claimUri);
@@ -205,7 +197,7 @@ public class UserRegistrationService {
     }
 
     private void addUser(String userName, String password, Map<String, String> claimList,
-            String profileName, UserRealm realm) throws IdentityException {
+                         String profileName, UserRealm realm) throws IdentityException {
         UserStoreManager admin = null;
         Permission permission = null;
         try {
@@ -240,10 +232,10 @@ public class UserRegistrationService {
                 // check is a user role is specified as a claim by the client, if so add it to the roles list
                 if (tenantConfig != null) {
                     roleNamesArr.add(tenantConfig.getSignUpDomain().toUpperCase() +
-                                     UserCoreConstants.DOMAIN_SEPARATOR + claimList.get(SelfRegistrationConstants.SIGN_UP_ROLE_CLAIM_URI));
+                            UserCoreConstants.DOMAIN_SEPARATOR + claimList.get(SelfRegistrationConstants.SIGN_UP_ROLE_CLAIM_URI));
                 } else {
                     roleNamesArr.add(UserCoreConstants.INTERNAL_DOMAIN +
-                                     UserCoreConstants.DOMAIN_SEPARATOR + claimList.get(SelfRegistrationConstants.SIGN_UP_ROLE_CLAIM_URI));
+                            UserCoreConstants.DOMAIN_SEPARATOR + claimList.get(SelfRegistrationConstants.SIGN_UP_ROLE_CLAIM_URI));
                 }
             }
             String[] identityRoleNames = roleNamesArr.toArray(new String[roleNamesArr.size()]);
@@ -268,27 +260,27 @@ public class UserRegistrationService {
             throw new IdentityException("Error occurred while adding user : " + userName, e);
         }
     }
-    
-	private boolean isUserNameWithAllowedDomainName(String userName, UserRealm realm)
-			throws IdentityException {
-		int index;
-		index = userName.indexOf("/");
 
-		// Check whether we have a secondary UserStoreManager setup.
-		if (index > 0) {
-			// Using the short-circuit. User name comes with the domain name.
-			try {
-				return !realm.getRealmConfiguration().isRestrictedDomainForSlefSignUp(
-						userName.substring(0, index));
-			} catch (UserStoreException e) {
-				throw new IdentityException(e.getMessage(), e);
-			}
-		}
+    private boolean isUserNameWithAllowedDomainName(String userName, UserRealm realm)
+            throws IdentityException {
+        int index;
+        index = userName.indexOf("/");
 
-		return true;
-	}
+        // Check whether we have a secondary UserStoreManager setup.
+        if (index > 0) {
+            // Using the short-circuit. User name comes with the domain name.
+            try {
+                return !realm.getRealmConfiguration().isRestrictedDomainForSlefSignUp(
+                        userName.substring(0, index));
+            } catch (UserStoreException e) {
+                throw new IdentityException(e.getMessage(), e);
+            }
+        }
 
-    private List<String> getRoleName(String userName, TenantRegistrationConfig tenantConfig){
+        return true;
+    }
+
+    private List<String> getRoleName(String userName, TenantRegistrationConfig tenantConfig) {
         // check for tenant config, if available return roles specified in tenant config
         if (tenantConfig != null) {
             ArrayList<String> roleNamesArr = new ArrayList<String>();
@@ -312,15 +304,15 @@ public class UserRegistrationService {
         boolean externalRole = Boolean.parseBoolean(IdentityUtil.getProperty(SelfRegistrationConstants.ROLE_EXTERNAL_PROPERTY));
 
         String domainName = UserCoreConstants.INTERNAL_DOMAIN;
-        if(externalRole){
+        if (externalRole) {
             domainName = UserCoreUtil.extractDomainFromName(userName);
         }
 
-        if(roleName == null || roleName.trim().length() == 0){
+        if (roleName == null || roleName.trim().length() == 0) {
             roleName = IdentityConstants.IDENTITY_DEFAULT_ROLE;
         }
 
-        if(domainName != null && domainName.trim().length() > 0){
+        if (domainName != null && domainName.trim().length() > 0) {
             //roleName = UserCoreUtil.addDomainToName(roleName, domainName);
             roleName = domainName.toUpperCase() + CarbonConstants.DOMAIN_SEPARATOR + roleName;
         }

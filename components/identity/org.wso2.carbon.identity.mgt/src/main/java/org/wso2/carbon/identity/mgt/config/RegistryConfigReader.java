@@ -17,10 +17,6 @@
  */
 package org.wso2.carbon.identity.mgt.config;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
 import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -28,38 +24,42 @@ import org.wso2.carbon.registry.core.exceptions.ResourceNotFoundException;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 public class RegistryConfigReader implements ConfigReader {
 
-	@Override
-	public Properties read(int tenantId, String resourcePath) {
+    @Override
+    public Properties read(int tenantId, String resourcePath) {
 
-		Resource resource = null;
-		Properties readerProps = null;
-		RegistryService registry = IdentityMgtServiceComponent
-				.getRegistryService();
+        Resource resource = null;
+        Properties readerProps = null;
+        RegistryService registry = IdentityMgtServiceComponent
+                .getRegistryService();
 
-		try {
-			UserRegistry userReg = registry.getConfigSystemRegistry(tenantId);
-			resource = userReg.get(resourcePath);
+        try {
+            UserRegistry userReg = registry.getConfigSystemRegistry(tenantId);
+            resource = userReg.get(resourcePath);
 
-			Properties props = resource.getProperties();
-			readerProps = new Properties();
-			
-			for (Map.Entry<Object, Object> entry : props.entrySet()) {
-				String key = (String) entry.getKey();
-				List<String> listValue = (List<String>) entry.getValue();
-				String value = listValue.get(0);
-				readerProps.put(key, value);
-			}
+            Properties props = resource.getProperties();
+            readerProps = new Properties();
 
-		} catch (ResourceNotFoundException re) {
-			readerProps = new Properties();
+            for (Map.Entry<Object, Object> entry : props.entrySet()) {
+                String key = (String) entry.getKey();
+                List<String> listValue = (List<String>) entry.getValue();
+                String value = listValue.get(0);
+                readerProps.put(key, value);
+            }
 
-		} catch (RegistryException rnfe) {
-			rnfe.printStackTrace();
-		}
+        } catch (ResourceNotFoundException re) {
+            readerProps = new Properties();
 
-		return readerProps;
-	}
+        } catch (RegistryException rnfe) {
+            rnfe.printStackTrace();
+        }
+
+        return readerProps;
+    }
 
 }

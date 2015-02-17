@@ -36,7 +36,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -174,7 +173,7 @@ public class AuthenticationEndpointTenantActivityListener implements TenantMgtLi
 
             StringBuilder paramsBuilder = new StringBuilder();
             paramsBuilder.append("?").append(TENANT_LIST_QUERY_PARAM).append("=")
-                         .append(tenantDataReceiverUrlBuilder.toString());
+                    .append(tenantDataReceiverUrlBuilder.toString());
 
             InputStream inputStream = null;
             for (String tenantDataReceiveURL : tenantDataReceiveURLs) {
@@ -224,11 +223,12 @@ public class AuthenticationEndpointTenantActivityListener implements TenantMgtLi
     }
 
     @Override
-    public void onPreDelete(int tenantId) throws StratosException{
+    public void onPreDelete(int tenantId) throws StratosException {
 
     }
 
-    @Override public void onTenantDelete(int tenantId) {
+    @Override
+    public void onTenantDelete(int tenantId) {
 
     }
 

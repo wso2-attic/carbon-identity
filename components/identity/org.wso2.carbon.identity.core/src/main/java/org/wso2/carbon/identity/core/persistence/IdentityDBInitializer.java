@@ -32,14 +32,94 @@ import java.util.StringTokenizer;
  */
 public class IdentityDBInitializer {
 
-    private static Log log = LogFactory.getLog(IdentityDBInitializer.class);
     private static final String DB_CHECK_SQL = "select * from IDN_BASE_TABLE";
+    private static Log log = LogFactory.getLog(IdentityDBInitializer.class);
+    Statement statement;
     private DataSource dataSource;
     private String delimiter = ";";
-    Statement statement;
 
     IdentityDBInitializer(DataSource dataSource) {
         this.dataSource = dataSource;
+    }
+
+    public static String getDatabaseType(Connection conn) throws Exception {
+        String type = null;
+        try {
+            if (conn != null && (!conn.isClosed())) {
+                DatabaseMetaData metaData = conn.getMetaData();
+                String databaseProductName = metaData.getDatabaseProductName();
+                if (databaseProductName.matches("(?i).*hsql.*")) {
+                    type = "hsql";
+                } else if (databaseProductName.matches("(?i).*derby.*")) {
+                    type = "derby";
+                } else if (databaseProductName.matches("(?i).*mysql.*")) {
+                    type = "mysql";
+                } else if (databaseProductName.matches("(?i).*oracle.*")) {
+                    type = "oracle";
+                } else if (databaseProductName.matches("(?i).*microsoft.*")) {
+                    type = "mssql";
+                } else if (databaseProductName.matches("(?i).*h2.*")) {
+                    type = "h2";
+                } else if (databaseProductName.matches("(?i).*db2.*")) {
+                    type = "db2";
+                } else if (databaseProductName.matches("(?i).*postgresql.*")) {
+                    type = "postgresql";
+                } else if (databaseProductName.matches("(?i).*openedge.*")) {
+                    type = "openedge";
+                } else if (databaseProductName.matches("(?i).*informix.*")) {
+                    type = "informix";
+                } else {
+                    String msg = "Unsupported database: " + databaseProductName +
+                            ". Database will not be created automatically by the WSO2 Identity Server. " +
+                            "Please create the database using appropriate database scripts for " +
+                            "the database.";
+                    throw new Exception(msg);
+                }
+            }
+        } catch (SQLException e) {
+            String msg = "Failed to create identity database." + e.getMessage();
+            log.fatal(msg, e);
+            throw new Exception(msg, e);
+        }
+        return type;
+    }
+
+    /**
+     * Checks that a string buffer ends up with a given string. It may sound
+     * trivial with the existing
+     * JDK API but the various implementation among JDKs can make those
+     * methods extremely resource intensive
+     * and perform poorly due to massive memory allocation and copying. See
+     *
+     * @param buffer the buffer to perform the check on
+     * @param suffix the suffix
+     * @return <code>true</code> if the character sequence represented by the
+     * argument is a suffix of the character sequence represented by
+     * the StringBuffer object; <code>false</code> otherwise. Note that the
+     * result will be <code>true</code> if the argument is the
+     * empty string.
+     */
+    public static boolean checkStringBufferEndsWith(StringBuffer buffer, String suffix) {
+        if (suffix.length() > buffer.length()) {
+            return false;
+        }
+        // this loop is done on purpose to avoid memory allocation performance
+        // problems on various JDKs
+        // StringBuffer.lastIndexOf() was introduced in jdk 1.4 and
+        // implementation is ok though does allocation/copying
+        // StringBuffer.toString().endsWith() does massive memory
+        // allocation/copying on JDK 1.5
+        // See http://issues.apache.org/bugzilla/show_bug.cgi?id=37169
+        int endIndex = suffix.length() - 1;
+        int bufferIndex = buffer.length() - 1;
+        while (endIndex >= 0) {
+            if (buffer.charAt(bufferIndex) != suffix.charAt(endIndex)) {
+                return false;
+            }
+            bufferIndex--;
+            endIndex--;
+        }
+        return true;
     }
 
     void createIdentityDatabase() throws Exception {
@@ -111,7 +191,6 @@ public class IdentityDBInitializer {
 
     }
 
-
     private void executeSQLScript() throws Exception {
         String databaseType = IdentityDBInitializer.getDatabaseType(dataSource.getConnection());
         boolean keepFormat = false;
@@ -178,48 +257,6 @@ public class IdentityDBInitializer {
         }
     }
 
-    public static String getDatabaseType(Connection conn) throws Exception {
-        String type = null;
-        try {
-            if (conn != null && (!conn.isClosed())) {
-                DatabaseMetaData metaData = conn.getMetaData();
-                String databaseProductName = metaData.getDatabaseProductName();
-                if (databaseProductName.matches("(?i).*hsql.*")) {
-                    type = "hsql";
-                } else if (databaseProductName.matches("(?i).*derby.*")) {
-                    type = "derby";
-                } else if (databaseProductName.matches("(?i).*mysql.*")) {
-                    type = "mysql";
-                } else if (databaseProductName.matches("(?i).*oracle.*")) {
-                    type = "oracle";
-                } else if (databaseProductName.matches("(?i).*microsoft.*")) {
-                    type = "mssql";
-                } else if (databaseProductName.matches("(?i).*h2.*")) {
-                    type = "h2";
-                } else if (databaseProductName.matches("(?i).*db2.*")) {
-                    type = "db2";
-                } else if (databaseProductName.matches("(?i).*postgresql.*")) {
-                    type = "postgresql";
-                } else if (databaseProductName.matches("(?i).*openedge.*")) {
-                    type = "openedge";
-                } else if (databaseProductName.matches("(?i).*informix.*")) {
-                    type = "informix";
-                } else {
-                    String msg = "Unsupported database: " + databaseProductName +
-                            ". Database will not be created automatically by the WSO2 Identity Server. " +
-                            "Please create the database using appropriate database scripts for " +
-                            "the database.";
-                    throw new Exception(msg);
-                }
-            }
-        } catch (SQLException e) {
-            String msg = "Failed to create identity database." + e.getMessage();
-            log.fatal(msg, e);
-            throw new Exception(msg, e);
-        }
-        return type;
-    }
-
     protected String getDbScriptLocation(String databaseType) {
         String scriptName = databaseType + ".sql";
         if (log.isDebugEnabled()) {
@@ -228,44 +265,6 @@ public class IdentityDBInitializer {
         String carbonHome = System.getProperty("carbon.home");
         return carbonHome +
                 "/dbscripts/identity/" + scriptName;
-    }
-
-    /**
-     * Checks that a string buffer ends up with a given string. It may sound
-     * trivial with the existing
-     * JDK API but the various implementation among JDKs can make those
-     * methods extremely resource intensive
-     * and perform poorly due to massive memory allocation and copying. See
-     *
-     * @param buffer the buffer to perform the check on
-     * @param suffix the suffix
-     * @return <code>true</code> if the character sequence represented by the
-     *         argument is a suffix of the character sequence represented by
-     *         the StringBuffer object; <code>false</code> otherwise. Note that the
-     *         result will be <code>true</code> if the argument is the
-     *         empty string.
-     */
-    public static boolean checkStringBufferEndsWith(StringBuffer buffer, String suffix) {
-        if (suffix.length() > buffer.length()) {
-            return false;
-        }
-        // this loop is done on purpose to avoid memory allocation performance
-        // problems on various JDKs
-        // StringBuffer.lastIndexOf() was introduced in jdk 1.4 and
-        // implementation is ok though does allocation/copying
-        // StringBuffer.toString().endsWith() does massive memory
-        // allocation/copying on JDK 1.5
-        // See http://issues.apache.org/bugzilla/show_bug.cgi?id=37169
-        int endIndex = suffix.length() - 1;
-        int bufferIndex = buffer.length() - 1;
-        while (endIndex >= 0) {
-            if (buffer.charAt(bufferIndex) != suffix.charAt(endIndex)) {
-                return false;
-            }
-            bufferIndex--;
-            endIndex--;
-        }
-        return true;
     }
 
     /**
@@ -282,7 +281,7 @@ public class IdentityDBInitializer {
 
         ResultSet resultSet = null;
         Connection conn = null;
-        
+
         try {
             if (log.isDebugEnabled()) {
                 log.debug("SQL : " + sql);
@@ -335,11 +334,11 @@ public class IdentityDBInitializer {
             }
             if (conn != null) {
                 try {
-                	conn.close();
+                    conn.close();
                 } catch (SQLException e) {
                     log.error("Error occurred while closing sql connection.", e);
                 }
-            }   
+            }
         }
     }
 

@@ -17,28 +17,6 @@
 */
 package org.wso2.carbon.identity.sts.passive.ui;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
-import java.util.*;
-import java.util.Map.Entry;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,6 +25,7 @@ import org.wso2.carbon.identity.application.authentication.framework.cache.Authe
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheKey;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
@@ -61,7 +40,21 @@ import org.wso2.carbon.identity.sts.passive.ui.client.IdentityPassiveSTSClient;
 import org.wso2.carbon.identity.sts.passive.ui.dto.SessionDTO;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.ui.CarbonUIUtil;
-import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
+
+import javax.net.ssl.*;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class PassiveSTS extends HttpServlet {
 
@@ -73,19 +66,19 @@ public class PassiveSTS extends HttpServlet {
     private static final long serialVersionUID = 1927253892844132565L;
 
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
-                                                                                  IOException {
+            IOException {
 
         if (req.getParameter("sessionDataKey") != null) {
-        	handleResponseFromAuthenticationFramework(req, resp);
+            handleResponseFromAuthenticationFramework(req, resp);
         } else if ("wsignout1.0".equals(getAttribute(req.getParameterMap(), PassiveRequestorConstants.ACTION))) {
-        	handleLogoutRequest(req, resp);
+            handleLogoutRequest(req, resp);
         } else {
-        	handleAuthenticationRequest(req, resp);
+            handleAuthenticationRequest(req, resp);
         }
     }
 
     private void sendData(HttpServletRequest httpReq, HttpServletResponse httpResp,
-            ResponseToken respToken, String action, String authenticatedIdPs)
+                          ResponseToken respToken, String action, String authenticatedIdPs)
             throws ServletException, IOException {
 
 //        String responseTokenResult = respToken.getResults();
@@ -96,29 +89,29 @@ public class PassiveSTS extends HttpServlet {
 //        }
 
         PrintWriter out = httpResp.getWriter();
-		out.println("<html>");
-		out.println("<body>");
-		out.println("<form method='post' action='" + respToken.getReplyTo() + "'>");
-		out.println("<p>");
-		out.println("<input type='hidden' name='wa' value='" + action + "'>");
-		out.println("<input type='hidden' name='wresult' value='" + respToken.getResults() + "'>");
-		out.println("<input type='hidden' name='wctx' value='" + respToken.getContext() + "'>");
-		
+        out.println("<html>");
+        out.println("<body>");
+        out.println("<form method='post' action='" + respToken.getReplyTo() + "'>");
+        out.println("<p>");
+        out.println("<input type='hidden' name='wa' value='" + action + "'>");
+        out.println("<input type='hidden' name='wresult' value='" + respToken.getResults() + "'>");
+        out.println("<input type='hidden' name='wctx' value='" + respToken.getContext() + "'>");
+
         if (authenticatedIdPs != null && !authenticatedIdPs.isEmpty()) {
             out.println("<input type='hidden' name='AuthenticatedIdPs' value='"
                     + URLEncoder.encode(authenticatedIdPs, "UTF-8") + "'>");
         }
-		
-		out.println("<button type='submit'>POST</button>");
-		out.println("</p>");
-		out.println("</form>");
-		out.println("<script type='text/javascript'>");
-		out.println("document.forms[0].submit();");
-		out.println("</script>");
-		out.println("</body>");
-		out.println("</html>");	
-		
-		return;
+
+        out.println("<button type='submit'>POST</button>");
+        out.println("</p>");
+        out.println("</form>");
+        out.println("<script type='text/javascript'>");
+        out.println("document.forms[0].submit();");
+        out.println("</script>");
+        out.println("</body>");
+        out.println("</html>");
+
+        return;
     }
 
     private String getAttribute(Map paramMap, String name) {
@@ -225,67 +218,67 @@ public class PassiveSTS extends HttpServlet {
                 (authenticationRequest);
         FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest,
                 request.getSession().getMaxInactiveInterval());
-	    StringBuilder queryStringBuilder = new StringBuilder();
-	    queryStringBuilder.append(commonAuthURL).
-	      append("?").
-	      append(FrameworkConstants.SESSION_DATA_KEY).
-	      append("=").
-	      append(sessionDataKey).
-	      append("&").
-	      append(FrameworkConstants.RequestParams.TYPE).
-	      append("=").
-	      append(FrameworkConstants.PASSIVE_STS);
-	    response.sendRedirect(commonAuthURL + queryStringBuilder.toString());
+        StringBuilder queryStringBuilder = new StringBuilder();
+        queryStringBuilder.append(commonAuthURL).
+                append("?").
+                append(FrameworkConstants.SESSION_DATA_KEY).
+                append("=").
+                append(sessionDataKey).
+                append("&").
+                append(FrameworkConstants.RequestParams.TYPE).
+                append("=").
+                append(FrameworkConstants.PASSIVE_STS);
+        response.sendRedirect(commonAuthURL + queryStringBuilder.toString());
     }
 
-    private void handleResponseFromAuthenticationFramework(HttpServletRequest request, HttpServletResponse response) 
-    																throws ServletException, IOException {
-    	
-    	String sessionDataKey = request.getParameter(FrameworkConstants.SESSION_DATA_KEY);
-    	SessionDTO sessionDTO = getSessionDataFromCache(sessionDataKey);
-    	AuthenticationResult authnResult = getAuthenticationResultFromCache(sessionDataKey);
-    	
-    	if (sessionDTO != null && authnResult != null) {
-    		
-    		if (authnResult.isAuthenticated()) {
-        		process(request, response, sessionDTO, authnResult);
-        	}  else {
-        		// TODO how to send back the authentication failure to client.
-        		//for now user will be redirected back to the framework
-        		sendToAuthenticationFramework(request, response, sessionDataKey, sessionDTO);
-        	}
-    	} else {
-    		sendToRetryPage(request, response);
-    	}
-    }
-    
-    private void process(HttpServletRequest request, HttpServletResponse response, 
-    		SessionDTO sessionDTO, AuthenticationResult authnResult)
-    				throws ServletException, IOException {
-    	
-    	HttpSession session = request.getSession();
-    	
-    	session.removeAttribute(PassiveRequestorConstants.PASSIVE_REQ_ATTR_MAP);
+    private void handleResponseFromAuthenticationFramework(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-    	RequestToken reqToken = new RequestToken();
-    	
-    	Map<ClaimMapping, String>  attrMap = authnResult.getUserAttributes();
-    	StringBuffer buffer = null;
-    	
+        String sessionDataKey = request.getParameter(FrameworkConstants.SESSION_DATA_KEY);
+        SessionDTO sessionDTO = getSessionDataFromCache(sessionDataKey);
+        AuthenticationResult authnResult = getAuthenticationResultFromCache(sessionDataKey);
+
+        if (sessionDTO != null && authnResult != null) {
+
+            if (authnResult.isAuthenticated()) {
+                process(request, response, sessionDTO, authnResult);
+            } else {
+                // TODO how to send back the authentication failure to client.
+                //for now user will be redirected back to the framework
+                sendToAuthenticationFramework(request, response, sessionDataKey, sessionDTO);
+            }
+        } else {
+            sendToRetryPage(request, response);
+        }
+    }
+
+    private void process(HttpServletRequest request, HttpServletResponse response,
+                         SessionDTO sessionDTO, AuthenticationResult authnResult)
+            throws ServletException, IOException {
+
+        HttpSession session = request.getSession();
+
+        session.removeAttribute(PassiveRequestorConstants.PASSIVE_REQ_ATTR_MAP);
+
+        RequestToken reqToken = new RequestToken();
+
+        Map<ClaimMapping, String> attrMap = authnResult.getUserAttributes();
+        StringBuffer buffer = null;
+
         if (attrMap != null && attrMap.size() > 0) {
             buffer = new StringBuffer();
             for (Iterator<Entry<ClaimMapping, String>> iterator = attrMap.entrySet().iterator(); iterator
-                    .hasNext();) {
+                    .hasNext(); ) {
                 Entry<ClaimMapping, String> entry = iterator.next();
                 buffer.append("{" + entry.getKey().getRemoteClaim().getClaimUri() + "|"
                         + entry.getValue() + "}#CODE#");
             }
         }
-    	
+
         reqToken.setAction(sessionDTO.getAction());
-        if (buffer!=null){
+        if (buffer != null) {
             reqToken.setAttributes(buffer.toString());
-        }else{
+        } else {
             reqToken.setAttributes(sessionDTO.getAttributes());
         }
         reqToken.setContext(sessionDTO.getContext());
@@ -300,13 +293,13 @@ public class PassiveSTS extends HttpServlet {
 
         String serverURL = CarbonUIUtil.getServerURL(session.getServletContext(), session);
         ConfigurationContext configContext = (ConfigurationContext) session.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-        
+
         IdentityPassiveSTSClient passiveSTSClient = null;
         passiveSTSClient = new IdentityPassiveSTSClient(serverURL, configContext);
 
         ResponseToken respToken = passiveSTSClient.getResponse(reqToken);
 
-        if (respToken != null/* && respToken.getAuthenticated() */&& respToken.getResults() != null) {
+        if (respToken != null/* && respToken.getAuthenticated() */ && respToken.getResults() != null) {
 //        	session.setAttribute("username", userName);
             persistRealms(reqToken, request.getSession());
             sendData(request, response, respToken, reqToken.getAction(),
@@ -316,92 +309,92 @@ public class PassiveSTS extends HttpServlet {
                 return;
         }*/
     }
-    
-    private void handleLogoutRequest(HttpServletRequest request, HttpServletResponse response) throws IOException{
-    	
-    	Set<String> realms = (Set<String>) request.getSession().getAttribute("realms");
-    	
+
+    private void handleLogoutRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        Set<String> realms = (Set<String>) request.getSession().getAttribute("realms");
+
         if (realms != null && realms.size() > 0) {
             for (String realm : realms) {
                 openURLWithNoTrust(realm + "?wa=wsignoutcleanup1.0");
             }
         }
-        
+
         //TODO send logout request to authentication framework
         request.getSession().invalidate();
-        
+
         response.sendRedirect(getAttribute(request.getParameterMap(), PassiveRequestorConstants.REPLY_TO));
     }
-    
-    private void handleAuthenticationRequest(HttpServletRequest request, HttpServletResponse response) 
-    																	throws IOException, ServletException {
-    	
-    	Map paramMap = request.getParameterMap();
-    	
-    	SessionDTO sessionDTO = new SessionDTO();
-    	sessionDTO.setAction(getAttribute(paramMap, PassiveRequestorConstants.ACTION));
-    	sessionDTO.setAttributes(getAttribute(paramMap, PassiveRequestorConstants.ATTRIBUTE));
-    	sessionDTO.setContext(getAttribute(paramMap, PassiveRequestorConstants.CONTEXT));
-    	sessionDTO.setReplyTo(getAttribute(paramMap, PassiveRequestorConstants.REPLY_TO));
-    	sessionDTO.setPseudo(getAttribute(paramMap, PassiveRequestorConstants.PSEUDO));
-    	sessionDTO.setRealm(getAttribute(paramMap, PassiveRequestorConstants.REALM));
-    	sessionDTO.setRequest(getAttribute(paramMap, PassiveRequestorConstants.REQUEST));
-    	sessionDTO.setRequestPointer(getAttribute(paramMap, PassiveRequestorConstants.REQUEST_POINTER));
-    	sessionDTO.setPolicy(getAttribute(paramMap, PassiveRequestorConstants.POLCY));
-    	sessionDTO.setReqQueryString(request.getQueryString());
-    	
-    	String sessionDataKey = UUIDGenerator.generateUUID();
-    	addSessionDataToCache(sessionDataKey, sessionDTO, request.getSession().getMaxInactiveInterval());
-    	
-		sendToAuthenticationFramework(request, response, sessionDataKey, sessionDTO);
+
+    private void handleAuthenticationRequest(HttpServletRequest request, HttpServletResponse response)
+            throws IOException, ServletException {
+
+        Map paramMap = request.getParameterMap();
+
+        SessionDTO sessionDTO = new SessionDTO();
+        sessionDTO.setAction(getAttribute(paramMap, PassiveRequestorConstants.ACTION));
+        sessionDTO.setAttributes(getAttribute(paramMap, PassiveRequestorConstants.ATTRIBUTE));
+        sessionDTO.setContext(getAttribute(paramMap, PassiveRequestorConstants.CONTEXT));
+        sessionDTO.setReplyTo(getAttribute(paramMap, PassiveRequestorConstants.REPLY_TO));
+        sessionDTO.setPseudo(getAttribute(paramMap, PassiveRequestorConstants.PSEUDO));
+        sessionDTO.setRealm(getAttribute(paramMap, PassiveRequestorConstants.REALM));
+        sessionDTO.setRequest(getAttribute(paramMap, PassiveRequestorConstants.REQUEST));
+        sessionDTO.setRequestPointer(getAttribute(paramMap, PassiveRequestorConstants.REQUEST_POINTER));
+        sessionDTO.setPolicy(getAttribute(paramMap, PassiveRequestorConstants.POLCY));
+        sessionDTO.setReqQueryString(request.getQueryString());
+
+        String sessionDataKey = UUIDGenerator.generateUUID();
+        addSessionDataToCache(sessionDataKey, sessionDTO, request.getSession().getMaxInactiveInterval());
+
+        sendToAuthenticationFramework(request, response, sessionDataKey, sessionDTO);
     }
-    
+
     private void addSessionDataToCache(String sessionDataKey, SessionDTO sessionDTO, int cacheTimeout) {
-    	SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
-    	SessionDataCacheEntry cacheEntry = new SessionDataCacheEntry();
-		cacheEntry.setSessionDTO(sessionDTO);
-		SessionDataCache.getInstance(cacheTimeout).addToCache(cacheKey, cacheEntry);
+        SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
+        SessionDataCacheEntry cacheEntry = new SessionDataCacheEntry();
+        cacheEntry.setSessionDTO(sessionDTO);
+        SessionDataCache.getInstance(cacheTimeout).addToCache(cacheKey, cacheEntry);
     }
-    
+
     private SessionDTO getSessionDataFromCache(String sessionDataKey) {
-    	SessionDTO sessionDTO = null;
-    	SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
-		Object cacheEntryObj = SessionDataCache.getInstance(0).getValueFromCache(cacheKey);
-		
-		if (cacheEntryObj != null) {
-			sessionDTO = ((SessionDataCacheEntry)cacheEntryObj).getSessionDTO();
-    	} else {
-    		log.error("SessionDTO does not exist. Probably due to cache timeout");
-    	}
-		
-		return sessionDTO;
+        SessionDTO sessionDTO = null;
+        SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
+        Object cacheEntryObj = SessionDataCache.getInstance(0).getValueFromCache(cacheKey);
+
+        if (cacheEntryObj != null) {
+            sessionDTO = ((SessionDataCacheEntry) cacheEntryObj).getSessionDTO();
+        } else {
+            log.error("SessionDTO does not exist. Probably due to cache timeout");
+        }
+
+        return sessionDTO;
     }
-    
+
     private void removeSessionDataFromCache(String sessionDataKey) {
-    	SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
-		SessionDataCache.getInstance(0).clearCacheEntry(cacheKey);
+        SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
+        SessionDataCache.getInstance(0).clearCacheEntry(cacheKey);
     }
-    
+
     private AuthenticationResult getAuthenticationResultFromCache(String sessionDataKey) {
-    	
-    	AuthenticationResultCacheKey authResultCacheKey = new AuthenticationResultCacheKey(sessionDataKey);
-		CacheEntry cacheEntry = AuthenticationResultCache.getInstance(0).getValueFromCache(authResultCacheKey);
-		AuthenticationResult authResult = null;
-		
-		if (cacheEntry != null) {
-			AuthenticationResultCacheEntry authResultCacheEntry = (AuthenticationResultCacheEntry)cacheEntry;
-			authResult = authResultCacheEntry.getResult();
-		} else {
-			log.error("AuthenticationResult does not exist. Probably due to cache timeout");
-		}
-		
-		return authResult;
+
+        AuthenticationResultCacheKey authResultCacheKey = new AuthenticationResultCacheKey(sessionDataKey);
+        CacheEntry cacheEntry = AuthenticationResultCache.getInstance(0).getValueFromCache(authResultCacheKey);
+        AuthenticationResult authResult = null;
+
+        if (cacheEntry != null) {
+            AuthenticationResultCacheEntry authResultCacheEntry = (AuthenticationResultCacheEntry) cacheEntry;
+            authResult = authResultCacheEntry.getResult();
+        } else {
+            log.error("AuthenticationResult does not exist. Probably due to cache timeout");
+        }
+
+        return authResult;
     }
-    
+
     private void sendToRetryPage(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		
-		String redirectURL = CarbonUIUtil.getAdminConsoleURL(request);
+
+        String redirectURL = CarbonUIUtil.getAdminConsoleURL(request);
         redirectURL = redirectURL.replace("passivests/carbon/", "authenticationendpoint/retry.do");
         response.sendRedirect(redirectURL);
-	}
+    }
 }

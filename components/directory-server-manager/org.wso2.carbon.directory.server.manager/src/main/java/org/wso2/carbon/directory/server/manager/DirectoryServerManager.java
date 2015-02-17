@@ -66,6 +66,7 @@ public class DirectoryServerManager extends AbstractAdmin {
 
     /**
      * Removes given server principle.
+     *
      * @param serverName Name of the server principle to remove.
      * @throws DirectoryServerManagerException If an error occurred while adding a new server principle.
      */
@@ -77,9 +78,10 @@ public class DirectoryServerManager extends AbstractAdmin {
 
     /**
      * Changes the password of a given server principle.
-     * @param serverPrinciple Name of the server principle.
+     *
+     * @param serverPrinciple  Name of the server principle.
      * @param existingPassword Existing password of the server principle.
-     * @param newPassword New password of the principle.
+     * @param newPassword      New password of the principle.
      * @throws DirectoryServerManagerException If an error occurred while adding a new server principle.
      */
     public void changePassword(String serverPrinciple, String existingPassword, String newPassword)
@@ -90,6 +92,7 @@ public class DirectoryServerManager extends AbstractAdmin {
 
     /**
      * List service principles, current available in the directory server.
+     *
      * @param filter Filter service principles based on this parameter.
      * @return Returns the service principles.
      * @throws DirectoryServerManagerException If an error occurred while listing service principles.
@@ -101,21 +104,23 @@ public class DirectoryServerManager extends AbstractAdmin {
 
     /**
      * This method checks whether give service principle already exists in the LDAP KDC.
+     *
      * @param servicePrinciple Name of the service principle.
      * @return <code>true</code> if given service principle already exists, else <code>false</code>.
      * @throws DirectoryServerManagerException In case if there is an error while check is being done.
      */
     public boolean isExistingServicePrinciple(String servicePrinciple) throws DirectoryServerManagerException {
         LDAPServerStoreManager ldapServerStoreManager = getServerStoreManager();
-        return ldapServerStoreManager.isExistingServicePrinciple(servicePrinciple);        
+        return ldapServerStoreManager.isExistingServicePrinciple(servicePrinciple);
     }
 
     /**
      * Gets the regular expression which defines the format of the service principle, password.
+     *
      * @return Regular expression.
      * @throws DirectoryServerManagerException If unable to get RealmConfiguration.
      */
-    public String getPasswordConformanceRegularExpression () throws DirectoryServerManagerException {
+    public String getPasswordConformanceRegularExpression() throws DirectoryServerManagerException {
 
         try {
             RealmConfiguration userStoreConfigurations = this.getUserRealm().getRealmConfiguration();
@@ -140,9 +145,10 @@ public class DirectoryServerManager extends AbstractAdmin {
     /**
      * Gets the regular expression which defines the format of the service principle.
      * Current we use following like format,
-     *          ftp/localhost
+     * ftp/localhost
+     *
      * @return Service principle name format as a regular expression.
-     * @throws DirectoryServerManagerException If unable to retrieve RealmConfiguration. 
+     * @throws DirectoryServerManagerException If unable to retrieve RealmConfiguration.
      */
     public String getServiceNameConformanceRegularExpression() throws DirectoryServerManagerException {
 
@@ -168,11 +174,12 @@ public class DirectoryServerManager extends AbstractAdmin {
 
     /**
      * This method checks whether KDC is enabled.
+     *
      * @return true if KDC is enabled, else false.
      * @throws DirectoryServerManagerException If an error occurred while querying user realm.
      */
     public boolean isKDCEnabled() throws DirectoryServerManagerException {
-       try {
+        try {
             RealmConfiguration userStoreConfigurations = this.getUserRealm().getRealmConfiguration();
             if (userStoreConfigurations != null) {
                 String isKDCEnabled = userStoreConfigurations.getUserStoreProperty

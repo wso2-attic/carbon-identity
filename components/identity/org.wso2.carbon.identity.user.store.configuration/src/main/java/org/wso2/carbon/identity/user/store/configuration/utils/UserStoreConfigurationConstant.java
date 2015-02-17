@@ -19,22 +19,20 @@
 package org.wso2.carbon.identity.user.store.configuration.utils;
 
 /**
- *  Constant class to hold IdentityUserStoreMgtConstants
+ * Constant class to hold IdentityUserStoreMgtConstants
  */
 
 public class UserStoreConfigurationConstant {
 
-    private UserStoreConfigurationConstant(){
+    public static final String UNIQUE_ID_CONSTANT = "UniqueID";
+    public static final String RANDOM_PHRASE_PREFIX = "random-password-generated!@#$%^&*(0)+_";
+    public static final String ENCRYPT_TEXT = "#encrypt";
+    //name constant of the cache manager
+    public static final String SECONDARY_STORAGE_CACHE_MANAGER = "secondaryStorageCacheManager";
+    //random password container cache
+    public static final String RANDOM_PASSWORD_CONTAINER_CACHE = "randomPasswordContainerCache";
+
+    private UserStoreConfigurationConstant() {
 
     }
-
-    public static final String UNIQUE_ID_CONSTANT               = "UniqueID";
-    public static final String RANDOM_PHRASE_PREFIX             = "random-password-generated!@#$%^&*(0)+_";
-    public static final String ENCRYPT_TEXT                     = "#encrypt";
-
-    //name constant of the cache manager
-    public static final String SECONDARY_STORAGE_CACHE_MANAGER  = "secondaryStorageCacheManager";
-
-    //random password container cache
-    public static final String RANDOM_PASSWORD_CONTAINER_CACHE  = "randomPasswordContainerCache";
 }

@@ -18,10 +18,6 @@
 
 package org.wso2.carbon.identity.application.mgt.dao.impl;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
@@ -31,11 +27,16 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 public class OAuthApplicationDAOImpl implements OAuthApplicationDAO {
 
-	public static final Log log = LogFactory.getLog(OAuthApplicationDAOImpl.class);
+    public static final Log log = LogFactory.getLog(OAuthApplicationDAOImpl.class);
+
     /**
-     * 
+     *
      */
     public void removeOAuthApplication(String clientIdentifier) throws IdentityApplicationManagementException {
         Connection connection = null;
@@ -47,7 +48,7 @@ public class OAuthApplicationDAOImpl implements OAuthApplicationDAO {
             prepStmt.setString(1, clientIdentifier);
             prepStmt.execute();
             connection.commit();
-            
+
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);

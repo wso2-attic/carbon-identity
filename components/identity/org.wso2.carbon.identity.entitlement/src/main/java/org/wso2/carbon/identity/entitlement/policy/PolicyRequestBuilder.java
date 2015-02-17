@@ -17,11 +17,6 @@
 */
 package org.wso2.carbon.identity.entitlement.policy;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -29,17 +24,23 @@ import org.w3c.dom.Element;
 import org.wso2.carbon.identity.entitlement.EntitlementException;
 import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
 /**
  * XACML request is built
  */
 public class PolicyRequestBuilder {
 
-	private static Log log = LogFactory.getLog(PolicyRequestBuilder.class);
+    private static Log log = LogFactory.getLog(PolicyRequestBuilder.class);
 
     /**
      * creates DOM representation of the XACML request
-     * @param request  XACML request as a String object
-     * @return  XACML request as a DOM element
+     *
+     * @param request XACML request as a String object
+     * @return XACML request as a DOM element
      * @throws EntitlementException throws, if fails
      */
     public Element getXacmlRequest(String request) throws EntitlementException {
@@ -47,7 +48,7 @@ public class PolicyRequestBuilder {
         ByteArrayInputStream inputStream;
         DocumentBuilderFactory dbf;
         Document doc;
-        
+
         inputStream = new ByteArrayInputStream(request.getBytes());
         dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
@@ -63,7 +64,7 @@ public class PolicyRequestBuilder {
             try {
                 inputStream.close();
             } catch (IOException e) {
-               log.error("Error in closing input stream of XACML request");
+                log.error("Error in closing input stream of XACML request");
             }
         }
         return doc.getDocumentElement();

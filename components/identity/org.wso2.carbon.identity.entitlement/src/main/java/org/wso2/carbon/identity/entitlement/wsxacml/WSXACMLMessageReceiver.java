@@ -92,13 +92,167 @@ import java.util.List;
 
 public class WSXACMLMessageReceiver extends RPCMessageReceiver {
 
+    private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
+            Constants.SECURITY_MANAGER_PROPERTY;
+    private static final int ENTITY_EXPANSION_LIMIT = 0;
     private static Log log = LogFactory.getLog(WSXACMLMessageReceiver.class);
     private static boolean isBootStrapped = false;
     private static OMNamespace xacmlContextNS = OMAbstractFactory.getOMFactory()
             .createOMNamespace("urn:oasis:names:tc:xacml:2.0:context:schema:os", "xacml-context");
-    private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
-            Constants.SECURITY_MANAGER_PROPERTY;
-    private static final int ENTITY_EXPANSION_LIMIT = 0;
+
+    /**
+     * Bootstrap the OpenSAML2 library only if it is not bootstrapped.
+     */
+    public static void doBootstrap() {
+
+        if (!isBootStrapped) {
+            try {
+                DefaultBootstrap.bootstrap();
+                isBootStrapped = true;
+            } catch (ConfigurationException e) {
+                log.error("Error in bootstrapping the OpenSAML2 library", e);
+            }
+        }
+    }
+
+    /**
+     * Create the issuer object to be added
+     *
+     * @return : the issuer of the statements
+     */
+    private static Issuer createIssuer() {
+
+        IssuerBuilder issuer = (IssuerBuilder) org.opensaml.xml.Configuration.getBuilderFactory().
+                getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
+        Issuer issuerObject = issuer.buildObject();
+        issuerObject.setValue("https://identity.carbon.wso2.org");
+        issuerObject.setSPProvidedID("SPPProvierId");
+        return issuerObject;
+    }
+
+    /**
+     * Overloaded method to sign a SAML response
+     *
+     * @param response           : SAML response to be signed
+     * @param signatureAlgorithm : algorithm to be used in signing
+     * @param cred               : signing credentials
+     * @return signed SAML response
+     * @throws EntitlementException
+     */
+    private static Response setSignature(Response response, String signatureAlgorithm,
+                                         X509Credential cred) throws EntitlementException {
+        doBootstrap();
+        try {
+            Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
+            signature.setSigningCredential(cred);
+            signature.setSignatureAlgorithm(signatureAlgorithm);
+            signature.setCanonicalizationAlgorithm(Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
+
+            try {
+                KeyInfo keyInfo = (KeyInfo) buildXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
+                X509Data data = (X509Data) buildXMLObject(X509Data.DEFAULT_ELEMENT_NAME);
+                X509Certificate cert = (X509Certificate) buildXMLObject(X509Certificate.DEFAULT_ELEMENT_NAME);
+                String value = org.apache.xml.security.utils.Base64.encode(cred.getEntityCertificate().getEncoded());
+                cert.setValue(value);
+                data.getX509Certificates().add(cert);
+                keyInfo.getX509Datas().add(data);
+                signature.setKeyInfo(keyInfo);
+            } catch (CertificateEncodingException e) {
+                throw new EntitlementException("errorGettingCert");
+            }
+            response.setSignature(signature);
+            List<Signature> signatureList = new ArrayList<Signature>();
+            signatureList.add(signature);
+            //Marshall and Sign
+            MarshallerFactory marshallerFactory = org.opensaml.xml.Configuration.getMarshallerFactory();
+            Marshaller marshaller = marshallerFactory.getMarshaller(response);
+            marshaller.marshall(response);
+            org.apache.xml.security.Init.init();
+            Signer.signObjects(signatureList);
+            return response;
+        } catch (Exception e) {
+            throw new EntitlementException("Error When signing the assertion.", e);
+        }
+    }
+
+    /**
+     * Create XMLObject from a given QName
+     *
+     * @param objectQName: QName of the object to be built into a XMLObject
+     * @return built xmlObject
+     * @throws EntitlementException
+     */
+    private static XMLObject buildXMLObject(QName objectQName) throws EntitlementException {
+
+        XMLObjectBuilder builder = org.opensaml.xml.Configuration.getBuilderFactory().getBuilder(objectQName);
+        if (builder == null) {
+            throw new EntitlementException("Unable to retrieve builder for object QName "
+                    + objectQName);
+        }
+        return builder.buildObject(objectQName.getNamespaceURI(), objectQName.getLocalPart(),
+                objectQName.getPrefix());
+    }
+
+    /**
+     * Create basic credentials needed to generate signature using EntitlementServiceComponent
+     *
+     * @return basicX509Credential
+     */
+    private static BasicX509Credential createBasicCredentials() {
+
+        String keyAlias;
+        KeyStoreAdmin keyAdmin = null;
+        KeyStoreManager keyMan;
+        Certificate certificate = null;
+        PrivateKey issuerPK = null;
+
+        keyAlias = ServerConfiguration.getInstance().getFirstProperty("Security.KeyStore.KeyAlias");
+
+//        try {
+        keyAdmin = new KeyStoreAdmin(-1234, (Registry) CarbonContext.getThreadLocalCarbonContext().
+                getRegistry((RegistryType.SYSTEM_GOVERNANCE)));
+//        } catch (RegistryException e) {
+//            log.error("Error occurred while creating KeyStoreAdmin.", e);
+//        }
+        keyMan = KeyStoreManager.getInstance(-1234);
+
+        if (keyAdmin != null) {
+            try {
+                issuerPK = (PrivateKey) keyAdmin.getPrivateKey(keyAlias, true);
+            } catch (SecurityConfigException e) {
+                log.error("Error while getting the private key KeyAdmin.", e);
+            }
+        }
+
+        try {
+            //issuerPK = keyMan.getDefaultPrivateKey();
+            certificate = keyMan.getPrimaryKeyStore().getCertificate(keyAlias);
+        } catch (Exception e) {
+            log.error("Error occurred while getting the KeyStore from KeyManger.", e);
+        }
+
+        BasicX509Credential basicCredential = new BasicX509Credential();
+        basicCredential.setEntityCertificate((java.security.cert.X509Certificate) certificate);
+        basicCredential.setPrivateKey(issuerPK);
+
+        return basicCredential;
+    }
+
+    /**
+     * Set relevant xacml namespace to all the children in the given iterator.     *
+     *
+     * @param iterator: Iterator for all children inside OMElement
+     */
+    private static void setXACMLNamespace(Iterator iterator) {
+
+        while (iterator.hasNext()) {
+            OMElement omElement2 = (OMElement) iterator.next();
+            omElement2.setNamespace(xacmlContextNS);
+            if (omElement2.getChildElements().hasNext()) {
+                setXACMLNamespace(omElement2.getChildElements());
+            }
+        }
+    }
 
     @Override
     public void invokeBusinessLogic(MessageContext inMessageContext, MessageContext outMessageContext)
@@ -157,21 +311,6 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
         }
 
         return null;
-    }
-
-    /**
-     * Bootstrap the OpenSAML2 library only if it is not bootstrapped.
-     */
-    public static void doBootstrap() {
-
-        if (!isBootStrapped) {
-            try {
-                DefaultBootstrap.bootstrap();
-                isBootStrapped = true;
-            } catch (ConfigurationException e) {
-                log.error("Error in bootstrapping the OpenSAML2 library", e);
-            }
-        }
     }
 
     /**
@@ -394,129 +533,6 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
     }
 
     /**
-     * Create the issuer object to be added
-     *
-     * @return : the issuer of the statements
-     */
-    private static Issuer createIssuer() {
-
-        IssuerBuilder issuer = (IssuerBuilder) org.opensaml.xml.Configuration.getBuilderFactory().
-                getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
-        Issuer issuerObject = issuer.buildObject();
-        issuerObject.setValue("https://identity.carbon.wso2.org");
-        issuerObject.setSPProvidedID("SPPProvierId");
-        return issuerObject;
-    }
-
-    /**
-     * Overloaded method to sign a SAML response
-     *
-     * @param response           : SAML response to be signed
-     * @param signatureAlgorithm : algorithm to be used in signing
-     * @param cred               : signing credentials
-     * @return signed SAML response
-     * @throws EntitlementException
-     */
-    private static Response setSignature(Response response, String signatureAlgorithm,
-                                         X509Credential cred) throws EntitlementException {
-        doBootstrap();
-        try {
-            Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
-            signature.setSigningCredential(cred);
-            signature.setSignatureAlgorithm(signatureAlgorithm);
-            signature.setCanonicalizationAlgorithm(Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
-
-            try {
-                KeyInfo keyInfo = (KeyInfo) buildXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
-                X509Data data = (X509Data) buildXMLObject(X509Data.DEFAULT_ELEMENT_NAME);
-                X509Certificate cert = (X509Certificate) buildXMLObject(X509Certificate.DEFAULT_ELEMENT_NAME);
-                String value = org.apache.xml.security.utils.Base64.encode(cred.getEntityCertificate().getEncoded());
-                cert.setValue(value);
-                data.getX509Certificates().add(cert);
-                keyInfo.getX509Datas().add(data);
-                signature.setKeyInfo(keyInfo);
-            } catch (CertificateEncodingException e) {
-                throw new EntitlementException("errorGettingCert");
-            }
-            response.setSignature(signature);
-            List<Signature> signatureList = new ArrayList<Signature>();
-            signatureList.add(signature);
-            //Marshall and Sign
-            MarshallerFactory marshallerFactory = org.opensaml.xml.Configuration.getMarshallerFactory();
-            Marshaller marshaller = marshallerFactory.getMarshaller(response);
-            marshaller.marshall(response);
-            org.apache.xml.security.Init.init();
-            Signer.signObjects(signatureList);
-            return response;
-        } catch (Exception e) {
-            throw new EntitlementException("Error When signing the assertion.", e);
-        }
-    }
-
-    /**
-     * Create XMLObject from a given QName
-     *
-     * @param objectQName: QName of the object to be built into a XMLObject
-     * @return built xmlObject
-     * @throws EntitlementException
-     */
-    private static XMLObject buildXMLObject(QName objectQName) throws EntitlementException {
-
-        XMLObjectBuilder builder = org.opensaml.xml.Configuration.getBuilderFactory().getBuilder(objectQName);
-        if (builder == null) {
-            throw new EntitlementException("Unable to retrieve builder for object QName "
-                    + objectQName);
-        }
-        return builder.buildObject(objectQName.getNamespaceURI(), objectQName.getLocalPart(),
-                objectQName.getPrefix());
-    }
-
-    /**
-     * Create basic credentials needed to generate signature using EntitlementServiceComponent
-     *
-     * @return basicX509Credential
-     */
-    private static BasicX509Credential createBasicCredentials() {
-
-        String keyAlias;
-        KeyStoreAdmin keyAdmin = null;
-        KeyStoreManager keyMan;
-        Certificate certificate = null;
-        PrivateKey issuerPK = null;
-
-        keyAlias = ServerConfiguration.getInstance().getFirstProperty("Security.KeyStore.KeyAlias");
-
-//        try {
-        keyAdmin = new KeyStoreAdmin(-1234, (Registry) CarbonContext.getThreadLocalCarbonContext().
-                getRegistry((RegistryType.SYSTEM_GOVERNANCE)));
-//        } catch (RegistryException e) {
-//            log.error("Error occurred while creating KeyStoreAdmin.", e);
-//        }
-        keyMan = KeyStoreManager.getInstance(-1234);
-
-        if (keyAdmin != null) {
-            try {
-                issuerPK = (PrivateKey) keyAdmin.getPrivateKey(keyAlias, true);
-            } catch (SecurityConfigException e) {
-                log.error("Error while getting the private key KeyAdmin.", e);
-            }
-        }
-
-        try {
-            //issuerPK = keyMan.getDefaultPrivateKey();
-            certificate = keyMan.getPrimaryKeyStore().getCertificate(keyAlias);
-        } catch (Exception e) {
-            log.error("Error occurred while getting the KeyStore from KeyManger.", e);
-        }
-
-        BasicX509Credential basicCredential = new BasicX509Credential();
-        basicCredential.setEntityCertificate((java.security.cert.X509Certificate) certificate);
-        basicCredential.setPrivateKey(issuerPK);
-
-        return basicCredential;
-    }
-
-    /**
      * Format the sent in response as required by OpenSAML
      *
      * @param xacmlResponse : received XACML response
@@ -540,21 +556,5 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
         }
 
         return omElemnt.toString();
-    }
-
-    /**
-     * Set relevant xacml namespace to all the children in the given iterator.     *
-     *
-     * @param iterator: Iterator for all children inside OMElement
-     */
-    private static void setXACMLNamespace(Iterator iterator) {
-
-        while (iterator.hasNext()) {
-            OMElement omElement2 = (OMElement) iterator.next();
-            omElement2.setNamespace(xacmlContextNS);
-            if (omElement2.getChildElements().hasNext()) {
-                setXACMLNamespace(omElement2.getChildElements());
-            }
-        }
     }
 }

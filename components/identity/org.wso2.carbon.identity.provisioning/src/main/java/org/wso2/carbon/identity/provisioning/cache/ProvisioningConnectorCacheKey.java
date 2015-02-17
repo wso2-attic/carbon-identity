@@ -27,7 +27,6 @@ public class ProvisioningConnectorCacheKey extends CacheKey {
     private String provisioningConnectorKey;
 
     /**
-     * 
      * @param provisioningConnectorKey
      */
     public ProvisioningConnectorCacheKey(String provisioningConnectorKey, String tenantDomain) {
@@ -36,7 +35,6 @@ public class ProvisioningConnectorCacheKey extends CacheKey {
     }
 
     /**
-     * 
      * @return
      */
     public String getProvisioningConnectorKey() {

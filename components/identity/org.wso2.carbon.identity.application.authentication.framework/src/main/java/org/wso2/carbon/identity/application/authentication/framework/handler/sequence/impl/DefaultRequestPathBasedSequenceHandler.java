@@ -1,15 +1,5 @@
 package org.wso2.carbon.identity.application.authentication.framework.handler.sequence.impl;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
@@ -28,6 +18,11 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class DefaultRequestPathBasedSequenceHandler implements RequestPathBasedSequenceHandler {
 
@@ -49,7 +44,7 @@ public class DefaultRequestPathBasedSequenceHandler implements RequestPathBasedS
     }
 
     public void handle(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationContext context) throws FrameworkException {
+                       AuthenticationContext context) throws FrameworkException {
 
         if (log.isDebugEnabled()) {
             log.debug("Executing the Request Path Authentication...");
@@ -85,7 +80,7 @@ public class DefaultRequestPathBasedSequenceHandler implements RequestPathBasedS
                     String authenticatedUser = context.getSubject();
                     seqConfig.setAuthenticatedUser(authenticatedUser);
 
-                    String authenticatedUserTenantDomain = (String)context.getProperty("user-tenant-domain");
+                    String authenticatedUserTenantDomain = (String) context.getProperty("user-tenant-domain");
                     seqConfig.setAuthenticatedUserTenantDomain(authenticatedUserTenantDomain);
 
                     if (log.isDebugEnabled()) {
@@ -106,10 +101,10 @@ public class DefaultRequestPathBasedSequenceHandler implements RequestPathBasedS
                     authenticatedIdPData.setIdpName(FrameworkConstants.LOCAL_IDP_NAME);
                     reqPathAuthenticator.setAuthenticatorStateInfo(context.getStateInfo());
                     authenticatedIdPData.setAuthenticator(reqPathAuthenticator);
-                    
+
                     seqConfig.setAuthenticatedReqPathAuthenticator(reqPathAuthenticator);
 
-                    
+
                     context.getCurrentAuthenticatedIdPs().put(FrameworkConstants.LOCAL_IDP_NAME,
                             authenticatedIdPData);
 
@@ -133,8 +128,8 @@ public class DefaultRequestPathBasedSequenceHandler implements RequestPathBasedS
     }
 
     protected void handlePostAuthentication(HttpServletRequest request,
-            HttpServletResponse response, AuthenticationContext context,
-            AuthenticatedIdPData authenticatedIdPData) throws FrameworkException {
+                                            HttpServletResponse response, AuthenticationContext context,
+                                            AuthenticatedIdPData authenticatedIdPData) throws FrameworkException {
 
         if (log.isDebugEnabled()) {
             log.debug("Handling Post Authentication tasks");
@@ -162,7 +157,7 @@ public class DefaultRequestPathBasedSequenceHandler implements RequestPathBasedS
         sequenceConfig
                 .setAuthenticatedIdPs(IdentityApplicationManagementUtil.getSignedJWT(jsonBuilder
                         .toString(), sequenceConfig.getApplicationConfig().getServiceProvider()));
-        
+
         mappedAttrs = handleClaimMappings(context);
         String spRoleUri = getSpRoleClaimUri(sequenceConfig.getApplicationConfig());
         String roleAttr = mappedAttrs.get(spRoleUri);
@@ -178,7 +173,7 @@ public class DefaultRequestPathBasedSequenceHandler implements RequestPathBasedS
 
         if (context.getSequenceConfig().getApplicationConfig().getSubjectClaimUri() != null
                 && context.getSequenceConfig().getApplicationConfig().getSubjectClaimUri().trim()
-                        .length() > 0) {
+                .length() > 0) {
             Map<String, String> unfilteredClaimValues = (Map<String, String>) context
                     .getProperty(FrameworkConstants.UNFILTERED_LOCAL_CLAIM_VALUES);
 
@@ -194,7 +189,7 @@ public class DefaultRequestPathBasedSequenceHandler implements RequestPathBasedS
             if (subjectValue != null) {
                 sequenceConfig.setAuthenticatedUser(subjectValue);
 
-                String authenticatedUserTenantDomain = (String)context.getProperty("user-tenant-domain");
+                String authenticatedUserTenantDomain = (String) context.getProperty("user-tenant-domain");
                 sequenceConfig.setAuthenticatedUserTenantDomain(authenticatedUserTenantDomain);
 
                 if (log.isDebugEnabled()) {
@@ -206,13 +201,12 @@ public class DefaultRequestPathBasedSequenceHandler implements RequestPathBasedS
     }
 
     /**
-     * 
      * @param sequenceConfig
      * @param locallyMappedUserRoles
      * @return
      */
     protected String getServiceProviderMappedUserRoles(SequenceConfig sequenceConfig,
-            List<String> locallyMappedUserRoles) throws FrameworkException {
+                                                       List<String> locallyMappedUserRoles) throws FrameworkException {
 
         if (locallyMappedUserRoles != null && locallyMappedUserRoles.size() > 0) {
 
@@ -242,7 +236,6 @@ public class DefaultRequestPathBasedSequenceHandler implements RequestPathBasedS
     }
 
     /**
-     * 
      * @param appConfig
      * @return
      */
@@ -259,7 +252,7 @@ public class DefaultRequestPathBasedSequenceHandler implements RequestPathBasedS
             if (spToLocalClaimMapping != null && spToLocalClaimMapping.size() > 0) {
 
                 for (Iterator<Entry<String, String>> iterator = spToLocalClaimMapping.entrySet()
-                        .iterator(); iterator.hasNext();) {
+                        .iterator(); iterator.hasNext(); ) {
                     Entry<String, String> entry = iterator.next();
                     if (FrameworkConstants.LOCAL_ROLE_CLAIM_URI.equals(entry.getValue())) {
                         return entry.getKey();

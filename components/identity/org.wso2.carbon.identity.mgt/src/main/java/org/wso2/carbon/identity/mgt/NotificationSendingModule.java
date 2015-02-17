@@ -17,15 +17,13 @@
  */
 package org.wso2.carbon.identity.mgt;
 
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.dto.NotificationDataDTO;
-import org.wso2.carbon.identity.mgt.dto.UserRecoveryDTO;
 import org.wso2.carbon.identity.mgt.mail.Notification;
 
 /**
  *
  */
-public abstract class NotificationSendingModule implements Runnable  {
+public abstract class NotificationSendingModule implements Runnable {
 
     protected NotificationDataDTO notificationData;
 
@@ -37,7 +35,7 @@ public abstract class NotificationSendingModule implements Runnable  {
     public abstract void init() throws Exception;
 
     public abstract String getNotificationType();
-    
+
     public abstract String getNotificationAddress(String userName, int tenantId);
 
     public abstract void notifyUser();
@@ -45,8 +43,8 @@ public abstract class NotificationSendingModule implements Runnable  {
     public void setNotificationData(NotificationDataDTO notificationData) {
         this.notificationData = notificationData;
     }
-    
-    public abstract void setNotification(Notification notification);
-    
+
     public abstract Notification getNotification();
+
+    public abstract void setNotification(Notification notification);
 }

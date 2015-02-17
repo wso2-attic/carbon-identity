@@ -18,12 +18,6 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.handler.request.impl;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
@@ -41,6 +35,11 @@ import org.wso2.carbon.identity.application.authentication.framework.handler.req
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
 
@@ -71,7 +70,7 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
         if (log.isTraceEnabled()) {
             log.trace("Inside handle()");
         }
-        
+
         if (context.isPreviousSessionFound()) {
             // if this is the start of the logout sequence
             if (context.getCurrentStep() == 0) {
@@ -85,7 +84,7 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
                 int currentStep = context.getCurrentStep();
                 StepConfig stepConfig = sequenceConfig.getStepMap().get(currentStep);
                 AuthenticatorConfig authenticatorConfig = stepConfig.getAuthenticatedAutenticator();
-                if(authenticatorConfig==null){
+                if (authenticatorConfig == null) {
                     authenticatorConfig = sequenceConfig.getAuthenticatedReqPathAuthenticator();
                 }
                 ApplicationAuthenticator authenticator =
@@ -93,8 +92,8 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
 
                 String idpName = stepConfig.getAuthenticatedIdP();
                 //TODO: Need to fix occurrences where idPName becomes "null"
-                if((idpName == null || "null".equalsIgnoreCase(idpName) || idpName.isEmpty()) &&
-                        sequenceConfig.getAuthenticatedReqPathAuthenticator() != null){
+                if ((idpName == null || "null".equalsIgnoreCase(idpName) || idpName.isEmpty()) &&
+                        sequenceConfig.getAuthenticatedReqPathAuthenticator() != null) {
                     idpName = FrameworkConstants.LOCAL_IDP_NAME;
                 }
                 ExternalIdPConfig externalIdPConfig = ConfigurationFacade.getInstance()
@@ -125,7 +124,7 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
                 }
             }
         }
-        
+
         // remove the SessionContext from the cache
         FrameworkUtils.removeSessionContextFromCache(context.getSessionIdentifier());
         // remove the cookie
@@ -141,7 +140,7 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
     }
 
     protected void sendResponse(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationContext context, boolean isLoggedOut) throws ServletException, IOException {
+                                AuthenticationContext context, boolean isLoggedOut) throws ServletException, IOException {
 
         if (log.isTraceEnabled()) {
             log.trace("Inside sendLogoutResponseToCaller()");
@@ -160,7 +159,7 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
 
         // Put the result in the
         FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult,
-                                FrameworkUtils.getMaxInactiveInterval());
+                FrameworkUtils.getMaxInactiveInterval());
         
         /*
          * TODO Cache retaining is a temporary fix. Remove after Google fixes

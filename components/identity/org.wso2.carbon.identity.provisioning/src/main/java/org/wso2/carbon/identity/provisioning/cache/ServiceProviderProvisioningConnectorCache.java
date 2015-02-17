@@ -24,16 +24,15 @@ import org.wso2.carbon.identity.application.common.cache.CacheKey;
 
 public class ServiceProviderProvisioningConnectorCache extends BaseCache<CacheKey, CacheEntry> {
 
-	public static final String PROVISIONING_CONNECTOR_CACHE_NAME = "ServiceProviderProvisioningConnectorCache";
+    public static final String PROVISIONING_CONNECTOR_CACHE_NAME = "ServiceProviderProvisioningConnectorCache";
     private static volatile ServiceProviderProvisioningConnectorCache instance;
-	
-	public ServiceProviderProvisioningConnectorCache(String cacheName) {
-		super(cacheName);
-		
-	}
 
-	/**
-     *
+    public ServiceProviderProvisioningConnectorCache(String cacheName) {
+        super(cacheName);
+
+    }
+
+    /**
      * @return
      */
     public static ServiceProviderProvisioningConnectorCache getInstance() {

@@ -18,19 +18,12 @@
 
 package org.wso2.carbon.identity.application.mgt.internal;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.common.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
@@ -41,27 +34,36 @@ import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @scr.component name="identity.application.management.component" immediate="true"
  * @scr.reference name="registry.service"
- *                interface="org.wso2.carbon.registry.core.service.RegistryService"
- *                cardinality="1..1" policy="dynamic" bind="setRegistryService"
- *                unbind="unsetRegistryService"
+ * interface="org.wso2.carbon.registry.core.service.RegistryService"
+ * cardinality="1..1" policy="dynamic" bind="setRegistryService"
+ * unbind="unsetRegistryService"
  * @scr.reference name="user.realmservice.default"
- *                interface="org.wso2.carbon.user.core.service.RealmService"
- *                cardinality="1..1" policy="dynamic" bind="setRealmService"
- *                unbind="unsetRealmService"
- * 
+ * interface="org.wso2.carbon.user.core.service.RealmService"
+ * cardinality="1..1" policy="dynamic" bind="setRealmService"
+ * unbind="unsetRealmService"
  * @scr.reference name="configuration.context.service"
- *                interface="org.wso2.carbon.utils.ConfigurationContextService"
- *                cardinality="1..1" policy="dynamic"
- *                bind="setConfigurationContextService"
- *                unbind="unsetConfigurationContextService"
+ * interface="org.wso2.carbon.utils.ConfigurationContextService"
+ * cardinality="1..1" policy="dynamic"
+ * bind="setConfigurationContextService"
+ * unbind="unsetConfigurationContextService"
  */
 public class ApplicationManagementServiceComponent {
     private static Log log = LogFactory.getLog(ApplicationManagementServiceComponent.class);
     private static BundleContext bundleContext;
     private static Map<String, ServiceProvider> fileBasedSPs = new HashMap<String, ServiceProvider>();
+
+    public static Map<String, ServiceProvider> getFileBasedSPs() {
+        return fileBasedSPs;
+    }
 
     protected void activate(ComponentContext context) {
         try {
@@ -71,7 +73,7 @@ public class ApplicationManagementServiceComponent {
                 jdbcPersistenceManager.initializeDatabase();
             } else {
                 log.debug("Identity Application Management Database initialization not attempted since \'setup\' " +
-                          "variable was not provided during startup");
+                        "variable was not provided during startup");
             }
             // Registering Application management service as a OSGIService
             bundleContext = context.getBundleContext();
@@ -119,15 +121,14 @@ public class ApplicationManagementServiceComponent {
         }
         ApplicationManagementServiceComponentHolder.setRealmService(null);
     }
-    
-    
+
     protected void setConfigurationContextService(ConfigurationContextService configContextService) {
         if (log.isDebugEnabled()) {
             log.info("Setting the Configuration Context Service");
         }
         ApplicationManagementServiceComponentHolder.setConfigContextService(configContextService);
     }
-    
+
     protected void unsetConfigurationContextService(ConfigurationContextService configContextService) {
         if (log.isDebugEnabled()) {
             log.info("Unsetting the Configuration Context Service");
@@ -157,7 +158,7 @@ public class ApplicationManagementServiceComponent {
                 } catch (Exception e) {
                     log.error("Error while loading idp from file system.", e);
                 } finally {
-                    if(fileInputStream != null){
+                    if (fileInputStream != null) {
                         try {
                             fileInputStream.close();
                         } catch (IOException e) {
@@ -167,10 +168,6 @@ public class ApplicationManagementServiceComponent {
                 }
             }
         }
-    }
-
-    public static Map<String, ServiceProvider> getFileBasedSPs() {
-        return fileBasedSPs;
     }
 
 }

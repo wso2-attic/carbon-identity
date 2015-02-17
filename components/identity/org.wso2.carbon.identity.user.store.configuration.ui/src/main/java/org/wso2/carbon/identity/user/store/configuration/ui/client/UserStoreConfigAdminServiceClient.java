@@ -88,17 +88,17 @@ public class UserStoreConfigAdminServiceClient {
      * @throws Exception
      */
     public void addUserStore(UserStoreDTO userStoreDTO) throws DataSourceException, Exception {
-        
-        try{
-        	stub.addUserStore(userStoreDTO);
-        }catch(UserStoreConfigAdminServiceDataSourceException e){
-        	if (e.getFaultMessage().getDataSourceException().isErrorMessageSpecified()) {
-				throw new DataSourceException(e.getFaultMessage().getDataSourceException().getErrorMessage(), e);
-			}
-			throw new DataSourceException(e.getMessage(), e);
-        }catch (AxisFault e) {
-        	throw new DataSourceException(e.getMessage(), e);
-		}
+
+        try {
+            stub.addUserStore(userStoreDTO);
+        } catch (UserStoreConfigAdminServiceDataSourceException e) {
+            if (e.getFaultMessage().getDataSourceException().isErrorMessageSpecified()) {
+                throw new DataSourceException(e.getFaultMessage().getDataSourceException().getErrorMessage(), e);
+            }
+            throw new DataSourceException(e.getMessage(), e);
+        } catch (AxisFault e) {
+            throw new DataSourceException(e.getMessage(), e);
+        }
     }
 
     /**
@@ -141,16 +141,16 @@ public class UserStoreConfigAdminServiceClient {
      */
     public void updateUserStoreWithDomainName(String previousDomain, UserStoreDTO userStoreDTO) throws Exception {
         if (previousDomain != null && !"".equals(previousDomain) && !previousDomain.equalsIgnoreCase(userStoreDTO.getDomainId())) {
-            try{
-            	stub.editUserStoreWithDomainName(previousDomain, userStoreDTO);
-            }catch(UserStoreConfigAdminServiceDataSourceException e){
-            	if (e.getFaultMessage().getDataSourceException().isErrorMessageSpecified()) {
-    				throw new DataSourceException(e.getFaultMessage().getDataSourceException().getErrorMessage(), e);
-    			}
-    			throw new DataSourceException(e.getMessage(), e);
-            }catch (AxisFault e) {
-            	throw new DataSourceException(e.getMessage(), e);
-    		}
+            try {
+                stub.editUserStoreWithDomainName(previousDomain, userStoreDTO);
+            } catch (UserStoreConfigAdminServiceDataSourceException e) {
+                if (e.getFaultMessage().getDataSourceException().isErrorMessageSpecified()) {
+                    throw new DataSourceException(e.getFaultMessage().getDataSourceException().getErrorMessage(), e);
+                }
+                throw new DataSourceException(e.getMessage(), e);
+            } catch (AxisFault e) {
+                throw new DataSourceException(e.getMessage(), e);
+            }
         } else {
             this.updateUserStore(userStoreDTO);
         }
@@ -163,27 +163,27 @@ public class UserStoreConfigAdminServiceClient {
      * @throws Exception
      */
     public void updateUserStore(UserStoreDTO userStoreDTO) throws DataSourceException, Exception {
-        
-        try{
-        	stub.editUserStore(userStoreDTO);
-        }catch(UserStoreConfigAdminServiceDataSourceException e){
-        	if (e.getFaultMessage().getDataSourceException().isErrorMessageSpecified()) {
-				throw new DataSourceException(e.getFaultMessage().getDataSourceException().getErrorMessage(), e);
-			}
-			throw new DataSourceException(e.getMessage(), e);
-        }catch (AxisFault e) {
-        	throw new DataSourceException(e.getMessage(), e);
-		}
+
+        try {
+            stub.editUserStore(userStoreDTO);
+        } catch (UserStoreConfigAdminServiceDataSourceException e) {
+            if (e.getFaultMessage().getDataSourceException().isErrorMessageSpecified()) {
+                throw new DataSourceException(e.getFaultMessage().getDataSourceException().getErrorMessage(), e);
+            }
+            throw new DataSourceException(e.getMessage(), e);
+        } catch (AxisFault e) {
+            throw new DataSourceException(e.getMessage(), e);
+        }
     }
-    
-    public boolean testRDBMSConnection(String domainName, String driverName, String connectionURL, String username, String connectionPassword) throws Exception{
-    	try {
-			return stub.testRDBMSConnection(domainName, driverName, connectionURL, username, connectionPassword);
-		}  catch (UserStoreConfigAdminServiceDataSourceException e) {
-			if (e.getFaultMessage().getDataSourceException().isErrorMessageSpecified()) {
-				throw new DataSourceException(e.getFaultMessage().getDataSourceException().getErrorMessage(), e);
-			}
-			throw new DataSourceException(e.getMessage(), e);
-		}
+
+    public boolean testRDBMSConnection(String domainName, String driverName, String connectionURL, String username, String connectionPassword) throws Exception {
+        try {
+            return stub.testRDBMSConnection(domainName, driverName, connectionURL, username, connectionPassword);
+        } catch (UserStoreConfigAdminServiceDataSourceException e) {
+            if (e.getFaultMessage().getDataSourceException().isErrorMessageSpecified()) {
+                throw new DataSourceException(e.getFaultMessage().getDataSourceException().getErrorMessage(), e);
+            }
+            throw new DataSourceException(e.getMessage(), e);
+        }
     }
 }

@@ -30,25 +30,24 @@ import org.wso2.carbon.identity.entitlement.stub.dto.PIPFinderDataHolder;
 import org.wso2.carbon.identity.entitlement.stub.dto.PolicyFinderDataHolder;
 
 /**
- * 
+ *
  */
 public class EntitlementAdminServiceClient {
 
-    private EntitlementAdminServiceStub stub;
-
     private static final Log log = LogFactory.getLog(EntitlementAdminServiceClient.class);
+    private EntitlementAdminServiceStub stub;
 
     /**
      * Instantiates EntitlementServiceClient
      *
-     * @param cookie For session management
+     * @param cookie           For session management
      * @param backendServerURL URL of the back end server where EntitlementPolicyAdminService is
-     *        running.
-     * @param configCtx ConfigurationContext
+     *                         running.
+     * @param configCtx        ConfigurationContext
      * @throws org.apache.axis2.AxisFault
      */
     public EntitlementAdminServiceClient(String cookie, String backendServerURL,
-            ConfigurationContext configCtx) throws AxisFault {
+                                         ConfigurationContext configCtx) throws AxisFault {
         String serviceURL = backendServerURL + "EntitlementAdminService";
         stub = new EntitlementAdminServiceStub(configCtx, serviceURL);
         ServiceClient client = stub._getServiceClient();
@@ -59,6 +58,7 @@ public class EntitlementAdminServiceClient {
 
     /**
      * Clears the decision cache maintained by the PDP.
+     *
      * @throws AxisFault
      */
     public void clearDecisionCache() throws AxisFault {
@@ -73,6 +73,7 @@ public class EntitlementAdminServiceClient {
 
     /**
      * Clears the attribute cache maintained by the PDP.
+     *
      * @throws AxisFault
      */
     public void clearAttributeCache() throws AxisFault {
@@ -89,13 +90,13 @@ public class EntitlementAdminServiceClient {
     /**
      * Evaluate XACML request with PDP
      *
-     * @param request  XACML request as String
+     * @param request XACML request as String
      * @return XACML response as String
      * @throws AxisFault if fails
      */
     public String getDecision(String request) throws AxisFault {
         try {
-            if(request != null){
+            if (request != null) {
                 request = request.trim().replaceAll("&lt;", "<"); //TODO should be properly fixed
                 request = request.trim().replaceAll("&gt;", ">");
             }
@@ -116,7 +117,7 @@ public class EntitlementAdminServiceClient {
      */
     public String getDecision(String request, String[] policies) throws AxisFault {
         try {
-            if(request != null){
+            if (request != null) {
                 request = request.trim().replaceAll("&lt;", "<"); //TODO should be properly fixed
                 request = request.trim().replaceAll("&gt;", ">");
             }
@@ -125,8 +126,8 @@ public class EntitlementAdminServiceClient {
             handleException("Error occurred while test policy evaluation", e);
         }
         return null;
-    }    
-    
+    }
+
     public PDPDataHolder getPDPData() throws AxisFault {
 
         try {
@@ -200,7 +201,8 @@ public class EntitlementAdminServiceClient {
     }
 
     /**
-     *  Get  globally defined policy combining algorithm
+     * Get  globally defined policy combining algorithm
+     *
      * @return policy combining algorithm as a String
      * @throws AxisFault
      */
@@ -216,6 +218,7 @@ public class EntitlementAdminServiceClient {
 
     /**
      * Set policy combining algorithm globally
+     *
      * @param policyAlgorithm policy combining algorithm as a String
      * @throws AxisFault
      */
@@ -231,7 +234,7 @@ public class EntitlementAdminServiceClient {
      * Logs and wraps the given exception.
      *
      * @param msg Error message
-     * @param e Exception
+     * @param e   Exception
      * @throws AxisFault
      */
     private void handleException(String msg, Exception e) throws AxisFault {

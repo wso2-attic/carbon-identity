@@ -18,22 +18,22 @@ package org.wso2.carbon.identity.relyingparty;
 
 public class HTMLEncoder {
 
-	public static String encode(String val) {
-		StringBuffer buffer;
-		int length;
+    public static String encode(String val) {
+        StringBuffer buffer;
+        int length;
 
-		buffer = new StringBuffer();
-		length = (val == null ? -1 : val.length());
+        buffer = new StringBuffer();
+        length = (val == null ? -1 : val.length());
 
-		for (int i = 0; i < length; i++) {
-			char c = val.charAt(i);
-			if (c > 127 || c == '"' || c == '<' || c == '>') {
-				buffer.append("&#" + (int) c + ";");
-			} else {
-				buffer.append(c);
-			}
-		}
-		return buffer.toString();
-	}
+        for (int i = 0; i < length; i++) {
+            char c = val.charAt(i);
+            if (c > 127 || c == '"' || c == '<' || c == '>') {
+                buffer.append("&#" + (int) c + ";");
+            } else {
+                buffer.append(c);
+            }
+        }
+        return buffer.toString();
+    }
 
 }

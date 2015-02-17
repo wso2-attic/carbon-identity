@@ -26,7 +26,7 @@ import org.wso2.carbon.identity.provisioning.AbstractProvisioningConnectorFactor
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
 
 /**
- * 
+ *
  *
  */
 public class SalesforceProvisioningConnectorFactory extends AbstractProvisioningConnectorFactory {
@@ -36,7 +36,7 @@ public class SalesforceProvisioningConnectorFactory extends AbstractProvisioning
 
     @Override
     /**
-     * 
+     *
      */
     protected AbstractOutboundProvisioningConnector buildConnector(
             Property[] provisioningProperties) throws IdentityProvisioningException {
@@ -52,7 +52,7 @@ public class SalesforceProvisioningConnectorFactory extends AbstractProvisioning
 
     @Override
     /**
-     * 
+     *
      */
     public String getConnectorType() {
         return SALESFORCE;

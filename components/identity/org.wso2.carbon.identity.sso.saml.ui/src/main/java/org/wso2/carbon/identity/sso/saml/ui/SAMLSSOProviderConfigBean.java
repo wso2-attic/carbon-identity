@@ -22,218 +22,208 @@ import java.util.List;
 
 public class SAMLSSOProviderConfigBean {
 
-	private String issuer = "";
-	private String assertionConsumerUrl = "";
-	private String useFullyQualifiedUserName = "false";
-	private String enableAssertionSigning = "false";
-	private String enableSignatureValidation = "false";
-	private String certificateAlias = "";
-	private String enableSingleLogout = "false";
-	private String singleLogoutUrl = "";
-	private String enableClaims = "false";
+    private String issuer = "";
+    private String assertionConsumerUrl = "";
+    private String useFullyQualifiedUserName = "false";
+    private String enableAssertionSigning = "false";
+    private String enableSignatureValidation = "false";
+    private String certificateAlias = "";
+    private String enableSingleLogout = "false";
+    private String singleLogoutUrl = "";
+    private String enableClaims = "false";
     private String enableAudiences = "false";
     private String enableRecipients = "false";
-	private List<String> selectedClaims = new ArrayList<String>();
+    private List<String> selectedClaims = new ArrayList<String>();
     private List<String> selectedAudiences = new ArrayList<String>();
     private List<String> selectedRecipients = new ArrayList<String>();
     private String attributeConsumingServiceIndex = null;
     private String isIdPInitSSOEnabled;
 
-	/**
-	 * clears the values in bean
-	 */
-	public void clearBean() {
-		issuer = "";
-		assertionConsumerUrl = "";
-		useFullyQualifiedUserName = "false";
-		enableAssertionSigning = "false";
-		enableSignatureValidation = "false";
-		certificateAlias = "";
-		enableSingleLogout = "false";
-		singleLogoutUrl = "";
-		enableClaims = "false";
+    /**
+     * clears the values in bean
+     */
+    public void clearBean() {
+        issuer = "";
+        assertionConsumerUrl = "";
+        useFullyQualifiedUserName = "false";
+        enableAssertionSigning = "false";
+        enableSignatureValidation = "false";
+        certificateAlias = "";
+        enableSingleLogout = "false";
+        singleLogoutUrl = "";
+        enableClaims = "false";
         enableAudiences = "false";
         enableRecipients = "false";
         attributeConsumingServiceIndex = "";
-		selectedClaims.clear();
-	}
+        selectedClaims.clear();
+    }
 
-	/**
-	 * @return the singleLogoutUrl
-	 */
-	public String getSingleLogoutUrl() {
-		return singleLogoutUrl;
-	}
+    /**
+     * @return the singleLogoutUrl
+     */
+    public String getSingleLogoutUrl() {
+        return singleLogoutUrl;
+    }
 
-	/**
-	 * @param singleLogoutUrl
-	 *            the singleLogoutUrl to set
-	 */
-	public void setSingleLogoutUrl(String singleLogoutUrl) {
-		this.singleLogoutUrl = singleLogoutUrl;
-	}
+    /**
+     * @param singleLogoutUrl the singleLogoutUrl to set
+     */
+    public void setSingleLogoutUrl(String singleLogoutUrl) {
+        this.singleLogoutUrl = singleLogoutUrl;
+    }
 
-	/**
-	 * @return the enableSingleLogout
-	 */
-	public String getEnableSingleLogout() {
-		return enableSingleLogout;
-	}
+    /**
+     * @return the enableSingleLogout
+     */
+    public String getEnableSingleLogout() {
+        return enableSingleLogout;
+    }
 
-	/**
-	 * @param enableSingleLogout
-	 *            the enableSingleLogout to set
-	 */
-	public void setEnableSingleLogout(String enableSingleLogout) {
-		this.enableSingleLogout = enableSingleLogout;
-	}
+    /**
+     * @param enableSingleLogout the enableSingleLogout to set
+     */
+    public void setEnableSingleLogout(String enableSingleLogout) {
+        this.enableSingleLogout = enableSingleLogout;
+    }
 
-	/**
-	 * @return the certificateAlias
-	 */
-	public String getCertificateAlias() {
-		return certificateAlias;
-	}
+    /**
+     * @return the certificateAlias
+     */
+    public String getCertificateAlias() {
+        return certificateAlias;
+    }
 
-	/**
-	 * @param certificateAlias
-	 *            the certificateAlias to set
-	 */
-	public void setCertificateAlias(String certificateAlias) {
-		this.certificateAlias = certificateAlias;
-	}
+    /**
+     * @param certificateAlias the certificateAlias to set
+     */
+    public void setCertificateAlias(String certificateAlias) {
+        this.certificateAlias = certificateAlias;
+    }
 
-	/**
-	 * @return the enableSignatureValidation
-	 */
-	public String getEnableSignatureValidation() {
-		return enableSignatureValidation;
-	}
+    /**
+     * @return the enableSignatureValidation
+     */
+    public String getEnableSignatureValidation() {
+        return enableSignatureValidation;
+    }
 
-	/**
-	 * @param enableSignatureValidation
-	 *            the enableSignatureValidation to set
-	 */
-	public void setEnableSignatureValidation(String enableSignatureValidation) {
-		this.enableSignatureValidation = enableSignatureValidation;
-	}
+    /**
+     * @param enableSignatureValidation the enableSignatureValidation to set
+     */
+    public void setEnableSignatureValidation(String enableSignatureValidation) {
+        this.enableSignatureValidation = enableSignatureValidation;
+    }
 
-	/**
-	 * @return the enableAssertionSigning
-	 */
-	public String getEnableAssertionSigning() {
-		return enableAssertionSigning;
-	}
+    /**
+     * @return the enableAssertionSigning
+     */
+    public String getEnableAssertionSigning() {
+        return enableAssertionSigning;
+    }
 
-	/**
-	 * @param enableAssertionSigning
-	 *            the enableAssertionSigning to set
-	 */
-	public void setEnableAssertionSigning(String enableAssertionSigning) {
-		this.enableAssertionSigning = enableAssertionSigning;
-	}
+    /**
+     * @param enableAssertionSigning the enableAssertionSigning to set
+     */
+    public void setEnableAssertionSigning(String enableAssertionSigning) {
+        this.enableAssertionSigning = enableAssertionSigning;
+    }
 
-	/**
-	 * @return the useFullyQualifiedUserName
-	 */
-	public String getUseFullyQualifiedUserName() {
-		return useFullyQualifiedUserName;
-	}
+    /**
+     * @return the useFullyQualifiedUserName
+     */
+    public String getUseFullyQualifiedUserName() {
+        return useFullyQualifiedUserName;
+    }
 
-	/**
-	 * @param useFullyQualifiedUserName
-	 *            the useFullyQualifiedUserName to set
-	 */
-	public void setUseFullyQualifiedUserName(String useFullyQualifiedUserName) {
-		this.useFullyQualifiedUserName = useFullyQualifiedUserName;
-	}
+    /**
+     * @param useFullyQualifiedUserName the useFullyQualifiedUserName to set
+     */
+    public void setUseFullyQualifiedUserName(String useFullyQualifiedUserName) {
+        this.useFullyQualifiedUserName = useFullyQualifiedUserName;
+    }
 
-	/**
-	 * @return the assertionConsumerUrl
-	 */
-	public String getAssertionConsumerUrl() {
-		return assertionConsumerUrl;
-	}
+    /**
+     * @return the assertionConsumerUrl
+     */
+    public String getAssertionConsumerUrl() {
+        return assertionConsumerUrl;
+    }
 
-	/**
-	 * @param assertionConsumerUrl
-	 *            the assertionConsumerUrl to set
-	 */
-	public void setAssertionConsumerUrl(String assertionConsumerUrl) {
-		this.assertionConsumerUrl = assertionConsumerUrl;
-	}
+    /**
+     * @param assertionConsumerUrl the assertionConsumerUrl to set
+     */
+    public void setAssertionConsumerUrl(String assertionConsumerUrl) {
+        this.assertionConsumerUrl = assertionConsumerUrl;
+    }
 
-	/**
-	 * @return the issuer
-	 */
-	public String getIssuer() {
-		return issuer;
-	}
+    /**
+     * @return the issuer
+     */
+    public String getIssuer() {
+        return issuer;
+    }
 
-	/**
-	 * @param issuer
-	 *            the issuer to set
-	 */
-	public void setIssuer(String issuer) {
-		this.issuer = issuer;
-	}
+    /**
+     * @param issuer the issuer to set
+     */
+    public void setIssuer(String issuer) {
+        this.issuer = issuer;
+    }
 
-	/**
-	 * @return the enableClaims
-	 */
-	public String getEnableClaims() {
-		return enableClaims;
-	}
+    /**
+     * @return the enableClaims
+     */
+    public String getEnableClaims() {
+        return enableClaims;
+    }
 
-	/**
-	 * @param enableClaims
-	 *            the enableClaims to set
-	 */
-	public void setEnableClaims(String enableClaims) {
-		this.enableClaims = enableClaims;
-	}
+    /**
+     * @param enableClaims the enableClaims to set
+     */
+    public void setEnableClaims(String enableClaims) {
+        this.enableClaims = enableClaims;
+    }
 
-	/**
-	 * @return the selectedClaims
-	 */
-	public List<String> getSelectedClaims() {
-		return selectedClaims;
-	}
-	
-	public String[] getSelectedClaimsAttay() {
-		return selectedClaims.toArray(new String[selectedClaims.size()]);
-	}
+    /**
+     * @return the selectedClaims
+     */
+    public List<String> getSelectedClaims() {
+        return selectedClaims;
+    }
 
-	/**
-	 * @param selectedClaims
-	 *            the selected claims to set
-	 */
-	public void setSelectedAttributes(List<String> selectedClaims) {
-		this.selectedClaims = selectedClaims;
-	}
+    public String[] getSelectedClaimsAttay() {
+        return selectedClaims.toArray(new String[selectedClaims.size()]);
+    }
 
-	/**
-	 * add an claim to the required cliams list
-	 * 
-	 * @param claim
-	 * @return 
-	 */
-	public boolean addClaimToList(String claim) {
-		if(selectedClaims.contains(claim)){
-			return false;
-		}
-		selectedClaims.add(claim);
-		return true;
-	}
+    /**
+     * @param selectedClaims the selected claims to set
+     */
+    public void setSelectedAttributes(List<String> selectedClaims) {
+        this.selectedClaims = selectedClaims;
+    }
 
-	/**
-	 * remove a claim from the required claims list
-	 * 
-	 * @param claim
-	 */
-	public void removeClaimFromList(String claim) {
-		selectedClaims.remove(claim);
-	}
+    /**
+     * add an claim to the required cliams list
+     *
+     * @param claim
+     * @return
+     */
+    public boolean addClaimToList(String claim) {
+        if (selectedClaims.contains(claim)) {
+            return false;
+        }
+        selectedClaims.add(claim);
+        return true;
+    }
+
+    /**
+     * remove a claim from the required claims list
+     *
+     * @param claim
+     */
+    public void removeClaimFromList(String claim) {
+        selectedClaims.remove(claim);
+    }
 
     /**
      * @return the enableAudiences
@@ -243,8 +233,7 @@ public class SAMLSSOProviderConfigBean {
     }
 
     /**
-     * @param enableAudiences
-     *            the enableAudiences to set
+     * @param enableAudiences the enableAudiences to set
      */
     public void setEnableAudiences(String enableAudiences) {
         this.enableAudiences = enableAudiences;
@@ -268,7 +257,7 @@ public class SAMLSSOProviderConfigBean {
      * @return
      */
     public boolean addAudienceToList(String audience) {
-        if(selectedAudiences.contains(audience)){
+        if (selectedAudiences.contains(audience)) {
             return false;
         }
         selectedAudiences.add(audience);
@@ -292,8 +281,7 @@ public class SAMLSSOProviderConfigBean {
     }
 
     /**
-     * @param enableRecipients
-     *            the enableRecipients to set
+     * @param enableRecipients the enableRecipients to set
      */
     public void setEnableRecipients(String enableRecipients) {
         this.enableRecipients = enableRecipients;
@@ -317,7 +305,7 @@ public class SAMLSSOProviderConfigBean {
      * @return
      */
     public boolean addRecipientToList(String recipient) {
-        if(selectedRecipients.contains(recipient)){
+        if (selectedRecipients.contains(recipient)) {
             return false;
         }
         selectedRecipients.add(recipient);
@@ -341,8 +329,7 @@ public class SAMLSSOProviderConfigBean {
     }
 
     /**
-     * @param attributeConsumingServiceIndex
-     *            the issuer to set
+     * @param attributeConsumingServiceIndex the issuer to set
      */
     public void setAttributeConsumingServiceIndex(String attributeConsumingServiceIndex) {
         this.attributeConsumingServiceIndex = attributeConsumingServiceIndex;

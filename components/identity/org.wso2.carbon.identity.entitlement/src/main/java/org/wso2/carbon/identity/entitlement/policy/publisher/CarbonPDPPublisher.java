@@ -28,7 +28,7 @@ import java.util.Properties;
 /**
  *
  */
-public class CarbonPDPPublisher implements PolicyPublisherModule{
+public class CarbonPDPPublisher implements PolicyPublisherModule {
 
     @Override
     public void init(Properties properties) {
@@ -50,21 +50,21 @@ public class CarbonPDPPublisher implements PolicyPublisherModule{
 
         PolicyStoreManager manager = EntitlementAdminEngine.getInstance().getPolicyStoreManager();
 
-        if(EntitlementConstants.PolicyPublish.ACTION_CREATE.equals(action)){
+        if (EntitlementConstants.PolicyPublish.ACTION_CREATE.equals(action)) {
             policyDTO.setPolicyOrder(order);
             policyDTO.setActive(enabled);
             manager.addPolicy(policyDTO);
-        } else if(EntitlementConstants.PolicyPublish.ACTION_DELETE.equals(action)){
+        } else if (EntitlementConstants.PolicyPublish.ACTION_DELETE.equals(action)) {
             manager.removePolicy(policyDTO);
-        } else if(EntitlementConstants.PolicyPublish.ACTION_UPDATE.equals(action)){
+        } else if (EntitlementConstants.PolicyPublish.ACTION_UPDATE.equals(action)) {
             manager.updatePolicy(policyDTO);
-        } else if(EntitlementConstants.PolicyPublish.ACTION_ENABLE.equals(action)){
+        } else if (EntitlementConstants.PolicyPublish.ACTION_ENABLE.equals(action)) {
             policyDTO.setActive(true);
             manager.enableDisablePolicy(policyDTO);
-        } else if(EntitlementConstants.PolicyPublish.ACTION_DISABLE.equals(action)){
+        } else if (EntitlementConstants.PolicyPublish.ACTION_DISABLE.equals(action)) {
             policyDTO.setActive(false);
             manager.enableDisablePolicy(policyDTO);
-        } else if(EntitlementConstants.PolicyPublish.ACTION_ORDER.equals(action)){
+        } else if (EntitlementConstants.PolicyPublish.ACTION_ORDER.equals(action)) {
             policyDTO.setPolicyOrder(order);
             manager.orderPolicy(policyDTO);
         }

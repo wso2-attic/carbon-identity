@@ -16,8 +16,6 @@
 
 package org.wso2.carbon.identity.mgt.mail;
 
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -26,45 +24,29 @@ import org.wso2.carbon.identity.mgt.config.Config;
 import org.wso2.carbon.identity.mgt.config.ConfigBuilder;
 import org.wso2.carbon.identity.mgt.config.ConfigType;
 import org.wso2.carbon.identity.mgt.config.StorageType;
-import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
-import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
 import org.wso2.carbon.identity.mgt.util.Utils;
-import org.wso2.carbon.registry.core.Collection;
-import org.wso2.carbon.registry.core.Registry;
-import org.wso2.carbon.registry.core.Resource;
-import org.wso2.carbon.registry.core.exceptions.RegistryException;
-import org.wso2.carbon.utils.CarbonUtils;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.io.*;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
  * email sending abstract module. This implements the runnable task for sending
  * email.
  * So implementation of this module does not want to worry about threads.
- * 
  */
 public abstract class AbstractEmailSendingModule extends NotificationSendingModule {
 
-    protected String NOTIFICATION_TYPE = "EMAIL";
-
     private static final Log log = LogFactory.getLog(AbstractEmailSendingModule.class);
-
+    protected String NOTIFICATION_TYPE = "EMAIL";
     private Map<String, EmailConfig> emailConfigs = new HashMap<String, EmailConfig>();
-    
+
     private Config emailConfig;
 //
 //    public Config getEmailConfig() {
 //		return this.emailConfig;
 //	}
 
-	@Override
+    @Override
     public String getNotificationType() {
         return NOTIFICATION_TYPE;
     }
@@ -86,11 +68,11 @@ public abstract class AbstractEmailSendingModule extends NotificationSendingModu
 
         String notification = notificationData.getNotification();
 
-        if(notification != null && notification.trim().length() > 0){
+        if (notification != null && notification.trim().length() > 0) {
             emailConfig = emailConfigs.get(notification);
         }
 
-        if(emailConfig == null){
+        if (emailConfig == null) {
             emailConfig = new EmailConfig();
         }
 
@@ -107,17 +89,17 @@ public abstract class AbstractEmailSendingModule extends NotificationSendingModu
      */
     public void loadEmailConfigurations() {
 
-    	//Load the configuration
-    	int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
-		
-    	ConfigBuilder configBuilder = ConfigBuilder.getInstance();
-		try {
-			this.emailConfig = configBuilder.loadConfiguration(ConfigType.EMAIL, StorageType.REGISTRY, tenantId);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	    	
+        //Load the configuration
+        int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
+
+        ConfigBuilder configBuilder = ConfigBuilder.getInstance();
+        try {
+            this.emailConfig = configBuilder.loadConfiguration(ConfigType.EMAIL, StorageType.REGISTRY, tenantId);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
 //        String confXml = CarbonUtils.getCarbonConfigDirPath() + File.separator +
 //                IdentityMgtConstants.EMAIL_CONF_DIRECTORY + File.separator +
 //                IdentityMgtConstants.EMAIL_ADMIN_CONF_FILE;

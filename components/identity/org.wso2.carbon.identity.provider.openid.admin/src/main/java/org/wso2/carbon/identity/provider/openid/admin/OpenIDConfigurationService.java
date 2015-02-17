@@ -17,7 +17,6 @@
 */
 package org.wso2.carbon.identity.provider.openid.admin;
 
-import org.wso2.carbon.core.util.AdminServicesUtil;
 import org.wso2.carbon.identity.core.model.OpenIDAdminDO;
 import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
@@ -45,10 +44,10 @@ public class OpenIDConfigurationService {
             configuration.setTenantOpenIDPattern(opdo.getTenantOpenIDPattern());
         } else {
             configuration.setSubDomain("identity");
-        }        
+        }
         configuration.setDefaultOpenIDPattern(DEFAULT_OPENID_PATTERN);
-        configuration.setAvailableTenantOpenIDPattern(new String[] { OPENID_PATTERN_1,
-                OPENID_PATTERN_2 });
+        configuration.setAvailableTenantOpenIDPattern(new String[]{OPENID_PATTERN_1,
+                OPENID_PATTERN_2});
         return configuration;
     }
 

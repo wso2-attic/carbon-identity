@@ -36,6 +36,19 @@ public class AdminGroupInfo extends DomainNameEntry {
 
     private String memberNameAttribute;
 
+    public AdminGroupInfo(String grpNameAttribute, String groupMemberNameAttribute,
+                          String adminRole) {
+        this.groupNameAttribute = grpNameAttribute;
+        this.memberNameAttribute = groupMemberNameAttribute;
+        this.adminRoleName = adminRole;
+
+        this.objectClassList.addAll(Arrays.asList("top", "groupOfNames"));
+    }
+
+    public AdminGroupInfo() {
+        this.objectClassList.addAll(Arrays.asList("top", "groupOfNames"));
+    }
+
     public String getAdminRoleName() {
         return adminRoleName;
     }
@@ -70,18 +83,5 @@ public class AdminGroupInfo extends DomainNameEntry {
         }
 
         this.memberNameAttribute = memberNameAttribute;
-    }
-
-    public AdminGroupInfo(String grpNameAttribute, String groupMemberNameAttribute,
-                          String adminRole) {
-        this.groupNameAttribute = grpNameAttribute;
-        this.memberNameAttribute = groupMemberNameAttribute;
-        this.adminRoleName = adminRole;
-
-        this.objectClassList.addAll(Arrays.asList("top", "groupOfNames"));
-    }
-
-    public AdminGroupInfo() {
-        this.objectClassList.addAll(Arrays.asList("top", "groupOfNames"));
     }
 }

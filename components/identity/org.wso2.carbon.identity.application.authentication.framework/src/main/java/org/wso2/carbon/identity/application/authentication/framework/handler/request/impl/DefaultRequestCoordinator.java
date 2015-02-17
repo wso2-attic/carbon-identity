@@ -1,17 +1,12 @@
 package org.wso2.carbon.identity.application.authentication.framework.handler.request.impl;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCache;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheKey;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.SequenceConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
@@ -23,10 +18,14 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.user.api.Tenant;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCache;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheKey;
-import org.apache.commons.lang.StringUtils;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 /**
  * Request Coordinator
@@ -90,7 +89,7 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                     }
                 }
 
-                
+
                 if (!context.isLogoutRequest()) {
                     FrameworkUtils.getAuthenticationRequestHandler().handle(request, response,
                             context);
@@ -98,9 +97,9 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                     FrameworkUtils.getLogoutRequestHandler().handle(request, response, context);
                 }
             } else {
-                if(log.isDebugEnabled()){
-                    String key =  request.getParameter("sessionDataKey");
-                    if(key == null){
+                if (log.isDebugEnabled()) {
+                    String key = request.getParameter("sessionDataKey");
+                    if (key == null) {
                         log.debug("Session data key is null in the request");
                     } else {
                         log.debug("Session data key  :  " + key);
@@ -112,9 +111,8 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
         } catch (Throwable e) {
             log.error("Exception in Authentication Framework", e);
             FrameworkUtils.sendToRetryPage(request, response);
-        }
-        finally {
-        //      FrameworkUtils.removeAuthenticationRequestFromCache(request.getParameter("sessionDataKey"));
+        } finally {
+            //      FrameworkUtils.removeAuthenticationRequestFromCache(request.getParameter("sessionDataKey"));
         }
     }
 
@@ -126,7 +124,6 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
      * @throws ServletException
      * @throws IOException
      * @throws
-     *
      */
     protected AuthenticationContext initializeFlow(HttpServletRequest request,
                                                    HttpServletResponse response) throws FrameworkException {
@@ -160,7 +157,7 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
         // tenant domain
         String tenantDomain = request.getParameter(FrameworkConstants.RequestParams.TENANT_DOMAIN);
 
-        if (tenantDomain == null || tenantDomain.isEmpty()||tenantDomain.equals("null")) {
+        if (tenantDomain == null || tenantDomain.isEmpty() || tenantDomain.equals("null")) {
 
             String tenantId = request.getParameter(FrameworkConstants.RequestParams.TENANT_ID);
 
@@ -303,7 +300,7 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                 }
             }
         }
-        
+
         context.setServiceProviderName(sequenceConfig.getApplicationConfig().getApplicationName());
 
         // set the sequence for the current authentication/logout flow

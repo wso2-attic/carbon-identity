@@ -23,19 +23,19 @@ package org.wso2.carbon.identity.authorization.ui;
  */
 public class IdentityAuthorizationConstants {
 
-	public static final String DEFAULT_META_DATA_MODULE_NAME = "CarbonPermissionFinderModule";
+    public static final String DEFAULT_META_DATA_MODULE_NAME = "CarbonPermissionFinderModule";
 
-	public static final String COMBO_BOX_DEFAULT_VALUE = "---Select---";
+    public static final String COMBO_BOX_DEFAULT_VALUE = "---Select---";
 
-	public static final byte INSERT = 1;
+    public static final byte INSERT = 1;
 
-	public static final byte UPDATE = 2;
+    public static final byte UPDATE = 2;
 
-	public static final byte DELETE = 3;
+    public static final byte DELETE = 3;
 
-	public static class SessionConstants {
+    public static class SessionConstants {
 
-		public static final String MODULES = "modules";
-		public static final String ERROR_STATUS_BEAN = "ERROR_STATUS_BEAN";
-	}
+        public static final String MODULES = "modules";
+        public static final String ERROR_STATUS_BEAN = "ERROR_STATUS_BEAN";
+    }
 }

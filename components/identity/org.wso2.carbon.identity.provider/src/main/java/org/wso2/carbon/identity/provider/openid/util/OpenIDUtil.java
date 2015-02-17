@@ -16,25 +16,6 @@
 
 package org.wso2.carbon.identity.provider.openid.util;
 
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
@@ -53,14 +34,21 @@ import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.UnsupportedEncodingException;
+import java.net.*;
+import java.util.*;
+
 /**
  * Contains OpenID related utility functions
  */
 public class OpenIDUtil {
 
-    private static Log log = LogFactory.getLog(OpenIDUtil.class);
-
     private static final Set<Character> UNRESERVED_CHARACTERS = new HashSet<Character>();
+    private static Log log = LogFactory.getLog(OpenIDUtil.class);
 
     public static String getUserName(String rquestUrl) throws IdentityException {
         String caller = null;
@@ -69,20 +57,20 @@ public class OpenIDUtil {
         String contextPath = "/openid/";
 
         try {
-			uri = new URI(rquestUrl);
-			path = uri.getPath();
-		} catch (URISyntaxException e) {
-			throw new IdentityException("Invalid OpenID", e);
-		}
+            uri = new URI(rquestUrl);
+            path = uri.getPath();
+        } catch (URISyntaxException e) {
+            throw new IdentityException("Invalid OpenID", e);
+        }
 
-		caller = path.substring(path.indexOf(contextPath)
-				+ contextPath.length(), path.length());
-		return caller;
+        caller = path.substring(path.indexOf(contextPath)
+                + contextPath.length(), path.length());
+        return caller;
     }
 
     /**
      * Generate OpenID for a given user.
-     * 
+     *
      * @param user User
      * @return Generated OpenID
      * @throws IdentityProviderException
@@ -158,7 +146,7 @@ public class OpenIDUtil {
 
     /**
      * Normalize the provided relying party URL
-     * 
+     *
      * @param rpUrl Relying party URL to be normalized
      * @return Normalized relying party URL
      * @throws RelyingPartyException
@@ -246,7 +234,7 @@ public class OpenIDUtil {
 
     /**
      * Find the OpenID corresponding to the given user name.
-     * 
+     *
      * @param userName User name
      * @return OpenID corresponding the given user name.
      * @throws IdentityProviderException
@@ -262,7 +250,8 @@ public class OpenIDUtil {
             tenant = null;
         }
 
-        String frontEndUrl = getAdminConsoleURL(request) + relativeUrl;;
+        String frontEndUrl = getAdminConsoleURL(request) + relativeUrl;
+        ;
 
         if (tenant != null && tenant.trim().length() > 0) {
             return frontEndUrl.replace("/carbon/", "/t/" + tenant + "/carbon/");
@@ -278,30 +267,30 @@ public class OpenIDUtil {
         }
         return url;
     }
-    
-	/**
-	 * Returns an instance of <code>OpenIDAdminClient</code>. 
-	 * Only one instance of this will be created for a session.
-	 * This method is used to reuse the same client within a session.
-	 * 
-	 * @param session
-	 * @return {@link OpenIDAdminClient}
-	 * @throws AxisFault
-	 */
-	public static OpenIDAdminClient getOpenIDAdminClient(HttpSession session) throws AxisFault {
-		OpenIDAdminClient client =
-		                           (OpenIDAdminClient) session.getAttribute(OpenIDConstants.SessionAttribute.OPENID_ADMIN_CLIENT);
-		if (client == null) { // a session timeout or the fist request
-			String serverURL = CarbonUIUtil.getServerURL(session.getServletContext(), session);
-			ConfigurationContext configContext =
-			                                     (ConfigurationContext) session.getServletContext()
-			                                                                   .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-			String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
-			client = new OpenIDAdminClient(configContext, serverURL, cookie);
-			session.setAttribute(OpenIDConstants.SessionAttribute.OPENID_ADMIN_CLIENT, client);
-		}
-		return client;
-	}
+
+    /**
+     * Returns an instance of <code>OpenIDAdminClient</code>.
+     * Only one instance of this will be created for a session.
+     * This method is used to reuse the same client within a session.
+     *
+     * @param session
+     * @return {@link OpenIDAdminClient}
+     * @throws AxisFault
+     */
+    public static OpenIDAdminClient getOpenIDAdminClient(HttpSession session) throws AxisFault {
+        OpenIDAdminClient client =
+                (OpenIDAdminClient) session.getAttribute(OpenIDConstants.SessionAttribute.OPENID_ADMIN_CLIENT);
+        if (client == null) { // a session timeout or the fist request
+            String serverURL = CarbonUIUtil.getServerURL(session.getServletContext(), session);
+            ConfigurationContext configContext =
+                    (ConfigurationContext) session.getServletContext()
+                            .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+            String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+            client = new OpenIDAdminClient(configContext, serverURL, cookie);
+            session.setAttribute(OpenIDConstants.SessionAttribute.OPENID_ADMIN_CLIENT, client);
+        }
+        return client;
+    }
 
     private static String getHostName() {
         ServerConfiguration serverConfig = ServerConfiguration.getInstance();
@@ -311,67 +300,67 @@ public class OpenIDUtil {
             return "localhost";
         }
     }
-    
-    public static String getLoginPageQueryParams(ParameterList params) throws IdentityException{
-    	String queryParams = null;
+
+    public static String getLoginPageQueryParams(ParameterList params) throws IdentityException {
+        String queryParams = null;
         try {
-        	String realm = params.getParameterValue("openid.realm") != null ?
-	                          URLEncoder.encode(params.getParameterValue("openid.realm"), "UTF-8") : "";
-           	String returnTo = params.getParameterValue("openid.return_to") != null ?
-           	                  URLEncoder.encode(params.getParameterValue("openid.return_to"), "UTF-8") : "";
-           	String claimedId = params.getParameterValue("openid.claimed_id") != null ?
-           	                   URLEncoder.encode(params.getParameterValue("openid.claimed_id"), "UTF-8") : "";                                                       
-           	String identity = params.getParameterValue("openid.identity") != null ?
-           	                  URLEncoder.encode(params.getParameterValue("openid.identity"), "UTF-8") : "";                                                     
-           	                  
-           	queryParams = "?openid.realm=" + realm
-               					 + "&openid.return_to=" +  returnTo
-               					 + "&openid.claimed_id=" + claimedId
-               					 + "&openid.identity=" + identity;
-    	
-    		String username = null;
-    		if(params.getParameterValue("openid.identity") != null){
-    			username = OpenIDUtil.getUserName(params.getParameterValue("openid.identity"));
-    			queryParams = queryParams + "&username=" + username;
-    		}
+            String realm = params.getParameterValue("openid.realm") != null ?
+                    URLEncoder.encode(params.getParameterValue("openid.realm"), "UTF-8") : "";
+            String returnTo = params.getParameterValue("openid.return_to") != null ?
+                    URLEncoder.encode(params.getParameterValue("openid.return_to"), "UTF-8") : "";
+            String claimedId = params.getParameterValue("openid.claimed_id") != null ?
+                    URLEncoder.encode(params.getParameterValue("openid.claimed_id"), "UTF-8") : "";
+            String identity = params.getParameterValue("openid.identity") != null ?
+                    URLEncoder.encode(params.getParameterValue("openid.identity"), "UTF-8") : "";
+
+            queryParams = "?openid.realm=" + realm
+                    + "&openid.return_to=" + returnTo
+                    + "&openid.claimed_id=" + claimedId
+                    + "&openid.identity=" + identity;
+
+            String username = null;
+            if (params.getParameterValue("openid.identity") != null) {
+                username = OpenIDUtil.getUserName(params.getParameterValue("openid.identity"));
+                queryParams = queryParams + "&username=" + username;
+            }
         } catch (UnsupportedEncodingException e) {
-	        // TODO JVM MUST support UTF-8
+            // TODO JVM MUST support UTF-8
         }
-    	                                       			
-    	return queryParams;
+
+        return queryParams;
     }
-    
+
     public static Cookie getCookie(String name, HttpServletRequest req) {
-    	Cookie[] reqCookies = req.getCookies();
-		if (reqCookies != null) {
-			for (Cookie cookie : reqCookies) {
-				if (cookie.getName().equalsIgnoreCase(name)) {
-					return cookie;
-				}
-			}
-		}
-		return null;
+        Cookie[] reqCookies = req.getCookies();
+        if (reqCookies != null) {
+            for (Cookie cookie : reqCookies) {
+                if (cookie.getName().equalsIgnoreCase(name)) {
+                    return cookie;
+                }
+            }
+        }
+        return null;
     }
-    
+
     public static void setCookie(String name, String value, int expires, String path, String domain,
-	                       boolean secure, HttpServletResponse resp) {
-		Cookie cookie = new Cookie(name, value);
-		cookie.setMaxAge(expires);
-		cookie.setPath(path);
-		cookie.setSecure(secure);
-		resp.addCookie(cookie);
-	}
+                                 boolean secure, HttpServletResponse resp) {
+        Cookie cookie = new Cookie(name, value);
+        cookie.setMaxAge(expires);
+        cookie.setPath(path);
+        cookie.setSecure(secure);
+        resp.addCookie(cookie);
+    }
 
     public static void deleteCookie(String name, String path, HttpServletRequest request) {
-		Cookie[] reqCookies = request.getCookies();
-		if (reqCookies != null) {
-			for (Cookie cookie : reqCookies) {
-				if (cookie.getName().equals(name) && cookie.getPath() != null
-						&& cookie.getPath().equals(path)) {
-					cookie.setMaxAge(0);
-					break;
-				}
-			}
-		}
-	}
+        Cookie[] reqCookies = request.getCookies();
+        if (reqCookies != null) {
+            for (Cookie cookie : reqCookies) {
+                if (cookie.getName().equals(name) && cookie.getPath() != null
+                        && cookie.getPath().equals(path)) {
+                    cookie.setMaxAge(0);
+                    break;
+                }
+            }
+        }
+    }
 }

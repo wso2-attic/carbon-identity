@@ -18,15 +18,11 @@
 
 package org.wso2.carbon.identity.oauth.ui.util;
 
-import org.apache.axiom.util.base64.Base64Utils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.stub.dto.OAuthConsumerAppDTO;
 import org.wso2.carbon.ui.CarbonUIUtil;
-import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -39,12 +35,13 @@ public class OAuthUIUtil {
 
     /**
      * Returns the corresponding absolute endpoint URL. e.g. https://localhost:9443/oauth2/access-token
+     *
      * @param endpointType It could be request-token endpoint, callback-token endpoint or access-token endpoint
      * @param oauthVersion OAuth version whether it is 1.0a or 2.0
-     * @param request HttpServletRequest coming to the FE jsp
+     * @param request      HttpServletRequest coming to the FE jsp
      * @return Absolute endpoint URL.
      */
-    public static String getAbsoluteEndpointURL(String endpointType, String oauthVersion, HttpServletRequest request){
+    public static String getAbsoluteEndpointURL(String endpointType, String oauthVersion, HttpServletRequest request) {
         // derive the hostname:port from the admin console url
         String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(request);
         String endpointURL = adminConsoleURL.substring(0, adminConsoleURL.indexOf("/carbon"));
@@ -52,7 +49,7 @@ public class OAuthUIUtil {
 
         // get the servlet context from the OAuth version.
         String oauthServletContext = "/oauth2";
-        if(oauthVersion.equals(OAuthConstants.OAuthVersions.VERSION_1A)){
+        if (oauthVersion.equals(OAuthConstants.OAuthVersions.VERSION_1A)) {
             oauthServletContext = "/oauth";
         }
         return (endpointURL + oauthServletContext + endpointType);

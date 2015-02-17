@@ -19,24 +19,25 @@
 package org.wso2.carbon.identity.application.common;
 
 public class IdentityApplicationManagementException extends Exception {
-    
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 2468789588607453995L;
-	/**
-	 * 
-	 */
 
-	public IdentityApplicationManagementException(String message){
+    /**
+     *
+     */
+    private static final long serialVersionUID = 2468789588607453995L;
+
+    /**
+     *
+     */
+
+    public IdentityApplicationManagementException(String message) {
         super(message);
     }
 
-    public IdentityApplicationManagementException(Throwable e){
+    public IdentityApplicationManagementException(Throwable e) {
         super(e);
     }
 
-    public IdentityApplicationManagementException(String message, Throwable e){
+    public IdentityApplicationManagementException(String message, Throwable e) {
         super(message, e);
     }
 

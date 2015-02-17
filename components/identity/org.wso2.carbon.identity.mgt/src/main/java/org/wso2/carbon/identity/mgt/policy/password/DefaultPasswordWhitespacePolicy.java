@@ -15,34 +15,34 @@
  */
 package org.wso2.carbon.identity.mgt.policy.password;
 
-import java.util.Map;
-
 import org.wso2.carbon.identity.mgt.policy.AbstractPasswordPolicyEnforcer;
 
-public class DefaultPasswordWhitespacePolicy extends AbstractPasswordPolicyEnforcer{
+import java.util.Map;
 
-	@Override
+public class DefaultPasswordWhitespacePolicy extends AbstractPasswordPolicyEnforcer {
+
+    @Override
     public boolean enforce(Object... args) {
-	    
-		if(args != null) {
-			
-			String password = args[0].toString();
-			String[] splits = password.split(" ");
-			if(splits.length > 1) {
-				errorMessage = "Password cannot contain whitespaces";
-				return false;
-			}else {
-				return true;
-			}
-		}else {
-			return true;
-		}
+
+        if (args != null) {
+
+            String password = args[0].toString();
+            String[] splits = password.split(" ");
+            if (splits.length > 1) {
+                errorMessage = "Password cannot contain whitespaces";
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return true;
+        }
     }
 
-	@Override
-    public void init(Map<String,String> params) {
-	    // Nothing to init.
-	    
+    @Override
+    public void init(Map<String, String> params) {
+        // Nothing to init.
+
     }
 
 }

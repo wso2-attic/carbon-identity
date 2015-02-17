@@ -17,11 +17,6 @@
 */
 package org.wso2.carbon.identity.provider.internal;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
-
-import javax.servlet.Servlet;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
@@ -30,6 +25,10 @@ import org.osgi.framework.ServiceListener;
 import org.wso2.carbon.identity.provider.openid.servlets.OpenIDProviderServlet;
 import org.wso2.carbon.identity.provider.openid.servlets.OpenIDUserServlet;
 
+import javax.servlet.Servlet;
+import java.util.Dictionary;
+import java.util.Hashtable;
+
 public class ServletContextListener implements ServiceListener {
 
     private static final Log log = LogFactory.getLog(ServletContextListener.class);
@@ -37,16 +36,6 @@ public class ServletContextListener implements ServiceListener {
 
     public ServletContextListener(BundleContext bc) {
         this.bundleContext = bc;
-    }
-
-    public void serviceChanged(ServiceEvent event) {
-        if (event.getType() == ServiceEvent.REGISTERED) {
-            try {
-                ServletContextListener.registerServlets(bundleContext);
-            } catch (Exception e) {
-                log.error("Failed to initialize the OpenID UI component", e);
-            }
-        }
     }
 
     private static void registerServlets(BundleContext bundleContext) {
@@ -67,6 +56,16 @@ public class ServletContextListener implements ServiceListener {
         providerServlet = new OpenIDProviderServlet();
         bundleContext.registerService(Servlet.class.getName(), providerServlet,
                 dictionaryResourceParams);
+    }
+
+    public void serviceChanged(ServiceEvent event) {
+        if (event.getType() == ServiceEvent.REGISTERED) {
+            try {
+                ServletContextListener.registerServlets(bundleContext);
+            } catch (Exception e) {
+                log.error("Failed to initialize the OpenID UI component", e);
+            }
+        }
     }
 
 }

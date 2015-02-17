@@ -23,22 +23,6 @@ public class IWADeploymentInterceptor implements AxisObserver {
     private static final Log log = LogFactory.getLog(IWADeploymentInterceptor.class);
 
     /**
-     * {@inheritDoc}
-     */
-    public void serviceUpdate(AxisEvent event, AxisService service) {
-        if (event.getEventType() == AxisEvent.SERVICE_DEPLOY
-                && IWA_SERVICE_NAME.equals(service.getName())) {
-            try {
-                populateRampartConfig(service.getAxisConfiguration());
-            } catch (Exception e) {
-                log.error("Error while updating " + IWA_SERVICE_NAME
-                        + " in IWADeploymentInterceptor", e);
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    /**
      * Updates RelyingPartyService with Crypto information
      *
      * @param config AxisConfiguration
@@ -61,6 +45,22 @@ public class IWADeploymentInterceptor implements AxisObserver {
         // Add the RampartConfig to service policy
         service.getPolicySubject().attachPolicy(rampartConfig);
 
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void serviceUpdate(AxisEvent event, AxisService service) {
+        if (event.getEventType() == AxisEvent.SERVICE_DEPLOY
+                && IWA_SERVICE_NAME.equals(service.getName())) {
+            try {
+                populateRampartConfig(service.getAxisConfiguration());
+            } catch (Exception e) {
+                log.error("Error while updating " + IWA_SERVICE_NAME
+                        + " in IWADeploymentInterceptor", e);
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     /**

@@ -16,10 +16,6 @@
 
 package org.wso2.carbon.identity.relyingparty.saml.tokens;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml1.core.Assertion;
@@ -34,90 +30,94 @@ import org.opensaml.xml.schema.XSString;
 import org.opensaml.xml.signature.Signature;
 import org.w3c.dom.Element;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 public class SAML1TokenHolder implements TokenHolder {
 
-	private Assertion assertion = null;
-	private boolean isMultipleValues = false;
-	private static Log log = LogFactory.getLog(SAML1TokenHolder.class);
+    private static Log log = LogFactory.getLog(SAML1TokenHolder.class);
+    private Assertion assertion = null;
+    private boolean isMultipleValues = false;
 
-	public SAML1TokenHolder(Element element) throws UnmarshallingException {
-		createToken(element);
-	}
+    public SAML1TokenHolder(Element element) throws UnmarshallingException {
+        createToken(element);
+    }
 
-	/**
-	 * Creates the SAML object from the element This method must be called first
-	 * 
-	 * @param elem
-	 * @throws UnmarshallingException If the token creation fails
-	 */
-	public void createToken(Element elem) throws UnmarshallingException {
-		UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
-		Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(elem);
-		assertion = (Assertion) unmarshaller.unmarshall(elem);
-	}
+    /**
+     * Creates the SAML object from the element This method must be called first
+     *
+     * @param elem
+     * @throws UnmarshallingException If the token creation fails
+     */
+    public void createToken(Element elem) throws UnmarshallingException {
+        UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
+        Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(elem);
+        assertion = (Assertion) unmarshaller.unmarshall(elem);
+    }
 
-	/**
-	 * @return the SAML signature.
-	 */
-	public Signature getSAMLSignature() {
-		return assertion.getSignature();
-	}
+    /**
+     * @return the SAML signature.
+     */
+    public Signature getSAMLSignature() {
+        return assertion.getSignature();
+    }
 
-	/**
-	 * Issuer of the SAML token
-	 * 
-	 * @return
-	 */
-	public String getIssuerName() {
-		return assertion.getIssuer();
-	}
+    /**
+     * Issuer of the SAML token
+     *
+     * @return
+     */
+    public String getIssuerName() {
+        return assertion.getIssuer();
+    }
 
-	/**
-	 * Populates the attributes.
-	 * 
-	 * @param attributeTable
-	 */
-	public void populateAttributeTable(Map<String,String> attributeTable) {
-		Iterator<AttributeStatement> statements = assertion.getAttributeStatements().iterator();
+    /**
+     * Populates the attributes.
+     *
+     * @param attributeTable
+     */
+    public void populateAttributeTable(Map<String, String> attributeTable) {
+        Iterator<AttributeStatement> statements = assertion.getAttributeStatements().iterator();
 
-		while (statements.hasNext()) {
-			AttributeStatement statement = statements.next();
-			Iterator<Attribute> attrs = statement.getAttributes().iterator();
+        while (statements.hasNext()) {
+            AttributeStatement statement = statements.next();
+            Iterator<Attribute> attrs = statement.getAttributes().iterator();
 
-			while (attrs.hasNext()) {
-				Attribute attr = (Attribute) attrs.next();
-				String name = attr.getAttributeNamespace() + "/" + attr.getAttributeName();
+            while (attrs.hasNext()) {
+                Attribute attr = (Attribute) attrs.next();
+                String name = attr.getAttributeNamespace() + "/" + attr.getAttributeName();
 
-				List attributeValues = attr.getAttributeValues();
-				Iterator values = attributeValues.iterator();
-				int count = 0;
-				StringBuffer buffer = new StringBuffer();
+                List attributeValues = attr.getAttributeValues();
+                Iterator values = attributeValues.iterator();
+                int count = 0;
+                StringBuffer buffer = new StringBuffer();
 
-				while (values.hasNext()) {
-					Object value = values.next();
-					if (value instanceof XSString) {
-						buffer.append(((XSString) value).getValue());
-					} else if (value instanceof XSAny) {
-						buffer.append(((XSAny) value).getTextContent());
-					}
-					buffer.append(",");
-					count++;
-				}
+                while (values.hasNext()) {
+                    Object value = values.next();
+                    if (value instanceof XSString) {
+                        buffer.append(((XSString) value).getValue());
+                    } else if (value instanceof XSAny) {
+                        buffer.append(((XSAny) value).getTextContent());
+                    }
+                    buffer.append(",");
+                    count++;
+                }
 
-				if (buffer.length() > 1) {
-					buffer.deleteCharAt(buffer.length() - 1);
-				}
+                if (buffer.length() > 1) {
+                    buffer.deleteCharAt(buffer.length() - 1);
+                }
 
-				if (count > 1) {
-					isMultipleValues = true;
-				}
+                if (count > 1) {
+                    isMultipleValues = true;
+                }
 
-				attributeTable.put(name, buffer.toString());
-			}
-		}
+                attributeTable.put(name, buffer.toString());
+            }
+        }
 
-		if (log.isDebugEnabled()) {
-			log.debug("Attribute table populated for SAML 1 Token");
-		}
-	}
+        if (log.isDebugEnabled()) {
+            log.debug("Attribute table populated for SAML 1 Token");
+        }
+    }
 }

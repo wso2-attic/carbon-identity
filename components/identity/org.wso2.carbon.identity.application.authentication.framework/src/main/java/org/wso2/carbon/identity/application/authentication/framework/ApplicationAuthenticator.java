@@ -18,75 +18,75 @@
 
 package org.wso2.carbon.identity.application.authentication.framework;
 
-import java.io.Serializable;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.exception.LogoutFailedException;
 import org.wso2.carbon.identity.application.common.model.Property;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.Serializable;
+import java.util.List;
+
 /**
  * API of the Application Authenticators.
- *
  */
 public interface ApplicationAuthenticator extends Serializable {
 
-	/**
-	 * Check whether the authentication or logout request can be handled by the
-	 * authenticator
-	 * 
-	 * @param request
-	 * @return boolean
-	 */
-	public boolean canHandle(HttpServletRequest request);
-	
-	/**
-	 * Process the authentication or logout request.
-	 * 
-	 * @param request
-	 * @param response
-	 * @param context
-	 * @return the status of the flow
-	 * @throws AuthenticationFailedException
-	 * @throws LogoutFailedException
-	 */
-	public AuthenticatorFlowStatus process(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationContext context)
-			throws AuthenticationFailedException, LogoutFailedException;
-	
-	/**
-	 * Get the Context identifier sent with the request. This identifier is used
-	 * to retrieve the state of the authentication/logout flow
-	 * 
-	 * @param request
-	 * @return
-	 */
-	public String getContextIdentifier(HttpServletRequest request);
-	
-	/**
-	 * Get the name of the Authenticator
-	 * @return name
-	 */
-	public String getName();
-	
-	/**
-	 * @return
-	 */
-	public String getFriendlyName();
-	
+    /**
+     * Check whether the authentication or logout request can be handled by the
+     * authenticator
+     *
+     * @param request
+     * @return boolean
+     */
+    public boolean canHandle(HttpServletRequest request);
+
+    /**
+     * Process the authentication or logout request.
+     *
+     * @param request
+     * @param response
+     * @param context
+     * @return the status of the flow
+     * @throws AuthenticationFailedException
+     * @throws LogoutFailedException
+     */
+    public AuthenticatorFlowStatus process(HttpServletRequest request,
+                                           HttpServletResponse response, AuthenticationContext context)
+            throws AuthenticationFailedException, LogoutFailedException;
+
+    /**
+     * Get the Context identifier sent with the request. This identifier is used
+     * to retrieve the state of the authentication/logout flow
+     *
+     * @param request
+     * @return
+     */
+    public String getContextIdentifier(HttpServletRequest request);
+
+    /**
+     * Get the name of the Authenticator
+     *
+     * @return name
+     */
+    public String getName();
+
+    /**
+     * @return
+     */
+    public String getFriendlyName();
+
     /**
      * Get the claim dialect URI if this authenticator receives claims in a standard dialect
      * and needs to be mapped to the Carbon dialect http://wso2.org/claims
+     *
      * @return boolean
      */
-	public String getClaimDialectURI();
-	
-	/**
-	 * @return
-	 */
-	public List<Property> getConfigurationProperties();
+    public String getClaimDialectURI();
+
+    /**
+     * @return
+     */
+    public List<Property> getConfigurationProperties();
 }

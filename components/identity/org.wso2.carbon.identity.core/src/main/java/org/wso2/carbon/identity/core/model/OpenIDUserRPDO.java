@@ -21,68 +21,68 @@ import java.util.Date;
 
 public class OpenIDUserRPDO {
 
-	private String uuid;
-	private String rpUrl;
-	private String userName;
-	private boolean isTrustedAlways;
-	private int visitCount;
-	private Date lastVisit;
-	private String defaultProfileName;
+    private String uuid;
+    private String rpUrl;
+    private String userName;
+    private boolean isTrustedAlways;
+    private int visitCount;
+    private Date lastVisit;
+    private String defaultProfileName;
 
-	public String getRpUrl() {
-		return this.rpUrl;
-	}
+    public String getRpUrl() {
+        return this.rpUrl;
+    }
 
-	public void setRpUrl(String rpUrl) {
-		this.rpUrl = rpUrl;
-	}
+    public void setRpUrl(String rpUrl) {
+        this.rpUrl = rpUrl;
+    }
 
-	public String getUserName() {
-		return userName;
-	}
+    public String getUserName() {
+        return userName;
+    }
 
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
-	public boolean isTrustedAlways() {
-		return isTrustedAlways;
-	}
+    public boolean isTrustedAlways() {
+        return isTrustedAlways;
+    }
 
-	public void setTrustedAlways(boolean isTrustedAlways) {
-		this.isTrustedAlways = isTrustedAlways;
-	}
+    public void setTrustedAlways(boolean isTrustedAlways) {
+        this.isTrustedAlways = isTrustedAlways;
+    }
 
-	public int getVisitCount() {
-		return this.visitCount;
-	}
+    public int getVisitCount() {
+        return this.visitCount;
+    }
 
-	public void setVisitCount(int visitCount) {
-		this.visitCount = visitCount;
-	}
+    public void setVisitCount(int visitCount) {
+        this.visitCount = visitCount;
+    }
 
-	public Date getLastVisit() {
-		return this.lastVisit;
-	}
+    public Date getLastVisit() {
+        return this.lastVisit;
+    }
 
-	public void setLastVisit(Date lastVisit) {
-		this.lastVisit = lastVisit;
-	}
+    public void setLastVisit(Date lastVisit) {
+        this.lastVisit = lastVisit;
+    }
 
-	public String getDefaultProfileName() {
-		return defaultProfileName;
-	}
+    public String getDefaultProfileName() {
+        return defaultProfileName;
+    }
 
-	public void setDefaultProfileName(String defaultProfileName) {
-		this.defaultProfileName = defaultProfileName;
-	}
+    public void setDefaultProfileName(String defaultProfileName) {
+        this.defaultProfileName = defaultProfileName;
+    }
 
-	public String getUuid() {
-		return this.uuid;
-	}
+    public String getUuid() {
+        return this.uuid;
+    }
 
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
-	}
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
 
 }

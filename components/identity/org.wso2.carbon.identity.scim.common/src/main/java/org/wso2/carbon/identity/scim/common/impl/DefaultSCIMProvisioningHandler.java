@@ -9,8 +9,8 @@ import org.wso2.charon.core.config.SCIMProvider;
 import org.wso2.charon.core.objects.Group;
 import org.wso2.charon.core.objects.SCIMObject;
 import org.wso2.charon.core.objects.User;
-import org.wso2.charon.core.schema.SCIMConstants;
 import org.wso2.charon.core.provisioning.ProvisioningHandler;
+import org.wso2.charon.core.schema.SCIMConstants;
 
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -99,7 +99,7 @@ public class DefaultSCIMProvisioningHandler implements ProvisioningHandler {
     }
 
     public void setProvisioningMethod(int provisioningMethod) {
-        this.provisioningMethod = provisioningMethod; 
+        this.provisioningMethod = provisioningMethod;
     }
 
     public void setProvisioningConsumer(String consumerName) {

@@ -17,8 +17,6 @@
 package org.wso2.carbon.security.util;
 
 import org.apache.rahas.SimpleTokenStore;
-import org.apache.rahas.Token;
-import org.apache.rahas.TrustException;
 
 
 /**

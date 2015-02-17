@@ -30,6 +30,10 @@ public class InMemoryPasswordCallbackHandler implements CallbackHandler {
 
     private static Map<String, String> keystorePassword = new HashMap<String, String>();
 
+    public static void addUser(String username, String password) {
+        keystorePassword.put(username, password);
+    }
+
     public void handle(Callback[] callbacks)
             throws IOException, UnsupportedCallbackException {
 
@@ -46,9 +50,5 @@ public class InMemoryPasswordCallbackHandler implements CallbackHandler {
             }
 
         }
-    }
-
-    public static void addUser(String username, String password) {
-        keystorePassword.put(username, password);
     }
 }

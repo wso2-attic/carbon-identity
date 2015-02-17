@@ -64,20 +64,40 @@ public class SSOAgentConfig {
         return saml2SSOURL;
     }
 
+    public void setSAML2SSOURL(String saml2SSOURL) {
+        this.saml2SSOURL = saml2SSOURL;
+    }
+
     public String getOpenIdURL() {
         return openIdURL;
+    }
+
+    public void setOpenIdURL(String openIdURL) {
+        this.openIdURL = openIdURL;
     }
 
     public String getOAuth2SAML2GrantURL() {
         return oauth2SAML2GrantURL;
     }
 
-    public Set<String> getSkipURIs(){
+    public void setOAuth2SAML2GrantURL(String oauth2SAML2GrantURL) {
+        this.oauth2SAML2GrantURL = oauth2SAML2GrantURL;
+    }
+
+    public Set<String> getSkipURIs() {
         return skipURIs;
     }
 
-    public Map<String,String[]> getQueryParams(){
+    public void setSkipURIs(Set<String> skipURIs) {
+        this.skipURIs = skipURIs;
+    }
+
+    public Map<String, String[]> getQueryParams() {
         return queryParams;
+    }
+
+    public void setQueryParams(Map<String, String[]> queryParams) {
+        this.queryParams = queryParams;
     }
 
     public SAML2 getSAML2() {
@@ -104,24 +124,294 @@ public class SSOAgentConfig {
         this.isOAuth2SAML2GrantEnabled = isOAuth2SAML2GrantEnabled;
     }
 
-    public void setSAML2SSOURL(String saml2SSOURL) {
-        this.saml2SSOURL = saml2SSOURL;
+    public void initConfig(Properties properties) throws SSOAgentException {
+
+        String isSAML2SSOLoginEnabledString = properties.getProperty(
+                SSOAgentConstants.SSOAgentConfig.ENABLE_SAML2_SSO_LOGIN);
+        if (isSAML2SSOLoginEnabledString != null) {
+            isSAML2SSOLoginEnabled = Boolean.parseBoolean(isSAML2SSOLoginEnabledString);
+        } else {
+            LOGGER.log(Level.FINE, SSOAgentConstants.SSOAgentConfig.ENABLE_SAML2_SSO_LOGIN +
+                    " not configured. Defaulting to \'false\'");
+            isSAML2SSOLoginEnabled = false;
+        }
+
+        String isOpenIdLoginEnabledString = properties.getProperty(
+                SSOAgentConstants.SSOAgentConfig.ENABLE_OPENID_SSO_LOGIN);
+        if (isOpenIdLoginEnabledString != null) {
+            isOpenIdLoginEnabled = Boolean.parseBoolean(isOpenIdLoginEnabledString);
+        } else {
+            LOGGER.log(Level.FINE, SSOAgentConstants.SSOAgentConfig.ENABLE_OPENID_SSO_LOGIN +
+                    " not configured. Defaulting to \'false\'");
+            isOpenIdLoginEnabled = false;
+        }
+
+        String isSAML2OAuth2GrantEnabledString = properties.getProperty(
+                SSOAgentConstants.SSOAgentConfig.ENABLE_OAUTH2_SAML2_OAUTH2_GRANT);
+        if (isSAML2OAuth2GrantEnabledString != null) {
+            isOAuth2SAML2GrantEnabled = Boolean.parseBoolean(isSAML2OAuth2GrantEnabledString);
+        } else {
+            LOGGER.log(Level.FINE, SSOAgentConstants.SSOAgentConfig.ENABLE_OAUTH2_SAML2_OAUTH2_GRANT +
+                    " not configured. Defaulting to \'false\'");
+            isOAuth2SAML2GrantEnabled = false;
+        }
+
+        saml2SSOURL = properties.getProperty(SSOAgentConstants.SSOAgentConfig.SAML2_SSO_URL);
+        openIdURL = properties.getProperty(SSOAgentConstants.SSOAgentConfig.OPENID_URL);
+        oauth2SAML2GrantURL = properties.getProperty(
+                SSOAgentConstants.SSOAgentConfig.OAUTH2_SAML2_GRANT_URL);
+
+        String skipURIsString = properties.getProperty(SSOAgentConstants.SSOAgentConfig.SKIP_URIS);
+        if (skipURIsString != null && !skipURIsString.isEmpty()) {
+            String[] skipURIArray = skipURIsString.split(",");
+            for (String skipURI : skipURIArray) {
+                skipURIs.add(skipURI);
+            }
+        }
+
+        String queryParamsString = properties.getProperty(SSOAgentConstants.SSOAgentConfig.QUERY_PARAMS);
+        if (queryParamsString != null && !queryParamsString.isEmpty()) {
+            String[] queryParamsArray = queryParamsString.split("&");
+            Map<String, List<String>> queryParamMap = new HashMap<String, List<String>>();
+            if (queryParamsArray.length > 0) {
+                for (String queryParam : queryParamsArray) {
+                    String[] splitParam = queryParam.split("=");
+                    if (splitParam.length == 2) {
+                        if (queryParamMap.get(splitParam[0]) != null) {
+                            queryParamMap.get(splitParam[0]).add(splitParam[1]);
+                        } else {
+                            List<String> newList = new ArrayList<String>();
+                            newList.add(splitParam[1]);
+                            queryParamMap.put(splitParam[0], newList);
+                        }
+                    }
+
+                }
+                for (Map.Entry<String, List<String>> entry : queryParamMap.entrySet()) {
+                    String[] valueArray = entry.getValue().toArray(new String[entry.getValue().size()]);
+                    queryParams.put(entry.getKey(), valueArray);
+                }
+            }
+        }
+
+        saml2.httpBinding = properties.getProperty(SSOAgentConstants.SSOAgentConfig.SAML2.HTTP_BINDING);
+        if (saml2.httpBinding == null || saml2.httpBinding.isEmpty()) {
+            LOGGER.log(Level.FINE, SSOAgentConstants.SSOAgentConfig.SAML2.HTTP_BINDING +
+                    " not configured. Defaulting to \'" + SAMLConstants.SAML2_POST_BINDING_URI + "\'");
+            saml2.httpBinding = SAMLConstants.SAML2_POST_BINDING_URI;
+        }
+        saml2.spEntityId = properties.getProperty(SSOAgentConstants.SSOAgentConfig.SAML2.SP_ENTITY_ID);
+        saml2.acsURL = properties.getProperty(SSOAgentConstants.SSOAgentConfig.SAML2.ACS_URL);
+        saml2.idPEntityId = properties.getProperty(SSOAgentConstants.SSOAgentConfig.SAML2.IDP_ENTITY_ID);
+        saml2.idPURL = properties.getProperty(SSOAgentConstants.SSOAgentConfig.SAML2.IDP_URL);
+        saml2.attributeConsumingServiceIndex = properties.getProperty(
+                SSOAgentConstants.SSOAgentConfig.SAML2.ATTRIBUTE_CONSUMING_SERVICE_INDEX);
+
+        String isSLOEnabledString = properties.getProperty(
+                SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_SLO);
+        if (isSLOEnabledString != null) {
+            saml2.isSLOEnabled = Boolean.parseBoolean(isSLOEnabledString);
+        } else {
+            LOGGER.info("\'" + SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_SLO +
+                    "\' not configured. Defaulting to \'false\'");
+            saml2.isSLOEnabled = false;
+        }
+        saml2.sloURL = properties.getProperty(SSOAgentConstants.SSOAgentConfig.SAML2.SLO_URL);
+
+        String isAssertionSignedString = properties.getProperty(
+                SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_ASSERTION_SIGNING);
+        if (isAssertionSignedString != null) {
+            saml2.isAssertionSigned = Boolean.parseBoolean(isAssertionSignedString);
+        } else {
+            LOGGER.log(Level.FINE, SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_ASSERTION_SIGNING +
+                    " not configured. Defaulting to \'false\'");
+            saml2.isAssertionSigned = false;
+        }
+
+        String isAssertionEncryptedString = properties.getProperty(
+                SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_ASSERTION_ENCRYPTION);
+        if (isAssertionEncryptedString != null) {
+            saml2.isAssertionEncrypted = Boolean.parseBoolean(isAssertionEncryptedString);
+        } else {
+            LOGGER.log(Level.FINE, SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_ASSERTION_ENCRYPTION +
+                    " not configured. Defaulting to \'false\'");
+            saml2.isAssertionEncrypted = false;
+        }
+
+        String isResponseSignedString = properties.getProperty(
+                SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_RESPONSE_SIGNING);
+        if (isResponseSignedString != null) {
+            saml2.isResponseSigned = Boolean.parseBoolean(isResponseSignedString);
+        } else {
+            LOGGER.log(Level.FINE, SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_RESPONSE_SIGNING +
+                    " not configured. Defaulting to \'false\'");
+            saml2.isResponseSigned = false;
+        }
+
+        String isRequestSignedString = properties.getProperty(
+                SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_REQUEST_SIGNING);
+        if (isRequestSignedString != null) {
+            saml2.isRequestSigned = Boolean.parseBoolean(isRequestSignedString);
+        } else {
+            LOGGER.log(Level.FINE, SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_REQUEST_SIGNING +
+                    " not configured. Defaulting to \'false\'");
+            saml2.isRequestSigned = false;
+        }
+
+        String isPassiveAuthnString = properties.getProperty(
+                SSOAgentConstants.SSOAgentConfig.SAML2.IS_PASSIVE_AUTHN);
+        if (isPassiveAuthnString != null) {
+            saml2.isPassiveAuthn = Boolean.parseBoolean(isPassiveAuthnString);
+        } else {
+            LOGGER.log(Level.FINE, "\'" + SSOAgentConstants.SSOAgentConfig.SAML2.IS_PASSIVE_AUTHN +
+                    "\' not configured. Defaulting to \'false\'");
+            saml2.isPassiveAuthn = false;
+        }
+
+        String isForceAuthnString = properties.getProperty(
+                SSOAgentConstants.SSOAgentConfig.SAML2.IS_FORCE_AUTHN);
+        if (isForceAuthnString != null) {
+            saml2.isForceAuthn = Boolean.parseBoolean(properties.getProperty(isForceAuthnString));
+        } else {
+            LOGGER.log(Level.FINE, "\'" + SSOAgentConstants.SSOAgentConfig.SAML2.IS_FORCE_AUTHN +
+                    "\' not configured. Defaulting to \'false\'");
+            saml2.isForceAuthn = false;
+        }
+
+        saml2.relayState = properties.getProperty(SSOAgentConstants.SSOAgentConfig.SAML2.RELAY_STATE);
+        saml2.postBindingRequestHTMLPayload = properties.getProperty(
+                SSOAgentConstants.SSOAgentConfig.SAML2.POST_BINDING_REQUEST_HTML_PAYLOAD);
+
+        oauth2.tokenURL = properties.getProperty(
+                SSOAgentConstants.SSOAgentConfig.OAuth2.TOKEN_URL);
+        oauth2.clientId = properties.getProperty(SSOAgentConstants.SSOAgentConfig.OAuth2.CLIENT_ID);
+        oauth2.clientSecret = properties.getProperty(SSOAgentConstants.SSOAgentConfig.OAuth2.CLIENT_SECRET);
+
+        openId.providerURL = properties.getProperty(
+                SSOAgentConstants.SSOAgentConfig.OpenID.PROVIDER_URL);
+        openId.returnToURL = properties.getProperty(SSOAgentConstants.SSOAgentConfig.OpenID.RETURN_TO_URL);
+
+        String isAttributeExchangeEnabledString = properties.getProperty(
+                SSOAgentConstants.SSOAgentConfig.OpenID.ENABLE_ATTRIBUTE_EXCHANGE);
+        if (isAttributeExchangeEnabledString != null) {
+            openId.isAttributeExchangeEnabled = Boolean.parseBoolean(isAttributeExchangeEnabledString);
+        } else {
+            LOGGER.log(Level.FINE, "\'" + SSOAgentConstants.SSOAgentConfig.OpenID.ENABLE_ATTRIBUTE_EXCHANGE +
+                    "\' not configured. Defaulting to \'true\'");
+            openId.isAttributeExchangeEnabled = true;
+        }
+
+        String isDumbModeEnabledString = properties.getProperty(
+                SSOAgentConstants.SSOAgentConfig.OpenID.ENABLE_DUMB_MODE);
+        if (isAttributeExchangeEnabledString != null) {
+            openId.isDumbModeEnabled = Boolean.parseBoolean(isDumbModeEnabledString);
+        } else {
+            LOGGER.log(Level.FINE, "\'" + SSOAgentConstants.SSOAgentConfig.OpenID.ENABLE_DUMB_MODE +
+                    "\' not configured. Defaulting to \'false\'");
+            openId.isDumbModeEnabled = false;
+        }
     }
 
-    public void setOpenIdURL(String openIdURL) {
-        this.openIdURL = openIdURL;
-    }
+    public void verifyConfig() throws SSOAgentException {
 
-    public void setOAuth2SAML2GrantURL(String oauth2SAML2GrantURL) {
-        this.oauth2SAML2GrantURL = oauth2SAML2GrantURL;
-    }
+        if (isSAML2SSOLoginEnabled && saml2SSOURL == null) {
+            throw new SSOAgentException("\'" +
+                    SSOAgentConstants.SSOAgentConfig.SAML2_SSO_URL + "\' not configured");
+        }
 
-    public void setSkipURIs(Set<String> skipURIs){
-        this.skipURIs = skipURIs;
-    }
+        if (isOpenIdLoginEnabled && openIdURL == null) {
+            throw new SSOAgentException("\'" +
+                    SSOAgentConstants.SSOAgentConfig.OPENID_URL + "\' not configured");
+        }
 
-    public void setQueryParams(Map<String,String[]> queryParams) {
-        this.queryParams = queryParams;
+        if (!isSAML2SSOLoginEnabled && isOAuth2SAML2GrantEnabled) {
+            throw new SSOAgentException(
+                    "SAML2 SSO Login is disabled. Cannot use SAML2 Bearer Grant type for OAuth2");
+        }
+
+        if (isSAML2SSOLoginEnabled && isOAuth2SAML2GrantEnabled && oauth2SAML2GrantURL == null) {
+            throw new SSOAgentException("\'" +
+                    SSOAgentConstants.SSOAgentConfig.OAUTH2_SAML2_GRANT_URL + "\' not configured");
+        }
+
+        if (isSAML2SSOLoginEnabled && saml2.spEntityId == null) {
+            throw new SSOAgentException("\'" +
+                    SSOAgentConstants.SSOAgentConfig.SAML2.SP_ENTITY_ID + "\' not configured");
+        }
+
+        if (isSAML2SSOLoginEnabled && saml2.acsURL == null) {
+            throw new SSOAgentException("\'" +
+                    SSOAgentConstants.SSOAgentConfig.SAML2.ACS_URL + "\' not configured");
+        }
+
+        if (isSAML2SSOLoginEnabled && saml2.idPEntityId == null) {
+            throw new SSOAgentException("\'" +
+                    SSOAgentConstants.SSOAgentConfig.SAML2.IDP_ENTITY_ID + "\' not configured");
+        }
+
+        if (isSAML2SSOLoginEnabled && saml2.idPURL == null) {
+            throw new SSOAgentException("\'" +
+                    SSOAgentConstants.SSOAgentConfig.SAML2.IDP_URL + "\' not configured");
+        }
+
+        if (isSAML2SSOLoginEnabled && saml2.attributeConsumingServiceIndex == null) {
+            LOGGER.log(Level.FINE,
+                    "\'" + SSOAgentConstants.SSOAgentConfig.SAML2.ATTRIBUTE_CONSUMING_SERVICE_INDEX +
+                            "\' not configured. " + "No attributes of the Subject will be requested");
+        }
+
+        if (isSAML2SSOLoginEnabled && saml2.isSLOEnabled && saml2.sloURL == null) {
+            throw new SSOAgentException("Single Logout enabled, but SLO URL not configured");
+        }
+
+        if (isSAML2SSOLoginEnabled &&
+                (saml2.isAssertionSigned || saml2.isAssertionEncrypted || saml2.isResponseSigned ||
+                        saml2.isRequestSigned) && saml2.ssoAgentX509Credential == null) {
+            LOGGER.log(Level.FINE,
+                    "\'SSOAgentX509Credential\' not configured. Defaulting to " +
+                            SSOAgentCarbonX509Credential.class.getName());
+        }
+
+        if (isSAML2SSOLoginEnabled &&
+                (saml2.isAssertionSigned || saml2.isResponseSigned) &&
+                saml2.ssoAgentX509Credential.getEntityCertificate() == null) {
+            throw new SSOAgentException("Public certificate of IdP not configured");
+        }
+
+        if (isSAML2SSOLoginEnabled &&
+                (saml2.isRequestSigned || saml2.isAssertionEncrypted) &&
+                saml2.ssoAgentX509Credential.getPrivateKey() == null) {
+            throw new SSOAgentException("Private key of SP not configured");
+        }
+
+        if (isOpenIdLoginEnabled && openId.providerURL == null) {
+            throw new SSOAgentException("\'" +
+                    SSOAgentConstants.SSOAgentConfig.OpenID.PROVIDER_URL + "\' not configured");
+        }
+
+        if (isOpenIdLoginEnabled && openId.returnToURL == null) {
+            throw new SSOAgentException("\'" +
+                    SSOAgentConstants.SSOAgentConfig.OpenID.RETURN_TO_URL + "\' not configured");
+        }
+
+        if (isOpenIdLoginEnabled && openId.attributesRequestor == null) {
+            LOGGER.log(Level.FINE, "\'" +
+                    SSOAgentConstants.SSOAgentConfig.OpenID.PROVIDER_URL +
+                    "\' not configured. " + "No attributes of the Subject will be fetched");
+        }
+
+        if (isSAML2SSOLoginEnabled && isOAuth2SAML2GrantEnabled && oauth2.tokenURL == null) {
+            throw new SSOAgentException("OAuth2 Token endpoint not configured");
+        }
+
+        if (isSAML2SSOLoginEnabled && isOAuth2SAML2GrantEnabled && oauth2.clientId == null) {
+            throw new SSOAgentException("OAuth2 Client Id not configured");
+        }
+
+        if (isSAML2SSOLoginEnabled && isOAuth2SAML2GrantEnabled && oauth2.clientSecret == null) {
+            throw new SSOAgentException("OAuth2 Client Secret not configured");
+        }
+
     }
 
     public class SAML2 {
@@ -143,7 +433,6 @@ public class SSOAgentConfig {
         private Boolean isForceAuthn = false;
         private String relayState = null;
         /**
-         *
          * The html page that will auto-submit the SAML2 to the IdP.
          * This should be in valid HTML syntax, with following section within the
          * auto-submit form.
@@ -159,20 +448,40 @@ public class SSOAgentConfig {
             return httpBinding;
         }
 
+        public void setHttpBinding(String httpBinding) {
+            this.httpBinding = httpBinding;
+        }
+
         public String getSPEntityId() {
             return spEntityId;
+        }
+
+        public void setSPEntityId(String spEntityId) {
+            this.spEntityId = spEntityId;
         }
 
         public String getACSURL() {
             return acsURL;
         }
 
+        public void setACSURL(String acsURL) {
+            this.acsURL = acsURL;
+        }
+
         public String getIdPEntityId() {
             return idPEntityId;
         }
 
+        public void setIdPEntityId(String idPEntityId) {
+            this.idPEntityId = idPEntityId;
+        }
+
         public String getIdPURL() {
             return idPURL;
+        }
+
+        public void setIdPURL(String idPURL) {
+            this.idPURL = idPURL;
         }
 
         public Boolean isSLOEnabled() {
@@ -183,12 +492,24 @@ public class SSOAgentConfig {
             return sloURL;
         }
 
+        public void setSLOURL(String sloURL) {
+            this.sloURL = sloURL;
+        }
+
         public String getAttributeConsumingServiceIndex() {
             return attributeConsumingServiceIndex;
         }
 
+        public void setAttributeConsumingServiceIndex(String attributeConsumingServiceIndex) {
+            this.attributeConsumingServiceIndex = attributeConsumingServiceIndex;
+        }
+
         public SSOAgentX509Credential getSSOAgentX509Credential() {
             return ssoAgentX509Credential;
+        }
+
+        public void setSSOAgentX509Credential(SSOAgentX509Credential ssoAgentX509Credential) {
+            this.ssoAgentX509Credential = ssoAgentX509Credential;
         }
 
         public Boolean isAssertionSigned() {
@@ -219,44 +540,20 @@ public class SSOAgentConfig {
             return relayState;
         }
 
+        public void setRelayState(String relayState) {
+            this.relayState = relayState;
+        }
+
         public String getPostBindingRequestHTMLPayload() {
             return postBindingRequestHTMLPayload;
         }
 
-        public void setHttpBinding(String httpBinding) {
-            this.httpBinding = httpBinding;
-        }
-
-        public void setSPEntityId(String spEntityId) {
-            this.spEntityId = spEntityId;
-        }
-
-        public void setACSURL(String acsURL) {
-            this.acsURL = acsURL;
-        }
-
-        public void setIdPEntityId(String idPEntityId) {
-            this.idPEntityId = idPEntityId;
-        }
-
-        public void setIdPURL(String idPURL) {
-            this.idPURL = idPURL;
+        public void setPostBindingRequestHTMLPayload(String postBindingRequestHTMLPayload) {
+            this.postBindingRequestHTMLPayload = postBindingRequestHTMLPayload;
         }
 
         public void setSLOEnabled(Boolean isSLOEnabled) {
             this.isSLOEnabled = isSLOEnabled;
-        }
-
-        public void setSLOURL(String sloURL) {
-            this.sloURL = sloURL;
-        }
-
-        public void setAttributeConsumingServiceIndex(String attributeConsumingServiceIndex) {
-            this.attributeConsumingServiceIndex = attributeConsumingServiceIndex;
-        }
-
-        public void setSSOAgentX509Credential(SSOAgentX509Credential ssoAgentX509Credential) {
-            this.ssoAgentX509Credential = ssoAgentX509Credential;
         }
 
         public void setAssertionSigned(Boolean isAssertionSigned) {
@@ -282,14 +579,6 @@ public class SSOAgentConfig {
         public void setForceAuthn(Boolean isForceAuthn) {
             this.isForceAuthn = isForceAuthn;
         }
-
-        public void setRelayState(String relayState) {
-            this.relayState = relayState;
-        }
-
-        public void setPostBindingRequestHTMLPayload(String postBindingRequestHTMLPayload) {
-            this.postBindingRequestHTMLPayload = postBindingRequestHTMLPayload;
-        }
     }
 
     public class OpenID {
@@ -302,56 +591,56 @@ public class SSOAgentConfig {
         private boolean isAttributeExchangeEnabled = false;
         private boolean isDumbModeEnabled = false;
 
-        public String getMode(){
+        public String getMode() {
             return mode;
+        }
+
+        public void setMode(String mode) {
+            this.mode = mode;
         }
 
         public String getProviderURL() {
             return providerURL;
         }
 
-        public String getReturnToURL() {
-            return returnToURL;
-        }
-
-        public String getClaimedId(){
-            return claimedId;
-        }
-
-        public AttributesRequestor getAttributesRequestor() {
-            return attributesRequestor;
-        }
-
-        public boolean isAttributeExchangeEnabled() {
-            return isAttributeExchangeEnabled;
-        }
-
-        public boolean isDumbModeEnabled() {
-            return isDumbModeEnabled;
-        }
-
-        public void setMode(String mode){
-            this.mode = mode;
-        }
-
         public void setProviderURL(String providerURL) {
             this.providerURL = providerURL;
+        }
+
+        public String getReturnToURL() {
+            return returnToURL;
         }
 
         public void setReturnToURL(String returnToURL) {
             this.returnToURL = returnToURL;
         }
 
+        public String getClaimedId() {
+            return claimedId;
+        }
+
         public void setClaimedId(String claimedId) {
             this.claimedId = claimedId;
+        }
+
+        public AttributesRequestor getAttributesRequestor() {
+            return attributesRequestor;
         }
 
         public void setAttributesRequestor(AttributesRequestor attributesRequestor) {
             this.attributesRequestor = attributesRequestor;
         }
 
+        public boolean isAttributeExchangeEnabled() {
+            return isAttributeExchangeEnabled;
+        }
+
         public void setAttributeExchangeEnabled(boolean isAttributeExchangeEnabled) {
             this.isAttributeExchangeEnabled = isAttributeExchangeEnabled;
+        }
+
+        public boolean isDumbModeEnabled() {
+            return isDumbModeEnabled;
         }
 
         public void setDumbModeEnabled(boolean isDumbModeEnabled) {
@@ -369,314 +658,24 @@ public class SSOAgentConfig {
             return clientSecret;
         }
 
-        public String getTokenURL() {
-            return tokenURL;
+        public void setClientSecret(String clientSecret) {
+            this.clientSecret = clientSecret;
         }
 
-        public String getClientId() {
-            return clientId;
+        public String getTokenURL() {
+            return tokenURL;
         }
 
         public void setTokenURL(String tokenURL) {
             this.tokenURL = tokenURL;
         }
 
+        public String getClientId() {
+            return clientId;
+        }
+
         public void setClientId(String clientId) {
             this.clientId = clientId;
         }
-
-        public void setClientSecret(String clientSecret) {
-            this.clientSecret = clientSecret;
-        }
-    }
-
-    public void initConfig(Properties properties) throws SSOAgentException{
-
-        String isSAML2SSOLoginEnabledString = properties.getProperty(
-                SSOAgentConstants.SSOAgentConfig.ENABLE_SAML2_SSO_LOGIN);
-        if(isSAML2SSOLoginEnabledString != null){
-            isSAML2SSOLoginEnabled = Boolean.parseBoolean(isSAML2SSOLoginEnabledString);
-        } else {
-            LOGGER.log(Level.FINE, SSOAgentConstants.SSOAgentConfig.ENABLE_SAML2_SSO_LOGIN +
-                    " not configured. Defaulting to \'false\'");
-            isSAML2SSOLoginEnabled = false;
-        }
-
-        String isOpenIdLoginEnabledString = properties.getProperty(
-                SSOAgentConstants.SSOAgentConfig.ENABLE_OPENID_SSO_LOGIN);
-        if(isOpenIdLoginEnabledString != null){
-            isOpenIdLoginEnabled = Boolean.parseBoolean(isOpenIdLoginEnabledString);
-        } else {
-            LOGGER.log(Level.FINE, SSOAgentConstants.SSOAgentConfig.ENABLE_OPENID_SSO_LOGIN +
-                    " not configured. Defaulting to \'false\'");
-            isOpenIdLoginEnabled = false;
-        }
-
-        String isSAML2OAuth2GrantEnabledString = properties.getProperty(
-                SSOAgentConstants.SSOAgentConfig.ENABLE_OAUTH2_SAML2_OAUTH2_GRANT);
-        if(isSAML2OAuth2GrantEnabledString != null){
-            isOAuth2SAML2GrantEnabled = Boolean.parseBoolean(isSAML2OAuth2GrantEnabledString);
-        } else {
-            LOGGER.log(Level.FINE, SSOAgentConstants.SSOAgentConfig.ENABLE_OAUTH2_SAML2_OAUTH2_GRANT +
-                    " not configured. Defaulting to \'false\'");
-            isOAuth2SAML2GrantEnabled = false;
-        }
-
-        saml2SSOURL = properties.getProperty(SSOAgentConstants.SSOAgentConfig.SAML2_SSO_URL);
-        openIdURL = properties.getProperty(SSOAgentConstants.SSOAgentConfig.OPENID_URL);
-        oauth2SAML2GrantURL = properties.getProperty(
-                SSOAgentConstants.SSOAgentConfig.OAUTH2_SAML2_GRANT_URL);
-
-        String skipURIsString = properties.getProperty(SSOAgentConstants.SSOAgentConfig.SKIP_URIS);
-        if(skipURIsString != null && !skipURIsString.isEmpty()){
-            String[] skipURIArray = skipURIsString.split(",");
-            for(String skipURI : skipURIArray){
-                skipURIs.add(skipURI);
-            }
-        }
-
-        String queryParamsString = properties.getProperty(SSOAgentConstants.SSOAgentConfig.QUERY_PARAMS);
-        if(queryParamsString != null && !queryParamsString.isEmpty()){
-            String[] queryParamsArray = queryParamsString.split("&");
-            Map<String, List<String>> queryParamMap = new HashMap<String, List<String>>();
-            if(queryParamsArray.length > 0){
-                for(String queryParam : queryParamsArray) {
-                    String[] splitParam = queryParam.split("=");
-                    if(splitParam.length == 2){
-                        if (queryParamMap.get(splitParam[0]) != null) {
-                            queryParamMap.get(splitParam[0]).add(splitParam[1]);
-                        } else {
-                            List<String> newList = new ArrayList<String>();
-                            newList.add(splitParam[1]);
-                            queryParamMap.put(splitParam[0], newList);
-                        }
-                    }
-
-                }
-                for(Map.Entry<String, List<String>> entry : queryParamMap.entrySet()){
-                    String[] valueArray = entry.getValue().toArray(new String[entry.getValue().size()]);
-                    queryParams.put(entry.getKey(), valueArray);
-                }
-            }
-        }
-
-        saml2.httpBinding = properties.getProperty(SSOAgentConstants.SSOAgentConfig.SAML2.HTTP_BINDING);
-        if(saml2.httpBinding == null || saml2.httpBinding.isEmpty()){
-            LOGGER.log(Level.FINE, SSOAgentConstants.SSOAgentConfig.SAML2.HTTP_BINDING +
-                    " not configured. Defaulting to \'" + SAMLConstants.SAML2_POST_BINDING_URI + "\'");
-            saml2.httpBinding = SAMLConstants.SAML2_POST_BINDING_URI;
-        }
-        saml2.spEntityId = properties.getProperty(SSOAgentConstants.SSOAgentConfig.SAML2.SP_ENTITY_ID);
-        saml2.acsURL = properties.getProperty(SSOAgentConstants.SSOAgentConfig.SAML2.ACS_URL);
-        saml2.idPEntityId = properties.getProperty(SSOAgentConstants.SSOAgentConfig.SAML2.IDP_ENTITY_ID);
-        saml2.idPURL = properties.getProperty(SSOAgentConstants.SSOAgentConfig.SAML2.IDP_URL);
-        saml2.attributeConsumingServiceIndex = properties.getProperty(
-                SSOAgentConstants.SSOAgentConfig.SAML2.ATTRIBUTE_CONSUMING_SERVICE_INDEX);
-
-        String isSLOEnabledString = properties.getProperty(
-                SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_SLO);
-        if(isSLOEnabledString != null){
-            saml2.isSLOEnabled = Boolean.parseBoolean(isSLOEnabledString);
-        } else {
-            LOGGER.info("\'" + SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_SLO +
-                    "\' not configured. Defaulting to \'false\'");
-            saml2.isSLOEnabled = false;
-        }
-        saml2.sloURL = properties.getProperty(SSOAgentConstants.SSOAgentConfig.SAML2.SLO_URL);
-
-        String isAssertionSignedString = properties.getProperty(
-                SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_ASSERTION_SIGNING);
-        if(isAssertionSignedString != null){
-            saml2.isAssertionSigned = Boolean.parseBoolean(isAssertionSignedString);
-        } else {
-            LOGGER.log(Level.FINE, SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_ASSERTION_SIGNING +
-                    " not configured. Defaulting to \'false\'");
-            saml2.isAssertionSigned = false;
-        }
-
-        String isAssertionEncryptedString = properties.getProperty(
-                SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_ASSERTION_ENCRYPTION);
-        if(isAssertionEncryptedString != null){
-            saml2.isAssertionEncrypted = Boolean.parseBoolean(isAssertionEncryptedString);
-        } else {
-            LOGGER.log(Level.FINE, SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_ASSERTION_ENCRYPTION +
-                    " not configured. Defaulting to \'false\'");
-            saml2.isAssertionEncrypted = false;
-        }
-
-        String isResponseSignedString = properties.getProperty(
-                SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_RESPONSE_SIGNING);
-        if(isResponseSignedString != null){
-            saml2.isResponseSigned = Boolean.parseBoolean(isResponseSignedString);
-        } else {
-            LOGGER.log(Level.FINE, SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_RESPONSE_SIGNING +
-                    " not configured. Defaulting to \'false\'");
-            saml2.isResponseSigned = false;
-        }
-
-        String isRequestSignedString = properties.getProperty(
-                SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_REQUEST_SIGNING);
-        if(isRequestSignedString != null){
-            saml2.isRequestSigned = Boolean.parseBoolean(isRequestSignedString);
-        } else {
-            LOGGER.log(Level.FINE, SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_REQUEST_SIGNING +
-                    " not configured. Defaulting to \'false\'");
-            saml2.isRequestSigned = false;
-        }
-
-        String isPassiveAuthnString = properties.getProperty(
-                SSOAgentConstants.SSOAgentConfig.SAML2.IS_PASSIVE_AUTHN);
-        if(isPassiveAuthnString != null){
-            saml2.isPassiveAuthn = Boolean.parseBoolean(isPassiveAuthnString);
-        } else {
-            LOGGER.log(Level.FINE, "\'" + SSOAgentConstants.SSOAgentConfig.SAML2.IS_PASSIVE_AUTHN +
-                    "\' not configured. Defaulting to \'false\'");
-            saml2.isPassiveAuthn = false;
-        }
-
-        String isForceAuthnString = properties.getProperty(
-                SSOAgentConstants.SSOAgentConfig.SAML2.IS_FORCE_AUTHN);
-        if(isForceAuthnString != null){
-            saml2.isForceAuthn = Boolean.parseBoolean(properties.getProperty(isForceAuthnString));
-        } else {
-            LOGGER.log(Level.FINE, "\'" + SSOAgentConstants.SSOAgentConfig.SAML2.IS_FORCE_AUTHN +
-                    "\' not configured. Defaulting to \'false\'");
-            saml2.isForceAuthn = false;
-        }
-
-        saml2.relayState = properties.getProperty(SSOAgentConstants.SSOAgentConfig.SAML2.RELAY_STATE);
-        saml2.postBindingRequestHTMLPayload = properties.getProperty(
-                SSOAgentConstants.SSOAgentConfig.SAML2.POST_BINDING_REQUEST_HTML_PAYLOAD);
-
-        oauth2.tokenURL = properties.getProperty(
-                SSOAgentConstants.SSOAgentConfig.OAuth2.TOKEN_URL);
-        oauth2.clientId = properties.getProperty(SSOAgentConstants.SSOAgentConfig.OAuth2.CLIENT_ID);
-        oauth2.clientSecret = properties.getProperty(SSOAgentConstants.SSOAgentConfig.OAuth2.CLIENT_SECRET);
-
-        openId.providerURL = properties.getProperty(
-                SSOAgentConstants.SSOAgentConfig.OpenID.PROVIDER_URL);
-        openId.returnToURL = properties.getProperty(SSOAgentConstants.SSOAgentConfig.OpenID.RETURN_TO_URL);
-
-        String isAttributeExchangeEnabledString = properties.getProperty(
-                SSOAgentConstants.SSOAgentConfig.OpenID.ENABLE_ATTRIBUTE_EXCHANGE);
-        if (isAttributeExchangeEnabledString != null){
-            openId.isAttributeExchangeEnabled = Boolean.parseBoolean(isAttributeExchangeEnabledString);
-        } else {
-            LOGGER.log(Level.FINE, "\'" + SSOAgentConstants.SSOAgentConfig.OpenID.ENABLE_ATTRIBUTE_EXCHANGE +
-                    "\' not configured. Defaulting to \'true\'");
-            openId.isAttributeExchangeEnabled = true;
-        }
-
-        String isDumbModeEnabledString = properties.getProperty(
-                SSOAgentConstants.SSOAgentConfig.OpenID.ENABLE_DUMB_MODE);
-        if (isAttributeExchangeEnabledString != null){
-            openId.isDumbModeEnabled = Boolean.parseBoolean(isDumbModeEnabledString);
-        } else {
-            LOGGER.log(Level.FINE, "\'" + SSOAgentConstants.SSOAgentConfig.OpenID.ENABLE_DUMB_MODE +
-                    "\' not configured. Defaulting to \'false\'");
-            openId.isDumbModeEnabled = false;
-        }
-    }
-
-    public void verifyConfig() throws SSOAgentException {
-
-        if(isSAML2SSOLoginEnabled && saml2SSOURL == null){
-            throw new SSOAgentException("\'" +
-                    SSOAgentConstants.SSOAgentConfig.SAML2_SSO_URL + "\' not configured");
-        }
-
-        if(isOpenIdLoginEnabled && openIdURL == null){
-            throw new SSOAgentException("\'" +
-                    SSOAgentConstants.SSOAgentConfig.OPENID_URL + "\' not configured");
-        }
-
-        if(!isSAML2SSOLoginEnabled && isOAuth2SAML2GrantEnabled) {
-            throw new SSOAgentException(
-                    "SAML2 SSO Login is disabled. Cannot use SAML2 Bearer Grant type for OAuth2");
-        }
-
-        if(isSAML2SSOLoginEnabled && isOAuth2SAML2GrantEnabled && oauth2SAML2GrantURL == null){
-            throw new SSOAgentException("\'" +
-                    SSOAgentConstants.SSOAgentConfig.OAUTH2_SAML2_GRANT_URL + "\' not configured");
-        }
-
-        if(isSAML2SSOLoginEnabled && saml2.spEntityId == null){
-            throw new SSOAgentException("\'" +
-                    SSOAgentConstants.SSOAgentConfig.SAML2.SP_ENTITY_ID + "\' not configured");
-        }
-
-        if(isSAML2SSOLoginEnabled && saml2.acsURL == null){
-            throw new SSOAgentException("\'" +
-                    SSOAgentConstants.SSOAgentConfig.SAML2.ACS_URL + "\' not configured");
-        }
-
-        if(isSAML2SSOLoginEnabled && saml2.idPEntityId == null){
-            throw new SSOAgentException("\'" +
-                    SSOAgentConstants.SSOAgentConfig.SAML2.IDP_ENTITY_ID + "\' not configured");
-        }
-
-        if(isSAML2SSOLoginEnabled && saml2.idPURL == null){
-            throw new SSOAgentException("\'" +
-                    SSOAgentConstants.SSOAgentConfig.SAML2.IDP_URL + "\' not configured");
-        }
-
-        if(isSAML2SSOLoginEnabled && saml2.attributeConsumingServiceIndex == null){
-            LOGGER.log(Level.FINE,
-                    "\'" + SSOAgentConstants.SSOAgentConfig.SAML2.ATTRIBUTE_CONSUMING_SERVICE_INDEX +
-                            "\' not configured. " + "No attributes of the Subject will be requested");
-        }
-
-        if(isSAML2SSOLoginEnabled && saml2.isSLOEnabled && saml2.sloURL == null){
-            throw new SSOAgentException("Single Logout enabled, but SLO URL not configured");
-        }
-
-        if(isSAML2SSOLoginEnabled &&
-                (saml2.isAssertionSigned || saml2.isAssertionEncrypted || saml2.isResponseSigned ||
-                        saml2.isRequestSigned) && saml2.ssoAgentX509Credential == null){
-            LOGGER.log(Level.FINE,
-                    "\'SSOAgentX509Credential\' not configured. Defaulting to " +
-                            SSOAgentCarbonX509Credential.class.getName());
-        }
-
-        if(isSAML2SSOLoginEnabled &&
-                (saml2.isAssertionSigned || saml2.isResponseSigned) &&
-                saml2.ssoAgentX509Credential.getEntityCertificate() == null){
-            throw  new SSOAgentException("Public certificate of IdP not configured");
-        }
-
-        if(isSAML2SSOLoginEnabled &&
-                (saml2.isRequestSigned || saml2.isAssertionEncrypted) &&
-                saml2.ssoAgentX509Credential.getPrivateKey() == null){
-            throw new SSOAgentException("Private key of SP not configured");
-        }
-
-        if(isOpenIdLoginEnabled && openId.providerURL == null){
-            throw new SSOAgentException("\'" +
-                    SSOAgentConstants.SSOAgentConfig.OpenID.PROVIDER_URL + "\' not configured");
-        }
-
-        if(isOpenIdLoginEnabled && openId.returnToURL == null){
-            throw new SSOAgentException("\'" +
-                    SSOAgentConstants.SSOAgentConfig.OpenID.RETURN_TO_URL + "\' not configured");
-        }
-
-        if(isOpenIdLoginEnabled && openId.attributesRequestor == null){
-            LOGGER.log(Level.FINE, "\'" +
-                    SSOAgentConstants.SSOAgentConfig.OpenID.PROVIDER_URL +
-                    "\' not configured. " + "No attributes of the Subject will be fetched");
-        }
-
-        if(isSAML2SSOLoginEnabled && isOAuth2SAML2GrantEnabled && oauth2.tokenURL == null) {
-            throw new SSOAgentException("OAuth2 Token endpoint not configured");
-        }
-
-        if(isSAML2SSOLoginEnabled && isOAuth2SAML2GrantEnabled && oauth2.clientId == null) {
-            throw new SSOAgentException("OAuth2 Client Id not configured");
-        }
-
-        if(isSAML2SSOLoginEnabled && isOAuth2SAML2GrantEnabled && oauth2.clientSecret == null) {
-            throw new SSOAgentException("OAuth2 Client Secret not configured");
-        }
-
     }
 }

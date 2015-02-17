@@ -18,19 +18,19 @@
 
 package org.wso2.carbon.identity.entitlement.pip;
 
-import org.wso2.balana.XACMLConstants;
-import org.wso2.balana.ctx.EvaluationCtx;
-import org.wso2.balana.attr.AttributeValue;
-import org.wso2.balana.attr.BagAttribute;
-import org.wso2.balana.attr.StringAttribute;
-import org.wso2.balana.cond.EvaluationResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.wso2.balana.XACMLConstants;
+import org.wso2.balana.attr.AttributeValue;
+import org.wso2.balana.attr.BagAttribute;
+import org.wso2.balana.attr.StringAttribute;
+import org.wso2.balana.cond.EvaluationResult;
+import org.wso2.balana.ctx.EvaluationCtx;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.entitlement.PDPConstants;
 import org.wso2.carbon.identity.entitlement.EntitlementUtil;
+import org.wso2.carbon.identity.entitlement.PDPConstants;
 import org.wso2.carbon.identity.entitlement.cache.EntitlementBaseCache;
 import org.wso2.carbon.identity.entitlement.cache.IdentityCacheEntry;
 import org.wso2.carbon.identity.entitlement.cache.IdentityCacheKey;
@@ -45,26 +45,26 @@ import java.util.Set;
 /**
  * Abstract implementation of the PIPResourceFinder.
  */
-public abstract class AbstractPIPResourceFinder implements PIPResourceFinder{
+public abstract class AbstractPIPResourceFinder implements PIPResourceFinder {
 
-	private static Log log = LogFactory.getLog(CarbonAttributeFinder.class);
-	private EntitlementBaseCache<IdentityCacheKey, IdentityCacheEntry> abstractResourceCache = null;
-	private boolean isAbstractResourceCacheEnabled = false;
-	private int tenantId;
+    private static Log log = LogFactory.getLog(CarbonAttributeFinder.class);
+    private EntitlementBaseCache<IdentityCacheKey, IdentityCacheEntry> abstractResourceCache = null;
+    private boolean isAbstractResourceCacheEnabled = false;
+    private int tenantId;
 
     /**
-	 * This is the overloaded simplify version of the findDescendantResources() method. Any one who extends the
+     * This is the overloaded simplify version of the findDescendantResources() method. Any one who extends the
      * <code>AbstractPIPResourceFinder</code> can implement this method and get use of the default
      * implementation of the findDescendantResources() method which has been implemented within
      * <code>AbstractPIPResourceFinder</code> class
      *
-     * @param parentResourceId  parent resource value
-     * @param environmentId  environment name
+     * @param parentResourceId parent resource value
+     * @param environmentId    environment name
      * @return Returns a <code>Set</code> of <code>String</code>s that represent the descendant resources
      * @throws Exception throws if any failure is occurred
      */
     public abstract Set<String> findDescendantResources(String parentResourceId, String environmentId)
-            throws Exception; 
+            throws Exception;
 
     @Override
     public Set<String> findDescendantResources(String parentResourceId, EvaluationCtx context)
@@ -75,45 +75,45 @@ public abstract class AbstractPIPResourceFinder implements PIPResourceFinder{
         Set<String> resourceNames = null;
 
         NodeList children = context.getRequestRoot().getChildNodes();
-        for(int i = 0; i < children.getLength(); i++){
+        for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
-            if(child != null){
-                if(PDPConstants.ENVIRONMENT_ELEMENT.equals(child.getLocalName())){
-                    if(child.getChildNodes() != null && child.getChildNodes().getLength() > 0){
+            if (child != null) {
+                if (PDPConstants.ENVIRONMENT_ELEMENT.equals(child.getLocalName())) {
+                    if (child.getChildNodes() != null && child.getChildNodes().getLength() > 0) {
                         environment = context.getAttribute(new URI(StringAttribute.identifier),
-                                    new URI(PDPConstants.ENVIRONMENT_ID_DEFAULT), null,
-                                                        new URI(XACMLConstants.ENT_CATEGORY));
+                                new URI(PDPConstants.ENVIRONMENT_ID_DEFAULT), null,
+                                new URI(XACMLConstants.ENT_CATEGORY));
                         if (environment != null && environment.getAttributeValue() != null &&
-                                                                environment.getAttributeValue().isBag()) {
+                                environment.getAttributeValue().isBag()) {
                             BagAttribute attr = (BagAttribute) environment.getAttributeValue();
-                            environmentId = ((AttributeValue)attr.iterator().next()).encode();
+                            environmentId = ((AttributeValue) attr.iterator().next()).encode();
                         }
                     }
                 }
             }
         }
 
-        if(isAbstractResourceCacheEnabled) {
+        if (isAbstractResourceCacheEnabled) {
             IdentityCacheKey cacheKey;
             String key = PDPConstants.RESOURCE_DESCENDANTS + parentResourceId +
-                                        (environmentId != null ? environmentId:"");
+                    (environmentId != null ? environmentId : "");
             tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
             cacheKey = new IdentityCacheKey(tenantId, key);
             IdentityCacheEntry cacheEntry = (IdentityCacheEntry) abstractResourceCache.getValueFromCache(cacheKey);
-            if(cacheEntry != null){
-                String[] values= cacheEntry.getCacheEntryArray();
+            if (cacheEntry != null) {
+                String[] values = cacheEntry.getCacheEntryArray();
                 resourceNames = new HashSet<String>(Arrays.asList(values));
-                if(log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     log.debug("Carbon Resource Cache Hit");
                 }
             }
 
-            if(resourceNames != null){
+            if (resourceNames != null) {
                 resourceNames = findDescendantResources(parentResourceId, environmentId);
                 if (log.isDebugEnabled()) {
                     log.debug("Carbon Resource Cache Miss");
                 }
-                if(resourceNames != null && !resourceNames.isEmpty()){
+                if (resourceNames != null && !resourceNames.isEmpty()) {
                     cacheEntry = new IdentityCacheEntry(resourceNames.toArray(new String[resourceNames.size()]));
                     abstractResourceCache.addToCache(cacheKey, cacheEntry);
                 }
@@ -140,7 +140,7 @@ public abstract class AbstractPIPResourceFinder implements PIPResourceFinder{
 
     @Override
     public void clearCache() {
-        if(abstractResourceCache != null){
+        if (abstractResourceCache != null) {
             abstractResourceCache.clear();
         }
     }
@@ -148,6 +148,6 @@ public abstract class AbstractPIPResourceFinder implements PIPResourceFinder{
     @Override
     public Set<String> findChildResources(String parentResourceId, EvaluationCtx context)
             throws Exception {
-        return null; 
+        return null;
     }
 }

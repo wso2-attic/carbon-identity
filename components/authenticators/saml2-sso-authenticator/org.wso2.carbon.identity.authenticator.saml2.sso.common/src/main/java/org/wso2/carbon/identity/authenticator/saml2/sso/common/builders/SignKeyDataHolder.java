@@ -17,16 +17,6 @@
 */
 package org.wso2.carbon.identity.authenticator.saml2.sso.common.builders;
 
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.cert.Certificate;
-import java.security.cert.X509CRL;
-import java.security.cert.X509Certificate;
-import java.util.Arrays;
-import java.util.Collection;
-
-import javax.crypto.SecretKey;
-
 import org.apache.xml.security.signature.XMLSignature;
 import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.security.credential.CredentialContextSet;
@@ -35,7 +25,15 @@ import org.opensaml.xml.security.x509.X509Credential;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+
+import javax.crypto.SecretKey;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.cert.Certificate;
+import java.security.cert.X509CRL;
+import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.Collection;
 
 public class SignKeyDataHolder implements X509Credential {
 
@@ -46,27 +44,27 @@ public class SignKeyDataHolder implements X509Credential {
     public SignKeyDataHolder() throws Exception {
 
         try {
-                String keyAlias = ServerConfiguration.getInstance().getFirstProperty("Security.KeyStore.KeyAlias");
-                KeyStoreManager keyMan = KeyStoreManager.getInstance(MultitenantConstants.SUPER_TENANT_ID);
-                Certificate[] certificates = keyMan.getPrimaryKeyStore().getCertificateChain(keyAlias);
+            String keyAlias = ServerConfiguration.getInstance().getFirstProperty("Security.KeyStore.KeyAlias");
+            KeyStoreManager keyMan = KeyStoreManager.getInstance(MultitenantConstants.SUPER_TENANT_ID);
+            Certificate[] certificates = keyMan.getPrimaryKeyStore().getCertificateChain(keyAlias);
 
-                issuerPK = keyMan.getDefaultPrivateKey();
-                issuerCerts = new X509Certificate[certificates.length];
-                
-                int i = 0;
-                for (Certificate certificate : certificates) {
-                    issuerCerts[i++] = (X509Certificate) certificate;
-                }
+            issuerPK = keyMan.getDefaultPrivateKey();
+            issuerCerts = new X509Certificate[certificates.length];
 
-                signatureAlgorithm = XMLSignature.ALGO_ID_SIGNATURE_RSA;
+            int i = 0;
+            for (Certificate certificate : certificates) {
+                issuerCerts[i++] = (X509Certificate) certificate;
+            }
 
-                String pubKeyAlgo = issuerCerts[0].getPublicKey().getAlgorithm();
-                if (pubKeyAlgo.equalsIgnoreCase("DSA")) {
-                    signatureAlgorithm = XMLSignature.ALGO_ID_SIGNATURE_DSA;
-                }
+            signatureAlgorithm = XMLSignature.ALGO_ID_SIGNATURE_RSA;
+
+            String pubKeyAlgo = issuerCerts[0].getPublicKey().getAlgorithm();
+            if (pubKeyAlgo.equalsIgnoreCase("DSA")) {
+                signatureAlgorithm = XMLSignature.ALGO_ID_SIGNATURE_DSA;
+            }
 
         } catch (Exception e) {
-        	throw new Exception("Error while reading the key", e);
+            throw new Exception("Error while reading the key", e);
         }
 
     }

@@ -22,14 +22,14 @@ package org.wso2.carbon.identity.mgt;
  * Exception class
  */
 public class IdentityMgtServiceException extends Exception {
-    
+
     private static final long serialVersionUID = -7830262138811733180L;
 
     public IdentityMgtServiceException(String message) {
-		super(message);
-	}
+        super(message);
+    }
 
-	public IdentityMgtServiceException(String message, Throwable e) {
-		super(message, e);
-	}
+    public IdentityMgtServiceException(String message, Throwable e) {
+        super(message, e);
+    }
 }

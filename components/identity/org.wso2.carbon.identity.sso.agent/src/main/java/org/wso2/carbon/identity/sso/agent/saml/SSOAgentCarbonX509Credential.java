@@ -34,6 +34,12 @@ public class SSOAgentCarbonX509Credential implements SSOAgentX509Credential {
     private PrivateKey privateKey = null;
     private X509Certificate entityCertificate = null;
 
+    public SSOAgentCarbonX509Credential(int tenantId, String tenantDomain)
+            throws SSOAgentException {
+
+        readCarbonX509Credentials(tenantId, tenantDomain);
+    }
+
     @Override
     public PublicKey getPublicKey() {
         return publicKey;
@@ -47,12 +53,6 @@ public class SSOAgentCarbonX509Credential implements SSOAgentX509Credential {
     @Override
     public X509Certificate getEntityCertificate() {
         return entityCertificate;
-    }
-
-    public SSOAgentCarbonX509Credential(int tenantId , String tenantDomain)
-            throws SSOAgentException {
-
-        readCarbonX509Credentials(tenantId, tenantDomain);
     }
 
     protected void readCarbonX509Credentials(int tenantId, String tenantDomain) throws SSOAgentException {
@@ -77,11 +77,11 @@ public class SSOAgentCarbonX509Credential implements SSOAgentX509Credential {
                         "public certificate with alias " + tenantDomain +
                         " of tenant " + tenantDomain, e);
             }
-            privateKey = (PrivateKey)tenantKSM.getPrivateKey(jksName, tenantDomain);
+            privateKey = (PrivateKey) tenantKSM.getPrivateKey(jksName, tenantDomain);
         } else {
             try {
                 entityCertificate = tenantKSM.getDefaultPrimaryCertificate();
-            }catch (Exception e) {
+            } catch (Exception e) {
                 throw new SSOAgentException("Error retrieving default primary certificate of " +
                         MultitenantConstants.SUPER_TENANT_DOMAIN_NAME, e);
             }

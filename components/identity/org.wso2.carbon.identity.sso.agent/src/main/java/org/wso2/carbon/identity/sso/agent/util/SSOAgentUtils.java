@@ -52,7 +52,7 @@ public class SSOAgentUtils {
 
     private static Logger LOGGER = Logger.getLogger(SSOAgentConstants.LOGGER_NAME);
 
-	/**
+    /**
      * Generates a unique Id for Authentication Requests
      *
      * @return generated unique ID
@@ -61,9 +61,9 @@ public class SSOAgentUtils {
     public static String createID() {
 
         byte[] bytes = new byte[20]; // 160 bit
-        
+
         new Random().nextBytes(bytes);
-        
+
         char[] charMapping = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p'};
 
         char[] chars = new char[40];
@@ -88,7 +88,7 @@ public class SSOAgentUtils {
      * @throws org.wso2.carbon.identity.sso.agent.SSOAgentException
      */
     public static AuthnRequest setSignature(AuthnRequest authnRequest, String signatureAlgorithm,
-                                        X509Credential cred) throws SSOAgentException {
+                                            X509Credential cred) throws SSOAgentException {
         try {
             Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
             signature.setSigningCredential(cred);
@@ -141,7 +141,7 @@ public class SSOAgentUtils {
      * @throws SSOAgentException
      */
     public static LogoutRequest setSignature(LogoutRequest logoutRequest, String signatureAlgorithm,
-                                            X509Credential cred) throws SSOAgentException {
+                                             X509Credential cred) throws SSOAgentException {
         try {
             Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
             signature.setSigningCredential(cred);
@@ -160,7 +160,7 @@ public class SSOAgentUtils {
                 keyInfo.getX509Datas().add(data);
                 signature.setKeyInfo(keyInfo);
             } catch (CertificateEncodingException e) {
-                throw new SSOAgentException("Error getting certificate",e);
+                throw new SSOAgentException("Error getting certificate", e);
             }
 
             logoutRequest.setSignature(signature);
@@ -183,7 +183,7 @@ public class SSOAgentUtils {
             throw new SSOAgentException("Error while signing the Logout Request message", e);
         }
     }
-    
+
     public static void addDeflateSignatureToHTTPQueryString(StringBuilder httpQueryString,
                                                             X509Credential cred) throws SSOAgentException {
         try {
@@ -235,7 +235,7 @@ public class SSOAgentUtils {
         } catch (IOException e) {
             throw new SSOAgentException("Error occurred while writing to HttpServletResponse", e);
         } finally {
-            if(writer != null){
+            if (writer != null) {
                 try {
                     writer.close();
                 } catch (IOException e) {

@@ -19,16 +19,16 @@ package org.wso2.carbon.identity.base;
 
 public class IdentityException extends Exception {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 3061847849910145257L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 3061847849910145257L;
 
-	public IdentityException(String messaage) {
-		super(messaage);
-	}
+    public IdentityException(String messaage) {
+        super(messaage);
+    }
 
-	public IdentityException(String messaage, Throwable e) {
-		super(messaage, e);
-	}
+    public IdentityException(String messaage, Throwable e) {
+        super(messaage, e);
+    }
 }

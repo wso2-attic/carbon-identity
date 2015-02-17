@@ -24,8 +24,8 @@ import org.wso2.carbon.user.core.UserStoreException;
 
 public class UserProfileUtil {
 
-    public static boolean isUserAuthorizedToConfigureProfile(UserRealm realm,
-            String currentUserName, String targetUser) throws UserStoreException {
+    public static boolean isUserAuthorizedToConfigureProfile(UserRealm realm, String currentUserName, String targetUser)
+            throws UserStoreException {
         boolean isAuthrized = false;
         if (currentUserName == null) {
             //do nothing

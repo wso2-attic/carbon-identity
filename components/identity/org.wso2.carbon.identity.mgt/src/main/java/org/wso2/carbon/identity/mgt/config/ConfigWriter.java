@@ -21,16 +21,15 @@ import java.util.Properties;
 
 /**
  * This is used to write configuration to a persistence store.
- *
  */
 public interface ConfigWriter {
 
-	/**
-	 * Writes configuration to a tenant specific persistence store.
-	 * 
-	 * @param tenantId
-	 * @param props
-	 * @param resourcePath
-	 */
-	void write(int tenantId, Properties props, String resourcePath);
+    /**
+     * Writes configuration to a tenant specific persistence store.
+     *
+     * @param tenantId
+     * @param props
+     * @param resourcePath
+     */
+    void write(int tenantId, Properties props, String resourcePath);
 }

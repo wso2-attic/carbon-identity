@@ -18,21 +18,17 @@
 
 package org.wso2.carbon.identity.entitlement.pip;
 
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.core.util.AdminServicesUtil;
-import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
-import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent;
 import org.wso2.carbon.user.api.ClaimManager;
 import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.user.core.UserCoreConstants;
-import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * DefaultAttributeFinder talks to the underlying user store to read user attributes.
@@ -41,19 +37,19 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
  */
 public class DefaultAttributeFinder extends AbstractPIPAttributeFinder {
 
-	private Set<String> supportedAttrs = new HashSet<String>();
-	private static Log log = LogFactory.getLog(DefaultAttributeFinder.class);
+    private static Log log = LogFactory.getLog(DefaultAttributeFinder.class);
+    private Set<String> supportedAttrs = new HashSet<String>();
 
-	/**
-	 * Loads all the claims defined under http://wso2.org/claims dialect.
-	 * 
-	 * @throws Exception
-	 */
-	public void init(Properties properties) throws Exception {
-		if (log.isDebugEnabled()) {
-			log.debug("DefaultAttributeFinder is initialized successfully");
-		}
-	}
+    /**
+     * Loads all the claims defined under http://wso2.org/claims dialect.
+     *
+     * @throws Exception
+     */
+    public void init(Properties properties) throws Exception {
+        if (log.isDebugEnabled()) {
+            log.debug("DefaultAttributeFinder is initialized successfully");
+        }
+    }
 
     @Override
     public String getModuleName() {
@@ -61,24 +57,24 @@ public class DefaultAttributeFinder extends AbstractPIPAttributeFinder {
     }
 
     /*
-	 * (non-Javadoc)
+     * (non-Javadoc)
 	 * 
 	 * @see
 	 * org.wso2.carbon.identity.entitlement.pip.PIPAttributeFinder#getAttributeValues(java.lang.
 	 * String, java.lang.String, java.lang.String)
 	 */
-	public Set<String> getAttributeValues(String subjectId, String resourceId, String actionId,
+    public Set<String> getAttributeValues(String subjectId, String resourceId, String actionId,
                                           String environmentId, String attributeId, String issuer) throws Exception {
-		Set<String> values = new HashSet<String>();
+        Set<String> values = new HashSet<String>();
 
         subjectId = MultitenantUtils.getTenantAwareUsername(subjectId);
-		if (UserCoreConstants.ClaimTypeURIs.ROLE.equals(attributeId)) {
-			if (log.isDebugEnabled()) {
-				log.debug("Looking for roles via DefaultAttributeFinder");
-			}
-			String[] roles = CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
-					.getRoleListOfUser(subjectId);
-			if (roles != null && roles.length > 0) {
+        if (UserCoreConstants.ClaimTypeURIs.ROLE.equals(attributeId)) {
+            if (log.isDebugEnabled()) {
+                log.debug("Looking for roles via DefaultAttributeFinder");
+            }
+            String[] roles = CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
+                    .getRoleListOfUser(subjectId);
+            if (roles != null && roles.length > 0) {
                 for (String role : roles) {
                     if (log.isDebugEnabled()) {
                         log.debug(String.format("User %1$s belongs to the Role %2$s", subjectId,
@@ -86,40 +82,40 @@ public class DefaultAttributeFinder extends AbstractPIPAttributeFinder {
                     }
                     values.add(role);
                 }
-			}
-		} else {
-			String claimValues = CarbonContext.getThreadLocalCarbonContext().getUserRealm().
+            }
+        } else {
+            String claimValues = CarbonContext.getThreadLocalCarbonContext().getUserRealm().
                     getUserStoreManager().getUserClaimValue(subjectId, attributeId, null);
-			if (claimValues == null && log.isDebugEnabled()) {
-				log.debug(String.format("Request attribute %1$s not found", attributeId));
-			}
-			// Fix for multiple claim values
-			if(claimValues != null ) {
-				String[] claimsArray = claimValues.split(",");
-					for (String claim : claimsArray) {
-						values.add(claim);
-					}
-			}
-		}
-		return values;
-	}
+            if (claimValues == null && log.isDebugEnabled()) {
+                log.debug(String.format("Request attribute %1$s not found", attributeId));
+            }
+            // Fix for multiple claim values
+            if (claimValues != null) {
+                String[] claimsArray = claimValues.split(",");
+                for (String claim : claimsArray) {
+                    values.add(claim);
+                }
+            }
+        }
+        return values;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.wso2.carbon.identity.entitlement.pip.PIPAttributeFinder#getSupportedAttributes()
-	 */
-	public Set<String> getSupportedAttributes() {
-        try{
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.wso2.carbon.identity.entitlement.pip.PIPAttributeFinder#getSupportedAttributes()
+     */
+    public Set<String> getSupportedAttributes() {
+        try {
             ClaimManager claimManager = CarbonContext.getThreadLocalCarbonContext().getUserRealm().getClaimManager();
             ClaimMapping[] claims = claimManager
-                                    .getAllClaimMappings(UserCoreConstants.DEFAULT_CARBON_DIALECT);
+                    .getAllClaimMappings(UserCoreConstants.DEFAULT_CARBON_DIALECT);
             for (ClaimMapping claim : claims) {
                 supportedAttrs.add(claim.getClaim().getClaimUri());
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             //ignore
         }
         return supportedAttrs;
-	}
+    }
 }

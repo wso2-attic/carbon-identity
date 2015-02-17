@@ -21,7 +21,6 @@ package org.wso2.carbon.identity.entitlement.policy.publisher;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.entitlement.EntitlementException;
-import org.wso2.carbon.identity.entitlement.PDPConstants;
 import org.wso2.carbon.identity.entitlement.common.EntitlementConstants;
 import org.wso2.carbon.identity.entitlement.dto.PolicyDTO;
 import org.wso2.carbon.identity.entitlement.dto.PublisherDataHolder;
@@ -36,15 +35,15 @@ import java.util.Properties;
 /**
  * This is  abstract implementation of PolicyPublisherModule. Here we have implemented the init()
  * method.
- * If you want to configure properties of a publisher module from management UI, 
+ * If you want to configure properties of a publisher module from management UI,
  * you want to write your publisher module by extending this abstract class
  * Then you can init() your module each time policy is published.
  */
-public abstract class AbstractPolicyPublisherModule implements PolicyPublisherModule{
+public abstract class AbstractPolicyPublisherModule implements PolicyPublisherModule {
 
     protected static final String REQUIRED = "required";
 
-    protected static final String DISPLAY_NAME= "displayName";
+    protected static final String DISPLAY_NAME = "displayName";
 
     protected static final String ORDER = "order";
 
@@ -54,19 +53,19 @@ public abstract class AbstractPolicyPublisherModule implements PolicyPublisherMo
 
     public void init(Properties properties) {
 
-        List<PublisherPropertyDTO>  propertyDTOs = new ArrayList<PublisherPropertyDTO>();
-        
-        if(properties == null || properties.size() == 0){
+        List<PublisherPropertyDTO> propertyDTOs = new ArrayList<PublisherPropertyDTO>();
+
+        if (properties == null || properties.size() == 0) {
             properties = loadProperties();
         }
 
-        if(properties != null){
-            for(Map.Entry<Object, Object> entry : properties.entrySet()){
+        if (properties != null) {
+            for (Map.Entry<Object, Object> entry : properties.entrySet()) {
 
                 Map attributeMap;
 
                 Object value = entry.getValue();
-                if(value instanceof Map){
+                if (value instanceof Map) {
                     attributeMap = (Map) value;
                 } else {
                     return;
@@ -74,20 +73,20 @@ public abstract class AbstractPolicyPublisherModule implements PolicyPublisherMo
 
                 PublisherPropertyDTO dto = new PublisherPropertyDTO();
                 dto.setModule(getModuleName());
-                dto.setId((String)entry.getKey());
-                if(attributeMap.get(DISPLAY_NAME) != null){
-                    dto.setDisplayName((String)attributeMap.get(DISPLAY_NAME));
+                dto.setId((String) entry.getKey());
+                if (attributeMap.get(DISPLAY_NAME) != null) {
+                    dto.setDisplayName((String) attributeMap.get(DISPLAY_NAME));
                 } else {
                     log.error("Invalid policy publisher configuration : Display name can not be null");
                 }
-                if(attributeMap.get(ORDER) != null){
-                    dto.setDisplayOrder(Integer.parseInt((String)attributeMap.get(ORDER)));
+                if (attributeMap.get(ORDER) != null) {
+                    dto.setDisplayOrder(Integer.parseInt((String) attributeMap.get(ORDER)));
                 }
-                if(attributeMap.get(REQUIRED) != null){
-                    dto.setRequired(Boolean.parseBoolean((String)attributeMap.get(REQUIRED)));
+                if (attributeMap.get(REQUIRED) != null) {
+                    dto.setRequired(Boolean.parseBoolean((String) attributeMap.get(REQUIRED)));
                 }
-                if(attributeMap.get(SECRET) != null){
-                    dto.setSecret(Boolean.parseBoolean((String)attributeMap.get(SECRET)));
+                if (attributeMap.get(SECRET) != null) {
+                    dto.setSecret(Boolean.parseBoolean((String) attributeMap.get(SECRET)));
                 }
                 propertyDTOs.add(dto);
             }
@@ -104,7 +103,7 @@ public abstract class AbstractPolicyPublisherModule implements PolicyPublisherMo
         PublisherDataHolder holder = new PublisherDataHolder(getModuleName());
         holder.setPropertyDTOs(propertyDTOs.toArray(new PublisherPropertyDTO[propertyDTOs.size()]));
         EntitlementServiceComponent.getEntitlementConfig().
-                            addModulePropertyHolder(PolicyPublisherModule.class.getName(), holder);
+                addModulePropertyHolder(PolicyPublisherModule.class.getName(), holder);
 
     }
 
@@ -116,21 +115,21 @@ public abstract class AbstractPolicyPublisherModule implements PolicyPublisherMo
     @Override
     public void publish(PolicyDTO policyDTO, String action, boolean enabled, int order) throws EntitlementException {
 
-        if(EntitlementConstants.PolicyPublish.ACTION_CREATE.equals(action)){
+        if (EntitlementConstants.PolicyPublish.ACTION_CREATE.equals(action)) {
             policyDTO.setPolicyOrder(order);
             policyDTO.setActive(enabled);
             publishNew(policyDTO);
-        } else if(EntitlementConstants.PolicyPublish.ACTION_DELETE.equals(action)){
+        } else if (EntitlementConstants.PolicyPublish.ACTION_DELETE.equals(action)) {
             delete(policyDTO);
-        } else if(EntitlementConstants.PolicyPublish.ACTION_UPDATE.equals(action)){
+        } else if (EntitlementConstants.PolicyPublish.ACTION_UPDATE.equals(action)) {
             update(policyDTO);
-        } else if(EntitlementConstants.PolicyPublish.ACTION_ENABLE.equals(action)){
+        } else if (EntitlementConstants.PolicyPublish.ACTION_ENABLE.equals(action)) {
             policyDTO.setActive(true);
             enable(policyDTO);
-        } else if(EntitlementConstants.PolicyPublish.ACTION_DISABLE.equals(action)){
+        } else if (EntitlementConstants.PolicyPublish.ACTION_DISABLE.equals(action)) {
             policyDTO.setActive(false);
             disable(policyDTO);
-        } else if(EntitlementConstants.PolicyPublish.ACTION_ORDER.equals(action)){
+        } else if (EntitlementConstants.PolicyPublish.ACTION_ORDER.equals(action)) {
             policyDTO.setPolicyOrder(order);
             order(policyDTO);
         } else {
@@ -142,7 +141,6 @@ public abstract class AbstractPolicyPublisherModule implements PolicyPublisherMo
      * This would init module, each time policy is published
      *
      * @param propertyHolder publisher module data as PublisherDataHolder
-     *
      * @throws EntitlementException throws if init fails
      */
     public abstract void init(PublisherDataHolder propertyHolder) throws EntitlementException;
@@ -173,13 +171,15 @@ public abstract class AbstractPolicyPublisherModule implements PolicyPublisherMo
 
     /**
      * Order policy
+     *
      * @param policyDTO <code>PolicyDTO</code>
-     * @throws EntitlementException  if fails
+     * @throws EntitlementException if fails
      */
     public abstract void order(PolicyDTO policyDTO) throws EntitlementException;
 
     /**
      * Disables policy in PDP
+     *
      * @param policyDTO <code>PolicyDTO</code>
      * @throws EntitlementException if fails
      */
@@ -187,6 +187,7 @@ public abstract class AbstractPolicyPublisherModule implements PolicyPublisherMo
 
     /**
      * Enables policy in PDP
+     *
      * @param policyDTO <code>PolicyDTO</code>
      * @throws EntitlementException if fails
      */

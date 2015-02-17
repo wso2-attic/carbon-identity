@@ -30,7 +30,7 @@ public class UserStoreListener extends AbstractUserOperationEventListener {
 
     private CacheBackedIdPMgtDAO dao = new CacheBackedIdPMgtDAO(new IdPManagementDAO());
 
-    public boolean doPostUpdateRoleName (String newRoleName, String oldRoleName, UserStoreManager um) throws UserStoreException {
+    public boolean doPostUpdateRoleName(String newRoleName, String oldRoleName, UserStoreManager um) throws UserStoreException {
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         try {

@@ -19,15 +19,15 @@
 package org.wso2.carbon.identity.application.authentication.framework.store;
 
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
+
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
 
 /**
  * Database cleanup. Timer task is running for pre-defined period to clear the
@@ -35,16 +35,13 @@ import org.wso2.carbon.identity.core.util.IdentityUtil;
  */
 public final class SessionCleanUpService {
 
+    private static final int NUM_THREADS = 1;
+    private static Log log = LogFactory.getLog(SessionCleanUpService.class);
     private final ScheduledExecutorService scheduler;
     private final long initialDelay;
     private final long delayBetweenRuns;
 
-    private static final int NUM_THREADS = 1;
-
-    private static Log log = LogFactory.getLog(SessionCleanUpService.class);
-
     /**
-     *
      * @param initialDelay
      * @param delayBetweenRuns
      */
