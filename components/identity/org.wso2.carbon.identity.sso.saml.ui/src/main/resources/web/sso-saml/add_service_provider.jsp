@@ -133,6 +133,21 @@ function doValidation() {
         }
     }
 
+    var fld4 = document.getElementsByName("artifactResolutionService")[0];
+        var value = fld4.value;
+        var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
+        if (value.length != 0) {
+            value = value.replace(/^\s+/, "");
+            if (value.length != 0) {
+                if (!regexp.test(value)) {
+                    CARBON.showWarningDialog(
+                            "<fmt:message key='sp.enter.valid.artifact.resolution.service.endpoint.address'/>",
+                            null, null);
+                    return false;
+                }
+            }
+        }
+
     //if (document.getElementsByName("subjectType")[1].checked) {
     //    var claimVal = document.getElementsByName("claimID")[0].value;
     //    if (claimVal.length == 0) {
@@ -379,6 +394,11 @@ function disableIdPInitSSO(chkbx) {
             : false;
 }
 
+function disableArtifactBinding(chkbx) {
+    document.addServiceProvider.enableArtifactBinding.value = (chkbx.checked) ? true
+                        : false;
+}
+
 function isContainRaw(tbody) {
     if (tbody.childNodes == null || tbody.childNodes.length == 0) {
         return false;
@@ -534,7 +554,7 @@ function clearAll() {
         <fmt:message key="sp.issuer"/>
         <font color="red">*</font>
     </td>
-    <td><input type="text" id="issuer" name="issuer" maxlength="30"
+    <td><input type="text" id="issuer" name="issuer" maxlength="100"
                class="text-box-big"
                value="<%=isEditSP? provider.getIssuer():""%>" <%=isEditSP ? "disabled=\"disabled\"" : ""%>/>
         <input type="hidden" id="hiddenIssuer" name="hiddenIssuer"
@@ -1137,6 +1157,35 @@ if (isEditSP && show) {
     </td>
 </tr>
 
+<!-- Artifact Binding -->
+<tr>
+    <td colspan="2">
+        <input type="checkbox" name="enableArtifactBinding" value="true"
+            onclick="disableArtifactBinding(this);"
+            <%=(isEditSP && provider.getArtifactBindingEnabled() ? "checked=\"checked\"" : "")%> />
+        <fmt:message key="enable.artifact.binding"/>
+    </td>
+</tr>
+<tr>
+    <td style="padding-left: 33px ! important;">
+        <fmt:message key="sp.artifactLifetime"/>
+    </td>
+    <td>
+        <input type="text" id="artifactLifetime"
+               name="artifactLifetime" class="text-box-big"
+               value="<%=isEditSP?provider.getArtifactLifetime():""%>"/>
+    </td>
+</tr>
+<tr>
+    <td style="padding-left: 33px ! important;">
+        <fmt:message key="sp.artifactResolutionService"/>
+    </td>
+    <td>
+        <input type="text" id="artifactResolutionService"
+               name="artifactResolutionService" class="text-box-big"
+               value="<%=isEditSP?provider.getArtifactResolutionService():""%>"/>
+    </td>
+</tr>
 
 </table>
 </td>

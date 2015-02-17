@@ -17,9 +17,6 @@
 */
 package org.wso2.carbon.identity.sso.saml.processors;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml2.core.Response;
@@ -34,14 +31,16 @@ import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
 import org.wso2.carbon.identity.sso.saml.builders.ErrorResponseBuilder;
 import org.wso2.carbon.identity.sso.saml.builders.ResponseBuilder;
+import org.wso2.carbon.identity.sso.saml.builders.SAMLArtifactBuilder;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
-import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOReqValidationResponseDTO;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSORespDTO;
 import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
-import org.wso2.carbon.identity.sso.saml.session.SessionInfoData;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SPInitSSOAuthnRequestProcessor {
 
@@ -155,12 +154,17 @@ public class SPInitSSOAuthnRequestProcessor {
                 Response response = respBuilder.buildResponse(authnReqDTO, sessionIndexId);
                 samlssoRespDTO = new SAMLSSORespDTO();
                 String samlResp = SAMLSSOUtil.marshall(response);
+                samlssoRespDTO.setRespString(SAMLSSOUtil.encode(samlResp));
+
+                if(authnReqDTO.isArtifactBinding()) {
+                    String artifact = new SAMLArtifactBuilder().buildArtifact(response, authnReqDTO.getUsername());
+                    samlssoRespDTO.setRespString(artifact);
+                }
 
                 if (log.isDebugEnabled()) {
                     log.debug(samlResp);
                 }
 
-                samlssoRespDTO.setRespString(SAMLSSOUtil.encode(samlResp));
                 samlssoRespDTO.setSessionEstablished(true);
                 samlssoRespDTO.setAssertionConsumerURL(authnReqDTO.getAssertionConsumerURL());
                 samlssoRespDTO.setLoginPageURL(authnReqDTO.getLoginPageURL());
@@ -247,6 +251,7 @@ public class SPInitSSOAuthnRequestProcessor {
         authnReqDTO.setRequestedRecipients((ssoIdpConfigs.getRequestedRecipients()));
         authnReqDTO.setDoEnableEncryptedAssertion(ssoIdpConfigs.isDoEnableEncryptedAssertion());
         authnReqDTO.setDoValidateSignatureInRequests(ssoIdpConfigs.isDoValidateSignatureInRequests());
+        authnReqDTO.setArtifactBinding(ssoIdpConfigs.isArtifactBindingEnabled());
     }
 
     /**

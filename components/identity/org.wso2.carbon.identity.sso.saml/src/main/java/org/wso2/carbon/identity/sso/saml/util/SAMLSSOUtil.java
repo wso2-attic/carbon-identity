@@ -485,7 +485,7 @@ public class SAMLSSOUtil {
      * @return
      * @throws IdentityException
      */
-    private static StatusResponseType signResponse(StatusResponseType response, String signatureAlgorithm,
+    public static StatusResponseType signResponse(StatusResponseType response, String signatureAlgorithm,
                                             X509Credential cred) throws IdentityException{
 
         doBootstrap();

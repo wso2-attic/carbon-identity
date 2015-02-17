@@ -40,6 +40,9 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
     private boolean idPInitSSOEnabled;
     private boolean doEnableEncryptedAssertion;
     private boolean doValidateSignatureInRequests;
+    private boolean artifactBindingEnabled;
+    private String artifactResolutionService;
+    private int artifactLifetime;
 
     public String getNameIDFormat() {
         return nameIDFormat;
@@ -223,5 +226,29 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
 
     public void setDoValidateSignatureInRequests(boolean doValidateSignatureInRequests) {
         this.doValidateSignatureInRequests = doValidateSignatureInRequests;
+    }
+
+    public boolean isArtifactBindingEnabled() {
+        return artifactBindingEnabled;
+    }
+
+    public void setArtifactBindingEnabled(boolean artifactBindingEnabled) {
+        this.artifactBindingEnabled = artifactBindingEnabled;
+    }
+
+    public String getArtifactResolutionService() {
+        return artifactResolutionService;
+    }
+
+    public void setArtifactResolutionService(String artifactResolutionService) {
+        this.artifactResolutionService = artifactResolutionService;
+    }
+
+    public int getArtifactLifetime() {
+        return artifactLifetime;
+    }
+
+    public void setArtifactLifetime(int artifactLifetime) {
+        this.artifactLifetime = artifactLifetime;
     }
 }

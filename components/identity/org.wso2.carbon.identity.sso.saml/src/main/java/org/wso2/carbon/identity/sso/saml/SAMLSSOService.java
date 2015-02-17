@@ -17,11 +17,19 @@
 */
 package org.wso2.carbon.identity.sso.saml;
 
+import org.opensaml.common.SAMLObject;
+import org.opensaml.saml2.core.ArtifactResponse;
 import org.opensaml.saml2.core.AuthnRequest;
 import org.opensaml.saml2.core.LogoutRequest;
+import org.opensaml.saml2.core.RequestAbstractType;
 import org.opensaml.xml.XMLObject;
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
+import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOReqValidationResponseDTO;
@@ -29,15 +37,13 @@ import org.wso2.carbon.identity.sso.saml.dto.SAMLSSORespDTO;
 import org.wso2.carbon.identity.sso.saml.processors.IdPInitSSOAuthnRequestProcessor;
 import org.wso2.carbon.identity.sso.saml.processors.LogoutRequestProcessor;
 import org.wso2.carbon.identity.sso.saml.processors.SPInitSSOAuthnRequestProcessor;
-import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 import org.wso2.carbon.identity.sso.saml.validators.IdPInitSSOAuthnRequestValidator;
 import org.wso2.carbon.identity.sso.saml.validators.SPInitSSOAuthnRequestValidator;
+import org.wso2.carbon.registry.core.Registry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.List;
 
 public class SAMLSSOService {
 
@@ -193,4 +199,53 @@ public class SAMLSSOService {
         }
     }
 
+    /**
+     * Validate <ArtifactResponse> and generate the SAML Message
+     */
+    public SAMLSSOReqValidationResponseDTO validateArtifactResponse(String xmlString, String queryString,
+                                                                    String sessionId, String rpSessionId) throws IdentityException {
+
+        if(SAMLSSOUtil.unmarshall(xmlString) instanceof ArtifactResponse) {
+            ArtifactResponse artifactResponse = (ArtifactResponse) SAMLSSOUtil.unmarshall(xmlString);
+
+            SAMLObject samlObject = artifactResponse.getMessage();
+            if(samlObject != null) {
+
+                if(artifactResponse.getSignature() != null){
+                    String domainName = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                    IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
+                    Registry registry = (Registry) PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_CONFIGURATION);
+                    SAMLSSOServiceProviderDO serviceProviderDO = persistenceManager.getServiceProvider(registry, artifactResponse.getIssuer().getValue());
+                    String alias = serviceProviderDO.getCertAlias();
+                    SAMLSSOUtil.validateXMLSignature((RequestAbstractType)samlObject, alias, domainName);
+                }
+
+                if(samlObject instanceof AuthnRequest) {
+                    AuthnRequest authnRequest = (AuthnRequest) samlObject;
+                    SPInitSSOAuthnRequestValidator authnRequestValidator =
+                            new SPInitSSOAuthnRequestValidator(authnRequest);
+                    SAMLSSOReqValidationResponseDTO validationResp = authnRequestValidator.validate();
+                    validationResp.setRequestMessageString(SAMLSSOUtil.encode(SAMLSSOUtil.marshall(authnRequest)));
+                    validationResp.setQueryString(queryString);
+                    validationResp.setRpSessionId(rpSessionId);
+                    validationResp.setIdPInitSSO(false);
+                    return validationResp;
+
+                } else if(samlObject instanceof LogoutRequest) {
+                    LogoutRequest logoutRequest = (LogoutRequest) samlObject;
+                    LogoutRequestProcessor logoutReqProcessor = new LogoutRequestProcessor();
+                    SAMLSSOReqValidationResponseDTO validationResponseDTO =
+                            logoutReqProcessor.process(logoutRequest, sessionId, queryString);
+                    return validationResponseDTO;
+                }
+
+            } else {
+                throw new IdentityException("SAML AuthnRequest / LogoutRequest Not Found for the Artifact");
+            }
+        } else {
+            // SOAP Fault
+            throw new IdentityException("SOAP Fault");
+        }
+        return null;
+    }
 }

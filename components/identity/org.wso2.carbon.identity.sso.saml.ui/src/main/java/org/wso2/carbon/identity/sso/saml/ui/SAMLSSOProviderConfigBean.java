@@ -38,6 +38,9 @@ public class SAMLSSOProviderConfigBean {
     private List<String> selectedRecipients = new ArrayList<String>();
     private String attributeConsumingServiceIndex = null;
     private String isIdPInitSSOEnabled;
+    private String isArtifactBindingEnabled;
+    private String artifactResolutionService = "";
+    private String artifactLifetime = "";
 
 	/**
 	 * clears the values in bean
@@ -55,6 +58,7 @@ public class SAMLSSOProviderConfigBean {
         enableAudiences = "false";
         enableRecipients = "false";
         attributeConsumingServiceIndex = "";
+        artifactResolutionService = "";
 		selectedClaims.clear();
 	}
 
@@ -354,5 +358,29 @@ public class SAMLSSOProviderConfigBean {
 
     public void setIdPInitSSOEnabled(String idPInitSSOEnabled) {
         isIdPInitSSOEnabled = idPInitSSOEnabled;
+    }
+
+    public String getArtifactBindingEnabled() {
+        return isArtifactBindingEnabled;
+    }
+
+    public void setArtifactBindingEnabled(String artifactBindingEnabled) {
+        isArtifactBindingEnabled = artifactBindingEnabled;
+    }
+
+    public String getArtifactResolutionService() {
+        return artifactResolutionService;
+    }
+
+    public void setArtifactResolutionService(String artifactResolutionService) {
+        this.artifactResolutionService = artifactResolutionService;
+    }
+
+    public String getArtifactLifetime() {
+        return artifactLifetime;
+    }
+
+    public void setArtifactLifetime(String artifactLifetime) {
+        this.artifactLifetime = artifactLifetime;
     }
 }

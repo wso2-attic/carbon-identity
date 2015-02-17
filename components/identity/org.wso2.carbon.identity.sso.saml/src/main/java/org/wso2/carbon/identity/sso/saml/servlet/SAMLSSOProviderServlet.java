@@ -19,12 +19,14 @@ package org.wso2.carbon.identity.sso.saml.servlet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xml.security.exceptions.Base64DecodingException;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheKey;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
@@ -32,6 +34,7 @@ import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.sso.saml.SAMLSSOArtifactResolver;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOService;
 import org.wso2.carbon.identity.sso.saml.cache.SessionDataCache;
@@ -49,17 +52,19 @@ import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
-import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.soap.SOAPException;
+import javax.xml.transform.TransformerException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -149,6 +154,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         String spEntityID = req.getParameter("spEntityID");
         String samlRequest = req.getParameter("SAMLRequest");
         String sessionDataKey = req.getParameter("sessionDataKey");
+        String samlArtifact = req.getParameter(SAMLSSOConstants.SAML_ART);
 
         try {
             if (sessionDataKey != null) { //Response from common authentication framework.
@@ -184,6 +190,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                 handleIdPInitSSO(req, resp, spEntityID, relayState, queryString, authMode, sessionId);
             } else if (samlRequest != null) {// SAMLRequest received. SP initiated SSO
                 handleSPInitSSO(req, resp, queryString, relayState, authMode, samlRequest, sessionId, isPost);
+            } else if (samlArtifact != null){// SAML Artifact received
+                handleArtifact(req, resp, queryString, relayState, samlArtifact, sessionId);
             } else {
                 log.debug("Invalid request message or single logout message ");
                 
@@ -586,10 +594,14 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
                 storeTokenIdCookie(sessionId, req, resp);
                 removeSessionDataFromCache(req.getParameter("sessionDataKey"));
-                
-                sendResponse(req, resp, relayState, authRespDTO.getRespString(),
-                        authRespDTO.getAssertionConsumerURL(), authRespDTO.getSubject(),
-                        authResult.getAuthenticatedIdPs());
+
+                if(authnReqDTO.isArtifactBinding()) {
+                    sendArtifact(req, resp, relayState, authRespDTO.getRespString(), authRespDTO.getAssertionConsumerURL());
+                } else {
+                    sendResponse(req, resp, relayState, authRespDTO.getRespString(),
+                            authRespDTO.getAssertionConsumerURL(), authRespDTO.getSubject(),
+                            authResult.getAuthenticatedIdPs());
+                }
             } else { // authentication FAILURE
                 sendNotification(SAMLSSOConstants.Notification.EXCEPTION_STATUS,
                         SAMLSSOConstants.Notification.EXCEPTION_MESSAGE, req, resp);
@@ -839,5 +851,88 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                 .getThreadLocalCarbonContext();
         carbonContext.setTenantId(tenantId);
         carbonContext.setTenantDomain(tenantDomainParam);
+    }
+
+    /**
+     * Send the Artifact
+     * @param req
+     * @param resp
+     * @param relayState
+     * @param artifact
+     * @param assertionConsumerUrl
+     * @throws IOException
+     */
+    private void sendArtifact(HttpServletRequest req, HttpServletResponse resp, String relayState, String artifact, String assertionConsumerUrl) throws IOException {
+
+        // Set the HTTP Headers : HTTP proxies and user agents should not cache the artifact
+        resp.addHeader("Pragma", "no-cache");
+        resp.addHeader("Cache-Control", "no-cache");
+        String encodedArtifact = URLEncoder.encode(artifact, "UTF-8");
+
+        String redirectURL = assertionConsumerUrl;
+        String queryParams = "?" + SAMLSSOConstants.SAML_ART + "=" + encodedArtifact;
+        if(relayState != null) {
+            queryParams += "&" + SAMLSSOConstants.RELAY_STATE + "=" + relayState;
+        }
+        resp.sendRedirect(redirectURL + queryParams);
+    }
+
+    /**
+     * Resolve the received artifact
+     * @param req
+     * @param resp
+     * @param queryString
+     * @param relayState
+     * @param samlArt
+     * @param sessionId
+     * @throws IdentityException
+     * @throws IOException
+     * @throws ServletException
+     */
+    private void handleArtifact(HttpServletRequest req, HttpServletResponse resp, String queryString,
+                                String relayState, String samlArt, String sessionId)
+                                        throws IOException, ServletException {
+        try {
+            String responseXML = new SAMLSSOArtifactResolver().resolveArtifact(samlArt);
+            SAMLSSOService samlssoService = new SAMLSSOService();
+            String rpSessionId = req.getParameter(MultitenantConstants.SSO_AUTH_SESSION_ID);
+            SAMLSSOReqValidationResponseDTO signInRespDTO =
+                    samlssoService.validateArtifactResponse(responseXML, queryString, sessionId, rpSessionId);
+
+            if (!signInRespDTO.isLogOutReq()) {
+                if (signInRespDTO.isValid()) {
+                    sendToFrameworkForAuthentication(req, resp, signInRespDTO, relayState);
+                } else {
+                    log.debug("Invalid SAML SSO Request");
+                    throw new IdentityException("Invalid SAML SSO Request");
+                }
+            } else {
+                sendToFrameworkForLogout(req, resp, signInRespDTO, relayState, sessionId, false);
+            }
+        } catch (NoSuchAlgorithmException e) {
+            log.error("SHA-1 Algorithm not supported", e);
+            sendNotification(SAMLSSOConstants.Notification.EXCEPTION_STATUS_ARTIFACT_RESOLVE,
+                    SAMLSSOConstants.Notification.EXCEPTION_MESSAGE, req, resp);
+        } catch (SOAPException e) {
+            log.error("Error while sending SOAP message", e);
+            sendNotification(SAMLSSOConstants.Notification.EXCEPTION_STATUS_ARTIFACT_RESOLVE,
+                    SAMLSSOConstants.Notification.EXCEPTION_MESSAGE, req, resp);
+        } catch (Base64DecodingException e) {
+            log.error("Error while decoding source ID", e);
+            sendNotification(SAMLSSOConstants.Notification.EXCEPTION_STATUS_ARTIFACT_RESOLVE,
+                    SAMLSSOConstants.Notification.EXCEPTION_MESSAGE, req, resp);
+        } catch (TransformerException e) {
+            log.error("Error while processing SOAP response", e);
+            sendNotification(SAMLSSOConstants.Notification.EXCEPTION_STATUS_ARTIFACT_RESOLVE,
+                    SAMLSSOConstants.Notification.EXCEPTION_MESSAGE, req, resp);
+        } catch (IdentityException e) {
+            log.error("Error while resolving artifact", e);
+            sendNotification(SAMLSSOConstants.Notification.EXCEPTION_STATUS_ARTIFACT_RESOLVE,
+                    SAMLSSOConstants.Notification.EXCEPTION_MESSAGE, req, resp);
+        } catch (Exception e) {
+            log.error("Error while creating SOAP request message", e);
+            sendNotification(SAMLSSOConstants.Notification.EXCEPTION_STATUS_ARTIFACT_RESOLVE,
+                    SAMLSSOConstants.Notification.EXCEPTION_MESSAGE, req, resp);
+        }
     }
 }

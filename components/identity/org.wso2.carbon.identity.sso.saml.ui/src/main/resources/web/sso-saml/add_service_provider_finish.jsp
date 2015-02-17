@@ -211,7 +211,17 @@
             serviceProviderDTO.setIdPInitSSOEnabled(true);
         }
 
+        if ("true".equals(request.getParameter("enableArtifactBinding"))) {
+            serviceProviderDTO.setArtifactBindingEnabled(true);
+        }
 
+        if (request.getParameter("artifactResolutionService")!=null && !"null".equals(request.getParameter("artifactResolutionService"))) {
+             serviceProviderDTO.setArtifactResolutionService(request.getParameter("artifactResolutionService"));
+        }
+
+        if (request.getParameter("artifactLifetime")!=null && !"null".equals(request.getParameter("artifactLifetime")) && !"".equals(request.getParameter("artifactLifetime"))) {
+             serviceProviderDTO.setArtifactLifetime(new Integer(request.getParameter("artifactLifetime").trim()));
+        }
 
         if ("true".equals(request.getParameter("enableEncAssertion"))) {
             serviceProviderDTO.setDoEnableEncryptedAssertion(true);

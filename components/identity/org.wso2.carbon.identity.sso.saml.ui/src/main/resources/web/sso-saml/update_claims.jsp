@@ -55,6 +55,9 @@
 	String claim = request.getParameter("claim");
 	String action = request.getParameter("action");
     String enableIdPInitSSO = request.getParameter("enableIdPInitSSO");
+    String enableArtifactBinding = request.getParameter("enableArtifactBinding");
+    String artifactResolutionService = request.getParameter("artifactResolutionService");
+    String artifactLifetime = request.getParameter("artifactLifetime");
 	
 	samlSsoServuceProviderConfigBean.setIssuer(issuer);
 	samlSsoServuceProviderConfigBean.setAssertionConsumerUrl(assertionConsumerUrl);
@@ -66,6 +69,9 @@
 	samlSsoServuceProviderConfigBean.setSingleLogoutUrl(singleLogoutUrl);
 	samlSsoServuceProviderConfigBean.setEnableClaims(enableClaims);
     samlSsoServuceProviderConfigBean.setIdPInitSSOEnabled(enableIdPInitSSO);
+    samlSsoServuceProviderConfigBean.setArtifactBindingEnabled(enableArtifactBinding);
+    samlSsoServuceProviderConfigBean.setArtifactResolutionService(artifactResolutionService);
+    samlSsoServuceProviderConfigBean.seArtifactLifetime(artifactLifetime);
 	
 	if(action.equals("add")){	
 		if(!samlSsoServuceProviderConfigBean.addClaimToList(claim)){

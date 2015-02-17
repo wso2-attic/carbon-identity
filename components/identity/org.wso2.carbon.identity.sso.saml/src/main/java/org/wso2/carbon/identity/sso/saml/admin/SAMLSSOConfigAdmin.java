@@ -111,6 +111,9 @@ public class SAMLSSOConfigAdmin {
             serviceProviderDO.setRequestedRecipients(serviceProviderDTO.getRequestedRecipients());
         }
         serviceProviderDO.setIdPInitSSOEnabled(serviceProviderDTO.isIdPInitSSOEnabled());
+        serviceProviderDO.setArtifactBindingEnabled(serviceProviderDTO.isArtifactBindingEnabled());
+        serviceProviderDO.setArtifactResolutionService(serviceProviderDTO.getArtifactResolutionService());
+        serviceProviderDO.setArtifactLifetime(serviceProviderDTO.getArtifactLifetime());
         serviceProviderDO.setDoEnableEncryptedAssertion(serviceProviderDTO.isDoEnableEncryptedAssertion());
         serviceProviderDO.setDoValidateSignatureInRequests(serviceProviderDTO.isDoValidateSignatureInRequests());
         IdentityPersistenceManager persistenceManager = IdentityPersistenceManager
@@ -174,6 +177,9 @@ public class SAMLSSOConfigAdmin {
                 providerDTO.setNameIDFormat(providerDTO.getNameIDFormat().replace(":", "/"));
 
                 providerDTO.setIdPInitSSOEnabled(providerDO.isIdPInitSSOEnabled());
+                providerDTO.setArtifactBindingEnabled(providerDO.isArtifactBindingEnabled());
+                providerDTO.setArtifactResolutionService(providerDO.getArtifactResolutionService());
+                providerDTO.setArtifactLifetime(providerDO.getArtifactLifetime());
                 providerDTO.setDoEnableEncryptedAssertion(providerDO.isDoEnableEncryptedAssertion());
                 providerDTO.setDoValidateSignatureInRequests(providerDO.isDoValidateSignatureInRequests());
                 serviceProviders[i] = providerDTO;

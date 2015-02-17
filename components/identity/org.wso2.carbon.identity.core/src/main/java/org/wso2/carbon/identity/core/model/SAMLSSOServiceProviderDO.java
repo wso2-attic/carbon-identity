@@ -16,10 +16,10 @@
 
 package org.wso2.carbon.identity.core.model;
 
+import org.apache.axis2.databinding.utils.ConverterUtil;
+
 import java.io.Serializable;
 import java.util.List;
-
-import org.apache.axis2.databinding.utils.ConverterUtil;
 
 public class SAMLSSOServiceProviderDO implements Serializable {
 
@@ -47,6 +47,9 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     private boolean isIdPInitSSOEnabled;
     private boolean doEnableEncryptedAssertion;
     private boolean doValidateSignatureInRequests;
+    private boolean isArtifactBindingEnabled;
+    private String artifactResolutionService;
+    private int artifactLifetime;
 
 	public String getNameIDFormat() {
 		return nameIDFormat;
@@ -284,5 +287,29 @@ public class SAMLSSOServiceProviderDO implements Serializable {
 
     public void setDoValidateSignatureInRequests(boolean doValidateSignatureInRequests) {
         this.doValidateSignatureInRequests = doValidateSignatureInRequests;
+    }
+
+    public boolean isArtifactBindingEnabled() {
+        return isArtifactBindingEnabled;
+    }
+
+    public void setArtifactBindingEnabled(boolean artifactBindingEnabled) {
+        isArtifactBindingEnabled = artifactBindingEnabled;
+    }
+
+    public String getArtifactResolutionService() {
+        return artifactResolutionService;
+    }
+
+    public void setArtifactResolutionService(String artifactResolutionService) {
+        this.artifactResolutionService = artifactResolutionService;
+    }
+
+    public int getArtifactLifetime() {
+        return artifactLifetime;
+    }
+
+    public void setArtifactLifetime(int artifactLifetime) {
+        this.artifactLifetime = artifactLifetime;
     }
 }

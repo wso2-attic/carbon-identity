@@ -92,6 +92,7 @@ public class SAMLSSOConstants {
         public static final String NORELAY_MESSAGE = "This request will not be processed further.";
         public static final String INVALID_MESSAGE_STATUS = "Not a valid SAML 2.0 Request Message!";
         public static final String INVALID_MESSAGE_MESSAGE = "The message was not recognized by the SAML 2.0 SSO Provider. Please check the logs for more details";
+        public static final String EXCEPTION_STATUS_ARTIFACT_RESOLVE = "Error while resolving SAML artifact";
     }
 
     public static class FileBasedSPConfig {
@@ -125,5 +126,9 @@ public class SAMLSSOConstants {
         public static final String USE_AUTHENTICATED_USER_DOMAIN_CRYPTO= "SSOService.UseAuthenticatedUserDomainCrypto";
     }
 
+    // Artifact Binding
+    public static final byte[] SAML2_ARTIFACT_TYPE_CODE = { 0, 4 };
+    public static final String SAML_ART = "SAMLart";
+    
 }
 

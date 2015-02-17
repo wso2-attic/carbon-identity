@@ -143,9 +143,9 @@ public class IdentityRegistryResources {
     public static final String PROP_SAML_SSO_IDP_INIT_SSO_ENABLED= "IdPInitSSOEnabled";
     public static final String PROP_SAML_SSO_ENABLE_ENCRYPTED_ASSERTION = "doEnableEncryptedAssertion";
     public static final String PROP_SAML_SSO_VALIDATE_SIGNATURE_IN_REQUESTS ="doValidateSignatureInRequests";
-
-
-
+    public static final String PROP_SAML_SSO_ARTIFACT_BINDING_ENABLED = "ArtifactBindingEnabled";
+    public static final String PROP_SAML_SSO_ARTIFACT_RESOLUTION_SERVICE = "ArtifactResolutionService";
+    public static final String PROP_SAML_SSO_ARTIFACT_LIFETIME = "ArtifactLifetime";
     
     // OpenID Admin
     public final static String SUB_DOMAIN = "SubDomain";

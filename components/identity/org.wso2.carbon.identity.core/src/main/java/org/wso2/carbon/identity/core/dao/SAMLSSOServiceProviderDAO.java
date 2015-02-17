@@ -132,6 +132,18 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
            serviceProviderDO.setDoValidateSignatureInRequests(new Boolean(resource.getProperty(
                    IdentityRegistryResources.PROP_SAML_SSO_VALIDATE_SIGNATURE_IN_REQUESTS).trim()));
         }
+        if(resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_ARTIFACT_BINDING_ENABLED) != null) {
+            serviceProviderDO.setArtifactBindingEnabled(new Boolean(resource.getProperty(
+                    IdentityRegistryResources.PROP_SAML_SSO_ARTIFACT_BINDING_ENABLED).trim()));
+        }
+        if(resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_ARTIFACT_RESOLUTION_SERVICE) != null) {
+            serviceProviderDO.setArtifactResolutionService(resource
+                    .getProperty(IdentityRegistryResources.PROP_SAML_SSO_ARTIFACT_RESOLUTION_SERVICE));
+        }
+        if(resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_ARTIFACT_LIFETIME) != null) {
+            serviceProviderDO.setArtifactLifetime(new Integer(resource.getProperty(
+                    IdentityRegistryResources.PROP_SAML_SSO_ARTIFACT_LIFETIME).trim()));
+        }
         return serviceProviderDO;
     }
 
@@ -234,6 +246,14 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
             String validateSignatureInRequests = serviceProviderDO.isDoValidateSignatureInRequests() ? "true" : "false";
             resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_VALIDATE_SIGNATURE_IN_REQUESTS,
                     validateSignatureInRequests);
+            String artifactBindingEnabled = serviceProviderDO.isArtifactBindingEnabled() ? "true" : "false";
+            resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_ARTIFACT_BINDING_ENABLED,
+                    artifactBindingEnabled);
+            resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_ARTIFACT_RESOLUTION_SERVICE,
+                    serviceProviderDO.getArtifactResolutionService());
+            String artifactLifetime = String.valueOf(serviceProviderDO.getArtifactLifetime());
+            resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_ARTIFACT_LIFETIME,
+                    artifactLifetime);
             try {
                 if (!isTransactionStarted) {
                     registry.beginTransaction();

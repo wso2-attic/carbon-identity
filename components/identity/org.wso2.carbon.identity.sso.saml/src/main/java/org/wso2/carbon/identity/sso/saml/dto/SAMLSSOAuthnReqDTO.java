@@ -57,6 +57,7 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
 	private Map<ClaimMapping, String> userAttributes = new HashMap<ClaimMapping, String>();
 	private Map<String, String> claimMapping = null;
 	private String tenantDomain;
+    private boolean isArtifactBinding;
 
 	public String getNameIdClaimUri() {
 		return nameIdClaimUri;
@@ -364,4 +365,11 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
 		this.tenantDomain = tenantDomain;
 	}
 
+    public boolean isArtifactBinding() {
+        return isArtifactBinding;
+    }
+
+    public void setArtifactBinding(boolean artifactBinding) {
+        isArtifactBinding = artifactBinding;
+    }
 }
