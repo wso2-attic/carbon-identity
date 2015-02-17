@@ -428,7 +428,7 @@ public class OAuth2AuthzEndpoint {
         params.setClientId(clientId);
         params.setRedirectURI(clientDTO.getCallbackURL());
         params.setResponseType(oauthRequest.getResponseType());
-        params.setScopes(Collections.synchronizedSet(oauthRequest.getScopes()));
+        params.setScopes(oauthRequest.getScopes());
         if(params.getScopes() == null){ // to avoid null pointers
             Set<String> scopeSet = new HashSet<String>();
             scopeSet.add("");

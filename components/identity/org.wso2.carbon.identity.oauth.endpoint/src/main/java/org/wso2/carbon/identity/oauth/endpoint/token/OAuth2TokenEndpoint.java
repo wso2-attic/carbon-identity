@@ -212,6 +212,8 @@ public class OAuth2TokenEndpoint {
         tokenReqDTO.setClientSecret(oauthRequest.getClientSecret());
         tokenReqDTO.setCallbackURI(oauthRequest.getRedirectURI());
         tokenReqDTO.setScope(oauthRequest.getScopes().toArray(new String[oauthRequest.getScopes().size()]));
+        tokenReqDTO.setTenantDomain(oauthRequest.getTenantDomain());
+
         // Check the grant type and set the corresponding parameters
         if(GrantType.AUTHORIZATION_CODE.toString().equals(grantType)){
             tokenReqDTO.setAuthorizationCode(oauthRequest.getCode());
@@ -222,7 +224,6 @@ public class OAuth2TokenEndpoint {
             tokenReqDTO.setRefreshToken(oauthRequest.getRefreshToken());
         } else if (org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString().equals(grantType)){
             tokenReqDTO.setAssertion(oauthRequest.getAssertion());
-            tokenReqDTO.setTenantDomain(oauthRequest.getTenantDomain());
         } else if (org.wso2.carbon.identity.oauth.common.GrantType.IWA_NTLM.toString().equals(grantType)){
             tokenReqDTO.setWindowsToken(oauthRequest.getWindowsToken());           
         }else{
