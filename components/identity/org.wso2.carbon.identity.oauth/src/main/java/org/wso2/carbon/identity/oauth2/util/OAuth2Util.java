@@ -33,9 +33,13 @@ import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth.dao.OAuthConsumerDAO;
+import org.wso2.carbon.identity.oauth.internal.OAuthComponentServiceHolder;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.model.ClientCredentialDO;
+import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 /**
  * Utility methods for OAuth 2.0 implementation
@@ -392,6 +396,16 @@ public class OAuth2Util {
 		}
 		return -1;
 	}
-    
+
+	public static int getTenantId(String tenantDomain) throws IdentityOAuth2Exception {
+		RealmService realmService = OAuthComponentServiceHolder.getRealmService();
+		try {
+			return realmService.getTenantManager().getTenantId(tenantDomain);
+		} catch (UserStoreException e) {
+			String error = "Error in obtaining tenantId from Domain";
+			//do not log
+			throw new IdentityOAuth2Exception(error);
+		}
+	}    
 
 }
