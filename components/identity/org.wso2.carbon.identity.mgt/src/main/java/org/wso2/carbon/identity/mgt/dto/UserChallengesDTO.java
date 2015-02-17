@@ -32,7 +32,7 @@ public class UserChallengesDTO {
     public static final String ERROR_CODE_INVALID_CAPTCHA = "18004";
 
     public static final String ERROR_CODE_UN_EXPECTED = "18013";
-    
+
     private String id;
 
     private String question;
@@ -42,13 +42,13 @@ public class UserChallengesDTO {
     private int order;
 
     private boolean primary;
-    
+
     private String error;
-    
+
     private boolean verfied;
-    
+
     private String key;
-      
+
     public String getId() {
         return id;
     }
@@ -89,28 +89,28 @@ public class UserChallengesDTO {
         this.primary = primary;
     }
 
-	public String getError() {
-		return error;
-	}
+    public String getError() {
+        return error;
+    }
 
-	public void setError(String error) {
-		this.error = error;
-	}
+    public void setError(String error) {
+        this.error = error;
+    }
 
-	public boolean isVerfied() {
-		return verfied;
-	}
-	
-	public void setVerfied(boolean verfied) {
-		this.verfied = verfied;
-	}
-	
-	public String getKey() {
-		return key;
-	}
+    public boolean isVerfied() {
+        return verfied;
+    }
 
-	public void setKey(String key) {
-		this.key = key;
-	}
-    
+    public void setVerfied(boolean verfied) {
+        this.verfied = verfied;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
 }

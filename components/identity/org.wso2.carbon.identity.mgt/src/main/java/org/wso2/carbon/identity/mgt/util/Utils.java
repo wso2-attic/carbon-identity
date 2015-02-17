@@ -15,10 +15,6 @@
  */
 package org.wso2.carbon.identity.mgt.util;
 
-import java.io.ByteArrayInputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,6 +38,10 @@ import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import java.io.ByteArrayInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 /**
  *
  */
@@ -52,8 +52,8 @@ public class Utils {
     /**
      * Processes user id and tenant domain that contains uin the UserMgtBean
      *
-     * @param   class that contains user and tenant Information
-     * @throws IdentityMgtServiceException  if user id doesn't exist
+     * @param class that contains user and tenant Information
+     * @throws IdentityMgtServiceException if user id doesn't exist
      */
 //    public static void processUserId(UserIdentityMgtBean userMgtBean) throws IdentityMgtServiceException {
 //
@@ -75,11 +75,10 @@ public class Utils {
 //        userMgtBean.setTenantDomain(domainName);
 //        userMgtBean.setUserId(userId);
 //    }
-
     public static UserDTO processUserId(String userId) throws IdentityException {
 
 
-        if(userId == null || userId.trim().length() < 1){
+        if (userId == null || userId.trim().length() < 1) {
             throw new IdentityException("Can not proceed with out a user id");
         }
 
@@ -88,20 +87,20 @@ public class Utils {
         return userDTO;
 
     }
-    
-	public static void validateTenant(UserDTO user) throws IdentityException {
-		if (user.getTenantDomain() != null && !user.getTenantDomain().isEmpty()) {
-			if (!user.getTenantDomain().equals(
-					PrivilegedCarbonContext.getThreadLocalCarbonContext()
-							.getTenantDomain())) {
-				throw new IdentityException(
-						"Failed access to unauthorized tenant domain");
-			}
 
-			user.setTenantId(getTenantId(user.getTenantDomain()));
-		}
-	}
-    
+    public static void validateTenant(UserDTO user) throws IdentityException {
+        if (user.getTenantDomain() != null && !user.getTenantDomain().isEmpty()) {
+            if (!user.getTenantDomain().equals(
+                    PrivilegedCarbonContext.getThreadLocalCarbonContext()
+                            .getTenantDomain())) {
+                throw new IdentityException(
+                        "Failed access to unauthorized tenant domain");
+            }
+
+            user.setTenantId(getTenantId(user.getTenantDomain()));
+        }
+    }
+
 
     /**
      * verify the user id
@@ -162,13 +161,13 @@ public class Utils {
      *
      * @param userDTO bean class that contains user and tenant Information
      * @return no of verified challenges
-     * @throws IdentityException  if fails
+     * @throws IdentityException if fails
      */
     public static int getVerifiedChallenges(UserDTO userDTO) throws IdentityException {
 
         int noOfChallenges = 0;
 
-        try{
+        try {
             UserRegistry registry = IdentityMgtServiceComponent.getRegistryService().
                     getConfigSystemRegistry(MultitenantConstants.SUPER_TENANT_ID);
             String identityKeyMgtPath = IdentityMgtConstants.IDENTITY_MANAGEMENT_CHALLENGES +
@@ -249,7 +248,7 @@ public class Utils {
 
     /**
      * gets the tenant id from the tenant domain
-     * 
+     *
      * @param domain - tenant domain name
      * @return tenantId
      * @throws IdentityException if fails or tenant doesn't exist
@@ -258,7 +257,7 @@ public class Utils {
 
         int tenantId;
         TenantManager tenantManager = IdentityMgtServiceComponent.getRealmService().getTenantManager();
-        
+
         if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(domain)) {
             tenantId = MultitenantConstants.SUPER_TENANT_ID;
             if (log.isDebugEnabled()) {
@@ -342,11 +341,11 @@ public class Utils {
      *
      * @param userName user name
      * @param tenantId tenantId
-     * @param claim claim name
+     * @param claim    claim name
      * @return claim value
      * @throws IdentityException if fails
      */
-    public static String getClaimFromUserStoreManager(String userName,int tenantId, String claim)
+    public static String getClaimFromUserStoreManager(String userName, int tenantId, String claim)
             throws IdentityException {
 
         org.wso2.carbon.user.core.UserStoreManager userStoreManager = null;
@@ -381,9 +380,9 @@ public class Utils {
     /**
      * get email address from user store
      *
-     * @param userName  user name
-     * @param tenantId  tenant id
-     * @return  email address
+     * @param userName user name
+     * @param tenantId tenant id
+     * @return email address
      */
     public static String getEmailAddressForUser(String userName, int tenantId) {
 
@@ -396,13 +395,13 @@ public class Utils {
 
             Tenant tenant = IdentityMgtServiceComponent.getRealmService().
                     getTenantManager().getTenant(tenantId);
-            if(tenant != null){
-                if(tenant.getAdminName().equals(userName)){
+            if (tenant != null) {
+                if (tenant.getAdminName().equals(userName)) {
                     email = tenant.getEmail();
                 }
             }
 
-            if(email == null || email.trim().length() < 1){
+            if (email == null || email.trim().length() < 1) {
                 email = getClaimFromUserStoreManager(userName, tenantId,
                         UserCoreConstants.ClaimTypeURIs.EMAIL_ADDRESS);
             }
@@ -423,9 +422,9 @@ public class Utils {
     public static boolean updatePassword(String userId, int tenantId, String password) throws IdentityException {
 
         String tenantDomain = null;
-        
-        if(userId == null || userId.trim().length() < 1 ||
-                password == null || password.trim().length() < 1 ){
+
+        if (userId == null || userId.trim().length() < 1 ||
+                password == null || password.trim().length() < 1) {
             String msg = "Unable to find the required information for updating password";
             log.error(msg);
             throw new IdentityException(msg);
@@ -436,7 +435,7 @@ public class Utils {
                     getRealmService().getTenantUserRealm(tenantId).getUserStoreManager();
 
             userStoreManager.updateCredentialByAdmin(userId, password);
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 String msg = "Password is updated for  user: " + userId;
                 if (tenantDomain != null && tenantDomain.trim().length() > 0) {
                     msg = msg + "@" + tenantDomain;
@@ -453,7 +452,6 @@ public class Utils {
     }
 
     /**
-     *
      * @param value
      * @return
      * @throws UserStoreException
@@ -474,12 +472,12 @@ public class Utils {
      * Set claim to user store manager
      *
      * @param userName user name
-     * @param tenantId  tenant id
-     * @param claim  claim uri
-     * @param value  claim value
+     * @param tenantId tenant id
+     * @param claim    claim uri
+     * @param value    claim value
      * @throws IdentityException if fails
      */
-    public static void setClaimInUserStoreManager(String userName,int tenantId, String claim,
+    public static void setClaimInUserStoreManager(String userName, int tenantId, String claim,
                                                   String value) throws IdentityException {
         org.wso2.carbon.user.core.UserStoreManager userStoreManager = null;
         RealmService realmService = IdentityMgtServiceComponent.getRealmService();
@@ -498,26 +496,26 @@ public class Utils {
         try {
             if (userStoreManager != null) {
                 String oldValue = userStoreManager.getUserClaimValue(userName, claim, null);
-                if(oldValue == null || !oldValue.equals(value)){
+                if (oldValue == null || !oldValue.equals(value)) {
                     userStoreManager.setUserClaimValue(userName, claim, value,
                             UserCoreConstants.DEFAULT_PROFILE);
                 }
             }
         } catch (Exception e) {
-            String msg =  "Unable to set the claim for user : " + userName;
+            String msg = "Unable to set the claim for user : " + userName;
             log.error(msg, e);
             throw new IdentityException(msg, e);
         }
     }
-    
-    
-    public static String[] getChallengeUris(){
+
+
+    public static String[] getChallengeUris() {
         //TODO
-        return new String[] {IdentityMgtConstants.DEFAULT_CHALLENGE_QUESTION_URI01,
-                                            IdentityMgtConstants.DEFAULT_CHALLENGE_QUESTION_URI02};
+        return new String[]{IdentityMgtConstants.DEFAULT_CHALLENGE_QUESTION_URI01,
+                IdentityMgtConstants.DEFAULT_CHALLENGE_QUESTION_URI02};
     }
-    
-    public static Policy getSecurityPolicy(){
+
+    public static Policy getSecurityPolicy() {
 
         String policyString = "        <wsp:Policy wsu:Id=\"UTOverTransport\" xmlns:wsp=\"http://schemas.xmlsoap.org/ws/2004/09/policy\"\n" +
                 "                    xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\">\n" +

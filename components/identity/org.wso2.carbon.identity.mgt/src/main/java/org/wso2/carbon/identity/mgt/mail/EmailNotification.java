@@ -20,60 +20,60 @@ package org.wso2.carbon.identity.mgt.mail;
 
 public class EmailNotification implements Notification {
 
-	private String sendTo;
-	private String sendFrom;
-	private String subject;
-	private String body;
-	private String footer;
-	
-	@Override
-	public void setSendTo(String sendTo) {
-		this.sendTo = sendTo;
-	}
+    private String sendTo;
+    private String sendFrom;
+    private String subject;
+    private String body;
+    private String footer;
 
-	@Override
-	public String getSendTo() {
-		return this.sendTo;
-	}
+    @Override
+    public String getSendTo() {
+        return this.sendTo;
+    }
 
-	@Override
-	public void setSendFrom(String sendFrom) {
-		this.sendFrom = sendFrom;
-	}
+    @Override
+    public void setSendTo(String sendTo) {
+        this.sendTo = sendTo;
+    }
 
-	@Override
-	public String getSendFrom() {
-		return this.sendFrom;
-	}
+    @Override
+    public String getSendFrom() {
+        return this.sendFrom;
+    }
 
-	@Override
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
+    @Override
+    public void setSendFrom(String sendFrom) {
+        this.sendFrom = sendFrom;
+    }
 
-	@Override
-	public String getSubject() {
-		return this.subject;
-	}
+    @Override
+    public String getSubject() {
+        return this.subject;
+    }
 
-	@Override
-	public void setBody(String body) {
-		this.body = body;
-	}
+    @Override
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
 
-	@Override
-	public String getBody() {
-		return this.body;
-	}
+    @Override
+    public String getBody() {
+        return this.body;
+    }
 
-	@Override
-	public void setFooter(String footer) {
-		this.footer = footer;
-	}
+    @Override
+    public void setBody(String body) {
+        this.body = body;
+    }
 
-	@Override
-	public String getFooter() {
-		return this.footer;
-	}
+    @Override
+    public String getFooter() {
+        return this.footer;
+    }
+
+    @Override
+    public void setFooter(String footer) {
+        this.footer = footer;
+    }
 
 }

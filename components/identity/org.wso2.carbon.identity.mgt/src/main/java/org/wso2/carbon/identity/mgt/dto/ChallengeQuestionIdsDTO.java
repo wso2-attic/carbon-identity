@@ -19,42 +19,42 @@ package org.wso2.carbon.identity.mgt.dto;
 
 public class ChallengeQuestionIdsDTO {
 
-	private String key;
-	
-	private String[] ids;
-	
-	private String error;
+    private String key;
 
-	public ChallengeQuestionIdsDTO() {
-	}
-	
-	public ChallengeQuestionIdsDTO(String error) {
-		this.error = error;
-	}
-	
-	public String getKey() {
-		return key;
-	}
+    private String[] ids;
 
-	public void setKey(String key) {
-		this.key = key;
-	}
+    private String error;
 
-	public String[] getIds() {
-		return ids;
-	}
+    public ChallengeQuestionIdsDTO() {
+    }
 
-	public void setIds(String[] ids) {
-		this.ids = ids;
-	}
+    public ChallengeQuestionIdsDTO(String error) {
+        this.error = error;
+    }
 
-	public String getError() {
-		return error;
-	}
+    public String getKey() {
+        return key;
+    }
 
-	public void setError(String error) {
-		this.error = error;
-	}
-	
-	
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String[] getIds() {
+        return ids;
+    }
+
+    public void setIds(String[] ids) {
+        this.ids = ids;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
+    }
+
+
 }

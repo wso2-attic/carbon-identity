@@ -16,8 +16,6 @@
 
 package org.wso2.carbon.identity.mgt;
 
-import org.wso2.carbon.identity.mgt.NotificationSendingModule;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -26,15 +24,13 @@ import java.util.concurrent.Executors;
  */
 public class NotificationSender {
 
+    private static ExecutorService threadPool = Executors.newFixedThreadPool(5);
     NotificationSendingModule module;
 
-    private static ExecutorService threadPool = Executors.newFixedThreadPool(5);
-    
-
     /**
-     *  creates and submits a task to the thread pool
+     * creates and submits a task to the thread pool
      *
-     * @param module  email sending module as task
+     * @param module email sending module as task
      */
     public void sendNotification(NotificationSendingModule module) {
 

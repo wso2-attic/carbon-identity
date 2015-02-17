@@ -21,20 +21,19 @@ import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
 
 /**
  * This object represents an entry of the identity metadata database.
- * 
  */
 public class UserRecoveryDataDO {
-	
-	public static final String METADATA_TEMPORARY_CREDENTIAL = "TEMPORARY_CREDENTIAL";
-	public static final String METADATA_CONFIRMATION_CODE = "CONFIRMATION_CODE";
-	public static final String METADATA_PRIMARAY_SECURITY_QUESTION = "PRIMARAY_SEC_QUESTION";
 
-	private String userName;
-	private int tenantId;
-	private String code;
-	private String secret;
-	private String expireTime;
-	private boolean isValid;
+    public static final String METADATA_TEMPORARY_CREDENTIAL = "TEMPORARY_CREDENTIAL";
+    public static final String METADATA_CONFIRMATION_CODE = "CONFIRMATION_CODE";
+    public static final String METADATA_PRIMARAY_SECURITY_QUESTION = "PRIMARAY_SEC_QUESTION";
+
+    private String userName;
+    private int tenantId;
+    private String code;
+    private String secret;
+    private String expireTime;
+    private boolean isValid;
 
 
     public UserRecoveryDataDO() {
@@ -44,7 +43,7 @@ public class UserRecoveryDataDO {
         this.tenantId = tenantId;
         this.userName = userName;
         int expireTime = IdentityMgtConfig.getInstance().getNotificationExpireTime();
-        this.expireTime = Long.toString(System.currentTimeMillis() + (expireTime*60*1000));
+        this.expireTime = Long.toString(System.currentTimeMillis() + (expireTime * 60 * 1000));
         this.isValid = true;
     }
 
@@ -54,59 +53,56 @@ public class UserRecoveryDataDO {
         this.code = code;
         this.secret = secret;
         int expireTime = IdentityMgtConfig.getInstance().getNotificationExpireTime();
-        this.expireTime = Long.toString(System.currentTimeMillis() + (expireTime*60*1000));
+        this.expireTime = Long.toString(System.currentTimeMillis() + (expireTime * 60 * 1000));
         this.isValid = true;
     }
 
 
-	/**
-	 * @return the userName
-	 */
-	public String getUserName() {
-		return userName;
-	}
+    /**
+     * @return the userName
+     */
+    public String getUserName() {
+        return userName;
+    }
 
-	/**
-	 * @param userName
-	 *            the userName to set
-	 * @return 
-	 */
-	public UserRecoveryDataDO setUserName(String userName) {
-		this.userName = userName;
-		return this;
-	}
+    /**
+     * @param userName the userName to set
+     * @return
+     */
+    public UserRecoveryDataDO setUserName(String userName) {
+        this.userName = userName;
+        return this;
+    }
 
-	/**
-	 * @return the tenantId
-	 */
-	public int getTenantId() {
-		return tenantId;
-	}
+    /**
+     * @return the tenantId
+     */
+    public int getTenantId() {
+        return tenantId;
+    }
 
-	/**
-	 * @param tenantId
-	 *            the tenantId to set
-	 * @return 
-	 */
-	public UserRecoveryDataDO setTenantId(int tenantId) {
-		this.tenantId = tenantId;
-		return this;
-	}
+    /**
+     * @param tenantId the tenantId to set
+     * @return
+     */
+    public UserRecoveryDataDO setTenantId(int tenantId) {
+        this.tenantId = tenantId;
+        return this;
+    }
 
-	/**
-	 * @return the isValid
-	 */
-	public boolean isValid() {
-		return isValid;
-	}
+    /**
+     * @return the isValid
+     */
+    public boolean isValid() {
+        return isValid;
+    }
 
-	/**
-	 * @param isValid
-	 *            the isValid to set
-	 */
-	public void setValid(boolean isValid) {
-		this.isValid = isValid;
-	}
+    /**
+     * @param isValid the isValid to set
+     */
+    public void setValid(boolean isValid) {
+        this.isValid = isValid;
+    }
 
     public String getCode() {
         return code;

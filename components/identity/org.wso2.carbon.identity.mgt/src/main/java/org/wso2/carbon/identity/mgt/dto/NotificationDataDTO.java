@@ -22,16 +22,16 @@ package org.wso2.carbon.identity.mgt.dto;
 import java.io.Serializable;
 
 /**
- * encapsulates recovery data such as email config that can be used to send 
+ * encapsulates recovery data such as email config that can be used to send
  */
-public class NotificationDataDTO implements Serializable{
+public class NotificationDataDTO implements Serializable {
 
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-	private String userId;
+    private String userId;
 
     private String domainName;
 
@@ -44,7 +44,7 @@ public class NotificationDataDTO implements Serializable{
     private String notificationCode;
 
     private String notificationType;
-    
+
     private String notificationSubject;
 
     private boolean notificationSent;
@@ -116,12 +116,12 @@ public class NotificationDataDTO implements Serializable{
         this.notificationSent = notificationSent;
     }
 
-	public String getNotificationSubject() {
-		return notificationSubject;
-	}
+    public String getNotificationSubject() {
+        return notificationSubject;
+    }
 
-	public void setNotificationSubject(String notificationSubject) {
-		this.notificationSubject = notificationSubject;
-	}
-    
+    public void setNotificationSubject(String notificationSubject) {
+        this.notificationSubject = notificationSubject;
+    }
+
 }

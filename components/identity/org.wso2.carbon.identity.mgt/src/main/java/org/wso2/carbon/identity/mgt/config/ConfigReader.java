@@ -21,16 +21,15 @@ import java.util.Properties;
 
 /**
  * This is used to read and configuration from a persistence store.
- *
  */
 public interface ConfigReader {
 
-	/**
-	 * Reads a tenant specific configuration
-	 * 
-	 * @param tenantId
-	 * @param resourcePath
-	 * @return
-	 */
-	Properties read(int tenantId, String resourcePath);
+    /**
+     * Reads a tenant specific configuration
+     *
+     * @param tenantId
+     * @param resourcePath
+     * @return
+     */
+    Properties read(int tenantId, String resourcePath);
 }

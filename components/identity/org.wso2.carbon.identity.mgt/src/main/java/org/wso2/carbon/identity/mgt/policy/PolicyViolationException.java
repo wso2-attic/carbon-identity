@@ -15,9 +15,9 @@
  */
 package org.wso2.carbon.identity.mgt.policy;
 
-public class PolicyViolationException extends Exception{
+public class PolicyViolationException extends Exception {
 
-	public PolicyViolationException(String message) {
-	    super(message);
+    public PolicyViolationException(String message) {
+        super(message);
     }
 }
