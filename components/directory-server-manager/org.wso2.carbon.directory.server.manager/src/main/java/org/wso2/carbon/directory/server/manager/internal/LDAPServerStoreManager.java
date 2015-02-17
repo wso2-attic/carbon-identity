@@ -22,13 +22,13 @@ import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.directory.server.manager.DirectoryServerManagerException;
+import org.wso2.carbon.directory.server.manager.common.ServerPrinciple;
+import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.ldap.LDAPConnectionContext;
 import org.wso2.carbon.user.core.ldap.LDAPConstants;
 import org.wso2.carbon.user.core.util.JNDIUtil;
-import org.wso2.carbon.directory.server.manager.common.ServerPrinciple;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -60,7 +60,7 @@ public class LDAPServerStoreManager {
         try {
             this.connectionSource = new LDAPConnectionContext(realmConfig);
         } catch (UserStoreException e) {
-            log.error("Error occurred while instantiating LDAPConnectionContext",e);
+            log.error("Error occurred while instantiating LDAPConnectionContext", e);
         }
     }
 
@@ -91,7 +91,7 @@ public class LDAPServerStoreManager {
         log.info("Using service password format - " + regularExpression);
 
         return password != null && password.length() >= 1 &&
-                        isFormatCorrect(regularExpression, password);
+                isFormatCorrect(regularExpression, password);
 
     }
 
@@ -368,7 +368,7 @@ public class LDAPServerStoreManager {
 
         StringBuffer searchFilter;
         searchFilter = new StringBuffer(this.realmConfiguration.
-                                        getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER));
+                getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER));
         String searchBase = this.realmConfiguration.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
 
         StringBuffer buff = new StringBuffer();
@@ -400,7 +400,7 @@ public class LDAPServerStoreManager {
 
                         if (serverPrincipleFullName.toLowerCase(Locale.ENGLISH)
                                 .contains(LDAPServerManagerConstants.KERBEROS_TGT)) {
-                            continue;    
+                            continue;
                         }
 
                         if (serverPrincipleFullName.contains("@")) {
