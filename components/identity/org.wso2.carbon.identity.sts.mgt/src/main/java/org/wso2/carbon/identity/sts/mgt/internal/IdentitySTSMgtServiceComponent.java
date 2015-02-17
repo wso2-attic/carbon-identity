@@ -89,8 +89,31 @@ public class IdentitySTSMgtServiceComponent {
         return registryService;
     }
 
+    /**
+     * @param registryService
+     */
+    protected void setRegistryService(RegistryService registryService) {
+        if (log.isDebugEnabled()) {
+            log.info("RegistryService set in Identity STS Mgt bundle");
+        }
+
+        try {
+            this.registryService = registryService;
+        } catch (Throwable e) {
+            log.error("Failed to load security scenarios", e);
+        }
+    }
+
     public static RealmService getRealmService() {
         return realmService;
+    }
+
+    protected void setRealmService(RealmService realmService) {
+        this.realmService = realmService;
+    }
+
+    public static BundleContext getBundleContext() {
+        return bundleContext;
     }
 
     /**
@@ -114,26 +137,6 @@ public class IdentitySTSMgtServiceComponent {
     protected void deactivate(ComponentContext ctxt) {
         if (log.isDebugEnabled()) {
             log.info("Identity STS Mgt bundle is deactivated");
-        }
-    }
-
-        
-    public static BundleContext getBundleContext() {
-        return bundleContext;
-    }
-
-    /**
-     * @param registryService
-     */
-    protected void setRegistryService(RegistryService registryService) {
-        if (log.isDebugEnabled()) {
-            log.info("RegistryService set in Identity STS Mgt bundle");
-        }
-
-        try {
-            this.registryService = registryService;
-        } catch (Throwable e) {
-            log.error("Failed to load security scenarios", e);
         }
     }
 
@@ -185,10 +188,6 @@ public class IdentitySTSMgtServiceComponent {
         }
     }
 
-    protected void setRealmService(RealmService realmService) {
-        this.realmService = realmService;
-    }
-
     protected void unsetRealmService(RealmService realmService) {
         this.realmService = null;
     }
@@ -224,7 +223,7 @@ public class IdentitySTSMgtServiceComponent {
 
         loadSecurityScenarios();
         STSConfigAdmin.configureService(configContext.getAxisConfiguration(),
-                                        this.registryService.getConfigSystemRegistry());
+                this.registryService.getConfigSystemRegistry());
         STSConfigAdmin.configureGenericSTS();
         configContext.getAxisConfiguration().addObservers(new STSObserver());
     }
@@ -275,7 +274,7 @@ public class IdentitySTSMgtServiceComponent {
                 String resourceUri = SecurityConstants.SECURITY_POLICY + "/" + scenarioId;
 
                 for (Iterator modules = scenarioEle.getFirstChildWithName(SecurityConstants.MODULES_QN)
-                        .getChildElements(); modules.hasNext();) {
+                        .getChildElements(); modules.hasNext(); ) {
                     String module = ((OMElement) modules.next()).getText();
                     scenario.addModule(module);
                 }

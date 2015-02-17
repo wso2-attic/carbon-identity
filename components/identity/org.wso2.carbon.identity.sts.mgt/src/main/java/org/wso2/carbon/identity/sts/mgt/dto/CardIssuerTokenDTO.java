@@ -19,20 +19,23 @@ package org.wso2.carbon.identity.sts.mgt.dto;
 
 public class CardIssuerTokenDTO {
 
-	private String tokenType;
-	private boolean supported;
+    private String tokenType;
+    private boolean supported;
 
-	public String getTokenType() {
-		return tokenType;
-	}
-	public void setTokenType(String tokenType) {
-		this.tokenType = tokenType;
-	}
-	public boolean isSupported() {
-		return supported;
-	}
-	public void setSupported(boolean supported) {
-		this.supported = supported;
-	}
+    public String getTokenType() {
+        return tokenType;
+    }
+
+    public void setTokenType(String tokenType) {
+        this.tokenType = tokenType;
+    }
+
+    public boolean isSupported() {
+        return supported;
+    }
+
+    public void setSupported(boolean supported) {
+        this.supported = supported;
+    }
 
 }
