@@ -41,13 +41,32 @@ import java.sql.SQLException;
  */
 public class ThriftAuthenticationJDBCPersistenceManager {
 
-    private DataSource dataSource;
-
     private static Log log = LogFactory.getLog(ThriftAuthenticationJDBCPersistenceManager.class);
     private static ThriftAuthenticationJDBCPersistenceManager instance;
+    private DataSource dataSource;
 
     private ThriftAuthenticationJDBCPersistenceManager() throws AuthenticationException {
         initDataSource();
+    }
+
+    /**
+     * Get an instance of the ThriftAuthenticationJDBCPersistenceManager. It implements a lazy
+     * initialization with double
+     * checked locking, because it is initialized first by identity.core module
+     * during the start up.
+     *
+     * @return ThriftAuthenticationJDBCPersistenceManager instance
+     * @throws AuthenticationException Error when reading the data source configurations
+     */
+    public static ThriftAuthenticationJDBCPersistenceManager getInstance() throws AuthenticationException {
+        if (instance == null) {
+            synchronized (ThriftAuthenticationJDBCPersistenceManager.class) {
+                if (instance == null) {
+                    instance = new ThriftAuthenticationJDBCPersistenceManager();
+                }
+            }
+        }
+        return instance;
     }
 
     private void initDataSource() throws AuthenticationException {
@@ -92,27 +111,6 @@ public class ThriftAuthenticationJDBCPersistenceManager {
             throw new AuthenticationException(errorMsg);
         }
     }
-
-	/**
-	 * Get an instance of the ThriftAuthenticationJDBCPersistenceManager. It implements a lazy
-	 * initialization with double
-	 * checked locking, because it is initialized first by identity.core module
-	 * during the start up.
-	 * 
-	 * @return ThriftAuthenticationJDBCPersistenceManager instance
-	 * @throws AuthenticationException
-	 *             Error when reading the data source configurations
-	 */
-	public static ThriftAuthenticationJDBCPersistenceManager getInstance() throws AuthenticationException {
-		if (instance == null) {
-			synchronized (ThriftAuthenticationJDBCPersistenceManager.class) {
-				if (instance == null) {
-					instance = new ThriftAuthenticationJDBCPersistenceManager();
-				}
-			}
-		}
-		return instance;
-	}
 
     /**
      * Returns an database connection for Identity data source.
