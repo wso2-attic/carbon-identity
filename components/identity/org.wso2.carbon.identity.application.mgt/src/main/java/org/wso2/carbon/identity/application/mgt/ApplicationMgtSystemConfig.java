@@ -37,247 +37,245 @@ import javax.xml.namespace.QName;
 
 /**
  * This instance holds all the system configurations
- *
  */
 public class ApplicationMgtSystemConfig {
-	
-	private static ApplicationMgtSystemConfig instance = null;
-	
-	private static final Log log = LogFactory.getLog(ApplicationMgtSystemConfig.class);
-	
-	// Configuration elements in the application-authentication.xml
-	private static final String CONFIG_ELEMENT_SP_MGT = "ServiceProvidersManagement";
-	private static final String CONFIG_APPLICATION_DAO = "ApplicationDAO";
-	private static final String CONFIG_OAUTH_OIDC_DAO = "OAuthOIDCClientDAO";
-	private static final String CONFIG_SAML_DAO = "SAMLClientDAO";
-	private static final String CONFIG_SYSTEM_IDP_DAO = "SystemIDPDAO";
-	private static final String CONFIG_CLAIM_DIALECT = "ClaimDialect";
-	
-	// configured String values
-	private String appDAOClassName = null;
-	private String oauthDAOClassName = null;
-	private String samlDAOClassName = null;
-	private String systemIDPDAPClassName = null;
-	private String claimDialect = null;
-	
-	
-	private ApplicationMgtSystemConfig() {
-		
-		synchronized (ApplicationMgtSystemConfig.class) {
-			buildSystemConfiguration();
-		}
-	}
-	
-	/**
-	 * Returns the Singleton of <code>ApplicationMgtSystemConfig</code>
-	 * @return
-	 */
-	public static ApplicationMgtSystemConfig getInstance() {
-		CarbonUtils.checkSecurity();
-		if (instance == null) {
-			synchronized (ApplicationMgtSystemConfig.class) {
-				if (instance == null) {
-					instance = new ApplicationMgtSystemConfig();
-				}
-			}
-		}
-		return instance;
-	}
-	
-	/**
-	 * Start building the system config
-	 */
-	private void buildSystemConfiguration() {
+
+    private static final Log log = LogFactory.getLog(ApplicationMgtSystemConfig.class);
+    // Configuration elements in the application-authentication.xml
+    private static final String CONFIG_ELEMENT_SP_MGT = "ServiceProvidersManagement";
+    private static final String CONFIG_APPLICATION_DAO = "ApplicationDAO";
+    private static final String CONFIG_OAUTH_OIDC_DAO = "OAuthOIDCClientDAO";
+    private static final String CONFIG_SAML_DAO = "SAMLClientDAO";
+    private static final String CONFIG_SYSTEM_IDP_DAO = "SystemIDPDAO";
+    private static final String CONFIG_CLAIM_DIALECT = "ClaimDialect";
+    private static ApplicationMgtSystemConfig instance = null;
+    // configured String values
+    private String appDAOClassName = null;
+    private String oauthDAOClassName = null;
+    private String samlDAOClassName = null;
+    private String systemIDPDAPClassName = null;
+    private String claimDialect = null;
+
+
+    private ApplicationMgtSystemConfig() {
+
+        synchronized (ApplicationMgtSystemConfig.class) {
+            buildSystemConfiguration();
+        }
+    }
+
+    /**
+     * Returns the Singleton of <code>ApplicationMgtSystemConfig</code>
+     *
+     * @return
+     */
+    public static ApplicationMgtSystemConfig getInstance() {
+        CarbonUtils.checkSecurity();
+        if (instance == null) {
+            synchronized (ApplicationMgtSystemConfig.class) {
+                if (instance == null) {
+                    instance = new ApplicationMgtSystemConfig();
+                }
+            }
+        }
+        return instance;
+    }
+
+    /**
+     * Start building the system config
+     */
+    private void buildSystemConfiguration() {
 
         IdentityApplicationConfig configParser = IdentityApplicationConfig.getInstance();
         OMElement spConfigElem = configParser.getConfigElement(CONFIG_ELEMENT_SP_MGT);
 
-        if(spConfigElem == null) {
+        if (spConfigElem == null) {
             log.warn("No Identity Application Management configuration found. System Starts with default settings");
         } else {
             // application DAO class
             OMElement appDAOConfigElem =
                     spConfigElem.getFirstChildWithName(getQNameWithIdentityNS(CONFIG_APPLICATION_DAO));
-            if(appDAOConfigElem != null) {
+            if (appDAOConfigElem != null) {
                 appDAOClassName = appDAOConfigElem.getText().trim();
             }
 
             // OAuth and OpenID Connect DAO class
             OMElement oauthOidcDAOConfigElem =
                     spConfigElem.getFirstChildWithName(getQNameWithIdentityNS(CONFIG_OAUTH_OIDC_DAO));
-            if(oauthOidcDAOConfigElem != null) {
+            if (oauthOidcDAOConfigElem != null) {
                 oauthDAOClassName = oauthOidcDAOConfigElem.getText().trim();
             }
 
             // SAML DAO class
             OMElement samlDAOConfigElem =
                     spConfigElem.getFirstChildWithName(getQNameWithIdentityNS(CONFIG_SAML_DAO));
-            if(samlDAOConfigElem != null) {
+            if (samlDAOConfigElem != null) {
                 samlDAOClassName = samlDAOConfigElem.getText().trim();
             }
 
             // IDP DAO class
             OMElement idpDAOConfigElem =
                     spConfigElem.getFirstChildWithName(getQNameWithIdentityNS(CONFIG_SYSTEM_IDP_DAO));
-            if(idpDAOConfigElem != null) {
+            if (idpDAOConfigElem != null) {
                 systemIDPDAPClassName = idpDAOConfigElem.getText().trim();
             }
 
             OMElement claimDAOConfigElem =
                     spConfigElem.getFirstChildWithName(getQNameWithIdentityNS(CONFIG_CLAIM_DIALECT));
-            if(claimDAOConfigElem != null) {
+            if (claimDAOConfigElem != null) {
                 claimDialect = claimDAOConfigElem.getText().trim();
             }
 
         }
-	}
-	
-	private QName getQNameWithIdentityNS(String localPart) {
-		return new QName(IdentityApplicationConstants.APPLICATION_AUTHENTICATION_DEFAULT_NAMESPACE, localPart);
-	}
-	
-	/**
-	 * Return an instance of the ApplicationDAO
-	 * 
-	 * @return
-	 */
-	public ApplicationDAO getApplicationDAO() {
+    }
 
-		ApplicationDAO applicationDAO = null;
-		
-		if (appDAOClassName != null) {
+    private QName getQNameWithIdentityNS(String localPart) {
+        return new QName(IdentityApplicationConstants.APPLICATION_AUTHENTICATION_DEFAULT_NAMESPACE, localPart);
+    }
 
-			try {
-				// Bundle class loader will cache the loaded class and returned
-				// the already loaded instance, hence calling this method
-				// multiple times doesn't cost.
-				Class clazz = Class.forName(appDAOClassName);
-				applicationDAO = (ApplicationDAO) clazz.newInstance();
+    /**
+     * Return an instance of the ApplicationDAO
+     *
+     * @return
+     */
+    public ApplicationDAO getApplicationDAO() {
 
-			} catch (ClassNotFoundException e) {
-				log.error("Error while instantiating the ApplicationDAO ", e);
-			} catch (InstantiationException e) {
-				log.error("Error while instantiating the ApplicationDAO ", e);
-			} catch (IllegalAccessException e) {
-				log.error("Error while instantiating the ApplicationDAO ", e);
-			}
+        ApplicationDAO applicationDAO = null;
 
-		} else {
-			applicationDAO = new ApplicationDAOImpl();
-		}
-		
-		return applicationDAO;
-	}
-	
-	/**
-	 * Return an instance of the OAuthOIDCClientDAO 
-	 * 
-	 * @return
-	 */
-	public OAuthApplicationDAO getOAuthOIDCClientDAO() {
+        if (appDAOClassName != null) {
 
-		OAuthApplicationDAO oauthOidcDAO = null;
-		
-		if (oauthDAOClassName != null) {
+            try {
+                // Bundle class loader will cache the loaded class and returned
+                // the already loaded instance, hence calling this method
+                // multiple times doesn't cost.
+                Class clazz = Class.forName(appDAOClassName);
+                applicationDAO = (ApplicationDAO) clazz.newInstance();
 
-			try {
-				// Bundle class loader will cache the loaded class and returned
-				// the already loaded instance, hence calling this method
-				// multiple times doesn't cost.
-				Class clazz = Class.forName(oauthDAOClassName);
-				oauthOidcDAO = (OAuthApplicationDAO) clazz.newInstance();
+            } catch (ClassNotFoundException e) {
+                log.error("Error while instantiating the ApplicationDAO ", e);
+            } catch (InstantiationException e) {
+                log.error("Error while instantiating the ApplicationDAO ", e);
+            } catch (IllegalAccessException e) {
+                log.error("Error while instantiating the ApplicationDAO ", e);
+            }
 
-			} catch (ClassNotFoundException e) {
-				log.error("Error while instantiating the OAuthOIDCClientDAO ", e);
-			} catch (InstantiationException e) {
-				log.error("Error while instantiating the OAuthOIDCClientDAO ", e);
-			} catch (IllegalAccessException e) {
-				log.error("Error while instantiating the OAuthOIDCClientDAO ", e);
-			}
+        } else {
+            applicationDAO = new ApplicationDAOImpl();
+        }
 
-		} else {
-			oauthOidcDAO = new OAuthApplicationDAOImpl();
-		}
-		
-		return oauthOidcDAO;
-	}
-	
-	/**
-	 * Return an instance of the SAMLClientDAO 
-	 * 
-	 * @return
-	 */
-	public SAMLApplicationDAO getSAMLClientDAO() {
-		
-	SAMLApplicationDAO samlDAO = null;
-		
-		if (samlDAOClassName != null) {
+        return applicationDAO;
+    }
 
-			try {
-				// Bundle class loader will cache the loaded class and returned
-				// the already loaded instance, hence calling this method
-				// multiple times doesn't cost.
-				Class clazz = Class.forName(samlDAOClassName);
-				samlDAO = (SAMLApplicationDAO) clazz.newInstance();
+    /**
+     * Return an instance of the OAuthOIDCClientDAO
+     *
+     * @return
+     */
+    public OAuthApplicationDAO getOAuthOIDCClientDAO() {
 
-			} catch (ClassNotFoundException e) {
-				log.error("Error while instantiating the SAMLClientDAO ", e);
-			} catch (InstantiationException e) {
-				log.error("Error while instantiating the SAMLClientDAO ", e);
-			} catch (IllegalAccessException e) {
-				log.error("Error while instantiating the SAMLClientDAO ", e);
-			}
+        OAuthApplicationDAO oauthOidcDAO = null;
 
-		} else {
-			samlDAO = new SAMLApplicationDAOImpl();
-		}
-		
-		return samlDAO;
-	}
-	
-	
-	/**
-	 * Return an instance of the SystemIDPDAO 
-	 * 
-	 * @return
-	 */
-	public IdentityProviderDAO getIdentityProviderDAO() {
-		
-		IdentityProviderDAO idpDAO = null;
-		
-		if (systemIDPDAPClassName != null) {
+        if (oauthDAOClassName != null) {
 
-			try {
-				// Bundle class loader will cache the loaded class and returned
-				// the already loaded instance, hence calling this method
-				// multiple times doesn't cost.
-				Class clazz = Class.forName(systemIDPDAPClassName);
-				idpDAO = (IdentityProviderDAO) clazz.newInstance();
+            try {
+                // Bundle class loader will cache the loaded class and returned
+                // the already loaded instance, hence calling this method
+                // multiple times doesn't cost.
+                Class clazz = Class.forName(oauthDAOClassName);
+                oauthOidcDAO = (OAuthApplicationDAO) clazz.newInstance();
 
-			} catch (ClassNotFoundException e) {
-				log.error("Error while instantiating the SAMLClientDAO ", e);
-			} catch (InstantiationException e) {
-				log.error("Error while instantiating the SAMLClientDAO ", e);
-			} catch (IllegalAccessException e) {
-				log.error("Error while instantiating the SAMLClientDAO ", e);
-			}
+            } catch (ClassNotFoundException e) {
+                log.error("Error while instantiating the OAuthOIDCClientDAO ", e);
+            } catch (InstantiationException e) {
+                log.error("Error while instantiating the OAuthOIDCClientDAO ", e);
+            } catch (IllegalAccessException e) {
+                log.error("Error while instantiating the OAuthOIDCClientDAO ", e);
+            }
 
-		} else {
-			idpDAO = new IdentityProviderDAOImpl();
-		}
-		
-		return idpDAO;
-	}
-	
-	/**
-	 * Returns the claim dialect for claim mappings 
-	 * @return
-	 */
-	public String getClaimDialect() {
-		if(claimDialect != null) {
-			return claimDialect;
-		}
-		return "http://wso2.org/claims";
-	}
-	
+        } else {
+            oauthOidcDAO = new OAuthApplicationDAOImpl();
+        }
+
+        return oauthOidcDAO;
+    }
+
+    /**
+     * Return an instance of the SAMLClientDAO
+     *
+     * @return
+     */
+    public SAMLApplicationDAO getSAMLClientDAO() {
+
+        SAMLApplicationDAO samlDAO = null;
+
+        if (samlDAOClassName != null) {
+
+            try {
+                // Bundle class loader will cache the loaded class and returned
+                // the already loaded instance, hence calling this method
+                // multiple times doesn't cost.
+                Class clazz = Class.forName(samlDAOClassName);
+                samlDAO = (SAMLApplicationDAO) clazz.newInstance();
+
+            } catch (ClassNotFoundException e) {
+                log.error("Error while instantiating the SAMLClientDAO ", e);
+            } catch (InstantiationException e) {
+                log.error("Error while instantiating the SAMLClientDAO ", e);
+            } catch (IllegalAccessException e) {
+                log.error("Error while instantiating the SAMLClientDAO ", e);
+            }
+
+        } else {
+            samlDAO = new SAMLApplicationDAOImpl();
+        }
+
+        return samlDAO;
+    }
+
+
+    /**
+     * Return an instance of the SystemIDPDAO
+     *
+     * @return
+     */
+    public IdentityProviderDAO getIdentityProviderDAO() {
+
+        IdentityProviderDAO idpDAO = null;
+
+        if (systemIDPDAPClassName != null) {
+
+            try {
+                // Bundle class loader will cache the loaded class and returned
+                // the already loaded instance, hence calling this method
+                // multiple times doesn't cost.
+                Class clazz = Class.forName(systemIDPDAPClassName);
+                idpDAO = (IdentityProviderDAO) clazz.newInstance();
+
+            } catch (ClassNotFoundException e) {
+                log.error("Error while instantiating the SAMLClientDAO ", e);
+            } catch (InstantiationException e) {
+                log.error("Error while instantiating the SAMLClientDAO ", e);
+            } catch (IllegalAccessException e) {
+                log.error("Error while instantiating the SAMLClientDAO ", e);
+            }
+
+        } else {
+            idpDAO = new IdentityProviderDAOImpl();
+        }
+
+        return idpDAO;
+    }
+
+    /**
+     * Returns the claim dialect for claim mappings
+     *
+     * @return
+     */
+    public String getClaimDialect() {
+        if (claimDialect != null) {
+            return claimDialect;
+        }
+        return "http://wso2.org/claims";
+    }
+
 }

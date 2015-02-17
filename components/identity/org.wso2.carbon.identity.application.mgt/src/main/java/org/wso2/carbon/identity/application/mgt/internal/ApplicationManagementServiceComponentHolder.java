@@ -43,14 +43,14 @@ public class ApplicationManagementServiceComponentHolder {
         ApplicationManagementServiceComponentHolder.realmService = realmService;
     }
 
-	public static ConfigurationContextService getConfigContextService() {
-		return configContextService;
-	}
+    public static ConfigurationContextService getConfigContextService() {
+        return configContextService;
+    }
 
-	public static void setConfigContextService(
-			ConfigurationContextService configContextService) {
-		ApplicationManagementServiceComponentHolder.configContextService = configContextService;
-	}
-    
-    
+    public static void setConfigContextService(
+            ConfigurationContextService configContextService) {
+        ApplicationManagementServiceComponentHolder.configContextService = configContextService;
+    }
+
+
 }

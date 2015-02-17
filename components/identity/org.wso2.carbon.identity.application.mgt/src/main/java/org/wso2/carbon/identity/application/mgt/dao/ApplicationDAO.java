@@ -28,7 +28,6 @@ import java.util.Map;
 public interface ApplicationDAO {
 
     /**
-     * 
      * @param applicationDTO
      * @return
      * @throws IdentityApplicationManagementException
@@ -36,7 +35,6 @@ public interface ApplicationDAO {
     int createApplication(ServiceProvider applicationDTO, String tenantDomain) throws IdentityApplicationManagementException;
 
     /**
-     * 
      * @param applicationName
      * @return
      * @throws IdentityApplicationManagementException
@@ -44,28 +42,24 @@ public interface ApplicationDAO {
     ServiceProvider getApplication(String applicationName, String tenantDomain) throws IdentityApplicationManagementException;
 
     /**
-     * 
      * @return
      * @throws IdentityApplicationManagementException
      */
     ApplicationBasicInfo[] getAllApplicationBasicInfo() throws IdentityApplicationManagementException;
 
     /**
-     * 
      * @param applicationDTO
      * @throws IdentityApplicationManagementException
      */
     void updateApplication(ServiceProvider applicationDTO) throws IdentityApplicationManagementException;
 
     /**
-     * 
      * @param applicationName
      * @throws IdentityApplicationManagementException
      */
     void deleteApplication(String applicationName) throws IdentityApplicationManagementException;
 
     /**
-     * 
      * @param applicationID
      * @return
      * @throws IdentityApplicationManagementException
@@ -73,7 +67,6 @@ public interface ApplicationDAO {
     String getApplicationName(int applicationID) throws IdentityApplicationManagementException;
 
     /**
-     * 
      * @param clientId
      * @param clientType
      * @param tenantDomain
@@ -85,33 +78,33 @@ public interface ApplicationDAO {
 
     /**
      * [sp-claim-uri,local-idp-claim-uri]
-     * 
+     *
      * @param serviceProviderName
      * @param tenantDomain
      * @return
      */
     Map<String, String> getServiceProviderToLocalIdPClaimMapping(String serviceProviderName,
-            String tenantDomain) throws IdentityApplicationManagementException;
+                                                                 String tenantDomain) throws IdentityApplicationManagementException;
 
     /**
      * [local-idp-claim-uri,sp-claim-uri]
-     * 
+     *
      * @param serviceProviderName
      * @param tenantDomain
      * @return
      * @throws IdentityApplicationManagementException
      */
     Map<String, String> getLocalIdPToServiceProviderClaimMapping(String serviceProviderName,
-            String tenantDomain) throws IdentityApplicationManagementException;
+                                                                 String tenantDomain) throws IdentityApplicationManagementException;
 
     /**
      * Returns back the requested set of claims by the provided service provider in local idp claim
      * dialect.
-     * 
+     *
      * @param serviceProviderName
      * @param tenantDomain
      * @return
      */
     List<String> getAllRequestedClaimsByServiceProvider(String serviceProviderName,
-            String tenantDomain) throws IdentityApplicationManagementException;
+                                                        String tenantDomain) throws IdentityApplicationManagementException;
 }

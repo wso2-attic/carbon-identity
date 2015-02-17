@@ -24,10 +24,8 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.mgt.dao.SAMLApplicationDAO;
-import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementServiceComponentHolder;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
-import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.core.Registry;
 
 public class SAMLApplicationDAOImpl implements SAMLApplicationDAO {
