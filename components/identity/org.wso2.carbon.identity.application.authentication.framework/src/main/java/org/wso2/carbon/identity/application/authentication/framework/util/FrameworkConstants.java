@@ -160,4 +160,8 @@ public abstract class FrameworkConstants {
 
     public final static String AUTH_ENDPOINT_QUERY_PARAMS_ACTION_INCLUDE = "include";
     public final static String AUTH_ENDPOINT_QUERY_PARAMS_ACTION_EXCLUDE = "exclude";
+
+    public static final String AUDIT_MESSAGE = "Initiator : %s | Action : %s | Target : %s | Data : { %s } | Result : %s ";
+    public static final String AUDIT_SUCCESS = "Success";
+    public static final String AUDIT_FAILED = "Failed";
 }
