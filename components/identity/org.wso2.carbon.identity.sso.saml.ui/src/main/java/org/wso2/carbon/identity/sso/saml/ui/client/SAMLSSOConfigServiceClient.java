@@ -17,19 +17,17 @@
 */
 package org.wso2.carbon.identity.sso.saml.ui.client;
 
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.sso.saml.stub.IdentitySAMLSSOConfigServiceIdentityException;
 import org.wso2.carbon.identity.sso.saml.stub.IdentitySAMLSSOConfigServiceStub;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOServiceProviderDTO;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOServiceProviderInfoDTO;
+
+import java.util.ArrayList;
 
 public class SAMLSSOConfigServiceClient {
 
@@ -47,8 +45,8 @@ public class SAMLSSOConfigServiceClient {
             option.setManageSession(true);
             option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
         } catch (AxisFault ex) {
-            log.error("Error generating stub for IdentitySAMLSSOConfigService",ex);
-            throw new AxisFault("Error generating stub for IdentitySAMLSSOConfigService",ex);
+            log.error("Error generating stub for IdentitySAMLSSOConfigService", ex);
+            throw new AxisFault("Error generating stub for IdentitySAMLSSOConfigService", ex);
         }
     }
 
@@ -63,30 +61,30 @@ public class SAMLSSOConfigServiceClient {
         }
         return status;
     }
-    
+
     // TODO : remove bellow method once above is fixed
     // this kills performance
     public SAMLSSOServiceProviderDTO getServiceProvider(String issuer) throws AxisFault {
-    	try {
-			SAMLSSOServiceProviderInfoDTO dto = stub.getServiceProviders();
-			SAMLSSOServiceProviderDTO[] sps = dto.getServiceProviders();
-			for(SAMLSSOServiceProviderDTO sp : sps) {
-				if(sp.getIssuer().equals(issuer)) {
-					return sp;
-				}
-			}
-		} catch (Exception e) {
-			log.error("Error retrieving service provider information", e);
+        try {
+            SAMLSSOServiceProviderInfoDTO dto = stub.getServiceProviders();
+            SAMLSSOServiceProviderDTO[] sps = dto.getServiceProviders();
+            for (SAMLSSOServiceProviderDTO sp : sps) {
+                if (sp.getIssuer().equals(issuer)) {
+                    return sp;
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error retrieving service provider information", e);
             throw new AxisFault(e.getMessage(), e);
-		}
-		return null; 
-    	
+        }
+        return null;
+
     }
 
     public SAMLSSOServiceProviderInfoDTO getRegisteredServiceProviders() throws AxisFault {
         try {
-        	SAMLSSOServiceProviderInfoDTO spInfo =  stub.getServiceProviders();
-        	return spInfo;
+            SAMLSSOServiceProviderInfoDTO spInfo = stub.getServiceProviders();
+            return spInfo;
         } catch (Exception e) {
             log.error("Error retrieving service provider information", e);
             throw new AxisFault(e.getMessage(), e);
@@ -96,9 +94,9 @@ public class SAMLSSOConfigServiceClient {
     public ArrayList<String> getCertAlias() throws AxisFault {
         ArrayList<String> certAliasList = new ArrayList<String>();
         String[] certAliases;
-        try{
+        try {
             certAliases = stub.getCertAliasOfPrimaryKeyStore();
-            for(String alias : certAliases){
+            for (String alias : certAliases) {
                 certAliasList.add(alias);
             }
         } catch (Exception e) {
@@ -116,15 +114,15 @@ public class SAMLSSOConfigServiceClient {
             throw new AxisFault(e.getMessage(), e);
         }
     }
-    
+
     public String[] getClaimURIs() throws AxisFault {
-    	String[] claimUris = null;
-    	try {
-	        claimUris = stub.getClaimURIs();
+        String[] claimUris = null;
+        try {
+            claimUris = stub.getClaimURIs();
         } catch (Exception e) {
-        	 log.error("Error when reading claims", e);
-             throw new AxisFault(e.getMessage(), e);
+            log.error("Error when reading claims", e);
+            throw new AxisFault(e.getMessage(), e);
         }
-    	return claimUris;
+        return claimUris;
     }
 }
