@@ -21,16 +21,13 @@ package org.wso2.carbon.identity.provisioning.cache;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
 
-import java.io.Serializable;
-
 public class ProvisioningEntityCacheEntry extends CacheEntry {
 
     private static final long serialVersionUID = 7768799534234451171L;
-    
-	private ProvisioningEntity provisioningEntity;
+
+    private ProvisioningEntity provisioningEntity;
 
     /**
-     * 
      * @return
      */
     public ProvisioningEntity getProvisioningEntity() {
@@ -38,7 +35,6 @@ public class ProvisioningEntityCacheEntry extends CacheEntry {
     }
 
     /**
-     * 
      * @param provisioningEntity
      */
     public void setProvisioningEntity(ProvisioningEntity provisioningEntity) {

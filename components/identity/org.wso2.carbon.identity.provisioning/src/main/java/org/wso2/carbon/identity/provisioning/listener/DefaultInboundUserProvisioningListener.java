@@ -18,11 +18,6 @@
  */
 package org.wso2.carbon.identity.provisioning.listener;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
@@ -33,18 +28,18 @@ import org.wso2.carbon.identity.application.common.model.ThreadLocalProvisioning
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.identity.application.mgt.ApplicationInfoProvider;
-import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
-import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
-import org.wso2.carbon.identity.provisioning.OutboundProvisioningManager;
-import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
-import org.wso2.carbon.identity.provisioning.ProvisioningEntityType;
-import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
+import org.wso2.carbon.identity.provisioning.*;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DefaultInboundUserProvisioningListener extends AbstractUserOperationEventListener {
 
@@ -63,10 +58,10 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
 
     @Override
     /**
-     * 
+     *
      */
     public boolean doPreAddUser(String userName, Object credential, String[] roleList,
-            Map<String, String> inboundAttributes, String profile, UserStoreManager userStoreManager)
+                                Map<String, String> inboundAttributes, String profile, UserStoreManager userStoreManager)
             throws UserStoreException {
 
         try {
@@ -74,14 +69,14 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
 
             if (credential != null) {
                 outboundAttributes.put(ClaimMapping.build(
-                        IdentityProvisioningConstants.PASSWORD_CLAIM_URI, null, null, false),
-                        Arrays.asList(new String[] { ((StringBuffer) credential).toString() }));
+                                IdentityProvisioningConstants.PASSWORD_CLAIM_URI, null, null, false),
+                        Arrays.asList(new String[]{((StringBuffer) credential).toString()}));
             }
 
             if (userName != null) {
                 outboundAttributes.put(ClaimMapping.build(
-                        IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false),
-                        Arrays.asList(new String[] { userName }));
+                                IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false),
+                        Arrays.asList(new String[]{userName}));
             }
 
             if (roleList != null) {
@@ -91,10 +86,10 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
             }
 
             String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("Adding domain name : " + domainName + " to user : " + userName);
             }
-            String domainAwareName = UserCoreUtil.addDomainToName(userName,domainName);
+            String domainAwareName = UserCoreUtil.addDomainToName(userName, domainName);
 
             ProvisioningEntity provisioningEntity = new ProvisioningEntity(
                     ProvisioningEntityType.USER, domainAwareName, ProvisioningOperation.POST,
@@ -150,25 +145,25 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
     }
 
     /**
-     * 
+     *
      */
     public boolean doPreSetUserClaimValues(String userName, Map<String, String> inboundAttributes,
-            String profileName, UserStoreManager userStoreManager) throws UserStoreException {
+                                           String profileName, UserStoreManager userStoreManager) throws UserStoreException {
 
         try {
             Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<ClaimMapping, List<String>>();
 
             if (userName != null) {
                 outboundAttributes.put(ClaimMapping.build(
-                        IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false),
-                        Arrays.asList(new String[] { userName }));
+                                IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false),
+                        Arrays.asList(new String[]{userName}));
             }
 
             String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("Adding domain name : " + domainName + " to user : " + userName);
             }
-            String domainAwareName = UserCoreUtil.addDomainToName(userName,domainName);
+            String domainAwareName = UserCoreUtil.addDomainToName(userName, domainName);
 
             ProvisioningEntity provisioningEntity = new ProvisioningEntity(
                     ProvisioningEntityType.USER, domainAwareName, ProvisioningOperation.PUT,
@@ -218,7 +213,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
 
     @Override
     /**
-     * 
+     *
      */
     public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager)
             throws UserStoreException {
@@ -228,13 +223,13 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
 
             outboundAttributes.put(ClaimMapping.build(
                     IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false), Arrays
-                    .asList(new String[] { userName }));
+                    .asList(new String[]{userName}));
 
             String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("Adding domain name : " + domainName + " to user : " + userName);
             }
-            String domainAwareName = UserCoreUtil.addDomainToName(userName,domainName);
+            String domainAwareName = UserCoreUtil.addDomainToName(userName, domainName);
 
             ProvisioningEntity provisioningEntity = new ProvisioningEntity(
                     ProvisioningEntityType.USER, domainAwareName, ProvisioningOperation.DELETE,
@@ -278,10 +273,10 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
     }
 
     /**
-     * 
+     *
      */
     public boolean doPostUpdateUserListOfRole(String roleName, String[] deletedUsers,
-            String[] newUsers, UserStoreManager userStoreManager) throws UserStoreException {
+                                              String[] newUsers, UserStoreManager userStoreManager) throws UserStoreException {
 
         try {
             String[] userList = userStoreManager.getUserListOfRole(roleName);
@@ -290,7 +285,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
 
             outboundAttributes.put(ClaimMapping.build(
                     IdentityProvisioningConstants.GROUP_CLAIM_URI, null, null, false), Arrays
-                    .asList(new String[] { roleName }));
+                    .asList(new String[]{roleName}));
 
             outboundAttributes.put(ClaimMapping.build(IdentityProvisioningConstants.USER_CLAIM_URI,
                     null, null, false), Arrays.asList(userList));
@@ -300,14 +295,14 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
                     .asList(newUsers));
 
             outboundAttributes.put(ClaimMapping.build(
-                    IdentityProvisioningConstants.DELETED_USER_CLAIM_URI, null, null, false),
+                            IdentityProvisioningConstants.DELETED_USER_CLAIM_URI, null, null, false),
                     Arrays.asList(deletedUsers));
 
             String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("Adding domain name : " + domainName + " to role : " + roleName);
             }
-            String domainAwareName = UserCoreUtil.addDomainToName(roleName,domainName);
+            String domainAwareName = UserCoreUtil.addDomainToName(roleName, domainName);
 
             ProvisioningEntity provisioningEntity = new ProvisioningEntity(
                     ProvisioningEntityType.GROUP, domainAwareName, ProvisioningOperation.PUT,
@@ -352,10 +347,10 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
     }
 
     /**
-     * 
+     *
      */
     public boolean doPostUpdateRoleListOfUser(String userName, String[] deletedRoles,
-            String[] newRoles, UserStoreManager userStoreManager) throws UserStoreException {
+                                              String[] newRoles, UserStoreManager userStoreManager) throws UserStoreException {
 
         try {
             String[] roleList = userStoreManager.getRoleListOfUser(userName);
@@ -365,8 +360,8 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
 
             if (userName != null) {
                 outboundAttributes.put(ClaimMapping.build(
-                        IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false),
-                        Arrays.asList(new String[] { userName }));
+                                IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false),
+                        Arrays.asList(new String[]{userName}));
             }
 
             if (roleList != null && roleList.length > 0) {
@@ -377,21 +372,21 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
 
             if (newRoles != null && roleList.length > 0) {
                 outboundAttributes.put(ClaimMapping.build(
-                        IdentityProvisioningConstants.NEW_GROUP_CLAIM_URI, null, null, false),
+                                IdentityProvisioningConstants.NEW_GROUP_CLAIM_URI, null, null, false),
                         Arrays.asList(newRoles));
             }
 
             if (deletedRoles != null && deletedRoles.length > 0) {
                 outboundAttributes.put(ClaimMapping.build(
-                        IdentityProvisioningConstants.DELETED_GROUP_CLAIM_URI, null, null, false),
+                                IdentityProvisioningConstants.DELETED_GROUP_CLAIM_URI, null, null, false),
                         Arrays.asList(deletedRoles));
             }
 
             String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("Adding domain name : " + domainName + " to user : " + userName);
             }
-            String domainAwareName = UserCoreUtil.addDomainToName(userName,domainName);
+            String domainAwareName = UserCoreUtil.addDomainToName(userName, domainName);
 
             ProvisioningEntity provisioningEntity = new ProvisioningEntity(
                     ProvisioningEntityType.USER, domainAwareName, ProvisioningOperation.PUT,
@@ -445,10 +440,10 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
     }
 
     /**
-     * 
+     *
      */
     public boolean doPreAddRole(String roleName, String[] userList, Permission[] permissions,
-            UserStoreManager userStoreManager) throws UserStoreException {
+                                UserStoreManager userStoreManager) throws UserStoreException {
 
         try {
             Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<ClaimMapping, List<String>>();
@@ -456,7 +451,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
             if (roleName != null) {
                 outboundAttributes.put(ClaimMapping.build(
                         IdentityProvisioningConstants.GROUP_CLAIM_URI, null, null, false), Arrays
-                        .asList(new String[] { roleName }));
+                        .asList(new String[]{roleName}));
             }
 
             if (userList != null && userList.length > 0) {
@@ -466,10 +461,10 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
             }
 
             String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("Adding domain name : " + domainName + " to user : " + roleName);
             }
-            String domainAwareName = UserCoreUtil.addDomainToName(roleName,domainName);
+            String domainAwareName = UserCoreUtil.addDomainToName(roleName, domainName);
 
             ProvisioningEntity provisioningEntity = new ProvisioningEntity(
                     ProvisioningEntityType.GROUP, domainAwareName, ProvisioningOperation.POST,
@@ -514,7 +509,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
     }
 
     /**
-     * 
+     *
      */
     public boolean doPreDeleteRole(String roleName, UserStoreManager userStoreManager)
             throws UserStoreException {
@@ -526,14 +521,14 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
             if (roleName != null) {
                 outboundAttributes.put(ClaimMapping.build(
                         IdentityProvisioningConstants.GROUP_CLAIM_URI, null, null, false), Arrays
-                        .asList(new String[] { roleName }));
+                        .asList(new String[]{roleName}));
             }
 
             String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("Adding domain name : " + domainName + " to user : " + roleName);
             }
-            String domainAwareName = UserCoreUtil.addDomainToName(roleName,domainName);
+            String domainAwareName = UserCoreUtil.addDomainToName(roleName, domainName);
 
             ProvisioningEntity provisioningEntity = new ProvisioningEntity(
                     ProvisioningEntityType.GROUP, domainAwareName, ProvisioningOperation.DELETE,

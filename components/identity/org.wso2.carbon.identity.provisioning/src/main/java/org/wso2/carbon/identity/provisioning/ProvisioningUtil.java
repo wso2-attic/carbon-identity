@@ -1,20 +1,19 @@
 package org.wso2.carbon.identity.provisioning;
 
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
-
 public class ProvisioningUtil {
 
     /**
-     * 
      * @return
      */
     public static List<String> getClaimValues(Map<ClaimMapping, List<String>> attributeMap,
-            String claimUri, String userStoreDomainName) {
+                                              String claimUri, String userStoreDomainName) {
 
         List<String> claimValues = new ArrayList<String>();
         for (Map.Entry<ClaimMapping, List<String>> entry : attributeMap.entrySet()) {
@@ -30,7 +29,7 @@ public class ProvisioningUtil {
 
             List<String> modifiedClaimValues = new ArrayList<String>();
 
-            for (Iterator<String> iterator = claimValues.iterator(); iterator.hasNext();) {
+            for (Iterator<String> iterator = claimValues.iterator(); iterator.hasNext(); ) {
                 String claimValue = iterator.next();
                 if (claimValue != null && claimValue.indexOf("/") > 0) {
                     claimValue = claimValue.substring(claimValue.indexOf("/") + 1);
@@ -48,12 +47,11 @@ public class ProvisioningUtil {
     }
 
     /**
-     * 
      * @param claimUri
      * @param attributeList
      */
     public static void setClaimValue(String claimUri, Map<ClaimMapping, List<String>> attributeMap,
-            List<String> attributeList) {
+                                     List<String> attributeList) {
 
         ClaimMapping clmMapping = null;
 

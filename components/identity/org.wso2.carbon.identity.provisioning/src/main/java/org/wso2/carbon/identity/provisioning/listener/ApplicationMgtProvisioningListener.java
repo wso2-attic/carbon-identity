@@ -26,67 +26,65 @@ import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCache;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheEntry;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheKey;
-import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheKey;
-import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCache;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 public class ApplicationMgtProvisioningListener implements ApplicationMgtListener {
-	
-	private static Log log = LogFactory.getLog(ApplicationMgtProvisioningListener.class);
 
-	@Override
-	public void createApplication(ServiceProvider serviceProvider) {
-		// TODO Auto-generated method stub
-		
-	}
+    private static Log log = LogFactory.getLog(ApplicationMgtProvisioningListener.class);
 
-	@Override
-	public void updateApplication(ServiceProvider serviceProvider) {
-		String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-		log.debug("Clearing cache entry for " + serviceProvider.getApplicationName());
-		destroySpProvConnectors(serviceProvider.getApplicationName(), tenantDomain);
-	}
+    @Override
+    public void createApplication(ServiceProvider serviceProvider) {
+        // TODO Auto-generated method stub
 
-	@Override
-	public void deleteApplication(String applicationName) {
-		String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-		log.debug("Clearing cache entry for " + applicationName);
-		destroySpProvConnectors(applicationName, tenantDomain);
-	}
-	
-	private void destroySpProvConnectors(String applicationName, String tenantDomain) {
-		
-		try {
-			
-		 	PrivilegedCarbonContext.startTenantFlow();
-	        PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
-	                .getThreadLocalCarbonContext();
-	        carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
-	        carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
-	        
-	        // reading from the cache
-			ServiceProviderProvisioningConnectorCacheKey key =
+    }
+
+    @Override
+    public void updateApplication(ServiceProvider serviceProvider) {
+        String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        log.debug("Clearing cache entry for " + serviceProvider.getApplicationName());
+        destroySpProvConnectors(serviceProvider.getApplicationName(), tenantDomain);
+    }
+
+    @Override
+    public void deleteApplication(String applicationName) {
+        String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        log.debug("Clearing cache entry for " + applicationName);
+        destroySpProvConnectors(applicationName, tenantDomain);
+    }
+
+    private void destroySpProvConnectors(String applicationName, String tenantDomain) {
+
+        try {
+
+            PrivilegedCarbonContext.startTenantFlow();
+            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
+                    .getThreadLocalCarbonContext();
+            carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
+            carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+
+            // reading from the cache
+            ServiceProviderProvisioningConnectorCacheKey key =
                     new ServiceProviderProvisioningConnectorCacheKey(applicationName, tenantDomain);
-			
-			ServiceProviderProvisioningConnectorCacheEntry entry = (ServiceProviderProvisioningConnectorCacheEntry) ServiceProviderProvisioningConnectorCache
-					.getInstance().getValueFromCache(key);
-			
-			// cache hit
-			if (entry != null) {
-				ServiceProviderProvisioningConnectorCache.getInstance().clearCacheEntry(key);
-				if (log.isDebugEnabled()) {
+
+            ServiceProviderProvisioningConnectorCacheEntry entry = (ServiceProviderProvisioningConnectorCacheEntry) ServiceProviderProvisioningConnectorCache
+                    .getInstance().getValueFromCache(key);
+
+            // cache hit
+            if (entry != null) {
+                ServiceProviderProvisioningConnectorCache.getInstance().clearCacheEntry(key);
+                if (log.isDebugEnabled()) {
                     log.debug("Provisioning cached entry removed for sp " + applicationName);
                 }
-			} else {
-				if (log.isDebugEnabled()) {
+            } else {
+                if (log.isDebugEnabled()) {
                     log.debug("Provisioning cached entry not found for sp " + applicationName);
                 }
-			}
-			
-		 } finally {
-	            PrivilegedCarbonContext.endTenantFlow();
-	        }
-		
-	}
+            }
+
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
+
+    }
 
 }
