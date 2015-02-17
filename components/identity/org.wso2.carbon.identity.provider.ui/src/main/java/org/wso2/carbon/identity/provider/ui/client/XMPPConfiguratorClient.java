@@ -40,7 +40,7 @@ public class XMPPConfiguratorClient {
      * @throws AxisFault
      */
     public XMPPConfiguratorClient(String cookie, String backendServerURL,
-            ConfigurationContext configCtx) throws AxisFault {
+                                  ConfigurationContext configCtx) throws AxisFault {
         String serviceURL = backendServerURL + "XMPPConfigurationService";
         stub = new XMPPConfigurationServiceStub(configCtx, serviceURL);
         ServiceClient client = stub._getServiceClient();
@@ -51,7 +51,7 @@ public class XMPPConfiguratorClient {
 
     /**
      * Add XMPP Settings
-     * 
+     *
      * @param dto
      */
     public void addXmppSettings(XMPPSettingsDTO dto) {
@@ -65,7 +65,7 @@ public class XMPPConfiguratorClient {
 
     /**
      * edit xmpp settings
-     * 
+     *
      * @param dto
      */
     public void editXmppSettings(XMPPSettingsDTO dto) {
@@ -79,7 +79,7 @@ public class XMPPConfiguratorClient {
 
     /**
      * get XMPP settings
-     * 
+     *
      * @param userId
      * @return XmppSettingsDTO containing the user's XMPP config. details.
      */
@@ -95,7 +95,7 @@ public class XMPPConfiguratorClient {
 
     /**
      * Checks whether the user has enabled XMPP based multifactor auth.
-     * 
+     *
      * @param userId
      * @return
      */
@@ -113,7 +113,7 @@ public class XMPPConfiguratorClient {
 
     /**
      * checks whether the user has added XMPP Settings.
-     * 
+     *
      * @param userId
      * @return
      */
@@ -131,7 +131,7 @@ public class XMPPConfiguratorClient {
 
     /**
      * Retrieve the IM address of an user to populate the IM field of the user.
-     * 
+     *
      * @param userID
      * @return
      * @throws RemoteException
