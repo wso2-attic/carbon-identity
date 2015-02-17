@@ -26,20 +26,20 @@ public class SessionDataCache extends BaseCache<CacheKey, CacheEntry> {
     private SessionDataCache(String cacheName) {
         super(cacheName);
     }
-    
+
     private SessionDataCache(String cacheName, int timeout) {
         super(cacheName, timeout);
     }
 
     public static SessionDataCache getInstance(int timeout) {
-    	if (instance == null) {
-    		synchronized (SessionDataCache.class) {
-    			
-				if (instance == null) {
-					instance = new SessionDataCache(SESSION_DATA_CACHE_NAME, timeout);
-				}
-			}
-    	}
+        if (instance == null) {
+            synchronized (SessionDataCache.class) {
+
+                if (instance == null) {
+                    instance = new SessionDataCache(SESSION_DATA_CACHE_NAME, timeout);
+                }
+            }
+        }
         return instance;
     }
 }
