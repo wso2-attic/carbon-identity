@@ -48,13 +48,61 @@ public class LoggedInSessionBean {
         this.openId = openId;
     }
 
+    public static class AccessTokenResponseBean {
+
+        private String accessToken;
+
+        private String refreshToken;
+
+        private String tokenType;
+
+        private String expiresIn;
+
+        public String getAccessToken() {
+            return accessToken;
+        }
+
+        public void setAccessToken(String accessToken) {
+            this.accessToken = accessToken;
+        }
+
+        public String getRefreshToken() {
+            return refreshToken;
+        }
+
+        public void setRefreshToken(String refreshToken) {
+            this.refreshToken = refreshToken;
+        }
+
+        public String getTokenType() {
+            return tokenType;
+        }
+
+        public void setTokenType(String tokenType) {
+            this.tokenType = tokenType;
+        }
+
+        public String getExpiresIn() {
+            return expiresIn;
+        }
+
+        public void setExpiresIn(String expiresIn) {
+            this.expiresIn = expiresIn;
+        }
+
+        public String toString() {
+            Gson gson = new Gson();
+            return gson.toJson(this);
+        }
+    }
+
     public class OpenID {
 
         private DiscoveryInformation discoveryInformation;
 
         private String claimedId;
 
-        private Map<String,List<String>> subjectAttributes;
+        private Map<String, List<String>> subjectAttributes;
 
         public DiscoveryInformation getDiscoveryInformation() {
             return discoveryInformation;
@@ -97,7 +145,7 @@ public class LoggedInSessionBean {
 
         private String sessionIndex;
 
-        private Map<String,String> subjectAttributes;
+        private Map<String, String> subjectAttributes;
 
         public String getSubjectId() {
             return subjectId;
@@ -161,54 +209,6 @@ public class LoggedInSessionBean {
 
         public void setAccessTokenResponseBean(AccessTokenResponseBean accessTokenResponseBean) {
             this.accessTokenResponseBean = accessTokenResponseBean;
-        }
-    }
-
-    public static class AccessTokenResponseBean {
-
-        private String accessToken;
-
-        private String refreshToken;
-
-        private String tokenType;
-
-        private String expiresIn;
-
-        public String getAccessToken() {
-            return accessToken;
-        }
-
-        public void setAccessToken(String accessToken) {
-            this.accessToken = accessToken;
-        }
-
-        public String getRefreshToken() {
-            return refreshToken;
-        }
-
-        public void setRefreshToken(String refreshToken) {
-            this.refreshToken = refreshToken;
-        }
-
-        public String getTokenType() {
-            return tokenType;
-        }
-
-        public void setTokenType(String tokenType) {
-            this.tokenType = tokenType;
-        }
-
-        public String getExpiresIn() {
-            return expiresIn;
-        }
-
-        public void setExpiresIn(String expiresIn) {
-            this.expiresIn = expiresIn;
-        }
-
-        public String toString () {
-            Gson gson = new Gson();
-            return gson.toJson(this);
         }
     }
 }

@@ -28,7 +28,7 @@ public interface SSOAgentX509Credential {
 
     PublicKey getPublicKey() throws SSOAgentException;
 
-    PrivateKey getPrivateKey()throws SSOAgentException;
+    PrivateKey getPrivateKey() throws SSOAgentException;
 
     X509Certificate getEntityCertificate() throws SSOAgentException;
 

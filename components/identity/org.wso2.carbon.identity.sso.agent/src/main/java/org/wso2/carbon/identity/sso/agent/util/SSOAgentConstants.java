@@ -20,9 +20,9 @@ package org.wso2.carbon.identity.sso.agent.util;
 
 public class SSOAgentConstants {
 
-	public static final String HTTP_POST_PARAM_SAML2_AUTH_REQ = "SAMLRequest";
-	public static final String HTTP_POST_PARAM_SAML2_RESP = "SAMLResponse";
-	public static final String IDP_SESSION = "IdPSession";
+    public static final String HTTP_POST_PARAM_SAML2_AUTH_REQ = "SAMLRequest";
+    public static final String HTTP_POST_PARAM_SAML2_RESP = "SAMLResponse";
+    public static final String IDP_SESSION = "IdPSession";
 
     public static final String OPENID_MODE = "openid.mode";
 

@@ -82,14 +82,12 @@ import java.util.zip.DeflaterOutputStream;
  */
 public class SAML2SSOManager {
 
-    private static Logger LOGGER = Logger.getLogger(SSOAgentConstants.LOGGER_NAME);
-
-    private static volatile boolean bootStrapped = false;
-    private SSOAgentConfig ssoAgentConfig = null;
-
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
             Constants.SECURITY_MANAGER_PROPERTY;
     private static final int ENTITY_EXPANSION_LIMIT = 0;
+    private static Logger LOGGER = Logger.getLogger(SSOAgentConstants.LOGGER_NAME);
+    private static volatile boolean bootStrapped = false;
+    private SSOAgentConfig ssoAgentConfig = null;
 
     public SAML2SSOManager(SSOAgentConfig ssoAgentConfig) throws SSOAgentException {
 

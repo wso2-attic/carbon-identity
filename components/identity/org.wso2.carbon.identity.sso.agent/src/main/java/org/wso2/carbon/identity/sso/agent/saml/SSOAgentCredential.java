@@ -30,7 +30,7 @@ public interface SSOAgentCredential {
 
     PublicKey getPublicKey() throws SSOAgentException;
 
-    PrivateKey getPrivateKey()throws SSOAgentException;
+    PrivateKey getPrivateKey() throws SSOAgentException;
 
     X509Certificate getEntityCertificate() throws SSOAgentException;
 
