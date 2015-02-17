@@ -18,17 +18,17 @@
 
 package org.wso2.carbon.identity.application.common.model;
 
-import java.io.Serializable;
-import java.util.*;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.Serializable;
+import java.util.*;
+
 public class IdentityProvider implements Serializable {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 3348487050533568857L;
 
@@ -51,312 +51,6 @@ public class IdentityProvider implements Serializable {
     private String certificate;
     private PermissionsAndRoleConfig permissionAndRoleConfig;
     private JustInTimeProvisioningConfig justInTimeProvisioningConfig;
-
-    /**
-     * 
-     * @return
-     */
-    public FederatedAuthenticatorConfig[] getFederatedAuthenticatorConfigs() {
-        return federatedAuthenticatorConfigs;
-    }
-
-    /**
-     * 
-     * @param federatedAuthenticatorConfigs
-     */
-    public void setFederatedAuthenticatorConfigs(
-            FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs) {
-
-        if(federatedAuthenticatorConfigs == null){
-            return;
-        }
-        Set<FederatedAuthenticatorConfig> propertySet =
-                    new HashSet<FederatedAuthenticatorConfig>(Arrays.asList(federatedAuthenticatorConfigs));
-        this.federatedAuthenticatorConfigs = propertySet.toArray(new FederatedAuthenticatorConfig[propertySet.size()]);
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public FederatedAuthenticatorConfig getDefaultAuthenticatorConfig() {
-        return defaultAuthenticatorConfig;
-    }
-
-    /**
-     * 
-     * @param defaultAuthenticatorConfig
-     */
-    public void setDefaultAuthenticatorConfig(
-            FederatedAuthenticatorConfig defaultAuthenticatorConfig) {
-        this.defaultAuthenticatorConfig = defaultAuthenticatorConfig;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public String getIdentityProviderName() {
-        return identityProviderName;
-    }
-
-    /**
-     * 
-     * @param identityProviderName
-     */
-    public void setIdentityProviderName(String identityProviderName) {
-        this.identityProviderName = identityProviderName;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public String getIdentityProviderDescription() {
-        return identityProviderDescription;
-    }
-
-    /**
-     * 
-     * @param identityProviderDescription
-     */
-    public void setIdentityProviderDescription(String identityProviderDescription) {
-        this.identityProviderDescription = identityProviderDescription;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public ProvisioningConnectorConfig getDefaultProvisioningConnectorConfig() {
-        return defaultProvisioningConnectorConfig;
-    }
-
-    /**
-     * 
-     * @param defaultProvisioningConnectorConfig
-     */
-    public void setDefaultProvisioningConnectorConfig(
-            ProvisioningConnectorConfig defaultProvisioningConnectorConfig) {
-        this.defaultProvisioningConnectorConfig = defaultProvisioningConnectorConfig;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public ProvisioningConnectorConfig[] getProvisioningConnectorConfigs() {
-        return provisioningConnectorConfigs;
-    }
-
-    /**
-     * 
-     * @param provisioningConnectorConfigs
-     */
-    public void setProvisioningConnectorConfigs(
-            ProvisioningConnectorConfig[] provisioningConnectorConfigs) {
-        if(provisioningConnectorConfigs == null){
-            return;
-        }
-        Set<ProvisioningConnectorConfig> propertySet =
-                            new HashSet<ProvisioningConnectorConfig>(Arrays.asList(provisioningConnectorConfigs));
-        this.provisioningConnectorConfigs = propertySet.toArray(new ProvisioningConnectorConfig[propertySet.size()]);
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public boolean isPrimary() {
-        return primary;
-    }
-
-    /**
-     * 
-     * @param primary
-     */
-    public void setPrimary(boolean primary) {
-        this.primary = primary;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public String getAlias() {
-        return alias;
-    }
-
-    /**
-     * 
-     * @param alias
-     */
-    public void setAlias(String alias) {
-        this.alias = alias;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public String getCertificate() {
-        return certificate;
-    }
-
-    /**
-     * 
-     * @param certificate
-     */
-    public void setCertificate(String certificate) {
-        this.certificate = certificate;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public ClaimConfig getClaimConfig() {
-        return claimConfig;
-    }
-
-    /**
-     * 
-     * @param claimConfig
-     */
-    public void setClaimConfig(ClaimConfig claimConfig) {
-        this.claimConfig = claimConfig;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public PermissionsAndRoleConfig getPermissionAndRoleConfig() {
-        return permissionAndRoleConfig;
-    }
-
-    /**
-     * 
-     * @param permissionAndRoleConfig
-     */
-    public void setPermissionAndRoleConfig(PermissionsAndRoleConfig permissionAndRoleConfig) {
-        this.permissionAndRoleConfig = permissionAndRoleConfig;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public String getHomeRealmId() {
-        return homeRealmId;
-    }
-
-    /**
-     * 
-     * @param homeRealmId
-     */
-    public void setHomeRealmId(String homeRealmId) {
-        this.homeRealmId = homeRealmId;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public JustInTimeProvisioningConfig getJustInTimeProvisioningConfig() {
-        return justInTimeProvisioningConfig;
-    }
-
-    /**
-     * 
-     * @param justTimeProvisioningConfiguration
-     */
-    public void setJustInTimeProvisioningConfig(
-            JustInTimeProvisioningConfig justInTimeProvisioningConfig) {
-        this.justInTimeProvisioningConfig = justInTimeProvisioningConfig;
-    }
-
-    /**
-     * This represents a federation hub identity provider.
-     * 
-     * @return
-     */
-    public boolean isFederationHub() {
-        return federationHub;
-    }
-
-    /**
-     * 
-     * @param federationHub
-     */
-    public void setFederationHub(boolean federationHub) {
-        this.federationHub = federationHub;
-    }
-
-    /**
-     * This represents a provisioning role of identity provider.
-     * 
-     * @return
-     */
-    public String getProvisioningRole() {
-        return provisioningRole;
-    }
-
-    /**
-     * 
-     * @param provisioningRole
-     */
-    public void setProvisioningRole(String provisioningRole) {
-        this.provisioningRole = provisioningRole;
-    }
-
-    /**
-     * This represents whether the idp enable.
-     * 
-     * @return
-     */
-    public boolean isEnable() {
-        return enable;
-    }
-
-    /**
-     * 
-     * @param enable
-     */
-    public void setEnable(boolean enable) {
-        this.enable = enable;
-    }
-
-    /**
-     * This represents a display name of identity provider.
-     * 
-     * @return
-     */
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    /**
-     * 
-     * @param displayName
-     */
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
-    /*
-     * <IdentityProvider> <IdentityProviderName></IdentityProviderName>
-     * <IdentityProviderDescription></IdentityProviderDescription> <Alias></Alias>
-     * <IsPrimary></IsPrimary> <IsFederationHub></IsFederationHub><HomeRealmId></HomeRealmId>
-     * <ProvisioningRole></ProvisioningRole>
-     * <FederatedAuthenticatorConfigs></FederatedAuthenticatorConfigs>
-     * <DefaultAuthenticatorConfig></DefaultAuthenticatorConfig>
-     * <ProvisioningConnectorConfigs></ProvisioningConnectorConfigs>
-     * <DefaultProvisioningConnectorConfig></DefaultProvisioningConnectorConfig>
-     * <ClaimConfig></ClaimConfig> <Certificate></Certificate>
-     * <PermissionAndRoleConfig></PermissionAndRoleConfig>
-     * <JustInTimeProvisioningConfig></JustInTimeProvisioningConfig> </IdentityProvider>
-     */
 
     public static IdentityProvider build(OMElement identityProviderOM) {
         IdentityProvider identityProvider = new IdentityProvider();
@@ -472,6 +166,282 @@ public class IdentityProvider implements Serializable {
         }
 
         return identityProvider;
+    }
+
+    /**
+     * @return
+     */
+    public FederatedAuthenticatorConfig[] getFederatedAuthenticatorConfigs() {
+        return federatedAuthenticatorConfigs;
+    }
+
+    /**
+     * @param federatedAuthenticatorConfigs
+     */
+    public void setFederatedAuthenticatorConfigs(
+            FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs) {
+
+        if (federatedAuthenticatorConfigs == null) {
+            return;
+        }
+        Set<FederatedAuthenticatorConfig> propertySet =
+                new HashSet<FederatedAuthenticatorConfig>(Arrays.asList(federatedAuthenticatorConfigs));
+        this.federatedAuthenticatorConfigs = propertySet.toArray(new FederatedAuthenticatorConfig[propertySet.size()]);
+    }
+
+    /**
+     * @return
+     */
+    public FederatedAuthenticatorConfig getDefaultAuthenticatorConfig() {
+        return defaultAuthenticatorConfig;
+    }
+
+    /**
+     * @param defaultAuthenticatorConfig
+     */
+    public void setDefaultAuthenticatorConfig(
+            FederatedAuthenticatorConfig defaultAuthenticatorConfig) {
+        this.defaultAuthenticatorConfig = defaultAuthenticatorConfig;
+    }
+
+    /**
+     * @return
+     */
+    public String getIdentityProviderName() {
+        return identityProviderName;
+    }
+
+    /**
+     * @param identityProviderName
+     */
+    public void setIdentityProviderName(String identityProviderName) {
+        this.identityProviderName = identityProviderName;
+    }
+
+    /**
+     * @return
+     */
+    public String getIdentityProviderDescription() {
+        return identityProviderDescription;
+    }
+
+    /**
+     * @param identityProviderDescription
+     */
+    public void setIdentityProviderDescription(String identityProviderDescription) {
+        this.identityProviderDescription = identityProviderDescription;
+    }
+
+    /**
+     * @return
+     */
+    public ProvisioningConnectorConfig getDefaultProvisioningConnectorConfig() {
+        return defaultProvisioningConnectorConfig;
+    }
+
+    /**
+     * @param defaultProvisioningConnectorConfig
+     */
+    public void setDefaultProvisioningConnectorConfig(
+            ProvisioningConnectorConfig defaultProvisioningConnectorConfig) {
+        this.defaultProvisioningConnectorConfig = defaultProvisioningConnectorConfig;
+    }
+
+    /**
+     * @return
+     */
+    public ProvisioningConnectorConfig[] getProvisioningConnectorConfigs() {
+        return provisioningConnectorConfigs;
+    }
+
+    /**
+     * @param provisioningConnectorConfigs
+     */
+    public void setProvisioningConnectorConfigs(
+            ProvisioningConnectorConfig[] provisioningConnectorConfigs) {
+        if (provisioningConnectorConfigs == null) {
+            return;
+        }
+        Set<ProvisioningConnectorConfig> propertySet =
+                new HashSet<ProvisioningConnectorConfig>(Arrays.asList(provisioningConnectorConfigs));
+        this.provisioningConnectorConfigs = propertySet.toArray(new ProvisioningConnectorConfig[propertySet.size()]);
+    }
+
+    /**
+     * @return
+     */
+    public boolean isPrimary() {
+        return primary;
+    }
+
+    /**
+     * @param primary
+     */
+    public void setPrimary(boolean primary) {
+        this.primary = primary;
+    }
+
+    /**
+     * @return
+     */
+    public String getAlias() {
+        return alias;
+    }
+
+    /**
+     * @param alias
+     */
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
+    /**
+     * @return
+     */
+    public String getCertificate() {
+        return certificate;
+    }
+
+    /**
+     * @param certificate
+     */
+    public void setCertificate(String certificate) {
+        this.certificate = certificate;
+    }
+
+    /**
+     * @return
+     */
+    public ClaimConfig getClaimConfig() {
+        return claimConfig;
+    }
+
+    /**
+     * @param claimConfig
+     */
+    public void setClaimConfig(ClaimConfig claimConfig) {
+        this.claimConfig = claimConfig;
+    }
+
+    /**
+     * @return
+     */
+    public PermissionsAndRoleConfig getPermissionAndRoleConfig() {
+        return permissionAndRoleConfig;
+    }
+
+    /**
+     * @param permissionAndRoleConfig
+     */
+    public void setPermissionAndRoleConfig(PermissionsAndRoleConfig permissionAndRoleConfig) {
+        this.permissionAndRoleConfig = permissionAndRoleConfig;
+    }
+
+    /**
+     * @return
+     */
+    public String getHomeRealmId() {
+        return homeRealmId;
+    }
+
+    /**
+     * @param homeRealmId
+     */
+    public void setHomeRealmId(String homeRealmId) {
+        this.homeRealmId = homeRealmId;
+    }
+
+    /**
+     * @return
+     */
+    public JustInTimeProvisioningConfig getJustInTimeProvisioningConfig() {
+        return justInTimeProvisioningConfig;
+    }
+
+    /**
+     * @param justTimeProvisioningConfiguration
+     */
+    public void setJustInTimeProvisioningConfig(
+            JustInTimeProvisioningConfig justInTimeProvisioningConfig) {
+        this.justInTimeProvisioningConfig = justInTimeProvisioningConfig;
+    }
+
+    /**
+     * This represents a federation hub identity provider.
+     *
+     * @return
+     */
+    public boolean isFederationHub() {
+        return federationHub;
+    }
+
+    /**
+     * @param federationHub
+     */
+    public void setFederationHub(boolean federationHub) {
+        this.federationHub = federationHub;
+    }
+
+    /**
+     * This represents a provisioning role of identity provider.
+     *
+     * @return
+     */
+    public String getProvisioningRole() {
+        return provisioningRole;
+    }
+
+    /**
+     * @param provisioningRole
+     */
+    public void setProvisioningRole(String provisioningRole) {
+        this.provisioningRole = provisioningRole;
+    }
+
+    /**
+     * This represents whether the idp enable.
+     *
+     * @return
+     */
+    public boolean isEnable() {
+        return enable;
+    }
+
+    /**
+     * @param enable
+     */
+    public void setEnable(boolean enable) {
+        this.enable = enable;
+    }
+
+    /**
+     * This represents a display name of identity provider.
+     *
+     * @return
+     */
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    /*
+     * <IdentityProvider> <IdentityProviderName></IdentityProviderName>
+     * <IdentityProviderDescription></IdentityProviderDescription> <Alias></Alias>
+     * <IsPrimary></IsPrimary> <IsFederationHub></IsFederationHub><HomeRealmId></HomeRealmId>
+     * <ProvisioningRole></ProvisioningRole>
+     * <FederatedAuthenticatorConfigs></FederatedAuthenticatorConfigs>
+     * <DefaultAuthenticatorConfig></DefaultAuthenticatorConfig>
+     * <ProvisioningConnectorConfigs></ProvisioningConnectorConfigs>
+     * <DefaultProvisioningConnectorConfig></DefaultProvisioningConnectorConfig>
+     * <ClaimConfig></ClaimConfig> <Certificate></Certificate>
+     * <PermissionAndRoleConfig></PermissionAndRoleConfig>
+     * <JustInTimeProvisioningConfig></JustInTimeProvisioningConfig> </IdentityProvider>
+     */
+
+    /**
+     * @param displayName
+     */
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     @Override

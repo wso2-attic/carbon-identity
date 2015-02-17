@@ -18,56 +18,20 @@
 
 package org.wso2.carbon.identity.application.common.model;
 
+import org.apache.axiom.om.OMElement;
+
 import java.io.Serializable;
 import java.util.*;
-
-import org.apache.axiom.om.OMElement;
 
 public class OutboundProvisioningConfig implements Serializable {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 1653270395614833536L;
 
     private IdentityProvider[] provisioningIdentityProviders = new IdentityProvider[0];
     private String[] provisionByRoleList;
-
-    /**
-     * 
-     * @return
-     */
-    public IdentityProvider[] getProvisioningIdentityProviders() {
-        return provisioningIdentityProviders;
-    }
-
-    /**
-     * 
-     * @param provisioningIdentityProviders
-     */
-    public void setProvisioningIdentityProviders(IdentityProvider[] provisioningIdentityProviders) {
-        if(provisioningIdentityProviders == null){
-            return;
-        }
-        Set<IdentityProvider> propertySet = new HashSet<IdentityProvider>(Arrays.asList(provisioningIdentityProviders));
-        this.provisioningIdentityProviders = propertySet.toArray(new IdentityProvider[propertySet.size()]);
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public String[] getProvisionByRoleList() {
-        return provisionByRoleList;
-    }
-
-    /**
-     * 
-     * @param provisionByRoleList
-     */
-    public void setProvisionByRoleList(String[] provisionByRoleList) {
-        this.provisionByRoleList = provisionByRoleList;
-    }
 
     /*
      * <OutboundProvisioningConfig> <ProvisioningIdentityProviders></ProvisioningIdentityProviders>
@@ -129,5 +93,37 @@ public class OutboundProvisioningConfig implements Serializable {
         }
 
         return outboundProvisioningConfig;
+    }
+
+    /**
+     * @return
+     */
+    public IdentityProvider[] getProvisioningIdentityProviders() {
+        return provisioningIdentityProviders;
+    }
+
+    /**
+     * @param provisioningIdentityProviders
+     */
+    public void setProvisioningIdentityProviders(IdentityProvider[] provisioningIdentityProviders) {
+        if (provisioningIdentityProviders == null) {
+            return;
+        }
+        Set<IdentityProvider> propertySet = new HashSet<IdentityProvider>(Arrays.asList(provisioningIdentityProviders));
+        this.provisioningIdentityProviders = propertySet.toArray(new IdentityProvider[propertySet.size()]);
+    }
+
+    /**
+     * @return
+     */
+    public String[] getProvisionByRoleList() {
+        return provisionByRoleList;
+    }
+
+    /**
+     * @param provisionByRoleList
+     */
+    public void setProvisionByRoleList(String[] provisionByRoleList) {
+        this.provisionByRoleList = provisionByRoleList;
     }
 }

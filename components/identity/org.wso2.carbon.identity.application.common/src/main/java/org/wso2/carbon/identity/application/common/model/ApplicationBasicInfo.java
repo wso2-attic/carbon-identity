@@ -23,7 +23,7 @@ import java.io.Serializable;
 public class ApplicationBasicInfo implements Serializable {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -16127229981193883L;
 
@@ -31,7 +31,6 @@ public class ApplicationBasicInfo implements Serializable {
     private String description;
 
     /**
-     * 
      * @return
      */
     public String getApplicationName() {
@@ -39,7 +38,6 @@ public class ApplicationBasicInfo implements Serializable {
     }
 
     /**
-     * 
      * @param applicationName
      */
     public void setApplicationName(String applicationName) {
@@ -47,7 +45,6 @@ public class ApplicationBasicInfo implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public String getDescription() {
@@ -55,7 +52,6 @@ public class ApplicationBasicInfo implements Serializable {
     }
 
     /**
-     * 
      * @param description
      */
     public void setDescription(String description) {

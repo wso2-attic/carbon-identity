@@ -2,13 +2,13 @@ package org.wso2.carbon.identity.application.common.model;
 
 import java.io.Serializable;
 
-public class ThreadLocalProvisioningServiceProvider implements Serializable{
+public class ThreadLocalProvisioningServiceProvider implements Serializable {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -486701265390312767L;
-    
+
     private String serviceProviderName;
     private String claimDialect;
     private boolean justInTimeProvisioning;
@@ -24,8 +24,8 @@ public class ThreadLocalProvisioningServiceProvider implements Serializable{
     public void setBulkUserAdd(boolean isBulkUserAdd) {
         this.isBulkUserAdd = isBulkUserAdd;
     }
+
     /**
-     * 
      * @return
      */
     public String getServiceProviderName() {
@@ -33,7 +33,6 @@ public class ThreadLocalProvisioningServiceProvider implements Serializable{
     }
 
     /**
-     * 
      * @param serviceProviderName
      */
     public void setServiceProviderName(String serviceProviderName) {
@@ -41,7 +40,6 @@ public class ThreadLocalProvisioningServiceProvider implements Serializable{
     }
 
     /**
-     * 
      * @return
      */
     public String getClaimDialect() {
@@ -49,7 +47,6 @@ public class ThreadLocalProvisioningServiceProvider implements Serializable{
     }
 
     /**
-     * 
      * @param claimDialect
      */
     public void setClaimDialect(String claimDialect) {
@@ -57,7 +54,6 @@ public class ThreadLocalProvisioningServiceProvider implements Serializable{
     }
 
     /**
-     * 
      * @return
      */
     public boolean isJustInTimeProvisioning() {
@@ -65,7 +61,6 @@ public class ThreadLocalProvisioningServiceProvider implements Serializable{
     }
 
     /**
-     * 
      * @param justInTimeProvisioning
      */
     public void setJustInTimeProvisioning(boolean justInTimeProvisioning) {
@@ -73,7 +68,6 @@ public class ThreadLocalProvisioningServiceProvider implements Serializable{
     }
 
     /**
-     * 
      * @return
      */
     public ProvisioningServiceProviderType getServiceProviderType() {
@@ -81,7 +75,6 @@ public class ThreadLocalProvisioningServiceProvider implements Serializable{
     }
 
     /**
-     * 
      * @param serviceProviderType
      */
     public void setServiceProviderType(ProvisioningServiceProviderType serviceProviderType) {
@@ -89,7 +82,6 @@ public class ThreadLocalProvisioningServiceProvider implements Serializable{
     }
 
     /**
-     * 
      * @return
      */
     public String getTenantDomain() {
@@ -97,7 +89,6 @@ public class ThreadLocalProvisioningServiceProvider implements Serializable{
     }
 
     /**
-     * 
      * @param tenantDomain
      */
     public void setTenantDomain(String tenantDomain) {

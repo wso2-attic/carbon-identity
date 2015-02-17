@@ -18,27 +18,19 @@
 
 package org.wso2.carbon.identity.application.common.model;
 
+import org.apache.axiom.om.OMElement;
+
 import java.io.Serializable;
 import java.util.Iterator;
-
-import org.apache.axiom.om.OMElement;
 
 public class ApplicationPermission implements Serializable {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -5921176623905192883L;
 
     private String value;
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
 
     /*
      * <ApplicationPermission> <value></value> </ApplicationPermission>
@@ -58,6 +50,14 @@ public class ApplicationPermission implements Serializable {
         }
 
         return applicationPermission;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 
 }

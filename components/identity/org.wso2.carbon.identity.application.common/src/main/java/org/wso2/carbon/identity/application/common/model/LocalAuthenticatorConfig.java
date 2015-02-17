@@ -18,15 +18,15 @@
 
 package org.wso2.carbon.identity.application.common.model;
 
+import org.apache.axiom.om.OMElement;
+
 import java.io.Serializable;
 import java.util.*;
-
-import org.apache.axiom.om.OMElement;
 
 public class LocalAuthenticatorConfig implements Serializable {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -1294054850307327027L;
 
@@ -85,7 +85,6 @@ public class LocalAuthenticatorConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public String getName() {
@@ -93,7 +92,6 @@ public class LocalAuthenticatorConfig implements Serializable {
     }
 
     /**
-     * 
      * @param name
      */
     public void setName(String name) {
@@ -101,7 +99,6 @@ public class LocalAuthenticatorConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public boolean isEnabled() {
@@ -109,7 +106,6 @@ public class LocalAuthenticatorConfig implements Serializable {
     }
 
     /**
-     * 
      * @param enabled
      */
     public void setEnabled(boolean enabled) {
@@ -117,7 +113,6 @@ public class LocalAuthenticatorConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public boolean isValid() {
@@ -125,7 +120,6 @@ public class LocalAuthenticatorConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public Property[] getProperties() {
@@ -133,11 +127,10 @@ public class LocalAuthenticatorConfig implements Serializable {
     }
 
     /**
-     * 
      * @param properties
      */
     public void setProperties(Property[] properties) {
-        if(properties == null){
+        if (properties == null) {
             return;
         }
         Set<Property> propertySet = new HashSet<Property>(Arrays.asList(properties));

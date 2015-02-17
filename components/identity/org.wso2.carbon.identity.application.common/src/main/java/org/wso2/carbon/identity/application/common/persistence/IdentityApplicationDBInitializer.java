@@ -33,15 +33,51 @@ import java.util.StringTokenizer;
  */
 class IdentityApplicationDBInitializer {
 
-    private static Log log = LogFactory.getLog(IdentityApplicationDBInitializer.class);
-
     private static final String DB_CHECK_SQL = "SELECT ID FROM SP_APP";
+    private static Log log = LogFactory.getLog(IdentityApplicationDBInitializer.class);
+    Statement statement;
     private DataSource dataSource;
     private String delimiter = ";";
-    Statement statement;
 
     IdentityApplicationDBInitializer(DataSource dataSource) {
         this.dataSource = dataSource;
+    }
+
+    /**
+     * Checks that a string buffer ends up with a given string. It may sound
+     * trivial with the existing JDK API but the various implementation among
+     * JDKs can make those methods extremely resource intensive and perform
+     * poorly due to massive memory allocation and copying. See
+     *
+     * @param buffer the buffer to perform the check on
+     * @param suffix the suffix
+     * @return <code>true</code> if the character sequence represented by the
+     * argument is a suffix of the character sequence represented by
+     * the StringBuffer object; <code>false</code> otherwise. Note that the
+     * result will be <code>true</code> if the argument is the
+     * empty string.
+     */
+    private static boolean checkStringBufferEndsWith(StringBuffer buffer, String suffix) {
+
+        if (suffix.length() > buffer.length()) {
+            return false;
+        }
+        // this loop is done on purpose to avoid memory allocation performance
+        // problems on various JDKs StringBuffer.lastIndexOf() was introduced
+        // in jdk 1.4 and implementation is ok though does allocation/copying
+        // StringBuffer.toString().endsWith() does massive memory
+        // allocation/copying on JDK 1.5
+        // See http://issues.apache.org/bugzilla/show_bug.cgi?id=37169
+        int endIndex = suffix.length() - 1;
+        int bufferIndex = buffer.length() - 1;
+        while (endIndex >= 0) {
+            if (buffer.charAt(bufferIndex) != suffix.charAt(endIndex)) {
+                return false;
+            }
+            bufferIndex--;
+            endIndex--;
+        }
+        return true;
     }
 
     void createIdentityProviderDB() throws IdentityApplicationManagementException {
@@ -130,7 +166,7 @@ class IdentityApplicationDBInitializer {
     private void executeSQLScript() throws IdentityApplicationManagementException, SQLException, IOException {
 
         String databaseType = getDatabaseType(dataSource.getConnection());
-        if(databaseType == null){
+        if (databaseType == null) {
             String msg = "Unsupported database: Database will not be created automatically by the Carbon Server. " +
                     "Please create the database using appropriate database scripts for the database.";
             log.warn(msg);
@@ -238,43 +274,6 @@ class IdentityApplicationDBInitializer {
         }
         String carbonHome = System.getProperty("carbon.home");
         return carbonHome + "/dbscripts/identity/application-mgt/" + scriptName;
-    }
-
-    /**
-     * Checks that a string buffer ends up with a given string. It may sound
-     * trivial with the existing JDK API but the various implementation among
-     * JDKs can make those methods extremely resource intensive and perform
-     * poorly due to massive memory allocation and copying. See
-     *
-     * @param buffer the buffer to perform the check on
-     * @param suffix the suffix
-     * @return <code>true</code> if the character sequence represented by the
-     *         argument is a suffix of the character sequence represented by
-     *         the StringBuffer object; <code>false</code> otherwise. Note that the
-     *         result will be <code>true</code> if the argument is the
-     *         empty string.
-     */
-    private static boolean checkStringBufferEndsWith(StringBuffer buffer, String suffix) {
-
-        if (suffix.length() > buffer.length()) {
-            return false;
-        }
-        // this loop is done on purpose to avoid memory allocation performance
-        // problems on various JDKs StringBuffer.lastIndexOf() was introduced
-        // in jdk 1.4 and implementation is ok though does allocation/copying
-        // StringBuffer.toString().endsWith() does massive memory
-        // allocation/copying on JDK 1.5
-        // See http://issues.apache.org/bugzilla/show_bug.cgi?id=37169
-        int endIndex = suffix.length() - 1;
-        int bufferIndex = buffer.length() - 1;
-        while (endIndex >= 0) {
-            if (buffer.charAt(bufferIndex) != suffix.charAt(endIndex)) {
-                return false;
-            }
-            bufferIndex--;
-            endIndex--;
-        }
-        return true;
     }
 
     private void executeSQL(String sql) throws SQLException {

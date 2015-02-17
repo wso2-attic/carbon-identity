@@ -18,9 +18,9 @@
 
 package org.wso2.carbon.identity.application.common.cache;
 
-import java.io.Serializable;
-
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+
+import java.io.Serializable;
 
 /**
  * Cache key class. Any value that acts as a cache key must encapsulated with a class overriding

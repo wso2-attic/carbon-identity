@@ -24,16 +24,16 @@ import org.wso2.carbon.identity.application.common.util.IdentityApplicationManag
 public class OpenIDFederatedAuthenticatorConfig extends FederatedAuthenticatorConfig {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 3710960866079439910L;
 
     @Override
     public boolean isValid() {
-        if(IdentityApplicationManagementUtil.getProperty(properties,
+        if (IdentityApplicationManagementUtil.getProperty(properties,
                 IdentityApplicationConstants.Authenticator.OpenID.OPEN_ID_URL) != null &&
                 !"".equals(IdentityApplicationManagementUtil.getProperty(properties,
-                        IdentityApplicationConstants.Authenticator.OpenID.OPEN_ID_URL))){
+                        IdentityApplicationConstants.Authenticator.OpenID.OPEN_ID_URL))) {
 
             return true;
         }

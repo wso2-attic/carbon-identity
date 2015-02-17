@@ -18,73 +18,20 @@
 
 package org.wso2.carbon.identity.application.common.model;
 
+import org.apache.axiom.om.OMElement;
+
 import java.io.Serializable;
 import java.util.Iterator;
-
-import org.apache.axiom.om.OMElement;
 
 public class User implements Serializable {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -3605277664796682611L;
     private int tenantId;
     private String userStoreDomain;
     private String userName;
-
-    /**
-     * 
-     * @return
-     */
-    public int getTenantId() {
-        return tenantId;
-    }
-
-    /**
-     * 
-     * @param tenantId
-     */
-    public void setTenantId(int tenantId) {
-        this.tenantId = tenantId;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public String getUserStoreDomain() {
-        return userStoreDomain;
-    }
-
-    /**
-     * 
-     * @param userStoreDomain
-     */
-    public void setUserStoreDomain(String userStoreDomain) {
-        this.userStoreDomain = userStoreDomain;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public String getUserName() {
-        return userName;
-    }
-
-    /**
-     * 
-     * @param userName
-     */
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    /*
-     * <User> <TenantId></TenantId> <UserStoreDomain></UserStoreDomain> <UserName></UserName>
-     * </User>
-     */
 
     public static User build(OMElement userOM) {
         User user = new User();
@@ -108,6 +55,53 @@ public class User implements Serializable {
         }
         return user;
 
+    }
+
+    /**
+     * @return
+     */
+    public int getTenantId() {
+        return tenantId;
+    }
+
+    /**
+     * @param tenantId
+     */
+    public void setTenantId(int tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    /**
+     * @return
+     */
+    public String getUserStoreDomain() {
+        return userStoreDomain;
+    }
+
+    /**
+     * @param userStoreDomain
+     */
+    public void setUserStoreDomain(String userStoreDomain) {
+        this.userStoreDomain = userStoreDomain;
+    }
+
+    /**
+     * @return
+     */
+    public String getUserName() {
+        return userName;
+    }
+
+    /*
+     * <User> <TenantId></TenantId> <UserStoreDomain></UserStoreDomain> <UserName></UserName>
+     * </User>
+     */
+
+    /**
+     * @param userName
+     */
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
 }

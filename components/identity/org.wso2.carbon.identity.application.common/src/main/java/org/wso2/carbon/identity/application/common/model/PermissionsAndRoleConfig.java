@@ -18,62 +18,22 @@
 
 package org.wso2.carbon.identity.application.common.model;
 
+import org.apache.axiom.om.OMElement;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.apache.axiom.om.OMElement;
-
 public class PermissionsAndRoleConfig implements Serializable {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -7994146492198021069L;
 
     private ApplicationPermission[] permissions = new ApplicationPermission[0];
     private RoleMapping[] roleMappings = new RoleMapping[0];
     private String[] idpRoles = new String[0];
-
-    /**
-     * 
-     * @return
-     */
-    public ApplicationPermission[] getPermissions() {
-        return permissions;
-    }
-
-    /**
-     * 
-     * @param permissions
-     */
-    public void setPermissions(ApplicationPermission[] permissions) {
-        this.permissions = permissions;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public RoleMapping[] getRoleMappings() {
-        return roleMappings;
-    }
-
-    /**
-     * 
-     * @param roleMappings
-     */
-    public void setRoleMappings(RoleMapping[] roleMappings) {
-        this.roleMappings = roleMappings;
-    }
-
-    public String[] getIdpRoles() {
-        return idpRoles;
-    }
-
-    public void setIdpRoles(String[] idpRoles) {
-        this.idpRoles = idpRoles;
-    }
 
     /*
      * <PermissionsAndRoleConfig> <Permissions></Permissions> <RoleMappings></RoleMappings>
@@ -135,7 +95,7 @@ public class PermissionsAndRoleConfig implements Serializable {
                 }
 
             }
-            
+
             if (elementName.equals("IdpRoles")) {
                 Iterator<?> idpRolesIter = element.getChildElements();
                 ArrayList<String> roleMappingsArrList = new ArrayList<String>();
@@ -155,5 +115,41 @@ public class PermissionsAndRoleConfig implements Serializable {
         }
 
         return permissionsAndRoleConfig;
+    }
+
+    /**
+     * @return
+     */
+    public ApplicationPermission[] getPermissions() {
+        return permissions;
+    }
+
+    /**
+     * @param permissions
+     */
+    public void setPermissions(ApplicationPermission[] permissions) {
+        this.permissions = permissions;
+    }
+
+    /**
+     * @return
+     */
+    public RoleMapping[] getRoleMappings() {
+        return roleMappings;
+    }
+
+    /**
+     * @param roleMappings
+     */
+    public void setRoleMappings(RoleMapping[] roleMappings) {
+        this.roleMappings = roleMappings;
+    }
+
+    public String[] getIdpRoles() {
+        return idpRoles;
+    }
+
+    public void setIdpRoles(String[] idpRoles) {
+        this.idpRoles = idpRoles;
     }
 }
