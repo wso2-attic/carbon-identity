@@ -148,23 +148,24 @@ public class JsonMessageModule extends AbstractNotificationSendingModule {
 
     /**
      * Initialize REST JSON Module with configurations.
+     *
      * @param moduleConfigurations Configurations which are relevant to this module. Passed by Notification Management
-     *                       Component
+     *                             Component
      */
     @Override
     public void init(ModuleConfiguration moduleConfigurations) throws NotificationManagementException {
 
-	    this.subscriptionMap = new HashMap<String, JsonSubscription>();
-	    for (Subscription subscription : moduleConfigurations.getSubscriptions()) {
-		    try {
-			    subscriptionMap.put(subscription.getSubscriptionName(), new JsonSubscription(subscription));
-		    } catch (NotificationManagementException e) {
-			    // Will log an error at the server startup time if JSON subscription object building fails. Will
-			    // continue with building rest of the subscriptions if one fails.
-			    log.error("Error while building JSON subscription from Subscription for : " +
-			              subscription.getSubscriptionName(), e);
-		    }
-	    }
+        this.subscriptionMap = new HashMap<String, JsonSubscription>();
+        for (Subscription subscription : moduleConfigurations.getSubscriptions()) {
+            try {
+                subscriptionMap.put(subscription.getSubscriptionName(), new JsonSubscription(subscription));
+            } catch (NotificationManagementException e) {
+                // Will log an error at the server startup time if JSON subscription object building fails. Will
+                // continue with building rest of the subscriptions if one fails.
+                log.error("Error while building JSON subscription from Subscription for : " +
+                        subscription.getSubscriptionName(), e);
+            }
+        }
     }
 
     /**
