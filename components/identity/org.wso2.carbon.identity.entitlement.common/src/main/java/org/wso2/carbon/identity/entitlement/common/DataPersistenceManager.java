@@ -22,23 +22,23 @@ import org.wso2.carbon.identity.entitlement.common.dto.PolicyEditorDataHolder;
 import java.util.Map;
 
 /**
- * 
+ *
  */
 public interface DataPersistenceManager {
 
     /**
      * Build and Load the policy editor data from persistence storage
      *
-     * @return  PolicyEditorDataHolder
+     * @return PolicyEditorDataHolder
      * @throws PolicyEditorException throws
      */
-    public Map<String, PolicyEditorDataHolder> buildDataHolder()  throws PolicyEditorException;
+    public Map<String, PolicyEditorDataHolder> buildDataHolder() throws PolicyEditorException;
 
     /**
      * Persist policy editor data in to  persistence storage
      *
      * @param policyEditorType policy editor type
-     * @param xmlConfig String
+     * @param xmlConfig        String
      * @throws PolicyEditorException throws
      */
     public void persistConfig(String policyEditorType, String xmlConfig) throws PolicyEditorException;
