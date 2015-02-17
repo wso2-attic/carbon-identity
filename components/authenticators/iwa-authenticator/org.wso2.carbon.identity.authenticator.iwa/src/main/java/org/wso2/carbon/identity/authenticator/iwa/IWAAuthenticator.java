@@ -17,8 +17,6 @@
  */
 package org.wso2.carbon.identity.authenticator.iwa;
 
-import javax.servlet.http.HttpSession;
-
 import org.apache.axis2.context.MessageContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,6 +34,8 @@ import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
+import javax.servlet.http.HttpSession;
+
 //TODO BE Authenticator not yet tested
 public class IWAAuthenticator extends AbstractAuthenticator {
 
@@ -45,7 +45,6 @@ public class IWAAuthenticator extends AbstractAuthenticator {
     private static final Log log = LogFactory.getLog(IWAAuthenticator.class);
 
     /**
-     * 
      * @param windowsLoggedInUser
      * @param remoteAddress
      * @return
@@ -131,7 +130,7 @@ public class IWAAuthenticator extends AbstractAuthenticator {
 
     @Override
     protected void doAuthentication(String userNameInRequest, int tenantId,
-            MessageContext msgContext) throws AuthenticationFailureException {
+                                    MessageContext msgContext) throws AuthenticationFailureException {
 
         RegistryService registryService;
         UserRealm realm;
