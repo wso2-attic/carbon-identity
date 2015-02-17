@@ -21,26 +21,22 @@ package org.wso2.carbon.identity.oauth.cache;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class SessionDataCacheEntry  extends CacheEntry {
+public class SessionDataCacheEntry extends CacheEntry {
 
     private static final long serialVersionUID = -4123547630178387354L;
-
-    private OAuth2Parameters oAuth2Parameters;
-
     String loggedInUser;
-
+    private OAuth2Parameters oAuth2Parameters;
     private ConcurrentMap<ClaimMapping, String> userAttributes;
-    
+
     private String authenticatedIdPs;
 
     private String queryString = null;
 
-    private ConcurrentMap<String,String[]> paramMap = new ConcurrentHashMap<String, String[]>();
+    private ConcurrentMap<String, String[]> paramMap = new ConcurrentHashMap<String, String[]>();
 
     public OAuth2Parameters getoAuth2Parameters() {
         return oAuth2Parameters;

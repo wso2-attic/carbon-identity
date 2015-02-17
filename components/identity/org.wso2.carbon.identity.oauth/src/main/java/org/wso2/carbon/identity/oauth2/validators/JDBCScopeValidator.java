@@ -37,7 +37,7 @@ import java.util.List;
  * The JDBC Scope Validation implementation. This validates the Resource's scope (stored in IDN_OAUTH2_RESOURCE_SCOPE)
  * against the Access Token's scopes.
  */
-public class JDBCScopeValidator extends OAuth2ScopeValidator{
+public class JDBCScopeValidator extends OAuth2ScopeValidator {
 
     @Override
     public boolean validateScope(AccessTokenDO accessTokenDO, String resource) throws IdentityOAuth2Exception {
@@ -46,7 +46,7 @@ public class JDBCScopeValidator extends OAuth2ScopeValidator{
         String[] scopes = accessTokenDO.getScope();
 
         //If no scopes are associated with the token
-        if(scopes == null || scopes.length == 0){
+        if (scopes == null || scopes.length == 0) {
             return true;
         }
 
@@ -60,17 +60,17 @@ public class JDBCScopeValidator extends OAuth2ScopeValidator{
             CacheEntry result = oauthCache.getValueFromCache(cacheKey);
 
             //Cache hit
-            if(result instanceof ResourceScopeCacheEntry){
+            if (result instanceof ResourceScopeCacheEntry) {
                 resourceScope = ((ResourceScopeCacheEntry) result).getScope();
                 cacheHit = true;
             }
         }
 
-        if(!cacheHit){
+        if (!cacheHit) {
             TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
             resourceScope = tokenMgtDAO.findScopeOfResource(resource);
 
-            if (OAuthServerConfiguration.getInstance().isCacheEnabled()){
+            if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
                 OAuthCache oauthCache = OAuthCache.getInstance();
                 CacheKey cacheKey = new OAuthCacheKey(resource);
                 ResourceScopeCacheEntry cacheEntry = new ResourceScopeCacheEntry(resourceScope);
@@ -81,7 +81,7 @@ public class JDBCScopeValidator extends OAuth2ScopeValidator{
         }
 
         //Return TRUE if - There does not exist a scope definition for the resource
-        if(resourceScope == null){
+        if (resourceScope == null) {
             return true;
         }
 

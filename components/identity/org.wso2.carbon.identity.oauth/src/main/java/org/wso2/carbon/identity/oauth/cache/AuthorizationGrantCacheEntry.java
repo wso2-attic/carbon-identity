@@ -33,16 +33,16 @@ public class AuthorizationGrantCacheEntry extends CacheEntry {
 
     private String nonceValue;
 
+    public AuthorizationGrantCacheEntry(Map<ClaimMapping, String> userAttributes) {
+        this.userAttributes = userAttributes;
+    }
+
     public String getNonceValue() {
         return nonceValue;
     }
 
     public void setNonceValue(String nonceValue) {
         this.nonceValue = nonceValue;
-    }
-
-    public AuthorizationGrantCacheEntry(Map<ClaimMapping, String> userAttributes) {
-        this.userAttributes = userAttributes;
     }
 
     public Map<ClaimMapping, String> getUserAttributes() {

@@ -26,7 +26,7 @@ public class ResourceScopeCacheEntry extends CacheEntry {
 
     private String scope;
 
-    public ResourceScopeCacheEntry(String scope){
+    public ResourceScopeCacheEntry(String scope) {
         this.scope = scope;
     }
 

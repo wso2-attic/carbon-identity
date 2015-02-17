@@ -44,7 +44,7 @@ public class DefaultClaimsRetriever implements ClaimsRetriever {
     public static final String DEFAULT_DIALECT_URI = "http://wso2.org/claims";
 
     private String dialectURI;
-    
+
     private Log log = LogFactory.getLog(DefaultClaimsRetriever.class);
 
     /**
@@ -70,7 +70,7 @@ public class DefaultClaimsRetriever implements ClaimsRetriever {
                     .getTenantUserRealm(tenantId).getUserStoreManager();
             claimValues = new TreeMap(userStoreManager.getUserClaimValues(tenantAwareUsername, requestedClaims, null));
         } catch (UserStoreException e) {
-        	log.debug("Error while reading user claims ", e);
+            log.debug("Error while reading user claims ", e);
             throw new IdentityOAuth2Exception("Error while retrieving user claim values from "
                     + "user store: " + e.getMessage());
         }
@@ -96,6 +96,7 @@ public class DefaultClaimsRetriever implements ClaimsRetriever {
                     + "user store: " + e.getMessage());
         }
     }
+
     /**
      * Helper method to convert array of <code>Claim</code> object to
      * array of <code>String</code> objects corresponding to the ClaimURI values.

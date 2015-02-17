@@ -41,7 +41,7 @@ import java.util.Properties;
  * }
  * In run-time, each and every authorization callback handler is invoked to see whether it can handle
  * the given callback. Then the callback with the highest priority will be chosen.
- *
+ * <p/>
  * After handling the callback, it can set whether the given callback is authorized or not.
  */
 public interface OAuthCallbackHandler extends CallbackHandler {
@@ -54,7 +54,15 @@ public interface OAuthCallbackHandler extends CallbackHandler {
     public int getPriority();
 
     /**
+     * Set the priority of the callback handler
+     *
+     * @param priority integer value of the callback handler
+     */
+    public void setPriority(int priority);
+
+    /**
      * Whether the given callback can be handled or not.
+     *
      * @param callbacks An array of <Code>OAuthCallback</Code>
      * @return <code>true</code> if it can handle the callback.
      * @throws IdentityOAuth2Exception Error while checking the possibility of handling the callback.
@@ -65,15 +73,10 @@ public interface OAuthCallbackHandler extends CallbackHandler {
             UnsupportedCallbackException;
 
     /**
-     * Set the priority of the callback handler
-     * @param priority integer value of the callback handler
-     */
-    public void setPriority(int priority);
-
-    /**
      * Pass the configuration parameters required by the callback handler. These properties can be
      * set through the property elements of the AuthorizationCallbackHandler configuration in
      * identity.xml
+     *
      * @param props <code>Properties</code> object populated with the property elements in
      *              the AuthorizationCallbackHandler config.
      */

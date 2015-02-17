@@ -21,7 +21,6 @@ package org.wso2.carbon.identity.oauth.cache;
 import java.io.Serializable;
 
 
-
 /**
  * Cache key class. Any value that acts as a cache key must encapsulated with a class
  * overriding from this class.

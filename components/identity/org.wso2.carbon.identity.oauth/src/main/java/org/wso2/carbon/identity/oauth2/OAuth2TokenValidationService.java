@@ -35,44 +35,42 @@ public class OAuth2TokenValidationService extends AbstractAdmin {
     private static Log log = LogFactory.getLog(OAuth2TokenValidationService.class);
 
     /**
-     * 
      * @param validationReqDTO
      * @return
      */
-	public OAuth2TokenValidationResponseDTO validate(OAuth2TokenValidationRequestDTO validationReqDTO) {
+    public OAuth2TokenValidationResponseDTO validate(OAuth2TokenValidationRequestDTO validationReqDTO) {
 
-		TokenValidationHandler validationHandler = TokenValidationHandler.getInstance();
+        TokenValidationHandler validationHandler = TokenValidationHandler.getInstance();
 
-		try {
-			return validationHandler.validate(validationReqDTO);
-		} catch (IdentityOAuth2Exception e) {
-			log.error("Error occurred while validating the OAuth2 access token", e);
-			OAuth2TokenValidationResponseDTO errRespDTO = new OAuth2TokenValidationResponseDTO();
-			errRespDTO.setValid(false);
-			errRespDTO.setErrorMsg("Server error occurred while validating the OAuth2 access token");
-			return errRespDTO;
-		}
-	}
-	
-	/**
-	 * 
-	 * @param validationReqDTO
-	 * @return
-	 */
-	public OAuth2ClientApplicationDTO findOAuthConsumerIfTokenIsValid(OAuth2TokenValidationRequestDTO validationReqDTO) {
+        try {
+            return validationHandler.validate(validationReqDTO);
+        } catch (IdentityOAuth2Exception e) {
+            log.error("Error occurred while validating the OAuth2 access token", e);
+            OAuth2TokenValidationResponseDTO errRespDTO = new OAuth2TokenValidationResponseDTO();
+            errRespDTO.setValid(false);
+            errRespDTO.setErrorMsg("Server error occurred while validating the OAuth2 access token");
+            return errRespDTO;
+        }
+    }
 
-		TokenValidationHandler validationHandler = TokenValidationHandler.getInstance();
+    /**
+     * @param validationReqDTO
+     * @return
+     */
+    public OAuth2ClientApplicationDTO findOAuthConsumerIfTokenIsValid(OAuth2TokenValidationRequestDTO validationReqDTO) {
 
-		try {
-			return validationHandler.findOAuthConsumerIfTokenIsValid(validationReqDTO);
-		} catch (IdentityOAuth2Exception e) {
-			log.error("Error occurred while validating the OAuth2 access token", e);
-			OAuth2ClientApplicationDTO appDTO = new OAuth2ClientApplicationDTO();
-			OAuth2TokenValidationResponseDTO errRespDTO = new OAuth2TokenValidationResponseDTO();
-			errRespDTO.setValid(false);
-			errRespDTO.setErrorMsg("Server error occurred while validating the OAuth2 access token");
-			appDTO.setAccessTokenValidationResponse(errRespDTO);
-			return appDTO;
-		}
-	}
+        TokenValidationHandler validationHandler = TokenValidationHandler.getInstance();
+
+        try {
+            return validationHandler.findOAuthConsumerIfTokenIsValid(validationReqDTO);
+        } catch (IdentityOAuth2Exception e) {
+            log.error("Error occurred while validating the OAuth2 access token", e);
+            OAuth2ClientApplicationDTO appDTO = new OAuth2ClientApplicationDTO();
+            OAuth2TokenValidationResponseDTO errRespDTO = new OAuth2TokenValidationResponseDTO();
+            errRespDTO.setValid(false);
+            errRespDTO.setErrorMsg("Server error occurred while validating the OAuth2 access token");
+            appDTO.setAccessTokenValidationResponse(errRespDTO);
+            return appDTO;
+        }
+    }
 }

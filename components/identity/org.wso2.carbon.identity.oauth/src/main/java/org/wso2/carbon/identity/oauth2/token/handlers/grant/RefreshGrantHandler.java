@@ -46,8 +46,8 @@ import java.util.UUID;
  */
 public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
 
-    private static Log log = LogFactory.getLog(RefreshGrantHandler.class);
     private static final String PREV_ACCESS_TOKEN = "previousAccessToken";
+    private static Log log = LogFactory.getLog(RefreshGrantHandler.class);
 
     @Override
     public boolean validateGrant(OAuthTokenReqMessageContext tokReqMsgCtx)
@@ -69,7 +69,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
         }
 
         if (validationDataDO.getRefreshTokenState() != null
-                && (!validationDataDO.getRefreshTokenState().equals( "ACTIVE") &&
+                && (!validationDataDO.getRefreshTokenState().equals("ACTIVE") &&
                 !validationDataDO.getRefreshTokenState().equals("EXPIRED"))) {
             log.debug("Refresh Token is not in 'ACTIVE' or 'EXPIRED' state for Client with " +
                     "Client Id : " + tokenReqDTO.getClientId() + " " +
@@ -107,17 +107,17 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
             accessToken = oauthIssuerImpl.accessToken();
             refreshToken = oauthIssuerImpl.refreshToken();
             boolean renew = OAuthServerConfiguration.getInstance().isRefreshTokenRenewalEnabled();
-            if(!renew){
+            if (!renew) {
                 RefreshTokenValidationDataDO refreshTokenValidationDataDO =
                         tokenMgtDAO.validateRefreshToken(oauth2AccessTokenReqDTO.getClientId(),
                                 oauth2AccessTokenReqDTO.getRefreshToken());
-                if(OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE.equals(
-                        refreshTokenValidationDataDO.getRefreshTokenState())){
+                if (OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE.equals(
+                        refreshTokenValidationDataDO.getRefreshTokenState())) {
                     long issuedAt = refreshTokenValidationDataDO.getIssuedAt();
                     long refreshValidity =
                             OAuthServerConfiguration.getInstance().getRefreshTokenValidityPeriodInSeconds() * 1000;
                     long skew = OAuthServerConfiguration.getInstance().getTimeStampSkewInSeconds() * 1000;
-                    if(issuedAt + refreshValidity - (System.currentTimeMillis() + skew) > 1000){
+                    if (issuedAt + refreshValidity - (System.currentTimeMillis() + skew) > 1000) {
                         refreshToken = oauth2AccessTokenReqDTO.getRefreshToken();
                     }
                 }
@@ -126,7 +126,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
             throw new IdentityOAuth2Exception("Error when generating the tokens.", e);
         }
 
-        if(OAuth2Util.checkUserNameAssertionEnabled()) {
+        if (OAuth2Util.checkUserNameAssertionEnabled()) {
             String userName = tokReqMsgCtx.getAuthorizedUser();
             //use ':' for token & userStoreDomain separation
             String accessTokenStrToEncode = accessToken + ":" + userName;
@@ -155,20 +155,20 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
         }
 
         String tokenType;
-        if(GrantType.CLIENT_CREDENTIALS.toString().equals(oauth2AccessTokenReqDTO.getGrantType())) {
+        if (GrantType.CLIENT_CREDENTIALS.toString().equals(oauth2AccessTokenReqDTO.getGrantType())) {
             tokenType = OAuthConstants.USER_TYPE_FOR_APPLICATION_TOKEN;
         } else {
             tokenType = OAuthConstants.USER_TYPE_FOR_USER_TOKEN;
         }
 
         String clientId = oauth2AccessTokenReqDTO.getClientId();
-        AccessTokenDO accessTokenDO = new AccessTokenDO(clientId,tokReqMsgCtx.getAuthorizedUser(),
+        AccessTokenDO accessTokenDO = new AccessTokenDO(clientId, tokReqMsgCtx.getAuthorizedUser(),
                 tokReqMsgCtx.getScope(), timestamp, validityPeriod, tokenType);
         accessTokenDO.setTokenState(OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE);
         accessTokenDO.setRefreshToken(refreshToken);
         accessTokenDO.setAccessToken(accessToken);
 
-        String oldAccessToken = (String)tokReqMsgCtx.getProperty(PREV_ACCESS_TOKEN);
+        String oldAccessToken = (String) tokReqMsgCtx.getProperty(PREV_ACCESS_TOKEN);
 
         String authorizedUser = tokReqMsgCtx.getAuthorizedUser();
         // set the previous access token state to "INACTIVE"
@@ -180,7 +180,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
 
         //remove the previous access token from cache and add the new access token info to the cache,
         // if it's enabled.
-        if(cacheEnabled){
+        if (cacheEnabled) {
             // Remove the old access token from the OAuthCache
             CacheKey oauthCacheKey = new OAuthCacheKey(clientId + ":" + authorizedUser + ":" + scope);
             oauthCache.clearCacheEntry(oauthCacheKey);
@@ -196,7 +196,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
             accessTokenCacheKey = new OAuthCacheKey(accessToken);
             oauthCache.addToCache(accessTokenCacheKey, accessTokenDO);
 
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 log.debug("Access Token info for the refresh token was added to the cache for " +
                         "the client id : " + clientId + ". Old access token entry was " +
                         "also removed from the cache.");

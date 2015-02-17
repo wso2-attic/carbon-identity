@@ -20,38 +20,38 @@ package org.wso2.carbon.identity.oauth2.dto;
 
 public class OAuth2TokenValidationRequestDTO {
 
-	private OAuth2AccessToken accessToken;
+    private OAuth2AccessToken accessToken;
 
-	private TokenValidationContextParam[] context;
+    private TokenValidationContextParam[] context;
 
     /**
      * User's claims to be encoded in the AuthorizationContextToken returned in the OAuth2TokenValidationResponse
      */
-	private String[] requiredClaimURIs;
+    private String[] requiredClaimURIs;
 
-	public TokenValidationContextParam[] getContext() {
-		return context;
-	}
+    public TokenValidationContextParam[] getContext() {
+        return context;
+    }
 
-	public void setContext(TokenValidationContextParam[] context) {
-		this.context = context;
-	}
+    public void setContext(TokenValidationContextParam[] context) {
+        this.context = context;
+    }
 
-	public OAuth2AccessToken getAccessToken() {
-		return accessToken;
-	}
+    public OAuth2AccessToken getAccessToken() {
+        return accessToken;
+    }
 
-	public void setAccessToken(OAuth2AccessToken accessToken) {
-		this.accessToken = accessToken;
-	}
+    public void setAccessToken(OAuth2AccessToken accessToken) {
+        this.accessToken = accessToken;
+    }
 
-	public String[] getRequiredClaimURIs() {
-		return requiredClaimURIs;
-	}
+    public String[] getRequiredClaimURIs() {
+        return requiredClaimURIs;
+    }
 
-	public void setRequiredClaimURIs(String[] requiredClaimURIs) {
-		this.requiredClaimURIs = requiredClaimURIs;
-	}
+    public void setRequiredClaimURIs(String[] requiredClaimURIs) {
+        this.requiredClaimURIs = requiredClaimURIs;
+    }
 
     public class TokenValidationContextParam {
 

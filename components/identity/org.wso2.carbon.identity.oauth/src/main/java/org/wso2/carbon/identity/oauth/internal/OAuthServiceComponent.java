@@ -22,9 +22,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.identity.oauth.listener.IdentityOathEventListener;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
+import org.wso2.carbon.identity.oauth.listener.IdentityOathEventListener;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -41,9 +41,8 @@ import org.wso2.carbon.user.core.service.RealmService;
  */
 public class OAuthServiceComponent {
     private static Log log = LogFactory.getLog(OAuthServiceComponent.class);
-
-    private ServiceRegistration serviceRegistration = null;
     private static IdentityOathEventListener listener = null;
+    private ServiceRegistration serviceRegistration = null;
 
     protected void activate(ComponentContext context) {
         // initialize the OAuth Server configuration

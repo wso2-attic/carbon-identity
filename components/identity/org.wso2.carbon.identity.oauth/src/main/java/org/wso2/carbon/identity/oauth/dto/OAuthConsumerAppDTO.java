@@ -31,12 +31,15 @@ public class OAuthConsumerAppDTO {
     public String getApplicationName() {
         return applicationName;
     }
+
     public void setApplicationName(String applicationName) {
         this.applicationName = applicationName;
     }
+
     public String getCallbackUrl() {
         return callbackUrl;
     }
+
     public void setCallbackUrl(String callbackUrl) {
         this.callbackUrl = callbackUrl;
     }
@@ -44,12 +47,15 @@ public class OAuthConsumerAppDTO {
     public String getOauthConsumerKey() {
         return oauthConsumerKey;
     }
+
     public void setOauthConsumerKey(String oauthConsumerKey) {
         this.oauthConsumerKey = oauthConsumerKey;
     }
+
     public String getOauthConsumerSecret() {
         return oauthConsumerSecret;
     }
+
     public void setOauthConsumerSecret(String oauthConsumerSecret) {
         this.oauthConsumerSecret = oauthConsumerSecret;
     }
@@ -69,11 +75,13 @@ public class OAuthConsumerAppDTO {
     public void setUsername(String username) {
         this.username = username;
     }
-	public String getGrantTypes() {
-	    return grantTypes;
+
+    public String getGrantTypes() {
+        return grantTypes;
     }
-	public void setGrantTypes(String grantTypes) {
-	    this.grantTypes = grantTypes;
+
+    public void setGrantTypes(String grantTypes) {
+        this.grantTypes = grantTypes;
     }
 
 }

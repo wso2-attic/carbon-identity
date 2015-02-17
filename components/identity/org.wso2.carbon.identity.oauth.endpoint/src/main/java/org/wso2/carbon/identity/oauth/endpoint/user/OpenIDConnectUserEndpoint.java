@@ -40,66 +40,66 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 @Path("/userinfo")
 public class OpenIDConnectUserEndpoint {
 
-	private static Log log = LogFactory.getLog(OpenIDConnectUserEndpoint.class);
+    private static Log log = LogFactory.getLog(OpenIDConnectUserEndpoint.class);
 
-	@GET
-	@Path("/")
-	@Produces("application/json")
-	public Response getUserClaims(@Context HttpServletRequest request) throws OAuthSystemException {
+    @GET
+    @Path("/")
+    @Produces("application/json")
+    public Response getUserClaims(@Context HttpServletRequest request) throws OAuthSystemException {
 
-		String response = null;
-		try {
-			// validate the request 
-			UserInfoRequestValidator requestValidator = UserInfoEndpointConfig.getInstance().getUserInfoRequestValidator();
-			String accessToken = requestValidator.validateRequest(request);
-			// validate the access token 
-			UserInfoAccessTokenValidator tokenValidator = UserInfoEndpointConfig.getInstance().getUserInfoAccessTokenValidator();
-			OAuth2TokenValidationResponseDTO tokenResponse = tokenValidator.validateToken(accessToken);
-			// build the claims
+        String response = null;
+        try {
+            // validate the request
+            UserInfoRequestValidator requestValidator = UserInfoEndpointConfig.getInstance().getUserInfoRequestValidator();
+            String accessToken = requestValidator.validateRequest(request);
+            // validate the access token
+            UserInfoAccessTokenValidator tokenValidator = UserInfoEndpointConfig.getInstance().getUserInfoAccessTokenValidator();
+            OAuth2TokenValidationResponseDTO tokenResponse = tokenValidator.validateToken(accessToken);
+            // build the claims
             //ToDO - Validate the grant type to be implicit or authorization_code before retrieving claims
-			UserInfoResponseBuilder userInfoResponseBuilder = UserInfoEndpointConfig.getInstance().getUserInfoResponseBuilder();
-			response = userInfoResponseBuilder.getResponseString(tokenResponse);
-			
-		} catch (UserInfoEndpointException e) {
-			return handleError(e);
-		} catch (OAuthSystemException e) {
-			log.error("UserInfoEndpoint Failed", e);
-			throw new OAuthSystemException("UserInfoEndpoint Failed");
-		}
-		
-		ResponseBuilder respBuilder =
-		                              Response.status(HttpServletResponse.SC_OK)
-		                                      .header(OAuthConstants.HTTP_RESP_HEADER_CACHE_CONTROL,
-		                                              OAuthConstants.HTTP_RESP_HEADER_VAL_CACHE_CONTROL_NO_STORE)
-		                                      .header(OAuthConstants.HTTP_RESP_HEADER_PRAGMA,
-		                                              OAuthConstants.HTTP_RESP_HEADER_VAL_PRAGMA_NO_CACHE);
+            UserInfoResponseBuilder userInfoResponseBuilder = UserInfoEndpointConfig.getInstance().getUserInfoResponseBuilder();
+            response = userInfoResponseBuilder.getResponseString(tokenResponse);
 
-		return respBuilder.entity(response).build();
-	}
+        } catch (UserInfoEndpointException e) {
+            return handleError(e);
+        } catch (OAuthSystemException e) {
+            log.error("UserInfoEndpoint Failed", e);
+            throw new OAuthSystemException("UserInfoEndpoint Failed");
+        }
 
-	/**
-	 * Build the error message response properly
-	 * 
-	 * @param e
-	 * @return
-	 * @throws OAuthSystemException
-	 */
-	private Response handleError(UserInfoEndpointException e) throws OAuthSystemException {
-		log.debug(e);
-		OAuthResponse res = null;
-		try {
-			res =
-			      OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-			                     .setError(e.getErrorCode()).setErrorDescription(e.getErrorMessage())
-			                     .buildJSONMessage();
-		} catch (OAuthSystemException e1) {
-			OAuthResponse response =
-			                         OAuthASResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
-			                                        .setError(OAuth2ErrorCodes.SERVER_ERROR)
-			                                        .setErrorDescription(e1.getMessage()).buildJSONMessage();
-			return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
-		}
-		return Response.status(res.getResponseStatus()).entity(res.getBody()).build();
-	}
+        ResponseBuilder respBuilder =
+                Response.status(HttpServletResponse.SC_OK)
+                        .header(OAuthConstants.HTTP_RESP_HEADER_CACHE_CONTROL,
+                                OAuthConstants.HTTP_RESP_HEADER_VAL_CACHE_CONTROL_NO_STORE)
+                        .header(OAuthConstants.HTTP_RESP_HEADER_PRAGMA,
+                                OAuthConstants.HTTP_RESP_HEADER_VAL_PRAGMA_NO_CACHE);
+
+        return respBuilder.entity(response).build();
+    }
+
+    /**
+     * Build the error message response properly
+     *
+     * @param e
+     * @return
+     * @throws OAuthSystemException
+     */
+    private Response handleError(UserInfoEndpointException e) throws OAuthSystemException {
+        log.debug(e);
+        OAuthResponse res = null;
+        try {
+            res =
+                    OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
+                            .setError(e.getErrorCode()).setErrorDescription(e.getErrorMessage())
+                            .buildJSONMessage();
+        } catch (OAuthSystemException e1) {
+            OAuthResponse response =
+                    OAuthASResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+                            .setError(OAuth2ErrorCodes.SERVER_ERROR)
+                            .setErrorDescription(e1.getMessage()).buildJSONMessage();
+            return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
+        }
+        return Response.status(res.getResponseStatus()).entity(res.getBody()).build();
+    }
 
 }

@@ -28,7 +28,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.oauth.cache.AppInfoCache;
-import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.callback.OAuthCallback;
@@ -53,9 +52,8 @@ import java.util.UUID;
 public abstract class AbstractAuthorizationGrantHandler implements AuthorizationGrantHandler {
 
     private static Log log = LogFactory.getLog(AbstractAuthorizationGrantHandler.class);
-
-    protected TokenMgtDAO tokenMgtDAO;
     protected final OAuthIssuer oauthIssuerImpl = new OAuthIssuerImpl(new MD5Generator());
+    protected TokenMgtDAO tokenMgtDAO;
     protected OAuthCallbackManager callbackManager;
     protected boolean cacheEnabled;
     protected OAuthCache oauthCache;
@@ -101,7 +99,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
         }
 
         String tokenType;
-        if(isOfTypeApplicationUser()){
+        if (isOfTypeApplicationUser()) {
             tokenType = OAuthConstants.USER_TYPE_FOR_USER_TOKEN;
         } else {
             tokenType = OAuthConstants.USER_TYPE_FOR_APPLICATION_TOKEN;
@@ -110,7 +108,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
         synchronized ((consumerKey + ":" + authorizedUser + ":" + scope).intern()) {
             // check if valid access token exists in cache
             if (cacheEnabled) {
-            AccessTokenDO accessTokenDO = (AccessTokenDO) oauthCache.getValueFromCache(cacheKey);
+                AccessTokenDO accessTokenDO = (AccessTokenDO) oauthCache.getValueFromCache(cacheKey);
                 if (accessTokenDO != null) {
                     if (log.isDebugEnabled()) {
                         log.debug("Retrieved active access token : " + accessTokenDO.getAccessToken() +
@@ -131,7 +129,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                         }
                         tokenRespDTO.setExpiresIn(expireTime / 1000);
                         tokenRespDTO.setExpiresInMillis(expireTime);
-                         return tokenRespDTO;
+                        return tokenRespDTO;
                     } else {
                         //Token is expired. Clear it from cache and mark it as expired on database
                         oauthCache.clearCacheEntry(cacheKey);
@@ -152,22 +150,22 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                     oAuth2AccessTokenReqDTO.getClientId(), tokReqMsgCtx.getAuthorizedUser(),
                     userStoreDomain, scope, false);
             if (accessTokenDO != null) {
-                if(log.isDebugEnabled()) {
+                if (log.isDebugEnabled()) {
                     log.debug("Retrieved latest access token : " + accessTokenDO.getAccessToken() +
                             " for client Id " + consumerKey + ", user " + authorizedUser +
                             " and scope " + scope + " from database");
                 }
-                if(OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE.equals(accessTokenDO.getTokenState()) &&
-                        OAuth2Util.getTokenExpireTimeMillis(accessTokenDO) > 0){
+                if (OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE.equals(accessTokenDO.getTokenState()) &&
+                        OAuth2Util.getTokenExpireTimeMillis(accessTokenDO) > 0) {
                     // token is active and valid
                     if (log.isDebugEnabled()) {
                         log.debug("Access token " + accessTokenDO.getAccessToken() + " is still valid");
                     }
                     tokenRespDTO = new OAuth2AccessTokenRespDTO();
                     tokenRespDTO.setAccessToken(accessTokenDO.getAccessToken());
-                    if(issueRefreshToken() &&
+                    if (issueRefreshToken() &&
                             OAuthServerConfiguration.getInstance().getSupportedGrantTypes().containsKey(
-                                    GrantType.REFRESH_TOKEN.toString())){
+                                    GrantType.REFRESH_TOKEN.toString())) {
                         tokenRespDTO.setRefreshToken(accessTokenDO.getRefreshToken());
                     }
                     long expireTime = OAuth2Util.getTokenExpireTimeMillis(accessTokenDO);
@@ -183,11 +181,11 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
 
                     return tokenRespDTO;
                 } else {
-                    if(log.isDebugEnabled()) {
+                    if (log.isDebugEnabled()) {
                         log.debug("Access token + " + accessTokenDO.getAccessToken() + " is not valid anymore");
                     }
                     String tokenState = accessTokenDO.getTokenState();
-                    if(OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE.equals(tokenState)){
+                    if (OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE.equals(tokenState)) {
                         // Token is expired. Mark it as expired on database
                         tokenMgtDAO.setAccessTokenState(accessTokenDO.getAccessToken(),
                                 OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED,
@@ -203,7 +201,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                     }
                 }
             } else {
-                if(log.isDebugEnabled()) {
+                if (log.isDebugEnabled()) {
                     log.debug("No access token found in database for client Id " + consumerKey +
                             ", user " + authorizedUser + " and scope " + scope +
                             ". Therefore issuing new token");
@@ -224,10 +222,10 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                 throw new IdentityOAuth2Exception(
                         "Error occurred while generating access token and refresh token", e);
             }
-            
+
             accessTokenDO = tokenMgtDAO.retrieveLatestAccessToken(
                     consumerKey, authorizedUser, userStoreDomain, scope, true);
-            if(accessTokenDO != null){
+            if (accessTokenDO != null) {
                 RefreshTokenValidationDataDO refreshTokenValidationDataDO =
                         tokenMgtDAO.validateRefreshToken(consumerKey, accessTokenDO.getRefreshToken());
                 String state = refreshTokenValidationDataDO.getRefreshTokenState();
@@ -236,8 +234,8 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                         getRefreshTokenValidityPeriodInSeconds() * 1000;
                 long currentTime = System.currentTimeMillis();
                 long skew = OAuthServerConfiguration.getInstance().getTimeStampSkewInSeconds() * 1000;
-                if(OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED.equals(state) &&
-                        createdTime + refreshValidity - (currentTime + skew) > 1000){
+                if (OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED.equals(state) &&
+                        createdTime + refreshValidity - (currentTime + skew) > 1000) {
                     refreshToken = accessTokenDO.getRefreshToken();
                 }
             }
@@ -287,7 +285,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
             //update cache with newly added token
             if (cacheEnabled) {
                 oauthCache.addToCache(cacheKey, accessTokenDO);
-                if(log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     log.debug("Access token was added to OAuthCache for cache key : " +
                             cacheKey.getCacheKeyString());
                 }
@@ -295,14 +293,14 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
 
             tokenRespDTO = new OAuth2AccessTokenRespDTO();
             tokenRespDTO.setAccessToken(accessToken);
-            if(issueRefreshToken() &&
+            if (issueRefreshToken() &&
                     OAuthServerConfiguration.getInstance().getSupportedGrantTypes().containsKey(
-                            GrantType.REFRESH_TOKEN.toString())){
+                            GrantType.REFRESH_TOKEN.toString())) {
                 tokenRespDTO.setRefreshToken(refreshToken);
             }
             long expiryTime = OAuth2Util.getTokenExpireTimeMillis(accessTokenDO);
             tokenRespDTO.setExpiresInMillis(expiryTime);
-            tokenRespDTO.setExpiresIn(expiryTime/1000);
+            tokenRespDTO.setExpiresIn(expiryTime / 1000);
             tokenRespDTO.setAuthorizedScopes(scope);
             return tokenRespDTO;
         }
@@ -315,15 +313,15 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                 tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientId(),
                 OAuthCallback.OAuthCallbackType.ACCESS_DELEGATION_TOKEN);
         authzCallback.setRequestedScope(tokReqMsgCtx.getScope());
-        if(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType().equals(
-                org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString())){
+        if (tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType().equals(
+                org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString())) {
             authzCallback.setCarbonGrantType(org.wso2.carbon.identity.oauth.common.GrantType.valueOf(
                     OAuthConstants.OAUTH_SAML2_BEARER_GRANT_ENUM.toString()));
-        }else if(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType().equals(
-                org.wso2.carbon.identity.oauth.common.GrantType.IWA_NTLM.toString())){
+        } else if (tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType().equals(
+                org.wso2.carbon.identity.oauth.common.GrantType.IWA_NTLM.toString())) {
             authzCallback.setCarbonGrantType(org.wso2.carbon.identity.oauth.common.GrantType.valueOf(
                     OAuthConstants.OAUTH_IWA_NTLM_GRANT_ENUM.toString()));
-        }else{
+        } else {
             authzCallback.setGrantType(GrantType.valueOf(
                     tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType().toUpperCase()));
         }
@@ -339,15 +337,15 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                 tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientId(),
                 OAuthCallback.OAuthCallbackType.SCOPE_VALIDATION_TOKEN);
         scopeValidationCallback.setRequestedScope(tokReqMsgCtx.getScope());
-        if(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType().equals(
-                org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString())){
+        if (tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType().equals(
+                org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString())) {
             scopeValidationCallback.setCarbonGrantType(org.wso2.carbon.identity.oauth.common.GrantType.valueOf(
                     OAuthConstants.OAUTH_SAML2_BEARER_GRANT_ENUM.toString()));
-        } else if(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType().equals(
-                org.wso2.carbon.identity.oauth.common.GrantType.IWA_NTLM.toString())){
+        } else if (tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType().equals(
+                org.wso2.carbon.identity.oauth.common.GrantType.IWA_NTLM.toString())) {
             scopeValidationCallback.setCarbonGrantType(org.wso2.carbon.identity.oauth.common.GrantType.valueOf(
                     OAuthConstants.OAUTH_IWA_NTLM_GRANT_ENUM.toString()));
-        }else{
+        } else {
             scopeValidationCallback.setGrantType(GrantType.valueOf(
                     tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType().toUpperCase()));
         }

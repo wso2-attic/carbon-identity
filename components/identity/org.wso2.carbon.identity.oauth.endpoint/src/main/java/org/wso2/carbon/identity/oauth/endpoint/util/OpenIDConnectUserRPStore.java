@@ -24,59 +24,56 @@ import org.wso2.carbon.identity.provider.openid.dao.OpenIDUserRPDAO;
 
 /**
  * Stores user consent on applications
- * 
  */
 public class OpenIDConnectUserRPStore {
 
-	private static OpenIDConnectUserRPStore store = new OpenIDConnectUserRPStore();
-	
-	private static final String DEFAULT_PROFILE_NAME = "default";
-	
-	public static OpenIDConnectUserRPStore getInstance() {
-		return store;
-	}
+    private static final String DEFAULT_PROFILE_NAME = "default";
+    private static OpenIDConnectUserRPStore store = new OpenIDConnectUserRPStore();
 
-	private OpenIDConnectUserRPStore() {
+    private OpenIDConnectUserRPStore() {
 
-	}
+    }
 
-	/**
-	 * @param username
-	 * @param appName
-	 * @throws OAuthSystemException 
-	 */
-	public void putUserRPToStore(String username, String appName, boolean trustedAlways) throws OAuthSystemException {
-		OpenIDUserRPDO repDO = new OpenIDUserRPDO();
-		repDO.setDefaultProfileName(DEFAULT_PROFILE_NAME);
-		repDO.setRpUrl(appName);
-		repDO.setUserName(username);
-		repDO.setTrustedAlways(trustedAlways);
+    public static OpenIDConnectUserRPStore getInstance() {
+        return store;
+    }
 
-		OpenIDUserRPDAO dao = new OpenIDUserRPDAO();
-		try {
-			dao.createOrUpdate(repDO);
-		} catch (IdentityException e) {
-			throw new OAuthSystemException("Error while storing user consent", e);
-		}
-	}
+    /**
+     * @param username
+     * @param appName
+     * @throws OAuthSystemException
+     */
+    public void putUserRPToStore(String username, String appName, boolean trustedAlways) throws OAuthSystemException {
+        OpenIDUserRPDO repDO = new OpenIDUserRPDO();
+        repDO.setDefaultProfileName(DEFAULT_PROFILE_NAME);
+        repDO.setRpUrl(appName);
+        repDO.setUserName(username);
+        repDO.setTrustedAlways(trustedAlways);
 
-	/**
-	 * 
-	 * @param username
-	 * @param appName
-	 * @return
-	 * @throws OAuthSystemException 
-	 */
-	public synchronized boolean hasUserApproved(String username, String appName) throws OAuthSystemException {
-		OpenIDUserRPDAO dao = new OpenIDUserRPDAO();
-		try {
-	        OpenIDUserRPDO rpDO = dao.getOpenIDUserRP(username, appName);
-	        if(rpDO != null && rpDO.isTrustedAlways()) {
-	        	return true;
-	        }
+        OpenIDUserRPDAO dao = new OpenIDUserRPDAO();
+        try {
+            dao.createOrUpdate(repDO);
         } catch (IdentityException e) {
-        	throw new OAuthSystemException("Error while loading user consent", e);
+            throw new OAuthSystemException("Error while storing user consent", e);
         }
-		return false;
-	}
+    }
+
+    /**
+     * @param username
+     * @param appName
+     * @return
+     * @throws OAuthSystemException
+     */
+    public synchronized boolean hasUserApproved(String username, String appName) throws OAuthSystemException {
+        OpenIDUserRPDAO dao = new OpenIDUserRPDAO();
+        try {
+            OpenIDUserRPDO rpDO = dao.getOpenIDUserRP(username, appName);
+            if (rpDO != null && rpDO.isTrustedAlways()) {
+                return true;
+            }
+        } catch (IdentityException e) {
+            throw new OAuthSystemException("Error while loading user consent", e);
+        }
+        return false;
+    }
 }

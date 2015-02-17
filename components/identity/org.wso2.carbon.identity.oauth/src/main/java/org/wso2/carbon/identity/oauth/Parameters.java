@@ -22,184 +22,184 @@ import java.net.URLDecoder;
 
 public class Parameters {
 
-	// oauth_signature
-	private String oauthSignature = null;
-	// oauth_nonce
-	private String oauthNonce = null;
-	// oauth_signature_method = HMAC-SHA1
-	private String oauthSignatureMethod = null;
-	// oauth_consumer_key
-	private String oauthConsumerKey = null;
-	// oauth_timestamp
-	private String oauthTimeStamp = null;
-	private String baseString = null;
-	private String httpMethod = null;
-	private String oauthCallback = null;
-	private String scope = null;
-	private String displayName = null;
-	private String oauthToken = null;
-	private String oauthTokenSecret = null;
-	private String callbackConfirmed = null;
-	private String authorizedbyUserName = null;
-	private String authorizedbyUserPassword = null;
-	private String oauthTokenVerifier = null;
-	private String appName = null;
-	private String version = null;
-	private boolean accessTokenIssued;
-	
-	public boolean isAccessTokenIssued() {
-		return accessTokenIssued;
-	}
+    // oauth_signature
+    private String oauthSignature = null;
+    // oauth_nonce
+    private String oauthNonce = null;
+    // oauth_signature_method = HMAC-SHA1
+    private String oauthSignatureMethod = null;
+    // oauth_consumer_key
+    private String oauthConsumerKey = null;
+    // oauth_timestamp
+    private String oauthTimeStamp = null;
+    private String baseString = null;
+    private String httpMethod = null;
+    private String oauthCallback = null;
+    private String scope = null;
+    private String displayName = null;
+    private String oauthToken = null;
+    private String oauthTokenSecret = null;
+    private String callbackConfirmed = null;
+    private String authorizedbyUserName = null;
+    private String authorizedbyUserPassword = null;
+    private String oauthTokenVerifier = null;
+    private String appName = null;
+    private String version = null;
+    private boolean accessTokenIssued;
 
-	public void setAccessTokenIssued(boolean accessTokenIssued) {
-		this.accessTokenIssued = accessTokenIssued;
-	}
+    public boolean isAccessTokenIssued() {
+        return accessTokenIssued;
+    }
 
-	public String getVersion() {
-		return version;
-	}
+    public void setAccessTokenIssued(boolean accessTokenIssued) {
+        this.accessTokenIssued = accessTokenIssued;
+    }
 
-	public void setVersion(String version) {
-		this.version = version;
-	}
+    public String getVersion() {
+        return version;
+    }
 
-	public String getAppName() {
-		return appName;
-	}
+    public void setVersion(String version) {
+        this.version = version;
+    }
 
-	public void setAppName(String appName) {
-		this.appName = appName;
-	}
+    public String getAppName() {
+        return appName;
+    }
 
-	public String getOauthTokenVerifier() {
-		return oauthTokenVerifier;
-	}
+    public void setAppName(String appName) {
+        this.appName = appName;
+    }
 
-	public void setOauthTokenVerifier(String oauthTokenVerifier) {
-		this.oauthTokenVerifier = oauthTokenVerifier;
-	}
+    public String getOauthTokenVerifier() {
+        return oauthTokenVerifier;
+    }
 
-	public String getAuthorizedbyUserPassword() {
-		return authorizedbyUserPassword;
-	}
+    public void setOauthTokenVerifier(String oauthTokenVerifier) {
+        this.oauthTokenVerifier = oauthTokenVerifier;
+    }
 
-	public void setAuthorizedbyUserPassword(String authorizedbyUserPassword) {
-		this.authorizedbyUserPassword = authorizedbyUserPassword;
-	}
+    public String getAuthorizedbyUserPassword() {
+        return authorizedbyUserPassword;
+    }
 
-	public String getAuthorizedbyUserName() {
-		return authorizedbyUserName;
-	}
+    public void setAuthorizedbyUserPassword(String authorizedbyUserPassword) {
+        this.authorizedbyUserPassword = authorizedbyUserPassword;
+    }
 
-	public void setAuthorizedbyUserName(String authorizedbyUserName) {
-		this.authorizedbyUserName = authorizedbyUserName;
-	}
+    public String getAuthorizedbyUserName() {
+        return authorizedbyUserName;
+    }
 
-	public String getOauthTokenSecret() {
-		return oauthTokenSecret;
-	}
+    public void setAuthorizedbyUserName(String authorizedbyUserName) {
+        this.authorizedbyUserName = authorizedbyUserName;
+    }
 
-	public void setOauthTokenSecret(String oauthTokenSecret) {
-		this.oauthTokenSecret = oauthTokenSecret;
-	}
+    public String getOauthTokenSecret() {
+        return oauthTokenSecret;
+    }
 
-	public String getCallbackConfirmed() {
-		return callbackConfirmed;
-	}
+    public void setOauthTokenSecret(String oauthTokenSecret) {
+        this.oauthTokenSecret = oauthTokenSecret;
+    }
 
-	public void setCallbackConfirmed(String callbackConfirmed) {
-		this.callbackConfirmed = callbackConfirmed;
-	}
+    public String getCallbackConfirmed() {
+        return callbackConfirmed;
+    }
 
-	public String getOauthToken() {
-		return oauthToken;
-	}
+    public void setCallbackConfirmed(String callbackConfirmed) {
+        this.callbackConfirmed = callbackConfirmed;
+    }
 
-	public void setOauthToken(String oauthToken) {
-		this.oauthToken = oauthToken;
-	}
+    public String getOauthToken() {
+        return oauthToken;
+    }
 
-	public String getDisplayName() {
-		return displayName;
-	}
+    public void setOauthToken(String oauthToken) {
+        this.oauthToken = oauthToken;
+    }
 
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
-	}
+    public String getDisplayName() {
+        return displayName;
+    }
 
-	public String getScope() {
-		return scope;
-	}
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
 
-	public void setScope(String scope) {
-		this.scope = scope;
-	}
+    public String getScope() {
+        return scope;
+    }
 
-	public String getOauthCallback() {
-		return oauthCallback;
-	}
+    public void setScope(String scope) {
+        this.scope = scope;
+    }
 
-	public void setOauthCallback(String oauthCallback) {
-		this.oauthCallback = oauthCallback;
-	}
+    public String getOauthCallback() {
+        return oauthCallback;
+    }
 
-	public String getBaseString() {
-		return baseString;
-	}
+    public void setOauthCallback(String oauthCallback) {
+        this.oauthCallback = oauthCallback;
+    }
 
-	public void setBaseString(String baseString) {
-		this.baseString = baseString;
-	}
+    public String getBaseString() {
+        return baseString;
+    }
 
-	public String getHttpMethod() {
-		return httpMethod;
-	}
+    public void setBaseString(String baseString) {
+        this.baseString = baseString;
+    }
 
-	public void setHttpMethod(String httpMethod) {
-		this.httpMethod = httpMethod;
-	}
+    public String getHttpMethod() {
+        return httpMethod;
+    }
 
-	public String getOauthSignature() {
-		return oauthSignature;
-	}
+    public void setHttpMethod(String httpMethod) {
+        this.httpMethod = httpMethod;
+    }
 
-	public void setOauthSignature(String oauthSignature) {
-		this.oauthSignature = oauthSignature;
-	}
+    public String getOauthSignature() {
+        return oauthSignature;
+    }
 
-	public String getOauthNonce() {
-		return oauthNonce;
-	}
+    public void setOauthSignature(String oauthSignature) {
+        this.oauthSignature = oauthSignature;
+    }
 
-	public void setOauthNonce(String oauthNonce) {
-		this.oauthNonce = oauthNonce;
-	}
+    public String getOauthNonce() {
+        return oauthNonce;
+    }
 
-	public String getOauthSignatureMethod() {
-		return oauthSignatureMethod;
-	}
+    public void setOauthNonce(String oauthNonce) {
+        this.oauthNonce = oauthNonce;
+    }
 
-	public void setOauthSignatureMethod(String oauthSignatureMethod) {
-		this.oauthSignatureMethod = oauthSignatureMethod;
-	}
+    public String getOauthSignatureMethod() {
+        return oauthSignatureMethod;
+    }
 
-	public String getOauthConsumerKey() {
-		if (oauthConsumerKey != null) {
-			return URLDecoder.decode(oauthConsumerKey);
-		} else {
-			return oauthConsumerKey;
-		}
-	}
+    public void setOauthSignatureMethod(String oauthSignatureMethod) {
+        this.oauthSignatureMethod = oauthSignatureMethod;
+    }
 
-	public void setOauthConsumerKey(String oauthConsumerKey) {
-		this.oauthConsumerKey = oauthConsumerKey;
-	}
+    public String getOauthConsumerKey() {
+        if (oauthConsumerKey != null) {
+            return URLDecoder.decode(oauthConsumerKey);
+        } else {
+            return oauthConsumerKey;
+        }
+    }
 
-	public String getOauthTimeStamp() {
-		return oauthTimeStamp;
-	}
+    public void setOauthConsumerKey(String oauthConsumerKey) {
+        this.oauthConsumerKey = oauthConsumerKey;
+    }
 
-	public void setOauthTimeStamp(String oauthTimeStamp) {
-		this.oauthTimeStamp = oauthTimeStamp;
-	}
+    public String getOauthTimeStamp() {
+        return oauthTimeStamp;
+    }
+
+    public void setOauthTimeStamp(String oauthTimeStamp) {
+        this.oauthTimeStamp = oauthTimeStamp;
+    }
 }

@@ -21,18 +21,17 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 
 /**
  * Validates the Access Token
- * 
  */
 public interface UserInfoAccessTokenValidator {
 
-	/**
-	 * Validates the access token and returns the token info
-	 * 
-	 * @param accessToken
-	 * @return
-	 * @throws UserInfoEndpointException
-	 */
-	public OAuth2TokenValidationResponseDTO validateToken(String accessToken)
-	                                                                         throws UserInfoEndpointException;
+    /**
+     * Validates the access token and returns the token info
+     *
+     * @param accessToken
+     * @return
+     * @throws UserInfoEndpointException
+     */
+    public OAuth2TokenValidationResponseDTO validateToken(String accessToken)
+            throws UserInfoEndpointException;
 
 }

@@ -62,7 +62,7 @@ public class OAuth2Service extends AbstractAdmin {
      * @param oAuth2AuthorizeReqDTO <code>OAuth2AuthorizeReqDTO</code> containing information about the authorization
      *                              request.
      * @return <code>OAuth2AuthorizeRespDTO</code> instance containing the access token/authorization code
-     *         or an error code.
+     * or an error code.
      */
     public OAuth2AuthorizeRespDTO authorize(OAuth2AuthorizeReqDTO oAuth2AuthorizeReqDTO) {
 
@@ -97,7 +97,7 @@ public class OAuth2Service extends AbstractAdmin {
      * @param clientId    client_id available in the request, Not null parameter.
      * @param callbackURI callback_uri available in the request, can be null.
      * @return <code>OAuth2ClientValidationResponseDTO</code> bean with validity information,
-     *         callback, App Name, Error Code and Error Message when appropriate.
+     * callback, App Name, Error Code and Error Message when appropriate.
      */
     public OAuth2ClientValidationResponseDTO validateClientInfo(String clientId, String callbackURI) {
         OAuth2ClientValidationResponseDTO validationResponseDTO =
@@ -111,7 +111,7 @@ public class OAuth2Service extends AbstractAdmin {
         try {
             OAuthAppDAO oAuthAppDAO = new OAuthAppDAO();
             OAuthAppDO appDO = oAuthAppDAO.getAppInformation(clientId);
-            
+
             OAuth2Util.setClientTenatId(appDO.getTenantId());
 
             // Valid Client, No callback has provided. Use the callback provided during the registration.
@@ -141,7 +141,7 @@ public class OAuth2Service extends AbstractAdmin {
                 validationResponseDTO.setErrorMsg("Registered callback does not match with the provided url.");
                 return validationResponseDTO;
             }
-        } catch(InvalidOAuthClientException e){
+        } catch (InvalidOAuthClientException e) {
             // There is no such Client ID being registered. So it is a request from an invalid client.
             log.debug(e.getMessage());
             validationResponseDTO.setValidClient(false);
@@ -174,8 +174,8 @@ public class OAuth2Service extends AbstractAdmin {
         try {
             AccessTokenIssuer tokenIssuer = AccessTokenIssuer.getInstance();
             return tokenIssuer.issue(tokenReqDTO);
-        } catch (InvalidOAuthClientException e){
-            if(log.isDebugEnabled()) {
+        } catch (InvalidOAuthClientException e) {
+            if (log.isDebugEnabled()) {
                 log.debug("Error occurred while issuing access token for Client ID : " +
                         tokenReqDTO.getClientId() + ", User ID: " + tokenReqDTO.getResourceOwnerUsername() +
                         ", Scope : " + tokenReqDTO.getScope() + " and Grant Type : " + tokenReqDTO.getGrantType(), e);
@@ -199,6 +199,7 @@ public class OAuth2Service extends AbstractAdmin {
 
     /**
      * Revoke tokens issued to OAuth clients
+     *
      * @param revokeRequestDTO DTO representing consumerKey, consumerSecret and tokens[]
      * @return revokeRespDTO DTO representing success or failure message
      */
@@ -207,11 +208,11 @@ public class OAuth2Service extends AbstractAdmin {
         //  CacheKey cacheKey = new OAuthCacheKey(revokeRequestDTO.getConsumerKey() + ":" + revokeRequestDTO.getAuthzUser().toLowerCase() + ":" + revokeRequestDTO.getToken_type());
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
         OAuthRevocationResponseDTO revokeResponseDTO = new OAuthRevocationResponseDTO();
-        try{
+        try {
             if (StringUtils.isNotEmpty(revokeRequestDTO.getConsumerKey()) &&
                     StringUtils.isNotEmpty(revokeRequestDTO.getConsumerSecret()) &&
                     StringUtils.isNotEmpty(revokeRequestDTO.getToken())) {
-                if(!OAuth2Util.authenticateClient(revokeRequestDTO.getConsumerKey(), revokeRequestDTO.getConsumerSecret())){
+                if (!OAuth2Util.authenticateClient(revokeRequestDTO.getConsumerKey(), revokeRequestDTO.getConsumerSecret())) {
                     OAuthRevocationResponseDTO revokeRespDTO = new OAuthRevocationResponseDTO();
                     revokeRespDTO.setError(true);
                     revokeRespDTO.setErrorCode(OAuth2ErrorCodes.UNAUTHORIZED_CLIENT);
@@ -219,7 +220,7 @@ public class OAuth2Service extends AbstractAdmin {
                     return revokeRespDTO;
                 }
                 boolean refreshTokenFirst = false;
-                if(revokeRequestDTO.getToken_type() != null && revokeRequestDTO.equals("refresh_token")){
+                if (revokeRequestDTO.getToken_type() != null && revokeRequestDTO.equals("refresh_token")) {
                     refreshTokenFirst = true;
                 }
                 if (refreshTokenFirst) {
@@ -283,7 +284,7 @@ public class OAuth2Service extends AbstractAdmin {
                             org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(revokeRequestDTO.getToken());
                             tokenMgtDAO.revokeToken(refreshTokenDO.getAccessToken());
                             addRevokeResponseHeaders(revokeResponseDTO, refreshTokenDO.getAccessToken(),
-                                    revokeRequestDTO.getToken(),refreshTokenDO.getAuthorizedUser());
+                                    revokeRequestDTO.getToken(), refreshTokenDO.getAuthorizedUser());
                         }
                     }
                 }
@@ -304,135 +305,135 @@ public class OAuth2Service extends AbstractAdmin {
             return revokeRespDTO;
         }
     }
-    
-	/**
-	 * Returns an array of claims of the authorized user. This is for the
-	 * OpenIDConnect user-end-point implementation.
-	 * 
-	 * TODO : 1. Should return the userinfo response instead.
-	 * TODO : 2. Should create another service API for userinfo endpoint
-	 * 
-	 * @param accessTokenIdentifier
-	 * @return
-	 * @throws IdentityException
-	 */
-	public Claim[] getUserClaims(String accessTokenIdentifier) {
 
-		OAuth2TokenValidationRequestDTO reqDTO = new OAuth2TokenValidationRequestDTO();
-		OAuth2TokenValidationRequestDTO.OAuth2AccessToken accessToken = reqDTO.new OAuth2AccessToken();
+    /**
+     * Returns an array of claims of the authorized user. This is for the
+     * OpenIDConnect user-end-point implementation.
+     * <p/>
+     * TODO : 1. Should return the userinfo response instead.
+     * TODO : 2. Should create another service API for userinfo endpoint
+     *
+     * @param accessTokenIdentifier
+     * @return
+     * @throws IdentityException
+     */
+    public Claim[] getUserClaims(String accessTokenIdentifier) {
+
+        OAuth2TokenValidationRequestDTO reqDTO = new OAuth2TokenValidationRequestDTO();
+        OAuth2TokenValidationRequestDTO.OAuth2AccessToken accessToken = reqDTO.new OAuth2AccessToken();
         accessToken.setTokenType("bearer");
         accessToken.setIdentifier(accessTokenIdentifier);
         reqDTO.setAccessToken(accessToken);
-		OAuth2TokenValidationResponseDTO respDTO =
-		                                           new OAuth2TokenValidationService().validate(reqDTO);
+        OAuth2TokenValidationResponseDTO respDTO =
+                new OAuth2TokenValidationService().validate(reqDTO);
 
-		String username = respDTO.getAuthorizedUser();
-		if (username == null) { // invalid token
-			log.debug(respDTO.getErrorMsg());
-			return null;
-		}
-		String[] scope = respDTO.getScope();
-		boolean isOICScope = false;
-		for (String curScope : scope) {
-			if ("openid".equals(curScope)) {
-				isOICScope = true;
-			}
-		}
-		if (!isOICScope) {
-			log.error("AccessToken does not have the openid scope");
-			return null;
-		}
+        String username = respDTO.getAuthorizedUser();
+        if (username == null) { // invalid token
+            log.debug(respDTO.getErrorMsg());
+            return null;
+        }
+        String[] scope = respDTO.getScope();
+        boolean isOICScope = false;
+        for (String curScope : scope) {
+            if ("openid".equals(curScope)) {
+                isOICScope = true;
+            }
+        }
+        if (!isOICScope) {
+            log.error("AccessToken does not have the openid scope");
+            return null;
+        }
 
-		// TODO : this code is ugly
-		String profileName = "default"; // TODO : configurable
-		String tenantDomain = MultitenantUtils.getTenantDomain(username);
-		String tenatUser = MultitenantUtils.getTenantAwareUsername(username);
+        // TODO : this code is ugly
+        String profileName = "default"; // TODO : configurable
+        String tenantDomain = MultitenantUtils.getTenantDomain(username);
+        String tenatUser = MultitenantUtils.getTenantAwareUsername(username);
 
-		List<Claim> claimsList = new ArrayList<Claim>();
+        List<Claim> claimsList = new ArrayList<Claim>();
 
-		// MUST claim
-		// http://openid.net/specs/openid-connect-basic-1_0-22.html#id_res
-		Claim subClaim = new Claim();
-		subClaim.setClaimUri("sub");
-		subClaim.setValue(username);
-		claimsList.add(subClaim);
+        // MUST claim
+        // http://openid.net/specs/openid-connect-basic-1_0-22.html#id_res
+        Claim subClaim = new Claim();
+        subClaim.setClaimUri("sub");
+        subClaim.setValue(username);
+        claimsList.add(subClaim);
 
-		try {
-			UserStoreManager userStore =
-			                             IdentityTenantUtil.getRealm(tenantDomain, tenatUser)
-			                                               .getUserStoreManager();
-			// externel configured claims
-			String[] claims = OAuthServerConfiguration.getInstance().getSupportedClaims();
-			if (claims != null) {
-				Map<String, String> extClaimsMap =
-				                                   userStore.getUserClaimValues(username, claims,
-				                                                                profileName);
-				Iterator ite = extClaimsMap.keySet().iterator();
-				int i = 0;
-				while (ite.hasNext()) {
-					String claimUri = (String) ite.next();
-					Claim curClaim = new Claim();
-					curClaim.setClaimUri(claimUri);
-					curClaim.setValue(extClaimsMap.get(curClaim));
-					claimsList.add(curClaim);
-				}
-			}
-			// default claims
-			String[] defaultClaims = new String[3];
-			defaultClaims[0] = "http://wso2.org/claims/emailaddress";
-			defaultClaims[1] = "http://wso2.org/claims/givenname";
-			defaultClaims[2] = "http://wso2.org/claims/lastname";
-			String emailAddress = null;
-			String firstName = null;
-			String lastName = null;
-			Map<String, String> defClaimsMap =
-			                                   userStore.getUserClaimValues(username,
-			                                                                defaultClaims,
-			                                                                profileName);
-			if (defClaimsMap.get(defaultClaims[0]) != null) {
-				emailAddress = defClaimsMap.get(defaultClaims[0]);
-				Claim email = new Claim();
-				email.setClaimUri("email");
-				email.setValue(emailAddress);
-				claimsList.add(email);
-				Claim prefName = new Claim();
-				prefName.setClaimUri("preferred_username");
-				prefName.setValue(emailAddress.split("@")[0]);
-				claimsList.add(prefName);
-			}
-			if (defClaimsMap.get(defaultClaims[1]) != null) {
-				firstName = defClaimsMap.get(defaultClaims[1]);
-				Claim givenName = new Claim();
-				givenName.setClaimUri("given_name");
-				givenName.setValue(firstName);
-				claimsList.add(givenName);
-			}
-			if (defClaimsMap.get(defaultClaims[2]) != null) {
-				lastName = defClaimsMap.get(defaultClaims[2]);
-				Claim familyName = new Claim();
-				familyName.setClaimUri("family_name");
-				familyName.setValue(lastName);
-				claimsList.add(familyName);
-			}
-			if (firstName != null && lastName != null) {
-				Claim name = new Claim();
-				name.setClaimUri("name");
-				name.setValue(firstName + " " + lastName);
-				claimsList.add(name);
-			}
+        try {
+            UserStoreManager userStore =
+                    IdentityTenantUtil.getRealm(tenantDomain, tenatUser)
+                            .getUserStoreManager();
+            // externel configured claims
+            String[] claims = OAuthServerConfiguration.getInstance().getSupportedClaims();
+            if (claims != null) {
+                Map<String, String> extClaimsMap =
+                        userStore.getUserClaimValues(username, claims,
+                                profileName);
+                Iterator ite = extClaimsMap.keySet().iterator();
+                int i = 0;
+                while (ite.hasNext()) {
+                    String claimUri = (String) ite.next();
+                    Claim curClaim = new Claim();
+                    curClaim.setClaimUri(claimUri);
+                    curClaim.setValue(extClaimsMap.get(curClaim));
+                    claimsList.add(curClaim);
+                }
+            }
+            // default claims
+            String[] defaultClaims = new String[3];
+            defaultClaims[0] = "http://wso2.org/claims/emailaddress";
+            defaultClaims[1] = "http://wso2.org/claims/givenname";
+            defaultClaims[2] = "http://wso2.org/claims/lastname";
+            String emailAddress = null;
+            String firstName = null;
+            String lastName = null;
+            Map<String, String> defClaimsMap =
+                    userStore.getUserClaimValues(username,
+                            defaultClaims,
+                            profileName);
+            if (defClaimsMap.get(defaultClaims[0]) != null) {
+                emailAddress = defClaimsMap.get(defaultClaims[0]);
+                Claim email = new Claim();
+                email.setClaimUri("email");
+                email.setValue(emailAddress);
+                claimsList.add(email);
+                Claim prefName = new Claim();
+                prefName.setClaimUri("preferred_username");
+                prefName.setValue(emailAddress.split("@")[0]);
+                claimsList.add(prefName);
+            }
+            if (defClaimsMap.get(defaultClaims[1]) != null) {
+                firstName = defClaimsMap.get(defaultClaims[1]);
+                Claim givenName = new Claim();
+                givenName.setClaimUri("given_name");
+                givenName.setValue(firstName);
+                claimsList.add(givenName);
+            }
+            if (defClaimsMap.get(defaultClaims[2]) != null) {
+                lastName = defClaimsMap.get(defaultClaims[2]);
+                Claim familyName = new Claim();
+                familyName.setClaimUri("family_name");
+                familyName.setValue(lastName);
+                claimsList.add(familyName);
+            }
+            if (firstName != null && lastName != null) {
+                Claim name = new Claim();
+                name.setClaimUri("name");
+                name.setValue(firstName + " " + lastName);
+                claimsList.add(name);
+            }
 
-		} catch (Exception e) {
-			log.error("Error while reading user claims ", e);
-		}
+        } catch (Exception e) {
+            log.error("Error while reading user claims ", e);
+        }
 
-		Claim[] allClaims = new Claim[claimsList.size()];
-		for(int i = 0; i < claimsList.size(); i++) {
-			allClaims[i] = claimsList.get(i);
-		}
-		return allClaims;
-	}
+        Claim[] allClaims = new Claim[claimsList.size()];
+        for (int i = 0; i < claimsList.size(); i++) {
+            allClaims[i] = claimsList.get(i);
+        }
+        return allClaims;
+    }
 
-    private void addRevokeResponseHeaders(OAuthRevocationResponseDTO revokeResponseDTP, String accessToken, String refreshToken, String authorizedUser){
+    private void addRevokeResponseHeaders(OAuthRevocationResponseDTO revokeResponseDTP, String accessToken, String refreshToken, String authorizedUser) {
 
         ArrayList<ResponseHeader> respHeaders = new ArrayList<ResponseHeader>();
         ResponseHeader header = new ResponseHeader();

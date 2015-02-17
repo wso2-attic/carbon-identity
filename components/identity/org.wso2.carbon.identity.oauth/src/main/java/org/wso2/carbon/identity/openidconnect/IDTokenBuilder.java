@@ -23,15 +23,15 @@ import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 
 public interface IDTokenBuilder {
 
-	/**
-	 * Returns the IDToken string
-	 * 
-	 * @param tokReqMsgCtx
-	 * @param tokenRespDTO
-	 * @return
-	 * @throws IdentityOAuth2Exception
-	 */
-	public String buildIDToken(OAuthTokenReqMessageContext tokReqMsgCtx, OAuth2AccessTokenRespDTO tokenRespDTO)
-	                                                                                                           throws IdentityOAuth2Exception;
+    /**
+     * Returns the IDToken string
+     *
+     * @param tokReqMsgCtx
+     * @param tokenRespDTO
+     * @return
+     * @throws IdentityOAuth2Exception
+     */
+    public String buildIDToken(OAuthTokenReqMessageContext tokReqMsgCtx, OAuth2AccessTokenRespDTO tokenRespDTO)
+            throws IdentityOAuth2Exception;
 
 }

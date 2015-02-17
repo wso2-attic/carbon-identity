@@ -24,7 +24,6 @@ import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
-import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
 
 import java.util.Set;
@@ -33,7 +32,6 @@ import java.util.Set;
  * This is an implementation of UserOperationEventListener. This defines
  * additional operations
  * for some of the core user management operations
- *
  */
 public class IdentityOathEventListener extends AbstractUserOperationEventListener {
     private static final Log log = LogFactory.getLog(IdentityOathEventListener.class);
@@ -88,7 +86,7 @@ public class IdentityOathEventListener extends AbstractUserOperationEventListene
                 log.error(errorMsg, e);
                 return true;
             }
-            for(AccessTokenDO accessTokenDO : accessTokenDOs){
+            for (AccessTokenDO accessTokenDO : accessTokenDOs) {
                 //Clear cache
                 OAuthUtil.clearOAuthCache(accessTokenDO.getConsumerKey(), accessTokenDO.getAuthzUser(),
                         OAuth2Util.buildScopeString(accessTokenDO.getScope()));
@@ -108,7 +106,7 @@ public class IdentityOathEventListener extends AbstractUserOperationEventListene
                     log.error(errorMsg, e);
                     return true;
                 }
-                if(scopedToken != null){
+                if (scopedToken != null) {
                     try {
                         //Revoking token from database
                         tokenMgtDAO.revokeToken(scopedToken.getAccessToken());

@@ -25,24 +25,23 @@ import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
  */
 public class OAuth2ServiceComponentHolder {
 
-	private static ApplicationManagementService applicationMgtService;
+    private static ApplicationManagementService applicationMgtService;
 
-	/**
-	 * Set Application management service
-	 * 
-	 * @param applicationMgtService
-	 *            ApplicationManagementService
-	 */
-	public static void setApplicationMgtService(ApplicationManagementService applicationMgtService) {
-		OAuth2ServiceComponentHolder.applicationMgtService = applicationMgtService;
-	}
+    /**
+     * Get Application management service
+     *
+     * @return ApplicationManagementService
+     */
+    public static ApplicationManagementService getApplicationMgtService() {
+        return OAuth2ServiceComponentHolder.applicationMgtService;
+    }
 
-	/**
-	 * Get Application management service
-	 * 
-	 * @return ApplicationManagementService
-	 */
-	public static ApplicationManagementService getApplicationMgtService() {
-		return OAuth2ServiceComponentHolder.applicationMgtService;
-	}
+    /**
+     * Set Application management service
+     *
+     * @param applicationMgtService ApplicationManagementService
+     */
+    public static void setApplicationMgtService(ApplicationManagementService applicationMgtService) {
+        OAuth2ServiceComponentHolder.applicationMgtService = applicationMgtService;
+    }
 }
