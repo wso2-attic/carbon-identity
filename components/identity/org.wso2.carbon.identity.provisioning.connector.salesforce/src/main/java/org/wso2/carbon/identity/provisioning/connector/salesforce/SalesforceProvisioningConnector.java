@@ -48,7 +48,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
 
     @Override
     /**
-     * 
+     *
      */
     public void init(Property[] provisioningProperties) throws IdentityProvisioningException {
         Properties configs = new Properties();
@@ -70,7 +70,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
 
     @Override
     /**
-     * 
+     *
      */
     public ProvisionedIdentifier provision(ProvisioningEntity provisioningEntity)
             throws IdentityProvisioningException {
@@ -106,7 +106,6 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
     }
 
     /**
-     * 
      * @param provisioningEntity
      * @return
      * @throws IdentityProvisioningException
@@ -131,7 +130,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
         try {
             /**
              * Mandatory properties : 12 and this will vary according to API Version
-             * 
+             *
              * Alias, Email, EmailEncodingKey, LanguageLocaleKey, LastName, LocaleSidKey, ProfileId,
              * TimeZoneSidKey, User-name, UserPermissionsCallCenterAutoLogin,
              * UserPermissionsMarketingUser, UserPermissionsOfflineUser
@@ -192,7 +191,6 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
     }
 
     /**
-     * 
      * @param provisioningEntity
      * @return
      * @throws IdentityProvisioningException
@@ -280,7 +278,6 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
     }
 
     /**
-     * 
      * @param provisioningEntity
      * @throws IdentityProvisioningException
      */
@@ -298,7 +295,6 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
     }
 
     /**
-     * 
      * @param provsionedId
      * @param entity
      * @return
@@ -358,7 +354,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
 
     /**
      * adding OAuth authorization headers to a httpMethod
-     * 
+     *
      * @param httpMethod method which wants to add Authorization header
      */
     private void setAuthorizationHeader(HttpMethodBase httpMethod)
@@ -396,7 +392,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
         String url = configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.OAUTH2_TOKEN_ENDPOINT);
 
         PostMethod post = new PostMethod(url != null && !url.isEmpty() ?
-                                         url : IdentityApplicationConstants.SF_OAUTH2_TOKEN_ENDPOINT);
+                url : IdentityApplicationConstants.SF_OAUTH2_TOKEN_ENDPOINT);
 
         post.addParameter(SalesforceConnectorConstants.CLIENT_ID,
                 configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.CLIENT_ID));
@@ -455,7 +451,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
 
     /**
      * builds salesforce user end point using configurations
-     * 
+     *
      * @return
      */
     private String getUserObjectEndpoint() {
@@ -475,7 +471,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
 
     /**
      * Builds Salesforce query point using configurations
-     * 
+     *
      * @return
      */
     private String getDataQueryEndpoint() {
@@ -496,7 +492,6 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
     }
 
     /**
-     * 
      * @return
      * @throws IdentityProvisioningException
      */
@@ -538,7 +533,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
                 for (int i = 0; i < results.length(); i++) {
                     sb.append(results.getJSONObject(i).getString("Id") + ", "
 
-                    + results.getJSONObject(i).getString("Alias") + ", "
+                            + results.getJSONObject(i).getString("Alias") + ", "
                             + results.getJSONObject(i).getString("Email") + ", "
                             + results.getJSONObject(i).getString("LastName") + ", "
                             + results.getJSONObject(i).getString("Name") + ", "
