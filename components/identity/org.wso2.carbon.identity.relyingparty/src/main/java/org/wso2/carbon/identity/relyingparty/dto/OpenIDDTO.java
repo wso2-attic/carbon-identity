@@ -21,9 +21,10 @@ import java.util.Arrays;
 
 public class OpenIDDTO {
 
-	private String openID;
+    private String openID;
     private String userName;
     private String password;
+    private ClaimDTO[] claims;
 
     public String getUserName() {
         return userName;
@@ -41,19 +42,20 @@ public class OpenIDDTO {
         this.password = password.trim();
     }
 
-    private ClaimDTO[] claims;
-	
-	public String getOpenID() {
-		return openID;
-	}
-	public void setOpenID(String openID) {
-		this.openID = openID.trim();
-	}
-	public ClaimDTO[] getClaims() {
-		return Arrays.copyOf(claims, claims.length);
-	}
-	public void setClaims(ClaimDTO[] claims) {
-		this.claims = Arrays.copyOf(claims, claims.length);
-	}
+    public String getOpenID() {
+        return openID;
+    }
+
+    public void setOpenID(String openID) {
+        this.openID = openID.trim();
+    }
+
+    public ClaimDTO[] getClaims() {
+        return Arrays.copyOf(claims, claims.length);
+    }
+
+    public void setClaims(ClaimDTO[] claims) {
+        this.claims = Arrays.copyOf(claims, claims.length);
+    }
 
 }

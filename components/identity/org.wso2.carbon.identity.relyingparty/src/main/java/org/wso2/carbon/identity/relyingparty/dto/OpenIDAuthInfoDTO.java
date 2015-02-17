@@ -20,40 +20,40 @@ package org.wso2.carbon.identity.relyingparty.dto;
 import java.util.Arrays;
 
 public class OpenIDAuthInfoDTO {
-	
-	private String[] requiredClaims;
-	
-	private String[] optionalClaims;
-	
-	private String[] requestTypes;
-	
-	private String realm;
-	
-	private boolean requestClaimsFromIdP = false;
 
-	public String[] getRequiredClaims() {
-		return Arrays.copyOf(requiredClaims, requiredClaims.length);
-	}
+    private String[] requiredClaims;
 
-	public void setRequiredClaims(String[] requiredClaims) {
-		this.requiredClaims = Arrays.copyOf(requiredClaims, requiredClaims.length);
-	}
+    private String[] optionalClaims;
 
-	public String[] getOptionalClaims() {
-		return Arrays.copyOf(optionalClaims, optionalClaims.length);
-	}
+    private String[] requestTypes;
 
-	public void setOptionalClaims(String[] optionalClaims) {
-		this.optionalClaims = Arrays.copyOf(optionalClaims, optionalClaims.length);
-	}
+    private String realm;
 
-	public String[] getRequestTypes() {
-		return Arrays.copyOf(requestTypes, requestTypes.length);
-	}
+    private boolean requestClaimsFromIdP = false;
 
-	public void setRequestTypes(String[] requestTypes) {
-		this.requestTypes = Arrays.copyOf(requestTypes, requestTypes.length);
-	}
+    public String[] getRequiredClaims() {
+        return Arrays.copyOf(requiredClaims, requiredClaims.length);
+    }
+
+    public void setRequiredClaims(String[] requiredClaims) {
+        this.requiredClaims = Arrays.copyOf(requiredClaims, requiredClaims.length);
+    }
+
+    public String[] getOptionalClaims() {
+        return Arrays.copyOf(optionalClaims, optionalClaims.length);
+    }
+
+    public void setOptionalClaims(String[] optionalClaims) {
+        this.optionalClaims = Arrays.copyOf(optionalClaims, optionalClaims.length);
+    }
+
+    public String[] getRequestTypes() {
+        return Arrays.copyOf(requestTypes, requestTypes.length);
+    }
+
+    public void setRequestTypes(String[] requestTypes) {
+        this.requestTypes = Arrays.copyOf(requestTypes, requestTypes.length);
+    }
 
     public String getRealm() {
         return realm;
@@ -70,6 +70,6 @@ public class OpenIDAuthInfoDTO {
     public void setRequestClaimsFromIdP(boolean requestClaimsFromIdP) {
         this.requestClaimsFromIdP = requestClaimsFromIdP;
     }
-	
-    
+
+
 }
