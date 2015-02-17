@@ -1,0 +1,164 @@
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ax2114="http://base.identity.carbon.wso2.org/xsd" xmlns:ns="http://service.fido.authenticator.application.identity.carbon.wso2.org" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://service.fido.authenticator.application.identity.carbon.wso2.org">
+    <wsdl:documentation>FIDOService</wsdl:documentation>
+    <wsdl:types>
+        <xs:schema xmlns:ax2115="http://base.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://service.fido.authenticator.application.identity.carbon.wso2.org">
+            <xs:import namespace="http://base.identity.carbon.wso2.org/xsd"></xs:import>
+            <xs:element name="FIDOServiceIdentityException">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="IdentityException" nillable="true" type="ax2115:IdentityException"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="startRegistration">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="username" nillable="true" type="xs:string"></xs:element>
+                        <xs:element minOccurs="0" name="appID" nillable="true" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="startRegistrationResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="finishRegistration">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="response" nillable="true" type="xs:string"></xs:element>
+                        <xs:element minOccurs="0" name="username" nillable="true" type="xs:string"></xs:element>
+                        <xs:element minOccurs="0" name="appID" nillable="true" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="finishRegistrationResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://base.identity.carbon.wso2.org/xsd">
+            <xs:complexType name="IdentityException">
+                <xs:sequence></xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="startRegistrationRequest">
+        <wsdl:part name="parameters" element="ns:startRegistration"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="startRegistrationResponse">
+        <wsdl:part name="parameters" element="ns:startRegistrationResponse"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="FIDOServiceIdentityException">
+        <wsdl:part name="parameters" element="ns:FIDOServiceIdentityException"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="finishRegistrationRequest">
+        <wsdl:part name="parameters" element="ns:finishRegistration"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="finishRegistrationResponse">
+        <wsdl:part name="parameters" element="ns:finishRegistrationResponse"></wsdl:part>
+    </wsdl:message>
+    <wsdl:portType name="FIDOServicePortType">
+        <wsdl:operation name="startRegistration">
+            <wsdl:input message="ns:startRegistrationRequest" wsaw:Action="urn:startRegistration"></wsdl:input>
+            <wsdl:output message="ns:startRegistrationResponse" wsaw:Action="urn:startRegistrationResponse"></wsdl:output>
+            <wsdl:fault message="ns:FIDOServiceIdentityException" name="FIDOServiceIdentityException" wsaw:Action="urn:startRegistrationFIDOServiceIdentityException"></wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="finishRegistration">
+            <wsdl:input message="ns:finishRegistrationRequest" wsaw:Action="urn:finishRegistration"></wsdl:input>
+            <wsdl:output message="ns:finishRegistrationResponse" wsaw:Action="urn:finishRegistrationResponse"></wsdl:output>
+            <wsdl:fault message="ns:FIDOServiceIdentityException" name="FIDOServiceIdentityException" wsaw:Action="urn:finishRegistrationFIDOServiceIdentityException"></wsdl:fault>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="FIDOServiceSoap11Binding" type="ns:FIDOServicePortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"></soap:binding>
+        <wsdl:operation name="startRegistration">
+            <soap:operation soapAction="urn:startRegistration" style="document"></soap:operation>
+            <wsdl:input>
+                <soap:body use="literal"></soap:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"></soap:body>
+            </wsdl:output>
+            <wsdl:fault name="FIDOServiceIdentityException">
+                <soap:fault use="literal" name="FIDOServiceIdentityException"></soap:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="finishRegistration">
+            <soap:operation soapAction="urn:finishRegistration" style="document"></soap:operation>
+            <wsdl:input>
+                <soap:body use="literal"></soap:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"></soap:body>
+            </wsdl:output>
+            <wsdl:fault name="FIDOServiceIdentityException">
+                <soap:fault use="literal" name="FIDOServiceIdentityException"></soap:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="FIDOServiceSoap12Binding" type="ns:FIDOServicePortType">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"></soap12:binding>
+        <wsdl:operation name="startRegistration">
+            <soap12:operation soapAction="urn:startRegistration" style="document"></soap12:operation>
+            <wsdl:input>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:output>
+            <wsdl:fault name="FIDOServiceIdentityException">
+                <soap12:fault use="literal" name="FIDOServiceIdentityException"></soap12:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="finishRegistration">
+            <soap12:operation soapAction="urn:finishRegistration" style="document"></soap12:operation>
+            <wsdl:input>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:output>
+            <wsdl:fault name="FIDOServiceIdentityException">
+                <soap12:fault use="literal" name="FIDOServiceIdentityException"></soap12:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="FIDOServiceHttpBinding" type="ns:FIDOServicePortType">
+        <http:binding verb="POST"></http:binding>
+        <wsdl:operation name="startRegistration">
+            <http:operation location="startRegistration"></http:operation>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"></mime:content>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"></mime:content>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="finishRegistration">
+            <http:operation location="finishRegistration"></http:operation>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"></mime:content>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"></mime:content>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="FIDOService">
+        <wsdl:port name="FIDOServiceHttpsSoap11Endpoint" binding="ns:FIDOServiceSoap11Binding">
+            <soap:address location="https://localhost:9443/services/FIDOService.FIDOServiceHttpsSoap11Endpoint/"></soap:address>
+        </wsdl:port>
+        <wsdl:port name="FIDOServiceHttpsSoap12Endpoint" binding="ns:FIDOServiceSoap12Binding">
+            <soap12:address location="https://localhost:9443/services/FIDOService.FIDOServiceHttpsSoap12Endpoint/"></soap12:address>
+        </wsdl:port>
+        <wsdl:port name="FIDOServiceHttpsEndpoint" binding="ns:FIDOServiceHttpBinding">
+            <http:address location="https://localhost:9443/services/FIDOService.FIDOServiceHttpsEndpoint/"></http:address>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
