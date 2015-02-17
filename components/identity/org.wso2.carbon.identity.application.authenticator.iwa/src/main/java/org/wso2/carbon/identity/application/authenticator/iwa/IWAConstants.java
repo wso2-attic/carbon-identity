@@ -39,6 +39,6 @@ public class IWAConstants {
     public static final String SECURITY_FILTER_PROVIDERS = "securityFilterProviders";
     public static final String AUTH_PROVIDER = "authProvider";
 
-    private IWAConstants(){
+    private IWAConstants() {
     }
 }
