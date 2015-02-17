@@ -188,18 +188,20 @@ public class LogoutRequestProcessor {
 							reqValidationResponseDTO.setAssertionConsumerURL(sessionsList.get(key)
 									.getLogoutURL());
 						}
-					}
-				}
-				reqValidationResponseDTO.setLogoutRespDTO(singleLogoutReqDTOs);
+                    }
+                }
+                reqValidationResponseDTO.setLogoutRespDTO(singleLogoutReqDTOs);
 
-				LogoutResponse logoutResponse = logoutMsgBuilder.buildLogoutResponse(
-						 logoutRequest.getID(), SAMLSSOConstants.StatusCodes.SUCCESS_CODE, null,sessionInfoData,logoutReqIssuer.isDoSignResponse());
-				reqValidationResponseDTO.setLogoutResponse(SAMLSSOUtil.encode(SAMLSSOUtil
-						.marshall(logoutResponse)));
-				reqValidationResponseDTO.setValid(true);
-			}
-			
-			return reqValidationResponseDTO;
+                LogoutResponse logoutResponse = logoutMsgBuilder.buildLogoutResponse(
+                        logoutRequest.getID(), SAMLSSOConstants.StatusCodes.SUCCESS_CODE, null,
+                        sessionInfoData, logoutReqIssuer.isDoSignResponse(),
+                        reqValidationResponseDTO.getAssertionConsumerURL());
+                reqValidationResponseDTO.setLogoutResponse(SAMLSSOUtil.encode(SAMLSSOUtil
+                        .marshall(logoutResponse)));
+                reqValidationResponseDTO.setValid(true);
+            }
+
+            return reqValidationResponseDTO;
 		} catch (Exception e) {
 			log.error("Error Processing the Logout Request", e);
 			throw new IdentityException("Error Processing the Logout Request", e);
