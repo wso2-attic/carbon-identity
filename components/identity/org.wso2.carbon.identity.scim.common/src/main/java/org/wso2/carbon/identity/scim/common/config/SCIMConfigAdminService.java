@@ -17,13 +17,13 @@
  */
 package org.wso2.carbon.identity.scim.common.config;
 
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.scim.common.utils.IdentitySCIMException;
 import org.wso2.carbon.identity.scim.common.utils.SCIMCommonUtils;
 import org.wso2.carbon.utils.xml.StringUtils;
+
+import java.util.List;
 
 /**
  * This is the service class for SCIMConfigAdminService which exposes the
@@ -33,224 +33,224 @@ import org.wso2.carbon.utils.xml.StringUtils;
  */
 public class SCIMConfigAdminService {
 
-	public static final Log log = LogFactory.getLog(SCIMConfigAdminService.class);
+    public static final Log log = LogFactory.getLog(SCIMConfigAdminService.class);
 
 	/* Global Providers Operations.. */
 
-	public SCIMProviderDTO[] getAllGlobalProviders(String consumerId) throws IdentitySCIMException {
-		SCIMProviderDTO[] scimProviderDTOs = new SCIMProviderDTO[0];
+    public SCIMProviderDTO[] getAllGlobalProviders(String consumerId) throws IdentitySCIMException {
+        SCIMProviderDTO[] scimProviderDTOs = new SCIMProviderDTO[0];
 
-		if (StringUtils.isEmpty(consumerId) ||
-		    consumerId.equals(SCIMCommonUtils.getGlobalConsumerId())) {
-			SCIMProviderDAO providerDAO = new SCIMProviderDAO();
-			List<SCIMProviderDTO> globalProviders =
-			                                        providerDAO.getAllProviders(SCIMCommonUtils.getGlobalConsumerId());
-			if (globalProviders != null && globalProviders.size() != 0) {
-				scimProviderDTOs = new SCIMProviderDTO[globalProviders.size()];
-				int i = 0;
-				for (SCIMProviderDTO globalProvider : globalProviders) {
-					scimProviderDTOs[i] = globalProvider;
-					i++;
-				}
-				return scimProviderDTOs;
-			}
+        if (StringUtils.isEmpty(consumerId) ||
+                consumerId.equals(SCIMCommonUtils.getGlobalConsumerId())) {
+            SCIMProviderDAO providerDAO = new SCIMProviderDAO();
+            List<SCIMProviderDTO> globalProviders =
+                    providerDAO.getAllProviders(SCIMCommonUtils.getGlobalConsumerId());
+            if (globalProviders != null && globalProviders.size() != 0) {
+                scimProviderDTOs = new SCIMProviderDTO[globalProviders.size()];
+                int i = 0;
+                for (SCIMProviderDTO globalProvider : globalProviders) {
+                    scimProviderDTOs[i] = globalProvider;
+                    i++;
+                }
+                return scimProviderDTOs;
+            }
 
-		} else {
-			String errorMessage =
-			                      "Security error: consumer:" + consumerId +
-			                              " is trying to obtain " +
-			                              "provisioning configuration of :" +
-			                              SCIMCommonUtils.getGlobalConsumerId();
-			log.error(errorMessage);
-			throw new IdentitySCIMException(errorMessage);
-		}
-		return scimProviderDTOs;
-	}
+        } else {
+            String errorMessage =
+                    "Security error: consumer:" + consumerId +
+                            " is trying to obtain " +
+                            "provisioning configuration of :" +
+                            SCIMCommonUtils.getGlobalConsumerId();
+            log.error(errorMessage);
+            throw new IdentitySCIMException(errorMessage);
+        }
+        return scimProviderDTOs;
+    }
 
-	public void addGlobalProvider(String consumerId, SCIMProviderDTO scimProviderDTO)
-	                                                                                 throws IdentitySCIMException {
+    public void addGlobalProvider(String consumerId, SCIMProviderDTO scimProviderDTO)
+            throws IdentitySCIMException {
 
-		if (StringUtils.isEmpty(consumerId) ||
-		    consumerId.equals(SCIMCommonUtils.getGlobalConsumerId())) {
-			SCIMProviderDAO providerDAO = new SCIMProviderDAO();
-			providerDAO.addProvider(SCIMCommonUtils.getGlobalConsumerId(), scimProviderDTO);
+        if (StringUtils.isEmpty(consumerId) ||
+                consumerId.equals(SCIMCommonUtils.getGlobalConsumerId())) {
+            SCIMProviderDAO providerDAO = new SCIMProviderDAO();
+            providerDAO.addProvider(SCIMCommonUtils.getGlobalConsumerId(), scimProviderDTO);
 
-		} else {
-			String errorMessage =
-			                      "Security error: consumer:" + consumerId + " is trying to add " +
-			                              "provisioning configuration to :" +
-			                              SCIMCommonUtils.getGlobalConsumerId();
-			log.error(errorMessage);
-			throw new IdentitySCIMException(errorMessage);
-		}
-	}
+        } else {
+            String errorMessage =
+                    "Security error: consumer:" + consumerId + " is trying to add " +
+                            "provisioning configuration to :" +
+                            SCIMCommonUtils.getGlobalConsumerId();
+            log.error(errorMessage);
+            throw new IdentitySCIMException(errorMessage);
+        }
+    }
 
-	public SCIMProviderDTO getGlobalProvider(String consumerId, String providerId)
-	                                                                              throws IdentitySCIMException {
+    public SCIMProviderDTO getGlobalProvider(String consumerId, String providerId)
+            throws IdentitySCIMException {
 
-		SCIMProviderDTO scimProviderDTO = null;
-		if (StringUtils.isEmpty(consumerId) ||
-		    consumerId.equals(SCIMCommonUtils.getGlobalConsumerId())) {
-			SCIMProviderDAO providerDAO = new SCIMProviderDAO();
-			scimProviderDTO =
-			                  providerDAO.getProvider(SCIMCommonUtils.getGlobalConsumerId(),
-			                                          providerId);
+        SCIMProviderDTO scimProviderDTO = null;
+        if (StringUtils.isEmpty(consumerId) ||
+                consumerId.equals(SCIMCommonUtils.getGlobalConsumerId())) {
+            SCIMProviderDAO providerDAO = new SCIMProviderDAO();
+            scimProviderDTO =
+                    providerDAO.getProvider(SCIMCommonUtils.getGlobalConsumerId(),
+                            providerId);
 
-		} else {
-			String errorMessage =
-			                      "Security error: consumer:" + consumerId +
-			                              " is trying to obtain " +
-			                              "provisioning configuration of :" +
-			                              SCIMCommonUtils.getGlobalConsumerId();
-			log.error(errorMessage);
-			throw new IdentitySCIMException(errorMessage);
-		}
-		return scimProviderDTO;
-	}
+        } else {
+            String errorMessage =
+                    "Security error: consumer:" + consumerId +
+                            " is trying to obtain " +
+                            "provisioning configuration of :" +
+                            SCIMCommonUtils.getGlobalConsumerId();
+            log.error(errorMessage);
+            throw new IdentitySCIMException(errorMessage);
+        }
+        return scimProviderDTO;
+    }
 
-	public void updateGlobalProvider(String consumerId, SCIMProviderDTO scimProviderDTO)
-	                                                                                    throws IdentitySCIMException {
+    public void updateGlobalProvider(String consumerId, SCIMProviderDTO scimProviderDTO)
+            throws IdentitySCIMException {
 
-		if (StringUtils.isEmpty(consumerId) ||
-		    consumerId.equals(SCIMCommonUtils.getGlobalConsumerId())) {
-			SCIMProviderDAO providerDAO = new SCIMProviderDAO();
-			providerDAO.updateProvider(SCIMCommonUtils.getGlobalConsumerId(), scimProviderDTO);
+        if (StringUtils.isEmpty(consumerId) ||
+                consumerId.equals(SCIMCommonUtils.getGlobalConsumerId())) {
+            SCIMProviderDAO providerDAO = new SCIMProviderDAO();
+            providerDAO.updateProvider(SCIMCommonUtils.getGlobalConsumerId(), scimProviderDTO);
 
-		} else {
-			String errorMessage =
-			                      "Security error: consumer:" + consumerId +
-			                              " is trying to update " +
-			                              "provisioning configuration to :" +
-			                              SCIMCommonUtils.getGlobalConsumerId();
-			log.error(errorMessage);
-			throw new IdentitySCIMException(errorMessage);
-		}
-	}
+        } else {
+            String errorMessage =
+                    "Security error: consumer:" + consumerId +
+                            " is trying to update " +
+                            "provisioning configuration to :" +
+                            SCIMCommonUtils.getGlobalConsumerId();
+            log.error(errorMessage);
+            throw new IdentitySCIMException(errorMessage);
+        }
+    }
 
-	public void deleteGlobalProvider(String consumerId, String providerId)
-	                                                                      throws IdentitySCIMException {
-		if (StringUtils.isEmpty(consumerId) ||
-		    consumerId.equals(SCIMCommonUtils.getGlobalConsumerId())) {
-			SCIMProviderDAO providerDAO = new SCIMProviderDAO();
-			providerDAO.deleteProvider(SCIMCommonUtils.getGlobalConsumerId(), providerId);
+    public void deleteGlobalProvider(String consumerId, String providerId)
+            throws IdentitySCIMException {
+        if (StringUtils.isEmpty(consumerId) ||
+                consumerId.equals(SCIMCommonUtils.getGlobalConsumerId())) {
+            SCIMProviderDAO providerDAO = new SCIMProviderDAO();
+            providerDAO.deleteProvider(SCIMCommonUtils.getGlobalConsumerId(), providerId);
 
-		} else {
-			String errorMessage =
-			                      "Security error: consumer:" + consumerId +
-			                              " is trying to delete " +
-			                              "provisioning configuration to :" +
-			                              SCIMCommonUtils.getGlobalConsumerId();
-			log.error(errorMessage);
-			throw new IdentitySCIMException(errorMessage);
-		}
-	}
+        } else {
+            String errorMessage =
+                    "Security error: consumer:" + consumerId +
+                            " is trying to delete " +
+                            "provisioning configuration to :" +
+                            SCIMCommonUtils.getGlobalConsumerId();
+            log.error(errorMessage);
+            throw new IdentitySCIMException(errorMessage);
+        }
+    }
 
-	public SCIMProviderDTO[] getAllUserProviders(String consumerId) throws IdentitySCIMException {
+    public SCIMProviderDTO[] getAllUserProviders(String consumerId) throws IdentitySCIMException {
 
-		SCIMProviderDTO[] scimProviderDTOs = new SCIMProviderDTO[0];
-		if (StringUtils.isEmpty(consumerId) ||
-		    consumerId.equals(SCIMCommonUtils.getUserConsumerId())) {
-			SCIMProviderDAO providerDAO = new SCIMProviderDAO();
-			List<SCIMProviderDTO> globalProviders =
-			                                        providerDAO.getAllProviders(SCIMCommonUtils.getUserConsumerId());
-			if (globalProviders != null && globalProviders.size() != 0) {
-				scimProviderDTOs = new SCIMProviderDTO[globalProviders.size()];
-				int i = 0;
-				for (SCIMProviderDTO globalProvider : globalProviders) {
-					scimProviderDTOs[i] = globalProvider;
-					i++;
-				}
-				return scimProviderDTOs;
-			}
+        SCIMProviderDTO[] scimProviderDTOs = new SCIMProviderDTO[0];
+        if (StringUtils.isEmpty(consumerId) ||
+                consumerId.equals(SCIMCommonUtils.getUserConsumerId())) {
+            SCIMProviderDAO providerDAO = new SCIMProviderDAO();
+            List<SCIMProviderDTO> globalProviders =
+                    providerDAO.getAllProviders(SCIMCommonUtils.getUserConsumerId());
+            if (globalProviders != null && globalProviders.size() != 0) {
+                scimProviderDTOs = new SCIMProviderDTO[globalProviders.size()];
+                int i = 0;
+                for (SCIMProviderDTO globalProvider : globalProviders) {
+                    scimProviderDTOs[i] = globalProvider;
+                    i++;
+                }
+                return scimProviderDTOs;
+            }
 
-		} else {
-			String errorMessage =
-			                      "Security error: consumer:" + consumerId +
-			                              " is trying to obtain " +
-			                              "provisioning configuration of :" +
-			                              SCIMCommonUtils.getUserConsumerId();
-			log.error(errorMessage);
-			throw new IdentitySCIMException(errorMessage);
-		}
-		return scimProviderDTOs;
-	}
+        } else {
+            String errorMessage =
+                    "Security error: consumer:" + consumerId +
+                            " is trying to obtain " +
+                            "provisioning configuration of :" +
+                            SCIMCommonUtils.getUserConsumerId();
+            log.error(errorMessage);
+            throw new IdentitySCIMException(errorMessage);
+        }
+        return scimProviderDTOs;
+    }
 
-	public void addUserProvider(String consumerId, SCIMProviderDTO scimProviderDTO)
-	                                                                               throws IdentitySCIMException {
+    public void addUserProvider(String consumerId, SCIMProviderDTO scimProviderDTO)
+            throws IdentitySCIMException {
 
-		if (StringUtils.isEmpty(consumerId) ||
-		    consumerId.equals(SCIMCommonUtils.getUserConsumerId())) {
-			SCIMProviderDAO providerDAO = new SCIMProviderDAO();
-			providerDAO.addProvider(SCIMCommonUtils.getUserConsumerId(), scimProviderDTO);
+        if (StringUtils.isEmpty(consumerId) ||
+                consumerId.equals(SCIMCommonUtils.getUserConsumerId())) {
+            SCIMProviderDAO providerDAO = new SCIMProviderDAO();
+            providerDAO.addProvider(SCIMCommonUtils.getUserConsumerId(), scimProviderDTO);
 
-		} else {
-			String errorMessage =
-			                      "Security error: consumer:" + consumerId + " is trying to add " +
-			                              "provisioning configuration to :" +
-			                              SCIMCommonUtils.getUserConsumerId();
-			log.error(errorMessage);
-			throw new IdentitySCIMException(errorMessage);
-		}
-	}
+        } else {
+            String errorMessage =
+                    "Security error: consumer:" + consumerId + " is trying to add " +
+                            "provisioning configuration to :" +
+                            SCIMCommonUtils.getUserConsumerId();
+            log.error(errorMessage);
+            throw new IdentitySCIMException(errorMessage);
+        }
+    }
 
-	public SCIMProviderDTO getUserProvider(String consumerId, String providerId)
-	                                                                            throws IdentitySCIMException {
+    public SCIMProviderDTO getUserProvider(String consumerId, String providerId)
+            throws IdentitySCIMException {
 
-		SCIMProviderDTO scimProviderDTO = null;
-		if (StringUtils.isEmpty(consumerId) ||
-		    consumerId.equals(SCIMCommonUtils.getUserConsumerId())) {
-			SCIMProviderDAO providerDAO = new SCIMProviderDAO();
-			scimProviderDTO =
-			                  providerDAO.getProvider(SCIMCommonUtils.getUserConsumerId(),
-			                                          providerId);
+        SCIMProviderDTO scimProviderDTO = null;
+        if (StringUtils.isEmpty(consumerId) ||
+                consumerId.equals(SCIMCommonUtils.getUserConsumerId())) {
+            SCIMProviderDAO providerDAO = new SCIMProviderDAO();
+            scimProviderDTO =
+                    providerDAO.getProvider(SCIMCommonUtils.getUserConsumerId(),
+                            providerId);
 
-		} else {
-			String errorMessage =
-			                      "Security error: consumer:" + consumerId +
-			                              " is trying to obtain " +
-			                              "provisioning configuration of :" +
-			                              SCIMCommonUtils.getUserConsumerId();
-			log.error(errorMessage);
-			throw new IdentitySCIMException(errorMessage);
-		}
-		return scimProviderDTO;
-	}
+        } else {
+            String errorMessage =
+                    "Security error: consumer:" + consumerId +
+                            " is trying to obtain " +
+                            "provisioning configuration of :" +
+                            SCIMCommonUtils.getUserConsumerId();
+            log.error(errorMessage);
+            throw new IdentitySCIMException(errorMessage);
+        }
+        return scimProviderDTO;
+    }
 
-	public void updateUserProvider(String consumerId, SCIMProviderDTO scimProviderDTO)
-	                                                                                  throws IdentitySCIMException {
+    public void updateUserProvider(String consumerId, SCIMProviderDTO scimProviderDTO)
+            throws IdentitySCIMException {
 
-		if (StringUtils.isEmpty(consumerId) ||
-		    consumerId.equals(SCIMCommonUtils.getUserConsumerId())) {
-			SCIMProviderDAO providerDAO = new SCIMProviderDAO();
-			providerDAO.updateProvider(SCIMCommonUtils.getUserConsumerId(), scimProviderDTO);
+        if (StringUtils.isEmpty(consumerId) ||
+                consumerId.equals(SCIMCommonUtils.getUserConsumerId())) {
+            SCIMProviderDAO providerDAO = new SCIMProviderDAO();
+            providerDAO.updateProvider(SCIMCommonUtils.getUserConsumerId(), scimProviderDTO);
 
-		} else {
-			String errorMessage =
-			                      "Security error: consumer:" + consumerId +
-			                              " is trying to update " +
-			                              "provisioning configuration to :" +
-			                              SCIMCommonUtils.getUserConsumerId();
-			log.error(errorMessage);
-			throw new IdentitySCIMException(errorMessage);
-		}
-	}
+        } else {
+            String errorMessage =
+                    "Security error: consumer:" + consumerId +
+                            " is trying to update " +
+                            "provisioning configuration to :" +
+                            SCIMCommonUtils.getUserConsumerId();
+            log.error(errorMessage);
+            throw new IdentitySCIMException(errorMessage);
+        }
+    }
 
-	public void deleteUserProvider(String consumerId, String providerId)
-	                                                                    throws IdentitySCIMException {
+    public void deleteUserProvider(String consumerId, String providerId)
+            throws IdentitySCIMException {
 
-		if (StringUtils.isEmpty(consumerId) ||
-		    consumerId.equals(SCIMCommonUtils.getUserConsumerId())) {
-			SCIMProviderDAO providerDAO = new SCIMProviderDAO();
-			providerDAO.deleteProvider(SCIMCommonUtils.getUserConsumerId(), providerId);
+        if (StringUtils.isEmpty(consumerId) ||
+                consumerId.equals(SCIMCommonUtils.getUserConsumerId())) {
+            SCIMProviderDAO providerDAO = new SCIMProviderDAO();
+            providerDAO.deleteProvider(SCIMCommonUtils.getUserConsumerId(), providerId);
 
-		} else {
-			String errorMessage =
-			                      "Security error: consumer:" + consumerId +
-			                              " is trying to delete " +
-			                              "provisioning configuration to :" +
-			                              SCIMCommonUtils.getUserConsumerId();
-			log.error(errorMessage);
-			throw new IdentitySCIMException(errorMessage);
-		}
-	}
+        } else {
+            String errorMessage =
+                    "Security error: consumer:" + consumerId +
+                            " is trying to delete " +
+                            "provisioning configuration to :" +
+                            SCIMCommonUtils.getUserConsumerId();
+            log.error(errorMessage);
+            throw new IdentitySCIMException(errorMessage);
+        }
+    }
 }
