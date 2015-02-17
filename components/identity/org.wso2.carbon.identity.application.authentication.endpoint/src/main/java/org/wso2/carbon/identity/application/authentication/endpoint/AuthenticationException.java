@@ -20,15 +20,15 @@ package org.wso2.carbon.identity.application.authentication.endpoint;
 import java.io.IOException;
 
 public class AuthenticationException extends IOException {
-    public AuthenticationException(){
+    public AuthenticationException() {
         super();
     }
 
-    public AuthenticationException(Exception e){
+    public AuthenticationException(Exception e) {
         super(e);
     }
 
-    public AuthenticationException(String message){
+    public AuthenticationException(String message) {
         super(message);
     }
 }
