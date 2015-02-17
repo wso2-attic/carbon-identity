@@ -23,9 +23,9 @@ import org.wso2.carbon.identity.sts.passive.ResponseToken;
 
 public class SignoutRequestProcessor extends RequestProcessor {
 
-	public ResponseToken process(RequestToken request) throws TrustException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public ResponseToken process(RequestToken request) throws TrustException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

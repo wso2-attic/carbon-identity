@@ -68,7 +68,7 @@ public class SigningRequestProcessor extends RequestProcessor {
         handlerResultsVector.add(handlerResults);
 
         MessageContext.getCurrentMessageContext().setProperty(WSHandlerConstants.RECV_RESULTS,
-                                                              handlerResultsVector);
+                handlerResultsVector);
 
         // no claim attributes are requested, not included in request. So add the default claim
         // attributes if they are available for the realm in request. The request may contain realm or wreply value,
@@ -103,7 +103,7 @@ public class SigningRequestProcessor extends RequestProcessor {
 
         try {
             MessageContext.getCurrentMessageContext().setProperty(RahasConstants.PASSIVE_STS_RST,
-                                                                  getRST(request.getRealm(), request.getAttributes(), request.getDialect()));
+                    getRST(request.getRealm(), request.getAttributes(), request.getDialect()));
         } catch (Exception e) {
             log.error("Failed to get RST element.", e);
             throw new TrustException("errorWhileProcessingSigninRequest", e);
@@ -112,7 +112,7 @@ public class SigningRequestProcessor extends RequestProcessor {
         SAMLTokenIssuerConfig samlTokenIssuerConfig = null;
         try {
             samlTokenIssuerConfig = getSAMLTokenIssuerConfig(MessageContext.getCurrentMessageContext()
-                                                                     .getAxisService(), true);
+                    .getAxisService(), true);
         } catch (Exception e) {
             log.error("Failed to get saml token issuer config.", e);
             throw new TrustException("errorWhileProcessingSigninRequest", e);

@@ -59,9 +59,8 @@ import java.util.Properties;
 
 public abstract class RequestProcessor {
 
-    protected RahasData rahasData = null;
-
     private static final Log log = LogFactory.getLog(RequestProcessor.class);
+    protected RahasData rahasData = null;
 
     protected OMElement getRST(String appliesTo, String attrs, String dialect) throws Exception {
         OMFactory factory = null;
@@ -71,32 +70,32 @@ public abstract class RequestProcessor {
         String[] attributes = null;
         String requestType;
 
-        if(dialect == null){
+        if (dialect == null) {
             dialect = UserCoreConstants.DEFAULT_CARBON_DIALECT;
         }
 
-		if (attrs != null) {
-			if (attrs.contains("#CODE#")) {
-				attributes = attrs.split("#CODE#");
-			} else {
-				attributes = attrs.split(",");
-			}
-		}
+        if (attrs != null) {
+            if (attrs.contains("#CODE#")) {
+                attributes = attrs.split("#CODE#");
+            } else {
+                attributes = attrs.split(",");
+            }
+        }
 
         requestType = TrustUtil.getWSTNamespaceForRSTRequestTye(RahasConstants.VERSION_05_12)
-                      + RahasConstants.REQ_TYPE_ISSUE;
+                + RahasConstants.REQ_TYPE_ISSUE;
 
         factory = OMAbstractFactory.getOMFactory();
         element = factory.createOMElement(Constants.RST_TEMPLATE);
         TrustUtil.createTokenTypeElement(RahasConstants.VERSION_05_12, element).setText(
                 RahasConstants.TOK_TYPE_SAML_10);
         TrustUtil.createKeyTypeElement(RahasConstants.VERSION_05_12, element,
-                                       RahasConstants.KEY_TYPE_SYMM_KEY);
+                RahasConstants.KEY_TYPE_SYMM_KEY);
         TrustUtil.createKeySizeElement(RahasConstants.VERSION_05_12, element, 256);
 
         if (attributes != null && attributes.length > 0) {
             claims = TrustUtil.createClaims(RahasConstants.VERSION_05_12, element,
-                                            dialect);
+                    dialect);
             for (int i = 0; i < attributes.length; i++) {
                 addClaimType(claims, attributes[i]);
             }
@@ -168,7 +167,7 @@ public abstract class RequestProcessor {
                     new String[]{keyStoreName}, keyStoreName, privateKeyAlias);
 
             SAMLTokenIssuerConfig stsSamlConfig = new SAMLTokenIssuerConfig(issuerName,
-                                                                            cryptoProvider, props);
+                    cryptoProvider, props);
             stsSamlConfig.setIssuerKeyAlias(keyAlias);
             stsSamlConfig.setIssuerKeyPassword(keyPassword);
             stsSamlConfig.setAddRequestedAttachedRef(true);
@@ -179,7 +178,7 @@ public abstract class RequestProcessor {
 
             String resourcePath = null;
             resourcePath = RegistryResources.SERVICE_GROUPS + ServerConstants.STS_NAME
-                           + RegistryResources.SERVICES + ServerConstants.STS_NAME + "/trustedServices";
+                    + RegistryResources.SERVICES + ServerConstants.STS_NAME + "/trustedServices";
             if (systemRegistry.resourceExists(resourcePath)) {
                 Resource trustedService = null;
                 Properties properties = null;
@@ -190,11 +189,11 @@ public abstract class RequestProcessor {
                     iterator = properties.entrySet().iterator();
                     while (iterator.hasNext()) {
                         Entry entry = (Entry) iterator.next();
-                        if(RegistryUtils.isHiddenProperty(entry.getKey().toString())){
+                        if (RegistryUtils.isHiddenProperty(entry.getKey().toString())) {
                             continue;
                         }
                         stsSamlConfig.addTrustedServiceEndpointAddress((String) entry.getKey(),
-                                                                       (String) ((List) entry.getValue()).get(0));
+                                (String) ((List) entry.getValue()).get(0));
                     }
                 }
             }
