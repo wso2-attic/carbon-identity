@@ -22,10 +22,9 @@ import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 
 /**
  * Builds custom claims for the {@code IDToken}
- * 
  */
 public interface CustomClaimsCallbackHandler {
 
-	public void handleCustomClaims(IDTokenBuilder builder, OAuthTokenReqMessageContext request);
+    public void handleCustomClaims(IDTokenBuilder builder, OAuthTokenReqMessageContext request);
 
 }

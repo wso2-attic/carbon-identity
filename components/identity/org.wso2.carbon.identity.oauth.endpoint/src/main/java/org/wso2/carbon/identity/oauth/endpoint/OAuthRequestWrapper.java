@@ -21,7 +21,10 @@ package org.wso2.carbon.identity.oauth.endpoint;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.ws.rs.core.MultivaluedMap;
-import java.util.*;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
 
 public class OAuthRequestWrapper extends HttpServletRequestWrapper {
     private MultivaluedMap<String, String> form;

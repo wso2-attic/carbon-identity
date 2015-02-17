@@ -26,11 +26,10 @@ import java.util.concurrent.BlockingDeque;
 /**
  *
  */
-public class TokenPersistenceTask implements Runnable{
-
-    private BlockingDeque<AccessContextTokenDO> accessContextTokenQueue;
+public class TokenPersistenceTask implements Runnable {
 
     private static Log log = LogFactory.getLog(TokenPersistenceTask.class);
+    private BlockingDeque<AccessContextTokenDO> accessContextTokenQueue;
 
     public TokenPersistenceTask(BlockingDeque<AccessContextTokenDO> accessContextTokenQueue) {
         this.accessContextTokenQueue = accessContextTokenQueue;
@@ -41,11 +40,11 @@ public class TokenPersistenceTask implements Runnable{
 
         log.debug("Access Token context persist consumer is started");
 
-        while(true){
+        while (true) {
             try {
-                AccessContextTokenDO accessContextTokenDO =  accessContextTokenQueue.take();
-                if(accessContextTokenDO != null){
-                    if(accessContextTokenDO.getAccessToken() == null){
+                AccessContextTokenDO accessContextTokenDO = accessContextTokenQueue.take();
+                if (accessContextTokenDO != null) {
+                    if (accessContextTokenDO.getAccessToken() == null) {
                         log.debug("Access Token Data removing Task is started to run");
                         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
                         tokenMgtDAO.removeAccessToken(accessContextTokenDO.getAccessToken());

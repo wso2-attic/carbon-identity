@@ -19,7 +19,7 @@
 package org.wso2.carbon.identity.oauth.cache;
 
 
-public class OAuthCacheKey extends CacheKey{
+public class OAuthCacheKey extends CacheKey {
 
     private String cacheKeyString;
 
@@ -33,10 +33,10 @@ public class OAuthCacheKey extends CacheKey{
 
     @Override
     public boolean equals(Object o) {
-        if(!(o instanceof OAuthCacheKey)){
+        if (!(o instanceof OAuthCacheKey)) {
             return false;
         }
-        return this.cacheKeyString.equals(((OAuthCacheKey)o).getCacheKeyString());
+        return this.cacheKeyString.equals(((OAuthCacheKey) o).getCacheKeyString());
     }
 
     @Override

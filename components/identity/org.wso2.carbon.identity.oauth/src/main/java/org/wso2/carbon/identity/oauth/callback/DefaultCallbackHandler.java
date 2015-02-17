@@ -32,26 +32,26 @@ public class DefaultCallbackHandler extends AbstractOAuthCallbackHandler {
     }
 
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-        if(callbacks != null && callbacks.length > 0){
+        if (callbacks != null && callbacks.length > 0) {
             OAuthCallback oauthCallback = (OAuthCallback) callbacks[0];
             // TODO : This needs to be implemented in XACML.
             // TODO : For the moment, let's approve everything.
-            if(OAuthCallback.OAuthCallbackType.ACCESS_DELEGATION_AUTHZ.equals(
-                    oauthCallback.getCallbackType())){
+            if (OAuthCallback.OAuthCallbackType.ACCESS_DELEGATION_AUTHZ.equals(
+                    oauthCallback.getCallbackType())) {
                 oauthCallback.setAuthorized(true);
             }
-            if(OAuthCallback.OAuthCallbackType.ACCESS_DELEGATION_TOKEN.equals(
-                    oauthCallback.getCallbackType())){
+            if (OAuthCallback.OAuthCallbackType.ACCESS_DELEGATION_TOKEN.equals(
+                    oauthCallback.getCallbackType())) {
                 oauthCallback.setAuthorized(true);
             }
-            if(OAuthCallback.OAuthCallbackType.SCOPE_VALIDATION_AUTHZ.equals(
-                    oauthCallback.getCallbackType())){
-            	oauthCallback.setApprovedScope(oauthCallback.getRequestedScope());
+            if (OAuthCallback.OAuthCallbackType.SCOPE_VALIDATION_AUTHZ.equals(
+                    oauthCallback.getCallbackType())) {
+                oauthCallback.setApprovedScope(oauthCallback.getRequestedScope());
                 oauthCallback.setValidScope(true);
             }
-            if(OAuthCallback.OAuthCallbackType.SCOPE_VALIDATION_TOKEN.equals(
-                    oauthCallback.getCallbackType())){
-            	oauthCallback.setApprovedScope(oauthCallback.getRequestedScope());
+            if (OAuthCallback.OAuthCallbackType.SCOPE_VALIDATION_TOKEN.equals(
+                    oauthCallback.getCallbackType())) {
+                oauthCallback.setApprovedScope(oauthCallback.getRequestedScope());
                 oauthCallback.setValidScope(true);
             }
         }

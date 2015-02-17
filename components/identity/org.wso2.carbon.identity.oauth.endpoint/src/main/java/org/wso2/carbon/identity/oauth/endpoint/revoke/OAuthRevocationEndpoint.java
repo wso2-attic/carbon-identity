@@ -26,7 +26,6 @@ import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.identity.oauth.OAuthUtil;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.exception.OAuthClientException;
@@ -58,7 +57,7 @@ public class OAuthRevocationEndpoint {
     @Path("/")
     @Consumes("application/x-www-form-urlencoded")
     public Response revokeAccessToken(@Context HttpServletRequest request,
-            MultivaluedMap<String, String> paramMap) throws OAuthSystemException {
+                                      MultivaluedMap<String, String> paramMap) throws OAuthSystemException {
 
         try {
             PrivilegedCarbonContext.startTenantFlow();
@@ -101,7 +100,7 @@ public class OAuthRevocationEndpoint {
                     // then it is not recommended as per the specification. sending invalid_client error back.
                     String[] clientCredentials = EndpointUtil
                             .extractCredentialsFromAuthzHeader(request
-                                                                       .getHeader(OAuthConstants.HTTP_REQ_HEADER_AUTHZ));
+                                    .getHeader(OAuthConstants.HTTP_REQ_HEADER_AUTHZ));
 
                     // The client MUST NOT use more than one authentication method in each request
                     if (paramMap.containsKey(OAuth.OAUTH_CLIENT_ID)
@@ -186,7 +185,7 @@ public class OAuthRevocationEndpoint {
 
     private Response handleBasicAuthFailure(String callback)
             throws OAuthSystemException {
-        if(callback == null || "".equals(callback)){
+        if (callback == null || "".equals(callback)) {
             OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_UNAUTHORIZED)
                     .setError(OAuth2ErrorCodes.INVALID_CLIENT)
                     .setErrorDescription("Client Authentication failed.").buildJSONMessage();
@@ -200,13 +199,13 @@ public class OAuthRevocationEndpoint {
             return Response.status(response.getResponseStatus())
                     .header(OAuthConstants.HTTP_RESP_HEADER_AUTHENTICATE, EndpointUtil.getRealmInfo())
                     .header("Content-Type", "application/javascript")
-                    .entity(callback+"(" + response.getBody() + ");").build();
+                    .entity(callback + "(" + response.getBody() + ");").build();
         }
     }
 
     private Response handleAuthorizationFailure(String callback)
             throws OAuthSystemException {
-        if(callback == null  || "".equals(callback)){
+        if (callback == null || "".equals(callback)) {
             OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_UNAUTHORIZED)
                     .setError(OAuth2ErrorCodes.UNAUTHORIZED_CLIENT)
                     .setErrorDescription("Client Authentication failed.").buildJSONMessage();
@@ -220,13 +219,13 @@ public class OAuthRevocationEndpoint {
             return Response.status(response.getResponseStatus())
                     .header(OAuthConstants.HTTP_RESP_HEADER_AUTHENTICATE, EndpointUtil.getRealmInfo())
                     .header("Content-Type", "application/javascript")
-                    .entity(callback+"(" + response.getBody() + ");").build();
+                    .entity(callback + "(" + response.getBody() + ");").build();
         }
     }
 
     private Response handleServerFailure(String callback, Exception e)
             throws OAuthSystemException {
-        if(callback == null || "".equals(callback)){
+        if (callback == null || "".equals(callback)) {
             OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
                     .setError(OAuth2ErrorCodes.SERVER_ERROR)
                     .setErrorDescription(e.getMessage()).buildJSONMessage();
@@ -238,13 +237,13 @@ public class OAuthRevocationEndpoint {
                     .setError(OAuth2ErrorCodes.SERVER_ERROR).buildJSONMessage();
             return Response.status(response.getResponseStatus())
                     .header("Content-Type", "application/javascript")
-                    .entity(callback+"(" + response.getBody() + ");").build();
+                    .entity(callback + "(" + response.getBody() + ");").build();
         }
     }
 
     private Response handleClientFailure(String callback)
             throws OAuthSystemException {
-        if(callback == null || "".equals(callback)){
+        if (callback == null || "".equals(callback)) {
             OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
                     .setError(OAuth2ErrorCodes.INVALID_REQUEST)
                     .setErrorDescription("Invalid revocation request").buildJSONMessage();
@@ -256,13 +255,13 @@ public class OAuthRevocationEndpoint {
                     .setError(OAuth2ErrorCodes.INVALID_REQUEST).buildJSONMessage();
             return Response.status(response.getResponseStatus())
                     .header("Content-Type", "application/javascript")
-                    .entity(callback+"(" + response.getBody() + ");").build();
+                    .entity(callback + "(" + response.getBody() + ");").build();
         }
     }
 
     private Response handleClientFailure(String callback, OAuthRevocationResponseDTO dto)
             throws OAuthSystemException {
-        if(callback == null || "".equals(callback)){
+        if (callback == null || "".equals(callback)) {
             OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
                     .setError(dto.getErrorCode())
                     .setErrorDescription(dto.getErrorMsg()).buildJSONMessage();
@@ -274,7 +273,7 @@ public class OAuthRevocationEndpoint {
                     .setError(dto.getErrorCode()).buildJSONMessage();
             return Response.status(response.getResponseStatus())
                     .header("Content-Type", "application/javascript")
-                    .entity(callback+"(" + response.getBody() + ");").build();
+                    .entity(callback + "(" + response.getBody() + ");").build();
         }
     }
 
@@ -284,7 +283,7 @@ public class OAuthRevocationEndpoint {
         log.debug("----------logging request headers.----------");
         Enumeration headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
-            String headerName = (String)headerNames.nextElement();
+            String headerName = (String) headerNames.nextElement();
             Enumeration headers = request.getHeaders(headerName);
             while (headers.hasMoreElements()) {
                 log.debug(headerName + " : " + headers.nextElement());

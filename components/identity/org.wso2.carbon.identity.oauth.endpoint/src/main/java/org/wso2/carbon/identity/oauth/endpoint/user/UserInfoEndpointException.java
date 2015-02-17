@@ -19,36 +19,34 @@ package org.wso2.carbon.identity.oauth.endpoint.user;
 
 public class UserInfoEndpointException extends Exception {
 
-	/**
-	 * 
-	 */
-    private static final long serialVersionUID = -4449780649560053452L;
-    
     public static final String ERROR_CODE_INVALID_SCHEMA = "invalid_schema";
     public static final String ERROR_CODE_INVALID_REQUEST = "invalid_request";
     public static final String ERROR_CODE_INVALID_TOKEN = "invalid_token";
     public static final String ERROR_CODE_INSUFFICIENT_SCOPE = "insufficient_scope";
-    
+    /**
+     *
+     */
+    private static final long serialVersionUID = -4449780649560053452L;
     private String errorCode = null;
     private String errorMessage = null;
-    
+
     public UserInfoEndpointException(String errorCode, String errorMessage) {
-    	super(errorMessage);
-    	this.errorCode = errorCode;
-    	this.errorMessage = errorMessage;
+        super(errorMessage);
+        this.errorCode = errorCode;
+        this.errorMessage = errorMessage;
     }
-    
+
     public UserInfoEndpointException(String errorMessage) {
-    	super(errorMessage);
-    	this.errorMessage = errorMessage;
+        super(errorMessage);
+        this.errorMessage = errorMessage;
     }
-    
+
     public String getErrorCode() {
-    	return errorCode;
+        return errorCode;
     }
-    
+
     public String getErrorMessage() {
-    	return errorMessage;
+        return errorMessage;
     }
 
 }

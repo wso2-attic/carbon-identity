@@ -33,8 +33,8 @@ public class BasicAuthClientAuthHandler implements ClientAuthenticationHandler {
 
     @Override
     public boolean canAuthenticate(OAuthTokenReqMessageContext tokReqMsgCtx) throws IdentityOAuth2Exception {
-        if(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientId() != null &&
-                tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientSecret() != null){
+        if (tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientId() != null &&
+                tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientSecret() != null) {
             return true;
         } else {
             return false;

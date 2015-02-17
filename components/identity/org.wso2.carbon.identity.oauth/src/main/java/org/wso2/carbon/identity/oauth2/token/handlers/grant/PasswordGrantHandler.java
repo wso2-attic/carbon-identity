@@ -62,7 +62,7 @@ public class PasswordGrantHandler extends AbstractAuthorizationGrantHandler {
         }
 
         // tenantId == -1, means an invalid tenant.
-        if(tenantId == -1){
+        if (tenantId == -1) {
             if (log.isDebugEnabled()) {
                 log.debug("Token request with Password Grant Type for an invalid tenant : " +
                         MultitenantUtils.getTenantDomain(username));
@@ -77,7 +77,7 @@ public class PasswordGrantHandler extends AbstractAuthorizationGrantHandler {
             userStoreManager = realmService.getTenantUserRealm(tenantId).getUserStoreManager();
             authStatus = userStoreManager.authenticate(tenantAwareUserName, oAuth2AccessTokenReqDTO.getResourceOwnerPassword());
 
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 log.debug("Token request with Password Grant Type received. " +
                         "Username : " + username +
                         "Scope : " + OAuth2Util.buildScopeString(oAuth2AccessTokenReqDTO.getScope()) +
@@ -92,9 +92,9 @@ public class PasswordGrantHandler extends AbstractAuthorizationGrantHandler {
             return false;
             //throw new IdentityOAuth2Exception("Error when authenticating the user credentials", e);
         }
-        if(authStatus){
-            if(username.indexOf(CarbonConstants.DOMAIN_SEPARATOR) < 0){
-                if(UserCoreUtil.getDomainFromThreadLocal() != null && !UserCoreUtil.getDomainFromThreadLocal().equals("")){
+        if (authStatus) {
+            if (username.indexOf(CarbonConstants.DOMAIN_SEPARATOR) < 0) {
+                if (UserCoreUtil.getDomainFromThreadLocal() != null && !UserCoreUtil.getDomainFromThreadLocal().equals("")) {
                     username = UserCoreUtil.getDomainFromThreadLocal() + CarbonConstants.DOMAIN_SEPARATOR + username;
                 }
             }

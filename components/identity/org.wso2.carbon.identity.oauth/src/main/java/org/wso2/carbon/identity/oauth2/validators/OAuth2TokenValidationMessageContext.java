@@ -32,7 +32,7 @@ public class OAuth2TokenValidationMessageContext {
     Properties properties = new Properties();
 
     public OAuth2TokenValidationMessageContext(OAuth2TokenValidationRequestDTO requestDTO,
-                                               OAuth2TokenValidationResponseDTO responseDTO){
+                                               OAuth2TokenValidationResponseDTO responseDTO) {
         this.requestDTO = requestDTO;
         this.responseDTO = responseDTO;
     }
@@ -45,11 +45,11 @@ public class OAuth2TokenValidationMessageContext {
         return responseDTO;
     }
 
-    public Object addProperty(Object name, Object value){
+    public Object addProperty(Object name, Object value) {
         return properties.put(name, value);
     }
 
-    public Object getProperty(Object name){
+    public Object getProperty(Object name) {
         return properties.get(name);
     }
 

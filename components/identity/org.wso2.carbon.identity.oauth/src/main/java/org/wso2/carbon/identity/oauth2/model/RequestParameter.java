@@ -23,7 +23,7 @@ import java.io.Serializable;
 /**
  * This class is used to store request parameters
  */
-public class RequestParameter implements Serializable{
+public class RequestParameter implements Serializable {
 
     private static final long serialVersionUID = 8094659952209974793L;
     private String key;
