@@ -17,29 +17,20 @@ package org.wso2.carbon.identity.relyingparty.ui.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.wso2.carbon.utils.ConfigurationContextService;
 
 /**
  * @scr.component name="identity.relyingparty..ui.dscomponent" immediate="true"
  * @scr.reference name="config.context.service"
- *                interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
- *                policy="dynamic" bind="setConfigurationContextService"
- *                unbind="unsetConfigurationContextService"
+ * interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
+ * policy="dynamic" bind="setConfigurationContextService"
+ * unbind="unsetConfigurationContextService"
  */
 public class RelyingPartyUIServiceComponent {
 
     private static Log log = LogFactory.getLog(RelyingPartyUIServiceComponent.class);
 
     private static ConfigurationContextService ccServiceInstance;
-    
-    protected void setConfigurationContextService(ConfigurationContextService contextService) {
-        ccServiceInstance = contextService;
-    }
-
-    protected void unsetConfigurationContextService(ConfigurationContextService contextService) {
-        ccServiceInstance = null;
-    }
 
     public static ConfigurationContextService getConfigurationContextService() {
         if (ccServiceInstance == null) {
@@ -50,6 +41,14 @@ public class RelyingPartyUIServiceComponent {
         }
         return ccServiceInstance;
     }
-    
-    
+
+    protected void setConfigurationContextService(ConfigurationContextService contextService) {
+        ccServiceInstance = contextService;
+    }
+
+    protected void unsetConfigurationContextService(ConfigurationContextService contextService) {
+        ccServiceInstance = null;
+    }
+
+
 }

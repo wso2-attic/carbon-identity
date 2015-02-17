@@ -16,91 +16,88 @@
 
 package org.wso2.carbon.identity.relyingparty.ui.openid;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.wso2.carbon.identity.base.IdentityConstants;
+import org.wso2.carbon.identity.base.IdentityException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.wso2.carbon.identity.base.IdentityConstants;
-import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.relyingparty.ui.openid.AuthPolicyType;
-import org.wso2.carbon.identity.relyingparty.ui.openid.OpenIDAxAttribute;
+import java.util.ArrayList;
+import java.util.List;
 
 public class OpenIDAuthenticationRequest {
 
-	private String returnUrl;
-	private HttpServletResponse reponse;
-	private HttpServletRequest request;
-	private String openIDUrl;
-	private List<String> requiredClaimURIs = new ArrayList<String>();
-	private List<String> optionalClaimURIs = new ArrayList<String>();
-	
-	private List<OpenIDAxAttribute> requiredClaims = new ArrayList<OpenIDAxAttribute>();
+    private String returnUrl;
+    private HttpServletResponse reponse;
+    private HttpServletRequest request;
+    private String openIDUrl;
+    private List<String> requiredClaimURIs = new ArrayList<String>();
+    private List<String> optionalClaimURIs = new ArrayList<String>();
+
+    private List<OpenIDAxAttribute> requiredClaims = new ArrayList<OpenIDAxAttribute>();
     private List<OpenIDAxAttribute> optionalClaims = new ArrayList<OpenIDAxAttribute>();
-    
-	private String realm;
-	private ArrayList<String> requestTypes = new ArrayList<String>();
-	private ArrayList<AuthPolicyType> authTypes = new ArrayList<AuthPolicyType>();
-	private int maxAuthAge;
-	
-	private boolean requestClaimsFromIdP = false;
 
-	public OpenIDAuthenticationRequest(HttpServletRequest request, HttpServletResponse reponse) {
-		super();
-		this.reponse = reponse;
-		this.request = request;
-	}
+    private String realm;
+    private ArrayList<String> requestTypes = new ArrayList<String>();
+    private ArrayList<AuthPolicyType> authTypes = new ArrayList<AuthPolicyType>();
+    private int maxAuthAge;
 
-	public String getOpenIDUrl() {
-		return openIDUrl;
-	}
+    private boolean requestClaimsFromIdP = false;
 
-	public void setOpenIDUrl(String openIDUrl) {
-		this.openIDUrl = openIDUrl;
-	}
+    public OpenIDAuthenticationRequest(HttpServletRequest request, HttpServletResponse reponse) {
+        super();
+        this.reponse = reponse;
+        this.request = request;
+    }
 
-	public ArrayList<String> getRequestTypes() {
-		return requestTypes;
-	}
+    public String getOpenIDUrl() {
+        return openIDUrl;
+    }
 
-	public HttpServletResponse getReponse() {
-		return reponse;
-	}
+    public void setOpenIDUrl(String openIDUrl) {
+        this.openIDUrl = openIDUrl;
+    }
 
-	public void setReponse(HttpServletResponse reponse) {
-		this.reponse = reponse;
-	}
+    public ArrayList<String> getRequestTypes() {
+        return requestTypes;
+    }
 
-	public HttpServletRequest getRequest() {
-		return request;
-	}
+    public HttpServletResponse getReponse() {
+        return reponse;
+    }
 
-	public void setRequest(HttpServletRequest request) {
-		this.request = request;
-	}
+    public void setReponse(HttpServletResponse reponse) {
+        this.reponse = reponse;
+    }
 
-	public String getReturnUrl() {
-		return returnUrl;
-	}
+    public HttpServletRequest getRequest() {
+        return request;
+    }
 
-	public void setReturnUrl(String returnurl) {
-		this.returnUrl = returnurl;
-	}
+    public void setRequest(HttpServletRequest request) {
+        this.request = request;
+    }
 
-	public int getMaxAuthAge() {
-		return maxAuthAge;
-	}
+    public String getReturnUrl() {
+        return returnUrl;
+    }
 
-	public void setMaxAuthAge(int maxAuthAge) {
-		this.maxAuthAge = maxAuthAge;
-	}
+    public void setReturnUrl(String returnurl) {
+        this.returnUrl = returnurl;
+    }
 
-	public ArrayList<AuthPolicyType> getAuthTypes() {
-		return authTypes;
-	}
-	
-	public boolean getRequestClaimsFromIdP() {
+    public int getMaxAuthAge() {
+        return maxAuthAge;
+    }
+
+    public void setMaxAuthAge(int maxAuthAge) {
+        this.maxAuthAge = maxAuthAge;
+    }
+
+    public ArrayList<AuthPolicyType> getAuthTypes() {
+        return authTypes;
+    }
+
+    public boolean getRequestClaimsFromIdP() {
         return requestClaimsFromIdP;
     }
 
@@ -109,135 +106,135 @@ public class OpenIDAuthenticationRequest {
     }
 
     /**
-	 * Add requested authentication policies
-	 * 
-	 * @param policyType Requested policy type
-	 */
-	public void addAuthPolicy(AuthPolicyType policyType) {
-		if (!authTypes.contains(policyType)) {
-			authTypes.add(policyType);
-		}
-	}
+     * Add requested authentication policies
+     *
+     * @param policyType Requested policy type
+     */
+    public void addAuthPolicy(AuthPolicyType policyType) {
+        if (!authTypes.contains(policyType)) {
+            authTypes.add(policyType);
+        }
+    }
 
-	/**
-	 * Indicate what sort of attributes being requested.
-	 * 
-	 * @param requestType OpenIDRequestType
-	 */
-	public void addRequestType(String requestType) {
-		if (!requestTypes.contains(requestType)) {
-			requestTypes.add(requestType);
-		}
-	}
+    /**
+     * Indicate what sort of attributes being requested.
+     *
+     * @param requestType OpenIDRequestType
+     */
+    public void addRequestType(String requestType) {
+        if (!requestTypes.contains(requestType)) {
+            requestTypes.add(requestType);
+        }
+    }
 
-	/**
-	 * Add required attributes for Simple Registration. Make sure you have already set
-	 * SIMPLE_REGISTRATION as an RequestType before calling this method.
-	 * 
-	 * @param attribute SReg required attribute
-	 * @throws RelyingPartyException
-	 */
-	public void addRequiredClaims(String attribute) throws IdentityException {
-		addClaims(attribute, requiredClaimURIs);
-	}
+    /**
+     * Add required attributes for Simple Registration. Make sure you have already set
+     * SIMPLE_REGISTRATION as an RequestType before calling this method.
+     *
+     * @param attribute SReg required attribute
+     * @throws RelyingPartyException
+     */
+    public void addRequiredClaims(String attribute) throws IdentityException {
+        addClaims(attribute, requiredClaimURIs);
+    }
 
-	/**
-	 * Add optional attributes for Simple Registration. Make sure you have already set
-	 * SIMPLE_REGISTRATION as an RequestType before calling this method.
-	 * 
-	 * @param attribute SReg optional attribute
-	 * @throws RelyingPartyException
-	 */
-	public void addOptionalClaims(String attribute) throws IdentityException {
-		addClaims(attribute, optionalClaimURIs);
-	}
+    /**
+     * Add optional attributes for Simple Registration. Make sure you have already set
+     * SIMPLE_REGISTRATION as an RequestType before calling this method.
+     *
+     * @param attribute SReg optional attribute
+     * @throws RelyingPartyException
+     */
+    public void addOptionalClaims(String attribute) throws IdentityException {
+        addClaims(attribute, optionalClaimURIs);
+    }
 
-	/**
-	 * Add required attributes for Attribute Exchange. Make sure you have already set
-	 * ATTRIBUTE_EXCHANGE as an RequestType before calling this method.
-	 * 
-	 * @param attribute Name of the attribute
-	 * @param namespace Namespace of the attribute
-	 * @throws RelyingPartyException
-	 */
-	public void addRequiredClaims(String attribute, String namespace) throws IdentityException {
-		addClaims(attribute, namespace, requiredClaims);
-	}
+    /**
+     * Add required attributes for Attribute Exchange. Make sure you have already set
+     * ATTRIBUTE_EXCHANGE as an RequestType before calling this method.
+     *
+     * @param attribute Name of the attribute
+     * @param namespace Namespace of the attribute
+     * @throws RelyingPartyException
+     */
+    public void addRequiredClaims(String attribute, String namespace) throws IdentityException {
+        addClaims(attribute, namespace, requiredClaims);
+    }
 
-	/**
-	 * Add optional attributes for Attribute Exchange. Make sure you have already set
-	 * ATTRIBUTE_EXCHANGE as an RequestType before calling this method.
-	 * 
-	 * @param attribute Name of the attribute
-	 * @param namespace Namespace of the attribute
-	 * @throws RelyingPartyException
-	 */
-	public void addOptionalClaims(String attribute, String namespace) throws IdentityException {
-		addClaims(attribute, namespace, optionalClaims);
-	}
+    /**
+     * Add optional attributes for Attribute Exchange. Make sure you have already set
+     * ATTRIBUTE_EXCHANGE as an RequestType before calling this method.
+     *
+     * @param attribute Name of the attribute
+     * @param namespace Namespace of the attribute
+     * @throws RelyingPartyException
+     */
+    public void addOptionalClaims(String attribute, String namespace) throws IdentityException {
+        addClaims(attribute, namespace, optionalClaims);
+    }
 
-	/**
-	 * @param attribute
-	 * @param namespace
-	 * @param claims
-	 * @throws RelyingPartyException
-	 */
-	private void addClaims(String attribute, String namespace, List<OpenIDAxAttribute> claims)
-			throws IdentityException {
+    /**
+     * @param attribute
+     * @param namespace
+     * @param claims
+     * @throws RelyingPartyException
+     */
+    private void addClaims(String attribute, String namespace, List<OpenIDAxAttribute> claims)
+            throws IdentityException {
 
-		OpenIDAxAttribute axAttribute = null;
+        OpenIDAxAttribute axAttribute = null;
 
-		if (attribute == null || attribute.trim().length() == 0 || namespace == null
-				|| namespace.trim().length() == 0) {
-			throw new IdentityException("invalidInputParams");
-		}
+        if (attribute == null || attribute.trim().length() == 0 || namespace == null
+                || namespace.trim().length() == 0) {
+            throw new IdentityException("invalidInputParams");
+        }
 
-		axAttribute = new OpenIDAxAttribute(attribute, namespace);
+        axAttribute = new OpenIDAxAttribute(attribute, namespace);
 
-		for (Object element : claims) {
-			if (element instanceof OpenIDAxAttribute) {
-				OpenIDAxAttribute attr = (OpenIDAxAttribute) element;
-				if (attr.getAttributeName().equalsIgnoreCase(attribute)
-						|| attr.getNamespace().equalsIgnoreCase(namespace)) {
-					throw new IdentityException("duplicatedAttributes");
-				}
-			}
-		}
+        for (Object element : claims) {
+            if (element instanceof OpenIDAxAttribute) {
+                OpenIDAxAttribute attr = (OpenIDAxAttribute) element;
+                if (attr.getAttributeName().equalsIgnoreCase(attribute)
+                        || attr.getNamespace().equalsIgnoreCase(namespace)) {
+                    throw new IdentityException("duplicatedAttributes");
+                }
+            }
+        }
 
-		if (!requestTypes.contains(IdentityConstants.OpenId.ATTRIBUTE_EXCHANGE)) {
-			requestTypes.add(IdentityConstants.OpenId.ATTRIBUTE_EXCHANGE);
-		}
+        if (!requestTypes.contains(IdentityConstants.OpenId.ATTRIBUTE_EXCHANGE)) {
+            requestTypes.add(IdentityConstants.OpenId.ATTRIBUTE_EXCHANGE);
+        }
 
-		claims.add(axAttribute);
-	}
+        claims.add(axAttribute);
+    }
 
-	/**
-	 * @param attribute
-	 * @param claims
-	 * @throws RelyingPartyException
-	 */
-	private void addClaims(String attribute, List<String> claims) throws IdentityException {
+    /**
+     * @param attribute
+     * @param claims
+     * @throws RelyingPartyException
+     */
+    private void addClaims(String attribute, List<String> claims) throws IdentityException {
 
-		if (attribute == null || attribute.trim().length() == 0) {
-			throw new IdentityException("invalidInputParams");
-		}
-		if (claims.contains(attribute)) {
-			throw new IdentityException("duplicatedAttributes");
-		}
-		if (!requestTypes.contains(IdentityConstants.OpenId.SIMPLE_REGISTRATION)) {
-			requestTypes.add(IdentityConstants.OpenId.SIMPLE_REGISTRATION);
-		}
+        if (attribute == null || attribute.trim().length() == 0) {
+            throw new IdentityException("invalidInputParams");
+        }
+        if (claims.contains(attribute)) {
+            throw new IdentityException("duplicatedAttributes");
+        }
+        if (!requestTypes.contains(IdentityConstants.OpenId.SIMPLE_REGISTRATION)) {
+            requestTypes.add(IdentityConstants.OpenId.SIMPLE_REGISTRATION);
+        }
 
-		claims.add(attribute);
-	}
+        claims.add(attribute);
+    }
 
-	public String getRealm() {
-		return realm;
-	}
+    public String getRealm() {
+        return realm;
+    }
 
-	public void setRealm(String realm) {
-		this.realm = realm;
-	}
+    public void setRealm(String realm) {
+        this.realm = realm;
+    }
 
     public List<String> getRequiredClaimURIs() {
         return requiredClaimURIs;
@@ -254,6 +251,6 @@ public class OpenIDAuthenticationRequest {
     public List<OpenIDAxAttribute> getOptionalClaims() {
         return optionalClaims;
     }
-	
-	
+
+
 }
