@@ -79,6 +79,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                         respDTO.setAccessToken(accessTokenDO.getAccessToken());
                         respDTO.setValidityPeriod(accessTokenDO.getValidityPeriod());
                         respDTO.setScope(oauthAuthzMsgCtx.getApprovedScope());
+                        respDTO.setTokenType(accessTokenDO.getTokenType());
                         return respDTO;
                     } else {
                         //Token is expired. Clear it from cache and mark it as expired on database
@@ -126,6 +127,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                     respDTO.setAccessToken(accessTokenDO.getAccessToken());
                     respDTO.setValidityPeriod(OAuth2Util.getTokenExpireTimeMillis(accessTokenDO) / 1000);
                     respDTO.setScope(oauthAuthzMsgCtx.getApprovedScope());
+                    respDTO.setTokenType(accessTokenDO.getTokenType());
                     return respDTO;
                 } else {
                     if (log.isDebugEnabled()) {
@@ -237,6 +239,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
             respDTO.setAccessToken(accessToken);
             respDTO.setValidityPeriod(validityPeriod);
             respDTO.setScope(accessTokenDO.getScope());
+            respDTO.setTokenType(accessTokenDO.getTokenType());
             return respDTO;
         }
     }
