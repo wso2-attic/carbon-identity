@@ -34,10 +34,10 @@ public class STSServiceDataHolder {
 
     private Bundle bundle;
 
-    private STSServiceDataHolder(){
+    private STSServiceDataHolder() {
     }
 
-    public static STSServiceDataHolder getInstance(){
+    public static STSServiceDataHolder getInstance() {
         return instance;
     }
 
