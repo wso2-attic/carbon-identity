@@ -17,24 +17,12 @@
  */
 package org.wso2.carbon.identity.scim.provider.resources;
 
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.core.jaxrs.designator.PATCH;
 import org.wso2.carbon.identity.scim.provider.impl.IdentitySCIMManager;
 import org.wso2.carbon.identity.scim.provider.util.JAXRSResponseBuilder;
 import org.wso2.carbon.identity.scim.provider.util.SCIMProviderConstants;
-import org.wso2.carbon.identity.core.jaxrs.designator.PATCH;
 import org.wso2.charon.core.encoder.Encoder;
 import org.wso2.charon.core.exceptions.BadRequestException;
 import org.wso2.charon.core.exceptions.CharonException;
@@ -46,6 +34,9 @@ import org.wso2.charon.core.protocol.endpoints.AbstractResourceEndpoint;
 import org.wso2.charon.core.protocol.endpoints.GroupResourceEndpoint;
 import org.wso2.charon.core.schema.SCIMConstants;
 
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -148,7 +139,6 @@ public class GroupResource extends AbstractResource {
     }
 
     /**
-     *
      * @param requestAttributes
      * @return
      */
@@ -201,12 +191,12 @@ public class GroupResource extends AbstractResource {
                     scimResponse = groupResourceEndpoint.listByFilter(filter, userManager, outputFormat);
                 } else if (startIndex != null && count != null) {
                     scimResponse = groupResourceEndpoint.listWithPagination(Integer.valueOf(startIndex),
-                                                                            Integer.valueOf(count),
-                                                                            userManager, outputFormat);
+                            Integer.valueOf(count),
+                            userManager, outputFormat);
                 } else if (sortBy != null) {
                     scimResponse = groupResourceEndpoint.listBySort(sortBy, sortOrder, userManager, outputFormat);
                 } else if (searchAttribute == null && filter == null && startIndex == null &&
-                           count == null && sortBy == null) {
+                        count == null && sortBy == null) {
                     scimResponse = groupResourceEndpoint.list(userManager, outputFormat);
                 } else {
                     //bad request

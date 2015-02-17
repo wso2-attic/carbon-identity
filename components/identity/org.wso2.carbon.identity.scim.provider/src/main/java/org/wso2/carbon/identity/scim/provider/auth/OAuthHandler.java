@@ -17,10 +17,6 @@
  */
 package org.wso2.carbon.identity.scim.provider.auth;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.TreeMap;
-
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
@@ -39,24 +35,25 @@ import org.wso2.carbon.identity.scim.provider.util.SCIMProviderConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import org.wso2.charon.core.schema.SCIMConstants;
 
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
+
 public class OAuthHandler implements SCIMAuthenticationHandler {
 
     private static Log log = LogFactory.getLog(BasicAuthHandler.class);
-
-    /* properties map to be initialized */
-    private Map<String, String> properties;
-
-    /* properties specific to this authenticator */
-    private String remoteServiceURL;
-    private int priority;
-    private String userName;
-    private String password;
-
     /* constants specific to this authenticator */
     private final String BEARER_AUTH_HEADER = "Bearer";
     private final String LOCAL_PREFIX = "local";
     private final int DEFAULT_PRIORITY = 10;
     private final String LOCAL_AUTH_SERVER = "local://services";
+    /* properties map to be initialized */
+    private Map<String, String> properties;
+    /* properties specific to this authenticator */
+    private String remoteServiceURL;
+    private int priority;
+    private String userName;
+    private String password;
 
     // Ideally this should be configurable. For the moment, hard code the priority.
 
@@ -143,7 +140,7 @@ public class OAuthHandler implements SCIMAuthenticationHandler {
 
     /**
      * To set the properties specific to each authenticator
-     * 
+     *
      * @param authenticatorProperties
      */
     public void setProperties(Map<String, String> authenticatorProperties) {

@@ -33,15 +33,7 @@ import org.wso2.charon.core.protocol.endpoints.AbstractResourceEndpoint;
 import org.wso2.charon.core.protocol.endpoints.UserResourceEndpoint;
 import org.wso2.charon.core.schema.SCIMConstants;
 
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -53,9 +45,9 @@ public class UserResource extends AbstractResource {
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUser(@PathParam(SCIMConstants.CommonSchemaConstants.ID) String id,
-            @HeaderParam(SCIMConstants.ACCEPT_HEADER) String format,
-            @HeaderParam(SCIMConstants.AUTHENTICATION_TYPE_HEADER) String authMechanism,
-            @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization) {
+                            @HeaderParam(SCIMConstants.ACCEPT_HEADER) String format,
+                            @HeaderParam(SCIMConstants.AUTHENTICATION_TYPE_HEADER) String authMechanism,
+                            @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization) {
 
         Encoder encoder = null;
         try {
@@ -105,9 +97,9 @@ public class UserResource extends AbstractResource {
 
     @POST
     public Response createUser(@HeaderParam(SCIMConstants.CONTENT_TYPE_HEADER) String inputFormat,
-            @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
-            @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
-            String resourceString) {
+                               @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
+                               @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
+                               String resourceString) {
 
         Encoder encoder = null;
         try {
@@ -171,8 +163,8 @@ public class UserResource extends AbstractResource {
     @DELETE
     @Path("{id}")
     public Response deleteUser(@PathParam(SCIMConstants.CommonSchemaConstants.ID) String id,
-            @HeaderParam(SCIMConstants.ACCEPT_HEADER) String format,
-            @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization) {
+                               @HeaderParam(SCIMConstants.ACCEPT_HEADER) String format,
+                               @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization) {
         Encoder encoder = null;
         try {
             IdentitySCIMManager identitySCIMManager = IdentitySCIMManager.getInstance();
@@ -230,10 +222,10 @@ public class UserResource extends AbstractResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUser(@HeaderParam(SCIMConstants.ACCEPT_HEADER) String format,
-            @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
-            @QueryParam("attributes") String searchAttribute, @QueryParam("filter") String filter,
-            @QueryParam("startIndex") String startIndex, @QueryParam("count") String count,
-            @QueryParam("sortBy") String sortBy, @QueryParam("sortOrder") String sortOrder) {
+                            @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
+                            @QueryParam("attributes") String searchAttribute, @QueryParam("filter") String filter,
+                            @QueryParam("startIndex") String startIndex, @QueryParam("count") String count,
+                            @QueryParam("sortBy") String sortBy, @QueryParam("sortOrder") String sortOrder) {
         Encoder encoder = null;
         try {
             IdentitySCIMManager identitySCIMManager = IdentitySCIMManager.getInstance();
@@ -307,10 +299,10 @@ public class UserResource extends AbstractResource {
     @PUT
     @Path("{id}")
     public Response updateUser(@PathParam(SCIMConstants.CommonSchemaConstants.ID) String id,
-            @HeaderParam(SCIMConstants.CONTENT_TYPE_HEADER) String inputFormat,
-            @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
-            @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
-            String resourceString) {
+                               @HeaderParam(SCIMConstants.CONTENT_TYPE_HEADER) String inputFormat,
+                               @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
+                               @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
+                               String resourceString) {
         Encoder encoder = null;
         try {
             // obtain default charon manager
@@ -379,7 +371,7 @@ public class UserResource extends AbstractResource {
         Encoder encoder = null;
         try {
             IdentitySCIMManager identitySCIMManager = IdentitySCIMManager.getInstance();
-            String filter = "userNameEq"+ MultitenantUtils.getTenantAwareUsername(authorization);
+            String filter = "userNameEq" + MultitenantUtils.getTenantAwareUsername(authorization);
 
             // defaults to application/json.
             format = identifyOutputFormat(format);
@@ -417,13 +409,13 @@ public class UserResource extends AbstractResource {
                 e.setCode(ResponseCodeConstants.CODE_INTERNAL_SERVER_ERROR);
             }
             return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
-                                                                    .encodeSCIMException(encoder, e));
+                    .encodeSCIMException(encoder, e));
         } catch (FormatNotSupportedException e) {
             if (logger.isDebugEnabled()) {
                 logger.debug(e.getMessage(), e);
             }
             return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
-                                                                    .encodeSCIMException(encoder, e));
+                    .encodeSCIMException(encoder, e));
         }
     }
 
