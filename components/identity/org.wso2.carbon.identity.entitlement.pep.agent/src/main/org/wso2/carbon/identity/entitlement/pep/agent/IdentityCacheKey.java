@@ -18,18 +18,18 @@
 
 package org.wso2.carbon.identity.entitlement.pep.agent;
 
-import java.io.Serializable;
-
 import org.wso2.carbon.base.MultitenantConstants;
+
+import java.io.Serializable;
 
 /**
  * Identity Cache key which wraps the identity related cache key values
  */
 public class IdentityCacheKey implements Serializable {
 
+    private static final long serialVersionUID = -7700438046096986522L;
     private int tenantId;
     private String key;
-    private static final long serialVersionUID = -7700438046096986522L;
 
     public IdentityCacheKey(int tenantId, String key) {
         this.tenantId = tenantId;
@@ -51,15 +51,15 @@ public class IdentityCacheKey implements Serializable {
         }
         IdentityCacheKey cacheKey = (IdentityCacheKey) obj;
 
-        return cacheKey.getKey() != null &&  cacheKey.getKey().equals(key) &&
-               cacheKey.getTenantId() == tenantId;
+        return cacheKey.getKey() != null && cacheKey.getKey().equals(key) &&
+                cacheKey.getTenantId() == tenantId;
 
     }
 
     @Override
     public int hashCode() {
-        int hash = Integer.valueOf( (tenantId == MultitenantConstants.SUPER_TENANT_ID) 
-        		? 0 : tenantId).hashCode();
+        int hash = Integer.valueOf((tenantId == MultitenantConstants.SUPER_TENANT_ID)
+                ? 0 : tenantId).hashCode();
         hash += hash + key.hashCode();
         return hash;
     }

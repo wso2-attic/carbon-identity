@@ -22,7 +22,10 @@ import org.apache.axis2.client.Stub;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.axis2.description.TransportOutDescription;
-import org.wso2.carbon.identity.entitlement.pep.agent.*;
+import org.wso2.carbon.identity.entitlement.pep.agent.AbstractEntitlementServiceClient;
+import org.wso2.carbon.identity.entitlement.pep.agent.Attribute;
+import org.wso2.carbon.identity.entitlement.pep.agent.ProxyConstants;
+import org.wso2.carbon.identity.entitlement.pep.agent.XACMLRequetBuilder;
 import org.wso2.carbon.identity.entitlement.stub.EntitlementPolicyAdminServiceStub;
 import org.wso2.carbon.identity.entitlement.stub.EntitlementServiceStub;
 import org.wso2.carbon.identity.entitlement.stub.dto.EntitledAttributesDTO;
@@ -44,7 +47,7 @@ public class SOAPEntitlementServiceClient extends AbstractEntitlementServiceClie
     private String password;
     private boolean reuseSession = true;
 
-    public SOAPEntitlementServiceClient(String serverUrl, String username, String password, boolean reuseSession){
+    public SOAPEntitlementServiceClient(String serverUrl, String username, String password, boolean reuseSession) {
         this.serverUrl = serverUrl;
         this.userName = username;
         this.password = password;
@@ -55,7 +58,7 @@ public class SOAPEntitlementServiceClient extends AbstractEntitlementServiceClie
     public String getDecision(Attribute[] attributes, String appId) throws Exception {
         String xacmlRequest = XACMLRequetBuilder.buildXACML3Request(attributes);
         EntitlementServiceStub stub = getEntitlementStub(serverUrl);
-        Authenticator authenticator = getAuthenticator(serverUrl,userName,password);
+        Authenticator authenticator = getAuthenticator(serverUrl, userName, password);
         String result = getDecision(xacmlRequest, stub, authenticator);
         stub._getServiceClient().cleanupTransport();
         return result;
@@ -72,7 +75,7 @@ public class SOAPEntitlementServiceClient extends AbstractEntitlementServiceClie
         Attribute[] tempArr = {subjectAttribute, actionAttribute, resourceAttribute, environmentAttribute};
         String xacmlRequest = XACMLRequetBuilder.buildXACML3Request(tempArr);
         EntitlementServiceStub stub = getEntitlementStub(serverUrl);
-        Authenticator authenticator = getAuthenticator(serverUrl, userName,password);
+        Authenticator authenticator = getAuthenticator(serverUrl, userName, password);
         String result = getDecision(xacmlRequest, stub, authenticator);
         stub._getServiceClient().cleanupTransport();
         return (result.contains("Permit"));
@@ -94,7 +97,7 @@ public class SOAPEntitlementServiceClient extends AbstractEntitlementServiceClie
         attrs[attrs.length - 1] = new Attribute("urn:oasis:names:tc:xacml:3.0:attribute-category:environment", "urn:oasis:names:tc:xacml:1.0:environment:environment-id", ProxyConstants.DEFAULT_DATA_TYPE, domainId);
         String xacmlRequest = XACMLRequetBuilder.buildXACML3Request(attrs);
         EntitlementServiceStub stub = getEntitlementStub(serverUrl);
-        Authenticator authenticator = getAuthenticator(serverUrl,userName,password);
+        Authenticator authenticator = getAuthenticator(serverUrl, userName, password);
         String result = getDecision(xacmlRequest, stub, authenticator);
         stub._getServiceClient().cleanupTransport();
         return (result.contains("Permit"));
@@ -104,7 +107,7 @@ public class SOAPEntitlementServiceClient extends AbstractEntitlementServiceClie
     public List<String> getResourcesForAlias(String alias, String appId) throws Exception {
 
         EntitlementServiceStub stub = getEntitlementStub(serverUrl);
-        Authenticator authenticator = getAuthenticator(serverUrl,userName,password);
+        Authenticator authenticator = getAuthenticator(serverUrl, userName, password);
         List<String> results = getResources(getEntitledAttributes(alias, null,
                 ProxyConstants.SUBJECT_ID, null, false, stub, authenticator));
         stub._getServiceClient().cleanupTransport();
@@ -127,7 +130,7 @@ public class SOAPEntitlementServiceClient extends AbstractEntitlementServiceClie
             throws Exception {
 
         EntitlementServiceStub stub = getEntitlementStub(serverUrl);
-        Authenticator authenticator = getAuthenticator(serverUrl,userName,password);
+        Authenticator authenticator = getAuthenticator(serverUrl, userName, password);
         List<String> results = getActions(getEntitledAttributes(alias, resource,
                 ProxyConstants.SUBJECT_ID, null, false, stub, authenticator));
         stub._getServiceClient().cleanupTransport();
@@ -136,7 +139,7 @@ public class SOAPEntitlementServiceClient extends AbstractEntitlementServiceClie
 
     @Override
     public List<String> getActionableChildResourcesForAlias(String alias, String parentResource,
-                                                           String action, String appId) throws Exception {
+                                                            String action, String appId) throws Exception {
 
         EntitlementServiceStub stub = getEntitlementStub(serverUrl);
         Authenticator authenticator = getAuthenticator(serverUrl, userName,
@@ -150,7 +153,7 @@ public class SOAPEntitlementServiceClient extends AbstractEntitlementServiceClie
     private Authenticator getAuthenticator(String serverUrl, String userName, String password)
             throws Exception {
 
-        if(reuseSession){
+        if (reuseSession) {
             if (authenticators.containsKey(serverUrl)) {
                 return authenticators.get(serverUrl);
             }
@@ -200,7 +203,7 @@ public class SOAPEntitlementServiceClient extends AbstractEntitlementServiceClie
     }
 
     private String getDecision(String request, EntitlementServiceStub stub,
-                                            Authenticator authenticator) throws Exception {
+                               Authenticator authenticator) throws Exception {
         try {
             return stub.getDecision(request);
         } catch (AxisFault e) {
@@ -219,7 +222,7 @@ public class SOAPEntitlementServiceClient extends AbstractEntitlementServiceClie
         EntitledResultSetDTO results;
         try {
             results = stub.getEntitledAttributes(subjectName, resourceName, subjectId, action,
-                                                 enableChildSearch);
+                    enableChildSearch);
         } catch (AxisFault e) {
             if (ProxyConstants.SESSION_TIME_OUT.equals(e.getFaultCode().getLocalPart())) {
                 setAuthCookie(true, stub, authenticator);
