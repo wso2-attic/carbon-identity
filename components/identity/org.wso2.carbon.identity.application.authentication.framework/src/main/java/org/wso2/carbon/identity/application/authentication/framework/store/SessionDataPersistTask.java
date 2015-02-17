@@ -24,13 +24,12 @@ import org.apache.commons.logging.LogFactory;
 import java.util.concurrent.BlockingDeque;
 
 /**
- *  Task to persist and remove session data
+ * Task to persist and remove session data
  */
-public class SessionDataPersistTask implements Runnable{
-
-    private BlockingDeque<SessionContextDO> sessionContextQueue;
+public class SessionDataPersistTask implements Runnable {
 
     private static Log log = LogFactory.getLog(SessionDataPersistTask.class);
+    private BlockingDeque<SessionContextDO> sessionContextQueue;
 
     public SessionDataPersistTask(BlockingDeque<SessionContextDO> sessionContextQueue) {
         this.sessionContextQueue = sessionContextQueue;
@@ -41,18 +40,18 @@ public class SessionDataPersistTask implements Runnable{
 
         log.debug("Session Context persist consumer is started");
 
-        while(true){
+        while (true) {
 
             try {
-                SessionContextDO sessionContextDO =  sessionContextQueue.take();
-                if(sessionContextDO != null){
-                    if(sessionContextDO.getEntry() == null){
+                SessionContextDO sessionContextDO = sessionContextQueue.take();
+                if (sessionContextDO != null) {
+                    if (sessionContextDO.getEntry() == null) {
                         log.debug("Session Data removing Task is started to run");
                         SessionDataStore.getInstance().removeSessionData(sessionContextDO.getKey(), sessionContextDO.getType());
                     } else {
                         log.debug("Session Data persisting Task is started to run");
                         SessionDataStore.getInstance().persistSessionData(sessionContextDO.getKey(),
-                                                                sessionContextDO.getType(), sessionContextDO.getEntry());
+                                sessionContextDO.getType(), sessionContextDO.getEntry());
                     }
                 }
             } catch (InterruptedException e) {

@@ -18,15 +18,15 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.cache;
 
-import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.context.SessionContext;
+import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 
 public class SessionContextCacheEntry extends CacheEntry {
 
-	private static final long serialVersionUID = 42165605438157753L;
-	
-	SessionContext context;
-	String loggedInUser;
+    private static final long serialVersionUID = 42165605438157753L;
+
+    SessionContext context;
+    String loggedInUser;
 
     public String getLoggedInUser() {
         return loggedInUser;
@@ -36,11 +36,11 @@ public class SessionContextCacheEntry extends CacheEntry {
         this.loggedInUser = loggedInUser;
     }
 
-	public SessionContext getContext() {
-		return context;
-	}
+    public SessionContext getContext() {
+        return context;
+    }
 
-	public void setContext(SessionContext context) {
-		this.context = context;
-	}
+    public void setContext(SessionContext context) {
+        this.context = context;
+    }
 }

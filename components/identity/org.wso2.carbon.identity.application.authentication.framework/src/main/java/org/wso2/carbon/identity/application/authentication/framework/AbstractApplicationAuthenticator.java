@@ -18,16 +18,7 @@
 
 package org.wso2.carbon.identity.application.authentication.framework;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.StepConfig;
@@ -37,6 +28,13 @@ import org.wso2.carbon.identity.application.authentication.framework.exception.L
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This is the super class of all the Application Authenticators. Authenticator writers must extend
@@ -48,14 +46,14 @@ public abstract class AbstractApplicationAuthenticator implements ApplicationAut
 
     @Override
     public AuthenticatorFlowStatus process(HttpServletRequest request,
-            HttpServletResponse response, AuthenticationContext context)
+                                           HttpServletResponse response, AuthenticationContext context)
             throws AuthenticationFailedException, LogoutFailedException {
 
         // if an authentication flow
         if (!context.isLogoutRequest()) {
             if (!canHandle(request)
                     || (request.getAttribute(FrameworkConstants.REQ_ATTR_HANDLED) != null && ((Boolean) request
-                            .getAttribute(FrameworkConstants.REQ_ATTR_HANDLED)))) {
+                    .getAttribute(FrameworkConstants.REQ_ATTR_HANDLED)))) {
                 initiateAuthenticationRequest(request, response, context);
                 context.setCurrentAuthenticator(getName());
                 return AuthenticatorFlowStatus.INCOMPLETE;
@@ -104,21 +102,21 @@ public abstract class AbstractApplicationAuthenticator implements ApplicationAut
     }
 
     protected void initiateAuthenticationRequest(HttpServletRequest request,
-            HttpServletResponse response, AuthenticationContext context)
+                                                 HttpServletResponse response, AuthenticationContext context)
             throws AuthenticationFailedException {
     }
 
     protected abstract void processAuthenticationResponse(HttpServletRequest request,
-            HttpServletResponse response, AuthenticationContext context)
+                                                          HttpServletResponse response, AuthenticationContext context)
             throws AuthenticationFailedException;
 
     protected void initiateLogoutRequest(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationContext context) throws LogoutFailedException {
+                                         AuthenticationContext context) throws LogoutFailedException {
         throw new UnsupportedOperationException();
     }
 
     protected void processLogoutResponse(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationContext context) throws LogoutFailedException {
+                                         AuthenticationContext context) throws LogoutFailedException {
         throw new UnsupportedOperationException();
     }
 
@@ -146,8 +144,8 @@ public abstract class AbstractApplicationAuthenticator implements ApplicationAut
         return new ArrayList<Property>();
     }
 
-    protected String getUserStoreAppendedName(String userName){
-        if(userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) < 0) {
+    protected String getUserStoreAppendedName(String userName) {
+        if (userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) < 0) {
             if (UserCoreUtil.getDomainFromThreadLocal() != null && !UserCoreUtil.getDomainFromThreadLocal().equals("")) {
                 userName = UserCoreUtil.getDomainFromThreadLocal() + CarbonConstants.DOMAIN_SEPARATOR + userName;
             }

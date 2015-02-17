@@ -21,12 +21,11 @@ package org.wso2.carbon.identity.application.authentication.framework.model;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 
 /**
  * This class is used as a wrapper to the incoming http request to authentication framework.
@@ -38,18 +37,18 @@ public class AuthenticationFrameworkWrapper extends HttpServletRequestWrapper {
     private static Log log = LogFactory.getLog(AuthenticationFrameworkWrapper.class);
     // Map which keeps parameters from authentication request cache
     private final Map<String, String[]> modifiableParameters;
-    // This map will contain all the parameters including cache params and original req params
-    private Map<String, String[]> allParameters = null;
     // This map keeps headers which are appended from cache entry
     private final Map<String, String> modifiableHeaders;
+    // This map will contain all the parameters including cache params and original req params
+    private Map<String, String[]> allParameters = null;
 
     /**
      * Create a new request wrapper that will merge additional parameters into
      * the request object without prematurely reading parameters from the
      * original request.
      *
-     * @param request HttpServletRequest
-     * @param additionalParams All Query Params
+     * @param request           HttpServletRequest
+     * @param additionalParams  All Query Params
      * @param additionalHeaders All Headers
      */
     public AuthenticationFrameworkWrapper(final HttpServletRequest request,
@@ -79,7 +78,6 @@ public class AuthenticationFrameworkWrapper extends HttpServletRequestWrapper {
     /**
      * Will return header names which were in original request and will append
      * all the header names which were in authentication request cache entry
-     *
      */
     public Enumeration<String> getHeaderNames() {
         List<String> list = new ArrayList<String>();
@@ -120,7 +118,6 @@ public class AuthenticationFrameworkWrapper extends HttpServletRequestWrapper {
 
     /**
      * Will construct the new query parameter with the params
-     *
      */
     @Override
     public String getQueryString() {
@@ -144,7 +141,8 @@ public class AuthenticationFrameworkWrapper extends HttpServletRequestWrapper {
 
     /**
      * Adds a header to the wrapper object
-     * @param key Key of the header
+     *
+     * @param key    Key of the header
      * @param values Value of the header
      */
     public void addHeader(String key, String values) {

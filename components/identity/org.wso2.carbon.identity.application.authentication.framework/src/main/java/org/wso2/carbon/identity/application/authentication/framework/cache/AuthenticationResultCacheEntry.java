@@ -18,20 +18,20 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.cache;
 
-import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
+import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 
 public class AuthenticationResultCacheEntry extends CacheEntry {
-	
-	private static final long serialVersionUID = 457914751612292488L;
-	
-	private AuthenticationResult result;
 
-	public AuthenticationResult getResult() {
-		return result;
-	}
+    private static final long serialVersionUID = 457914751612292488L;
 
-	public void setResult(AuthenticationResult result) {
-		this.result = result;
-	}
+    private AuthenticationResult result;
+
+    public AuthenticationResult getResult() {
+        return result;
+    }
+
+    public void setResult(AuthenticationResult result) {
+        this.result = result;
+    }
 }
