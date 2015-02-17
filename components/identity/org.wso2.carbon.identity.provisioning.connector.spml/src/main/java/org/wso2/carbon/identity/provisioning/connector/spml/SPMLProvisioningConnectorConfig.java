@@ -18,23 +18,22 @@
  */
 package org.wso2.carbon.identity.provisioning.connector.spml;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 public class SPMLProvisioningConnectorConfig implements Serializable {
 
     private static final long serialVersionUID = -8394278502516014519L;
-    
+
     private static final Log log = LogFactory.getLog(SPMLProvisioningConnectorConfig.class);
     private Properties configs;
 
     /**
-     * 
      * @param configs
      */
     public SPMLProvisioningConnectorConfig(Properties configs) {
@@ -42,7 +41,6 @@ public class SPMLProvisioningConnectorConfig implements Serializable {
     }
 
     /**
-     * 
      * @param key
      * @return
      */
@@ -51,7 +49,6 @@ public class SPMLProvisioningConnectorConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public ArrayList<String> extractAttributes() {

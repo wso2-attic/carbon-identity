@@ -32,7 +32,7 @@ public class SPMLProvisioningConnectorFactory extends AbstractProvisioningConnec
 
     @Override
     /**
-     * 
+     *
      */
     protected AbstractOutboundProvisioningConnector buildConnector(
             Property[] provisioningProperties) throws IdentityProvisioningException {
@@ -48,7 +48,7 @@ public class SPMLProvisioningConnectorFactory extends AbstractProvisioningConnec
     }
 
     /**
-     * 
+     *
      */
     public String getConnectorType() {
         return SPML;
