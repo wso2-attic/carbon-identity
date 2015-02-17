@@ -18,18 +18,18 @@
 package org.wso2.carbon.identity.application.authenticator.openid.manager;
 
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authenticator.openid.exception.OpenIDException;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 public interface OpenIDManager {
 
-	String doOpenIDLogin(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationContext context) throws OpenIDException;
+    String doOpenIDLogin(HttpServletRequest request, HttpServletResponse response,
+                         AuthenticationContext context) throws OpenIDException;
 
-	void processOpenIDLoginResponse(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationContext context) throws OpenIDException;
+    void processOpenIDLoginResponse(HttpServletRequest request, HttpServletResponse response,
+                                    AuthenticationContext context) throws OpenIDException;
 
 }

@@ -1,11 +1,5 @@
 package org.wso2.carbon.identity.application.authenticator.openid;
 
-import java.io.IOException;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
@@ -20,14 +14,17 @@ import org.wso2.carbon.identity.application.authenticator.openid.manager.Default
 import org.wso2.carbon.identity.application.authenticator.openid.manager.OpenIDManager;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Map;
+
 public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implements
         FederatedApplicationAuthenticator {
 
     private static final long serialVersionUID = 2878862656196592256L;
-
-    private static Log log = LogFactory.getLog(OpenIDAuthenticator.class);
-
     private static final String OPENID_MANAGER = "OpenIDManager";
+    private static Log log = LogFactory.getLog(OpenIDAuthenticator.class);
 
     @Override
     public boolean canHandle(HttpServletRequest request) {
@@ -47,14 +44,14 @@ public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implem
 
     @Override
     protected void initiateAuthenticationRequest(HttpServletRequest request,
-            HttpServletResponse response, AuthenticationContext context)
+                                                 HttpServletResponse response, AuthenticationContext context)
             throws AuthenticationFailedException {
 
         OpenIDManager manager = getNewOpenIDManagerInstance();
 
         if (context.getExternalIdP() != null || request.getParameter("claimed_id") != null) {
             try {
-                
+
                 Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
 
                 if (getOpenIDServerUrl() != null) {
@@ -114,7 +111,7 @@ public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implem
 
     @Override
     protected void processAuthenticationResponse(HttpServletRequest request,
-            HttpServletResponse response, AuthenticationContext context)
+                                                 HttpServletResponse response, AuthenticationContext context)
             throws AuthenticationFailedException {
 
         OpenIDManager manager = getNewOpenIDManagerInstance();
@@ -133,7 +130,7 @@ public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implem
             if (subject == null) {
                 subject = authenticatedSubject;
             }
-            
+
             if (subject == null) {
                 throw new OpenIDException("Cannot find federated User Identifier");
             }
@@ -199,7 +196,6 @@ public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implem
     }
 
     /**
-     * 
      * @return
      */
     protected String getOpenIDServerUrl() {
@@ -207,9 +203,8 @@ public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implem
     }
 
     /**
-	 * 
-	 * @subject
-	 */
+     * @subject
+     */
     protected String getSubjectFromUserIDClaimURI(AuthenticationContext context) {
         String subject = null;
         try {
