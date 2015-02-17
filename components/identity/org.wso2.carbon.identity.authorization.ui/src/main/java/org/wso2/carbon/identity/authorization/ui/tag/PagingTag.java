@@ -18,101 +18,100 @@
 
 package org.wso2.carbon.identity.authorization.ui.tag;
 
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.tagext.BodyTagSupport;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.BodyTagSupport;
-
 public class PagingTag extends BodyTagSupport {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-	private int pageSize;
-	private Object[] dataSet;
-	private int pageNumber;
+    private int pageSize;
+    private Object[] dataSet;
+    private int pageNumber;
 
-	private int offset;
+    private int offset;
 
-	public int getPageSize() {
-		return pageSize;
-	}
+    public int getPageSize() {
+        return pageSize;
+    }
 
-	public void setPageSize(int pageSize) {
-		this.pageSize = pageSize;
-	}
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
 
-	public Object[] getDataSet() {
-		return dataSet;
-	}
+    public Object[] getDataSet() {
+        return dataSet;
+    }
 
-	public void setDataSet(Object[] dataSet) {
-		this.dataSet = dataSet;
-	}
+    public void setDataSet(Object[] dataSet) {
+        this.dataSet = dataSet;
+    }
 
-	public int getPageNumber() {
-		return pageNumber;
-	}
+    public int getPageNumber() {
+        return pageNumber;
+    }
 
-	public void setPageNumber(int pageNumber) {
-		this.pageNumber = pageNumber;
-	}
+    public void setPageNumber(int pageNumber) {
+        this.pageNumber = pageNumber;
+    }
 
-	@Override
-	public int doAfterBody() throws JspException {
-		boolean hasMore = hasContentForThePage();
-		return hasMore ? EVAL_BODY_AGAIN : SKIP_BODY;
-	}
+    @Override
+    public int doAfterBody() throws JspException {
+        boolean hasMore = hasContentForThePage();
+        return hasMore ? EVAL_BODY_AGAIN : SKIP_BODY;
+    }
 
-	@Override
-	public int doStartTag() throws JspException {
-		offset = 0;
-		if (dataSet != null && dataSet.length > 0) {
-			double len = (double) dataSet.length;
-			int numberOfPages = (int) Math.ceil(len / pageSize);
-			processPageNumbers(numberOfPages);
-		}
-		boolean hasMore = hasContentForThePage();
-		return hasMore ? EVAL_BODY_INCLUDE : SKIP_BODY;
-	}
+    @Override
+    public int doStartTag() throws JspException {
+        offset = 0;
+        if (dataSet != null && dataSet.length > 0) {
+            double len = (double) dataSet.length;
+            int numberOfPages = (int) Math.ceil(len / pageSize);
+            processPageNumbers(numberOfPages);
+        }
+        boolean hasMore = hasContentForThePage();
+        return hasMore ? EVAL_BODY_INCLUDE : SKIP_BODY;
+    }
 
-	private boolean hasContentForThePage() {
-		if (dataSet != null && dataSet.length > 0) {
-			int currentItemIndex = offset + (pageSize * (pageNumber - 1));
-			int pageLimit = pageSize * pageNumber;
+    private boolean hasContentForThePage() {
+        if (dataSet != null && dataSet.length > 0) {
+            int currentItemIndex = offset + (pageSize * (pageNumber - 1));
+            int pageLimit = pageSize * pageNumber;
 
-			++offset;
-			if (dataSet.length > currentItemIndex && currentItemIndex < pageLimit) {
-				pageContext.setAttribute("data", dataSet[currentItemIndex]);
-				return true;
-			}
-		}
-		return false;
-	}
+            ++offset;
+            if (dataSet.length > currentItemIndex && currentItemIndex < pageLimit) {
+                pageContext.setAttribute("data", dataSet[currentItemIndex]);
+                return true;
+            }
+        }
+        return false;
+    }
 
-	private void processPageNumbers(int numberOfPages) {
-		List<Integer> pages = new ArrayList<Integer>();
-		pages.add(1);
+    private void processPageNumbers(int numberOfPages) {
+        List<Integer> pages = new ArrayList<Integer>();
+        pages.add(1);
 
-		if (pageNumber - 1 > 1) {
-			pages.add(pageNumber - 1);
-		}
-		if (pageNumber - 1 > 0) {
-			pages.add(pageNumber);
-		}
+        if (pageNumber - 1 > 1) {
+            pages.add(pageNumber - 1);
+        }
+        if (pageNumber - 1 > 0) {
+            pages.add(pageNumber);
+        }
 
-		if (pageNumber + 1 < numberOfPages) {
-			pages.add(pageNumber + 1);
-		}
-		if (pageNumber != numberOfPages) {
-			pages.add(numberOfPages);
-		}
+        if (pageNumber + 1 < numberOfPages) {
+            pages.add(pageNumber + 1);
+        }
+        if (pageNumber != numberOfPages) {
+            pages.add(numberOfPages);
+        }
 
-		pageContext.setAttribute("pages", pages);
+        pageContext.setAttribute("pages", pages);
 
-	}
+    }
 
 }
