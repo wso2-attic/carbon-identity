@@ -55,9 +55,9 @@ public class BasicAuthEntitlementServiceClient extends AbstractEntitlementServic
     private static final String ENTITLEMENT_SERVICE_NAME = "EntitlementService";
     private static final Log log = LogFactory.getLog(BasicAuthEntitlementServiceClient.class);
     private static final String DEFAULT_CLIENT_REPO = "repository" + File.separator + "deployment" +
-                                                      File.separator + "client";
+            File.separator + "client";
     private static final String DEFAULT_AXIS2_XML = "repository" + File.separator + "conf" + File.separator +
-                                                    "axis2" + File.separator + "axis2_blocking_client.xml";
+            "axis2" + File.separator + "axis2_blocking_client.xml";
     private static final int MAX_CONNECTIONS_PER_HOST = 200;
     private static final String XACML_DECISION_PERMIT = "Permit";
 
@@ -78,7 +78,7 @@ public class BasicAuthEntitlementServiceClient extends AbstractEntitlementServic
             initConfigurationContext();
         } catch (AxisFault e) {
             log.error("Error initializing Axis2 configuration context", e);
-        }catch (Exception e) {
+        } catch (Exception e) {
             log.error("Error initializing default Axis2 configuration context", e);
         }
     }
@@ -89,7 +89,7 @@ public class BasicAuthEntitlementServiceClient extends AbstractEntitlementServic
 
         File configFile = new File(DEFAULT_AXIS2_XML);
 
-        if (!configFile.exists()){
+        if (!configFile.exists()) {
             configurationContext = ConfigurationContextFactory.createDefaultConfigurationContext();
             configurationContext.setProperty(HTTPConstants.DEFAULT_MAX_CONNECTIONS_PER_HOST, MAX_CONNECTIONS_PER_HOST);
         } else {
@@ -104,7 +104,7 @@ public class BasicAuthEntitlementServiceClient extends AbstractEntitlementServic
 
         for (TransportOutDescription transportOutDescription : transportsOut.values()) {
             if (Constants.TRANSPORT_HTTP.equals(transportOutDescription.getName()) ||
-                Constants.TRANSPORT_HTTPS.equals(transportOutDescription.getName())) {
+                    Constants.TRANSPORT_HTTPS.equals(transportOutDescription.getName())) {
                 transportOutDescription.getSender().init(configurationContext, transportOutDescription);
             }
         }
@@ -238,14 +238,14 @@ public class BasicAuthEntitlementServiceClient extends AbstractEntitlementServic
 
     private EntitlementServiceStub getEntitlementStub(String serverUrl) throws Exception {
 
-        if (configurationContext == null){
+        if (configurationContext == null) {
             throw new Exception("Cannot initialize EntitlementServiceStub with null Axis2 configuration context.");
         }
         if (serviceStubPool == null) {
             serviceStubPool = new GenericObjectPool(new EntitlementServiceStubFactory(configurationContext,
-                                                                                      serverUrl +
-                                                                                      ENTITLEMENT_SERVICE_NAME,
-                                                                                      authenticator));
+                    serverUrl +
+                            ENTITLEMENT_SERVICE_NAME,
+                    authenticator));
         }
         return (EntitlementServiceStub) serviceStubPool.borrowObject();
     }
@@ -282,7 +282,7 @@ public class BasicAuthEntitlementServiceClient extends AbstractEntitlementServic
                                                           EntitlementServiceStub stub) throws Exception {
         EntitledResultSetDTO results;
         results = stub.getEntitledAttributes(subjectName, resourceName, subjectId, action,
-                                                 enableChildSearch);
+                enableChildSearch);
         return results.getEntitledAttributesDTOs();
     }
 
