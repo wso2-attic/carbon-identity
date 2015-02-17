@@ -26,7 +26,7 @@ import org.wso2.carbon.registry.core.jdbc.handlers.filters.MediaTypeMatcher;
 /**
  * Registry policy media type matcher
  */
-public class RegistryPolicyMediaTypeMatcher  extends MediaTypeMatcher {
+public class RegistryPolicyMediaTypeMatcher extends MediaTypeMatcher {
 
 
     @Override
@@ -40,19 +40,19 @@ public class RegistryPolicyMediaTypeMatcher  extends MediaTypeMatcher {
     }
 
     @Override
-    public boolean handleDelete(RequestContext requestContext) throws RegistryException {       
+    public boolean handleDelete(RequestContext requestContext) throws RegistryException {
         Resource resource = requestContext.getResource();
         if (resource != null) {
             String mType = resource.getMediaType();
             return mType != null && (invert != mType.equals(getMediaType()));
-        } else if(requestContext.getResourcePath() != null){
+        } else if (requestContext.getResourcePath() != null) {
             resource = requestContext.getRegistry().get(requestContext.
-                                                            getResourcePath().getCompletePath());
-            if(resource != null){
+                    getResourcePath().getCompletePath());
+            if (resource != null) {
                 String mType = resource.getMediaType();
                 return mType != null && (invert != mType.equals(getMediaType()));
             }
         }
-        return false;  
+        return false;
     }
 }

@@ -25,31 +25,31 @@ import java.util.Set;
 /**
  *
  */
-public class PIPAttributeCache  extends EntitlementBaseCache<IdentityCacheKey, IdentityCacheEntry>{
+public class PIPAttributeCache extends EntitlementBaseCache<IdentityCacheKey, IdentityCacheEntry> {
 
     public PIPAttributeCache(int timeOut) {
         super(PDPConstants.PIP_ATTRIBUTE_CACHE, timeOut);
     }
 
-    public void addToCache(int tenantId, String key, Set<String> attributes){
+    public void addToCache(int tenantId, String key, Set<String> attributes) {
 
         IdentityCacheKey cacheKey = new IdentityCacheKey(tenantId, key);
         IdentityCacheEntry cacheEntry = new IdentityCacheEntry(attributes);
         addToCache(cacheKey, cacheEntry);
     }
 
-    public Set<String> getFromCache(int tenantId, String key){
+    public Set<String> getFromCache(int tenantId, String key) {
 
         Set<String> attributes = null;
         IdentityCacheKey cacheKey = new IdentityCacheKey(tenantId, key);
         IdentityCacheEntry cacheEntry = getValueFromCache(cacheKey);
-        if(cacheEntry != null){
-            attributes =  cacheEntry.getCacheEntrySet();
+        if (cacheEntry != null) {
+            attributes = cacheEntry.getCacheEntrySet();
         }
         return attributes;
     }
 
-    public void clearCache(){
+    public void clearCache() {
         clear();
     }
 }

@@ -27,8 +27,6 @@ import org.wso2.carbon.identity.entitlement.dto.AttributeDTO;
 import org.wso2.carbon.identity.entitlement.dto.PolicyDTO;
 import org.wso2.carbon.identity.entitlement.dto.PolicyStoreDTO;
 import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent;
-import org.wso2.carbon.identity.entitlement.pap.store.PAPPolicyStore;
-import org.wso2.carbon.identity.entitlement.pap.store.PAPPolicyStoreReader;
 import org.wso2.carbon.identity.entitlement.policy.finder.AbstractPolicyFinderModule;
 import org.wso2.carbon.identity.entitlement.policy.finder.PolicyFinderModule;
 import org.wso2.carbon.identity.entitlement.policy.finder.registry.RegistryPolicyReader;
@@ -43,33 +41,27 @@ import java.util.*;
  *
  */
 public class RegistryPolicyStoreManageModule extends AbstractPolicyFinderModule
-                                                                implements PolicyStoreManageModule {
-
-    private String policyStorePath;
+        implements PolicyStoreManageModule {
 
     private static final String MODULE_NAME = "Registry Policy Finder Module";
-
     private static final String PROPERTY_POLICY_STORE_PATH = "policyStorePath";
-
     private static final String PROPERTY_ATTRIBUTE_SEPARATOR = "attributeValueSeparator";
-
     private static final String DEFAULT_POLICY_STORE_PATH = "/repository/identity/entitlement" +
             "/policy/pdp/";
-
     private static final String KEY_VALUE_POLICY_META_DATA = "policyMetaData";
-
-	private static Log log = LogFactory.getLog(RegistryPolicyStoreManageModule.class);
+    private static Log log = LogFactory.getLog(RegistryPolicyStoreManageModule.class);
+    private String policyStorePath;
 
     @Override
     public void init(Properties properties) {
         policyStorePath = properties.getProperty(PROPERTY_POLICY_STORE_PATH);
-        if(policyStorePath == null){
+        if (policyStorePath == null) {
             policyStorePath = DEFAULT_POLICY_STORE_PATH;
         }
     }
 
     @Override
-    public void addPolicy(PolicyStoreDTO policy) throws EntitlementException{
+    public void addPolicy(PolicyStoreDTO policy) throws EntitlementException {
 
         Registry registry;
         String policyPath;
@@ -77,15 +69,15 @@ public class RegistryPolicyStoreManageModule extends AbstractPolicyFinderModule
         Resource resource;
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 
-        if(policy == null || policy.getPolicyId() == null || policy.getPolicyId().trim().length() == 0){
+        if (policy == null || policy.getPolicyId() == null || policy.getPolicyId().trim().length() == 0) {
             throw new EntitlementException("Policy can not be null");
         }
 
         try {
             registry = EntitlementServiceComponent.getRegistryService().
-                                                            getGovernanceSystemRegistry(tenantId);
+                    getGovernanceSystemRegistry(tenantId);
 
-            if(registry.resourceExists(policyStorePath)){
+            if (registry.resourceExists(policyStorePath)) {
                 policyCollection = (Collection) registry.get(policyStorePath);
             } else {
                 policyCollection = registry.newCollection();
@@ -101,27 +93,27 @@ public class RegistryPolicyStoreManageModule extends AbstractPolicyFinderModule
                 resource = registry.newResource();
             }
 
-            if( policy.getPolicy() != null && policy.getPolicy().trim().length() != 0){
+            if (policy.getPolicy() != null && policy.getPolicy().trim().length() != 0) {
                 resource.setContent(policy.getPolicy());
                 resource.setMediaType(PDPConstants.REGISTRY_MEDIA_TYPE);
                 AttributeDTO[] attributeDTOs = policy.getAttributeDTOs();
-                if(attributeDTOs != null){
+                if (attributeDTOs != null) {
                     setAttributesAsProperties(attributeDTOs, resource);
                 }
             }
-            if(policy.isSetActive()){
-                resource.setProperty("active",  Boolean.toString(policy.isActive()));
+            if (policy.isSetActive()) {
+                resource.setProperty("active", Boolean.toString(policy.isActive()));
             }
-            if(policy.isSetOrder()){
+            if (policy.isSetOrder()) {
                 int order = policy.getPolicyOrder();
-                if(order > 0){
+                if (order > 0) {
                     resource.setProperty("order", Integer.toString(order));
                 }
             }
             registry.put(policyPath, resource);
         } catch (RegistryException e) {
-            log.error("Error while persisting policy",e);
-            throw new EntitlementException("Error while persisting policy" , e);
+            log.error("Error while persisting policy", e);
+            throw new EntitlementException("Error while persisting policy", e);
         }
     }
 
@@ -132,7 +124,7 @@ public class RegistryPolicyStoreManageModule extends AbstractPolicyFinderModule
         String policyPath;
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 
-        if(policyId == null || policyId.trim().length() == 0){
+        if (policyId == null || policyId.trim().length() == 0) {
             return false;
         }
 
@@ -161,13 +153,13 @@ public class RegistryPolicyStoreManageModule extends AbstractPolicyFinderModule
         String policyPath;
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 
-        if(policyIdentifier == null || policyIdentifier.trim().length() == 0){
+        if (policyIdentifier == null || policyIdentifier.trim().length() == 0) {
             return false;
         }
 
         try {
             registry = EntitlementServiceComponent.getRegistryService().
-                                                            getGovernanceSystemRegistry(tenantId);
+                    getGovernanceSystemRegistry(tenantId);
 
             policyPath = policyStorePath + policyIdentifier;
             registry.delete(policyPath);
@@ -189,10 +181,10 @@ public class RegistryPolicyStoreManageModule extends AbstractPolicyFinderModule
         PolicyDTO dto;
         try {
             dto = getPolicyReader().readPolicy(policyId);
-            return  dto.getPolicy();
+            return dto.getPolicy();
         } catch (Exception e) {
             log.error("Policy with identifier " + policyId + " can not be retrieved " +
-                    "from registry policy finder module" , e);
+                    "from registry policy finder module", e);
         }
         return null;
     }
@@ -205,19 +197,19 @@ public class RegistryPolicyStoreManageModule extends AbstractPolicyFinderModule
         List<String> policies = new ArrayList<String>();
 
         try {
-            PolicyDTO[] policyDTOs =  getPolicyReader().readAllPolicies(true, true);
-            for(PolicyDTO dto : policyDTOs){
-                if(dto.getPolicy() != null){
+            PolicyDTO[] policyDTOs = getPolicyReader().readAllPolicies(true, true);
+            for (PolicyDTO dto : policyDTOs) {
+                if (dto.getPolicy() != null) {
                     policies.add(dto.getPolicy());
                 }
             }
         } catch (Exception e) {
-            log.error("Policies can not be retrieved from registry policy finder module" , e);
+            log.error("Policies can not be retrieved from registry policy finder module", e);
         }
 
-        log.debug("Retrieving of Active policies are finished.   " + new Date()  );
+        log.debug("Retrieving of Active policies are finished.   " + new Date());
 
-        return  policies.toArray(new String[policies.size()]);
+        return policies.toArray(new String[policies.size()]);
     }
 
 
@@ -229,19 +221,19 @@ public class RegistryPolicyStoreManageModule extends AbstractPolicyFinderModule
         List<String> policies = new ArrayList<String>();
 
         try {
-            PolicyDTO[] policyDTOs =  getPolicyReader().readAllPolicies(false, true);
-            for(PolicyDTO dto : policyDTOs){
-                if(dto.getPolicy() != null){
+            PolicyDTO[] policyDTOs = getPolicyReader().readAllPolicies(false, true);
+            for (PolicyDTO dto : policyDTOs) {
+                if (dto.getPolicy() != null) {
                     policies.add(dto.getPolicyId());
                 }
             }
         } catch (Exception e) {
-            log.error("Policies can not be retrieved from registry policy finder module" , e);
+            log.error("Policies can not be retrieved from registry policy finder module", e);
         }
 
         log.debug("Retrieving of Order Policy Ids are finish. " + new Date());
 
-        return  policies.toArray(new String[policies.size()]);
+        return policies.toArray(new String[policies.size()]);
 
     }
 
@@ -249,20 +241,20 @@ public class RegistryPolicyStoreManageModule extends AbstractPolicyFinderModule
     public String[] getPolicyIdentifiers() {
         String[] policyIds = null;
         try {
-            policyIds =  getPolicyReader().getAllPolicyIds();
+            policyIds = getPolicyReader().getAllPolicyIds();
         } catch (Exception e) {
-            log.error("Policy identifiers can not be retrieved from registry policy finder module" , e);
+            log.error("Policy identifiers can not be retrieved from registry policy finder module", e);
         }
-        return  policyIds;
+        return policyIds;
     }
 
     @Override
     public String getReferencedPolicy(String policyId) {
 
         // retrieve for policies that are not active
-        try{
+        try {
             PolicyDTO dto = getPolicyReader().readPolicy(policyId);
-            if(dto != null && dto.getPolicy() != null && !dto.isActive()){
+            if (dto != null && dto.getPolicy() != null && !dto.isActive()) {
                 return dto.getPolicy();
             }
         } catch (EntitlementException e) {
@@ -279,31 +271,31 @@ public class RegistryPolicyStoreManageModule extends AbstractPolicyFinderModule
         PolicyDTO[] policyDTOs = null;
         Map<String, Set<AttributeDTO>> attributeMap = null;
         try {
-            policyDTOs =  getPolicyReader().readAllPolicies(true, true);
+            policyDTOs = getPolicyReader().readAllPolicies(true, true);
         } catch (Exception e) {
-            log.error("Policies can not be retrieved from registry policy finder module" , e);
+            log.error("Policies can not be retrieved from registry policy finder module", e);
         }
 
-        if(policyDTOs != null){
-            attributeMap = new  HashMap<String, Set<AttributeDTO>>();
+        if (policyDTOs != null) {
+            attributeMap = new HashMap<String, Set<AttributeDTO>>();
             for (PolicyDTO policyDTO : policyDTOs) {
                 Set<AttributeDTO> attributeDTOs =
                         new HashSet<AttributeDTO>(Arrays.asList(policyDTO.getAttributeDTOs()));
                 String[] policyIdRef = policyDTO.getPolicyIdReferences();
                 String[] policySetIdRef = policyDTO.getPolicySetIdReferences();
 
-                if(policyIdRef != null && policyIdRef.length > 0 || policySetIdRef != null &&
-                        policySetIdRef.length > 0){
-                    for(PolicyDTO dto : policyDTOs){
-                        if(policyIdRef != null){
-                            for(String policyId : policyIdRef){
-                                if(dto.getPolicyId().equals(policyId)){
+                if (policyIdRef != null && policyIdRef.length > 0 || policySetIdRef != null &&
+                        policySetIdRef.length > 0) {
+                    for (PolicyDTO dto : policyDTOs) {
+                        if (policyIdRef != null) {
+                            for (String policyId : policyIdRef) {
+                                if (dto.getPolicyId().equals(policyId)) {
                                     attributeDTOs.addAll(Arrays.asList(dto.getAttributeDTOs()));
                                 }
                             }
                         }
-                        for(String policySetId : policySetIdRef){
-                            if(dto.getPolicyId().equals(policySetId)){
+                        for (String policySetId : policySetIdRef) {
+                            if (dto.getPolicyId().equals(policySetId)) {
                                 attributeDTOs.addAll(Arrays.asList(dto.getAttributeDTOs()));
                             }
                         }
@@ -329,6 +321,7 @@ public class RegistryPolicyStoreManageModule extends AbstractPolicyFinderModule
 
     /**
      * creates policy reader instance
+     *
      * @return
      */
     private RegistryPolicyReader getPolicyReader() {
@@ -348,19 +341,19 @@ public class RegistryPolicyStoreManageModule extends AbstractPolicyFinderModule
      * This helper method creates properties object which contains the policy meta data.
      *
      * @param attributeDTOs List of AttributeDTO
-     * @param resource registry resource
+     * @param resource      registry resource
      */
     private void setAttributesAsProperties(AttributeDTO[] attributeDTOs, Resource resource) {
-        
+
         int attributeElementNo = 0;
-        if(attributeDTOs != null){
-            for(AttributeDTO attributeDTO : attributeDTOs){
+        if (attributeDTOs != null) {
+            for (AttributeDTO attributeDTO : attributeDTOs) {
                 resource.setProperty(KEY_VALUE_POLICY_META_DATA + attributeElementNo,
-                       attributeDTO.getCategory() + "," +
-                       attributeDTO.getAttributeValue() + "," +
-                       attributeDTO.getAttributeId() + "," +
-                       attributeDTO.getAttributeDataType());
-                attributeElementNo ++;
+                        attributeDTO.getCategory() + "," +
+                                attributeDTO.getAttributeValue() + "," +
+                                attributeDTO.getAttributeId() + "," +
+                                attributeDTO.getAttributeDataType());
+                attributeElementNo++;
             }
         }
     }

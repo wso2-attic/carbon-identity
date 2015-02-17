@@ -44,38 +44,26 @@ import java.util.Set;
  */
 public class PolicyPublishExecutor implements Runnable {
 
+    private static Log log = LogFactory.getLog(PolicyPublishExecutor.class);
     private String[] policyIds;
-
     private String[] subscriberIds;
-
     private PolicyPublisher publisher;
-
     private String version;
-
     private String action;
-
     private String verificationCode;
-
     private boolean toPDP;
-    
     private String tenantDomain;
-
     private int tenantId;
-    
     private String userName;
-    
     private int order;
-
     private boolean enabled;
 
-    private static Log log = LogFactory.getLog(PolicyPublishExecutor.class);
-
     public PolicyPublishExecutor(String[] policyIds, String version, String action, boolean enabled, int order,
-                                String[] subscriberIds, PolicyPublisher publisher,
-                                boolean toPDP, String verificationCode) {
+                                 String[] subscriberIds, PolicyPublisher publisher,
+                                 boolean toPDP, String verificationCode) {
 
         this.policyIds = policyIds;
-        if(toPDP){
+        if (toPDP) {
             this.subscriberIds = new String[]{"PDPSubscriber"};
         }
         this.subscriberIds = subscriberIds;
@@ -95,60 +83,60 @@ public class PolicyPublishExecutor implements Runnable {
         context.setTenantDomain(tenantDomain);
         context.setTenantId(tenantId);
         context.setUsername(userName);
-        try{
+        try {
             publish();
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
 
     }
+
     public void publish() {
 
 
-
-        if((policyIds == null || policyIds.length > 0) && verificationCode != null){
+        if ((policyIds == null || policyIds.length > 0) && verificationCode != null) {
             loadVerificationCode(verificationCode);
         }
-        
+
         String newVerificationCode = null;
         ArrayList<String> notPublishedSubscribers = new ArrayList<String>();
-        
-        
+
+
         PolicyPublisherModule policyPublisherModule = null;
         Set<PolicyPublisherModule> publisherModules = publisher.getPublisherModules();
 
-        if(publisherModules == null){
+        if (publisherModules == null) {
             return;
         }
 
         PublisherDataHolder holder = null;
         Set<PAPStatusDataHandler> papStatusDataHandler = publisher.getPapStatusDataHandlers();
-        for(String subscriberId : subscriberIds){
+        for (String subscriberId : subscriberIds) {
 
             // there is only one known subscriber, if policies are publishing to PDP
             List<StatusHolder> subscriberHolders = new ArrayList<StatusHolder>();
             List<StatusHolder> policyHolders = new ArrayList<StatusHolder>();
-            if(toPDP){
+            if (toPDP) {
                 policyPublisherModule = new CarbonPDPPublisher();
                 holder = new PublisherDataHolder(policyPublisherModule.getModuleName());
             } else {
-                try{
+                try {
                     holder = publisher.retrieveSubscriber(subscriberId, true);
                 } catch (EntitlementException e) {
                     log.error("Subscriber details can not be retrieved. So skip publishing policies " +
                             "for subscriber : " + subscriberId);
                 }
 
-                if(holder != null){
-                    for(PolicyPublisherModule publisherModule : publisherModules){
-                        if(publisherModule.getModuleName().equals(holder.getModuleName())){
+                if (holder != null) {
+                    for (PolicyPublisherModule publisherModule : publisherModules) {
+                        if (publisherModule.getModuleName().equals(holder.getModuleName())) {
                             policyPublisherModule = publisherModule;
-                            if(policyPublisherModule instanceof AbstractPolicyPublisherModule){
+                            if (policyPublisherModule instanceof AbstractPolicyPublisherModule) {
                                 try {
-                                    ((AbstractPolicyPublisherModule)policyPublisherModule).init(holder);
+                                    ((AbstractPolicyPublisherModule) policyPublisherModule).init(holder);
                                 } catch (Exception e) {
                                     subscriberHolders.add(new StatusHolder(EntitlementConstants.StatusTypes.PUBLISH_POLICY,
-                                            subscriberId, version, "More than one Policy", action,false, e.getMessage()));
+                                            subscriberId, version, "More than one Policy", action, false, e.getMessage()));
                                     continue;
                                 }
                             }
@@ -158,17 +146,17 @@ public class PolicyPublishExecutor implements Runnable {
                 }
             }
 
-            if(policyPublisherModule == null){
+            if (policyPublisherModule == null) {
                 subscriberHolders.add(new StatusHolder(EntitlementConstants.StatusTypes.PUBLISH_POLICY,
-                    subscriberId, version, "More than one Policy", action, false,
+                        subscriberId, version, "More than one Policy", action, false,
                         "No policy publish module is defined for subscriber : " + subscriberId));
                 continue;
             }
 
             // try with post verification module.
             try {
-                PublisherVerificationModule  verificationModule = publisher.getVerificationModule();
-                if(verificationModule != null && !verificationModule.doVerify(verificationCode)){
+                PublisherVerificationModule verificationModule = publisher.getVerificationModule();
+                if (verificationModule != null && !verificationModule.doVerify(verificationCode)) {
                     newVerificationCode = verificationModule.getVerificationCode(holder);
                     notPublishedSubscribers.add(subscriberId);
                     break;
@@ -176,15 +164,15 @@ public class PolicyPublishExecutor implements Runnable {
 
             } catch (EntitlementException e) {
                 // ignore
-                log.error("Error while calling the post verification publisher module" , e);
+                log.error("Error while calling the post verification publisher module", e);
             }
 
-            for(String policyId : policyIds){
+            for (String policyId : policyIds) {
 
                 PolicyDTO policyDTO = null;
 
-                if(EntitlementConstants.PolicyPublish.ACTION_CREATE.equalsIgnoreCase(action) ||
-                        EntitlementConstants.PolicyPublish.ACTION_UPDATE.equalsIgnoreCase(action)){
+                if (EntitlementConstants.PolicyPublish.ACTION_CREATE.equalsIgnoreCase(action) ||
+                        EntitlementConstants.PolicyPublish.ACTION_UPDATE.equalsIgnoreCase(action)) {
                     PolicyVersionManager manager = EntitlementAdminEngine.getInstance().getVersionManager();
                     try {
                         policyDTO = manager.getPolicy(policyId, version);
@@ -198,7 +186,7 @@ public class PolicyPublishExecutor implements Runnable {
                     policyDTO.setPolicyOrder(order);
                 }
 
-                if(policyDTO == null){
+                if (policyDTO == null) {
                     subscriberHolders.add(new StatusHolder(EntitlementConstants.StatusTypes.PUBLISH_POLICY,
                             subscriberId, version, policyId, action, false,
                             "Can not found policy under policy id : " + policyId));
@@ -221,29 +209,29 @@ public class PolicyPublishExecutor implements Runnable {
                             policyId, version, subscriberId, action, false, e.getMessage()));
                 }
 
-                for(PAPStatusDataHandler module : papStatusDataHandler){
+                for (PAPStatusDataHandler module : papStatusDataHandler) {
                     try {
                         module.handle(EntitlementConstants.Status.ABOUT_POLICY, policyId, policyHolders);
                         policyHolders = new ArrayList<StatusHolder>();
                     } catch (EntitlementException e) {
                         // ignore
-                        log.error("Error while calling post publishers" , e);
+                        log.error("Error while calling post publishers", e);
                     }
                 }
             }
 
-            for(PAPStatusDataHandler module : papStatusDataHandler){
+            for (PAPStatusDataHandler module : papStatusDataHandler) {
                 try {
                     module.handle(EntitlementConstants.Status.ABOUT_SUBSCRIBER, subscriberId, subscriberHolders);
                     subscriberHolders = new ArrayList<StatusHolder>();
                 } catch (EntitlementException e) {
                     // ignore
-                    log.error("Error while calling post publishers" , e);
+                    log.error("Error while calling post publishers", e);
                 }
             }
         }
-        
-        if(newVerificationCode != null){
+
+        if (newVerificationCode != null) {
             persistVerificationCode(newVerificationCode,
                     notPublishedSubscribers.toArray(new String[notPublishedSubscribers.size()]));
         }
@@ -253,13 +241,13 @@ public class PolicyPublishExecutor implements Runnable {
      * Helper method
      *
      * @param verificationCode verificationCode as String
-     * @param subscriberIds  Array of subscriberIds
+     * @param subscriberIds    Array of subscriberIds
      */
-    private void persistVerificationCode(String verificationCode, String[] subscriberIds){
+    private void persistVerificationCode(String verificationCode, String[] subscriberIds) {
 
         Registry registry = EntitlementServiceComponent.
-                            getGovernanceRegistry(CarbonContext.getThreadLocalCarbonContext().getTenantId());
-        try{
+                getGovernanceRegistry(CarbonContext.getThreadLocalCarbonContext().getTenantId());
+        try {
             org.wso2.carbon.registry.api.Resource resource = registry.newResource();
             resource.setProperty("subscriberIds", Arrays.asList(subscriberIds));
             resource.setProperty("policyIds", Arrays.asList(policyIds));
@@ -271,7 +259,7 @@ public class PolicyPublishExecutor implements Runnable {
         } catch (org.wso2.carbon.registry.api.RegistryException e) {
             log.error("Error while persisting verification code", e);
         }
-        
+
     }
 
     /**
@@ -279,31 +267,31 @@ public class PolicyPublishExecutor implements Runnable {
      *
      * @param verificationCode verificationCode as String
      */
-    private void loadVerificationCode(String verificationCode){
+    private void loadVerificationCode(String verificationCode) {
 
         Registry registry = EntitlementServiceComponent.
                 getGovernanceRegistry(CarbonContext.getThreadLocalCarbonContext().getTenantId());
-        try{
+        try {
             org.wso2.carbon.registry.api.Resource resource = registry.
                     get(PDPConstants.ENTITLEMENT_POLICY_PUBLISHER_VERIFICATION + verificationCode);
             List<String> list = resource.getPropertyValues("subscriberIds");
-            if(list != null){
+            if (list != null) {
                 subscriberIds = list.toArray(new String[list.size()]);
             }
             list = resource.getPropertyValues("policyIds");
-            if(list != null){
+            if (list != null) {
                 policyIds = list.toArray(new String[list.size()]);
             }
             String version = resource.getProperty("version");
-            if(version != null){
+            if (version != null) {
                 this.version = version;
             }
             String action = resource.getProperty("action");
-            if(action != null){
+            if (action != null) {
                 this.action = action;
             }
             String order = resource.getProperty("order");
-            if(order != null){
+            if (order != null) {
                 this.order = Integer.parseInt(order);
             }
         } catch (org.wso2.carbon.registry.api.RegistryException e) {

@@ -34,8 +34,8 @@ public interface EntitlementDataFinderModule {
     /**
      * Initializes data retriever module
      *
-	 * @param properties properties, that need to initialize the module. These properties can be
-     * defined in entitlement.properties file
+     * @param properties properties, that need to initialize the module. These properties can be
+     *                   defined in entitlement.properties file
      * @throws Exception throws when initialization is failed
      */
     public void init(Properties properties) throws Exception;
@@ -51,7 +51,7 @@ public interface EntitlementDataFinderModule {
      * Returns application names that are related with entitlement data that is retrieved by this
      * module
      *
-     * @return  Set of related applications
+     * @return Set of related applications
      */
     public Set<String> getRelatedApplications();
 
@@ -60,7 +60,7 @@ public interface EntitlementDataFinderModule {
      * Returns categories that are supported with entitlement data that is retrieved by this
      * module
      *
-     * @return  Set of related applications
+     * @return Set of related applications
      */
     public Set<String> getSupportedCategories();
 
@@ -68,22 +68,22 @@ public interface EntitlementDataFinderModule {
      * Finds entitlement data values for given category type
      *
      * @param category category of the entitlement data.
-     * @param regex regex values for filter out the return data
-     * @param limit limit for filtered data
+     * @param regex    regex values for filter out the return data
+     * @param limit    limit for filtered data
      * @return Set of entitlement data values that has been encapsulated
-                                                         in to <code>EntitlementTreeNodeDTO</code>
+     * in to <code>EntitlementTreeNodeDTO</code>
      * @throws Exception throws, if fails
      */
     public EntitlementTreeNodeDTO getEntitlementData(String category, String regex,
-                                                                    int limit) throws Exception;
+                                                     int limit) throws Exception;
 
     /**
      * Finds entitlement data values for given category and for given hierarchical level
      *
      * @param category category of the entitlement data.
-     * @param level hierarchical level that data must be retrieved. If root level, value must be 1
+     * @param level    hierarchical level that data must be retrieved. If root level, value must be 1
      * @return Set of entitlement data values that has been encapsulated
-                                                            in to <code>EntitlementTreeNodeDTO</code>
+     * in to <code>EntitlementTreeNodeDTO</code>
      * @throws Exception throws, if fails
      */
     public EntitlementTreeNodeDTO getEntitlementDataByLevel(String category, int level) throws Exception;
@@ -95,11 +95,11 @@ public interface EntitlementDataFinderModule {
      * @return number of levels
      */
     public int getSupportedHierarchicalLevels();
-    
+
     /**
      * Defines whether node <code>EntitlementTreeNodeDTO</code> is defined by child node name
      * or by full path name with parent node names
-     * 
+     *
      * @return true or false
      */
     public boolean isFullPathSupported();
@@ -108,7 +108,7 @@ public interface EntitlementDataFinderModule {
      * Defines whether tree nodes of <code>EntitlementTreeNodeDTO</code> elements are shown
      * in UI by as a tree or flat structure
      *
-     * @return  if as a tree -> true or else -> false
+     * @return if as a tree -> true or else -> false
      */
     public boolean isHierarchicalTree();
 
@@ -117,7 +117,7 @@ public interface EntitlementDataFinderModule {
      * Defines whether we can search the tree nodes of <code>EntitlementTreeNodeDTO</code> elements
      * using regexp  expressions
      *
-     * @return  if as a tree -> true or else -> false
+     * @return if as a tree -> true or else -> false
      */
     public boolean isSearchSupported();
 

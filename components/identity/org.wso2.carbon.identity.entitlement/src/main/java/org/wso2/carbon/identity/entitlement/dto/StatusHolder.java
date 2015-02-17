@@ -20,8 +20,6 @@ package org.wso2.carbon.identity.entitlement.dto;
 
 import org.wso2.carbon.context.CarbonContext;
 
-import java.util.Date;
-
 /**
  *
  */
@@ -30,17 +28,17 @@ public class StatusHolder {
     /**
      * Status type
      */
-    private String type;    
+    private String type;
     /**
      * key to identify status. basically policy Id
      */
     private String key;
 
     /**
-     *basically policy version
+     * basically policy version
      */
     private String version;
-    
+
     /**
      * whether this is success status or not
      */
@@ -73,7 +71,7 @@ public class StatusHolder {
 
 
     public StatusHolder(String type, String key, String version, String target,
-                                            String targetAction, boolean success, String message) {
+                        String targetAction, boolean success, String message) {
         this.type = type;
         this.key = key;
         this.user = CarbonContext.getThreadLocalCarbonContext().getUsername();

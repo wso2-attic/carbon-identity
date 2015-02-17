@@ -17,40 +17,20 @@
  */
 package org.wso2.carbon.identity.entitlement;
 
-import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.util.*;
-
 import org.apache.commons.io.FileUtils;
-import org.wso2.balana.*;
-import org.wso2.balana.attr.BooleanAttribute;
-import org.wso2.balana.attr.DateAttribute;
-import org.wso2.balana.attr.DateTimeAttribute;
-import org.wso2.balana.attr.DoubleAttribute;
-import org.wso2.balana.attr.HexBinaryAttribute;
-import org.wso2.balana.attr.IntegerAttribute;
-import org.wso2.balana.attr.StringAttribute;
-import org.wso2.balana.attr.TimeAttribute;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.wso2.balana.attr.AttributeValue;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.wso2.balana.*;
+import org.wso2.balana.attr.*;
 import org.wso2.balana.combine.PolicyCombiningAlgorithm;
 import org.wso2.balana.combine.xacml2.FirstApplicablePolicyAlg;
 import org.wso2.balana.combine.xacml2.OnlyOneApplicablePolicyAlg;
 import org.wso2.balana.combine.xacml3.*;
 import org.wso2.balana.ctx.AbstractRequestCtx;
 import org.wso2.balana.ctx.Attribute;
-import org.wso2.balana.ctx.xacml2.RequestCtx;
-import org.wso2.balana.ctx.xacml2.Subject;
 import org.wso2.balana.xacml3.Attributes;
-import org.wso2.carbon.identity.entitlement.EntitlementException;
 import org.wso2.carbon.identity.entitlement.cache.EntitlementBaseCache;
 import org.wso2.carbon.identity.entitlement.cache.IdentityCacheEntry;
 import org.wso2.carbon.identity.entitlement.cache.IdentityCacheKey;
@@ -73,30 +53,32 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.validation.Schema;
 import javax.xml.validation.Validator;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.*;
 
 /**
- *
  * Provides utility functionalities used across different classes.
- *
  */
 public class EntitlementUtil {
 
-	private static Log log = LogFactory.getLog(EntitlementUtil.class);
+    private static Log log = LogFactory.getLog(EntitlementUtil.class);
 
 
     /**
      * Return an instance of a named cache that is common to all tenants.
      *
      * @param name the name of the cache.
-     *
      * @return the named cache instance.
      */
     public static EntitlementBaseCache<IdentityCacheKey, IdentityCacheEntry> getCommonCache(String name) {
@@ -115,15 +97,17 @@ public class EntitlementUtil {
 
         return new EntitlementBaseCache<IdentityCacheKey, IdentityCacheEntry>(name);
     }
+
     /**
      * Return the Attribute Value Object for given string value and data type
+     *
      * @param value attribute value as a String object
      * @param type  attribute data type name as String object
      * @return Attribute Value Object
      * @throws EntitlementException throws
      */
-	public static AttributeValue getAttributeValue(final String value, String type)
-                        throws EntitlementException {
+    public static AttributeValue getAttributeValue(final String value, String type)
+            throws EntitlementException {
 
         try {
             if (StringAttribute.identifier.equals(type)) {
@@ -160,29 +144,30 @@ public class EntitlementUtil {
 
         } catch (ParsingException e) {
             throw new EntitlementException("Error while creating AttributeValue object for given " +
-                                        "string value and data type");
+                    "string value and data type");
         } catch (ParseException e) {
             throw new EntitlementException("Error while creating AttributeValue object for given " +
-                                        "string value and data type");
+                    "string value and data type");
         } catch (URISyntaxException e) {
             throw new EntitlementException("Error while creating AttributeValue object for given " +
-                                        "string value and data type");
+                    "string value and data type");
         }
-	}
+    }
 
     /**
      * This creates the XACML 3.0 Request context from AttributeDTO object model
-     * @param attributeDTOs  AttributeDTO objects as List
+     *
+     * @param attributeDTOs AttributeDTO objects as List
      * @return DOM element as XACML request
-     * @throws EntitlementException  throws, if fails
+     * @throws EntitlementException throws, if fails
      */
-    public static AbstractRequestCtx createRequestContext(List<AttributeDTO> attributeDTOs){
+    public static AbstractRequestCtx createRequestContext(List<AttributeDTO> attributeDTOs) {
 
-        Set<Attributes>  attributesSet = new HashSet<Attributes>();
+        Set<Attributes> attributesSet = new HashSet<Attributes>();
 
-        for(AttributeDTO DTO : attributeDTOs){
+        for (AttributeDTO DTO : attributeDTOs) {
             Attributes attributes = getAttributes(DTO);
-            if(attributes != null){
+            if (attributes != null) {
                 attributesSet.add(attributes);
             }
         }
@@ -191,9 +176,9 @@ public class EntitlementUtil {
 
     /**
      * Validates the given policy XML files against the standard XACML policies.
-     * 
+     *
      * @param policy Policy to validate
-     * @return return false, If validation failed or XML parsing failed or any IOException occurs 
+     * @return return false, If validation failed or XML parsing failed or any IOException occurs
      */
     public static boolean validatePolicy(PolicyDTO policy) {
         try {
@@ -205,19 +190,19 @@ public class EntitlementUtil {
 
             // there may be cases where you only updated the policy meta data in PolicyDTO not the
             // actual XACML policy String
-            if(policy.getPolicy() == null || policy.getPolicy().trim().length() < 1){
+            if (policy.getPolicy() == null || policy.getPolicy().trim().length() < 1) {
                 return true;
             }
 
-	        //get policy version
+            //get policy version
             String policyXMLNS = getPolicyVersion(policy.getPolicy());
 
             Map<String, Schema> schemaMap = EntitlementServiceComponent.
-                                                    getEntitlementConfig().getPolicySchemaMap();
+                    getEntitlementConfig().getPolicySchemaMap();
             //load correct schema by version
             Schema schema = schemaMap.get(policyXMLNS);
 
-            if(schema != null){
+            if (schema != null) {
                 //build XML document
                 DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
                 documentBuilderFactory.setNamespaceAware(true);
@@ -228,8 +213,8 @@ public class EntitlementUtil {
                 DOMSource domSource = new DOMSource(doc);
                 DOMResult domResult = new DOMResult();
                 Validator validator = schema.newValidator();
-                validator.validate(domSource,domResult);
-                if(log.isDebugEnabled()){
+                validator.validate(domSource, domResult);
+                if (log.isDebugEnabled()) {
                     log.debug("XACML Policy validation succeeded with the Schema");
                 }
                 return true;
@@ -247,9 +232,9 @@ public class EntitlementUtil {
     }
 
 
-    public static String getPolicyVersion(String policy)  {
+    public static String getPolicyVersion(String policy) {
 
-        try{
+        try {
             //build XML document
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -269,25 +254,25 @@ public class EntitlementUtil {
     }
 
 
-    public static Attributes getAttributes(AttributeDTO attributeDataDTO){
+    public static Attributes getAttributes(AttributeDTO attributeDataDTO) {
 
         try {
             AttributeValue value = Balana.getInstance().getAttributeFactory().
-                                    createValue(new URI(attributeDataDTO.getAttributeDataType()),
-                                            attributeDataDTO.getAttributeValue());
+                    createValue(new URI(attributeDataDTO.getAttributeDataType()),
+                            attributeDataDTO.getAttributeValue());
             Attribute attribute = new Attribute(new URI(attributeDataDTO.getAttributeId()),
-                                            null, null, value, XACMLConstants.XACML_VERSION_3_0);
+                    null, null, value, XACMLConstants.XACML_VERSION_3_0);
             Set<Attribute> set = new HashSet<Attribute>();
             set.add(attribute);
             String category = attributeDataDTO.getCategory();
             // We are only creating XACML 3.0 requests Therefore covert order XACML categories to new uris
-            if(PDPConstants.SUBJECT_ELEMENT.equals(category)){
+            if (PDPConstants.SUBJECT_ELEMENT.equals(category)) {
                 category = PDPConstants.SUBJECT_CATEGORY_URI;
-            } else if(PDPConstants.RESOURCE_ELEMENT.equals(category)){
+            } else if (PDPConstants.RESOURCE_ELEMENT.equals(category)) {
                 category = PDPConstants.RESOURCE_CATEGORY_URI;
-            } else if(PDPConstants.ACTION_ELEMENT.equals(category)){
+            } else if (PDPConstants.ACTION_ELEMENT.equals(category)) {
                 category = PDPConstants.ACTION_CATEGORY_URI;
-            } else if(PDPConstants.ENVIRONMENT_ELEMENT.equals(category)){
+            } else if (PDPConstants.ENVIRONMENT_ELEMENT.equals(category)) {
                 category = PDPConstants.ENVIRONMENT_CATEGORY_URI;
             }
             return new Attributes(new URI(category), set);
@@ -299,48 +284,48 @@ public class EntitlementUtil {
         return null;
     }
 
-	/**
-	 * Creates PolicyCombiningAlgorithm object based on policy combining url
-	 *
-	 * @param uri policy combining url as String
-	 * @return PolicyCombiningAlgorithm object
-	 * @throws EntitlementException throws if unsupported algorithm
-	 */
-	public static PolicyCombiningAlgorithm getPolicyCombiningAlgorithm(String uri)
-			throws EntitlementException {
+    /**
+     * Creates PolicyCombiningAlgorithm object based on policy combining url
+     *
+     * @param uri policy combining url as String
+     * @return PolicyCombiningAlgorithm object
+     * @throws EntitlementException throws if unsupported algorithm
+     */
+    public static PolicyCombiningAlgorithm getPolicyCombiningAlgorithm(String uri)
+            throws EntitlementException {
 
-		if (FirstApplicablePolicyAlg.algId.equals(uri)) {
-			return new FirstApplicablePolicyAlg();
-		} else if (DenyOverridesPolicyAlg.algId.equals(uri)) {
-			return new DenyOverridesPolicyAlg();
-		} else if (PermitOverridesPolicyAlg.algId.equals(uri)) {
-			return new PermitOverridesPolicyAlg();
-		} else if (OnlyOneApplicablePolicyAlg.algId.equals(uri)) {
-			return new OnlyOneApplicablePolicyAlg();
-		} else if (OrderedDenyOverridesPolicyAlg.algId.equals(uri)) {
-			return new OrderedDenyOverridesPolicyAlg();
-		} else if (OrderedPermitOverridesPolicyAlg.algId.equals(uri)) {
-			return new OrderedPermitOverridesPolicyAlg();
-		} else if (DenyUnlessPermitPolicyAlg.algId.equals(uri)){
+        if (FirstApplicablePolicyAlg.algId.equals(uri)) {
+            return new FirstApplicablePolicyAlg();
+        } else if (DenyOverridesPolicyAlg.algId.equals(uri)) {
+            return new DenyOverridesPolicyAlg();
+        } else if (PermitOverridesPolicyAlg.algId.equals(uri)) {
+            return new PermitOverridesPolicyAlg();
+        } else if (OnlyOneApplicablePolicyAlg.algId.equals(uri)) {
+            return new OnlyOneApplicablePolicyAlg();
+        } else if (OrderedDenyOverridesPolicyAlg.algId.equals(uri)) {
+            return new OrderedDenyOverridesPolicyAlg();
+        } else if (OrderedPermitOverridesPolicyAlg.algId.equals(uri)) {
+            return new OrderedPermitOverridesPolicyAlg();
+        } else if (DenyUnlessPermitPolicyAlg.algId.equals(uri)) {
             return new DenyUnlessPermitPolicyAlg();
-        } else if(PermitUnlessDenyPolicyAlg.algId.equals(uri)){
+        } else if (PermitUnlessDenyPolicyAlg.algId.equals(uri)) {
             return new PermitUnlessDenyPolicyAlg();
         }
 
-		throw new EntitlementException("Unsupported policy algorithm " + uri);
-	}
+        throw new EntitlementException("Unsupported policy algorithm " + uri);
+    }
 
-	/**
-	 * Creates Simple XACML request using given attribute value.Here category, attribute ids and datatypes are
+    /**
+     * Creates Simple XACML request using given attribute value.Here category, attribute ids and datatypes are
      * taken as default values.
-	 *
-	 * @param subject user or role
-	 * @param resource resource name
-	 * @param action action name
-	 * @param environment environment name
+     *
+     * @param subject     user or role
+     * @param resource    resource name
+     * @param action      action name
+     * @param environment environment name
      * @return String XACML request as String
-	 */
-	public static String createSimpleXACMLRequest(String subject, String resource, String action, String environment)  {
+     */
+    public static String createSimpleXACMLRequest(String subject, String resource, String action, String environment) {
 
         return "<Request xmlns=\"urn:oasis:names:tc:xacml:3.0:core:schema:wd-17\" CombinedDecision=\"false\" ReturnPolicyIdList=\"false\">\n" +
                 "<Attributes Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:action\">\n" +
@@ -364,7 +349,7 @@ public class EntitlementUtil {
                 "</Attribute>\n" +
                 "</Attributes>\n" +
                 "</Request> ";
-	}
+    }
 
     public static void addSamplePolicies(Registry registry) {
 
@@ -377,21 +362,21 @@ public class EntitlementUtil {
             for (File policyFile : policyFolder.listFiles()) {
                 if (policyFile.isFile()) {
                     PolicyDTO policyDTO = new PolicyDTO();
-                    try{
+                    try {
                         policyDTO.setPolicy(FileUtils.readFileToString(policyFile));
                         EntitlementUtil.addFilesystemPolicy(policyDTO, registry, false);
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         // log and ignore
-                        log.error("Error while adding sample XACML policies" ,e);
+                        log.error("Error while adding sample XACML policies", e);
                     }
                 }
             }
         }
     }
-    
+
     /**
      * This method checks whether there is a policy having the same policyId as the given policyId is in the registry
-     * 
+     *
      * @param policyId
      * @param registry
      * @return
@@ -406,13 +391,12 @@ public class EntitlementUtil {
     /**
      * This method persists a new XACML policy, which was read from filesystem,
      * in the registry
-     * 
+     *
      * @param policyDTO PolicyDTO object
-     * @param registry Registry
-     * @param promote where policy must be promote PDP or not
+     * @param registry  Registry
+     * @param promote   where policy must be promote PDP or not
      * @return returns whether True/False
-     * @throws org.wso2.carbon.identity.entitlement.EntitlementException
-     *             throws if policy with same id is exist
+     * @throws org.wso2.carbon.identity.entitlement.EntitlementException throws if policy with same id is exist
      */
     public static boolean addFilesystemPolicy(PolicyDTO policyDTO,
                                               Registry registry, boolean promote)
@@ -432,7 +416,7 @@ public class EntitlementUtil {
             policyAdmin = new PAPPolicyStoreManager();
             policyDTO.setPolicyId(policyObj.getId().toASCIIString());
             policyDTO.setActive(true);
-            
+
             if (isPolicyExists(policyDTO.getPolicyId(), registry)) {
                 throw new EntitlementException(
                         "An Entitlement Policy with the given ID already exists");
@@ -450,12 +434,12 @@ public class EntitlementUtil {
             policyStoreDTO.setPolicyOrder(policyDTO.getPolicyOrder());
             policyStoreDTO.setAttributeDTOs(policyDTO.getAttributeDTOs());
 
-            if(promote){
+            if (promote) {
                 addPolicyToPDP(policyStoreDTO);
             }
-            
+
             policyAdmin.addOrUpdatePolicy(policyDTO);
-            
+
             return true;
         } else {
             throw new EntitlementException("Invalid Entitlement Policy");
@@ -487,9 +471,9 @@ public class EntitlementUtil {
                 throw new ParsingException("Unknown root document type: " + name);
             }
         } catch (Exception e) {
-            throw new IllegalArgumentException("Error while parsing start up policy" , e);
+            throw new IllegalArgumentException("Error while parsing start up policy", e);
         } finally {
-            if(stream != null){
+            if (stream != null) {
                 try {
                     stream.close();
                 } catch (IOException e) {
@@ -498,21 +482,21 @@ public class EntitlementUtil {
             }
         }
     }
-	
-	/**
-	 * Gets policy dto for a given policy id
-	 * 
-	 * @param policyId policy id
-	 * @param registry Registry
-	 * @return returns policy
-	 * @throws org.wso2.carbon.identity.entitlement.EntitlementException
-	 */
+
+    /**
+     * Gets policy dto for a given policy id
+     *
+     * @param policyId policy id
+     * @param registry Registry
+     * @return returns policy
+     * @throws org.wso2.carbon.identity.entitlement.EntitlementException
+     */
     public static PolicyDTO getPolicy(String policyId, Registry registry) throws EntitlementException {
         PAPPolicyStoreReader policyReader = null;
         policyReader = new PAPPolicyStoreReader(new PAPPolicyStore(registry));
         return policyReader.readPolicyDTO(policyId);
     }
-	
+
     /**
      * @param policyStoreDTO
      * @return
@@ -568,27 +552,27 @@ public class EntitlementUtil {
             registry.put(policyPath, resource);
         } catch (RegistryException e) {
             log.error(e);
-            throw new EntitlementException("Error while adding policy to PDP" ,e);
+            throw new EntitlementException("Error while adding policy to PDP", e);
         }
     }
-    
+
     /**
      * This helper method creates properties object which contains the policy meta data.
      *
      * @param attributeDTOs List of AttributeDTO
-     * @param resource registry resource
+     * @param resource      registry resource
      */
     public static void setAttributesAsProperties(AttributeDTO[] attributeDTOs, Resource resource) {
-        
+
         int attributeElementNo = 0;
-        if(attributeDTOs != null){
-            for(AttributeDTO attributeDTO : attributeDTOs){
+        if (attributeDTOs != null) {
+            for (AttributeDTO attributeDTO : attributeDTOs) {
                 resource.setProperty("policyMetaData" + attributeElementNo,
-                       attributeDTO.getCategory() + "," +
-                       attributeDTO.getAttributeValue() + "," +
-                       attributeDTO.getAttributeId() + "," +
-                       attributeDTO.getAttributeDataType());
-                attributeElementNo ++;
+                        attributeDTO.getCategory() + "," +
+                                attributeDTO.getAttributeValue() + "," +
+                                attributeDTO.getAttributeId() + "," +
+                                attributeDTO.getAttributeDataType());
+                attributeElementNo++;
             }
         }
     }

@@ -27,17 +27,15 @@ import java.util.Properties;
  * policy publisher module that is used to publish policies to external PDPs. External PDP can be
  * identity server or else can be any thing. Therefore this interface provide an extension to publish
  * policies to different modules.
- *
  */
 public interface PolicyPublisherModule {
 
     /**
      * initializes policy publisher retriever module
-     * 
-	 * @param properties Properties, that are needed to initialize the module or
-     * that are needed to populate the management console ui of publisher configuration.
-     * These properties can be defined in entitlement-properties file.
      *
+     * @param properties Properties, that are needed to initialize the module or
+     *                   that are needed to populate the management console ui of publisher configuration.
+     *                   These properties can be defined in entitlement-properties file.
      */
     public void init(Properties properties);
 
@@ -45,14 +43,14 @@ public interface PolicyPublisherModule {
      * Load the properties are needed to initialize the module or that are needed to populate
      * to populate the management console ui of publisher configuration.
      * These properties can be loaded from external source
-     * 
+     *
      * @return Properties
      */
     public Properties loadProperties();
 
     /**
      * gets name of this module
-     * 
+     *
      * @return name as String
      */
     public String getModuleName();
@@ -60,10 +58,9 @@ public interface PolicyPublisherModule {
     /**
      * publishes policy to given subscriber
      *
-     *
      * @param policyDTO policy as PolicyDTO
-     * @param action publishing action
-     * @param enable enable
+     * @param action    publishing action
+     * @param enable    enable
      * @param order
      * @throws EntitlementException
      */

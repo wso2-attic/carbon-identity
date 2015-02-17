@@ -24,7 +24,6 @@ import org.wso2.carbon.identity.entitlement.PolicyOrderComparator;
 import org.wso2.carbon.identity.entitlement.cache.DecisionInvalidationCache;
 import org.wso2.carbon.identity.entitlement.cache.EntitlementPolicyInvalidationCache;
 import org.wso2.carbon.identity.entitlement.dto.AttributeDTO;
-import org.wso2.carbon.identity.entitlement.dto.PolicyDTO;
 import org.wso2.carbon.identity.entitlement.dto.PolicyStoreDTO;
 import org.wso2.carbon.identity.entitlement.pap.EntitlementAdminEngine;
 
@@ -32,11 +31,12 @@ import java.util.*;
 
 /**
  * Abstract implementation of a policy finder module. This can be easily extended by any module
- * that support dynamic policy changes. 
+ * that support dynamic policy changes.
  */
 public abstract class AbstractPolicyFinderModule implements PolicyFinderModule {
 
     private static Log log = LogFactory.getLog(AbstractPolicyFinderModule.class);
+
     /**
      * This method must be called by the module when its policies are updated
      */
@@ -50,15 +50,15 @@ public abstract class AbstractPolicyFinderModule implements PolicyFinderModule {
 
         log.debug("Start retrieving ordered policy identifiers at : " + new Date());
         String[] policyIdentifiers = getPolicyIdentifiers();
-        if(policyIdentifiers != null && !isPolicyOrderingSupport()){
-            PolicyStoreDTO[]  policyDTOs  = EntitlementAdminEngine.getInstance().
-                                                getPolicyStoreManager().getAllPolicyData();
+        if (policyIdentifiers != null && !isPolicyOrderingSupport()) {
+            PolicyStoreDTO[] policyDTOs = EntitlementAdminEngine.getInstance().
+                    getPolicyStoreManager().getAllPolicyData();
             Arrays.sort(policyDTOs, new PolicyOrderComparator());
             List<String> list = new ArrayList<String>();
             List<String> finalList = new ArrayList<String>();
             // 1st put non -order items
             list.addAll(Arrays.asList(policyIdentifiers));
-            for(PolicyStoreDTO dto : policyDTOs){
+            for (PolicyStoreDTO dto : policyDTOs) {
                 list.remove(dto.getPolicyId());
                 finalList.add(dto.getPolicyId());
             }
@@ -74,20 +74,20 @@ public abstract class AbstractPolicyFinderModule implements PolicyFinderModule {
         log.debug("Start retrieving active policies at : " + new Date());
         List<String> policies = new ArrayList<String>();
         String[] policyIdentifiers = getOrderedPolicyIdentifiers();
-        if(policyIdentifiers != null){
-            for(String identifier : policyIdentifiers){
-                if(!isPolicyDeActivationSupport()){
-                    PolicyStoreDTO data  = EntitlementAdminEngine.getInstance().
+        if (policyIdentifiers != null) {
+            for (String identifier : policyIdentifiers) {
+                if (!isPolicyDeActivationSupport()) {
+                    PolicyStoreDTO data = EntitlementAdminEngine.getInstance().
                             getPolicyDataStore().getPolicyData(identifier);
-                    if(data != null && data.isActive()){
+                    if (data != null && data.isActive()) {
                         String policy = getPolicy(identifier);
-                        if(policy != null){
+                        if (policy != null) {
                             policies.add(policy);
                         }
                     }
-                }  else {
+                } else {
                     String policy = getPolicy(identifier);
-                    if(policy != null){
+                    if (policy != null) {
                         policies.add(policy);
                     }
                 }
@@ -126,7 +126,6 @@ public abstract class AbstractPolicyFinderModule implements PolicyFinderModule {
     }
 
     /**
-     *
      * @return
      */
     protected abstract String[] getPolicyIdentifiers();

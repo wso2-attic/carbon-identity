@@ -18,48 +18,42 @@
 
 package org.wso2.carbon.identity.entitlement.cache;
 
-import java.util.Set;
-
-import javax.cache.Cache;
-import javax.cache.CacheManager;
-import javax.cache.Caching;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.caching.impl.CachingConstants;
 import org.wso2.carbon.identity.entitlement.PDPConstants;
+
+import java.util.Set;
 
 /**
  *
  */
-public class PIPAbstractAttributeCache extends EntitlementBaseCache<IdentityCacheKey, IdentityCacheEntry>{
+public class PIPAbstractAttributeCache extends EntitlementBaseCache<IdentityCacheKey, IdentityCacheEntry> {
 
     public PIPAbstractAttributeCache(int timeOut) {
         super(CachingConstants.LOCAL_CACHE_PREFIX + PDPConstants.PIP_ABSTRACT_ATTRIBUTE_CACHE, timeOut);
     }
 
-    public void addToCache(int tenantId, String key, Set<String> attributes){
+    public void addToCache(int tenantId, String key, Set<String> attributes) {
 
         IdentityCacheKey cacheKey = new IdentityCacheKey(tenantId, key);
         IdentityCacheEntry cacheEntry = new IdentityCacheEntry(attributes);
         addToCache(cacheKey, cacheEntry);
     }
 
-    public Set<String> getFromCache(int tenantId, String key){
+    public Set<String> getFromCache(int tenantId, String key) {
 
         Set<String> attributes = null;
         IdentityCacheKey cacheKey = new IdentityCacheKey(tenantId, key);
         Object entry = getValueFromCache(cacheKey);
-        if(entry != null){
+        if (entry != null) {
             IdentityCacheEntry cacheEntry = (IdentityCacheEntry) entry;
-            attributes =  cacheEntry.getCacheEntrySet();
+            attributes = cacheEntry.getCacheEntrySet();
         }
 
         return attributes;
     }
 
-    public void clearCache(){
+    public void clearCache() {
 
         clear();
-    }    
+    }
 }
