@@ -17,25 +17,24 @@
 */
 package org.wso2.carbon.identity.user.profile.mgt.util;
 
-import org.wso2.carbon.identity.user.profile.mgt.UserProfileException;
-import org.wso2.carbon.user.core.UserRealm;
-import org.wso2.carbon.registry.core.exceptions.RegistryException;
-import org.wso2.carbon.registry.core.session.UserRegistry;
-import org.wso2.carbon.registry.core.RegistryConstants;
 import org.apache.axis2.context.MessageContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.user.profile.mgt.UserProfileException;
+import org.wso2.carbon.registry.core.RegistryConstants;
+import org.wso2.carbon.registry.core.session.UserRegistry;
+import org.wso2.carbon.user.core.UserRealm;
 
 import javax.servlet.http.HttpServletRequest;
 
 public class ServiceHodler {
 
     private static Log log = LogFactory.getLog(ServiceHodler.class);
-   
+
     private static UserRealm externalUserStore;
     private static UserRealm internalUserStore;
     private static UserRealm delegatingRealm;
-    
+
     public static void setInternalUserStore(UserRealm internalUserStore) {
         ServiceHodler.internalUserStore = internalUserStore;
     }

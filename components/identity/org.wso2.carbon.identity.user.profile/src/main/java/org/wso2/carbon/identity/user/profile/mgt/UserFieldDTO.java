@@ -18,62 +18,77 @@
 package org.wso2.carbon.identity.user.profile.mgt;
 
 public class UserFieldDTO {
-    
+
     private String claimUri;
     private String fieldValue;
     private String displayName;
     private boolean isRequired;
     private String regEx;
-    private int displayOrder; 
+    private int displayOrder;
     private boolean readOnly;
     private boolean checkedAttribute;
-        
-    
+
+
     public boolean isReadOnly() {
-		return readOnly;
-	}
-	public void setReadOnly(boolean readOnly) {
-		this.readOnly = readOnly;
-	}
-	public boolean isCheckedAttribute() {
-		return checkedAttribute;
-	}
-	public void setCheckedAttribute(boolean checkedAttribute) {
-		this.checkedAttribute = checkedAttribute;
-	}
-	public int getDisplayOrder() {
+        return readOnly;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
+    }
+
+    public boolean isCheckedAttribute() {
+        return checkedAttribute;
+    }
+
+    public void setCheckedAttribute(boolean checkedAttribute) {
+        this.checkedAttribute = checkedAttribute;
+    }
+
+    public int getDisplayOrder() {
         return displayOrder;
     }
+
     public void setDisplayOrder(int displayOrder) {
         this.displayOrder = displayOrder;
     }
+
     public boolean isRequired() {
         return isRequired;
     }
+
     public void setRequired(boolean isRequired) {
         this.isRequired = isRequired;
     }
+
     public String getRegEx() {
         return regEx;
     }
+
     public void setRegEx(String regEx) {
         this.regEx = regEx;
     }
+
     public String getClaimUri() {
         return claimUri;
     }
+
     public void setClaimUri(String claimUri) {
         this.claimUri = claimUri;
     }
+
     public String getFieldValue() {
         return fieldValue;
     }
+
     public void setFieldValue(String fieldValue) {
         this.fieldValue = fieldValue;
     }
+
     public String getDisplayName() {
         return displayName;
     }
+
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }

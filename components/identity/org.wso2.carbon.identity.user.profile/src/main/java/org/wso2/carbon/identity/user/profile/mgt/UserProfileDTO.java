@@ -24,28 +24,35 @@ public class UserProfileDTO {
     private UserFieldDTO[] fieldValues;
     private String profileConifuration;
     private String[] profileConfigurations;
-    
+
     public String[] getProfileConfigurations() {
         return Arrays.copyOf(profileConfigurations, profileConfigurations.length);
     }
+
     public void setProfileConfigurations(String[] profileConfigurations) {
         this.profileConfigurations = Arrays.copyOf(profileConfigurations, profileConfigurations.length);
     }
+
     public String getProfileConifuration() {
         return profileConifuration;
     }
+
     public void setProfileConifuration(String profileConifuration) {
         this.profileConifuration = profileConifuration;
     }
+
     public String getProfileName() {
         return profileName;
     }
+
     public void setProfileName(String profileName) {
         this.profileName = profileName;
     }
+
     public UserFieldDTO[] getFieldValues() {
         return Arrays.copyOf(fieldValues, fieldValues.length);
     }
+
     public void setFieldValues(UserFieldDTO[] fieldValues) {
         this.fieldValues = Arrays.copyOf(fieldValues, fieldValues.length);
     }
