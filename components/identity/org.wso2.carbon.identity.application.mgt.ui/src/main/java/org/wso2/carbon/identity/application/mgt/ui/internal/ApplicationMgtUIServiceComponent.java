@@ -42,12 +42,12 @@ public class ApplicationMgtUIServiceComponent {
         log.info("Application Management UI bundle is deactivated");
     }
 
-    protected void setConfigurationContextService(ConfigurationContextService configurationContextService){
+    protected void setConfigurationContextService(ConfigurationContextService configurationContextService) {
         ApplicationMgtServiceComponentHolder.getInstance().setConfigurationContextService(configurationContextService);
         log.debug("ConfigurationContextService Instance was set.");
     }
 
-    protected void unsetConfigurationContextService(ConfigurationContextService configurationContextService){
+    protected void unsetConfigurationContextService(ConfigurationContextService configurationContextService) {
         ApplicationMgtServiceComponentHolder.getInstance().setConfigurationContextService(null);
         log.debug("ConfigurationContextService Instance was unset.");
     }
