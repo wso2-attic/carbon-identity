@@ -21,7 +21,7 @@ import java.io.Serializable;
 
 /**
  * This class is used as the DTO to send  the SSO Service Provider info + file path  of the
- * generated public cert. 
+ * generated public cert.
  */
 public class SAMLSSOServiceProviderInfoDTO implements Serializable {
 
