@@ -18,15 +18,13 @@
 
 package org.wso2.carbon.identity.user.store.configuration.beans;
 
-import org.wso2.carbon.identity.user.store.configuration.beans.RandomPassword;
-
 import java.io.Serializable;
 
 /**
  * Class mainatains an array where all the RandomPasswords are kept in an array.
  * This class is stored in distributed cache.
  */
-public class RandomPasswordContainer implements Serializable{
+public class RandomPasswordContainer implements Serializable {
 
     private RandomPassword[] randomPasswords;
     private String uniqueID;

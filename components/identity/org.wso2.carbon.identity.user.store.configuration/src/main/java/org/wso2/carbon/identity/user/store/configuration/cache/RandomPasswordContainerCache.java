@@ -31,16 +31,17 @@ public class RandomPasswordContainerCache {
 
     private static volatile RandomPasswordContainerCache randomPasswordContainerCache = null;
 
-    private RandomPasswordContainerCache(){
+    private RandomPasswordContainerCache() {
 
     }
 
     /**
      * Singleton instance class which returns RandomPasswordContainerCache instance
+     *
      * @return
      */
-    public static RandomPasswordContainerCache getInstance(){
-        if(randomPasswordContainerCache == null){
+    public static RandomPasswordContainerCache getInstance() {
+        if (randomPasswordContainerCache == null) {
             synchronized (RandomPasswordContainerCache.class) {
                 if (randomPasswordContainerCache == null) { // Check 2
                     randomPasswordContainerCache = new RandomPasswordContainerCache();
@@ -49,14 +50,16 @@ public class RandomPasswordContainerCache {
         }
         return randomPasswordContainerCache;
     }
+
     /**
      * Get the cache which holds the RandomPasswordContainer cache
+     *
      * @return Cache object of RandomPasswordContainerCache
      */
     public Cache<String, RandomPasswordContainer> getRandomPasswordContainerCache() {
-            return Caching.getCacheManagerFactory().getCacheManager(
-                    UserStoreConfigurationConstant.SECONDARY_STORAGE_CACHE_MANAGER).
-                    getCache(UserStoreConfigurationConstant.RANDOM_PASSWORD_CONTAINER_CACHE);
+        return Caching.getCacheManagerFactory().getCacheManager(
+                UserStoreConfigurationConstant.SECONDARY_STORAGE_CACHE_MANAGER).
+                getCache(UserStoreConfigurationConstant.RANDOM_PASSWORD_CONTAINER_CACHE);
     }
 
 
