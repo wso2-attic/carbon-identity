@@ -1,12 +1,12 @@
 package org.wso2.carbon.identity.application.authenticator.oidc.ext.internal;
 
-import java.util.Hashtable;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.oidc.ext.WindowsLiveOAuth2Authenticator;
+
+import java.util.Hashtable;
 
 /**
  * @scr.component name="identity.application.authenticator.windows.live.component" immediate="true"
