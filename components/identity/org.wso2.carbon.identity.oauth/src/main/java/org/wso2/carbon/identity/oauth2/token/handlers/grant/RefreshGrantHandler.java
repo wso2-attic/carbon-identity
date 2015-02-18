@@ -171,12 +171,10 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
         String oldAccessToken = (String) tokReqMsgCtx.getProperty(PREV_ACCESS_TOKEN);
 
         String authorizedUser = tokReqMsgCtx.getAuthorizedUser();
-        // set the previous access token state to "INACTIVE"
-        tokenMgtDAO.setAccessTokenState(accessTokenDO.getAccessToken(), "INACTIVE",
-                UUID.randomUUID().toString(), userStoreDomain);
-
-        // store the new access token
-        tokenMgtDAO.storeAccessToken(accessToken, clientId, accessTokenDO, userStoreDomain);
+	    // set the previous access token state to "INACTIVE" and store new access token in single db connection
+	    tokenMgtDAO.invalidateAndCreateNewToken(accessToken, "INACTIVE", clientId,
+	                                            UUID.randomUUID().toString(), accessTokenDO,
+	                                            userStoreDomain);
 
         //remove the previous access token from cache and add the new access token info to the cache,
         // if it's enabled.

@@ -671,36 +671,59 @@ public class TokenMgtDAO {
      * @throws IdentityOAuth2Exception
      */
     public void setAccessTokenState(String accessToken, String tokenState, String tokenStateId,
-                                    String userStoreDomain)
-            throws IdentityOAuth2Exception {
+                                    String userStoreDomain) throws IdentityOAuth2Exception {
 
-        Connection connection = null;
-        try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
-        } catch (IdentityException e) {
-            throw new IdentityOAuth2Exception("Error occurred while trying to get a Identity " +
-                    "persistence store instance");
-        }
-        PreparedStatement prepStmt = null;
-        try {
-
-            String sql = SQLQueries.UPDATE_TOKE_STATE;
-            if (StringUtils.isNotEmpty(userStoreDomain)) {
-                sql = sql.replace(IDN_OAUTH2_ACCESS_TOKEN, IDN_OAUTH2_ACCESS_TOKEN + "_" + userStoreDomain);
-            }
-            prepStmt = connection.prepareStatement(sql);
-            prepStmt.setString(1, tokenState);
-            prepStmt.setString(2, tokenStateId);
-            prepStmt.setString(3, persistenceProcessor.getProcessedClientId(accessToken));
-            prepStmt.executeUpdate();
-            connection.commit();
-        } catch (SQLException e) {
-            throw new IdentityOAuth2Exception("Error while updating Access Token : " +
-                    accessToken + " to Token State : " + tokenState, e);
-        } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
-        }
+	    Connection connection = null;
+	    try {
+		    connection = JDBCPersistenceManager.getInstance().getDBConnection();
+	    } catch (IdentityException e) {
+		    throw new IdentityOAuth2Exception("Error occurred while trying to get a Identity " +
+		                                      "persistence store instance");
+	    }
+	    try {
+		    setAccessTokenState(connection, accessToken, tokenState, tokenStateId, userStoreDomain);
+		    connection.commit();
+	    } catch (SQLException e) {
+		    throw new IdentityOAuth2Exception("Error while updating Access Token : " +
+		                                      accessToken + " to Token State : " + tokenState, e);
+	    } finally {
+		    IdentityDatabaseUtil.closeConnection(connection);
+	    }
     }
+
+	/**
+	 *
+	 * @param connection database connection
+	 * @param accessToken accesstoken
+	 * @param tokenState    state of the token need to be updated.
+	 * @param tokenStateId  token state id.
+	 * @param userStoreDomain   user store domain.
+	 * @throws IdentityOAuth2Exception
+	 */
+	public void setAccessTokenState(Connection connection, String accessToken, String tokenState,
+	                                String tokenStateId, String userStoreDomain)
+			throws IdentityOAuth2Exception {
+		PreparedStatement prepStmt = null;
+		try {
+
+			String sql = SQLQueries.UPDATE_TOKE_STATE;
+			if (StringUtils.isNotEmpty(userStoreDomain)) {
+				sql = sql.replace(IDN_OAUTH2_ACCESS_TOKEN,
+				                  IDN_OAUTH2_ACCESS_TOKEN + "_" + userStoreDomain);
+			}
+			prepStmt = connection.prepareStatement(sql);
+			prepStmt.setString(1, tokenState);
+			prepStmt.setString(2, tokenStateId);
+			prepStmt.setString(3, persistenceProcessor.getProcessedClientId(accessToken));
+			prepStmt.executeUpdate();
+		} catch (SQLException e) {
+			throw new IdentityOAuth2Exception("Error while updating Access Token : " +
+			                                  accessToken + " to Token State : " + tokenState, e);
+		} finally {
+			IdentityDatabaseUtil.closeStatement(prepStmt);
+		}
+	}
+
 
     /**
      * This method is to revoke specific tokens
@@ -820,4 +843,47 @@ public class TokenMgtDAO {
     public boolean validateScope(Connection connection, String accessToken, String resourceUri) {
         return false;
     }
+
+	/**
+	 * This method is used invalidate the existing token and generate a new toke within one DB transaction.
+	 *
+	 * @param accessToken     access token need to be updated.
+	 * @param tokenState      token state before generating new token.
+	 * @param consumerKey     consumer key of the existing token
+	 * @param tokenStateId    new token state id to be updated
+	 * @param accessTokenDO   new access token details
+	 * @param userStoreDomain user store domain which is related to this consumer
+	 * @throws IdentityOAuth2Exception
+	 */
+	public void invalidateAndCreateNewToken(String accessToken, String tokenState,
+	                                        String consumerKey, String tokenStateId,
+	                                        AccessTokenDO accessTokenDO, String userStoreDomain)
+			throws IdentityOAuth2Exception {
+		Connection connection = null;
+		try {
+			// Get the connection
+			connection = JDBCPersistenceManager.getInstance().getDBConnection();
+			connection.setAutoCommit(false);
+
+			// update existing token as inactive
+			setAccessTokenState(connection, accessToken, tokenState, tokenStateId, userStoreDomain);
+
+			// store new token in the DB
+			storeAccessToken(accessToken, consumerKey, accessTokenDO, connection, userStoreDomain);
+
+			// commit both transactions
+			connection.commit();
+		} catch (IdentityException e) {
+			String errorMsg = "Error while getting an Identity Persistence Store instance.";
+			log.error(errorMsg, e);
+			throw new IdentityOAuth2Exception(errorMsg, e);
+		} catch (SQLException e) {
+			String errorMsg = "Error while regenerating Access Token :" + e.getMessage();
+			log.error(errorMsg, e);
+			throw new IdentityOAuth2Exception(errorMsg, e);
+		} finally {
+			IdentityDatabaseUtil.closeConnection(connection);
+		}
+	}
+
 }
