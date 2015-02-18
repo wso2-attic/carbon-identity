@@ -46,7 +46,7 @@ public abstract class AbstractEmailSendingModule extends NotificationSendingModu
 //		return this.emailConfig;
 //	}
 
-    @Override
+	@Override
     public String getNotificationType() {
         return NOTIFICATION_TYPE;
     }
@@ -89,17 +89,17 @@ public abstract class AbstractEmailSendingModule extends NotificationSendingModu
      */
     public void loadEmailConfigurations() {
 
-        //Load the configuration
+        // Load the configuration
         int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
 
         ConfigBuilder configBuilder = ConfigBuilder.getInstance();
         try {
-            this.emailConfig = configBuilder.loadConfiguration(ConfigType.EMAIL, StorageType.REGISTRY, tenantId);
+            this.emailConfig = configBuilder.loadConfiguration(
+                    ConfigType.EMAIL, StorageType.REGISTRY, tenantId);
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error("Error getting configuration data", e);
         }
-
+    	    	
 //        String confXml = CarbonUtils.getCarbonConfigDirPath() + File.separator +
 //                IdentityMgtConstants.EMAIL_CONF_DIRECTORY + File.separator +
 //                IdentityMgtConstants.EMAIL_ADMIN_CONF_FILE;

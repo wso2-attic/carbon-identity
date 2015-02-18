@@ -26,41 +26,29 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * This class is used to transform <code>Properties</code> to <code>EmailTemplateDTO</code>
  * and vice versa.
  */
 public class EmailConfigTransformer {
 
+    private static final Log log = LogFactory.getLog(EmailConfigTransformer.class);
+
     public static EmailTemplateDTO[] transform(Properties props) throws IdentityException {
 
+        if (log.isDebugEnabled()) {
+            log.debug("Transforming Properties to EmailTemplateDTO[]");
+        }
+
         List<EmailTemplateDTO> emailTemplates = new ArrayList<EmailTemplateDTO>();
-        ;
 
         Set<String> keySet = props.stringPropertyNames();
         for (String key : keySet) {
 
-            // Escape Registry system properties
-            if (key.startsWith("registry.")) {
-                continue;
-            }
-
             EmailTemplateDTO template = new EmailTemplateDTO();
-            template.setName(key);
-
-            String[] contents = props.getProperty(key).split("\\|");
-
-            if (contents.length > 3) {
-                throw new IdentityException("Cannot have | charater in the template");
-            }
-
-            String subject = contents[0];
-            String body = contents[1];
-            String footer = contents[2];
-
-            template.setSubject(subject);
-            template.setBody(body);
-            template.setFooter(footer);
 
             if (IdentityMgtConstants.Notification.PASSWORD_RESET_RECOVERY.equals(key)) {
                 template.setDisplayName("Password Reset");
@@ -76,7 +64,31 @@ public class EmailConfigTransformer {
                 template.setDisplayName("One Time Password");
             } else if (IdentityMgtConstants.Notification.TEMPORARY_PASSWORD.equals(key)) {
                 template.setDisplayName("Temporary Password");
+            } else {
+                // Ignore all other keys in the registry mount.
+                continue;
             }
+
+            template.setName(key);
+
+            String[] contents = props.getProperty(key).split("\\|");
+
+            if (contents.length > 3) {
+                throw new IdentityException("Cannot have | charater in the template");
+            }
+
+            String subject = contents[0];
+            String body = contents[1];
+            String footer = contents[2];
+
+            if (log.isDebugEnabled()) {
+                log.debug("Template info - name:" + key + " subject:" + subject + " " + "body:"
+                        + body + " footer:" + footer);
+            }
+
+            template.setSubject(subject);
+            template.setBody(body);
+            template.setFooter(footer);
 
             emailTemplates.add(template);
         }
@@ -86,11 +98,22 @@ public class EmailConfigTransformer {
 
     public static Properties transform(EmailTemplateDTO[] templates) throws IdentityException {
 
+        if (log.isDebugEnabled()) {
+            log.debug("Transforming EmailTemplateDTO[] to Properties");
+        }
+
         Properties props = new Properties();
 
         for (EmailTemplateDTO template : templates) {
             StringBuilder contents = new StringBuilder();
-            contents.append(template.getSubject()).append("|").append(template.getBody()).append("|").append(template.getFooter());
+
+            if (log.isDebugEnabled()) {
+                log.debug("Properties info - subject:" + template.getSubject() + " " + "body:"
+                        + template.getBody() + " footer:" + template.getFooter());
+            }
+
+            contents.append(template.getSubject()).append("|").append(template.getBody())
+                    .append("|").append(template.getFooter());
 
             props.setProperty(template.getName(), contents.toString());
         }
