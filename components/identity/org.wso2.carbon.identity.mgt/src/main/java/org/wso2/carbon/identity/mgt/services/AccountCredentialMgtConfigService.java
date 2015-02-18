@@ -18,18 +18,24 @@
  */
 package org.wso2.carbon.identity.mgt.services;
 
+import java.util.Properties;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.mgt.IdentityMgtServiceException;
-import org.wso2.carbon.identity.mgt.config.*;
+import org.wso2.carbon.identity.mgt.config.Config;
+import org.wso2.carbon.identity.mgt.config.ConfigBuilder;
+import org.wso2.carbon.identity.mgt.config.ConfigType;
+import org.wso2.carbon.identity.mgt.config.EmailConfigTransformer;
+import org.wso2.carbon.identity.mgt.config.EmailNotificationConfig;
+import org.wso2.carbon.identity.mgt.config.StorageType;
 import org.wso2.carbon.identity.mgt.dto.EmailTemplateDTO;
-
-import java.util.Properties;
 
 /**
  * This service is to configure the Account and Credential Management
  * functionality.
+ * 
  */
 public class AccountCredentialMgtConfigService {
 
@@ -53,13 +59,14 @@ public class AccountCredentialMgtConfigService {
             Properties props = EmailConfigTransformer.transform(emailTemplates);
             emailConfig.setProperties(props);
 
-            configBuilder.saveConfiguration(StorageType.REGISTRY, tenantId,
-                    emailConfig);
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
+			configBuilder.saveConfiguration(StorageType.REGISTRY, tenantId,
+					emailConfig);
+		} catch (Exception e) {
+		    String msg = "Error while saving email config";
+			log.error(msg, e);
+			throw new IdentityMgtServiceException(msg, e);
+		}
+	}
 
     /**
      * This method is used to load the tenant specific Email template configurations.
@@ -79,11 +86,13 @@ public class AccountCredentialMgtConfigService {
                     StorageType.REGISTRY, tenantId);
             if (emailConfig != null) {
 
-                templates = EmailConfigTransformer.transform(emailConfig.getProperties());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+				templates = EmailConfigTransformer.transform(emailConfig.getProperties());
+			}
+		} catch (Exception e) {
+		    String msg = "Error while getting email config";
+			log.error(msg, e);
+			throw new IdentityMgtServiceException(msg, e);
+		}
 
         return templates;
     }
