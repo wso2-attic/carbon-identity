@@ -682,6 +682,10 @@ public class TokenMgtDAO {
 	    }
 	    try {
 		    setAccessTokenState(connection, accessToken, tokenState, tokenStateId, userStoreDomain);
+		    connection.commit();
+	    } catch (SQLException e) {
+		    throw new IdentityOAuth2Exception("Error while updating Access Token : " +
+		                                      accessToken + " to Token State : " + tokenState, e);
 	    } finally {
 		    IdentityDatabaseUtil.closeConnection(connection);
 	    }
@@ -712,7 +716,6 @@ public class TokenMgtDAO {
 			prepStmt.setString(2, tokenStateId);
 			prepStmt.setString(3, persistenceProcessor.getProcessedClientId(accessToken));
 			prepStmt.executeUpdate();
-			connection.commit();
 		} catch (SQLException e) {
 			throw new IdentityOAuth2Exception("Error while updating Access Token : " +
 			                                  accessToken + " to Token State : " + tokenState, e);
@@ -863,10 +866,10 @@ public class TokenMgtDAO {
 			connection.setAutoCommit(false);
 
 			// update existing token as inactive
-			setAccessTokenState(accessToken, tokenState, tokenStateId, userStoreDomain);
+			setAccessTokenState(connection, accessToken, tokenState, tokenStateId, userStoreDomain);
 
 			// store new token in the DB
-			storeAccessToken(accessToken, consumerKey, accessTokenDO, userStoreDomain);
+			storeAccessToken(accessToken, consumerKey, accessTokenDO, connection, userStoreDomain);
 
 			// commit both transactions
 			connection.commit();
