@@ -361,13 +361,13 @@ public class RecoveryProcessor {
                 } else {
                     success = true;
                 }
-            } else {
-                if (log.isDebugEnabled()) {
-                    log.error("User with user name : " + userId +
-                            " does not exists in tenant domain : " + userDTO.getTenantDomain());
-                    bean = new VerificationBean(VerificationBean.ERROR_CODE_INVALID_USER + " " + "User does not exists");
-                }
-            }
+			} else {
+				String error = "User with user name: " + userId +
+						" does not exists in tenant domain: " + userDTO.getTenantDomain();
+				log.error(error);
+				bean = new VerificationBean(
+						VerificationBean.ERROR_CODE_INVALID_USER + " " + error);
+			}
 
             if (success) {
                 String internalCode = generateUserCode(sequence, userId);
@@ -375,17 +375,16 @@ public class RecoveryProcessor {
                 UserRecoveryDataDO dataDO =
                         new UserRecoveryDataDO(userId, tenantId, internalCode, key);
                 dataStore.store(dataDO);
-                log.info("User verification successful for user : " + userId +
-                        " from tenant domain :" + userDTO.getTenantDomain());
-
+                log.info("User verification successful for user: "+ userId +
+                        " from tenant domain:"+ userDTO.getTenantDomain());
+                
                 bean = new VerificationBean(userId, getUserExternalCodeStr(internalCode));
             }
         } catch (Exception e) {
-            if (log.isDebugEnabled()) {
-                log.error(e.getMessage());
-            }
-            bean = new VerificationBean(VerificationBean.ERROR_CODE_UN_EXPECTED + " " + e.getMessage());
+        	log.error(e.getMessage(), e);
 
+            bean =  new VerificationBean(VerificationBean.ERROR_CODE_UN_EXPECTED + " " + e.getMessage());
+            
         }
 
         if (bean == null) {
@@ -409,10 +408,11 @@ public class RecoveryProcessor {
     /*
      * TODO - Important. Refactor this method and use recoveryWithNotification instead.
      */
-    public NotificationDataDTO notifyWithEmail(UserRecoveryDTO notificationBean) throws IdentityException {
+    public NotificationDataDTO notifyWithEmail(UserRecoveryDTO notificationBean)
+            throws IdentityException {
 
         if (!IdentityMgtConfig.getInstance().isNotificationSending()) {
-//          return new NotificationDataDTO("Email sending is disabled");
+            // return new NotificationDataDTO("Email sending is disabled");
         }
 
         String notificationAddress;
@@ -426,7 +426,6 @@ public class RecoveryProcessor {
         confirmationKey = notificationBean.getConfirmationCode();
 
         NotificationDataDTO notificationData = new NotificationDataDTO();
-
 
         String type = notificationBean.getNotificationType();
         if (type != null) {
@@ -442,10 +441,13 @@ public class RecoveryProcessor {
         notificationAddress = module.getNotificationAddress(userId, tenantId);
 
         if ((notificationAddress == null) || (notificationAddress.trim().length() < 0)) {
-            log.warn("Notification sending failure. Notification address is not defined for user " + userId);
+            String msg = "Notification sending failure. Notification address is not defined for user:"
+                    + userId;
+            throw new IdentityException(msg);
         }
 
-        String firstName = Utils.getClaimFromUserStoreManager(userId, tenantId, "http://wso2.org/claims/givenname");
+        String firstName = Utils.getClaimFromUserStoreManager(userId, tenantId,
+                "http://wso2.org/claims/givenname");
         emailNotificationData.setTagData("first-name", firstName);
         emailNotificationData.setTagData("user-name", userId);
 
@@ -454,11 +456,11 @@ public class RecoveryProcessor {
         Config config = null;
         ConfigBuilder configBuilder = ConfigBuilder.getInstance();
         try {
-            config = configBuilder.loadConfiguration(ConfigType.EMAIL,
-                    StorageType.REGISTRY, tenantId);
+            config = configBuilder.loadConfiguration(ConfigType.EMAIL, StorageType.REGISTRY,
+                    tenantId);
         } catch (Exception e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
+            log.error("Error while sending notification", e1);
+            throw new IdentityException(e1.getMessage(), e1);
         }
 
         if (notificationBean.getNotification() != null) {
@@ -468,26 +470,31 @@ public class RecoveryProcessor {
             if (IdentityMgtConstants.Notification.PASSWORD_RESET_RECOVERY.equals(notification)) {
                 notificationData.setNotificationCode(confirmationKey);
                 emailNotificationData.setTagData("confirmation-code", confirmationKey);
-                emailTemplate = config.getProperty(IdentityMgtConstants.Notification.PASSWORD_RESET_RECOVERY);
+                emailTemplate = config
+                        .getProperty(IdentityMgtConstants.Notification.PASSWORD_RESET_RECOVERY);
 
             } else if (IdentityMgtConstants.Notification.ACCOUNT_CONFORM.equals(notification)) {
                 notificationData.setNotificationCode(confirmationKey);
                 emailNotificationData.setTagData("confirmation-code", confirmationKey);
                 emailNotificationData.setTagData("tenant-domain", domainName);
-                emailTemplate = config.getProperty(IdentityMgtConstants.Notification.ACCOUNT_CONFORM);
+                emailTemplate = config
+                        .getProperty(IdentityMgtConstants.Notification.ACCOUNT_CONFORM);
 
             } else if (IdentityMgtConstants.Notification.TEMPORARY_PASSWORD.equals(notification)) {
-                String temporaryPassword = notificationBean.getTemporaryPassword();  // TODO
+                String temporaryPassword = notificationBean.getTemporaryPassword(); // TODO
                 notificationData.setNotificationCode(temporaryPassword);
                 emailNotificationData.setTagData("temporary-password", temporaryPassword);
-                emailTemplate = config.getProperty(IdentityMgtConstants.Notification.TEMPORARY_PASSWORD);
+                emailTemplate = config
+                        .getProperty(IdentityMgtConstants.Notification.TEMPORARY_PASSWORD);
 
             } else if (IdentityMgtConstants.Notification.ACCOUNT_UNLOCK.equals(notification)) {
-                emailTemplate = config.getProperty(IdentityMgtConstants.Notification.ACCOUNT_UNLOCK);
+                emailTemplate = config
+                        .getProperty(IdentityMgtConstants.Notification.ACCOUNT_UNLOCK);
                 notificationData.setNotificationCode(userId);
 
             } else if (IdentityMgtConstants.Notification.ACCOUNT_ID_RECOVERY.equals(notification)) {
-                emailTemplate = config.getProperty(IdentityMgtConstants.Notification.ACCOUNT_ID_RECOVERY);
+                emailTemplate = config
+                        .getProperty(IdentityMgtConstants.Notification.ACCOUNT_ID_RECOVERY);
                 notificationData.setNotificationCode(userId);
 
             } else if (IdentityMgtConstants.Notification.ASK_PASSWORD.equals(notification)) {
@@ -501,10 +508,11 @@ public class RecoveryProcessor {
 
         Notification emailNotification = null;
         try {
-            emailNotification = NotificationBuilder.createNotification("EMAIL", emailTemplate, emailNotificationData);
+            emailNotification = NotificationBuilder.createNotification("EMAIL", emailTemplate,
+                    emailNotificationData);
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error("Error while creating notification", e);
+            throw new IdentityException(e.getMessage(), e);
         }
 
         notificationData.setNotificationAddress(notificationAddress);
