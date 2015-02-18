@@ -76,6 +76,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
     public Properties getDefaultUserStoreProperties() {
         Properties properties = new Properties();
         Property[] mandatoryProperties = null;
+        Property[] optionalProperties = null;
         Property remoteServerUserName = new Property(
                 "remoteUserName",
                 "",
@@ -106,7 +107,10 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         + UserStoreConfigConstants.roleNameJavaScriptRegExDescription, null);
 
         mandatoryProperties = new Property[]{remoteServerUserName, password, serverUrls,
-                disabled, passwordJavaScriptRegEx, usernameJavaScriptRegEx, roleNameJavaScriptRegEx};
+                passwordJavaScriptRegEx, usernameJavaScriptRegEx, roleNameJavaScriptRegEx};
+        optionalProperties = new Property[]{disabled};
+
+        properties.setOptionalProperties(optionalProperties);
         properties.setMandatoryProperties(mandatoryProperties);
         return properties;
     }
