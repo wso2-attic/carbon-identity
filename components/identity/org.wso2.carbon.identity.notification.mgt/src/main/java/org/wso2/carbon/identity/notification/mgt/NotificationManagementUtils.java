@@ -141,8 +141,6 @@ public class NotificationManagementUtils {
                     replaceRegexEndsWith);
             log.debug("Replacing place holders of String " + content);
         }
-
-        if (content.contains(replaceRegexStartsWith)) {
             // For each property check whether there is a place holder and replace the place
             // holders exist.
             for (String key : properties.stringPropertyNames()) {
@@ -156,12 +154,6 @@ public class NotificationManagementUtils {
             if (log.isDebugEnabled()) {
                 log.debug("Place holders replaced String " + content);
             }
-        } else {
-            if (log.isDebugEnabled()) {
-                log.debug("No place holders are found to be replaced in the message " + content);
-            }
-        }
-
         return content;
     }
 
