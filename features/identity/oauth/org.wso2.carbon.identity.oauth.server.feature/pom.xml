@@ -65,6 +65,14 @@
             <artifactId>org.wso2.carbon.identity.application.authentication.endpoint</artifactId>
             <type>war</type>
         </dependency>
+        <dependency>
+            <groupId>com.nimbusds.wso2</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -156,6 +164,9 @@
                                 <bundleDef>com.thetransactioncompany.wso2:java-property-utils</bundleDef>
                                 <bundleDef>com.thetransactioncompany.wso2:cors-filter</bundleDef>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.oauth</bundleDef>
+                                <bundleDef>com.nimbusds.wso2:nimbus-jose-jwt</bundleDef>
+                                <bundleDef>net.minidev:json-smart</bundleDef>
+
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.identity.core.server</importFeatureDef>

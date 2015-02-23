@@ -160,9 +160,6 @@
                             org.wso2.carbon.identity.oauth2.*,
                             org.wso2.carbon.identity.openidconnect.*,
                         </Export-Package>
-                        <Embed-Dependency>
-                            nimbus-jose-jwt|json-smart;scope=compile|runtime;inline=false
-                        </Embed-Dependency>
 						<DynamicImport-Package>*</DynamicImport-Package>
 					</instructions>
 				</configuration>
