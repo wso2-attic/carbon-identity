@@ -35,17 +35,31 @@ public class EmailConfigTransformer {
     public static EmailTemplateDTO[] transform(Properties props) throws IdentityException {
 
         List<EmailTemplateDTO> emailTemplates = new ArrayList<EmailTemplateDTO>();
-        ;
 
         Set<String> keySet = props.stringPropertyNames();
         for (String key : keySet) {
 
-            // Escape Registry system properties
-            if (key.startsWith("registry.")) {
+            EmailTemplateDTO template = new EmailTemplateDTO();
+            
+            if (IdentityMgtConstants.Notification.PASSWORD_RESET_RECOVERY.equals(key)) {
+                template.setDisplayName("Password Reset");
+            } else if (IdentityMgtConstants.Notification.ACCOUNT_CONFORM.equals(key)) {
+                template.setDisplayName("Account Confirm");
+            } else if (IdentityMgtConstants.Notification.ACCOUNT_ID_RECOVERY.equals(key)) {
+                template.setDisplayName("Account Id Recovery");
+            } else if (IdentityMgtConstants.Notification.ACCOUNT_UNLOCK.equals(key)) {
+                template.setDisplayName("Account Unlock");
+            } else if (IdentityMgtConstants.Notification.ASK_PASSWORD.equals(key)) {
+                template.setDisplayName("Ask Password");
+            } else if (IdentityMgtConstants.Notification.OTP_PASSWORD.equals(key)) {
+                template.setDisplayName("One Time Password");
+            } else if (IdentityMgtConstants.Notification.TEMPORARY_PASSWORD.equals(key)) {
+                template.setDisplayName("Temporary Password");
+            } else {
+                // Ignore all other keys in the registry mount.
                 continue;
             }
 
-            EmailTemplateDTO template = new EmailTemplateDTO();
             template.setName(key);
 
             String[] contents = props.getProperty(key).split("\\|");
@@ -61,22 +75,6 @@ public class EmailConfigTransformer {
             template.setSubject(subject);
             template.setBody(body);
             template.setFooter(footer);
-
-            if (IdentityMgtConstants.Notification.PASSWORD_RESET_RECOVERY.equals(key)) {
-                template.setDisplayName("Password Reset");
-            } else if (IdentityMgtConstants.Notification.ACCOUNT_CONFORM.equals(key)) {
-                template.setDisplayName("Account Confirm");
-            } else if (IdentityMgtConstants.Notification.ACCOUNT_ID_RECOVERY.equals(key)) {
-                template.setDisplayName("Account Id Recovery");
-            } else if (IdentityMgtConstants.Notification.ACCOUNT_UNLOCK.equals(key)) {
-                template.setDisplayName("Account Unlock");
-            } else if (IdentityMgtConstants.Notification.ASK_PASSWORD.equals(key)) {
-                template.setDisplayName("Ask Password");
-            } else if (IdentityMgtConstants.Notification.OTP_PASSWORD.equals(key)) {
-                template.setDisplayName("One Time Password");
-            } else if (IdentityMgtConstants.Notification.TEMPORARY_PASSWORD.equals(key)) {
-                template.setDisplayName("Temporary Password");
-            }
 
             emailTemplates.add(template);
         }
