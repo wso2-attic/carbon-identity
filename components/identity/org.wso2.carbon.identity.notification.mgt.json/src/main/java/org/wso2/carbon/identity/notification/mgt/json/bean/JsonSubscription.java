@@ -59,6 +59,8 @@ public class JsonSubscription extends Subscription {
         endpointInfoList = new ArrayList<JsonEndpointInfo>();
         // Build the json subscription object with parsed properties from management component
         build(getSubscriptionName(), getSubscriptionProperties());
+        setSubscriptionProperties(NotificationManagementUtils.buildSingleWordKeyProperties( JsonModuleConstants
+                .Config.SUBSCRIPTION_NS + "." + getSubscriptionName(), getSubscriptionProperties()));
     }
 
     /**
@@ -140,13 +142,17 @@ public class JsonSubscription extends Subscription {
         JsonEndpointInfo jsonEndpointInfo = new JsonEndpointInfo();
         String url = (String) endpointProperties.remove(prefix + "." + JsonModuleConstants.Config.ADDRESS_QNAME);
         // If there is no configured json url address, stop building endpoint, throw an exception
-        if (StringUtils.isEmpty(url)) {
-            throw new NotificationManagementException("No address configured for endpoint");
-        } else {
+        if (StringUtils.isNotEmpty(url)) {
             url = url.trim();
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("Registering json endpoint with address " + url);
+            if (log.isDebugEnabled()) {
+                log.debug("Registering json endpoint with address " + url);
+            }
+            jsonEndpointInfo.setEndpoint(url);
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("Registering json endpoint with prefix " + prefix + " without url. Expecting the " +
+                        "email url at event time");
+            }
         }
         jsonEndpointInfo.setEndpoint(url);
         String template = (String) endpointProperties.remove(prefix + "." + JsonModuleConstants.Config
