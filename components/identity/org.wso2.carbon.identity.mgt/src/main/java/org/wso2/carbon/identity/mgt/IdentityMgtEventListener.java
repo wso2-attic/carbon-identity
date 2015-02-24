@@ -767,18 +767,14 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
         if (!config.isListenerEnable()) {
             return true;
         }
-        UserIdentityDataStore identityDataStore =
-                IdentityMgtConfig.getInstance()
-                        .getIdentityDataStore();
-//		  To fix https://wso2.org/jira/browse/IDENTITY-1227 	
-        UserIdentityClaimsDO identityDTO = new UserIdentityClaimsDO(userName);
 
-//        identityDTO = identityDataStore.load(userName, userStoreManager);
-//        if (identityDTO == null) { // user doesn't exist in the system
-//            return false;
-//        }
+        UserIdentityDataStore identityDataStore = IdentityMgtConfig.getInstance().getIdentityDataStore();
+        UserIdentityClaimsDO identityDTO = identityDataStore.load(userName, userStoreManager);
+        if (identityDTO == null) {
+            identityDTO = new UserIdentityClaimsDO(userName);
+        }
 
-        // removing identity claims and security questions
+
         Iterator<Entry<String, String>> it = claims.entrySet().iterator();
         while (it.hasNext()) {
 

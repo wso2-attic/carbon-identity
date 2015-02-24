@@ -29,6 +29,7 @@ import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import javax.cache.Cache;
 import java.util.HashMap;
@@ -62,20 +63,15 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
             log.error("Error while persisting user data.  Null user name is provided.");
             return;
         }
+        String username = UserCoreUtil.removeDomainFromName(userIdentityDTO.getUserName());
         // using userstore implementations directly to avoid listeners which can cause for infinite loops
         try {
             if (userStoreManager instanceof JDBCUserStoreManager) {
-                ((JDBCUserStoreManager) userStoreManager).doSetUserClaimValues(userIdentityDTO.getUserName(),
-                        userIdentityDTO.getUserDataMap(),
-                        null);
+                ((JDBCUserStoreManager) userStoreManager).doSetUserClaimValues(username, userIdentityDTO.getUserDataMap(), null);
             } else if (userStoreManager instanceof ActiveDirectoryUserStoreManager) {
-                ((ActiveDirectoryUserStoreManager) userStoreManager).doSetUserClaimValues(userIdentityDTO.getUserName(),
-                        userIdentityDTO.getUserDataMap(),
-                        null);
+                ((ActiveDirectoryUserStoreManager) userStoreManager).doSetUserClaimValues(username, userIdentityDTO.getUserDataMap(), null);
             } else if (userStoreManager instanceof ReadWriteLDAPUserStoreManager) {
-                ((ReadWriteLDAPUserStoreManager) userStoreManager).doSetUserClaimValues(userIdentityDTO.getUserName(),
-                        userIdentityDTO.getUserDataMap(),
-                        null);
+                ((ReadWriteLDAPUserStoreManager) userStoreManager).doSetUserClaimValues(username, userIdentityDTO.getUserDataMap(), null);
             } else {
                 throw new IdentityException("Cannot persist identity data in to the user store");
             }

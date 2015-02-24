@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.neethi.Policy;
 import org.apache.neethi.PolicyEngine;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.IdentityMgtServiceException;
@@ -506,6 +507,19 @@ public class Utils {
             log.error(msg, e);
             throw new IdentityException(msg, e);
         }
+    }
+
+
+    public static String getUserStoreDomainName(String userName) {
+        int index;
+        String userDomain;
+        if ((index = userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR)) >= 0) {
+            // remove domain name if exist
+            userDomain = userName.substring(0, index);
+        } else {
+            userDomain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+        }
+        return userDomain;
     }
 
 

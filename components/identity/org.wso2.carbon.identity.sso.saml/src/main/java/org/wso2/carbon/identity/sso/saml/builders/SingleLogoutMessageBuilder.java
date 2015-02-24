@@ -58,7 +58,7 @@ public class SingleLogoutMessageBuilder {
         return logoutReq;
     }
 
-    public LogoutResponse buildLogoutResponse(String id, String status, String statMsg, SessionInfoData sessionInfoData, boolean isDoSignResponse) throws IdentityException {
+    public LogoutResponse buildLogoutResponse(String id, String status, String statMsg, SessionInfoData sessionInfoData, boolean isDoSignResponse, String acsURL) throws IdentityException {
         LogoutResponse logoutResp = new LogoutResponseBuilder().buildObject();
         logoutResp.setID(SAMLSSOUtil.createID());
         logoutResp.setInResponseTo(id);
@@ -71,6 +71,22 @@ public class SingleLogoutMessageBuilder {
                     new SignKeyDataHolder(sessionInfoData.getSubject()));
         }
 
+        return logoutResp;
+    }
+
+    public LogoutResponse buildLogoutResponse(String id, String status, String statMsg,
+                                              SessionInfoData sessionInfoData, boolean isDoSignResponse) throws IdentityException {
+        //This generate logout response without destination parameter
+        LogoutResponse logoutResp = new LogoutResponseBuilder().buildObject();
+        logoutResp.setID(SAMLSSOUtil.createID());
+        logoutResp.setInResponseTo(id);
+        logoutResp.setIssuer(SAMLSSOUtil.getIssuer());
+        logoutResp.setStatus(buildStatus(status, statMsg));
+        logoutResp.setIssueInstant(new DateTime());
+        if (isDoSignResponse && sessionInfoData != null) {
+            SAMLSSOUtil.setSignature(logoutResp, XMLSignature.ALGO_ID_SIGNATURE_RSA,
+                    new SignKeyDataHolder(sessionInfoData.getSubject()));
+        }
         return logoutResp;
     }
 
