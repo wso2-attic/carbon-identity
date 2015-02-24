@@ -816,6 +816,10 @@ public class UserInformationRecoveryService {
             if (realmService.getTenantUserRealm(tenantId) != null) {
                 userStoreManager = (org.wso2.carbon.user.core.UserStoreManager) realmService
                         .getTenantUserRealm(tenantId).getUserStoreManager();
+
+                if (username != null && username.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+                    userStoreManager = userStoreManager.getSecondaryUserStoreManager(Utils.getUserStoreDomainName(username));
+                }
             }
 
         } catch (Exception e) {
