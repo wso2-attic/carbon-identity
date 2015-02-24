@@ -25,12 +25,15 @@ public class OpenIDRememberMeDTO {
     public boolean isAuthenticated() {
         return authenticated;
     }
+
     public void setAuthenticated(boolean authenticated) {
         this.authenticated = authenticated;
     }
+
     public String getNewCookieValue() {
         return newCookieValue;
     }
+
     public void setNewCookieValue(String newCookieValue) {
         this.newCookieValue = newCookieValue;
     }

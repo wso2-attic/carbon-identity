@@ -34,7 +34,7 @@ import java.util.Map;
 
 /**
  * This is the class for deleting IS specific resources in registry for user.
- * Triggered before user profile is being deleted in registry. 
+ * Triggered before user profile is being deleted in registry.
  */
 
 public class IdentityUserMgtListener implements UserStoreManagerListener {
@@ -42,13 +42,13 @@ public class IdentityUserMgtListener implements UserStoreManagerListener {
     private static Log log = LogFactory.getLog(IdentityUserMgtListener.class);
 
     public boolean addUser(String userName, Object credential, String[] roleList,
-            Map<String, String> claims, String profileName, UserStoreManager userStoreManager)
+                           Map<String, String> claims, String profileName, UserStoreManager userStoreManager)
             throws UserStoreException {
         return true;
     }
 
     public boolean authenticate(String userName, Object credential,
-            UserStoreManager userStoreManager) throws UserStoreException {
+                                UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
 
@@ -120,12 +120,12 @@ public class IdentityUserMgtListener implements UserStoreManagerListener {
     }
 
     public boolean updateCredential(String userName, Object newCredential, Object oldCredential,
-            UserStoreManager userStoreManager) throws UserStoreException {
+                                    UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
 
     public boolean updateCredentialByAdmin(String userName, Object newCredential,
-            UserStoreManager userStoreManager) throws UserStoreException {
+                                           UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
 }

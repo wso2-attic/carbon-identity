@@ -17,21 +17,21 @@
  */
 package org.wso2.carbon.identity.application.authentication.framework.config.model;
 
+import org.wso2.carbon.identity.application.common.model.*;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.wso2.carbon.identity.application.common.model.*;
-
 public class ApplicationConfig implements Serializable {
 
     /**
-	 * 
-	 */
+     *
+     */
     private static final long serialVersionUID = 1L;
 
     private ServiceProvider serviceProvider = null;
-    
+
     private int applicationID = 0;
     private String applicationName = null;
     private String roleClaim = null;
@@ -50,11 +50,11 @@ public class ApplicationConfig implements Serializable {
         applicationName = application.getApplicationName();
         isSaaSApp = application.isSaasApp();
         LocalAndOutboundAuthenticationConfig outboundAuthConfig = application.getLocalAndOutBoundAuthenticationConfig();
-        
-        if (outboundAuthConfig!=null){
+
+        if (outboundAuthConfig != null) {
             subjectClaimUri = outboundAuthConfig.getSubjectClaimUri();
         }
-        
+
 
         ClaimConfig claimConfig = application.getClaimConfig();
         if (claimConfig != null) {
@@ -155,12 +155,12 @@ public class ApplicationConfig implements Serializable {
         return claimMappings;
     }
 
-    public Map<String, String> getRequestedClaimMappings() {
-        return requestedClaims;
-    }
-
     public void setClaimMappings(Map<String, String> claimMappings) {
         this.claimMappings = claimMappings;
+    }
+
+    public Map<String, String> getRequestedClaimMappings() {
+        return requestedClaims;
     }
 
     public Map<String, String> getRoleMappings() {

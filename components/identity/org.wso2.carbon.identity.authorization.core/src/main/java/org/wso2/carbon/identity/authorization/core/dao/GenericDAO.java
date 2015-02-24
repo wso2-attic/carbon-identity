@@ -18,13 +18,6 @@
 
 package org.wso2.carbon.identity.authorization.core.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.authorization.core.AuthorizationKey;
@@ -32,152 +25,156 @@ import org.wso2.carbon.identity.authorization.core.jdbc.dao.JDBCConstantsDAO;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+
 /**
- * 
  * @author venura
  * @date May 14, 2013
  */
 public abstract class GenericDAO {
 
-	private static Log log = LogFactory.getLog(GenericDAO.class);
+    protected static final String WHERE = " WHERE ";
+    protected static final String AND = " AND ";
+    private static Log log = LogFactory.getLog(GenericDAO.class);
+    protected String appendTxt = " WHERE ";
+    private byte status;
+    private int tenantId;
 
-	protected String appendTxt = " WHERE ";
-	protected static final String WHERE = " WHERE ";
-	protected static final String AND = " AND ";
+    public byte getStatus() {
+        return status;
+    }
 
-	private byte status;
-	private int tenantId;
+    public void setStatus(byte status) {
+        this.status = status;
+    }
 
-	public byte getStatus() {
-		return status;
-	}
+    public int getTenantId() {
+        return tenantId;
+    }
 
-	public void setStatus(byte status) {
-		this.status = status;
-	}
+    public void setTenantId(int tenantId) {
+        this.tenantId = tenantId;
+    }
 
-	public int getTenantId() {
-		return tenantId;
-	}
+    public void save(Connection connection) throws UserStoreException {
+        save(connection, true);
+    }
 
-	public void setTenantId(int tenantId) {
-		this.tenantId = tenantId;
-	}
+    public void save(Connection connection, boolean commit) throws UserStoreException {
 
-	public void save(Connection connection) throws UserStoreException {
-		save(connection, true);
-	}
+        log.debug(this.toString());
+        try {
+            if (connection.getAutoCommit()) {
+                connection.setAutoCommit(false);
+            }
 
-	public void save(Connection connection, boolean commit) throws UserStoreException {
+            deleteObjects(connection);
+            if (status == JDBCConstantsDAO.INSERT) {
+                insert(connection, false);
+            } else if (status == JDBCConstantsDAO.UPDATE) {
+                update(connection, false);
+            } else if (status == JDBCConstantsDAO.DELETE) {
+                delete(connection, false);
+            }
+            saveDependentModules(connection, false);
+            if (commit) {
+                connection.commit();
+            }
 
-		log.debug(this.toString());
-		try {
-			if (connection.getAutoCommit()) {
-				connection.setAutoCommit(false);
-			}
+        } catch (SQLException e) {
+            String error = "Error while setting the connection to autocommit false ";
+            log.error(error, e);
+            try {
+                connection.rollback();
+            } catch (SQLException e1) {
+                log.error(e);
+            }
+            throw new UserStoreException(error, e);
+        } finally {
+            if (commit) {
+                DatabaseUtil.closeConnection(connection);
+            }
+        }
+    }
 
-			deleteObjects(connection);
-			if (status == JDBCConstantsDAO.INSERT) {
-				insert(connection, false);
-			} else if (status == JDBCConstantsDAO.UPDATE) {
-				update(connection, false);
-			} else if (status == JDBCConstantsDAO.DELETE) {
-				delete(connection, false);
-			}
-			saveDependentModules(connection, false);
-			if (commit) {
-				connection.commit();
-			}
+    protected void deleteObjects(Connection connection) throws SQLException, UserStoreException {
 
-		} catch (SQLException e) {
-			String error = "Error while setting the connection to autocommit false ";
-			log.error(error, e);
-			try {
-				connection.rollback();
-			} catch (SQLException e1) {
-				log.error(e);
-			}
-			throw new UserStoreException(error, e);
-		} finally {
-			if (commit) {
-				DatabaseUtil.closeConnection(connection);
-			}
-		}
-	}
+    }
 
-	protected void deleteObjects(Connection connection) throws SQLException, UserStoreException {
+    protected void insert(Connection connection, boolean commit) throws UserStoreException {
+        PreparedStatement stmt = null;
+        ResultSet res = null;
+        try {
+            insert(stmt, res, connection);
+        } catch (SQLException e) {
+            String error = "Insertion faild for the permission";
+            log.error(error + e.getMessage());
+            throw new UserStoreException(error + e.getMessage());
 
-	}
+        } finally {
+            if (!commit) {
+                DatabaseUtil.closeAllConnections(null, res, stmt);
+            } else {
+                commitConnection(connection);
+                DatabaseUtil.closeAllConnections(connection, res, stmt);
+            }
+        }
 
-	protected void insert(Connection connection, boolean commit) throws UserStoreException {
-		PreparedStatement stmt = null;
-		ResultSet res = null;
-		try {
-			insert(stmt, res, connection);
-		} catch (SQLException e) {
-			String error = "Insertion faild for the permission";
-			log.error(error + e.getMessage());
-			throw new UserStoreException(error + e.getMessage());
+    }
 
-		} finally {
-			if (!commit) {
-				DatabaseUtil.closeAllConnections(null, res, stmt);
-			} else {
-				commitConnection(connection);
-				DatabaseUtil.closeAllConnections(connection, res, stmt);
-			}
-		}
+    protected abstract void insert(PreparedStatement stmt, ResultSet res, Connection connection)
+            throws SQLException,
+            UserStoreException;
 
-	}
+    protected abstract void update(Connection connection, boolean commit) throws UserStoreException;
 
-	protected abstract void insert(PreparedStatement stmt, ResultSet res, Connection connection)
-	                                                                                            throws SQLException,
-	                                                                                            UserStoreException;
+    protected abstract void delete(Connection connection, boolean commit) throws UserStoreException;
 
-	protected abstract void update(Connection connection, boolean commit) throws UserStoreException;
+    protected abstract void saveDependentModules(Connection connection, boolean commit)
+            throws UserStoreException;
 
-	protected abstract void delete(Connection connection, boolean commit) throws UserStoreException;
+    public abstract List<? extends GenericDAO> load(Connection connection)
+            throws UserStoreException;
 
-	protected abstract void saveDependentModules(Connection connection, boolean commit)
-	                                                                                   throws UserStoreException;
+    public List<? extends GenericDAO> load(Connection connection, boolean closeConnection)
+            throws UserStoreException {
+        throw new UserStoreException("Need implementation");
+    }
 
-	public abstract List<? extends GenericDAO> load(Connection connection)
-	                                                                      throws UserStoreException;
+    protected void resetAppendTxt() {
+        appendTxt = WHERE;
+    }
 
-	public List<? extends GenericDAO> load(Connection connection, boolean closeConnection)
-	                                                                                      throws UserStoreException {
-		throw new UserStoreException("Need implementation");
-	}
+    protected void commitConnection(Connection connection) throws UserStoreException {
+        try {
+            connection.commit();
+        } catch (SQLException e) {
+            String error = "Error commiting changes to the database " + e.getMessage();
+            log.error(error);
+            throw new UserStoreException(error, e);
+        }
 
-	protected void resetAppendTxt() {
-		appendTxt = WHERE;
-	}
+    }
 
-	protected void commitConnection(Connection connection) throws UserStoreException {
-		try {
-			connection.commit();
-		} catch (SQLException e) {
-			String error = "Error commiting changes to the database " + e.getMessage();
-			log.error(error);
-			throw new UserStoreException(error, e);
-		}
+    public abstract int getIdentifier();
 
-	}
+    public Map<AuthorizationKey, Boolean> createCacheEntry(Connection connection)
+            throws SQLException,
+            UserStoreException {
+        return null;
+    }
 
-	public abstract int getIdentifier();
-
-	public Map<AuthorizationKey, Boolean> createCacheEntry(Connection connection)
-	                                                                             throws SQLException,
-	                                                                             UserStoreException {
-		return null;
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder(super.toString());
-		builder.append("{").append(getClass()).append(" Status: ").append(status)
-		       .append(" Tenant: ").append(tenantId).append("}");
-		return builder.toString();
-	}
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder(super.toString());
+        builder.append("{").append(getClass()).append(" Status: ").append(status)
+                .append(" Tenant: ").append(tenantId).append("}");
+        return builder.toString();
+    }
 
 }

@@ -18,9 +18,6 @@
 package org.wso2.carbon.identity.user.store.configuration.ui;
 
 public final class UserStoreUIConstants {
-    private UserStoreUIConstants() {
-    }
-
     public static final String RWLDAP_USERSTORE_MANAGER = "org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager";
     public static final String ROLDAP_USERSTORE_MANAGER = "org.wso2.carbon.user.core.ldap.ReadOnlyLDAPUserStoreManager";
     public static final String ACTIVEDIRECTORY_USERSTORE_MANAGER = "org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager";
@@ -31,8 +28,8 @@ public final class UserStoreUIConstants {
     public static final String DESCRIPTION = "Description";
     public static final String DISABLED = "Disabled";
     public static final String DOMAIN = "DomainName";
-
-
+    private UserStoreUIConstants() {
+    }
 
 
 }

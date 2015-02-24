@@ -17,30 +17,13 @@
 */
 package org.wso2.carbon.identity.provider.saml;
 
-import java.security.cert.CertificateEncodingException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.rahas.RahasData;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.utils.Base64;
 import org.joda.time.DateTime;
-import org.opensaml.saml1.core.Assertion;
-import org.opensaml.saml1.core.Attribute;
-import org.opensaml.saml1.core.AttributeStatement;
-import org.opensaml.saml1.core.AttributeValue;
-import org.opensaml.saml1.core.Audience;
-import org.opensaml.saml1.core.Conditions;
-import org.opensaml.saml1.core.ConfirmationMethod;
-import org.opensaml.saml1.core.Subject;
-import org.opensaml.saml1.core.SubjectConfirmation;
-import org.opensaml.saml1.core.AudienceRestrictionCondition;
+import org.opensaml.saml1.core.*;
 import org.opensaml.xml.Configuration;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.XMLObjectBuilder;
@@ -51,29 +34,39 @@ import org.opensaml.xml.io.MarshallingException;
 import org.opensaml.xml.schema.XSString;
 import org.opensaml.xml.schema.impl.XSStringBuilder;
 import org.opensaml.xml.security.x509.X509Credential;
-import org.opensaml.xml.signature.KeyInfo;
-import org.opensaml.xml.signature.Signature;
-import org.opensaml.xml.signature.Signer;
-import org.opensaml.xml.signature.X509Certificate;
-import org.opensaml.xml.signature.X509Data;
+import org.opensaml.xml.signature.*;
 import org.w3c.dom.Element;
 import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.provider.GenericIdentityProviderData;
 import org.wso2.carbon.identity.provider.IdentityProviderException;
 import org.wso2.carbon.identity.provider.RequestedClaimData;
 
+import javax.xml.namespace.QName;
+import java.security.cert.CertificateEncodingException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 public class SAML1TokenBuilder implements SAMLTokenBuilder {
 
+    public static final String CONF_KEY = "urn:oasis:names:tc:SAML:1.0:cm:holder-of-key";
     private static Log log = LogFactory.getLog(SAML1TokenBuilder.class);
-
     protected Assertion assertion = null;
     protected AttributeStatement attributeStmt = null;
     protected List<Signature> signatureList = new ArrayList<Signature>();
     protected Element signedAssertion = null;
     protected String appilesTo = null;
 
-    public static final String CONF_KEY = "urn:oasis:names:tc:SAML:1.0:cm:holder-of-key";
+    protected static XMLObject buildXMLObject(QName objectQName) throws IdentityProviderException {
+        XMLObjectBuilder builder = Configuration.getBuilderFactory().getBuilder(objectQName);
+        if (builder == null) {
+            throw new IdentityProviderException("Unable to retrieve builder for object QName "
+                    + objectQName);
+        }
+        return builder.buildObject(objectQName.getNamespaceURI(), objectQName.getLocalPart(),
+                objectQName.getPrefix());
+    }
 
     public void createStatement(GenericIdentityProviderData ipData, RahasData rahasData)
             throws IdentityProviderException {
@@ -91,7 +84,7 @@ public class SAML1TokenBuilder implements SAMLTokenBuilder {
 
         attributeStmt.setSubject(subject);
 
-        Map<String,RequestedClaimData> mapClaims = ipData.getRequestedClaims();
+        Map<String, RequestedClaimData> mapClaims = ipData.getRequestedClaims();
 
         if (rahasData.getAppliesToAddress() != null) {
             appilesTo = rahasData.getAppliesToAddress();
@@ -102,7 +95,7 @@ public class SAML1TokenBuilder implements SAMLTokenBuilder {
         while (ite.hasNext()) {
             RequestedClaimData claim = (RequestedClaimData) ite.next();
             String uri = claim.getUri();
-            
+
             int index = uri.lastIndexOf("/");
             String attrName = uri.substring(index + 1, uri.length());
             String attrNamespace = uri.substring(0, index);
@@ -195,16 +188,6 @@ public class SAML1TokenBuilder implements SAMLTokenBuilder {
 
     public Element getSAMLasDOM() throws IdentityProviderException {
         return signedAssertion;
-    }
-
-    protected static XMLObject buildXMLObject(QName objectQName) throws IdentityProviderException {
-        XMLObjectBuilder builder = Configuration.getBuilderFactory().getBuilder(objectQName);
-        if (builder == null) {
-            throw new IdentityProviderException("Unable to retrieve builder for object QName "
-                    + objectQName);
-        }
-        return builder.buildObject(objectQName.getNamespaceURI(), objectQName.getLocalPart(),
-                objectQName.getPrefix());
     }
 
 }

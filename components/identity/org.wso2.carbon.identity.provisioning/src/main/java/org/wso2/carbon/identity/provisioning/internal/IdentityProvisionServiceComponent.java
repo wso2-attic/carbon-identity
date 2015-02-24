@@ -18,9 +18,6 @@
  */
 package org.wso2.carbon.identity.provisioning.internal;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
@@ -42,17 +39,20 @@ import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @scr.component name=
- *                "org.wso2.carbon.identity.provision.internal.IdentityProvisionServiceComponent"
- *                immediate="true"
+ * "org.wso2.carbon.identity.provision.internal.IdentityProvisionServiceComponent"
+ * immediate="true"
  * @scr.reference name="registry.service"
- *                interface="org.wso2.carbon.registry.core.service.RegistryService"
- *                cardinality="1..1" policy="dynamic" bind="setRegistryService"
- *                unbind="unsetRegistryService"
+ * interface="org.wso2.carbon.registry.core.service.RegistryService"
+ * cardinality="1..1" policy="dynamic" bind="setRegistryService"
+ * unbind="unsetRegistryService"
  * @scr.reference name="realm.service" interface="org.wso2.carbon.user.core.service.RealmService"
- *                cardinality="1..1" policy="dynamic" bind="setRealmService"
- *                unbind="unsetRealmService"
+ * cardinality="1..1" policy="dynamic" bind="setRealmService"
+ * unbind="unsetRealmService"
  */
 public class IdentityProvisionServiceComponent {
 
@@ -64,7 +64,47 @@ public class IdentityProvisionServiceComponent {
     private static Map<String, AbstractProvisioningConnectorFactory> connectorFactories = new HashMap<String, AbstractProvisioningConnectorFactory>();
 
     /**
-     * 
+     * @return
+     */
+    public static RealmService getRealmService() {
+        return realmService;
+    }
+
+    /**
+     * @param realmService
+     */
+    protected void setRealmService(RealmService realmService) {
+        if (log.isDebugEnabled()) {
+            log.debug("Setting the Realm Service");
+        }
+        IdentityProvisionServiceComponent.realmService = realmService;
+    }
+
+    /**
+     * @return
+     */
+    public static RegistryService getRegistryService() {
+        return registryService;
+    }
+
+    /**
+     * @param registryService
+     */
+    protected void setRegistryService(RegistryService registryService) {
+        if (log.isDebugEnabled()) {
+            log.debug("Setting the Registry Service");
+        }
+        IdentityProvisionServiceComponent.registryService = registryService;
+    }
+
+    /**
+     * @return
+     */
+    public static Map<String, AbstractProvisioningConnectorFactory> getConnectorFactories() {
+        return connectorFactories;
+    }
+
+    /**
      * @param context
      */
     protected void activate(ComponentContext context) {
@@ -75,15 +115,15 @@ public class IdentityProvisionServiceComponent {
             try {
                 bundleContext.registerService(UserOperationEventListener.class.getName(), new DefaultInboundUserProvisioningListener(), null);
                 if (log.isDebugEnabled()) {
-                	log.debug("Identity Provision Event listener registered successfully");
+                    log.debug("Identity Provision Event listener registered successfully");
                 }
                 bundleContext.registerService(ApplicationMgtListener.class.getName(), new ApplicationMgtProvisioningListener(), null);
                 if (log.isDebugEnabled()) {
-                	log.debug("Application Management Event listener registered successfully");
+                    log.debug("Application Management Event listener registered successfully");
                 }
                 bundleContext.registerService(IdentityProviderMgtLister.class.getName(), new IdentityProviderMgtProvisioningListener(), null);
                 if (log.isDebugEnabled()) {
-                	log.debug("Identity Provider Management Event listener registered successfully");
+                    log.debug("Identity Provider Management Event listener registered successfully");
                 }
 
                 ServiceTracker<AbstractProvisioningConnectorFactory, AbstractProvisioningConnectorFactory> authServiceTracker;
@@ -105,7 +145,7 @@ public class IdentityProvisionServiceComponent {
                                     log.debug("Added provisioning connector : "
                                             + connectorFactory.getConnectorType());
                                 }
-                                
+
                                 ProvisioningConnectorConfig provisioningConnectorConfig = new ProvisioningConnectorConfig();
                                 provisioningConnectorConfig.setName(connectorFactory
                                         .getConnectorType());
@@ -139,10 +179,10 @@ public class IdentityProvisionServiceComponent {
                                 connectorFactories.remove(service);
                                 serviceReference.getBundle().getBundleContext()
                                         .ungetService(serviceReference);
-                                
+
                                 ProvisioningConnectorConfig provisioningConnectorConfig = ProvisioningConnectorService.getInstance().getProvisioningConnectorByName(service.getConnectorType());
                                 ProvisioningConnectorService.getInstance().removeProvisioningConnectorConfigs(provisioningConnectorConfig);
-                                
+
                                 if (log.isDebugEnabled()) {
                                     log.debug("Removed provisioning connector : "
                                             + service.getConnectorType());
@@ -169,31 +209,6 @@ public class IdentityProvisionServiceComponent {
     }
 
     /**
-     * 
-     * @return
-     */
-    public static RealmService getRealmService() {
-        return realmService;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public static RegistryService getRegistryService() {
-        return registryService;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public static Map<String, AbstractProvisioningConnectorFactory> getConnectorFactories() {
-        return connectorFactories;
-    }
-
-    /**
-     * 
      * @param context
      */
     protected void deactivate(ComponentContext context) {
@@ -203,18 +218,6 @@ public class IdentityProvisionServiceComponent {
     }
 
     /**
-     * 
-     * @param registryService
-     */
-    protected void setRegistryService(RegistryService registryService) {
-        if (log.isDebugEnabled()) {
-            log.debug("Setting the Registry Service");
-        }
-        IdentityProvisionServiceComponent.registryService = registryService;
-    }
-
-    /**
-     * 
      * @param registryService
      */
     protected void unsetRegistryService(RegistryService registryService) {
@@ -225,18 +228,6 @@ public class IdentityProvisionServiceComponent {
     }
 
     /**
-     * 
-     * @param realmService
-     */
-    protected void setRealmService(RealmService realmService) {
-        if (log.isDebugEnabled()) {
-            log.debug("Setting the Realm Service");
-        }
-        IdentityProvisionServiceComponent.realmService = realmService;
-    }
-
-    /**
-     * 
      * @param realmService
      */
     protected void unsetRealmService(RealmService realmService) {

@@ -18,18 +18,14 @@
 package org.wso2.carbon.identity.scim.provider.auth;
 
 import org.apache.axiom.om.OMElement;
-import org.wso2.carbon.base.ServerConfigurationException;
-import org.wso2.carbon.identity.core.util.IdentityConfigParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.ServerConfigurationException;
+import org.wso2.carbon.identity.core.util.IdentityConfigParser;
 import org.wso2.carbon.identity.scim.provider.util.SCIMProviderConstants;
 
 import javax.xml.namespace.QName;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SCIMAuthConfigReader {
 
@@ -76,7 +72,7 @@ public class SCIMAuthConfigReader {
 
         } catch (ServerConfigurationException e) {
             logger.error("Error in reading authenticator config from " +
-                         "identity.xml when initializing the SCIM webapp...");
+                    "identity.xml when initializing the SCIM webapp...");
         } catch (ClassNotFoundException e) {
             //we just log the exception and continue loading other authenticators.
             logger.error("Error in loading the authenticator class...", e);

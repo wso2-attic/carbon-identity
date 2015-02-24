@@ -29,11 +29,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class IdentityDatabaseUtil {
-    
+
     private static final Log log = LogFactory.getLog(IdentityDatabaseUtil.class);
 
     /**
      * Get a database connection instance from the Identity Persistence Manager
+     *
      * @return Database Connection
      * @throws IdentityException Error when getting an instance of the identity Persistence Manager
      */
@@ -47,7 +48,7 @@ public class IdentityDatabaseUtil {
         }
     }
 
-    public static void closeAllConnections(Connection dbConnection, ResultSet rs, PreparedStatement prepStmt){
+    public static void closeAllConnections(Connection dbConnection, ResultSet rs, PreparedStatement prepStmt) {
         closeResultSet(rs);
         closeStatement(prepStmt);
         closeConnection(dbConnection);

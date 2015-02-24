@@ -26,7 +26,6 @@ import org.wso2.carbon.identity.notification.mgt.NotificationManagementUtils;
 import org.wso2.carbon.identity.notification.mgt.bean.Subscription;
 import org.wso2.carbon.identity.notification.mgt.json.JsonModuleConstants;
 
-import java.lang.Boolean;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -52,14 +51,16 @@ public class JsonSubscription extends Subscription {
     /**
      * Passes a generic subscription object and this builds specific json subscription object
      *
-     * @param subscription  A generic type subscription object
+     * @param subscription A generic type subscription object
      */
     public JsonSubscription(Subscription subscription) throws NotificationManagementException {
 
-	    super(subscription.getSubscriptionName(), subscription.getSubscriptionProperties());
-	    endpointInfoList = new ArrayList<JsonEndpointInfo>();
-	    // Build the json subscription object with parsed properties from management component
-	    build(getSubscriptionName(), getSubscriptionProperties());
+        super(subscription.getSubscriptionName(), subscription.getSubscriptionProperties());
+        endpointInfoList = new ArrayList<JsonEndpointInfo>();
+        // Build the json subscription object with parsed properties from management component
+        build(getSubscriptionName(), getSubscriptionProperties());
+        setSubscriptionProperties(NotificationManagementUtils.buildSingleWordKeyProperties( JsonModuleConstants
+                .Config.SUBSCRIPTION_NS + "." + getSubscriptionName(), getSubscriptionProperties()));
     }
 
     /**
@@ -99,7 +100,8 @@ public class JsonSubscription extends Subscription {
 
     /**
      * Set endpoints to the json subscription object
-     * @param prefix Prefix of the endpoint properties key. ie json.subscribe.eventName.endpoint.endpointName
+     *
+     * @param prefix              Prefix of the endpoint properties key. ie json.subscribe.eventName.endpoint.endpointName
      * @param endpointsProperties Properties which are relevant to endpoint.
      */
     private void setEndpoints(String prefix, Properties endpointsProperties) {
@@ -140,13 +142,17 @@ public class JsonSubscription extends Subscription {
         JsonEndpointInfo jsonEndpointInfo = new JsonEndpointInfo();
         String url = (String) endpointProperties.remove(prefix + "." + JsonModuleConstants.Config.ADDRESS_QNAME);
         // If there is no configured json url address, stop building endpoint, throw an exception
-        if (StringUtils.isEmpty(url)) {
-            throw new NotificationManagementException("No address configured for endpoint");
-        } else {
+        if (StringUtils.isNotEmpty(url)) {
             url = url.trim();
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("Registering json endpoint with address " + url);
+            if (log.isDebugEnabled()) {
+                log.debug("Registering json endpoint with address " + url);
+            }
+            jsonEndpointInfo.setEndpoint(url);
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("Registering json endpoint with prefix " + prefix + " without url. Expecting the " +
+                        "email url at event time");
+            }
         }
         jsonEndpointInfo.setEndpoint(url);
         String template = (String) endpointProperties.remove(prefix + "." + JsonModuleConstants.Config

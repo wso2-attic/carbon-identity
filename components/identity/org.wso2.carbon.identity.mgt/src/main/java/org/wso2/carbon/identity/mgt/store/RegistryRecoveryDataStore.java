@@ -1,7 +1,5 @@
 package org.wso2.carbon.identity.mgt.store;
 
-import java.util.Properties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -14,17 +12,19 @@ import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 
+import java.util.Properties;
+
 /**
  *
  */
-public class RegistryRecoveryDataStore implements UserRecoveryDataStore{
+public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
 
     private static final Log log = LogFactory.getLog(RegistryRecoveryDataStore.class);
 
     @Override
     public void store(UserRecoveryDataDO recoveryDataDO) throws IdentityException {
 
-        try{
+        try {
             Registry registry = IdentityMgtServiceComponent.getRegistryService().
                     getConfigSystemRegistry(PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId());
             Resource resource = registry.newResource();
@@ -72,14 +72,14 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore{
                         dataDO.setUserName(resource.getProperty(key));
                     } else if (key.equals(SECRET_KEY)) {
                         dataDO.setSecret(resource.getProperty(key));
-                    } else if (key.equals(EXPIRE_TIME)){
+                    } else if (key.equals(EXPIRE_TIME)) {
                         String time = resource.getProperty(key);
-                        
-                        if(System.currentTimeMillis() > Long.parseLong(time)){
+
+                        if (System.currentTimeMillis() > Long.parseLong(time)) {
                             dataDO.setValid(false);
-                            break;                            
+                            break;
                         } else {
-                        	dataDO.setValid(true);
+                            dataDO.setValid(true);
                         }
                     }
                 }
@@ -91,8 +91,8 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore{
             log.error(e);
             throw new IdentityException("Error while loading user recovery data for code : " + code);
         } finally {
-            if(registry != null){
-                try{
+            if (registry != null) {
+                try {
                     registry.commitTransaction();
                 } catch (RegistryException e) {
                     log.error("Error while processing registry transaction", e);

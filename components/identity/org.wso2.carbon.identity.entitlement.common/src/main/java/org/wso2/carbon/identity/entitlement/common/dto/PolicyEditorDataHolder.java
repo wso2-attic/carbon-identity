@@ -27,34 +27,34 @@ import java.util.Set;
  *
  */
 public class PolicyEditorDataHolder {
-    
+
     private Map<String, String> categoryMap = new HashMap<String, String>();
 
     private Map<String, String> attributeIdMap = new HashMap<String, String>();
 
     private Map<String, String> dataTypeMap = new HashMap<String, String>();
-    
+
     private Map<String, String> functionMap = new HashMap<String, String>();
 
     private Map<String, String> preFunctionMap = new HashMap<String, String>();
 
     private Map<String, String> ruleEffectMap = new HashMap<String, String>();
 
-    private Map<String, Set<String>> categoryAttributeIdMap =  new HashMap<String, Set<String>>();
-    
-    private Map<String, String> categoryDefaultAttributeIdMap =  new HashMap<String, String>();
+    private Map<String, Set<String>> categoryAttributeIdMap = new HashMap<String, Set<String>>();
 
-    private Map<String, Set<String>> categoryDataTypeMap=  new HashMap<String, Set<String>>();
+    private Map<String, String> categoryDefaultAttributeIdMap = new HashMap<String, String>();
 
-    private Map<String, Set<String>> categoryFunctionMap=  new HashMap<String, Set<String>>();
+    private Map<String, Set<String>> categoryDataTypeMap = new HashMap<String, Set<String>>();
 
-    private Map<String, String> attributeIdDataTypeMap =  new HashMap<String, String>();
+    private Map<String, Set<String>> categoryFunctionMap = new HashMap<String, Set<String>>();
+
+    private Map<String, String> attributeIdDataTypeMap = new HashMap<String, String>();
 
     private Set<String> ruleFunctions = new HashSet<String>();
 
-    private Set<String> targetFunctions =  new HashSet<String>();
+    private Set<String> targetFunctions = new HashSet<String>();
 
-    private Set<String> preFunctions =  new HashSet<String>();
+    private Set<String> preFunctions = new HashSet<String>();
 
     private Map<String, String> ruleCombiningAlgorithms = new HashMap<String, String>();
 
@@ -86,71 +86,71 @@ public class PolicyEditorDataHolder {
 
     private String defaultPolicyAlgorithm;
 
-    public String getCategoryUri(String categoryName){
-        if(categoryName == null){
+    public String getCategoryUri(String categoryName) {
+        if (categoryName == null) {
             return null;
         }
         return categoryMap.get(categoryName);
     }
 
-    public String getAttributeIdUri(String attributeId){
-        if(attributeId == null){
+    public String getAttributeIdUri(String attributeId) {
+        if (attributeId == null) {
             return null;
         }
         return attributeIdMap.get(attributeId);
     }
 
-    public String getDataTypeUri(String dataType){
-        if(dataType == null){
+    public String getDataTypeUri(String dataType) {
+        if (dataType == null) {
             return null;
         }
         return dataTypeMap.get(dataType);
     }
 
-    public String getFunctionUri(String function){
-        if(function == null){
+    public String getFunctionUri(String function) {
+        if (function == null) {
             return null;
         }
         return functionMap.get(function);
     }
 
-    public String getPreFunctionUri(String function){
-        if(function == null){
+    public String getPreFunctionUri(String function) {
+        if (function == null) {
             return null;
         }
         return preFunctionMap.get(function);
     }
 
-    public String getRuleAlgorithmUri(String algorithm){
-        if(algorithm == null){
+    public String getRuleAlgorithmUri(String algorithm) {
+        if (algorithm == null) {
             return null;
         }
         return ruleCombiningAlgorithms.get(algorithm);
     }
 
-    public String getPolicyAlgorithmUri(String algorithm){
-        if(algorithm == null){
+    public String getPolicyAlgorithmUri(String algorithm) {
+        if (algorithm == null) {
             return null;
         }
         return policyCombiningAlgorithms.get(algorithm);
     }
 
-    public String getDataTypeUriForAttribute(String attributeId){
-        if(attributeId == null){
+    public String getDataTypeUriForAttribute(String attributeId) {
+        if (attributeId == null) {
             return null;
         }
         return attributeIdDataTypeMap.get(attributeId);
     }
 
-    public String getRuleEffectUri(String effect){
-        if(effect == null){
+    public String getRuleEffectUri(String effect) {
+        if (effect == null) {
             return null;
         }
         return ruleEffectMap.get(effect);
     }
 
-    public String getCategoryDefaultAttributeId(String category){
-        if(category == null){
+    public String getCategoryDefaultAttributeId(String category) {
+        if (category == null) {
             return null;
         }
         return categoryDefaultAttributeIdMap.get(category);

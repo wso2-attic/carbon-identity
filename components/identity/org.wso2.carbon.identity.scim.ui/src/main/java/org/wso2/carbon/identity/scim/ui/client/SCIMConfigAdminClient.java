@@ -52,13 +52,13 @@ public class SCIMConfigAdminClient {
     /*Global Providers Operations..*/
 
     public SCIMProviderDTO[] getAllGlobalProviders(String consumerId) throws Exception {
-        
+
         return stub.getAllGlobalProviders(consumerId);
     }
 
     public void addGlobalProvider(String consumerId, SCIMProviderDTO scimProviderDTO)
             throws Exception {
-        
+
         stub.addGlobalProvider(consumerId, scimProviderDTO);
     }
 
@@ -106,7 +106,7 @@ public class SCIMConfigAdminClient {
 
     public void deleteUserProvider(String consumerId, String providerId)
             throws Exception {
-        
+
         stub.deleteUserProvider(consumerId, providerId);
     }
 }

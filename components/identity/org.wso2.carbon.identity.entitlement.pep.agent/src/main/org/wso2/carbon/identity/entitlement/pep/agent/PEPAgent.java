@@ -27,20 +27,20 @@ public class PEPAgent {
     private Map<String, AbstractEntitlementServiceClient> appToPDPClientMap;
     private PEPAgentCache cache;
 
-  /**
+    /**
      * Creating the PDP Proxy instance and initializing it
      *
      * @throws Exception
      */
     public PEPAgent(PEPAgentConfig config) throws EntitlementAgentException {
         defaultAppId = config.getDefaultAppId();
-        if(config.getCacheType()!= null && (config.getCacheType().equals("simple") || config.getCacheType().equals("carbon"))){
+        if (config.getCacheType() != null && (config.getCacheType().equals("simple") || config.getCacheType().equals("carbon"))) {
             cache = new PEPAgentCache(config.getCacheType(), config.getInvalidationInterval(), config.getMaxCacheEntries());
         }
         appToPDPClientMap = PEPAgentFactory.getAppToPDPClientMap(config.getAppToPDPClientConfigMap());
     }
 
-  /**
+    /**
      * This method is used to get the Entitlement decision for the set of Attributes using The Default AppID
      *
      * @param attributes XACML 3.0 Attribute Set
@@ -51,7 +51,7 @@ public class PEPAgent {
         return getDecision(attributes, defaultAppId);
     }
 
-  /**
+    /**
      * This method is used to get the Entitlement decision for the set of Attributes using The Provided AppID
      *
      * @param attributes XACML 3.0 Attribute Set
@@ -60,35 +60,34 @@ public class PEPAgent {
      */
     public String getDecision(Attribute[] attributes, String appId) throws Exception {
         AbstractEntitlementServiceClient appProxy;
-        if(!appToPDPClientMap.containsKey(appId))   {
+        if (!appToPDPClientMap.containsKey(appId)) {
             throw new EntitlementAgentException("Invalid App Id");
         } else {
             appProxy = appToPDPClientMap.get(appId);
         }
-        if(cache != null){
+        if (cache != null) {
             String key = generateKey(attributes);
             String decision = cache.get(key);
-            if(decision != null) {
+            if (decision != null) {
                 return decision;
-            }
-            else{
+            } else {
                 decision = appProxy.getDecision(attributes, appId);
-                cache.put(key,decision);
+                cache.put(key, decision);
                 return decision;
             }
-        } else{
+        } else {
             return appProxy.getDecision(attributes, appId);
         }
 
     }
 
-  /**
+    /**
      * This method is used to get the Entitlement decision for the provided subject,resource,action and environment using the default appID of the PDP defaultProxy
      *
-     * @param subject   XACML 2.0 subject
-     * @param resource  XACML 2.0 resource
-     * @param action    XACML 2.0 action
-     * @param environment   XACML 2.0 environments
+     * @param subject     XACML 2.0 subject
+     * @param resource    XACML 2.0 resource
+     * @param action      XACML 2.0 action
+     * @param environment XACML 2.0 environments
      * @return the Entitlement Decision as a String
      * @throws Exception
      */
@@ -96,19 +95,20 @@ public class PEPAgent {
         return getDecision(subject, resource, action, environment, defaultAppId);
     }
 
-  /**
+    /**
      * This method is used to get the Entitlement decision for the provided subject,resource,action and environment using the provided appID of the PDP defaultProxy
-     * @param subject   XACML 2.0 subject
-     * @param resource  XACML 2.0 resource
-     * @param action    XACML 2.0 action
-     * @param environment   XACML 2.0 environments
+     *
+     * @param subject     XACML 2.0 subject
+     * @param resource    XACML 2.0 resource
+     * @param action      XACML 2.0 action
+     * @param environment XACML 2.0 environments
      * @param appId       specific appID in the PDP Proxy, there can be many PDPs configured for appID. Each App can have distinct PDPs
      * @return the Entitlement Decision as a String
      * @throws Exception
      */
-    public String getDecision(String subject, String resource, String action, String environment,String appId) throws Exception {
+    public String getDecision(String subject, String resource, String action, String environment, String appId) throws Exception {
 
-        if(!appToPDPClientMap.containsKey(appId))   {
+        if (!appToPDPClientMap.containsKey(appId)) {
             throw new EntitlementAgentException("Invalid App Id");
         }
         Attribute subjectAttribute = new Attribute("urn:oasis:names:tc:xacml:1.0:subject-category:access-subject", "urn:oasis:names:tc:xacml:1.0:subject:subject-id", ProxyConstants.DEFAULT_DATA_TYPE, subject);
@@ -154,12 +154,12 @@ public class PEPAgent {
     }
 
     public List<String> getActionableChildResourcesForAlias(String alias, String parentResource,
-                                                           String action) throws Exception {
+                                                            String action) throws Exception {
         return getActionableChildResourcesForAlias(alias, parentResource, action, defaultAppId);
     }
 
     public List<String> getActionableChildResourcesForAlias(String alias, String parentResource,
-                                                           String action, String appId) throws Exception {
+                                                            String action, String appId) throws Exception {
         AbstractEntitlementServiceClient appProxy = null;
         if (!appToPDPClientMap.containsKey(appId)) {
             throw new EntitlementAgentException("Invalid App Id");
@@ -219,8 +219,8 @@ public class PEPAgent {
         return (new Integer(key)).toString();
     }
 
-    public void clear(){
-        if(cache != null){
+    public void clear() {
+        if (cache != null) {
             cache.clear();
         }
     }

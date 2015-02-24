@@ -17,10 +17,6 @@
  */
 package org.wso2.carbon.identity.scim.provider.auth;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.TreeMap;
-
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,22 +35,23 @@ import org.wso2.charon.core.exceptions.InternalServerException;
 import org.wso2.charon.core.exceptions.UnauthorizedException;
 import org.wso2.charon.core.schema.SCIMConstants;
 
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
+
 /**
  * This is the default BASIC-Auth authentication handler for SCIM REST Endpoints.
  */
 public class BasicAuthHandler implements SCIMAuthenticationHandler {
 
     private static Log log = LogFactory.getLog(BasicAuthHandler.class);
-
-    /* property map */
-    private Map<String, String> properties;
-
-    /* properties specific to this authenticator */
-    private int priority;
-
     /* constants specific to this authenticator */
     private final String BASIC_AUTH_HEADER = "Basic";
     private final int DEFAULT_PRIORITY = 5;
+    /* property map */
+    private Map<String, String> properties;
+    /* properties specific to this authenticator */
+    private int priority;
 
     public void setDefaultPriority() {
         priority = DEFAULT_PRIORITY;
@@ -62,7 +59,7 @@ public class BasicAuthHandler implements SCIMAuthenticationHandler {
 
     /**
      * Ideally this should be configurable. For the moment, hard code the priority.
-     * 
+     *
      * @return
      */
     public int getPriority() {
@@ -183,7 +180,7 @@ public class BasicAuthHandler implements SCIMAuthenticationHandler {
 
     /**
      * To set the properties specific to each authenticator
-     * 
+     *
      * @param authenticatorProperties
      */
     public void setProperties(Map<String, String> authenticatorProperties) {

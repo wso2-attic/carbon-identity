@@ -17,18 +17,18 @@
 */
 package org.wso2.carbon.apacheds;
 
-import org.wso2.carbon.ldap.server.exception.DirectoryServerException;
 import org.wso2.carbon.apacheds.impl.ConfigurationConstants;
+import org.wso2.carbon.ldap.server.exception.DirectoryServerException;
 
 import static org.wso2.carbon.apacheds.KdcConfiguration.ProtocolType.UDP_PROTOCOL;
 
 /**
  * Class representing the KDC configurations.
  * <KDCServer>
- *  <Property name="enabled">true</Property>
- *  <Property name="protocol">UDP</Property>
- *  <Property name="host">localhost</Property>
- *  <Property name="port">8000</Property> 
+ * <Property name="enabled">true</Property>
+ * <Property name="protocol">UDP</Property>
+ * <Property name="host">localhost</Property>
+ * <Property name="port">8000</Property>
  * </KDCServer>
  */
 
@@ -36,76 +36,45 @@ import static org.wso2.carbon.apacheds.KdcConfiguration.ProtocolType.UDP_PROTOCO
 public class KdcConfiguration {
 
     /**
-     * An enumeration to select the protocol type which KDC is going to communicate.
-     * At the moment there are only 2 protocols. They are TCP and UDP.
-     */
-    public enum ProtocolType {
-        TCP_PROTOCOL,
-        UDP_PROTOCOL;
-
-        public static ProtocolType getProtocolType(String protocolName)
-            throws DirectoryServerException {
-            if (protocolName.equals("TCP")) {
-                return ProtocolType.TCP_PROTOCOL;
-            } else if (protocolName.equals("UDP")) {
-                return UDP_PROTOCOL;
-            } else {
-                throw new DirectoryServerException(
-                    "Invalid protocol name. Only supported protocols for KDC are TCP and UDP.");
-            }
-        }
-    }
-
-    /**
      * A name given to a KDC server.
      */
     private String kdcName;
-
     /**
      * Host address which KDC is running.
      */
     private String kdcHostAddress;
-
     /**
      * Protocol used by KDC to communicate with clients.
      */
     private ProtocolType kdcCommunicationProtocol;
-
     /**
      * KDC running port.
      */
     private int kdcCommunicationPort = -1;
-
     /**
      * Connection password.
      */
     private String systemAdminPassword;
-
     /**
      * Number of maximum possible threads allowed.
      */
     private int numberOfThreads;
-
     /**
      * Backlog count. Refer apacheds configuration for more information about this.
      */
     private int backLogCount;
-
     /**
      * Life time of a ticket in milliseconds.
      */
     private long maxTicketLifeTime;
-
     /**
      * Renewable ticket life time.
      */
     private long maxRenewableLifeTime;
-
     /**
      * Specified whether, timestamp is required during pre-authentication.
      */
     private boolean preAuthenticateTimeStampRequired = true;
-
     private PartitionInfo partitionInfo;
 
     public KdcConfiguration(PartitionInfo partitionInfo) {
@@ -113,9 +82,9 @@ public class KdcConfiguration {
         this.partitionInfo = partitionInfo;
 
         this.kdcCommunicationProtocol = UDP_PROTOCOL;
-        
+
         this.kdcName = ConfigurationConstants.DEFAULT_KDC_NAME;
-        this.kdcHostAddress = ConfigurationConstants.DEFAULT_KDC_HOST_ADDRESS;        
+        this.kdcHostAddress = ConfigurationConstants.DEFAULT_KDC_HOST_ADDRESS;
         this.systemAdminPassword = ConfigurationConstants.DEFAULT_SYS_ADMIN_PASSWORD;
         this.numberOfThreads = ConfigurationConstants.DEFAULT_NUMBER_OF_THREADS;
         this.backLogCount = ConfigurationConstants.DEFAULT_BACK_LOG_COUNT;
@@ -125,22 +94,21 @@ public class KdcConfiguration {
     }
 
     public KdcConfiguration() {
-        this (null);
+        this(null);
     }
 
     public ProtocolType getKdcCommunicationProtocol() {
         return kdcCommunicationProtocol;
     }
 
-    public void setPartitionInfo(PartitionInfo partitionInfo) {
-        this.partitionInfo = partitionInfo;
-    }
-
-
     public void setKdcCommunicationProtocol(String protocolName) throws DirectoryServerException {
         if (protocolName == null) return;
 
         this.kdcCommunicationProtocol = ProtocolType.getProtocolType(protocolName);
+    }
+
+    public void setPartitionInfo(PartitionInfo partitionInfo) {
+        this.partitionInfo = partitionInfo;
     }
 
     public int getNumberOfThreads() {
@@ -187,12 +155,13 @@ public class KdcConfiguration {
      * Returns kerberos principle. Should take following form,
      * krbtgt/REALM@REALM
      * E.g :- krbtgt/WSO2.COM@WSO2.COM
+     *
      * @return KDC principle name.
      */
     public String getKdcPrinciple() {
 
         return "krbtgt/" + this.partitionInfo.getRealm().toUpperCase() + "@" +
-               this.partitionInfo.getRealm().toUpperCase();
+                this.partitionInfo.getRealm().toUpperCase();
     }
 
     public String getPrimaryRealm() {
@@ -242,10 +211,11 @@ public class KdcConfiguration {
     /**
      * Gets the base domain name which KDC starts searching for principles.
      * We will always have "Users" sub context appended to this.
+     *
      * @return Users subcontext domain name. E.g :- ou=Users,dc=example,dc=com.
      */
-    public String getSearchBaseDomainName () {
-        return  this.partitionInfo.getRootDN();
+    public String getSearchBaseDomainName() {
+        return this.partitionInfo.getRootDN();
     }
 
     public boolean isPreAuthenticateTimeStampRequired() {
@@ -254,6 +224,27 @@ public class KdcConfiguration {
 
     public void setPreAuthenticateTimeStampRequired(boolean preAuthenticateTimeStampRequired) {
         this.preAuthenticateTimeStampRequired = preAuthenticateTimeStampRequired;
+    }
+
+    /**
+     * An enumeration to select the protocol type which KDC is going to communicate.
+     * At the moment there are only 2 protocols. They are TCP and UDP.
+     */
+    public enum ProtocolType {
+        TCP_PROTOCOL,
+        UDP_PROTOCOL;
+
+        public static ProtocolType getProtocolType(String protocolName)
+                throws DirectoryServerException {
+            if (protocolName.equals("TCP")) {
+                return ProtocolType.TCP_PROTOCOL;
+            } else if (protocolName.equals("UDP")) {
+                return UDP_PROTOCOL;
+            } else {
+                throw new DirectoryServerException(
+                        "Invalid protocol name. Only supported protocols for KDC are TCP and UDP.");
+            }
+        }
     }
 
 }

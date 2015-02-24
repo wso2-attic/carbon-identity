@@ -18,15 +18,15 @@
 
 package org.wso2.carbon.identity.application.common.model;
 
+import org.apache.axiom.om.OMElement;
+
 import java.io.Serializable;
 import java.util.Iterator;
-
-import org.apache.axiom.om.OMElement;
 
 public class RoleMapping implements Serializable {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -2116444950898503844L;
 
@@ -38,29 +38,12 @@ public class RoleMapping implements Serializable {
     }
 
     /**
-     * 
      * @param localRole
      * @param remoteRole
      */
     public RoleMapping(LocalRole localRole, String remoteRole) {
         this.localRole = localRole;
         this.remoteRole = remoteRole;
-    }
-
-    public String getRemoteRole() {
-        return remoteRole;
-    }
-
-    public void setRemoteRole(String remoteRole) {
-        this.remoteRole = remoteRole;
-    }
-
-    public LocalRole getLocalRole() {
-        return localRole;
-    }
-
-    public void setLocalRole(LocalRole localRole) {
-        this.localRole = localRole;
     }
 
     /*
@@ -84,6 +67,22 @@ public class RoleMapping implements Serializable {
         }
 
         return roleMapping;
+    }
+
+    public String getRemoteRole() {
+        return remoteRole;
+    }
+
+    public void setRemoteRole(String remoteRole) {
+        this.remoteRole = remoteRole;
+    }
+
+    public LocalRole getLocalRole() {
+        return localRole;
+    }
+
+    public void setLocalRole(LocalRole localRole) {
+        this.localRole = localRole;
     }
 
 }

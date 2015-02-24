@@ -21,12 +21,12 @@ package org.wso2.carbon.identity.application.mgt.listener;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 
 public interface ApplicationMgtListener {
-	
-	public void createApplication(ServiceProvider serviceProvider);
-	
-	public void updateApplication(ServiceProvider serviceProvider);
-	
-	public void deleteApplication(String applicationName);
-	
+
+    public void createApplication(ServiceProvider serviceProvider);
+
+    public void updateApplication(ServiceProvider serviceProvider);
+
+    public void deleteApplication(String applicationName);
+
 
 }

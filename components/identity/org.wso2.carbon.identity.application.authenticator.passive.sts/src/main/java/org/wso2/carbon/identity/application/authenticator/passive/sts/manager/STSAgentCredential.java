@@ -19,12 +19,12 @@
 package org.wso2.carbon.identity.application.authenticator.passive.sts.manager;
 
 
+import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
+import org.wso2.carbon.identity.application.authenticator.passive.sts.exception.PassiveSTSException;
+
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
-
-import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
-import org.wso2.carbon.identity.application.authenticator.passive.sts.exception.PassiveSTSException;
 
 public interface STSAgentCredential {
 
@@ -32,7 +32,7 @@ public interface STSAgentCredential {
 
     PublicKey getPublicKey() throws PassiveSTSException;
 
-    PrivateKey getPrivateKey()throws PassiveSTSException;
+    PrivateKey getPrivateKey() throws PassiveSTSException;
 
     X509Certificate getEntityCertificate() throws PassiveSTSException;
 

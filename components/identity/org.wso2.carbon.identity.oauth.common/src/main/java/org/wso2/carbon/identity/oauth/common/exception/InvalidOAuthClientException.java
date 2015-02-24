@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.identity.oauth.common.exception;
 
-public class InvalidOAuthClientException extends Exception{
+public class InvalidOAuthClientException extends Exception {
 
     public InvalidOAuthClientException(String message) {
         super(message);

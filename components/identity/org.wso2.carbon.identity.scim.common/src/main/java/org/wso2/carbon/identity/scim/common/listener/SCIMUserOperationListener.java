@@ -63,7 +63,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
 
     //to make provisioning to other providers asynchronously happen.
     private ExecutorService provisioningThreadPool = Executors.newCachedThreadPool();
-    private String provisioningHandlerImplClass= SCIMProvisioningConfigManager.getProvisioningHandlers()[0];
+    private String provisioningHandlerImplClass = SCIMProvisioningConfigManager.getProvisioningHandlers()[0];
 
     public int getExecutionOrderId() {
         return 1;
@@ -82,20 +82,20 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
             if (!userStoreManager.isSCIMEnabled()) {
                 return true;
             }
-            
 
-        String activeAttributeValue = userStoreManager.getUserClaimValue(userName, SCIMConstants.ACTIVE_URI, null);
-        boolean isUserActive = true;
-        if (activeAttributeValue != null) {
-            isUserActive = Boolean.parseBoolean(activeAttributeValue);
-            if (isUserActive) {
-                return true;
-            } else {
-                log.error("Trying to login from an inactive account of user: " + userName);
-                return false;
+
+            String activeAttributeValue = userStoreManager.getUserClaimValue(userName, SCIMConstants.ACTIVE_URI, null);
+            boolean isUserActive = true;
+            if (activeAttributeValue != null) {
+                isUserActive = Boolean.parseBoolean(activeAttributeValue);
+                if (isUserActive) {
+                    return true;
+                } else {
+                    log.error("Trying to login from an inactive account of user: " + userName);
+                    return false;
+                }
             }
-        }
-        return true;
+            return true;
 
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException(e);
@@ -122,77 +122,77 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
             
         /*add mandatory attributes in core schema like id, meta attributes etc
         if SCIM Enabled in User Store and if not already added.*/
-        Map<String, String> attributes = null;
-        try {
-            if (userStoreManager.isSCIMEnabled()) {
-                //get claim manager from user store manager
-                ClaimManager claimManager = userStoreManager.getClaimManager();
+            Map<String, String> attributes = null;
+            try {
+                if (userStoreManager.isSCIMEnabled()) {
+                    //get claim manager from user store manager
+                    ClaimManager claimManager = userStoreManager.getClaimManager();
 
-                //get existingClaims related to SCIM claim dialect
-                ClaimMapping[] existingClaims = claimManager.getAllClaimMappings(SCIMCommonUtils.SCIM_CLAIM_DIALECT);
-                List<String> claimURIList = new ArrayList<String>();
-                for (ClaimMapping claim : existingClaims) {
-                    claimURIList.add(claim.getClaim().getClaimUri());
+                    //get existingClaims related to SCIM claim dialect
+                    ClaimMapping[] existingClaims = claimManager.getAllClaimMappings(SCIMCommonUtils.SCIM_CLAIM_DIALECT);
+                    List<String> claimURIList = new ArrayList<String>();
+                    for (ClaimMapping claim : existingClaims) {
+                        claimURIList.add(claim.getClaim().getClaimUri());
+                    }
+                    //obtain user claim values (since user is already added at this point by CARBON UM)
+                    attributes = userStoreManager.getUserClaimValues(
+                            userName, claimURIList.toArray(new String[claimURIList.size()]), null);
+                    //if null, or if id attribute not present, add them
+                    if (attributes != null && !attributes.isEmpty()) {
+                        if (!attributes.containsKey(SCIMConstants.ID_URI)) {
+                            Map<String, String> updatesAttributes =
+                                    this.getSCIMAttributes(userName,
+                                            attributes);
+                            // set the thread local to avoid calling the
+                            // listener for setUserClaimValues.
+                            SCIMCommonUtils.setThreadLocalToSkipSetUserClaimsListeners(true);
+                            userStoreManager.setUserClaimValues(userName, updatesAttributes, null);
+                        } else if (!attributes.containsKey(SCIMConstants.USER_NAME_URI)) {
+                            //Adding this since user name claim is not saved. For JDBC SCIM provisioning is not working
+                            attributes.put(SCIMConstants.USER_NAME_URI, userName);
+                        }
+                    } else {
+                        Map<String, String> newAttributes = this.getSCIMAttributes(userName, null);
+                        userStoreManager.setUserClaimValues(userName, newAttributes, null);
+                    }
                 }
-                //obtain user claim values (since user is already added at this point by CARBON UM)
-                attributes = userStoreManager.getUserClaimValues(
-                        userName, claimURIList.toArray(new String[claimURIList.size()]), null);
-                //if null, or if id attribute not present, add them
-					if (attributes != null && !attributes.isEmpty()) {
-						if (!attributes.containsKey(SCIMConstants.ID_URI)) {
-							Map<String, String> updatesAttributes =
-							                                        this.getSCIMAttributes(userName,
-							                                                               attributes);
-							// set the thread local to avoid calling the
-							// listener for setUserClaimValues.
-							SCIMCommonUtils.setThreadLocalToSkipSetUserClaimsListeners(true);
-							userStoreManager.setUserClaimValues(userName, updatesAttributes, null);
-						} else if (!attributes.containsKey(SCIMConstants.USER_NAME_URI)) {
-							//Adding this since user name claim is not saved. For JDBC SCIM provisioning is not working
-							attributes.put(SCIMConstants.USER_NAME_URI, userName);
-						}
-					} else {
-                    Map<String, String> newAttributes = this.getSCIMAttributes(userName, null);
-                    userStoreManager.setUserClaimValues(userName, newAttributes, null);
-                }
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                throw new UserStoreException("Error when updating SCIM attributes of the user.");
             }
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new UserStoreException("Error when updating SCIM attributes of the user.");
-        }
-        //do provisioning
-        try {
-            //identify the scim consumer from  carbon context and perform provisioning.
-            String consumerUserId = getSCIMConsumerId();
-            User user = null;
-            if (consumerUserId != null && isProvisioningActionAuthorized(false, null) &&
-                isSCIMConsumerEnabled(consumerUserId)) {
-                //if user created through management console, claim values are not present.
-                if (attributes != null && attributes.size() != 0) {
-                    user = (User) AttributeMapper.constructSCIMObjectFromAttributes(
-                            attributes, SCIMConstants.USER_INT);
-                } else {
-                    user = new User();
-                    user.setUserName(userName);
-                }
-                user.setPassword((String) credential);
+            //do provisioning
+            try {
+                //identify the scim consumer from  carbon context and perform provisioning.
+                String consumerUserId = getSCIMConsumerId();
+                User user = null;
+                if (consumerUserId != null && isProvisioningActionAuthorized(false, null) &&
+                        isSCIMConsumerEnabled(consumerUserId)) {
+                    //if user created through management console, claim values are not present.
+                    if (attributes != null && attributes.size() != 0) {
+                        user = (User) AttributeMapper.constructSCIMObjectFromAttributes(
+                                attributes, SCIMConstants.USER_INT);
+                    } else {
+                        user = new User();
+                        user.setUserName(userName);
+                    }
+                    user.setPassword((String) credential);
                 /*In SCIM, we do not manage groups through user resource. Hence, no need to send group
                  info in createUser request.*/
 
-                //TODO if groups are set (through) carbon APIs, then need to send a update group provisioning request as well.
-                //but for the moment, do group-mgt operations through group resource.
+                    //TODO if groups are set (through) carbon APIs, then need to send a update group provisioning request as well.
+                    //but for the moment, do group-mgt operations through group resource.
 
-                //create a map with provisioning data
-                Map<String, Object> provisioningData = new HashMap<String, Object>();
+                    //create a map with provisioning data
+                    Map<String, Object> provisioningData = new HashMap<String, Object>();
 
-                provisioningThreadPool.submit(getProvisioningHandlerFromUser(
-                        consumerUserId, user, SCIMConstants.POST, null));
+                    provisioningThreadPool.submit(getProvisioningHandlerFromUser(
+                            consumerUserId, user, SCIMConstants.POST, null));
+                }
+            } catch (NotFoundException e) {
+                throw new UserStoreException("Error in constructing SCIM object from attributes when provisioning.");
+            } catch (CharonException e) {
+                throw new UserStoreException("Error in constructing SCIM object from attributes when provisioning.");
             }
-        } catch (NotFoundException e) {
-            throw new UserStoreException("Error in constructing SCIM object from attributes when provisioning.");
-        } catch (CharonException e) {
-            throw new UserStoreException("Error in constructing SCIM object from attributes when provisioning.");
-        }
-        return true;
+            return true;
 
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException(e);
@@ -203,12 +203,12 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
     public boolean doPreUpdateCredential(String s, Object o, Object o1,
                                          UserStoreManager userStoreManager)
             throws UserStoreException {
-    	return true;
+        return true;
     }
 
     public boolean doPostUpdateCredential(String s, Object credential, UserStoreManager userStoreManager)
             throws UserStoreException {
-    	String currentUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
+        String currentUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
         return doPostUpdateCredentialByAdmin(currentUser, credential, userStoreManager);
     }
 
@@ -227,50 +227,50 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
             if (!userStoreManager.isSCIMEnabled()) {
                 return true;
             }
-            
-        //update last-modified-date
-        try {
-            if (userStoreManager.isSCIMEnabled()) {
-                Date date = new Date();
-                String lastModifiedDate = AttributeUtil.formatDateTime(date);
-                userStoreManager.setUserClaimValue(
-                        userName, SCIMConstants.META_LAST_MODIFIED_URI, lastModifiedDate, null);
+
+            //update last-modified-date
+            try {
+                if (userStoreManager.isSCIMEnabled()) {
+                    Date date = new Date();
+                    String lastModifiedDate = AttributeUtil.formatDateTime(date);
+                    userStoreManager.setUserClaimValue(
+                            userName, SCIMConstants.META_LAST_MODIFIED_URI, lastModifiedDate, null);
+                }
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                log.debug(e);
+                throw new UserStoreException(
+                        "Error in obtaining user store information: isSCIMEnabled", e);
             }
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-        	log.debug(e);
-            throw new UserStoreException(
-                    "Error in obtaining user store information: isSCIMEnabled", e);
-        }
-        //do provisioning
-			try {
-				// identify the scim consumer from the user name in carbon
-				// context and perform provisioning.
-				String consumerUserId = getSCIMConsumerId();
-				// check if the owner tries to change the credentials
-				String currentUserName = CarbonContext.getThreadLocalCarbonContext().getUsername();
+            //do provisioning
+            try {
+                // identify the scim consumer from the user name in carbon
+                // context and perform provisioning.
+                String consumerUserId = getSCIMConsumerId();
+                // check if the owner tries to change the credentials
+                String currentUserName = CarbonContext.getThreadLocalCarbonContext().getUsername();
 
-				if (currentUserName != null) {
+                if (currentUserName != null) {
 
-					boolean isAuthorized = currentUserName.equals(userName) ? true : false;
-					if (!isAuthorized) { // if not the same user, check
-											// permissions
-						isAuthorized = isProvisioningActionAuthorized(false,
-								null);
-					}
+                    boolean isAuthorized = currentUserName.equals(userName) ? true : false;
+                    if (!isAuthorized) { // if not the same user, check
+                        // permissions
+                        isAuthorized = isProvisioningActionAuthorized(false,
+                                null);
+                    }
 
-					if (isAuthorized && isSCIMConsumerEnabled(consumerUserId)) {
-						// create User with updated credentials
-						User user = new User();
-						user.setUserName(userName);
-						user.setPassword((String) credential);
-						provisioningThreadPool
-								.submit(getProvisioningHandlerFromUser(consumerUserId, user, SCIMConstants.PUT, null));
-					}
-				}
-			} catch (CharonException e) {
-				throw new UserStoreException("Error in provisioning 'update credential by admin' operation");
-			}
-        return true;
+                    if (isAuthorized && isSCIMConsumerEnabled(consumerUserId)) {
+                        // create User with updated credentials
+                        User user = new User();
+                        user.setUserName(userName);
+                        user.setPassword((String) credential);
+                        provisioningThreadPool
+                                .submit(getProvisioningHandlerFromUser(consumerUserId, user, SCIMConstants.PUT, null));
+                    }
+                }
+            } catch (CharonException e) {
+                throw new UserStoreException("Error in provisioning 'update credential by admin' operation");
+            }
+            return true;
 
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException(e);
@@ -286,22 +286,22 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
             if (!userStoreManager.isSCIMEnabled()) {
                 return true;
             }
-            
 
-        //do provisioning
-        try {
-            //identify the scim consumer from the user name in carbon context and perform provisioning.
-            String consumerUserId = getSCIMConsumerId();
-            User user = null;
-            if (isProvisioningActionAuthorized(false, null) && isSCIMConsumerEnabled(consumerUserId)) {
-                user = new User();
-                user.setUserName(userName);
-                provisioningThreadPool.submit(getProvisioningHandlerFromUser(consumerUserId, user, SCIMConstants.DELETE, null));
+
+            //do provisioning
+            try {
+                //identify the scim consumer from the user name in carbon context and perform provisioning.
+                String consumerUserId = getSCIMConsumerId();
+                User user = null;
+                if (isProvisioningActionAuthorized(false, null) && isSCIMConsumerEnabled(consumerUserId)) {
+                    user = new User();
+                    user.setUserName(userName);
+                    provisioningThreadPool.submit(getProvisioningHandlerFromUser(consumerUserId, user, SCIMConstants.DELETE, null));
+                }
+            } catch (CharonException e) {
+                throw new UserStoreException("Error in provisioning delete operation");
             }
-        } catch (CharonException e) {
-            throw new UserStoreException("Error in provisioning delete operation");
-        }
-        return true;
+            return true;
 
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException(e);
@@ -342,64 +342,64 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
             if (!userStoreManager.isSCIMEnabled()) {
                 return true;
             }
-            
 
-        //check if it is specified to skip this listner.
-        if ((SCIMCommonUtils.getThreadLocalToSkipSetUserClaimsListeners() != null &&
-             !SCIMCommonUtils.getThreadLocalToSkipSetUserClaimsListeners()) ||
-            (SCIMCommonUtils.getThreadLocalToSkipSetUserClaimsListeners() == null)) {
-            //update last-modified-date and proceed if scim enabled.
-            try {
-                if (userStoreManager.isSCIMEnabled()) {
-                    Date date = new Date();
-                    String lastModifiedDate = AttributeUtil.formatDateTime(date);
-                    userStoreManager.setUserClaimValue(
-                            userName, SCIMConstants.META_LAST_MODIFIED_URI, lastModifiedDate, null);
-                    String userNameInClaims = userStoreManager.getUserClaimValue(
-                            userName, SCIMConstants.USER_NAME_URI, null);
-                    // do provisioning
-                    //identify the scim consumer from the user name in carbon context and perform provisioning.
-                    String consumerUserId = getSCIMConsumerId();
-                    User user = null;
-                    if (isProvisioningActionAuthorized(true, userNameInClaims) &&
-                        isSCIMConsumerEnabled(consumerUserId)) {
-                        //if no claim values are present, no need to do provisioning.
-                        if (claims != null && claims.size() != 0) {
-                            ClaimManager claimManager = userStoreManager.getClaimManager();
-                            if (claimManager != null) {
-                                //get existingClaims related to SCIM claim dialect
-                                ClaimMapping[] existingClaims = claimManager.getAllClaimMappings(
-                                        SCIMCommonUtils.SCIM_CLAIM_DIALECT);
-                                List<String> claimURIList = new ArrayList<String>();
-                                for (ClaimMapping claim : existingClaims) {
-                                    claimURIList.add(claim.getClaim().getClaimUri());
+
+            //check if it is specified to skip this listner.
+            if ((SCIMCommonUtils.getThreadLocalToSkipSetUserClaimsListeners() != null &&
+                    !SCIMCommonUtils.getThreadLocalToSkipSetUserClaimsListeners()) ||
+                    (SCIMCommonUtils.getThreadLocalToSkipSetUserClaimsListeners() == null)) {
+                //update last-modified-date and proceed if scim enabled.
+                try {
+                    if (userStoreManager.isSCIMEnabled()) {
+                        Date date = new Date();
+                        String lastModifiedDate = AttributeUtil.formatDateTime(date);
+                        userStoreManager.setUserClaimValue(
+                                userName, SCIMConstants.META_LAST_MODIFIED_URI, lastModifiedDate, null);
+                        String userNameInClaims = userStoreManager.getUserClaimValue(
+                                userName, SCIMConstants.USER_NAME_URI, null);
+                        // do provisioning
+                        //identify the scim consumer from the user name in carbon context and perform provisioning.
+                        String consumerUserId = getSCIMConsumerId();
+                        User user = null;
+                        if (isProvisioningActionAuthorized(true, userNameInClaims) &&
+                                isSCIMConsumerEnabled(consumerUserId)) {
+                            //if no claim values are present, no need to do provisioning.
+                            if (claims != null && claims.size() != 0) {
+                                ClaimManager claimManager = userStoreManager.getClaimManager();
+                                if (claimManager != null) {
+                                    //get existingClaims related to SCIM claim dialect
+                                    ClaimMapping[] existingClaims = claimManager.getAllClaimMappings(
+                                            SCIMCommonUtils.SCIM_CLAIM_DIALECT);
+                                    List<String> claimURIList = new ArrayList<String>();
+                                    for (ClaimMapping claim : existingClaims) {
+                                        claimURIList.add(claim.getClaim().getClaimUri());
+                                    }
+                                    //obtain user claim values (since claims already updated at is point by CARBON UM)
+                                    Map<String, String> attributes = userStoreManager.getUserClaimValues(
+                                            userName, claimURIList.toArray(new String[claimURIList.size()]), null);
+                                    if (!attributes.containsKey(SCIMConstants.USER_NAME_URI)) {
+                                        attributes.put(SCIMConstants.USER_NAME_URI, userName);
+                                    }
+                                    user = (User) AttributeMapper.constructSCIMObjectFromAttributes(
+                                            attributes, SCIMConstants.USER_INT);
+                                    provisioningThreadPool.submit(getProvisioningHandlerFromUser(
+                                            consumerUserId, user, SCIMConstants.PUT, null));
                                 }
-                                //obtain user claim values (since claims already updated at is point by CARBON UM)
-                                Map<String, String> attributes = userStoreManager.getUserClaimValues(
-                                        userName, claimURIList.toArray(new String[claimURIList.size()]), null);
-									if (!attributes.containsKey(SCIMConstants.USER_NAME_URI)) {
-										attributes.put(SCIMConstants.USER_NAME_URI, userName);
-									}
-                                user = (User) AttributeMapper.constructSCIMObjectFromAttributes(
-                                        attributes, SCIMConstants.USER_INT);
-                                provisioningThreadPool.submit(getProvisioningHandlerFromUser(
-                                        consumerUserId, user, SCIMConstants.PUT, null));
                             }
                         }
                     }
+                } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                    throw new UserStoreException("Error in retrieving claim values while provisioning " +
+                            "'update user' operation.");
+                } catch (CharonException e) {
+                    throw new UserStoreException("Error in constructing SCIM User object from claims" +
+                            "while provisioning 'update user' operation.");
+                } catch (NotFoundException e) {
+                    throw new UserStoreException("Error in constructing SCIM User object from claims" +
+                            "while provisioning 'update user' operation.");
                 }
-            } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                throw new UserStoreException("Error in retrieving claim values while provisioning " +
-                                             "'update user' operation.");
-            } catch (CharonException e) {
-                throw new UserStoreException("Error in constructing SCIM User object from claims" +
-                                             "while provisioning 'update user' operation.");
-            } catch (NotFoundException e) {
-                throw new UserStoreException("Error in constructing SCIM User object from claims" +
-                                             "while provisioning 'update user' operation.");
             }
-        }
-        return true;
+            return true;
 
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException(e);
@@ -444,50 +444,50 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
             if (!userStoreManager.isSCIMEnabled()) {
                 return true;
             }
-            
 
-        SCIMGroupHandler scimGroupHandler = new SCIMGroupHandler(userStoreManager.getTenantId());
 
-        String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
-        if(domainName == null){
-            domainName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
-        }
-        String roleNameWithDomain = domainName + CarbonConstants.DOMAIN_SEPARATOR + roleName;
+            SCIMGroupHandler scimGroupHandler = new SCIMGroupHandler(userStoreManager.getTenantId());
 
-        //query role name from identity table
-        try {
-            if (!scimGroupHandler.isGroupExisting(roleNameWithDomain)) {
-                //if no attributes - i.e: group added via mgt console, not via SCIM endpoint
-                //add META
-                scimGroupHandler.addMandatoryAttributes(roleNameWithDomain);
+            String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
+            if (domainName == null) {
+                domainName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
             }
-        } catch (IdentitySCIMException e) {
-            throw new UserStoreException("Error retrieving group information from SCIM Tables.", e);
-        }
-        //do provisioning
-        try {
-            //identify the scim consumer from the user name in carbon context and perform provisioning.
-            String consumerUserId = getSCIMConsumerId();
-            Group group = null;
-            if (isProvisioningActionAuthorized(false, null) && isSCIMConsumerEnabled(consumerUserId)) {
-                //if user created through management console, claim values are not present.
-                group = new Group();
-                group.setDisplayName(roleName);
-                if (userList != null && userList.length != 0) {
-                    for (String user : userList) {
-                        Map<String, Object> members = new HashMap<String, Object>();
-                        members.put(SCIMConstants.CommonSchemaConstants.DISPLAY, user);
-                        group.setMember(members);
-                    }
+            String roleNameWithDomain = domainName + CarbonConstants.DOMAIN_SEPARATOR + roleName;
+
+            //query role name from identity table
+            try {
+                if (!scimGroupHandler.isGroupExisting(roleNameWithDomain)) {
+                    //if no attributes - i.e: group added via mgt console, not via SCIM endpoint
+                    //add META
+                    scimGroupHandler.addMandatoryAttributes(roleNameWithDomain);
                 }
-                provisioningThreadPool.submit(getProvisioningHandlerFromGroup(
-                        consumerUserId, group, SCIMConstants.POST, null));
+            } catch (IdentitySCIMException e) {
+                throw new UserStoreException("Error retrieving group information from SCIM Tables.", e);
             }
-        } catch (CharonException e) {
-            throw new UserStoreException("Error in constructing SCIM object from attributes when provisioning.");
-        }
+            //do provisioning
+            try {
+                //identify the scim consumer from the user name in carbon context and perform provisioning.
+                String consumerUserId = getSCIMConsumerId();
+                Group group = null;
+                if (isProvisioningActionAuthorized(false, null) && isSCIMConsumerEnabled(consumerUserId)) {
+                    //if user created through management console, claim values are not present.
+                    group = new Group();
+                    group.setDisplayName(roleName);
+                    if (userList != null && userList.length != 0) {
+                        for (String user : userList) {
+                            Map<String, Object> members = new HashMap<String, Object>();
+                            members.put(SCIMConstants.CommonSchemaConstants.DISPLAY, user);
+                            group.setMember(members);
+                        }
+                    }
+                    provisioningThreadPool.submit(getProvisioningHandlerFromGroup(
+                            consumerUserId, group, SCIMConstants.POST, null));
+                }
+            } catch (CharonException e) {
+                throw new UserStoreException("Error in constructing SCIM object from attributes when provisioning.");
+            }
 
-        return true;
+            return true;
 
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException(e);
@@ -504,36 +504,36 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
             if (!userStoreManager.isSCIMEnabled()) {
                 return true;
             }
-            
 
-        SCIMGroupHandler scimGroupHandler = new SCIMGroupHandler(userStoreManager.getTenantId());
 
-        String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
-        if(domainName == null){
-            domainName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
-        }
-        String roleNameWithDomain = domainName + CarbonConstants.DOMAIN_SEPARATOR + roleName;
-        try {
-            //delete group attributes - no need to check existence here,
-            //since it is checked in below method.
-            scimGroupHandler.deleteGroupAttributes(roleNameWithDomain);
-        } catch (IdentitySCIMException e) {
-            throw new UserStoreException("Error retrieving group information from SCIM Tables.", e);
-        }
-        //do provisioning
-        try {
-            //identify the scim consumer from the user name in carbon context and perform provisioning.
-            String consumerUserId = getSCIMConsumerId();
-            Group group = null;
-            if (isProvisioningActionAuthorized(false, null) && isSCIMConsumerEnabled(consumerUserId)) {
-                group = new Group();
-                group.setDisplayName(roleName);
-                provisioningThreadPool.submit(getProvisioningHandlerFromGroup(consumerUserId, group, SCIMConstants.DELETE, null));
+            SCIMGroupHandler scimGroupHandler = new SCIMGroupHandler(userStoreManager.getTenantId());
+
+            String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
+            if (domainName == null) {
+                domainName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
             }
-        } catch (CharonException e) {
-            throw new UserStoreException("Error in provisioning delete operation");
-        }
-        return true;
+            String roleNameWithDomain = domainName + CarbonConstants.DOMAIN_SEPARATOR + roleName;
+            try {
+                //delete group attributes - no need to check existence here,
+                //since it is checked in below method.
+                scimGroupHandler.deleteGroupAttributes(roleNameWithDomain);
+            } catch (IdentitySCIMException e) {
+                throw new UserStoreException("Error retrieving group information from SCIM Tables.", e);
+            }
+            //do provisioning
+            try {
+                //identify the scim consumer from the user name in carbon context and perform provisioning.
+                String consumerUserId = getSCIMConsumerId();
+                Group group = null;
+                if (isProvisioningActionAuthorized(false, null) && isSCIMConsumerEnabled(consumerUserId)) {
+                    group = new Group();
+                    group.setDisplayName(roleName);
+                    provisioningThreadPool.submit(getProvisioningHandlerFromGroup(consumerUserId, group, SCIMConstants.DELETE, null));
+                }
+            } catch (CharonException e) {
+                throw new UserStoreException("Error in provisioning delete operation");
+            }
+            return true;
 
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException(e);
@@ -561,44 +561,44 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
             if (!userStoreManager.isSCIMEnabled()) {
                 return true;
             }
-            
 
-        //TODO:set last update date
-        SCIMGroupHandler scimGroupHandler = new SCIMGroupHandler(userStoreManager.getTenantId());
 
-        String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
-        if(domainName == null){
-            domainName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
-        }
-        String roleNameWithDomain = domainName + CarbonConstants.DOMAIN_SEPARATOR + roleName;
-        String newRoleNameWithDomain = domainName + CarbonConstants.DOMAIN_SEPARATOR + newRoleName;
-        try {
-            scimGroupHandler.updateRoleName(roleNameWithDomain, newRoleNameWithDomain);
-            
-        } catch (IdentitySCIMException e) {
-            throw new UserStoreException("Error updating group information in SCIM Tables.", e);
-        }
-        //do provisioning
-        try {
-            //identify the scim consumer from the user name in carbon context and perform provisioning.
-            String consumerUserId = getSCIMConsumerId();
-            if (isProvisioningActionAuthorized(false, null) && isSCIMConsumerEnabled(consumerUserId)) {
-                //add old role name details.
-                Map<String, Object> additionalInformation = new HashMap<String, Object>();
-                additionalInformation.put(SCIMCommonConstants.IS_ROLE_NAME_CHANGED_ON_UPDATE, true);
-                additionalInformation.put(SCIMCommonConstants.OLD_GROUP_NAME, roleName);
+            //TODO:set last update date
+            SCIMGroupHandler scimGroupHandler = new SCIMGroupHandler(userStoreManager.getTenantId());
 
-                //create group with updated role name
-                Group group = new Group();
-                group.setDisplayName(newRoleName);
-
-                provisioningThreadPool.submit(getProvisioningHandlerFromGroup(
-                        consumerUserId, group, SCIMConstants.PUT, additionalInformation));
+            String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
+            if (domainName == null) {
+                domainName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
             }
-        } catch (CharonException e) {
-            throw new UserStoreException("Error in provisioning delete operation");
-        }
-        return true;
+            String roleNameWithDomain = domainName + CarbonConstants.DOMAIN_SEPARATOR + roleName;
+            String newRoleNameWithDomain = domainName + CarbonConstants.DOMAIN_SEPARATOR + newRoleName;
+            try {
+                scimGroupHandler.updateRoleName(roleNameWithDomain, newRoleNameWithDomain);
+
+            } catch (IdentitySCIMException e) {
+                throw new UserStoreException("Error updating group information in SCIM Tables.", e);
+            }
+            //do provisioning
+            try {
+                //identify the scim consumer from the user name in carbon context and perform provisioning.
+                String consumerUserId = getSCIMConsumerId();
+                if (isProvisioningActionAuthorized(false, null) && isSCIMConsumerEnabled(consumerUserId)) {
+                    //add old role name details.
+                    Map<String, Object> additionalInformation = new HashMap<String, Object>();
+                    additionalInformation.put(SCIMCommonConstants.IS_ROLE_NAME_CHANGED_ON_UPDATE, true);
+                    additionalInformation.put(SCIMCommonConstants.OLD_GROUP_NAME, roleName);
+
+                    //create group with updated role name
+                    Group group = new Group();
+                    group.setDisplayName(newRoleName);
+
+                    provisioningThreadPool.submit(getProvisioningHandlerFromGroup(
+                            consumerUserId, group, SCIMConstants.PUT, additionalInformation));
+                }
+            } catch (CharonException e) {
+                throw new UserStoreException("Error in provisioning delete operation");
+            }
+            return true;
 
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException(e);
@@ -622,36 +622,35 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
             if (!userStoreManager.isSCIMEnabled()) {
                 return true;
             }
-            
-        //TODO:set last update date
-        //do provisioning
-        try {
-            String consumerUserId = getSCIMConsumerId();
-            if (isProvisioningActionAuthorized(false, null) && isSCIMConsumerEnabled(consumerUserId)) {
-                //create group with updated new user list
-                Group group = new Group();
-                group.setDisplayName(roleName);
-                //get the user list of role..at this point, user list is updated through carbon UM
-                String[] userList = userStoreManager.getUserListOfRole(roleName);
-                if (userList != null && userList.length != 0) {
-                    for (String user : userList) {
-                        Map<String, Object> members = new HashMap<String, Object>();
-                        members.put(SCIMConstants.CommonSchemaConstants.DISPLAY, user);
-                        group.setMember(members);
+
+            //TODO:set last update date
+            //do provisioning
+            try {
+                String consumerUserId = getSCIMConsumerId();
+                if (isProvisioningActionAuthorized(false, null) && isSCIMConsumerEnabled(consumerUserId)) {
+                    //create group with updated new user list
+                    Group group = new Group();
+                    group.setDisplayName(roleName);
+                    //get the user list of role..at this point, user list is updated through carbon UM
+                    String[] userList = userStoreManager.getUserListOfRole(roleName);
+                    if (userList != null && userList.length != 0) {
+                        for (String user : userList) {
+                            Map<String, Object> members = new HashMap<String, Object>();
+                            members.put(SCIMConstants.CommonSchemaConstants.DISPLAY, user);
+                            group.setMember(members);
+                        }
                     }
+                    provisioningThreadPool.submit(getProvisioningHandlerFromGroup(
+                            consumerUserId, group, SCIMConstants.PUT, null));
                 }
-                provisioningThreadPool.submit(getProvisioningHandlerFromGroup(
-                        consumerUserId, group, SCIMConstants.PUT, null));
+            } catch (CharonException e) {
+                throw new UserStoreException("Error in provisioning delete operation");
             }
-        } catch (CharonException e) {
-            throw new UserStoreException("Error in provisioning delete operation");
-        }
-        return true;
+            return true;
 
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException(e);
         }
-
 
 
     }
@@ -704,12 +703,12 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         if (log.isDebugEnabled()) {
             log.debug("Provisioning consumer info: based on carbon context details:" +
-                      "user name: " + currentUser + ", tenant domain: " + tenantDomain);
+                    "user name: " + currentUser + ", tenant domain: " + tenantDomain);
         }
         //construct user id
         String consumerUserId = null;
         if (SCIMCommonUtils.getThreadLocalIsManagedThroughSCIMEP() != null &&
-            SCIMCommonUtils.getThreadLocalIsManagedThroughSCIMEP()) {
+                SCIMCommonUtils.getThreadLocalIsManagedThroughSCIMEP()) {
             consumerUserId = currentUser + "@" + tenantDomain;
         } else {
             consumerUserId = tenantDomain;
@@ -757,21 +756,22 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                 //else, check if it is a profile update req and user is updating his profile.
                 if (!authorized && isProfileUpdate) {
                     if (currentUser.equals(userNameOfProfile) &&
-                        authzManager.isUserAuthorized(currentUser, SCIMCommonConstants.PROVISIONING_USER_PERMISSION,
-                                                      SCIMCommonConstants.RESOURCE_TO_BE_AUTHORIZED)) {
+                            authzManager.isUserAuthorized(currentUser, SCIMCommonConstants.PROVISIONING_USER_PERMISSION,
+                                    SCIMCommonConstants.RESOURCE_TO_BE_AUTHORIZED)) {
                         return true;
                     }
                 }
             }
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException("Error in authorizing user: " + currentUser + tenantDomain
-                                         + " for provisioning.");
+                    + " for provisioning.");
         }
         return false;
     }
 
     /**
      * Provides an instance of the configured provisioning handler
+     *
      * @param consumerUserId
      * @param user
      * @param httpMethod
@@ -779,12 +779,12 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
      * @return
      */
     private ProvisioningHandler getProvisioningHandlerFromUser(String consumerUserId, User user, int httpMethod,
-                                                       Map<String, Object> additionalInformation){
+                                                               Map<String, Object> additionalInformation) {
         ProvisioningHandler provisioningHandler = null;
         try {
             Class<?> c = Class.forName(provisioningHandlerImplClass);
             Constructor<?> cons = c.getConstructor(String.class, User.class, int.class, Map.class);
-            provisioningHandler = (ProvisioningHandler) cons.newInstance(consumerUserId,user,httpMethod,additionalInformation);
+            provisioningHandler = (ProvisioningHandler) cons.newInstance(consumerUserId, user, httpMethod, additionalInformation);
 
         } catch (ClassNotFoundException e) {
             log.error("Cannot find class: " + provisioningHandlerImplClass);
@@ -802,13 +802,13 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
     }
 
     private ProvisioningHandler getProvisioningHandlerFromGroup(String consumerUserId, Group group, int httpMethod,
-                                                               Map<String, Object> additionalInformation){
+                                                                Map<String, Object> additionalInformation) {
         ProvisioningHandler provisioningHandler = null;
         try {
 
             Class<?> c = Class.forName(provisioningHandlerImplClass);
             Constructor<?> cons = c.getConstructor(String.class, Group.class, int.class, Map.class);
-            provisioningHandler = (ProvisioningHandler) cons.newInstance(consumerUserId,group,httpMethod,additionalInformation);
+            provisioningHandler = (ProvisioningHandler) cons.newInstance(consumerUserId, group, httpMethod, additionalInformation);
 
         } catch (ClassNotFoundException e) {
             log.error("Cannot find class: " + provisioningHandlerImplClass);

@@ -30,11 +30,11 @@ public class PropertyDTOComparator implements Comparator {
     @Override
     public int compare(Object o1, Object o2) {
 
-        PublisherPropertyDTO dto1 = (PublisherPropertyDTO)o1;
-        PublisherPropertyDTO dto2 = (PublisherPropertyDTO)o2;
-        if(dto1.getDisplayOrder() < dto2.getDisplayOrder()){
+        PublisherPropertyDTO dto1 = (PublisherPropertyDTO) o1;
+        PublisherPropertyDTO dto2 = (PublisherPropertyDTO) o2;
+        if (dto1.getDisplayOrder() < dto2.getDisplayOrder()) {
             return -1;
-        } else if(dto1.getDisplayOrder() == dto2.getDisplayOrder()){
+        } else if (dto1.getDisplayOrder() == dto2.getDisplayOrder()) {
             return 0;
         } else {
             return 1;

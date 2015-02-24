@@ -28,21 +28,21 @@ import org.wso2.carbon.utils.ConfigurationContextService;
 /**
  * @scr.component name="identity.relyingparty.component" immediate="true"
  * @scr.reference name="registry.service"
- *                interface="org.wso2.carbon.registry.core.service.RegistryService"
- *                cardinality="1..1" policy="dynamic" bind="setRegistryService"
- *                unbind="unsetRegistryService"
+ * interface="org.wso2.carbon.registry.core.service.RegistryService"
+ * cardinality="1..1" policy="dynamic" bind="setRegistryService"
+ * unbind="unsetRegistryService"
  * @scr.reference name="config.context.service"
- *                interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
- *                policy="dynamic" bind="setConfigurationContextService"
- *                unbind="unsetConfigurationContextService"
+ * interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
+ * policy="dynamic" bind="setConfigurationContextService"
+ * unbind="unsetConfigurationContextService"
  * @scr.reference name="user.realmservice.default"
- *                interface="org.wso2.carbon.user.core.service.RealmService" cardinality="1..1"
- *                policy="dynamic" bind="setRealmService" unbind="unsetRealmService"
+ * interface="org.wso2.carbon.user.core.service.RealmService" cardinality="1..1"
+ * policy="dynamic" bind="setRealmService" unbind="unsetRealmService"
  * @scr.reference name="configuration.context.service"
- *                interface="org.wso2.carbon.utils.ConfigurationContextService"
- *                cardinality="1..1" policy="dynamic"
- *                bind="setConfigurationContextService"
- *                unbind="unsetConfigurationContextService" 
+ * interface="org.wso2.carbon.utils.ConfigurationContextService"
+ * cardinality="1..1" policy="dynamic"
+ * bind="setConfigurationContextService"
+ * unbind="unsetConfigurationContextService"
  */
 public class IdentityRPServiceComponent {
 
@@ -51,21 +51,48 @@ public class IdentityRPServiceComponent {
     private static RegistryService registryService;
 
     private static RealmService realmService;
-    
+
     private static ConfigurationContextService configurationContextService;
-    
+
+    /**
+     *
+     */
+    public IdentityRPServiceComponent() {
+    }
+
     public static RegistryService getRegistryService() {
         return registryService;
+    }
+
+    /**
+     * @param registryService
+     */
+    protected void setRegistryService(RegistryService registryService) {
+        if (log.isDebugEnabled()) {
+            log.info("RegistryService set in Identity RP bundle");
+        }
+        IdentityRPServiceComponent.registryService = registryService;
     }
 
     public static RealmService getRealmService() {
         return realmService;
     }
 
-    /**
-     *
-     */
-    public IdentityRPServiceComponent() {
+    protected void setRealmService(RealmService realmService) {
+        if (log.isDebugEnabled()) {
+            log.info("Setting the Realm Service");
+        }
+        IdentityRPServiceComponent.realmService = realmService;
+    }
+
+    public static ConfigurationContextService getConfigurationContextService() {
+        return configurationContextService;
+    }
+
+    protected void setConfigurationContextService(ConfigurationContextService configurationContextService) {
+        log.debug("Receiving ConfigurationContext Service");
+        IdentityRPServiceComponent.configurationContextService = configurationContextService;
+
     }
 
     /**
@@ -77,7 +104,7 @@ public class IdentityRPServiceComponent {
         }
         try {
             ConfigurationContext configContext =
-                                                 configurationContextService.getServerConfigContext();
+                    configurationContextService.getServerConfigContext();
             RPDeploymentInterceptor.populateRampartConfig(configContext.getAxisConfiguration());
         } catch (Throwable e) {
             log.error("Error occured while updating Relying Party service", e);
@@ -96,28 +123,11 @@ public class IdentityRPServiceComponent {
     /**
      * @param registryService
      */
-    protected void setRegistryService(RegistryService registryService) {
-        if (log.isDebugEnabled()) {
-            log.info("RegistryService set in Identity RP bundle");
-        }
-        IdentityRPServiceComponent.registryService = registryService;
-    }
-
-    /**
-     * @param registryService
-     */
     protected void unsetRegistryService(RegistryService registryService) {
         if (log.isDebugEnabled()) {
             log.info("RegistryService unset in Identity RP bundle");
         }
         IdentityRPServiceComponent.registryService = null;
-    }
-
-    protected void setRealmService(RealmService realmService) {
-        if (log.isDebugEnabled()) {
-            log.info("Setting the Realm Service");
-        }
-        IdentityRPServiceComponent.realmService = realmService;
     }
 
     protected void unsetRealmService(RealmService realmService) {
@@ -126,20 +136,9 @@ public class IdentityRPServiceComponent {
         }
         IdentityRPServiceComponent.realmService = null;
     }
-    
 
-    protected void setConfigurationContextService(ConfigurationContextService configurationContextService){
-        log.debug("Receiving ConfigurationContext Service");
-        IdentityRPServiceComponent.configurationContextService = configurationContextService;
-
-    }
-
-    protected void unsetConfigurationContextService(ConfigurationContextService configurationContextService){
+    protected void unsetConfigurationContextService(ConfigurationContextService configurationContextService) {
         log.debug("Unsetting ConfigurationContext Service");
         setConfigurationContextService(null);
-    }
- 
-   public static ConfigurationContextService getConfigurationContextService() {
-        return configurationContextService;
     }
 }

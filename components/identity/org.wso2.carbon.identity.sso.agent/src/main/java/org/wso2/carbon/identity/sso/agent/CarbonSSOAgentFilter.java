@@ -43,9 +43,9 @@ public class CarbonSSOAgentFilter extends SSOAgentFilter {
                          FilterChain filterChain) throws IOException, ServletException {
 
         HttpServletRequest request = (HttpServletRequest) servletRequest;
-        SSOAgentConfig config = (SSOAgentConfig)request.getAttribute(
+        SSOAgentConfig config = (SSOAgentConfig) request.getAttribute(
                 SSOAgentConstants.CONFIG_BEAN_NAME);
-        if(config == null){
+        if (config == null) {
             config = new SSOAgentConfig();
         }
         String tenantDomain = (String) request.getAttribute("tenantDomain");
@@ -61,18 +61,18 @@ public class CarbonSSOAgentFilter extends SSOAgentFilter {
                 new SSOAgentCarbonX509Credential(tenantId, tenantDomain));
 
         String htmlPayload = null;
-        String htmlFilePath = (String)request.getAttribute(
+        String htmlFilePath = (String) request.getAttribute(
                 SSOAgentConstants.SSOAgentConfig.SAML2.POST_BINDING_REQUEST_HTML_FILE_PATH);
-        if(htmlFilePath != null && !htmlFilePath.isEmpty()){
+        if (htmlFilePath != null && !htmlFilePath.isEmpty()) {
             File requestPageFile = new File(htmlFilePath);
             Scanner scanner = null;
-            if(requestPageFile.exists() && requestPageFile.isFile()){
+            if (requestPageFile.exists() && requestPageFile.isFile()) {
                 try {
                     htmlPayload = new Scanner(htmlPayload).useDelimiter("\\Z").next();
                 } finally {
-                    if(scanner!= null){
+                    if (scanner != null) {
                         IOException ioException = scanner.ioException();
-                        if(ioException != null){
+                        if (ioException != null) {
                             LOGGER.log(Level.SEVERE,
                                     "Error occurred while reading file " + htmlFilePath +
                                             ". Will be using the default", ioException);

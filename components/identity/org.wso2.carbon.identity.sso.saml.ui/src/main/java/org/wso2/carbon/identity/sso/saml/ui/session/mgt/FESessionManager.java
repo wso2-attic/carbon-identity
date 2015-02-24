@@ -27,8 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class is used to maintain a session map at the SSO FE. This class is introduced
- *  to get rid of the session usage to hold the meta information of a incoming authentication
- *  request.  This class implements Singleton since there can be only one session manager.
+ * to get rid of the session usage to hold the meta information of a incoming authentication
+ * request.  This class implements Singleton since there can be only one session manager.
  */
 public class FESessionManager {
 
@@ -39,15 +39,19 @@ public class FESessionManager {
 
     public ConcurrentHashMap<String, FESessionBean> sessionMap;
 
-    static{
-        initialize();    
+    static {
+        initialize();
+    }
+
+    private FESessionManager() {
+        this.sessionMap = new ConcurrentHashMap<String, FESessionBean>();
     }
 
     /**
      * Initialize the FESessionManager class. Create the instances of SecureRandom and
      * MessageDigest and keep them as static references.
      */
-    private static void initialize(){
+    private static void initialize() {
         try {
             secureRandomInstance = SecureRandom.getInstance("SHA1PRNG");
             messageDigest = MessageDigest.getInstance("SHA-1");
@@ -57,12 +61,8 @@ public class FESessionManager {
         }
     }
 
-    private FESessionManager(){
-        this.sessionMap = new ConcurrentHashMap<String, FESessionBean>();
-    }
-
-    public static FESessionManager getInstance(){
-        if(sessionManager == null){
+    public static FESessionManager getInstance() {
+        if (sessionManager == null) {
             sessionManager = new FESessionManager();
         }
         return sessionManager;
@@ -70,11 +70,12 @@ public class FESessionManager {
 
     /**
      * Get the corresponding FESessionBean for a particular session id
+     *
      * @param sessionID session id
-     * @return  FESessionBean
+     * @return FESessionBean
      */
-    public FESessionBean getFESessionBean(String sessionID){
-        if(sessionMap.containsKey(sessionID)){
+    public FESessionBean getFESessionBean(String sessionID) {
+        if (sessionMap.containsKey(sessionID)) {
             return sessionMap.get(sessionID);
         }
         return null;
@@ -82,10 +83,11 @@ public class FESessionManager {
 
     /**
      * Add a new session bean object to the session map
+     *
      * @param sessionBean
      * @return created session id
      */
-    public String addNewSession(FESessionBean sessionBean){
+    public String addNewSession(FESessionBean sessionBean) {
         String sessionId = generateSessionId();
         sessionMap.put(sessionId, sessionBean);
         return sessionId;
@@ -93,32 +95,34 @@ public class FESessionManager {
 
     /**
      * Remove an existing session.
-     * @param sessionId session id                                     
+     *
+     * @param sessionId session id
      */
-    public void removeSession(String sessionId){
-        if(sessionMap.containsKey(sessionId)){
+    public void removeSession(String sessionId) {
+        if (sessionMap.containsKey(sessionId)) {
             sessionMap.remove(sessionId);
-        }
-        else{
+        } else {
             log.warn("The session bean with the ID : " + sessionId + "is not available in the session map");
         }
     }
 
     /**
      * Generate a session id to store the FE session beans
-     * @return  generated session id
+     *
+     * @return generated session id
      */
-    private String generateSessionId(){
+    private String generateSessionId() {
         //generate the random number
         String randomNum = new Integer(secureRandomInstance.nextInt()).toString();
         //get its digest
         byte[] result = messageDigest.digest(randomNum.getBytes());
-        return hexEncode(result);    
+        return hexEncode(result);
     }
 
     /**
      * The byte[] returned by MessageDigest does not have a nice
      * textual representation, so some form of encoding is usually performed.
+     *
      * @param digestValue digested bite array
      * @return Encoded string
      */

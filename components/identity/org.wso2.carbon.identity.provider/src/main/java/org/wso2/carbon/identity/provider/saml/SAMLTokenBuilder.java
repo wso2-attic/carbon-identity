@@ -34,7 +34,7 @@ public interface SAMLTokenBuilder {
             throws IdentityProviderException;
 
     void createSAMLAssertion(DateTime notAfter, DateTime notBefore,
-            String assertionId) throws IdentityProviderException;
+                             String assertionId) throws IdentityProviderException;
 
     void setSignature(String signatureAlgorithm, X509Credential cred)
             throws IdentityProviderException;

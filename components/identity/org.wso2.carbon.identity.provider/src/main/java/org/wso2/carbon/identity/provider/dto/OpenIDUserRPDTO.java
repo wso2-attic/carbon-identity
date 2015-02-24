@@ -17,87 +17,87 @@
 */
 package org.wso2.carbon.identity.provider.dto;
 
-import java.util.Date;
-
 import org.wso2.carbon.identity.core.model.OpenIDUserRPDO;
+
+import java.util.Date;
 
 public class OpenIDUserRPDTO {
 
-	private String defaultProfileName;
-	private String rpUrl;
+    private String defaultProfileName;
+    private String rpUrl;
     private String userName;
     private boolean trustedAlways;
     private int visitCount;
     private Date lastVisit;
     private String openID;
-    
-    public OpenIDUserRPDTO(){
-    	
-    }
-    
-    public OpenIDUserRPDTO(OpenIDUserRPDO rpdo){
-    	defaultProfileName = rpdo.getDefaultProfileName();
-    	rpUrl = rpdo.getRpUrl();
-    	userName = rpdo.getUserName();
-    	trustedAlways = rpdo.isTrustedAlways();
-    	visitCount = rpdo.getVisitCount();
-    	lastVisit = rpdo.getLastVisit();
-    	openID = null;
+
+    public OpenIDUserRPDTO() {
+
     }
 
-	public String getRpUrl() {
-	    return rpUrl;
+    public OpenIDUserRPDTO(OpenIDUserRPDO rpdo) {
+        defaultProfileName = rpdo.getDefaultProfileName();
+        rpUrl = rpdo.getRpUrl();
+        userName = rpdo.getUserName();
+        trustedAlways = rpdo.isTrustedAlways();
+        visitCount = rpdo.getVisitCount();
+        lastVisit = rpdo.getLastVisit();
+        openID = null;
     }
 
-	public void setRpUrl(String rpUrl) {
-	    this.rpUrl = rpUrl;
+    public String getRpUrl() {
+        return rpUrl;
     }
 
-	public String getDefaultProfileName() {
-		return defaultProfileName;
-	}
-
-	public void setDefaultProfileName(String defaultProfileName) {
-		this.defaultProfileName = defaultProfileName;
-	}
-
-	public String getUserName() {
-	    return userName;
+    public void setRpUrl(String rpUrl) {
+        this.rpUrl = rpUrl;
     }
 
-	public void setUserName(String userName) {
-	    this.userName = userName;
+    public String getDefaultProfileName() {
+        return defaultProfileName;
     }
 
-	public boolean isTrustedAlways() {
-		return trustedAlways;
-	}
-
-	public void setTrustedAlways(boolean isTrustedAlways) {
-		this.trustedAlways = isTrustedAlways;
-	}
-
-	public int getVisitCount() {
-		return visitCount;
-	}
-
-	public void setVisitCount(int visitCount) {
-		this.visitCount = visitCount;
+    public void setDefaultProfileName(String defaultProfileName) {
+        this.defaultProfileName = defaultProfileName;
     }
 
-	public Date getLastVisit() {
-	    return lastVisit;
+    public String getUserName() {
+        return userName;
     }
 
-	public void setLastVisit(Date lastVisit) {
-	    this.lastVisit = lastVisit;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
-	public String getOpenID() {
-	    return openID;
+    public boolean isTrustedAlways() {
+        return trustedAlways;
     }
 
-	public void setOpenID(String openID) {
-	    this.openID = openID;
+    public void setTrustedAlways(boolean isTrustedAlways) {
+        this.trustedAlways = isTrustedAlways;
+    }
+
+    public int getVisitCount() {
+        return visitCount;
+    }
+
+    public void setVisitCount(int visitCount) {
+        this.visitCount = visitCount;
+    }
+
+    public Date getLastVisit() {
+        return lastVisit;
+    }
+
+    public void setLastVisit(Date lastVisit) {
+        this.lastVisit = lastVisit;
+    }
+
+    public String getOpenID() {
+        return openID;
+    }
+
+    public void setOpenID(String openID) {
+        this.openID = openID;
     }
 }

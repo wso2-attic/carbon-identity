@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.application.authenticator.openid.exception;
 import javax.servlet.ServletException;
 
 /**
- *  This class is used for denote the exceptions thrown from the SSO agent module
+ * This class is used for denote the exceptions thrown from the SSO agent module
  */
 public class OpenIDException extends ServletException {
 

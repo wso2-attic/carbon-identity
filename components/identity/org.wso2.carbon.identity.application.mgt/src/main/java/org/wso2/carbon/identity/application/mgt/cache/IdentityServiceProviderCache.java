@@ -15,7 +15,6 @@ public class IdentityServiceProviderCache extends BaseCache<CacheKey, CacheEntry
     }
 
     /**
-     *
      * @return
      */
     public static IdentityServiceProviderCache getInstance() {

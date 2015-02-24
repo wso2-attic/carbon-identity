@@ -18,24 +18,24 @@ package org.wso2.carbon.identity.relyingparty.ui.openid;
 
 public class OpenIDAxAttribute {
 
-	private String attributeName;
-	private String namespace;
+    private String attributeName;
+    private String namespace;
 
-	/**
-	 * @param attributeName Name of the attribute - alias
-	 * @param namespace Namespace url corresponding to the provided attribute
-	 */
-	public OpenIDAxAttribute(String attributeName, String namespace) {
-		this.attributeName = attributeName;
-		this.namespace = namespace;
-	}
+    /**
+     * @param attributeName Name of the attribute - alias
+     * @param namespace     Namespace url corresponding to the provided attribute
+     */
+    public OpenIDAxAttribute(String attributeName, String namespace) {
+        this.attributeName = attributeName;
+        this.namespace = namespace;
+    }
 
-	public String getAttributeName() {
-		return attributeName;
-	}
+    public String getAttributeName() {
+        return attributeName;
+    }
 
-	public String getNamespace() {
-		return namespace;
-	}
+    public String getNamespace() {
+        return namespace;
+    }
 
 }

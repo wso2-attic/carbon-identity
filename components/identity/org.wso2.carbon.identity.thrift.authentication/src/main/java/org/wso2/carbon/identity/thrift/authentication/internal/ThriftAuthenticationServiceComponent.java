@@ -27,7 +27,9 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.identity.authentication.AuthenticationService;
-import org.wso2.carbon.identity.thrift.authentication.*;
+import org.wso2.carbon.identity.thrift.authentication.AuthenticatorServlet;
+import org.wso2.carbon.identity.thrift.authentication.TCPThriftAuthenticationService;
+import org.wso2.carbon.identity.thrift.authentication.ThriftAuthenticatorService;
 import org.wso2.carbon.identity.thrift.authentication.dao.DBThriftSessionDAO;
 import org.wso2.carbon.identity.thrift.authentication.dao.ThriftSessionDAO;
 import org.wso2.carbon.identity.thrift.authentication.internal.generatedCode.AuthenticatorService;
@@ -63,11 +65,16 @@ public class ThriftAuthenticationServiceComponent {
     private static Log log = LogFactory.getLog(ThriftAuthenticationServiceComponent.class);
 
     private static HttpService httpServiceInstance;
-    private AuthenticationService authenticationService;
     private static RealmService realmServiceInstance;
+    private AuthenticationService authenticationService;
     private ServiceRegistration thriftAuthenticationService;
     private ConfigurationContextService configurationContext;
     private TCPThriftAuthenticationService TCPThriftAuthenticationService;
+
+    public static int readPortOffset() {
+        return CarbonUtils.
+                getPortFromServerConfig(ThriftAuthenticationConstants.CARBON_CONFIG_PORT_OFFSET_NODE) + 1;
+    }
 
     protected void activate(ComponentContext compCtx) {
 
@@ -257,12 +264,6 @@ public class ThriftAuthenticationServiceComponent {
         TCPThriftAuthenticationService = new TCPThriftAuthenticationService(hostName, port, keyStore, keyStorePassword, clientTimeout, thriftAuthenticatorService);
         TCPThriftAuthenticationService.start();
 
-    }
-
-
-    public static int readPortOffset() {
-        return CarbonUtils.
-                getPortFromServerConfig(ThriftAuthenticationConstants.CARBON_CONFIG_PORT_OFFSET_NODE) + 1;
     }
 
 }

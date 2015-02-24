@@ -18,6 +18,19 @@
 
 package org.wso2.carbon.identity.application.common.util;
 
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.util.Base64;
+import org.apache.axiom.util.base64.Base64Utils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.claim.mgt.ClaimManagerHandler;
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.identity.application.common.model.*;
+import org.wso2.carbon.identity.application.common.persistence.JDBCPersistenceManager;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.namespace.QName;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.net.MalformedURLException;
@@ -25,11 +38,7 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
+import java.security.cert.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -39,34 +48,26 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import javax.xml.namespace.QName;
-
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.util.Base64;
-import org.apache.axiom.util.base64.Base64Utils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.claim.mgt.ClaimManagerHandler;
-import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
-import org.wso2.carbon.identity.application.common.model.CertData;
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
-import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
-import org.wso2.carbon.identity.application.common.model.InboundAuthenticationRequestConfig;
-import org.wso2.carbon.identity.application.common.model.Property;
-import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
-import org.wso2.carbon.identity.application.common.model.ServiceProvider;
-import org.wso2.carbon.identity.application.common.model.ThreadLocalProvisioningServiceProvider;
-import org.wso2.carbon.identity.application.common.persistence.JDBCPersistenceManager;
-
 public class IdentityApplicationManagementUtil {
 
     private static final Log log = LogFactory.getLog(IdentityApplicationManagementUtil.class);
     private static ThreadLocal<ThreadLocalProvisioningServiceProvider> threadLocalProvisioningServiceProvider = new ThreadLocal<ThreadLocalProvisioningServiceProvider>();
 
     /**
-     * 
+     *
+     */
+    public static void resetThreadLocalProvisioningServiceProvider() {
+        threadLocalProvisioningServiceProvider.remove();
+    }
+
+    /**
+     * @param serviceProvider
+     */
+    public static ThreadLocalProvisioningServiceProvider getThreadLocalProvisioningServiceProvider() {
+        return threadLocalProvisioningServiceProvider.get();
+    }
+
+    /**
      * @param serviceProviderName In-bound - or Just-in-Time provisioning service provider.
      */
     public static void setThreadLocalProvisioningServiceProvider(
@@ -75,23 +76,8 @@ public class IdentityApplicationManagementUtil {
     }
 
     /**
-     * 
-     */
-    public static void resetThreadLocalProvisioningServiceProvider() {
-        threadLocalProvisioningServiceProvider.remove();
-    }
-
-    /**
-     * 
-     * @param serviceProvider
-     */
-    public static ThreadLocalProvisioningServiceProvider getThreadLocalProvisioningServiceProvider() {
-        return threadLocalProvisioningServiceProvider.get();
-    }
-
-    /**
      * Validates an URI.
-     * 
+     *
      * @param uriString URI String
      * @return <code>true</code> if valid URI, <code>false</code> otherwise
      */
@@ -114,7 +100,7 @@ public class IdentityApplicationManagementUtil {
 
     /**
      * Utility method to close a database connection
-     * 
+     *
      * @param dbConnection Database <code>Connection</code> object
      */
     public static void closeConnection(Connection dbConnection) {
@@ -134,7 +120,7 @@ public class IdentityApplicationManagementUtil {
 
     /**
      * Utility method to rollback a database connection
-     * 
+     *
      * @param dbConnection Database <code>Connection</code> object
      */
     public static void rollBack(Connection dbConnection) {
@@ -153,13 +139,12 @@ public class IdentityApplicationManagementUtil {
     }
 
     /**
-     * 
      * @param o1
      * @param o2
      * @return
      */
     public static ProvisioningConnectorConfig[] concatArrays(ProvisioningConnectorConfig[] o1,
-            ProvisioningConnectorConfig[] o2) {
+                                                             ProvisioningConnectorConfig[] o2) {
         ProvisioningConnectorConfig[] ret = new ProvisioningConnectorConfig[o1.length + o2.length];
 
         System.arraycopy(o1, 0, ret, 0, o1.length);
@@ -169,7 +154,6 @@ public class IdentityApplicationManagementUtil {
     }
 
     /**
-     * 
      * @param o1
      * @param o2
      * @return
@@ -178,17 +162,16 @@ public class IdentityApplicationManagementUtil {
 
         Set<Property> properties = new HashSet<Property>(Arrays.asList(o1));
         properties.addAll(Arrays.asList(o2));
-        return  properties.toArray( new Property[properties.size()]);
+        return properties.toArray(new Property[properties.size()]);
     }
 
     /**
-     * 
      * @param o1
      * @param o2
      * @return
      */
     public static FederatedAuthenticatorConfig[] concatArrays(FederatedAuthenticatorConfig[] o1,
-            FederatedAuthenticatorConfig[] o2) {
+                                                              FederatedAuthenticatorConfig[] o2) {
         FederatedAuthenticatorConfig[] ret = new FederatedAuthenticatorConfig[o1.length + o2.length];
 
         System.arraycopy(o1, 0, ret, 0, o1.length);
@@ -199,7 +182,7 @@ public class IdentityApplicationManagementUtil {
 
     /**
      * Extract key store filename
-     * 
+     *
      * @param filePath File path of a key store
      * @return Key store file name
      */
@@ -228,7 +211,7 @@ public class IdentityApplicationManagementUtil {
 
     /**
      * Generate thumbprint of certificate
-     * 
+     *
      * @param encodedCert Base64 encoded certificate
      * @return Certificate thumbprint
      * @throws java.security.NoSuchAlgorithmException Unsupported hash algorithm
@@ -252,7 +235,7 @@ public class IdentityApplicationManagementUtil {
 
     /**
      * Generate thumbprint of certificate
-     * 
+     *
      * @param encodedCert Base64 encoded certificate
      * @return Decoded <code>Certificate</code>
      * @throws java.security.cert.CertificateException Error when decoding certificate
@@ -274,15 +257,15 @@ public class IdentityApplicationManagementUtil {
 
     /**
      * >>>>>>> .r201641 Helper method to hexify a byte array. TODO:need to verify the logic
-     * 
+     *
      * @param bytes
      * @return hexadecimal representation
      */
     public static String hexify(byte bytes[]) {
 
         if (bytes != null) {
-            char[] hexDigits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c',
-                    'd', 'e', 'f' };
+            char[] hexDigits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c',
+                    'd', 'e', 'f'};
             StringBuffer buf = new StringBuffer(bytes.length * 2);
             for (int i = 0; i < bytes.length; ++i) {
                 buf.append(hexDigits[(bytes[i] & 0xf0) >> 4]);
@@ -297,7 +280,6 @@ public class IdentityApplicationManagementUtil {
     }
 
     /**
-     * 
      * @param encodedCert
      * @return
      * @throws CertificateException
@@ -319,7 +301,6 @@ public class IdentityApplicationManagementUtil {
     }
 
     /**
-     * 
      * @param array
      * @return
      */
@@ -338,7 +319,6 @@ public class IdentityApplicationManagementUtil {
     }
 
     /**
-     * 
      * @param cert
      * @param formatter
      * @return
@@ -359,7 +339,6 @@ public class IdentityApplicationManagementUtil {
     }
 
     /**
-     * 
      * @return
      * @throws IdentityApplicationManagementException
      */
@@ -368,7 +347,6 @@ public class IdentityApplicationManagementUtil {
     }
 
     /**
-     * 
      * @param rs
      */
     public static void closeResultSet(ResultSet rs) {
@@ -394,7 +372,6 @@ public class IdentityApplicationManagementUtil {
     }
 
     /**
-     * 
      * @param outboundClaimDialect
      * @param inboundClaimValueMap
      * @param inboundClaimMapping
@@ -404,8 +381,8 @@ public class IdentityApplicationManagementUtil {
      * @throws IdentityApplicationManagementException
      */
     public static Map<ClaimMapping, List<String>> getMappedClaims(String outboundClaimDialect,
-            Map<String, String> inboundClaimValueMap, ClaimMapping[] inboundClaimMappings,
-            Map<ClaimMapping, List<String>> outboundClaimValueMappings, String tenantDomain)
+                                                                  Map<String, String> inboundClaimValueMap, ClaimMapping[] inboundClaimMappings,
+                                                                  Map<ClaimMapping, List<String>> outboundClaimValueMappings, String tenantDomain)
             throws IdentityApplicationManagementException {
 
         try {
@@ -478,7 +455,7 @@ public class IdentityApplicationManagementUtil {
             }
 
             for (Iterator<Entry<String, String>> iterator = claimMap.entrySet().iterator(); iterator
-                    .hasNext();) {
+                    .hasNext(); ) {
                 Entry<String, String> entry = iterator.next();
 
                 String inboundClaimUri = entry.getKey();
@@ -493,7 +470,7 @@ public class IdentityApplicationManagementUtil {
                 if (claimValue != null) {
                     outboundClaimValueMappings.put(
                             ClaimMapping.build(inboundClaimUri, outboundClaimUri, null, false),
-                            Arrays.asList(new String[] { claimValue }));
+                            Arrays.asList(new String[]{claimValue}));
                 }
             }
 
@@ -506,7 +483,6 @@ public class IdentityApplicationManagementUtil {
     }
 
     /**
-     * 
      * @param outboundClaimDialect
      * @param inboundClaimValueMap
      * @param inboundClaimMappingDialect
@@ -515,8 +491,8 @@ public class IdentityApplicationManagementUtil {
      * @throws IdentityApplicationManagementException
      */
     public static Map<ClaimMapping, List<String>> getMappedClaims(String outboundClaimDialect,
-            Map<String, String> inboundClaimValueMap, String inboundClaimMappingDialect,
-            Map<ClaimMapping, List<String>> outboundClaimValueMappings, String tenantDomain)
+                                                                  Map<String, String> inboundClaimValueMap, String inboundClaimMappingDialect,
+                                                                  Map<ClaimMapping, List<String>> outboundClaimValueMappings, String tenantDomain)
             throws IdentityApplicationManagementException {
 
         // we have in-bound claim dialect and out-bound claim dialect. we do not have an in-bound
@@ -566,7 +542,7 @@ public class IdentityApplicationManagementUtil {
                 claimMap = new HashMap<String, String>();
 
                 for (Iterator<Entry<String, String>> iterator = inboundToCarbonClaimMaping
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, String> entry = iterator.next();
                     String outboundClaim = outBoundToCarbonClaimMappping.get(entry.getValue());
                     if (outboundClaim != null) {
@@ -582,7 +558,7 @@ public class IdentityApplicationManagementUtil {
             // when we do not defined the claim mapping for out-bound provisioning we iterate
             // through the in-bound provisioning claim map.
             for (Iterator<Entry<String, String>> iterator = claimMap.entrySet().iterator(); iterator
-                    .hasNext();) {
+                    .hasNext(); ) {
                 Entry<String, String> entry = iterator.next();
                 String outboundClaimUri = entry.getValue();
                 String inboundClaimUri = entry.getKey();
@@ -596,7 +572,7 @@ public class IdentityApplicationManagementUtil {
                 if (claimValue != null) {
                     outboundClaimValueMappings.put(
                             ClaimMapping.build(inboundClaimUri, outboundClaimUri, null, false),
-                            Arrays.asList(new String[] { claimValue }));
+                            Arrays.asList(new String[]{claimValue}));
                 }
             }
 
@@ -609,7 +585,6 @@ public class IdentityApplicationManagementUtil {
     }
 
     /**
-     * 
      * @param outboundClaimMapping
      * @param inboundClaimValueMap
      * @param inboundClaimMapping
@@ -639,7 +614,7 @@ public class IdentityApplicationManagementUtil {
                     for (ClaimMapping mapping : outboundClaimMappings) {
                         if (mapping.getDefaultValue() != null) {
                             outboundClaimValueMappings.put(mapping,
-                                    Arrays.asList(new String[] { mapping.getDefaultValue() }));
+                                    Arrays.asList(new String[]{mapping.getDefaultValue()}));
                         }
                     }
                 }
@@ -691,7 +666,7 @@ public class IdentityApplicationManagementUtil {
 
             // we need to have everything in the out-bound claim dialect in the claimMap.
             for (Iterator<Entry<String, String>> iterator = outBoundToCarbonClaimMappping
-                    .entrySet().iterator(); iterator.hasNext();) {
+                    .entrySet().iterator(); iterator.hasNext(); ) {
                 Entry<String, String> entry = iterator.next();
 
                 String localClaimUri = entry.getValue();
@@ -706,7 +681,7 @@ public class IdentityApplicationManagementUtil {
             }
 
             for (Iterator<Entry<String, String>> iterator = claimMap.entrySet().iterator(); iterator
-                    .hasNext();) {
+                    .hasNext(); ) {
 
                 Entry<String, String> entry = iterator.next();
                 String outboundClaimUri = entry.getKey();
@@ -715,13 +690,13 @@ public class IdentityApplicationManagementUtil {
                 if (inboundClaimUri != null && inboundClaimValueMap.get(inboundClaimUri) != null) {
                     outboundClaimValueMappings.put(ClaimMapping.build(inboundClaimUri,
                             outboundClaimUri, outboundClaimDefaultValues.get(outboundClaimUri),
-                            false), Arrays.asList(new String[] { inboundClaimValueMap
-                            .get(inboundClaimUri) }));
+                            false), Arrays.asList(new String[]{inboundClaimValueMap
+                            .get(inboundClaimUri)}));
                 } else {
                     outboundClaimValueMappings.put(ClaimMapping.build(inboundClaimUri,
                             outboundClaimUri, outboundClaimDefaultValues.get(outboundClaimUri),
-                            false), Arrays.asList(new String[] { outboundClaimDefaultValues
-                            .get(outboundClaimUri) }));
+                            false), Arrays.asList(new String[]{outboundClaimDefaultValues
+                            .get(outboundClaimUri)}));
                 }
             }
 
@@ -734,7 +709,6 @@ public class IdentityApplicationManagementUtil {
     }
 
     /**
-     * 
      * @param outboundClaimMapping
      * @param inboundClaimValueMap
      * @param inboundClaimMappingDialect
@@ -760,7 +734,7 @@ public class IdentityApplicationManagementUtil {
                     for (ClaimMapping mapping : outboundClaimMappings) {
                         if (mapping.getDefaultValue() != null) {
                             outboundClaimValueMappings.put(mapping,
-                                    Arrays.asList(new String[] { mapping.getDefaultValue() }));
+                                    Arrays.asList(new String[]{mapping.getDefaultValue()}));
                         }
                     }
                 }
@@ -813,7 +787,7 @@ public class IdentityApplicationManagementUtil {
             }
 
             for (Iterator<Entry<String, String>> iterator = claimMap.entrySet().iterator(); iterator
-                    .hasNext();) {
+                    .hasNext(); ) {
                 Entry<String, String> entry = iterator.next();
                 String outboundClaimUri = entry.getKey();
                 String inboundClaimUri = entry.getValue();
@@ -821,13 +795,13 @@ public class IdentityApplicationManagementUtil {
                 if (inboundClaimUri != null && inboundClaimValueMap.get(inboundClaimUri) != null) {
                     outboundClaimValueMappings.put(ClaimMapping.build(inboundClaimUri,
                             outboundClaimUri, outboundClaimDefaultValues.get(outboundClaimUri),
-                            false), Arrays.asList(new String[] { inboundClaimValueMap
-                            .get(inboundClaimUri) }));
+                            false), Arrays.asList(new String[]{inboundClaimValueMap
+                            .get(inboundClaimUri)}));
                 } else {
                     outboundClaimValueMappings.put(ClaimMapping.build(inboundClaimUri,
                             outboundClaimUri, outboundClaimDefaultValues.get(outboundClaimUri),
-                            false), Arrays.asList(new String[] { outboundClaimDefaultValues
-                            .get(outboundClaimUri) }));
+                            false), Arrays.asList(new String[]{outboundClaimDefaultValues
+                            .get(outboundClaimUri)}));
                 }
             }
 
@@ -840,7 +814,6 @@ public class IdentityApplicationManagementUtil {
     }
 
     /**
-     * 
      * @param configElem
      * @return
      */
@@ -852,7 +825,7 @@ public class IdentityApplicationManagementUtil {
         if (propsElem != null) {
             Iterator propItr = propsElem
                     .getChildrenWithLocalName(IdentityApplicationConstants.ConfigElements.PROPERTY);
-            for (; propItr.hasNext();) {
+            for (; propItr.hasNext(); ) {
                 OMElement propElem = (OMElement) propItr.next();
                 String propName = propElem.getAttributeValue(
                         new QName(IdentityApplicationConstants.ConfigElements.ATTR_NAME)).trim();
@@ -867,7 +840,6 @@ public class IdentityApplicationManagementUtil {
     }
 
     /**
-     * 
      * @param localPart
      * @return
      */
@@ -877,7 +849,6 @@ public class IdentityApplicationManagementUtil {
     }
 
     /**
-     * 
      * @param federatedAuthenticators
      * @param authenticatorName
      * @return
@@ -894,7 +865,6 @@ public class IdentityApplicationManagementUtil {
     }
 
     /**
-     * 
      * @param provisioningConnectors
      * @param connectorType
      * @return
@@ -930,9 +900,9 @@ public class IdentityApplicationManagementUtil {
 
         if (serviceProvider.getInboundAuthenticationConfig() != null
                 && serviceProvider.getInboundAuthenticationConfig()
-                        .getInboundAuthenticationRequestConfigs() != null
+                .getInboundAuthenticationRequestConfigs() != null
                 && serviceProvider.getInboundAuthenticationConfig()
-                        .getInboundAuthenticationRequestConfigs().length > 0) {
+                .getInboundAuthenticationRequestConfigs().length > 0) {
 
             InboundAuthenticationRequestConfig[] authReqConfigs = serviceProvider
                     .getInboundAuthenticationConfig().getInboundAuthenticationRequestConfigs();
@@ -985,7 +955,6 @@ public class IdentityApplicationManagementUtil {
     }
 
     /**
-     * 
      * @param key
      * @param value
      * @return

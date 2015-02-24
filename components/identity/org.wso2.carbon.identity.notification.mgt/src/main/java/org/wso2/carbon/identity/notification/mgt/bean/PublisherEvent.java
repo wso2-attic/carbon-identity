@@ -39,17 +39,17 @@ public class PublisherEvent {
      */
     private Properties eventProperties;
 
-    public Properties getEventProperties() {
-        return eventProperties;
-    }
-
-    public PublisherEvent(String eventName) throws NotificationManagementException{
-        if(StringUtils.isEmpty(eventName)){
+    public PublisherEvent(String eventName) throws NotificationManagementException {
+        if (StringUtils.isEmpty(eventName)) {
             throw new NotificationManagementException("Cannot build Publisher Event without a valid event name");
         }
         this.eventName = eventName;
         eventProperties = new Properties();
 
+    }
+
+    public Properties getEventProperties() {
+        return eventProperties;
     }
 
     public String getEventName() {

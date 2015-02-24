@@ -32,7 +32,7 @@ public class EntitlementServiceStubFactory extends BasePoolableObjectFactory {
     private HttpTransportProperties.Authenticator authenticator;
 
     public EntitlementServiceStubFactory(ConfigurationContext configurationContext,
-            String targetEndpoint, HttpTransportProperties.Authenticator authenticator) {
+                                         String targetEndpoint, HttpTransportProperties.Authenticator authenticator) {
         this.configurationContext = configurationContext;
         this.targetEndpoint = targetEndpoint;
         this.authenticator = authenticator;
@@ -41,7 +41,7 @@ public class EntitlementServiceStubFactory extends BasePoolableObjectFactory {
     @Override
     public Object makeObject() throws Exception {
         EntitlementServiceStub stub = new EntitlementServiceStub(configurationContext,
-                                                                 targetEndpoint);
+                targetEndpoint);
         ServiceClient client = stub._getServiceClient();
         Options options = client.getOptions();
         options.setManageSession(true);

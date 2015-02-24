@@ -38,12 +38,12 @@ public class SCIMProvisioningConfigManager {
         return configManager;
     }
 
-    public static void setSCIMConfig(SCIMConfig scimConfiguration) {
-        scimConfig = scimConfiguration;
-    }
-
     public static SCIMConfig getSCIMConfig() {
         return scimConfig;
+    }
+
+    public static void setSCIMConfig(SCIMConfig scimConfiguration) {
+        scimConfig = scimConfiguration;
     }
 
     public static boolean isConsumerRegistered(String consumerName) {
@@ -63,7 +63,7 @@ public class SCIMProvisioningConfigManager {
             logger.error(e.getMessage());
             return false;
         }
-        
+
     }
 
     public static SCIMConsumer getSCIMConsumerConfig(String consumerName)
@@ -80,20 +80,20 @@ public class SCIMProvisioningConfigManager {
                 SCIMProvider currentProvider = new SCIMProvider();
                 currentProvider.setId(scimProvider.getProviderId());
                 currentProvider.setProperty(SCIMConfigConstants.ELEMENT_NAME_USERNAME,
-                                            scimProvider.getUserName());
+                        scimProvider.getUserName());
                 currentProvider.setProperty(SCIMConfigConstants.ELEMENT_NAME_PASSWORD,
-                                            scimProvider.getPassword());
+                        scimProvider.getPassword());
                 currentProvider.setProperty(SCIMConfigConstants.ELEMENT_NAME_USER_ENDPOINT,
-                                            scimProvider.getUserEPURL());
+                        scimProvider.getUserEPURL());
                 currentProvider.setProperty(SCIMConfigConstants.ELEMENT_NAME_GROUP_ENDPOINT,
-                                            scimProvider.getGroupEPURL());
+                        scimProvider.getGroupEPURL());
                 scimProviderMap.put(scimProvider.getProviderId(), currentProvider);
             }
             scimConsumer.setScimProviders(scimProviderMap);
         } else {
             //throw error message.
             throw new IdentitySCIMException("No SCIM providers registered for the given consumer id: "
-                                            + consumerName);
+                    + consumerName);
         }
         return scimConsumer;
     }

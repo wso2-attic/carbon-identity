@@ -37,7 +37,7 @@ public class RahasUtil {
                                                         int keyComputation,
                                                         String proofKeyType,
                                                         boolean addRequestedAttachedRef,
-                                                        boolean addRequestedUnattachedRef) throws Exception{
+                                                        boolean addRequestedUnattachedRef) throws Exception {
 
         if (cryptoImpl == null || "".equals(cryptoImpl)) {
             throw new Exception("Crypto impl missing");
@@ -46,13 +46,13 @@ public class RahasUtil {
         OMFactory fac = OMAbstractFactory.getOMFactory();
         OMElement paramElem = fac.createOMElement(new QName("parameter"), null);
         paramElem.addAttribute(fac.createOMAttribute("name",
-                                                     null,
-                                                     SCTIssuerConfig.SCT_ISSUER_CONFIG.
-                                                             getLocalPart()));
+                null,
+                SCTIssuerConfig.SCT_ISSUER_CONFIG.
+                        getLocalPart()));
 
         paramElem.addAttribute(fac.createOMAttribute("type",
-                                                     null, new Integer(Parameter.OM_PARAMETER).
-                                                        toString()));
+                null, new Integer(Parameter.OM_PARAMETER).
+                        toString()));
 
         OMElement elem = fac.createOMElement(
                 SCTIssuerConfig.SCT_ISSUER_CONFIG, paramElem);
@@ -62,7 +62,7 @@ public class RahasUtil {
         OMElement cryptoElem = fac.createOMElement(
                 AbstractIssuerConfig.CRYPTO, cryptoPropElem);
         cryptoElem.addAttribute(fac.createOMAttribute("provider", null,
-                                                      cryptoImpl));
+                cryptoImpl));
 
         Enumeration keysEnum = cryptoProperties.keys();
         while (keysEnum.hasMoreElements()) {
@@ -73,8 +73,8 @@ public class RahasUtil {
         }
 
         if (!(keyComputation == AbstractIssuerConfig.KeyComputation.KEY_COMP_PROVIDE_ENT ||
-              keyComputation == AbstractIssuerConfig.KeyComputation.KEY_COMP_USE_OWN_KEY ||
-              keyComputation == AbstractIssuerConfig.KeyComputation.KEY_COMP_USE_REQ_ENT)) {
+                keyComputation == AbstractIssuerConfig.KeyComputation.KEY_COMP_USE_OWN_KEY ||
+                keyComputation == AbstractIssuerConfig.KeyComputation.KEY_COMP_USE_REQ_ENT)) {
 
             keyComputation = AbstractIssuerConfig.KeyComputation.KEY_COMP_USE_OWN_KEY;
         }
@@ -86,7 +86,7 @@ public class RahasUtil {
         if (proofKeyType == null || "".equals(proofKeyType)) {
             proofKeyType = TokenIssuerUtil.BINARY_SECRET;
         } else if (!(TokenIssuerUtil.BINARY_SECRET.equals(proofKeyType)) ||
-                   TokenIssuerUtil.ENCRYPTED_KEY.equals(proofKeyType)) {
+                TokenIssuerUtil.ENCRYPTED_KEY.equals(proofKeyType)) {
             throw new Exception("Invalid proof token type configuration : " + proofKeyType);
         }
 
@@ -114,15 +114,15 @@ public class RahasUtil {
         OMFactory fac = OMAbstractFactory.getOMFactory();
         OMElement paramElem = fac.createOMElement(new QName("parameter"), null);
         paramElem.addAttribute(fac.createOMAttribute("name",
-                                                     null,
-                                                     TokenCancelerConfig.TOKEN_CANCELER_CONFIG.
-                                                             getLocalPart()));
+                null,
+                TokenCancelerConfig.TOKEN_CANCELER_CONFIG.
+                        getLocalPart()));
         paramElem.addAttribute(fac.createOMAttribute("type",
-                                                        null, new Integer(Parameter.OM_PARAMETER).
-                                                        toString()));
+                null, new Integer(Parameter.OM_PARAMETER).
+                        toString()));
 
         fac.createOMElement(TokenCancelerConfig.TOKEN_CANCELER_CONFIG,
-                            paramElem);
+                paramElem);
         Parameter param = new Parameter();
         param.setName(TokenCancelerConfig.TOKEN_CANCELER_CONFIG.getLocalPart());
         param.setParameterElement(paramElem);

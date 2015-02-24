@@ -33,7 +33,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class SCIMProviderDAO {
 
@@ -76,9 +75,9 @@ public class SCIMProviderDAO {
             log.error("Error when executing the SQL : " + SQLQueries.GET_ALL_PROVIDERS_SQL);
             log.error(e.getMessage(), e);
             throw new IdentitySCIMException("Error when reading the SCIM Providers information from " +
-                                            "the persistence store.");
+                    "the persistence store.");
         } catch (CryptoException e) {
-             String errorMsg = "Error in decrypting the password.";
+            String errorMsg = "Error in decrypting the password.";
             log.error(errorMsg, e);
             throw new IdentitySCIMException(errorMsg, e);
         } finally {
@@ -122,7 +121,7 @@ public class SCIMProviderDAO {
             log.error("Error when executing the SQL : " + SQLQueries.GET_PROVIDER_SQL);
             log.error(e.getMessage(), e);
             throw new IdentitySCIMException("Error when reading the SCIM Provider information from " +
-                                            "the persistence store.");
+                    "the persistence store.");
         } catch (CryptoException e) {
             String errorMsg = "Error in decrypting the password.";
             log.error(errorMsg, e);
@@ -297,7 +296,7 @@ public class SCIMProviderDAO {
             log.error("Error when executing the SQL : " + SQLQueries.CHECK_EXISTING_PROVIDER_SQL);
             log.error(e.getMessage(), e);
             throw new IdentitySCIMException("Error when reading provider information from " +
-                                            "the persistence store.");
+                    "the persistence store.");
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }
@@ -328,7 +327,7 @@ public class SCIMProviderDAO {
             log.error("Error when executing the SQL : " + SQLQueries.CHECK_EXISTING_CONSUMER_SQL);
             log.error(e.getMessage(), e);
             throw new IdentitySCIMException("Error when reading provider information from " +
-                                            "the persistence store.");
+                    "the persistence store.");
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }
@@ -358,7 +357,7 @@ public class SCIMProviderDAO {
             log.error("Error when executing the SQL : " + SQLQueries.CHECK_FIRST_STARTUP_SQL);
             log.error(e.getMessage(), e);
             throw new IdentitySCIMException("Error when reading provider information from " +
-                                            "the persistence store.");
+                    "the persistence store.");
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }

@@ -17,9 +17,6 @@
 */
 package org.wso2.carbon.sts.ui;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.http.HttpSession;
-
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
@@ -31,16 +28,19 @@ import org.wso2.carbon.sts.stub.service.STSAdminServiceStub;
 import org.wso2.carbon.sts.stub.service.util.xsd.TrustedServiceData;
 import org.wso2.carbon.ui.CarbonUIUtil;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.http.HttpSession;
+
 public class STSUtil {
 
+    private static final Log log = LogFactory.getLog(STSUtil.class);
     private STSAdminServiceStub stub;
     private String serviceEndPoint;
     private ConfigurationContext configContext = null;
-    private static final Log log = LogFactory.getLog(STSUtil.class);
 
     /**
      * Initializes STSUtil
-     * 
+     *
      * @param cookie Cookie string
      * @throws Exception
      */
@@ -71,7 +71,7 @@ public class STSUtil {
 
     /**
      * Returns the key aliases from the primary key store.
-     * 
+     *
      * @return A set of key aliases from the primary key store.
      * @throws Exception
      */
@@ -86,7 +86,7 @@ public class STSUtil {
 
     /**
      * Returns services already added as trusted services.
-     * 
+     *
      * @return A set of services already added as trusted services.
      * @throws Exception
      */
@@ -101,7 +101,7 @@ public class STSUtil {
 
     /**
      * Adds an end point URL of a service as a trusted
-     * 
+     *
      * @param endpoint The end point URL of the service
      * @param keyAlias Key alias used from the primary key store.
      * @throws Exception
@@ -118,7 +118,6 @@ public class STSUtil {
     }
 
     /**
-     * 
      * @param endpoint
      * @throws Exception
      */

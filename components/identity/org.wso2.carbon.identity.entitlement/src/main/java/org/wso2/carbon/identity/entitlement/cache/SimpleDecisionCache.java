@@ -25,32 +25,32 @@ import org.wso2.carbon.identity.entitlement.PDPConstants;
 /**
  * Simple Decision Cache
  */
-public class SimpleDecisionCache extends EntitlementBaseCache<IdentityCacheKey, String>{
+public class SimpleDecisionCache extends EntitlementBaseCache<IdentityCacheKey, String> {
 
     public SimpleDecisionCache(int timeOut) {
-    	super(CachingConstants.LOCAL_CACHE_PREFIX + PDPConstants.PDP_SIMPLE_DECISION_CACHE, timeOut);
+        super(CachingConstants.LOCAL_CACHE_PREFIX + PDPConstants.PDP_SIMPLE_DECISION_CACHE, timeOut);
     }
 
 
-    public void addToCache(String key, String decision){
-        
+    public void addToCache(String key, String decision) {
+
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         IdentityCacheKey cacheKey = new IdentityCacheKey(tenantId, key);
         addToCache(cacheKey, decision);
     }
 
-    public String getFromCache(String key){
+    public String getFromCache(String key) {
 
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         IdentityCacheKey cacheKey = new IdentityCacheKey(tenantId, key);
         Object entry = getValueFromCache(cacheKey);
-        if(entry != null){
+        if (entry != null) {
             return (String) entry;
         }
         return null;
     }
 
-    public void clearCache(){
+    public void clearCache() {
         clear();
     }
 

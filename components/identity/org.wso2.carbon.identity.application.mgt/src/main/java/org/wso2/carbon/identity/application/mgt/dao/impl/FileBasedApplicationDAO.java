@@ -1,12 +1,5 @@
 package org.wso2.carbon.identity.application.mgt.dao.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ApplicationBasicInfo;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
@@ -14,6 +7,9 @@ import org.wso2.carbon.identity.application.common.model.InboundAuthenticationRe
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.dao.ApplicationDAO;
 import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementServiceComponent;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 public class FileBasedApplicationDAO implements ApplicationDAO {
 
@@ -38,7 +34,7 @@ public class FileBasedApplicationDAO implements ApplicationDAO {
         List<ApplicationBasicInfo> appInfo = new ArrayList<ApplicationBasicInfo>();
 
         for (Iterator<Entry<String, ServiceProvider>> iterator = spMap.entrySet().iterator(); iterator
-                .hasNext();) {
+                .hasNext(); ) {
             Entry<String, ServiceProvider> entry = iterator.next();
             ApplicationBasicInfo basicInfo = new ApplicationBasicInfo();
             basicInfo.setApplicationName(entry.getValue().getApplicationName());
@@ -70,7 +66,7 @@ public class FileBasedApplicationDAO implements ApplicationDAO {
                 .getFileBasedSPs();
 
         for (Iterator<Entry<String, ServiceProvider>> iterator = spMap.entrySet().iterator(); iterator
-                .hasNext();) {
+                .hasNext(); ) {
             Entry<String, ServiceProvider> entry = iterator.next();
 
             if (entry.getValue().getApplicationID() == applicationID) {
@@ -84,13 +80,13 @@ public class FileBasedApplicationDAO implements ApplicationDAO {
 
     @Override
     public String getServiceProviderNameByClientId(String clientId, String clientType,
-            String tenantDomain) throws IdentityApplicationManagementException {
+                                                   String tenantDomain) throws IdentityApplicationManagementException {
 
         Map<String, ServiceProvider> spMap = ApplicationManagementServiceComponent
                 .getFileBasedSPs();
 
         for (Iterator<Entry<String, ServiceProvider>> iterator = spMap.entrySet().iterator(); iterator
-                .hasNext();) {
+                .hasNext(); ) {
             Entry<String, ServiceProvider> entry = iterator.next();
             if (entry.getValue().getInboundAuthenticationConfig() != null) {
                 InboundAuthenticationRequestConfig[] authRequestConfigs = entry.getValue()
@@ -113,7 +109,7 @@ public class FileBasedApplicationDAO implements ApplicationDAO {
 
     @Override
     public Map<String, String> getServiceProviderToLocalIdPClaimMapping(String serviceProviderName,
-            String tenantDomain) throws IdentityApplicationManagementException {
+                                                                        String tenantDomain) throws IdentityApplicationManagementException {
 
         ServiceProvider serviceProvider = ApplicationManagementServiceComponent.getFileBasedSPs()
                 .get(serviceProviderName);
@@ -144,7 +140,7 @@ public class FileBasedApplicationDAO implements ApplicationDAO {
 
     @Override
     public Map<String, String> getLocalIdPToServiceProviderClaimMapping(String serviceProviderName,
-            String tenantDomain) throws IdentityApplicationManagementException {
+                                                                        String tenantDomain) throws IdentityApplicationManagementException {
         ServiceProvider serviceProvider = ApplicationManagementServiceComponent.getFileBasedSPs()
                 .get(serviceProviderName);
         Map<String, String> claimMap = new HashMap<String, String>();
@@ -173,7 +169,7 @@ public class FileBasedApplicationDAO implements ApplicationDAO {
 
     @Override
     public List<String> getAllRequestedClaimsByServiceProvider(String serviceProviderName,
-            String tenantDomain) throws IdentityApplicationManagementException {
+                                                               String tenantDomain) throws IdentityApplicationManagementException {
         ServiceProvider serviceProvider = ApplicationManagementServiceComponent.getFileBasedSPs()
                 .get(serviceProviderName);
 

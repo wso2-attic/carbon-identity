@@ -18,180 +18,162 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.config.model;
 
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
-
 /**
- * Holds the login page and the authenticator objects 
+ * Holds the login page and the authenticator objects
  * of a particular factor
- *
  */
 public class StepConfig implements Serializable {
-	
-	private static final long serialVersionUID = 9139242244264058990L;
-	
-	private int order;
-	private String loginPage;
-	private String authenticatedUser;
-	private boolean subjectIdentifierStep;
-	private boolean subjectAttributeStep;
-	private Map<ClaimMapping, String> authenticatedUserAttributes = new HashMap<ClaimMapping, String>();
-	private String authenticatedIdP;
-	private AuthenticatorConfig authenticatedAutenticator;
-	private List<AuthenticatorConfig> authenticatorList = new ArrayList<AuthenticatorConfig>();
-	private List<String> authenticatorMappings = new ArrayList<String>();
-	
-	private boolean completed;
-	private boolean multiOption;
-	private boolean retrying;
 
-	public StepConfig() {}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public String getLoginPage() {
-		return loginPage;
-	}
-	
-	/**
-	 * 
-	 * @param loginPage
-	 */
-	public void setLoginPage(String loginPage) {
-		this.loginPage = loginPage;
-	}
+    private static final long serialVersionUID = 9139242244264058990L;
 
-	/**
-	 * 
-	 * @return
-	 */
-	public List<String> getAuthenticatorMappings() {
-		return authenticatorMappings;
-	}
+    private int order;
+    private String loginPage;
+    private String authenticatedUser;
+    private boolean subjectIdentifierStep;
+    private boolean subjectAttributeStep;
+    private Map<ClaimMapping, String> authenticatedUserAttributes = new HashMap<ClaimMapping, String>();
+    private String authenticatedIdP;
+    private AuthenticatorConfig authenticatedAutenticator;
+    private List<AuthenticatorConfig> authenticatorList = new ArrayList<AuthenticatorConfig>();
+    private List<String> authenticatorMappings = new ArrayList<String>();
 
-	/**
-	 * 
-	 * @param authenticatorMappings
-	 */
-	public void setAuthenticatorMappings(List<String> authenticatorMappings) {
-		this.authenticatorMappings = authenticatorMappings;
-	}
+    private boolean completed;
+    private boolean multiOption;
+    private boolean retrying;
 
-	/**
-	 * 
-	 * @return
-	 */
-	public int getOrder() {
-		return order;
-	}
+    public StepConfig() {
+    }
 
-	/**
-	 * 
-	 * @param order
-	 */
-	public void setOrder(int order) {
-		this.order = order;
-	}
+    /**
+     * @return
+     */
+    public String getLoginPage() {
+        return loginPage;
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public List<AuthenticatorConfig> getAuthenticatorList() {
-		return authenticatorList;
-	}
+    /**
+     * @param loginPage
+     */
+    public void setLoginPage(String loginPage) {
+        this.loginPage = loginPage;
+    }
 
-	/**
-	 * 
-	 * @param authenticatorList
-	 */
-	public void setAuthenticatorList(List<AuthenticatorConfig> authenticatorList) {
-		this.authenticatorList = authenticatorList;
-	}
+    /**
+     * @return
+     */
+    public List<String> getAuthenticatorMappings() {
+        return authenticatorMappings;
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public String getAuthenticatedUser() {
-		return authenticatedUser;
-	}
+    /**
+     * @param authenticatorMappings
+     */
+    public void setAuthenticatorMappings(List<String> authenticatorMappings) {
+        this.authenticatorMappings = authenticatorMappings;
+    }
 
-	/**
-	 * 
-	 * @param authenticatedUser
-	 */
-	public void setAuthenticatedUser(String authenticatedUser) {
-		this.authenticatedUser = authenticatedUser;
-	}
+    /**
+     * @return
+     */
+    public int getOrder() {
+        return order;
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public String getAuthenticatedIdP() {
-		return authenticatedIdP;
-	}
+    /**
+     * @param order
+     */
+    public void setOrder(int order) {
+        this.order = order;
+    }
 
-	/**
-	 * 
-	 * @param authenticatedIdP
-	 */
-	public void setAuthenticatedIdP(String authenticatedIdP) {
-		this.authenticatedIdP = authenticatedIdP;
-	}
+    /**
+     * @return
+     */
+    public List<AuthenticatorConfig> getAuthenticatorList() {
+        return authenticatorList;
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public AuthenticatorConfig getAuthenticatedAutenticator() {
-		return authenticatedAutenticator;
-	}
+    /**
+     * @param authenticatorList
+     */
+    public void setAuthenticatorList(List<AuthenticatorConfig> authenticatorList) {
+        this.authenticatorList = authenticatorList;
+    }
 
-	/**
-	 * 
-	 * @param authenticatedAutenticator
-	 */
-	public void setAuthenticatedAutenticator(
-			AuthenticatorConfig authenticatedAutenticator) {
-		this.authenticatedAutenticator = authenticatedAutenticator;
-	}
+    /**
+     * @return
+     */
+    public String getAuthenticatedUser() {
+        return authenticatedUser;
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public Map<ClaimMapping, String> getAuthenticatedUserAttributes() {
-		return authenticatedUserAttributes;
-	}
+    /**
+     * @param authenticatedUser
+     */
+    public void setAuthenticatedUser(String authenticatedUser) {
+        this.authenticatedUser = authenticatedUser;
+    }
 
-	/**
-	 * 
-	 * @param authenticatedUserAttributes
-	 */
-	public void setAuthenticatedUserAttributes(
-			Map<ClaimMapping, String> authenticatedUserAttributes) {
-		this.authenticatedUserAttributes = authenticatedUserAttributes;
-	}
+    /**
+     * @return
+     */
+    public String getAuthenticatedIdP() {
+        return authenticatedIdP;
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
+    /**
+     * @param authenticatedIdP
+     */
+    public void setAuthenticatedIdP(String authenticatedIdP) {
+        this.authenticatedIdP = authenticatedIdP;
+    }
+
+    /**
+     * @return
+     */
+    public AuthenticatorConfig getAuthenticatedAutenticator() {
+        return authenticatedAutenticator;
+    }
+
+    /**
+     * @param authenticatedAutenticator
+     */
+    public void setAuthenticatedAutenticator(
+            AuthenticatorConfig authenticatedAutenticator) {
+        this.authenticatedAutenticator = authenticatedAutenticator;
+    }
+
+    /**
+     * @return
+     */
+    public Map<ClaimMapping, String> getAuthenticatedUserAttributes() {
+        return authenticatedUserAttributes;
+    }
+
+    /**
+     * @param authenticatedUserAttributes
+     */
+    public void setAuthenticatedUserAttributes(
+            Map<ClaimMapping, String> authenticatedUserAttributes) {
+        this.authenticatedUserAttributes = authenticatedUserAttributes;
+    }
+
+    /**
+     * @return
+     */
     public boolean isSubjectAttributeStep() {
         return subjectAttributeStep;
     }
 
     /**
-     * 
      * @param subjectAttributeStep
      */
     public void setSubjectAttributeStep(boolean subjectAttributeStep) {
@@ -199,7 +181,6 @@ public class StepConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public boolean isSubjectIdentifierStep() {
@@ -207,7 +188,6 @@ public class StepConfig implements Serializable {
     }
 
     /**
-     * 
      * @param subjectIdentifierStep
      */
     public void setSubjectIdentifierStep(boolean subjectIdentifierStep) {

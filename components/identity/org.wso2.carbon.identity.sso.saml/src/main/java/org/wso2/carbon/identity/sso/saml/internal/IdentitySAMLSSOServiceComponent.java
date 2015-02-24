@@ -16,10 +16,6 @@
 
 package org.wso2.carbon.identity.sso.saml.internal;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.Scanner;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.equinox.http.helper.ContextPathServletAdaptor;
@@ -38,40 +34,45 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
 import javax.servlet.Servlet;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Scanner;
 
 /**
  * @scr.component name="identity.sso.saml.component" immediate="true"
  * @scr.reference name="registry.service"
- *                interface="org.wso2.carbon.registry.core.service.RegistryService"
- *                cardinality="1..1" policy="dynamic" bind="setRegistryService"
- *                unbind="unsetRegistryService"
+ * interface="org.wso2.carbon.registry.core.service.RegistryService"
+ * cardinality="1..1" policy="dynamic" bind="setRegistryService"
+ * unbind="unsetRegistryService"
  * @scr.reference name="config.context.service"
- *                interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
- *                policy="dynamic" bind="setConfigurationContextService"
- *                unbind="unsetConfigurationContextService"
+ * interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
+ * policy="dynamic" bind="setConfigurationContextService"
+ * unbind="unsetConfigurationContextService"
  * @scr.reference name="user.realmservice.default" interface="org.wso2.carbon.user.core.service.RealmService"
- *                cardinality="1..1" policy="dynamic" bind="setRealmService"
- *                unbind="unsetRealmService"
+ * cardinality="1..1" policy="dynamic" bind="setRealmService"
+ * unbind="unsetRealmService"
  * @scr.reference name="osgi.httpservice" interface="org.osgi.service.http.HttpService"
- *                cardinality="1..1" policy="dynamic" bind="setHttpService"  
- *                unbind="unsetHttpService"
+ * cardinality="1..1" policy="dynamic" bind="setHttpService"
+ * unbind="unsetHttpService"
  */
-public class IdentitySAMLSSOServiceComponent{
+public class IdentitySAMLSSOServiceComponent {
 
-    private static Log log = LogFactory.getLog(IdentitySAMLSSOServiceComponent.class);
-    
     public static final String SAMLSSO_URL = "/samlsso";
-
+    private static Log log = LogFactory.getLog(IdentitySAMLSSOServiceComponent.class);
     private static int defaultSingleLogoutRetryCount = 5;
 
     private static long defaultSingleLogoutRetryInterval = 60000;
-    
+
     private static String ssoRedirectPage = null;
+
+    public static String getSsoRedirectHtml() {
+        return ssoRedirectPage;
+    }
 
     protected void activate(ComponentContext ctxt) {
         SAMLSSOUtil.setBundleContext(ctxt.getBundleContext());
         HttpService httpService = SAMLSSOUtil.getHttpService();
-        
+
         // Register SAML SSO servlet
         Servlet samlSSOServlet = new ContextPathServletAdaptor(new SAMLSSOProviderServlet(), SAMLSSO_URL);
         try {
@@ -81,10 +82,10 @@ public class IdentitySAMLSSOServiceComponent{
             log.error(errMsg, e);
             throw new RuntimeException(errMsg, e);
         }
-        
+
         // Register a SSOServiceProviderConfigManager object as an OSGi Service
         ctxt.getBundleContext().registerService(SSOServiceProviderConfigManager.class.getName(),
-                                                SSOServiceProviderConfigManager.getInstance(), null);
+                SSOServiceProviderConfigManager.getInstance(), null);
 
         try {
             IdentityUtil.populateProperties();
@@ -92,18 +93,18 @@ public class IdentitySAMLSSOServiceComponent{
                     IdentityUtil.getProperty(IdentityConstants.ServerConfig.SINGLE_LOGOUT_RETRY_COUNT)));
             SAMLSSOUtil.setSingleLogoutRetryInterval(Long.parseLong(IdentityUtil.getProperty(
                     IdentityConstants.ServerConfig.SINGLE_LOGOUT_RETRY_INTERVAL)));
-            
+
             SAMLSSOUtil.setResponseBuilder(IdentityUtil.getProperty("SSOService.SAMLSSOResponseBuilder"));
-            
+
             log.debug("Single logout retry count is set to " + SAMLSSOUtil.getSingleLogoutRetryCount());
             log.debug("Single logout retry interval is set to " +
                     SAMLSSOUtil.getSingleLogoutRetryInterval() + " in seconds.");
-            
-            
+
+
             String redirectHtmlPath = CarbonUtils.getCarbonHome() + File.separator + "repository"
                     + File.separator + "resources" + File.separator + "security" + File.separator + "sso_redirect.html";
             FileInputStream fis = new FileInputStream(new File(redirectHtmlPath));
-            ssoRedirectPage = new Scanner(fis,"UTF-8").useDelimiter("\\A").next();
+            ssoRedirectPage = new Scanner(fis, "UTF-8").useDelimiter("\\A").next();
             log.debug("sso_redirect.html " + ssoRedirectPage);
 
             FileBasedConfigManager.getInstance().addServiceProviders();
@@ -149,49 +150,45 @@ public class IdentitySAMLSSOServiceComponent{
         SAMLSSOUtil.setRegistryService(null);
     }
 
-    protected void setRealmService(RealmService realmService){
-        if(log.isDebugEnabled()){
+    protected void setRealmService(RealmService realmService) {
+        if (log.isDebugEnabled()) {
             log.debug("Realm Service is set in the SAML SSO bundle");
         }
         SAMLSSOUtil.setRealmService(realmService);
     }
 
-    protected void unsetRealmService(RealmService realmService){
-        if(log.isDebugEnabled()){
+    protected void unsetRealmService(RealmService realmService) {
+        if (log.isDebugEnabled()) {
             log.debug("Realm Service is set in the SAML SSO bundle");
         }
         SAMLSSOUtil.setRegistryService(null);
     }
 
-    protected void setConfigurationContextService(ConfigurationContextService configCtxService){
-        if(log.isDebugEnabled()){
+    protected void setConfigurationContextService(ConfigurationContextService configCtxService) {
+        if (log.isDebugEnabled()) {
             log.debug("Configuration Context Service is set in the SAML SSO bundle");
         }
         SAMLSSOUtil.setConfigCtxService(configCtxService);
     }
 
-    protected void unsetConfigurationContextService(ConfigurationContextService configCtxService){
-        if(log.isDebugEnabled()){
+    protected void unsetConfigurationContextService(ConfigurationContextService configCtxService) {
+        if (log.isDebugEnabled()) {
             log.debug("Configuration Context Service is unset in the SAML SSO bundle");
         }
         SAMLSSOUtil.setConfigCtxService(null);
     }
-    
-    protected void setHttpService(HttpService httpService){
-        if(log.isDebugEnabled()){
+
+    protected void setHttpService(HttpService httpService) {
+        if (log.isDebugEnabled()) {
             log.debug("HTTP Service is set in the SAML SSO bundle");
         }
         SAMLSSOUtil.setHttpService(httpService);
     }
 
-    protected void unsetHttpService(HttpService httpService){
-        if(log.isDebugEnabled()){
+    protected void unsetHttpService(HttpService httpService) {
+        if (log.isDebugEnabled()) {
             log.debug("HTTP Service is unset in the SAML SSO bundle");
         }
         SAMLSSOUtil.setHttpService(null);
-    }
-    
-    public static String getSsoRedirectHtml() {
-    	return ssoRedirectPage;
     }
 }

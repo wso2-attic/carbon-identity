@@ -35,10 +35,8 @@ import org.wso2.carbon.identity.mgt.stub.dto.UserChallengesDTO;
 public class IdentityManagementClient {
 
     public static final String USER_CHALLENGE_QUESTION = "user.challenge.question";
-    
-    protected UserIdentityManagementServiceStub stub = null;
-       
     protected static Log log = LogFactory.getLog(IdentityManagementClient.class);
+    protected UserIdentityManagementServiceStub stub = null;
 
     public IdentityManagementClient(String url, ConfigurationContext configContext)
             throws java.lang.Exception {
@@ -61,7 +59,7 @@ public class IdentityManagementClient {
             handleException(e.getMessage(), e);
         }
     }
-        
+
 //    public CaptchaInfoBean generateRandomCaptcha() throws AxisFault {
 //
 //        try {
@@ -84,7 +82,7 @@ public class IdentityManagementClient {
 //    }
 
     public boolean processPasswordRecoveryLink(String userId, String userKey)
-                                                                        throws AxisFault {
+            throws AxisFault {
         try {
             return stub.processPasswordRecovery(userId, userKey, "EMAIL");
         } catch (Exception e) {
@@ -94,7 +92,7 @@ public class IdentityManagementClient {
     }
 
     public UserChallengesDTO[] getChallengeQuestionsOfUser(String userId, String userKey)
-                                                                        throws AxisFault {
+            throws AxisFault {
         try {
             return stub.getChallengeQuestionsForUser(userId, userKey);
         } catch (Exception e) {
@@ -105,11 +103,11 @@ public class IdentityManagementClient {
     }
 
     public VerificationBean verifyChallengeQuestion(String userId, String userKey, String question,
-                                                        String answer) throws AxisFault {
+                                                    String answer) throws AxisFault {
         try {
             UserChallengesDTO dto = new UserChallengesDTO();
             dto.setQuestion(question);
-            dto.setAnswer(answer);            
+            dto.setAnswer(answer);
             return stub.verifyChallengeQuestion(userId, userKey, new UserChallengesDTO[]{dto});
         } catch (Exception e) {
             handleException(e.getMessage(), e);
@@ -132,7 +130,7 @@ public class IdentityManagementClient {
                                     CaptchaInfoBean captchaInfoBean) throws AxisFault {
         try {
             VerificationBean bean = stub.updateCredential(userId, userKey, password, captchaInfoBean);
-            return  bean.getVerified();
+            return bean.getVerified();
         } catch (Exception e) {
             handleException(e.getMessage(), e);
         }
@@ -147,7 +145,8 @@ public class IdentityManagementClient {
         }
         return false;
     }
-           // TODO
+
+    // TODO
     public boolean processAccountRecovery() throws AxisFault {
 //        try {
 //           // return stub.processAccountRecovery(userMgtBean);
@@ -157,7 +156,7 @@ public class IdentityManagementClient {
         return false;
     }
 
-    private String[] handleException(String msg, Exception e)  throws AxisFault {
+    private String[] handleException(String msg, Exception e) throws AxisFault {
         log.error(msg, e);
         throw new AxisFault(msg, e);
     }

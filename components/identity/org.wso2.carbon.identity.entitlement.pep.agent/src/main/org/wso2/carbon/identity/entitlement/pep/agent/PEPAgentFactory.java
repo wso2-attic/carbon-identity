@@ -33,7 +33,7 @@ public class PEPAgentFactory {
     private static final Log log = LogFactory.getLog(PEPAgentFactory.class);
 
     public static Map<String, AbstractEntitlementServiceClient> getAppToPDPClientMap
-            (Map<String, Map<String,String>> appToPDPClientConfigMap) throws EntitlementAgentException {
+            (Map<String, Map<String, String>> appToPDPClientConfigMap) throws EntitlementAgentException {
 
         Map<String, AbstractEntitlementServiceClient> appToPDPClientMap =
                 new HashMap<String, AbstractEntitlementServiceClient>();
@@ -42,7 +42,7 @@ public class PEPAgentFactory {
         Iterator appListItr = appList.iterator();
         while (appListItr.hasNext()) {
             String appId = (String) appListItr.next();
-            Map<String,String> appConfig = appToPDPClientConfigMap.get(appId);
+            Map<String, String> appConfig = appToPDPClientConfigMap.get(appId);
             String client = appConfig.get("client");
             if (client == null || client.trim().length() == 0) {
                 log.debug("Using BasicAuthEntitlementServiceClient by default");
@@ -56,82 +56,82 @@ public class PEPAgentFactory {
             }
 
             if (ProxyConstants.SOAP.equals(client)) {
-                if(appConfig.get("serverUrl") == null || appConfig.get("serverUrl").length() == 0){
+                if (appConfig.get("serverUrl") == null || appConfig.get("serverUrl").length() == 0) {
                     throw new EntitlementAgentException("serverUrl cannot be null or empty");
                 }
                 String serverUrl = appConfig.get("serverUrl").trim();
                 if (!serverUrl.endsWith("/")) {
                     serverUrl += "/";
                 }
-                if(appConfig.get("userName") == null || appConfig.get("userName").length() == 0){
+                if (appConfig.get("userName") == null || appConfig.get("userName").length() == 0) {
                     throw new EntitlementAgentException("userName cannot be null or empty");
                 }
-                if(appConfig.get("password") == null || appConfig.get("password").length() == 0){
+                if (appConfig.get("password") == null || appConfig.get("password").length() == 0) {
                     throw new EntitlementAgentException("password cannot be null or empty");
                 }
                 boolean reuseSession = true;
-                if(appConfig.get("reuseSession") != null){
+                if (appConfig.get("reuseSession") != null) {
                     reuseSession = Boolean.parseBoolean(appConfig.get("reuseSession"));
                 }
-                appToPDPClientMap.put(appId, new SOAPEntitlementServiceClient(serverUrl,appConfig.get("userName"),appConfig.get("password"),reuseSession));
-            } else if(ProxyConstants.BASIC_AUTH.equals(client)){
-                if(appConfig.get("serverUrl") == null || appConfig.get("serverUrl").length() == 0){
+                appToPDPClientMap.put(appId, new SOAPEntitlementServiceClient(serverUrl, appConfig.get("userName"), appConfig.get("password"), reuseSession));
+            } else if (ProxyConstants.BASIC_AUTH.equals(client)) {
+                if (appConfig.get("serverUrl") == null || appConfig.get("serverUrl").length() == 0) {
                     throw new EntitlementAgentException("serverUrl cannot be null or empty");
                 }
                 String serverUrl = appConfig.get("serverUrl").trim();
                 if (!serverUrl.endsWith("/")) {
                     serverUrl += "/";
                 }
-                if(appConfig.get("userName") == null || appConfig.get("userName").length() == 0){
+                if (appConfig.get("userName") == null || appConfig.get("userName").length() == 0) {
                     throw new EntitlementAgentException("userName cannot be null or empty");
                 }
-                if(appConfig.get("password") == null || appConfig.get("password").length() == 0){
+                if (appConfig.get("password") == null || appConfig.get("password").length() == 0) {
                     throw new EntitlementAgentException("password cannot be null or empty");
                 }
-                appToPDPClientMap.put(appId, new BasicAuthEntitlementServiceClient(serverUrl,appConfig.get("userName"),appConfig.get("password")));
+                appToPDPClientMap.put(appId, new BasicAuthEntitlementServiceClient(serverUrl, appConfig.get("userName"), appConfig.get("password")));
             } else if (ProxyConstants.THRIFT.equals(client)) {
-                if(appConfig.get("serverUrl") == null || appConfig.get("serverUrl").length() == 0){
+                if (appConfig.get("serverUrl") == null || appConfig.get("serverUrl").length() == 0) {
                     throw new EntitlementAgentException("serverUrl cannot be null or empty");
                 }
                 String serverUrl = appConfig.get("serverUrl").trim();
                 if (!serverUrl.endsWith("/")) {
                     serverUrl += "/";
                 }
-                if(appConfig.get("userName") == null || appConfig.get("userName").length() == 0){
+                if (appConfig.get("userName") == null || appConfig.get("userName").length() == 0) {
                     throw new EntitlementAgentException("userName cannot be null or empty");
                 }
-                if(appConfig.get("password") == null || appConfig.get("password").length() == 0){
+                if (appConfig.get("password") == null || appConfig.get("password").length() == 0) {
                     throw new EntitlementAgentException("password cannot be null or empty");
                 }
-                if(appConfig.get("thriftHost") == null || appConfig.get("thriftHost").length() == 0){
+                if (appConfig.get("thriftHost") == null || appConfig.get("thriftHost").length() == 0) {
                     throw new EntitlementAgentException("thriftHost cannot be null or empty");
                 }
                 int thriftPort;
-                if(appConfig.get("thriftPort") == null || appConfig.get("thriftPort").length()==0){
+                if (appConfig.get("thriftPort") == null || appConfig.get("thriftPort").length() == 0) {
                     thriftPort = ProxyConstants.DEFAULT_THRIFT_PORT;
-                }else{
+                } else {
                     thriftPort = Integer.parseInt(appConfig.get("thriftPort"));
                 }
                 boolean reuseSession = true;
-                if(appConfig.get("reuseSession") != null){
+                if (appConfig.get("reuseSession") != null) {
                     reuseSession = Boolean.parseBoolean(appConfig.get("reuseSession"));
                 }
-                appToPDPClientMap.put(appId, new ThriftEntitlementServiceClient(serverUrl,appConfig.get("userName"),appConfig.get("password"),appConfig.get("thriftHost"),thriftPort,reuseSession));
-            }else if (ProxyConstants.WS_XACML.equals(client)) {
-                if(appConfig.get("serverUrl") == null || appConfig.get("serverUrl").length() == 0){
+                appToPDPClientMap.put(appId, new ThriftEntitlementServiceClient(serverUrl, appConfig.get("userName"), appConfig.get("password"), appConfig.get("thriftHost"), thriftPort, reuseSession));
+            } else if (ProxyConstants.WS_XACML.equals(client)) {
+                if (appConfig.get("serverUrl") == null || appConfig.get("serverUrl").length() == 0) {
                     throw new EntitlementAgentException("serverUrl cannot be null or empty");
                 }
                 String serverUrl = appConfig.get("serverUrl").trim();
                 if (!serverUrl.endsWith("/")) {
                     serverUrl += "/";
                 }
-                if(appConfig.get("userName") == null || appConfig.get("userName").length() == 0){
+                if (appConfig.get("userName") == null || appConfig.get("userName").length() == 0) {
                     throw new EntitlementAgentException("userName cannot be null or empty");
                 }
-                if(appConfig.get("password") == null || appConfig.get("password").length() == 0){
+                if (appConfig.get("password") == null || appConfig.get("password").length() == 0) {
                     throw new EntitlementAgentException("password cannot be null or empty");
                 }
-                appToPDPClientMap.put(appId, new WSXACMLEntitlementServiceClient(serverUrl,appConfig.get("userName"),appConfig.get("password")));
+                appToPDPClientMap.put(appId, new WSXACMLEntitlementServiceClient(serverUrl, appConfig.get("userName"), appConfig.get("password")));
             } else if (ProxyConstants.JSON.equals(client)) {
 
             }

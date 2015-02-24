@@ -27,72 +27,72 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ApplicationAuthenticationService {
-	
-	private static Log log = LogFactory.getLog(ApplicationAuthenticationService.class);
-	
-	public ApplicationAuthenticator getAuthenticator(String name) throws ApplicationAuthenticationException {
-		
-		if (name == null) {
-			String errMsg = "Authenticator name cannot be null";
-			log.error(errMsg);
-			throw new ApplicationAuthenticationException(errMsg);
-		}
-		
-		ApplicationAuthenticator appAuthenticator = null;
-		
-		for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.authenticators) {
-			
-			if (authenticator.getName().equals(name)) {
-				appAuthenticator = authenticator;
-			}
-		}
-		
-		return appAuthenticator;
-	}
-	
-	public List<ApplicationAuthenticator> getAllAuthenticators() throws ApplicationAuthenticationException {
-		return FrameworkServiceComponent.authenticators;
-	}
-	
-	public List<ApplicationAuthenticator> getLocalAuthenticators() throws ApplicationAuthenticationException {
-		
-		List<ApplicationAuthenticator> localAuthenticators = new ArrayList<ApplicationAuthenticator>();
-		
-		for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.authenticators) {
-			
-			if (authenticator instanceof LocalApplicationAuthenticator) {
-				localAuthenticators.add(authenticator);
-			}
-		}
-		
-		return localAuthenticators;
-	}
-	
-	public List<ApplicationAuthenticator> getFederatedAuthenticators() throws ApplicationAuthenticationException {
-		
-		List<ApplicationAuthenticator> federatedAuthenticators = new ArrayList<ApplicationAuthenticator>();
-		
-		for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.authenticators) {
-			
-			if (authenticator instanceof FederatedApplicationAuthenticator) {
-				federatedAuthenticators.add(authenticator);
-			}
-		}
-		
-		return federatedAuthenticators;
-	}
-	
-	public List<ApplicationAuthenticator> getRequestPathAuthenticators() throws ApplicationAuthenticationException {
-		
-		List<ApplicationAuthenticator> reqPathAuthenticators = new ArrayList<ApplicationAuthenticator>();
-		
-		for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.authenticators) {
-			
-			if (authenticator instanceof RequestPathApplicationAuthenticator) {
-				reqPathAuthenticators.add(authenticator);
-			}
-		}
-		
-		return reqPathAuthenticators;
-	}
+
+    private static Log log = LogFactory.getLog(ApplicationAuthenticationService.class);
+
+    public ApplicationAuthenticator getAuthenticator(String name) throws ApplicationAuthenticationException {
+
+        if (name == null) {
+            String errMsg = "Authenticator name cannot be null";
+            log.error(errMsg);
+            throw new ApplicationAuthenticationException(errMsg);
+        }
+
+        ApplicationAuthenticator appAuthenticator = null;
+
+        for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.authenticators) {
+
+            if (authenticator.getName().equals(name)) {
+                appAuthenticator = authenticator;
+            }
+        }
+
+        return appAuthenticator;
+    }
+
+    public List<ApplicationAuthenticator> getAllAuthenticators() throws ApplicationAuthenticationException {
+        return FrameworkServiceComponent.authenticators;
+    }
+
+    public List<ApplicationAuthenticator> getLocalAuthenticators() throws ApplicationAuthenticationException {
+
+        List<ApplicationAuthenticator> localAuthenticators = new ArrayList<ApplicationAuthenticator>();
+
+        for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.authenticators) {
+
+            if (authenticator instanceof LocalApplicationAuthenticator) {
+                localAuthenticators.add(authenticator);
+            }
+        }
+
+        return localAuthenticators;
+    }
+
+    public List<ApplicationAuthenticator> getFederatedAuthenticators() throws ApplicationAuthenticationException {
+
+        List<ApplicationAuthenticator> federatedAuthenticators = new ArrayList<ApplicationAuthenticator>();
+
+        for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.authenticators) {
+
+            if (authenticator instanceof FederatedApplicationAuthenticator) {
+                federatedAuthenticators.add(authenticator);
+            }
+        }
+
+        return federatedAuthenticators;
+    }
+
+    public List<ApplicationAuthenticator> getRequestPathAuthenticators() throws ApplicationAuthenticationException {
+
+        List<ApplicationAuthenticator> reqPathAuthenticators = new ArrayList<ApplicationAuthenticator>();
+
+        for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.authenticators) {
+
+            if (authenticator instanceof RequestPathApplicationAuthenticator) {
+                reqPathAuthenticators.add(authenticator);
+            }
+        }
+
+        return reqPathAuthenticators;
+    }
 }

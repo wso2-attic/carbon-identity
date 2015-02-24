@@ -17,8 +17,6 @@
 */
 package org.wso2.carbon.identity.scim.provider.auth;
 
-import java.rmi.RemoteException;
-
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
@@ -30,10 +28,12 @@ import org.wso2.carbon.identity.oauth2.stub.dto.OAuth2TokenValidationRequestDTO_
 import org.wso2.carbon.identity.oauth2.stub.dto.OAuth2TokenValidationResponseDTO;
 import org.wso2.carbon.utils.CarbonUtils;
 
+import java.rmi.RemoteException;
+
 public class OAuthServiceClient {
-    private OAuth2TokenValidationServiceStub stub = null;
-    private static final Log log = LogFactory.getLog(OAuthServiceClient.class);
     public static final String BEARER_TOKEN_TYPE = "bearer";
+    private static final Log log = LogFactory.getLog(OAuthServiceClient.class);
+    private OAuth2TokenValidationServiceStub stub = null;
 
     /**
      * OAuth2TokenValidationService Admin Service Client
@@ -67,7 +67,7 @@ public class OAuthServiceClient {
             throws Exception {
         OAuth2TokenValidationRequestDTO oauthReq = new OAuth2TokenValidationRequestDTO();
         OAuth2TokenValidationRequestDTO_OAuth2AccessToken accessToken =
-                new OAuth2TokenValidationRequestDTO_OAuth2AccessToken ();
+                new OAuth2TokenValidationRequestDTO_OAuth2AccessToken();
         accessToken.setTokenType(BEARER_TOKEN_TYPE);
         accessToken.setIdentifier(accessTokenIdentifier);
         oauthReq.setAccessToken(accessToken);
@@ -78,9 +78,8 @@ public class OAuthServiceClient {
             throw new Exception("Error while validating OAuth2 request", e);
         }
     }
-    
+
     /**
-     * 
      * @param accessTokenIdentifier
      * @return
      * @throws Exception
@@ -89,7 +88,7 @@ public class OAuthServiceClient {
             throws Exception {
         OAuth2TokenValidationRequestDTO oauthReq = new OAuth2TokenValidationRequestDTO();
         OAuth2TokenValidationRequestDTO_OAuth2AccessToken accessToken =
-                new OAuth2TokenValidationRequestDTO_OAuth2AccessToken ();
+                new OAuth2TokenValidationRequestDTO_OAuth2AccessToken();
         accessToken.setTokenType(BEARER_TOKEN_TYPE);
         accessToken.setIdentifier(accessTokenIdentifier);
         oauthReq.setAccessToken(accessToken);

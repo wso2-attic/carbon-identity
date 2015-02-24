@@ -36,11 +36,11 @@ public class IdPAuthPropertyCacheKey extends CacheKey {
         this.tenantDomain = tenantDomain.toLowerCase();
     }
 
-    public String getName(){
+    public String getName() {
         return name;
     }
 
-    public String getValue(){
+    public String getValue() {
         return value;
     }
 

@@ -42,8 +42,8 @@ import javax.servlet.Servlet;
  */
 public class OAuthUIServiceComponent {
 
-    private static final Log log = LogFactory.getLog(OAuthUIServiceComponent.class);
     public static final String OAUTH_URL = "/oauth";
+    private static final Log log = LogFactory.getLog(OAuthUIServiceComponent.class);
 
     @SuppressWarnings("unchecked")
     protected void activate(ComponentContext context) {
@@ -72,31 +72,31 @@ public class OAuthUIServiceComponent {
         log.debug("Identity OAuth UI bundle is deactivated");
     }
 
-    protected void setHttpService(HttpService httpService){
+    protected void setHttpService(HttpService httpService) {
         OAuthUIServiceComponentHolder.getInstance().setHttpService(httpService);
     }
 
-    protected void unsetHttpService(HttpService httpService){
+    protected void unsetHttpService(HttpService httpService) {
         httpService.unregister(OAUTH_URL);
         OAuthUIServiceComponentHolder.getInstance().setHttpService(null);
     }
 
-    protected void setConfigurationContextService(ConfigurationContextService configurationContextService){
+    protected void setConfigurationContextService(ConfigurationContextService configurationContextService) {
         OAuthUIServiceComponentHolder.getInstance().setConfigurationContextService(configurationContextService);
         log.debug("ConfigurationContextService Instance was set.");
     }
 
-    protected void unsetConfigurationContextService(ConfigurationContextService configurationContextService){
+    protected void unsetConfigurationContextService(ConfigurationContextService configurationContextService) {
         OAuthUIServiceComponentHolder.getInstance().setConfigurationContextService(null);
         log.debug("ConfigurationContextService Instance was unset.");
     }
 
-    protected void setServerConfigurationService(ServerConfigurationService serverConfigService){
+    protected void setServerConfigurationService(ServerConfigurationService serverConfigService) {
         OAuthUIServiceComponentHolder.getInstance().setServerConfigurationService(serverConfigService);
         log.debug("ServerConfigurationService instance was set.");
     }
 
-    protected void unsetServerConfigurationService(ServerConfigurationService serverConfigService){
+    protected void unsetServerConfigurationService(ServerConfigurationService serverConfigService) {
         OAuthUIServiceComponentHolder.getInstance().setServerConfigurationService(null);
         log.debug("ServerConfigurationService instance was unset.");
     }

@@ -27,151 +27,151 @@ import org.wso2.carbon.base.MultitenantConstants;
  */
 public class AuthorizationKey {
 
-	private static final long serialVersionUID = 926710669453381695L;
+    private static final long serialVersionUID = 926710669453381695L;
 
-	private String userName;
+    private String userName;
 
-	private String resourceId;
+    private String resourceId;
 
-	private String action;
+    private String action;
 
-	private int tenantId;
+    private int tenantId;
 
-	private String serverId;
+    private String serverId;
 
-	private int moduleId;
+    private int moduleId;
 
-	// Role name can be null since this was introduced later stage. Role
-	// name was implemented as a effect of the custom permissions
-	private String roleName;
+    // Role name can be null since this was introduced later stage. Role
+    // name was implemented as a effect of the custom permissions
+    private String roleName;
 
-	public AuthorizationKey(String serverId, int tenantId, String userName, String resourceId,
-	                        String action) {
-		this.userName = userName;
-		this.resourceId = resourceId;
-		this.action = action;
-		this.tenantId = tenantId;
-		this.serverId = serverId;
-	}
+    public AuthorizationKey(String serverId, int tenantId, String userName, String resourceId,
+                            String action) {
+        this.userName = userName;
+        this.resourceId = resourceId;
+        this.action = action;
+        this.tenantId = tenantId;
+        this.serverId = serverId;
+    }
 
-	public AuthorizationKey(String serverId, int tenantId, String userName, String resourceId,
-	                        String action, int moduleId, String roleName) {
-		super();
-		this.userName = userName;
-		this.resourceId = resourceId;
-		this.action = action;
-		this.tenantId = tenantId;
-		this.serverId = serverId;
-		this.moduleId = moduleId;
-		this.roleName = roleName;
-	}
+    public AuthorizationKey(String serverId, int tenantId, String userName, String resourceId,
+                            String action, int moduleId, String roleName) {
+        super();
+        this.userName = userName;
+        this.resourceId = resourceId;
+        this.action = action;
+        this.tenantId = tenantId;
+        this.serverId = serverId;
+        this.moduleId = moduleId;
+        this.roleName = roleName;
+    }
 
-	@Override
-	public boolean equals(Object otherObject) {
+    @Override
+    public boolean equals(Object otherObject) {
 
-		if (!(otherObject instanceof AuthorizationKey)) {
-			return false;
-		}
+        if (!(otherObject instanceof AuthorizationKey)) {
+            return false;
+        }
 
-		AuthorizationKey secondObject = (AuthorizationKey) otherObject;
+        AuthorizationKey secondObject = (AuthorizationKey) otherObject;
 
-		// serverId can be null. We assume other parameters are not null.
-		return checkAttributesAreEqual(serverId, tenantId, userName, resourceId, action, roleName,
-		                               moduleId, secondObject);
-	}
+        // serverId can be null. We assume other parameters are not null.
+        return checkAttributesAreEqual(serverId, tenantId, userName, resourceId, action, roleName,
+                moduleId, secondObject);
+    }
 
-	@Override
-	public int hashCode() {
+    @Override
+    public int hashCode() {
 
-		return getHashCodeForAttributes(serverId, tenantId, userName, resourceId, action, moduleId,
-		                                roleName);
-	}
+        return getHashCodeForAttributes(serverId, tenantId, userName, resourceId, action, moduleId,
+                roleName);
+    }
 
-	public String getUserName() {
-		return userName;
-	}
+    public String getUserName() {
+        return userName;
+    }
 
-	public String getResourceId() {
-		return resourceId;
-	}
+    public String getResourceId() {
+        return resourceId;
+    }
 
-	public String getAction() {
-		return action;
-	}
+    public String getAction() {
+        return action;
+    }
 
-	public int getTenantId() {
-		return tenantId;
-	}
+    public int getTenantId() {
+        return tenantId;
+    }
 
-	public void setTenantId(int tenantId) {
-		this.tenantId = tenantId;
-	}
+    public void setTenantId(int tenantId) {
+        this.tenantId = tenantId;
+    }
 
-	public String getServerId() {
-		return serverId;
-	}
+    public String getServerId() {
+        return serverId;
+    }
 
-	public int getModuleId() {
-		return moduleId;
-	}
+    public void setServerId(String serverId) {
+        this.serverId = serverId;
+    }
 
-	public void setModuleId(int moduleId) {
-		this.moduleId = moduleId;
-	}
+    public int getModuleId() {
+        return moduleId;
+    }
 
-	public String getRoleName() {
-		if (roleName == null) {
-			roleName = "";
-		}
-		return roleName;
-	}
+    public void setModuleId(int moduleId) {
+        this.moduleId = moduleId;
+    }
 
-	public void setRoleName(String roleName) {
-		this.roleName = roleName;
-	}
+    public String getRoleName() {
+        if (roleName == null) {
+            roleName = "";
+        }
+        return roleName;
+    }
 
-	public void setServerId(String serverId) {
-		this.serverId = serverId;
-	}
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
+    }
 
-	private int getHashCodeForAttributes(String severId, int tenantId, String userName,
-	                                     String resourceId, String action, int moduleId,
-	                                     String roleName) {
-		if (roleName == null) {
-			roleName = "";
-		}
-		if ((tenantId != MultitenantConstants.INVALID_TENANT_ID) && userName != null &&
-		    severId != null) {
-			if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
-				tenantId = 0;
-			}
-			return tenantId + moduleId + userName.hashCode() * 5 + severId.hashCode() * 7 +
-			       resourceId.hashCode() * 11 + action.hashCode() * 13 + roleName.hashCode() * 17;
-		} else if (severId != null) {
-			return moduleId + severId.hashCode() * 7 + resourceId.hashCode() * 11 +
-			       action.hashCode() * 13 + roleName.hashCode() * 17;
-		} else {
-			return moduleId + resourceId.hashCode() * 11 + action.hashCode() * 13 +
-			       roleName.hashCode() * 17;
-		}
-	}
+    private int getHashCodeForAttributes(String severId, int tenantId, String userName,
+                                         String resourceId, String action, int moduleId,
+                                         String roleName) {
+        if (roleName == null) {
+            roleName = "";
+        }
+        if ((tenantId != MultitenantConstants.INVALID_TENANT_ID) && userName != null &&
+                severId != null) {
+            if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
+                tenantId = 0;
+            }
+            return tenantId + moduleId + userName.hashCode() * 5 + severId.hashCode() * 7 +
+                    resourceId.hashCode() * 11 + action.hashCode() * 13 + roleName.hashCode() * 17;
+        } else if (severId != null) {
+            return moduleId + severId.hashCode() * 7 + resourceId.hashCode() * 11 +
+                    action.hashCode() * 13 + roleName.hashCode() * 17;
+        } else {
+            return moduleId + resourceId.hashCode() * 11 + action.hashCode() * 13 +
+                    roleName.hashCode() * 17;
+        }
+    }
 
-	private boolean checkAttributesAreEqual(String serverId, int tenantId, String userName,
-	                                        String resourceIdentifier, String actionName,
-	                                        String roleName, int moduleId,
-	                                        AuthorizationKey authorizationKey) {
-		boolean equality =
-		                   tenantId == authorizationKey.getTenantId() &&
-		                           userName.equals(authorizationKey.getUserName()) &&
-		                           resourceIdentifier.equals(authorizationKey.getResourceId()) &&
-		                           actionName.equals(authorizationKey.getAction()) &&
-		                           authorizationKey.getRoleName().equals(roleName) &&
-		                           moduleId == authorizationKey.getModuleId();
-		// as server id can be null, then we skip the equality of it.
-		if (serverId != null) {
-			equality = equality && serverId.equals(authorizationKey.getServerId());
-		}
+    private boolean checkAttributesAreEqual(String serverId, int tenantId, String userName,
+                                            String resourceIdentifier, String actionName,
+                                            String roleName, int moduleId,
+                                            AuthorizationKey authorizationKey) {
+        boolean equality =
+                tenantId == authorizationKey.getTenantId() &&
+                        userName.equals(authorizationKey.getUserName()) &&
+                        resourceIdentifier.equals(authorizationKey.getResourceId()) &&
+                        actionName.equals(authorizationKey.getAction()) &&
+                        authorizationKey.getRoleName().equals(roleName) &&
+                        moduleId == authorizationKey.getModuleId();
+        // as server id can be null, then we skip the equality of it.
+        if (serverId != null) {
+            equality = equality && serverId.equals(authorizationKey.getServerId());
+        }
 
-		return equality;
-	}
+        return equality;
+    }
 }

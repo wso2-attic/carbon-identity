@@ -26,7 +26,6 @@ import org.wso2.carbon.identity.entitlement.PolicyOrderComparator;
 import org.wso2.carbon.identity.entitlement.dto.PolicyDTO;
 import org.wso2.carbon.identity.entitlement.pap.PAPPolicyReader;
 import org.wso2.carbon.identity.entitlement.policy.PolicyAttributeBuilder;
-import org.wso2.carbon.identity.entitlement.policy.PolicyReader;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.RegistryConstants;
@@ -44,25 +43,23 @@ import java.util.List;
 public class RegistryPolicyReader {
 
     /**
+     * logger
+     */
+    private static Log log = LogFactory.getLog(RegistryPolicyReader.class);
+    /**
      * Governance registry instance of current tenant
      */
     private Registry registry;
-
     /**
      * policy store path of the registry
      */
     private String policyStorePath;
-    
-    /**
-     * logger
-     */
-    private static Log log = LogFactory.getLog(RegistryPolicyReader.class);
 
     /**
      * constructor
      *
-     * @param registry registry instance
-     * @param policyStorePath  policy store path of the registry
+     * @param registry        registry instance
+     * @param policyStorePath policy store path of the registry
      */
     public RegistryPolicyReader(Registry registry, String policyStorePath) {
         this.registry = registry;
@@ -79,7 +76,7 @@ public class RegistryPolicyReader {
     public PolicyDTO readPolicy(String policyId) throws EntitlementException {
 
         Resource resource = null;
-        
+
         resource = getPolicyResource(policyId);
 
         if (resource == null) {
@@ -91,14 +88,14 @@ public class RegistryPolicyReader {
 
     /**
      * Reads All ordered active policies as PolicyDTO
-     * 
+     *
      * @param active only return active policies
-     * @param order return ordered policy
+     * @param order  return ordered policy
      * @return Array of PolicyDTO
      * @throws EntitlementException throws, if fails
      */
-    public PolicyDTO[] readAllPolicies(boolean active, boolean  order) throws EntitlementException {
-        
+    public PolicyDTO[] readAllPolicies(boolean active, boolean order) throws EntitlementException {
+
         Resource[] resources = null;
         resources = getAllPolicyResource();
 
@@ -108,7 +105,7 @@ public class RegistryPolicyReader {
         List<PolicyDTO> policyDTOList = new ArrayList<PolicyDTO>();
         for (Resource resource : resources) {
             PolicyDTO policyDTO = readPolicy(resource);
-            if(active){
+            if (active) {
                 if (policyDTO.isActive()) {
                     policyDTOList.add(policyDTO);
                 }
@@ -119,23 +116,22 @@ public class RegistryPolicyReader {
 
         PolicyDTO[] policyDTOs = policyDTOList.toArray(new PolicyDTO[policyDTOList.size()]);
 
-        if(order){
+        if (order) {
             Arrays.sort(policyDTOs, new PolicyOrderComparator());
         }
         return policyDTOs;
     }
 
 
-
     /**
      * This returns all the policy ids as String list. Here we assume registry resource name as
      * the policy id.
-     * 
+     *
      * @return policy ids as String[]
      * @throws EntitlementException throws if fails
      */
     public String[] getAllPolicyIds() throws EntitlementException {
-        
+
         String path = null;
         Collection collection = null;
         String[] children = null;
@@ -171,19 +167,19 @@ public class RegistryPolicyReader {
 
     /**
      * Reads PolicyDTO for given registry resource
-     * 
+     *
      * @param resource Registry resource
-     * @return  PolicyDTO
+     * @return PolicyDTO
      * @throws EntitlementException throws, if fails
      */
     private PolicyDTO readPolicy(Resource resource) throws EntitlementException {
-        
+
         String policy = null;
         AbstractPolicy absPolicy = null;
         PolicyDTO dto = null;
 
         try {
-            if( resource.getContent() == null){
+            if (resource.getContent() == null) {
                 throw new EntitlementException("Error while loading entitlement policy. Policy content is null");
             }
             policy = new String((byte[]) resource.getContent(), Charset.forName("UTF-8"));
@@ -192,13 +188,13 @@ public class RegistryPolicyReader {
             dto.setPolicyId(absPolicy.getId().toASCIIString());
             dto.setPolicy(policy);
             String policyOrder = resource.getProperty("order");
-            if(policyOrder != null){
+            if (policyOrder != null) {
                 dto.setPolicyOrder(Integer.parseInt(policyOrder));
             } else {
                 dto.setPolicyOrder(0);
             }
             String policyActive = resource.getProperty("active");
-            if(policyActive != null){
+            if (policyActive != null) {
                 dto.setActive(Boolean.parseBoolean(policyActive));
             }
             PolicyAttributeBuilder policyAttributeBuilder = new PolicyAttributeBuilder();
@@ -213,16 +209,17 @@ public class RegistryPolicyReader {
 
     /**
      * This reads the policy combining algorithm from registry resource property
+     *
      * @return policy combining algorithm as String
      * @throws EntitlementException throws
      */
     public String readPolicyCombiningAlgorithm() throws EntitlementException {
         try {
             Collection policyCollection = null;
-            if(registry.resourceExists(policyStorePath)){
-                policyCollection =  (Collection) registry.get(policyStorePath);
+            if (registry.resourceExists(policyStorePath)) {
+                policyCollection = (Collection) registry.get(policyStorePath);
             }
-            if(policyCollection != null){
+            if (policyCollection != null) {
                 return policyCollection.getProperty("globalPolicyCombiningAlgorithm");
             }
             return null;
@@ -234,7 +231,7 @@ public class RegistryPolicyReader {
 
     /**
      * This returns given policy as Registry resource
-     * 
+     *
      * @param policyId policy id
      * @return policy as Registry resource
      * @throws EntitlementException throws, if fails

@@ -29,9 +29,8 @@ import org.wso2.carbon.security.mgt.stub.config.xsd.SecurityScenarioDataWrapper;
 
 public class SecurityAdminClient {
 
-    private SecurityAdminServiceStub stub = null;
-
     private static Log log = LogFactory.getLog(SecurityAdminClient.class);
+    private SecurityAdminServiceStub stub = null;
 
     public SecurityAdminClient(String cookie, String url, ConfigurationContext configContext)
             throws java.lang.Exception {
@@ -91,7 +90,7 @@ public class SecurityAdminClient {
 
 
     public void applySecurity(String serviceName, String scenarioId, String policyPath, String[] trustedStores,
-            String privateStore, String[] userGroups) throws java.lang.Exception {
+                              String privateStore, String[] userGroups) throws java.lang.Exception {
         try {
             ApplySecurity request = new ApplySecurity();
             request.setServiceName(serviceName);

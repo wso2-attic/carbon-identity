@@ -21,18 +21,18 @@ package org.wso2.carbon.identity.application.authentication.framework.cache;
 import org.wso2.carbon.identity.application.common.cache.CacheKey;
 
 public class AuthenticationResultCacheKey extends CacheKey {
-	
-	private static final long serialVersionUID = 1749262006745636421L;
-	
-	private String resultId;
+
+    private static final long serialVersionUID = 1749262006745636421L;
+
+    private String resultId;
 
     public AuthenticationResultCacheKey(String resultId) {
         this.resultId = resultId;
     }
 
     public String getResultId() {
-		return resultId;
-	}
+        return resultId;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -43,7 +43,7 @@ public class AuthenticationResultCacheKey extends CacheKey {
         AuthenticationResultCacheKey that = (AuthenticationResultCacheKey) o;
 
         if (!resultId.equals(that.resultId)) return false;
-        
+
         return true;
     }
 

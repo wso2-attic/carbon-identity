@@ -34,11 +34,11 @@ public class ClientUtil {
      * Helper method to extract the boolean response
      *
      * @param xmlstring XACML resource as String
-     * @return  Decision
+     * @return Decision
      * @throws Exception if fails
      */
     public static String getStatus(String xmlstring) throws Exception {
-        
+
         OMElement response = null;
         OMElement result = null;
         OMElement decision = null;
@@ -46,13 +46,13 @@ public class ClientUtil {
 
         OMNamespace nameSpace = response.getNamespace();
 
-        if(nameSpace != null){
+        if (nameSpace != null) {
             result = response.getFirstChildWithName(new QName(nameSpace.getNamespaceURI(), "Result"));
         } else {
             result = response.getFirstElement();
         }
         if (result != null) {
-            if(nameSpace != null){
+            if (nameSpace != null) {
                 decision = result.getFirstChildWithName(new QName(nameSpace.getNamespaceURI(), "Decision"));
             } else {
                 decision = result.getFirstChildWithName(new QName("Decision"));
@@ -67,21 +67,21 @@ public class ClientUtil {
 
     public static String[] doPagingForStrings(int pageNumber, int itemsPerPageInt, String[] names) {
 
-           String[] returnedSubscriberNameSet;
+        String[] returnedSubscriberNameSet;
 
-           int startIndex = pageNumber * itemsPerPageInt;
-           int endIndex = (pageNumber + 1) * itemsPerPageInt;
-           if (itemsPerPageInt < names.length) {
-               returnedSubscriberNameSet = new String[itemsPerPageInt];
-           } else {
-               returnedSubscriberNameSet = new String[names.length];
-           }
-           for (int i = startIndex, j = 0; i < endIndex && i < names.length; i++, j++) {
-               returnedSubscriberNameSet[j] = names[i];
-           }
+        int startIndex = pageNumber * itemsPerPageInt;
+        int endIndex = (pageNumber + 1) * itemsPerPageInt;
+        if (itemsPerPageInt < names.length) {
+            returnedSubscriberNameSet = new String[itemsPerPageInt];
+        } else {
+            returnedSubscriberNameSet = new String[names.length];
+        }
+        for (int i = startIndex, j = 0; i < endIndex && i < names.length; i++, j++) {
+            returnedSubscriberNameSet[j] = names[i];
+        }
 
-           return returnedSubscriberNameSet;
-       }
+        return returnedSubscriberNameSet;
+    }
 
     public static StatusHolder[] doModuleStatusHoldersPaging(int pageNumber,
                                                              StatusHolder[] moduleStatusHolderSet) {
@@ -92,12 +92,12 @@ public class ClientUtil {
         int startIndex = pageNumber * itemsPerPageInt;
         int endIndex = (pageNumber + 1) * itemsPerPageInt;
         if (itemsPerPageInt < moduleStatusHolderSet.length) {
-           returnedModuleStatusHolderSet = new StatusHolder[itemsPerPageInt];
+            returnedModuleStatusHolderSet = new StatusHolder[itemsPerPageInt];
         } else {
-           returnedModuleStatusHolderSet = new StatusHolder[moduleStatusHolderSet.length];
+            returnedModuleStatusHolderSet = new StatusHolder[moduleStatusHolderSet.length];
         }
         for (int i = startIndex, j = 0; i < endIndex && i < moduleStatusHolderSet.length; i++, j++) {
-           returnedModuleStatusHolderSet[j] = moduleStatusHolderSet[i];
+            returnedModuleStatusHolderSet[j] = moduleStatusHolderSet[i];
         }
 
         return returnedModuleStatusHolderSet;

@@ -17,16 +17,6 @@
 */
 package org.wso2.carbon.security.deployment;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-
-import javax.xml.namespace.QName;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.description.AxisModule;
@@ -38,51 +28,38 @@ import org.apache.axis2.engine.AxisEvent;
 import org.apache.axis2.engine.AxisObserver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.neethi.Policy;
-import org.apache.neethi.PolicyComponent;
-import org.apache.neethi.PolicyEngine;
-import org.apache.neethi.PolicyReference;
-import org.apache.ws.security.handler.WSHandlerConstants;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.RegistryResources;
-import org.wso2.carbon.core.Resources;
-import org.wso2.carbon.core.persistence.PersistenceFactory;
-import org.wso2.carbon.core.persistence.PersistenceUtils;
-import org.wso2.carbon.core.persistence.file.ModuleFilePersistenceManager;
-import org.wso2.carbon.core.persistence.file.ServiceGroupFilePersistenceManager;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.ResourceImpl;
 import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
 import org.wso2.carbon.registry.core.service.RegistryService;
-import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.security.SecurityConstants;
 import org.wso2.carbon.security.SecurityScenario;
 import org.wso2.carbon.security.SecurityScenarioDatabase;
 import org.wso2.carbon.security.SecurityServiceHolder;
-import org.wso2.carbon.security.util.RahasUtil;
-import org.wso2.carbon.security.util.ServerCrypto;
-import org.wso2.carbon.security.util.ServicePasswordCallbackHandler;
 import org.wso2.carbon.security.util.XmlConfiguration;
-import org.wso2.carbon.user.api.AuthorizationManager;
-import org.wso2.carbon.user.core.UserCoreConstants;
-import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 import org.wso2.carbon.utils.PreAxisConfigurationPopulationObserver;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Hashtable;
+import java.util.Iterator;
+
 /**
  * This is a deployment interceptor which handles service specific security configurations on
  * service deployment events. It is also published as an OSGi service, so that Carbon core can
  * add this to the AxisConfiguration.
- *
+ * <p/>
  * NOTE: This is a special type of AxisObserver, which can be used only within an OSGi framework
  * hence should not be added to the axis2.xml directly. If done so, it will throw NPEs, since
  * the registry & userRealm references are set through the OSGi decalative service framework.
@@ -90,9 +67,9 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
  * @scr.component name="org.wso2.carbon.security.deployment.SecurityDeploymentInterceptor"
  * immediate="true"
  * @scr.reference name="registry.service"
- *                interface="org.wso2.carbon.registry.core.service.RegistryService"
- *                cardinality="1..1" policy="dynamic" bind="setRegistryService"
- *                unbind="unsetRegistryService"
+ * interface="org.wso2.carbon.registry.core.service.RegistryService"
+ * cardinality="1..1" policy="dynamic" bind="setRegistryService"
+ * unbind="unsetRegistryService"
  * @scr.reference name="user.realmservice.default" interface="org.wso2.carbon.user.core.service.RealmService"
  * cardinality="1..1" policy="dynamic" bind="setRealmService" unbind="unsetRealmService"
  */
@@ -104,12 +81,12 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
     protected void activate(ComponentContext ctxt) {
         BundleContext bundleCtx = ctxt.getBundleContext();
         try {
-	    PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
 
             loadSecurityScenarios(SecurityServiceHolder.getRegistryService().getConfigSystemRegistry(),
-                                  bundleCtx);
+                    bundleCtx);
         } catch (Exception e) {
             String msg = "Cannot load security scenarios";
             log.error(msg, e);
@@ -131,21 +108,21 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
         PreAxisConfigurationPopulationObserver preAxisConfigObserver =
                 new PreAxisConfigurationPopulationObserver() {
                     public void createdAxisConfiguration(AxisConfiguration axisConfiguration) {
-                    	init(axisConfiguration);
+                        init(axisConfiguration);
                         axisConfiguration.addObservers(SecurityDeploymentInterceptor.this);
                     }
                 };
         bundleCtx.registerService(PreAxisConfigurationPopulationObserver.class.getName(),
-                                  preAxisConfigObserver, null);
+                preAxisConfigObserver, null);
 
         // Publish an OSGi service to listen tenant configuration context creation events
         Dictionary properties = new Hashtable();
         properties.put(CarbonConstants.AXIS2_CONFIG_SERVICE,
-                       Axis2ConfigurationContextObserver.class.getName());
+                Axis2ConfigurationContextObserver.class.getName());
         bundleCtx.registerService(Axis2ConfigurationContextObserver.class.getName(),
-                                                new SecurityDeploymentListener(), properties);
+                new SecurityDeploymentListener(), properties);
     }
-    
+
     public void init(AxisConfiguration axisConfig) {
 
     }
@@ -164,10 +141,10 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
 
         if (eventType == AxisEvent.SERVICE_DEPLOY) {
 
-		} else if (eventType == AxisEvent.SERVICE_REMOVE) {
+        } else if (eventType == AxisEvent.SERVICE_REMOVE) {
 
-			try {
-				//TODO: https://wso2.org/jira/browse/WSAS-1602
+            try {
+                //TODO: https://wso2.org/jira/browse/WSAS-1602
 //				UserRealm userRealm = SecurityServiceHolder.getRegistryService().getUserRealm(
 //						tenantId);
 //				AuthorizationManager acAdmin = userRealm.getAuthorizationManager();
@@ -178,12 +155,12 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
 //					acAdmin.clearRoleAuthorization(roles[i], resourceName,
 //							UserCoreConstants.INVOKE_SERVICE_PERMISSION);
 //				}
-			} catch (Exception e) {
-				throw new RuntimeException(
-						"Error while removing security while undeploying the service "
-								+ axisService.getName(), e);
-			}
-		}
+            } catch (Exception e) {
+                throw new RuntimeException(
+                        "Error while removing security while undeploying the service "
+                                + axisService.getName(), e);
+            }
+        }
 
     }
 
@@ -194,7 +171,7 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
         // Load security scenarios
         URL resource = bundleContext.getBundle().getResource("/scenarios/scenario-config.xml");
         XmlConfiguration xmlConfiguration = new XmlConfiguration(resource.openStream(),
-                                                                 SecurityConstants.SECURITY_NAMESPACE);
+                SecurityConstants.SECURITY_NAMESPACE);
 
         OMElement[] elements = xmlConfiguration.getElements("//ns:Scenario");
         try {
@@ -222,7 +199,7 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
                 String resourceUri = SecurityConstants.SECURITY_POLICY + "/" + scenarioId;
 
                 for (Iterator modules = scenarioEle.getFirstChildWithName(SecurityConstants.MODULES_QN)
-                        .getChildElements(); modules.hasNext();) {
+                        .getChildElements(); modules.hasNext(); ) {
                     String module = ((OMElement) modules.next()).getText();
                     scenario.addModule(module);
                 }
@@ -269,7 +246,7 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
                 Resource primResource = registry.newResource();
                 if (!registry.resourceExists(RegistryResources.SecurityManagement.PRIMARY_KEYSTORE_PHANTOM_RESOURCE)) {
                     registry.put(RegistryResources.SecurityManagement.PRIMARY_KEYSTORE_PHANTOM_RESOURCE,
-                                 primResource);
+                            primResource);
                 }
             }
             if (!transactionStarted) {

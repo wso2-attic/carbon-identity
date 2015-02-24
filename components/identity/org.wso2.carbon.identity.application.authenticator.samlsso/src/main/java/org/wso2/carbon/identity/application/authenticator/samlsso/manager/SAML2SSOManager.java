@@ -18,13 +18,12 @@
 
 package org.wso2.carbon.identity.application.authenticator.samlsso.manager;
 
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authenticator.samlsso.exception.SAMLSSOException;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 public interface SAML2SSOManager {
 

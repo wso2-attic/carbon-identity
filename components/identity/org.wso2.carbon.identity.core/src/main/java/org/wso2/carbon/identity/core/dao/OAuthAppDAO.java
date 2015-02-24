@@ -17,28 +17,23 @@
 */
 package org.wso2.carbon.identity.core.dao;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.IdentityRegistryResources;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
-import org.wso2.carbon.registry.core.Association;
-import org.wso2.carbon.registry.core.Collection;
-import org.wso2.carbon.registry.core.Registry;
-import org.wso2.carbon.registry.core.RegistryConstants;
-import org.wso2.carbon.registry.core.Resource;
-import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
+import org.wso2.carbon.registry.core.*;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class OAuthAppDAO extends AbstractDAO<OAuthAppDO> {
 
     protected Log log = LogFactory.getLog(OAuthAppDAO.class);
 
     /**
-     * 
      * @param registry
      */
     public OAuthAppDAO(Registry registry) {
@@ -46,7 +41,6 @@ public class OAuthAppDAO extends AbstractDAO<OAuthAppDO> {
     }
 
     /**
-     * 
      * @param card
      * @throws IdentityException
      */
@@ -123,11 +117,10 @@ public class OAuthAppDAO extends AbstractDAO<OAuthAppDO> {
     }
 
     /**
-     * 
      * @param card
      * @throws IdentityException
      */
-    public void deleteOAuthApp(String userName,String appName) throws IdentityException {
+    public void deleteOAuthApp(String userName, String appName) throws IdentityException {
         String path = null;
 
         try {
@@ -172,8 +165,8 @@ public class OAuthAppDAO extends AbstractDAO<OAuthAppDO> {
             throw new IdentityException("Error occured while deleting OAuth app", e);
         }
     }
+
     /**
-     * 
      * @return
      * @throws IdentityException
      */
@@ -210,7 +203,6 @@ public class OAuthAppDAO extends AbstractDAO<OAuthAppDO> {
     }
 
     /**
-     * 
      * @param cardId
      * @return
      * @throws IdentityException

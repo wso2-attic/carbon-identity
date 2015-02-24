@@ -18,73 +18,21 @@
 
 package org.wso2.carbon.identity.application.common.model;
 
+import org.apache.axiom.om.OMElement;
+
 import java.io.Serializable;
 import java.util.*;
-
-import org.apache.axiom.om.OMElement;
 
 public class InboundAuthenticationRequestConfig implements Serializable {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -4619706374988196634L;
 
     private String inboundAuthKey;
     private String inboundAuthType;
     private Property[] properties = new Property[0];
-
-    /**
-     * 
-     * @return
-     */
-    public String getInboundAuthKey() {
-        return inboundAuthKey;
-    }
-
-    /**
-     * 
-     * @param inboundAuthKey
-     */
-    public void setInboundAuthKey(String inboundAuthKey) {
-        this.inboundAuthKey = inboundAuthKey;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public String getInboundAuthType() {
-        return inboundAuthType;
-    }
-
-    /**
-     * 
-     * @param inboundAuthType
-     */
-    public void setInboundAuthType(String inboundAuthType) {
-        this.inboundAuthType = inboundAuthType;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public Property[] getProperties() {
-        return properties;
-    }
-
-    /**
-     * 
-     * @param properties
-     */
-    public void setProperties(Property[] properties) {
-        if(properties == null){
-            return;
-        }
-        Set<Property> propertySet = new HashSet<Property>(Arrays.asList(properties));
-        this.properties = propertySet.toArray(new Property[propertySet.size()]);
-    }
 
     /*
      * <InboundAuthenticationRequestConfig> <InboundAuthKey></InboundAuthKey>
@@ -131,6 +79,52 @@ public class InboundAuthenticationRequestConfig implements Serializable {
             }
         }
         return inboundAuthenticationRequestConfig;
+    }
+
+    /**
+     * @return
+     */
+    public String getInboundAuthKey() {
+        return inboundAuthKey;
+    }
+
+    /**
+     * @param inboundAuthKey
+     */
+    public void setInboundAuthKey(String inboundAuthKey) {
+        this.inboundAuthKey = inboundAuthKey;
+    }
+
+    /**
+     * @return
+     */
+    public String getInboundAuthType() {
+        return inboundAuthType;
+    }
+
+    /**
+     * @param inboundAuthType
+     */
+    public void setInboundAuthType(String inboundAuthType) {
+        this.inboundAuthType = inboundAuthType;
+    }
+
+    /**
+     * @return
+     */
+    public Property[] getProperties() {
+        return properties;
+    }
+
+    /**
+     * @param properties
+     */
+    public void setProperties(Property[] properties) {
+        if (properties == null) {
+            return;
+        }
+        Set<Property> propertySet = new HashSet<Property>(Arrays.asList(properties));
+        this.properties = propertySet.toArray(new Property[propertySet.size()]);
     }
 
 }

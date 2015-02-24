@@ -18,52 +18,51 @@
 
 package org.wso2.carbon.identity.application.common;
 
+import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.wso2.carbon.identity.application.common.model.LocalAuthenticatorConfig;
-import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
-
 public class ProvisioningConnectorService {
-	
-	private static volatile ProvisioningConnectorService instance;
-	
-	private List<ProvisioningConnectorConfig> provisioningConnectorConfigs = new ArrayList<ProvisioningConnectorConfig>();
 
-	public static ProvisioningConnectorService getInstance() {
-		if (instance == null) {
-			synchronized (ProvisioningConnectorService.class) {
-				if (instance == null) {
-					instance = new ProvisioningConnectorService();
-				}
-			}
-		}
-		return instance;
-	}
-	
-	public List<ProvisioningConnectorConfig> getProvisioningConnectorConfigs() {
-		return provisioningConnectorConfigs;
-	}
+    private static volatile ProvisioningConnectorService instance;
 
-	public void addProvisioningConnectorConfigs(ProvisioningConnectorConfig connectorConfig) {
-		if(connectorConfig != null){
-			provisioningConnectorConfigs.add(connectorConfig);
-		}
-	}
-	
-	public void removeProvisioningConnectorConfigs(ProvisioningConnectorConfig connectorConfig) {
-		if(connectorConfig != null){
-			provisioningConnectorConfigs.remove(connectorConfig);
-		}
-	}
-	
-	public ProvisioningConnectorConfig getProvisioningConnectorByName(String name) {
-		for (ProvisioningConnectorConfig  connectorConfig : provisioningConnectorConfigs) {
-			if (connectorConfig.getName().equals(name)) {
-				return connectorConfig;
-			}
-		}
-		return null;
-	}
+    private List<ProvisioningConnectorConfig> provisioningConnectorConfigs = new ArrayList<ProvisioningConnectorConfig>();
+
+    public static ProvisioningConnectorService getInstance() {
+        if (instance == null) {
+            synchronized (ProvisioningConnectorService.class) {
+                if (instance == null) {
+                    instance = new ProvisioningConnectorService();
+                }
+            }
+        }
+        return instance;
+    }
+
+    public List<ProvisioningConnectorConfig> getProvisioningConnectorConfigs() {
+        return provisioningConnectorConfigs;
+    }
+
+    public void addProvisioningConnectorConfigs(ProvisioningConnectorConfig connectorConfig) {
+        if (connectorConfig != null) {
+            provisioningConnectorConfigs.add(connectorConfig);
+        }
+    }
+
+    public void removeProvisioningConnectorConfigs(ProvisioningConnectorConfig connectorConfig) {
+        if (connectorConfig != null) {
+            provisioningConnectorConfigs.remove(connectorConfig);
+        }
+    }
+
+    public ProvisioningConnectorConfig getProvisioningConnectorByName(String name) {
+        for (ProvisioningConnectorConfig connectorConfig : provisioningConnectorConfigs) {
+            if (connectorConfig.getName().equals(name)) {
+                return connectorConfig;
+            }
+        }
+        return null;
+    }
 
 }

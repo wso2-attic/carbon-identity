@@ -21,10 +21,6 @@ public class EntitlementException extends Exception {
 
     private String message;
 
-    public String getMessage() {
-        return message;
-    }
-
     public EntitlementException(String message, Throwable cause) {
         super(message, cause);
         this.message = message;
@@ -37,5 +33,9 @@ public class EntitlementException extends Exception {
 
     public EntitlementException(Throwable cause) {
         super(cause);
+    }
+
+    public String getMessage() {
+        return message;
     }
 }

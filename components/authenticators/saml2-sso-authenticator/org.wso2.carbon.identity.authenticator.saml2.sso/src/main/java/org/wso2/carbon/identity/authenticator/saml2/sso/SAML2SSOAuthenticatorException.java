@@ -17,7 +17,7 @@
 */
 package org.wso2.carbon.identity.authenticator.saml2.sso;
 
-public class SAML2SSOAuthenticatorException extends Exception{
+public class SAML2SSOAuthenticatorException extends Exception {
     public SAML2SSOAuthenticatorException() {
         super();
     }

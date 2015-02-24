@@ -41,6 +41,7 @@ import java.util.Map;
 public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
 
     private static Log log = LogFactory.getLog(DefaultSAMLAssertionBuilder.class);
+
     @Override
     public void init() throws IdentityException {
     }
@@ -66,7 +67,7 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
                     nameId.setFormat(NameIdentifier.EMAIL);
                 }
             } else {
-            	// get tenant domain name from the username
+                // get tenant domain name from the username
                 String tenantDomainFromUserName = MultitenantUtils.getTenantDomain(authReqDTO
                         .getUsername());
                 String authenticatedUserTenantDomain = SAMLSSOUtil.getUserTenantDomain();
@@ -81,7 +82,7 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
                     nameId.setValue(MultitenantUtils.getTenantAwareUsername(authReqDTO
                             .getUsername()));
                 }
-            	
+
                 nameId.setFormat(authReqDTO.getNameIDFormat());
             }
 
@@ -93,21 +94,21 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
             SubjectConfirmationData scData = new SubjectConfirmationDataBuilder().buildObject();
             scData.setRecipient(authReqDTO.getAssertionConsumerURL());
             scData.setNotOnOrAfter(notOnOrAfter);
-            if(!authReqDTO.isIdPInitSSO()){
+            if (!authReqDTO.isIdPInitSSO()) {
                 scData.setInResponseTo(authReqDTO.getId());
             }
             subjectConfirmation.setSubjectConfirmationData(scData);
             subject.getSubjectConfirmations().add(subjectConfirmation);
 
-            if(authReqDTO.getRequestedRecipients() != null && authReqDTO.getRequestedRecipients().length > 0){
-                for(String recipient : authReqDTO.getRequestedRecipients()){
+            if (authReqDTO.getRequestedRecipients() != null && authReqDTO.getRequestedRecipients().length > 0) {
+                for (String recipient : authReqDTO.getRequestedRecipients()) {
                     subjectConfirmation = new SubjectConfirmationBuilder()
                             .buildObject();
                     subjectConfirmation.setMethod(SAMLSSOConstants.SUBJECT_CONFIRM_BEARER);
                     scData = new SubjectConfirmationDataBuilder().buildObject();
                     scData.setRecipient(recipient);
                     scData.setNotOnOrAfter(notOnOrAfter);
-                    if(!authReqDTO.isIdPInitSSO()){
+                    if (!authReqDTO.isIdPInitSSO()) {
                         scData.setInResponseTo(authReqDTO.getId());
                     }
                     subjectConfirmation.setSubjectConfirmationData(scData);

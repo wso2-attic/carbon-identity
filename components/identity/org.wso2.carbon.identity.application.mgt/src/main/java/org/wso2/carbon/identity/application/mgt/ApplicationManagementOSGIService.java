@@ -18,9 +18,6 @@
 
 package org.wso2.carbon.identity.application.mgt;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.Parameter;
@@ -31,14 +28,7 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
-import org.wso2.carbon.identity.application.common.model.ApplicationBasicInfo;
-import org.wso2.carbon.identity.application.common.model.ApplicationPermission;
-import org.wso2.carbon.identity.application.common.model.IdentityProvider;
-import org.wso2.carbon.identity.application.common.model.InboundAuthenticationRequestConfig;
-import org.wso2.carbon.identity.application.common.model.LocalAuthenticatorConfig;
-import org.wso2.carbon.identity.application.common.model.PermissionsAndRoleConfig;
-import org.wso2.carbon.identity.application.common.model.RequestPathAuthenticatorConfig;
-import org.wso2.carbon.identity.application.common.model.ServiceProvider;
+import org.wso2.carbon.identity.application.common.model.*;
 import org.wso2.carbon.identity.application.mgt.cache.IdentityServiceProviderCache;
 import org.wso2.carbon.identity.application.mgt.cache.IdentityServiceProviderCacheKey;
 import org.wso2.carbon.identity.application.mgt.dao.ApplicationDAO;
@@ -56,18 +46,20 @@ import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This class is already deprecated and can use ApplicationManagementServiceImpl for same purpose as osgi service
  */
 
 @Deprecated
-public class ApplicationManagementOSGIService{
+public class ApplicationManagementOSGIService {
 
     private static Log log = LogFactory.getLog(ApplicationManagementOSGIService.class);
     private static ApplicationManagementOSGIService appMgtService = new ApplicationManagementOSGIService();
 
     /**
-     * 
      * @return
      */
     public static ApplicationManagementOSGIService getInstance() {
@@ -78,7 +70,7 @@ public class ApplicationManagementOSGIService{
      * Creates a service provider with basic information.First we need to create a role with the
      * application name. Only the users in this role will be able to edit/update the application.The
      * user will assigned to the created role.Internal roles used.
-     * 
+     *
      * @param serviceProvider
      * @return
      * @throws IdentityApplicationManagementException
@@ -114,7 +106,6 @@ public class ApplicationManagementOSGIService{
     }
 
     /**
-     * 
      * @param applicationName
      * @return
      * @throws IdentityApplicationManagementException
@@ -156,7 +147,6 @@ public class ApplicationManagementOSGIService{
     }
 
     /**
-     * 
      * @return
      * @throws IdentityApplicationManagementException
      */
@@ -173,7 +163,6 @@ public class ApplicationManagementOSGIService{
     }
 
     /**
-     * 
      * @param serviceProvider
      * @throws IdentityApplicationManagementException
      */
@@ -190,7 +179,7 @@ public class ApplicationManagementOSGIService{
             }
 
             try {
-                
+
                 PrivilegedCarbonContext.startTenantFlow();
                 PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
                         .getThreadLocalCarbonContext();
@@ -221,7 +210,7 @@ public class ApplicationManagementOSGIService{
             // check whether use is authorized to update the application.
             if (!ApplicationConstants.LOCAL_SP.equals(serviceProvider.getApplicationName())
                     && !ApplicationMgtOSGIUtil.isUserAuthorized(serviceProvider.getApplicationName(),
-                            serviceProvider.getApplicationID())) {
+                    serviceProvider.getApplicationID())) {
                 log.warn("Illegale Access! User " + CarbonContext.getThreadLocalCarbonContext().getUsername()
                         + " does not have access to the application "
                         + serviceProvider.getApplicationName());
@@ -244,7 +233,6 @@ public class ApplicationManagementOSGIService{
     }
 
     /**
-     * 
      * @param applicationName
      * @throws IdentityApplicationManagementException
      */
@@ -277,7 +265,7 @@ public class ApplicationManagementOSGIService{
             if (serviceProvider != null
                     && serviceProvider.getInboundAuthenticationConfig() != null
                     && serviceProvider.getInboundAuthenticationConfig()
-                            .getInboundAuthenticationRequestConfigs() != null) {
+                    .getInboundAuthenticationRequestConfigs() != null) {
 
                 InboundAuthenticationRequestConfig[] configs = serviceProvider
                         .getInboundAuthenticationConfig().getInboundAuthenticationRequestConfigs();
@@ -300,7 +288,7 @@ public class ApplicationManagementOSGIService{
                         try {
                            /* AxisService stsService = getAxisConfig().getService(
                                     ServerConstants.STS_NAME);*/
-                        	AxisService stsService = ApplicationManagementServiceComponentHolder.getConfigContextService().getServerConfigContext().getAxisConfiguration().getService(
+                            AxisService stsService = ApplicationManagementServiceComponentHolder.getConfigContextService().getServerConfigContext().getAxisConfiguration().getService(
                                     ServerConstants.STS_NAME);
                             Parameter origParam = stsService
                                     .getParameter(SAMLTokenIssuerConfig.SAML_ISSUER_CONFIG
@@ -319,7 +307,7 @@ public class ApplicationManagementOSGIService{
                                 throw new IdentityApplicationManagementException(
                                         "missing parameter : "
                                                 + SAMLTokenIssuerConfig.SAML_ISSUER_CONFIG
-                                                        .getLocalPart());
+                                                .getLocalPart());
                             }
                         } catch (Exception e) {
                             log.error("Error while removing a trusted service", e);
@@ -337,7 +325,6 @@ public class ApplicationManagementOSGIService{
     }
 
     /**
-     * 
      * @param federatedIdPName
      * @return
      * @throws IdentityApplicationManagementException
@@ -356,7 +343,6 @@ public class ApplicationManagementOSGIService{
     }
 
     /**
-     * 
      * @return
      * @throws IdentityApplicationManagementException
      */
@@ -378,7 +364,6 @@ public class ApplicationManagementOSGIService{
     }
 
     /**
-     * 
      * @return
      * @throws IdentityApplicationManagementException
      */
@@ -401,7 +386,6 @@ public class ApplicationManagementOSGIService{
     }
 
     /**
-     * 
      * @return
      * @throws IdentityApplicationManagementException
      */
@@ -425,7 +409,6 @@ public class ApplicationManagementOSGIService{
     }
 
     /**
-     * 
      * @return
      * @throws IdentityApplicationManagementException
      */
@@ -447,15 +430,15 @@ public class ApplicationManagementOSGIService{
     }
 
     private void setSTSParameter(SAMLTokenIssuerConfig samlConfig) throws IdentityApplicationManagementException {
-    	Registry registry;
-		try {
-			registry = (Registry) ApplicationManagementServiceComponentHolder.getRegistryService().getConfigSystemRegistry(getTenantId());
-			new SecurityServiceAdmin(ApplicationManagementServiceComponentHolder.getConfigContextService().getServerConfigContext().getAxisConfiguration(), registry)
-            .setServiceParameterElement(ServerConstants.STS_NAME, samlConfig.getParameter());
-		} catch (Exception ex) {
-			throw new IdentityApplicationManagementException(ex);
-		}
-        
+        Registry registry;
+        try {
+            registry = (Registry) ApplicationManagementServiceComponentHolder.getRegistryService().getConfigSystemRegistry(getTenantId());
+            new SecurityServiceAdmin(ApplicationManagementServiceComponentHolder.getConfigContextService().getServerConfigContext().getAxisConfiguration(), registry)
+                    .setServiceParameterElement(ServerConstants.STS_NAME, samlConfig.getParameter());
+        } catch (Exception ex) {
+            throw new IdentityApplicationManagementException(ex);
+        }
+
     }
 
     private void removeTrustedService(String groupName, String serviceName, String trustedService)
@@ -483,10 +466,10 @@ public class ApplicationManagementOSGIService{
                     e);
         }
     }
-    
-    private int getTenantId(){
-    	int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-    	return tenantId;
+
+    private int getTenantId() {
+        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        return tenantId;
     }
 
 }

@@ -21,7 +21,6 @@ package org.wso2.carbon.identity.entitlement.proxy.json;
 
 import org.wso2.carbon.identity.entitlement.proxy.AbstractEntitlementServiceClient;
 import org.wso2.carbon.identity.entitlement.proxy.Attribute;
-import org.wso2.carbon.identity.entitlement.proxy.PEPProxyConfig;
 
 import java.util.List;
 
@@ -68,7 +67,7 @@ public class JSONEntitlementServiceClient extends AbstractEntitlementServiceClie
 
     @Override
     public List<String> getActionableChildResourcesForAlias(String alias, String parentResource,
-                                                           String action, String appId) throws Exception {
+                                                            String action, String appId) throws Exception {
         // TODO Auto-generated method stub
         return null;
     }

@@ -36,8 +36,8 @@ import java.util.Hashtable;
 /**
  * @scr.component name="identity.application.authenticator.basicauth.component" immediate="true"
  * @scr.reference name="osgi.httpservice" interface="org.osgi.service.http.HttpService"
- *                cardinality="1..1" policy="dynamic" bind="setHttpService"
- *                unbind="unsetHttpService"
+ * cardinality="1..1" policy="dynamic" bind="setHttpService"
+ * unbind="unsetHttpService"
  */
 public class IWAAuthenticatorServiceComponent {
 
@@ -45,9 +45,9 @@ public class IWAAuthenticatorServiceComponent {
     private static HttpService httpService;
 
     protected void activate(ComponentContext ctxt) {
-    	
-    	IWAAuthenticator iwaAuth = new IWAAuthenticator();
-    	Hashtable<String, String> props = new Hashtable<String, String>();
+
+        IWAAuthenticator iwaAuth = new IWAAuthenticator();
+        Hashtable<String, String> props = new Hashtable<String, String>();
 
         // Register iwa servlet
         Servlet iwaServlet = new ContextPathServletAdaptor(new IWAServelet(), IWAConstants.IWA_URL);

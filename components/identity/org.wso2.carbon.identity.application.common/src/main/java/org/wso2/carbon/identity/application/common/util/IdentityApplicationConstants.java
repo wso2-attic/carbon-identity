@@ -88,7 +88,7 @@ public class IdentityApplicationConstants {
             public static final String NAME = "facebook";
             public static final String CLIENT_ID = "ClientId";
             public static final String CLIENT_SECRET = "ClientSecret";
-			public static final String SCOPE = "Scope";
+            public static final String SCOPE = "Scope";
         }
 
         public static class WSTrust {

@@ -20,17 +20,11 @@ package org.wso2.carbon.identity.provisioning.listener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
-import org.wso2.carbon.identity.provisioning.cache.ProvisioningConnectorCache;
-import org.wso2.carbon.identity.provisioning.cache.ProvisioningConnectorCacheEntry;
-import org.wso2.carbon.identity.provisioning.cache.ProvisioningConnectorCacheKey;
-import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCache;
-import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheEntry;
-import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheKey;
+import org.wso2.carbon.identity.provisioning.cache.*;
 import org.wso2.carbon.identity.provisioning.dao.ProvisioningManagementDAO;
 import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtLister;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -76,7 +70,6 @@ public class IdentityProviderMgtProvisioningListener implements IdentityProvider
     }
 
     /**
-     * 
      * @param identityProviderName
      * @param tenantDomain
      * @throws IdentityProvisioningException
@@ -131,7 +124,7 @@ public class IdentityProviderMgtProvisioningListener implements IdentityProvider
                 }
             } catch (IdentityApplicationManagementException e) {
                 throw new IdentityProvisioningException("Error occurred while removing cache entry from the " +
-                                                        "service provider provisioning connector cache", e);
+                        "service provider provisioning connector cache", e);
             }
         } finally {
             PrivilegedCarbonContext.endTenantFlow();

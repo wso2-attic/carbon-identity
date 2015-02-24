@@ -17,13 +17,6 @@
  */
 package org.wso2.carbon.identity.application.authenticator.openid.manager;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openid4java.association.AssociationException;
@@ -42,29 +35,32 @@ import org.openid4java.message.ax.AxMessage;
 import org.openid4java.message.ax.FetchRequest;
 import org.openid4java.message.ax.FetchResponse;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
-import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
-import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
-import org.wso2.carbon.identity.application.authenticator.openid.OpenIDAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.openid.exception.OpenIDException;
 import org.wso2.carbon.identity.application.common.model.Claim;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.ui.CarbonUIUtil;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class DefaultOpenIDManager implements OpenIDManager {
 
     // Smart OpenID Consumer Manager
     private static ConsumerManager consumerManager = new ConsumerManager();
-    
+
     private static Log log = LogFactory.getLog(DefaultOpenIDManager.class);
 
     public String doOpenIDLogin(HttpServletRequest request, HttpServletResponse response, AuthenticationContext context) throws OpenIDException {
-    	
+
         String claimed_id = request.getParameter("claimed_id");
-        
+
         if (claimed_id == null) {
-        	claimed_id = context.getAuthenticatorProperties().get(
+            claimed_id = context.getAuthenticatorProperties().get(
                     IdentityApplicationConstants.Authenticator.OpenID.OPEN_ID_URL);
         }
 
@@ -80,11 +76,11 @@ public class DefaultOpenIDManager implements OpenIDManager {
             request.getSession().setAttribute("openid-disc", discovered);
 
             //consumerManager.setImmediateAuth(true);
-            
+
             String returnToURL = CarbonUIUtil.getAdminConsoleURL(request);
             String realm = returnToURL.replace("commonauth/carbon/", "commonauth");
             returnToURL = realm + "?sessionDataKey=" + context.getContextIdentifier();
-            
+
             AuthRequest authReq = consumerManager.authenticate(discovered, returnToURL);
             authReq.setRealm(realm);
 
@@ -96,13 +92,13 @@ public class DefaultOpenIDManager implements OpenIDManager {
             // Getting required attributes using FetchRequest
             FetchRequest fetchRequest = FetchRequest.createFetchRequest();
 
-			for (String requestedAttribute : requestedAttributes) {
+            for (String requestedAttribute : requestedAttributes) {
 
-				fetchRequest.addAttribute(requestedAttribute,
-						attributesRequestor.getTypeURI(claimed_id, requestedAttribute),
-						attributesRequestor.isRequired(claimed_id, requestedAttribute),
-						attributesRequestor.getCount(claimed_id, requestedAttribute));
-			}
+                fetchRequest.addAttribute(requestedAttribute,
+                        attributesRequestor.getTypeURI(claimed_id, requestedAttribute),
+                        attributesRequestor.isRequired(claimed_id, requestedAttribute),
+                        attributesRequestor.getCount(claimed_id, requestedAttribute));
+            }
 
             // Adding the AX extension to the AuthRequest message
             authReq.addExtension(fetchRequest);
@@ -110,8 +106,8 @@ public class DefaultOpenIDManager implements OpenIDManager {
             // Returning OP Url
             return authReq.getDestinationUrl(true);
 
-        } catch (YadisException e){
-            if(e.getErrorCode() == 1796){
+        } catch (YadisException e) {
+            if (e.getErrorCode() == 1796) {
                 throw new OpenIDException(e.getMessage(), e);
             }
             throw new OpenIDException("Error while creating FetchRequest", e);
@@ -121,13 +117,13 @@ public class DefaultOpenIDManager implements OpenIDManager {
             throw new OpenIDException("Error while doing OpenID Discovery", e);
         } catch (ConsumerException e) {
             throw new OpenIDException("Error while doing OpenID Authentication", e);
-        } 
+        }
     }
 
-    public void processOpenIDLoginResponse(HttpServletRequest request, HttpServletResponse response, AuthenticationContext context) throws OpenIDException{
+    public void processOpenIDLoginResponse(HttpServletRequest request, HttpServletResponse response, AuthenticationContext context) throws OpenIDException {
 
-    	String contextIdentifier = context.getContextIdentifier();
-    	
+        String contextIdentifier = context.getContextIdentifier();
+
         try {
             // Getting all parameters in request including AuthResponse
             ParameterList authResponseParams = new ParameterList(request.getParameterMap());
@@ -137,7 +133,7 @@ public class DefaultOpenIDManager implements OpenIDManager {
 
             String returnToURL = CarbonUIUtil.getAdminConsoleURL(request);
             returnToURL = returnToURL.replace("commonauth/carbon/", "commonauth") + "?sessionDataKey=" + contextIdentifier;
-            
+
             // Verify return-to, discoveries, nonce & signature
             // Signature will be verified using the shared secret
             VerificationResult verificationResult = consumerManager.verify(returnToURL, authResponseParams, discovered);
@@ -146,42 +142,42 @@ public class DefaultOpenIDManager implements OpenIDManager {
 
             // Identifier will be NULL if verification failed
             if (verified != null) {
-            	
-            	if(log.isDebugEnabled()) {
-            		log.debug("OpenID Response verification successfull. Verified ID: " + verified.getIdentifier());
-            	}
+
+                if (log.isDebugEnabled()) {
+                    log.debug("OpenID Response verification successfull. Verified ID: " + verified.getIdentifier());
+                }
 
                 AuthSuccess authSuccess = (AuthSuccess) verificationResult.getAuthResponse();
 
                 AttributesRequestor attributesRequestor = getAttributeRequestor();
-                
+
                 // Get requested attributes using AX extension
                 if (authSuccess.hasExtension(AxMessage.OPENID_NS_AX)) {
-                	
-                    Map<ClaimMapping,String> externalIDPClaims = new HashMap<ClaimMapping,String>();
-                    
+
+                    Map<ClaimMapping, String> externalIDPClaims = new HashMap<ClaimMapping, String>();
+
                     String[] attrArray = attributesRequestor.getRequestedAttributes(authSuccess.getIdentity());
                     FetchResponse fetchResp = (FetchResponse) authSuccess.getExtension(AxMessage.OPENID_NS_AX);
-                    
-                    for(String attr : attrArray){
+
+                    for (String attr : attrArray) {
                         String claimUri = attributesRequestor.getTypeURI(authSuccess.getIdentity(), attr);
                         List attributeValues = fetchResp.getAttributeValuesByTypeUri(claimUri);
-                        
-                        if(attributeValues.get(0) instanceof String && ((String)attributeValues.get(0)).split(",").length > 1){
-                            String[] splitString = ((String)attributeValues.get(0)).split(",");
-                            for(String part : splitString){
+
+                        if (attributeValues.get(0) instanceof String && ((String) attributeValues.get(0)).split(",").length > 1) {
+                            String[] splitString = ((String) attributeValues.get(0)).split(",");
+                            for (String part : splitString) {
                                 attributeValues.add(part);
                             }
                         }
-                        if(attributeValues.get(0) != null){
+                        if (attributeValues.get(0) != null) {
                             Claim claim = new Claim();
                             claim.setClaimUri(claimUri);
                             ClaimMapping claimMapping = new ClaimMapping();
                             claimMapping.setRemoteClaim(claim);
-                        	externalIDPClaims.put(claimMapping,getCommaSeperatedValue(attributeValues));
+                            externalIDPClaims.put(claimMapping, getCommaSeperatedValue(attributeValues));
                         }
                     }
-                    
+
                     context.setSubjectAttributes(externalIDPClaims);
                 }
 
@@ -202,50 +198,50 @@ public class DefaultOpenIDManager implements OpenIDManager {
         }
 
     }
-    
+
     private AttributesRequestor getAttributeRequestor() {
 
-		String attribRequestorClassName = FileBasedConfigurationBuilder.getInstance()
-				.getAuthenticatorBean("OpenIDAuthenticator").getParameterMap()
-				.get("AttributesRequestor");
-		
-		AttributesRequestor attribRequestor = null;
-		
-		if (attribRequestorClassName != null) {
-			try {
-				// Bundle class loader will cache the loaded class and returned
-				// the already loaded instance, hence calling this method
-				// multiple times doesn't cost.
-				Class clazz = Thread.currentThread().getContextClassLoader()
-						.loadClass(attribRequestorClassName);
-				attribRequestor = (AttributesRequestor) clazz.newInstance();
+        String attribRequestorClassName = FileBasedConfigurationBuilder.getInstance()
+                .getAuthenticatorBean("OpenIDAuthenticator").getParameterMap()
+                .get("AttributesRequestor");
 
-			} catch (ClassNotFoundException e) {
-				log.error("Error while instantiating the OpenIDManager ", e);
-			} catch (InstantiationException e) {
-				log.error("Error while instantiating the OpenIDManager ", e);
-			} catch (IllegalAccessException e) {
-				log.error("Error while instantiating the OpenIDManager ", e);
-			}
-		} else {
-			attribRequestor = new SampleAttributesRequestor();
-		}
+        AttributesRequestor attribRequestor = null;
+
+        if (attribRequestorClassName != null) {
+            try {
+                // Bundle class loader will cache the loaded class and returned
+                // the already loaded instance, hence calling this method
+                // multiple times doesn't cost.
+                Class clazz = Thread.currentThread().getContextClassLoader()
+                        .loadClass(attribRequestorClassName);
+                attribRequestor = (AttributesRequestor) clazz.newInstance();
+
+            } catch (ClassNotFoundException e) {
+                log.error("Error while instantiating the OpenIDManager ", e);
+            } catch (InstantiationException e) {
+                log.error("Error while instantiating the OpenIDManager ", e);
+            } catch (IllegalAccessException e) {
+                log.error("Error while instantiating the OpenIDManager ", e);
+            }
+        } else {
+            attribRequestor = new SampleAttributesRequestor();
+        }
 
         attribRequestor.init();
-		
-		return attribRequestor;
-	}
-    
+
+        return attribRequestor;
+    }
+
     private String getCommaSeperatedValue(List<String> values) {
-    	StringBuffer returnValue = null;
-    	for(String value : values) {
-    		if(returnValue == null) {
-    			returnValue = new StringBuffer(value);
-    		} else {
-    			returnValue.append("," + value);
-    		}
-    	}
-    	return returnValue != null ? returnValue.toString() : null;
+        StringBuffer returnValue = null;
+        for (String value : values) {
+            if (returnValue == null) {
+                returnValue = new StringBuffer(value);
+            } else {
+                returnValue.append("," + value);
+            }
+        }
+        return returnValue != null ? returnValue.toString() : null;
     }
 
 }

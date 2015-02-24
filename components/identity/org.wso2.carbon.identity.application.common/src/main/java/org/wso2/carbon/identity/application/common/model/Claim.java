@@ -18,52 +18,20 @@
 
 package org.wso2.carbon.identity.application.common.model;
 
+import org.apache.axiom.om.OMElement;
+
 import java.io.Serializable;
 import java.util.Iterator;
-
-import org.apache.axiom.om.OMElement;
 
 public class Claim implements Serializable {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -9123587946522643637L;
 
     private String claimUri;
     private int claimId;
-
-    /**
-     * 
-     * @return
-     */
-    public String getClaimUri() {
-        return claimUri;
-    }
-
-    /**
-     * 
-     * @param claimUri
-     */
-    public void setClaimUri(String claimUri) {
-        this.claimUri = claimUri;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public int getClaimId() {
-        return claimId;
-    }
-
-    /**
-     * 
-     * @param claimId
-     */
-    public void setClaimId(int claimId) {
-        this.claimId = claimId;
-    }
 
     /*
          * <Claim> <ClaimUri></ClaimUri></Claim>
@@ -89,6 +57,34 @@ public class Claim implements Serializable {
         }
         return claim;
 
+    }
+
+    /**
+     * @return
+     */
+    public String getClaimUri() {
+        return claimUri;
+    }
+
+    /**
+     * @param claimUri
+     */
+    public void setClaimUri(String claimUri) {
+        this.claimUri = claimUri;
+    }
+
+    /**
+     * @return
+     */
+    public int getClaimId() {
+        return claimId;
+    }
+
+    /**
+     * @param claimId
+     */
+    public void setClaimId(int claimId) {
+        this.claimId = claimId;
     }
 
     @Override

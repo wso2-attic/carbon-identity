@@ -36,10 +36,9 @@ public final class UserStoreMgtDataKeeper {
     public static void addUserStoreManager(PropertyDTO[] userStoreManager, String domainName) {
         UserStoreMgtDataKeeper.userStoreManagers.put(domainName, convertArrayToMap(userStoreManager));
     }
-    
+
     /**
      * Clear  user store manager to in-memory map
-     *
      */
     public static void clearUserStoreManager() {
         UserStoreMgtDataKeeper.userStoreManagers.clear();

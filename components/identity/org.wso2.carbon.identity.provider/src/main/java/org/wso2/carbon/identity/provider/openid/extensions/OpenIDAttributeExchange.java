@@ -16,13 +16,6 @@
 
 package org.wso2.carbon.identity.provider.openid.extensions;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openid4java.message.AuthRequest;
@@ -31,11 +24,14 @@ import org.openid4java.message.MessageExtension;
 import org.openid4java.message.ax.FetchRequest;
 import org.openid4java.message.ax.FetchResponse;
 import org.wso2.carbon.identity.base.IdentityConstants;
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.base.IdentityConstants.OpenId.ExchangeAttributes;
+import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
 import org.wso2.carbon.identity.provider.dto.OpenIDClaimDTO;
 import org.wso2.carbon.identity.provider.openid.handlers.OpenIDAuthenticationRequest;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 
 /**
@@ -44,168 +40,169 @@ import org.wso2.carbon.identity.provider.openid.handlers.OpenIDAuthenticationReq
  */
 public class OpenIDAttributeExchange extends OpenIDExtension {
 
-	private OpenIDAuthenticationRequest openidAuthnRequest;
-	private static Log log = LogFactory.getLog(OpenIDAttributeExchange.class);
+    private static Log log = LogFactory.getLog(OpenIDAttributeExchange.class);
+    private OpenIDAuthenticationRequest openidAuthnRequest;
 
-	/**
-	 * @param request An instance of OpenIDAuthenticationRequest
-	 */
-	public OpenIDAttributeExchange(OpenIDAuthenticationRequest request) throws IdentityException {
-		if (request == null) {
-			log.debug("Request cannot be null while initializing OpenIDAttributeExchange");
-			throw new IdentityException(
-					"Request cannot be null while initializing OpenIDAttributeExchange");
-		}
-		this.openidAuthnRequest = request;
-	}
+    /**
+     * @param request An instance of OpenIDAuthenticationRequest
+     */
+    public OpenIDAttributeExchange(OpenIDAuthenticationRequest request) throws IdentityException {
+        if (request == null) {
+            log.debug("Request cannot be null while initializing OpenIDAttributeExchange");
+            throw new IdentityException(
+                    "Request cannot be null while initializing OpenIDAttributeExchange");
+        }
+        this.openidAuthnRequest = request;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void addRequiredAttributes(List<String> requiredAttributes) throws IdentityException {
-		MessageExtension extensions = null;
-		AuthRequest authRequest = null;
+    /**
+     * {@inheritDoc}
+     */
+    public void addRequiredAttributes(List<String> requiredAttributes) throws IdentityException {
+        MessageExtension extensions = null;
+        AuthRequest authRequest = null;
 
-		try {
-			authRequest = openidAuthnRequest.getAuthRequest();
+        try {
+            authRequest = openidAuthnRequest.getAuthRequest();
 
-			if (authRequest != null) {
-				if (authRequest.hasExtension(FetchRequest.OPENID_NS_AX)) {
-					extensions = authRequest.getExtension(FetchRequest.OPENID_NS_AX);
-				} else if (authRequest.hasExtension(ExchangeAttributes.NS_AX)) {
-					extensions = authRequest.getExtension(ExchangeAttributes.NS_AX);
-				}
+            if (authRequest != null) {
+                if (authRequest.hasExtension(FetchRequest.OPENID_NS_AX)) {
+                    extensions = authRequest.getExtension(FetchRequest.OPENID_NS_AX);
+                } else if (authRequest.hasExtension(ExchangeAttributes.NS_AX)) {
+                    extensions = authRequest.getExtension(ExchangeAttributes.NS_AX);
+                }
 
-				if (extensions instanceof FetchRequest) {
-					Map required = null;
-					Map optional = null;
-					FetchRequest fetchRequest = null;
+                if (extensions instanceof FetchRequest) {
+                    Map required = null;
+                    Map optional = null;
+                    FetchRequest fetchRequest = null;
 
-					fetchRequest = (FetchRequest) extensions;
+                    fetchRequest = (FetchRequest) extensions;
 
-					// Get the required attributes as requested by the RP.
-					required = fetchRequest.getAttributes(true);
-					optional = fetchRequest.getAttributes();
+                    // Get the required attributes as requested by the RP.
+                    required = fetchRequest.getAttributes(true);
+                    optional = fetchRequest.getAttributes();
 
-					if (optional != null && !optional.isEmpty()) {
-						Iterator iterator = optional.entrySet().iterator();
-						Entry entry = null;
-						while (iterator.hasNext()) {
-							entry = (Entry) iterator.next();
-							if (!required.containsKey(entry.getKey())) {
-								required.put(entry.getKey(), entry.getValue());
-							}
-						}
-					}
+                    if (optional != null && !optional.isEmpty()) {
+                        Iterator iterator = optional.entrySet().iterator();
+                        Entry entry = null;
+                        while (iterator.hasNext()) {
+                            entry = (Entry) iterator.next();
+                            if (!required.containsKey(entry.getKey())) {
+                                required.put(entry.getKey(), entry.getValue());
+                            }
+                        }
+                    }
 
-					Iterator<Entry<String, String>> iterator = null;
-					Entry<String, String> entry = null;
-					iterator = required.entrySet().iterator();
+                    Iterator<Entry<String, String>> iterator = null;
+                    Entry<String, String> entry = null;
+                    iterator = required.entrySet().iterator();
 
-					while (iterator.hasNext()) {
-						entry = iterator.next();
-						if (!requiredAttributes.contains((String) entry.getValue())) {
-							requiredAttributes.add((String) entry.getValue());
-						}
-					}
-				}
-			}
-		} catch (MessageException e) {
-			log.error("Failed to add required attributes of Attribute Exchange", e);
-			throw new IdentityException("Failed to add required attributes of Attribute Exchange",
-					e);
-		}
-	}
-	/**
-	 * {@inheritDoc}
-	 */
-	public MessageExtension getMessageExtension(String userId, String profileName, OpenIDAuthRequestDTO requestDTO)
-			throws IdentityException {
-		MessageExtension extensions = null;
-		AuthRequest authRequest = null;
-		FetchResponse fetchResponse = null;
+                    while (iterator.hasNext()) {
+                        entry = iterator.next();
+                        if (!requiredAttributes.contains((String) entry.getValue())) {
+                            requiredAttributes.add((String) entry.getValue());
+                        }
+                    }
+                }
+            }
+        } catch (MessageException e) {
+            log.error("Failed to add required attributes of Attribute Exchange", e);
+            throw new IdentityException("Failed to add required attributes of Attribute Exchange",
+                    e);
+        }
+    }
 
-		try {
-			authRequest = openidAuthnRequest.getAuthRequest();
-			if (authRequest.hasExtension(FetchRequest.OPENID_NS_AX)) {
-				extensions = authRequest.getExtension(FetchRequest.OPENID_NS_AX);
-			} else if (authRequest.hasExtension(IdentityConstants.OpenId.ExchangeAttributes.NS_AX)) {
-				extensions = authRequest
-						.getExtension(IdentityConstants.OpenId.ExchangeAttributes.NS_AX);
-			}
+    /**
+     * {@inheritDoc}
+     */
+    public MessageExtension getMessageExtension(String userId, String profileName, OpenIDAuthRequestDTO requestDTO)
+            throws IdentityException {
+        MessageExtension extensions = null;
+        AuthRequest authRequest = null;
+        FetchResponse fetchResponse = null;
 
-			if (extensions instanceof FetchRequest) {
-				Map required = null;
-				Map optional = null;
-				FetchRequest fetchRequest = null;
-				Map<String, OpenIDClaimDTO> claimValues = null;
+        try {
+            authRequest = openidAuthnRequest.getAuthRequest();
+            if (authRequest.hasExtension(FetchRequest.OPENID_NS_AX)) {
+                extensions = authRequest.getExtension(FetchRequest.OPENID_NS_AX);
+            } else if (authRequest.hasExtension(IdentityConstants.OpenId.ExchangeAttributes.NS_AX)) {
+                extensions = authRequest
+                        .getExtension(IdentityConstants.OpenId.ExchangeAttributes.NS_AX);
+            }
 
-				fetchRequest = (FetchRequest) extensions;
+            if (extensions instanceof FetchRequest) {
+                Map required = null;
+                Map optional = null;
+                FetchRequest fetchRequest = null;
+                Map<String, OpenIDClaimDTO> claimValues = null;
 
-				// Get the required attributes as requested by the RP.
-				required = fetchRequest.getAttributes(true);
-				optional = fetchRequest.getAttributes();
+                fetchRequest = (FetchRequest) extensions;
 
-				if (optional != null && !optional.isEmpty()) {
-					Iterator iterator = optional.entrySet().iterator();
-					Entry entry = null;
-					while (iterator.hasNext()) {
-						entry = (Entry) iterator.next();
-						if (!required.containsKey(entry.getKey())) {
-							required.put(entry.getKey(), entry.getValue());
-						}
-					}
-				}
+                // Get the required attributes as requested by the RP.
+                required = fetchRequest.getAttributes(true);
+                optional = fetchRequest.getAttributes();
 
-				Iterator<Entry<String, String>> iterator = null;
-				Entry<String, String> entry = null;
-				iterator = required.entrySet().iterator();
-				List<String> requiredAttributes = null;
-				requiredAttributes = new ArrayList<String>();
+                if (optional != null && !optional.isEmpty()) {
+                    Iterator iterator = optional.entrySet().iterator();
+                    Entry entry = null;
+                    while (iterator.hasNext()) {
+                        entry = (Entry) iterator.next();
+                        if (!required.containsKey(entry.getKey())) {
+                            required.put(entry.getKey(), entry.getValue());
+                        }
+                    }
+                }
 
-				while (iterator.hasNext()) {
-					entry = iterator.next();
-					if (!requiredAttributes.contains((String) entry.getValue())) {
-						requiredAttributes.add((String) entry.getValue());
-					}
-				}
+                Iterator<Entry<String, String>> iterator = null;
+                Entry<String, String> entry = null;
+                iterator = required.entrySet().iterator();
+                List<String> requiredAttributes = null;
+                requiredAttributes = new ArrayList<String>();
 
-				fetchResponse = FetchResponse.createFetchResponse(fetchRequest, new HashMap());
-				claimValues = populateAttributeValues(requiredAttributes, userId, profileName, requestDTO);
+                while (iterator.hasNext()) {
+                    entry = iterator.next();
+                    if (!requiredAttributes.contains((String) entry.getValue())) {
+                        requiredAttributes.add((String) entry.getValue());
+                    }
+                }
+
+                fetchResponse = FetchResponse.createFetchResponse(fetchRequest, new HashMap());
+                claimValues = populateAttributeValues(requiredAttributes, userId, profileName, requestDTO);
                 if (claimValues != null && claimValues.size() != 0) {
                     setAttributeExchangeValues(fetchResponse, claimValues);
                 }
             }
 
-			return fetchResponse;
-		} catch (MessageException e) {
-			log.error("Failed to create message extension for Attribute Exchange", e);
-			throw new IdentityException(
-					"Failed to create message extension for Attribute Exchange", e);
-		}
-	}
+            return fetchResponse;
+        } catch (MessageException e) {
+            log.error("Failed to create message extension for Attribute Exchange", e);
+            throw new IdentityException(
+                    "Failed to create message extension for Attribute Exchange", e);
+        }
+    }
 
-	/**
-	 * Populate the response with claim values. If we can't find the required values with us, we
-	 * simply avoid sending them. An Identity Provider MAY return any subset of the following fields
-	 * in response to the query.
-	 * 
-	 * @param claimValues Claim values.
-	 * @throws MessageException
-	 */
-	protected void setAttributeExchangeValues(FetchResponse response,
-			Map<String, OpenIDClaimDTO> claimValues) throws MessageException {
+    /**
+     * Populate the response with claim values. If we can't find the required values with us, we
+     * simply avoid sending them. An Identity Provider MAY return any subset of the following fields
+     * in response to the query.
+     *
+     * @param claimValues Claim values.
+     * @throws MessageException
+     */
+    protected void setAttributeExchangeValues(FetchResponse response,
+                                              Map<String, OpenIDClaimDTO> claimValues) throws MessageException {
 
-		Iterator<Entry<String, OpenIDClaimDTO>> iterator = null;
-		Entry<String, OpenIDClaimDTO> entry = null;
-		OpenIDClaimDTO claim = null;
+        Iterator<Entry<String, OpenIDClaimDTO>> iterator = null;
+        Entry<String, OpenIDClaimDTO> entry = null;
+        OpenIDClaimDTO claim = null;
 
-		iterator = claimValues.entrySet().iterator();
+        iterator = claimValues.entrySet().iterator();
 
-		while (iterator.hasNext()) {
-			entry = iterator.next();
-			claim = (OpenIDClaimDTO) entry.getValue();
-			response.addAttribute(claim.getClaimUri(),claim.getClaimValue());
-		}
-	}
+        while (iterator.hasNext()) {
+            entry = iterator.next();
+            claim = (OpenIDClaimDTO) entry.getValue();
+            response.addAttribute(claim.getClaimUri(), claim.getClaimValue());
+        }
+    }
 }

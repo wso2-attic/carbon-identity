@@ -25,42 +25,42 @@ import org.wso2.carbon.identity.oauth.stub.types.Parameters;
 
 public class OAuthServiceClient {
 
-	private OAuthServiceStub stub;
+    private OAuthServiceStub stub;
 
-	/**
-	 * Instantiates OAuthServiceClient
-	 *
-	 * @param backendServerURL URL of the back end server where OAuthAdminService is running.
-	 * @param configCtx ConfigurationContext
-	 * @throws org.apache.axis2.AxisFault
-	 */
-	public OAuthServiceClient(String backendServerURL, ConfigurationContext configCtx)
-			throws AxisFault {
-		String serviceURL = backendServerURL + "OAuthService";
-		stub = new OAuthServiceStub(configCtx, serviceURL);
-	}
+    /**
+     * Instantiates OAuthServiceClient
+     *
+     * @param backendServerURL URL of the back end server where OAuthAdminService is running.
+     * @param configCtx        ConfigurationContext
+     * @throws org.apache.axis2.AxisFault
+     */
+    public OAuthServiceClient(String backendServerURL, ConfigurationContext configCtx)
+            throws AxisFault {
+        String serviceURL = backendServerURL + "OAuthService";
+        stub = new OAuthServiceStub(configCtx, serviceURL);
+    }
 
-	public Parameters getAccessToken(Parameters params) throws Exception {
-		return stub.getAccessToken(params);
-	}
+    public Parameters getAccessToken(Parameters params) throws Exception {
+        return stub.getAccessToken(params);
+    }
 
-	public Parameters getOAuthApplicationData(Parameters params) throws Exception {
-		return stub.authorizeOauthRequestToken(params);
-	}
+    public Parameters getOAuthApplicationData(Parameters params) throws Exception {
+        return stub.authorizeOauthRequestToken(params);
+    }
 
-	public Parameters getOauthRequestToken(Parameters params) throws Exception {
-		return stub.getOauthRequestToken(params);
-	}
+    public Parameters getOauthRequestToken(Parameters params) throws Exception {
+        return stub.getOauthRequestToken(params);
+    }
 
-	public Parameters authorizeOauthRequestToken(Parameters params) throws Exception {
-		return stub.authorizeOauthRequestToken(params);
-	}
+    public Parameters authorizeOauthRequestToken(Parameters params) throws Exception {
+        return stub.authorizeOauthRequestToken(params);
+    }
 
-	public Parameters getScope(String token) throws Exception {
-		return stub.getScopeAndAppName(token);
-	}
+    public Parameters getScope(String token) throws Exception {
+        return stub.getScopeAndAppName(token);
+    }
 
-	public Parameters removeOAuthApplicationData(Parameters params) throws Exception {
-		return stub.validateAuthenticationRequest(params);
-	}
+    public Parameters removeOAuthApplicationData(Parameters params) throws Exception {
+        return stub.validateAuthenticationRequest(params);
+    }
 }

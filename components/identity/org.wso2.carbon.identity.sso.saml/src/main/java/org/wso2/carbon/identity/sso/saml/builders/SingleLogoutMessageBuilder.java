@@ -65,12 +65,12 @@ public class SingleLogoutMessageBuilder {
         logoutResp.setIssuer(SAMLSSOUtil.getIssuer());
         logoutResp.setStatus(buildStatus(status, statMsg));
         logoutResp.setIssueInstant(new DateTime());
-        
-        if(isDoSignResponse && sessionInfoData != null){
-        	SAMLSSOUtil.setSignature(logoutResp, XMLSignature.ALGO_ID_SIGNATURE_RSA,
-        	new SignKeyDataHolder(sessionInfoData.getSubject()));
+
+        if (isDoSignResponse && sessionInfoData != null) {
+            SAMLSSOUtil.setSignature(logoutResp, XMLSignature.ALGO_ID_SIGNATURE_RSA,
+                    new SignKeyDataHolder(sessionInfoData.getSubject()));
         }
-        
+
         return logoutResp;
     }
 

@@ -17,8 +17,8 @@
 package org.wso2.carbon.um.ws.api;
 
 public class WSRemoteUserMgtConstants {
-    
-    public static final String SERVER_URL = "WSRealmServerUrl"; 
+
+    public static final String SERVER_URL = "WSRealmServerUrl";
     public static final String COOKIE_STRING = "WSRealmCookieString";
     public static final String CONFIGURATION_CONTEXT = "ConfigurationContext";
     public static final String TIMEOUT = "WSRealmSessionTimeOut";

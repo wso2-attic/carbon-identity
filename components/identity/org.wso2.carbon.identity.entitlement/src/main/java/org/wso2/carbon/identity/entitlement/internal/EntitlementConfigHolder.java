@@ -57,20 +57,20 @@ public class EntitlementConfigHolder {
      * This will be fired by CarbonResourceFinder whenever it wants to find a descendant or child resource
      * of a given resource
      */
-    private Map<PIPResourceFinder, Properties> resourceFinders  = new HashMap<PIPResourceFinder, Properties>();
+    private Map<PIPResourceFinder, Properties> resourceFinders = new HashMap<PIPResourceFinder, Properties>();
 
     /**
      * This will be fired by EntitlementDataFinder, whenever it wants to retrieve an attribute values to build the
      * XACML policy
      */
-    private Map<EntitlementDataFinderModule, Properties> policyEntitlementDataFinders  =
-                                                        new HashMap<EntitlementDataFinderModule, Properties>();
+    private Map<EntitlementDataFinderModule, Properties> policyEntitlementDataFinders =
+            new HashMap<EntitlementDataFinderModule, Properties>();
 
     /**
      * Will be fired by PolicyPublisher, whenever it wants to publish a policy
      */
     private Map<PolicyPublisherModule, Properties> policyPublisherModules =
-                                                new HashMap<PolicyPublisherModule, Properties>();
+            new HashMap<PolicyPublisherModule, Properties>();
 
     /**
      * Will be fired by PolicyPublisher, after a policy is published
@@ -88,13 +88,13 @@ public class EntitlementConfigHolder {
      * Will be fired by CarbonPolicyFinder, whenever it wants to find policies
      */
     private Map<PolicyFinderModule, Properties> policyFinderModules =
-                                                new HashMap<PolicyFinderModule, Properties>();
+            new HashMap<PolicyFinderModule, Properties>();
 
     /**
      * This holds all the policies of entitlement engine
      */
     private Map<PolicyCollection, Properties> policyCollections =
-                                                new HashMap<PolicyCollection, Properties>();
+            new HashMap<PolicyCollection, Properties>();
 
     /**
      * Will be fired by admin services, whenever it wants send notifications
@@ -106,7 +106,7 @@ public class EntitlementConfigHolder {
      * This holds all the policy storing logic of entitlement engine
      */
     private Map<PolicyStoreManageModule, Properties> policyStore =
-                                                new HashMap<PolicyStoreManageModule, Properties>();
+            new HashMap<PolicyStoreManageModule, Properties>();
 
     /**
      * This holds all the policy versioning of PAP
@@ -135,8 +135,8 @@ public class EntitlementConfigHolder {
     /**
      * Holds the properties of all modules.
      */
-    private Map<String ,List<PublisherDataHolder>> modulePropertyHolderMap =
-                                                new HashMap<String, List<PublisherDataHolder>>();
+    private Map<String, List<PublisherDataHolder>> modulePropertyHolderMap =
+            new HashMap<String, List<PublisherDataHolder>>();
 
     public Map<PIPExtension, Properties> getExtensions() {
         return extensions;
@@ -150,7 +150,7 @@ public class EntitlementConfigHolder {
         return designators;
     }
 
-    public void addDesignators(PIPAttributeFinder attributeFinder,  Properties properties) {
+    public void addDesignators(PIPAttributeFinder attributeFinder, Properties properties) {
         this.designators.put(attributeFinder, properties);
     }
 
@@ -192,21 +192,21 @@ public class EntitlementConfigHolder {
     }
 
     public void addPolicyPublisherModule(PolicyPublisherModule policyPublisherModules,
-                                                                            Properties properties) {
+                                         Properties properties) {
         this.policyPublisherModules.put(policyPublisherModules, properties);
     }
 
     public List<PublisherDataHolder> getModulePropertyHolders(String type) {
         return modulePropertyHolderMap.get(type);
     }
-        
+
     public void addModulePropertyHolder(String type, PublisherDataHolder holder) {
-        if(this.modulePropertyHolderMap.get(type) == null){
+        if (this.modulePropertyHolderMap.get(type) == null) {
             List<PublisherDataHolder> holders = new ArrayList<PublisherDataHolder>();
             holders.add(holder);
             this.modulePropertyHolderMap.put(type, holders);
         } else {
-            this.modulePropertyHolderMap.get(type).add(holder);    
+            this.modulePropertyHolderMap.get(type).add(holder);
         }
     }
 
@@ -215,7 +215,7 @@ public class EntitlementConfigHolder {
     }
 
     public void addPolicyFinderModule(PolicyFinderModule policyFinderModule,
-                                                                            Properties properties) {
+                                      Properties properties) {
         this.policyFinderModules.put(policyFinderModule, properties);
     }
 
@@ -248,7 +248,7 @@ public class EntitlementConfigHolder {
     }
 
     public void addPublisherVerificationModule(PublisherVerificationModule publisherVerificationModule,
-                                            Properties properties) {
+                                               Properties properties) {
         this.publisherVerificationModule.put(publisherVerificationModule, properties);
     }
 
@@ -257,7 +257,7 @@ public class EntitlementConfigHolder {
     }
 
     public void addNotificationHandler(PAPStatusDataHandler notificationHandler,
-                                                                            Properties properties) {
+                                       Properties properties) {
         this.papStatusDataHandlers.put(notificationHandler, properties);
     }
 

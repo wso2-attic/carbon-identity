@@ -20,14 +20,23 @@ package org.wso2.carbon.identity.mgt.mail;
 
 public interface Notification {
 
-	public void setSendTo(String sendTo);
-	public String getSendTo();
-	public void setSendFrom(String sendFrom);
-	public String getSendFrom();
-	public void setSubject(String subject);
-	public String getSubject();
-	public void setBody(String body);
-	public String getBody();
-	public void setFooter(String footer);
-	public String getFooter();
+    public String getSendTo();
+
+    public void setSendTo(String sendTo);
+
+    public String getSendFrom();
+
+    public void setSendFrom(String sendFrom);
+
+    public String getSubject();
+
+    public void setSubject(String subject);
+
+    public String getBody();
+
+    public void setBody(String body);
+
+    public String getFooter();
+
+    public void setFooter(String footer);
 }

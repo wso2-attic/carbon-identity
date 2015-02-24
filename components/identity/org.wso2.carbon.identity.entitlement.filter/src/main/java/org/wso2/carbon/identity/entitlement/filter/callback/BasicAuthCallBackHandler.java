@@ -30,13 +30,13 @@ public class BasicAuthCallBackHandler extends EntitlementFilterCallBackHandler {
 
     public BasicAuthCallBackHandler(HttpServletRequest request) throws EntitlementFilterException {
         String authHeaderEn = null;
-        if( !(request.getHeader("Authorization") == null || request.getHeader("Authorization").equals("null") ) ){
-            authHeaderEn=request.getHeader("Authorization");
-            String tempArr[]=authHeaderEn.split(" ");
-            if(tempArr.length == 2){
+        if (!(request.getHeader("Authorization") == null || request.getHeader("Authorization").equals("null"))) {
+            authHeaderEn = request.getHeader("Authorization");
+            String tempArr[] = authHeaderEn.split(" ");
+            if (tempArr.length == 2) {
                 String authHeaderDc = new String(Base64.decodeBase64(tempArr[1].getBytes()));
                 tempArr = authHeaderDc.split(":");
-                if(tempArr.length == 2){
+                if (tempArr.length == 2) {
                     setUserName(tempArr[0]);
                 }
             }

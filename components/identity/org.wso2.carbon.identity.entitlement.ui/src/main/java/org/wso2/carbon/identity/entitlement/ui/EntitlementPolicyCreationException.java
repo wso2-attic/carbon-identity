@@ -17,13 +17,13 @@
 */
 package org.wso2.carbon.identity.entitlement.ui;
 
-public class EntitlementPolicyCreationException extends Exception{
+public class EntitlementPolicyCreationException extends Exception {
 
-	public EntitlementPolicyCreationException(String message) {
-		super(message);
-	}
+    public EntitlementPolicyCreationException(String message) {
+        super(message);
+    }
 
-	public EntitlementPolicyCreationException(String message, Throwable e) {
-		super(message, e);
-	}
+    public EntitlementPolicyCreationException(String message, Throwable e) {
+        super(message, e);
+    }
 }

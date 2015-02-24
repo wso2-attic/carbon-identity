@@ -17,11 +17,13 @@
  */
 
 package org.wso2.carbon.identity.entitlement.ui;
+
 import org.wso2.balana.utils.policy.dto.BasicRuleDTO;
 import org.wso2.balana.utils.policy.dto.BasicTargetDTO;
 import org.wso2.carbon.identity.entitlement.stub.dto.EntitlementFinderDataHolder;
 import org.wso2.carbon.identity.entitlement.stub.dto.EntitlementTreeNodeDTO;
 import org.wso2.carbon.identity.entitlement.ui.dto.*;
+
 import java.util.*;
 
 /**
@@ -30,89 +32,69 @@ import java.util.*;
  */
 public class EntitlementPolicyBean {
 
-	private String policyName;
-
-	private String algorithmName;
-
-	private String policyDescription;
-
-	private String userInputData;
-
+    public Map<String, String> functionIdMap = new HashMap<String, String>();
+    public Map<String, String> functionIdElementValueMap = new HashMap<String, String>();
+    private String policyName;
+    private String algorithmName;
+    private String policyDescription;
+    private String userInputData;
     private List<String> subscribersList = new ArrayList<String>();
-
     private SimplePolicyEditorDTO SimplePolicyEditorDTO;
-
-	private Map<String, String> categoryMap = new HashMap<String, String>();
-
-	private Map<String, String> targetFunctionMap = new HashMap<String, String>();
-
-	private Map<String, String> attributeIdMap = new HashMap<String, String>();
-
-	private Map<String, String> ruleFunctionMap = new HashMap<String, String>();
-
-	private boolean editPolicy;
-
+    private Map<String, String> categoryMap = new HashMap<String, String>();
+    private Map<String, String> targetFunctionMap = new HashMap<String, String>();
+    private Map<String, String> attributeIdMap = new HashMap<String, String>();
+    private Map<String, String> ruleFunctionMap = new HashMap<String, String>();
+    private boolean editPolicy;
     private String[] policyCombiningAlgorithms = new String[0];
-
     private Map<String, EntitlementFinderDataHolder> entitlementFinders =
-                                                new HashMap<String, EntitlementFinderDataHolder>();
-
+            new HashMap<String, EntitlementFinderDataHolder>();
     private Map<Integer, String> selectedEntitlementData = new HashMap<Integer, String>();
-
     private Map<Integer, EntitlementTreeNodeDTO> entitlementLevelData =
             new HashMap<Integer, EntitlementTreeNodeDTO>();
-
-	private BasicTargetDTO basicTargetDTO = null;
-
+    private BasicTargetDTO basicTargetDTO = null;
     private TargetDTO targetDTO = null;
-
     private PolicySetDTO policySetDTO = null;
+    private List<BasicRuleDTO> basicRuleDTOs = new ArrayList<BasicRuleDTO>();
 
-	public Map<String, String> functionIdMap = new HashMap<String, String>();
+    private List<RuleDTO> ruleDTOs = new ArrayList<RuleDTO>();
 
-	public Map<String, String> functionIdElementValueMap = new HashMap<String, String>();
+    private List<ExtendAttributeDTO> extendAttributeDTOs = new ArrayList<ExtendAttributeDTO>();
 
-	private List<BasicRuleDTO> basicRuleDTOs = new ArrayList<BasicRuleDTO>();
-
-	private List<RuleDTO> ruleDTOs = new ArrayList<RuleDTO>();
-
-	private List<ExtendAttributeDTO> extendAttributeDTOs = new ArrayList<ExtendAttributeDTO>();
-
-	private List<ObligationDTO> obligationDTOs = new ArrayList<ObligationDTO>();
+    private List<ObligationDTO> obligationDTOs = new ArrayList<ObligationDTO>();
 
     private String ruleElementOrder;
 
     private String policyReferenceOrder;
 
-	private Set<String> preFunctions = new HashSet<String>();
+    private Set<String> preFunctions = new HashSet<String>();
 
     private List<PolicyRefIdDTO> policyRefIds = new ArrayList<PolicyRefIdDTO>();
 
-	/**
-	 * This method is temporally used to clear the entitlement bean. Need to
-	 * update with a method proper implementation TODO
-	 */
-	public void cleanEntitlementPolicyBean() {
+    /**
+     * This method is temporally used to clear the entitlement bean. Need to
+     * update with a method proper implementation TODO
+     */
+    public void cleanEntitlementPolicyBean() {
 
-		policyName = null;
+        policyName = null;
 
-		algorithmName = null;
+        algorithmName = null;
 
-		policyDescription = null;
+        policyDescription = null;
 
-		userInputData = null;
+        userInputData = null;
 
-		editPolicy = false;
+        editPolicy = false;
 
         policySetDTO = null;
 
-		functionIdMap.clear();
+        functionIdMap.clear();
 
-		functionIdElementValueMap.clear();
+        functionIdElementValueMap.clear();
 
-		basicRuleDTOs.clear();
+        basicRuleDTOs.clear();
 
-		removeBasicTargetElementDTO();
+        removeBasicTargetElementDTO();
 
         targetDTO = null;
 
@@ -129,159 +111,158 @@ public class EntitlementPolicyBean {
         policyReferenceOrder = null;
 
         policyRefIds.clear();
-        
-	}
 
-	public String getPolicyName() {
-		return policyName;
-	}
+    }
 
-	public void setPolicyName(String policyName) {
-		this.policyName = policyName;
-	}
+    public String getPolicyName() {
+        return policyName;
+    }
 
-	public String getAlgorithmName() {
-		return algorithmName;
-	}
+    public void setPolicyName(String policyName) {
+        this.policyName = policyName;
+    }
 
-	public void setAlgorithmName(String algorithmName) {
-		this.algorithmName = algorithmName;
-	}
+    public String getAlgorithmName() {
+        return algorithmName;
+    }
 
-	public String getPolicyDescription() {
-		return policyDescription;
-	}
+    public void setAlgorithmName(String algorithmName) {
+        this.algorithmName = algorithmName;
+    }
 
-	public void setPolicyDescription(String policyDescription) {
-		this.policyDescription = policyDescription;
-	}
+    public String getPolicyDescription() {
+        return policyDescription;
+    }
 
-	public String getUserInputData() {
-		return userInputData;
-	}
+    public void setPolicyDescription(String policyDescription) {
+        this.policyDescription = policyDescription;
+    }
 
-	public void setUserInputData(String userInputData) {
-		this.userInputData = userInputData;
-	}
+    public String getUserInputData() {
+        return userInputData;
+    }
 
-	public List<BasicRuleDTO> getBasicRuleDTOs() {
-		return basicRuleDTOs;
-	}
+    public void setUserInputData(String userInputData) {
+        this.userInputData = userInputData;
+    }
 
-	public void setBasicRuleDTOs(List<BasicRuleDTO> basicRuleDTOs) {
-		this.basicRuleDTOs = basicRuleDTOs;
-	}
+    public List<BasicRuleDTO> getBasicRuleDTOs() {
+        return basicRuleDTOs;
+    }
 
-	public void setBasicRuleElementDTOs(BasicRuleDTO basicRuleDTO) {
-		if (basicRuleDTOs.size() > 0) {
-			Iterator iterator = basicRuleDTOs.listIterator();
-			while (iterator.hasNext()) {
-				BasicRuleDTO elementDTO = (BasicRuleDTO) iterator
-						.next();
-				if (elementDTO.getRuleId().equals(
-						basicRuleDTO.getRuleId())) {
-					if (elementDTO.isCompletedRule()) {
-						basicRuleDTO.setCompletedRule(true);
-					}
-					iterator.remove();
-				}
-			}
-		}
-		this.basicRuleDTOs.add(basicRuleDTO);
-	}
+    public void setBasicRuleDTOs(List<BasicRuleDTO> basicRuleDTOs) {
+        this.basicRuleDTOs = basicRuleDTOs;
+    }
 
-	public BasicRuleDTO getBasicRuleElement(String ruleId) {
-		if (basicRuleDTOs.size() > 0) {
-			for (BasicRuleDTO basicRuleDTO : basicRuleDTOs) {
-				if (basicRuleDTO.getRuleId().equals(ruleId)) {
-					return basicRuleDTO;
-				}
-			}
-		}
-		return null;
-	}
+    public void setBasicRuleElementDTOs(BasicRuleDTO basicRuleDTO) {
+        if (basicRuleDTOs.size() > 0) {
+            Iterator iterator = basicRuleDTOs.listIterator();
+            while (iterator.hasNext()) {
+                BasicRuleDTO elementDTO = (BasicRuleDTO) iterator
+                        .next();
+                if (elementDTO.getRuleId().equals(
+                        basicRuleDTO.getRuleId())) {
+                    if (elementDTO.isCompletedRule()) {
+                        basicRuleDTO.setCompletedRule(true);
+                    }
+                    iterator.remove();
+                }
+            }
+        }
+        this.basicRuleDTOs.add(basicRuleDTO);
+    }
 
-	public boolean removeBasicRuleElement(String ruleId) {
-		if (basicRuleDTOs.size() > 0 && ruleId != null) {
-			for (BasicRuleDTO basicRuleDTO : basicRuleDTOs) {
-				if (ruleId.equals(basicRuleDTO.getRuleId())) {
-					return basicRuleDTOs.remove(basicRuleDTO);
-				}
-			}
-		}
-		return false;
-	}
+    public BasicRuleDTO getBasicRuleElement(String ruleId) {
+        if (basicRuleDTOs.size() > 0) {
+            for (BasicRuleDTO basicRuleDTO : basicRuleDTOs) {
+                if (basicRuleDTO.getRuleId().equals(ruleId)) {
+                    return basicRuleDTO;
+                }
+            }
+        }
+        return null;
+    }
 
-	public void removeBasicRuleElements() {
-		if (basicRuleDTOs.size() > 0) {
-			Iterator iterator = basicRuleDTOs.listIterator();
-			while (iterator.hasNext()) {
-				iterator.next();
-				iterator.remove();
-			}
-		}
-	}
+    public boolean removeBasicRuleElement(String ruleId) {
+        if (basicRuleDTOs.size() > 0 && ruleId != null) {
+            for (BasicRuleDTO basicRuleDTO : basicRuleDTOs) {
+                if (ruleId.equals(basicRuleDTO.getRuleId())) {
+                    return basicRuleDTOs.remove(basicRuleDTO);
+                }
+            }
+        }
+        return false;
+    }
 
+    public void removeBasicRuleElements() {
+        if (basicRuleDTOs.size() > 0) {
+            Iterator iterator = basicRuleDTOs.listIterator();
+            while (iterator.hasNext()) {
+                iterator.next();
+                iterator.remove();
+            }
+        }
+    }
 
 
 /////////////////////////////////////// new
 
-	public List<RuleDTO> getRuleDTOs() {
-		return ruleDTOs;
-	}
+    public List<RuleDTO> getRuleDTOs() {
+        return ruleDTOs;
+    }
 
-	public void setRuleDTOs(List<RuleDTO> ruleDTOs) {
-		this.ruleDTOs = ruleDTOs;
-	}
+    public void setRuleDTOs(List<RuleDTO> ruleDTOs) {
+        this.ruleDTOs = ruleDTOs;
+    }
 
-	public void setRuleDTO(RuleDTO ruleDTO) {
-		if (ruleDTOs.size() > 0) {
-			Iterator iterator = ruleDTOs.listIterator();
-			while (iterator.hasNext()) {
-				RuleDTO elementDTO = (RuleDTO) iterator.next();
-				if (elementDTO.getRuleId().equals(
-						ruleDTO.getRuleId())) {
-					if (elementDTO.isCompletedRule()) {
-						ruleDTO.setCompletedRule(true);
-					}
-					iterator.remove();
-				}
-			}
-		}
-		this.ruleDTOs.add(ruleDTO);
-	}
+    public void setRuleDTO(RuleDTO ruleDTO) {
+        if (ruleDTOs.size() > 0) {
+            Iterator iterator = ruleDTOs.listIterator();
+            while (iterator.hasNext()) {
+                RuleDTO elementDTO = (RuleDTO) iterator.next();
+                if (elementDTO.getRuleId().equals(
+                        ruleDTO.getRuleId())) {
+                    if (elementDTO.isCompletedRule()) {
+                        ruleDTO.setCompletedRule(true);
+                    }
+                    iterator.remove();
+                }
+            }
+        }
+        this.ruleDTOs.add(ruleDTO);
+    }
 
-	public RuleDTO getRuleDTO(String ruleId) {
-		if (ruleDTOs.size() > 0) {
-			for (RuleDTO ruleDTO : ruleDTOs) {
-				if (ruleDTO.getRuleId().equals(ruleId)) {
-					return ruleDTO;
-				}
-			}
-		}
-		return null;
-	}
+    public RuleDTO getRuleDTO(String ruleId) {
+        if (ruleDTOs.size() > 0) {
+            for (RuleDTO ruleDTO : ruleDTOs) {
+                if (ruleDTO.getRuleId().equals(ruleId)) {
+                    return ruleDTO;
+                }
+            }
+        }
+        return null;
+    }
 
-	public boolean removeRuleDTO(String ruleId) {
-		if (ruleDTOs.size() > 0) {
-			for (RuleDTO ruleDTO : ruleDTOs) {
-				if (ruleDTO.getRuleId().equals(ruleId)) {
-					return ruleDTOs.remove(ruleDTO);
-				}
-			}
-		}
-		return false;
-	}
+    public boolean removeRuleDTO(String ruleId) {
+        if (ruleDTOs.size() > 0) {
+            for (RuleDTO ruleDTO : ruleDTOs) {
+                if (ruleDTO.getRuleId().equals(ruleId)) {
+                    return ruleDTOs.remove(ruleDTO);
+                }
+            }
+        }
+        return false;
+    }
 
-	public void removeRuleDTOs() {
-		if (ruleDTOs.size() > 0) {
-			Iterator iterator = ruleDTOs.listIterator();
-			while (iterator.hasNext()) {
-				iterator.next();
-				iterator.remove();
-			}
-		}
-	}
+    public void removeRuleDTOs() {
+        if (ruleDTOs.size() > 0) {
+            Iterator iterator = ruleDTOs.listIterator();
+            while (iterator.hasNext()) {
+                iterator.next();
+                iterator.remove();
+            }
+        }
+    }
 
     public List<ExtendAttributeDTO> getExtendAttributeDTOs() {
         return extendAttributeDTOs;
@@ -303,27 +284,27 @@ public class EntitlementPolicyBean {
         this.extendAttributeDTOs.add(extendAttributeDTO);
     }
 
-///////////////////////////    ////////
-	public BasicTargetDTO getBasicTargetDTO() {
-		return basicTargetDTO;
-	}
+    ///////////////////////////    ////////
+    public BasicTargetDTO getBasicTargetDTO() {
+        return basicTargetDTO;
+    }
 
-	public void setBasicTargetDTO(
+    public void setBasicTargetDTO(
             BasicTargetDTO basicTargetDTO) {
-		this.basicTargetDTO = basicTargetDTO;
-	}
+        this.basicTargetDTO = basicTargetDTO;
+    }
 
-	public void removeBasicTargetElementDTO() {
-		this.basicTargetDTO = null;
-	}
+    public void removeBasicTargetElementDTO() {
+        this.basicTargetDTO = null;
+    }
 
-	public boolean isEditPolicy() {
-		return editPolicy;
-	}
+    public boolean isEditPolicy() {
+        return editPolicy;
+    }
 
-	public void setEditPolicy(boolean editPolicy) {
-		this.editPolicy = editPolicy;
-	}
+    public void setEditPolicy(boolean editPolicy) {
+        this.editPolicy = editPolicy;
+    }
 
     public String[] getPolicyCombiningAlgorithms() {
         return Arrays.copyOf(policyCombiningAlgorithms, policyCombiningAlgorithms.length);
@@ -362,12 +343,12 @@ public class EntitlementPolicyBean {
         return categoryMap;
     }
 
-    public Set<String> getCategorySet() {
-        return categoryMap.keySet();
-    }
-
     public void setCategoryMap(Map<String, String> categoryMap) {
         this.categoryMap = categoryMap;
+    }
+
+    public Set<String> getCategorySet() {
+        return categoryMap.keySet();
     }
 
     public Map<String, String> getRuleFunctionMap() {
@@ -417,15 +398,15 @@ public class EntitlementPolicyBean {
 
     public Set<EntitlementFinderDataHolder> getEntitlementFinders(String category) {
         Set<EntitlementFinderDataHolder> holders = new HashSet<EntitlementFinderDataHolder>();
-        for(Map.Entry<String, EntitlementFinderDataHolder> entry : entitlementFinders.entrySet()){
+        for (Map.Entry<String, EntitlementFinderDataHolder> entry : entitlementFinders.entrySet()) {
             EntitlementFinderDataHolder holder = entry.getValue();
-            if(Arrays.asList(holder.getSupportedCategory()).contains(category)){
+            if (Arrays.asList(holder.getSupportedCategory()).contains(category)) {
                 holders.add(holder);
             }
         }
         return holders;
     }
-    
+
     public void setEntitlementFinders(String name, EntitlementFinderDataHolder entitlementFinders) {
         this.entitlementFinders.put(name, entitlementFinders);
     }
@@ -448,9 +429,9 @@ public class EntitlementPolicyBean {
 
     public void addPolicyRefId(PolicyRefIdDTO policyRefId) {
         Iterator iterator = policyRefIds.listIterator();
-        while(iterator.hasNext()){
+        while (iterator.hasNext()) {
             PolicyRefIdDTO dto = (PolicyRefIdDTO) iterator.next();
-            if(policyRefId != null && dto.getId().equalsIgnoreCase(policyRefId.getId())){
+            if (policyRefId != null && dto.getId().equalsIgnoreCase(policyRefId.getId())) {
                 iterator.remove();
             }
         }
@@ -459,9 +440,9 @@ public class EntitlementPolicyBean {
 
     public void removePolicyRefId(String policyRefId) {
         Iterator iterator = policyRefIds.listIterator();
-        while(iterator.hasNext()){
+        while (iterator.hasNext()) {
             PolicyRefIdDTO dto = (PolicyRefIdDTO) iterator.next();
-            if(policyRefId != null && dto.getId().equalsIgnoreCase(policyRefId)){
+            if (policyRefId != null && dto.getId().equalsIgnoreCase(policyRefId)) {
                 iterator.remove();
             }
         }

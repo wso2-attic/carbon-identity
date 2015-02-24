@@ -89,7 +89,7 @@ public class IWAUIAuthenticator extends DefaultCarbonAuthenticator {
 
         if (log.isDebugEnabled()) {
             log.debug("Authenticate request received : Authtype - " + request.getAuthType() +
-                      ", User - " + userName);
+                    ", User - " + userName);
         }
 
         ServletContext servletContext = request.getSession().getServletContext();
@@ -110,7 +110,7 @@ public class IWAUIAuthenticator extends DefaultCarbonAuthenticator {
      * {@inheritDoc}
      */
     public String doAuthentication(Object credentials, boolean isRememberMe, ServiceClient client,
-            HttpServletRequest request) throws AuthenticationException {
+                                   HttpServletRequest request) throws AuthenticationException {
         try {
 
             String user = (String) credentials;
@@ -180,7 +180,6 @@ public class IWAUIAuthenticator extends DefaultCarbonAuthenticator {
     }
 
     /**
-     * 
      * @param request
      * @return
      * @throws AxisFault

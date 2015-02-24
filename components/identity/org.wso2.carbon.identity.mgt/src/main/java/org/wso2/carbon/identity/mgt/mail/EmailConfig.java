@@ -29,7 +29,7 @@ public class EmailConfig {
     private String configType;
     private String subject = DEFAULT_VALUE_SUBJECT;
     private String emailBody = DEFAULT_VALUE_MESSAGE;
-    private String emailFooter;    
+    private String emailFooter;
     private String redirectPath;
     private String targetEpr;
 
@@ -50,7 +50,7 @@ public class EmailConfig {
         this.redirectPath = redirectPath;
     }
 
-    
+
     public String getSubject() {
         return subject;
     }

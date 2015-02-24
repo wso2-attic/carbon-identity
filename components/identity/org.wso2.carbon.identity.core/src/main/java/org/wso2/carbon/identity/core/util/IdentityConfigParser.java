@@ -17,20 +17,6 @@
 */
 package org.wso2.carbon.identity.core.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Stack;
-
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.logging.Log;
@@ -41,12 +27,17 @@ import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
+import java.io.*;
+import java.util.*;
+
 public class IdentityConfigParser {
 
     public static final String OPENID_REALM = "OpenIDRealm";
     public static final String REQUEST_CLAIMS_FROM_IDP = "RequestClaimsFromIdP";
-    private static final String IDENTITY_CONFIG = "identity.xml";
     public static final String IDENTITY_DEFAULT_NAMESPACE = "http://wso2.org/projects/carbon/carbon.xml";
+    private static final String IDENTITY_CONFIG = "identity.xml";
     private static Map<String, Object> configuration = new HashMap<String, Object>();
     private static IdentityConfigParser parser;
     private static SecretResolver secretResolver;
@@ -66,16 +57,16 @@ public class IdentityConfigParser {
         }
     }
 
-	public static IdentityConfigParser getInstance() throws ServerConfigurationException {
-		if (parser == null) {
-			synchronized (lock) {
-				if (parser == null) {
-					parser = new IdentityConfigParser();
-				}
-			}
-		}
-		return parser;
-	}
+    public static IdentityConfigParser getInstance() throws ServerConfigurationException {
+        if (parser == null) {
+            synchronized (lock) {
+                if (parser == null) {
+                    parser = new IdentityConfigParser();
+                }
+            }
+        }
+        return parser;
+    }
 
     public static IdentityConfigParser getInstance(String filePath)
             throws ServerConfigurationException {
@@ -168,8 +159,8 @@ public class IdentityConfigParser {
                 String key = getKey(nameStack);
                 Object currentObject = configuration.get(key);
                 String value = replaceSystemProperty(element.getText());
-                if(secretResolver != null && secretResolver.isInitialized() &&
-                                                    secretResolver.isTokenProtected(key)){
+                if (secretResolver != null && secretResolver.isInitialized() &&
+                        secretResolver.isTokenProtected(key)) {
                     value = secretResolver.resolve(key);
                 }
                 if (currentObject == null) {

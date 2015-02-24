@@ -19,18 +19,18 @@ package org.wso2.carbon.identity.core.model;
 
 import java.io.Serializable;
 
-public class OAuthAppDO implements Serializable{
+public class OAuthAppDO implements Serializable {
 
-	private String oauthConsumerKey;
-	private String oauthConsumerSecret;
-	private String applicationName;
-	private String callbackUrl;
-	private String userName;
+    private String oauthConsumerKey;
+    private String oauthConsumerSecret;
+    private String applicationName;
+    private String callbackUrl;
+    private String userName;
     private String oauthVersion;
     private int tenantId;
     private String grantTypes;
-    
-	public String getUserName() {
+
+    public String getUserName() {
         return userName;
     }
 
@@ -39,36 +39,36 @@ public class OAuthAppDO implements Serializable{
     }
 
     public String getOauthConsumerKey() {
-		return oauthConsumerKey;
-	}
+        return oauthConsumerKey;
+    }
 
-	public void setOauthConsumerKey(String oauthConsumerKey) {
-		this.oauthConsumerKey = oauthConsumerKey;
-	}
+    public void setOauthConsumerKey(String oauthConsumerKey) {
+        this.oauthConsumerKey = oauthConsumerKey;
+    }
 
-	public String getOauthConsumerSecret() {
-		return oauthConsumerSecret;
-	}
+    public String getOauthConsumerSecret() {
+        return oauthConsumerSecret;
+    }
 
-	public void setOauthConsumerSecret(String oauthConsumerSecret) {
-		this.oauthConsumerSecret = oauthConsumerSecret;
-	}
+    public void setOauthConsumerSecret(String oauthConsumerSecret) {
+        this.oauthConsumerSecret = oauthConsumerSecret;
+    }
 
-	public String getApplicationName() {
-		return applicationName;
-	}
+    public String getApplicationName() {
+        return applicationName;
+    }
 
-	public void setApplicationName(String applicationName) {
-		this.applicationName = applicationName;
-	}
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
+    }
 
-	public String getCallbackUrl() {
-		return callbackUrl;
-	}
+    public String getCallbackUrl() {
+        return callbackUrl;
+    }
 
-	public void setCallbackUrl(String callbackUrl) {
-		this.callbackUrl = callbackUrl;
-	}
+    public void setCallbackUrl(String callbackUrl) {
+        this.callbackUrl = callbackUrl;
+    }
 
     public String getOauthVersion() {
         return oauthVersion;
@@ -86,11 +86,11 @@ public class OAuthAppDO implements Serializable{
         this.tenantId = tenantId;
     }
 
-	public String getGrantTypes() {
-	    return grantTypes;
+    public String getGrantTypes() {
+        return grantTypes;
     }
 
-	public void setGrantTypes(String grantTypes) {
-	    this.grantTypes = grantTypes;
+    public void setGrantTypes(String grantTypes) {
+        this.grantTypes = grantTypes;
     }
 }

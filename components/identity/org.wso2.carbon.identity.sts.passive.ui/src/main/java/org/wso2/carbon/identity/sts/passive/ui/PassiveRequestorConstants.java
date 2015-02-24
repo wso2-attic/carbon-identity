@@ -56,6 +56,6 @@ public class PassiveRequestorConstants {
     public final static String USER_NAME = "username";
 
     public final static String PASSWORD = "password";
-    
+
     public final static String PASSIVE_REQ_ATTR_MAP = "passiveReqAttrMap";
 }

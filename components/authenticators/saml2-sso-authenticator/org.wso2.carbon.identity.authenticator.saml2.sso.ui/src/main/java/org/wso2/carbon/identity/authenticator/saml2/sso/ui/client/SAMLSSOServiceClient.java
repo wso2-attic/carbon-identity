@@ -17,8 +17,6 @@
 */
 package org.wso2.carbon.identity.authenticator.saml2.sso.ui.client;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
@@ -45,24 +43,23 @@ public class SAMLSSOServiceClient {
     }
 
     /**
-     *
      * @param sessionId
      * @param rpSessionId
      * @param authnMode
      * @return
      * @throws IdentityException
      */
-	public SAMLSSOReqValidationResponseDTO validate(String samlReq, String queryString,
-	                                                String sessionId, String rpSessionId,
-	                                                String authnMode,boolean isPost)
-	                                                                                     throws IdentityException {
-		try {
-			return stub.validateSPInitSSORequest(samlReq,queryString,sessionId,rpSessionId,authnMode,isPost);
-		} catch (Exception e) {
-			log.error("Error validating the Authentication Request", e);
-			throw new IdentityException("Error in parsing authentication request", e);
-		}
-	}
+    public SAMLSSOReqValidationResponseDTO validate(String samlReq, String queryString,
+                                                    String sessionId, String rpSessionId,
+                                                    String authnMode, boolean isPost)
+            throws IdentityException {
+        try {
+            return stub.validateSPInitSSORequest(samlReq, queryString, sessionId, rpSessionId, authnMode, isPost);
+        } catch (Exception e) {
+            log.error("Error validating the Authentication Request", e);
+            throw new IdentityException("Error in parsing authentication request", e);
+        }
+    }
 
     public SAMLSSORespDTO authenticate(SAMLSSOAuthnReqDTO authnReqDTO, String sessionId) throws IdentityException {
         try {

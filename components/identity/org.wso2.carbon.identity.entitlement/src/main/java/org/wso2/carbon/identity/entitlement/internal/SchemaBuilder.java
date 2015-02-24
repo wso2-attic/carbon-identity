@@ -17,17 +17,16 @@
 */
 package org.wso2.carbon.identity.entitlement.internal;
 
-import java.io.InputStream;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.entitlement.PDPConstants;
+import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.entitlement.PDPConstants;
-import org.xml.sax.SAXException;
+import java.io.InputStream;
 
 public class SchemaBuilder implements Runnable {
 
@@ -52,7 +51,7 @@ public class SchemaBuilder implements Runnable {
 
     /**
      * Builds the policy schema map. There are three schemas.
-     * 
+     *
      * @param configHolder holder EntitlementConfigHolder
      * @throws SAXException if fails
      */
@@ -64,9 +63,9 @@ public class SchemaBuilder implements Runnable {
             return;
         }
 
-        String[] schemaNSs = new String[] { PDPConstants.XACML_1_POLICY_XMLNS,
+        String[] schemaNSs = new String[]{PDPConstants.XACML_1_POLICY_XMLNS,
                 PDPConstants.XACML_2_POLICY_XMLNS,
-                PDPConstants.XACML_3_POLICY_XMLNS };
+                PDPConstants.XACML_3_POLICY_XMLNS};
 
         for (String schemaNS : schemaNSs) {
 

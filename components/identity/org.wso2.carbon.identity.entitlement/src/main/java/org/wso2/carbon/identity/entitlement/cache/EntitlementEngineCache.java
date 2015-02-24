@@ -34,11 +34,11 @@ import javax.cache.Caching;
  */
 public class EntitlementEngineCache {
 
-    private static Log log = LogFactory.getLog(EntitlementEngineCache.class);
     public static final String ENTITLEMENT_ENGINE_CACHE_MANAGER = "ENTITLEMENT_ENGINE_CACHE_MANAGER";
     public static final String ENTITLEMENT_ENGINE_CACHE =
             CachingConstants.LOCAL_CACHE_PREFIX + "ENTITLEMENT_ENGINE_CACHE";
     private static final EntitlementEngineCache instance = new EntitlementEngineCache();
+    private static Log log = LogFactory.getLog(EntitlementEngineCache.class);
 
     /**
      * Gets a new instance of EntitlementEngineCache.
@@ -53,7 +53,7 @@ public class EntitlementEngineCache {
     private Cache<Integer, EntitlementEngine> getEntitlementCache() {
         Cache<Integer, EntitlementEngine> cache;
         CacheManager cacheManager = Caching.getCacheManagerFactory().
-                                            getCacheManager(ENTITLEMENT_ENGINE_CACHE_MANAGER);
+                getCacheManager(ENTITLEMENT_ENGINE_CACHE_MANAGER);
         if (cacheManager != null) {
             cache = cacheManager.getCache(ENTITLEMENT_ENGINE_CACHE);
         } else {
@@ -65,20 +65,20 @@ public class EntitlementEngineCache {
         return cache;
     }
 
-    public EntitlementEngine get(int key){
+    public EntitlementEngine get(int key) {
         try {
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             EntitlementEngine entitlementEngine = getEntitlementCache().get(key);
-            if(entitlementEngine != null){
-                if(log.isDebugEnabled()){
+            if (entitlementEngine != null) {
+                if (log.isDebugEnabled()) {
                     log.debug("Cache : " + ENTITLEMENT_ENGINE_CACHE + "  is HIT " +
                             "for tenantId : " + key);
                 }
             } else {
-                if(log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     log.debug("Cache : " + ENTITLEMENT_ENGINE_CACHE + "  is MISSED " +
                             "for tenantId : " + key);
                 }
@@ -89,14 +89,14 @@ public class EntitlementEngineCache {
         }
     }
 
-    public void put(int key, EntitlementEngine engine){
+    public void put(int key, EntitlementEngine engine) {
         try {
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             getEntitlementCache().put(key, engine);
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 log.debug("Cache : " + ENTITLEMENT_ENGINE_CACHE + " is populated with new entry " +
                         "with tenantId : " + key);
             }
@@ -105,20 +105,20 @@ public class EntitlementEngineCache {
         }
     }
 
-    public boolean contains(int key){
+    public boolean contains(int key) {
         try {
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             boolean contain = getEntitlementCache().containsKey(key);
-            if(contain){
-                if(log.isDebugEnabled()){
+            if (contain) {
+                if (log.isDebugEnabled()) {
                     log.debug("Cache : " + ENTITLEMENT_ENGINE_CACHE + "  is HIT " +
                             "for tenantId : " + key);
                 }
             } else {
-                if(log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     log.debug("Cache : " + ENTITLEMENT_ENGINE_CACHE + "  is MISSED " +
                             "for tenantId : " + key);
                 }

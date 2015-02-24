@@ -32,20 +32,20 @@ public class StatusHolderComparator implements Serializable, Comparator {
     @Override
     public int compare(Object o1, Object o2) {
 
-        StatusHolder dto1 = (StatusHolder)o1;
-        StatusHolder dto2 = (StatusHolder)o2;
+        StatusHolder dto1 = (StatusHolder) o1;
+        StatusHolder dto2 = (StatusHolder) o2;
         long time1 = 0;
         long time2 = 0;
-        try{
-            time1 =  Long.parseLong(dto1.getTimeInstance());
-            time2 =  Long.parseLong(dto2.getTimeInstance());
-        } catch (Exception e){
+        try {
+            time1 = Long.parseLong(dto1.getTimeInstance());
+            time2 = Long.parseLong(dto2.getTimeInstance());
+        } catch (Exception e) {
             // if time stamp is missing there can be null pointer
             // ignore
         }
-        if(time1 > time2){
+        if (time1 > time2) {
             return -1;
-        } else if(time1 == time2){
+        } else if (time1 == time2) {
             return 0;
         } else {
             return 1;

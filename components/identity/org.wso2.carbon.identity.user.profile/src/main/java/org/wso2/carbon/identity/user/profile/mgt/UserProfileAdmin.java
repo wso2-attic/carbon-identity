@@ -26,19 +26,19 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
+import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.user.api.Claim;
 import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.user.api.Claim;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.profile.ProfileConfiguration;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.utils.ServerConstants;
-import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
-import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -55,9 +55,9 @@ import java.util.Map;
 public class UserProfileAdmin extends AbstractAdmin {
 
     private static Log log = LogFactory.getLog(UserProfileAdmin.class);
-    private static UserProfileAdmin userProfileAdmin= new  UserProfileAdmin();
+    private static UserProfileAdmin userProfileAdmin = new UserProfileAdmin();
 
-    public static UserProfileAdmin getInstance(){
+    public static UserProfileAdmin getInstance() {
         return userProfileAdmin;
     }
 
@@ -74,11 +74,11 @@ public class UserProfileAdmin extends AbstractAdmin {
             throw new UserProfileException(e.getMessage(), e);
         }
     }
-    
+
     public void setUserProfile(String username, UserProfileDTO profile) throws UserProfileException {
         UserRealm realm = null;
         try {
-           
+
             if (!this.isAuthorized(username)) {
                 throw new UserProfileException("You are not authorized to perform this action.");
             }
@@ -105,15 +105,15 @@ public class UserProfileAdmin extends AbstractAdmin {
             Map<String, String> map = new HashMap<String, String>();
             for (UserFieldDTO data : udatas) {
                 String claimURI = data.getClaimUri();
-				String value = data.getFieldValue();
-				if (!data.isReadOnly()) {
-					// Quick fix for not to remove OTP checkbox when false
-					if(value == "" && "http://wso2.org/claims/identity/otp".equals(claimURI)) {
-						value = "false";
-					}					
-					map.put(claimURI, value);
-				}
-			}
+                String value = data.getFieldValue();
+                if (!data.isReadOnly()) {
+                    // Quick fix for not to remove OTP checkbox when false
+                    if (value == "" && "http://wso2.org/claims/identity/otp".equals(claimURI)) {
+                        value = "false";
+                    }
+                    map.put(claimURI, value);
+                }
+            }
 
             if (profile.getProfileConifuration() != null) {
                 map.put(UserCoreConstants.PROFILE_CONFIGURATION, profile.getProfileConifuration());
@@ -126,8 +126,8 @@ public class UserProfileAdmin extends AbstractAdmin {
 
             // User store manager expects tenant aware username
             admin.setUserClaimValues(MultitenantUtils.getTenantAwareUsername(username),
-                                                map,
-                                                profile.getProfileName());
+                    map,
+                    profile.getProfileName());
 
         } catch (UserStoreException e) {
             // Not logging. Already logged.
@@ -158,7 +158,7 @@ public class UserProfileAdmin extends AbstractAdmin {
             UserStoreManager admin = realm.getUserStoreManager();
             admin.deleteUserClaimValues(username, claims, profileName);
             admin.deleteUserClaimValue(username, UserCoreConstants.PROFILE_CONFIGURATION,
-                            profileName);
+                    profileName);
         } catch (UserStoreException e) {
             // Not logging. Already logged.
             throw new UserProfileException(e.getMessage(), e);
@@ -181,27 +181,27 @@ public class UserProfileAdmin extends AbstractAdmin {
             UserRealm realm = getUserRealm();
 
             UserStoreManager userStoreManager = realm.getUserStoreManager();
-            
+
             boolean isReadOnly = userStoreManager.isReadOnly();
-            
-			int index;
-			index = username.indexOf("/");
 
-			UserStoreManager secUserStoreManager = null;
-			
-			// Check whether we have a secondary UserStoreManager setup.
-			if (index > 0) {
-				// Using the short-circuit. User name comes with the domain name.
-				String domain = username.substring(0, index);
+            int index;
+            index = username.indexOf("/");
 
-				if (userStoreManager instanceof AbstractUserStoreManager) {
-					secUserStoreManager = ((AbstractUserStoreManager) userStoreManager)
-							.getSecondaryUserStoreManager(domain);
-					if (secUserStoreManager != null) {
-						isReadOnly = secUserStoreManager.isReadOnly();
-					}
-				}
-			}
+            UserStoreManager secUserStoreManager = null;
+
+            // Check whether we have a secondary UserStoreManager setup.
+            if (index > 0) {
+                // Using the short-circuit. User name comes with the domain name.
+                String domain = username.substring(0, index);
+
+                if (userStoreManager instanceof AbstractUserStoreManager) {
+                    secUserStoreManager = ((AbstractUserStoreManager) userStoreManager)
+                            .getSecondaryUserStoreManager(domain);
+                    if (secUserStoreManager != null) {
+                        isReadOnly = secUserStoreManager.isReadOnly();
+                    }
+                }
+            }
 
             ProfileConfigurationManager profileAdmin = realm
                     .getProfileConfigurationManager();
@@ -213,12 +213,12 @@ public class UserProfileAdmin extends AbstractAdmin {
             username = MultitenantUtils.getTenantAwareUsername(username);
             String[] profileNames = null;
 
-            if(secUserStoreManager != null){
+            if (secUserStoreManager != null) {
                 profileNames = secUserStoreManager.getProfileNames(username);
             } else {
                 profileNames = userStoreManager.getProfileNames(username);
             }
-            
+
             profiles = new UserProfileDTO[profileNames.length];
             Claim[] claims = getAllSupportedClaims(realm, UserCoreConstants.DEFAULT_CARBON_DIALECT);
             String[] claimUris = new String[claims.length + 1];
@@ -259,15 +259,15 @@ public class UserProfileAdmin extends AbstractAdmin {
                 if (profileConfig == null) {
                     profileConfig = UserCoreConstants.DEFAULT_PROFILE_CONFIGURATION;
                 }
-                
-                if (isReadOnly){
-                	profileConfig = "readonly";
+
+                if (isReadOnly) {
+                    profileConfig = "readonly";
                 }
 
                 temp.setProfileConifuration(profileConfig);
                 profiles[i] = temp;
             }
-        } catch (RuntimeException e){
+        } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
             // Not logging. Already logged.
@@ -341,11 +341,11 @@ public class UserProfileAdmin extends AbstractAdmin {
             UserRealm realm = getUserRealm();
 
             UserStoreManager userStoreManager = realm.getUserStoreManager();
-            
+
             boolean isReadOnly = userStoreManager.isReadOnly();
 
             int indexOne;
-			indexOne = username.indexOf("/");
+            indexOne = username.indexOf("/");
 
             if (indexOne < 0) {
                 /*if domain is not provided, this can be the scenario where user from a secondary user store
@@ -359,38 +359,38 @@ public class UserProfileAdmin extends AbstractAdmin {
                     username = domainName + "/" + username;
                 }
             }
-			int index;
-			index = username.indexOf("/");
+            int index;
+            index = username.indexOf("/");
 
-			UserStoreManager secUserStoreManager = null;
-			
-			// Check whether we have a secondary UserStoreManager setup.
-			if (index > 0) {
-				// Using the short-circuit. User name comes with the domain name.
-				String domain = username.substring(0, index);
+            UserStoreManager secUserStoreManager = null;
 
-				if (userStoreManager instanceof AbstractUserStoreManager) {
-					secUserStoreManager = ((AbstractUserStoreManager) userStoreManager)
-							.getSecondaryUserStoreManager(domain);
-					if (secUserStoreManager != null) {
-						isReadOnly = secUserStoreManager.isReadOnly();
-					}
-				}
-			}
-            
+            // Check whether we have a secondary UserStoreManager setup.
+            if (index > 0) {
+                // Using the short-circuit. User name comes with the domain name.
+                String domain = username.substring(0, index);
+
+                if (userStoreManager instanceof AbstractUserStoreManager) {
+                    secUserStoreManager = ((AbstractUserStoreManager) userStoreManager)
+                            .getSecondaryUserStoreManager(domain);
+                    if (secUserStoreManager != null) {
+                        isReadOnly = secUserStoreManager.isReadOnly();
+                    }
+                }
+            }
+
             ProfileConfigurationManager profileAdmin = realm
                     .getProfileConfigurationManager();
 
             // User store manager expects tenant aware username
             username = MultitenantUtils.getTenantAwareUsername(username);
             String[] profileNames = null;
-            
-            if(secUserStoreManager != null){
+
+            if (secUserStoreManager != null) {
                 profileNames = secUserStoreManager.getProfileNames(username);
             } else {
                 profileNames = userStoreManager.getProfileNames(username);
             }
-            
+
             boolean found = false;
 
             if (profileNames != null && profileNames.length > 0) {
@@ -447,9 +447,9 @@ public class UserProfileAdmin extends AbstractAdmin {
             if (profileConfig == null) {
                 profileConfig = UserCoreConstants.DEFAULT_PROFILE_CONFIGURATION;
             }
-            
-            if (isReadOnly){
-            	profileConfig = "readonly";
+
+            if (isReadOnly) {
+                profileConfig = "readonly";
             }
 
             profile.setProfileConifuration(profileConfig);
@@ -491,14 +491,12 @@ public class UserProfileAdmin extends AbstractAdmin {
             throw new UserProfileException(errorMessage, e);
         }
 
-        if(userStoreManager != null){
+        if (userStoreManager != null) {
             isAddProfileEnabled = userStoreManager.isMultipleProfilesAllowed();
         }
 
         return isAddProfileEnabled;
     }
-
-
 
 
     private Claim[] getClaimsToEnterData(UserRealm realm)
@@ -511,7 +509,6 @@ public class UserProfileAdmin extends AbstractAdmin {
     }
 
 
-    
     private boolean isAuthorized(String targetUser) throws UserStoreException, CarbonException {
         boolean isAuthrized = false;
         MessageContext msgContext = MessageContext.getCurrentMessageContext();
@@ -526,7 +523,6 @@ public class UserProfileAdmin extends AbstractAdmin {
     }
 
     /**
-     * 
      * @return
      * @throws UserStoreException
      */
@@ -541,7 +537,7 @@ public class UserProfileAdmin extends AbstractAdmin {
             if (dialectUri.equals(claims[i].getClaim().getDialectURI())) {
                 if (claims[i] != null && claims[i].getClaim().getDisplayTag() != null
                         && !claims[i].getClaim().getClaimUri().equals(IdentityConstants.CLAIM_PPID))
-                    reqClaims.add((Claim)claims[i].getClaim());
+                    reqClaims.add((Claim) claims[i].getClaim());
             }
         }
 
@@ -568,17 +564,17 @@ public class UserProfileAdmin extends AbstractAdmin {
         return profileNames;
     }
 
-    public void associateID(String idpID, String associatedID) throws UserProfileException{
+    public void associateID(String idpID, String associatedID) throws UserProfileException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
         String sql = null;
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        String userName =  CarbonContext.getThreadLocalCarbonContext().getUsername();
+        String userName = CarbonContext.getThreadLocalCarbonContext().getUsername();
 
         try {
-        connection = JDBCPersistenceManager.getInstance().getDBConnection();
+            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             sql = "INSERT INTO IDN_ASSOCIATED_ID (TENANT_ID, IDP_ID, IDP_USER_ID, USER_NAME) VALUES (?,?,?,?) ";
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setInt(1, tenantID);
@@ -593,15 +589,15 @@ public class UserProfileAdmin extends AbstractAdmin {
             log.error(errorMsg, e);
             throw new UserProfileException(errorMsg, e);
         } catch (SQLException e) {
-        log.error("Error when executing the SQL : " + sql);
-        log.error(e.getMessage(), e);
-        }finally {
+            log.error("Error when executing the SQL : " + sql);
+            log.error(e.getMessage(), e);
+        } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
 
     }
 
-    public String getNameAssociatedWith(String idpID, String associatedID) throws UserProfileException{
+    public String getNameAssociatedWith(String idpID, String associatedID) throws UserProfileException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -612,7 +608,7 @@ public class UserProfileAdmin extends AbstractAdmin {
 
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
-               sql = "SELECT USER_NAME FROM IDN_ASSOCIATED_ID WHERE TENANT_ID = ? AND IDP_ID = ? And IDP_USER_ID = ? ";
+            sql = "SELECT USER_NAME FROM IDN_ASSOCIATED_ID WHERE TENANT_ID = ? AND IDP_ID = ? And IDP_USER_ID = ? ";
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setInt(1, tenantID);
             prepStmt.setString(2, idpID);
@@ -631,13 +627,13 @@ public class UserProfileAdmin extends AbstractAdmin {
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
-        }finally {
+        } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
         return null;
     }
 
-    public String[] getAssociatedIDs(String userName) throws UserProfileException{
+    public String[] getAssociatedIDs(String userName) throws UserProfileException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
@@ -655,9 +651,9 @@ public class UserProfileAdmin extends AbstractAdmin {
 
             resultSet = prepStmt.executeQuery();
             while (resultSet.next()) {
-                associatedIDs.add(resultSet.getString(1) + ":"+ resultSet.getString(2));
+                associatedIDs.add(resultSet.getString(1) + ":" + resultSet.getString(2));
             }
-         return associatedIDs.toArray(new String[associatedIDs.size()]);
+            return associatedIDs.toArray(new String[associatedIDs.size()]);
 
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
@@ -666,20 +662,20 @@ public class UserProfileAdmin extends AbstractAdmin {
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
-        }finally {
+        } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
         return null;
     }
 
-    public void removeAssociateID(String idpID, String associatedID) throws UserProfileException{
+    public void removeAssociateID(String idpID, String associatedID) throws UserProfileException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
         String sql = null;
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        String userName =  CarbonContext.getThreadLocalCarbonContext().getUsername();
+        String userName = CarbonContext.getThreadLocalCarbonContext().getUsername();
 
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
@@ -700,7 +696,7 @@ public class UserProfileAdmin extends AbstractAdmin {
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + sql);
             log.error(e.getMessage(), e);
-        }finally {
+        } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
 

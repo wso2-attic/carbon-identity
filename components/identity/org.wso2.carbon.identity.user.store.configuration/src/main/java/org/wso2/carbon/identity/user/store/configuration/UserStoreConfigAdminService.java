@@ -27,9 +27,9 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.user.store.configuration.beans.RandomPassword;
 import org.wso2.carbon.identity.user.store.configuration.beans.RandomPasswordContainer;
+import org.wso2.carbon.identity.user.store.configuration.cache.RandomPasswordContainerCache;
 import org.wso2.carbon.identity.user.store.configuration.dto.PropertyDTO;
 import org.wso2.carbon.identity.user.store.configuration.dto.UserStoreDTO;
-import org.wso2.carbon.identity.user.store.configuration.cache.RandomPasswordContainerCache;
 import org.wso2.carbon.identity.user.store.configuration.utils.IdentityUserStoreMgtException;
 import org.wso2.carbon.identity.user.store.configuration.utils.SecondaryUserStoreConfigurationUtil;
 import org.wso2.carbon.identity.user.store.configuration.utils.UserStoreConfigurationConstant;
@@ -60,7 +60,10 @@ import javax.xml.bind.Marshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.*;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayOutputStream;
@@ -99,7 +102,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
                 UserStoreDTO userStoreDTO = new UserStoreDTO();
 
                 String uuid = userStoreProperties.get(UserStoreConfigurationConstant.UNIQUE_ID_CONSTANT);
-                if(uuid == null ){
+                if (uuid == null) {
                     uuid = UUID.randomUUID().toString();
                 }
 
@@ -126,19 +129,19 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
                 }
                 if (userStoreProperties.containsKey(JDBCRealmConstants.PASSWORD)) {
                     originalPassword = userStoreProperties.get(JDBCRealmConstants.PASSWORD);
-                    userStoreProperties.put(JDBCRealmConstants.PASSWORD,randomPhrase);
+                    userStoreProperties.put(JDBCRealmConstants.PASSWORD, randomPhrase);
                 }
                 userStoreDTO.setProperties(convertMapToArray(userStoreProperties));
 
                 //Now revert back to original password
                 if (userStoreProperties.containsKey(UserStoreConfigConstants.connectionPassword)) {
-                    if(originalPassword != null){
+                    if (originalPassword != null) {
                         userStoreProperties.put(UserStoreConfigConstants.connectionPassword, originalPassword);
                     }
                 }
                 if (userStoreProperties.containsKey(JDBCRealmConstants.PASSWORD)) {
-                    if(originalPassword != null){
-                        userStoreProperties.put(JDBCRealmConstants.PASSWORD,originalPassword);
+                    if (originalPassword != null) {
+                        userStoreProperties.put(JDBCRealmConstants.PASSWORD, originalPassword);
                     }
                 }
 
@@ -617,10 +620,10 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
             transformer.setOutputProperty(OutputKeys.METHOD, "xml");
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "6");
             transformer.transform(source, result);
-        }catch (ParserConfigurationException e) {
+        } catch (ParserConfigurationException e) {
             String errMsg = " Error occured due to serious parser configuration exception of " + userStoreConfigFile;
             throw new UserStoreException(errMsg, e);
-        }catch (TransformerException e) {
+        } catch (TransformerException e) {
             String errMsg = " Error occured during the transformation process of " + userStoreConfigFile;
             throw new UserStoreException(errMsg, e);
         }

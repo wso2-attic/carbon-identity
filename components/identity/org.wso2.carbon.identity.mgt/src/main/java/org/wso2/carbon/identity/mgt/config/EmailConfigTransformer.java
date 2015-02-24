@@ -17,83 +17,81 @@
  */
 package org.wso2.carbon.identity.mgt.config;
 
+import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
+import org.wso2.carbon.identity.mgt.dto.EmailTemplateDTO;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
-import org.wso2.carbon.identity.mgt.dto.EmailTemplateDTO;
-
 /**
  * This class is used to transform <code>Properties</code> to <code>EmailTemplateDTO</code>
  * and vice versa.
- *
  */
 public class EmailConfigTransformer {
 
-	public static EmailTemplateDTO[] transform(Properties props) throws IdentityException{
-		
-		List<EmailTemplateDTO> emailTemplates = new ArrayList<EmailTemplateDTO>();;
-		
-		Set<String> keySet = props.stringPropertyNames();
-		for (String key : keySet) {
+    public static EmailTemplateDTO[] transform(Properties props) throws IdentityException {
 
-			// Escape Registry system properties
-			if(key.startsWith("registry.")) {
-				continue;
-			}
+        List<EmailTemplateDTO> emailTemplates = new ArrayList<EmailTemplateDTO>();
 
-			EmailTemplateDTO template = new EmailTemplateDTO();
-			template.setName(key);
-			
-			String[] contents = props.getProperty(key).split("\\|");
-			
-			if(contents.length > 3) {
-				throw new IdentityException("Cannot have | charater in the template");
-			}
-			
-			String subject = contents[0];
-			String body = contents[1];
-			String footer = contents[2];
-			
-			template.setSubject(subject);
-			template.setBody(body);
-			template.setFooter(footer);
-			
-			if(IdentityMgtConstants.Notification.PASSWORD_RESET_RECOVERY.equals(key)) {
-				template.setDisplayName("Password Reset");
-			} else if (IdentityMgtConstants.Notification.ACCOUNT_CONFORM.equals(key)) {
-				template.setDisplayName("Account Confirm");
-			} else if (IdentityMgtConstants.Notification.ACCOUNT_ID_RECOVERY.equals(key)) {
-				template.setDisplayName("Account Id Recovery");
-			} else if (IdentityMgtConstants.Notification.ACCOUNT_UNLOCK.equals(key)) {
-				template.setDisplayName("Account Unlock");
-			}else if (IdentityMgtConstants.Notification.ASK_PASSWORD.equals(key)) {
-				template.setDisplayName("Ask Password");
-			}else if (IdentityMgtConstants.Notification.OTP_PASSWORD.equals(key)){
-				template.setDisplayName("One Time Password");
-			} else if (IdentityMgtConstants.Notification.TEMPORARY_PASSWORD.equals(key)) {
-				template.setDisplayName("Temporary Password");
-			}
-			
-			emailTemplates.add(template);
-		}
-		
-		return emailTemplates.toArray(new EmailTemplateDTO[emailTemplates.size()]);
-	}
-	
-	public static Properties transform(EmailTemplateDTO[] templates) throws IdentityException {
-		
-		Properties props = new Properties();
-		
-		for (EmailTemplateDTO template : templates) {
-			StringBuilder contents = new StringBuilder();
-			contents.append(template.getSubject()).append("|").append(template.getBody()).append("|").append(template.getFooter());
+        Set<String> keySet = props.stringPropertyNames();
+        for (String key : keySet) {
 
-			props.setProperty(template.getName(), contents.toString());
-		}
-		return props;
-	}
+            EmailTemplateDTO template = new EmailTemplateDTO();
+            
+            if (IdentityMgtConstants.Notification.PASSWORD_RESET_RECOVERY.equals(key)) {
+                template.setDisplayName("Password Reset");
+            } else if (IdentityMgtConstants.Notification.ACCOUNT_CONFORM.equals(key)) {
+                template.setDisplayName("Account Confirm");
+            } else if (IdentityMgtConstants.Notification.ACCOUNT_ID_RECOVERY.equals(key)) {
+                template.setDisplayName("Account Id Recovery");
+            } else if (IdentityMgtConstants.Notification.ACCOUNT_UNLOCK.equals(key)) {
+                template.setDisplayName("Account Unlock");
+            } else if (IdentityMgtConstants.Notification.ASK_PASSWORD.equals(key)) {
+                template.setDisplayName("Ask Password");
+            } else if (IdentityMgtConstants.Notification.OTP_PASSWORD.equals(key)) {
+                template.setDisplayName("One Time Password");
+            } else if (IdentityMgtConstants.Notification.TEMPORARY_PASSWORD.equals(key)) {
+                template.setDisplayName("Temporary Password");
+            } else {
+                // Ignore all other keys in the registry mount.
+                continue;
+            }
+
+            template.setName(key);
+
+            String[] contents = props.getProperty(key).split("\\|");
+
+            if (contents.length > 3) {
+                throw new IdentityException("Cannot have | charater in the template");
+            }
+
+            String subject = contents[0];
+            String body = contents[1];
+            String footer = contents[2];
+
+            template.setSubject(subject);
+            template.setBody(body);
+            template.setFooter(footer);
+
+            emailTemplates.add(template);
+        }
+
+        return emailTemplates.toArray(new EmailTemplateDTO[emailTemplates.size()]);
+    }
+
+    public static Properties transform(EmailTemplateDTO[] templates) throws IdentityException {
+
+        Properties props = new Properties();
+
+        for (EmailTemplateDTO template : templates) {
+            StringBuilder contents = new StringBuilder();
+            contents.append(template.getSubject()).append("|").append(template.getBody()).append("|").append(template.getFooter());
+
+            props.setProperty(template.getName(), contents.toString());
+        }
+        return props;
+    }
 }

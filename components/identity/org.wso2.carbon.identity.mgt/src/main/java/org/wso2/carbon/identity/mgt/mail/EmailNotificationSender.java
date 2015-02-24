@@ -18,12 +18,12 @@
  */
 package org.wso2.carbon.identity.mgt.mail;
 
-public class EmailNotificationSender implements NotificationSender{
+public class EmailNotificationSender implements NotificationSender {
 
-	@Override
-	public void send(Notification notification) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void send(Notification notification) {
+        // TODO Auto-generated method stub
+
+    }
 
 }

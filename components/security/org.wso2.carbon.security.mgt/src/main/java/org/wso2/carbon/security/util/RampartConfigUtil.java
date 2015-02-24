@@ -16,11 +16,11 @@
 * under the License.
 */
 package org.wso2.carbon.security.util;
+
+import org.wso2.carbon.utils.CarbonUtils;
+
 import java.io.File;
 import java.util.Properties;
-
-import org.wso2.carbon.security.util.ServerCrypto;
-import org.wso2.carbon.utils.CarbonUtils;
 
 /**
  * Utility methods to compute Rampart configuration
@@ -36,7 +36,7 @@ public class RampartConfigUtil {
         Properties props = new Properties();
         props.setProperty(ServerCrypto.PROP_ID_DEFAULT_ALIAS, privateKeyAlias);
         props.setProperty(ServerCrypto.PROP_ID_KEY_STORE, privateKeyStore);
-        props.setProperty(ServerCrypto.PROP_ID_PRIVATE_STORE, privateKeyStore);        
+        props.setProperty(ServerCrypto.PROP_ID_PRIVATE_STORE, privateKeyStore);
 
         StringBuffer trustedCertStoresStr = new StringBuffer();
         for (int i = 0; i < trustedCertStores.length; i++) {

@@ -18,16 +18,15 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.handler.claims;
 
-import java.util.Map;
-
 import org.wso2.carbon.identity.application.authentication.framework.config.model.StepConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
 
+import java.util.Map;
+
 public interface ClaimHandler {
 
     /**
-     * 
      * @param stepConfig
      * @param context
      * @param extAttrs
@@ -36,7 +35,7 @@ public interface ClaimHandler {
      * @throws FrameworkException
      */
     public Map<String, String> handleClaimMappings(StepConfig stepConfig,
-            AuthenticationContext context, Map<String, String> extAttrs,
-            boolean isFederatedClaims) throws FrameworkException;
+                                                   AuthenticationContext context, Map<String, String> extAttrs,
+                                                   boolean isFederatedClaims) throws FrameworkException;
 
 }

@@ -18,9 +18,9 @@
 
 package org.wso2.carbon.identity.tools.saml.validator.ui;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.wso2.carbon.ui.util.CharacterEncoder;
+
+import javax.servlet.http.HttpServletRequest;
 
 public class SAMLSSOUIUtil {
 

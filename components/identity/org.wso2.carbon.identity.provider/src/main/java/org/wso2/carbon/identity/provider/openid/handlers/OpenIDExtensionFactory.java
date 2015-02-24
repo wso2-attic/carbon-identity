@@ -19,9 +19,9 @@ package org.wso2.carbon.identity.provider.openid.handlers;
 import org.openid4java.message.ax.AxMessage;
 import org.openid4java.message.pape.PapeMessage;
 import org.openid4java.message.sreg.SRegMessage;
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.base.IdentityConstants.OpenId.ExchangeAttributes;
 import org.wso2.carbon.identity.base.IdentityConstants.OpenId.SimpleRegAttributes;
+import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.provider.openid.extensions.OpenIDAttributeExchange;
 import org.wso2.carbon.identity.provider.openid.extensions.OpenIDExtension;
 import org.wso2.carbon.identity.provider.openid.extensions.OpenIDPape;
@@ -40,7 +40,7 @@ public class OpenIDExtensionFactory {
 
     /**
      * Returns a singleton instance of OpenIDExtensionFactory
-     * 
+     *
      * @return An instance of OpenIDExtensionFactory
      */
     public static OpenIDExtensionFactory getInstance() {
@@ -49,9 +49,9 @@ public class OpenIDExtensionFactory {
 
     /**
      * Create an instance of the OpenIDExtension based on the OpenID extension type
-     * 
+     *
      * @param alias Extension alias
-     * @param auth AuthRequest instance
+     * @param auth  AuthRequest instance
      * @return Appropriate OpenIDExtension instance
      * @throws IdentityProviderException
      */
@@ -61,18 +61,18 @@ public class OpenIDExtensionFactory {
         if (request == null)
             return null;
 
-		String alias = request.getExtensionAlias();
+        String alias = request.getExtensionAlias();
 
-		if (AxMessage.OPENID_NS_AX.equals(alias) || ExchangeAttributes.NS_AX.equals(alias)) {
-			return new OpenIDAttributeExchange(request);
-		} else if (SimpleRegAttributes.NS_SREG.equals(alias)
-				|| SRegMessage.OPENID_NS_SREG.equals(alias)
-				|| SimpleRegAttributes.NS_SREG_1.equals(alias)) {
-			return new OpenIDSimpleReg(request);
-		} else if (PapeMessage.OPENID_NS_PAPE.equals(alias)) {
-			return new OpenIDPape(request);
-		}
+        if (AxMessage.OPENID_NS_AX.equals(alias) || ExchangeAttributes.NS_AX.equals(alias)) {
+            return new OpenIDAttributeExchange(request);
+        } else if (SimpleRegAttributes.NS_SREG.equals(alias)
+                || SRegMessage.OPENID_NS_SREG.equals(alias)
+                || SimpleRegAttributes.NS_SREG_1.equals(alias)) {
+            return new OpenIDSimpleReg(request);
+        } else if (PapeMessage.OPENID_NS_PAPE.equals(alias)) {
+            return new OpenIDPape(request);
+        }
 
-		return null;
-	}
+        return null;
+    }
 }

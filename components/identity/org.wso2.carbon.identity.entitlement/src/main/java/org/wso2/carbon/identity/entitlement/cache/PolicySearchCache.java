@@ -26,33 +26,33 @@ import org.wso2.carbon.identity.entitlement.policy.search.SearchResult;
 /**
  *
  */
-public class PolicySearchCache extends EntitlementBaseCache<IdentityCacheKey, SearchResult>{
+public class PolicySearchCache extends EntitlementBaseCache<IdentityCacheKey, SearchResult> {
 
     public PolicySearchCache(int timeOut) {
-    	super(CachingConstants.LOCAL_CACHE_PREFIX + PDPConstants.POLICY_SEARCH_CACHE, timeOut);
+        super(CachingConstants.LOCAL_CACHE_PREFIX + PDPConstants.POLICY_SEARCH_CACHE, timeOut);
     }
 
 
-    public void addToCache(String key, SearchResult result){
+    public void addToCache(String key, SearchResult result) {
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         IdentityCacheKey cacheKey = new IdentityCacheKey(tenantId, key);
         addToCache(cacheKey, result);
     }
 
-    public SearchResult getFromCache(String key){
+    public SearchResult getFromCache(String key) {
 
         SearchResult searchResult = null;
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         IdentityCacheKey cacheKey = new IdentityCacheKey(tenantId, key);
         Object entry = getValueFromCache(cacheKey);
-        if(entry != null){
+        if (entry != null) {
             searchResult = (SearchResult) entry;
         }
 
         return searchResult;
     }
 
-    public void clearCache(){
+    public void clearCache() {
         clear();
     }
 }

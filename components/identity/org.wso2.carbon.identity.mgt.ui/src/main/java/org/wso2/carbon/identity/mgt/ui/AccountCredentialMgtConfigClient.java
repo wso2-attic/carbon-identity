@@ -18,9 +18,6 @@
  */
 package org.wso2.carbon.identity.mgt.ui;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
@@ -30,68 +27,70 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.mgt.stub.AccountCredentialMgtConfigServiceStub;
 import org.wso2.carbon.identity.mgt.stub.dto.EmailTemplateDTO;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class AccountCredentialMgtConfigClient {
 
-	protected AccountCredentialMgtConfigServiceStub stub;
+    protected static Log log = LogFactory
+            .getLog(AccountCredentialMgtConfigClient.class);
+    protected AccountCredentialMgtConfigServiceStub stub;
 
-	protected static Log log = LogFactory
-			.getLog(AccountCredentialMgtConfigClient.class);
+    public AccountCredentialMgtConfigClient(String url,
+                                            ConfigurationContext configContext) throws Exception {
+        try {
+            stub = new AccountCredentialMgtConfigServiceStub(configContext, url
+                    + "AccountCredentialMgtConfigService");
+        } catch (java.lang.Exception e) {
+            handleException(e.getMessage(), e);
+        }
+    }
 
-	public AccountCredentialMgtConfigClient(String url,
-			ConfigurationContext configContext) throws Exception {
-		try {
-			stub = new AccountCredentialMgtConfigServiceStub(configContext, url
-					+ "AccountCredentialMgtConfigService");
-		} catch (java.lang.Exception e) {
-			handleException(e.getMessage(), e);
-		}
-	}
+    public AccountCredentialMgtConfigClient(String cookie, String url,
+                                            ConfigurationContext configContext) throws Exception {
+        try {
+            stub = new AccountCredentialMgtConfigServiceStub(configContext, url
+                    + "AccountCredentialMgtConfigService");
+            ServiceClient client = stub._getServiceClient();
+            Options option = client.getOptions();
+            option.setManageSession(true);
+            option.setProperty(
+                    org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING,
+                    cookie);
+        } catch (java.lang.Exception e) {
+            handleException(e.getMessage(), e);
+        }
+    }
 
-	public AccountCredentialMgtConfigClient(String cookie, String url,
-			ConfigurationContext configContext) throws Exception {
-		try {
-			stub = new AccountCredentialMgtConfigServiceStub(configContext, url
-					+ "AccountCredentialMgtConfigService");
-			ServiceClient client = stub._getServiceClient();
-			Options option = client.getOptions();
-			option.setManageSession(true);
-			option.setProperty(
-					org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING,
-					cookie);
-		} catch (java.lang.Exception e) {
-			handleException(e.getMessage(), e);
-		}
-	}
+    private String[] handleException(String msg, Exception e) throws AxisFault {
+        log.error(msg, e);
+        throw new AxisFault(msg, e);
+    }
 
-	private String[] handleException(String msg, Exception e) throws AxisFault {
-		log.error(msg, e);
-		throw new AxisFault(msg, e);
-	}
+    public void saveEmailConfig(EmailConfigDTO emailConfig) throws AxisFault {
+        try {
+            EmailTemplateDTO[] emailTemplates = emailConfig.getTemplates();
+            stub.saveEmailConfig(emailTemplates);
+        } catch (Exception e) {
+            handleException(e.getMessage(), e);
+        }
+    }
 
-	public void saveEmailConfig(EmailConfigDTO emailConfig) throws AxisFault {
-	      try {
-	    	  EmailTemplateDTO[] emailTemplates = emailConfig.getTemplates();
-	          stub.saveEmailConfig(emailTemplates);
-	      } catch (Exception e) {
-	          handleException(e.getMessage(), e);
-	      }
-	}
-	
-	public EmailConfigDTO loadEmailConfig() throws AxisFault {
-		EmailTemplateDTO[] emailTemplates = null;  
-		EmailConfigDTO emailConfig = new EmailConfigDTO();
-		try {
-			emailTemplates = stub.getEmailConfig();
-			Map<String, String> emailTypes = new HashMap<String, String>();
-			for(int i=0; i < emailTemplates.length; i++) {
-				emailTypes.put(emailTemplates[i].getName(), emailTemplates[i].getDisplayName());
-			}
-			emailConfig.setEmailTypes(emailTypes);
-			emailConfig.setTemplates(emailTemplates);
-	      } catch (Exception e) {
-	          handleException(e.getMessage(), e);
-	      }
-		return emailConfig;
-	}
+    public EmailConfigDTO loadEmailConfig() throws AxisFault {
+        EmailTemplateDTO[] emailTemplates = null;
+        EmailConfigDTO emailConfig = new EmailConfigDTO();
+        try {
+            emailTemplates = stub.getEmailConfig();
+            Map<String, String> emailTypes = new HashMap<String, String>();
+            for (int i = 0; i < emailTemplates.length; i++) {
+                emailTypes.put(emailTemplates[i].getName(), emailTemplates[i].getDisplayName());
+            }
+            emailConfig.setEmailTypes(emailTypes);
+            emailConfig.setTemplates(emailTemplates);
+        } catch (Exception e) {
+            handleException(e.getMessage(), e);
+        }
+        return emailConfig;
+    }
 }

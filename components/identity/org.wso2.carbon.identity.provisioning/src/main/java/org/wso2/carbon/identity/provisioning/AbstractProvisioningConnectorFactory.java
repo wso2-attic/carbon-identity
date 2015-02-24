@@ -18,27 +18,25 @@
  */
 package org.wso2.carbon.identity.provisioning;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.model.Property;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provisioning.cache.ProvisioningConnectorCache;
 import org.wso2.carbon.identity.provisioning.cache.ProvisioningConnectorCacheEntry;
 import org.wso2.carbon.identity.provisioning.cache.ProvisioningConnectorCacheKey;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public abstract class AbstractProvisioningConnectorFactory {
 
     private static final Log log = LogFactory.getLog(AbstractProvisioningConnectorFactory.class);
 
     /**
-     * 
      * @param identityProviderName
      * @param provisoningProperties
      * @param tenantDomain
@@ -46,7 +44,7 @@ public abstract class AbstractProvisioningConnectorFactory {
      * @throws IdentityProvisioningException
      */
     public AbstractOutboundProvisioningConnector getConnector(String identityProviderName,
-            Property[] provisoningProperties, String tenantDomain)
+                                                              Property[] provisoningProperties, String tenantDomain)
             throws IdentityProvisioningException {
 
         String tenantDomainName = null;
@@ -112,7 +110,6 @@ public abstract class AbstractProvisioningConnectorFactory {
     }
 
     /**
-     * 
      * @param identityProviderName
      * @param provisoningProperties
      * @return
@@ -122,7 +119,6 @@ public abstract class AbstractProvisioningConnectorFactory {
             Property[] provisoningProperties) throws IdentityProvisioningException;
 
     /**
-     * 
      * @param identityProviderName
      * @param tenantDomain
      * @throws IdentityProvisioningException
@@ -165,7 +161,7 @@ public abstract class AbstractProvisioningConnectorFactory {
             }
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
-            
+
             if (tenantDomain != null) {
                 PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(
                         tenantDomainName);
@@ -173,9 +169,8 @@ public abstract class AbstractProvisioningConnectorFactory {
             }
         }
     }
-    
+
     /**
-     * 
      * @return
      */
     public List<Property> getConfigurationProperties() {
@@ -184,7 +179,6 @@ public abstract class AbstractProvisioningConnectorFactory {
 
 
     /**
-     * 
      * @return
      */
     public abstract String getConnectorType();

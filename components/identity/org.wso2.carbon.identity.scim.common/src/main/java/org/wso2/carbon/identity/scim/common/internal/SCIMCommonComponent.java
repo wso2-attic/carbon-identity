@@ -12,12 +12,7 @@ import org.wso2.carbon.identity.scim.common.utils.IdentitySCIMException;
 import org.wso2.carbon.identity.scim.common.utils.SCIMCommonUtils;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.utils.CarbonUtils;
-import org.wso2.charon.core.config.SCIMConfig;
-import org.wso2.charon.core.config.SCIMConfigConstants;
-import org.wso2.charon.core.config.SCIMConfigProcessor;
-import org.wso2.charon.core.config.SCIMConsumer;
-import org.wso2.charon.core.config.SCIMProvider;
-import org.wso2.charon.core.config.SCIMUserSchemaExtensionBuilder;
+import org.wso2.charon.core.config.*;
 import org.wso2.charon.core.exceptions.CharonException;
 
 import java.io.File;
@@ -41,7 +36,7 @@ public class SCIMCommonComponent {
     protected void activate(ComponentContext ctx) {
         try {
             String filePath = CarbonUtils.getCarbonConfigDirPath() + File.separator +
-                              SCIMConfigConstants.PROVISIONING_CONFIG_NAME;
+                    SCIMConfigConstants.PROVISIONING_CONFIG_NAME;
 
             SCIMConfigProcessor scimConfigProcessor = new SCIMConfigProcessor();
             SCIMConfig scimConfig = scimConfigProcessor.buildConfigFromFile(filePath);
@@ -57,17 +52,17 @@ public class SCIMCommonComponent {
                 executorService.submit(persister);
             }
             // reading user schema extension
-			if (Boolean.parseBoolean(scimConfig.getAdditionalPropertyValue("user-schema-extension-enabled"))) {
-				String schemaFilePath =
-				                        CarbonUtils.getCarbonConfigDirPath() + File.separator +
-				                                SCIMConfigConstants.SCIM_SCHEMA_EXTENSION_CONFIG;
-				SCIMUserSchemaExtensionBuilder.getInstance().buildUserSchemaExtension(schemaFilePath);
-			}
+            if (Boolean.parseBoolean(scimConfig.getAdditionalPropertyValue("user-schema-extension-enabled"))) {
+                String schemaFilePath =
+                        CarbonUtils.getCarbonConfigDirPath() + File.separator +
+                                SCIMConfigConstants.SCIM_SCHEMA_EXTENSION_CONFIG;
+                SCIMUserSchemaExtensionBuilder.getInstance().buildUserSchemaExtension(schemaFilePath);
+            }
 
             //register UserOperationEventListener implementation
             SCIMUserOperationListener scimUserOperationListener = new SCIMUserOperationListener();
             ctx.getBundleContext().registerService(UserOperationEventListener.class.getName(),
-                                                   scimUserOperationListener, null);
+                    scimUserOperationListener, null);
 
             SCIMCommonUtils.init();
 
@@ -80,7 +75,7 @@ public class SCIMCommonComponent {
             logger.error("Error in reading information from identity tables at SCIMCommonComponentStartup.");
         }
     }
-    
+
     protected void setIdentityUtil(IdentityUtil idnUtil) {
         identityUtil = idnUtil;
     }
@@ -119,7 +114,7 @@ public class SCIMCommonComponent {
                                     scimProviderDAO.addProvider(consumerId, scimDTO);
                                 } catch (IdentitySCIMException e) {
                                     logger.error("Error in persisting scim provider: " +
-                                                 scimProvider.getId() + " for scim consumer: " + consumerId);
+                                            scimProvider.getId() + " for scim consumer: " + consumerId);
                                 }
                             }
                         }

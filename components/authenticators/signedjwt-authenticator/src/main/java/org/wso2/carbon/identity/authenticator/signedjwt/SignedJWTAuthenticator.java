@@ -19,7 +19,7 @@
 
 package org.wso2.carbon.identity.authenticator.signedjwt;
 
-import com.nimbusds.jose.*;
+import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.SignedJWT;
 import org.apache.axiom.util.base64.Base64Utils;
@@ -48,188 +48,187 @@ import java.security.interfaces.RSAPublicKey;
  */
 public class SignedJWTAuthenticator implements CarbonServerAuthenticator {
 
-	private static final int DEFAULT_PRIORITY_LEVEL = 20;
-	private static final String AUTHENTICATOR_NAME = "SignedJWTAuthenticator";
-	private static final String AUTHORIZATION_HEADER_TYPE = "Bearer";
-	public static final String SIGNED_JWT_AUTH_USERNAME = "Username";
+    public static final String SIGNED_JWT_AUTH_USERNAME = "Username";
+    private static final int DEFAULT_PRIORITY_LEVEL = 20;
+    private static final String AUTHENTICATOR_NAME = "SignedJWTAuthenticator";
+    private static final String AUTHORIZATION_HEADER_TYPE = "Bearer";
+    private static final Log log = LogFactory.getLog(SignedJWTAuthenticator.class);
 
-	private static final Log log = LogFactory.getLog(SignedJWTAuthenticator.class);
+    @Override
+    public int getPriority() {
+        AuthenticatorsConfiguration authenticatorsConfiguration =
+                AuthenticatorsConfiguration.getInstance();
+        AuthenticatorsConfiguration.AuthenticatorConfig authenticatorConfig =
+                authenticatorsConfiguration.getAuthenticatorConfig(AUTHENTICATOR_NAME);
+        if (authenticatorConfig != null && authenticatorConfig.getPriority() > 0) {
+            return authenticatorConfig.getPriority();
+        }
+        return DEFAULT_PRIORITY_LEVEL;
+    }
 
-	@Override
-	public int getPriority() {
-		AuthenticatorsConfiguration authenticatorsConfiguration =
-				AuthenticatorsConfiguration.getInstance();
-		AuthenticatorsConfiguration.AuthenticatorConfig authenticatorConfig =
-				authenticatorsConfiguration.getAuthenticatorConfig(AUTHENTICATOR_NAME);
-		if (authenticatorConfig != null && authenticatorConfig.getPriority() > 0) {
-			return authenticatorConfig.getPriority();
-		}
-		return DEFAULT_PRIORITY_LEVEL;
-	}
+    @Override
+    public boolean isDisabled() {
+        AuthenticatorsConfiguration authenticatorsConfiguration =
+                AuthenticatorsConfiguration.getInstance();
+        AuthenticatorsConfiguration.AuthenticatorConfig authenticatorConfig =
+                authenticatorsConfiguration.getAuthenticatorConfig(AUTHENTICATOR_NAME);
+        return authenticatorConfig != null && authenticatorConfig.isDisabled();
+    }
 
-	@Override
-	public boolean isDisabled() {
-		AuthenticatorsConfiguration authenticatorsConfiguration =
-				AuthenticatorsConfiguration.getInstance();
-		AuthenticatorsConfiguration.AuthenticatorConfig authenticatorConfig =
-				authenticatorsConfiguration.getAuthenticatorConfig(AUTHENTICATOR_NAME);
-		return authenticatorConfig != null && authenticatorConfig.isDisabled();
-	}
+    @Override
+    public boolean authenticateWithRememberMe(MessageContext msgCxt) {
+        return false;
+    }
 
-	@Override
-	public boolean authenticateWithRememberMe(MessageContext msgCxt) {
-		return false;
-	}
+    @Override
+    public String getAuthenticatorName() {
+        return AUTHENTICATOR_NAME;
+    }
 
-	@Override
-	public String getAuthenticatorName() {
-		return AUTHENTICATOR_NAME;
-	}
+    @Override
+    public boolean isAuthenticated(MessageContext msgCxt) {
+        boolean isAuthenticated = false;
+        HttpServletRequest request =
+                (HttpServletRequest) msgCxt.getProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST);
+        try {
+            //Get the filesystem keystore default primary certificate
+            KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(
+                    MultitenantConstants.SUPER_TENANT_ID);
+            keyStoreManager.getDefaultPrimaryCertificate();
 
-	@Override
-	public boolean isAuthenticated(MessageContext msgCxt) {
-		boolean isAuthenticated = false;
-		HttpServletRequest request =
-				(HttpServletRequest) msgCxt.getProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST);
-		try {
-			//Get the filesystem keystore default primary certificate
-			KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(
-					MultitenantConstants.SUPER_TENANT_ID);
-			keyStoreManager.getDefaultPrimaryCertificate();
+            String authorizationHeader = request.getHeader(HTTPConstants.HEADER_AUTHORIZATION);
+            String headerData = decodeAuthorizationHeader(authorizationHeader);
 
-			String authorizationHeader = request.getHeader(HTTPConstants.HEADER_AUTHORIZATION);
-			String headerData = decodeAuthorizationHeader(authorizationHeader);
+            JWSVerifier verifier =
+                    new RSASSAVerifier((RSAPublicKey) keyStoreManager.getDefaultPublicKey());
+            SignedJWT jwsObject = SignedJWT.parse(headerData);
 
-			JWSVerifier verifier =
-					new RSASSAVerifier((RSAPublicKey) keyStoreManager.getDefaultPublicKey());
-			SignedJWT jwsObject = SignedJWT.parse(headerData);
+            if (jwsObject.verify(verifier)) {
+                String userName = jwsObject.getJWTClaimsSet().getStringClaim(SIGNED_JWT_AUTH_USERNAME);
+                String tenantDomain = MultitenantUtils.getTenantDomain(userName);
+                userName = MultitenantUtils.getTenantAwareUsername(userName);
+                TenantManager tenantManager = SignedJWTAuthenticatorServiceComponent
+                        .getRealmService().getTenantManager();
+                int tenantId = tenantManager.getTenantId(tenantDomain);
 
-			if (jwsObject.verify(verifier)) {
-				String userName = jwsObject.getJWTClaimsSet().getStringClaim(SIGNED_JWT_AUTH_USERNAME);
-				String tenantDomain = MultitenantUtils.getTenantDomain(userName);
-				userName = MultitenantUtils.getTenantAwareUsername(userName);
-				TenantManager tenantManager = SignedJWTAuthenticatorServiceComponent
-						.getRealmService().getTenantManager();
-				int tenantId = tenantManager.getTenantId(tenantDomain);
+                handleAuthenticationStarted(tenantId);
 
-				handleAuthenticationStarted(tenantId);
+                UserStoreManager userStore = SignedJWTAuthenticatorServiceComponent
+                        .getRealmService().getTenantUserRealm(tenantId).getUserStoreManager();
+                if (userStore.isExistingUser(userName)) {
+                    isAuthenticated = true;
+                }
 
-				UserStoreManager userStore = SignedJWTAuthenticatorServiceComponent
-						.getRealmService().getTenantUserRealm(tenantId).getUserStoreManager();
-				if (userStore.isExistingUser(userName)) {
-					isAuthenticated = true;
-				}
+                if (isAuthenticated) {
+                    CarbonAuthenticationUtil.onSuccessAdminLogin(request.getSession(), userName,
+                            tenantId, tenantDomain,
+                            "Signed JWT Authentication");
+                    handleAuthenticationCompleted(tenantId, true);
+                    return true;
+                } else {
+                    log.error("Authentication Request is rejected. User does not exists in UserStore");
+                    CarbonAuthenticationUtil
+                            .onFailedAdminLogin(request.getSession(), userName, tenantId,
+                                    "Signed JWT Authentication",
+                                    "User does not exists in UserStore");
+                    handleAuthenticationCompleted(tenantId, false);
+                    return false;
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error authenticating the user " + e.getMessage(), e);
+        }
+        return isAuthenticated;
+    }
 
-				if (isAuthenticated) {
-					CarbonAuthenticationUtil.onSuccessAdminLogin(request.getSession(), userName,
-					                                             tenantId, tenantDomain,
-					                                             "Signed JWT Authentication");
-					handleAuthenticationCompleted(tenantId, true);
-					return true;
-				} else {
-					log.error("Authentication Request is rejected. User does not exists in UserStore");
-					CarbonAuthenticationUtil
-							.onFailedAdminLogin(request.getSession(), userName, tenantId,
-							                    "Signed JWT Authentication",
-							                    "User does not exists in UserStore");
-					handleAuthenticationCompleted(tenantId, false);
-					return false;
-				}
-			}
-		} catch (Exception e) {
-			log.error("Error authenticating the user " + e.getMessage(), e);
-		}
-		return isAuthenticated;
-	}
+    @Override
+    public boolean isHandle(MessageContext msgCxt) {
+        HttpServletRequest request =
+                (HttpServletRequest) msgCxt.getProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST);
+        String authorizationHeader = request.getHeader(HTTPConstants.HEADER_AUTHORIZATION);
+        if (log.isDebugEnabled()) {
+            if (authorizationHeader != null) {
+                log.debug("Authorization header is not null");
+            }
+        }
+        if (authorizationHeader != null) {
+            String authType = getAuthType(authorizationHeader);
+            if (log.isDebugEnabled()) {
+                log.debug("Authorization header type is : " + authType);
+            }
+            if (authType != null && authType.equalsIgnoreCase(AUTHORIZATION_HEADER_TYPE)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Request can be handled using this authenticator, so returning true");
+                }
+                return true;
+            }
+        }
+        return false;
+    }
 
-	@Override
-	public boolean isHandle(MessageContext msgCxt) {
-		HttpServletRequest request =
-				(HttpServletRequest) msgCxt.getProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST);
-		String authorizationHeader = request.getHeader(HTTPConstants.HEADER_AUTHORIZATION);
-		if(log.isDebugEnabled()){
-			if(authorizationHeader != null){
-				log.debug("Authorization header is not null");
-			}
-		}
-		if (authorizationHeader != null) {
-			String authType = getAuthType(authorizationHeader);
-			if(log.isDebugEnabled()){
-				log.debug("Authorization header type is : " + authType);
-			}
-			if (authType != null && authType.equalsIgnoreCase(AUTHORIZATION_HEADER_TYPE)) {
-				if(log.isDebugEnabled()) {
-					log.debug("Request can be handled using this authenticator, so returning true");
-				}
-				return true;
-			}
-		}
-		return false;
-	}
+    /**
+     * Gets the authentication type in authorization header.
+     *
+     * @param authorizationHeader The authorization header - Authorization: Bearer QWxhZGRpbjpvcGVuIHNlc2FtZQ=="
+     * @return The authentication type mentioned in authorization header.
+     */
+    private String getAuthType(String authorizationHeader) {
+        String[] splitValues = null;
+        if (authorizationHeader != null) {
+            splitValues = authorizationHeader.trim().split(" ");
+        }
+        if (splitValues == null || splitValues.length == 0) {
+            return null;
+        }
+        return splitValues[0].trim();
+    }
 
-	/**
-	 * Gets the authentication type in authorization header.
-	 *
-	 * @param authorizationHeader The authorization header - Authorization: Bearer QWxhZGRpbjpvcGVuIHNlc2FtZQ=="
-	 * @return The authentication type mentioned in authorization header.
-	 */
-	private String getAuthType(String authorizationHeader) {
-		String[] splitValues = null;
-		if (authorizationHeader != null) {
-			splitValues = authorizationHeader.trim().split(" ");
-		}
-		if (splitValues == null || splitValues.length == 0) {
-			return null;
-		}
-		return splitValues[0].trim();
-	}
+    private String decodeAuthorizationHeader(String authorizationHeader) {
+        String[] splitValues = authorizationHeader.trim().split(" ");
+        byte[] decodedBytes = Base64Utils.decode(splitValues[1].trim());
+        if (decodedBytes != null) {
+            return new String(decodedBytes);
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("Error decoding authorization header. Could not retrieve user name and password.");
+            }
+            return null;
+        }
+    }
 
-	private String decodeAuthorizationHeader(String authorizationHeader) {
-		String[] splitValues = authorizationHeader.trim().split(" ");
-		byte[] decodedBytes = Base64Utils.decode(splitValues[1].trim());
-		if (decodedBytes != null) {
-			return new String(decodedBytes);
-		} else {
-			if(log.isDebugEnabled()) {
-				log.debug("Error decoding authorization header. Could not retrieve user name and password.");
-			}
-			return null;
-		}
-	}
+    private void handleAuthenticationStarted(int tenantId) {
+        BundleContext bundleContext = SignedJWTAuthenticatorServiceComponent.getBundleContext();
+        if (bundleContext != null) {
+            ServiceTracker tracker =
+                    new ServiceTracker(bundleContext,
+                            AuthenticationObserver.class.getName(), null);
+            tracker.open();
+            Object[] services = tracker.getServices();
+            if (services != null) {
+                for (Object service : services) {
+                    ((AuthenticationObserver) service).startedAuthentication(tenantId);
+                }
+            }
+            tracker.close();
+        }
+    }
 
-	private void handleAuthenticationStarted(int tenantId) {
-		BundleContext bundleContext = SignedJWTAuthenticatorServiceComponent.getBundleContext();
-		if (bundleContext != null) {
-			ServiceTracker tracker =
-					new ServiceTracker(bundleContext,
-					                   AuthenticationObserver.class.getName(), null);
-			tracker.open();
-			Object[] services = tracker.getServices();
-			if (services != null) {
-				for (Object service : services) {
-					((AuthenticationObserver) service).startedAuthentication(tenantId);
-				}
-			}
-			tracker.close();
-		}
-	}
-
-	private void handleAuthenticationCompleted(int tenantId, boolean isSuccessful) {
-		BundleContext bundleContext = SignedJWTAuthenticatorServiceComponent.getBundleContext();
-		if (bundleContext != null) {
-			ServiceTracker tracker =
-					new ServiceTracker(bundleContext,
-					                   AuthenticationObserver.class.getName(), null);
-			tracker.open();
-			Object[] services = tracker.getServices();
-			if (services != null) {
-				for (Object service : services) {
-					((AuthenticationObserver) service).completedAuthentication(
-							tenantId, isSuccessful);
-				}
-			}
-			tracker.close();
-		}
-	}
+    private void handleAuthenticationCompleted(int tenantId, boolean isSuccessful) {
+        BundleContext bundleContext = SignedJWTAuthenticatorServiceComponent.getBundleContext();
+        if (bundleContext != null) {
+            ServiceTracker tracker =
+                    new ServiceTracker(bundleContext,
+                            AuthenticationObserver.class.getName(), null);
+            tracker.open();
+            Object[] services = tracker.getServices();
+            if (services != null) {
+                for (Object service : services) {
+                    ((AuthenticationObserver) service).completedAuthentication(
+                            tenantId, isSuccessful);
+                }
+            }
+            tracker.close();
+        }
+    }
 
 }

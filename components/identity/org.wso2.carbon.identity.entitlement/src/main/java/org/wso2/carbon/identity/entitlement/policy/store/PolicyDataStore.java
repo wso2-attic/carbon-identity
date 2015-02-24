@@ -38,14 +38,6 @@ public interface PolicyDataStore {
      * @throws EntitlementException throws when initialization is failed
      */
     public void init(Properties properties) throws EntitlementException;
-    
-    /**
-     * Persist the policy combining algorithm in to data store
-     *
-     * @param policyCombiningAlgorithm   policy combining algorithm name to persist
-     * @throws EntitlementException throws if fails
-     */
-    public void setGlobalPolicyAlgorithm(String policyCombiningAlgorithm) throws EntitlementException;
 
     /**
      * Gets the policy combining algorithm of the PDP
@@ -55,7 +47,16 @@ public interface PolicyDataStore {
     public PolicyCombiningAlgorithm getGlobalPolicyAlgorithm();
 
     /**
+     * Persist the policy combining algorithm in to data store
+     *
+     * @param policyCombiningAlgorithm policy combining algorithm name to persist
+     * @throws EntitlementException throws if fails
+     */
+    public void setGlobalPolicyAlgorithm(String policyCombiningAlgorithm) throws EntitlementException;
+
+    /**
      * Gets the policy combining algorithm name of the PDP
+     *
      * @return policy combining algorithm name as <code>String</code>
      */
     public String getGlobalPolicyAlgorithmName();
@@ -71,7 +72,7 @@ public interface PolicyDataStore {
      * Gets policy data for given policy id
      *
      * @param policyId policy id as <code>String</code>
-     * @return  policy data such as order and so on <code>PolicyStoreDTO</code>
+     * @return policy data such as order and so on <code>PolicyStoreDTO</code>
      */
     public PolicyStoreDTO getPolicyData(String policyId);
 
@@ -79,14 +80,14 @@ public interface PolicyDataStore {
     /**
      * Gets all policy data
      *
-     * @return  <code>Array</code> of <code>PolicyStoreDTO</code>
+     * @return <code>Array</code> of <code>PolicyStoreDTO</code>
      */
     public PolicyStoreDTO[] getPolicyData();
 
     /**
      * Set policy data for give policy id
      *
-     * @param policyId  policy id as <code>String</code>
+     * @param policyId      policy id as <code>String</code>
      * @param policyDataDTO policy data such as order and so on <code>PolicyStoreDTO</code>
      * @throws EntitlementException if it is failed
      */
@@ -94,10 +95,10 @@ public interface PolicyDataStore {
 
     /**
      * Remove policy data for give policy id
-     * 
-     * @param policyId  policy id as <code>String</code>
+     *
+     * @param policyId policy id as <code>String</code>
      * @throws EntitlementException
      */
-    public void removePolicyData(String policyId)  throws EntitlementException;
+    public void removePolicyData(String policyId) throws EntitlementException;
 
 }

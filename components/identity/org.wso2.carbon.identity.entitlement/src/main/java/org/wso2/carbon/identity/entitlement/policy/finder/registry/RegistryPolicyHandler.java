@@ -24,7 +24,7 @@ import org.wso2.carbon.registry.core.jdbc.handlers.Handler;
 import org.wso2.carbon.registry.core.jdbc.handlers.RequestContext;
 
 /**
- *  Registry policy handler
+ * Registry policy handler
  */
 public class RegistryPolicyHandler extends Handler {
 
@@ -32,7 +32,7 @@ public class RegistryPolicyHandler extends Handler {
     public void put(RequestContext requestContext) throws RegistryException {
 
         RegistryPolicyStoreManageModule.invalidateCache();
-        super.put(requestContext);     
+        super.put(requestContext);
     }
 
     @Override

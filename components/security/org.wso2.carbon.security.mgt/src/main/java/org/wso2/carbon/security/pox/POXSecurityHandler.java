@@ -58,11 +58,10 @@ import java.util.Map;
  */
 public class POXSecurityHandler implements Handler {
 
-    private static Log log = LogFactory.getLog(POXSecurityHandler.class);
-    private static String POX_SECURITY_MODULE = "POXSecurityModule";
     public static final String POX_CACHE_MANAGER = "POX_CACHE_MANAGER";
     public static final String POX_ENABLED = "pox-security";
-
+    private static Log log = LogFactory.getLog(POXSecurityHandler.class);
+    private static String POX_SECURITY_MODULE = "POXSecurityModule";
     private HandlerDescription description;
 
     /**
@@ -83,14 +82,14 @@ public class POXSecurityHandler implements Handler {
      */
     public InvocationResponse invoke(MessageContext msgCtx) throws AxisFault {
 
-        if (msgCtx != null && !msgCtx.isEngaged(POX_SECURITY_MODULE)){
+        if (msgCtx != null && !msgCtx.isEngaged(POX_SECURITY_MODULE)) {
             return InvocationResponse.CONTINUE;
         }
 
         AxisService service = msgCtx.getAxisService();
 
         if (service == null) {
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("Service not dispatched");
             }
             return InvocationResponse.CONTINUE;
@@ -121,8 +120,8 @@ public class POXSecurityHandler implements Handler {
 
         String isPox = null;
         Cache<String, String> cache = this.getPOXCache();
-        if(cache != null){
-            if(cache.get(service.getName()) != null) {
+        if (cache != null) {
+            if (cache.get(service.getName()) != null) {
                 isPox = cache.get(service.getName());
             }
         }
@@ -172,7 +171,7 @@ public class POXSecurityHandler implements Handler {
                     log.debug("Processing POX security");
                 }
             } else {
-                if(cache != null){
+                if (cache != null) {
                     cache.put(service.getName(), "false");
                 }
                 return InvocationResponse.CONTINUE;
@@ -235,7 +234,7 @@ public class POXSecurityHandler implements Handler {
     private void setAuthHeaders(MessageContext msgCtx) throws IOException {
         String serverName = ServerConfiguration.getInstance().getFirstProperty("Name");
 
-        if(serverName == null || serverName.trim().length() == 0){
+        if (serverName == null || serverName.trim().length() == 0) {
             serverName = "WSO2 Carbon";
         }
 
@@ -245,7 +244,7 @@ public class POXSecurityHandler implements Handler {
             response.setContentLength(0);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.addHeader("WWW-Authenticate",
-                    "BASIC realm=\""+serverName+"\"");
+                    "BASIC realm=\"" + serverName + "\"");
             response.flushBuffer();
         } else {
             // if not servlet transport assume it to be nhttp transport
@@ -253,24 +252,25 @@ public class POXSecurityHandler implements Handler {
             msgCtx.setProperty("HTTP_SC", HttpServletResponse.SC_UNAUTHORIZED);
             Map<String, String> responseHeaders = new HashMap<String, String>();
             responseHeaders.put("WWW-Authenticate",
-                    "BASIC realm=\""+serverName+"\"");
+                    "BASIC realm=\"" + serverName + "\"");
             msgCtx.setProperty(MessageContext.TRANSPORT_HEADERS, responseHeaders);
         }
 
     }
 
-    private String getScenarioId(MessageContext msgCtx, AxisService service) throws SecurityConfigException{
+    private String getScenarioId(MessageContext msgCtx, AxisService service) throws SecurityConfigException {
         String scenarioID = null;
-        try{
-            scenarioID = (String)service.getParameter(SecurityConstants.SCENARIO_ID_PARAM_NAME).getValue();
-        }catch (Exception e){}//ignore
+        try {
+            scenarioID = (String) service.getParameter(SecurityConstants.SCENARIO_ID_PARAM_NAME).getValue();
+        } catch (Exception e) {
+        }//ignore
 
-        if(scenarioID == null){
-            synchronized (this){
+        if (scenarioID == null) {
+            synchronized (this) {
                 SecurityConfigAdmin securityAdmin = new SecurityConfigAdmin(msgCtx.
                         getConfigurationContext().getAxisConfiguration());
                 SecurityScenarioData data = securityAdmin.getCurrentScenario(service.getName());
-                if(data != null){
+                if (data != null) {
                     scenarioID = data.getScenarioId();
                     try {
                         Parameter param = new Parameter();
@@ -278,7 +278,7 @@ public class POXSecurityHandler implements Handler {
                         param.setValue(scenarioID);
                         service.addParameter(param);
                     } catch (AxisFault axisFault) {
-                        log.error("Error while adding Scenario ID parameter",axisFault);
+                        log.error("Error while adding Scenario ID parameter", axisFault);
                     }
                 }
             }
@@ -288,8 +288,7 @@ public class POXSecurityHandler implements Handler {
     }
 
     /**
-     *
-     * @param msgCtx   message going through the handler chain
+     * @param msgCtx message going through the handler chain
      * @return true if its a soap message without a security header
      */
     private boolean isSOAPWithoutSecHeader(MessageContext msgCtx) {
@@ -315,15 +314,16 @@ public class POXSecurityHandler implements Handler {
 
     /**
      * Utility method to return basic auth transport headers if present
+     *
      * @return
      */
     private String getBasicAuthHeaders(MessageContext msgCtx) {
 
         Map map = (Map) msgCtx.getProperty(MessageContext.TRANSPORT_HEADERS);
-        if(map == null) {
+        if (map == null) {
             return null;
         }
-        String tmp =   (String) map.get("Authorization");
+        String tmp = (String) map.get("Authorization");
         if (tmp == null) {
             tmp = (String) map.get("authorization");
         }
@@ -357,9 +357,9 @@ public class POXSecurityHandler implements Handler {
     public Parameter getParameter(String name) {
         return this.description.getParameter(name);
     }
+
     /**
      * Returns the default "POX_ENABLED" cache
-     *
      */
     private Cache<String, String> getPOXCache() {
         CacheManager manager = Caching.getCacheManagerFactory().getCacheManager(POXSecurityHandler.POX_CACHE_MANAGER);

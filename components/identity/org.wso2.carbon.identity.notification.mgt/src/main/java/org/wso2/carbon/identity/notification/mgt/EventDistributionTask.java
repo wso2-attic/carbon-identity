@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.identity.notification.mgt;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.notification.mgt.bean.PublisherEvent;
@@ -37,6 +36,10 @@ public class EventDistributionTask implements Runnable {
 
     private static final Log log = LogFactory.getLog(NotificationSender.class);
     /**
+     * Thread pool for executing event distribution
+     */
+    private static ExecutorService threadPool = null;
+    /**
      * Queue used to add events by publishers.
      */
     private BlockingDeque<PublisherEvent> eventQueue;
@@ -45,18 +48,15 @@ public class EventDistributionTask implements Runnable {
      */
     private List<NotificationSendingModule> notificationSendingModules;
     /**
-     * Thread pool for executing event distribution
-     */
-    private static ExecutorService threadPool = null;
-    /**
      * Condition to break event distribution task
      */
     private volatile boolean running;
 
     /**
      * Overridden constructor to initiate notification sending modules and thread pool size
+     *
      * @param notificationSendingModules List of notification sending modules registered
-     * @param threadPoolSize Size of thread pool for notification sending components
+     * @param threadPoolSize             Size of thread pool for notification sending components
      */
     public EventDistributionTask(List<NotificationSendingModule> notificationSendingModules, int threadPoolSize) {
         this.notificationSendingModules = notificationSendingModules;
@@ -108,7 +108,7 @@ public class EventDistributionTask implements Runnable {
         }
     }
 
-    public void shutdown(){
+    public void shutdown() {
         this.running = false;
     }
 }

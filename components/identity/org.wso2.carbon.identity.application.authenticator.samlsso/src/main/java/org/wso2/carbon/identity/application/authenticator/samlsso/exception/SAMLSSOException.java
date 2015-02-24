@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.application.authenticator.samlsso.exception;
 import javax.servlet.ServletException;
 
 /**
- *  This class is used to denote exceptions thrown from the SAML2 SSO Authenticator module
+ * This class is used to denote exceptions thrown from the SAML2 SSO Authenticator module
  */
 public class SAMLSSOException extends ServletException {
 

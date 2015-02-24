@@ -17,8 +17,6 @@
 */
 package org.wso2.carbon.identity.sts.mgt;
 
-import java.util.ArrayList;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.description.AxisModule;
@@ -33,6 +31,8 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.provider.IdentityProviderException;
 import org.wso2.carbon.identity.sts.mgt.admin.STSConfigAdmin;
 import org.wso2.carbon.utils.ServerConstants;
+
+import java.util.ArrayList;
 
 public class STSObserver implements AxisObserver {
 
@@ -67,6 +67,7 @@ public class STSObserver implements AxisObserver {
         }
 
     }
+
     public void addParameter(Parameter arg0) throws AxisFault {
         // TODO Auto-generated method stub
 

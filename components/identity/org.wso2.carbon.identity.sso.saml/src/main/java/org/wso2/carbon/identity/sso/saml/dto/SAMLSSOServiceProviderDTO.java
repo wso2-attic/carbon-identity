@@ -122,7 +122,6 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public boolean isDoSignAssertions() {
@@ -130,7 +129,6 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
     }
 
     /**
-     * 
      * @param doSignAssertions
      */
     public void setDoSignAssertions(boolean doSignAssertions) {

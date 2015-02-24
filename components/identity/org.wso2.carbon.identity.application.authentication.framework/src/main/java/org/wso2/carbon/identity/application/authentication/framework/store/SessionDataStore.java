@@ -37,50 +37,6 @@ import java.util.concurrent.LinkedBlockingDeque;
  */
 public class SessionDataStore {
 
-    private JDBCPersistenceManager jdbcPersistenceManager;
-
-    private boolean enablePersist;
-
-    private String sqlStore;
-    
-    private String sqlUpdate;
-    
-    private String sqlDelete;
-    
-    private String sqlCheck;
-
-    private String sqlSelect;
-    
-    private String sqlDeleteTask; 
-    
-    private static int maxPoolSize = 100;
-
-    private static BlockingDeque<SessionContextDO> sessionContextQueue = new LinkedBlockingDeque<SessionContextDO> ();
-    
-    private static Log log = LogFactory.getLog(SessionDataStore.class);
-    
-
-	static {
-
-		try {
-			maxPoolSize =
-			              Integer.parseInt(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.PoolSize"));
-		} catch (Exception e) {
-		}
-
-		if (maxPoolSize > 0) {
-			log.info("Thread pool size for session persistent consumer : " + maxPoolSize);
-
-			ExecutorService threadPool = Executors.newFixedThreadPool(maxPoolSize);
-
-			for (int i = 0; i < maxPoolSize; i++) {
-				threadPool.execute(new SessionDataPersistTask(sessionContextQueue));
-			}
-		}
-
-	}
-
-
     private static final String SQL_SERIALIZE_OBJECT = "INSERT INTO IDN_AUTH_SESSION_STORE(SESSION_ID, SESSION_TYPE, SESSION_OBJECT, TIME_CREATED) VALUES (?, ?, ?, ?)";
     private static final String SQL_UPDATE_SERIALIZED_OBJECT =
             "UPDATE IDN_AUTH_SESSION_STORE SET SESSION_OBJECT =?, TIME_CREATED =? WHERE SESSION_ID =? AND SESSION_TYPE=?";
@@ -89,46 +45,75 @@ public class SessionDataStore {
     private static final String SQL_DELETE_SERIALIZED_OBJECT = "DELETE FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID = ? AND SESSION_TYPE=?";
     private static final String SQL_DELETE_SERIALIZED_OBJECT_TASK = "DELETE FROM IDN_AUTH_SESSION_STORE WHERE TIME_CREATED<?";
     private static final String SQL_SELECT_TIME_CREATED = "SELECT TIME_CREATED FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID =? AND SESSION_TYPE =?";
+    private static int maxPoolSize = 100;
+    private static BlockingDeque<SessionContextDO> sessionContextQueue = new LinkedBlockingDeque<SessionContextDO>();
+    private static Log log = LogFactory.getLog(SessionDataStore.class);
+    static {
 
+        try {
+            maxPoolSize =
+                    Integer.parseInt(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.PoolSize"));
+        } catch (Exception e) {
+        }
+
+        if (maxPoolSize > 0) {
+            log.info("Thread pool size for session persistent consumer : " + maxPoolSize);
+
+            ExecutorService threadPool = Executors.newFixedThreadPool(maxPoolSize);
+
+            for (int i = 0; i < maxPoolSize; i++) {
+                threadPool.execute(new SessionDataPersistTask(sessionContextQueue));
+            }
+        }
+
+    }
     private static volatile SessionDataStore instance;
+    private JDBCPersistenceManager jdbcPersistenceManager;
+    private boolean enablePersist;
+    private String sqlStore;
+    private String sqlUpdate;
+    private String sqlDelete;
+    private String sqlCheck;
+    private String sqlSelect;
+    private String sqlDeleteTask;
 
     private SessionDataStore() {
         try {
 
             jdbcPersistenceManager = JDBCPersistenceManager.getInstance();
-            enablePersist= Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Enable"));
+            enablePersist = Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Enable"));
             String sqlStore = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.Store");
             String sqlUpdate = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.Update");
             String sqlDelete = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.Delete");
             String sqlCheck = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.Check");
             String sqlSelect = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.Select");
             String sqlDeleteTask = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.Task");
-            if(sqlStore != null && sqlStore.trim().length() > 0){
+            if (sqlStore != null && sqlStore.trim().length() > 0) {
                 this.sqlStore = sqlStore;
             } else {
                 this.sqlStore = SQL_SERIALIZE_OBJECT;
             }
-            if(sqlUpdate!= null && sqlUpdate.trim().length() > 0){
+            if (sqlUpdate != null && sqlUpdate.trim().length() > 0) {
                 this.sqlUpdate = sqlUpdate;
             } else {
                 this.sqlUpdate = SQL_UPDATE_SERIALIZED_OBJECT;
             }
-            if(sqlDelete != null && sqlDelete.trim().length() > 0){
+            if (sqlDelete != null && sqlDelete.trim().length() > 0) {
                 this.sqlDelete = sqlDelete;
             } else {
                 this.sqlDelete = SQL_DELETE_SERIALIZED_OBJECT;
             }
-            if(sqlCheck != null && sqlCheck.trim().length() > 0){
+            if (sqlCheck != null && sqlCheck.trim().length() > 0) {
                 this.sqlCheck = sqlCheck;
             } else {
                 this.sqlCheck = SQL_CHECK_SERIALIZED_OBJECT;
             }
-            if(sqlSelect != null && sqlSelect.trim().length() > 0){
+            if (sqlSelect != null && sqlSelect.trim().length() > 0) {
                 this.sqlSelect = sqlSelect;
             } else {
                 this.sqlSelect = SQL_DESERIALIZE_OBJECT;
             }
-            if(sqlDeleteTask != null && sqlDeleteTask.trim().length() > 0){
+            if (sqlDeleteTask != null && sqlDeleteTask.trim().length() > 0) {
                 this.sqlDeleteTask = sqlDeleteTask;
             } else {
                 this.sqlDeleteTask = SQL_DELETE_SERIALIZED_OBJECT_TASK;
@@ -138,11 +123,11 @@ public class SessionDataStore {
             log.error("Error while loading session data store manager", e);
         }
 
-        if(!enablePersist){
+        if (!enablePersist) {
             log.info("Session Data Persistence of Authentication framework is not enabled.");
         }
 
-        if(Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.CleanUp.Enable"))){
+        if (Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.CleanUp.Enable"))) {
             String sessionCleanupPeriod = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.CleanUp.Period");
             if (sessionCleanupPeriod == null || sessionCleanupPeriod.trim().length() == 0) {
                 // default period is set to 1 day
@@ -152,7 +137,7 @@ public class SessionDataStore {
             SessionCleanUpService sessionCleanUpService = new SessionCleanUpService(sessionCleanupTime,
                     sessionCleanupTime);
             sessionCleanUpService.activateCleanUp();
-        }  else {
+        } else {
             log.info("Session Data CleanUp Task of Authentication framework is not enabled.");
         }
     }
@@ -169,9 +154,9 @@ public class SessionDataStore {
     }
 
 
-    public Object getSessionData(String key, String type){
+    public Object getSessionData(String key, String type) {
 
-        if(!enablePersist){
+        if (!enablePersist) {
             return null;
         }
 
@@ -180,11 +165,11 @@ public class SessionDataStore {
         ResultSet resultSet = null;
         try {
             connection = jdbcPersistenceManager.getDBConnection();
-            preparedStatement= connection.prepareStatement(sqlSelect);
+            preparedStatement = connection.prepareStatement(sqlSelect);
             preparedStatement.setString(1, key);
             preparedStatement.setString(2, type);
             resultSet = preparedStatement.executeQuery();
-            if(resultSet.next()){
+            if (resultSet.next()) {
                 return getBlobObject(resultSet.getBinaryStream(1));
             }
         } catch (IdentityException e) {
@@ -204,13 +189,13 @@ public class SessionDataStore {
             log.error("Error while retrieving session data", e);
         } finally {
             try {
-                if(resultSet != null){
+                if (resultSet != null) {
                     resultSet.close();
                 }
-                if(preparedStatement != null){
+                if (preparedStatement != null) {
                     preparedStatement.close();
                 }
-                if(connection != null){
+                if (connection != null) {
                     connection.close();
                 }
             } catch (SQLException e) {
@@ -221,30 +206,30 @@ public class SessionDataStore {
         return null;
     }
 
-	public void storeSessionData(String key, String type, Object entry) {
+    public void storeSessionData(String key, String type, Object entry) {
 
-        if(!enablePersist){
+        if (!enablePersist) {
             return;
         }
 
-		if (maxPoolSize > 0){
-			sessionContextQueue.push(new SessionContextDO(key, type, entry));
-		} else {
-			persistSessionData(key, type, entry);
-		}
-	}
+        if (maxPoolSize > 0) {
+            sessionContextQueue.push(new SessionContextDO(key, type, entry));
+        } else {
+            persistSessionData(key, type, entry);
+        }
+    }
 
-	public void clearSessionData(String key, String type) {
+    public void clearSessionData(String key, String type) {
 
-        if(!enablePersist){
+        if (!enablePersist) {
             return;
         }
 
-		if (maxPoolSize > 0){		
-			sessionContextQueue.push(new SessionContextDO(key, type, null));
-		} else {
-			removeSessionData(key, type);
-		}
+        if (maxPoolSize > 0) {
+            sessionContextQueue.push(new SessionContextDO(key, type, null));
+        } else {
+            removeSessionData(key, type);
+        }
     }
 
     public void removeExpiredSessionData(Timestamp timestamp) {
@@ -277,11 +262,11 @@ public class SessionDataStore {
             }
         }
 
-    }    
+    }
 
-    private boolean isExist(String key, String type){
+    private boolean isExist(String key, String type) {
 
-        if(!enablePersist){
+        if (!enablePersist) {
             return false;
         }
 
@@ -294,7 +279,7 @@ public class SessionDataStore {
             preparedStatement.setString(1, key);
             preparedStatement.setString(2, type);
             resultSet = preparedStatement.executeQuery();
-            if(resultSet.next()){
+            if (resultSet.next()) {
                 return true;
             }
         } catch (IdentityException e) {
@@ -305,13 +290,13 @@ public class SessionDataStore {
             log.error("Error while retrieving session data", e);
         } finally {
             try {
-                if(resultSet != null){
+                if (resultSet != null) {
                     resultSet.close();
                 }
-                if(preparedStatement != null){
+                if (preparedStatement != null) {
                     preparedStatement.close();
                 }
-                if(connection != null){
+                if (connection != null) {
                     connection.close();
                 }
             } catch (SQLException e) {
@@ -322,9 +307,9 @@ public class SessionDataStore {
         return false;
     }
 
-    public void persistSessionData(String key, String type, Object entry){
+    public void persistSessionData(String key, String type, Object entry) {
 
-        if(!enablePersist){
+        if (!enablePersist) {
             return;
         }
 
@@ -343,9 +328,9 @@ public class SessionDataStore {
                 preparedStatement.setString(1, key);
                 preparedStatement.setString(2, type);
                 resultSet = preparedStatement.executeQuery();
-                if(resultSet.next()){
+                if (resultSet.next()) {
                     timestamp = resultSet.getTimestamp(1);
-                    if(preparedStatement != null){
+                    if (preparedStatement != null) {
                         preparedStatement.close();
                     }
                 }
@@ -374,10 +359,10 @@ public class SessionDataStore {
             log.error("Error while storing session data", e);
         } finally {
             try {
-                if(preparedStatement != null){
+                if (preparedStatement != null) {
                     preparedStatement.close();
                 }
-                if(connection != null){
+                if (connection != null) {
                     connection.close();
                 }
             } catch (SQLException e) {
@@ -387,9 +372,9 @@ public class SessionDataStore {
     }
 
 
-    public void removeSessionData(String key, String type){
+    public void removeSessionData(String key, String type) {
 
-        if(!enablePersist){
+        if (!enablePersist) {
             return;
         }
 
@@ -411,10 +396,10 @@ public class SessionDataStore {
             log.error("Error while deleting session data", e);
         } finally {
             try {
-                if(preparedStatement != null){
+                if (preparedStatement != null) {
                     preparedStatement.close();
                 }
-                if(connection != null){
+                if (connection != null) {
                     connection.close();
                 }
             } catch (SQLException e) {
@@ -432,10 +417,10 @@ public class SessionDataStore {
             oos.flush();
             oos.close();
             InputStream inputStream = new ByteArrayInputStream(baos.toByteArray());
-            if(inputStream != null){
-                prepStmt.setBinaryStream(index, inputStream ,inputStream.available());
+            if (inputStream != null) {
+                prepStmt.setBinaryStream(index, inputStream, inputStream.available());
             } else {
-                prepStmt.setBinaryStream(index, inputStream , 0);
+                prepStmt.setBinaryStream(index, inputStream, 0);
             }
         } else {
             prepStmt.setBinaryStream(index, null, 0);

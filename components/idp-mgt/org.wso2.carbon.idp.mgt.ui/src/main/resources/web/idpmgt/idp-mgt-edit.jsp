@@ -40,7 +40,6 @@
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.Property" %>
 <%@ page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants" %>
-<%@ page import="org.apache.axis2.jaxws.utility.JavaUtils" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig" %>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
 

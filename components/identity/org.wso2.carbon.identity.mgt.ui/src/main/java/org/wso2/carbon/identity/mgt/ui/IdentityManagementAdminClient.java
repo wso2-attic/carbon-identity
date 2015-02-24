@@ -18,15 +18,12 @@
 
 package org.wso2.carbon.identity.mgt.ui;
 
-import java.rmi.RemoteException;
-
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.mgt.stub.UserIdentityManagementAdminServiceIdentityMgtServiceExceptionException;
 import org.wso2.carbon.identity.mgt.stub.UserIdentityManagementAdminServiceStub;
 import org.wso2.carbon.identity.mgt.stub.dto.ChallengeQuestionDTO;
 import org.wso2.carbon.identity.mgt.stub.dto.UserChallengesDTO;
@@ -37,10 +34,8 @@ import org.wso2.carbon.identity.mgt.stub.dto.UserChallengesDTO;
 public class IdentityManagementAdminClient {
 
     public static final String CHALLENGE_QUESTION = "challenge.question";
-
-    protected UserIdentityManagementAdminServiceStub stub = null;
-
     protected static Log log = LogFactory.getLog(IdentityManagementAdminClient.class);
+    protected UserIdentityManagementAdminServiceStub stub = null;
 
     public IdentityManagementAdminClient(String cookie, String url, ConfigurationContext configContext)
             throws java.lang.Exception {
@@ -55,7 +50,7 @@ public class IdentityManagementAdminClient {
         }
     }
 
-     public ChallengeQuestionDTO[] getChallengeQuestions() throws AxisFault {
+    public ChallengeQuestionDTO[] getChallengeQuestions() throws AxisFault {
 
         try {
             return stub.getAllChallengeQuestions();
@@ -67,7 +62,7 @@ public class IdentityManagementAdminClient {
     }
 
     public void setChallengeQuestions(ChallengeQuestionDTO[] challengeQuestionDTOs)
-                                                                        throws AxisFault {
+            throws AxisFault {
         try {
             stub.setChallengeQuestions(challengeQuestionDTOs);
         } catch (Exception e) {
@@ -76,7 +71,7 @@ public class IdentityManagementAdminClient {
     }
 
     public void setChallengeQuestionsOfUser(String userId, UserChallengesDTO[] userChallengesDTOs)
-                                                                            throws AxisFault {
+            throws AxisFault {
         try {
             stub.setChallengeQuestionsOfUser(userId, userChallengesDTOs);
         } catch (Exception e) {
@@ -94,20 +89,20 @@ public class IdentityManagementAdminClient {
 
         return null;
     }
-    
+
     public boolean isReadOnlyUserStore(String username, String tenantDomain) throws AxisFault {
-    	
-    	try {
-			return stub.isReadOnlyUserStore(username, tenantDomain);
-			
-		} catch (Exception e) {
-			handleException(e.getMessage(), e);
-		} 
-    	
-    	return false;
+
+        try {
+            return stub.isReadOnlyUserStore(username, tenantDomain);
+
+        } catch (Exception e) {
+            handleException(e.getMessage(), e);
+        }
+
+        return false;
     }
 
-    private String[] handleException(String msg, Exception e)  throws AxisFault {
+    private String[] handleException(String msg, Exception e) throws AxisFault {
         log.error(msg, e);
         throw new AxisFault(msg, e);
     }

@@ -55,15 +55,15 @@ import java.util.Map;
  */
 public class IWAServelet extends HttpServlet {
 
+    public static final String PRINCIPAL_SESSION_KEY = NegotiateSecurityFilter.class
+            .getName() + ".PRINCIPAL";
+    private static Log log = LogFactory.getLog(IWAServelet.class);
     private PrincipalFormat principalFormat = PrincipalFormat.fqn;
     private PrincipalFormat roleFormat = PrincipalFormat.fqn;
     private SecurityFilterProviderCollection providers = null;
     private IWindowsAuthProvider auth;
     private boolean allowGuestLogin = true;
     private boolean impersonate = false;
-    public static final String PRINCIPAL_SESSION_KEY = NegotiateSecurityFilter.class
-            .getName() + ".PRINCIPAL";
-    private static Log log = LogFactory.getLog(IWAServelet.class);
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -76,8 +76,8 @@ public class IWAServelet extends HttpServlet {
         String commonAuthURL = CarbonUIUtil.getAdminConsoleURL(request);
         commonAuthURL = commonAuthURL.replace(IWAConstants.IWA_CARBON_ROOT, IWAConstants.COMMON_AUTH_EP);
         String param = request.getParameter(IWAConstants.IWA_PARAM_STATE);
-        if(param==null){
-            throw new IllegalArgumentException(IWAConstants.IWA_PARAM_STATE+" parameter is null.");
+        if (param == null) {
+            throw new IllegalArgumentException(IWAConstants.IWA_PARAM_STATE + " parameter is null.");
         }
         commonAuthURL += "?" + IWAConstants.IWA_PARAM_STATE + "=" + URLEncoder.encode(param, IWAConstants.UTF_8) +
                 "&" + IWAAuthenticator.IWA_PROCESSED + "=1";
@@ -109,7 +109,7 @@ public class IWAServelet extends HttpServlet {
                     sendUnauthorized(response, true);
                     return;
                 }
-                if(log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     log.debug("logged in user: " + windowsIdentity.getFqn() + " (" + windowsIdentity.getSidString() +
                             ")");
                 }
@@ -129,7 +129,7 @@ public class IWAServelet extends HttpServlet {
                 } else {
                     windowsPrincipal = new WindowsPrincipal(windowsIdentity, principalFormat, roleFormat);
                 }
-                if(log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     log.debug("roles: " + windowsPrincipal.getRolesString());
                 }
                 subject.getPrincipals().add(windowsPrincipal);
@@ -139,14 +139,14 @@ public class IWAServelet extends HttpServlet {
 
                 request.getSession().setAttribute(PRINCIPAL_SESSION_KEY, windowsPrincipal);
                 if (impersonate) {
-                    if(log.isDebugEnabled()){
+                    if (log.isDebugEnabled()) {
                         log.debug("impersonating user");
                     }
                     ctx = windowsIdentity.impersonate();
                 }
             } finally {
                 if (impersonate && ctx != null) {
-                    if(log.isDebugEnabled()){
+                    if (log.isDebugEnabled()) {
                         log.debug("terminating impersonation");
                     }
                     ctx.revertToSelf();
@@ -157,7 +157,7 @@ public class IWAServelet extends HttpServlet {
             response.sendRedirect(commonAuthURL);
             return;
         }
-        if(log.isDebugEnabled()){
+        if (log.isDebugEnabled()) {
             log.debug("authorization required");
         }
         sendUnauthorized(response, false);
@@ -193,7 +193,7 @@ public class IWAServelet extends HttpServlet {
         // user already authenticated
 
         if (principal instanceof WindowsPrincipal) {
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 log.debug("previously authenticated Windows user: " + principal.getName());
             }
             WindowsPrincipal windowsPrincipal = (WindowsPrincipal) principal;
@@ -209,19 +209,19 @@ public class IWAServelet extends HttpServlet {
 
             IWindowsImpersonationContext ctx = null;
             if (impersonate) {
-                if(log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     log.debug("re-impersonating user");
                 }
                 ctx = windowsPrincipal.getIdentity().impersonate();
             }
             if (impersonate && ctx != null) {
-                if(log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     log.debug("terminating impersonation");
                 }
                 ctx.revertToSelf();
             }
         } else {
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 log.debug("previously authenticated user: " + principal.getName());
             }
         }
@@ -299,7 +299,7 @@ public class IWAServelet extends HttpServlet {
 
         // create default providers if none specified
         if (providers == null) {
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 log.debug("initializing default security filter providers");
             }
             providers = new SecurityFilterProviderCollection(auth);
@@ -310,7 +310,7 @@ public class IWAServelet extends HttpServlet {
             String[] classAndParameter = implParameter.getKey().split("/", 2);
             if (classAndParameter.length == 2) {
                 try {
-                    if(log.isDebugEnabled()){
+                    if (log.isDebugEnabled()) {
                         log.debug("Setting " + classAndParameter[0] + ", " + classAndParameter[1] + "=" +
                                 implParameter.getValue());
                     }
@@ -318,10 +318,10 @@ public class IWAServelet extends HttpServlet {
                     provider.initParameter(classAndParameter[1], implParameter.getValue());
                 } catch (ClassNotFoundException e) {
                     throw new ServletException("Invalid class: " + classAndParameter[0] + " in " + implParameter
-                            .getKey(),e);
+                            .getKey(), e);
                 }
             } else {
-                throw new ServletException("Invalid parameter: "+ implParameter.getKey());
+                throw new ServletException("Invalid parameter: " + implParameter.getKey());
             }
         }
     }

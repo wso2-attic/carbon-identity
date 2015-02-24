@@ -24,7 +24,7 @@ import java.util.Random;
  */
 public class DefaultPasswordGenerator implements RandomPasswordGenerator {
 
-	//TODO : read the lenth from the user-mgt.xml
+    //TODO : read the lenth from the user-mgt.xml
     private static final int PASSWORD_LENGTH = 8;
     private static final Random RANDOM = new SecureRandom();
 
@@ -36,9 +36,9 @@ public class DefaultPasswordGenerator implements RandomPasswordGenerator {
         String letters = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789+@";
 
         StringBuilder pw = new StringBuilder();
-        for (int i = 0; i<PASSWORD_LENGTH; i++){
-          int index = (int)(RANDOM.nextDouble()*letters.length());
-          pw.append(letters.substring(index, index+1));
+        for (int i = 0; i < PASSWORD_LENGTH; i++) {
+            int index = (int) (RANDOM.nextDouble() * letters.length());
+            pw.append(letters.substring(index, index + 1));
         }
         char[] password = new char[pw.length()];
         pw.getChars(0, pw.length(), password, 0);

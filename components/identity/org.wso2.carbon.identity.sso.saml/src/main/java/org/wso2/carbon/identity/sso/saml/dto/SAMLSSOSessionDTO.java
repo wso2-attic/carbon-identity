@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class SAMLSSOSessionDTO implements Serializable {
 
     private static final long serialVersionUID = 3806660562465698477L;
-    
+
     private String httpQueryString;
     private String destination;
     private String relayState;
@@ -113,38 +113,38 @@ public class SAMLSSOSessionDTO implements Serializable {
         this.isIdPInitSSO = isIdPInitSSO;
     }
 
-	public SAMLSSOReqValidationResponseDTO getValidationRespDTO() {
-		return validationRespDTO;
-	}
+    public SAMLSSOReqValidationResponseDTO getValidationRespDTO() {
+        return validationRespDTO;
+    }
 
-	public void setValidationRespDTO(
-			SAMLSSOReqValidationResponseDTO validationRespDTO) {
-		this.validationRespDTO = validationRespDTO;
-	}
+    public void setValidationRespDTO(
+            SAMLSSOReqValidationResponseDTO validationRespDTO) {
+        this.validationRespDTO = validationRespDTO;
+    }
 
-	public String getSessionId() {
-		return sessionId;
-	}
+    public String getSessionId() {
+        return sessionId;
+    }
 
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
-	}
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
 
-	public boolean isLogoutReq() {
-		return logoutReq;
-	}
+    public boolean isLogoutReq() {
+        return logoutReq;
+    }
 
-	public void setLogoutReq(boolean logoutReq) {
-		this.logoutReq = logoutReq;
-	}
+    public void setLogoutReq(boolean logoutReq) {
+        this.logoutReq = logoutReq;
+    }
 
-	public String getTenantDomain() {
-		return tenantDomain;
-	}
+    public String getTenantDomain() {
+        return tenantDomain;
+    }
 
-	public void setTenantDomain(String tenantDomain) {
-		this.tenantDomain = tenantDomain;
-	}
+    public void setTenantDomain(String tenantDomain) {
+        this.tenantDomain = tenantDomain;
+    }
 
     public boolean isInvalidLogout() {
         return invalidLogout;

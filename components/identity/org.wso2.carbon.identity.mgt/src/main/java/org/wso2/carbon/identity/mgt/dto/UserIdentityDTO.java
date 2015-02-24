@@ -19,44 +19,30 @@
 
 package org.wso2.carbon.identity.mgt.dto;
 
+import org.wso2.carbon.identity.mgt.store.UserIdentityDataStore;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import org.wso2.carbon.identity.mgt.store.UserIdentityDataStore;
 
 /**
  * This encapsulates the user's data that is related user's login information
  */
 public class UserIdentityDTO {
 
-    private String userName;
-
-    private long unlockTime;
-
-    private long lastLogonTime;
-
-    private long lastFailAttemptTime;
-
-    private long passwordTimeStamp;
-
-    private int failAttempts;
-
-    private boolean accountLock;
-
-    private boolean temporaryLock;
-
-    private boolean passwordChangeRequired;
-
-    private boolean oneTimeLogin;
-
-    private Map<String,String> userDataMap = new HashMap<String, String>();
-
-    private int tenantId;
-    
     public static final int TRUE = 1;
-
     public static final int FALSE = 2;
-    
+    private String userName;
+    private long unlockTime;
+    private long lastLogonTime;
+    private long lastFailAttemptTime;
+    private long passwordTimeStamp;
+    private int failAttempts;
+    private boolean accountLock;
+    private boolean temporaryLock;
+    private boolean passwordChangeRequired;
+    private boolean oneTimeLogin;
+    private Map<String, String> userDataMap = new HashMap<String, String>();
+    private int tenantId;
     private Map<String, String> securityQuestions = new HashMap<String, String>();
 
 
@@ -68,50 +54,50 @@ public class UserIdentityDTO {
 
         this.userName = userName;
         this.userDataMap = userDataMap;
-        
-        if(userDataMap.get(UserIdentityDataStore.FAIL_LOGIN_ATTEMPTS) != null){
+
+        if (userDataMap.get(UserIdentityDataStore.FAIL_LOGIN_ATTEMPTS) != null) {
             setFailAttempts(Integer.
-                                parseInt(userDataMap.get(UserIdentityDataStore.FAIL_LOGIN_ATTEMPTS)));
+                    parseInt(userDataMap.get(UserIdentityDataStore.FAIL_LOGIN_ATTEMPTS)));
         }
-        if(userDataMap.get(UserIdentityDataStore.LAST_FAILED_LOGIN_ATTEMPT_TIME) != null){
+        if (userDataMap.get(UserIdentityDataStore.LAST_FAILED_LOGIN_ATTEMPT_TIME) != null) {
             setLastFailAttemptTime(Long.
-                                parseLong(userDataMap.get(UserIdentityDataStore.LAST_FAILED_LOGIN_ATTEMPT_TIME)));
+                    parseLong(userDataMap.get(UserIdentityDataStore.LAST_FAILED_LOGIN_ATTEMPT_TIME)));
         }
-        if(userDataMap.get(UserIdentityDataStore.TEMPORARY_LOCK) != null){
+        if (userDataMap.get(UserIdentityDataStore.TEMPORARY_LOCK) != null) {
             setTemporaryLock(Boolean.
-                                parseBoolean(userDataMap.get(UserIdentityDataStore.TEMPORARY_LOCK)));
+                    parseBoolean(userDataMap.get(UserIdentityDataStore.TEMPORARY_LOCK)));
         }
-        if(userDataMap.get(UserIdentityDataStore.UNLOCKING_TIME) != null){
+        if (userDataMap.get(UserIdentityDataStore.UNLOCKING_TIME) != null) {
             setUnlockTime(Long.parseLong(userDataMap.get(UserIdentityDataStore.UNLOCKING_TIME)));
         }
 //        if(userDataMap.get(UserIdentityDataStore.ON_TIME_PASSWORD) != null){
 //            setOneTimeLogin(Boolean.
 //                                parseBoolean(userDataMap.get(UserIdentityDataStore.ON_TIME_PASSWORD)));
 //        }
-        if(userDataMap.get(UserIdentityDataStore.PASSWORD_CHANGE_REQUIRED) != null){
+        if (userDataMap.get(UserIdentityDataStore.PASSWORD_CHANGE_REQUIRED) != null) {
             setPasswordChangeRequired(Boolean.
-                                parseBoolean(userDataMap.get(UserIdentityDataStore.PASSWORD_CHANGE_REQUIRED)));
+                    parseBoolean(userDataMap.get(UserIdentityDataStore.PASSWORD_CHANGE_REQUIRED)));
         }
-        if(userDataMap.get(UserIdentityDataStore.LAST_LOGON_TIME) != null){
+        if (userDataMap.get(UserIdentityDataStore.LAST_LOGON_TIME) != null) {
             setLastLogonTime(Long.
-                                parseLong(userDataMap.get(UserIdentityDataStore.LAST_LOGON_TIME)));
+                    parseLong(userDataMap.get(UserIdentityDataStore.LAST_LOGON_TIME)));
         }
-        if(userDataMap.get(UserIdentityDataStore.ACCOUNT_LOCK) != null){
+        if (userDataMap.get(UserIdentityDataStore.ACCOUNT_LOCK) != null) {
             setAccountLock(Boolean.
-                                parseBoolean(userDataMap.get(UserIdentityDataStore.ACCOUNT_LOCK)));
+                    parseBoolean(userDataMap.get(UserIdentityDataStore.ACCOUNT_LOCK)));
         }
     }
-    
+
     public void setSecurityQuestion(String questionURI, String answer) {
-    	securityQuestions.put(questionURI, answer);
+        securityQuestions.put(questionURI, answer);
     }
-    
+
+    public Map<String, String> getSecurityQuestions() {
+        return securityQuestions;
+    }
+
     public void setSecurityQuestions(Map<String, String> securityQuestions) {
-    	this.securityQuestions = securityQuestions;
-    }
-    
-    public Map<String, String> getSecurityQuestions(){
-    	return securityQuestions;
+        this.securityQuestions = securityQuestions;
     }
 
     public String getUserName() {
@@ -149,13 +135,13 @@ public class UserIdentityDTO {
         return failAttempts;
     }
 
-    public void setFailAttempts() {
-        this.failAttempts ++;
+    public void setFailAttempts(int failAttempts) {
+        this.failAttempts = failAttempts;
         this.userDataMap.put(UserIdentityDataStore.FAIL_LOGIN_ATTEMPTS, Integer.toString(failAttempts));
     }
 
-    public void setFailAttempts(int failAttempts) {
-        this.failAttempts = failAttempts;
+    public void setFailAttempts() {
+        this.failAttempts++;
         this.userDataMap.put(UserIdentityDataStore.FAIL_LOGIN_ATTEMPTS, Integer.toString(failAttempts));
     }
 
@@ -183,11 +169,11 @@ public class UserIdentityDTO {
 
     public void setTemporaryLock(boolean temporaryLock) {
         this.temporaryLock = temporaryLock;
-        this.userDataMap.put(UserIdentityDataStore.TEMPORARY_LOCK,  Boolean.toString(temporaryLock));
+        this.userDataMap.put(UserIdentityDataStore.TEMPORARY_LOCK, Boolean.toString(temporaryLock));
     }
 
     public boolean isAccountLocked() {
-        if(unlockTime != 0 && unlockTime < System.currentTimeMillis()){
+        if (unlockTime != 0 && unlockTime < System.currentTimeMillis()) {
             return false;
         }
         return accountLock;
@@ -205,14 +191,15 @@ public class UserIdentityDTO {
     public void setUserDataMap(Map<String, String> userDataMap) {
         this.userDataMap = userDataMap;
     }
-    
+
     /**
      * Sets user identity data claim
+     *
      * @param claim
      * @param value
      */
     public void setUserIdentityDataClaim(String claim, String value) {
-    	userDataMap.put(claim, value);
+        userDataMap.put(claim, value);
     }
 
     public long getPasswordTimeStamp() {
@@ -227,12 +214,12 @@ public class UserIdentityDTO {
     public int getTenantId() {
         return tenantId;
     }
-    
+
     public void setTenantId(int tenantId) {
         this.tenantId = tenantId;
     }
 
-    public boolean getBoolean(Object value){
+    public boolean getBoolean(Object value) {
         int IntegerValue = (Integer) value;
         return IntegerValue == TRUE;
     }

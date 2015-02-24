@@ -18,13 +18,13 @@ package org.wso2.carbon.identity.relyingparty;
 
 public class RelyingPartyException extends Exception {
 
-	private static final long serialVersionUID = -487682712352041759L;
-	
-	public RelyingPartyException(String messaage) {
-		super(messaage);
-	}
+    private static final long serialVersionUID = -487682712352041759L;
 
-	public RelyingPartyException(String messaage, Throwable e) {
-		super(messaage, e);
-	}
+    public RelyingPartyException(String messaage) {
+        super(messaage);
+    }
+
+    public RelyingPartyException(String messaage, Throwable e) {
+        super(messaage, e);
+    }
 }

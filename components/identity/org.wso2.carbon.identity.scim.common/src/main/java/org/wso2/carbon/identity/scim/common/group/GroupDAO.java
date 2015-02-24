@@ -133,7 +133,7 @@ public class GroupDAO {
             throw new IdentitySCIMException(errorMsg, e);
         } catch (SQLException e) {
             throw new IdentitySCIMException("Error when reading the group attribute information from " +
-                                            "the persistence store.");
+                    "the persistence store.");
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }
@@ -181,7 +181,7 @@ public class GroupDAO {
     }
 
     public void updateSCIMGroupAttributes(int tenantId, String roleName,
-            Map<String, String> attributes) throws IdentitySCIMException {
+                                          Map<String, String> attributes) throws IdentitySCIMException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
 
@@ -280,7 +280,7 @@ public class GroupDAO {
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + SQLQueries.GET_ATTRIBUTES_SQL);
             throw new IdentitySCIMException("Error when reading the SCIM Group information from the " +
-                                            "persistence store.");
+                    "persistence store.");
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }

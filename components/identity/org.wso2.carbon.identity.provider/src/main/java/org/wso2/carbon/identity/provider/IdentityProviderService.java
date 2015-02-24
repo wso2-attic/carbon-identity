@@ -44,7 +44,6 @@ public class IdentityProviderService extends AbstractAdmin {
     protected Log log = LogFactory.getLog(IdentityProviderService.class);
 
 
-
     /**
      * @param userName
      * @return
@@ -72,7 +71,7 @@ public class IdentityProviderService extends AbstractAdmin {
 
         // Get all External OpenIDs of an user
         String[] externalOpenIDs = persistenceManager.getOpenIDsForUser(IdentityTenantUtil.getRegistry()
-                ,AdminServicesUtil.getUserRealm(), userName);
+                , AdminServicesUtil.getUserRealm(), userName);
 
         String[] openIDset = new String[externalOpenIDs.length + 1];
         // Index zero of the returning array would be the primary OpenID.
@@ -104,7 +103,7 @@ public class IdentityProviderService extends AbstractAdmin {
             IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
             String userName = CarbonContext.getThreadLocalCarbonContext().getUsername();
             persistenceManager.doOpenIdSignUp(IdentityTenantUtil.getRegistry()
-                    ,AdminServicesUtil.getUserRealm(),openID, userName);
+                    , AdminServicesUtil.getUserRealm(), openID, userName);
 
         } catch (Exception e) {
             log.error("Error instantiating a Persistence Manager.", e);
@@ -131,16 +130,16 @@ public class IdentityProviderService extends AbstractAdmin {
         HttpServletRequest request = (HttpServletRequest) msgContext
                 .getProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST);
         HttpSession httpSession = request.getSession(false);
-        
+
         if (username.contains("@")) {
             if (MultitenantUtils.isEmailUserName()) {
                 String[] partitionedUserName = username.trim().split("@");
-                username = partitionedUserName[0]+"@"+partitionedUserName[1];
+                username = partitionedUserName[0] + "@" + partitionedUserName[1];
             } else {
                 username = username.substring(0, username.indexOf("@"));
             }
         }
-        
+
         if (httpSession != null) {
             String userName = (String) httpSession.getAttribute(ServerConstants.USER_LOGGED_IN);
             if (!username.equals(userName)) {
@@ -166,14 +165,14 @@ public class IdentityProviderService extends AbstractAdmin {
                 throw new IllegalArgumentException(message);
             }
         }
-    } 
-    
-    private String getUserNameWithDomain(String userName){
-        if(userName == null){
+    }
+
+    private String getUserNameWithDomain(String userName) {
+        if (userName == null) {
             userName = CarbonContext.getThreadLocalCarbonContext().getUsername();
         }
-        if(MultitenantUtils.getTenantDomain(userName) == null){
-            if(CarbonContext.getThreadLocalCarbonContext().getTenantDomain() != null){
+        if (MultitenantUtils.getTenantDomain(userName) == null) {
+            if (CarbonContext.getThreadLocalCarbonContext().getTenantDomain() != null) {
                 userName = userName + "@" + CarbonContext.getThreadLocalCarbonContext().getTenantDomain(); //TODO no constant for @
             }
         }

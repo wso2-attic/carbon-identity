@@ -18,13 +18,7 @@
 
 package org.wso2.carbon.sso.redirector.ui.internal;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
@@ -40,7 +34,7 @@ public class RedirectorJSPFilter implements Filter {
             return;
         }
         String url = ((HttpServletRequest) servletRequest).getRequestURI();
-        if(url.contains("//")){
+        if (url.contains("//")) {
             url = url.replace("//", "/");
         }
         url = url.replace("sso-acs/redirect_ajaxprocessor.jsp", "stratos-auth/redirect_ajaxprocessor.jsp");

@@ -101,7 +101,7 @@ public class RowDTO {
     }
 
     public String getPreFunction() {
-        return preFunction;       
+        return preFunction;
     }
 
     public void setPreFunction(String preFunction) {

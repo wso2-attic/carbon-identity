@@ -76,17 +76,14 @@ import java.util.zip.DeflaterOutputStream;
 
 public class DefaultSAML2SSOManager implements SAML2SSOManager {
 
-    private static Log log = LogFactory.getLog(DefaultSAML2SSOManager.class);
-
-    private static boolean bootStrapped = false;
-
-    private IdentityProvider identityProvider = null;
-    private Map<String, String> properties;
-    private String tenantDomain;
-
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
             Constants.SECURITY_MANAGER_PROPERTY;
     private static final int ENTITY_EXPANSION_LIMIT = 0;
+    private static Log log = LogFactory.getLog(DefaultSAML2SSOManager.class);
+    private static boolean bootStrapped = false;
+    private IdentityProvider identityProvider = null;
+    private Map<String, String> properties;
+    private String tenantDomain;
 
     public static void doBootstrap() {
 

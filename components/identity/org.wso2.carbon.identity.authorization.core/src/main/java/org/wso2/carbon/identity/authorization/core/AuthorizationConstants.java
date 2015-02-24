@@ -19,18 +19,18 @@
 package org.wso2.carbon.identity.authorization.core;
 
 /**
- * 
+ *
  */
 public class AuthorizationConstants {
 
-	public static final String DEFAULT_ACTION = "read";
+    public static final String DEFAULT_ACTION = "read";
 
-	public static final int DEFAULT_ITEMS_PER_PAGE = 50;
+    public static final int DEFAULT_ITEMS_PER_PAGE = 50;
 
-	public static final String SEPARATOR = "/";
+    public static final String SEPARATOR = "/";
 
-	public static final byte ADD_PERMISSION = 1;
-	public static final byte UPDATE_PERMISSION = 2;
-	public static final byte REMOVE_PERMISSION = 3;
+    public static final byte ADD_PERMISSION = 1;
+    public static final byte UPDATE_PERMISSION = 2;
+    public static final byte REMOVE_PERMISSION = 3;
 
 }

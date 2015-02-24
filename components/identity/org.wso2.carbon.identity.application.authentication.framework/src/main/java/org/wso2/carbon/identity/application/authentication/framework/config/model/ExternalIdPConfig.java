@@ -18,17 +18,11 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.config.model;
 
+import org.wso2.carbon.identity.application.common.model.*;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.wso2.carbon.identity.application.common.model.Claim;
-import org.wso2.carbon.identity.application.common.model.ClaimConfig;
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
-import org.wso2.carbon.identity.application.common.model.IdentityProvider;
-import org.wso2.carbon.identity.application.common.model.JustInTimeProvisioningConfig;
-import org.wso2.carbon.identity.application.common.model.PermissionsAndRoleConfig;
-import org.wso2.carbon.identity.application.common.model.RoleMapping;
 
 public class ExternalIdPConfig implements Serializable {
 
@@ -46,7 +40,6 @@ public class ExternalIdPConfig implements Serializable {
     }
 
     /**
-     * 
      * @param identityProvider
      */
     public ExternalIdPConfig(IdentityProvider identityProvider) {
@@ -67,7 +60,6 @@ public class ExternalIdPConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public String getIdPName() {
@@ -75,7 +67,6 @@ public class ExternalIdPConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public String getPublicCert() {
@@ -83,7 +74,6 @@ public class ExternalIdPConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public boolean isPrimary() {
@@ -91,7 +81,6 @@ public class ExternalIdPConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public String getName() {
@@ -99,7 +88,6 @@ public class ExternalIdPConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public Map<String, String> getParameterMap() {
@@ -107,7 +95,6 @@ public class ExternalIdPConfig implements Serializable {
     }
 
     /**
-     * 
      * @param parameterMap
      */
     public void setParameterMap(Map<String, String> parameterMap) {
@@ -115,7 +102,6 @@ public class ExternalIdPConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public String getDomain() {
@@ -130,7 +116,6 @@ public class ExternalIdPConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public ClaimMapping[] getClaimMappings() {
@@ -141,7 +126,6 @@ public class ExternalIdPConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public String[] getRoles() {
@@ -152,7 +136,6 @@ public class ExternalIdPConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public Map<String, String> getRoleMappings() {
@@ -160,7 +143,6 @@ public class ExternalIdPConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public Claim[] getClaims() {
@@ -171,7 +153,6 @@ public class ExternalIdPConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public String getProvisioningUserStoreId() {
@@ -182,7 +163,6 @@ public class ExternalIdPConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public String getProvisioningUserStoreClaimURI() {
@@ -193,7 +173,6 @@ public class ExternalIdPConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public String getTokenEndpointAlias() {
@@ -201,7 +180,6 @@ public class ExternalIdPConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public boolean isProvisioningEnabled() {
@@ -212,7 +190,6 @@ public class ExternalIdPConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public String getRoleClaimUri() {
@@ -223,7 +200,6 @@ public class ExternalIdPConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public String getUserIdClaimUri() {
@@ -234,7 +210,6 @@ public class ExternalIdPConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     public boolean useDefaultLocalIdpDialect() {

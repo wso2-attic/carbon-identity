@@ -22,30 +22,30 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.security.SecurityServiceHolder;
 import org.wso2.carbon.security.config.SecurityConfigAdmin;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 import org.wso2.carbon.utils.ConfigurationContextService;
-import org.wso2.carbon.base.ServerConfiguration;
 
 /**
  * @scr.component name="security.mgt.service.component" immediate="true"
  * @scr.reference name="registry.service"
- *                interface=
- *                "org.wso2.carbon.registry.core.service.RegistryService"
- *                cardinality="1..1" policy="dynamic" bind="setRegistryService"
- *                unbind="unsetRegistryService"
+ * interface=
+ * "org.wso2.carbon.registry.core.service.RegistryService"
+ * cardinality="1..1" policy="dynamic" bind="setRegistryService"
+ * unbind="unsetRegistryService"
  * @scr.reference name="config.context.service"
- *                interface="org.wso2.carbon.utils.ConfigurationContextService"
- *                cardinality="1..1"
- *                policy="dynamic" bind="setConfigurationContextService"
- *                unbind="unsetConfigurationContextService"
+ * interface="org.wso2.carbon.utils.ConfigurationContextService"
+ * cardinality="1..1"
+ * policy="dynamic" bind="setConfigurationContextService"
+ * unbind="unsetConfigurationContextService"
  * @scr.reference name="user.realmservice.default"
- *                interface="org.wso2.carbon.user.core.service.RealmService"
- *                cardinality="1..1" policy="dynamic" bind="setRealmService"
- *                unbind="unsetRealmService"
+ * interface="org.wso2.carbon.user.core.service.RealmService"
+ * cardinality="1..1" policy="dynamic" bind="setRealmService"
+ * unbind="unsetRealmService"
  */
 public class SecurityMgtServiceComponent {
     private static String POX_SECURITY_MODULE = "POXSecurityModule";
@@ -53,7 +53,7 @@ public class SecurityMgtServiceComponent {
     private static ConfigurationContextService configContextService = null;
     private static RealmService realmService;
     private static RegistryService registryService;
-   
+
     public static ConfigurationContext getServerConfigurationContext() {
         return configContextService.getServerConfigContext();
     }
@@ -62,9 +62,9 @@ public class SecurityMgtServiceComponent {
         try {
             ConfigurationContext mainConfigCtx = configContextService.getServerConfigContext();
             AxisConfiguration mainAxisConfig = mainConfigCtx.getAxisConfiguration();
-            BundleContext bundleCtx = ctxt.getBundleContext();           
+            BundleContext bundleCtx = ctxt.getBundleContext();
             String enablePoxSecurity = ServerConfiguration.getInstance()
-                                                   .getFirstProperty("EnablePoxSecurity");
+                    .getFirstProperty("EnablePoxSecurity");
             if (enablePoxSecurity == null || "true".equals(enablePoxSecurity)) {
                 mainAxisConfig.engageModule(POX_SECURITY_MODULE);
             } else {
@@ -72,13 +72,13 @@ public class SecurityMgtServiceComponent {
             }
 
             bundleCtx.registerService(SecurityConfigAdmin.class.getName(),
-                                      new SecurityConfigAdmin(mainAxisConfig,
-                                                              registryService.getConfigSystemRegistry(),
-                                                              null),
-                                      null);
+                    new SecurityConfigAdmin(mainAxisConfig,
+                            registryService.getConfigSystemRegistry(),
+                            null),
+                    null);
             bundleCtx.registerService(Axis2ConfigurationContextObserver.class.getName(),
-                                      new SecurityAxis2ConfigurationContextObserver(),
-                                      null);
+                    new SecurityAxis2ConfigurationContextObserver(),
+                    null);
             log.debug("Security Mgt bundle is activated");
         } catch (Throwable e) {
             log.error("Failed to activate SecurityMgtServiceComponent", e);
@@ -115,7 +115,7 @@ public class SecurityMgtServiceComponent {
     }
 
     protected void setRealmService(RealmService realmService) {
-        if(log.isDebugEnabled()){
+        if (log.isDebugEnabled()) {
             log.debug("Setting the RealmService");
         }
         this.realmService = realmService;
@@ -123,7 +123,7 @@ public class SecurityMgtServiceComponent {
     }
 
     protected void unsetRealmService(RealmService realmService) {
-        if(log.isDebugEnabled()){
+        if (log.isDebugEnabled()) {
             log.debug("Unsetting the RealmService");
         }
         this.realmService = null;
@@ -145,7 +145,7 @@ public class SecurityMgtServiceComponent {
         this.registryService = registryService;
         SecurityServiceHolder.setRegistryService(registryService);  // TODO: Serious OSGi bug here. FIXME Thilina
     }
-    
+
 //    protected void setCacheInvalidator(CacheInvalidator invalidator) {
 //        cacheInvalidator = invalidator;
 //    }

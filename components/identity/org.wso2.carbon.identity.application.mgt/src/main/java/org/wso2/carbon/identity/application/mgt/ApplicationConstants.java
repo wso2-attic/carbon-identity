@@ -20,8 +20,8 @@ package org.wso2.carbon.identity.application.mgt;
 
 public class ApplicationConstants {
 
-	public static final int LOCAL_IDP_ID = 1;
-	public static final int LOCAL_IDP_AUTHENTICATOR_ID = 1;
+    public static final int LOCAL_IDP_ID = 1;
+    public static final int LOCAL_IDP_AUTHENTICATOR_ID = 1;
     public static final String LOCAL_IDP = "wso2carbon-local-idp";
     public static final String LOCAL_IDP_NAME = "LOCAL";
     public static final String LOCAL_SP = "wso2carbon-local-sp";
@@ -31,7 +31,7 @@ public class ApplicationConstants {
     public static final String AUTH_TYPE_LOCAL = "local";
     public static final String AUTH_TYPE_FEDERATED = "federated";
     public static final String AUTH_TYPE_FLOW = "flow";
-    
+
     public static final String IDP_NAME = "idpName";
     public static final String IDP_AUTHENTICATOR_NAME = "authenticatorName";
     public static final String IDP_AUTHENTICATOR_DISPLAY_NAME = "authenticatorDisplayName";

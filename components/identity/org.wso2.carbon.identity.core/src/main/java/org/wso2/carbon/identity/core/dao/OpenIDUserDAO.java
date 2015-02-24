@@ -21,11 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.core.IdentityRegistryResources;
 import org.wso2.carbon.identity.core.model.OpenIDUserDO;
-import org.wso2.carbon.registry.core.Association;
-import org.wso2.carbon.registry.core.Collection;
-import org.wso2.carbon.registry.core.Registry;
-import org.wso2.carbon.registry.core.RegistryConstants;
-import org.wso2.carbon.registry.core.Resource;
+import org.wso2.carbon.registry.core.*;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
 import org.wso2.carbon.user.core.UserRealm;
@@ -34,7 +30,7 @@ public class OpenIDUserDAO extends AbstractDAO<OpenIDUserDO> {
 
     protected Log log = LogFactory.getLog(OpenIDUserDAO.class);
     private UserRealm realm;
-    
+
     public OpenIDUserDAO(Registry registry, UserRealm realm) {
         this.registry = registry;
         this.realm = realm;
@@ -101,7 +97,7 @@ public class OpenIDUserDAO extends AbstractDAO<OpenIDUserDO> {
                     registry.rollbackTransaction();
                 }
                 if (e instanceof RegistryException) {
-                    throw (RegistryException)e;
+                    throw (RegistryException) e;
                 } else {
                     log.error("Error adding OpenID Sign-Up", e);
                 }
@@ -115,26 +111,26 @@ public class OpenIDUserDAO extends AbstractDAO<OpenIDUserDO> {
         return true;
     }
 
-	public String getUserIdForAssociation(String openId) {
+    public String getUserIdForAssociation(String openId) {
 
-		try {
-			if (registry
-					.resourceExists(IdentityRegistryResources.OPENID_SIGN_UP
-							+ getOpenIdModified(openId))) {
-				return resourceToObject(
-						registry.get(IdentityRegistryResources.OPENID_SIGN_UP
-								+ getOpenIdModified(openId))).getUserName();
-			} else {
-				if (log.isDebugEnabled()) {
-					log.debug("Unable to find an Sign-Up for " + openId);
-				}
-			}
-		} catch (RegistryException e) {
-			log.error("Error retrieving a resource from Registry", e);
-		}
+        try {
+            if (registry
+                    .resourceExists(IdentityRegistryResources.OPENID_SIGN_UP
+                            + getOpenIdModified(openId))) {
+                return resourceToObject(
+                        registry.get(IdentityRegistryResources.OPENID_SIGN_UP
+                                + getOpenIdModified(openId))).getUserName();
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Unable to find an Sign-Up for " + openId);
+                }
+            }
+        } catch (RegistryException e) {
+            log.error("Error retrieving a resource from Registry", e);
+        }
 
-		return null;
-	}
+        return null;
+    }
 
     public boolean hasAssociation(String openId) {
         try {
@@ -143,7 +139,7 @@ public class OpenIDUserDAO extends AbstractDAO<OpenIDUserDO> {
 
                 OpenIDUserDO openIDUserDo = resourceToObject(registry
                         .get(IdentityRegistryResources.OPENID_SIGN_UP + getOpenIdModified(openId)));
-               
+
                 // Checks whether the user is existing.
                 if (realm.getUserStoreManager().isExistingUser(openIDUserDo.getUserName())) {
                     return true;

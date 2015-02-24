@@ -17,13 +17,6 @@
  */
 package org.wso2.carbon.identity.application.authenticator.oidc;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.amber.oauth2.client.OAuthClient;
 import org.apache.amber.oauth2.client.URLConnectionClient;
 import org.apache.amber.oauth2.client.request.OAuthClientRequest;
@@ -46,6 +39,12 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.ui.CarbonUIUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator implements
         FederatedApplicationAuthenticator {
@@ -73,7 +72,6 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
     }
 
     /**
-     * 
      * @return
      */
     protected String getAuthorizationServerEndpoint(Map<String, String> authenticatorProperties) {
@@ -81,7 +79,6 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
     }
 
     /**
-     * 
      * @return
      */
     protected String getCallbackUrl(Map<String, String> authenticatorProperties) {
@@ -89,7 +86,6 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
     }
 
     /**
-     * 
      * @return
      */
     protected String getTokenEndpoint(Map<String, String> authenticatorProperties) {
@@ -97,7 +93,6 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
     }
 
     /**
-     * 
      * @param state
      * @return
      */
@@ -106,7 +101,6 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
     }
 
     /**
-     * 
      * @return
      */
     protected String getScope(String scope, Map<String, String> authenticatorProperties) {
@@ -114,7 +108,6 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
     }
 
     /**
-     * 
      * @return
      */
     protected boolean requiredIDToken(Map<String, String> authenticatorProperties) {
@@ -122,7 +115,6 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
     }
 
     /**
-     * 
      * @param token
      * @return
      */
@@ -131,7 +123,6 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
     }
 
     /**
-     * 
      * @param token
      * @return
      */
@@ -141,7 +132,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 
     @Override
     protected void initiateAuthenticationRequest(HttpServletRequest request,
-            HttpServletResponse response, AuthenticationContext context)
+                                                 HttpServletResponse response, AuthenticationContext context)
             throws AuthenticationFailedException {
 
         try {
@@ -251,7 +242,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 
     @Override
     protected void processAuthenticationResponse(HttpServletRequest request,
-            HttpServletResponse response, AuthenticationContext context)
+                                                 HttpServletResponse response, AuthenticationContext context)
             throws AuthenticationFailedException {
 
         try {
@@ -273,7 +264,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                 callbackurl = callbackurl.replace("commonauth/carbon/", "commonauth");
             }
 
-            @SuppressWarnings({ "unchecked" })
+            @SuppressWarnings({"unchecked"})
             Map<String, String> paramValueMap = (Map<String, String>) context
                     .getProperty("oidc:param.map");
 
@@ -309,7 +300,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                 }
                 throw new AuthenticationFailedException(e.getMessage(), e);
             }
-           
+
             // TODO : return access token and id token to framework
             String accessToken = oAuthResponse.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN);
             String idToken = oAuthResponse.getParam(OIDCAuthenticatorConstants.ID_TOKEN);
@@ -349,15 +340,15 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 
                         if ("true".equalsIgnoreCase(isSubjectInClaimsProp)) {
                             authenticatedUser = getSubjectFromUserIDClaimURI(context);
-                            if(authenticatedUser == null){
+                            if (authenticatedUser == null) {
                                 log.warn("Subject claim could not be found amongst subject attributes. " +
                                         "Defaulting to sub attribute in IDToken.");
                             }
                         }
-                        if(authenticatedUser == null){
+                        if (authenticatedUser == null) {
                             authenticatedUser = (String) jsonObject.get("sub");
                         }
-                        if(authenticatedUser == null){
+                        if (authenticatedUser == null) {
                             throw new AuthenticationFailedException("Cannot find federated User Identifier");
                         }
                         context.setSubject(authenticatedUser);
@@ -425,7 +416,6 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 
 
     /**
-     *
      * @subject
      */
     protected String getSubjectFromUserIDClaimURI(AuthenticationContext context) {

@@ -17,10 +17,6 @@
 */
 package org.wso2.carbon.identity.entitlement.ui.client;
 
-import javax.xml.namespace.QName;
-
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.impl.llom.util.AXIOMUtil;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
@@ -29,23 +25,22 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.entitlement.stub.EntitlementServiceStub;
 import org.wso2.carbon.identity.entitlement.stub.dto.EntitledResultSetDTO;
-import org.wso2.carbon.identity.entitlement.ui.util.ClientUtil;
 
 public class EntitlementServiceClient {
 
-    private EntitlementServiceStub stub;
     private static final Log log = LogFactory.getLog(EntitlementServiceClient.class);
+    private EntitlementServiceStub stub;
 
     /**
      * Instantiates EntitlementServiceClient
-     * 
-     * @param cookie For session management
+     *
+     * @param cookie           For session management
      * @param backendServerURL URL of the back end server where EntitlementService is running.
-     * @param configCtx ConfigurationContext
+     * @param configCtx        ConfigurationContext
      * @throws org.apache.axis2.AxisFault
      */
     public EntitlementServiceClient(String cookie, String backendServerURL,
-            ConfigurationContext configCtx) throws AxisFault {
+                                    ConfigurationContext configCtx) throws AxisFault {
         String serviceURL = backendServerURL + "EntitlementService";
         stub = new EntitlementServiceStub(configCtx, serviceURL);
         ServiceClient client = stub._getServiceClient();
@@ -57,15 +52,15 @@ public class EntitlementServiceClient {
     /**
      * Evaluate XACML request with PDP
      *
-     * @param request  XACML request as String
+     * @param request XACML request as String
      * @return XACML response as String
      * @throws AxisFault if fails
      */
     public String getDecision(String request) throws AxisFault {
         try {
-            if(request != null){
+            if (request != null) {
                 request = request.trim().replaceAll("&lt;", "<"); //TODO should be properly fixed
-                request = request.trim().replaceAll("&gt;", ">");                 
+                request = request.trim().replaceAll("&gt;", ">");
             }
             return stub.getDecision(request);
         } catch (Exception e) {
@@ -74,24 +69,25 @@ public class EntitlementServiceClient {
         return null;
     }
 
-   /**
-    * Gets user or role entitled resources
-    * @param subjectName user or role name
-    * @param resourceName resource name
-    * @param subjectId  attribute id of the subject, user or role
-    * @param action action name
-    * @param enableChildSearch whether search is done for the child resources under the given resource name
-    * @throws org.apache.axis2.AxisFault  throws
-    * @return entitled resources as String array
-    */
+    /**
+     * Gets user or role entitled resources
+     *
+     * @param subjectName       user or role name
+     * @param resourceName      resource name
+     * @param subjectId         attribute id of the subject, user or role
+     * @param action            action name
+     * @param enableChildSearch whether search is done for the child resources under the given resource name
+     * @return entitled resources as String array
+     * @throws org.apache.axis2.AxisFault throws
+     */
     public EntitledResultSetDTO getEntitledAttributes(String subjectName, String resourceName,
-                                      String subjectId, String action, boolean enableChildSearch)
+                                                      String subjectId, String action, boolean enableChildSearch)
             throws AxisFault {
         try {
-           return  stub.getEntitledAttributes(subjectName, resourceName, subjectId, action,
-                                              enableChildSearch);
+            return stub.getEntitledAttributes(subjectName, resourceName, subjectId, action,
+                    enableChildSearch);
         } catch (Exception e) {
-           handleException(e.getMessage(), e);
+            handleException(e.getMessage(), e);
         }
 
         return null;
@@ -101,7 +97,7 @@ public class EntitlementServiceClient {
      * Logs and wraps the given exception.
      *
      * @param msg Error message
-     * @param e Exception
+     * @param e   Exception
      * @throws AxisFault
      */
     private void handleException(String msg, Exception e) throws AxisFault {

@@ -21,13 +21,13 @@ package org.wso2.carbon.identity.authorization.core;
 /**
  *
  */
-public class IdentityAuthorizationException extends Exception{
+public class IdentityAuthorizationException extends Exception {
 
-	public IdentityAuthorizationException(String message) {
-		super(message);
-	}
+    public IdentityAuthorizationException(String message) {
+        super(message);
+    }
 
-	public IdentityAuthorizationException(String message, Throwable e) {
-		super(message, e);
-	}
+    public IdentityAuthorizationException(String message, Throwable e) {
+        super(message, e);
+    }
 }

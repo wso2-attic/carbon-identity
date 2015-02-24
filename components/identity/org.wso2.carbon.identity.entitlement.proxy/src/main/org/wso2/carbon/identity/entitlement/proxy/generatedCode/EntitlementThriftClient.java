@@ -25,19 +25,6 @@ public class EntitlementThriftClient {
     }
 
     public static class Client extends org.apache.thrift.TServiceClient implements Iface {
-        public static class Factory implements org.apache.thrift.TServiceClientFactory<Client> {
-            public Factory() {
-            }
-
-            public Client getClient(org.apache.thrift.protocol.TProtocol prot) {
-                return new Client(prot);
-            }
-
-            public Client getClient(org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot) {
-                return new Client(iprot, oprot);
-            }
-        }
-
         public Client(org.apache.thrift.protocol.TProtocol prot) {
             super(prot, prot);
         }
@@ -70,9 +57,33 @@ public class EntitlementThriftClient {
             throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "getDecision failed: unknown result");
         }
 
+        public static class Factory implements org.apache.thrift.TServiceClientFactory<Client> {
+            public Factory() {
+            }
+
+            public Client getClient(org.apache.thrift.protocol.TProtocol prot) {
+                return new Client(prot);
+            }
+
+            public Client getClient(org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot) {
+                return new Client(iprot, oprot);
+            }
+        }
+
     }
 
     public static class AsyncClient extends org.apache.thrift.async.TAsyncClient implements AsyncIface {
+        public AsyncClient(org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.async.TAsyncClientManager clientManager, org.apache.thrift.transport.TNonblockingTransport transport) {
+            super(protocolFactory, clientManager, transport);
+        }
+
+        public void getDecision(String request, String sessionId, org.apache.thrift.async.AsyncMethodCallback<getDecision_call> resultHandler) throws org.apache.thrift.TException {
+            checkReady();
+            getDecision_call method_call = new getDecision_call(request, sessionId, resultHandler, this, ___protocolFactory, ___transport);
+            this.___currentMethod = method_call;
+            ___manager.call(method_call);
+        }
+
         public static class Factory implements org.apache.thrift.async.TAsyncClientFactory<AsyncClient> {
             private org.apache.thrift.async.TAsyncClientManager clientManager;
             private org.apache.thrift.protocol.TProtocolFactory protocolFactory;
@@ -85,17 +96,6 @@ public class EntitlementThriftClient {
             public AsyncClient getAsyncClient(org.apache.thrift.transport.TNonblockingTransport transport) {
                 return new AsyncClient(protocolFactory, clientManager, transport);
             }
-        }
-
-        public AsyncClient(org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.async.TAsyncClientManager clientManager, org.apache.thrift.transport.TNonblockingTransport transport) {
-            super(protocolFactory, clientManager, transport);
-        }
-
-        public void getDecision(String request, String sessionId, org.apache.thrift.async.AsyncMethodCallback<getDecision_call> resultHandler) throws org.apache.thrift.TException {
-            checkReady();
-            getDecision_call method_call = new getDecision_call(request, sessionId, resultHandler, this, ___protocolFactory, ___transport);
-            this.___currentMethod = method_call;
-            ___manager.call(method_call);
         }
 
         public static class getDecision_call extends org.apache.thrift.async.TAsyncMethodCall {
@@ -168,81 +168,7 @@ public class EntitlementThriftClient {
     }
 
     public static class getDecision_args implements org.apache.thrift.TBase<getDecision_args, getDecision_args._Fields>, java.io.Serializable, Cloneable {
-        private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getDecision_args");
-
-        private static final org.apache.thrift.protocol.TField REQUEST_FIELD_DESC = new org.apache.thrift.protocol.TField("request", org.apache.thrift.protocol.TType.STRING, (short) 1);
-        private static final org.apache.thrift.protocol.TField SESSION_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("sessionId", org.apache.thrift.protocol.TType.STRING, (short) 2);
-
-        public String request; // required
-        public String sessionId; // required
-
-        /**
-         * The set of fields this struct contains, along with convenience methods for finding and manipulating them.
-         */
-        public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-            REQUEST((short) 1, "request"),
-            SESSION_ID((short) 2, "sessionId");
-
-            private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
-
-            static {
-                for (_Fields field : EnumSet.allOf(_Fields.class)) {
-                    byName.put(field.getFieldName(), field);
-                }
-            }
-
-            /**
-             * Find the _Fields constant that matches fieldId, or null if its not found.
-             */
-            public static _Fields findByThriftId(int fieldId) {
-                switch (fieldId) {
-                    case 1: // REQUEST
-                        return REQUEST;
-                    case 2: // SESSION_ID
-                        return SESSION_ID;
-                    default:
-                        return null;
-                }
-            }
-
-            /**
-             * Find the _Fields constant that matches fieldId, throwing an exception
-             * if it is not found.
-             */
-            public static _Fields findByThriftIdOrThrow(int fieldId) {
-                _Fields fields = findByThriftId(fieldId);
-                if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
-                return fields;
-            }
-
-            /**
-             * Find the _Fields constant that matches name, or null if its not found.
-             */
-            public static _Fields findByName(String name) {
-                return byName.get(name);
-            }
-
-            private final short _thriftId;
-            private final String _fieldName;
-
-            _Fields(short thriftId, String fieldName) {
-                _thriftId = thriftId;
-                _fieldName = fieldName;
-            }
-
-            public short getThriftFieldId() {
-                return _thriftId;
-            }
-
-            public String getFieldName() {
-                return _fieldName;
-            }
-        }
-
-        // isset id assignments
-
         public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
-
         static {
             Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
             tmpMap.put(_Fields.REQUEST, new org.apache.thrift.meta_data.FieldMetaData("request", org.apache.thrift.TFieldRequirementType.REQUIRED,
@@ -252,6 +178,13 @@ public class EntitlementThriftClient {
             metaDataMap = Collections.unmodifiableMap(tmpMap);
             org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getDecision_args.class, metaDataMap);
         }
+        private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getDecision_args");
+        private static final org.apache.thrift.protocol.TField REQUEST_FIELD_DESC = new org.apache.thrift.protocol.TField("request", org.apache.thrift.protocol.TType.STRING, (short) 1);
+        private static final org.apache.thrift.protocol.TField SESSION_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("sessionId", org.apache.thrift.protocol.TType.STRING, (short) 2);
+        public String request; // required
+
+        // isset id assignments
+        public String sessionId; // required
 
         public getDecision_args() {
         }
@@ -279,7 +212,6 @@ public class EntitlementThriftClient {
         public getDecision_args deepCopy() {
             return new getDecision_args(this);
         }
-
 
         public void clear() {
             this.request = null;
@@ -564,23 +496,12 @@ public class EntitlementThriftClient {
             }
         }
 
-    }
-
-    public static class getDecision_result implements org.apache.thrift.TBase<getDecision_result, getDecision_result._Fields>, java.io.Serializable, Cloneable {
-        private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getDecision_result");
-
-        private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.STRING, (short) 0);
-        private static final org.apache.thrift.protocol.TField E_FIELD_DESC = new org.apache.thrift.protocol.TField("e", org.apache.thrift.protocol.TType.STRUCT, (short) 1);
-
-        public String success; // required
-        public EntitlementException e; // required
-
         /**
          * The set of fields this struct contains, along with convenience methods for finding and manipulating them.
          */
         public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-            SUCCESS((short) 0, "success"),
-            E((short) 1, "e");
+            REQUEST((short) 1, "request"),
+            SESSION_ID((short) 2, "sessionId");
 
             private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -589,16 +510,23 @@ public class EntitlementThriftClient {
                     byName.put(field.getFieldName(), field);
                 }
             }
+            private final short _thriftId;
+            private final String _fieldName;
+
+            _Fields(short thriftId, String fieldName) {
+                _thriftId = thriftId;
+                _fieldName = fieldName;
+            }
 
             /**
              * Find the _Fields constant that matches fieldId, or null if its not found.
              */
             public static _Fields findByThriftId(int fieldId) {
                 switch (fieldId) {
-                    case 0: // SUCCESS
-                        return SUCCESS;
-                    case 1: // E
-                        return E;
+                    case 1: // REQUEST
+                        return REQUEST;
+                    case 2: // SESSION_ID
+                        return SESSION_ID;
                     default:
                         return null;
                 }
@@ -621,14 +549,6 @@ public class EntitlementThriftClient {
                 return byName.get(name);
             }
 
-            private final short _thriftId;
-            private final String _fieldName;
-
-            _Fields(short thriftId, String fieldName) {
-                _thriftId = thriftId;
-                _fieldName = fieldName;
-            }
-
             public short getThriftFieldId() {
                 return _thriftId;
             }
@@ -638,10 +558,10 @@ public class EntitlementThriftClient {
             }
         }
 
-        // isset id assignments
+    }
 
+    public static class getDecision_result implements org.apache.thrift.TBase<getDecision_result, getDecision_result._Fields>, java.io.Serializable, Cloneable {
         public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
-
         static {
             Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
             tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
@@ -651,6 +571,13 @@ public class EntitlementThriftClient {
             metaDataMap = Collections.unmodifiableMap(tmpMap);
             org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getDecision_result.class, metaDataMap);
         }
+        private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getDecision_result");
+        private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.STRING, (short) 0);
+        private static final org.apache.thrift.protocol.TField E_FIELD_DESC = new org.apache.thrift.protocol.TField("e", org.apache.thrift.protocol.TType.STRUCT, (short) 1);
+        public String success; // required
+
+        // isset id assignments
+        public EntitlementException e; // required
 
         public getDecision_result() {
         }
@@ -678,7 +605,6 @@ public class EntitlementThriftClient {
         public getDecision_result deepCopy() {
             return new getDecision_result(this);
         }
-
 
         public void clear() {
             this.success = null;
@@ -953,6 +879,68 @@ public class EntitlementThriftClient {
                 read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
             } catch (org.apache.thrift.TException te) {
                 throw new java.io.IOException(te);
+            }
+        }
+
+        /**
+         * The set of fields this struct contains, along with convenience methods for finding and manipulating them.
+         */
+        public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+            SUCCESS((short) 0, "success"),
+            E((short) 1, "e");
+
+            private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+            static {
+                for (_Fields field : EnumSet.allOf(_Fields.class)) {
+                    byName.put(field.getFieldName(), field);
+                }
+            }
+            private final short _thriftId;
+            private final String _fieldName;
+
+            _Fields(short thriftId, String fieldName) {
+                _thriftId = thriftId;
+                _fieldName = fieldName;
+            }
+
+            /**
+             * Find the _Fields constant that matches fieldId, or null if its not found.
+             */
+            public static _Fields findByThriftId(int fieldId) {
+                switch (fieldId) {
+                    case 0: // SUCCESS
+                        return SUCCESS;
+                    case 1: // E
+                        return E;
+                    default:
+                        return null;
+                }
+            }
+
+            /**
+             * Find the _Fields constant that matches fieldId, throwing an exception
+             * if it is not found.
+             */
+            public static _Fields findByThriftIdOrThrow(int fieldId) {
+                _Fields fields = findByThriftId(fieldId);
+                if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+                return fields;
+            }
+
+            /**
+             * Find the _Fields constant that matches name, or null if its not found.
+             */
+            public static _Fields findByName(String name) {
+                return byName.get(name);
+            }
+
+            public short getThriftFieldId() {
+                return _thriftId;
+            }
+
+            public String getFieldName() {
+                return _fieldName;
             }
         }
 

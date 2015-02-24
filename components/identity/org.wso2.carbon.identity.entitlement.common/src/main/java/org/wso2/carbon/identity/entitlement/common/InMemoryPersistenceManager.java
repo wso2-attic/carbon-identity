@@ -35,30 +35,29 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 
+ *
  */
-public class InMemoryPersistenceManager implements DataPersistenceManager{
-    
-    private Map<String,String> xmlConfig = new HashMap<String, String>();
+public class InMemoryPersistenceManager implements DataPersistenceManager {
 
     private static Log log = LogFactory.getLog(InMemoryPersistenceManager.class);
+    private Map<String, String> xmlConfig = new HashMap<String, String>();
 
     @Override
     public Map<String, PolicyEditorDataHolder> buildDataHolder() throws PolicyEditorException {
         xmlConfig = this.getConfig();
-        Map<String, PolicyEditorDataHolder>  holders = new HashMap<String, PolicyEditorDataHolder>();
-        for(String type : EntitlementConstants.PolicyEditor.EDITOR_TYPES){
+        Map<String, PolicyEditorDataHolder> holders = new HashMap<String, PolicyEditorDataHolder>();
+        for (String type : EntitlementConstants.PolicyEditor.EDITOR_TYPES) {
             PolicyEditorDataHolder holder = buildDataHolder(type, xmlConfig.get(type));
-            if(holder != null){
+            if (holder != null) {
                 holders.put(type, holder);
             }
         }
         return holders;
     }
 
-    private PolicyEditorDataHolder buildDataHolder(String type, String xmlConfig)  throws PolicyEditorException{
+    private PolicyEditorDataHolder buildDataHolder(String type, String xmlConfig) throws PolicyEditorException {
 
-        if(xmlConfig == null){
+        if (xmlConfig == null) {
             return null;
         }
 
@@ -80,38 +79,38 @@ public class InMemoryPersistenceManager implements DataPersistenceManager{
                 log.error("Error in closing input stream of XACML request");
             }
         }
-        
-        if(root == null){
+
+        if (root == null) {
             return holder;
         }
 
         NodeList nodeList = root.getChildNodes();
-        
-        for(int i = 0; i < nodeList.getLength(); i++){
+
+        for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if(node.getNodeName().equals("categories")){
+            if (node.getNodeName().equals("categories")) {
                 parseCategories(type, node, holder);
-            } else if(node.getNodeName().equals("ruleCombiningAlgorithm")){
+            } else if (node.getNodeName().equals("ruleCombiningAlgorithm")) {
                 parseAlgorithm(node, holder, false);
-            } else if(node.getNodeName().equals("policyCombiningAlgorithm")){
+            } else if (node.getNodeName().equals("policyCombiningAlgorithm")) {
                 parseAlgorithm(node, holder, true);
-            } else if(node.getNodeName().equals("attributeIds")){
+            } else if (node.getNodeName().equals("attributeIds")) {
                 parseAttributeIds(node, holder);
-            } else if(node.getNodeName().equals("dataTypes")){
+            } else if (node.getNodeName().equals("dataTypes")) {
                 parseDataTypes(node, holder);
-            } else if(node.getNodeName().equals("functions")){
+            } else if (node.getNodeName().equals("functions")) {
                 parseFunctions(node, holder);
-            } else if(node.getNodeName().equals("preFunctions")){
+            } else if (node.getNodeName().equals("preFunctions")) {
                 parsePreFunctions(node, holder);
-            } else if(node.getNodeName().equals("rule")){
+            } else if (node.getNodeName().equals("rule")) {
                 parseRule(node, holder);
-            } else if(node.getNodeName().equals("policyDescription")){
-                if("true".equals(node.getTextContent())){
+            } else if (node.getNodeName().equals("policyDescription")) {
+                if ("true".equals(node.getTextContent())) {
                     holder.setShowPolicyDescription(true);
                 }
             }
         }
-        
+
         return holder;
     }
 
@@ -130,9 +129,9 @@ public class InMemoryPersistenceManager implements DataPersistenceManager{
     private void parseCategories(String type, Node root, PolicyEditorDataHolder holder) throws PolicyEditorException {
 
         NodeList nodeList = root.getChildNodes();
-        for(int i = 0; i < nodeList.getLength(); i++){
+        for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if("category".equals(node.getNodeName())){
+            if ("category".equals(node.getNodeName())) {
 
                 String name = null;
                 String uri = null;
@@ -140,86 +139,86 @@ public class InMemoryPersistenceManager implements DataPersistenceManager{
                 Set<String> dataTypes = null;
 
                 NodeList childList = node.getChildNodes();
-                for(int j = 0; j < childList.getLength(); j++){
+                for (int j = 0; j < childList.getLength(); j++) {
                     Node child = childList.item(j);
-                    if("name".equals(child.getNodeName())){
+                    if ("name".equals(child.getNodeName())) {
                         name = child.getTextContent();
-                        if(EntitlementConstants.PolicyEditor.BASIC.equals(type) ||
-                                (EntitlementConstants.PolicyEditor.RBAC.equals(type))){
-                            if(!Utils.isValidCategory(name)){
+                        if (EntitlementConstants.PolicyEditor.BASIC.equals(type) ||
+                                (EntitlementConstants.PolicyEditor.RBAC.equals(type))) {
+                            if (!Utils.isValidCategory(name)) {
                                 throw new PolicyEditorException("Invalid Category : " + name
-                                + "  Basic policy editor supports only for Subject, " +
+                                        + "  Basic policy editor supports only for Subject, " +
                                         "Resource, Action and Environment category names. " +
                                         "But you can change the URI of them");
                             }
                         }
-                    } else if("uri".equals(child.getNodeName())){
+                    } else if ("uri".equals(child.getNodeName())) {
                         uri = child.getTextContent();
-                    } else if("supportedAttributeIds".equals(child.getNodeName())){
+                    } else if ("supportedAttributeIds".equals(child.getNodeName())) {
                         attributeIds = new HashSet<String>();
-                        NodeList list = child.getChildNodes();                        
-                        for(int k = 0; k < list.getLength(); k++){
+                        NodeList list = child.getChildNodes();
+                        for (int k = 0; k < list.getLength(); k++) {
                             Node nextChild = list.item(k);
-                            if("attributeId".equals(nextChild.getNodeName())){
-                                if(attributeIds.size() == 0){
+                            if ("attributeId".equals(nextChild.getNodeName())) {
+                                if (attributeIds.size() == 0) {
                                     holder.getCategoryDefaultAttributeIdMap().
                                             put(name, nextChild.getTextContent());
                                 }
                                 attributeIds.add(nextChild.getTextContent());
                             }
                         }
-                    } else if("supportedDataTypes".equals(child.getNodeName())){
+                    } else if ("supportedDataTypes".equals(child.getNodeName())) {
                         dataTypes = new HashSet<String>();
                         NodeList list = child.getChildNodes();
-                        for(int k = 0; k < list.getLength(); k++){
+                        for (int k = 0; k < list.getLength(); k++) {
                             Node nextChild = list.item(k);
-                            if("dataType".equals(nextChild.getNodeName())){
+                            if ("dataType".equals(nextChild.getNodeName())) {
                                 dataTypes.add(nextChild.getTextContent());
                             }
                         }
                     }
                 }
-                if(name != null){
-                    if(uri != null){
+                if (name != null) {
+                    if (uri != null) {
                         holder.getCategoryMap().put(name, uri);
                     }
-                    if(attributeIds != null){
+                    if (attributeIds != null) {
                         holder.getCategoryAttributeIdMap().put(name, attributeIds);
                     }
-                    if(dataTypes != null){
+                    if (dataTypes != null) {
                         holder.getCategoryDataTypeMap().put(name, dataTypes);
                     }
                 }
             }
-        }               
+        }
     }
 
     private void parseAlgorithm(Node root, PolicyEditorDataHolder holder, boolean isPolicy)
-                                                                    throws PolicyEditorException {
+            throws PolicyEditorException {
 
         NodeList nodeList = root.getChildNodes();
-        for(int i = 0; i < nodeList.getLength(); i++){
+        for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if("algorithms".equals(node.getNodeName())){
+            if ("algorithms".equals(node.getNodeName())) {
                 String name = null;
                 String uri = null;
                 NodeList childList = node.getChildNodes();
-                for(int j = 0; j < childList.getLength(); j++){
+                for (int j = 0; j < childList.getLength(); j++) {
                     Node child = childList.item(j);
-                    if("algorithm".equals(child.getNodeName())){
+                    if ("algorithm".equals(child.getNodeName())) {
                         NodeList list = child.getChildNodes();
-                        for(int k = 0; k < list.getLength(); k++){
+                        for (int k = 0; k < list.getLength(); k++) {
                             Node nextChild = list.item(k);
-                            if("name".equals(nextChild.getNodeName())){
+                            if ("name".equals(nextChild.getNodeName())) {
                                 name = nextChild.getTextContent();
-                            } else if("uri".equals(nextChild.getNodeName())){
+                            } else if ("uri".equals(nextChild.getNodeName())) {
                                 uri = nextChild.getTextContent();
                             }
-                            if(name != null && uri != null){
-                                if(!Utils.isValidRuleAlgorithm(uri, isPolicy)){
+                            if (name != null && uri != null) {
+                                if (!Utils.isValidRuleAlgorithm(uri, isPolicy)) {
                                     throw new PolicyEditorException("Invalid Algorithm : " + uri);
                                 }
-                                if(isPolicy){
+                                if (isPolicy) {
                                     holder.getPolicyCombiningAlgorithms().put(name, uri);
                                 } else {
                                     holder.getRuleCombiningAlgorithms().put(name, uri);
@@ -228,16 +227,16 @@ public class InMemoryPersistenceManager implements DataPersistenceManager{
                         }
                     }
                 }
-            } else if("display".equals(node.getNodeName())){
-                if("true".equals(node.getTextContent())){
-                    if(isPolicy){
+            } else if ("display".equals(node.getNodeName())) {
+                if ("true".equals(node.getTextContent())) {
+                    if (isPolicy) {
                         holder.setShowPolicyAlgorithms(true);
                     } else {
                         holder.setShowRuleAlgorithms(true);
                     }
                 }
-            } else if("defaultAlgorithm".equals(node.getNodeName())){
-                if(isPolicy){
+            } else if ("defaultAlgorithm".equals(node.getNodeName())) {
+                if (isPolicy) {
                     holder.setDefaultPolicyAlgorithm(node.getTextContent());
                 } else {
                     holder.setDefaultRuleAlgorithm(node.getTextContent());
@@ -246,33 +245,33 @@ public class InMemoryPersistenceManager implements DataPersistenceManager{
         }
     }
 
-    private void parseAttributeIds(Node root, PolicyEditorDataHolder holder){
+    private void parseAttributeIds(Node root, PolicyEditorDataHolder holder) {
 
         NodeList nodeList = root.getChildNodes();
-        for(int i = 0; i < nodeList.getLength(); i++){
+        for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if("attributeId".equals(node.getNodeName())){
+            if ("attributeId".equals(node.getNodeName())) {
 
                 String name = null;
                 String uri = null;
                 String dataType = null;
 
                 NodeList childList = node.getChildNodes();
-                for(int j = 0; j < childList.getLength(); j++){
+                for (int j = 0; j < childList.getLength(); j++) {
                     Node child = childList.item(j);
-                    if("name".equals(child.getNodeName())){
+                    if ("name".equals(child.getNodeName())) {
                         name = child.getTextContent();
-                    } else if("uri".equals(child.getNodeName())){
+                    } else if ("uri".equals(child.getNodeName())) {
                         uri = child.getTextContent();
-                    } else if("dataType".equals(child.getNodeName())){
+                    } else if ("dataType".equals(child.getNodeName())) {
                         dataType = child.getTextContent();
                     }
                 }
-                if(name != null){
-                    if(uri != null){
+                if (name != null) {
+                    if (uri != null) {
                         holder.getAttributeIdMap().put(name, uri);
                     }
-                    if(dataType != null){
+                    if (dataType != null) {
                         holder.getAttributeIdDataTypeMap().put(name, dataType);
                     }
                 }
@@ -283,30 +282,30 @@ public class InMemoryPersistenceManager implements DataPersistenceManager{
     private void parseDataTypes(Node root, PolicyEditorDataHolder holder) throws PolicyEditorException {
 
         NodeList nodeList = root.getChildNodes();
-        for(int i = 0; i < nodeList.getLength(); i++){
+        for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if("dataType".equals(node.getNodeName())){
+            if ("dataType".equals(node.getNodeName())) {
 
                 String name = null;
                 String uri = null;
 
                 NodeList childList = node.getChildNodes();
-                for(int j = 0; j < childList.getLength(); j++){
+                for (int j = 0; j < childList.getLength(); j++) {
                     Node child = childList.item(j);
-                    if("name".equals(child.getNodeName())){
+                    if ("name".equals(child.getNodeName())) {
                         name = child.getTextContent();
-                    } else if("uri".equals(child.getNodeName())){
+                    } else if ("uri".equals(child.getNodeName())) {
                         uri = child.getTextContent();
                     }
                 }
-                if(name != null && uri != null){
-                    if(!Utils.isValidDataType(uri)){
+                if (name != null && uri != null) {
+                    if (!Utils.isValidDataType(uri)) {
                         throw new PolicyEditorException("Invalid DataType : " + uri);
                     }
                     holder.getDataTypeMap().put(name, uri);
                 }
             }
-            if("defaultDataTypes".equals(node.getNodeName())){
+            if ("defaultDataTypes".equals(node.getNodeName())) {
                 holder.setDefaultDataType(node.getTextContent());
             }
         }
@@ -315,32 +314,32 @@ public class InMemoryPersistenceManager implements DataPersistenceManager{
     private void parseFunctions(Node root, PolicyEditorDataHolder holder) throws PolicyEditorException {
 
         NodeList nodeList = root.getChildNodes();
-        for(int i = 0; i < nodeList.getLength(); i++){
+        for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if("function".equals(node.getNodeName())){
+            if ("function".equals(node.getNodeName())) {
 
                 String name = null;
                 String uri = null;
-                boolean  targetFunction = false;
+                boolean targetFunction = false;
 
                 NodeList childList = node.getChildNodes();
-                for(int j = 0; j < childList.getLength(); j++){
+                for (int j = 0; j < childList.getLength(); j++) {
                     Node child = childList.item(j);
-                    if("name".equals(child.getNodeName())){
+                    if ("name".equals(child.getNodeName())) {
                         name = child.getTextContent();
-                    } else if("uri".equals(child.getNodeName())){
+                    } else if ("uri".equals(child.getNodeName())) {
                         uri = child.getTextContent();
-                    } else if("targetFunction".equals(child.getNodeName())){
+                    } else if ("targetFunction".equals(child.getNodeName())) {
                         targetFunction = true;
                     }
                 }
-                if(name != null && uri != null){
-                    if(!Utils.isValidFunction(uri)){
+                if (name != null && uri != null) {
+                    if (!Utils.isValidFunction(uri)) {
                         throw new PolicyEditorException("Invalid Function : " + uri);
                     }
                     holder.getFunctionMap().put(name, uri);
                     holder.getRuleFunctions().add(name);
-                    if(targetFunction){
+                    if (targetFunction) {
                         holder.getTargetFunctions().add(name);
                     }
                 }
@@ -351,24 +350,24 @@ public class InMemoryPersistenceManager implements DataPersistenceManager{
     private void parsePreFunctions(Node root, PolicyEditorDataHolder holder) throws PolicyEditorException {
 
         NodeList nodeList = root.getChildNodes();
-        for(int i = 0; i < nodeList.getLength(); i++){
+        for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if("preFunction".equals(node.getNodeName())){
+            if ("preFunction".equals(node.getNodeName())) {
 
                 String name = null;
                 String uri = null;
 
                 NodeList childList = node.getChildNodes();
-                for(int j = 0; j < childList.getLength(); j++){
+                for (int j = 0; j < childList.getLength(); j++) {
                     Node child = childList.item(j);
-                    if("name".equals(child.getNodeName())){
+                    if ("name".equals(child.getNodeName())) {
                         name = child.getTextContent();
-                    } else if("uri".equals(child.getNodeName())){
+                    } else if ("uri".equals(child.getNodeName())) {
                         uri = child.getTextContent();
                     }
                 }
-                if(name != null && uri != null){
-                    if(!Utils.isValidPreFunction(uri)){
+                if (name != null && uri != null) {
+                    if (!Utils.isValidPreFunction(uri)) {
                         throw new PolicyEditorException("Invalid PreFunction : " + uri);
                     }
                     holder.getPreFunctionMap().put(name, uri);
@@ -380,71 +379,71 @@ public class InMemoryPersistenceManager implements DataPersistenceManager{
     private void parseRule(Node root, PolicyEditorDataHolder holder) throws PolicyEditorException {
 
         NodeList nodeList = root.getChildNodes();
-        for(int i = 0; i < nodeList.getLength(); i++){
+        for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if("ruleId".equals(node.getNodeName())){
-                if("true".equals(node.getTextContent())){
+            if ("ruleId".equals(node.getNodeName())) {
+                if ("true".equals(node.getTextContent())) {
                     holder.setShowRuleId(true);
                 }
-            } else if("ruleEffect".equals(node.getNodeName())) {
+            } else if ("ruleEffect".equals(node.getNodeName())) {
                 NodeList childList = node.getChildNodes();
-                for(int j = 0; j < childList.getLength(); j++){
+                for (int j = 0; j < childList.getLength(); j++) {
                     Node child = childList.item(j);
-                    if("display".equals(child.getNodeName())){
-                        if("true".equals(child.getTextContent())){
+                    if ("display".equals(child.getNodeName())) {
+                        if ("true".equals(child.getTextContent())) {
                             holder.setShowRuleEffect(true);
                         }
-                    } else if("defaultEffect".equals(child.getNodeName())){
-                        if(child.getTextContent() != null){
+                    } else if ("defaultEffect".equals(child.getNodeName())) {
+                        if (child.getTextContent() != null) {
                             String uri = child.getTextContent();
-                            if(!Utils.isValidEffect(uri)){
+                            if (!Utils.isValidEffect(uri)) {
                                 throw new PolicyEditorException("Invalid Rule Effect : " + uri);
                             }
                             holder.setDefaultEffect(child.getTextContent());
                         }
-                    } else if("effect".equals(child.getNodeName())){
+                    } else if ("effect".equals(child.getNodeName())) {
                         NodeList childList1 = child.getChildNodes();
                         String name = null;
                         String uri = null;
-                        for(int k = 0; k < childList1.getLength(); k++){
+                        for (int k = 0; k < childList1.getLength(); k++) {
                             Node child1 = childList1.item(k);
-                            if("name".equals(child1.getNodeName())){
-                                if(child1.getTextContent() != null ){
+                            if ("name".equals(child1.getNodeName())) {
+                                if (child1.getTextContent() != null) {
                                     name = child1.getTextContent();
                                 }
-                            } else if("uri".equals(child1.getNodeName())){
-                                if(child1.getTextContent() != null ){
+                            } else if ("uri".equals(child1.getNodeName())) {
+                                if (child1.getTextContent() != null) {
                                     uri = child1.getTextContent();
                                 }
                             }
                         }
 
-                        if(name != null && uri != null){
-                            if(!Utils.isValidEffect(uri)){
+                        if (name != null && uri != null) {
+                            if (!Utils.isValidEffect(uri)) {
                                 throw new PolicyEditorException("Invalid Rule Effect : " + uri);
                             }
                             holder.getRuleEffectMap().put(name, uri);
                         }
 
-                        if(child.getTextContent() != null){
+                        if (child.getTextContent() != null) {
                             holder.setDefaultEffect(child.getTextContent());
                         }
                     }
                 }
-            } else if("lastRule".equals(node.getNodeName())) {
+            } else if ("lastRule".equals(node.getNodeName())) {
                 NodeList childList = node.getChildNodes();
-                for(int j = 0; j < childList.getLength(); j++){
+                for (int j = 0; j < childList.getLength(); j++) {
                     Node child = childList.item(j);
-                    if("add".equals(child.getNodeName())){
-                        if("true".equals(child.getTextContent())){
+                    if ("add".equals(child.getNodeName())) {
+                        if ("true".equals(child.getTextContent())) {
                             holder.setAddLastRule(true);
                         }
-                    } else if("effect".equals(child.getNodeName())){
-                        if(child.getTextContent() != null){
+                    } else if ("effect".equals(child.getNodeName())) {
+                        if (child.getTextContent() != null) {
                             String uri = child.getTextContent();
-                            if(!Utils.isValidEffect(uri)){
+                            if (!Utils.isValidEffect(uri)) {
                                 throw new PolicyEditorException("Invalid Rule Effect : " + uri);
-                            }                            
+                            }
                             holder.setLastRuleEffect(uri);
                         }
                     }
@@ -649,9 +648,9 @@ public class InMemoryPersistenceManager implements DataPersistenceManager{
                 "    </dataTypes>\n" +
                 "</policyEditor>";
     }
-    
-    protected String getDefaultConfig(){
-        
+
+    protected String getDefaultConfig() {
+
         return "<policyEditor>\n" +
                 "    <categories>\n" +
                 "        <category>\n" +
@@ -915,9 +914,9 @@ public class InMemoryPersistenceManager implements DataPersistenceManager{
                 "    </rule>\n" +
                 "</policyEditor>\n";
     }
-    
-    
-    protected String getDefaultSetConfig(){
+
+
+    protected String getDefaultSetConfig() {
 
         return "<policyEditor>\n" +
                 "    <categories>\n" +

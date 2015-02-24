@@ -36,7 +36,7 @@ public class SAML2SSOAuthBEDataHolder {
     private SAML2SSOAuthBEDataHolder() {
     }
 
-    public static SAML2SSOAuthBEDataHolder getInstance(){
+    public static SAML2SSOAuthBEDataHolder getInstance() {
         return instance;
     }
 

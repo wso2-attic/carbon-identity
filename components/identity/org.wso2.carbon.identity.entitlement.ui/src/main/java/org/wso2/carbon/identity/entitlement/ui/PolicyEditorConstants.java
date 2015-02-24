@@ -27,7 +27,7 @@ public class PolicyEditorConstants {
 
     public static final String TARGET_ELEMENT = "Target";
 
-    public static final String ANY_OF_ELEMENT = "AnyOf"; 
+    public static final String ANY_OF_ELEMENT = "AnyOf";
 
     public static final String ALL_OF_ELEMENT = "AllOf";
 
@@ -39,30 +39,60 @@ public class PolicyEditorConstants {
 
     public static final String MATCH_ELEMENT = "Match";
 
-    public static final String  MATCH_ID = "MatchId";
+    public static final String MATCH_ID = "MatchId";
 
-    public static final String  ATTRIBUTE_ID = "AttributeId";
+    public static final String ATTRIBUTE_ID = "AttributeId";
 
-    public static final String  CATEGORY = "Category";
+    public static final String CATEGORY = "Category";
 
-    public static final String  DATA_TYPE = "DataType";
+    public static final String DATA_TYPE = "DataType";
 
-    public static final String  ISSUER = "Issuer";
+    public static final String ISSUER = "Issuer";
 
-    public static final String  SOA_CATEGORY_USER = "Subject";
+    public static final String SOA_CATEGORY_USER = "Subject";
 
-    public static final String  SOA_CATEGORY_SUBJECT = "Subject";
+    public static final String SOA_CATEGORY_SUBJECT = "Subject";
 
-    public static final String  SOA_CATEGORY_RESOURCE = "Resource";
+    public static final String SOA_CATEGORY_RESOURCE = "Resource";
 
-    public static final String  SOA_CATEGORY_ACTION = "Action";
+    public static final String SOA_CATEGORY_ACTION = "Action";
 
-    public static final String  SOA_CATEGORY_ENVIRONMENT = "Environment";
+    public static final String SOA_CATEGORY_ENVIRONMENT = "Environment";
 
-    public static final String  MUST_BE_PRESENT = "MustBePresent";
+    public static final String MUST_BE_PRESENT = "MustBePresent";
 
     public static final String ATTRIBUTE_DESIGNATOR = "AttributeDesignator";
-
+    public static final String RULE_EFFECT_PERMIT = "Permit";
+    public static final String RULE_EFFECT_DENY = "Deny";
+    public static final String RULE_ALGORITHM_IDENTIFIER_1 = "urn:oasis:names:tc:xacml:1.0:" +
+            "rule-combining-algorithm:";
+    public static final String RULE_ALGORITHM_IDENTIFIER_3 = "urn:oasis:names:tc:xacml:3.0:" +
+            "rule-combining-algorithm:";
+    public static final String POLICY_ALGORITHM_IDENTIFIER_1 = "urn:oasis:names:tc:xacml:1.0:" +
+            "policy-combining-algorithm:";
+    public static final String POLICY_ALGORITHM_IDENTIFIER_3 = "urn:oasis:names:tc:xacml:3.0:" +
+            "policy-combining-algorithm:";
+    public static final String POLICY_EDITOR_SEPARATOR = "|";
+    public static final int POLICY_EDITOR_ROW_DATA = 7;
+    public static final String DYNAMIC_SELECTOR_CATEGORY = "Category";
+    public static final String DYNAMIC_SELECTOR_FUNCTION = "Function";
+    public static final String SUBJECT_ID_DEFAULT = "urn:oasis:names:tc:xacml:1.0:subject:subject-id";
+    public static final String SUBJECT_ID_ROLE = "http://wso2.org/claims/role";
+    public static final String RESOURCE_ID_DEFAULT = "urn:oasis:names:tc:xacml:1.0:resource:resource-id";
+    public static final String ACTION_ID_DEFAULT = "urn:oasis:names:tc:xacml:1.0:action:action-id";
+    public static final String ENVIRONMENT_ID_DEFAULT = "urn:oasis:names:tc:xacml:1.0:environment:environment-id";
+    public static final String RESOURCE_CATEGORY_URI = "urn:oasis:names:tc:xacml:3.0:" +
+            "attribute-category:resource";
+    public static final String SUBJECT_CATEGORY_URI = "urn:oasis:names:tc:xacml:1.0:" +
+            "subject-category:access-subject";
+    public static final String ACTION_CATEGORY_URI = "urn:oasis:names:tc:xacml:3.0:" +
+            "attribute-category:action";
+    public static final String ENVIRONMENT_CATEGORY_URI = "urn:oasis:names:tc:xacml:3.0:" +
+            "attribute-category:environment";
+    public static final String ENVIRONMENT_CURRENT_DATE = "urn:oasis:names:tc:xacml:1.0:environment:current-date";
+    public static final String ENVIRONMENT_CURRENT_TIME = "urn:oasis:names:tc:xacml:1.0:environment:current-time";
+    public static final String ENVIRONMENT_CURRENT_DATETIME = "urn:oasis:names:tc:xacml:1.0:environment:current-dateTime";
+    public static final String SOA_POLICY_EDITOR = "SOA";
 
     public static final class PreFunctions {
 
@@ -85,23 +115,17 @@ public class PolicyEditorConstants {
 
     }
 
-
     public static final class TargetFunctions {
 
         public static final String FUNCTION_EQUAL = "equal";
-        
+
     }
-
-
-    public static final String RULE_EFFECT_PERMIT = "Permit";
-
-    public static final String RULE_EFFECT_DENY = "Deny";
 
     public static final class DataType {
 
-        public static final String DAY_TIME_DURATION  = "http://www.w3.org/2001/XMLSchema#dayTimeDuration";
+        public static final String DAY_TIME_DURATION = "http://www.w3.org/2001/XMLSchema#dayTimeDuration";
 
-        public static final String YEAR_MONTH_DURATION  = "http://www.w3.org/2001/XMLSchema#yearMonthDuration";
+        public static final String YEAR_MONTH_DURATION = "http://www.w3.org/2001/XMLSchema#yearMonthDuration";
 
         public static final String STRING = "http://www.w3.org/2001/XMLSchema#string";
 
@@ -113,12 +137,11 @@ public class PolicyEditorConstants {
 
         public static final String DATE = "http://www.w3.org/2001/XMLSchema#date";
 
-        public static final String DOUBLE = "http://www.w3.org/2001/XMLSchema#double";  
+        public static final String DOUBLE = "http://www.w3.org/2001/XMLSchema#double";
 
         public static final String INT = "http://www.w3.org/2001/XMLSchema#integer";
 
     }
-
 
     public static final class CombiningAlog {
 
@@ -139,58 +162,6 @@ public class PolicyEditorConstants {
         public static final String ONLY_ONE_APPLICABLE_ID = "only-one-applicable";
 
     }
-
-
-    public static final String RULE_ALGORITHM_IDENTIFIER_1 = "urn:oasis:names:tc:xacml:1.0:" +
-                                                                        "rule-combining-algorithm:";
-
-    public static final String RULE_ALGORITHM_IDENTIFIER_3 = "urn:oasis:names:tc:xacml:3.0:" +
-                                                                        "rule-combining-algorithm:";
-
-    public static final String POLICY_ALGORITHM_IDENTIFIER_1 = "urn:oasis:names:tc:xacml:1.0:" +
-                                                                    "policy-combining-algorithm:";
-
-    public static final String POLICY_ALGORITHM_IDENTIFIER_3 = "urn:oasis:names:tc:xacml:3.0:" +
-                                                                    "policy-combining-algorithm:";
-
-    public static final String POLICY_EDITOR_SEPARATOR = "|";
-
-    public static final int POLICY_EDITOR_ROW_DATA = 7;
-
-    public static final String DYNAMIC_SELECTOR_CATEGORY =  "Category";
-
-    public static final String DYNAMIC_SELECTOR_FUNCTION =  "Function";
-
-    public static final String SUBJECT_ID_DEFAULT= "urn:oasis:names:tc:xacml:1.0:subject:subject-id";
-
-    public static final String SUBJECT_ID_ROLE= "http://wso2.org/claims/role";
-
-    public static final String RESOURCE_ID_DEFAULT = "urn:oasis:names:tc:xacml:1.0:resource:resource-id";
-
-    public static final String ACTION_ID_DEFAULT = "urn:oasis:names:tc:xacml:1.0:action:action-id";
-
-    public static final String ENVIRONMENT_ID_DEFAULT = "urn:oasis:names:tc:xacml:1.0:environment:environment-id";
-
-    public static final String RESOURCE_CATEGORY_URI = "urn:oasis:names:tc:xacml:3.0:" +
-            "attribute-category:resource";
-
-    public static final String SUBJECT_CATEGORY_URI = "urn:oasis:names:tc:xacml:1.0:" +
-            "subject-category:access-subject";
-
-    public static final String ACTION_CATEGORY_URI = "urn:oasis:names:tc:xacml:3.0:" +
-            "attribute-category:action";
-
-    public static final String ENVIRONMENT_CATEGORY_URI = "urn:oasis:names:tc:xacml:3.0:" +
-            "attribute-category:environment";
-
-    public static final String ENVIRONMENT_CURRENT_DATE = "urn:oasis:names:tc:xacml:1.0:environment:current-date";
-
-    public static final String ENVIRONMENT_CURRENT_TIME = "urn:oasis:names:tc:xacml:1.0:environment:current-time";
-
-    public static final String ENVIRONMENT_CURRENT_DATETIME = "urn:oasis:names:tc:xacml:1.0:environment:current-dateTime";
-    
-    public static final String SOA_POLICY_EDITOR = "SOA";
-
 
     public static class FunctionIdentifier {
 
@@ -232,6 +203,6 @@ public class PolicyEditorConstants {
 
         public static final String ENV_TIME = "Time";
 
-        public static final String USER_AGE = "Age";        
+        public static final String USER_AGE = "Age";
     }
 }
