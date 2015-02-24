@@ -17,6 +17,8 @@
  */
 package org.wso2.carbon.identity.mgt.config;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -30,6 +32,8 @@ import java.util.Properties;
 
 public class RegistryConfigReader implements ConfigReader {
 
+    private static Log log = LogFactory.getLog(RegistryConfigReader.class);
+    
     @Override
     public Properties read(int tenantId, String resourcePath) {
 
@@ -56,7 +60,7 @@ public class RegistryConfigReader implements ConfigReader {
             readerProps = new Properties();
 
         } catch (RegistryException rnfe) {
-            rnfe.printStackTrace();
+            log.error("Error occurred while reading registry data", rnfe);
         }
 
         return readerProps;
