@@ -97,13 +97,15 @@ public class DefaultEmailSendingModule extends AbstractEmailSendingModule {
                     MailConstants.TRANSPORT_FORMAT_TEXT);
             options.setTo(new EndpointReference("mailto:" + this.notification.getSendTo()));
             serviceClient.setOptions(options);
-            log.debug("Sending " + "user credentials configuration mail to " + this.notification.getSendTo());
+            log.info("Sending " + "user credentials configuration mail to " + this.notification.getSendTo());
             serviceClient.fireAndForget(payload);
-
-            log.debug("Email content : " + this.notification.getBody());
+            
+            if (log.isDebugEnabled()) {
+                log.debug("Email content : " + this.notification.getBody());
+            }
             log.info("User credentials configuration mail has been sent to " + this.notification.getSendTo());
         } catch (Exception e) {
-            log.error("Failed Sending Email" + e.getMessage());
+            log.error("Failed Sending Email" + e);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }

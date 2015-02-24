@@ -166,16 +166,21 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                     try {
                         module.store(userIdentityDTO, userStoreManager);
                     } catch (IdentityException e) {
-                        throw new UserStoreException("Error while saving user", e);
+                        throw new UserStoreException(
+                                "Error while saving user store data for user : "
+                                        + userName, e);
                     }
                 } else {
-                    IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(UserCoreConstants.ErrorCode.USER_IS_LOCKED,
-                            userIdentityDTO.getFailAttempts(), config.getAuthPolicyMaxLoginAttempts());
+                    IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(
+                            UserCoreConstants.ErrorCode.USER_IS_LOCKED,
+                            userIdentityDTO.getFailAttempts(),
+                            config.getAuthPolicyMaxLoginAttempts());
                     IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
-                    log.warn("User account is locked for user : " + userName
-                            + ". cannot login until the account is unlocked ");
-                    throw new UserStoreException(UserCoreConstants.ErrorCode.USER_IS_LOCKED);
-
+                    String errorMsg = "User account is locked for user : " + userName
+                            + ". cannot login until the account is unlocked ";
+                    log.warn(errorMsg);
+                    throw new UserStoreException(UserCoreConstants.ErrorCode.USER_IS_LOCKED + " "
+                            + errorMsg);
                 }
             }
         }
@@ -226,7 +231,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                                 null);
 
                 if (email == null) {
-                    throw new UserStoreException("No user email provided for user " + userName);
+                    throw new UserStoreException("No user email provided for user : " + userName);
                 }
 
                 List<NotificationSendingModule> notificationModules =
@@ -256,25 +261,28 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                     Config emailConfig = null;
                     ConfigBuilder configBuilder = ConfigBuilder.getInstance();
                     try {
-                        emailConfig =
-                                configBuilder.loadConfiguration(ConfigType.EMAIL,
-                                        StorageType.REGISTRY,
-                                        tenantId);
+                    	emailConfig =
+                    	              configBuilder.loadConfiguration(ConfigType.EMAIL,
+                    	                                              StorageType.REGISTRY,
+                    	                                              tenantId);
                     } catch (Exception e1) {
                         throw new UserStoreException(
-                                "Could not load the email template configuration");
+                                "Could not load the email template configuration for user : "
+                                        + userName, e1);
                     }
 
                     emailTemplate = emailConfig.getProperty("otp");
 
                     Notification emailNotification = null;
                     try {
-                        emailNotification =
-                                NotificationBuilder.createNotification("EMAIL",
-                                        emailTemplate,
-                                        emailNotificationData);
+                    	emailNotification =
+                    	                    NotificationBuilder.createNotification("EMAIL",
+                    	                                                           emailTemplate,
+                    	                                                           emailNotificationData);
                     } catch (Exception e) {
-                        throw new UserStoreException("Could not create the email notification");
+                        throw new UserStoreException(
+                                "Could not create the email notification for template: "
+                                        + emailTemplate, e);
                     }
                     NotificationSender sender = new NotificationSender();
 
@@ -376,7 +384,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                 try {
                     module.store(userIdentityDTO, userStoreManager);
                 } catch (IdentityException e) {
-                    throw new UserStoreException("Error while doPostAuthenticate", e);
+                    throw new UserStoreException("Error while saving user store data for user : "
+                            + userName, e);
                 }
             } else {
                 if (log.isDebugEnabled()) {
@@ -394,7 +403,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                 try {
                     module.store(userIdentityDTO, userStoreManager);
                 } catch (IdentityException e) {
-                    throw new UserStoreException("Error while doPostAuthenticate", e);
+                    throw new UserStoreException("Error while saving user store data for user : "
+                            + userName, e);
                 }
             }
         }
@@ -430,8 +440,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             }
 
         } catch (PolicyViolationException pe) {
-            log.error(pe.getMessage());
-            throw new UserStoreException(pe.getMessage());
+            throw new UserStoreException(pe);
         }
 
 
@@ -510,7 +519,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                 try {
                     module.store(userIdentityClaimsDO, userStoreManager);
                 } catch (IdentityException e) {
-                    throw new UserStoreException("Error while doPostAddUser", e);
+                    throw new UserStoreException("Error while saving user store for user : "
+                            + userName, e);
                 }
                 // store identity metadata
                 UserRecoveryDataDO metadataDO = new UserRecoveryDataDO();
@@ -526,43 +536,41 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                 // set recovery data
                 RecoveryProcessor processor = new RecoveryProcessor();
                 VerificationBean verificationBean = new VerificationBean();
-
+                
                 try {
                     verificationBean = processor.updateConfirmationCode(1, userName, userStoreManager.getTenantId());
                 } catch (IdentityException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    throw new UserStoreException(
+                            "Error while updating confirmation code for user : " + userName, e);
                 }
-
+                
                 // preparing a bean to send the email
                 UserIdentityMgtBean bean = new UserIdentityMgtBean();
                 bean.setUserId(userName).setConfirmationCode(verificationBean.getKey())
-                        .setRecoveryType(IdentityMgtConstants.Notification.TEMPORARY_PASSWORD)
-                        .setEmail(claims.get(config.getAccountRecoveryClaim()));
-
+                    .setRecoveryType(IdentityMgtConstants.Notification.TEMPORARY_PASSWORD)
+                    .setEmail(claims.get(config.getAccountRecoveryClaim()));
+                
                 UserRecoveryDTO recoveryDto = new UserRecoveryDTO(userName);
                 recoveryDto.setNotification(IdentityMgtConstants.Notification.ASK_PASSWORD);
                 recoveryDto.setNotificationType("EMAIL");
                 recoveryDto.setTenantId(userStoreManager.getTenantId());
                 recoveryDto.setConfirmationCode(verificationBean.getKey());
-
+                
                 NotificationDataDTO notificationDto = null;
-
+                
                 try {
                     notificationDto = processor.recoverWithNotification(recoveryDto);
                 } catch (IdentityException e) {
-                    if (log.isDebugEnabled()) {
-                        log.debug(e.getMessage());
-                    }
-                    throw new UserStoreException("Error while sending notification. " + e.getMessage());
+                    throw new UserStoreException("Error while sending notification for user : "
+                            + userName, e);
                 }
 
-                if (notificationDto != null && notificationDto.isNotificationSent()) {
+                if(notificationDto != null && notificationDto.isNotificationSent()) {
                     return true;
-                } else {
+                }else {
                     return false;
                 }
-
+                
                 // sending email
 //				UserIdentityManagementUtil.notifyViaEmail(bean);
 
@@ -593,9 +601,9 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 				    .setConfirmationCode(confirmationCode);
 				UserIdentityManagementUtil.notifyViaEmail(bean);
 				return true; */
-            }
-        }
-        // No account recoveries are defined, no email will be sent.
+			}
+		}
+		// No account recoveries are defined, no email will be sent. 
         if (config.isAuthPolicyAccountLockOnCreation()) {
             // accounts are locked. Admin should unlock
             userIdentityClaimsDO.setAccountLock(true);
@@ -603,7 +611,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             try {
                 config.getIdentityDataStore().store(userIdentityClaimsDO, userStoreManager);
             } catch (IdentityException e) {
-                throw new UserStoreException("Error while doPostAddUser", e);
+                throw new UserStoreException("Error while saving user store data for user : "
+                        + userName, e);
             }
         }
 
@@ -612,24 +621,26 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
         if (!config.isEnableUserAccountVerification() &&
                 !config.isAuthPolicyAccountLockOnCreation() && userIdentityClaimsDO != null) {
             try {
-                if (log.isDebugEnabled()) {
+                if(log.isDebugEnabled()) {
                     log.debug("Storing identity-mgt claims since they are available in the addUser request");
                 }
                 module.store(userIdentityClaimsDO, userStoreManager);
             } catch (IdentityException e) {
-                throw new UserStoreException("Error while doPostAddUser when storing User Identity Data ", e);
+                throw new UserStoreException("Error while saving user store data for user : "
+                        + userName, e);
             }
         }
 
-        return true;
-    }
+		return true;
+	}
 
-    /**
-     * This method is used to check pre conditions when changing the user
-     * password.
-     */
-    public boolean doPreUpdateCredential(String userName, Object newCredential,
-                                         Object oldCredential, UserStoreManager userStoreManager) throws UserStoreException {
+	/**
+	 * This method is used to check pre conditions when changing the user
+	 * password.
+	 * 
+	 */
+	public boolean doPreUpdateCredential(String userName, Object newCredential,
+            Object oldCredential, UserStoreManager userStoreManager) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("Pre update credential is called in IdentityMgtEventListener");
@@ -644,29 +655,26 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             // Enforcing the password policies.
             if (newCredential != null
                     && (newCredential instanceof String && (newCredential.toString().trim()
-                    .length() > 0))) {
+                            .length() > 0))) {
                 policyRegistry.enforcePasswordPolicies(newCredential.toString(), userName);
 
             }
 
         } catch (PolicyViolationException pe) {
-            log.error(pe.getMessage());
-            throw new UserStoreException(pe.getMessage());
-
+            throw new UserStoreException(pe);
         }
 
         return true;
     }
-
-    /**
-     * This method is used when the admin is updating the credentials with an
-     * empty credential. A random password will be generated and will be mailed
-     * to the user.
-     */
-    @Override
+	
+	/**
+	 * This method is used when the admin is updating the credentials with an
+	 * empty credential. A random password will be generated and will be mailed
+	 * to the user. 
+	 */
+	@Override
     public boolean doPreUpdateCredentialByAdmin(String userName, Object newCredential,
-                                                UserStoreManager userStoreManager)
-            throws UserStoreException {
+            UserStoreManager userStoreManager) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("Pre update credential by admin is called in IdentityMgtEventListener");
@@ -680,19 +688,17 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             // Enforcing the password policies.
             if (newCredential != null
                     && (newCredential instanceof StringBuffer && (newCredential.toString().trim()
-                    .length() > 0))) {
+                            .length() > 0))) {
                 policyRegistry.enforcePasswordPolicies(newCredential.toString(), userName);
             }
 
         } catch (PolicyViolationException pe) {
-            log.error(pe.getMessage());
-            throw new UserStoreException(pe.getMessage());
+            throw new UserStoreException(pe);
         }
 
-        if (newCredential == null ||
-                (newCredential instanceof StringBuffer && ((StringBuffer) newCredential).toString()
-                        .trim()
-                        .length() < 1)) {
+        if (newCredential == null
+                || (newCredential instanceof StringBuffer && ((StringBuffer) newCredential)
+                        .toString().trim().length() < 1)) {
 
             if (!config.isEnableTemporaryPassword()) {
                 log.error("Empty passwords are not allowed");
@@ -704,16 +710,22 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             // temporary passwords will be used
             char[] temporaryPassword = UserIdentityManagementUtil.generateTemporaryPassword();
             // setting the password value
-            ((StringBuffer) newCredential).replace(0, temporaryPassword.length, new String(temporaryPassword));
+            ((StringBuffer) newCredential).replace(0, temporaryPassword.length, new String(
+                    temporaryPassword));
 
             UserIdentityMgtBean bean = new UserIdentityMgtBean();
             bean.setUserId(userName);
             bean.setConfirmationCode(newCredential.toString());
             bean.setRecoveryType(IdentityMgtConstants.Notification.TEMPORARY_PASSWORD);
-            log.debug("Sending the tempory password to the user " + userName);
+            if (log.isDebugEnabled()) {
+                log.debug("Sending the temporary password to the user " + userName);
+            }
             UserIdentityManagementUtil.notifyViaEmail(bean);
         } else {
-            log.debug("Updating credentials of user " + userName + " by admin with a non-empty password");
+            if (log.isDebugEnabled()) {
+                log.debug("Updating credentials of user " + userName
+                        + " by admin with a non-empty password");
+            }
         }
         return true;
     }
@@ -778,27 +790,28 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 //            return false;
 //        }
 
-        // removing identity claims and security questions
+		// removing identity claims and security questions
         Iterator<Entry<String, String>> it = claims.entrySet().iterator();
         while (it.hasNext()) {
 
             Map.Entry<String, String> claim = it.next();
 
-            if (claim.getKey().contains(UserCoreConstants.ClaimTypeURIs.CHALLENGE_QUESTION_URI) ||
-                    claim.getKey().contains(UserCoreConstants.ClaimTypeURIs.IDENTITY_CLAIM_URI)) {
+            if (claim.getKey().contains(UserCoreConstants.ClaimTypeURIs.CHALLENGE_QUESTION_URI)
+                    || claim.getKey().contains(UserCoreConstants.ClaimTypeURIs.IDENTITY_CLAIM_URI)) {
                 identityDTO.setUserIdentityDataClaim(claim.getKey(), claim.getValue());
                 it.remove();
             }
         }
-
-        // storing the identity claims and security questions
+		
+		// storing the identity claims and security questions
         try {
             identityDataStore.store(identityDTO, userStoreManager);
         } catch (IdentityException e) {
-            throw new UserStoreException("Error while doPreSetUserClaimValues", e);
+            throw new UserStoreException(
+                    "Error while saving user store data for user: " + userName, e);
         }
         return true;
-    }
+	}
 
     /**
      * Deleting user from the identity database. What are the registry keys ?
@@ -813,28 +826,27 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
         }
         // remove from the identity store
         try {
-            IdentityMgtConfig.getInstance().getIdentityDataStore().remove(userName, userStoreManager);
+            IdentityMgtConfig.getInstance().getIdentityDataStore()
+                    .remove(userName, userStoreManager);
         } catch (IdentityException e) {
-            throw new UserStoreException("Error while doPostDeleteUser", e);
+            throw new UserStoreException("Error while removing user: " + userName
+                    + " from identity data store", e);
         }
         // deleting registry meta-data
         UserRegistry registry = null;
         try {
-            registry =
-                    IdentityMgtServiceComponent.getRegistryService()
-                            .getConfigSystemRegistry(userStoreManager.getTenantId());
-            String identityKeyMgtPath =
-                    IdentityMgtConstants.IDENTITY_MANAGEMENT_KEYS +
-                            RegistryConstants.PATH_SEPARATOR +
-                            userStoreManager.getTenantId() +
-                            RegistryConstants.PATH_SEPARATOR + userName;
+            registry = IdentityMgtServiceComponent.getRegistryService().getConfigSystemRegistry(
+                    userStoreManager.getTenantId());
+            String identityKeyMgtPath = IdentityMgtConstants.IDENTITY_MANAGEMENT_KEYS
+                    + RegistryConstants.PATH_SEPARATOR + userStoreManager.getTenantId()
+                    + RegistryConstants.PATH_SEPARATOR + userName;
 
             if (registry.resourceExists(identityKeyMgtPath)) {
                 registry.delete(identityKeyMgtPath);
             }
         } catch (RegistryException e) {
-            log.error("Error while deleting recovery data for user : " + userName +
-                    " in tenant : " + userStoreManager.getTenantId(), e);
+            log.error("Error while deleting recovery data for user : " + userName + " in tenant : "
+                    + userStoreManager.getTenantId(), e);
         }
         return true;
     }
@@ -934,9 +946,11 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                 // Store the new timestamp after change password
                 module.store(userIdentityDTO, userStoreManager);
 
-            } catch (IdentityException e) {
-                throw new UserStoreException(e.getMessage());
-            }
+			} catch (IdentityException e) {
+                throw new UserStoreException(
+                        "Error while saving user store data for user : "
+                                + userName, e);
+			}
 
         }
 

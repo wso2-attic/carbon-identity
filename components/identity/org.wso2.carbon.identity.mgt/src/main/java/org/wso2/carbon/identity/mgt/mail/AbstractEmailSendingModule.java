@@ -96,8 +96,7 @@ public abstract class AbstractEmailSendingModule extends NotificationSendingModu
         try {
             this.emailConfig = configBuilder.loadConfiguration(ConfigType.EMAIL, StorageType.REGISTRY, tenantId);
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error("Error occurred while getting configuration data", e);
         }
 
 //        String confXml = CarbonUtils.getCarbonConfigDirPath() + File.separator +
