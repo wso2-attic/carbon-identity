@@ -18,7 +18,6 @@ import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +72,7 @@ public class UserIdentityManagementUtil {
     public static void lockUserAccount(String userName, UserStoreManager userStoreManager)
             throws IdentityException {
         UserIdentityDataStore store = IdentityMgtConfig.getInstance().getIdentityDataStore();
-        UserIdentityClaimsDO userIdentityDO = store.load(UserCoreUtil.removeDomainFromName(userName), userStoreManager);
+        UserIdentityClaimsDO userIdentityDO = store.load(userName, userStoreManager);
         if (userIdentityDO != null) {
             userIdentityDO.setAccountLock(true);
             store.store(userIdentityDO, userStoreManager);
@@ -92,7 +91,7 @@ public class UserIdentityManagementUtil {
     public static void unlockUserAccount(String userName, UserStoreManager userStoreManager)
             throws IdentityException {
         UserIdentityDataStore store = IdentityMgtConfig.getInstance().getIdentityDataStore();
-        UserIdentityClaimsDO userIdentityDO = store.load(UserCoreUtil.removeDomainFromName(userName), userStoreManager);
+        UserIdentityClaimsDO userIdentityDO = store.load(userName, userStoreManager);
         if (userIdentityDO != null) {
             userIdentityDO.setAccountLock(false);
             store.store(userIdentityDO, userStoreManager);

@@ -56,8 +56,8 @@ public class AccountCredentialMgtConfigService {
             configBuilder.saveConfiguration(StorageType.REGISTRY, tenantId,
                     emailConfig);
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new IdentityMgtServiceException(
+                    "Error occurred while saving email configuration", e);
         }
     }
 
@@ -82,7 +82,8 @@ public class AccountCredentialMgtConfigService {
                 templates = EmailConfigTransformer.transform(emailConfig.getProperties());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new IdentityMgtServiceException(
+                    "Error occurred while loading email configuration", e);
         }
 
         return templates;

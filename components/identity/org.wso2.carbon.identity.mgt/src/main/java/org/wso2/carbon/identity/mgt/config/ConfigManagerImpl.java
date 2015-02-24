@@ -20,6 +20,8 @@ package org.wso2.carbon.identity.mgt.config;
 import java.util.Properties;
 import java.util.Set;
 
+import org.wso2.carbon.identity.mgt.IdentityMgtConfigException;
+
 /**
  * Implementation of the Configuration Manager which used to
  * manage a the configuration.
@@ -48,7 +50,7 @@ public class ConfigManagerImpl implements ConfigManager {
     }
 
     @Override
-    public Config loadConfig(int tenantId) {
+    public Config loadConfig(int tenantId) throws IdentityMgtConfigException {
         Properties props = reader.read(tenantId, resourcePath);
 
         if (!props.isEmpty()) {
@@ -64,7 +66,7 @@ public class ConfigManagerImpl implements ConfigManager {
     }
 
     @Override
-    public void saveConfig(Config config, int tenantId) {
+    public void saveConfig(Config config, int tenantId) throws IdentityMgtConfigException {
         Properties props = config.getProperties();
         this.writer.write(tenantId, props, resourcePath);
 

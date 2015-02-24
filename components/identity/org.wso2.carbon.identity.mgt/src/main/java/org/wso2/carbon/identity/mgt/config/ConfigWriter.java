@@ -19,6 +19,8 @@ package org.wso2.carbon.identity.mgt.config;
 
 import java.util.Properties;
 
+import org.wso2.carbon.identity.mgt.IdentityMgtConfigException;
+
 /**
  * This is used to write configuration to a persistence store.
  */
@@ -30,6 +32,8 @@ public interface ConfigWriter {
      * @param tenantId
      * @param props
      * @param resourcePath
+     * @throws IdentityMgtConfigException 
      */
-    void write(int tenantId, Properties props, String resourcePath);
+    void write(int tenantId, Properties props, String resourcePath)
+            throws IdentityMgtConfigException;
 }

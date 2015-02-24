@@ -174,29 +174,25 @@ public class LogoutRequestProcessor {
                         }
                         logoutReq.setIssuer(SAMLSSOUtil.getIssuer());
                         String logoutReqString = SAMLSSOUtil.encode(SAMLSSOUtil.marshall(logoutReq));
-						logoutReqDTO.setLogoutResponse(logoutReqString);
-						logoutReqDTO.setRpSessionId(rpSessionsList.get(key));
-						singleLogoutReqDTOs[index] = logoutReqDTO;
-						index++;
-					} else {
-						reqValidationResponseDTO.setIssuer(sessionsList.get(key).getIssuer());
-						reqValidationResponseDTO.setAssertionConsumerURL(sessionsList.get(key)
-								.getAssertionConsumerUrl());
-						if (sessionsList.get(key).getLogoutURL() != null
-								&& sessionsList.get(key).getLogoutURL().length() > 0) {
-							reqValidationResponseDTO.setAssertionConsumerURL(sessionsList.get(key)
-									.getLogoutURL());
-						}
-
+                        logoutReqDTO.setLogoutResponse(logoutReqString);
+                        logoutReqDTO.setRpSessionId(rpSessionsList.get(key));
+                        singleLogoutReqDTOs[index] = logoutReqDTO;
+                        index++;
+                    } else {
+                        reqValidationResponseDTO.setIssuer(sessionsList.get(key).getIssuer());
+                        reqValidationResponseDTO.setAssertionConsumerURL(sessionsList.get(key)
+                                .getAssertionConsumerUrl());
+                        if (sessionsList.get(key).getLogoutURL() != null
+                                && sessionsList.get(key).getLogoutURL().length() > 0) {
+                            reqValidationResponseDTO.setAssertionConsumerURL(sessionsList.get(key)
+                                    .getLogoutURL());
+                        }
                     }
                 }
                 reqValidationResponseDTO.setLogoutRespDTO(singleLogoutReqDTOs);
 
                 LogoutResponse logoutResponse = logoutMsgBuilder.buildLogoutResponse(
-                        logoutRequest.getID(), SAMLSSOConstants.StatusCodes.SUCCESS_CODE, null,
-                        sessionInfoData, logoutReqIssuer.isDoSignResponse(),
-                        reqValidationResponseDTO.getAssertionConsumerURL());
-
+                        logoutRequest.getID(), SAMLSSOConstants.StatusCodes.SUCCESS_CODE, null, sessionInfoData, logoutReqIssuer.isDoSignResponse());
                 reqValidationResponseDTO.setLogoutResponse(SAMLSSOUtil.encode(SAMLSSOUtil
                         .marshall(logoutResponse)));
                 reqValidationResponseDTO.setValid(true);

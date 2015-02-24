@@ -20,8 +20,6 @@ package org.wso2.carbon.identity.application.authentication.framework.handler.re
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ApplicationConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.SequenceConfig;
@@ -44,7 +42,6 @@ import java.util.List;
 public class DefaultAuthenticationRequestHandler implements AuthenticationRequestHandler {
 
     private static Log log = LogFactory.getLog(DefaultAuthenticationRequestHandler.class);
-    private static final Log AUDIT_LOG = CarbonConstants.AUDIT_LOG;
     private static volatile DefaultAuthenticationRequestHandler instance;
 
     public static DefaultAuthenticationRequestHandler getInstance() {
@@ -197,6 +194,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
      *
      * @param request
      * @param response
+     * @param isAuthenticated
      * @throws ServletException
      * @throws IOException
      */
@@ -292,23 +290,6 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
 
                 FrameworkUtils.storeAuthCookie(request, response, sessionKey, authCookieAge);
             }
-
-            if(authenticatedUserTenantDomain == null) {
-                PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            }
-
-            String auditData = "\"" + "ContextIdentifier" + "\" : \"" + context.getContextIdentifier()
-                    + "\",\"" + "AuthenticatedUser" + "\" : \"" + sequenceConfig.getAuthenticatedUser()
-                    + "\",\"" + "AuthenticatedUserTenantDomain" + "\" : \"" + authenticatedUserTenantDomain
-                    + "\",\"" + "ServiceProviderName" + "\" : \"" + context.getServiceProviderName()
-                    + "\",\"" + "RequestType" + "\" : \"" + context.getRequestType()
-                    + "\",\"" + "RelyingParty" + "\" : \"" + context.getRelyingParty()
-                    + "\",\"" + "AuthenticatedIdPs" + "\" : \"" + sequenceConfig.getAuthenticatedIdPs()
-                    + "\"";
-
-            AUDIT_LOG.info(String.format(FrameworkConstants.AUDIT_MESSAGE,
-                    sequenceConfig.getAuthenticatedUser() + '@' + sequenceConfig.getAuthenticatedUserTenantDomain(), "Login",
-                    "ApplicationAuthenticationFramework", auditData, FrameworkConstants.AUDIT_SUCCESS));
         }
         // Put the result in the cache using calling servlet's sessionDataKey as the cache key Once
         // the redirect is done to that servlet, it will retrieve the result from the cache using

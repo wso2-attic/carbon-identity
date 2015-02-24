@@ -76,8 +76,9 @@ public class UserInformationRecoveryService {
             return bean;
 
         } catch (Exception e) {
-            log.error("Error while generating captcha", e);
-            throw new IdentityMgtServiceException("Error while generating captcha", e);
+            String errorMessage = "Error while generating captcha";
+            log.error(errorMessage, e);
+            throw new IdentityMgtServiceException(errorMessage);
         }
     }
 
@@ -94,11 +95,8 @@ public class UserInformationRecoveryService {
             try {
                 CaptchaUtil.processCaptchaInfoBean(captcha);
             } catch (Exception e) {
-                if (log.isDebugEnabled()) {
-                    log.error(e.getMessage());
-                }
-                bean.setError(VerificationBean.ERROR_CODE_INVALID_CAPTCHA + " " + e.getMessage());
-                bean.setVerified(false);
+                bean = handleError(VerificationBean.ERROR_CODE_INVALID_CAPTCHA
+                        + " Error while validating captcha", e);
                 return bean;
             }
         }
@@ -106,9 +104,8 @@ public class UserInformationRecoveryService {
         try {
             userDTO = Utils.processUserId(username);
         } catch (IdentityException e) {
-            log.error("Error when verifying user: " + username, e);
-            bean.setError(VerificationBean.ERROR_CODE_INVALID_USER + " " + e.getMessage());
-            bean.setVerified(false);
+            bean = handleError(VerificationBean.ERROR_CODE_INVALID_USER + " invalid user : "
+                    + username, e);
             return bean;
         }
 
@@ -121,21 +118,20 @@ public class UserInformationRecoveryService {
             throws IdentityMgtServiceException {
 
         UserDTO userDTO = null;
-
+        VerificationBean bean = null;
+        
         if (log.isDebugEnabled()) {
             log.debug("User recovery notification sending request received with username : " + username + " notification type :" + notificationType);
         }
         try {
             userDTO = Utils.processUserId(username);
         } catch (IdentityException e) {
-            if (log.isDebugEnabled()) {
-                log.debug(e.getMessage());
-            }
+            bean = handleError(VerificationBean.ERROR_CODE_INVALID_USER + " invalid user : " + username, e);
+            return bean;
         }
 
         RecoveryProcessor processor = IdentityMgtServiceComponent.getRecoveryProcessor();
 
-        VerificationBean bean = null;
         try {
             bean = processor.verifyConfirmationCode(1, userDTO.getUserId(), key);
 
@@ -145,8 +141,9 @@ public class UserInformationRecoveryService {
                         " Invalid user is trying to recover the password with username : " + username);
             }
         } catch (IdentityException e1) {
-            log.error("Error when sending recovery message for user: " + username, e1);
-            return new VerificationBean(VerificationBean.ERROR_CODE_INVALID_CODE + " " + e1.getMessage());
+            bean = handleError(VerificationBean.ERROR_CODE_INVALID_CODE
+                    + " invalid confirmation code for user : " + username, e1);
+            return bean;
         }
 
         UserRecoveryDTO dto = new UserRecoveryDTO(userDTO);
@@ -167,9 +164,9 @@ public class UserInformationRecoveryService {
 
 
         } catch (IdentityException e) {
-            log.error("Error when sending recovery message for user: " + username, e);
-            bean.setError(VerificationBean.ERROR_CODE_UN_EXPECTED + " " + e.getMessage());
-            bean.setVerified(false);
+            bean = handleError(VerificationBean.ERROR_CODE_UN_EXPECTED
+                    + " Error when sending recovery message for user: " + username, e);
+            return bean;
         }
         return bean;
     }
@@ -198,11 +195,8 @@ public class UserInformationRecoveryService {
             try {
                 CaptchaUtil.processCaptchaInfoBean(captcha);
             } catch (Exception e) {
-                if (log.isDebugEnabled()) {
-                    log.debug(e.getMessage());
-                }
-                bean.setError(VerificationBean.ERROR_CODE_INVALID_CAPTCHA + " " + e.getMessage());
-                bean.setVerified(false);
+                bean = handleError(VerificationBean.ERROR_CODE_INVALID_CODE
+                        + " Error while validating captcha for user : " + username, e);
                 return bean;
             }
         }
@@ -210,11 +204,8 @@ public class UserInformationRecoveryService {
         try {
             userDTO = Utils.processUserId(username);
         } catch (IdentityException e) {
-            if (log.isDebugEnabled()) {
-                log.debug(e.getMessage());
-            }
-            bean.setError(VerificationBean.ERROR_CODE_INVALID_USER + " " + e.getMessage());
-            bean.setVerified(false);
+            bean = handleError(VerificationBean.ERROR_CODE_INVALID_USER + " invalid user : "
+                    + username, e);
             return bean;
         }
 
@@ -233,9 +224,9 @@ public class UserInformationRecoveryService {
                 log.error(bean.getError());
             }
         } catch (IdentityException e) {
-            log.error("Error verifying confirmation code for user: " + username, e);
-            bean.setError(VerificationBean.ERROR_CODE_INVALID_CODE + " " + e.getMessage());
-            bean.setVerified(false);
+            bean = handleError(VerificationBean.ERROR_CODE_INVALID_CODE
+                    + " Error verifying confirmation code for user : " + username, e);
+            return bean;
         }
 
         return bean;
@@ -288,9 +279,9 @@ public class UserInformationRecoveryService {
             }
 
         } catch (Exception e) {
-            bean = new VerificationBean(VerificationBean.ERROR_CODE_UN_EXPECTED + " Unable to change the password");
-            bean.setVerified(false);
-            log.error("Error while updating credential for user : " + username, e);
+            bean = handleError(VerificationBean.ERROR_CODE_UN_EXPECTED
+                    + " Error while updating credential for user: " + username, e);
+            return bean;
         }
         return bean;
     }
@@ -307,8 +298,8 @@ public class UserInformationRecoveryService {
         try {
             userDTO = Utils.processUserId(username);
         } catch (IdentityException e) {
-            log.error("Error validating user: " + username, e);
-            idsDTO.setError(e.getMessage());
+            idsDTO = handleChallengeIdError(
+                    "Error while getting challenge question ids for user : " + username, e);
             return idsDTO;
         }
 
@@ -323,8 +314,7 @@ public class UserInformationRecoveryService {
                 bean.setVerified(false);
             }
         } catch (IdentityException e1) {
-            log.error("Error when getting user claims for user: " + username, e1);
-            idsDTO.setError(VerificationBean.ERROR_CODE_INVALID_CODE + " " + e1.getMessage());
+            idsDTO = handleChallengeIdError("Error when validating code", e1);
             return idsDTO;
         }
         if (bean.isVerified()) {
@@ -333,16 +323,17 @@ public class UserInformationRecoveryService {
                         userDTO.getUserId(), userDTO.getTenantId());
                 idsDTO.setKey(bean.getKey());
                 if (log.isDebugEnabled()) {
-                    log.debug("User chanllenge question response successful for user: " + username);
+                    log.debug("User challenge question response successful for user: " + username);
                 }
             } catch (Exception e) {
-                log.error("Error when getting user claims for user: " + username, e);
-                idsDTO.setError(VerificationBean.ERROR_CODE_UN_EXPECTED + " " + e.getMessage());
-                idsDTO.setKey("");
+                idsDTO = handleChallengeIdError(
+                        "Error when getting user challenge questions for user : " + username, e);
+                return idsDTO;
             }
         } else {
-            log.error("Verfication failed for user. Error : " + bean.getError());
-            idsDTO.setError(VerificationBean.ERROR_CODE_UN_EXPECTED + " " + bean.getError());
+            String msg = "Verification failed for user. Error : " + bean.getError();
+            log.error(msg);
+            idsDTO.setError(VerificationBean.ERROR_CODE_UN_EXPECTED + " " + msg);
             idsDTO.setKey("");
         }
 
@@ -373,8 +364,7 @@ public class UserInformationRecoveryService {
         try {
             userDTO = Utils.processUserId(userName);
         } catch (IdentityException e) {
-            log.error("Error validating user: " + userName, e);
-            userChallengesDTO.setError(e.getMessage());
+            userChallengesDTO = handleChallengesError("Error validating user : " + userName, e);
             return userChallengesDTO;
         }
 
@@ -389,8 +379,8 @@ public class UserInformationRecoveryService {
                 bean.setVerified(false);
             }
         } catch (IdentityException e1) {
-            log.error("Error verifying confirmation code", e1);
-            userChallengesDTO.setError(VerificationBean.ERROR_CODE_INVALID_CODE + " " + e1.getMessage());
+            userChallengesDTO = handleChallengesError("Invalid confirmation code for user : "
+                    + userName, e1);
             return userChallengesDTO;
         }
 
@@ -400,11 +390,11 @@ public class UserInformationRecoveryService {
             userChallengesDTO.setKey(bean.getKey());
             userChallengesDTO.setVerfied(true);
             if (log.isDebugEnabled()) {
-                log.debug("User chanllenge question retrieved successfully");
+                log.debug("User challenge question retrieved successfully");
             }
         } else {
             if (log.isDebugEnabled()) {
-                log.debug("Verificaton failed for user. Error : " + bean.getError());
+                log.debug("Verification failed for user. Error : " + bean.getError());
             }
             userChallengesDTO.setError(VerificationBean.ERROR_CODE_INVALID_USER + " " + bean.getError());
         }
@@ -449,9 +439,8 @@ public class UserInformationRecoveryService {
         try {
             userDTO = Utils.processUserId(userName);
         } catch (IdentityException e) {
-            log.error("Error verifying user: " + userName, e);
-            bean.setError(VerificationBean.ERROR_CODE_INVALID_USER + " " + e.getMessage());
-            bean.setVerified(false);
+            bean = handleError(VerificationBean.ERROR_CODE_INVALID_USER + " Error verifying user: "
+                    + userName, e);
             return bean;
         }
 
@@ -465,9 +454,8 @@ public class UserInformationRecoveryService {
                 bean.setVerified(false);
             }
         } catch (IdentityException e1) {
-            log.error("Error verifying confirmation code", e1);
-            bean.setError(VerificationBean.ERROR_CODE_INVALID_CODE + " " + e1.getMessage());
-            bean.setVerified(false);
+            bean = handleError(VerificationBean.ERROR_CODE_INVALID_CODE
+                    + " Error verifying confirmation code for user : " + userName, e1);
             return bean;
         }
 
@@ -537,6 +525,7 @@ public class UserInformationRecoveryService {
         claims = claimManager.getAllSupportedClaims(dialect, realm);
 
         if (claims == null || claims.length == 0) {
+            log.warn("Could not find any matching claims for requested dialect : " + dialect);
             return new UserIdentityClaimDTO[0];
         }
 
@@ -579,9 +568,8 @@ public class UserInformationRecoveryService {
             try {
                 CaptchaUtil.processCaptchaInfoBean(captcha);
             } catch (Exception e) {
-                log.error("Error processing captcha", e);
-                vBean.setError(VerificationBean.ERROR_CODE_INVALID_CAPTCHA + " " + e.getMessage());
-                vBean.setVerified(false);
+                vBean = handleError(VerificationBean.ERROR_CODE_INVALID_CAPTCHA
+                        + " Error processing captcha", e);
                 return vBean;
             }
         }
@@ -623,9 +611,8 @@ public class UserInformationRecoveryService {
                 vBean.setVerified(false);
             }
         } catch (Exception e) {
-            log.error("Error verifying user account", e);
-            vBean.setError(e.getMessage());
-            vBean.setVerified(false);
+            vBean = handleError(VerificationBean.ERROR_CODE_INVALID_USER
+                    + " Error verifying user account", e);
             return vBean;
         }
 
@@ -676,9 +663,9 @@ public class UserInformationRecoveryService {
             }
 
         } catch (Exception e) {
-            String msg = "Error retrieving the user store manager for the tenant";
-            vBean.setVerified(false);
-            throw new IdentityMgtServiceException(msg, e);
+            vBean = handleError(VerificationBean.ERROR_CODE_UN_EXPECTED
+                    + " Error retrieving the user store manager for the tenant", e);
+            return vBean;
         }
 
         try {
@@ -706,12 +693,14 @@ public class UserInformationRecoveryService {
                 }
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
                 userStoreManager.deleteUser(userName);
-                throw new IdentityMgtServiceException("Error occurred while adding user : "
-                        + userName, e);
+                vBean = handleError(VerificationBean.ERROR_CODE_UN_EXPECTED
+                        + " Error occurred while adding user : " + userName, e);
+                return vBean;
             }
         } catch (UserStoreException e) {
-            throw new IdentityMgtServiceException("Error occurred while adding user : " + userName,
-                    e);
+            vBean = handleError(VerificationBean.ERROR_CODE_UN_EXPECTED
+                    + " Error occurred while adding user : " + userName, e);
+            return vBean;
         }
 
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
@@ -738,9 +727,9 @@ public class UserInformationRecoveryService {
                 }
 
             } catch (IdentityException e) {
-                vBean.setVerified(false);
-                vBean.setError("Failed to complete notification sending");
-                vBean.setKey("");
+                vBean = handleError(VerificationBean.ERROR_CODE_UN_EXPECTED
+                        + " Error occurred while registering user : " + userName, e);
+                return vBean;
             }
 
         } else {
@@ -772,11 +761,8 @@ public class UserInformationRecoveryService {
             try {
                 CaptchaUtil.processCaptchaInfoBean(captcha);
             } catch (Exception e) {
-                if (log.isDebugEnabled()) {
-                    log.debug(e.getMessage());
-                }
-                bean.setError(VerificationBean.ERROR_CODE_INVALID_CAPTCHA);
-                bean.setVerified(false);
+                bean = handleError(VerificationBean.ERROR_CODE_INVALID_CAPTCHA
+                        + " Error while validating captcha for user : " + username, e);
                 return bean;
             }
         }
@@ -784,8 +770,8 @@ public class UserInformationRecoveryService {
         String loggedInTenant = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         if (tenantDomain != null && !tenantDomain.isEmpty() && !loggedInTenant.equals(tenantDomain)) {
             String msg = "Trying to confirm users in unauthorized tenant space";
-            log.error(msg);
-            throw new IdentityMgtServiceException(msg);
+            bean = handleError(msg, new IdentityMgtServiceException(msg));
+            return bean;
         }
         if (tenantDomain == null || tenantDomain.isEmpty()) {
             tenantDomain = loggedInTenant;
@@ -795,11 +781,8 @@ public class UserInformationRecoveryService {
             Utils.processUserId(username + "@" + tenantDomain);
 
         } catch (IdentityException e) {
-            if (log.isDebugEnabled()) {
-                log.debug(e.getMessage());
-            }
-            bean.setError(VerificationBean.ERROR_CODE_INVALID_USER);
-            bean.setVerified(false);
+            bean = handleError(VerificationBean.ERROR_CODE_INVALID_USER
+                    + " Error verifying user account for user : " + username, e);
             return bean;
         }
 
@@ -816,16 +799,12 @@ public class UserInformationRecoveryService {
             if (realmService.getTenantUserRealm(tenantId) != null) {
                 userStoreManager = (org.wso2.carbon.user.core.UserStoreManager) realmService
                         .getTenantUserRealm(tenantId).getUserStoreManager();
-
-                if (username != null && username.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
-                    userStoreManager = userStoreManager.getSecondaryUserStoreManager(Utils.getUserStoreDomainName(username));
-                }
             }
 
         } catch (Exception e) {
-            String msg = "Error retrieving the user store manager for the tenant";
-            bean.setVerified(false);
-            throw new IdentityMgtServiceException(msg, e);
+            bean = handleError("Error retrieving the user store manager for the tenant : "
+                    + tenantDomain, e);
+            return bean;
         }
 
         try {
@@ -840,11 +819,54 @@ public class UserInformationRecoveryService {
                 log.error("User verification failed against the given confirmation code");
             }
         } catch (IdentityException e) {
-            bean.setError("Error while validating confirmation code");
-            if (log.isDebugEnabled()) {
-                log.debug(e.getMessage());
-            }
-            throw new IdentityMgtServiceException("Error while validating given confirmation code");
+            bean = handleError("Error while validating confirmation code for user : " + username, e);
+            return bean;
+        }
+
+        return bean;
+    }
+    
+    private VerificationBean handleError(String error, Exception e) {
+
+        VerificationBean bean = new VerificationBean();
+        bean.setVerified(false);
+
+        if (error != null) {
+            bean.setError(error);
+            log.error(error, e);
+        } else {
+            bean.setError(e.getMessage());
+            log.error(e);
+        }
+
+        return bean;
+    }
+
+    private UserChallengesDTO handleChallengesError(String error, Exception e) {
+
+        UserChallengesDTO bean = new UserChallengesDTO();
+
+        if (error != null) {
+            bean.setError(error);
+            log.error(error, e);
+        } else {
+            bean.setError(e.getMessage());
+            log.error(e);
+        }
+
+        return bean;
+    }
+
+    private ChallengeQuestionIdsDTO handleChallengeIdError(String error, Exception e) {
+
+        ChallengeQuestionIdsDTO bean = new ChallengeQuestionIdsDTO();
+
+        if (error != null) {
+            bean.setError(error);
+            log.error(error, e);
+        } else {
+            bean.setError(e.getMessage());
+            log.error(e);
         }
 
         return bean;
