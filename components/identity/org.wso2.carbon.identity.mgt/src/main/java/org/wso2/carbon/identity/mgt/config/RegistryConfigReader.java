@@ -19,6 +19,7 @@ package org.wso2.carbon.identity.mgt.config;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.mgt.IdentityMgtConfigException;
 import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -35,7 +36,7 @@ public class RegistryConfigReader implements ConfigReader {
     private static Log log = LogFactory.getLog(RegistryConfigReader.class);
     
     @Override
-    public Properties read(int tenantId, String resourcePath) {
+    public Properties read(int tenantId, String resourcePath) throws IdentityMgtConfigException{
 
         Resource resource = null;
         Properties readerProps = null;
@@ -45,6 +46,10 @@ public class RegistryConfigReader implements ConfigReader {
         try {
             UserRegistry userReg = registry.getConfigSystemRegistry(tenantId);
             resource = userReg.get(resourcePath);
+            
+            if(log.isDebugEnabled()) {
+                log.debug("Reading data from registry path : " + resourcePath);
+            }
 
             Properties props = resource.getProperties();
             readerProps = new Properties();
@@ -53,14 +58,19 @@ public class RegistryConfigReader implements ConfigReader {
                 String key = (String) entry.getKey();
                 List<String> listValue = (List<String>) entry.getValue();
                 String value = listValue.get(0);
+                if(log.isDebugEnabled()) {
+                    log.debug("Read key : " + key + " value : " + value);
+                }
                 readerProps.put(key, value);
             }
 
         } catch (ResourceNotFoundException re) {
+            // Ignore the registry resource exception.
             readerProps = new Properties();
 
         } catch (RegistryException rnfe) {
-            log.error("Error occurred while reading registry data", rnfe);
+            throw new IdentityMgtConfigException(
+                    "Error occurred while reading registry data from path : " + resourcePath, rnfe);
         }
 
         return readerProps;

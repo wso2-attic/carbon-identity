@@ -17,6 +17,9 @@
  */
 package org.wso2.carbon.identity.mgt.config;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.mgt.IdentityMgtConfigException;
 import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -30,28 +33,39 @@ import java.util.Set;
 
 public class RegistryConfigWriter implements ConfigWriter {
 
+    private static final Log log = LogFactory.getLog(RegistryConfigWriter.class);
+            
     @Override
-    public void write(int tenantId, Properties props, String resourcePath) {
+    public void write(int tenantId, Properties props, String resourcePath)
+            throws IdentityMgtConfigException {
 
+        if(log.isDebugEnabled()) {
+            log.debug("Writing data to registry path : " + resourcePath);
+        }
+        
         RegistryService registry = IdentityMgtServiceComponent.getRegistryService();
-
         try {
-
             UserRegistry userReg = registry.getConfigSystemRegistry(tenantId);
             Resource resource = userReg.newResource();
             Set<String> names = props.stringPropertyNames();
-//			Only key value pairs exists and no multiple values exists a key.
+            // Only key value pairs exists and no multiple values exists a key.
             for (String keyName : names) {
                 List<String> value = new ArrayList<String>();
-//				This is done due to casting to List in JDBCRegistryDao
-                value.add(props.getProperty(keyName));
+                String valueStr = props.getProperty(keyName);
+                
+                if(log.isDebugEnabled()) {
+                    log.debug("Write key : " + keyName + " value : " + value);
+                }
+                
+                // This is done due to casting to List in JDBCRegistryDao
+                value.add(valueStr);
                 resource.setProperty(keyName, value);
             }
             userReg.put(resourcePath, resource);
 
         } catch (RegistryException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new IdentityMgtConfigException(
+                    "Error occurred while writing data to registry path : " + resourcePath, e);
         }
 
     }

@@ -17,6 +17,8 @@
  */
 package org.wso2.carbon.identity.mgt.config;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.dto.EmailTemplateDTO;
@@ -32,10 +34,16 @@ import java.util.Set;
  */
 public class EmailConfigTransformer {
 
+    private static final Log log = LogFactory.getLog(EmailConfigTransformer.class);
+    
     public static EmailTemplateDTO[] transform(Properties props) throws IdentityException {
 
         List<EmailTemplateDTO> emailTemplates = new ArrayList<EmailTemplateDTO>();
 
+        if (log.isDebugEnabled()) {
+            log.debug("Transforming Properties to EmailTemplateDTO[]");
+        }
+        
         Set<String> keySet = props.stringPropertyNames();
         for (String key : keySet) {
 
@@ -65,13 +73,18 @@ public class EmailConfigTransformer {
             String[] contents = props.getProperty(key).split("\\|");
 
             if (contents.length > 3) {
-                throw new IdentityException("Cannot have | charater in the template");
+                throw new IdentityException("Cannot have | character in the template");
             }
 
             String subject = contents[0];
             String body = contents[1];
             String footer = contents[2];
 
+            if (log.isDebugEnabled()) {
+                log.debug("Template info - name:" + key + " subject:" + subject + " " + "body:"
+                        + body + " footer:" + footer);
+            }
+            
             template.setSubject(subject);
             template.setBody(body);
             template.setFooter(footer);
@@ -84,11 +97,22 @@ public class EmailConfigTransformer {
 
     public static Properties transform(EmailTemplateDTO[] templates) throws IdentityException {
 
+        if (log.isDebugEnabled()) {
+            log.debug("Transforming EmailTemplateDTO[] to Properties");
+        }
+
         Properties props = new Properties();
 
         for (EmailTemplateDTO template : templates) {
             StringBuilder contents = new StringBuilder();
-            contents.append(template.getSubject()).append("|").append(template.getBody()).append("|").append(template.getFooter());
+
+            if (log.isDebugEnabled()) {
+                log.debug("Properties info - subject:" + template.getSubject() + " " + "body:"
+                        + template.getBody() + " footer:" + template.getFooter());
+            }
+
+            contents.append(template.getSubject()).append("|").append(template.getBody())
+                    .append("|").append(template.getFooter());
 
             props.setProperty(template.getName(), contents.toString());
         }

@@ -17,6 +17,8 @@
  */
 package org.wso2.carbon.identity.mgt.config;
 
+import org.wso2.carbon.identity.mgt.IdentityMgtConfigException;
+
 /**
  * This is used to manage the tenant specific server configurations.
  */
@@ -28,15 +30,16 @@ public interface ConfigManager {
      * @param tenantId - tenant Id which the configuration belongs.
      * @return the populated configuration object.
      */
-    Config loadConfig(int tenantId);
+    Config loadConfig(int tenantId) throws IdentityMgtConfigException;
 
     /**
      * This saves the given configuration in specific tenant space.
      *
      * @param config   - Configuration that needs to be saved.
      * @param tenantId - The tenant Id of the tenant that this configuration needs to be saved.
+     * @throws IdentityMgtConfigException 
      */
-    void saveConfig(Config config, int tenantId);
+    void saveConfig(Config config, int tenantId) throws IdentityMgtConfigException;
 
     /**
      * This is used to set the specific configuration reader impl.

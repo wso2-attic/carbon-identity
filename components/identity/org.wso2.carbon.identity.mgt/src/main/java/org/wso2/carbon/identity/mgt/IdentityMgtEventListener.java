@@ -440,7 +440,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             }
 
         } catch (PolicyViolationException pe) {
-            throw new UserStoreException(pe);
+            throw new UserStoreException(pe.getMessage(), pe);
         }
 
 
@@ -661,7 +661,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             }
 
         } catch (PolicyViolationException pe) {
-            throw new UserStoreException(pe);
+            throw new UserStoreException(pe.getMessage(), pe);
         }
 
         return true;
@@ -693,7 +693,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             }
 
         } catch (PolicyViolationException pe) {
-            throw new UserStoreException(pe);
+            throw new UserStoreException(pe.getMessage(), pe);
         }
 
         if (newCredential == null
@@ -808,7 +808,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             identityDataStore.store(identityDTO, userStoreManager);
         } catch (IdentityException e) {
             throw new UserStoreException(
-                    "Error while saving user store data for user: " + userName, e);
+                    "Error while saving user store data for user : " + userName, e);
         }
         return true;
 	}
