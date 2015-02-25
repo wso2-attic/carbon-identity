@@ -85,6 +85,7 @@ public class OAuthServerConfiguration {
     private String accessTokenPartitioningDomains = null;
     private TokenPersistenceProcessor persistenceProcessor = null;
     private Set<OAuthCallbackHandlerMetaData> callbackHandlerMetaData = new HashSet<OAuthCallbackHandlerMetaData>();
+    private Set<OAuthClientAuthHandlerMetaData> clientAuthHandlerMetaData = new HashSet<OAuthClientAuthHandlerMetaData>();
     private Map<String, String> supportedGrantTypeClassNames = new Hashtable<String, String>();
     private Map<String, AuthorizationGrantHandler> supportedGrantTypes;
     private Map<String, String> supportedGrantTypeValidatorNames = new Hashtable<String, String>();
@@ -177,7 +178,7 @@ public class OAuthServerConfiguration {
             parseSupportedResponseTypesConfig(oauthElem);
 
             // read supported response types
-            parseSupportedClientAuthHandlersConfig(oauthElem);
+            parseSupportedClientAuthHandlersConfig(oauthElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.CLIENT_AUTH_HANDLERS)));
 
             // read SAML2 grant config
             parseSAML2GrantConfig(oauthElem);
@@ -205,6 +206,10 @@ public class OAuthServerConfiguration {
 
     public Set<OAuthCallbackHandlerMetaData> getCallbackHandlerMetaData() {
         return callbackHandlerMetaData;
+    }
+
+    public Set<OAuthClientAuthHandlerMetaData> getClientAuthHandlerMetaData() {
+        return clientAuthHandlerMetaData;
     }
 
     public long getAuthorizationCodeValidityPeriodInSeconds() {
@@ -697,6 +702,30 @@ public class OAuthServerConfiguration {
         return new OAuthCallbackHandlerMetaData(className, properties, priority);
     }
 
+    private OAuthClientAuthHandlerMetaData buildClientAuthHandlerMetaData(OMElement omElement){
+        // read the class attribute which is mandatory
+        String className = omElement.getAttributeValue(new QName(ConfigElements.CLIENT_AUTH_CLASS));
+
+        if (className == null) {
+            log.error("Mandatory attribute \"Class\" is not present in the "
+                    + "ClientAuthHandler element. ");
+            return null;
+        }
+
+
+        boolean isCredentialValidationEnabled = true;
+        OMElement strictClientAuthElem = omElement.getFirstChildWithName(
+                getQNameWithIdentityNS(ConfigElements.STRICT_CLIENT_AUTHENTICATION));
+        if (strictClientAuthElem != null){
+            String enableClientAuthentication = strictClientAuthElem.getText().trim();
+            if (enableClientAuthentication != null &&
+                    JavaUtils.isFalseExplicitly(enableClientAuthentication)) {
+                isCredentialValidationEnabled = false;
+            }
+        }
+        return new OAuthClientAuthHandlerMetaData(className, isCredentialValidationEnabled);
+    }
+
     private void parseDefaultValidityPeriods(OMElement oauthConfigElem) {
 
         // set the authorization code default timeout
@@ -957,19 +986,29 @@ public class OAuthServerConfiguration {
         }
     }
 
-    private void parseSupportedClientAuthHandlersConfig(OMElement oauthConfigElem) {
-        OMElement supportedClientAuthHandlersElem =
-                oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.CLIENT_AUTH_HANDLERS));
+    private void parseSupportedClientAuthHandlersConfig(OMElement clientAuthElement) {
 
-        if (supportedClientAuthHandlersElem != null) {
-            Iterator<OMElement> iterator = supportedClientAuthHandlersElem.getChildrenWithName(getQNameWithIdentityNS(ConfigElements.CLIENT_AUTH_HANDLER_IMPL_CLASS));
+        if (clientAuthElement != null) {
+            Iterator<OMElement> iterator = clientAuthElement.getChildrenWithLocalName(ConfigElements.CLIENT_AUTH_HANDLER_IMPL_CLASS);
             while (iterator.hasNext()) {
                 OMElement supportedClientAuthHandler = iterator.next();
-                String clientAuthHandlerImplClass = supportedClientAuthHandler.getText();
+                String clientAuthHandlerImplClass = supportedClientAuthHandler.getAttributeValue(
+                        new QName(ConfigElements.CLIENT_AUTH_CLASS));
                 if (clientAuthHandlerImplClass != null && !clientAuthHandlerImplClass.equals("")) {
                     supportedClientAuthHandlerClassNames.add(clientAuthHandlerImplClass);
                 }
+                OAuthClientAuthHandlerMetaData caHandlerMetaData =
+                        buildClientAuthHandlerMetaData(supportedClientAuthHandler);
+                if (caHandlerMetaData != null) {
+                    clientAuthHandlerMetaData.add(caHandlerMetaData);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Added OAuthClientAuthHandlerMetaData for Class : " +
+                                caHandlerMetaData.getClassName());
+                    }
+                }
+
             }
+
         } else {
             // if this element is not present, assume the default case.
             log.warn("\'SupportedClientAuthMethods\' element not configured in identity.xml. " +
@@ -1196,7 +1235,9 @@ public class OAuthServerConfiguration {
         private static final String GRANT_TYPE_VALIDATOR_IMPL_CLASS = "GrantTypeValidatorImplClass";
         // Supported Client Authentication Methods
         private static final String CLIENT_AUTH_HANDLERS = "ClientAuthHandlers";
-        private static final String CLIENT_AUTH_HANDLER_IMPL_CLASS = "ClientAuthHandlerImplClass";
+        private static final String CLIENT_AUTH_HANDLER_IMPL_CLASS = "ClientAuthHandler";
+        private static final String STRICT_CLIENT_AUTHENTICATION = "StrictClientCredentialValidation";
+        private static final String CLIENT_AUTH_CLASS = "Class";
         // Supported Response Types
         private static final String SUPPORTED_RESP_TYPES = "SupportedResponseTypes";
         private static final String SUPPORTED_RESP_TYPE = "SupportedResponseType";
