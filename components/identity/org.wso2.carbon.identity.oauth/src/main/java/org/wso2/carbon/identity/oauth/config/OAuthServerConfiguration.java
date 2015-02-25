@@ -148,13 +148,16 @@ public class OAuthServerConfiguration {
             }
 
             // read callback handler configurations
-            parseOAuthCallbackHandlers(oauthElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.OAUTH_CALLBACK_HANDLERS)));
+            parseOAuthCallbackHandlers(oauthElem.getFirstChildWithName(
+                    getQNameWithIdentityNS(ConfigElements.OAUTH_CALLBACK_HANDLERS)));
 
             // get the token validators by type
-            parseTokenValidators(oauthElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.TOKEN_VALIDATORS)));
+            parseTokenValidators(oauthElem.getFirstChildWithName(
+                    getQNameWithIdentityNS(ConfigElements.TOKEN_VALIDATORS)));
 
             // Get the configured scope validator
-            OMElement scopeValidatorElem = oauthElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.SCOPE_VALIDATOR));
+            OMElement scopeValidatorElem = oauthElem.getFirstChildWithName(
+                    getQNameWithIdentityNS(ConfigElements.SCOPE_VALIDATOR));
             if (scopeValidatorElem != null) {
                 parseScopeValidator(scopeValidatorElem);
             }
@@ -178,7 +181,8 @@ public class OAuthServerConfiguration {
             parseSupportedResponseTypesConfig(oauthElem);
 
             // read supported response types
-            parseSupportedClientAuthHandlersConfig(oauthElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.CLIENT_AUTH_HANDLERS)));
+            parseSupportedClientAuthHandlersConfig(oauthElem.getFirstChildWithName(
+                    getQNameWithIdentityNS(ConfigElements.CLIENT_AUTH_HANDLERS)));
 
             // read SAML2 grant config
             parseSAML2GrantConfig(oauthElem);
@@ -987,12 +991,13 @@ public class OAuthServerConfiguration {
     private void parseSupportedClientAuthHandlersConfig(OMElement clientAuthElement) {
 
         if (clientAuthElement != null) {
-            Iterator<OMElement> iterator = clientAuthElement.getChildrenWithLocalName(ConfigElements.CLIENT_AUTH_HANDLER_IMPL_CLASS);
+            Iterator<OMElement> iterator = clientAuthElement.getChildrenWithLocalName(
+                    ConfigElements.CLIENT_AUTH_HANDLER_IMPL_CLASS);
             while (iterator.hasNext()) {
                 OMElement supportedClientAuthHandler = iterator.next();
                 String clientAuthHandlerImplClass = supportedClientAuthHandler.getAttributeValue(
                         new QName(ConfigElements.CLIENT_AUTH_CLASS));
-                if (clientAuthHandlerImplClass != null && !clientAuthHandlerImplClass.equals("")) {
+                if (StringUtils.isNotEmpty(clientAuthHandlerImplClass)) {
                     supportedClientAuthHandlerClassNames.add(clientAuthHandlerImplClass);
                 }
                 OAuthClientAuthHandlerMetaData caHandlerMetaData =
