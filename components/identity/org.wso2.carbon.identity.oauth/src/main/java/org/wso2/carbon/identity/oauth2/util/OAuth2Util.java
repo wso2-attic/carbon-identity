@@ -383,14 +383,30 @@ public class OAuth2Util {
         long validityPeriodMillis = accessTokenDO.getValidityPeriodInMillis();
         long issuedTime = accessTokenDO.getIssuedTime().getTime();
         currentTime = System.currentTimeMillis();
-        if ((issuedTime + validityPeriodMillis) - (currentTime + timestampSkew) > 1000) {
-            long refreshValidity = OAuthServerConfiguration.getInstance()
-                    .getRefreshTokenValidityPeriodInSeconds() * 1000;
-            if (issuedTime + refreshValidity - (currentTime + timestampSkew) > 1000) {
-                return (issuedTime + validityPeriodMillis) - (currentTime + timestampSkew);
-            }
+        long accessTokenValidity = issuedTime + validityPeriodMillis - (currentTime + timestampSkew);
+        long refreshTokenValidity = (issuedTime + OAuthServerConfiguration.getInstance().
+                getRefreshTokenValidityPeriodInSeconds() * 1000) - (currentTime + timestampSkew);
+        if(accessTokenValidity > 1000 && refreshTokenValidity > 1000){
+            return accessTokenValidity;
         }
-        return -1;
+        return 0;
+    }
+
+    public static long getAccessTokenExpireMillis(AccessTokenDO accessTokenDO) {
+
+        if(accessTokenDO == null){
+            throw new IllegalArgumentException("accessTokenDO is " + "\'NULL\'");
+        }
+        long currentTime;
+        long validityPeriodMillis = accessTokenDO.getValidityPeriodInMillis();
+        long issuedTime = accessTokenDO.getIssuedTime().getTime();
+        currentTime = System.currentTimeMillis();
+        long validityMillis = issuedTime + validityPeriodMillis - (currentTime + timestampSkew);
+        if (validityMillis > 1000) {
+            return validityMillis;
+        } else {
+            return 0;
+        }
     }
 
     public static int getTenantId(String tenantDomain) throws IdentityOAuth2Exception {

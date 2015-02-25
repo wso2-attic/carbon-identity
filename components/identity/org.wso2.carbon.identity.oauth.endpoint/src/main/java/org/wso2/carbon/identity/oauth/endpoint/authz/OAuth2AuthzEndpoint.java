@@ -359,7 +359,7 @@ public class OAuth2AuthzEndpoint {
             } else if (ResponseType.TOKEN.toString().equals(oauth2Params.getResponseType())) {
                 builder.setAccessToken(authzRespDTO.getAccessToken());
                 builder.setParam(OAuth.OAUTH_TOKEN_TYPE, authzRespDTO.getTokenType());
-                builder.setExpiresIn(String.valueOf(60 * 60));
+                builder.setExpiresIn(String.valueOf(authzRespDTO.getValidityPeriod()));
             }
             builder.setParam("state", oauth2Params.getState());
             String redirectURL = authzRespDTO.getCallbackURI();
