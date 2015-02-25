@@ -104,7 +104,7 @@ public class FrameworkServiceComponent {
 
 					@Override
 					public ApplicationAuthenticator addingService(
-							ServiceReference<ApplicationAuthenticator> serviceReference) {
+                            ServiceReference<ApplicationAuthenticator> serviceReference) {
 						ApplicationAuthenticator authenticator = serviceReference
 								.getBundle().getBundleContext()
 								.getService(serviceReference);
