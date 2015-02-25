@@ -1841,12 +1841,12 @@
     <properties>
 
         <!-- Carbon kernel version -->
-        <carbon.kernel.version>4.3.0</carbon.kernel.version>
+        <carbon.kernel.version>4.4.0-SNAPSHOT</carbon.kernel.version>
         <carbon.kernel.package.import.version.range>[4.3.0, 4.4.0)</carbon.kernel.package.import.version.range>
 	<carbon.kernel.registry.imp.pkg.version>[1.0.1, 2.0.0)</carbon.kernel.registry.imp.pkg.version>
 
         <!--Carbon commons version-->
-        <carbon.commons.version>4.3.4</carbon.commons.version>
+        <carbon.commons.version>4.3.6-SNAPSHOT</carbon.commons.version>
         <carbon.commons.imp.pkg.version>[4.3.0, 4.4.0)</carbon.commons.imp.pkg.version>
 
         <!--Carbon identity version-->
@@ -1889,7 +1889,7 @@
         <derby.version>10.4.2.0</derby.version>
         <activation.version>1.1</activation.version>
         <javamail.version>1.4</javamail.version>
-        <wss4j.version>1.5.11.wso2v9</wss4j.version>
+        <wss4j.version>1.5.11.wso2v10-SNAPSHOT</wss4j.version>
         <imp.pkg.version.wss4j>[1.5.11.wso2v8,2)</imp.pkg.version.wss4j>
         <wsdl4j.wso2.version>1.6.2.wso2v4</wsdl4j.wso2.version>
         <jetty.version>6.1.5</jetty.version>
@@ -1904,7 +1904,7 @@
         <juddi.wso2.version>3.0.3.wso2v2</juddi.wso2.version>
         <junit.version>4.11</junit.version>
         <version.javax.servlet>3.0.0.v201112011016</version.javax.servlet>
-        <amber.version>0.22.1358727.wso2v7</amber.version>
+        <amber.version>0.22.1358727.wso2v8-SNAPSHOT</amber.version>
 
         <!-- Orbits -->
         <orbit.version.xmlschema>1.4.7.wso2v3</orbit.version.xmlschema>
@@ -1927,11 +1927,11 @@
         <orbit.version.maven-scm>1.7.0.wso2v1</orbit.version.maven-scm>
 
         <!-- Rampart -->
-        <rampart.version>1.6.1-wso2v14</rampart.version>
-        <rampart.wso2.version>1.6.1.wso2v14</rampart.wso2.version>
-        <rampart.mar.version>1.6.1-wso2v14</rampart.mar.version>
-        <rampart.osgi.version>1.6.1.wso2v14</rampart.osgi.version>
-        <orbit.version.rampart>1.6.1.wso2v14</orbit.version.rampart>
+        <rampart.version>1.6.1-wso2v15-SNAPSHOT</rampart.version>
+        <rampart.wso2.version>1.6.1.wso2v15-SNAPSHOT</rampart.wso2.version>
+        <rampart.mar.version>1.6.1.wso2v15-SNAPSHOT</rampart.mar.version>
+        <rampart.osgi.version>1.6.1.wso2v15-SNAPSHOT</rampart.osgi.version>
+        <orbit.version.rampart>1.6.1.wso2v15-SNAPSHOT</orbit.version.rampart>
 
         <!-- Equinox -->
         <version.equinox.osgi.services>3.3.100.v20120522-1822</version.equinox.osgi.services>
@@ -1965,11 +1965,11 @@
 
         <google.step2.wso2.version>1.0.wso2v2</google.step2.wso2.version>
         <google.guice.wso2.version>3.0.wso2v1</google.guice.wso2.version>
-        <charon.wso2.version.identity>2.0.0-wso2v2</charon.wso2.version.identity>
+        <charon.wso2.version.identity>2.0.0-wso2v3-SNAPSHOT</charon.wso2.version.identity>
         <openid4java.wso2.version>0.9.6.wso2v1</openid4java.wso2.version>
         <opensaml2.version>2.4.1.wso2v1</opensaml2.version>
         <opensaml.wso2.version>1.1.0.wso2v1</opensaml.wso2.version>
-        <balana.version>1.0.0.wso2v8</balana.version>
+        <balana.version>1.0.0.wso2v9-SNAPSHOT</balana.version>
         <gdata-core.wso2.version>1.47.0.wso2v1</gdata-core.wso2.version>
         <smack.wso2.version>3.0.4.wso2v1</smack.wso2.version>
         <smackx.wso2.version>3.0.4.wso2v1</smackx.wso2.version>
