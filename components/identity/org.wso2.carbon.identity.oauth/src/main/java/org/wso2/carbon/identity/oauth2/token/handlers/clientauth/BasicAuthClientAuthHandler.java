@@ -44,13 +44,13 @@ public class BasicAuthClientAuthHandler extends AbstractClientAuthHandler {
 
         boolean isAuthenticated = super.authenticateClient(tokReqMsgCtx);
 
-        if (!isAuthenticated){
+        if (!isAuthenticated) {
             try {
                 return OAuth2Util.authenticateClient(
                         oAuth2AccessTokenReqDTO.getClientId(),
                         oAuth2AccessTokenReqDTO.getClientSecret());
             } catch (IdentityOAuthAdminException e) {
-                throw new IdentityOAuth2Exception(e.getMessage(), e);
+                throw new IdentityOAuth2Exception("Error while authenticating client", e);
             }
         } else {
             return true;
