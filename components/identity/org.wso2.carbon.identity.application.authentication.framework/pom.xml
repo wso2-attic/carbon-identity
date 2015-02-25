@@ -25,6 +25,10 @@ limitations under the License.
 	<packaging>bundle</packaging>
     <name>WSO2 Carbon - Identity Application Authentication Framework</name>
 	<dependencies>
+		<dependency>
+                <groupId>org.eclipse.osgi</groupId>
+                <artifactId>org.eclipse.osgi</artifactId>
+            </dependency>
         <dependency>
 			<groupId>org.wso2.carbon</groupId>
 			<artifactId>org.wso2.carbon.utils</artifactId>
