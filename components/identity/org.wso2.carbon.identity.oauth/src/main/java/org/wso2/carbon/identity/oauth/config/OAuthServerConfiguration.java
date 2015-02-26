@@ -73,7 +73,7 @@ public class OAuthServerConfiguration {
     private static Log log = LogFactory.getLog(OAuthServerConfiguration.class);
     private static OAuthServerConfiguration instance;
     private long authorizationCodeValidityPeriodInSeconds = 300;
-    private long accessTokenValidityPeriodInSeconds = 3600;
+    private long userAccessTokenValidityPeriodInSeconds = 3600;
     private long applicationAccessTokenValidityPeriodInSeconds = 3600;
     private long refreshTokenValidityPeriodInSeconds = 24 * 3600;
     private long timeStampSkewInSeconds = 300;
@@ -212,7 +212,7 @@ public class OAuthServerConfiguration {
     }
 
     public long getUserAccessTokenValidityPeriodInSeconds() {
-        return accessTokenValidityPeriodInSeconds;
+        return userAccessTokenValidityPeriodInSeconds;
     }
 
     public long getApplicationAccessTokenValidityPeriodInSeconds() {
@@ -708,10 +708,10 @@ public class OAuthServerConfiguration {
         }
 
         // set the access token default timeout
-        OMElement accessTokTimeoutElem =
-                oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.USER_ACCESS_TOKEN_DEFAULT_VALIDITY_PERIOD));
+        OMElement accessTokTimeoutElem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
+                ConfigElements.USER_ACCESS_TOKEN_DEFAULT_VALIDITY_PERIOD));
         if (accessTokTimeoutElem != null) {
-            accessTokenValidityPeriodInSeconds = Long.parseLong(accessTokTimeoutElem.getText());
+            userAccessTokenValidityPeriodInSeconds = Long.parseLong(accessTokTimeoutElem.getText());
         }
 
         // set the application access token default timeout
@@ -751,14 +751,16 @@ public class OAuthServerConfiguration {
                 log.debug("\"Default Timestamp Skew\" element was not available "
                         + "in from identity.xml. Continuing with the default value.");
             }
-            log.debug("Authorization Code Default Timeout is set to : " +
-                    authorizationCodeValidityPeriodInSeconds + "ms.");
-            log.debug("Access Token Default Timeout is set to " + accessTokenValidityPeriodInSeconds +
-                    "ms.");
-            log.debug("Application Access Token Default Timeout is set to " +
-                    accessTokenValidityPeriodInSeconds + "ms.");
-            log.debug("Refresh Token validity period is set to " + refreshTokenValidityPeriodInSeconds + "s.");
-            log.debug("Default TimestampSkew is set to " + timeStampSkewInSeconds + "ms.");
+            if(log.isDebugEnabled()) {
+                log.debug("Authorization Code Default Timeout is set to : " +
+                        authorizationCodeValidityPeriodInSeconds + "ms.");
+                log.debug("User Access Token Default Timeout is set to " + userAccessTokenValidityPeriodInSeconds +
+                        "ms.");
+                log.debug("Application Access Token Default Timeout is set to " +
+                        applicationAccessTokenValidityPeriodInSeconds + "ms.");
+                log.debug("Refresh Token validity period is set to " + refreshTokenValidityPeriodInSeconds + "s.");
+                log.debug("Default TimestampSkew is set to " + timeStampSkewInSeconds + "ms.");
+            }
         }
     }
 
@@ -1178,7 +1180,7 @@ public class OAuthServerConfiguration {
         // Default validity periods
         private static final String AUTHORIZATION_CODE_DEFAULT_VALIDITY_PERIOD = "AuthorizationCodeDefaultValidityPeriod";
         private static final String USER_ACCESS_TOKEN_DEFAULT_VALIDITY_PERIOD = "UserAccessTokenDefaultValidityPeriod";
-        private static final String APPLICATION_ACCESS_TOKEN_VALIDATION_PERIOD = "ApplicationAccessTokenDefaultValidityPeriod";
+        private static final String APPLICATION_ACCESS_TOKEN_VALIDATION_PERIOD = "AccessTokenDefaultValidityPeriod";
         private static final String REFRESH_TOKEN_VALIDITY_PERIOD = "RefreshTokenValidityPeriod";
         // Enable/Disable cache
         private static final String ENABLE_CACHE = "EnableOAuthCache";

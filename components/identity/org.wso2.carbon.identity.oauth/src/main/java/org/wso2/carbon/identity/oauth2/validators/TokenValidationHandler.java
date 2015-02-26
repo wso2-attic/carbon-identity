@@ -24,6 +24,7 @@ import org.wso2.carbon.identity.oauth.cache.CacheEntry;
 import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
+import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.authcontext.AuthorizationContextTokenGenerator;
@@ -32,6 +33,7 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientApplicationDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationRequestDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
+import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 
 import java.util.Hashtable;
 import java.util.Map;
@@ -198,24 +200,20 @@ public class TokenValidationHandler {
         }
 
         // Check whether the grant is expired
-        long issuedTimeInMillis = accessTokenDO.getIssuedTime().getTime();
-        long validityPeriodInMillis = accessTokenDO.getValidityPeriodInMillis();
-        long timestampSkew = OAuthServerConfiguration.getInstance()
-                .getTimeStampSkewInSeconds() * 1000;
-        long currentTimeInMillis = System.currentTimeMillis();
-
-        if ((currentTimeInMillis - timestampSkew) > (issuedTimeInMillis + validityPeriodInMillis)) {
-            log.debug("Access token has expired");
+        if(accessTokenDO.getValidityPeriod() < 0) {
             if (log.isDebugEnabled()) {
-                log.debug("Access Token : " + accessTokenIdentifier + " has expired." +
-                        " Issued Time(ms) : " + issuedTimeInMillis +
-                        ", Validity Period : " + validityPeriodInMillis +
-                        ", Timestamp Skew : " + timestampSkew +
-                        ", Current Time : " + currentTimeInMillis);
+                log.debug("Access Token : " + accessTokenIdentifier + " has infinite lifetime");
             }
-            responseDTO.setValid(false);
-            responseDTO.setErrorMsg("Access token has expired");
-            clientApp.setAccessTokenValidationResponse(responseDTO);
+        } else {
+            if (OAuth2Util.getAccessTokenExpireMillis(accessTokenDO) == 0) {
+                if (log.isDebugEnabled()) {
+                        log.debug("Access Token : " + accessTokenIdentifier + " has expired");
+                    }
+                responseDTO.setValid(false);
+                responseDTO.setErrorMsg("Access token has expired");
+                clientApp.setAccessTokenValidationResponse(responseDTO);
+                return clientApp;
+            }
             return clientApp;
         }
 
@@ -230,8 +228,16 @@ public class TokenValidationHandler {
         }
 
         // Set the token expiry time
-        long expiryTime = (issuedTimeInMillis + validityPeriodInMillis) - (currentTimeInMillis + timestampSkew);
-        responseDTO.setExpiryTime(expiryTime / 1000);
+        long expiryTime = OAuth2Util.getAccessTokenExpireMillis(accessTokenDO);
+        if(OAuthConstants.USER_TYPE_FOR_USER_TOKEN.equals(accessTokenDO.getTokenType()) &&
+                OAuthServerConfiguration.getInstance().getUserAccessTokenValidityPeriodInSeconds() < 0){
+            responseDTO.setExpiryTime(Long.MAX_VALUE / 1000);
+        } else if (OAuthConstants.USER_TYPE_FOR_APPLICATION_TOKEN.equals(accessTokenDO.getTokenType()) &&
+                    OAuthServerConfiguration.getInstance().getApplicationAccessTokenValidityPeriodInSeconds() < 0) {
+            responseDTO.setExpiryTime(Long.MAX_VALUE / 1000);
+        } else if(expiryTime > 0){
+            responseDTO.setExpiryTime(expiryTime / 1000);
+        }
 
         // Adding the AccessTokenDO as a context property for further use
         messageContext.addProperty("AccessTokenDO", accessTokenDO);
@@ -264,14 +270,8 @@ public class TokenValidationHandler {
             return clientApp;
         }
 
-        if (responseDTO.getAuthorizedUser() == null ||
-                responseDTO.getAuthorizedUser().equals("")) {
-            responseDTO.setAuthorizedUser(accessTokenDO.getAuthzUser());
-        }
-        if (responseDTO.getScope() == null ||
-                responseDTO.getScope().equals("")) {
-            responseDTO.setScope(accessTokenDO.getScope());
-        }
+        responseDTO.setAuthorizedUser(accessTokenDO.getAuthzUser());
+        responseDTO.setScope(accessTokenDO.getScope());
         responseDTO.setValid(true);
 
         if (tokenGenerator != null) {

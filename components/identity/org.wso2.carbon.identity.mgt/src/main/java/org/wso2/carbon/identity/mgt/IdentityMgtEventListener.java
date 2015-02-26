@@ -349,11 +349,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                 userIdentityDTO.setFailAttempts();
 
                 if (userIdentityDTO.getFailAttempts() >= config.getAuthPolicyMaxLoginAttempts()) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("User, " + userName + " has exceed the max failed login attempts. " +
+                        log.info("User, " + userName + " has exceed the max failed login attempts. " +
                                 "User account would be locked");
-                    }
-
                     IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(UserCoreConstants.ErrorCode.USER_IS_LOCKED,
                             userIdentityDTO.getFailAttempts(), config.getAuthPolicyMaxLoginAttempts());
                     IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);

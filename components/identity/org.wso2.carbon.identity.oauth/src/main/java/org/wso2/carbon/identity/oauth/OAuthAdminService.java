@@ -329,39 +329,43 @@ public class OAuthAdminService extends AbstractAdmin {
                 throw new IdentityOAuthAdminException(errorMsg, e);
             }
             if (!accessTokenDOs.isEmpty()) {
+                Set<String> distinctClientUserScopeCombo = new HashSet<String>();
                 for (AccessTokenDO accessTokenDO : accessTokenDOs) {
                     AccessTokenDO scopedToken = null;
+                    String scopeString = OAuth2Util.buildScopeString(accessTokenDO.getScope());
                     try {
                         scopedToken = tokenMgtDAO.retrieveLatestAccessToken(
-                                clientId, username, userStoreDomain,
-                                OAuth2Util.buildScopeString(accessTokenDO.getScope()), true);
+                                clientId, username, userStoreDomain, scopeString, true);
+                        if(scopedToken != null){
+                            if(!distinctClientUserScopeCombo.contains(clientId+":"+username)){
+                                OAuthConsumerAppDTO appDTO = new OAuthConsumerAppDTO();
+                                OAuthAppDO appDO = null;
+                                try {
+                                    appDO = appDAO.getAppInformation(scopedToken.getConsumerKey());
+                                    appDTO.setOauthConsumerKey(scopedToken.getConsumerKey());
+                                    appDTO.setApplicationName(appDO.getApplicationName());
+                                    appDTO.setUsername(appDO.getUserName());
+                                    appDTO.setGrantTypes(appDO.getGrantTypes());
+                                    appDTOs.add(appDTO);
+                                } catch (InvalidOAuthClientException e) {
+                                    String errorMsg = "Invalid Client ID : " + scopedToken.getConsumerKey();
+                                    log.error(errorMsg, e);
+                                    throw new IdentityOAuthAdminException(errorMsg, e);
+                                } catch (IdentityOAuth2Exception e) {
+                                    String errorMsg = "Error occurred while retrieving app information " +
+                                            "for Client ID : " + scopedToken.getConsumerKey();
+                                    log.error(errorMsg, e);
+                                    throw new IdentityOAuthAdminException(errorMsg, e);
+                                }
+                                distinctClientUserScopeCombo.add(clientId+":"+username);
+                            }
+                        }
                     } catch (IdentityOAuth2Exception e) {
                         String errorMsg = "Error occurred while retrieving latest " +
-                                "access token issued for Client ID : " +
-                                clientId + ", User ID : " + username + " and Scope : " +
-                                OAuth2Util.buildScopeString(accessTokenDO.getScope());
+                                "access token issued for Client ID : " + clientId +
+                                ", User ID : " + username + " and Scope : " + scopeString;
                         log.error(errorMsg, e);
                         throw new IdentityOAuthAdminException(errorMsg, e);
-                    }
-                    if (scopedToken != null) {
-                        OAuthConsumerAppDTO appDTO = new OAuthConsumerAppDTO();
-                        OAuthAppDO appDO = null;
-                        try {
-                            appDO = appDAO.getAppInformation(scopedToken.getConsumerKey());
-                            appDTO.setOauthConsumerKey(scopedToken.getConsumerKey());
-                            appDTO.setApplicationName(appDO.getApplicationName());
-                            appDTO.setUsername(appDO.getUserName());
-                            appDTO.setGrantTypes(appDO.getGrantTypes());
-                            appDTOs.add(appDTO);
-                        } catch (InvalidOAuthClientException e) {
-                            String errorMsg = "Invalid Client ID : " + scopedToken.getConsumerKey();
-                            log.error(errorMsg, e);
-                        } catch (IdentityOAuth2Exception e) {
-                            String errorMsg = "Error occurred while retrieving app information " +
-                                    "for Client ID : " + scopedToken.getConsumerKey();
-                            log.error(errorMsg, e);
-                            throw new IdentityOAuthAdminException(errorMsg, e);
-                        }
                     }
                 }
             }

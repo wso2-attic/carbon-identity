@@ -194,22 +194,20 @@ public class TokenMgtDAO {
             String errorMsg = "Access Token for consumer key : " + consumerKey + ", user : " +
                     accessTokenDO.getAuthzUser().toLowerCase() + " and scope : " +
                     OAuth2Util.buildScopeString(accessTokenDO.getScope()) + "already exists";
-            if (log.isDebugEnabled()) {
-                log.debug(errorMsg);
-            }
             throw new IdentityOAuth2Exception(errorMsg, e);
         } catch (DataTruncation e) {
             throw new IdentityOAuth2Exception("Invalid request", e);
         } catch (SQLException e) {
             throw new IdentityOAuth2Exception(
-                    "Error when storing the access token for consumer key : " + consumerKey);
+                    "Error when storing the access token for consumer key : " + consumerKey, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(null, null, prepStmt);
         }
     }
 
     public void storeAccessToken(String accessToken, String consumerKey,
-                                 AccessTokenDO accessTokenDO, String userStoreDomain) throws IdentityOAuth2Exception {
+                                 AccessTokenDO accessTokenDO, String userStoreDomain)
+            throws IdentityException {
 
         if (!enablePersist) {
             return;
@@ -235,8 +233,8 @@ public class TokenMgtDAO {
             storeAccessToken(accessToken, consumerKey, accessTokenDO, connection, userStoreDomain);
             return true;
         } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance.";
-            throw new IdentityOAuth2Exception(errorMsg, e);
+            throw new IdentityOAuth2Exception(
+                    "Error occurred while getting a connection to Identity Data Persistent Storage", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, null);
         }
@@ -714,7 +712,7 @@ public class TokenMgtDAO {
 			prepStmt = connection.prepareStatement(sql);
 			prepStmt.setString(1, tokenState);
 			prepStmt.setString(2, tokenStateId);
-			prepStmt.setString(3, persistenceProcessor.getProcessedClientId(accessToken));
+            prepStmt.setString(3, persistenceProcessor.getProcessedAccessTokenIdentifier(accessToken));
 			prepStmt.executeUpdate();
 		} catch (SQLException e) {
 			throw new IdentityOAuth2Exception("Error while updating Access Token : " +

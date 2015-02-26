@@ -22,6 +22,7 @@ import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.axiom.util.base64.Base64Utils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
@@ -71,13 +72,28 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                                 " for Client Id : " + consumerKey + ", User ID :" + authorizedUser +
                                 " and Scope : " + scope + " from cache");
                     }
-                    long expireTime = OAuth2Util.getTokenExpireTimeMillis(accessTokenDO);
-                    if (expireTime > 0) {
+                    long expireTime = 0;
+                    if(OAuthServerConfiguration.getInstance().getUserAccessTokenValidityPeriodInSeconds() < 0){
+                            expireTime = -1;
+                        } else {
+                            expireTime = OAuth2Util.getTokenExpireTimeMillis(accessTokenDO);
+                        }
+                    if (expireTime > 0 || expireTime < 0) {
                         if (log.isDebugEnabled()) {
-                            log.debug("Access Token " + accessTokenDO.getAccessToken() + " is still valid");
+                            if(expireTime > 0) {
+                                log.debug("Access Token " + accessTokenDO.getAccessToken() +
+                                                " is valid for another " + expireTime + "ms");
+                            } else {
+                                log.debug("Infinite lifetime Access Token " +
+                                                accessTokenDO.getAccessToken() + " found in cache");
+                            }
                         }
                         respDTO.setAccessToken(accessTokenDO.getAccessToken());
-                        respDTO.setValidityPeriod(accessTokenDO.getValidityPeriod());
+                        if(expireTime > 0){
+                            respDTO.setValidityPeriod(expireTime/1000);
+                        } else {
+                            respDTO.setValidityPeriod(Long.MAX_VALUE/1000);
+                        }
                         respDTO.setScope(oauthAuthzMsgCtx.getApprovedScope());
                         respDTO.setTokenType(accessTokenDO.getTokenType());
                         return respDTO;
@@ -111,11 +127,23 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                             " for Client ID : " + consumerKey + ", User ID :" + authorizedUser +
                             " and Scope : " + scope + " from database");
                 }
-                if (OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE.equals(accessTokenDO.getTokenState()) &&
-                        OAuth2Util.getTokenExpireTimeMillis(accessTokenDO) > 0) {
+                long expiryTime = 0;
+                if (OAuthServerConfiguration.getInstance().getUserAccessTokenValidityPeriodInSeconds() < 0) {
+                        expiryTime = -1;
+                    } else {
+                        expiryTime = OAuth2Util.getTokenExpireTimeMillis(accessTokenDO);
+                    }
+                if (OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE.equals(
+                                accessTokenDO.getTokenState()) && (expiryTime > 0 || expiryTime < 0)) {
                     // token is active and valid
                     if (log.isDebugEnabled()) {
-                        log.debug("Access token : " + accessTokenDO.getAccessToken() + " is still valid");
+                        if(expiryTime > 0){
+                            log.debug("Access token : " + accessTokenDO.getAccessToken() +
+                                            " is valid for another " + expiryTime + "ms");
+                        } else {
+                            log.debug("Infinite lifetime Access Token " + accessTokenDO.getAccessToken() +
+                                            " found in cache");
+                        }
                     }
                     if (cacheEnabled) {
                         oauthCache.addToCache(cacheKey, accessTokenDO);
@@ -125,13 +153,18 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                         }
                     }
                     respDTO.setAccessToken(accessTokenDO.getAccessToken());
-                    respDTO.setValidityPeriod(OAuth2Util.getTokenExpireTimeMillis(accessTokenDO) / 1000);
+                    if(expiryTime > 0){
+                        respDTO.setValidityPeriod(expiryTime / 1000);
+                    } else {
+                        respDTO.setValidityPeriod(Long.MAX_VALUE / 1000);
+                    }
                     respDTO.setScope(oauthAuthzMsgCtx.getApprovedScope());
                     respDTO.setTokenType(accessTokenDO.getTokenType());
                     return respDTO;
                 } else {
                     if (log.isDebugEnabled()) {
-                        log.debug("Access token + " + accessTokenDO.getAccessToken() + " is not valid anymore");
+                        log.debug("Access Token " + accessTokenDO.getAccessToken() +
+                                " is " +accessTokenDO.getTokenState());
                     }
                     String tokenState = accessTokenDO.getTokenState();
                     if (OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE.equals(tokenState)) {
@@ -213,8 +246,13 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
             accessTokenDO.setTokenState(OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE);
 
             // Persist the access token in database
-            tokenMgtDAO.storeAccessToken(accessToken, authorizationReqDTO.getConsumerKey(),
-                    accessTokenDO, userStoreDomain);
+            try {
+                tokenMgtDAO.storeAccessToken(accessToken, authorizationReqDTO.getConsumerKey(),
+                                accessTokenDO, userStoreDomain);
+            } catch (IdentityException e) {
+                throw new IdentityOAuth2Exception(
+                                "Error occurred while storing new access token : " + accessToken, e);
+            }
             if (log.isDebugEnabled()) {
                 log.debug("Persisted Access Token : " + accessToken + " for " +
                         "Client ID : " + authorizationReqDTO.getConsumerKey() +
@@ -237,7 +275,11 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
             }
 
             respDTO.setAccessToken(accessToken);
-            respDTO.setValidityPeriod(validityPeriod);
+            if(validityPeriod > 0){
+                respDTO.setValidityPeriod(accessTokenDO.getValidityPeriod());
+            } else {
+                respDTO.setValidityPeriod(Long.MAX_VALUE / 1000);
+            }
             respDTO.setScope(accessTokenDO.getScope());
             respDTO.setTokenType(accessTokenDO.getTokenType());
             return respDTO;
