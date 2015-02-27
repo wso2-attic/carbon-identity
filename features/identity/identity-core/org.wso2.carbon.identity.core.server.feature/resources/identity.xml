@@ -92,7 +92,7 @@
 		<!-- Supported Client Autnetication Methods -->
         <ClientAuthHandlers>
             <ClientAuthHandler Class="org.wso2.carbon.identity.oauth2.token.handlers.clientauth.BasicAuthClientAuthHandler">
-                <StrictClientCredentialValidation>false</StrictClientCredentialValidation>
+                <Property Name="StrictClientCredentialValidation">false</Property>
             </ClientAuthHandler>
         </ClientAuthHandlers>
 		<!-- Supported Response Types -->
