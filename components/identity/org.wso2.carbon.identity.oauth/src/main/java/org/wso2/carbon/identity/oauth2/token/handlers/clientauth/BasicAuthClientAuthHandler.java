@@ -32,19 +32,14 @@ public class BasicAuthClientAuthHandler extends AbstractClientAuthHandler {
     }
 
     @Override
-    public boolean canAuthenticate(OAuthTokenReqMessageContext tokReqMsgCtx)
-            throws IdentityOAuth2Exception {
-        return super.canAuthenticate(tokReqMsgCtx);
-    }
-
-    @Override
     public boolean authenticateClient(OAuthTokenReqMessageContext tokReqMsgCtx)
             throws IdentityOAuth2Exception {
-        OAuth2AccessTokenReqDTO oAuth2AccessTokenReqDTO = tokReqMsgCtx.getOauth2AccessTokenReqDTO();
 
         boolean isAuthenticated = super.authenticateClient(tokReqMsgCtx);
 
         if (!isAuthenticated) {
+            OAuth2AccessTokenReqDTO oAuth2AccessTokenReqDTO =
+                    tokReqMsgCtx.getOauth2AccessTokenReqDTO();
             try {
                 return OAuth2Util.authenticateClient(
                         oAuth2AccessTokenReqDTO.getClientId(),
@@ -57,4 +52,5 @@ public class BasicAuthClientAuthHandler extends AbstractClientAuthHandler {
         }
 
     }
+
 }

@@ -18,17 +18,18 @@
 
 package org.wso2.carbon.identity.oauth2.token.handlers.clientauth;
 
+import org.apache.axis2.util.JavaUtils;
 import org.apache.commons.lang.StringUtils;
-import org.wso2.carbon.identity.oauth.config.OAuthClientAuthHandlerMetaData;
-import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
+import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 
-import java.util.Set;
-
+import java.util.Properties;
 
 public abstract class AbstractClientAuthHandler implements ClientAuthenticationHandler {
+
+    Properties properties;
 
     public boolean canAuthenticate(OAuthTokenReqMessageContext tokReqMsgCtx)
             throws IdentityOAuth2Exception {
@@ -39,23 +40,19 @@ public abstract class AbstractClientAuthHandler implements ClientAuthenticationH
                 !StringUtils.isEmpty(oAuth2AccessTokenReqDTO.getClientSecret())) {
             return true;
 
-        } else if (org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString().equals(
-                oAuth2AccessTokenReqDTO.getGrantType())) {
+        } else {
+            if (org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString().equals(
+                    oAuth2AccessTokenReqDTO.getGrantType())) {
 
-            String authHandlerClass = this.getClass().getName();
+                Properties confProperties = getProperties();
+                String authConfig = confProperties.getProperty(
+                        OAuthConstants.CLIENT_AUTH_CREDENTIAL_VALIDATION);
 
-            //Setting default value for strict client authentication as true
-            boolean isStrictClientAuthEnabled = true;
-
-            Set<OAuthClientAuthHandlerMetaData> clientAuthHandlerMetaData =
-                    OAuthServerConfiguration.getInstance().getClientAuthHandlerMetaData();
-            for (OAuthClientAuthHandlerMetaData metaData : clientAuthHandlerMetaData) {
-                if (authHandlerClass.equals(metaData.getClassName())) {
-                    isStrictClientAuthEnabled = metaData.isClientAuthenticationEnabled();
-                    break;
+                //If user has set strict validation to false, can authenticate without credentials
+                if (StringUtils.isNotEmpty(authConfig) && JavaUtils.isFalseExplicitly(authConfig)) {
+                    return true;
                 }
             }
-            return !isStrictClientAuthEnabled;
         }
         return false;
     }
@@ -66,25 +63,26 @@ public abstract class AbstractClientAuthHandler implements ClientAuthenticationH
         OAuth2AccessTokenReqDTO oAuth2AccessTokenReqDTO = tokReqMsgCtx.getOauth2AccessTokenReqDTO();
 
         if (StringUtils.isEmpty(oAuth2AccessTokenReqDTO.getClientSecret())) {
-            String authHandlerClass = this.getClass().getName();
-            boolean isStrictValidationEnabled = true;
 
-            //Checking if credential validation is needed according to the config
-            Set<OAuthClientAuthHandlerMetaData> clientAuthHandlerMetaData =
-                    OAuthServerConfiguration.getInstance().getClientAuthHandlerMetaData();
-            for (OAuthClientAuthHandlerMetaData metaData : clientAuthHandlerMetaData) {
-                if (authHandlerClass.equals(metaData.getClassName())) {
-                    isStrictValidationEnabled = metaData.isClientAuthenticationEnabled();
-                    break;
-                }
-            }
+            //Getting configured value for client credential validation requirements
+            String authConf = getProperties().getProperty(
+                    OAuthConstants.CLIENT_AUTH_CREDENTIAL_VALIDATION);
 
-            //Skipping credentials validation for saml2 bearer if not configured as needed
+            //Skipping credential validation for saml2 bearer if not configured as needed
             if (org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString()
-                    .equals(oAuth2AccessTokenReqDTO.getGrantType()) && !isStrictValidationEnabled) {
+                    .equals(oAuth2AccessTokenReqDTO.getGrantType()) &&
+                    JavaUtils.isFalseExplicitly(authConf)) {
                 return true;
             }
         }
         return false;
+    }
+
+    public Properties getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Properties properties) {
+        this.properties = properties;
     }
 }

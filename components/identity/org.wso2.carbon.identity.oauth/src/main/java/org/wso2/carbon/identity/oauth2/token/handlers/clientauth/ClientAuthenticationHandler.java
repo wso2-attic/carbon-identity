@@ -21,6 +21,8 @@ package org.wso2.carbon.identity.oauth2.token.handlers.clientauth;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 
+import java.util.Properties;
+
 public interface ClientAuthenticationHandler {
 
     /**
@@ -45,5 +47,12 @@ public interface ClientAuthenticationHandler {
      * @throws org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception Error when validating the OAuth 2.0 client.
      */
     public boolean authenticateClient(OAuthTokenReqMessageContext tokReqMsgCtx) throws IdentityOAuth2Exception;
+
+    /**
+     * Set configured properties for authentication class
+     *
+     * @param properties
+     */
+    public void setProperties(Properties properties);
 
 }

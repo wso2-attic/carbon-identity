@@ -85,7 +85,6 @@ public class OAuthServerConfiguration {
     private String accessTokenPartitioningDomains = null;
     private TokenPersistenceProcessor persistenceProcessor = null;
     private Set<OAuthCallbackHandlerMetaData> callbackHandlerMetaData = new HashSet<OAuthCallbackHandlerMetaData>();
-    private Set<OAuthClientAuthHandlerMetaData> clientAuthHandlerMetaData = new HashSet<OAuthClientAuthHandlerMetaData>();
     private Map<String, String> supportedGrantTypeClassNames = new Hashtable<String, String>();
     private Map<String, AuthorizationGrantHandler> supportedGrantTypes;
     private Map<String, String> supportedGrantTypeValidatorNames = new Hashtable<String, String>();
@@ -93,7 +92,7 @@ public class OAuthServerConfiguration {
     private Map<String, String> supportedResponseTypeClassNames = new Hashtable<String, String>();
     private Map<String, ResponseTypeHandler> supportedResponseTypes;
     private String[] supportedClaims = null;
-    private List<String> supportedClientAuthHandlerClassNames = new ArrayList<String>();
+    private Map<String, Properties> supportedClientAuthHandlerData = new Hashtable<String, Properties>();
     private List<ClientAuthenticationHandler> supportedClientAuthHandlers;
     private String saml2TokenCallbackHandlerName = null;
     private SAML2TokenCallbackHandler saml2TokenCallbackHandler = null;
@@ -210,10 +209,6 @@ public class OAuthServerConfiguration {
 
     public Set<OAuthCallbackHandlerMetaData> getCallbackHandlerMetaData() {
         return callbackHandlerMetaData;
-    }
-
-    public Set<OAuthClientAuthHandlerMetaData> getClientAuthHandlerMetaData() {
-        return clientAuthHandlerMetaData;
     }
 
     public long getAuthorizationCodeValidityPeriodInSeconds() {
@@ -363,20 +358,23 @@ public class OAuthServerConfiguration {
             synchronized (this) {
                 if (supportedClientAuthHandlers == null) {
                     supportedClientAuthHandlers = new ArrayList<ClientAuthenticationHandler>();
-                    for (String entry : supportedClientAuthHandlerClassNames) {
+
+                    for (Map.Entry<String, Properties> entry : supportedClientAuthHandlerData.entrySet()) {
                         ClientAuthenticationHandler clientAuthenticationHandler = null;
-                        try {
-                            clientAuthenticationHandler = (ClientAuthenticationHandler) Class.forName(entry).newInstance();
-                            clientAuthenticationHandler.init();
-                        } catch (InstantiationException e) {
-                            log.error("Error instantiating " + entry);
-                        } catch (IllegalAccessException e) {
-                            log.error("Illegal access to " + entry);
-                        } catch (ClassNotFoundException e) {
-                            log.error("Cannot find class: " + entry);
-                        } catch (IdentityOAuth2Exception e) {
-                            log.error("Error while initializing " + entry);
-                        }
+                            try {
+                                clientAuthenticationHandler = (ClientAuthenticationHandler)
+                                        Class.forName(entry.getKey()).newInstance();
+                                clientAuthenticationHandler.init();
+                                clientAuthenticationHandler.setProperties(entry.getValue());
+                            } catch (InstantiationException e) {
+                                log.error("Error instantiating " + entry);
+                            } catch (IllegalAccessException e) {
+                                log.error("Illegal access to " + entry);
+                            } catch (ClassNotFoundException e) {
+                                log.error("Cannot find class: " + entry);
+                            } catch (IdentityOAuth2Exception e) {
+                                log.error("Error while initializing " + entry);
+                            }
                         supportedClientAuthHandlers.add(clientAuthenticationHandler);
                     }
                 }
@@ -706,30 +704,6 @@ public class OAuthServerConfiguration {
         return new OAuthCallbackHandlerMetaData(className, properties, priority);
     }
 
-    private OAuthClientAuthHandlerMetaData buildClientAuthHandlerMetaData(OMElement omElement){
-        // read the class attribute which is mandatory
-        String className = omElement.getAttributeValue(new QName(ConfigElements.CLIENT_AUTH_CLASS));
-
-        if (className == null) {
-            log.error("Mandatory attribute \"Class\" is not present in the "
-                    + "ClientAuthHandler element. ");
-            return null;
-        }
-
-
-        boolean isCredentialValidationEnabled = true;
-        OMElement strictClientAuthElem = omElement.getFirstChildWithName(
-                getQNameWithIdentityNS(ConfigElements.STRICT_CLIENT_AUTHENTICATION));
-        if (strictClientAuthElem != null){
-            String enableClientAuthentication = strictClientAuthElem.getText().trim();
-            if (enableClientAuthentication != null &&
-                    JavaUtils.isFalseExplicitly(enableClientAuthentication)) {
-                isCredentialValidationEnabled = false;
-            }
-        }
-        return new OAuthClientAuthHandlerMetaData(className, isCredentialValidationEnabled);
-    }
-
     private void parseDefaultValidityPeriods(OMElement oauthConfigElem) {
 
         // set the authorization code default timeout
@@ -997,19 +971,32 @@ public class OAuthServerConfiguration {
                     ConfigElements.CLIENT_AUTH_HANDLER_IMPL_CLASS);
             while (iterator.hasNext()) {
                 OMElement supportedClientAuthHandler = iterator.next();
+                Iterator<OMElement> confProperties = supportedClientAuthHandler
+                        .getChildrenWithLocalName(ConfigElements.CLIENT_AUTH_PROPERTY);
+                Properties properties = null;
+                while (confProperties.hasNext()) {
+                    properties = new Properties();
+                    OMElement paramElem = confProperties.next();
+                    String paramName = paramElem.getAttributeValue(
+                            new QName(ConfigElements.CLIENT_AUTH_NAME));
+                    String paramValue = paramElem.getText();
+                    properties.put(paramName, paramValue);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Property name : " + paramName + ", Property Value : " + paramValue);
+                    }
+                }
                 String clientAuthHandlerImplClass = supportedClientAuthHandler.getAttributeValue(
                         new QName(ConfigElements.CLIENT_AUTH_CLASS));
-                if (StringUtils.isNotEmpty(clientAuthHandlerImplClass)) {
-                    supportedClientAuthHandlerClassNames.add(clientAuthHandlerImplClass);
+
+                if (StringUtils.isEmpty(clientAuthHandlerImplClass)) {
+                    log.error("Mandatory attribute \"Class\" is not present in the "
+                            + "ClientAuthHandler element. ");
+                    return;
                 }
-                OAuthClientAuthHandlerMetaData caHandlerMetaData =
-                        buildClientAuthHandlerMetaData(supportedClientAuthHandler);
-                if (caHandlerMetaData != null) {
-                    clientAuthHandlerMetaData.add(caHandlerMetaData);
-                    if (log.isDebugEnabled()) {
-                        log.debug("Added OAuthClientAuthHandlerMetaData for Class : " +
-                                caHandlerMetaData.getClassName());
-                    }
+                if (properties != null) {
+                    supportedClientAuthHandlerData.put(clientAuthHandlerImplClass, properties);
+                } else {
+                    supportedClientAuthHandlerData.put(clientAuthHandlerImplClass, new Properties());
                 }
 
             }
@@ -1019,13 +1006,14 @@ public class OAuthServerConfiguration {
             log.warn("\'SupportedClientAuthMethods\' element not configured in identity.xml. " +
                     "Therefore instantiating default client authentication handlers");
 
-            List<String> defaultClientAuthHandlers = new ArrayList<String>(1);
-            defaultClientAuthHandlers.add("org.wso2.carbon.identity.oauth2.token.handlers.clientauth.BasicAuthClientAuthHandler");
-            supportedClientAuthHandlerClassNames.addAll(defaultClientAuthHandlers);
+            Map<String, Properties> defaultClientAuthHandlers = new Hashtable<String, Properties>(1);
+            defaultClientAuthHandlers.put(
+                    ConfigElements.DEFAULT_CLIENT_AUTHENTICATOR, new Properties());
+            supportedClientAuthHandlerData.putAll(defaultClientAuthHandlers);
         }
         if (log.isDebugEnabled()) {
-            for (String className : supportedClientAuthHandlerClassNames) {
-                log.debug("Supported client authentication method " + className);
+            for (Map.Entry<String, Properties> clazz : supportedClientAuthHandlerData.entrySet()) {
+                log.debug("Supported client authentication method " + clazz.getKey());
             }
         }
     }
@@ -1243,6 +1231,9 @@ public class OAuthServerConfiguration {
         private static final String CLIENT_AUTH_HANDLER_IMPL_CLASS = "ClientAuthHandler";
         private static final String STRICT_CLIENT_AUTHENTICATION = "StrictClientCredentialValidation";
         private static final String CLIENT_AUTH_CLASS = "Class";
+        private static final String DEFAULT_CLIENT_AUTHENTICATOR = "org.wso2.carbon.identity.oauth2.token.handlers.clientauth.BasicAuthClientAuthHandler";
+        private static final String CLIENT_AUTH_PROPERTY = "Property";
+        private static final String CLIENT_AUTH_NAME = "Name";
         // Supported Response Types
         private static final String SUPPORTED_RESP_TYPES = "SupportedResponseTypes";
         private static final String SUPPORTED_RESP_TYPE = "SupportedResponseType";
