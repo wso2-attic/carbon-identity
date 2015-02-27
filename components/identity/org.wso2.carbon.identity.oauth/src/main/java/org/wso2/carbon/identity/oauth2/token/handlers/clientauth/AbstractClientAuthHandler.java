@@ -36,8 +36,8 @@ public abstract class AbstractClientAuthHandler implements ClientAuthenticationH
 
         OAuth2AccessTokenReqDTO oAuth2AccessTokenReqDTO = tokReqMsgCtx.getOauth2AccessTokenReqDTO();
 
-        if (!StringUtils.isEmpty(oAuth2AccessTokenReqDTO.getClientId()) &&
-                !StringUtils.isEmpty(oAuth2AccessTokenReqDTO.getClientSecret())) {
+        if (StringUtils.isNotEmpty(oAuth2AccessTokenReqDTO.getClientId()) &&
+                StringUtils.isNotEmpty(oAuth2AccessTokenReqDTO.getClientSecret())) {
             return true;
 
         } else {
