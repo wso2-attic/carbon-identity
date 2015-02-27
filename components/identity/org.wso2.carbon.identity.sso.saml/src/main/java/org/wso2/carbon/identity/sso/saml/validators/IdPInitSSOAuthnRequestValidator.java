@@ -76,7 +76,7 @@ public class IdPInitSSOAuthnRequestValidator {
             SSOServiceProviderConfigManager spConfigManager = SSOServiceProviderConfigManager.getInstance();
             SAMLSSOServiceProviderDO spDO = spConfigManager.getServiceProvider(spEntityID);
             String spAcsUrl = null;
-            if(spDO != null){
+            if (spDO != null) {
                 spAcsUrl = spDO.getAssertionConsumerUrl();
             }
 
@@ -86,7 +86,7 @@ public class IdPInitSSOAuthnRequestValidator {
 //                if(spAcsUrl != null){
 //                    log.debug("RelayState parameter not found in IdP Initiated SSO request. " +
 //                            "Using " + spAcsUrl + " as default Assertion Consumer URL for " + spEntityID);
-                    validationResponse.setAssertionConsumerURL(spAcsUrl);
+            validationResponse.setAssertionConsumerURL(spAcsUrl);
 //                }
 //              else {
 //                    String errorMsg = "RelayState parameter not found in IdP Initiated SSO request and " +
@@ -111,6 +111,7 @@ public class IdPInitSSOAuthnRequestValidator {
 
     /**
      * build the error response
+     *
      * @param status
      * @param message
      * @return decoded response

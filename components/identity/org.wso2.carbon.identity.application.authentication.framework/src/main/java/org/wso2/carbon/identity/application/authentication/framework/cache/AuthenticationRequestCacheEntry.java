@@ -31,6 +31,10 @@ public class AuthenticationRequestCacheEntry extends CacheEntry {
     //AuthenticationRequest keep all the data related to
     private AuthenticationRequest authenticationRequest;
 
+    public AuthenticationRequestCacheEntry(AuthenticationRequest requestContext) {
+        this.authenticationRequest = requestContext;
+    }
+
     public AuthenticationRequest getAuthenticationRequest() {
         return authenticationRequest;
     }
@@ -38,10 +42,6 @@ public class AuthenticationRequestCacheEntry extends CacheEntry {
     public void setAuthenticationRequest(AuthenticationRequest
                                                  authenticationRequest) {
         this.authenticationRequest = authenticationRequest;
-    }
-
-    public AuthenticationRequestCacheEntry(AuthenticationRequest requestContext){
-        this.authenticationRequest = requestContext;
     }
 
 }

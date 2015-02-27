@@ -17,10 +17,10 @@
 
 package org.wso2.carbon.identity.provider.xmpp;
 
-import org.jivesoftware.smack.Roster;
-import org.jivesoftware.smack.XMPPException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jivesoftware.smack.Roster;
+import org.jivesoftware.smack.XMPPException;
 
 public class XmppSubscriber {
 
@@ -28,6 +28,7 @@ public class XmppSubscriber {
 
     /**
      * Add the user to the contact list, if he is not added yet.
+     *
      * @param roster
      * @param userXmppId
      * @return
@@ -45,7 +46,7 @@ public class XmppSubscriber {
             }
 
         } catch (XMPPException e) {
-            if(log.isInfoEnabled()){
+            if (log.isInfoEnabled()) {
                 log.error("Failed to add contact", e);
             }
             return false;
@@ -54,6 +55,6 @@ public class XmppSubscriber {
             e.printStackTrace();
         }
         return true;
-        
+
     }
 }

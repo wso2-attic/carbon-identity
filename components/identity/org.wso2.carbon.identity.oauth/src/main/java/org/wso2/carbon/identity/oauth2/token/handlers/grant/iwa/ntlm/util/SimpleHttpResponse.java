@@ -35,6 +35,11 @@ public class SimpleHttpResponse extends Response {
     }
 
     @Override
+    public void setStatus(int value) {
+        _status = value;
+    }
+
+    @Override
     public void addHeader(String headerName, String headerValue) {
         List<String> current = _headers.get(headerName);
         if (current == null)
@@ -53,11 +58,6 @@ public class SimpleHttpResponse extends Response {
         }
         current.add(headerValue);
         _headers.put(headerName, current);
-    }
-
-    @Override
-    public void setStatus(int value) {
-        _status = value;
     }
 
     public String getStatusString() {

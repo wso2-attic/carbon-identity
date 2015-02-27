@@ -43,7 +43,6 @@ public class CacheBackedIdPMgtDAO {
     private Map<String, IdentityProvider> residentIdPs = null;
 
     /**
-     * 
      * @param idPMgtDAO
      */
     public CacheBackedIdPMgtDAO(IdPManagementDAO idPMgtDAO) {
@@ -56,7 +55,6 @@ public class CacheBackedIdPMgtDAO {
     }
 
     /**
-     * 
      * @param dbConnection
      * @param tenantId
      * @param tenantDomain
@@ -64,13 +62,12 @@ public class CacheBackedIdPMgtDAO {
      * @throws IdentityApplicationManagementException
      */
     public List<IdentityProvider> getIdPs(Connection dbConnection, int tenantId,
-            String tenantDomain) throws IdentityApplicationManagementException {
+                                          String tenantDomain) throws IdentityApplicationManagementException {
 
         return idPMgtDAO.getIdPs(dbConnection, tenantId, tenantDomain);
     }
 
     /**
-     * 
      * @param dbConnection
      * @param idPName
      * @param tenantId
@@ -79,7 +76,7 @@ public class CacheBackedIdPMgtDAO {
      * @throws IdentityApplicationManagementException
      */
     public IdentityProvider getIdPByName(Connection dbConnection, String idPName,
-            int tenantId, String tenantDomain) throws IdentityApplicationManagementException {
+                                         int tenantId, String tenantDomain) throws IdentityApplicationManagementException {
 
         IdPNameCacheKey cacheKey = new IdPNameCacheKey(idPName, tenantDomain);
         IdPCacheEntry entry = ((IdPCacheEntry) idPCacheByName.getValueFromCache(cacheKey));
@@ -108,8 +105,8 @@ public class CacheBackedIdPMgtDAO {
                 primaryIdPs.put(tenantDomain, identityProvider);
 
             }
-            if(IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(
-                    identityProvider.getIdentityProviderName())){
+            if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(
+                    identityProvider.getIdentityProviderName())) {
                 residentIdPs.put(tenantDomain, identityProvider);
             }
         } else {
@@ -120,7 +117,6 @@ public class CacheBackedIdPMgtDAO {
     }
 
     /**
-     *
      * @param dbConnection
      * @param property
      * @param value
@@ -162,8 +158,8 @@ public class CacheBackedIdPMgtDAO {
                 primaryIdPs.put(tenantDomain, identityProvider);
 
             }
-            if(IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(
-                    identityProvider.getIdentityProviderName())){
+            if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(
+                    identityProvider.getIdentityProviderName())) {
                 residentIdPs.put(tenantDomain, identityProvider);
             }
         } else {
@@ -175,7 +171,6 @@ public class CacheBackedIdPMgtDAO {
     }
 
     /**
-     * 
      * @param realmId
      * @param tenantId
      * @param tenantDomain
@@ -183,7 +178,7 @@ public class CacheBackedIdPMgtDAO {
      * @throws IdentityApplicationManagementException
      */
     public IdentityProvider getIdPByRealmId(String realmId, int tenantId,
-            String tenantDomain) throws IdentityApplicationManagementException {
+                                            String tenantDomain) throws IdentityApplicationManagementException {
 
         IdPHomeRealmIdCacheKey cacheKey = new IdPHomeRealmIdCacheKey(realmId, tenantDomain);
         IdPCacheEntry entry = ((IdPCacheEntry) idPCacheByHRI.getValueFromCache(cacheKey));
@@ -207,8 +202,8 @@ public class CacheBackedIdPMgtDAO {
             if (identityProvider.isPrimary()) {
                 primaryIdPs.put(tenantDomain, identityProvider);
             }
-            if(IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(
-                    identityProvider.getIdentityProviderName())){
+            if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(
+                    identityProvider.getIdentityProviderName())) {
                 residentIdPs.put(tenantDomain, identityProvider);
             }
         } else {
@@ -220,7 +215,6 @@ public class CacheBackedIdPMgtDAO {
     }
 
     /**
-     * 
      * @param identityProvider
      * @param tenantId
      * @param tenantDomain
@@ -228,7 +222,7 @@ public class CacheBackedIdPMgtDAO {
      */
     public void addIdP(IdentityProvider identityProvider, int tenantId, String tenantDomain)
             throws IdentityApplicationManagementException {
-    	
+
         idPMgtDAO.addIdP(identityProvider, tenantId);
 
         identityProvider = idPMgtDAO.getIdPByName(null, identityProvider.getIdentityProviderName(),
@@ -248,8 +242,8 @@ public class CacheBackedIdPMgtDAO {
             if (identityProvider.isPrimary()) {
                 primaryIdPs.put(tenantDomain, identityProvider);
             }
-            if(IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(
-                    identityProvider.getIdentityProviderName())){
+            if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(
+                    identityProvider.getIdentityProviderName())) {
                 residentIdPs.put(tenantDomain, identityProvider);
             }
         } else {
@@ -258,7 +252,6 @@ public class CacheBackedIdPMgtDAO {
     }
 
     /**
-     * 
      * @param newIdentityProvider
      * @param currentIdentityProvider
      * @param tenantId
@@ -284,8 +277,8 @@ public class CacheBackedIdPMgtDAO {
         if (currentIdentityProvider.isPrimary()) {
             primaryIdPs.remove(tenantDomain);
         }
-        if(IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(
-                currentIdentityProvider.getIdentityProviderName())){
+        if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(
+                currentIdentityProvider.getIdentityProviderName())) {
             residentIdPs.remove(tenantDomain);
         }
 
@@ -308,8 +301,8 @@ public class CacheBackedIdPMgtDAO {
             if (identityProvider.isPrimary()) {
                 primaryIdPs.put(tenantDomain, identityProvider);
             }
-            if(IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(
-                    identityProvider.getIdentityProviderName())){
+            if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(
+                    identityProvider.getIdentityProviderName())) {
                 residentIdPs.put(tenantDomain, identityProvider);
             }
         } else {
@@ -319,7 +312,6 @@ public class CacheBackedIdPMgtDAO {
     }
 
     /**
-     * 
      * @param idPName
      * @param tenantId
      * @param tenantDomain
@@ -328,9 +320,9 @@ public class CacheBackedIdPMgtDAO {
     public void deleteIdP(String idPName, int tenantId, String tenantDomain)
             throws IdentityApplicationManagementException {
 
-    	if(idPMgtDAO.isIdpReferredBySP(idPName, tenantId)){
-    		throw new IdentityApplicationManagementException("Identitiy Provider '"+idPName+"' cannot be deleted as it is reffered by Service Providers.");
-    	}
+        if (idPMgtDAO.isIdpReferredBySP(idPName, tenantId)) {
+            throw new IdentityApplicationManagementException("Identitiy Provider '" + idPName + "' cannot be deleted as it is reffered by Service Providers.");
+        }
         log.debug("Removing entry for Identity Provider " + idPName + " from cache");
         IdentityProvider identityProvider = this.getIdPByName(null, idPName, tenantId,
                 tenantDomain);
@@ -344,8 +336,8 @@ public class CacheBackedIdPMgtDAO {
         if (identityProvider.isPrimary()) {
             primaryIdPs.remove(tenantDomain);
         }
-        if(IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(
-                identityProvider.getIdentityProviderName())){
+        if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(
+                identityProvider.getIdentityProviderName())) {
             residentIdPs.remove(tenantDomain);
         }
 
@@ -354,7 +346,6 @@ public class CacheBackedIdPMgtDAO {
     }
 
     /**
-     * 
      * @param dbConnection
      * @param tenantId
      * @param tenantDomain
@@ -362,7 +353,7 @@ public class CacheBackedIdPMgtDAO {
      * @throws IdentityApplicationManagementException
      */
     public IdentityProvider getPrimaryIdP(Connection dbConnection, int tenantId,
-            String tenantDomain) throws IdentityApplicationManagementException {
+                                          String tenantDomain) throws IdentityApplicationManagementException {
 
         IdentityProvider identityProvider = primaryIdPs.get(tenantDomain);
         if (identityProvider != null) {
@@ -387,8 +378,8 @@ public class CacheBackedIdPMgtDAO {
                         new IdPCacheEntry(identityProvider));
             }
             primaryIdPs.put(tenantDomain, identityProvider);
-            if(IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(
-                    identityProvider.getIdentityProviderName())){
+            if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(
+                    identityProvider.getIdentityProviderName())) {
                 residentIdPs.put(tenantDomain, identityProvider);
             }
         } else {
@@ -400,7 +391,6 @@ public class CacheBackedIdPMgtDAO {
     }
 
     /**
-     * 
      * @param tenantId
      * @param role
      * @param tenantDomain
@@ -432,7 +422,6 @@ public class CacheBackedIdPMgtDAO {
     }
 
     /**
-     * 
      * @param newRoleName
      * @param oldRoleName
      * @param tenantId
@@ -440,7 +429,7 @@ public class CacheBackedIdPMgtDAO {
      * @throws IdentityApplicationManagementException
      */
     public void renameTenantRole(String newRoleName, String oldRoleName, int tenantId,
-            String tenantDomain) throws IdentityApplicationManagementException {
+                                 String tenantDomain) throws IdentityApplicationManagementException {
 
         log.debug("Removing all cached Identity Provider entries for tenant Domain " + tenantDomain);
         List<IdentityProvider> identityProviders = this.getIdPs(null, tenantId,
@@ -465,7 +454,6 @@ public class CacheBackedIdPMgtDAO {
     }
 
     /**
-     * 
      * @param tenantId
      * @param claimURI
      * @param tenantDomain
@@ -497,7 +485,6 @@ public class CacheBackedIdPMgtDAO {
     }
 
     /**
-     * 
      * @param newClaimURI
      * @param oldClaimURI
      * @param tenantId
@@ -505,7 +492,7 @@ public class CacheBackedIdPMgtDAO {
      * @throws IdentityApplicationManagementException
      */
     public void renameTenantClaimURI(String newClaimURI, String oldClaimURI, int tenantId,
-            String tenantDomain) throws IdentityApplicationManagementException {
+                                     String tenantDomain) throws IdentityApplicationManagementException {
 
         log.debug("Removing all cached Identity Provider entries for tenant Domain " + tenantDomain);
         List<IdentityProvider> identityProviders = this.getIdPs(null, tenantId,
@@ -528,16 +515,15 @@ public class CacheBackedIdPMgtDAO {
 
         idPMgtDAO.renameTenantRole(newClaimURI, oldClaimURI, tenantId, tenantDomain);
     }
-    
+
     /**
-     * 
      * @param idPEntityId
      * @param tenantId
      * @return
      * @throws IdentityApplicationManagementException
      */
-    public boolean isSimilarIdPEntityIdsAvailble(String idPEntityId, int tenantId) 
-    		throws IdentityApplicationManagementException {
+    public boolean isSimilarIdPEntityIdsAvailble(String idPEntityId, int tenantId)
+            throws IdentityApplicationManagementException {
 
         return idPMgtDAO.isSimilarIdPEntityIdsAvailble(idPEntityId, tenantId);
     }

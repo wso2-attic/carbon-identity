@@ -38,16 +38,16 @@ public class ClaimCacheKey extends CacheKey {
         if (!(o instanceof ClaimCacheKey)) {
             return false;
         }
-        if(!((ClaimCacheKey) o).getEndUserName().equals(getEndUserName())){
+        if (!((ClaimCacheKey) o).getEndUserName().equals(getEndUserName())) {
             return false;
         }
-        for(String requiredClaim : ((ClaimCacheKey) o).getRequiredClaims()){
-            if(!new ArrayList<String>(Arrays.asList(getRequiredClaims())).contains(requiredClaim)){
+        for (String requiredClaim : ((ClaimCacheKey) o).getRequiredClaims()) {
+            if (!new ArrayList<String>(Arrays.asList(getRequiredClaims())).contains(requiredClaim)) {
                 return false;
             }
         }
-        for(String requiredClaim : getRequiredClaims()){
-            if(!new ArrayList<String>(Arrays.asList(((ClaimCacheKey) o).getRequiredClaims())).contains(requiredClaim)){
+        for (String requiredClaim : getRequiredClaims()) {
+            if (!new ArrayList<String>(Arrays.asList(((ClaimCacheKey) o).getRequiredClaims())).contains(requiredClaim)) {
                 return false;
             }
         }
@@ -61,11 +61,11 @@ public class ClaimCacheKey extends CacheKey {
         return result;
     }
 
-    public String getEndUserName(){
+    public String getEndUserName() {
         return endUserName;
     }
 
-    public String[] getRequiredClaims(){
+    public String[] getRequiredClaims() {
         return requiredClaims;
     }
 }

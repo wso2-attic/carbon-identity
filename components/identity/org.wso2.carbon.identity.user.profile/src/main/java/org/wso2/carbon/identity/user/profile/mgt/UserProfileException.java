@@ -17,7 +17,7 @@
 */
 package org.wso2.carbon.identity.user.profile.mgt;
 
-public class UserProfileException extends Exception{
+public class UserProfileException extends Exception {
 
     public UserProfileException() {
         super();
@@ -39,5 +39,5 @@ public class UserProfileException extends Exception{
         // TODO Auto-generated constructor stub
     }
 
-    
+
 }

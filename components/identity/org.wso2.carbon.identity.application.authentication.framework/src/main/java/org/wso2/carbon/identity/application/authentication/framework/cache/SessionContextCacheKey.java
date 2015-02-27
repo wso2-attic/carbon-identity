@@ -21,18 +21,18 @@ package org.wso2.carbon.identity.application.authentication.framework.cache;
 import org.wso2.carbon.identity.application.common.cache.CacheKey;
 
 public class SessionContextCacheKey extends CacheKey {
-	
-	private static final long serialVersionUID = -657663583122855292L;
-	
-	private String contextId;
+
+    private static final long serialVersionUID = -657663583122855292L;
+
+    private String contextId;
 
     public SessionContextCacheKey(String contextId) {
         this.contextId = contextId;
     }
 
     public String getContextId() {
-		return contextId;
-	}
+        return contextId;
+    }
 
     @Override
     public boolean equals(Object o) {

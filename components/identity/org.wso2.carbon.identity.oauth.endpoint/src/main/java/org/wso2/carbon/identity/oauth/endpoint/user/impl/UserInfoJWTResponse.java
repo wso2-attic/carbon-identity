@@ -38,8 +38,8 @@ public class UserInfoJWTResponse implements UserInfoResponseBuilder {
 
     private static Log log = LogFactory.getLog(UserInfoJWTResponse.class);
 
-	public String getResponseString(OAuth2TokenValidationResponseDTO tokenResponse)
-                                                                                   throws UserInfoEndpointException, OAuthSystemException {
+    public String getResponseString(OAuth2TokenValidationResponseDTO tokenResponse)
+            throws UserInfoEndpointException, OAuthSystemException {
         Map<ClaimMapping, String> userAttributes = getUserAttributesFromCache(tokenResponse);
 
         Map<String, Object> claims = null;
@@ -58,13 +58,13 @@ public class UserInfoJWTResponse implements UserInfoResponseBuilder {
             UserInfoClaimRetriever retriever = UserInfoEndpointConfig.getInstance().getUserInfoClaimRetriever();
             claims = retriever.getClaimsMap(userAttributes);
         }
-		
-		JWTBuilder jwtBuilder = new JWTBuilder();
-		try {
-			return jwtBuilder.setClaims(claims).buildJWT();
-		} catch (JWTException e) {
-			throw new UserInfoEndpointException("Error while generating the response JWT");
-		}
+
+        JWTBuilder jwtBuilder = new JWTBuilder();
+        try {
+            return jwtBuilder.setClaims(claims).buildJWT();
+        } catch (JWTException e) {
+            throw new UserInfoEndpointException("Error while generating the response JWT");
+        }
     }
 
     private Map<ClaimMapping, String> getUserAttributesFromCache(OAuth2TokenValidationResponseDTO tokenResponse) {

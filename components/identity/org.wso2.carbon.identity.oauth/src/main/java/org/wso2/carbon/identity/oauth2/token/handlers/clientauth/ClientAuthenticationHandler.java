@@ -25,21 +25,22 @@ public interface ClientAuthenticationHandler {
 
     /**
      * Initialize the OAuth 2.0 client authentication handler
-     * @throws org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception
-     *          Error when initializing the OAuth 2.0 client authentication handler.
+     *
+     * @throws org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception Error when initializing the OAuth 2.0 client authentication handler.
      */
     public void init() throws IdentityOAuth2Exception;
 
     /**
      * Tells if the request contains required information for the OAuth 2.0 client to be authenticated
+     *
      * @return <Code>true</Code>|<Code>false</Code> if the client can be authenticated or not.
-     * @throws org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception
-     *          Error when finding out if the OAuth 2.0 client can be authenticated.
+     * @throws org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception Error when finding out if the OAuth 2.0 client can be authenticated.
      */
     public boolean canAuthenticate(OAuthTokenReqMessageContext tokReqMsgCtx) throws IdentityOAuth2Exception;
 
     /**
      * Authenticate the OAuth 2.0 client
+     *
      * @return <Code>true</Code>|<Code>false</Code> if the client authentication succeeded or not.
      * @throws org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception Error when validating the OAuth 2.0 client.
      */

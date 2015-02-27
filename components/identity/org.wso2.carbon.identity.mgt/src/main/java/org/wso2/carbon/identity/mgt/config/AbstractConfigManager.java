@@ -19,6 +19,6 @@ package org.wso2.carbon.identity.mgt.config;
 
 public abstract class AbstractConfigManager implements ConfigManager {
 
-	protected abstract void createConfig();
+    protected abstract void createConfig();
 
 }

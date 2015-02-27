@@ -19,15 +19,15 @@ package org.wso2.carbon.identity.user.registration.dto;
 
 public class UserFieldDTO {
 
-	private String fieldName;
-	private String fieldValue;
-	private String claimUri;
-	private String defaultValue;
-	private String[] inputValues;
-	private int minLength;
-	private int maxLength;
-	private boolean required;
-	private int displayOrder;
+    private String fieldName;
+    private String fieldValue;
+    private String claimUri;
+    private String defaultValue;
+    private String[] inputValues;
+    private int minLength;
+    private int maxLength;
+    private boolean required;
+    private int displayOrder;
     private String regEx;
 
     public String getRegEx() {
@@ -39,68 +39,68 @@ public class UserFieldDTO {
     }
 
     public String getClaimUri() {
-		return claimUri;
-	}
+        return claimUri;
+    }
 
-	public void setClaimUri(String claimUri) {
-		this.claimUri = claimUri;
-	}
+    public void setClaimUri(String claimUri) {
+        this.claimUri = claimUri;
+    }
 
-	public String getFieldValue() {
-		return fieldValue;
-	}
+    public String getFieldValue() {
+        return fieldValue;
+    }
 
-	public void setFieldValue(String fieldValue) {
-		this.fieldValue = fieldValue;
-	}
+    public void setFieldValue(String fieldValue) {
+        this.fieldValue = fieldValue;
+    }
 
-	public boolean isRequired() {
-		return required;
-	}
+    public boolean isRequired() {
+        return required;
+    }
 
-	public void setRequired(boolean required) {
-		this.required = required;
-	}
+    public void setRequired(boolean required) {
+        this.required = required;
+    }
 
-	public String getFieldName() {
-		return fieldName;
-	}
+    public String getFieldName() {
+        return fieldName;
+    }
 
-	public void setFieldName(String fieldName) {
-		this.fieldName = fieldName;
-	}
+    public void setFieldName(String fieldName) {
+        this.fieldName = fieldName;
+    }
 
-	public String getDefaultValue() {
-		return defaultValue;
-	}
+    public String getDefaultValue() {
+        return defaultValue;
+    }
 
-	public void setDefaultValue(String defaultValue) {
-		this.defaultValue = defaultValue;
-	}
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
+    }
 
-	public String[] getInputValues() {
-		return inputValues;
-	}
+    public String[] getInputValues() {
+        return inputValues;
+    }
 
-	public void setInputValues(String[] inputValues) {
-		this.inputValues = inputValues;
-	}
+    public void setInputValues(String[] inputValues) {
+        this.inputValues = inputValues;
+    }
 
-	public int getMinLength() {
-		return minLength;
-	}
+    public int getMinLength() {
+        return minLength;
+    }
 
-	public void setMinLength(int minLength) {
-		this.minLength = minLength;
-	}
+    public void setMinLength(int minLength) {
+        this.minLength = minLength;
+    }
 
-	public int getMaxLength() {
-		return maxLength;
-	}
+    public int getMaxLength() {
+        return maxLength;
+    }
 
-	public void setMaxLength(int maxLength) {
-		this.maxLength = maxLength;
-	}
+    public void setMaxLength(int maxLength) {
+        this.maxLength = maxLength;
+    }
 
     public int getDisplayOrder() {
         return displayOrder;

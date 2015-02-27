@@ -32,7 +32,6 @@ public abstract class PublisherVerificationModule {
      * initializes policy publisher retriever module
      *
      * @param properties Properties, that are needed to initialize the module
-     *
      * @throws Exception throws when initialization is failed
      */
     public abstract void init(Properties properties) throws Exception;
@@ -45,7 +44,7 @@ public abstract class PublisherVerificationModule {
      * @return returns verification code as <code>String</code>
      * @throws EntitlementException if there are errors in generating verification code
      */
-    public abstract String  getVerificationCode(PublisherDataHolder holder) throws EntitlementException;
+    public abstract String getVerificationCode(PublisherDataHolder holder) throws EntitlementException;
 
     /**
      * Verifies whether given verification code is valid or not

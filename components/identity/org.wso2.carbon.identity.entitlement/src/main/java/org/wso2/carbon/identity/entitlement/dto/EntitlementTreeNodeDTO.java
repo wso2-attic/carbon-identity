@@ -57,7 +57,7 @@ public class EntitlementTreeNodeDTO {
         this.childNodes = Arrays.copyOf(childNodes, childNodes.length);
     }
 
-    public void addChildNode(EntitlementTreeNodeDTO node){
+    public void addChildNode(EntitlementTreeNodeDTO node) {
         Set<EntitlementTreeNodeDTO> valueNodes = new HashSet<EntitlementTreeNodeDTO>(Arrays.asList(this.childNodes));
         valueNodes.add(node);
         this.childNodes = valueNodes.toArray(new EntitlementTreeNodeDTO[valueNodes.size()]);

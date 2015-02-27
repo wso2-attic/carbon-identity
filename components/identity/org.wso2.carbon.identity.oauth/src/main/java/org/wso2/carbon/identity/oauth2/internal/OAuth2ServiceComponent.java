@@ -29,13 +29,12 @@ import org.wso2.carbon.identity.oauth2.OAuth2TokenValidationService;
 
 /**
  * @scr.component name="identity.oauth2.component" immediate="true"
- *
  * @scr.reference name="identity.application.management.component"
- *                interface=
- *                "org.wso2.carbon.identity.application.mgt.ApplicationManagementService"
- *                cardinality="1..1" policy="dynamic"
- *                bind="setApplicationMgtService"
- *                unbind="unsetApplicationMgtService"
+ * interface=
+ * "org.wso2.carbon.identity.application.mgt.ApplicationManagementService"
+ * cardinality="1..1" policy="dynamic"
+ * bind="setApplicationMgtService"
+ * unbind="unsetApplicationMgtService"
  */
 public class OAuth2ServiceComponent {
     private static Log log = LogFactory.getLog(OAuth2ServiceComponent.class);
@@ -51,15 +50,14 @@ public class OAuth2ServiceComponent {
         OAuth2TokenValidationService tokenValidationService = new OAuth2TokenValidationService();
         bundleContext.registerService(OAuth2TokenValidationService.class.getName(), tokenValidationService, null);
         if (log.isDebugEnabled()) {
-            log.info("Identity OAuth bundle is activated");
+            log.debug("Identity OAuth bundle is activated");
         }
     }
 
     /**
      * Set Application management service implementation
      *
-     * @param applicationMgtService
-     *            Application management service
+     * @param applicationMgtService Application management service
      */
     protected void setApplicationMgtService(ApplicationManagementService applicationMgtService) {
         if (log.isDebugEnabled()) {
@@ -71,8 +69,7 @@ public class OAuth2ServiceComponent {
     /**
      * Unset Application management service implementation
      *
-     * @param applicationMgtService
-     *            Application management service
+     * @param applicationMgtService Application management service
      */
     protected void unsetApplicationMgtService(ApplicationManagementService applicationMgtService) {
         if (log.isDebugEnabled()) {

@@ -27,19 +27,18 @@ import org.wso2.carbon.um.ws.api.stub.RemoteAuthorizationManagerServiceStub;
 import org.wso2.carbon.user.core.AuthorizationManager;
 import org.wso2.carbon.user.core.UserStoreException;
 
-public class WSAuthorizationManager implements AuthorizationManager{
-    
-    private RemoteAuthorizationManagerServiceStub stub = null;
-    
+public class WSAuthorizationManager implements AuthorizationManager {
+
     private static Log log = LogFactory.getLog(WSUserStoreManager.class);
-    
+    private RemoteAuthorizationManagerServiceStub stub = null;
+
     public WSAuthorizationManager(String serverUrl, String cookie,
                                   ConfigurationContext configCtxt) throws UserStoreException {
 
         try {
             stub =
-                   new RemoteAuthorizationManagerServiceStub(configCtxt, serverUrl +
-                                                                         "RemoteAuthorizationManagerService");
+                    new RemoteAuthorizationManagerServiceStub(configCtxt, serverUrl +
+                            "RemoteAuthorizationManagerService");
             ServiceClient client = stub._getServiceClient();
             Options option = client.getOptions();
             option.setManageSession(true);
@@ -48,7 +47,7 @@ public class WSAuthorizationManager implements AuthorizationManager{
             throw new UserStoreException();
         }
     }
-    
+
 
     public void authorizeRole(String roleName, String resourceId, String action)
             throws UserStoreException {
@@ -66,7 +65,7 @@ public class WSAuthorizationManager implements AuthorizationManager{
         } catch (Exception e) {
             this.handleException(e.getMessage(), e);
         }
-        
+
     }
 
     public void clearResourceAuthorizations(String resourceId) throws UserStoreException {
@@ -75,7 +74,7 @@ public class WSAuthorizationManager implements AuthorizationManager{
         } catch (Exception e) {
             this.handleException(e.getMessage(), e);
         }
-        
+
     }
 
     public void clearRoleActionOnAllResources(String roleName, String action)
@@ -85,7 +84,7 @@ public class WSAuthorizationManager implements AuthorizationManager{
         } catch (Exception e) {
             this.handleException(e.getMessage(), e);
         }
-        
+
     }
 
     public void clearRoleAuthorization(String roleName, String resourceId, String action)
@@ -103,7 +102,7 @@ public class WSAuthorizationManager implements AuthorizationManager{
         } catch (Exception e) {
             this.handleException(e.getMessage(), e);
         }
-        
+
     }
 
     public void clearUserAuthorization(String userName, String resourceId, String action)
@@ -113,7 +112,7 @@ public class WSAuthorizationManager implements AuthorizationManager{
         } catch (Exception e) {
             this.handleException(e.getMessage(), e);
         }
-        
+
     }
 
     public void clearUserAuthorization(String userName) throws UserStoreException {
@@ -122,7 +121,7 @@ public class WSAuthorizationManager implements AuthorizationManager{
         } catch (Exception e) {
             this.handleException(e.getMessage(), e);
         }
-        
+
     }
 
     public void denyRole(String roleName, String resourceId, String action)
@@ -132,7 +131,7 @@ public class WSAuthorizationManager implements AuthorizationManager{
         } catch (Exception e) {
             this.handleException(e.getMessage(), e);
         }
-        
+
     }
 
     public void denyUser(String userName, String resourceId, String action)
@@ -223,27 +222,26 @@ public class WSAuthorizationManager implements AuthorizationManager{
         }
     }
 
-	public int getTenantId() throws UserStoreException {
-		try {
+    public int getTenantId() throws UserStoreException {
+        try {
             //return stub.getTenantId();
         } catch (Exception e) {
             this.handleException(e.getMessage(), e);
         }
-		return 0;
-	}
+        return 0;
+    }
 
 
-
-	private String[] handleException(String msg, Exception e) throws UserStoreException {
+    private String[] handleException(String msg, Exception e) throws UserStoreException {
         log.error(e.getMessage(), e);
         throw new UserStoreException(msg, e);
     }
 
 
-	@Override
+    @Override
     public String[] normalizeRoles(String[] roles) {
-	    return roles;
+        return roles;
     }
-    
+
 
 }

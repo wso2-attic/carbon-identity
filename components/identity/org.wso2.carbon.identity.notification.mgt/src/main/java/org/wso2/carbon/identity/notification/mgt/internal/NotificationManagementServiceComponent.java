@@ -22,12 +22,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.identity.notification.mgt.NotificationManagementException;
-import org.wso2.carbon.identity.notification.mgt.NotificationMgtConfigBuilder;
-import org.wso2.carbon.identity.notification.mgt.NotificationSender;
-import org.wso2.carbon.identity.notification.mgt.NotificationSendingModule;
+import org.wso2.carbon.identity.notification.mgt.*;
 import org.wso2.carbon.identity.notification.mgt.bean.ModuleConfiguration;
-import org.wso2.carbon.identity.notification.mgt.NotificationMgtConstants;
 
 import javax.mail.MessageRemovedException;
 import java.util.ArrayList;
@@ -47,6 +43,10 @@ public class NotificationManagementServiceComponent {
 
     private static final Log log = LogFactory.getLog(NotificationManagementServiceComponent.class);
     /**
+     * Size of the thread pool for distributing events to subscribed modules
+     */
+    int threadPoolSize = 0;
+    /**
      * NotificationSender instance which is exposed as the service.
      */
     private NotificationSender notificationSender;
@@ -58,10 +58,6 @@ public class NotificationManagementServiceComponent {
      * Since Message Sending modules are dynamically registered a List is used
      */
     private List<NotificationSendingModule> notificationSendingModules = new ArrayList<NotificationSendingModule>();
-    /**
-     * Size of the thread pool for distributing events to subscribed modules
-     */
-    int threadPoolSize=0;
 
     protected void activate(ComponentContext context) {
         // Register Notification sender as an OSGI service. Other components can consume the service for sending

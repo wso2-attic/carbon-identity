@@ -29,7 +29,7 @@ public class PaginatedStatusHolder {
     private int numberOfPages;
 
     public StatusHolder[] getStatusHolders() {
-        return  Arrays.copyOf(statusHolders, statusHolders.length);
+        return Arrays.copyOf(statusHolders, statusHolders.length);
     }
 
     public void setStatusHolders(StatusHolder[] statusHolders) {

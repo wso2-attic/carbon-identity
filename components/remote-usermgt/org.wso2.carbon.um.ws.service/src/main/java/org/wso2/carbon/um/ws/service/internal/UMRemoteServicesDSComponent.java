@@ -26,26 +26,30 @@ import org.wso2.carbon.user.core.service.RealmService;
 /**
  * @scr.component name="remote.um.api.component" immediate="true"
  * @scr.reference name="user.realmservice.default"
- *                interface="org.wso2.carbon.user.core.service.RealmService"
- *                cardinality="1..1" policy="dynamic" bind="setRealmService"
- *                unbind="unsetRealmService"
+ * interface="org.wso2.carbon.user.core.service.RealmService"
+ * cardinality="1..1" policy="dynamic" bind="setRealmService"
+ * unbind="unsetRealmService"
  * @scr.reference name="registry.service"
- *                interface="org.wso2.carbon.registry.core.service.RegistryService"
- *                cardinality="1..1" policy="dynamic" bind="setRegistryService"
- *                unbind="unsetRegistryService"
+ * interface="org.wso2.carbon.registry.core.service.RegistryService"
+ * cardinality="1..1" policy="dynamic" bind="setRegistryService"
+ * unbind="unsetRegistryService"
  */
 public class UMRemoteServicesDSComponent {
 
     private static Log log = LogFactory.getLog(UMRemoteServicesDSComponent.class);
     private static RealmService realmService = null;
     private static RegistryService registryService = null;
-    
-    protected void activate(ComponentContext ctxt) {
-        log.debug("Remote User Mgt bundle is activated ");
+
+    public static RegistryService getRegistryService() {
+        return registryService;
     }
 
-    protected void deactivate(ComponentContext ctxt) {
+    protected void setRegistryService(RegistryService registryService) {
+        UMRemoteServicesDSComponent.registryService = registryService;
+    }
 
+    public static RealmService getRealmService() {
+        return realmService;
     }
 
     protected void setRealmService(RealmService realmService) {
@@ -55,6 +59,14 @@ public class UMRemoteServicesDSComponent {
         UMRemoteServicesDSComponent.realmService = realmService;
     }
 
+    protected void activate(ComponentContext ctxt) {
+        log.debug("Remote User Mgt bundle is activated ");
+    }
+
+    protected void deactivate(ComponentContext ctxt) {
+
+    }
+
     protected void unsetRealmService(RealmService realmService) {
         if (log.isDebugEnabled()) {
             log.debug("Unsetting the Realm Service");
@@ -62,21 +74,9 @@ public class UMRemoteServicesDSComponent {
         UMRemoteServicesDSComponent.realmService = null;
     }
 
-    protected void setRegistryService(RegistryService registryService) {
-    	UMRemoteServicesDSComponent.registryService = registryService;
-    }
-
     protected void unsetRegistryService(RegistryService registryService) {
-    	UMRemoteServicesDSComponent.registryService = null;
+        UMRemoteServicesDSComponent.registryService = null;
     }
-    
-	public static RegistryService getRegistryService() {
-		return registryService;
-	}
 
-	public static RealmService getRealmService() {
-		return realmService;
-	}
-    
-    
+
 }

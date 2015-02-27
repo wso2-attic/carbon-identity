@@ -32,37 +32,13 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PolicyEditorEngine {
 
-    private int tenantId;
-
     private static final Object lock = new Object();
-
     private static ConcurrentHashMap<String, PolicyEditorEngine> policyEditorEngine =
-                                                new ConcurrentHashMap<String, PolicyEditorEngine>();
-
-    private Map<String, PolicyEditorDataHolder> dataHolder = new HashMap<String, PolicyEditorDataHolder>();
-    
-    private DataPersistenceManager manager;
-    
+            new ConcurrentHashMap<String, PolicyEditorEngine>();
     private static Log log = LogFactory.getLog(PolicyEditorEngine.class);
-
-    /**
-     * Get a PolicyEditorEngine instance for that tenant. This method will return an
-     * PolicyEditorEngine instance if exists, or creates a new one
-     *
-     * @return EntitlementEngine instance for that tenant
-     */
-    public static PolicyEditorEngine getInstance() {
-
-        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        if (!policyEditorEngine.containsKey(Integer.toString(tenantId))) {
-            synchronized (lock){
-                if (!policyEditorEngine.containsKey(Integer.toString(tenantId))) {
-                    policyEditorEngine.put(Integer.toString(tenantId), new PolicyEditorEngine(tenantId));
-                }
-            }
-        }
-        return policyEditorEngine.get(Integer.toString(tenantId));
-    }
+    private int tenantId;
+    private Map<String, PolicyEditorDataHolder> dataHolder = new HashMap<String, PolicyEditorDataHolder>();
+    private DataPersistenceManager manager;
 
     public PolicyEditorEngine(int tenantId) {
         this.tenantId = tenantId;
@@ -74,24 +50,43 @@ public class PolicyEditorEngine {
         }
     }
 
-    public PolicyEditorDataHolder getPolicyEditorData(String policyEditorType){
+    /**
+     * Get a PolicyEditorEngine instance for that tenant. This method will return an
+     * PolicyEditorEngine instance if exists, or creates a new one
+     *
+     * @return EntitlementEngine instance for that tenant
+     */
+    public static PolicyEditorEngine getInstance() {
 
-        if(dataHolder != null){
+        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        if (!policyEditorEngine.containsKey(Integer.toString(tenantId))) {
+            synchronized (lock) {
+                if (!policyEditorEngine.containsKey(Integer.toString(tenantId))) {
+                    policyEditorEngine.put(Integer.toString(tenantId), new PolicyEditorEngine(tenantId));
+                }
+            }
+        }
+        return policyEditorEngine.get(Integer.toString(tenantId));
+    }
+
+    public PolicyEditorDataHolder getPolicyEditorData(String policyEditorType) {
+
+        if (dataHolder != null) {
             return dataHolder.get(policyEditorType);
         }
         return null;
     }
 
-    public void persistConfig(String policyEditorType, String xmlConfig) throws PolicyEditorException{
+    public void persistConfig(String policyEditorType, String xmlConfig) throws PolicyEditorException {
 
         manager.persistConfig(policyEditorType, xmlConfig);
         dataHolder = manager.buildDataHolder();
     }
 
-    public String getConfig(String policyEditorType){
+    public String getConfig(String policyEditorType) {
 
         Map<String, String> configs = manager.getConfig();
-        if(configs != null){
+        if (configs != null) {
             return configs.get(policyEditorType);
         }
         return null;

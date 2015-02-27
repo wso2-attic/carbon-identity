@@ -29,14 +29,14 @@ import java.util.Set;
  * which can be found at [CARBON_HOME]\repository\conf.
  * PIPResourceFinder will be fired by CarbonAttributeFinder whenever it wants to find a child or
  * descendant resources for a given resource value .
- *
  */
 public interface PIPResourceFinder {
 
     /**
      * initializes the Resource finder module
-	 * @param properties properties, that need to initialize the module. These properties can be
-     * defined in pip-config.xml file
+     *
+     * @param properties properties, that need to initialize the module. These properties can be
+     *                   defined in pip-config.xml file
      * @throws Exception throws when initialization is failed
      */
     public void init(Properties properties) throws Exception;
@@ -47,36 +47,36 @@ public interface PIPResourceFinder {
      * @return name as String
      */
     public String getModuleName();
-    
+
     /**
-	 * Will be fired by CarbonResourceFinder whenever it wants to find a child resources
+     * Will be fired by CarbonResourceFinder whenever it wants to find a child resources
      *
-     * @param parentResourceId  parent resource value
-	 * @param context  EvaluationCtx which encapsulates the XACML request.
+     * @param parentResourceId parent resource value
+     * @param context          EvaluationCtx which encapsulates the XACML request.
      * @return Returns a <code>Set</code> of <code>String</code>s that represent the child resources
      * @throws Exception throws if any failure is occurred
      */
     public Set<String> findChildResources(String parentResourceId, EvaluationCtx context) throws Exception;
 
     /**
-	 * Will be fired by CarbonResourceFinder whenever it wants to find a descendant resources
+     * Will be fired by CarbonResourceFinder whenever it wants to find a descendant resources
      *
-     * @param parentResourceId  parent resource value
-	 * @param context  EvaluationCtx which encapsulates the XACML request.
+     * @param parentResourceId parent resource value
+     * @param context          EvaluationCtx which encapsulates the XACML request.
      * @return Returns a <code>Set</code> of <code>String</code>s that represent the descendant resources
      * @throws Exception throws if any failure is occurred
      */
     public Set<String> findDescendantResources(String parentResourceId, EvaluationCtx context) throws Exception;
 
-	/**
-	 * This is to inform whether to ignore caching of descendant and child resources in carbon level
-	 *
-	 * @return True/False
-	 */
-	public boolean overrideDefaultCache();
+    /**
+     * This is to inform whether to ignore caching of descendant and child resources in carbon level
+     *
+     * @return True/False
+     */
+    public boolean overrideDefaultCache();
 
-	/**
-	 * Clears the entire cache.
-	 */
-	public void clearCache();
+    /**
+     * Clears the entire cache.
+     */
+    public void clearCache();
 }

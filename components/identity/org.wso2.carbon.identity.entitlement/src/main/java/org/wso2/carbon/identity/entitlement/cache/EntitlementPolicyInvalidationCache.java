@@ -24,36 +24,36 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.entitlement.PDPConstants;
 
 /**
- * 
+ *
  */
-public class EntitlementPolicyInvalidationCache extends EntitlementBaseCache<IdentityCacheKey, IdentityCacheEntry>{
+public class EntitlementPolicyInvalidationCache extends EntitlementBaseCache<IdentityCacheKey, IdentityCacheEntry> {
 
+    private static final Object lock = new Object();
     private static EntitlementPolicyInvalidationCache entitlementPolicyCache = null;
     private static Log log = LogFactory.getLog(EntitlementPolicyInvalidationCache.class);
-    private static final Object lock = new Object();
     private int myHashCode;
 
     private EntitlementPolicyInvalidationCache() {
-    	super(PDPConstants.ENTITLEMENT_POLICY_INVALIDATION_CACHE);
+        super(PDPConstants.ENTITLEMENT_POLICY_INVALIDATION_CACHE);
     }
 
-	/**
-	 * Gets a new instance of EntitlementPolicyInvalidationCache.
-	 *
-	 * @return A new instance of EntitlementPolicyInvalidationCache.
-	 */
-	public static EntitlementPolicyInvalidationCache getInstance() {
-        if(entitlementPolicyCache == null){
-            synchronized (lock){
-                if(entitlementPolicyCache == null){
+    /**
+     * Gets a new instance of EntitlementPolicyInvalidationCache.
+     *
+     * @return A new instance of EntitlementPolicyInvalidationCache.
+     */
+    public static EntitlementPolicyInvalidationCache getInstance() {
+        if (entitlementPolicyCache == null) {
+            synchronized (lock) {
+                if (entitlementPolicyCache == null) {
                     entitlementPolicyCache = new EntitlementPolicyInvalidationCache();
                 }
             }
         }
         return entitlementPolicyCache;
-	}
+    }
 
-    public void invalidateCache(){
+    public void invalidateCache() {
 
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 
@@ -61,28 +61,28 @@ public class EntitlementPolicyInvalidationCache extends EntitlementBaseCache<Ide
         int valueToCache = myHashCode + 1;
         IdentityCacheEntry cacheEntry = new IdentityCacheEntry(valueToCache);
         addToCache(cacheKey, cacheEntry);
-        if(log.isDebugEnabled()){
+        if (log.isDebugEnabled()) {
             log.debug("My Hash code of Policy cache is : " + myHashCode);
             log.debug("Adding Shared Hash of Policy cache : " + valueToCache);
         }
     }
 
-    public boolean isInvalidate(){
+    public boolean isInvalidate() {
 
         int hashCode;
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         IdentityCacheKey cacheKey = new IdentityCacheKey(tenantId, "");
         Object entry = getValueFromCache(cacheKey);
-        if(entry != null){
+        if (entry != null) {
             IdentityCacheEntry cacheEntry = (IdentityCacheEntry) entry;
-            hashCode =  cacheEntry.getHashEntry();
-            if(log.isDebugEnabled()){
+            hashCode = cacheEntry.getHashEntry();
+            if (log.isDebugEnabled()) {
                 log.debug("My Hash code of Policy cache is : " + myHashCode);
                 log.debug("Shared Hash code of Policy cache is : " + hashCode);
             }
-            if(hashCode > myHashCode){
+            if (hashCode > myHashCode) {
                 myHashCode = hashCode;
-                if(Integer.MAX_VALUE == myHashCode){
+                if (Integer.MAX_VALUE == myHashCode) {
                     myHashCode = 0;
                 }
                 return true;

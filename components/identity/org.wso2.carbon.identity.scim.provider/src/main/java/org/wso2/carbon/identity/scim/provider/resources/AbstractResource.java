@@ -27,13 +27,13 @@ public class AbstractResource {
             return format;
         }
     }
-    
-	public String identifyInputFormat(String format) {
-		if (format == null || ("*/*").equals(format) ||
-		    ((format != null) && (format.startsWith(SCIMConstants.APPLICATION_JSON)))) {
-			return SCIMConstants.APPLICATION_JSON;
-		} else {
-			return format;
-		}
-	}
+
+    public String identifyInputFormat(String format) {
+        if (format == null || ("*/*").equals(format) ||
+                ((format != null) && (format.startsWith(SCIMConstants.APPLICATION_JSON)))) {
+            return SCIMConstants.APPLICATION_JSON;
+        } else {
+            return format;
+        }
+    }
 }

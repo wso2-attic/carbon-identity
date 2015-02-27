@@ -28,7 +28,7 @@ public class SecurityScenario {
      */
     public List<String> modules = new ArrayList<String>();
     public List<String> services = new ArrayList<String>();
-    
+
     private String scenarioId;
     private String summary;
     private String category;
@@ -37,7 +37,7 @@ public class SecurityScenario {
     private String wsuId;
     private String type;
     private boolean isGeneralPolicy;
-    
+
     /**
      * Constructs a new SecurityScenarioDO.
      */
@@ -109,7 +109,7 @@ public class SecurityScenario {
     public void addModule(String module) {
         modules.add(module);
     }
-    
+
     public void addService(String service) {
         services.add(service);
     }
@@ -142,13 +142,13 @@ public class SecurityScenario {
         this.category = category;
     }
 
-	public List<String> getModules() {
-		return modules;
-	}
-	
-	public List<String> getServices(){
-	    return services;
-	}
+    public List<String> getModules() {
+        return modules;
+    }
+
+    public List<String> getServices() {
+        return services;
+    }
 
     public String getWsuId() {
         return wsuId;

@@ -15,48 +15,48 @@
  */
 package org.wso2.carbon.identity.mgt.policy.password;
 
+import org.wso2.carbon.identity.mgt.policy.AbstractPasswordPolicyEnforcer;
+
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.wso2.carbon.identity.mgt.policy.AbstractPasswordPolicyEnforcer;
-
 public class DefaultPasswordPatternPolicy extends AbstractPasswordPolicyEnforcer {
 
-	private String PASSWORD_PATTERN = ".";
-	private Pattern pattern;
-	private Matcher matcher;
+    private String PASSWORD_PATTERN = ".";
+    private Pattern pattern;
+    private Matcher matcher;
 
-	@Override
-	public boolean enforce(Object... args) {
+    @Override
+    public boolean enforce(Object... args) {
 
-		if (args != null) {
-			String password = args[0].toString();
-			
-			matcher = pattern.matcher(password);
-			if(matcher.matches()) {
-				return true;
-			}else {
-				errorMessage = "Password pattern policy violated. Password should contain " +
-						"a digit[0-9], a lower case letter[a-z], an upper case letter[A-Z], " +
-						"one of !@#$%&* characters";
-				return false;
-			}
-			
-		} else {
-			return true;
-		}
+        if (args != null) {
+            String password = args[0].toString();
 
-	}
+            matcher = pattern.matcher(password);
+            if (matcher.matches()) {
+                return true;
+            } else {
+                errorMessage = "Password pattern policy violated. Password should contain " +
+                        "a digit[0-9], a lower case letter[a-z], an upper case letter[A-Z], " +
+                        "one of !@#$%&* characters";
+                return false;
+            }
 
-	@Override
-	public void init(Map<String, String> params) {
+        } else {
+            return true;
+        }
 
-		if (params != null && params.size() > 0) {
-			PASSWORD_PATTERN = params.get("pattern");
-		}
+    }
 
-		pattern = Pattern.compile(PASSWORD_PATTERN);
-	}
+    @Override
+    public void init(Map<String, String> params) {
+
+        if (params != null && params.size() > 0) {
+            PASSWORD_PATTERN = params.get("pattern");
+        }
+
+        pattern = Pattern.compile(PASSWORD_PATTERN);
+    }
 
 }

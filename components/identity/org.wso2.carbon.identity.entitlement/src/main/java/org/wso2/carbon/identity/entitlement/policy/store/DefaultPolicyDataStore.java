@@ -23,8 +23,8 @@ import org.wso2.balana.combine.PolicyCombiningAlgorithm;
 import org.wso2.balana.combine.xacml3.DenyOverridesPolicyAlg;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.entitlement.EntitlementException;
-import org.wso2.carbon.identity.entitlement.PDPConstants;
 import org.wso2.carbon.identity.entitlement.EntitlementUtil;
+import org.wso2.carbon.identity.entitlement.PDPConstants;
 import org.wso2.carbon.identity.entitlement.dto.PolicyStoreDTO;
 import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent;
 import org.wso2.carbon.registry.core.Collection;
@@ -40,31 +40,76 @@ import java.util.Properties;
 /**
  * This is default implementation, where data are stored in carbon registry
  */
-public class DefaultPolicyDataStore implements PolicyDataStore{
-    
-    private String policyDataCollection = PDPConstants.ENTITLEMENT_POLICY_DATA;
+public class DefaultPolicyDataStore implements PolicyDataStore {
 
     public static final String POLICY_COMBINING_PREFIX_1 =
-                            "urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:";
-
+            "urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:";
     public static final String POLICY_COMBINING_PREFIX_3 =
-                            "urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:";
-
+            "urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:";
     private static Log log = LogFactory.getLog(DefaultPolicyDataStore.class);
+    private String policyDataCollection = PDPConstants.ENTITLEMENT_POLICY_DATA;
 
     @Override
     public void init(Properties properties) throws EntitlementException {
-        
+
     }
 
     @Override
-    public void setGlobalPolicyAlgorithm(String policyCombiningAlgorithm) throws EntitlementException{
+    public PolicyCombiningAlgorithm getGlobalPolicyAlgorithm() {
+
+        Registry registry = EntitlementServiceComponent.
+                getGovernanceRegistry(CarbonContext.getThreadLocalCarbonContext().getTenantId());
+        String algorithm = null;
+        try {
+
+            if (registry.resourceExists(policyDataCollection)) {
+                Collection collection = (Collection) registry.get(policyDataCollection);
+                algorithm = collection.getProperty("globalPolicyCombiningAlgorithm");
+            }
+
+            if (algorithm == null || algorithm.trim().length() == 0) {
+                // read algorithm from entitlement.properties file
+                algorithm = EntitlementServiceComponent.getEntitlementConfig().getEngineProperties().
+                        getProperty(PDPConstants.PDP_GLOBAL_COMBINING_ALGORITHM);
+                log.info("Using Global policy combining algorithm that is defined in configuration file.");
+                try {
+                    return EntitlementUtil.getPolicyCombiningAlgorithm(algorithm);
+                } catch (Exception e) {
+                    log.debug(e);
+                }
+            }
+
+            if (algorithm != null && algorithm.trim().length() > 0) {
+                if ("first-applicable".equals(algorithm) || "only-one-applicable".equals(algorithm)) {
+                    algorithm = POLICY_COMBINING_PREFIX_1 + algorithm;
+                } else {
+                    algorithm = POLICY_COMBINING_PREFIX_3 + algorithm;
+                }
+                return EntitlementUtil.getPolicyCombiningAlgorithm(algorithm);
+            }
+
+        } catch (RegistryException e) {
+            if (log.isDebugEnabled()) {
+                log.debug(e);
+            }
+        } catch (EntitlementException e) {
+            if (log.isDebugEnabled()) {
+                log.debug(e);
+            }
+        }
+
+        log.warn("Global policy combining algorithm is not defined. Therefore using default one");
+        return new DenyOverridesPolicyAlg();
+    }
+
+    @Override
+    public void setGlobalPolicyAlgorithm(String policyCombiningAlgorithm) throws EntitlementException {
 
         Registry registry = EntitlementServiceComponent.
                 getGovernanceRegistry(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         try {
             Collection policyCollection;
-            if(registry.resourceExists(policyDataCollection)){
+            if (registry.resourceExists(policyDataCollection)) {
                 policyCollection = (Collection) registry.get(policyDataCollection);
             } else {
                 policyCollection = registry.newCollection();
@@ -79,73 +124,25 @@ public class DefaultPolicyDataStore implements PolicyDataStore{
     }
 
     @Override
-    public PolicyCombiningAlgorithm getGlobalPolicyAlgorithm() {
-
-        Registry registry = EntitlementServiceComponent.
-                            getGovernanceRegistry(CarbonContext.getThreadLocalCarbonContext().getTenantId());
-        String algorithm = null;
-        try{
-            
-            if(registry.resourceExists(policyDataCollection)){
-                Collection collection = (Collection) registry.get(policyDataCollection);
-                algorithm = collection.getProperty("globalPolicyCombiningAlgorithm");
-            }
-
-            if(algorithm == null || algorithm.trim().length() == 0){
-                // read algorithm from entitlement.properties file
-                algorithm  =  EntitlementServiceComponent.getEntitlementConfig().getEngineProperties().
-                        getProperty(PDPConstants.PDP_GLOBAL_COMBINING_ALGORITHM);
-                log.info("Using Global policy combining algorithm that is defined in configuration file.");
-                try{
-                    return EntitlementUtil.getPolicyCombiningAlgorithm(algorithm);
-                } catch (Exception e) {
-                    log.debug(e);
-                }
-            }
-
-            if(algorithm != null && algorithm.trim().length() > 0){
-                if("first-applicable".equals(algorithm) || "only-one-applicable".equals(algorithm)){
-                    algorithm =  POLICY_COMBINING_PREFIX_1 + algorithm;
-                } else {
-                    algorithm =  POLICY_COMBINING_PREFIX_3 + algorithm;
-                }
-                return EntitlementUtil.getPolicyCombiningAlgorithm(algorithm);
-            }
-
-        } catch (RegistryException e){
-            if(log.isDebugEnabled()){
-                log.debug(e);
-            }
-        } catch (EntitlementException e) {
-            if(log.isDebugEnabled()){
-                log.debug(e);
-            }
-        }
-
-        log.warn("Global policy combining algorithm is not defined. Therefore using default one");
-        return new DenyOverridesPolicyAlg();
-    }
-
-    @Override
     public String getGlobalPolicyAlgorithmName() {
 
         Registry registry = EntitlementServiceComponent.
                 getGovernanceRegistry(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         String algorithm = null;
-        try{
+        try {
 
-            if(registry.resourceExists(policyDataCollection)){
+            if (registry.resourceExists(policyDataCollection)) {
                 Collection collection = (Collection) registry.get(policyDataCollection);
                 algorithm = collection.getProperty("globalPolicyCombiningAlgorithm");
             }
-        } catch (RegistryException e){
-            if(log.isDebugEnabled()){
+        } catch (RegistryException e) {
+            if (log.isDebugEnabled()) {
                 log.debug(e);
             }
         }
 
         // set default
-        if(algorithm == null){
+        if (algorithm == null) {
             algorithm = "deny-overrides";
         }
 
@@ -155,29 +152,29 @@ public class DefaultPolicyDataStore implements PolicyDataStore{
     @Override
     public String[] getAllGlobalPolicyAlgorithmNames() {
 
-        return new String[] {"deny-overrides", "permit-overrides", "first-applicable",
-                "ordered-deny-overrides" ,"ordered-permit-overrides", "only-one-applicable" };
+        return new String[]{"deny-overrides", "permit-overrides", "first-applicable",
+                "ordered-deny-overrides", "ordered-permit-overrides", "only-one-applicable"};
     }
 
     @Override
     public PolicyStoreDTO getPolicyData(String policyId) {
-        
+
         Registry registry = EntitlementServiceComponent.
                 getGovernanceRegistry(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         PolicyStoreDTO dataDTO = new PolicyStoreDTO();
-        try{
+        try {
             String path = policyDataCollection + policyId;
-            if(registry.resourceExists(path)){
+            if (registry.resourceExists(path)) {
                 Resource resource = registry.get(path);
                 String order = resource.getProperty("order");
                 String active = resource.getProperty("active");
-                if(order != null && order.trim().length() > 0){
+                if (order != null && order.trim().length() > 0) {
                     dataDTO.setPolicyOrder(Integer.parseInt(order));
                 }
                 dataDTO.setActive(Boolean.parseBoolean(active));
             }
-        } catch (RegistryException e){
-            if(log.isDebugEnabled()){
+        } catch (RegistryException e) {
+            if (log.isDebugEnabled()) {
                 log.debug(e);
             }
         }
@@ -187,23 +184,23 @@ public class DefaultPolicyDataStore implements PolicyDataStore{
 
     @Override
     public PolicyStoreDTO[] getPolicyData() {
-        
+
         Registry registry = EntitlementServiceComponent.
                 getGovernanceRegistry(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         List<PolicyStoreDTO> policyStoreDTOs = new ArrayList<PolicyStoreDTO>();
-        try{
-            if(registry.resourceExists(policyDataCollection)){
-                Collection collection = (Collection) registry.get(policyDataCollection); 
+        try {
+            if (registry.resourceExists(policyDataCollection)) {
+                Collection collection = (Collection) registry.get(policyDataCollection);
                 String[] paths = collection.getChildren();
-                for(String path : paths){
-                    if(registry.resourceExists(path)){
+                for (String path : paths) {
+                    if (registry.resourceExists(path)) {
                         PolicyStoreDTO dataDTO = new PolicyStoreDTO();
                         Resource resource = registry.get(path);
                         String order = resource.getProperty("order");
                         String active = resource.getProperty("active");
                         String id = path.substring(path.lastIndexOf(RegistryConstants.PATH_SEPARATOR) + 1);
                         dataDTO.setPolicyId(id);
-                        if(order != null && order.trim().length() > 0){
+                        if (order != null && order.trim().length() > 0) {
                             dataDTO.setPolicyOrder(Integer.parseInt(order));
                         }
                         dataDTO.setActive(Boolean.parseBoolean(active));
@@ -211,8 +208,8 @@ public class DefaultPolicyDataStore implements PolicyDataStore{
                     }
                 }
             }
-        } catch (RegistryException e){
-            if(log.isDebugEnabled()){
+        } catch (RegistryException e) {
+            if (log.isDebugEnabled()) {
                 log.debug(e);
             }
         }
@@ -226,19 +223,19 @@ public class DefaultPolicyDataStore implements PolicyDataStore{
                 getGovernanceRegistry(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         try {
             String path = policyDataCollection + policyId;
-            Resource  resource;
-            if(registry.resourceExists(path)){
+            Resource resource;
+            if (registry.resourceExists(path)) {
                 resource = registry.get(path);
             } else {
                 resource = registry.newCollection();
             }
             resource.setMediaType(PDPConstants.REGISTRY_MEDIA_TYPE);
-            if(policyDataDTO.isSetActive()){
-                resource.setProperty("active",  Boolean.toString(policyDataDTO.isActive()));
+            if (policyDataDTO.isSetActive()) {
+                resource.setProperty("active", Boolean.toString(policyDataDTO.isActive()));
             }
-            if(policyDataDTO.isSetOrder()){
+            if (policyDataDTO.isSetOrder()) {
                 int order = policyDataDTO.getPolicyOrder();
-                if(order > 0){
+                if (order > 0) {
                     resource.setProperty("order", Integer.toString(order));
                 }
             }
@@ -254,12 +251,12 @@ public class DefaultPolicyDataStore implements PolicyDataStore{
 
         Registry registry = EntitlementServiceComponent.
                 getGovernanceRegistry(CarbonContext.getThreadLocalCarbonContext().getTenantId());
-        try{
+        try {
             String path = policyDataCollection + policyId;
-            if(registry.resourceExists(path)){
+            if (registry.resourceExists(path)) {
                 registry.delete(path);
             }
-        } catch (RegistryException e){
+        } catch (RegistryException e) {
             log.error("Error while deleting Policy data in policy store ", e);
             throw new EntitlementException("Error while deleting Policy data in policy store");
         }

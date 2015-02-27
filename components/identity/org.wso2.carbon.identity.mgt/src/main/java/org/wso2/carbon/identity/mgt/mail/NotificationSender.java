@@ -20,5 +20,5 @@ package org.wso2.carbon.identity.mgt.mail;
 
 public interface NotificationSender {
 
-	void send(Notification notification);
+    void send(Notification notification);
 }

@@ -18,15 +18,15 @@
 
 package org.wso2.carbon.identity.application.common.model;
 
+import org.apache.axiom.om.OMElement;
+
 import java.io.Serializable;
 import java.util.Iterator;
-
-import org.apache.axiom.om.OMElement;
 
 public class Property implements Serializable {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 3014011808515883129L;
 
@@ -41,134 +41,6 @@ public class Property implements Serializable {
 
     public Property() {
 
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public String getValue() {
-        return value;
-    }
-
-    /**
-     * 
-     * @param value
-     */
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * 
-     * @param name
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public boolean isConfidential() {
-        return isConfidential;
-    }
-
-    /**
-     * 
-     * @param isConfidential
-     */
-    public void setConfidential(boolean isConfidential) {
-        this.isConfidential = isConfidential;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public String getDefaultValue() {
-        return defaultValue;
-    }
-
-    /**
-     * 
-     * @param defaultValue
-     */
-    public void setDefaultValue(String defaultValue) {
-        this.defaultValue = defaultValue;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    /**
-     * 
-     * @param displayName
-     */
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public boolean isRequired() {
-        return required;
-    }
-
-    /**
-     * 
-     * @param required
-     */
-    public void setRequired(boolean required) {
-        this.required = required;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public String getDescription() {
-        return description;
-    }
-
-    /**
-     * 
-     * @param description
-     */
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public String getType() {
-        return type;
-    }
-
-    /**
-     *
-     * @param type
-     */
-    public void setType(String type) {
-        this.type = type;
     }
 
     /*
@@ -215,6 +87,117 @@ public class Property implements Serializable {
         return property;
     }
 
+    /**
+     * @return
+     */
+    public String getValue() {
+        return value;
+    }
+
+    /**
+     * @param value
+     */
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    /**
+     * @return
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return
+     */
+    public boolean isConfidential() {
+        return isConfidential;
+    }
+
+    /**
+     * @param isConfidential
+     */
+    public void setConfidential(boolean isConfidential) {
+        this.isConfidential = isConfidential;
+    }
+
+    /**
+     * @return
+     */
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    /**
+     * @param defaultValue
+     */
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+
+    /**
+     * @return
+     */
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    /**
+     * @param displayName
+     */
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    /**
+     * @return
+     */
+    public boolean isRequired() {
+        return required;
+    }
+
+    /**
+     * @param required
+     */
+    public void setRequired(boolean required) {
+        this.required = required;
+    }
+
+    /**
+     * @return
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * @param description
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * @return
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * @param type
+     */
+    public void setType(String type) {
+        this.type = type;
+    }
 
     @Override
     public boolean equals(Object o) {

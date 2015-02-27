@@ -17,34 +17,32 @@
 */
 package org.wso2.carbon.identity.core.dao;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.registry.core.Collection;
-import org.wso2.carbon.registry.core.Registry;
-import org.wso2.carbon.registry.core.Resource;
-import org.wso2.carbon.registry.core.RegistryConstants;
-import org.wso2.carbon.registry.core.config.StaticConfiguration;
-import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.IdentityRegistryResources;
+import org.wso2.carbon.registry.core.Collection;
+import org.wso2.carbon.registry.core.Registry;
+import org.wso2.carbon.registry.core.RegistryConstants;
+import org.wso2.carbon.registry.core.Resource;
+import org.wso2.carbon.registry.core.config.StaticConfiguration;
+import org.wso2.carbon.registry.core.exceptions.RegistryException;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractDAO<T> {
-
-    protected Registry registry = null;
-    private static Log log = LogFactory.getLog(AbstractDAO.class);
 
     private static final String SQL_GET_ALL_BY_PROP = "SELECT REG_PATH FROM REG_RESOURCE RR, REG_PROPERTY RP WHERE RR.REG_RID=RP.REG_RID AND RP.REG_NAME=? AND RP.REG_PROPERTY_VALUE=?";
     private final static String CUSTOM_QUERY_PATH = IdentityRegistryResources.IDENTITY_PATH
             + "CustomQueries/";
     private final static String CUSTOM_QUERY_GET_ALL_BY_PROP = CUSTOM_QUERY_PATH + "GetByProp";
+    private static Log log = LogFactory.getLog(AbstractDAO.class);
+    protected Registry registry = null;
 
     /**
-     * 
      * @param path
      * @return
      */
@@ -85,7 +83,6 @@ public abstract class AbstractDAO<T> {
     }
 
     /**
-     * 
      * @param path
      * @param propName
      * @param value
@@ -137,7 +134,6 @@ public abstract class AbstractDAO<T> {
     }
 
     /**
-     * 
      * @param path
      * @param propName
      * @param value
@@ -175,7 +171,6 @@ public abstract class AbstractDAO<T> {
     }
 
     /**
-     * 
      * @param resource
      * @return
      */

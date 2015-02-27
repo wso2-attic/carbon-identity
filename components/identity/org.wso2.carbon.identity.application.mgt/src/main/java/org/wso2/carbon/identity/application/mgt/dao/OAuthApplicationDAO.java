@@ -23,7 +23,6 @@ import org.wso2.carbon.identity.application.common.IdentityApplicationManagement
 public interface OAuthApplicationDAO {
 
     /**
-     * 
      * @param clientIdentifier
      * @throws IdentityApplicationManagementException
      */

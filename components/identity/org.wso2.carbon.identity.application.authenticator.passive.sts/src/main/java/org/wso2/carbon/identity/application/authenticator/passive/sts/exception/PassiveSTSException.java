@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.application.authenticator.passive.sts.exception
 import javax.servlet.ServletException;
 
 /**
- *  This class is used for denote the exceptions thrown from the sts client module
+ * This class is used for denote the exceptions thrown from the sts client module
  */
 public class PassiveSTSException extends ServletException {
 

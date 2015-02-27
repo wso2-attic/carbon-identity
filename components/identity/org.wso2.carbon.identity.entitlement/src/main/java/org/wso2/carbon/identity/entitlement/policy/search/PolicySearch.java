@@ -18,16 +18,20 @@
 
 package org.wso2.carbon.identity.entitlement.policy.search;
 
-import org.wso2.balana.ctx.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.balana.ctx.AbstractRequestCtx;
+import org.wso2.balana.ctx.AbstractResult;
+import org.wso2.balana.ctx.ResponseCtx;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.entitlement.EntitlementException;
-import org.wso2.carbon.identity.entitlement.PDPConstants;
 import org.wso2.carbon.identity.entitlement.EntitlementUtil;
+import org.wso2.carbon.identity.entitlement.PDPConstants;
 import org.wso2.carbon.identity.entitlement.cache.DecisionInvalidationCache;
 import org.wso2.carbon.identity.entitlement.cache.PolicySearchCache;
-import org.wso2.carbon.identity.entitlement.dto.*;
+import org.wso2.carbon.identity.entitlement.dto.AttributeDTO;
+import org.wso2.carbon.identity.entitlement.dto.EntitledAttributesDTO;
+import org.wso2.carbon.identity.entitlement.dto.EntitledResultSetDTO;
 import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent;
 import org.wso2.carbon.identity.entitlement.pdp.EntitlementEngine;
 import org.wso2.carbon.identity.entitlement.policy.finder.PolicyFinderModule;
@@ -35,12 +39,12 @@ import org.wso2.carbon.identity.entitlement.policy.finder.PolicyFinderModule;
 import java.util.*;
 
 /**
- *  This contains the searching methods for policies based on policy attribute values and how subjects
+ * This contains the searching methods for policies based on policy attribute values and how subjects
  * are entitled to resources
  */
 public class PolicySearch {
 
-	private static Log log = LogFactory.getLog(PolicySearch.class);
+    private static Log log = LogFactory.getLog(PolicySearch.class);
 
 
     private List<PolicyFinderModule> finderModules = null;
@@ -51,47 +55,47 @@ public class PolicySearch {
 
     public PolicySearch(boolean cachingEnable, int cachingInterval) {
         // get registered finder modules
-		Map<PolicyFinderModule, Properties> finderModules = EntitlementServiceComponent.
-                                                getEntitlementConfig().getPolicyFinderModules();
+        Map<PolicyFinderModule, Properties> finderModules = EntitlementServiceComponent.
+                getEntitlementConfig().getPolicyFinderModules();
 
-        if(finderModules != null){
+        if (finderModules != null) {
             this.finderModules = new ArrayList<PolicyFinderModule>(finderModules.keySet());
         }
 
         this.cachingEnable = cachingEnable;
-        
+
         // Note that PolicySearchCache also uses EntitlementEngine.getInstance().getPdpDecisionCacheEnable()
         // to set cache timeout.
         this.policySearchCache = new PolicySearchCache(cachingInterval);
     }
 
     /**
-	 * This returns resource name as the list of the entitled attributes for given
+     * This returns resource name as the list of the entitled attributes for given
      * user or role and action, after evaluating the all the active policies in the PDP
-	 *
-     * @param subjectName  subject name 
-     * @param resourceName resource name
-     * @param subjectId subject attribute Id
-     * @param action  Action Name
-     * @param enableChildSearch   whether search is done for the child resources under the given  resource name
+     *
+     * @param subjectName       subject name
+     * @param resourceName      resource name
+     * @param subjectId         subject attribute Id
+     * @param action            Action Name
+     * @param enableChildSearch whether search is done for the child resources under the given  resource name
      * @return entitled resource id set
      * @throws EntitlementException throws
-	 */
-	public EntitledResultSetDTO getEntitledAttributes(String subjectName, String resourceName,
-                                    String subjectId, String action, boolean enableChildSearch)
-                                                                        throws EntitlementException {
+     */
+    public EntitledResultSetDTO getEntitledAttributes(String subjectName, String resourceName,
+                                                      String subjectId, String action, boolean enableChildSearch)
+            throws EntitlementException {
         String cacheKey = "";
 
-        if(cachingEnable){
+        if (cachingEnable) {
 
-            if(DecisionInvalidationCache.getInstance().isInvalidate()){
+            if (DecisionInvalidationCache.getInstance().isInvalidate()) {
                 policySearchCache.clearCache();
             }
 
-            cacheKey = (subjectId != null  ? subjectId : "")  + (subjectName != null  ? subjectName : "") +
-                                    (resourceName != null  ? resourceName : "") +
-                                    (action != null ? action : "") + enableChildSearch;
-            SearchResult searchResult  = policySearchCache.getFromCache(cacheKey);
+            cacheKey = (subjectId != null ? subjectId : "") + (subjectName != null ? subjectName : "") +
+                    (resourceName != null ? resourceName : "") +
+                    (action != null ? action : "") + enableChildSearch;
+            SearchResult searchResult = policySearchCache.getFromCache(cacheKey);
 
             if (searchResult != null) {
                 return searchResult.getResultSetDTO();
@@ -103,12 +107,12 @@ public class PolicySearch {
         EntitledResultSetDTO resultSetDTO = new EntitledResultSetDTO();
         Set<EntitledAttributesDTO> resultSet = new HashSet<EntitledAttributesDTO>();
 
-        if(subjectName != null && subjectName.trim().length() > 0){
+        if (subjectName != null && subjectName.trim().length() > 0) {
             subjectAttributeDTO = new AttributeDTO();
             subjectAttributeDTO.setCategory(PDPConstants.SUBJECT_CATEGORY_URI);
             subjectAttributeDTO.setAttributeValue(subjectName);
             subjectAttributeDTO.setAttributeDataType(PDPConstants.STRING_DATA_TYPE);
-            if(subjectId != null && subjectId.trim().length() > 0){
+            if (subjectId != null && subjectId.trim().length() > 0) {
                 subjectAttributeDTO.setAttributeId(subjectId);
             } else {
                 subjectAttributeDTO.setAttributeId(PDPConstants.SUBJECT_ID_DEFAULT);
@@ -117,7 +121,7 @@ public class PolicySearch {
             throw new EntitlementException("Error : subject value can not be null");
         }
 
-        if(getResponse(Arrays.asList(subjectAttributeDTO))){
+        if (getResponse(Arrays.asList(subjectAttributeDTO))) {
             EntitledAttributesDTO dto = new EntitledAttributesDTO();
             dto.setAllActions(true);
             dto.setAllResources(true);
@@ -126,20 +130,20 @@ public class PolicySearch {
             return setDTO;
         }
 
-        for(PolicyFinderModule module : finderModules){
-            if(module.isDefaultCategoriesSupported() &&
+        for (PolicyFinderModule module : finderModules) {
+            if (module.isDefaultCategoriesSupported() &&
                     PolicyFinderModule.COMBINATIONS_BY_CATEGORY_AND_PARAMETER ==
-                                                    module.getSupportedSearchAttributesScheme()){
+                            module.getSupportedSearchAttributesScheme()) {
                 Map<String, Set<AttributeDTO>> requestMap = module.
-                    getSearchAttributes(null, new HashSet<AttributeDTO>(Arrays.asList(subjectAttributeDTO)));
+                        getSearchAttributes(null, new HashSet<AttributeDTO>(Arrays.asList(subjectAttributeDTO)));
 
-                for(Map.Entry<String, Set<AttributeDTO>> entry : requestMap.entrySet()){
-                     Set<AttributeDTO> attributeDTOs = entry.getValue();
-                    if (attributeDTOs!= null) {
-                        Set <AttributeDTO> actions = new HashSet<AttributeDTO>();
-                        Set <AttributeDTO> resources = new HashSet<AttributeDTO>();
-                        Set <AttributeDTO> requestAttributes = new HashSet<AttributeDTO>();
-                        if(resourceName != null && resourceName.trim().length() > 0){
+                for (Map.Entry<String, Set<AttributeDTO>> entry : requestMap.entrySet()) {
+                    Set<AttributeDTO> attributeDTOs = entry.getValue();
+                    if (attributeDTOs != null) {
+                        Set<AttributeDTO> actions = new HashSet<AttributeDTO>();
+                        Set<AttributeDTO> resources = new HashSet<AttributeDTO>();
+                        Set<AttributeDTO> requestAttributes = new HashSet<AttributeDTO>();
+                        if (resourceName != null && resourceName.trim().length() > 0) {
                             AttributeDTO resourceAttribute = new AttributeDTO();
                             resourceAttribute.setAttributeValue(resourceName);
                             resourceAttribute.setAttributeDataType(PDPConstants.STRING_DATA_TYPE);
@@ -155,15 +159,15 @@ public class PolicySearch {
                         resourceScopeAttribute.setAttributeId(PDPConstants.RESOURCE_SCOPE_ID);
                         resourceScopeAttribute.setCategory(PDPConstants.RESOURCE_CATEGORY_URI);
 
-                        for(AttributeDTO attributeDTO : attributeDTOs){
+                        for (AttributeDTO attributeDTO : attributeDTOs) {
                             if (PDPConstants.ENVIRONMENT_CATEGORY_URI.equals(attributeDTO.getCategory()) ||
                                     PDPConstants.ENVIRONMENT_ELEMENT.equals(attributeDTO.getCategory())) {
                                 requestAttributes.add(attributeDTO);
                                 attributeDTO.setAttributeId(PDPConstants.ENVIRONMENT_ID_DEFAULT);
                                 requestAttributes.add(attributeDTO);
-                            } else if(PDPConstants.ACTION_CATEGORY_URI.equals(attributeDTO.getCategory()) ||
-                                PDPConstants.ACTION_ELEMENT.equals(attributeDTO.getCategory())) {
-                                if(action != null && action.trim().length() > 0){
+                            } else if (PDPConstants.ACTION_CATEGORY_URI.equals(attributeDTO.getCategory()) ||
+                                    PDPConstants.ACTION_ELEMENT.equals(attributeDTO.getCategory())) {
+                                if (action != null && action.trim().length() > 0) {
                                     attributeDTO.setAttributeValue(action);
                                 }
                                 actions.add(attributeDTO);
@@ -171,20 +175,20 @@ public class PolicySearch {
                                 actions.add(attributeDTO);
                             } else if ((PDPConstants.RESOURCE_CATEGORY_URI.equals(attributeDTO.getCategory()) ||
                                     PDPConstants.RESOURCE_ELEMENT.equals(attributeDTO
-                                    .getCategory())) && !hierarchicalResource){
+                                            .getCategory())) && !hierarchicalResource) {
                                 attributeDTO.setAttributeId(PDPConstants.RESOURCE_ID_DEFAULT);
                                 resources.add(attributeDTO);
                             }
                         }
 
-                        if(resultSetDTO.getMessage() == null){
+                        if (resultSetDTO.getMessage() == null) {
                             List<String> entitledActions = new ArrayList<String>();
-                            for(AttributeDTO actionDTO : actions){
-                                List<AttributeDTO>  currentRequestAttributes =
-                                                            new ArrayList<AttributeDTO>();
+                            for (AttributeDTO actionDTO : actions) {
+                                List<AttributeDTO> currentRequestAttributes =
+                                        new ArrayList<AttributeDTO>();
                                 currentRequestAttributes.add(subjectAttributeDTO);
                                 currentRequestAttributes.add(actionDTO);
-                                if(getResponse(currentRequestAttributes)){
+                                if (getResponse(currentRequestAttributes)) {
                                     EntitledAttributesDTO dto = new EntitledAttributesDTO();
                                     dto.setAllResources(true);
                                     dto.setAction(actionDTO.getAttributeValue());
@@ -195,71 +199,71 @@ public class PolicySearch {
 
                             for (AttributeDTO resource : resources) {
                                 if (PDPConstants.RESOURCE_CATEGORY_URI.equals(resource.getCategory())
-                                    || PDPConstants.RESOURCE_ELEMENT.equals(resource.getCategory())){
+                                        || PDPConstants.RESOURCE_ELEMENT.equals(resource.getCategory())) {
 
                                     boolean allActionsAllowed = false;
 
                                     int noOfRequests = 1;
-                                    if(enableChildSearch){
+                                    if (enableChildSearch) {
                                         noOfRequests = 0;
                                     }
 
-                                    while(noOfRequests < 2){
-                                        List<AttributeDTO>  currentRequestAttributes =
-                                                                    new ArrayList<AttributeDTO>();
-                                        for(AttributeDTO dto : requestAttributes){
+                                    while (noOfRequests < 2) {
+                                        List<AttributeDTO> currentRequestAttributes =
+                                                new ArrayList<AttributeDTO>();
+                                        for (AttributeDTO dto : requestAttributes) {
                                             currentRequestAttributes.add(dto);
                                         }
-                                        if(noOfRequests  < 1){
+                                        if (noOfRequests < 1) {
                                             currentRequestAttributes.add(resourceScopeAttribute);
                                         }
                                         currentRequestAttributes.add(subjectAttributeDTO);
                                         currentRequestAttributes.add(resource);
 
-                                        if(getResponse(currentRequestAttributes)){
+                                        if (getResponse(currentRequestAttributes)) {
                                             EntitledAttributesDTO dto = new EntitledAttributesDTO();
                                             dto.setResourceName(resource.getAttributeValue());
                                             dto.setAllActions(true);
                                             resultSet.add(dto);
                                             allActionsAllowed = true;
                                         }
-                                        noOfRequests ++;
+                                        noOfRequests++;
                                     }
 
-                                    if(allActionsAllowed){
+                                    if (allActionsAllowed) {
                                         continue;
                                     }
 
-                                    for(AttributeDTO actionAttributeDTO : actions){
+                                    for (AttributeDTO actionAttributeDTO : actions) {
 
-                                        if(entitledActions.contains(actionAttributeDTO.getAttributeValue())){
+                                        if (entitledActions.contains(actionAttributeDTO.getAttributeValue())) {
                                             continue;
                                         }
 
                                         noOfRequests = 1;
-                                        if(enableChildSearch){
+                                        if (enableChildSearch) {
                                             noOfRequests = 0;
                                         }
-                                        while(noOfRequests < 2){
-                                            List<AttributeDTO>  currentRequestAttributes =
-                                                                        new ArrayList<AttributeDTO>();
-                                            for(AttributeDTO dto : requestAttributes){
+                                        while (noOfRequests < 2) {
+                                            List<AttributeDTO> currentRequestAttributes =
+                                                    new ArrayList<AttributeDTO>();
+                                            for (AttributeDTO dto : requestAttributes) {
                                                 currentRequestAttributes.add(dto);
                                             }
-                                            if(noOfRequests  < 1){
+                                            if (noOfRequests < 1) {
                                                 currentRequestAttributes.add(resourceScopeAttribute);
                                             }
                                             currentRequestAttributes.add(subjectAttributeDTO);
                                             currentRequestAttributes.add(resource);
                                             currentRequestAttributes.add(actionAttributeDTO);
 
-                                            if(getResponse(currentRequestAttributes)){
+                                            if (getResponse(currentRequestAttributes)) {
                                                 EntitledAttributesDTO dto = new EntitledAttributesDTO();
                                                 dto.setResourceName(resource.getAttributeValue());
                                                 dto.setAction(actionAttributeDTO.getAttributeValue());
                                                 resultSet.add(dto);
                                             }
-                                            noOfRequests ++;
+                                            noOfRequests++;
                                         }
                                     }
                                 }
@@ -269,9 +273,9 @@ public class PolicySearch {
                 }
             }
         }
-        
+
         resultSetDTO.setEntitledAttributesDTOs(resultSet.
-                        toArray(new EntitledAttributesDTO[resultSet.size()]));
+                toArray(new EntitledAttributesDTO[resultSet.size()]));
 
         if (cachingEnable) {
             SearchResult result = new SearchResult();
@@ -282,36 +286,36 @@ public class PolicySearch {
                 log.debug("PDP Decision Cache Updated for tenantId " + tenantId);
             }
         }
-		return resultSetDTO;
-	}
+        return resultSetDTO;
+    }
 
     /**
      * gets all entitled attributes for given set of attributes
      * this an universal method to do policy search and find entitlement attributes
      *
-     * @param identifier identifier to separate out the attributes that is used for search
-     *                   this is not required and can be null   
+     * @param identifier      identifier to separate out the attributes that is used for search
+     *                        this is not required and can be null
      * @param givenAttributes user provided attributes
      * @return all the attributes that is entitled
      */
-    public EntitledResultSetDTO getEntitledAttributes(String identifier, AttributeDTO[] givenAttributes){
+    public EntitledResultSetDTO getEntitledAttributes(String identifier, AttributeDTO[] givenAttributes) {
 
         String cacheKey = "";
 
-        if(cachingEnable){
+        if (cachingEnable) {
 
-            if(DecisionInvalidationCache.getInstance().isInvalidate()){
+            if (DecisionInvalidationCache.getInstance().isInvalidate()) {
                 policySearchCache.clearCache();
             }
 
             int hashCode = 0;
-            for(AttributeDTO dto : givenAttributes){
+            for (AttributeDTO dto : givenAttributes) {
                 hashCode = hashCode + (31 * dto.hashCode());
             }
 
             cacheKey = identifier + hashCode;
 
-            SearchResult searchResult  = policySearchCache.getFromCache(cacheKey);
+            SearchResult searchResult = policySearchCache.getFromCache(cacheKey);
 
             if (searchResult != null) {
                 if (log.isDebugEnabled()) {
@@ -325,23 +329,23 @@ public class PolicySearch {
             }
         }
 
-        EntitledResultSetDTO  result = new EntitledResultSetDTO();
+        EntitledResultSetDTO result = new EntitledResultSetDTO();
         Set<EntitledAttributesDTO> resultAttributes = new HashSet<EntitledAttributesDTO>();
         Set<AttributeDTO> attributeDTOs = new HashSet<AttributeDTO>(Arrays.asList(givenAttributes));
 
-        for(PolicyFinderModule finderModule : finderModules){
+        for (PolicyFinderModule finderModule : finderModules) {
             Map<String, Set<AttributeDTO>> attributesMap = finderModule.
-                                            getSearchAttributes(identifier, attributeDTOs);
+                    getSearchAttributes(identifier, attributeDTOs);
             int supportedSearchScheme = finderModule.getSupportedSearchAttributesScheme();
-            Set<List<AttributeDTO>> requestSet =  getPossibleRequests(attributesMap, supportedSearchScheme);
-            if(requestSet == null){
+            Set<List<AttributeDTO>> requestSet = getPossibleRequests(attributesMap, supportedSearchScheme);
+            if (requestSet == null) {
                 log.error("Invalid Search scheme in policy finder : " + finderModule.getModuleName());
             } else {
-                for(List<AttributeDTO> attributeDTOList : requestSet){
-                    if(getResponse(attributeDTOList)){
+                for (List<AttributeDTO> attributeDTOList : requestSet) {
+                    if (getResponse(attributeDTOList)) {
                         EntitledAttributesDTO dto = new EntitledAttributesDTO();
                         dto.setAttributeDTOs(attributeDTOList.
-                                    toArray(new AttributeDTO[attributeDTOList.size()]));
+                                toArray(new AttributeDTO[attributeDTOList.size()]));
                         resultAttributes.add(dto);
                     }
                 }
@@ -349,7 +353,7 @@ public class PolicySearch {
         }
         result.setAdvanceResult(true);
         result.setEntitledAttributesDTOs(resultAttributes.
-                                    toArray(new EntitledAttributesDTO[resultAttributes.size()]));
+                toArray(new EntitledAttributesDTO[resultAttributes.size()]));
 
 
         if (cachingEnable) {
@@ -373,33 +377,33 @@ public class PolicySearch {
      * @return
      */
     private Set<List<AttributeDTO>> getPossibleRequests(Map<String, Set<AttributeDTO>> attributesMap,
-                                                                        int supportedSearchScheme){
+                                                        int supportedSearchScheme) {
 
-        if(PolicyFinderModule.ALL_COMBINATIONS == supportedSearchScheme){
+        if (PolicyFinderModule.ALL_COMBINATIONS == supportedSearchScheme) {
 
-            if(attributesMap.entrySet() != null){
+            if (attributesMap.entrySet() != null) {
                 return getAllCombinations(attributesMap.entrySet().iterator().next().getValue());
             }
 
-        } else if(PolicyFinderModule.COMBINATIONS_BY_CATEGORY == supportedSearchScheme){
+        } else if (PolicyFinderModule.COMBINATIONS_BY_CATEGORY == supportedSearchScheme) {
 
             return getAllCombinationsWithCategory(attributesMap);
 
-        } else if(PolicyFinderModule.COMBINATIONS_BY_PARAMETER == supportedSearchScheme){
+        } else if (PolicyFinderModule.COMBINATIONS_BY_PARAMETER == supportedSearchScheme) {
 
             Set<List<AttributeDTO>> requestSet = new HashSet<List<AttributeDTO>>();
-            for(Map.Entry<String, Set<AttributeDTO>> entry : attributesMap.entrySet()){
+            for (Map.Entry<String, Set<AttributeDTO>> entry : attributesMap.entrySet()) {
                 requestSet.addAll(getAllCombinations(entry.getValue()));
             }
-            return  requestSet;
+            return requestSet;
 
-        } else if(PolicyFinderModule.COMBINATIONS_BY_CATEGORY_AND_PARAMETER == supportedSearchScheme){
+        } else if (PolicyFinderModule.COMBINATIONS_BY_CATEGORY_AND_PARAMETER == supportedSearchScheme) {
 
             Set<List<AttributeDTO>> requestSet = new HashSet<List<AttributeDTO>>();
-            for(Map.Entry<String, Set<AttributeDTO>> entry : attributesMap.entrySet()){
+            for (Map.Entry<String, Set<AttributeDTO>> entry : attributesMap.entrySet()) {
                 Map<String, Set<AttributeDTO>> map = new HashMap<String, Set<AttributeDTO>>();
-                for(AttributeDTO dto : entry.getValue()){
-                    if(!map.containsKey(dto.getCategory())){
+                for (AttributeDTO dto : entry.getValue()) {
+                    if (!map.containsKey(dto.getCategory())) {
                         Set<AttributeDTO> attributeDTOSet = new HashSet<AttributeDTO>();
                         attributeDTOSet.add(dto);
                         map.put(dto.getCategory(), attributeDTOSet);
@@ -408,11 +412,11 @@ public class PolicySearch {
                 }
                 requestSet.addAll(getAllCombinationsWithCategory(map));
             }
-            return  requestSet;
-        } else if(PolicyFinderModule.NO_COMBINATIONS == supportedSearchScheme){
+            return requestSet;
+        } else if (PolicyFinderModule.NO_COMBINATIONS == supportedSearchScheme) {
             Set<List<AttributeDTO>> requestSet = new HashSet<List<AttributeDTO>>();
-            for(Map.Entry<String, Set<AttributeDTO>> entry : attributesMap.entrySet()){
-                requestSet.add(new ArrayList<AttributeDTO>(entry.getValue()));    
+            for (Map.Entry<String, Set<AttributeDTO>> entry : attributesMap.entrySet()) {
+                requestSet.add(new ArrayList<AttributeDTO>(entry.getValue()));
             }
             return requestSet;
         }
@@ -426,11 +430,11 @@ public class PolicySearch {
      * @param allAttributes
      * @return
      */
-    private Set<List<AttributeDTO>>  getAllCombinations(Set<AttributeDTO> allAttributes){
+    private Set<List<AttributeDTO>> getAllCombinations(Set<AttributeDTO> allAttributes) {
 
         Set<List<AttributeDTO>> requestSet = new HashSet<List<AttributeDTO>>();
 
-        if(allAttributes.isEmpty()){
+        if (allAttributes.isEmpty()) {
             requestSet.add(new ArrayList<AttributeDTO>());
             return requestSet;
         }
@@ -440,7 +444,7 @@ public class PolicySearch {
         AttributeDTO head = list.get(0);
         Set<AttributeDTO> rest = new HashSet<AttributeDTO>(list.subList(1, list.size()));
 
-        for (List<AttributeDTO> set :  getAllCombinations(rest)) {
+        for (List<AttributeDTO> set : getAllCombinations(rest)) {
             List<AttributeDTO> newSet = new ArrayList<AttributeDTO>();
             newSet.add(head);
             newSet.addAll(set);
@@ -457,20 +461,20 @@ public class PolicySearch {
      * @param attributesMap
      * @return
      */
-    private Set<List<AttributeDTO>> getAllCombinationsWithCategory(Map<String, Set<AttributeDTO>> attributesMap){
+    private Set<List<AttributeDTO>> getAllCombinationsWithCategory(Map<String, Set<AttributeDTO>> attributesMap) {
 
         Set<List<AttributeDTO>> requestSet = new HashSet<List<AttributeDTO>>();
         List<String> categories = new ArrayList<String>(attributesMap.keySet());
 
-        if(!categories.isEmpty()){
+        if (!categories.isEmpty()) {
             String category = categories.get(0);
             Set<AttributeDTO> attributeDTOs = attributesMap.get(category);
 
             List<AttributeDTO> dtoList;
-            for(AttributeDTO dto : attributeDTOs){
+            for (AttributeDTO dto : attributeDTOs) {
                 dtoList = new ArrayList<AttributeDTO>();
                 dtoList.add(dto);
-                if(categories.get(1) != null){
+                if (categories.get(1) != null) {
                     processCombinations(1, categories, attributesMap, dtoList, requestSet);
                 }
             }
@@ -480,28 +484,28 @@ public class PolicySearch {
     }
 
     /**
-     *  Helper method to get all possible combination for given set of attributes based on category
-     * 
+     * Helper method to get all possible combination for given set of attributes based on category
+     *
      * @param i
      * @param categories
      * @param attributesMap
      * @param dtoList
      * @param requestSet
      */
-    private void  processCombinations(int i, List<String> categories, Map<String,
-                                    Set<AttributeDTO>> attributesMap, List<AttributeDTO> dtoList,
-                                    Set<List<AttributeDTO>> requestSet){
-        if(categories.size() > i){
-        String category = categories.get(i);
-        i++;
-        if(category != null){
-            List<AttributeDTO> currentList = new ArrayList<AttributeDTO>(dtoList);
+    private void processCombinations(int i, List<String> categories, Map<String,
+            Set<AttributeDTO>> attributesMap, List<AttributeDTO> dtoList,
+                                     Set<List<AttributeDTO>> requestSet) {
+        if (categories.size() > i) {
+            String category = categories.get(i);
+            i++;
+            if (category != null) {
+                List<AttributeDTO> currentList = new ArrayList<AttributeDTO>(dtoList);
                 Set<AttributeDTO> attributeDTOs = attributesMap.get(category);
-                for(AttributeDTO dto : attributeDTOs){
+                for (AttributeDTO dto : attributeDTOs) {
                     dtoList.add(dto);
                     processCombinations(i, categories, attributesMap, dtoList, requestSet);
                     requestSet.add(dtoList);
-                    dtoList =  new ArrayList<AttributeDTO>(currentList);
+                    dtoList = new ArrayList<AttributeDTO>(currentList);
                 }
             }
         }
@@ -513,7 +517,7 @@ public class PolicySearch {
      * @param requestAttributes XACML request attributes
      * @return whether permit or deny
      */
-    private boolean getResponse(List<AttributeDTO>  requestAttributes) {
+    private boolean getResponse(List<AttributeDTO> requestAttributes) {
 
         ResponseCtx responseCtx;
         AbstractRequestCtx requestCtx = EntitlementUtil.createRequestContext(requestAttributes);
@@ -522,8 +526,8 @@ public class PolicySearch {
 
         if (responseCtx != null) {
             Set<AbstractResult> results = responseCtx.getResults();
-            for(AbstractResult result : results){
-                if(result.getDecision() == AbstractResult.DECISION_PERMIT){
+            for (AbstractResult result : results) {
+                if (result.getDecision() == AbstractResult.DECISION_PERMIT) {
                     return true;
                 }
             }

@@ -26,7 +26,7 @@ import org.wso2.carbon.utils.ConfigurationContextService;
 
 import java.util.HashMap;
 
-public class SecurityServiceHolder{
+public class SecurityServiceHolder {
 
     private static RegistryService registryService;
 
@@ -40,12 +40,16 @@ public class SecurityServiceHolder{
 
     }
 
-    public static RegistryService getRegistryService() throws Exception{
+    public static RegistryService getRegistryService() throws Exception {
         return registryService;
     }
 
-    public static Registry getRegistry() throws Exception{
-        if(registryService == null){
+    public static void setRegistryService(RegistryService registryService) {
+        SecurityServiceHolder.registryService = registryService;
+    }
+
+    public static Registry getRegistry() throws Exception {
+        if (registryService == null) {
             throw new SecurityConfigException("Registry Service is null");
         }
 
@@ -53,38 +57,34 @@ public class SecurityServiceHolder{
 
     }
 
-    public static RealmService getRealmService() throws Exception{
-        if(realmService == null){
+    public static RealmService getRealmService() throws Exception {
+        if (realmService == null) {
             throw new SecurityConfigException("The main user realm is null");
         }
         return realmService;
-    }
-
-    public static ConfigurationContext getConfigurationContext() throws Exception{
-	if(ccService == null){
-            throw new SecurityConfigException("CC service is null");
-        }
-        return ccService.getClientConfigContext();
-    }
-
-    public static void setRegistryService(RegistryService registryService) {
-        SecurityServiceHolder.registryService = registryService;
     }
 
     public static void setRealmService(RealmService realmService) {
         SecurityServiceHolder.realmService = realmService;
     }
 
+    public static ConfigurationContext getConfigurationContext() throws Exception {
+        if (ccService == null) {
+            throw new SecurityConfigException("CC service is null");
+        }
+        return ccService.getClientConfigContext();
+    }
+
     public static void setConfigurationContextService(ConfigurationContextService ccService) {
         SecurityServiceHolder.ccService = ccService;
     }
 
-    public static void addPolicyResource(String location, Resource resource){
+    public static void addPolicyResource(String location, Resource resource) {
         policyResourceMap.put(location, resource);
     }
 
-    public static HashMap<String, Resource> getPolicyResourceMap(){
+    public static HashMap<String, Resource> getPolicyResourceMap() {
         return policyResourceMap;
     }
-   
+
 }

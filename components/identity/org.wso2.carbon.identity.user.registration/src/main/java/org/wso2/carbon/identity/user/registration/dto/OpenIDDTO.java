@@ -19,32 +19,32 @@ package org.wso2.carbon.identity.user.registration.dto;
 
 public class OpenIDDTO {
 
-	private String openID;
-	private String issuerInfo;
-	private UserFieldDTO[] attributes;
+    private String openID;
+    private String issuerInfo;
+    private UserFieldDTO[] attributes;
 
-	public String getOpenID() {
-		return openID;
-	}
+    public String getOpenID() {
+        return openID;
+    }
 
-	public void setOpenID(String openID) {
-		this.openID = openID;
-	}
+    public void setOpenID(String openID) {
+        this.openID = openID;
+    }
 
-	public String getIssuerInfo() {
-		return issuerInfo;
-	}
+    public String getIssuerInfo() {
+        return issuerInfo;
+    }
 
-	public void setIssuerInfo(String issuerInfo) {
-		this.issuerInfo = issuerInfo;
-	}
+    public void setIssuerInfo(String issuerInfo) {
+        this.issuerInfo = issuerInfo;
+    }
 
-	public UserFieldDTO[] getAttributes() {
-		return attributes;
-	}
+    public UserFieldDTO[] getAttributes() {
+        return attributes;
+    }
 
-	public void setAttributes(UserFieldDTO[] attributes) {
-		this.attributes = attributes;
-	}
+    public void setAttributes(UserFieldDTO[] attributes) {
+        this.attributes = attributes;
+    }
 
 }

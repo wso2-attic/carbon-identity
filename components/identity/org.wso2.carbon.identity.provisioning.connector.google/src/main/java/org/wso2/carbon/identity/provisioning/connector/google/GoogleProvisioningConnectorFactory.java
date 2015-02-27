@@ -33,11 +33,11 @@ public class GoogleProvisioningConnectorFactory extends AbstractProvisioningConn
 
     @Override
     /**
-     * 
+     *
      */
     protected AbstractOutboundProvisioningConnector buildConnector(
             Property[] provisioningProperties) throws IdentityProvisioningException {
-    	GoogleProvisioningConnector googleConnector = new GoogleProvisioningConnector();
+        GoogleProvisioningConnector googleConnector = new GoogleProvisioningConnector();
         googleConnector.init(provisioningProperties);
 
         if (log.isDebugEnabled()) {
@@ -50,7 +50,7 @@ public class GoogleProvisioningConnectorFactory extends AbstractProvisioningConn
 
     @Override
     /**
-     * 
+     *
      */
     public String getConnectorType() {
         return GOOGLE;

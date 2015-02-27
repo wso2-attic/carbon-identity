@@ -20,50 +20,50 @@ import java.util.Date;
 
 public class RevokedInfoCardDO {
 
-	private String cardId;
-	private String userId;
-	private Date dateIssued;
-	private Date dateExpires;
-	private Date dateRevoked;
+    private String cardId;
+    private String userId;
+    private Date dateIssued;
+    private Date dateExpires;
+    private Date dateRevoked;
 
-	public String getCardId() {
-		return cardId;
-	}
+    public String getCardId() {
+        return cardId;
+    }
 
-	public void setCardId(String cardId) {
-		this.cardId = cardId;
-	}
+    public void setCardId(String cardId) {
+        this.cardId = cardId;
+    }
 
-	public String getUserId() {
-		return userId;
-	}
+    public String getUserId() {
+        return userId;
+    }
 
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
-	public Date getDateIssued() {
-		return new Date(dateIssued.getTime());
-	}
+    public Date getDateIssued() {
+        return new Date(dateIssued.getTime());
+    }
 
-	public void setDateIssued(Date dateIssued) {
-		this.dateIssued = new Date(dateIssued.getTime());
-	}
+    public void setDateIssued(Date dateIssued) {
+        this.dateIssued = new Date(dateIssued.getTime());
+    }
 
-	public Date getDateExpires() {
-		return new Date(dateExpires.getTime());
-	}
+    public Date getDateExpires() {
+        return new Date(dateExpires.getTime());
+    }
 
-	public void setDateExpires(Date dateExpires) {
-		this.dateExpires = new Date(dateExpires.getTime());
-	}
+    public void setDateExpires(Date dateExpires) {
+        this.dateExpires = new Date(dateExpires.getTime());
+    }
 
-	public Date getDateRevoked() {
-		return new Date(dateRevoked.getTime());
-	}
+    public Date getDateRevoked() {
+        return new Date(dateRevoked.getTime());
+    }
 
-	public void setDateRevoked(Date dateRevoked) {
-		this.dateRevoked = new Date(dateRevoked.getTime());
-	}
+    public void setDateRevoked(Date dateRevoked) {
+        this.dateRevoked = new Date(dateRevoked.getTime());
+    }
 
 }

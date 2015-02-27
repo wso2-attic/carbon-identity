@@ -20,7 +20,7 @@ package org.wso2.carbon.identity.core.persistence;
 
 public class IdentityPersistenceConstants {
 
-    public class JDBCPersistenceManagerConstants{
+    public class JDBCPersistenceManagerConstants {
 
         public static final String JDBC_CONFIG_PROPS_URL = "url";
         public static final String JDBC_CONFIG_PROPS_USERNAME = "username";

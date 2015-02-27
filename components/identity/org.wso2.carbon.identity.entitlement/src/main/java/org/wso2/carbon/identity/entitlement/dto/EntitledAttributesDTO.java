@@ -25,9 +25,9 @@ import java.util.Arrays;
  */
 public class EntitledAttributesDTO {
 
-	private String resourceName;
+    private String resourceName;
 
-	private String action;
+    private String action;
 
     private String environment;
 
@@ -37,17 +37,22 @@ public class EntitledAttributesDTO {
 
     private AttributeDTO[] attributeDTOs = new AttributeDTO[0];
 
-	public String getResourceName() {
-		return resourceName;
-	}
+    public String getResourceName() {
+        return resourceName;
+    }
 
-	public void setResourceName(String resourceName) {
-		this.resourceName = resourceName;
-	}
+    public void setResourceName(String resourceName) {
+        this.resourceName = resourceName;
+    }
 
-	public String getAction() {
-		return action;
-	}
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+
+        this.action = action;
+    }
 
     public boolean isAllActions() {
         return allActions;
@@ -65,11 +70,6 @@ public class EntitledAttributesDTO {
         this.allResources = allResources;
     }
 
-    public void setAction(String action) {
-
-		this.action = action;
-	}
-
     public String getEnvironment() {
         return environment;
     }
@@ -85,7 +85,7 @@ public class EntitledAttributesDTO {
     public void setAttributeDTOs(AttributeDTO[] attributeDTOs) {
         this.attributeDTOs = Arrays.copyOf(attributeDTOs, attributeDTOs.length);
     }
-    
+
 //    @Override
 //    public boolean equals(Object o) {
 //        if (this == o) return true;

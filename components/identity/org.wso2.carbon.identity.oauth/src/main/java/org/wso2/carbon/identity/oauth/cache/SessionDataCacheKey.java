@@ -32,10 +32,10 @@ public class SessionDataCacheKey extends CacheKey {
 
     @Override
     public boolean equals(Object o) {
-        if(!(o instanceof SessionDataCacheKey)){
+        if (!(o instanceof SessionDataCacheKey)) {
             return false;
         }
-        return this.sessionDataId.equals(((SessionDataCacheKey)o).getSessionDataId());
+        return this.sessionDataId.equals(((SessionDataCacheKey) o).getSessionDataId());
     }
 
     @Override

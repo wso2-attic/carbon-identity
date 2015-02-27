@@ -1,26 +1,26 @@
 /*
-* Copyright (c) 2011, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (c) 2011, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package org.wso2.carbon.identity.sso.saml.common;
 
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.ui.util.CharacterEncoder;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOServiceProviderDTO;
+import org.wso2.carbon.ui.util.CharacterEncoder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
@@ -31,10 +31,7 @@ import java.util.Set;
 
 public class Util {
 
-    private static int singleLogoutRetryCount = 5;
-    private static long singleLogoutRetryInterval = 60000;
     private static final Set<Character> UNRESERVED_CHARACTERS = new HashSet<Character>();
-
     static {
         for (char c = 'a'; c <= 'z'; c++)
             UNRESERVED_CHARACTERS.add(Character.valueOf(c));
@@ -50,6 +47,8 @@ public class Util {
         UNRESERVED_CHARACTERS.add(Character.valueOf('_'));
         UNRESERVED_CHARACTERS.add(Character.valueOf('~'));
     }
+    private static int singleLogoutRetryCount = 5;
+    private static long singleLogoutRetryInterval = 60000;
 
     public static int getSingleLogoutRetryCount() {
         return singleLogoutRetryCount;
@@ -111,16 +110,16 @@ public class Util {
     }
 
     public static SAMLSSOServiceProviderDTO[] doFilter(String filter,
-                                                           SAMLSSOServiceProviderDTO[] serviceProviderSet) {
+                                                       SAMLSSOServiceProviderDTO[] serviceProviderSet) {
         String regPattern = filter.replace("*", ".*");
         ArrayList<SAMLSSOServiceProviderDTO> list = new ArrayList<SAMLSSOServiceProviderDTO>();
-        for(SAMLSSOServiceProviderDTO serviceProvider : serviceProviderSet){
-            if(serviceProvider.getIssuer().toLowerCase().matches(regPattern.toLowerCase())){
+        for (SAMLSSOServiceProviderDTO serviceProvider : serviceProviderSet) {
+            if (serviceProvider.getIssuer().toLowerCase().matches(regPattern.toLowerCase())) {
                 list.add(serviceProvider);
-                      }
+            }
         }
         SAMLSSOServiceProviderDTO[] filteredProviders = new SAMLSSOServiceProviderDTO[list.size()];
-        for(int i = 0; i < list.size(); i++){
+        for (int i = 0; i < list.size(); i++) {
             filteredProviders[i] = list.get(i);
 
         }
@@ -147,10 +146,9 @@ public class Util {
     /**
      * Find the OpenID corresponding to the given user name.
      *
-     * @param userName
-     *            User name
+     * @param userName User name
      * @return OpenID corresponding the given user name.
-     * @throws org.wso2.carbon.identity.base.IdentityException 
+     * @throws org.wso2.carbon.identity.base.IdentityException
      */
     public static String getOpenID(String userName) throws IdentityException {
         return generateOpenID(userName);
@@ -159,8 +157,7 @@ public class Util {
     /**
      * Generate OpenID for a given user.
      *
-     * @param user
-     *            User
+     * @param user User
      * @return Generated OpenID
      * @throws org.wso2.carbon.identity.base.IdentityException
      */

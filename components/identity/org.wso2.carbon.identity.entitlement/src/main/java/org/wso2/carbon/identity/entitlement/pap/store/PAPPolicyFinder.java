@@ -17,105 +17,99 @@
  */
 package org.wso2.carbon.identity.entitlement.pap.store;
 
-import java.net.URI;
-import java.util.*;
-
-import org.wso2.balana.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.wso2.balana.*;
+import org.wso2.balana.combine.PolicyCombiningAlgorithm;
 import org.wso2.balana.combine.xacml2.OnlyOneApplicablePolicyAlg;
 import org.wso2.balana.ctx.EvaluationCtx;
 import org.wso2.balana.ctx.Status;
-import org.wso2.carbon.identity.entitlement.EntitlementException;
-import org.wso2.carbon.identity.entitlement.dto.PolicyDTO;
-import org.wso2.carbon.identity.entitlement.pap.EntitlementAdminEngine;
-import org.wso2.carbon.identity.entitlement.policy.collection.DefaultPolicyCollection;
-import org.wso2.balana.combine.PolicyCombiningAlgorithm;
 import org.wso2.balana.finder.PolicyFinder;
 import org.wso2.balana.finder.PolicyFinderModule;
 import org.wso2.balana.finder.PolicyFinderResult;
+import org.wso2.carbon.identity.entitlement.EntitlementException;
+import org.wso2.carbon.identity.entitlement.dto.PolicyDTO;
+import org.wso2.carbon.identity.entitlement.policy.collection.DefaultPolicyCollection;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PAPPolicyFinder extends PolicyFinderModule {
 
-	// the list of policy URLs passed to the constructor
-	private PAPPolicyStoreReader policyReader;
-
-	// the map of policies
-	private DefaultPolicyCollection policies;
-
+    // the logger we'll use for all messages
+    private static Log log = LogFactory.getLog(PAPPolicyFinder.class);
+    // the list of policy URLs passed to the constructor
+    private PAPPolicyStoreReader policyReader;
+    // the map of policies
+    private DefaultPolicyCollection policies;
     //keeps policy ids according to the order
     private List<String> policyIds;
-
     private PolicyFinder policyFinder;
-
     // only five policies are allowed
     private int maxInMemoryPolicies = 5;
 
-	// the logger we'll use for all messages
-	private static Log log = LogFactory.getLog(PAPPolicyFinder.class);
+    /**
+     * Creates a PAPPolicyFinder that provides access to the given collection of policies.
+     * Any policy that cannot be loaded will be noted in the log, but will not cause an error. The
+     * schema file used to validate policies is defined by the property
+     * PolicyRepository.POLICY_SCHEMA_PROPERTY. If the retrieved property is null, then no schema
+     * validation will occur.
+     *
+     * @param policyReader Policy store repository for Registry
+     */
+    public PAPPolicyFinder(PAPPolicyStoreReader policyReader) {
+        this.policyReader = policyReader;
+    }
 
-	/**
-	 * Creates a PAPPolicyFinder that provides access to the given collection of policies.
-	 * Any policy that cannot be loaded will be noted in the log, but will not cause an error. The
-	 * schema file used to validate policies is defined by the property
-	 * PolicyRepository.POLICY_SCHEMA_PROPERTY. If the retrieved property is null, then no schema
-	 * validation will occur.
-	 * 
-	 * @param policyReader Policy store repository for Registry
-	 */
-	public PAPPolicyFinder(PAPPolicyStoreReader policyReader) {
-		this.policyReader = policyReader;
-	}
+    /**
+     * Always returns <code>true</code> since this module does support finding policies based on
+     * reference.
+     *
+     * @return true
+     */
+    public boolean isIdReferenceSupported() {
+        return true;
+    }
 
-	/**
-	 * Always returns <code>true</code> since this module does support finding policies based on
-	 * reference.
-	 * 
-	 * @return true
-	 */
-	public boolean isIdReferenceSupported() {
-		return true;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.wso2.balana.finder.PolicyFinderModule#isRequestSupported()
+     */
+    public boolean isRequestSupported() {
+        return true;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.wso2.balana.finder.PolicyFinderModule#isRequestSupported()
-	 */
-	public boolean isRequestSupported() {
-		return true;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.wso2.balana.finder.PolicyFinderModule#init(org.wso2.balana.finder.CarbonPolicyFinder)
+     */
+    public void init(PolicyFinder finder) {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.wso2.balana.finder.PolicyFinderModule#init(org.wso2.balana.finder.CarbonPolicyFinder)
-	 */
-	public void init(PolicyFinder finder) {
-
-		PolicyCombiningAlgorithm algorithm;
+        PolicyCombiningAlgorithm algorithm;
         this.policyFinder = finder;
 
-		try {
+        try {
             // for PAP policy store, Global policy combining algorithm is not needed. As we are
             // only evaluating one policy therefore using default algorithm.
-			algorithm = new OnlyOneApplicablePolicyAlg();
+            algorithm = new OnlyOneApplicablePolicyAlg();
             initPolicyIds();
             this.policies = new DefaultPolicyCollection(algorithm, 0);
-		} catch (EntitlementException e) {
-			log.error("Error while initializing PAPPolicyFinder", e);
-		}
-	}
+        } catch (EntitlementException e) {
+            log.error("Error while initializing PAPPolicyFinder", e);
+        }
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.wso2.balana.finder.PolicyFinderModule#findPolicy(java.net.URI, int,
-	 * org.wso2.balana.VersionConstraints, org.wso2.balana.PolicyMetaData)
-	 */
-	public PolicyFinderResult findPolicy(URI idReference, int type, VersionConstraints constraints,
-			PolicyMetaData parentMetaData) {
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.wso2.balana.finder.PolicyFinderModule#findPolicy(java.net.URI, int,
+     * org.wso2.balana.VersionConstraints, org.wso2.balana.PolicyMetaData)
+     */
+    public PolicyFinderResult findPolicy(URI idReference, int type, VersionConstraints constraints,
+                                         PolicyMetaData parentMetaData) {
 
         // clear all current policies
         policies.getPolicies().clear();
@@ -126,14 +120,14 @@ public class PAPPolicyFinder extends PolicyFinderModule {
             AbstractPolicy policyFromStore = policyReader.readPolicy(idReference.toString(),
                     this.policyFinder);
 
-            if(policyFromStore != null){
+            if (policyFromStore != null) {
                 if (type == PolicyReference.POLICY_REFERENCE) {
-                    if (policyFromStore instanceof Policy){
+                    if (policyFromStore instanceof Policy) {
                         policy = policyFromStore;
                         policies.addPolicy(policy);
                     }
                 } else {
-                    if (policyFromStore instanceof PolicySet){
+                    if (policyFromStore instanceof PolicySet) {
                         policy = policyFromStore;
                         policies.addPolicy(policy);
                     }
@@ -144,19 +138,19 @@ public class PAPPolicyFinder extends PolicyFinderModule {
             log.error(e);
         }
 
-		if (policy == null) {
-			return new PolicyFinderResult();
-		} else {
-			return new PolicyFinderResult(policy);
-		}
-	}
+        if (policy == null) {
+            return new PolicyFinderResult();
+        } else {
+            return new PolicyFinderResult(policy);
+        }
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.wso2.balana.finder.PolicyFinderModule#findPolicy(org.wso2.balana.EvaluationCtx)
-	 */
-	public PolicyFinderResult findPolicy(EvaluationCtx context) {
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.wso2.balana.finder.PolicyFinderModule#findPolicy(org.wso2.balana.EvaluationCtx)
+     */
+    public PolicyFinderResult findPolicy(EvaluationCtx context) {
 
         // clear all current policies
         policies.getPolicies().clear();
@@ -166,7 +160,7 @@ public class PAPPolicyFinder extends PolicyFinderModule {
         try {
             for (String policyId : policyIds) {
 
-                if(list.size() == maxInMemoryPolicies){
+                if (list.size() == maxInMemoryPolicies) {
                     break;
                 }
                 AbstractPolicy policy = null;
@@ -177,7 +171,7 @@ public class PAPPolicyFinder extends PolicyFinderModule {
                     //log and ignore
                     log.error(e);
                 }
-                if(policy == null){
+                if (policy == null) {
                     continue;
                 } else {
                     policies.addPolicy(policy);
@@ -194,7 +188,7 @@ public class PAPPolicyFinder extends PolicyFinderModule {
 
                 // if we matched, we keep track of the matching policy...
                 if (result == MatchResult.MATCH) {
-                    if(log.isDebugEnabled()){
+                    if (log.isDebugEnabled()) {
                         log.debug("Matching XACML policy found " + policy.getId().toString());
                     }
                     list.add(policy);
@@ -202,18 +196,18 @@ public class PAPPolicyFinder extends PolicyFinderModule {
             }
 
             AbstractPolicy policy = policies.getEffectivePolicy(list);
-			if (policy == null) {
-				return new PolicyFinderResult();
-			} else {
-				return new PolicyFinderResult(policy);
-			}
+            if (policy == null) {
+                return new PolicyFinderResult();
+            } else {
+                return new PolicyFinderResult(policy);
+            }
         } catch (EntitlementException e) {
             ArrayList<String> code = new ArrayList<String>();
             code.add(Status.STATUS_PROCESSING_ERROR);
             Status status = new Status(code, e.getMessage());
             return new PolicyFinderResult(status);
         }
-	}
+    }
 
 
     /**
@@ -228,8 +222,8 @@ public class PAPPolicyFinder extends PolicyFinderModule {
     public void initPolicyIds() throws EntitlementException {
         this.policyIds = new ArrayList<String>();
         PolicyDTO[] policyDTOs = policyReader.readAllLightPolicyDTOs();
-        for(PolicyDTO dto : policyDTOs){
-            if(dto.isActive()){
+        for (PolicyDTO dto : policyDTOs) {
+            if (dto.isActive()) {
                 policyIds.add(dto.getPolicyId());
             }
         }

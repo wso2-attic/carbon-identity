@@ -18,16 +18,16 @@
 
 package org.wso2.carbon.identity.application.common.model;
 
+import org.apache.axiom.om.OMElement;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.apache.axiom.om.OMElement;
-
 public class ClaimConfig implements Serializable {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 3927992808243347563L;
 
@@ -37,62 +37,6 @@ public class ClaimConfig implements Serializable {
     private Claim[] idpClaims = new Claim[0];
     private ClaimMapping[] claimMappings = new ClaimMapping[0];
     private boolean alwaysSendMappedLocalSubjectId;
-
-    /**
-     * 
-     * @return
-     */
-    public String getRoleClaimURI() {
-        return roleClaimURI;
-    }
-
-    /**
-     * 
-     * @param roleClaimURI
-     */
-    public void setRoleClaimURI(String roleClaimURI) {
-        this.roleClaimURI = roleClaimURI;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public ClaimMapping[] getClaimMappings() {
-        return claimMappings;
-    }
-
-    /**
-     * 
-     * @param claimMappins
-     */
-    public void setClaimMappings(ClaimMapping[] claimMappins) {
-        this.claimMappings = claimMappins;
-    }
-
-    public String getUserClaimURI() {
-        return userClaimURI;
-    }
-
-    public void setUserClaimURI(String userClaimURI) {
-        this.userClaimURI = userClaimURI;
-    }
-
-    public Claim[] getIdpClaims() {
-        return idpClaims;
-    }
-
-    public void setIdpClaims(Claim[] idpClaims) {
-        this.idpClaims = idpClaims;
-    }
-
-    public boolean isLocalClaimDialect() {
-        return localClaimDialect;
-    }
-
-    public void setLocalClaimDialect(boolean localClaimDialect) {
-        this.localClaimDialect = localClaimDialect;
-    }
 
     /*
      * <ClaimConfig> <RoleClaimURI></RoleClaimURI> <UserClaimURI></UserClaimURI>
@@ -163,6 +107,58 @@ public class ClaimConfig implements Serializable {
         }
 
         return claimConfig;
+    }
+
+    /**
+     * @return
+     */
+    public String getRoleClaimURI() {
+        return roleClaimURI;
+    }
+
+    /**
+     * @param roleClaimURI
+     */
+    public void setRoleClaimURI(String roleClaimURI) {
+        this.roleClaimURI = roleClaimURI;
+    }
+
+    /**
+     * @return
+     */
+    public ClaimMapping[] getClaimMappings() {
+        return claimMappings;
+    }
+
+    /**
+     * @param claimMappins
+     */
+    public void setClaimMappings(ClaimMapping[] claimMappins) {
+        this.claimMappings = claimMappins;
+    }
+
+    public String getUserClaimURI() {
+        return userClaimURI;
+    }
+
+    public void setUserClaimURI(String userClaimURI) {
+        this.userClaimURI = userClaimURI;
+    }
+
+    public Claim[] getIdpClaims() {
+        return idpClaims;
+    }
+
+    public void setIdpClaims(Claim[] idpClaims) {
+        this.idpClaims = idpClaims;
+    }
+
+    public boolean isLocalClaimDialect() {
+        return localClaimDialect;
+    }
+
+    public void setLocalClaimDialect(boolean localClaimDialect) {
+        this.localClaimDialect = localClaimDialect;
     }
 
     public boolean isAlwaysSendMappedLocalSubjectId() {

@@ -36,10 +36,10 @@ public class AuthorizationGrantCacheKey extends CacheKey {
 
     @Override
     public boolean equals(Object o) {
-        if(!(o instanceof AuthorizationGrantCacheKey)){
+        if (!(o instanceof AuthorizationGrantCacheKey)) {
             return false;
         }
-        return this.userAttributesId.equals(((AuthorizationGrantCacheKey)o).getUserAttributesId());
+        return this.userAttributesId.equals(((AuthorizationGrantCacheKey) o).getUserAttributesId());
     }
 
     @Override

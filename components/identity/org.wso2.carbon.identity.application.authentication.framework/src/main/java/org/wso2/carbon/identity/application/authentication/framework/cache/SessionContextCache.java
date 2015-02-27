@@ -25,8 +25,8 @@ import org.wso2.carbon.identity.application.common.cache.CacheKey;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 
 public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
-	
-	private static final String SESSION_CONTEXT_CACHE_NAME = "AppAuthFrameworkSessionContextCache";
+
+    private static final String SESSION_CONTEXT_CACHE_NAME = "AppAuthFrameworkSessionContextCache";
     private static volatile SessionContextCache instance;
     private boolean useCache = true;
 
@@ -38,7 +38,7 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
         super(cacheName, timeout);
         useCache = !Boolean.parseBoolean(IdentityUtil.getProperty(
                 "JDBCPersistenceManager.SessionDataPersist.Only"));
-        if(IdentityUtil.getProperty("SessionContextCache.Enable") != null){
+        if (IdentityUtil.getProperty("SessionContextCache.Enable") != null) {
             useCache = Boolean.parseBoolean(
                     IdentityUtil.getProperty("SessionContextCache.Enable"));
         }
@@ -48,32 +48,32 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
         super(cacheName, timeout, capacity);
         useCache = !Boolean.parseBoolean(IdentityUtil.getProperty(
                 "JDBCPersistenceManager.SessionDataPersist.Only"));
-        if(IdentityUtil.getProperty("SessionContextCache.Enable") != null){
+        if (IdentityUtil.getProperty("SessionContextCache.Enable") != null) {
             useCache = Boolean.parseBoolean(IdentityUtil.getProperty("SessionContextCache.Enable"));
         }
     }
 
     public static SessionContextCache getInstance(int timeout) {
-    	if (instance == null) {
-    		synchronized (SessionContextCache.class) {
-				if (instance == null) {
+        if (instance == null) {
+            synchronized (SessionContextCache.class) {
+                if (instance == null) {
                     int capacity = 2000;
-                    try{
+                    try {
                         capacity = Integer.parseInt(
                                 IdentityUtil.getProperty("SessionContextCache.Capacity"));
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         //ignore
                     }
-					instance = new SessionContextCache(SESSION_CONTEXT_CACHE_NAME, timeout, capacity);
-				}
-			}
-    	}
+                    instance = new SessionContextCache(SESSION_CONTEXT_CACHE_NAME, timeout, capacity);
+                }
+            }
+        }
         return instance;
     }
 
     @Override
     public void addToCache(CacheKey key, CacheEntry entry) {
-        if(useCache){
+        if (useCache) {
             super.addToCache(key, entry);
         }
         String keyValue = ((SessionContextCacheKey) key).getContextId();
@@ -83,14 +83,14 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
     @Override
     public CacheEntry getValueFromCache(CacheKey key) {
         CacheEntry cacheEntry = null;
-        if(useCache){
+        if (useCache) {
             cacheEntry = super.getValueFromCache(key);
         }
-        if(cacheEntry == null){
+        if (cacheEntry == null) {
             String keyValue = ((SessionContextCacheKey) key).getContextId();
             SessionContextCacheEntry sessionEntry = (SessionContextCacheEntry) SessionDataStore.getInstance().
                     getSessionData(keyValue, SESSION_CONTEXT_CACHE_NAME);
-            if(sessionEntry!=null && sessionEntry.getContext().isRememberMe()){
+            if (sessionEntry != null && sessionEntry.getContext().isRememberMe()) {
                 cacheEntry = sessionEntry;
             }
         }
@@ -100,7 +100,7 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
 
     @Override
     public void clearCacheEntry(CacheKey key) {
-        if(useCache){
+        if (useCache) {
             super.clearCacheEntry(key);
         }
         String keyValue = ((SessionContextCacheKey) key).getContextId();

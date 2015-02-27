@@ -36,19 +36,19 @@ public class OpenIDManager {
 
     // Smart OpenID Consumer Manager
     private static ConsumerManager consumerManager = null;
-    private SSOAgentConfig ssoAgentConfig = null;
     AttributesRequestor attributesRequestor = null;
+    private SSOAgentConfig ssoAgentConfig = null;
 
-    public OpenIDManager(SSOAgentConfig ssoAgentConfig) throws SSOAgentException{
+    public OpenIDManager(SSOAgentConfig ssoAgentConfig) throws SSOAgentException {
         consumerManager = getConsumerManagerInstance();
         this.ssoAgentConfig = ssoAgentConfig;
     }
 
     private ConsumerManager getConsumerManagerInstance() throws SSOAgentException {
 
-        HttpFetcherFactory  httpFetcherFactory = null;
+        HttpFetcherFactory httpFetcherFactory = null;
         try {
-            httpFetcherFactory = new HttpFetcherFactory(SSLContext.getDefault(),null);
+            httpFetcherFactory = new HttpFetcherFactory(SSLContext.getDefault(), null);
         } catch (NoSuchAlgorithmException e) {
             throw new SSOAgentException("Error while getting default SSL Context", e);
         }
@@ -63,7 +63,7 @@ public class OpenIDManager {
 
         try {
 
-            if (ssoAgentConfig.getOpenId().isDumbModeEnabled()){
+            if (ssoAgentConfig.getOpenId().isDumbModeEnabled()) {
                 // Switch the consumer manager to dumb mode
                 consumerManager.setMaxAssocAttempts(0);
             }
@@ -86,8 +86,8 @@ public class OpenIDManager {
 
 
             // Request subject attributes using Attribute Exchange extension specification if AttributeExchange is enabled
-            if(ssoAgentConfig.getOpenId().isAttributeExchangeEnabled() &&
-                    ssoAgentConfig.getOpenId().getAttributesRequestor() != null){
+            if (ssoAgentConfig.getOpenId().isAttributeExchangeEnabled() &&
+                    ssoAgentConfig.getOpenId().getAttributesRequestor() != null) {
 
                 attributesRequestor = ssoAgentConfig.getOpenId().getAttributesRequestor();
                 attributesRequestor.init();
@@ -97,7 +97,7 @@ public class OpenIDManager {
                 // Getting required attributes using FetchRequest
                 FetchRequest fetchRequest = FetchRequest.createFetchRequest();
 
-                for(String requestedAttribute:requestedAttributes){
+                for (String requestedAttribute : requestedAttributes) {
                     fetchRequest.addAttribute(requestedAttribute,
                             attributesRequestor.getTypeURI(claimed_id, requestedAttribute),
                             attributesRequestor.isRequired(claimed_id, requestedAttribute),
@@ -111,8 +111,8 @@ public class OpenIDManager {
             // Returning OP Url
             return authReq.getDestinationUrl(true);
 
-        } catch (YadisException e){
-            if(e.getErrorCode() == 1796){
+        } catch (YadisException e) {
+            if (e.getErrorCode() == 1796) {
                 throw new SSOAgentException(e.getMessage(), e);
             }
             throw new SSOAgentException("Error while creating FetchRequest", e);
@@ -125,16 +125,16 @@ public class OpenIDManager {
         }
     }
 
-    public void processOpenIDLoginResponse(HttpServletRequest request, HttpServletResponse response) throws SSOAgentException{
+    public void processOpenIDLoginResponse(HttpServletRequest request, HttpServletResponse response) throws SSOAgentException {
 
         try {
             // Getting all parameters in request including AuthResponse
             ParameterList authResponseParams = new ParameterList(request.getParameterMap());
 
             // Get previously saved session bean
-            LoggedInSessionBean loggedInSessionBean = (LoggedInSessionBean)request.getSession(false).
+            LoggedInSessionBean loggedInSessionBean = (LoggedInSessionBean) request.getSession(false).
                     getAttribute(SSOAgentConstants.SESSION_BEAN_NAME);
-            if(loggedInSessionBean == null){
+            if (loggedInSessionBean == null) {
                 throw new SSOAgentException("Error while verifying OpenID response. " +
                         "Cannot find valid session for user");
             }
@@ -158,21 +158,21 @@ public class OpenIDManager {
 
                 // Get requested attributes using AX extension
                 if (authSuccess.hasExtension(AxMessage.OPENID_NS_AX)) {
-                    Map<String,List<String>> attributesMap = new HashMap<String,List<String>>();
+                    Map<String, List<String>> attributesMap = new HashMap<String, List<String>>();
                     if (ssoAgentConfig.getOpenId().getAttributesRequestor() != null) {
                         attributesRequestor = ssoAgentConfig.getOpenId().getAttributesRequestor();
                         String[] attrArray = attributesRequestor.getRequestedAttributes(authSuccess.getIdentity());
                         FetchResponse fetchResp = (FetchResponse) authSuccess.getExtension(AxMessage.OPENID_NS_AX);
-                        for(String attr : attrArray){
+                        for (String attr : attrArray) {
                             List attributeValues = fetchResp.getAttributeValuesByTypeUri(attributesRequestor.getTypeURI(authSuccess.getIdentity(), attr));
-                            if(attributeValues.get(0) instanceof String && ((String)attributeValues.get(0)).split(",").length > 1){
-                                String[] splitString = ((String)attributeValues.get(0)).split(",");
-                                for(String part : splitString){
+                            if (attributeValues.get(0) instanceof String && ((String) attributeValues.get(0)).split(",").length > 1) {
+                                String[] splitString = ((String) attributeValues.get(0)).split(",");
+                                for (String part : splitString) {
                                     attributeValues.add(part);
                                 }
                             }
-                            if(attributeValues.get(0) != null){
-                                attributesMap.put(attr,attributeValues);
+                            if (attributeValues.get(0) != null) {
+                                attributesMap.put(attr, attributeValues);
                             }
                         }
                     }

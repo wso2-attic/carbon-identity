@@ -18,18 +18,18 @@
 
 package org.wso2.carbon.identity.application.common.model;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
+
 public class ServiceProvider implements Serializable {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 1018969519851610663L;
     private static final Log log = LogFactory.getLog(ServiceProvider.class);
@@ -47,185 +47,6 @@ public class ServiceProvider implements Serializable {
     private PermissionsAndRoleConfig permissionAndRoleConfig;
     private boolean saasApp;
 
-    /**
-     * 
-     * @return
-     */
-    public int getApplicationID() {
-        return applicationID;
-    }
-
-    /**
-     * 
-     * @param applicationID
-     */
-    public void setApplicationID(int applicationID) {
-        this.applicationID = applicationID;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public InboundAuthenticationConfig getInboundAuthenticationConfig() {
-        return inboundAuthenticationConfig;
-    }
-
-    /**
-     * 
-     * @param inboundAuthenticationConfig
-     */
-    public void setInboundAuthenticationConfig(
-            InboundAuthenticationConfig inboundAuthenticationConfig) {
-        this.inboundAuthenticationConfig = inboundAuthenticationConfig;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public LocalAndOutboundAuthenticationConfig getLocalAndOutBoundAuthenticationConfig() {
-        return localAndOutBoundAuthenticationConfig;
-    }
-
-    /**
-     * 
-     * @param localAndOutBoundAuthenticationConfig
-     */
-    public void setLocalAndOutBoundAuthenticationConfig(
-            LocalAndOutboundAuthenticationConfig localAndOutBoundAuthenticationConfig) {
-        this.localAndOutBoundAuthenticationConfig = localAndOutBoundAuthenticationConfig;
-    }
-
-    /**
-     * 
-     * @param requestPathAuthenticatorConfigs
-     */
-    public void setRequestPathAuthenticatorConfigs(
-            RequestPathAuthenticatorConfig[] requestPathAuthenticatorConfigs) {
-        this.requestPathAuthenticatorConfigs = requestPathAuthenticatorConfigs;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public RequestPathAuthenticatorConfig[] getRequestPathAuthenticatorConfigs() {
-        return requestPathAuthenticatorConfigs;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public InboundProvisioningConfig getInboundProvisioningConfig() {
-        return inboundProvisioningConfig;
-    }
-
-    /**
-     * 
-     * @param inboundProvisioningConfig
-     */
-    public void setInboundProvisioningConfig(InboundProvisioningConfig inboundProvisioningConfig) {
-        this.inboundProvisioningConfig = inboundProvisioningConfig;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public OutboundProvisioningConfig getOutboundProvisioningConfig() {
-        return outboundProvisioningConfig;
-    }
-
-    /**
-     * 
-     * @param outboundProvisioningConfig
-     */
-    public void setOutboundProvisioningConfig(OutboundProvisioningConfig outboundProvisioningConfig) {
-        this.outboundProvisioningConfig = outboundProvisioningConfig;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public ClaimConfig getClaimConfig() {
-        return claimConfig;
-    }
-
-    /**
-     * 
-     * @param claimConfig
-     */
-    public void setClaimConfig(ClaimConfig claimConfig) {
-        this.claimConfig = claimConfig;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public PermissionsAndRoleConfig getPermissionAndRoleConfig() {
-        return permissionAndRoleConfig;
-    }
-
-    /**
-     * 
-     * @param permissionAndRoleConfig
-     */
-    public void setPermissionAndRoleConfig(PermissionsAndRoleConfig permissionAndRoleConfig) {
-        this.permissionAndRoleConfig = permissionAndRoleConfig;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public String getApplicationName() {
-        return applicationName;
-    }
-
-    /**
-     * 
-     * @param applicationName
-     */
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public User getOwner() {
-        return owner;
-    }
-
-    /**
-     * 
-     * @param owner
-     */
-    public void setOwner(User owner) {
-        this.owner = owner;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public boolean isSaasApp() {
-        return saasApp;
-    }
-
-    public void setSaasApp(boolean saasApp) {
-        this.saasApp = saasApp;
-    }
-
     /*
      * <ServiceProvider> <ApplicationID></ApplicationID> <Description></Description>
      * <Owner>....</Owner>
@@ -240,7 +61,7 @@ public class ServiceProvider implements Serializable {
     public static ServiceProvider build(OMElement serviceProviderOM) {
 
         ServiceProvider serviceProvider = new ServiceProvider();
-        
+
         // by default set to true.
         serviceProvider.setSaasApp(true);
 
@@ -328,11 +149,170 @@ public class ServiceProvider implements Serializable {
             } else if (elementName.equals("PermissionAndRoleConfig")) {
                 // build permission and role configuration.
                 serviceProvider.setPermissionAndRoleConfig(PermissionsAndRoleConfig.build(element));
-            } 
+            }
 
         }
 
         return serviceProvider;
+    }
+
+    /**
+     * @return
+     */
+    public int getApplicationID() {
+        return applicationID;
+    }
+
+    /**
+     * @param applicationID
+     */
+    public void setApplicationID(int applicationID) {
+        this.applicationID = applicationID;
+    }
+
+    /**
+     * @return
+     */
+    public InboundAuthenticationConfig getInboundAuthenticationConfig() {
+        return inboundAuthenticationConfig;
+    }
+
+    /**
+     * @param inboundAuthenticationConfig
+     */
+    public void setInboundAuthenticationConfig(
+            InboundAuthenticationConfig inboundAuthenticationConfig) {
+        this.inboundAuthenticationConfig = inboundAuthenticationConfig;
+    }
+
+    /**
+     * @return
+     */
+    public LocalAndOutboundAuthenticationConfig getLocalAndOutBoundAuthenticationConfig() {
+        return localAndOutBoundAuthenticationConfig;
+    }
+
+    /**
+     * @param localAndOutBoundAuthenticationConfig
+     */
+    public void setLocalAndOutBoundAuthenticationConfig(
+            LocalAndOutboundAuthenticationConfig localAndOutBoundAuthenticationConfig) {
+        this.localAndOutBoundAuthenticationConfig = localAndOutBoundAuthenticationConfig;
+    }
+
+    /**
+     * @return
+     */
+    public RequestPathAuthenticatorConfig[] getRequestPathAuthenticatorConfigs() {
+        return requestPathAuthenticatorConfigs;
+    }
+
+    /**
+     * @param requestPathAuthenticatorConfigs
+     */
+    public void setRequestPathAuthenticatorConfigs(
+            RequestPathAuthenticatorConfig[] requestPathAuthenticatorConfigs) {
+        this.requestPathAuthenticatorConfigs = requestPathAuthenticatorConfigs;
+    }
+
+    /**
+     * @return
+     */
+    public InboundProvisioningConfig getInboundProvisioningConfig() {
+        return inboundProvisioningConfig;
+    }
+
+    /**
+     * @param inboundProvisioningConfig
+     */
+    public void setInboundProvisioningConfig(InboundProvisioningConfig inboundProvisioningConfig) {
+        this.inboundProvisioningConfig = inboundProvisioningConfig;
+    }
+
+    /**
+     * @return
+     */
+    public OutboundProvisioningConfig getOutboundProvisioningConfig() {
+        return outboundProvisioningConfig;
+    }
+
+    /**
+     * @param outboundProvisioningConfig
+     */
+    public void setOutboundProvisioningConfig(OutboundProvisioningConfig outboundProvisioningConfig) {
+        this.outboundProvisioningConfig = outboundProvisioningConfig;
+    }
+
+    /**
+     * @return
+     */
+    public ClaimConfig getClaimConfig() {
+        return claimConfig;
+    }
+
+    /**
+     * @param claimConfig
+     */
+    public void setClaimConfig(ClaimConfig claimConfig) {
+        this.claimConfig = claimConfig;
+    }
+
+    /**
+     * @return
+     */
+    public PermissionsAndRoleConfig getPermissionAndRoleConfig() {
+        return permissionAndRoleConfig;
+    }
+
+    /**
+     * @param permissionAndRoleConfig
+     */
+    public void setPermissionAndRoleConfig(PermissionsAndRoleConfig permissionAndRoleConfig) {
+        this.permissionAndRoleConfig = permissionAndRoleConfig;
+    }
+
+    /**
+     * @return
+     */
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    /**
+     * @param applicationName
+     */
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
+    }
+
+    /**
+     * @return
+     */
+    public User getOwner() {
+        return owner;
+    }
+
+    /**
+     * @param owner
+     */
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public boolean isSaasApp() {
+        return saasApp;
+    }
+
+    public void setSaasApp(boolean saasApp) {
+        this.saasApp = saasApp;
     }
 
 }

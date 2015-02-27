@@ -17,17 +17,6 @@
 */
 package org.wso2.carbon.identity.user.registration.ui.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-
-import javax.crypto.SecretKey;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.ws.security.WSConstants;
@@ -39,6 +28,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.core.util.CryptoUtil;
+
+import javax.crypto.SecretKey;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.*;
+import java.security.KeyStore;
+import java.security.PrivateKey;
 
 public class TokenDecrypter {
 
@@ -76,7 +71,7 @@ public class TokenDecrypter {
             privateKeyAlias = serverConfig.getFirstProperty("Security.KeyStore.KeyAlias");
             privateKeyPass = serverConfig.getFirstProperty("Security.KeyStore.KeyPassword");
             CryptoUtil.getDefaultCryptoUtil();
-            
+
             content = readBytesFromFile(keyStoreFile);
 
             KeyStore keyStore = KeyStore.getInstance(type);

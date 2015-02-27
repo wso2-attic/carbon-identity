@@ -19,7 +19,7 @@ package org.wso2.carbon.identity.provider.dto;
 
 public class PapeInfoResponseDTO {
 
-   private OpenIDParameterDTO[] policies;
+    private OpenIDParameterDTO[] policies;
 
     public OpenIDParameterDTO[] getPolicies() {
         return policies;

@@ -22,17 +22,17 @@ import org.wso2.carbon.identity.application.common.cache.CacheKey;
 
 public class AuthenticationContextCacheKey extends CacheKey {
 
-	private static final long serialVersionUID = -337837909666609734L;
-	
-	private String contextId;
+    private static final long serialVersionUID = -337837909666609734L;
+
+    private String contextId;
 
     public AuthenticationContextCacheKey(String contextId) {
         this.contextId = contextId;
     }
 
     public String getContextId() {
-		return contextId;
-	}
+        return contextId;
+    }
 
     @Override
     public boolean equals(Object o) {

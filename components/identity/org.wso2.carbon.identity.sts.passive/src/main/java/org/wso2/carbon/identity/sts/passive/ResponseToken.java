@@ -35,11 +35,11 @@ public class ResponseToken {
     // be the <wsse:RequestSecurityTokenResopnse> element, a SOAP response, or a
     // SOAP <S:Fault> element.
     private String responsePointer;
-    
+
     private String replyTo;
-    
-    private boolean authenticated; 
-    
+
+    private boolean authenticated;
+
     public String getReplyTo() {
         return replyTo;
     }
@@ -78,5 +78,5 @@ public class ResponseToken {
 
     public void setResponsePointer(String responsePointer) {
         this.responsePointer = responsePointer;
-    }    
+    }
 }

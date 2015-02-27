@@ -33,33 +33,52 @@ import java.util.Hashtable;
 
 /**
  * @scr.component name=
- *                "signedjwt.SignedJWTAuthenticatorServiceComponent"
- *                immediate="true"
+ * "signedjwt.SignedJWTAuthenticatorServiceComponent"
+ * immediate="true"
  * @scr.reference name="user.realmservice.default"
- *                interface="org.wso2.carbon.user.core.service.RealmService"
- *                cardinality="1..1" policy="dynamic"
- *                bind="setRealmService"
- *                unbind="unsetRealmService"
+ * interface="org.wso2.carbon.user.core.service.RealmService"
+ * cardinality="1..1" policy="dynamic"
+ * bind="setRealmService"
+ * unbind="unsetRealmService"
  */
 public class SignedJWTAuthenticatorServiceComponent {
 
+    private static final Log log = LogFactory.getLog(SignedJWTAuthenticatorServiceComponent.class);
     private static RealmService realmService = null;
     private static BundleContext bundleContext = null;
-    private static final Log log = LogFactory.getLog(SignedJWTAuthenticatorServiceComponent.class);
-    
+
+    public static RealmService getRealmService() {
+        return realmService;
+    }
+
+    protected void setRealmService(RealmService realmService) {
+        if (log.isDebugEnabled()) {
+            log.debug("RealmService acquired");
+        }
+        SignedJWTAuthenticatorServiceComponent.realmService = realmService;
+    }
+
+    public static BundleContext getBundleContext() {
+        return bundleContext;
+    }
+
+    public static void setBundleContext(BundleContext bundleContext) {
+        SignedJWTAuthenticatorServiceComponent.bundleContext = bundleContext;
+    }
+
     protected void activate(ComponentContext cxt) {
         try {
             SignedJWTAuthenticator authenticator = new SignedJWTAuthenticator();
-	        SignedJWTAuthenticatorServiceComponent.setBundleContext(cxt.getBundleContext());
+            SignedJWTAuthenticatorServiceComponent.setBundleContext(cxt.getBundleContext());
             Hashtable<String, String> props = new Hashtable<String, String>();
             props.put(CarbonConstants.AUTHENTICATOR_TYPE, authenticator.getAuthenticatorName());
             cxt.getBundleContext().registerService(CarbonServerAuthenticator.class.getName(),
-                                                   authenticator, props);
+                    authenticator, props);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             // throwing so that server will not start
             throw new RuntimeException("Failed to start the Signed JWT Authenticator Bundle" +
-                                       e.getMessage(), e);
+                    e.getMessage(), e);
         }
         log.debug("Signed JWT Authenticator is activated");
     }
@@ -70,28 +89,9 @@ public class SignedJWTAuthenticatorServiceComponent {
         }
     }
 
-    protected void setRealmService(RealmService realmService) {
-        if (log.isDebugEnabled()) {
-            log.debug("RealmService acquired");
-        }
-	    SignedJWTAuthenticatorServiceComponent.realmService = realmService;
-    }
-
     protected void unsetRealmService(RealmService realmService) {
-	    SignedJWTAuthenticatorServiceComponent.realmService = null;
+        SignedJWTAuthenticatorServiceComponent.realmService = null;
     }
-
-    public static RealmService getRealmService() {
-        return realmService;
-    }
-
-	public static BundleContext getBundleContext() {
-		return bundleContext;
-	}
-
-	public static void setBundleContext(BundleContext bundleContext) {
-		SignedJWTAuthenticatorServiceComponent.bundleContext = bundleContext;
-	}
 
 }
 

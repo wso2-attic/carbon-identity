@@ -17,8 +17,6 @@
 */
 package org.wso2.carbon.identity.entitlement;
 
-import java.util.*;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.entitlement.common.EntitlementConstants;
@@ -28,6 +26,10 @@ import org.wso2.carbon.identity.notification.mgt.NotificationManagementException
 import org.wso2.carbon.identity.notification.mgt.NotificationSender;
 import org.wso2.carbon.identity.notification.mgt.bean.PublisherEvent;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
 /**
  * This is an extension module that can be used to send policy update statuses as notifications.
  * This extension will trigger notifications on policy changes only if this extension is
@@ -36,12 +38,11 @@ import org.wso2.carbon.identity.notification.mgt.bean.PublisherEvent;
 @SuppressWarnings("unused")
 public class EntitlementNotificationExtension implements PAPStatusDataHandler {
 
+    private static final Log log = LogFactory.getLog(EntitlementNotificationExtension.class);
+    private final String eventName = "policyUpdate";
     private boolean pdpUpdate = true;
     private boolean papUpdate = false;
     private List<String> pdpActions = new ArrayList<String>();
-    private static final Log log = LogFactory.getLog(EntitlementNotificationExtension.class);
-
-    private final String eventName = "policyUpdate";
 
     /**
      * At the initialization a property map which carries relevant properties to this extension
@@ -158,7 +159,7 @@ public class EntitlementNotificationExtension implements PAPStatusDataHandler {
                 }
                 notificationSender.invoke(event);
             } catch (NotificationManagementException e) {
-                log.error("Error while invoking notification sender",e);
+                log.error("Error while invoking notification sender", e);
             }
         } else {
             if (log.isDebugEnabled()) {

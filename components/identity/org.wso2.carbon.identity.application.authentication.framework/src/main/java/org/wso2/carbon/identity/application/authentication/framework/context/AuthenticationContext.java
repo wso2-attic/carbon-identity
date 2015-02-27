@@ -18,114 +18,116 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.context;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorStateInfo;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.SequenceConfig;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedIdPData;
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class is used for holding data about the
  * authentication request sent from a servlet.
- *
  */
 public class AuthenticationContext implements Serializable {
 
-	private static final long serialVersionUID = -7007412857088788541L;
-	
-	private String contextIdentifier;
-	private String sessionIdentifier;
-	private String callerPath;
-	private String callerSessionKey;
-	private String relyingParty;
-	private String queryParams;
-	private String requestType;
-	private boolean isLogoutRequest;
-	private int currentStep;
-	private SequenceConfig sequenceConfig;
-	private HttpServletRequest currentRequest;
-	private ExternalIdPConfig externalIdP; 
-	private Map<String, Object> properties = new HashMap<String, Object>();
-	private boolean rememberMe;
+    private static final long serialVersionUID = -7007412857088788541L;
+
+    private String contextIdentifier;
+    private String sessionIdentifier;
+    private String callerPath;
+    private String callerSessionKey;
+    private String relyingParty;
+    private String queryParams;
+    private String requestType;
+    private boolean isLogoutRequest;
+    private int currentStep;
+    private SequenceConfig sequenceConfig;
+    private HttpServletRequest currentRequest;
+    private ExternalIdPConfig externalIdP;
+    private Map<String, Object> properties = new HashMap<String, Object>();
+    private boolean rememberMe;
     private String tenantDomain;
     private int retryCount;
     private Map<String, String> authenticatorProperties = new HashMap<String, String>();
     private String serviceProviderName;
     private String contextIdIncludedQueryParams;
     private String currentAuthenticator;
-    
+
     private boolean forceAuthenticate;
     private boolean reAuthenticate;
     private boolean passiveAuthenticate;
     private AuthenticationRequest authenticationRequest;
-    
+
     private Map<String, AuthenticatedIdPData> previousAuthenticatedIdPs = new HashMap<String, AuthenticatedIdPData>();
     private Map<String, AuthenticatedIdPData> currentAuthenticatedIdPs = new HashMap<String, AuthenticatedIdPData>();
-    
+
     //flow controller flags
     private boolean requestAuthenticated = true;
-	private boolean returning;
-	private boolean retrying;
-	private boolean previousSessionFound;
-    
+    private boolean returning;
+    private boolean retrying;
+    private boolean previousSessionFound;
+
     //subject and subjectAttributes should be set by each authenticator
     private String subject;
     private Map<ClaimMapping, String> subjectAttributes = new HashMap<ClaimMapping, String>();
-    
+
     /* Holds any (state) information that would be required by the authenticator
-	 * for later processing.
+     * for later processing.
 	 * E.g. sessionIndex for SAMLSSOAuthenticator in SLO.
 	 * Each authenticator should have an internal DTO that extends the
 	 * AuthenticatorStateInfoDTO and set all the required state info in it.
 	 */
     private AuthenticatorStateInfo stateInfo;
-	
-	public String getCallerPath() {
-		return callerPath;
-	}
 
-	public void setCallerPath(String callerPath) {
-		this.callerPath = callerPath;
-	}
+    public String getCallerPath() {
+        return callerPath;
+    }
 
-	public String getCallerSessionKey() {
-		return callerSessionKey;
-	}
+    public void setCallerPath(String callerPath) {
+        this.callerPath = callerPath;
+    }
 
-	public void setCallerSessionKey(String callerSessionKey) {
-		this.callerSessionKey = callerSessionKey;
-	}
+    public String getCallerSessionKey() {
+        return callerSessionKey;
+    }
 
-	public String getQueryParams() {
-		return queryParams;
-	}
+    public void setCallerSessionKey(String callerSessionKey) {
+        this.callerSessionKey = callerSessionKey;
+    }
 
-	public void setOrignalRequestQueryParams(String queryParams) {
-		this.queryParams = queryParams;
-	}
+    public String getQueryParams() {
+        return queryParams;
+    }
 
-	public String getRequestType() {
-		return requestType;
-	}
+    public void setQueryParams(String queryParams) {
+        this.queryParams = queryParams;
+    }
 
-	public void setRequestType(String requestType) {
-		this.requestType = requestType;
-	}
+    public void setOrignalRequestQueryParams(String queryParams) {
+        this.queryParams = queryParams;
+    }
 
-	public boolean isLogoutRequest() {
-		return isLogoutRequest;
-	}
+    public String getRequestType() {
+        return requestType;
+    }
 
-	public void setLogoutRequest(boolean isLogoutRequest) {
-		this.isLogoutRequest = isLogoutRequest;
-	}
+    public void setRequestType(String requestType) {
+        this.requestType = requestType;
+    }
+
+    public boolean isLogoutRequest() {
+        return isLogoutRequest;
+    }
+
+    public void setLogoutRequest(boolean isLogoutRequest) {
+        this.isLogoutRequest = isLogoutRequest;
+    }
 
     public int getCurrentStep() {
         return currentStep;
@@ -143,141 +145,137 @@ public class AuthenticationContext implements Serializable {
         this.sequenceConfig = sequenceConfig;
     }
 
-	public String getSubject() {
-		return subject;
-	}
+    public String getSubject() {
+        return subject;
+    }
 
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
 
-	public String getContextIdentifier() {
-		return contextIdentifier;
-	}
+    public String getContextIdentifier() {
+        return contextIdentifier;
+    }
 
-	public void setContextIdentifier(String contextIdentifier) {
-		this.contextIdentifier = contextIdentifier;
-	}
+    public void setContextIdentifier(String contextIdentifier) {
+        this.contextIdentifier = contextIdentifier;
+    }
 
-	public HttpServletRequest getCurrentRequest() {
-		return currentRequest;
-	}
+    public HttpServletRequest getCurrentRequest() {
+        return currentRequest;
+    }
 
-	public void setCurrentRequest(HttpServletRequest currentRequest) {
-		this.currentRequest = currentRequest;
-	}
+    public void setCurrentRequest(HttpServletRequest currentRequest) {
+        this.currentRequest = currentRequest;
+    }
 
-	public boolean isRequestAuthenticated() {
-		return requestAuthenticated;
-	}
+    public boolean isRequestAuthenticated() {
+        return requestAuthenticated;
+    }
 
-	public void setRequestAuthenticated(boolean requestAuthenticated) {
-		this.requestAuthenticated = requestAuthenticated;
-	}
+    public void setRequestAuthenticated(boolean requestAuthenticated) {
+        this.requestAuthenticated = requestAuthenticated;
+    }
 
-	public Map<ClaimMapping, String> getSubjectAttributes() {
-		return subjectAttributes;
-	}
+    public Map<ClaimMapping, String> getSubjectAttributes() {
+        return subjectAttributes;
+    }
 
-	public void setSubjectAttributes(Map<ClaimMapping, String> subjectAttributes) {
-		this.subjectAttributes = subjectAttributes;
-	}
+    public void setSubjectAttributes(Map<ClaimMapping, String> subjectAttributes) {
+        this.subjectAttributes = subjectAttributes;
+    }
 
-	public boolean isRememberMe() {
-		return rememberMe;
-	}
+    public boolean isRememberMe() {
+        return rememberMe;
+    }
 
-	public void setRememberMe(boolean rememberMe) {
-		this.rememberMe = rememberMe;
-	}
+    public void setRememberMe(boolean rememberMe) {
+        this.rememberMe = rememberMe;
+    }
 
-	public String getSessionIdentifier() {
-		return sessionIdentifier;
-	}
+    public String getSessionIdentifier() {
+        return sessionIdentifier;
+    }
 
-	public void setSessionIdentifier(String sessionIdentifier) {
-		this.sessionIdentifier = sessionIdentifier;
-	}
+    public void setSessionIdentifier(String sessionIdentifier) {
+        this.sessionIdentifier = sessionIdentifier;
+    }
 
-	public Map<String, Object> getProperties() {
-		return properties;
-	}
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
 
-	public void setProperties(Map<String, Object> properties) {
-		this.properties = properties;
-	}
-	
-	public void setProperty(String key, Object value) {
-		properties.put(key, value);
-	}
-	
-	public Object getProperty(String key) {
-		return properties.get(key);
-	}
+    public void setProperties(Map<String, Object> properties) {
+        this.properties = properties;
+    }
 
-	public ExternalIdPConfig getExternalIdP() {
-		return externalIdP;
-	}
+    public void setProperty(String key, Object value) {
+        properties.put(key, value);
+    }
 
-	public void setExternalIdP(ExternalIdPConfig externalIdP) {
-		this.externalIdP = externalIdP;
-	}
+    public Object getProperty(String key) {
+        return properties.get(key);
+    }
 
-    public String getTenantDomain(){
+    public ExternalIdPConfig getExternalIdP() {
+        return externalIdP;
+    }
+
+    public void setExternalIdP(ExternalIdPConfig externalIdP) {
+        this.externalIdP = externalIdP;
+    }
+
+    public String getTenantDomain() {
         return tenantDomain;
     }
 
-    public void setTenantDomain(String tenantDomain){
+    public void setTenantDomain(String tenantDomain) {
         this.tenantDomain = tenantDomain;
     }
 
-	public AuthenticatorStateInfo getStateInfo() {
-		return stateInfo;
-	}
+    public AuthenticatorStateInfo getStateInfo() {
+        return stateInfo;
+    }
 
-	public void setStateInfo(AuthenticatorStateInfo stateInfo) {
-		this.stateInfo = stateInfo;
-	}
+    public void setStateInfo(AuthenticatorStateInfo stateInfo) {
+        this.stateInfo = stateInfo;
+    }
 
-	public int getRetryCount() {
-		return retryCount;
-	}
+    public int getRetryCount() {
+        return retryCount;
+    }
 
-	public void setRetryCount(int retryCount) {
-		this.retryCount = retryCount;
-	}
+    public void setRetryCount(int retryCount) {
+        this.retryCount = retryCount;
+    }
 
-	public Map<String, String> getAuthenticatorProperties() {
-		return authenticatorProperties;
-	}
+    public Map<String, String> getAuthenticatorProperties() {
+        return authenticatorProperties;
+    }
 
-	public void setAuthenticatorProperties(
-			Map<String, String> authenticatorProperties) {
-		this.authenticatorProperties = authenticatorProperties;
-	}
+    public void setAuthenticatorProperties(
+            Map<String, String> authenticatorProperties) {
+        this.authenticatorProperties = authenticatorProperties;
+    }
 
-	public String getServiceProviderName() {
-		return serviceProviderName;
-	}
+    public String getServiceProviderName() {
+        return serviceProviderName;
+    }
 
-	public void setServiceProviderName(String serviceProviderName) {
-		this.serviceProviderName = serviceProviderName;
-	}
+    public void setServiceProviderName(String serviceProviderName) {
+        this.serviceProviderName = serviceProviderName;
+    }
 
     public boolean isForceAuthenticate() {
         return forceAuthenticate;
     }
 
-    public boolean isPassiveAuthenticate() {
-        return passiveAuthenticate;
-    }
-
-    public void setQueryParams(String queryParams) {
-        this.queryParams = queryParams;
-    }
-
     public void setForceAuthenticate(boolean forceAuthenticate) {
         this.forceAuthenticate = forceAuthenticate;
+    }
+
+    public boolean isPassiveAuthenticate() {
+        return passiveAuthenticate;
     }
 
     public void setPassiveAuthenticate(boolean passiveAuthenticate) {

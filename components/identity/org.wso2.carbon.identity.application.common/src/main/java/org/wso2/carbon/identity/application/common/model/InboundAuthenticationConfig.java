@@ -18,37 +18,20 @@
 
 package org.wso2.carbon.identity.application.common.model;
 
+import org.apache.axiom.om.OMElement;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.apache.axiom.om.OMElement;
-
 public class InboundAuthenticationConfig implements Serializable {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 8966626233502458748L;
 
     private InboundAuthenticationRequestConfig[] inboundAuthenticationRequestConfigs = new InboundAuthenticationRequestConfig[0];
-
-    /**
-     * 
-     * @return
-     */
-    public InboundAuthenticationRequestConfig[] getInboundAuthenticationRequestConfigs() {
-        return inboundAuthenticationRequestConfigs;
-    }
-
-    /**
-     * 
-     * @param inboundAuthenticationRequest
-     */
-    public void setInboundAuthenticationRequestConfigs(
-            InboundAuthenticationRequestConfig[] inboundAuthenticationRequestConfigs) {
-        this.inboundAuthenticationRequestConfigs = inboundAuthenticationRequestConfigs;
-    }
 
     /*
      * <InboundAuthenticationConfig>
@@ -103,5 +86,20 @@ public class InboundAuthenticationConfig implements Serializable {
 
         return inboundAuthenticationConfig;
 
+    }
+
+    /**
+     * @return
+     */
+    public InboundAuthenticationRequestConfig[] getInboundAuthenticationRequestConfigs() {
+        return inboundAuthenticationRequestConfigs;
+    }
+
+    /**
+     * @param inboundAuthenticationRequest
+     */
+    public void setInboundAuthenticationRequestConfigs(
+            InboundAuthenticationRequestConfig[] inboundAuthenticationRequestConfigs) {
+        this.inboundAuthenticationRequestConfigs = inboundAuthenticationRequestConfigs;
     }
 }

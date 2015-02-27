@@ -33,7 +33,7 @@ public class CertData {
     private String publicKey;
 
 
-	public String getAlias() {
+    public String getAlias() {
         return alias;
     }
 
@@ -96,7 +96,7 @@ public class CertData {
     public void setPublicKey(String publicKey) {
         this.publicKey = publicKey;
     }
-    
-    
+
+
 }
 

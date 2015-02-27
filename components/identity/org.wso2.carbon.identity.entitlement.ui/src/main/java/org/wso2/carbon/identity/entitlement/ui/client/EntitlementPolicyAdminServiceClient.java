@@ -17,9 +17,6 @@
 */
 package org.wso2.carbon.identity.entitlement.ui.client;
 
-import java.lang.Exception;
-import java.rmi.RemoteException;
-import java.util.List;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
@@ -34,26 +31,26 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.entitlement.stub.EntitlementPolicyAdminServiceEntitlementException;
 import org.wso2.carbon.identity.entitlement.stub.EntitlementPolicyAdminServiceStub;
 import org.wso2.carbon.identity.entitlement.stub.dto.*;
-import org.wso2.carbon.identity.entitlement.stub.types.EntitlementException;
+
+import java.util.List;
 
 
 public class EntitlementPolicyAdminServiceClient {
 
-    private EntitlementPolicyAdminServiceStub stub;
-
     private static final Log log = LogFactory.getLog(EntitlementPolicyAdminServiceClient.class);
+    private EntitlementPolicyAdminServiceStub stub;
 
     /**
      * Instantiates EntitlementServiceClient
-     * 
-     * @param cookie For session management
+     *
+     * @param cookie           For session management
      * @param backendServerURL URL of the back end server where EntitlementPolicyAdminService is
-     *        running.
-     * @param configCtx ConfigurationContext
+     *                         running.
+     * @param configCtx        ConfigurationContext
      * @throws org.apache.axis2.AxisFault
      */
     public EntitlementPolicyAdminServiceClient(String cookie, String backendServerURL,
-            ConfigurationContext configCtx) throws AxisFault {
+                                               ConfigurationContext configCtx) throws AxisFault {
         String serviceURL = backendServerURL + "EntitlementPolicyAdminService";
         stub = new EntitlementPolicyAdminServiceStub(configCtx, serviceURL);
         ServiceClient client = stub._getServiceClient();
@@ -63,7 +60,6 @@ public class EntitlementPolicyAdminServiceClient {
     }
 
     /**
-     *
      * @param policyTypeFilter
      * @param policySearchString
      * @param pageNumber
@@ -72,7 +68,7 @@ public class EntitlementPolicyAdminServiceClient {
      * given page.
      * @throws AxisFault
      */
-    public PaginatedPolicySetDTO getAllPolicies(String policyTypeFilter,String policySearchString,
+    public PaginatedPolicySetDTO getAllPolicies(String policyTypeFilter, String policySearchString,
                                                 int pageNumber, boolean isPDPPolicy) throws AxisFault {
         try {
             return stub.getAllPolicies(policyTypeFilter, policySearchString, pageNumber, isPDPPolicy);
@@ -80,16 +76,16 @@ public class EntitlementPolicyAdminServiceClient {
             String message = "Error while loading all policies from backend service";
             handleException(e);
         }
-        PaginatedPolicySetDTO paginatedPolicySetDTO =  new PaginatedPolicySetDTO();
+        PaginatedPolicySetDTO paginatedPolicySetDTO = new PaginatedPolicySetDTO();
         paginatedPolicySetDTO.setPolicySet(new PolicyDTO[0]);
         return paginatedPolicySetDTO;
     }
 
     /**
-	 * Gets policy DTO for given policy id
-	 *
-	 * @param policyId policy id
-	 * @param isPDPPolicy
+     * Gets policy DTO for given policy id
+     *
+     * @param policyId    policy id
+     * @param isPDPPolicy
      * @return returns policy DTO
      * @throws AxisFault throws
      */
@@ -97,8 +93,8 @@ public class EntitlementPolicyAdminServiceClient {
         PolicyDTO dto = null;
         try {
             dto = stub.getPolicy(policyId, isPDPPolicy);
-            if(dto != null && dto.getPolicy() != null) {
-                dto.setPolicy(dto.getPolicy().trim().replaceAll("><", ">\n<"));     
+            if (dto != null && dto.getPolicy() != null) {
+                dto.setPolicy(dto.getPolicy().trim().replaceAll("><", ">\n<"));
             }
         } catch (Exception e) {
             handleException(e);
@@ -118,20 +114,20 @@ public class EntitlementPolicyAdminServiceClient {
         PolicyDTO dto = null;
         try {
             dto = stub.getPolicyByVersion(policyId, version);
-            if(dto != null && dto.getPolicy() != null) {
+            if (dto != null && dto.getPolicy() != null) {
                 dto.setPolicy(dto.getPolicy().trim().replaceAll("><", ">\n<"));
             }
         } catch (Exception e) {
             handleException(e);
         }
         return dto;
-    }    
+    }
 
     /**
-	 * Gets light weight policy DTO for given policy id
-	 *
-	 * @param policyId policy id
-	 * @return returns policy DTO
+     * Gets light weight policy DTO for given policy id
+     *
+     * @param policyId policy id
+     * @return returns policy DTO
      * @throws AxisFault throws
      */
     public PolicyDTO getLightPolicy(String policyId) throws AxisFault {
@@ -148,7 +144,7 @@ public class EntitlementPolicyAdminServiceClient {
      * Rollbacks policy DTO for given policy version
      *
      * @param policyId policy id
-     * @param version policy version
+     * @param version  policy version
      * @throws AxisFault throws
      */
     public void rollBackPolicy(String policyId, String version) throws AxisFault {
@@ -162,7 +158,6 @@ public class EntitlementPolicyAdminServiceClient {
 
 
     /**
-     * 
      * @param policyIds
      * @throws AxisFault
      */
@@ -199,14 +194,13 @@ public class EntitlementPolicyAdminServiceClient {
     }
 
     /**
-     * 
      * @param policy
      * @throws AxisFault
      */
     public void updatePolicy(PolicyDTO policy) throws AxisFault {
         try {
-            if(policy.getPolicy() != null && policy.getPolicy().trim().length() > 0){
-                policy.setPolicy(policy.getPolicy().trim().replaceAll(">\\s+<", "><"));                
+            if (policy.getPolicy() != null && policy.getPolicy().trim().length() > 0) {
+                policy.setPolicy(policy.getPolicy().trim().replaceAll(">\\s+<", "><"));
             }
             stub.updatePolicy(policy);
         } catch (Exception e) {
@@ -215,13 +209,12 @@ public class EntitlementPolicyAdminServiceClient {
     }
 
     /**
-     * 
      * @param policy
      * @throws AxisFault
      */
     public void addPolicy(PolicyDTO policy) throws AxisFault {
         try {
-            policy.setPolicy(policy.getPolicy().trim().replaceAll(">\\s+<", "><"));            
+            policy.setPolicy(policy.getPolicy().trim().replaceAll(">\\s+<", "><"));
             stub.addPolicy(policy);
         } catch (Exception e) {
             handleException(e);
@@ -230,7 +223,8 @@ public class EntitlementPolicyAdminServiceClient {
 
     /**
      * adding an entitlement policy which is extracted using file upload executor
-     * @param content  content of the policy as a <code>String</code> Object
+     *
+     * @param content content of the policy as a <code>String</code> Object
      * @throws AxisFault, throws if fails
      */
     public void uploadPolicy(String content) throws AxisFault {
@@ -247,6 +241,7 @@ public class EntitlementPolicyAdminServiceClient {
 
     /**
      * Import XACML policy from registry
+     *
      * @param policyRegistryPath registry path
      * @throws AxisFault
      */
@@ -258,9 +253,10 @@ public class EntitlementPolicyAdminServiceClient {
             handleException(e);
         }
     }
-    
+
     /**
      * Returns the list of policy set ids available in PDP
+     *
      * @return list of policy set ids
      * @throws AxisFault
      */
@@ -274,9 +270,8 @@ public class EntitlementPolicyAdminServiceClient {
         return null;
     }
 
-    
-     /**
-     * 
+
+    /**
      * @param requestContext
      * @return
      * @throws FileUploadException
@@ -299,25 +294,24 @@ public class EntitlementPolicyAdminServiceClient {
      * @throws AxisFault throws
      */
     public EntitlementTreeNodeDTO getEntitlementData(String dataModule, String category,
-                                       String regexp, int dataLevel, int limit) throws AxisFault {
+                                                     String regexp, int dataLevel, int limit) throws AxisFault {
         try {
-           return  stub.getEntitlementData(dataModule, category, regexp, dataLevel, limit);
+            return stub.getEntitlementData(dataModule, category, regexp, dataLevel, limit);
         } catch (Exception e) {
-           handleException(e);
+            handleException(e);
         }
 
         return null;
     }
 
     /**
-     *
      * @return
      * @throws AxisFault
      */
     public EntitlementFinderDataHolder[] getEntitlementDataModules() throws AxisFault {
 
         try {
-            return  stub.getEntitlementDataModules();
+            return stub.getEntitlementDataModules();
         } catch (Exception e) {
             handleException(e);
         }
@@ -368,10 +362,10 @@ public class EntitlementPolicyAdminServiceClient {
      * @param update
      * @throws AxisFault throws
      */
-    public void updateSubscriber(PublisherDataHolder holder,boolean update) throws AxisFault {
+    public void updateSubscriber(PublisherDataHolder holder, boolean update) throws AxisFault {
 
         try {
-            if(update){
+            if (update) {
                 stub.updateSubscriber(holder);
             } else {
                 stub.addSubscriber(holder);
@@ -399,8 +393,7 @@ public class EntitlementPolicyAdminServiceClient {
     /**
      * Publishes given set of policies to given set of subscribers
      *
-     *
-     * @param policies policy ids as String array, if null or empty, all policies are published
+     * @param policies     policy ids as String array, if null or empty, all policies are published
      * @param subscriberId subscriber ids as String array, if null or empty, publish to all subscribers
      * @param version
      * @param action
@@ -409,7 +402,7 @@ public class EntitlementPolicyAdminServiceClient {
      * @throws AxisFault throws
      */
     public void publish(String[] policies, String[] subscriberId, String action, String version,
-                                                                    boolean enabled, int order ) throws AxisFault {
+                        boolean enabled, int order) throws AxisFault {
         try {
             stub.publishPolicies(policies, subscriberId, action, version, enabled, order);
         } catch (Exception e) {
@@ -446,15 +439,15 @@ public class EntitlementPolicyAdminServiceClient {
     }
 
     public PaginatedStatusHolder getStatusData(String about, String key, String type,
-                                           String searchString, int pageNumber) throws AxisFault {
+                                               String searchString, int pageNumber) throws AxisFault {
         try {
             return stub.getStatusData(about, key, type, searchString, pageNumber);
         } catch (Exception e) {
             handleException(e);
         }
-        return  null;
+        return null;
     }
-    
+
     /**
      * Logs and wraps the given exception.
      *
@@ -465,10 +458,10 @@ public class EntitlementPolicyAdminServiceClient {
 
         String errorMessage = "Unknown";
 
-        if(e instanceof EntitlementPolicyAdminServiceEntitlementException){
+        if (e instanceof EntitlementPolicyAdminServiceEntitlementException) {
             EntitlementPolicyAdminServiceEntitlementException entitlementException =
-                                            (EntitlementPolicyAdminServiceEntitlementException) e;
-            if (entitlementException.getFaultMessage().getEntitlementException()!=null) {
+                    (EntitlementPolicyAdminServiceEntitlementException) e;
+            if (entitlementException.getFaultMessage().getEntitlementException() != null) {
                 errorMessage = entitlementException.getFaultMessage().getEntitlementException().getMessage();
             }
         } else {

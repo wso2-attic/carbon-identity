@@ -85,12 +85,12 @@ public class EntitlementConstants {
 
     public static final String defaultSubjectScope = "basicAuth";
 
-    public static final String defaultSubjectAttributeName ="userName";
+    public static final String defaultSubjectAttributeName = "userName";
 
-    public static final String defaultCacheType ="simple";
+    public static final String defaultCacheType = "simple";
 
-    public static final String defaultThriftHost ="localhost";
+    public static final String defaultThriftHost = "localhost";
 
-    public static final String defaultThriftPort ="10500";
+    public static final String defaultThriftPort = "10500";
 
 }

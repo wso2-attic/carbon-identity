@@ -18,11 +18,11 @@
  */
 package org.wso2.carbon.identity.mgt.beans;
 
-import java.util.Arrays;
-
 import org.wso2.carbon.identity.mgt.dto.UserChallengesDTO;
 import org.wso2.carbon.identity.mgt.dto.UserEvidenceDTO;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+
+import java.util.Arrays;
 
 /**
  * Bean that encapsulates user and tenant info
@@ -97,7 +97,6 @@ public class UserIdentityMgtBean {
     }
 
     /**
-     * 
      * @param email
      * @return
      */
@@ -107,9 +106,9 @@ public class UserIdentityMgtBean {
     }
 
     public String getTenantDomain() {
-    	if(tenantDomain == null) {
-    		tenantDomain = MultitenantUtils.getTenantDomain(userId);
-    	}
+        if (tenantDomain == null) {
+            tenantDomain = MultitenantUtils.getTenantDomain(userId);
+        }
         return tenantDomain;
     }
 
@@ -130,7 +129,6 @@ public class UserIdentityMgtBean {
     }
 
     /**
-     * 
      * @param recoveryType
      * @return
      */
@@ -152,7 +150,6 @@ public class UserIdentityMgtBean {
     }
 
     /**
-     * 
      * @param confirmationCode
      * @return
      */

@@ -74,5 +74,5 @@ public class SCIMAuthenticatorRegistry {
     public void removeAuthenticator(SCIMAuthenticationHandler scimAuthenticationHandler) {
         SCIMAuthHandlers.remove(scimAuthenticationHandler.getPriority());
     }
-    
+
 }

@@ -19,47 +19,56 @@ package org.wso2.carbon.identity.mgt.dto;
 
 import java.io.Serializable;
 
-public class EmailTemplateDTO implements Serializable{
+public class EmailTemplateDTO implements Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8854592668563155088L;
-	private String subject;
-	private String body;
-	private String footer;
-	private String name;
-	private String displayName;
-	
-	public String getSubject() {
-		return subject;
-	}
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
-	public String getBody() {
-		return body;
-	}
-	public void setBody(String body) {
-		this.body = body;
-	}
-	public String getFooter() {
-		return footer;
-	}
-	public void setFooter(String footer) {
-		this.footer = footer;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public String getDisplayName() {
-		return displayName;
-	}
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
-	}
-	
+    /**
+     *
+     */
+    private static final long serialVersionUID = -8854592668563155088L;
+    private String subject;
+    private String body;
+    private String footer;
+    private String name;
+    private String displayName;
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
+    }
+
+    public String getFooter() {
+        return footer;
+    }
+
+    public void setFooter(String footer) {
+        this.footer = footer;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
 }

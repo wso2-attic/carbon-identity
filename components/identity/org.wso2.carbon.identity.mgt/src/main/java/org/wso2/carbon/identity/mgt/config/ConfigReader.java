@@ -19,18 +19,19 @@ package org.wso2.carbon.identity.mgt.config;
 
 import java.util.Properties;
 
+import org.wso2.carbon.identity.mgt.IdentityMgtConfigException;
+
 /**
  * This is used to read and configuration from a persistence store.
- *
  */
 public interface ConfigReader {
 
-	/**
-	 * Reads a tenant specific configuration
-	 * 
-	 * @param tenantId
-	 * @param resourcePath
-	 * @return
-	 */
-	Properties read(int tenantId, String resourcePath);
+    /**
+     * Reads a tenant specific configuration
+     *
+     * @param tenantId
+     * @param resourcePath
+     * @return
+     */
+    Properties read(int tenantId, String resourcePath) throws IdentityMgtConfigException;
 }

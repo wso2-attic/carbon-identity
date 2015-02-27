@@ -30,91 +30,89 @@ import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
 
 public class OpenIDRememberMeDAO extends AbstractDAO<OpenIDRememberMeDO> {
 
-	protected Log log = LogFactory.getLog(OpenIDRememberMeDAO.class);
+    protected Log log = LogFactory.getLog(OpenIDRememberMeDAO.class);
 
-	public OpenIDRememberMeDAO(Registry registry) {
-		this.registry = registry;
-	}
+    public OpenIDRememberMeDAO(Registry registry) {
+        this.registry = registry;
+    }
 
-	/**
-	 * 
-	 * @param rememberMe
-	 * @throws IdentityException
-	 */
-	public void updateToken(OpenIDRememberMeDO rememberMe) throws IdentityException {
-		Collection userResource = null;
-		boolean transactionStarted = Transaction.isStarted();
+    /**
+     * @param rememberMe
+     * @throws IdentityException
+     */
+    public void updateToken(OpenIDRememberMeDO rememberMe) throws IdentityException {
+        Collection userResource = null;
+        boolean transactionStarted = Transaction.isStarted();
 
-		try {
-			if (!registry.resourceExists(RegistryConstants.PROFILES_PATH + rememberMe.getUserName())) {
-				userResource = registry.newCollection();
-				registry.put(RegistryConstants.PROFILES_PATH + rememberMe.getUserName(),
-				             userResource);
-			} else {
-				userResource =
-				               (Collection) registry.get(RegistryConstants.PROFILES_PATH +
-				                                         rememberMe.getUserName());
-			}
+        try {
+            if (!registry.resourceExists(RegistryConstants.PROFILES_PATH + rememberMe.getUserName())) {
+                userResource = registry.newCollection();
+                registry.put(RegistryConstants.PROFILES_PATH + rememberMe.getUserName(),
+                        userResource);
+            } else {
+                userResource =
+                        (Collection) registry.get(RegistryConstants.PROFILES_PATH +
+                                rememberMe.getUserName());
+            }
 
-			if (!transactionStarted) {
-				registry.beginTransaction();
-			}
+            if (!transactionStarted) {
+                registry.beginTransaction();
+            }
 
-			userResource.removeProperty("OpenIDRememberMeToken");
-			userResource.addProperty("OpenIDRememberMeToken", rememberMe.getToken());
-			registry.put(RegistryConstants.PROFILES_PATH + rememberMe.getUserName(), userResource);
+            userResource.removeProperty("OpenIDRememberMeToken");
+            userResource.addProperty("OpenIDRememberMeToken", rememberMe.getToken());
+            registry.put(RegistryConstants.PROFILES_PATH + rememberMe.getUserName(), userResource);
 
-			if (!transactionStarted) {
-				registry.commitTransaction();
-			}
-			
-		} catch (Exception ex) {
-			if (!transactionStarted) {
-				try {
-					registry.rollbackTransaction();
-				} catch (RegistryException e) {
-					log.error("Error occured while updating OpenID remember me token", e);
-					throw new IdentityException(
-					                            "Error occured while updating OpenID remember me token",
-					                            e);
-				}
-			}
-		}
-	}
+            if (!transactionStarted) {
+                registry.commitTransaction();
+            }
 
-	/**
-	 * 
-	 * @param rememberMe
-	 * @return
-	 * @throws IdentityException
-	 */
-	public String getToken(OpenIDRememberMeDO rememberMe) throws IdentityException {
-		Collection userResource = null;
-		String value = null;
+        } catch (Exception ex) {
+            if (!transactionStarted) {
+                try {
+                    registry.rollbackTransaction();
+                } catch (RegistryException e) {
+                    log.error("Error occured while updating OpenID remember me token", e);
+                    throw new IdentityException(
+                            "Error occured while updating OpenID remember me token",
+                            e);
+                }
+            }
+        }
+    }
 
-		try {
-			if (!registry.resourceExists(RegistryConstants.PROFILES_PATH + rememberMe.getUserName())) {
-				return null;
-			} else {
-				userResource =
-				               (Collection) registry.get(RegistryConstants.PROFILES_PATH +
-				                                         rememberMe.getUserName());
-			}
+    /**
+     * @param rememberMe
+     * @return
+     * @throws IdentityException
+     */
+    public String getToken(OpenIDRememberMeDO rememberMe) throws IdentityException {
+        Collection userResource = null;
+        String value = null;
 
-			value = userResource.getProperty("OpenIDRememberMeToken");
+        try {
+            if (!registry.resourceExists(RegistryConstants.PROFILES_PATH + rememberMe.getUserName())) {
+                return null;
+            } else {
+                userResource =
+                        (Collection) registry.get(RegistryConstants.PROFILES_PATH +
+                                rememberMe.getUserName());
+            }
 
-		} catch (Exception e) {
-			log.error("Error occured while updating OpenID remember me token", e);
-			throw new IdentityException("Error occured while updating OpenID remember me token", e);
-		}
+            value = userResource.getProperty("OpenIDRememberMeToken");
 
-		return value;
-	}
+        } catch (Exception e) {
+            log.error("Error occured while updating OpenID remember me token", e);
+            throw new IdentityException("Error occured while updating OpenID remember me token", e);
+        }
 
-	@Override
-	protected OpenIDRememberMeDO resourceToObject(Resource resource) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+        return value;
+    }
+
+    @Override
+    protected OpenIDRememberMeDO resourceToObject(Resource resource) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

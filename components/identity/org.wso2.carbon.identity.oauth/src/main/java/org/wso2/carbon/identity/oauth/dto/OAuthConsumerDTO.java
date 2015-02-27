@@ -31,7 +31,7 @@ public class OAuthConsumerDTO {
     // oauth_timestamp
     private String oauthTimeStamp = null;
     private String baseString = null;
-    private String httpMethod = null;    
+    private String httpMethod = null;
 
     public String getBaseString() {
         return baseString;

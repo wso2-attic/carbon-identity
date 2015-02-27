@@ -19,51 +19,51 @@ package org.wso2.carbon.identity.provider.dto;
 
 public class OpenIDClaimDTO {
 
-	private String claimUri;
-	private String displayTag;
-	private String description;
-	private boolean enabled;
-	private String claimValue;
+    private String claimUri;
+    private String displayTag;
+    private String description;
+    private boolean enabled;
+    private String claimValue;
 
-	public String getClaimValue() {
-		return claimValue;
-	}
+    public String getClaimValue() {
+        return claimValue;
+    }
 
-	public void setClaimValue(String claimValue) {
-		this.claimValue = claimValue;
-	}
+    public void setClaimValue(String claimValue) {
+        this.claimValue = claimValue;
+    }
 
-	public String getClaimUri() {
-		return claimUri;
-	}
+    public String getClaimUri() {
+        return claimUri;
+    }
 
-	public boolean isEnabled() {
-		return enabled;
-	}
+    public void setClaimUri(String claimUri) {
+        this.claimUri = claimUri;
+    }
 
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
+    public boolean isEnabled() {
+        return enabled;
+    }
 
-	public void setClaimUri(String claimUri) {
-		this.claimUri = claimUri;
-	}
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
-	public String getDisplayTag() {
-		return displayTag;
-	}
+    public String getDisplayTag() {
+        return displayTag;
+    }
 
-	public void setDisplayTag(String displayTag) {
-		this.displayTag = displayTag;
-	}
+    public void setDisplayTag(String displayTag) {
+        this.displayTag = displayTag;
+    }
 
 
-	public String getDescription() {
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
 }

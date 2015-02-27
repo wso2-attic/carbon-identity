@@ -15,11 +15,6 @@
  */
 package org.wso2.carbon.identity.mgt.internal;
 
-import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.Hashtable;
-import java.util.List;
-
 import org.apache.axis2.engine.AxisObserver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,8 +35,12 @@ import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
+import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Hashtable;
+import java.util.List;
+
 /**
- * 
  * @scr.component name="org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent"
  * immediate="true"
  * @scr.reference name="registry.service"
@@ -61,45 +60,12 @@ public class IdentityMgtServiceComponent {
     private static RegistryService registryService;
 
     private static ConfigurationContextService configurationContextService;
-
-    private ServiceRegistration serviceRegistration = null;
-    
     private static IdentityMgtEventListener listener = null;
-
     private static RecoveryProcessor recoveryProcessor;
+    private ServiceRegistration serviceRegistration = null;
 
-    protected void activate(ComponentContext context) {
-
-        Dictionary<String, String> props = new Hashtable<String, String>();
-        props.put(CarbonConstants.AXIS2_CONFIG_SERVICE, AxisObserver.class.getName());
-        context.getBundleContext().registerService(AxisObserver.class.getName(),
-                                                new IdentityMgtDeploymentInterceptor(), props);
-        init();
-        if(IdentityMgtConfig.getInstance().isListenerEnable()){
-            listener = new IdentityMgtEventListener();
-            serviceRegistration =
-                    context.getBundleContext().registerService(UserOperationEventListener.class.getName(),
-                            listener, null);
-            log.debug("Identity Management Listener is enabled");
-        } else {
-            log.debug("Identity Management Listener is disabled");
-        }
-        log.debug("Identity Management bundle is activated");
-    }
-
-
-    protected void deactivate(ComponentContext context) {
-        log.debug("Identity Management bundle is de-activated");
-    }
-
-    protected void setRegistryService(RegistryService registryService) {
-        log.debug("Setting the Registry Service");
-        IdentityMgtServiceComponent.registryService = registryService;
-    }
-
-    protected void unsetRegistryService(RegistryService registryService) {
-        log.debug("UnSetting the Registry Service");
-        IdentityMgtServiceComponent.registryService = null;
+    public static RealmService getRealmService() {
+        return realmService;
     }
 
     protected void setRealmService(RealmService realmService) {
@@ -107,9 +73,17 @@ public class IdentityMgtServiceComponent {
         IdentityMgtServiceComponent.realmService = realmService;
     }
 
-    protected void unsetRealmService(RealmService realmService) {
-        log.debug("UnSetting the Realm Service");
-        IdentityMgtServiceComponent.realmService = null;
+    public static RegistryService getRegistryService() {
+        return registryService;
+    }
+
+    protected void setRegistryService(RegistryService registryService) {
+        log.debug("Setting the Registry Service");
+        IdentityMgtServiceComponent.registryService = registryService;
+    }
+
+    public static ConfigurationContextService getConfigurationContextService() {
+        return configurationContextService;
     }
 
     protected void setConfigurationContextService(ConfigurationContextService configurationContextService) {
@@ -118,66 +92,36 @@ public class IdentityMgtServiceComponent {
 
     }
 
-    protected void unsetConfigurationContextService(ConfigurationContextService configurationContextService) {
-        log.debug("UnSetting the  ConfigurationContext Service");
-        IdentityMgtServiceComponent.configurationContextService = null;
-    }
-
-    public static RealmService getRealmService() {
-        return realmService;
-    }
-
-    public static RegistryService getRegistryService() {
-        return registryService;
-    }
-
-    public static ConfigurationContextService getConfigurationContextService() {
-        return configurationContextService;
-    }
-
-//    protected void setCacheInvalidator(CacheInvalidator invalidator) {
-//        cacheInvalidator = invalidator;
-//    }
-//
-//    protected void removeCacheInvalidator(CacheInvalidator invalidator) {
-//        cacheInvalidator = null;
-//    }
-//
-//    public static CacheInvalidator getCacheInvalidator() {
-//    	return cacheInvalidator;
-//    }
-
     public static RecoveryProcessor getRecoveryProcessor() {
         return recoveryProcessor;
     }
 
-    private static void init(){
-				
-		Registry registry;
-		IdentityMgtConfig.getInstance(realmService.getBootstrapRealmConfiguration());
-		recoveryProcessor = new RecoveryProcessor();
-		try {
-			registry = IdentityMgtServiceComponent.getRegistryService()
-					.getConfigSystemRegistry();
-			if (!registry
-					.resourceExists(IdentityMgtConstants.IDENTITY_MANAGEMENT_PATH)) {
-				Collection questionCollection = registry.newCollection();
-				registry.put(IdentityMgtConstants.IDENTITY_MANAGEMENT_PATH,
-						questionCollection);
-				loadDefaultChallenges();
-			}
-		} catch (RegistryException e) {
-			log.error("Error while creating registry collection for org.wso2.carbon.identity.mgt component");
-		}
-               
+    private static void init() {
+
+        Registry registry;
+        IdentityMgtConfig.getInstance(realmService.getBootstrapRealmConfiguration());
+        recoveryProcessor = new RecoveryProcessor();
+        try {
+            registry = IdentityMgtServiceComponent.getRegistryService()
+                    .getConfigSystemRegistry();
+            if (!registry
+                    .resourceExists(IdentityMgtConstants.IDENTITY_MANAGEMENT_PATH)) {
+                Collection questionCollection = registry.newCollection();
+                registry.put(IdentityMgtConstants.IDENTITY_MANAGEMENT_PATH,
+                        questionCollection);
+                loadDefaultChallenges();
+            }
+        } catch (RegistryException e) {
+            log.error("Error while creating registry collection for org.wso2.carbon.identity.mgt component");
+        }
+
     }
 
-
-    private static void  loadDefaultChallenges(){
+    private static void loadDefaultChallenges() {
 
         List<ChallengeQuestionDTO> questionSetDTOs = new ArrayList<ChallengeQuestionDTO>();
 
-        for(String challenge : IdentityMgtConstants.SECRET_QUESTIONS_SET01){
+        for (String challenge : IdentityMgtConstants.SECRET_QUESTIONS_SET01) {
             ChallengeQuestionDTO dto = new ChallengeQuestionDTO();
             dto.setQuestion(challenge);
             dto.setPromoteQuestion(true);
@@ -185,7 +129,7 @@ public class IdentityMgtServiceComponent {
             questionSetDTOs.add(dto);
         }
 
-        for(String challenge : IdentityMgtConstants.SECRET_QUESTIONS_SET02){
+        for (String challenge : IdentityMgtConstants.SECRET_QUESTIONS_SET02) {
             ChallengeQuestionDTO dto = new ChallengeQuestionDTO();
             dto.setQuestion(challenge);
             dto.setPromoteQuestion(true);
@@ -200,6 +144,56 @@ public class IdentityMgtServiceComponent {
             log.error("Error while promoting default challenge questions", e);
         }
 
+    }
+
+    protected void activate(ComponentContext context) {
+
+        Dictionary<String, String> props = new Hashtable<String, String>();
+        props.put(CarbonConstants.AXIS2_CONFIG_SERVICE, AxisObserver.class.getName());
+        context.getBundleContext().registerService(AxisObserver.class.getName(),
+                new IdentityMgtDeploymentInterceptor(), props);
+        init();
+        if (IdentityMgtConfig.getInstance().isListenerEnable()) {
+            listener = new IdentityMgtEventListener();
+            serviceRegistration =
+                    context.getBundleContext().registerService(UserOperationEventListener.class.getName(),
+                            listener, null);
+            log.debug("Identity Management Listener is enabled");
+        } else {
+            log.debug("Identity Management Listener is disabled");
+        }
+        log.debug("Identity Management bundle is activated");
+    }
+
+    protected void deactivate(ComponentContext context) {
+        log.debug("Identity Management bundle is de-activated");
+    }
+
+//    protected void setCacheInvalidator(CacheInvalidator invalidator) {
+//        cacheInvalidator = invalidator;
+//    }
+//
+//    protected void removeCacheInvalidator(CacheInvalidator invalidator) {
+//        cacheInvalidator = null;
+//    }
+//
+//    public static CacheInvalidator getCacheInvalidator() {
+//    	return cacheInvalidator;
+//    }
+
+    protected void unsetRegistryService(RegistryService registryService) {
+        log.debug("UnSetting the Registry Service");
+        IdentityMgtServiceComponent.registryService = null;
+    }
+
+    protected void unsetRealmService(RealmService realmService) {
+        log.debug("UnSetting the Realm Service");
+        IdentityMgtServiceComponent.realmService = null;
+    }
+
+    protected void unsetConfigurationContextService(ConfigurationContextService configurationContextService) {
+        log.debug("UnSetting the  ConfigurationContext Service");
+        IdentityMgtServiceComponent.configurationContextService = null;
     }
 //
 //    private static void processLockUsers() {

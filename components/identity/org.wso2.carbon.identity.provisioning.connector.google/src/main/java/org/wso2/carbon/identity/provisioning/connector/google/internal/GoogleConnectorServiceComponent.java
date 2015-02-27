@@ -28,30 +28,30 @@ import org.wso2.carbon.identity.provisioning.connector.google.GoogleProvisioning
 
 /**
  * @scr.component name=
- *                "org.wso2.carbon.identity.provisioning.google.internal.GoogleConnectorServiceComponent"
- *                immediate="true"
+ * "org.wso2.carbon.identity.provisioning.google.internal.GoogleConnectorServiceComponent"
+ * immediate="true"
  */
 public class GoogleConnectorServiceComponent {
 
-	private static Log log = LogFactory
-			.getLog(GoogleConnectorServiceComponent.class);
+    private static Log log = LogFactory
+            .getLog(GoogleConnectorServiceComponent.class);
 
-	protected void activate(ComponentContext context) {
+    protected void activate(ComponentContext context) {
 
-		if (log.isDebugEnabled()) {
-			log.debug("Activating GoogleConnectorServiceComponent");
-		}
-		
-    	try {
-    		GoogleProvisioningConnectorFactory googleProvisioningConnectorFactory = new GoogleProvisioningConnectorFactory();
-    	
-    		context.getBundleContext().registerService(AbstractProvisioningConnectorFactory.class.getName(), googleProvisioningConnectorFactory, null);
-    		if(log.isDebugEnabled()) {
-    			log.debug("Google Identity Provisioning Connector bundle is activated");
-    		}
-    	} catch (Throwable e) {
-    		log.fatal(" Error while activating Google Identity Provisioning Connector ", e);
-    	}
-	}
+        if (log.isDebugEnabled()) {
+            log.debug("Activating GoogleConnectorServiceComponent");
+        }
+
+        try {
+            GoogleProvisioningConnectorFactory googleProvisioningConnectorFactory = new GoogleProvisioningConnectorFactory();
+
+            context.getBundleContext().registerService(AbstractProvisioningConnectorFactory.class.getName(), googleProvisioningConnectorFactory, null);
+            if (log.isDebugEnabled()) {
+                log.debug("Google Identity Provisioning Connector bundle is activated");
+            }
+        } catch (Throwable e) {
+            log.fatal(" Error while activating Google Identity Provisioning Connector ", e);
+        }
+    }
 
 }

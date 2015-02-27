@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -38,15 +38,14 @@ import java.security.cert.Certificate;
 
 public class SecondaryUserStoreConfigurationUtil {
 
-    private static Cipher cipher = null;
-    private static final String SERVER_REGISTRY_KEYSTORE_FILE = "Security.RegistryKeyStore.Location";
-    private static final String SERVER_REGISTRY_KEYSTORE_TYPE = "Security.RegistryKeyStore.Type";
-    private static final String SERVER_REGISTRY_KEYSTORE_PASSWORD = "Security.RegistryKeyStore.Password";
-    private static final String SERVER_REGISTRY_KEYSTORE_KEY_ALIAS = "Security.RegistryKeyStore.KeyAlias";
-
     public static final Log log = LogFactory.getLog(SecondaryUserStoreConfigurationUtil.class);
+    private static final String SERVER_KEYSTORE_FILE = "Security.KeyStore.Location";
+    private static final String SERVER_KEYSTORE_TYPE = "Security.KeyStore.Type";
+    private static final String SERVER_KEYSTORE_PASSWORD = "Security.KeyStore.Password";
+    private static final String SERVER_KEYSTORE_KEY_ALIAS = "Security.KeyStore.KeyAlias";
+    private static Cipher cipher = null;
 
-    private SecondaryUserStoreConfigurationUtil(){
+    private SecondaryUserStoreConfigurationUtil() {
 
     }
 
@@ -57,15 +56,15 @@ public class SecondaryUserStoreConfigurationUtil {
      */
     private static void initializeKeyStore() throws IdentityUserStoreMgtException {
 
-        if(cipher == null){
+        if (cipher == null) {
             ServerConfigurationService config =
                     UserStoreConfigComponent.getServerConfigurationService();
 
             if (config != null) {
-                String filePath = config.getFirstProperty(SERVER_REGISTRY_KEYSTORE_FILE);
-                String keyStoreType = config.getFirstProperty(SERVER_REGISTRY_KEYSTORE_TYPE);
-                String password = config.getFirstProperty(SERVER_REGISTRY_KEYSTORE_PASSWORD);
-                String keyAlias = config.getFirstProperty(SERVER_REGISTRY_KEYSTORE_KEY_ALIAS);
+                String filePath = config.getFirstProperty(SERVER_KEYSTORE_FILE);
+                String keyStoreType = config.getFirstProperty(SERVER_KEYSTORE_TYPE);
+                String password = config.getFirstProperty(SERVER_KEYSTORE_PASSWORD);
+                String keyAlias = config.getFirstProperty(SERVER_KEYSTORE_KEY_ALIAS);
 
                 KeyStore store;
                 InputStream inputStream = null;
@@ -93,17 +92,17 @@ public class SecondaryUserStoreConfigurationUtil {
                     String errorMsg = "Some parameters assigned to access the " +
                             "keystore is invalid";
                     throw new IdentityUserStoreMgtException(errorMsg, e);
-                }finally {
-                    if(inputStream != null){
+                } finally {
+                    if (inputStream != null) {
                         try {
                             inputStream.close();
                         } catch (IOException e) {
-                           log.error("Exception occurred while trying to close the keystore " +
-                                   "file", e);
+                            log.error("Exception occurred while trying to close the keystore " +
+                                    "file", e);
                         }
                     }
                 }
-            }else {
+            } else {
                 String errMsg = "ServerConfigurationService is null - this situation can't occur";
                 log.error(errMsg);
             }
@@ -112,20 +111,19 @@ public class SecondaryUserStoreConfigurationUtil {
     }
 
     /**
-     *
-     * @param plainText                         Cipher text to be encrypted
-     * @return                                  Returns the encrypted text
-     * @throws IdentityUserStoreMgtException    Encryption failed
+     * @param plainText Cipher text to be encrypted
+     * @return Returns the encrypted text
+     * @throws IdentityUserStoreMgtException Encryption failed
      */
-    public static String encryptPlainText(String plainText) throws IdentityUserStoreMgtException  {
+    public static String encryptPlainText(String plainText) throws IdentityUserStoreMgtException {
 
-        if(cipher == null){
+        if (cipher == null) {
             initializeKeyStore();
         }
 
         try {
             return Base64.encode(cipher.doFinal((plainText.getBytes())));
-        }catch (GeneralSecurityException e){
+        } catch (GeneralSecurityException e) {
             String errMsg = "Failed to generate the cipher text";
             throw new IdentityUserStoreMgtException(errMsg, e);
         }

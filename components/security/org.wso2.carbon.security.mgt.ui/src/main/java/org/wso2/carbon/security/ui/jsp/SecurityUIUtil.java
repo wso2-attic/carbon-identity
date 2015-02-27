@@ -17,12 +17,6 @@
 */
 package org.wso2.carbon.security.ui.jsp;
 
-import java.io.File;
-import java.util.List;
-
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
-
 import org.apache.axis2.builder.DiskFileDataSource;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadException;
@@ -30,16 +24,19 @@ import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.servlet.ServletRequestContext;
-import org.wso2.carbon.registry.core.service.RegistryService;
-import org.wso2.carbon.security.ui.ServiceHolder;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
+import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.security.ui.ServiceHolder;
+
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import java.util.List;
 
 public class SecurityUIUtil {
 
     private static String url = null;
 
-   
 
     public static String getUrl() throws Exception {
 

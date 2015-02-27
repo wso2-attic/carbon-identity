@@ -16,25 +16,25 @@
 
 package org.wso2.carbon.identity.provider.openid.extensions;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openid4java.message.AuthRequest;
 import org.openid4java.message.MessageException;
 import org.openid4java.message.MessageExtension;
-import org.openid4java.message.sreg.SRegMessage;
 import org.openid4java.message.ax.AxMessage;
+import org.openid4java.message.sreg.SRegMessage;
 import org.openid4java.message.sreg.SRegRequest;
 import org.openid4java.message.sreg.SRegResponse;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
 import org.wso2.carbon.identity.provider.dto.OpenIDClaimDTO;
 import org.wso2.carbon.identity.provider.openid.handlers.OpenIDAuthenticationRequest;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Functionality related OpenID Simple Registration. OpenID Simple Registration is an extension to
@@ -44,8 +44,8 @@ import org.wso2.carbon.identity.provider.openid.handlers.OpenIDAuthenticationReq
  */
 public class OpenIDSimpleReg extends OpenIDExtension {
 
-    private OpenIDAuthenticationRequest request;
     private static Log log = LogFactory.getLog(OpenIDSimpleReg.class);
+    private OpenIDAuthenticationRequest request;
 
     /**
      * @param request An instance of OpenIDAuthenticationRequest
@@ -63,10 +63,10 @@ public class OpenIDSimpleReg extends OpenIDExtension {
      */
     public void addRequiredAttributes(List<String> requiredAttributes) throws IdentityException {
         AuthRequest authRequest = null;
-        MessageExtension extension = null; 
+        MessageExtension extension = null;
         try {
             authRequest = request.getAuthRequest();
-            if (authRequest != null) {   
+            if (authRequest != null) {
                 if (authRequest.hasExtension(SRegMessage.OPENID_NS_SREG)) {
                     extension = authRequest.getExtension(SRegMessage.OPENID_NS_SREG);
                 } else if (authRequest.hasExtension(SRegMessage.OPENID_NS_SREG11)) {
@@ -94,7 +94,7 @@ public class OpenIDSimpleReg extends OpenIDExtension {
                         }
                     }
 
-                    for (Iterator<String> iterator = required.iterator(); iterator.hasNext();) {
+                    for (Iterator<String> iterator = required.iterator(); iterator.hasNext(); ) {
                         String claimUri = iterator.next();
                         if (!requiredAttributes.contains(claimUri)) {
                             requiredAttributes.add(claimUri);
@@ -181,13 +181,13 @@ public class OpenIDSimpleReg extends OpenIDExtension {
      * Populate the response with claim values. If we can't find the required values with us, we
      * simply avoid sending them. An Identity Provider MAY return any subset of the following fields
      * in response to the query.
-     * 
-     * @param response Simple Registration response.
+     *
+     * @param response    Simple Registration response.
      * @param claimValues Claim values.
      * @throws MessageException
      */
     protected void setSimpleAttributeRegistrationValues(SRegResponse response,
-            Map<String, OpenIDClaimDTO> claimValues) throws MessageException {
+                                                        Map<String, OpenIDClaimDTO> claimValues) throws MessageException {
 
         Iterator<Entry<String, OpenIDClaimDTO>> iterator = null;
         OpenIDClaimDTO claim = null;

@@ -24,14 +24,12 @@ import java.util.Map;
 
 /**
  * Retrieving claims from the user store for the given claims dialect
- * 
- * 
  */
 public class UserInfoUserStoreClaimRetriever implements UserInfoClaimRetriever {
 
     public Map<String, Object> getClaimsMap(Map<ClaimMapping, String> userAttributes) {
-        Map<String,Object> claims = new HashMap<String, Object>();
-        if (userAttributes != null && userAttributes.size()>0) {
+        Map<String, Object> claims = new HashMap<String, Object>();
+        if (userAttributes != null && userAttributes.size() > 0) {
             for (ClaimMapping claimMapping : userAttributes.keySet()) {
                 claims.put(claimMapping.getRemoteClaim().getClaimUri(), userAttributes.get(claimMapping));
             }

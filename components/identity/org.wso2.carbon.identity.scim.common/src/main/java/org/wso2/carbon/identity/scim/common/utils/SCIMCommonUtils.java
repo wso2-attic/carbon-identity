@@ -17,15 +17,15 @@
 */
 package org.wso2.carbon.identity.scim.common.utils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.scim.common.config.SCIMProviderDTO;
 import org.wso2.carbon.user.core.UserCoreConstants;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class is to be used as a Util class for SCIM common things.
@@ -34,12 +34,27 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 public class SCIMCommonUtils {
 
     public static final String SCIM_CLAIM_DIALECT = "urn:scim:schemas:core:1.0";
-    private static String scimGroupLocation;
-    private static String scimUserLocation;
-
     //this is temporary - until persisted in DB
     public static Map<String, List<SCIMProviderDTO>> providers =
             new HashMap<String, List<SCIMProviderDTO>>();
+    private static String scimGroupLocation;
+    private static String scimUserLocation;
+    /*Since we need perform provisioning through UserOperationEventListeenr implementation -
+
+    * SCIMUserOperationListener- there can be cases where multiple methods in the listener are
+* called for same operation - such as when adding a user with claims, both postAddUserListener
+* as well as setClaimValuesListener are called. But we do not need setClaimValuesLister to be
+* called at user creation - it is supposed to do provisioning at user update. So we make use of
+* this thread local variable to skip the second lister.
+* */
+    private static ThreadLocal threadLocalToSkipSetUserClaimsListeners = new ThreadLocal();
+    /**
+     * Provisioning to other providers is initiated at SCIMUserOperationListener which is invoked
+     * by UserStoreManager. It doesn't have any clue about through which path the user management operation
+     * came. If it came through SCIMEndPoint, we treat it differently when deciding SCIMConsumerId.
+     * Therefore we need this thread local to signal the SCIMUserOperationListener to take the decision.
+     */
+    private static ThreadLocal threadLocalIsManagedThroughSCIMEP = new ThreadLocal();
 
     public static void init() {
         //to initialize scim urls once.
@@ -49,7 +64,7 @@ public class SCIMCommonUtils {
             //TODO: read the https port from config file. Here the default one is hardcoded, but offset is read from config
             int httpsPort = 9443 + Integer.parseInt(portOffSet);
             String scimURL = "https://" + ServerConfiguration.getInstance().getFirstProperty("HostName")
-                             + ":" + String.valueOf(httpsPort) + "/wso2/scim/";
+                    + ":" + String.valueOf(httpsPort) + "/wso2/scim/";
             scimUserLocation = scimURL + "Users";
             scimGroupLocation = scimURL + "Groups";
         }
@@ -62,6 +77,8 @@ public class SCIMCommonUtils {
     public static String getSCIMGroupURL(String id) {
         return scimGroupLocation + "/" + id;
     }
+
+    /*Handling ThreadLocals*/
 
     public static String getSCIMUserURL() {
         if (scimUserLocation != null) {
@@ -79,22 +96,6 @@ public class SCIMCommonUtils {
         return scimGroupLocation;
     }
 
-    /*Handling ThreadLocals*/
-
-    /*Since we need perform provisioning through UserOperationEventListeenr implementation -
-
-    * SCIMUserOperationListener- there can be cases where multiple methods in the listener are
-* called for same operation - such as when adding a user with claims, both postAddUserListener
-* as well as setClaimValuesListener are called. But we do not need setClaimValuesLister to be
-* called at user creation - it is supposed to do provisioning at user update. So we make use of
-* this thread local variable to skip the second lister.
-* */
-    private static ThreadLocal threadLocalToSkipSetUserClaimsListeners = new ThreadLocal();
-
-    public static void setThreadLocalToSkipSetUserClaimsListeners(Boolean value) {
-        threadLocalToSkipSetUserClaimsListeners.set(value);
-    }
-
     public static void unsetThreadLocalToSkipSetUserClaimsListeners() {
         threadLocalToSkipSetUserClaimsListeners.remove();
     }
@@ -103,16 +104,8 @@ public class SCIMCommonUtils {
         return (Boolean) threadLocalToSkipSetUserClaimsListeners.get();
     }
 
-    /**
-     * Provisioning to other providers is initiated at SCIMUserOperationListener which is invoked
-     * by UserStoreManager. It doesn't have any clue about through which path the user management operation
-     * came. If it came through SCIMEndPoint, we treat it differently when deciding SCIMConsumerId.
-     * Therefore we need this thread local to signal the SCIMUserOperationListener to take the decision.
-     */
-    private static ThreadLocal threadLocalIsManagedThroughSCIMEP = new ThreadLocal();
-
-    public static void setThreadLocalIsManagedThroughSCIMEP(Boolean value) {
-        threadLocalIsManagedThroughSCIMEP.set(value);
+    public static void setThreadLocalToSkipSetUserClaimsListeners(Boolean value) {
+        threadLocalToSkipSetUserClaimsListeners.set(value);
     }
 
     public static void unsetThreadLocalIsManagedThroughSCIMEP() {
@@ -121,6 +114,10 @@ public class SCIMCommonUtils {
 
     public static Boolean getThreadLocalIsManagedThroughSCIMEP() {
         return (Boolean) threadLocalIsManagedThroughSCIMEP.get();
+    }
+
+    public static void setThreadLocalIsManagedThroughSCIMEP(Boolean value) {
+        threadLocalIsManagedThroughSCIMEP.set(value);
     }
 
     public static String getGlobalConsumerId() {
@@ -134,28 +131,28 @@ public class SCIMCommonUtils {
         String consumerId = userName + "@" + currentTenantDomain;
         return consumerId;
     }
-    
-	public static String getGroupNameWithDomain(String groupName) {
-	    
-	    if (groupName == null) {
-            return groupName;
-        }
-	    
-		if (groupName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
-			return groupName;
-		} else {
-			return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME
-					+ CarbonConstants.DOMAIN_SEPARATOR + groupName;
-		}
-	}
-	
-	public static String getPrimaryFreeGroupName(String groupName){
-	    
+
+    public static String getGroupNameWithDomain(String groupName) {
+
         if (groupName == null) {
             return groupName;
         }
 
-	    int index = groupName.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+        if (groupName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
+            return groupName;
+        } else {
+            return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME
+                    + CarbonConstants.DOMAIN_SEPARATOR + groupName;
+        }
+    }
+
+    public static String getPrimaryFreeGroupName(String groupName) {
+
+        if (groupName == null) {
+            return groupName;
+        }
+
+        int index = groupName.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
 
         // Check whether we have a secondary UserStoreManager setup.
         if (index > 0) {
@@ -166,5 +163,5 @@ public class SCIMCommonUtils {
             }
         }
         return groupName;
-	}
+    }
 }

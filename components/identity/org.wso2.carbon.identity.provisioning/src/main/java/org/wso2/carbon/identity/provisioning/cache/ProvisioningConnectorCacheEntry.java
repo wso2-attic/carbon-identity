@@ -21,16 +21,13 @@ package org.wso2.carbon.identity.provisioning.cache;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.provisioning.AbstractOutboundProvisioningConnector;
 
-import java.io.Serializable;
-
 public class ProvisioningConnectorCacheEntry extends CacheEntry {
 
     private static final long serialVersionUID = -5753542359364950392L;
 
     private AbstractOutboundProvisioningConnector provisioningConnector;
-    
+
     /**
-     * 
      * @return
      */
     public AbstractOutboundProvisioningConnector getProvisioningConnector() {
@@ -38,7 +35,6 @@ public class ProvisioningConnectorCacheEntry extends CacheEntry {
     }
 
     /**
-     * 
      * @param provisioningConnector
      */
     public void setProvisioningConnector(AbstractOutboundProvisioningConnector provisioningConnector) {

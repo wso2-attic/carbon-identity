@@ -9,17 +9,6 @@
  */
 package org.wso2.carbon.user.cassandra;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-
-import javax.sql.DataSource;
-
 import me.prettyprint.cassandra.model.BasicColumnDefinition;
 import me.prettyprint.cassandra.model.BasicColumnFamilyDefinition;
 import me.prettyprint.cassandra.serializers.CompositeSerializer;
@@ -46,7 +35,6 @@ import me.prettyprint.hector.api.query.ColumnQuery;
 import me.prettyprint.hector.api.query.QueryResult;
 import me.prettyprint.hector.api.query.RangeSlicesQuery;
 import me.prettyprint.hector.api.query.SliceQuery;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -64,18 +52,21 @@ import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
+import javax.sql.DataSource;
+import java.util.*;
+
 public class CassandraUserStoreManager extends AbstractUserStoreManager {
 
-    private Cluster cluster;
-    private Keyspace keyspace;
+    private static final String TRUE = "TRUE";
     private static Log log = LogFactory.getLog(CassandraUserStoreManager.class);
     private final StringSerializer stringSerializer = StringSerializer.get();
     protected DataSource jdbcDataSource = null;
     protected int tenantId;
-    private String tenantIdString;
     protected boolean useOnlyInternalRoles;
     protected Random random = new Random();
-    private static final String TRUE = "TRUE";
+    private Cluster cluster;
+    private Keyspace keyspace;
+    private String tenantIdString;
     private String domain = null;
 
     public CassandraUserStoreManager() {
@@ -129,7 +120,7 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
     }
 
     public CassandraUserStoreManager(RealmConfiguration realmConfig, Map<String, Object> properties,
-            ClaimManager claimManager, ProfileConfigurationManager profileManager, UserRealm realm, Integer tenantId)
+                                     ClaimManager claimManager, ProfileConfigurationManager profileManager, UserRealm realm, Integer tenantId)
             throws UserStoreException {
 
         this(realmConfig, tenantId);
@@ -269,7 +260,7 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
      */
     @Override
     public void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
-            String profileName, boolean requirePasswordChange) throws UserStoreException {
+                          String profileName, boolean requirePasswordChange) throws UserStoreException {
 
         String userId = UUID.randomUUID().toString();
         String saltValue = null;
@@ -508,11 +499,9 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
     /**
      * Maps the users to a role list. Adds the (username, tenantId) -> roleList
      * and (role, tenantId) -> userName
-     * 
-     * @param userName
-     *            The username of the user the roles need to be added to.
-     * @param roleList
-     *            The list of roles that needs to be mapped against the user.
+     *
+     * @param userName The username of the user the roles need to be added to.
+     * @param roleList The list of roles that needs to be mapped against the user.
      */
     private void addUserToRoleList(String userName, String[] roleList) {
 
@@ -540,13 +529,10 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
     /**
      * Maps the users to a role list. Adds the (username, tenantId) -> roleList
      * and (role, tenantId) -> userName
-     * 
-     * @param userName
-     *            The username of the user the roles need to be added to.
-     * @param roleList
-     *            The list of roles that needs to be mapped against the user.
-     * @param mutator
-     *            Passes the mutator and returns it with the insert statements.
+     *
+     * @param userName The username of the user the roles need to be added to.
+     * @param roleList The list of roles that needs to be mapped against the user.
+     * @param mutator  Passes the mutator and returns it with the insert statements.
      */
     private Mutator<Composite> addUserToRoleList(String userName, String[] roleList, Mutator<Composite> mutator) {
         if (roleList != null && mutator != null) {
@@ -571,13 +557,10 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
     /**
      * Maps the role to a user list. Adds the (username, tenantId) -> roleList
      * and (role, tenantId) -> userName
-     * 
-     * @param userName
-     *            The username list of the user the role need to be added to.
-     * @param roleName
-     *            The role that needs to be mapped against the user list.
-     * @param mutator
-     *            Passes the mutator and returns it with the insert statements.
+     *
+     * @param userName The username list of the user the role need to be added to.
+     * @param roleName The role that needs to be mapped against the user list.
+     * @param mutator  Passes the mutator and returns it with the insert statements.
      */
     private Mutator<Composite> addRoleToUsersList(String[] userNames, String roleName, Mutator<Composite> mutator) {
         if (userNames != null) {
@@ -994,7 +977,7 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
 
     /**
      * Break the provided role list based on whether roles are shared or not
-     * 
+     *
      * @param rolesList
      * @return
      */
@@ -1050,7 +1033,7 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
         CassandraRoleContext searchCtx = new CassandraRoleContext();
         String[] roleNameParts = roleName.split(UserCoreConstants.TENANT_DOMAIN_COMBINER);
         if (roleNameParts.length > 1 && (roleNameParts[1] == null || roleNameParts[1].equals("null"))) {
-            roleNameParts = new String[] { roleNameParts[0] };
+            roleNameParts = new String[]{roleNameParts[0]};
         }
         int tenantId = -1;
         if (roleNameParts.length > 1) {
@@ -1087,48 +1070,6 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
     @Override
     public RealmConfiguration getRealmConfiguration() {
         return this.realmConfig;
-    }
-
-    public class RoleBreakdown {
-
-        private String[] roles;
-        private Integer[] tenantIds;
-
-        private String[] sharedRoles;
-        private Integer[] sharedTenantids;
-
-        public String[] getRoles() {
-            return roles;
-        }
-
-        public void setRoles(String[] roles) {
-            this.roles = roles;
-        }
-
-        public Integer[] getTenantIds() {
-            return tenantIds;
-        }
-
-        public void setTenantIds(Integer[] tenantIds) {
-            this.tenantIds = tenantIds;
-        }
-
-        public String[] getSharedRoles() {
-            return sharedRoles;
-        }
-
-        public void setSharedRoles(String[] sharedRoles) {
-            this.sharedRoles = sharedRoles;
-        }
-
-        public Integer[] getSharedTenantids() {
-            return sharedTenantids;
-        }
-
-        public void setSharedTenantids(Integer[] sharedTenantids) {
-            this.sharedTenantids = sharedTenantids;
-        }
-
     }
 
     @Override
@@ -1175,7 +1116,7 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
     @Override
     public String[] getAllProfileNames() throws UserStoreException {
         //TODO TO BE Implemented
-        return new String[0]; 
+        return new String[0];
     }
 
     @Override
@@ -1295,7 +1236,49 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
     public Map<String, String> getUserPropertyValues(String userName, String[] propertyNames, String profileName)
             throws UserStoreException {
         //TODO To Be implemented
-        return null; 
+        return null;
+    }
+
+    public class RoleBreakdown {
+
+        private String[] roles;
+        private Integer[] tenantIds;
+
+        private String[] sharedRoles;
+        private Integer[] sharedTenantids;
+
+        public String[] getRoles() {
+            return roles;
+        }
+
+        public void setRoles(String[] roles) {
+            this.roles = roles;
+        }
+
+        public Integer[] getTenantIds() {
+            return tenantIds;
+        }
+
+        public void setTenantIds(Integer[] tenantIds) {
+            this.tenantIds = tenantIds;
+        }
+
+        public String[] getSharedRoles() {
+            return sharedRoles;
+        }
+
+        public void setSharedRoles(String[] sharedRoles) {
+            this.sharedRoles = sharedRoles;
+        }
+
+        public Integer[] getSharedTenantids() {
+            return sharedTenantids;
+        }
+
+        public void setSharedTenantids(Integer[] sharedTenantids) {
+            this.sharedTenantids = sharedTenantids;
+        }
+
     }
 
 }

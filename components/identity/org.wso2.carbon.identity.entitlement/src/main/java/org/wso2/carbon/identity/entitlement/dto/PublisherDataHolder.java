@@ -22,23 +22,19 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
-import org.wso2.carbon.identity.entitlement.common.EntitlementConstants;
 import org.wso2.carbon.registry.core.Resource;
 
 import java.util.*;
 
 /**
- * 
+ *
  */
 public class PublisherDataHolder {
 
     public static final String MODULE_NAME = "EntitlementModuleName";
-
-    private String moduleName;
-
-    private PublisherPropertyDTO[] propertyDTOs = new PublisherPropertyDTO[0];
-
     private static Log log = LogFactory.getLog(PublisherDataHolder.class);
+    private String moduleName;
+    private PublisherPropertyDTO[] propertyDTOs = new PublisherPropertyDTO[0];
 
     public PublisherDataHolder() {
     }
@@ -49,36 +45,36 @@ public class PublisherDataHolder {
 
     public PublisherDataHolder(Resource resource, boolean returnSecrets) {
         List<PublisherPropertyDTO> propertyDTOs = new ArrayList<PublisherPropertyDTO>();
-        if(resource != null && resource.getProperties() != null){
+        if (resource != null && resource.getProperties() != null) {
             Properties properties = resource.getProperties();
-            for(Map.Entry<Object, Object> entry : properties.entrySet()){
+            for (Map.Entry<Object, Object> entry : properties.entrySet()) {
                 PublisherPropertyDTO dto = new PublisherPropertyDTO();
-                dto.setId((String)entry.getKey());
+                dto.setId((String) entry.getKey());
                 Object value = entry.getValue();
-                if(value instanceof ArrayList){
+                if (value instanceof ArrayList) {
                     List list = (ArrayList) entry.getValue();
-                    if(list != null && list.size() > 0 && list.get(0) != null){
-                        dto.setValue((String)list.get(0));
+                    if (list != null && list.size() > 0 && list.get(0) != null) {
+                        dto.setValue((String) list.get(0));
 
-                        if(list.size() > 1  && list.get(1) != null){
-                            dto.setDisplayName((String)list.get(1));
+                        if (list.size() > 1 && list.get(1) != null) {
+                            dto.setDisplayName((String) list.get(1));
                         }
-                        if(list.size() > 2  && list.get(2) != null){
-                            dto.setDisplayOrder(Integer.parseInt((String)list.get(2)));
+                        if (list.size() > 2 && list.get(2) != null) {
+                            dto.setDisplayOrder(Integer.parseInt((String) list.get(2)));
                         }
-                        if(list.size() > 3  && list.get(3) != null){
-                            dto.setRequired(Boolean.parseBoolean((String)list.get(3)));
+                        if (list.size() > 3 && list.get(3) != null) {
+                            dto.setRequired(Boolean.parseBoolean((String) list.get(3)));
                         }
-                        if(list.size() > 4  && list.get(4) != null){
-                            dto.setSecret(Boolean.parseBoolean((String)list.get(4)));
+                        if (list.size() > 4 && list.get(4) != null) {
+                            dto.setSecret(Boolean.parseBoolean((String) list.get(4)));
                         }
 
-                        if(dto.isSecret()){
-                            if(returnSecrets){
+                        if (dto.isSecret()) {
+                            if (returnSecrets) {
                                 String password = dto.getValue();
                                 try {
                                     password = new String(CryptoUtil.getDefaultCryptoUtil().
-                                                        base64DecodeAndDecrypt(dto.getValue()));
+                                            base64DecodeAndDecrypt(dto.getValue()));
                                 } catch (CryptoException e) {
                                     log.error(e);
                                     // ignore
@@ -88,7 +84,7 @@ public class PublisherDataHolder {
                         }
                     }
                 }
-                if(MODULE_NAME.equals(dto.getId())){
+                if (MODULE_NAME.equals(dto.getId())) {
                     moduleName = dto.getValue();
                     continue;
                 }
@@ -117,8 +113,8 @@ public class PublisherDataHolder {
 
 
     public PublisherPropertyDTO getPropertyDTO(String id) {
-        for(PublisherPropertyDTO dto : propertyDTOs){
-            if(dto.getId().equalsIgnoreCase(id)){
+        for (PublisherPropertyDTO dto : propertyDTOs) {
+            if (dto.getId().equalsIgnoreCase(id)) {
                 return dto;
             }
         }

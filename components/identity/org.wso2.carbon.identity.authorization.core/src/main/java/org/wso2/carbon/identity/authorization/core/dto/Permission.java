@@ -19,99 +19,98 @@
 package org.wso2.carbon.identity.authorization.core.dto;
 
 /**
- * 
  * @author venura
  * @date May 16, 2013
  */
 public class Permission {
-	/**
-	 * Id of the UM_PERMISSION table
-	 */
-	private int permissionId;
+    /**
+     * Id of the UM_PERMISSION table
+     */
+    private int permissionId;
 
-	/**
-	 * Id of the UM_USER_PERMISSION or UM_ROLE_PERMISSION table
-	 */
-	private int subjectPermissionId;
+    /**
+     * Id of the UM_USER_PERMISSION or UM_ROLE_PERMISSION table
+     */
+    private int subjectPermissionId;
 
-	/**
-	 * User name or role name
-	 */
-	private String subject;
+    /**
+     * User name or role name
+     */
+    private String subject;
 
-	/**
-	 * User id or role id
-	 */
-	private int subjectId;
+    /**
+     * User id or role id
+     */
+    private int subjectId;
 
-	private String resourceId;
-	private String action;
-	private boolean authorized;
+    private String resourceId;
+    private String action;
+    private boolean authorized;
 
-	private boolean rolePermission;
+    private boolean rolePermission;
 
-	public int getPermissionId() {
-		return permissionId;
-	}
+    public int getPermissionId() {
+        return permissionId;
+    }
 
-	public void setPermissionId(int permissionId) {
-		this.permissionId = permissionId;
-	}
+    public void setPermissionId(int permissionId) {
+        this.permissionId = permissionId;
+    }
 
-	public int getSubjectPermissionId() {
-		return subjectPermissionId;
-	}
+    public int getSubjectPermissionId() {
+        return subjectPermissionId;
+    }
 
-	public void setSubjectPermissionId(int subjectPermissionId) {
-		this.subjectPermissionId = subjectPermissionId;
-	}
+    public void setSubjectPermissionId(int subjectPermissionId) {
+        this.subjectPermissionId = subjectPermissionId;
+    }
 
-	public String getSubject() {
-		return subject;
-	}
+    public String getSubject() {
+        return subject;
+    }
 
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
 
-	public int getSubjectId() {
-		return subjectId;
-	}
+    public int getSubjectId() {
+        return subjectId;
+    }
 
-	public void setSubjectId(int subjectId) {
-		this.subjectId = subjectId;
-	}
+    public void setSubjectId(int subjectId) {
+        this.subjectId = subjectId;
+    }
 
-	public String getResourceId() {
-		return resourceId;
-	}
+    public String getResourceId() {
+        return resourceId;
+    }
 
-	public void setResourceId(String resourceId) {
-		this.resourceId = resourceId;
-	}
+    public void setResourceId(String resourceId) {
+        this.resourceId = resourceId;
+    }
 
-	public String getAction() {
-		return action;
-	}
+    public String getAction() {
+        return action;
+    }
 
-	public void setAction(String action) {
-		this.action = action;
-	}
+    public void setAction(String action) {
+        this.action = action;
+    }
 
-	public boolean isAuthorized() {
-		return authorized;
-	}
+    public boolean isAuthorized() {
+        return authorized;
+    }
 
-	public void setAuthorized(boolean authorized) {
-		this.authorized = authorized;
-	}
+    public void setAuthorized(boolean authorized) {
+        this.authorized = authorized;
+    }
 
-	public boolean isRolePermission() {
-		return rolePermission;
-	}
+    public boolean isRolePermission() {
+        return rolePermission;
+    }
 
-	public void setRolePermission(boolean rolePermission) {
-		this.rolePermission = rolePermission;
-	}
+    public void setRolePermission(boolean rolePermission) {
+        this.rolePermission = rolePermission;
+    }
 
 }

@@ -30,13 +30,12 @@ public class ProvisioningEntityCacheKey extends CacheKey {
     private ProvisioningEntity provisioningEntity;
 
     /**
-     * 
      * @param identityProviderName
      * @param connectorType
      * @param provisioningEntity
      */
     public ProvisioningEntityCacheKey(String identityProviderName, String connectorType,
-	                                  ProvisioningEntity provisioningEntity, String tenantDomain) {
+                                      ProvisioningEntity provisioningEntity, String tenantDomain) {
         this.identityProviderName = identityProviderName;
         this.connectorType = connectorType;
         this.provisioningEntity = provisioningEntity;
@@ -44,7 +43,6 @@ public class ProvisioningEntityCacheKey extends CacheKey {
     }
 
     /**
-     * 
      * @return
      */
     public String getIdentityProviderName() {
@@ -52,7 +50,6 @@ public class ProvisioningEntityCacheKey extends CacheKey {
     }
 
     /**
-     * 
      * @return
      */
     public String getConnectorType() {
@@ -60,7 +57,6 @@ public class ProvisioningEntityCacheKey extends CacheKey {
     }
 
     /**
-     * 
      * @return
      */
     public ProvisioningEntity getProvisioningEntity() {

@@ -18,7 +18,7 @@
 package org.wso2.carbon.claim.mgt.dto;
 
 public class ClaimDTO {
-    
+
     private String claimUri;
 
     /**
@@ -43,13 +43,13 @@ public class ClaimDTO {
      * This are claims required at the time user registration.
      */
     private boolean required;
-    
+
     /**
      * This is to indicate the claim is read-only.
      */
     private boolean readOnly;
-    
-    
+
+
     /**
      * This is to indicate that this is a checked attribute with a boolean value.
      */
@@ -149,20 +149,20 @@ public class ClaimDTO {
         this.displayOrder = displayOrder;
     }
 
-	public boolean isReadOnly() {
-		return readOnly;
-	}
+    public boolean isReadOnly() {
+        return readOnly;
+    }
 
-	public void setReadOnly(boolean readOnly) {
-		this.readOnly = readOnly;
-	}
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
+    }
 
-	public boolean isCheckedAttribute() {
-		return checkedAttribute;
-	}
+    public boolean isCheckedAttribute() {
+        return checkedAttribute;
+    }
 
-	public void setCheckedAttribute(boolean checkedAttribute) {
-		this.checkedAttribute = checkedAttribute;
-	}
-    
+    public void setCheckedAttribute(boolean checkedAttribute) {
+        this.checkedAttribute = checkedAttribute;
+    }
+
 }

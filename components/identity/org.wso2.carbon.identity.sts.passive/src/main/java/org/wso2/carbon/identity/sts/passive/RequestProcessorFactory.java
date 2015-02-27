@@ -17,11 +17,7 @@
 */
 package org.wso2.carbon.identity.sts.passive;
 
-import org.wso2.carbon.identity.sts.passive.processors.AttributeRequestProcessor;
-import org.wso2.carbon.identity.sts.passive.processors.PseudonymRequestProcessor;
-import org.wso2.carbon.identity.sts.passive.processors.RequestProcessor;
-import org.wso2.carbon.identity.sts.passive.processors.SigningRequestProcessor;
-import org.wso2.carbon.identity.sts.passive.processors.SignoutRequestProcessor;
+import org.wso2.carbon.identity.sts.passive.processors.*;
 
 public class RequestProcessorFactory {
 

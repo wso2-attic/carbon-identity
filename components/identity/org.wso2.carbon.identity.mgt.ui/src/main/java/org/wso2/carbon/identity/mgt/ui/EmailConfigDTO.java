@@ -18,65 +18,65 @@
  */
 package org.wso2.carbon.identity.mgt.ui;
 
-import java.util.Map;
-
 import org.wso2.carbon.identity.mgt.stub.dto.EmailTemplateDTO;
 
+import java.util.Map;
+
 /**
- * GUI class to hold the reference data for email types and templates 
- * 
- *
+ * GUI class to hold the reference data for email types and templates
  */
 public class EmailConfigDTO {
 
-	private Map<String, String> emailTypes;
-	private EmailTemplateDTO[] templates;
-	
-	public Map<String, String> getEmailTypes() {
-		return emailTypes;
-	}
-	public void setEmailTypes(Map<String, String> emailTypes) {
-		this.emailTypes = emailTypes;
-	}
-	public EmailTemplateDTO[] getTemplates() {
-		return templates;
-	}
-//	TODO - Are these needed?
-	public void setTemplates(EmailTemplateDTO[] templates) {
-		this.templates = templates;
-	}
-	
-	/**
-	 * This method is used to save the current displayed email template changes to the 
-	 * Configuration object.
-	 * 
-	 * @param emailTemplate
-	 */
-	public void setTemplate(EmailTemplateDTO emailTemplate) {
-		
-		if (emailTemplate != null) {
-			for(int i=0; i < templates.length; i++) {
-				EmailTemplateDTO template = templates[i];
-				if(emailTemplate.getName().equals(template.getName())) {
-					templates[i] = emailTemplate;
-				}
-			}
-		}
-	}
-	
-	/**
-	 * This method is used to get the email template to be displayed with the given index.
-	 * 
-	 */
-	public EmailTemplateDTO getTemplate(int index) {
-		
-		EmailTemplateDTO template = null;
-		
-		if( index <= templates.length) {
-			template = templates[index];
-		}
-		
-		return template;
-	}
-	
+    private Map<String, String> emailTypes;
+    private EmailTemplateDTO[] templates;
+
+    public Map<String, String> getEmailTypes() {
+        return emailTypes;
+    }
+
+    public void setEmailTypes(Map<String, String> emailTypes) {
+        this.emailTypes = emailTypes;
+    }
+
+    public EmailTemplateDTO[] getTemplates() {
+        return templates;
+    }
+
+    //	TODO - Are these needed?
+    public void setTemplates(EmailTemplateDTO[] templates) {
+        this.templates = templates;
+    }
+
+    /**
+     * This method is used to save the current displayed email template changes to the
+     * Configuration object.
+     *
+     * @param emailTemplate
+     */
+    public void setTemplate(EmailTemplateDTO emailTemplate) {
+
+        if (emailTemplate != null) {
+            for (int i = 0; i < templates.length; i++) {
+                EmailTemplateDTO template = templates[i];
+                if (emailTemplate.getName().equals(template.getName())) {
+                    templates[i] = emailTemplate;
+                }
+            }
+        }
+    }
+
+    /**
+     * This method is used to get the email template to be displayed with the given index.
+     */
+    public EmailTemplateDTO getTemplate(int index) {
+
+        EmailTemplateDTO template = null;
+
+        if (index <= templates.length) {
+            template = templates[index];
+        }
+
+        return template;
+    }
+
 }

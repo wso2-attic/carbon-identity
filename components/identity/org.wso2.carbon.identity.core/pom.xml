@@ -28,6 +28,11 @@
 	<description>A custom wso2 products or solution</description>
 	<url>http://www.wso2.com</url>
 	<dependencies>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>jsr311-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
 		<dependency>
 			<groupId>org.apache.axis2.wso2</groupId>
 			<artifactId>axis2</artifactId>

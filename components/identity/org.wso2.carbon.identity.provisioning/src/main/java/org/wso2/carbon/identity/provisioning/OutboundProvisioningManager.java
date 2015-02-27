@@ -18,18 +18,6 @@
  */
 package org.wso2.carbon.identity.provisioning;
 
-import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonException;
@@ -38,12 +26,11 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.util.AnonymousSessionUtil;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.*;
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.application.mgt.ApplicationInfoProvider;
+import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCache;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheEntry;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheKey;
-import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCache;
 import org.wso2.carbon.identity.provisioning.dao.CacheBackedProvisioningMgtDAO;
 import org.wso2.carbon.identity.provisioning.dao.ProvisioningManagementDAO;
 import org.wso2.carbon.identity.provisioning.internal.IdentityProvisionServiceComponent;
@@ -59,6 +46,13 @@ import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+
+import java.util.AbstractMap.SimpleEntry;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  *
@@ -77,11 +71,31 @@ public class OutboundProvisioningManager {
     }
 
     /**
-     * 
      * @return
      */
     public static OutboundProvisioningManager getInstance() {
         return provisioningManager;
+    }
+
+    /**
+     * Get the tenant id of the given tenant domain.
+     *
+     * @param tenantDomain Tenant Domain
+     * @return Tenant Id of domain user belongs to.
+     * @throws IdentityApplicationManagementException Error when getting tenant id from tenant
+     *                                                domain
+     */
+    private static int getTenantIdOfDomain(String tenantDomain)
+            throws IdentityApplicationManagementException {
+
+        try {
+            return IdPManagementUtil.getTenantIdOfDomain(tenantDomain);
+        } catch (UserStoreException e) {
+            log.error(e.getMessage(), e);
+            String msg = "Error occurred while getting Tenant Id from Tenant domain "
+                    + tenantDomain;
+            throw new IdentityApplicationManagementException(msg);
+        }
     }
 
     /**
@@ -246,7 +260,6 @@ public class OutboundProvisioningManager {
     }
 
     /**
-     * 
      * @param fIdP
      * @param registeredConnectorFactories
      * @param tenantDomainName
@@ -308,7 +321,7 @@ public class OutboundProvisioningManager {
                     jitEnabled.setName(IdentityProvisioningConstants.JIT_PROVISIONING_ENABLED);
                     jitEnabled.setValue("1");
                     provisioningProperties = IdentityApplicationManagementUtil.concatArrays(
-                            provisioningProperties, new Property[] { jitEnabled });
+                            provisioningProperties, new Property[]{jitEnabled});
                 }
 
                 Property userIdClaimURL = new Property();
@@ -338,7 +351,6 @@ public class OutboundProvisioningManager {
     }
 
     /**
-     * 
      * @param provisioningEntity
      * @param serviceProviderIdentifier
      * @param inboundClaimDialect
@@ -347,7 +359,7 @@ public class OutboundProvisioningManager {
      * @throws IdentityProvisioningException
      */
     public void provision(ProvisioningEntity provisioningEntity, String serviceProviderIdentifier,
-            String inboundClaimDialect, String tenantDomainName, boolean jitProvisioning)
+                          String inboundClaimDialect, String tenantDomainName, boolean jitProvisioning)
             throws IdentityProvisioningException {
 
         try {
@@ -410,7 +422,7 @@ public class OutboundProvisioningManager {
 
                 if (outboundClaimDialect == null
                         && (provisioningIdp.getClaimConfig() == null || provisioningIdp
-                                .getClaimConfig().isLocalClaimDialect())) {
+                        .getClaimConfig().isLocalClaimDialect())) {
                     outboundClaimDialect = DefaultInboundUserProvisioningListener.WSO2_CARBON_DIALECT;
                 }
 
@@ -545,7 +557,7 @@ public class OutboundProvisioningManager {
                 executors.shutdown();
             }
 
-        }catch (CarbonException e) {
+        } catch (CarbonException e) {
             throw new IdentityProvisioningException("Error occurred while checking for user " +
                     "provisioning", e);
         } catch (IdentityApplicationManagementException e) {
@@ -618,10 +630,10 @@ public class OutboundProvisioningManager {
     }
 
     private String generateMessageOnFailureProvisioningOperation(String idPName,
-                                                                String connectorType,
-                                                               ProvisioningEntity provisioningEntity) {
-        if(log.isDebugEnabled()){
-            String errMsg = "Provisioning failed for IDP = "+ idPName + " " +
+                                                                 String connectorType,
+                                                                 ProvisioningEntity provisioningEntity) {
+        if (log.isDebugEnabled()) {
+            String errMsg = "Provisioning failed for IDP = " + idPName + " " +
                     "Connector Type =" + connectorType + " ";
 
             errMsg += " Provisioned entity name = " +
@@ -632,16 +644,15 @@ public class OutboundProvisioningManager {
             log.debug(errMsg);
         }
         return "Provisioning failed for IDP = " + idPName + " " +
-                "with Entity name="+provisioningEntity.getEntityName();
+                "with Entity name=" + provisioningEntity.getEntityName();
     }
 
     /**
-     * 
      * @param provisioningEntity
      * @param idPRoleMapping
      */
     private void updateProvisioningUserWithMappedRoles(ProvisioningEntity provisioningEntity,
-            RoleMapping[] idPRoleMapping) {
+                                                       RoleMapping[] idPRoleMapping) {
 
         if (provisioningEntity.getEntityType() != ProvisioningEntityType.USER
                 || idPRoleMapping == null || idPRoleMapping.length == 0) {
@@ -662,7 +673,7 @@ public class OutboundProvisioningManager {
 
         List<String> mappedUserGroups = new ArrayList<String>();
 
-        for (Iterator<String> iterator = userGroups.iterator(); iterator.hasNext();) {
+        for (Iterator<String> iterator = userGroups.iterator(); iterator.hasNext(); ) {
             String userGroup = iterator.next();
             String mappedGroup = null;
             if ((mappedGroup = mappedRoles.get(userGroup)) != null) {
@@ -735,7 +746,6 @@ public class OutboundProvisioningManager {
     }
 
     /**
-     * 
      * @param attributeMap
      * @return
      */
@@ -745,7 +755,6 @@ public class OutboundProvisioningManager {
     }
 
     /**
-     * 
      * @param attributeMap
      * @return
      */
@@ -761,7 +770,6 @@ public class OutboundProvisioningManager {
     }
 
     /**
-     * 
      * @param provisioningEntity
      * @param provisionByRoleList
      * @param tenantDomain
@@ -794,7 +802,6 @@ public class OutboundProvisioningManager {
     }
 
     /**
-     * 
      * @param provisionedIdentifier
      * @return
      * @throws CarbonException
@@ -813,7 +820,6 @@ public class OutboundProvisioningManager {
     }
 
     /**
-     * 
      * @param userName
      * @param tenantDomain
      * @return
@@ -834,7 +840,6 @@ public class OutboundProvisioningManager {
         String[] newRoles = userstore.getRoleListOfUser(userName);
         return Arrays.asList(newRoles);
     }
-
 
     /**
      * @param userName
@@ -866,14 +871,11 @@ public class OutboundProvisioningManager {
         return inboundAttributes;
     }
 
-
     private String getUserIdClaimValue(String userIdClaimURI, String tenantDomainName) {
         return null;
     }
 
-
     /**
-     * 
      * @param idpName
      * @param connectorType
      * @param provisioningEntity
@@ -886,27 +888,6 @@ public class OutboundProvisioningManager {
             throws IdentityApplicationManagementException {
         int tenantId = getTenantIdOfDomain(tenantDomain);
         return dao.getProvisionedIdentifier(idpName, connectorType, provisioningEntity, tenantId, tenantDomain);
-    }
-
-    /**
-     * Get the tenant id of the given tenant domain.
-     *
-     * @param tenantDomain Tenant Domain
-     * @return Tenant Id of domain user belongs to.
-     * @throws IdentityApplicationManagementException Error when getting tenant id from tenant
-     *                                                domain
-     */
-    private static int getTenantIdOfDomain(String tenantDomain)
-            throws IdentityApplicationManagementException {
-
-        try {
-            return IdPManagementUtil.getTenantIdOfDomain(tenantDomain);
-        } catch (UserStoreException e) {
-            log.error(e.getMessage(), e);
-            String msg = "Error occurred while getting Tenant Id from Tenant domain "
-                    + tenantDomain;
-            throw new IdentityApplicationManagementException(msg);
-        }
     }
 
     private String getDomainFromName(String name) {

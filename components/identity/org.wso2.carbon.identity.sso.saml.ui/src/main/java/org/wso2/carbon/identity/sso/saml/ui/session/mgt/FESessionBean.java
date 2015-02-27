@@ -20,7 +20,7 @@ package org.wso2.carbon.identity.sso.saml.ui.session.mgt;
 import java.util.Date;
 
 /**
- *  This class is used to hold the SSO FE session information.
+ * This class is used to hold the SSO FE session information.
  */
 public class FESessionBean {
     private Object sessionBean;

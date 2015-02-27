@@ -18,30 +18,24 @@
  */
 package org.wso2.carbon.identity.mgt.beans;
 
-import java.io.Serializable;
-
 import org.wso2.carbon.identity.mgt.dto.NotificationDataDTO;
 
+import java.io.Serializable;
+
 /**
- *  Bean that encapsulates the verification info.
+ * Bean that encapsulates the verification info.
  */
-public class VerificationBean implements Serializable{
+public class VerificationBean implements Serializable {
 
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-	public static final String ERROR_CODE_INVALID_CODE = "18001";
-
+    public static final String ERROR_CODE_INVALID_CODE = "18001";
     public static final String ERROR_CODE_EXPIRED_CODE = "18002";
-
     public static final String ERROR_CODE_INVALID_USER = "18003";
-
     public static final String ERROR_CODE_INVALID_CAPTCHA = "18004";
-
     public static final String ERROR_CODE_UN_EXPECTED = "18013";
-
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
     /**
      * user identifier according to the user store
      */
@@ -61,7 +55,7 @@ public class VerificationBean implements Serializable{
      * whether verification successful or unsuccessful
      */
     private boolean verified;
-    
+
     private NotificationDataDTO notificationData;
 
     /**
@@ -72,15 +66,7 @@ public class VerificationBean implements Serializable{
     public VerificationBean() {
     }
 
-    public NotificationDataDTO getNotificationData() {
-		return notificationData;
-	}
-
-	public void setNotificationData(NotificationDataDTO notificationData) {
-		this.notificationData = notificationData;
-	}
-
-	public VerificationBean(boolean verified) {
+    public VerificationBean(boolean verified) {
         this.verified = verified;
     }
 
@@ -93,6 +79,14 @@ public class VerificationBean implements Serializable{
     public VerificationBean(String error) {
         this.error = error;
         this.verified = false;
+    }
+
+    public NotificationDataDTO getNotificationData() {
+        return notificationData;
+    }
+
+    public void setNotificationData(NotificationDataDTO notificationData) {
+        this.notificationData = notificationData;
     }
 
     public String getRedirectPath() {

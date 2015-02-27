@@ -20,9 +20,42 @@ package org.wso2.carbon.identity.application.authentication.framework.util;
 
 /**
  * Constants used in Application Authenticators Framework
- * 
  */
 public abstract class FrameworkConstants {
+
+    public static final String SESSION_DATA_KEY = "sessionDataKey";
+    public static final String QUERY_PARAMS = "commonAuthQueryParams";
+    public static final String SUBJECT = "subject";
+    public static final String DEFAULT_SEQUENCE = "default";
+    public static final String AUTHENTICATED_AUTHENTICATORS = "authenticatedAuthenticators";
+    public static final String COMMONAUTH_COOKIE = "commonAuthId";
+    public static final String CLAIM_URI_WSO2_EXT_IDP = "http://wso2.org/claims/externalIDP";
+    public static final String LOCAL_ROLE_CLAIM_URI = "http://wso2.org/claims/role";
+    public static final String UNFILTERED_LOCAL_CLAIM_VALUES = "UNFILTERED_LOCAL_CLAIM_VALUES";
+    public static final String UNFILTERED_IDP_CLAIM_VALUES = "UNFILTERED_IDP_CLAIM_VALUES";
+    public static final String UNFILTERED_SP_CLAIM_VALUES = "UNFILTERED_SP_CLAIM_VALUES";
+    public static final String LOCAL_IDP_NAME = "LOCAL";
+    public static final String REQ_ATTR_HANDLED = "commonAuthHandled";
+    public static final String LOGOUT = "commonAuthLogout";
+    public static final String IDP = "idp";
+    public static final String AUTHENTICATOR = "authenticator";
+    public final static String SIGNATURE_ALGORITHM = "SigAlg";
+    public final static String SAML_REQUEST = "SAMLRequest";
+    public final static String SIGNATURE = "Signature";
+    public final static String COMMONAUTH = "commonauth";
+    public final static String CARBON = "carbon";
+    public final static String PASSIVE_STS = "passivests";
+    public final static String OPENID_SERVER = "openidserver";
+    public final static String OAUTH2 = "oauth2";
+    public final static String USERNAME = "username";
+    public final static String OPENID_IDENTITY = "openid.identity";
+    public final static String OIDC = "oidc";
+    public final static String AUTH_ENDPOINT_QUERY_PARAMS_ACTION_INCLUDE = "include";
+    public final static String AUTH_ENDPOINT_QUERY_PARAMS_ACTION_EXCLUDE = "exclude";
+
+    public static final String AUDIT_MESSAGE = "Initiator : %s | Action : %s | Target : %s | Data : { %s } | Result : %s ";
+    public static final String AUDIT_SUCCESS = "Success";
+    public static final String AUDIT_FAILED = "Failed";
 
     public static class Config {
         public static final String AUTHENTICATORS_FILE_NAME = "application-authentication.xml";
@@ -128,36 +161,4 @@ public abstract class FrameworkConstants {
         public static final String CLAIM_TYPE_SCIM = "scim";
         public static final String CLAIM_TYPE_OIDC = "oidc";
     }
-
-    public static final String SESSION_DATA_KEY = "sessionDataKey";
-    public static final String QUERY_PARAMS = "commonAuthQueryParams";
-    public static final String SUBJECT = "subject";
-    public static final String DEFAULT_SEQUENCE = "default";
-    public static final String AUTHENTICATED_AUTHENTICATORS = "authenticatedAuthenticators";
-    public static final String COMMONAUTH_COOKIE = "commonAuthId";
-    public static final String CLAIM_URI_WSO2_EXT_IDP = "http://wso2.org/claims/externalIDP";
-    public static final String LOCAL_ROLE_CLAIM_URI = "http://wso2.org/claims/role";
-    public static final String UNFILTERED_LOCAL_CLAIM_VALUES = "UNFILTERED_LOCAL_CLAIM_VALUES";
-    public static final String UNFILTERED_IDP_CLAIM_VALUES = "UNFILTERED_IDP_CLAIM_VALUES";
-    public static final String UNFILTERED_SP_CLAIM_VALUES = "UNFILTERED_SP_CLAIM_VALUES";
-    public static final String LOCAL_IDP_NAME = "LOCAL";
-    public static final String REQ_ATTR_HANDLED = "commonAuthHandled";
-
-    public static final String LOGOUT = "commonAuthLogout";
-    public static final String IDP = "idp";
-    public static final String AUTHENTICATOR = "authenticator";
-    public final static String SIGNATURE_ALGORITHM = "SigAlg";
-    public final static String SAML_REQUEST = "SAMLRequest";
-    public final static String SIGNATURE = "Signature";
-    public final static String COMMONAUTH = "commonauth";
-    public final static String CARBON = "carbon";
-    public final static String PASSIVE_STS = "passivests";
-    public final static String OPENID_SERVER = "openidserver";
-    public final static String OAUTH2 = "oauth2";
-    public final static String USERNAME = "username";
-    public final static String OPENID_IDENTITY = "openid.identity";
-    public final static String OIDC = "oidc";
-
-    public final static String AUTH_ENDPOINT_QUERY_PARAMS_ACTION_INCLUDE = "include";
-    public final static String AUTH_ENDPOINT_QUERY_PARAMS_ACTION_EXCLUDE = "exclude";
 }

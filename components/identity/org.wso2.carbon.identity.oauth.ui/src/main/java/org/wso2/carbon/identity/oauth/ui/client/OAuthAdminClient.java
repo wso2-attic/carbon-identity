@@ -29,62 +29,62 @@ import org.wso2.carbon.identity.oauth.stub.dto.OAuthRevocationResponseDTO;
 
 public class OAuthAdminClient {
 
-	private OAuthAdminServiceStub stub;
-
     private static String[] allowedGrantTypes = null;
-	/**
-	 * Instantiates OAuthAdminClient
-	 * 
-	 * @param cookie For session management
-	 * @param backendServerURL URL of the back end server where OAuthAdminService is running.
-	 * @param configCtx ConfigurationContext
-	 * @throws org.apache.axis2.AxisFault
-	 */
-	public OAuthAdminClient(String cookie, String backendServerURL, ConfigurationContext configCtx)
-			throws AxisFault {
-		String serviceURL = backendServerURL + "OAuthAdminService";
-		stub = new OAuthAdminServiceStub(configCtx, serviceURL);
-		ServiceClient client = stub._getServiceClient();
-		Options option = client.getOptions();
-		option.setManageSession(true);
-		option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
-	}
+    private OAuthAdminServiceStub stub;
 
-	public OAuthConsumerAppDTO[] getAllOAuthApplicationData() throws Exception {
-		return stub.getAllOAuthApplicationData();
-	}
+    /**
+     * Instantiates OAuthAdminClient
+     *
+     * @param cookie           For session management
+     * @param backendServerURL URL of the back end server where OAuthAdminService is running.
+     * @param configCtx        ConfigurationContext
+     * @throws org.apache.axis2.AxisFault
+     */
+    public OAuthAdminClient(String cookie, String backendServerURL, ConfigurationContext configCtx)
+            throws AxisFault {
+        String serviceURL = backendServerURL + "OAuthAdminService";
+        stub = new OAuthAdminServiceStub(configCtx, serviceURL);
+        ServiceClient client = stub._getServiceClient();
+        Options option = client.getOptions();
+        option.setManageSession(true);
+        option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
+    }
 
-	public OAuthConsumerAppDTO getOAuthApplicationData(String consumerkey) throws Exception {
-		return stub.getOAuthApplicationData(consumerkey);
-	}
-	
-	public OAuthConsumerAppDTO getOAuthApplicationDataByAppName(String appName) throws Exception {
-		return stub.getOAuthApplicationDataByAppName(appName);
-	}
+    public OAuthConsumerAppDTO[] getAllOAuthApplicationData() throws Exception {
+        return stub.getAllOAuthApplicationData();
+    }
+
+    public OAuthConsumerAppDTO getOAuthApplicationData(String consumerkey) throws Exception {
+        return stub.getOAuthApplicationData(consumerkey);
+    }
+
+    public OAuthConsumerAppDTO getOAuthApplicationDataByAppName(String appName) throws Exception {
+        return stub.getOAuthApplicationDataByAppName(appName);
+    }
 
 
-	// TODO : this method should return app data
-	public void registerOAuthApplicationData(OAuthConsumerAppDTO application) throws Exception {
-		stub.registerOAuthApplicationData(application);
-	}
-	
-	// TODO : this method should be removed once above is done
-	public OAuthConsumerAppDTO getOAuthApplicationDataByName(String applicationName) throws Exception {
-		OAuthConsumerAppDTO[] dtos = stub.getAllOAuthApplicationData();
-		if(dtos != null && dtos.length > 0) {
-			for(OAuthConsumerAppDTO dto : dtos) {
-				if(applicationName.equals(dto.getApplicationName())) {
-					return dto;
-				}
-			}
-		}
-		return null;
-		
-	}
+    // TODO : this method should return app data
+    public void registerOAuthApplicationData(OAuthConsumerAppDTO application) throws Exception {
+        stub.registerOAuthApplicationData(application);
+    }
 
-	public void removeOAuthApplicationData(String consumerkey) throws Exception {
-		stub.removeOAuthApplicationData(consumerkey);
-	}
+    // TODO : this method should be removed once above is done
+    public OAuthConsumerAppDTO getOAuthApplicationDataByName(String applicationName) throws Exception {
+        OAuthConsumerAppDTO[] dtos = stub.getAllOAuthApplicationData();
+        if (dtos != null && dtos.length > 0) {
+            for (OAuthConsumerAppDTO dto : dtos) {
+                if (applicationName.equals(dto.getApplicationName())) {
+                    return dto;
+                }
+            }
+        }
+        return null;
+
+    }
+
+    public void removeOAuthApplicationData(String consumerkey) throws Exception {
+        stub.removeOAuthApplicationData(consumerkey);
+    }
 
     public void updateOAuthApplicationData(OAuthConsumerAppDTO consumerAppDTO) throws Exception {
         stub.updateConsumerApplication(consumerAppDTO);
@@ -99,7 +99,7 @@ public class OAuthAdminClient {
     }
 
     public String[] getAllowedOAuthGrantTypes() throws Exception {
-        if(allowedGrantTypes == null){
+        if (allowedGrantTypes == null) {
             allowedGrantTypes = stub.getAllowedGrantTypes();
         }
         return allowedGrantTypes;

@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.oauth.cache.SessionDataCache;
@@ -36,19 +37,17 @@ import org.wso2.carbon.identity.oauth2.OAuth2Service;
 import org.wso2.carbon.identity.oauth2.OAuth2TokenValidationService;
 import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
-import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
 import org.wso2.carbon.ui.CarbonUIUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Enumeration;
 import java.util.Map;
 import java.util.Set;
 
 public class EndpointUtil {
 
     private static Log log = LogFactory.getLog(EndpointUtil.class);
-    
+
     /**
      * Returns the {@code OAuth2Service} instance
      *
@@ -81,6 +80,7 @@ public class EndpointUtil {
 
     /**
      * Returns the request validator class name
+     *
      * @return
      * @throws OAuthSystemException
      */
@@ -90,6 +90,7 @@ public class EndpointUtil {
 
     /**
      * Returns the access token validator class name
+     *
      * @return
      */
     public static String getAccessTokenValidator() {
@@ -98,6 +99,7 @@ public class EndpointUtil {
 
     /**
      * Returns the response builder class name
+     *
      * @return
      */
     public static String getUserInfoResponseBuilder() {
@@ -106,6 +108,7 @@ public class EndpointUtil {
 
     /**
      * Returns the claim retriever class name
+     *
      * @return
      */
     public static String getUserInfoClaimRetriever() {
@@ -114,6 +117,7 @@ public class EndpointUtil {
 
     /**
      * Return the claim dialect for the claim retriever
+     *
      * @return
      */
     public static String getUserInfoClaimDialect() {
@@ -122,6 +126,7 @@ public class EndpointUtil {
 
     /**
      * Extracts the username and password info from the HTTP Authorization Header
+     *
      * @param authorizationHeader "Basic " + base64encode(username + ":" + password)
      * @return String array with client id and client secret.
      * @throws org.wso2.carbon.identity.base.IdentityException If the decoded data is null.
@@ -151,10 +156,10 @@ public class EndpointUtil {
     public static String getErrorPageURL(String errorCode, String errorMessage, String appName, String redirect_uri) {
 
         String errorPageUrl = null;
-        if(redirect_uri != null && !redirect_uri.equals("")){
+        if (redirect_uri != null && !redirect_uri.equals("")) {
             errorPageUrl = redirect_uri;
         } else {
-            errorPageUrl = CarbonUIUtil.getAdminConsoleURL("/")+ "../authenticationendpoint/oauth2_error.do";
+            errorPageUrl = CarbonUIUtil.getAdminConsoleURL("/") + "../authenticationendpoint/oauth2_error.do";
         }
         try {
             errorPageUrl += "?" + OAuthConstants.OAUTH_ERROR_CODE + "="
@@ -164,9 +169,9 @@ public class EndpointUtil {
             // ignore
         }
 
-        if(appName != null){
+        if (appName != null) {
             try {
-                errorPageUrl += "application" + "=" + URLEncoder.encode(appName,"UTF-8");
+                errorPageUrl += "application" + "=" + URLEncoder.encode(appName, "UTF-8");
             } catch (UnsupportedEncodingException e) {
                 // ignore
             }
@@ -180,11 +185,11 @@ public class EndpointUtil {
      *
      * @param checkAuthentication
      * @param forceAuthenticate
-     * @param scopes 
+     * @param scopes
      * @return
      */
     public static String getLoginPageURL(String clientId, String sessionDataKey,
-            boolean forceAuthenticate, boolean checkAuthentication, Set<String> scopes)
+                                         boolean forceAuthenticate, boolean checkAuthentication, Set<String> scopes)
             throws UnsupportedEncodingException {
 
         try {
@@ -197,10 +202,10 @@ public class EndpointUtil {
             OAuth2Util.clearClientTenantId();
         }
     }
-    
+
     /**
      * Returns the login page URL.
-     * 
+     *
      * @param clientId
      * @param sessionDataKey
      * @param reqParams
@@ -211,8 +216,8 @@ public class EndpointUtil {
      * @throws UnsupportedEncodingException
      */
     public static String getLoginPageURL(String clientId, String sessionDataKey,
-            boolean forceAuthenticate, boolean checkAuthentication, Set<String> scopes,
-            Map<String, String[]> reqParams) throws UnsupportedEncodingException {
+                                         boolean forceAuthenticate, boolean checkAuthentication, Set<String> scopes,
+                                         Map<String, String[]> reqParams) throws UnsupportedEncodingException {
 
         try {
 
@@ -241,22 +246,22 @@ public class EndpointUtil {
                     (authenticationRequest);
             FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest);
             // Build new query param with only type and session data key
-		    StringBuilder queryStringBuilder = new StringBuilder();
-		    queryStringBuilder.append(commonAuthURL).
-		      append("?").
-		      append(FrameworkConstants.SESSION_DATA_KEY).
-		      append("=").
-		      append(sessionDataKey).
-		      append("&").
-		      append(FrameworkConstants.RequestParams.TYPE).
-		      append("=").
-		      append(type);
+            StringBuilder queryStringBuilder = new StringBuilder();
+            queryStringBuilder.append(commonAuthURL).
+                    append("?").
+                    append(FrameworkConstants.SESSION_DATA_KEY).
+                    append("=").
+                    append(sessionDataKey).
+                    append("&").
+                    append(FrameworkConstants.RequestParams.TYPE).
+                    append("=").
+                    append(type);
 
-		    return queryStringBuilder.toString();
-	    } finally {
-			OAuth2Util.clearClientTenantId();
-		}
-	}
+            return queryStringBuilder.toString();
+        } finally {
+            OAuth2Util.clearClientTenantId();
+        }
+    }
 
     /**
      * Returns the consent page URL.
@@ -266,35 +271,28 @@ public class EndpointUtil {
      * @return
      */
     public static String getUserConsentURL(OAuth2Parameters params, String loggedInUser, String sessionDataKey,
-                                           boolean  isOIDC) throws UnsupportedEncodingException {
+                                           boolean isOIDC) throws UnsupportedEncodingException {
         String queryString = "";
-        if(log.isDebugEnabled()){
+        if (log.isDebugEnabled()) {
             log.debug("Received Session Data Key is :  " + sessionDataKey);
-            if(params == null) {
+            if (params == null) {
                 log.debug("Received OAuth2 params are Null for UserConsentURL");
             }
         }
-        SessionDataCacheEntry entry = (SessionDataCacheEntry)SessionDataCache.getInstance()
+        SessionDataCacheEntry entry = (SessionDataCacheEntry) SessionDataCache.getInstance()
                 .getValueFromCache(new SessionDataCacheKey(sessionDataKey));
-        if (entry == null) {
-            if (log.isDebugEnabled()) {
-                log.debug("Cache Entry is Null from SessionDataCache ");
-            }
-        }else{
-            queryString = URLEncoder.encode(entry.getQueryString(), "UTF-8");
-        }
 
 
         if (entry == null) {
             if (log.isDebugEnabled()) {
                 log.debug("Cache Entry is Null from SessionDataCache ");
             }
-        }else{
+        } else {
             queryString = URLEncoder.encode(entry.getQueryString(), "UTF-8");
         }
 
         String consentPage = null;
-        if(isOIDC) {
+        if (isOIDC) {
             consentPage = CarbonUIUtil.getAdminConsoleURL("/") +
                     "../authenticationendpoint/oauth2_consent.do";
         } else {
@@ -302,16 +300,16 @@ public class EndpointUtil {
                     "../authenticationendpoint/oauth2_authz.do";
         }
         consentPage += "?" + OAuthConstants.OIDC_LOGGED_IN_USER + "=" + URLEncoder.encode(loggedInUser, "UTF-8")
-                        + "&" + "application" + "=" + URLEncoder.encode(params.getApplicationName(), "ISO-8859-1" )
-                        + "&" + OAuthConstants.OAuth20Params.SCOPE + "=" + URLEncoder.encode(EndpointUtil.getScope(params), "ISO-8859-1" )
-                        + "&" + OAuthConstants.SESSION_DATA_KEY_CONSENT + "=" + URLEncoder.encode(sessionDataKey, "UTF-8")
-                        + "&" + "spQueryParams" + "=" + queryString;
+                + "&" + "application" + "=" + URLEncoder.encode(params.getApplicationName(), "ISO-8859-1")
+                + "&" + OAuthConstants.OAuth20Params.SCOPE + "=" + URLEncoder.encode(EndpointUtil.getScope(params), "ISO-8859-1")
+                + "&" + OAuthConstants.SESSION_DATA_KEY_CONSENT + "=" + URLEncoder.encode(sessionDataKey, "UTF-8")
+                + "&" + "spQueryParams" + "=" + queryString;
         return consentPage;
     }
 
     public static String getScope(OAuth2Parameters params) {
         StringBuffer scopes = new StringBuffer();
-        for(String scope : params.getScopes() ) {
+        for (String scope : params.getScopes()) {
             scopes.append(EndpointUtil.getSafeText(scope) + " ");
         }
         return scopes.toString().trim();
@@ -331,11 +329,11 @@ public class EndpointUtil {
         return text;
     }
 
-    public static String getRealmInfo(){
+    public static String getRealmInfo() {
         return "Basic realm=" + getHostName();
     }
 
-    public static String getHostName(){
+    public static String getHostName() {
         return ServerConfiguration.getInstance().getFirstProperty("HostName");
     }
 

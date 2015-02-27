@@ -18,9 +18,6 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.config.builder;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
@@ -32,13 +29,11 @@ import org.wso2.carbon.identity.application.authentication.framework.exception.F
 import org.wso2.carbon.identity.application.authentication.framework.internal.FrameworkServiceComponent;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
-import org.wso2.carbon.identity.application.common.model.AuthenticationStep;
-import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
-import org.wso2.carbon.identity.application.common.model.IdentityProvider;
-import org.wso2.carbon.identity.application.common.model.LocalAuthenticatorConfig;
-import org.wso2.carbon.identity.application.common.model.RequestPathAuthenticatorConfig;
-import org.wso2.carbon.identity.application.common.model.ServiceProvider;
+import org.wso2.carbon.identity.application.common.model.*;
 import org.wso2.carbon.identity.application.mgt.ApplicationInfoProvider;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class UIBasedConfigurationBuilder {
 
@@ -63,10 +58,10 @@ public class UIBasedConfigurationBuilder {
 
         SequenceConfig sequenceConfig = null;
         ApplicationInfoProvider appInfo = ApplicationInfoProvider.getInstance();
-        
+
         // special case for OpenID Connect, these clients are stored as OAuth2 clients
-        if("oidc".equals(reqType)) {
-        	reqType = "oauth2";
+        if ("oidc".equals(reqType)) {
+            reqType = "oauth2";
         }
 
         ServiceProvider serviceProvider;
@@ -95,7 +90,7 @@ public class UIBasedConfigurationBuilder {
 
             // for each request path authenticator
             for (RequestPathAuthenticatorConfig reqAuth : reqAuths) {
-                
+
                 AuthenticatorConfig authConfig = new AuthenticatorConfig();
                 String authenticatorName = reqAuth.getName();
                 authConfig.setName(authenticatorName);
@@ -111,7 +106,7 @@ public class UIBasedConfigurationBuilder {
                 }
                 requestPathAuthenticators.add(authConfig);
             }
-            
+
             sequenceConfig.setReqPathAuthenticators(requestPathAuthenticators);
         }
 
@@ -177,10 +172,10 @@ public class UIBasedConfigurationBuilder {
     }
 
     private void loadStepAuthenticator(StepConfig stepConfig, IdentityProvider idp,
-            String authenticatorName) {
+                                       String authenticatorName) {
 
         AuthenticatorConfig authenticatorConfig = null;
-        
+
         // check if authenticator already exists
         for (AuthenticatorConfig authConfig : stepConfig.getAuthenticatorList()) {
 
@@ -209,7 +204,7 @@ public class UIBasedConfigurationBuilder {
             authenticatorConfig.getIdpNames().add(idp.getIdentityProviderName());
             authenticatorConfig.getIdps().put(idp.getIdentityProviderName(), idp);
         }
-        
+
         if (!stepConfig.isMultiOption() && (stepConfig.getAuthenticatorList().size() > 1
                 || authenticatorConfig.getIdps().size() > 1)) {
             stepConfig.setMultiOption(true);

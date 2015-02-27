@@ -18,15 +18,10 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.handler.request.impl;
 
-import java.io.IOException;
-import java.util.List;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ApplicationConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.SequenceConfig;
@@ -40,9 +35,16 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+
 public class DefaultAuthenticationRequestHandler implements AuthenticationRequestHandler {
 
     private static Log log = LogFactory.getLog(DefaultAuthenticationRequestHandler.class);
+    private static final Log AUDIT_LOG = CarbonConstants.AUDIT_LOG;
     private static volatile DefaultAuthenticationRequestHandler instance;
 
     public static DefaultAuthenticationRequestHandler getInstance() {
@@ -60,14 +62,14 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
 
     /**
      * Executes the authentication flow
-     * 
+     *
      * @param request
      * @param response
      * @throws FrameworkException
      * @throws Exception
      */
     public void handle(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationContext context) throws FrameworkException {
+                       AuthenticationContext context) throws FrameworkException {
 
         if (log.isDebugEnabled()) {
             log.debug("In authentication flow");
@@ -132,7 +134,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
 
     /**
      * Handle the start of a Sequence
-     * 
+     *
      * @param request
      * @param response
      * @param context
@@ -142,7 +144,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
      * @throws FrameworkException
      */
     protected boolean handleSequenceStart(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationContext context) throws FrameworkException {
+                                          AuthenticationContext context) throws FrameworkException {
 
         if (log.isDebugEnabled()) {
             log.debug("Starting the sequence");
@@ -192,15 +194,14 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
 
     /**
      * Sends the response to the servlet that initiated the authentication flow
-     * 
+     *
      * @param request
      * @param response
-     * @param isAuthenticated
      * @throws ServletException
      * @throws IOException
      */
     protected void concludeFlow(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationContext context) throws FrameworkException {
+                                AuthenticationContext context) throws FrameworkException {
 
         if (log.isDebugEnabled()) {
             log.debug("Concluding the Authentication Flow");
@@ -213,22 +214,22 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
         boolean isAuthenticated = context.isRequestAuthenticated();
         authenticationResult.setAuthenticated(isAuthenticated);
 
-		String authenticatedUserTenantDomain = null;
-		if (context.getProperties() != null) {
-			authenticatedUserTenantDomain = (String) context.getProperties()
-					.get("user-tenant-domain");
-			if (authenticatedUserTenantDomain!=null){
-				authenticationResult.setAuthenticatedUserTenantDomain(authenticatedUserTenantDomain);
-			}
-		}        
-        
+        String authenticatedUserTenantDomain = null;
+        if (context.getProperties() != null) {
+            authenticatedUserTenantDomain = (String) context.getProperties()
+                    .get("user-tenant-domain");
+            if (authenticatedUserTenantDomain != null) {
+                authenticationResult.setAuthenticatedUserTenantDomain(authenticatedUserTenantDomain);
+            }
+        }
+
         authenticationResult.setSaaSApp(sequenceConfig.getApplicationConfig().isSaaSApp());
 
         if (isAuthenticated) {
-            
+
             authenticationResult.setSubject(sequenceConfig.getAuthenticatedUser());
             ApplicationConfig appConfig = sequenceConfig.getApplicationConfig();
-            
+
             if (appConfig.getServiceProvider().getLocalAndOutBoundAuthenticationConfig()
                     .isAlwaysSendBackAuthenticatedListOfIdPs()) {
                 authenticationResult.setAuthenticatedIdPs(sequenceConfig.getAuthenticatedIdPs());
@@ -244,23 +245,23 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
 
             SessionContext sessionContext = null;
             String commonAuthCookie = null;
-            if(FrameworkUtils.getAuthCookie(request) != null){
+            if (FrameworkUtils.getAuthCookie(request) != null) {
                 commonAuthCookie = FrameworkUtils.getAuthCookie(request).getValue();
-                if(commonAuthCookie != null) {
+                if (commonAuthCookie != null) {
                     sessionContext = FrameworkUtils.getSessionContextFromCache(commonAuthCookie);
                 }
             }
 
             // session context may be null when cache expires therefore creating new cookie as well.
-            if(sessionContext != null) {
+            if (sessionContext != null) {
                 sessionContext.getAuthenticatedSequences().put(appConfig.getApplicationName(),
                         sequenceConfig);
                 sessionContext.getAuthenticatedIdPs().putAll(context.getCurrentAuthenticatedIdPs());
                 // TODO add to cache?
                 // store again. when replicate  cache is used. this may be needed.
                 FrameworkUtils.addSessionContextToCache(commonAuthCookie, sessionContext,
-                                                    FrameworkUtils.getMaxInactiveInterval());
-            }  else {
+                        FrameworkUtils.getMaxInactiveInterval());
+            } else {
                 sessionContext = new SessionContext();
                 sessionContext.getAuthenticatedSequences().put(appConfig.getApplicationName(),
                         sequenceConfig);
@@ -268,10 +269,10 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
                 sessionContext.setRememberMe(context.isRememberMe());
                 String sessionKey = UUIDGenerator.generateUUID();
                 FrameworkUtils.addSessionContextToCache(sessionKey, sessionContext,
-                                            FrameworkUtils.getMaxInactiveInterval());
-                
+                        FrameworkUtils.getMaxInactiveInterval());
+
                 Integer authCookieAge = null;
-                
+
                 if (context.isRememberMe()) {
                     String rememberMePeriod = IdentityUtil
                             .getProperty("JDBCPersistenceManager.SessionDataPersist.RememberMePeriod");
@@ -291,6 +292,24 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
 
                 FrameworkUtils.storeAuthCookie(request, response, sessionKey, authCookieAge);
             }
+
+            if (authenticatedUserTenantDomain == null) {
+                PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            }
+
+            String auditData = "\"" + "ContextIdentifier" + "\" : \"" + context.getContextIdentifier()
+                    + "\",\"" + "AuthenticatedUser" + "\" : \"" + sequenceConfig.getAuthenticatedUser()
+                    + "\",\"" + "AuthenticatedUserTenantDomain" + "\" : \"" + authenticatedUserTenantDomain
+                    + "\",\"" + "ServiceProviderName" + "\" : \"" + context.getServiceProviderName()
+                    + "\",\"" + "RequestType" + "\" : \"" + context.getRequestType()
+                    + "\",\"" + "RelyingParty" + "\" : \"" + context.getRelyingParty()
+                    + "\",\"" + "AuthenticatedIdPs" + "\" : \"" + sequenceConfig.getAuthenticatedIdPs()
+                    + "\"";
+
+            AUDIT_LOG.info(String.format(
+                    FrameworkConstants.AUDIT_MESSAGE,
+                    sequenceConfig.getAuthenticatedUser() + '@' + sequenceConfig.getAuthenticatedUserTenantDomain(), "Login",
+                    "ApplicationAuthenticationFramework", auditData, FrameworkConstants.AUDIT_SUCCESS));
         }
         // Put the result in the cache using calling servlet's sessionDataKey as the cache key Once
         // the redirect is done to that servlet, it will retrieve the result from the cache using
@@ -307,12 +326,12 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
         if (retainCache == null) {
             FrameworkUtils.removeAuthenticationContextFromCache(context.getContextIdentifier());
         }
-        
+
         sendResponse(request, response, context);
     }
 
     protected void sendResponse(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationContext context) throws FrameworkException {
+                                AuthenticationContext context) throws FrameworkException {
 
         if (log.isDebugEnabled()) {
             log.debug("Sending response back to: " + context.getCallerPath() + "...\n"

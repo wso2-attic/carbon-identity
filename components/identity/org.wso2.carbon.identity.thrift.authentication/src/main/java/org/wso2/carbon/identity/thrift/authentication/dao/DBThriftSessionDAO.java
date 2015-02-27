@@ -71,7 +71,7 @@ public class DBThriftSessionDAO implements ThriftSessionDAO {
             log.error("Error when executing the SQL : " + ThriftAuthenticationConstants.GET_ALL_THRIFT_SESSIONS_SQL);
             log.error(e.getMessage(), e);
             throw new IdentityException("Error when reading the thrift session information from " +
-                                            "the persistence store.");
+                    "the persistence store.");
         } finally {
             ThriftAuthenticationDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }
@@ -103,7 +103,7 @@ public class DBThriftSessionDAO implements ThriftSessionDAO {
             log.error("Error when executing the SQL : " + ThriftAuthenticationConstants.CHECK_EXISTING_THRIFT_SESSION_SQL);
             log.error(e.getMessage(), e);
             throw new IdentityException("Error when reading thrift session information from " +
-                                            "the persistence store.");
+                    "the persistence store.");
         } finally {
             ThriftAuthenticationDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }
@@ -174,7 +174,7 @@ public class DBThriftSessionDAO implements ThriftSessionDAO {
             } finally {
                 ThriftAuthenticationDatabaseUtil.closeAllConnections(connection, null, prepStmt);
             }
-            
+
         } else {
             String errorMessage = "Thrift session with given Session Id already exists.";
             log.error(errorMessage);
@@ -248,11 +248,11 @@ public class DBThriftSessionDAO implements ThriftSessionDAO {
             log.error("Error when executing the SQL : " + ThriftAuthenticationConstants.GET_THRIFT_SESSION_SQL);
             log.error(e.getMessage(), e);
             throw new IdentityException("Error when reading the Thrift session information from " +
-                                            "the persistence store.");
+                    "the persistence store.");
         } finally {
             ThriftAuthenticationDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }
-        return thriftSession;    
+        return thriftSession;
     }
 
     @Override

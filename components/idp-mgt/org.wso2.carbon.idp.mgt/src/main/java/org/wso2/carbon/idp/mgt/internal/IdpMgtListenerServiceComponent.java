@@ -26,29 +26,29 @@ import java.util.List;
 /**
  * @scr.component name="org.wso2.carbon.idp.mgt.listener" immediate="true"
  * @scr.reference name="idp.mgt.event.listener.service"
- *                interface="org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtLister"
- *                cardinality="0..n" policy="dynamic"
- *                bind="setIdentityProviderMgtListerService"
- *                unbind="unsetIdentityProviderMgtListerService" *
+ * interface="org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtLister"
+ * cardinality="0..n" policy="dynamic"
+ * bind="setIdentityProviderMgtListerService"
+ * unbind="unsetIdentityProviderMgtListerService" *
  */
 public class IdpMgtListenerServiceComponent {
-	
-	private static List<IdentityProviderMgtLister> listners = new ArrayList<IdentityProviderMgtLister>();
-	
-	public static void setIdentityProviderMgtListerService(
-			IdentityProviderMgtLister identityProviderMgtListerService) {
-		
-		listners.add(identityProviderMgtListerService);
-	}
 
-	public static void unsetIdentityProviderMgtListerService(
-			IdentityProviderMgtLister identityProviderMgtListerService) {
-		
-		listners.remove(identityProviderMgtListerService);
-	}
+    private static List<IdentityProviderMgtLister> listners = new ArrayList<IdentityProviderMgtLister>();
 
-	public static List<IdentityProviderMgtLister> getListners() {
-		return listners;
-	}
+    public static void setIdentityProviderMgtListerService(
+            IdentityProviderMgtLister identityProviderMgtListerService) {
+
+        listners.add(identityProviderMgtListerService);
+    }
+
+    public static void unsetIdentityProviderMgtListerService(
+            IdentityProviderMgtLister identityProviderMgtListerService) {
+
+        listners.remove(identityProviderMgtListerService);
+    }
+
+    public static List<IdentityProviderMgtLister> getListners() {
+        return listners;
+    }
 
 }

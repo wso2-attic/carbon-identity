@@ -18,24 +18,24 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.cache;
 
-import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
+import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 
-public class AuthenticationContextCacheEntry  extends CacheEntry {
-	
-	private static final long serialVersionUID = 7922084944228568186L;
-	
-	AuthenticationContext context;
-	String loggedInUser;
+public class AuthenticationContextCacheEntry extends CacheEntry {
 
-	public AuthenticationContext getContext() {
-		return context;
-	}
+    private static final long serialVersionUID = 7922084944228568186L;
 
-	public void setContext(AuthenticationContext context) {
-		this.context = context;
-	}
-	
+    AuthenticationContext context;
+    String loggedInUser;
+
+    public AuthenticationContext getContext() {
+        return context;
+    }
+
+    public void setContext(AuthenticationContext context) {
+        this.context = context;
+    }
+
     public String getLoggedInUser() {
         return loggedInUser;
     }

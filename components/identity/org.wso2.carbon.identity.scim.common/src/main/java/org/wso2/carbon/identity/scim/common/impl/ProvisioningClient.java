@@ -19,12 +19,7 @@ package org.wso2.carbon.identity.scim.common.impl;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.DeleteMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.RequestEntity;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.methods.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.scim.common.utils.BasicAuthUtil;
@@ -35,11 +30,7 @@ import org.wso2.charon.core.config.SCIMProvider;
 import org.wso2.charon.core.exceptions.AbstractCharonException;
 import org.wso2.charon.core.exceptions.BadRequestException;
 import org.wso2.charon.core.exceptions.CharonException;
-import org.wso2.charon.core.objects.AbstractSCIMObject;
-import org.wso2.charon.core.objects.Group;
-import org.wso2.charon.core.objects.ListedResource;
-import org.wso2.charon.core.objects.SCIMObject;
-import org.wso2.charon.core.objects.User;
+import org.wso2.charon.core.objects.*;
 import org.wso2.charon.core.schema.SCIMConstants;
 import org.wso2.charon.core.util.CopyUtil;
 
@@ -55,12 +46,12 @@ import java.util.Map;
 public class ProvisioningClient implements Runnable {
 
     private static Log logger = LogFactory.getLog(ProvisioningClient.class.getName());
-    private int objectType;
+    private final String USER_FILTER = "filter=userNameEq";
+    private final String GROUP_FILTER = "filter=displayNameEq";
     SCIMObject scimObject;
     SCIMProvider provider;
     int provisioningMethod;
-    private final String USER_FILTER = "filter=userNameEq";
-    private final String GROUP_FILTER = "filter=displayNameEq";
+    private int objectType;
     private Map<String, Object> additionalProvisioningInformation;
 
     /**
@@ -118,7 +109,7 @@ public class ProvisioningClient implements Runnable {
             }
 
             String encodedUser = scimClient.encodeSCIMObject((AbstractSCIMObject) scimObject,
-                                                             SCIMConstants.identifyFormat(contentType));
+                    SCIMConstants.identifyFormat(contentType));
             if (logger.isDebugEnabled()) {
                 logger.debug("User to provision : useName" + userName);
             }
@@ -126,10 +117,10 @@ public class ProvisioningClient implements Runnable {
             PostMethod postMethod = new PostMethod(userEPURL);
             //add basic auth header
             postMethod.addRequestHeader(SCIMConstants.AUTHORIZATION_HEADER,
-                                        BasicAuthUtil.getBase64EncodedBasicAuthHeader(userName, password));
+                    BasicAuthUtil.getBase64EncodedBasicAuthHeader(userName, password));
             //create request entity with the payload.
             RequestEntity requestEntity = new StringRequestEntity(encodedUser,
-                                                                  contentType, null);
+                    contentType, null);
             postMethod.setRequestEntity(requestEntity);
 
             //create http client
@@ -146,7 +137,7 @@ public class ProvisioningClient implements Runnable {
             if (scimClient.evaluateResponseStatus(responseStatus)) {
                 //try to decode the scim object to verify that it gets decoded without issue.
                 scimClient.decodeSCIMResponse(response, SCIMConstants.identifyFormat(contentType),
-                                              objectType);
+                        objectType);
             } else {
                 //decode scim exception and extract the specific error message.
                 AbstractCharonException exception =
@@ -197,7 +188,7 @@ public class ProvisioningClient implements Runnable {
             getMethod.setQueryString(USER_FILTER + ((User) scimObject).getUserName());
             //add authorization headers
             getMethod.addRequestHeader(SCIMConstants.AUTHORIZATION_HEADER,
-                                       BasicAuthUtil.getBase64EncodedBasicAuthHeader(userName, password));
+                    BasicAuthUtil.getBase64EncodedBasicAuthHeader(userName, password));
 
             //create http client
             HttpClient httpFilterClient = new HttpClient();
@@ -207,7 +198,7 @@ public class ProvisioningClient implements Runnable {
             String response = getMethod.getResponseBodyAsString();
             if (logger.isDebugEnabled()) {
                 logger.debug("SCIM - filter operation inside 'delete user' provisioning " +
-                             "returned with response code: " + responseStatus);
+                        "returned with response code: " + responseStatus);
                 logger.debug("Filter User Response: " + response);
             }
             SCIMClient scimClient = new SCIMClient();
@@ -231,7 +222,7 @@ public class ProvisioningClient implements Runnable {
                 int deleteResponseStatus = httpDeleteClient.executeMethod(deleteMethod);
                 String deleteResponse = deleteMethod.getResponseBodyAsString();
                 logger.info("SCIM - delete user operation returned with response code: " +
-                            deleteResponseStatus);
+                        deleteResponseStatus);
                 if (!scimClient.evaluateResponseStatus(deleteResponseStatus)) {
                     //decode scim exception and extract the specific error message.
                     AbstractCharonException exception =
@@ -284,7 +275,7 @@ public class ProvisioningClient implements Runnable {
             getMethod.setQueryString(USER_FILTER + ((User) scimObject).getUserName());
             //add authorization headers
             getMethod.addRequestHeader(SCIMConstants.AUTHORIZATION_HEADER,
-                                       BasicAuthUtil.getBase64EncodedBasicAuthHeader(userName, password));
+                    BasicAuthUtil.getBase64EncodedBasicAuthHeader(userName, password));
 
             //create http client
             HttpClient httpFilterClient = new HttpClient();
@@ -294,7 +285,7 @@ public class ProvisioningClient implements Runnable {
             String response = getMethod.getResponseBodyAsString();
             if (logger.isDebugEnabled()) {
                 logger.debug("SCIM - filter operation inside 'delete user' provisioning " +
-                             "returned with response code: " + responseStatus);
+                        "returned with response code: " + responseStatus);
                 logger.debug("Filter User Response: " + response);
             }
             SCIMClient scimClient = new SCIMClient();
@@ -309,7 +300,7 @@ public class ProvisioningClient implements Runnable {
                     userId = ((User) user).getId();
                     if (userId == null) {
                         logger.error("Trying to update a user entry which doesn't support SCIM. " +
-                                     "Usually internal carbon User entries such as admin role doesn't support SCIM attributes.");
+                                "Usually internal carbon User entries such as admin role doesn't support SCIM attributes.");
                         return;
                     }
                 }
@@ -329,7 +320,7 @@ public class ProvisioningClient implements Runnable {
                 int updateResponseStatus = httpUpdateClient.executeMethod(putMethod);
                 String updateResponse = putMethod.getResponseBodyAsString();
                 logger.info("SCIM - update user operation returned with response code: " +
-                            updateResponseStatus);
+                        updateResponseStatus);
                 if (!scimClient.evaluateResponseStatus(updateResponseStatus)) {
                     //decode scim exception and extract the specific error message.
                     AbstractCharonException exception =
@@ -391,8 +382,8 @@ public class ProvisioningClient implements Runnable {
                 //create get method for filtering
                 GetMethod getMethod = new GetMethod(userEPURL);
                 getMethod.addRequestHeader(SCIMConstants.AUTHORIZATION_HEADER,
-                                           BasicAuthUtil.getBase64EncodedBasicAuthHeader(
-                                                   userName, password));
+                        BasicAuthUtil.getBase64EncodedBasicAuthHeader(
+                                userName, password));
                 //get corresponding userIds
                 for (String user : users) {
                     String filter = USER_FILTER + user;
@@ -401,7 +392,7 @@ public class ProvisioningClient implements Runnable {
                     String response = getMethod.getResponseBodyAsString();
                     if (logger.isDebugEnabled()) {
                         logger.debug("SCIM - 'filter user' operation inside 'create group' provisioning " +
-                                     "returned with response code: " + responseCode);
+                                "returned with response code: " + responseCode);
                         logger.debug("Filter User Response: " + response);
                     }
                     //check for success of the response
@@ -433,15 +424,15 @@ public class ProvisioningClient implements Runnable {
             PostMethod postMethod = new PostMethod(groupEPURL);
             //add basic auth header
             postMethod.addRequestHeader(SCIMConstants.AUTHORIZATION_HEADER,
-                                        BasicAuthUtil.getBase64EncodedBasicAuthHeader(userName, password));
+                    BasicAuthUtil.getBase64EncodedBasicAuthHeader(userName, password));
             //encode group
             String encodedGroup = null;
             if (copiedGroup != null) {
                 encodedGroup = scimClient.encodeSCIMObject(copiedGroup,
-                                                           SCIMConstants.identifyFormat(contentType));
+                        SCIMConstants.identifyFormat(contentType));
             } else {
                 encodedGroup = scimClient.encodeSCIMObject((AbstractSCIMObject) scimObject,
-                                                           SCIMConstants.identifyFormat(contentType));
+                        SCIMConstants.identifyFormat(contentType));
             }
 
             //create request entity with the payload.
@@ -461,7 +452,7 @@ public class ProvisioningClient implements Runnable {
             if (scimClient.evaluateResponseStatus(responseStatus)) {
                 //try to decode the scim object to verify that it gets decoded without issue.
                 scimClient.decodeSCIMResponse(postResponse, SCIMConstants.JSON,
-                                              objectType);
+                        objectType);
             } else {
                 //decode scim exception and extract the specific error message.
                 AbstractCharonException exception =
@@ -510,7 +501,7 @@ public class ProvisioningClient implements Runnable {
             getMethod.setQueryString(GROUP_FILTER + ((Group) scimObject).getDisplayName());
             //add authorization headers
             getMethod.addRequestHeader(SCIMConstants.AUTHORIZATION_HEADER,
-                                       BasicAuthUtil.getBase64EncodedBasicAuthHeader(userName, password));
+                    BasicAuthUtil.getBase64EncodedBasicAuthHeader(userName, password));
 
             //create http client
             HttpClient httpFilterClient = new HttpClient();
@@ -520,7 +511,7 @@ public class ProvisioningClient implements Runnable {
 
             if (logger.isDebugEnabled()) {
                 logger.debug("SCIM - filter operation inside 'delete group' provisioning " +
-                             "returned with response code: " + responseStatus);
+                        "returned with response code: " + responseStatus);
                 logger.debug("Filter Group Response: " + response);
             }
             SCIMClient scimClient = new SCIMClient();
@@ -544,7 +535,7 @@ public class ProvisioningClient implements Runnable {
                 int deleteResponseStatus = httpDeleteClient.executeMethod(deleteMethod);
                 String deleteResponse = deleteMethod.getResponseBodyAsString();
                 logger.info("SCIM - delete group operation returned with response code: " +
-                            deleteResponseStatus);
+                        deleteResponseStatus);
                 if (!scimClient.evaluateResponseStatus(deleteResponseStatus)) {
                     //decode scim exception and extract the specific error message.
                     AbstractCharonException exception =
@@ -605,7 +596,7 @@ public class ProvisioningClient implements Runnable {
             }
             //add authorization headers
             getMethod.addRequestHeader(SCIMConstants.AUTHORIZATION_HEADER,
-                                       BasicAuthUtil.getBase64EncodedBasicAuthHeader(userName, password));
+                    BasicAuthUtil.getBase64EncodedBasicAuthHeader(userName, password));
 
             //create http client
             HttpClient httpFilterClient = new HttpClient();
@@ -615,7 +606,7 @@ public class ProvisioningClient implements Runnable {
             String response = getMethod.getResponseBodyAsString();
             if (logger.isDebugEnabled()) {
                 logger.debug("SCIM - filter operation inside 'update group' provisioning " +
-                             "returned with response code: " + responseStatus);
+                        "returned with response code: " + responseStatus);
                 logger.debug("Filter Group Response: " + response);
             }
             SCIMClient scimClient = new SCIMClient();
@@ -648,8 +639,8 @@ public class ProvisioningClient implements Runnable {
                     //create get method for filtering
                     GetMethod getUserMethod = new GetMethod(userEPURL);
                     getUserMethod.addRequestHeader(SCIMConstants.AUTHORIZATION_HEADER,
-                                                   BasicAuthUtil.getBase64EncodedBasicAuthHeader(
-                                                           userName, password));
+                            BasicAuthUtil.getBase64EncodedBasicAuthHeader(
+                                    userName, password));
                     //get corresponding userIds
                     for (String user : users) {
                         String filter = USER_FILTER + user;
@@ -658,7 +649,7 @@ public class ProvisioningClient implements Runnable {
                         String filterUserResponse = getUserMethod.getResponseBodyAsString();
                         if (logger.isDebugEnabled()) {
                             logger.debug("SCIM - 'filter user' operation inside 'update group' provisioning " +
-                                         "returned with response code: " + responseCode);
+                                    "returned with response code: " + responseCode);
                             logger.debug("Filter User Response: " + filterUserResponse);
                         }
                         //check for success of the response
@@ -700,7 +691,7 @@ public class ProvisioningClient implements Runnable {
                 String updateResponse = putMethod.getResponseBodyAsString();
 
                 logger.info("SCIM - update group operation returned with response code: " +
-                            updateResponseStatus);
+                        updateResponseStatus);
                 if (!scimClient.evaluateResponseStatus(updateResponseStatus)) {
                     //decode scim exception and extract the specific error message.
                     AbstractCharonException exception = scimClient.decodeSCIMException(

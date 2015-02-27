@@ -18,14 +18,11 @@
 
 package org.wso2.carbon.identity.application.mgt;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
-	import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ApplicationPermission;
@@ -41,12 +38,14 @@ import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
-import org.wso2.carbon.user.mgt.UserRealmProxy;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ApplicationMgtUtil {
 
-    public static final String APPLICATION_ROOT_PERMISSION =  "applications";
+    public static final String APPLICATION_ROOT_PERMISSION = "applications";
     public static final String PATH_CONSTANT = RegistryConstants.PATH_SEPARATOR;
     private static final ArrayList<String> paths = new ArrayList<String>();
     private static String applicationNode;
@@ -54,7 +53,7 @@ public class ApplicationMgtUtil {
     private static Log log = LogFactory.getLog(ApplicationMgtUtil.class);
 
     public static org.wso2.carbon.user.api.Permission[] buildPermissions(String applicationName,
-            String[] permissions) {
+                                                                         String[] permissions) {
 
         org.wso2.carbon.user.api.Permission[] permissionSet = null;
 
@@ -84,7 +83,6 @@ public class ApplicationMgtUtil {
     }
 
     /**
-     * 
      * @param applicationName
      * @return
      * @throws IdentityApplicationManagementException
@@ -111,7 +109,6 @@ public class ApplicationMgtUtil {
     }
 
     /**
-     * 
      * @param tenantApplicationNames
      * @return
      * @throws IdentityApplicationManagementException
@@ -129,14 +126,14 @@ public class ApplicationMgtUtil {
 
     /**
      * Create a role for the application and assign the user to that role.
-     * 
+     *
      * @param applicationName
      * @throws IdentityApplicationManagementException
      */
     public static void createAppRole(String applicationName) throws IdentityApplicationManagementException {
         String roleName = UserCoreUtil.addInternalDomainName(applicationName);
         String qualifiedUsername = CarbonContext.getThreadLocalCarbonContext().getUsername();
-        String[] user = { MultitenantUtils.getTenantAwareUsername(qualifiedUsername)};
+        String[] user = {MultitenantUtils.getTenantAwareUsername(qualifiedUsername)};
 
         try {
             // create a role for the application and assign the user to that role.
@@ -150,7 +147,7 @@ public class ApplicationMgtUtil {
 
     /**
      * Delete the role of the app
-     * 
+     *
      * @param applicationName
      * @throws IdentityApplicationManagementException
      */
@@ -166,7 +163,6 @@ public class ApplicationMgtUtil {
     }
 
     /**
-     * 
      * @param oldName
      * @param newName
      * @throws IdentityApplicationManagementException
@@ -183,7 +179,6 @@ public class ApplicationMgtUtil {
     }
 
     /**
-     * 
      * @param applicationName
      * @param permissionsConfig
      * @throws IdentityApplicationManagementException
@@ -197,21 +192,21 @@ public class ApplicationMgtUtil {
         String permissionResourcePath = getApplicationPermissionPath();
         try {
             if (!tenantGovReg.resourceExists(permissionResourcePath)) {
-	         String loggedInUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
-	         boolean loggedInUserChanged = false;
-	         UserRealm realm =
-		         (UserRealm) CarbonContext.getThreadLocalCarbonContext().getUserRealm();
-	         if (!realm.getAuthorizationManager()
-	                 .isUserAuthorized(loggedInUser, permissionResourcePath,
-	                         UserMgtConstants.EXECUTE_ACTION)) {
-		     //Logged in user is not authorized to create the permission.
-		     // Temporarily change the user to the admin for creating the permission
-		     PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(
-			         realm.getRealmConfiguration().getAdminUserName());
-		     tenantGovReg = CarbonContext.getThreadLocalCarbonContext()
-		                 .getRegistry(RegistryType.USER_GOVERNANCE);
-		     loggedInUserChanged = true;
-	         }
+                String loggedInUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
+                boolean loggedInUserChanged = false;
+                UserRealm realm =
+                        (UserRealm) CarbonContext.getThreadLocalCarbonContext().getUserRealm();
+                if (!realm.getAuthorizationManager()
+                        .isUserAuthorized(loggedInUser, permissionResourcePath,
+                                UserMgtConstants.EXECUTE_ACTION)) {
+                    //Logged in user is not authorized to create the permission.
+                    // Temporarily change the user to the admin for creating the permission
+                    PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(
+                            realm.getRealmConfiguration().getAdminUserName());
+                    tenantGovReg = CarbonContext.getThreadLocalCarbonContext()
+                            .getRegistry(RegistryType.USER_GOVERNANCE);
+                    loggedInUserChanged = true;
+                }
                 Collection appRootNode = tenantGovReg.newCollection();
                 appRootNode.setProperty("name", "Applications");
                 tenantGovReg.put(permissionResourcePath, appRootNode);
@@ -220,7 +215,7 @@ public class ApplicationMgtUtil {
                 }
             }
 
-            if(permissionsConfig != null){
+            if (permissionsConfig != null) {
                 ApplicationPermission[] permissions = permissionsConfig.getPermissions();
                 if (permissions == null || permissions.length < 1) {
                     return;
@@ -247,7 +242,7 @@ public class ApplicationMgtUtil {
 
     /**
      * Updates the permissions of the application
-     * 
+     *
      * @param applicationName
      * @param permissions
      * @throws IdentityApplicationManagementException
@@ -289,8 +284,8 @@ public class ApplicationMgtUtil {
 
             } else { // there are permission
                 List<ApplicationPermission> loadPermissions = loadPermissions(applicationName);
-                for(ApplicationPermission applicationPermission : loadPermissions) {
-                    tenantGovReg.delete(applicationNode + PATH_CONSTANT +applicationPermission.getValue());
+                for (ApplicationPermission applicationPermission : loadPermissions) {
+                    tenantGovReg.delete(applicationNode + PATH_CONSTANT + applicationPermission.getValue());
                 }
                 addPermission(permissions, tenantGovReg);
             }
@@ -304,14 +299,14 @@ public class ApplicationMgtUtil {
     private static void addPermission(ApplicationPermission[] permissions, Registry tenantGovReg) throws RegistryException {
         for (ApplicationPermission permission : permissions) {
             String permissionValue = permission.getValue();
-            if(permissionValue.substring(0,1).equals("/")){         //if permissions are starts with slash remove that
+            if (permissionValue.substring(0, 1).equals("/")) {         //if permissions are starts with slash remove that
                 permissionValue = permissionValue.substring(1);
             }
             String[] splitedPermission = permissionValue.split("/");
-            String permissinPath = applicationNode + PATH_CONSTANT ;
+            String permissinPath = applicationNode + PATH_CONSTANT;
 
-            for(int i=0 ; i<splitedPermission.length ;i++) {
-                permissinPath = permissinPath + splitedPermission[i] +PATH_CONSTANT;
+            for (int i = 0; i < splitedPermission.length; i++) {
+                permissinPath = permissinPath + splitedPermission[i] + PATH_CONSTANT;
                 Collection permissionNode = tenantGovReg.newCollection();
                 permissionNode.setProperty("name", splitedPermission[i]);
                 tenantGovReg.put(permissinPath, permissionNode);
@@ -322,7 +317,7 @@ public class ApplicationMgtUtil {
 
     /**
      * Loads the permissions of the application
-     * 
+     *
      * @param applicationName
      * @return
      * @throws IdentityApplicationManagementException
@@ -363,25 +358,25 @@ public class ApplicationMgtUtil {
 
     private static void permissionPath(Registry tenantGovReg, String permissionPath) throws RegistryException {
 
-            Collection appCollection = (Collection) tenantGovReg.get(permissionPath);
-            String[] childern = appCollection.getChildren();
+        Collection appCollection = (Collection) tenantGovReg.get(permissionPath);
+        String[] childern = appCollection.getChildren();
 
-            if(childern == null || childern.length ==0) {
-                paths.add(permissionPath.replace(applicationNode, "").substring(2));
+        if (childern == null || childern.length == 0) {
+            paths.add(permissionPath.replace(applicationNode, "").substring(2));
+        }
+
+        while (childern != null && childern.length != 0) {
+            for (int i = 0; i < childern.length; i++) {
+                permissionPath(tenantGovReg, childern[i]);
             }
+            break;
 
-            while(childern != null && childern.length !=0) {
-                for (int i=0; i<childern.length ; i++) {
-                    permissionPath(tenantGovReg, childern[i]);
-                }
-                break;
-
-            }
+        }
     }
 
     /**
      * Delete the resource
-     * 
+     *
      * @param applicationName
      * @throws IdentityApplicationManagementException
      */
@@ -404,7 +399,6 @@ public class ApplicationMgtUtil {
     }
 
     /**
-     * 
      * @param o1
      * @param o2
      * @return
@@ -417,9 +411,9 @@ public class ApplicationMgtUtil {
 
         return ret;
     }
-    
-    
-    public static String getApplicationPermissionPath(){
+
+
+    public static String getApplicationPermissionPath() {
 
         return CarbonConstants.UI_PERMISSION_NAME + RegistryConstants.PATH_SEPARATOR + APPLICATION_ROOT_PERMISSION;
 

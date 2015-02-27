@@ -17,9 +17,6 @@
 */
 package org.wso2.carbon.identity.sso.saml.processors;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml2.core.Response;
@@ -35,13 +32,14 @@ import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
 import org.wso2.carbon.identity.sso.saml.builders.ErrorResponseBuilder;
 import org.wso2.carbon.identity.sso.saml.builders.ResponseBuilder;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
-import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOReqValidationResponseDTO;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSORespDTO;
 import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
-import org.wso2.carbon.identity.sso.saml.session.SessionInfoData;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SPInitSSOAuthnRequestProcessor {
 
@@ -135,7 +133,7 @@ public class SPInitSSOAuthnRequestProcessor {
                     sessionIndexId = UUIDGenerator.generateUUID();
                     sessionPersistenceManager.persistSession(sessionId, sessionIndexId);
                 }
-                
+
                 //TODO check whether the same SP exists
 
                 if (authMode.equals(SAMLSSOConstants.AuthnModes.USERNAME_PASSWORD)) {
@@ -204,7 +202,7 @@ public class SPInitSSOAuthnRequestProcessor {
             if (ssoIdpConfigs == null) {
                 IdentityPersistenceManager persistenceManager = IdentityPersistenceManager
                         .getPersistanceManager();
-                Registry registry = (Registry)PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_CONFIGURATION);
+                Registry registry = (Registry) PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_CONFIGURATION);
                 ssoIdpConfigs = persistenceManager.getServiceProvider(registry,
                         authnReqDTO.getIssuer());
                 authnReqDTO.setStratosDeployment(false); // not stratos
@@ -230,7 +228,7 @@ public class SPInitSSOAuthnRequestProcessor {
 
         // load the ACS url, if it is not defined in the request. If it is sent in request,  if must owner it.
         String acsUrl = authnReqDTO.getAssertionConsumerURL();
-        if(acsUrl == null || acsUrl.trim().length() == 0){
+        if (acsUrl == null || acsUrl.trim().length() == 0) {
             authnReqDTO.setAssertionConsumerURL(ssoIdpConfigs.getAssertionConsumerUrl());
         }
         authnReqDTO.setLoginPageURL(ssoIdpConfigs.getLoginPageURL());
@@ -250,7 +248,6 @@ public class SPInitSSOAuthnRequestProcessor {
     }
 
     /**
-     *
      * @param id
      * @param status
      * @param statMsg

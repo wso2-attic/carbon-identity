@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.application.common.model;
 public class SalesforceProvisioningConnectorConfig extends ProvisioningConnectorConfig {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -7941207075553889280L;
 

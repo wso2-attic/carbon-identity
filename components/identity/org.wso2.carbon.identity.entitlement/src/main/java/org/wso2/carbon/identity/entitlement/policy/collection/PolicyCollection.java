@@ -37,7 +37,7 @@ public interface PolicyCollection {
     /**
      * initializes policy finder collection
      *
-	 * @param properties Properties, that need to initialize the module
+     * @param properties Properties, that need to initialize the module
      * @throws Exception throws when initialization is failed
      */
     public void init(Properties properties) throws Exception;
@@ -53,16 +53,17 @@ public interface PolicyCollection {
     /**
      * returns the effective policy for given XACML request
      *
-     * @param context  XACML request ctx
+     * @param context XACML request ctx
      * @return effective policy set as AbstractPolicy object of Balana
-     * @throws EntitlementException  if any error, while policy is retrieved
+     * @throws EntitlementException if any error, while policy is retrieved
      */
     public AbstractPolicy getEffectivePolicy(EvaluationCtx context) throws EntitlementException;
+
     /**
      * returns policy by given identifier
-     * 
+     *
      * @param identifier policy identifier
-     * @return  policy as AbstractPolicy object of Balana
+     * @return policy as AbstractPolicy object of Balana
      */
     public AbstractPolicy getPolicy(URI identifier);
 
@@ -70,9 +71,9 @@ public interface PolicyCollection {
      * returns policy by identifier type and version
      *
      * @param identifier  policy identifier
-     * @param type policy type whether policy or policy set
+     * @param type        policy type whether policy or policy set
      * @param constraints policy version constraints
-     * @return  policy as AbstractPolicy object of Balana
+     * @return policy as AbstractPolicy object of Balana
      */
     public AbstractPolicy getPolicy(URI identifier, int type, VersionConstraints constraints);
 

@@ -17,23 +17,15 @@
  */
 package org.wso2.carbon.um.ws.service;
 
-import java.util.Iterator;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.soap.SOAPHeader;
-import org.apache.axis2.context.MessageContext;
 import org.wso2.carbon.core.AbstractAdmin;
-import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.um.ws.service.dao.RealmConfigurationDTO;
 import org.wso2.carbon.um.ws.service.dao.RealmPropertyDTO;
-import org.wso2.carbon.um.ws.service.internal.UMRemoteServicesDSComponent;
+import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.user.api.RealmConfiguration;
-import org.wso2.carbon.user.core.service.RealmService;
+
+import java.util.Iterator;
+import java.util.Map;
 
 //TODO super tenant service
 public class UserRealmService extends AbstractAdmin {
@@ -59,7 +51,7 @@ public class UserRealmService extends AbstractAdmin {
     private RealmPropertyDTO[] getPropertyValueArray(Map<String, String> map) {
         RealmPropertyDTO[] realmProps = new RealmPropertyDTO[map.size()];
         int i = 0;
-        for (Iterator<Map.Entry<String, String>> ite = map.entrySet().iterator(); ite.hasNext();) {
+        for (Iterator<Map.Entry<String, String>> ite = map.entrySet().iterator(); ite.hasNext(); ) {
             Map.Entry<String, String> entry = ite.next();
             realmProps[i] = new RealmPropertyDTO(entry.getKey(), entry.getValue());
             i++;

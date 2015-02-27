@@ -45,6 +45,17 @@ public class AccessTokenDO extends CacheEntry {
     private int tenantID;
 
     private String tokenType;
+    private long validityPeriod;
+
+    public AccessTokenDO(String consumerKey, String authzUser, String[] scope, Timestamp issuedTime, long validityPeriod, String tokenType) {
+        this.consumerKey = consumerKey;
+        this.authzUser = authzUser;
+        this.scope = scope;
+        this.issuedTime = issuedTime;
+        this.validityPeriod = validityPeriod;
+        this.validityPeriodInMillis = validityPeriod * 1000;
+        this.tokenType = tokenType;
+    }
 
     public int getTenantID() {
         return tenantID;
@@ -60,26 +71,6 @@ public class AccessTokenDO extends CacheEntry {
 
     public void setConsumerKey(String consumerKey) {
         this.consumerKey = consumerKey;
-    }
-
-    public void setIssuedTime(Timestamp issuedTime) {
-        this.issuedTime = issuedTime;
-    }
-
-    public void setValidityPeriod(long validityPeriod) {
-        this.validityPeriod = validityPeriod;
-    }
-
-    private long validityPeriod;
-
-    public AccessTokenDO(String consumerKey, String authzUser, String[] scope, Timestamp issuedTime, long validityPeriod, String tokenType) {
-        this.consumerKey = consumerKey;
-        this.authzUser = authzUser;
-        this.scope = scope;
-        this.issuedTime = issuedTime;
-        this.validityPeriod = validityPeriod;
-        this.validityPeriodInMillis = validityPeriod * 1000;
-        this.tokenType = tokenType;
     }
 
     public String getAuthzUser() {
@@ -98,8 +89,16 @@ public class AccessTokenDO extends CacheEntry {
         return issuedTime;
     }
 
+    public void setIssuedTime(Timestamp issuedTime) {
+        this.issuedTime = issuedTime;
+    }
+
     public long getValidityPeriod() {
         return validityPeriod;
+    }
+
+    public void setValidityPeriod(long validityPeriod) {
+        this.validityPeriod = validityPeriod;
     }
 
     public String getTokenState() {

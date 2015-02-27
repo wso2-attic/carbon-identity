@@ -26,6 +26,7 @@ import org.apache.amber.oauth2.common.validators.OAuthValidator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,13 +35,11 @@ import java.util.List;
  * CarbonOAuthTokenRequest holds all OAuth token request parameters.
  */
 public class CarbonOAuthTokenRequest extends OAuthTokenRequest {
-    private static Log log = LogFactory.getLog(CarbonOAuthTokenRequest.class);
-
     private static final String ASSERTION = "assertion";
     private static final String CREDENTIAL_TYPE = "credentialType";
     private static final String WINDOWS_TOKEN = "windows_token";
     private static final String TENANT_DOMAIN = "tenantDomain";
-
+    private static Log log = LogFactory.getLog(CarbonOAuthTokenRequest.class);
     private String assertion;
     private String credentialType;
     private String windows_token;
@@ -50,12 +49,12 @@ public class CarbonOAuthTokenRequest extends OAuthTokenRequest {
     /**
      * Constructs CarbonOAuthTokenRequest from the given HttpServletRequest
      *
-     * @param request   an instance of HttpServletRequest that represents an OAuth token request
+     * @param request an instance of HttpServletRequest that represents an OAuth token request
      * @throws OAuthSystemException
      * @throws OAuthProblemException
      */
     public CarbonOAuthTokenRequest(HttpServletRequest request) throws OAuthSystemException,
-                                                                      OAuthProblemException {
+            OAuthProblemException {
 
         super(request);
         assertion = request.getParameter(ASSERTION);
@@ -99,7 +98,7 @@ public class CarbonOAuthTokenRequest extends OAuthTokenRequest {
             if (log.isDebugEnabled()) {
                 //Do not change this log format as these logs use by external applications
                 log.debug("Unsupported Grant Type : " + requestTypeValue +
-                          " for client id : " + getClientId());
+                        " for client id : " + getClientId());
             }
             throw OAuthUtils.handleOAuthProblemException("Invalid grant_type parameter value");
         }

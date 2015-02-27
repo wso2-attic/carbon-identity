@@ -27,18 +27,9 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 
 /**
@@ -108,7 +99,7 @@ public class NotificationMgtConfigBuilder {
             } else {
                 URL url;
                 if (bundleContext != null) {
-                    if ((url = bundleContext.getBundle().getResource(NotificationMgtConstants. MODULE_CONFIG_FILE))
+                    if ((url = bundleContext.getBundle().getResource(NotificationMgtConstants.MODULE_CONFIG_FILE))
                             != null) {
                         inStream = url.openStream();
                     } else {

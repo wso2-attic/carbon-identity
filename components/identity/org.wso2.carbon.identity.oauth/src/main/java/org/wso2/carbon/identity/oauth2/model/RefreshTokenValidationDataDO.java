@@ -22,7 +22,7 @@ package org.wso2.carbon.identity.oauth2.model;
  * Results holder for refresh token validation query.
  */
 public class RefreshTokenValidationDataDO {
-    
+
     private String accessToken;
 
     private String authorizedUser;

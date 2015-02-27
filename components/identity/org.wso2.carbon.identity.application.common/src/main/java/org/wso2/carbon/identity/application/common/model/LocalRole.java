@@ -52,6 +52,29 @@ public class LocalRole implements Serializable {
         this.localRoleName = UserCoreUtil.removeDomainFromName(combinedRoleName);
     }
 
+    /*
+     * <LocalRole> <LocalRoleName></LocalRoleName> <UserStoreId></UserStoreId> </LocalRole>
+     */
+    public static LocalRole build(OMElement localRoleOM) {
+        LocalRole localRole = new LocalRole();
+
+        Iterator<?> iter = localRoleOM.getChildElements();
+
+        while (iter.hasNext()) {
+            OMElement element = (OMElement) (iter.next());
+            String elementName = element.getLocalName();
+
+            if (elementName.equals("LocalRoleName")) {
+                localRole.setLocalRoleName(element.getText());
+            } else if (elementName.equals("UserStoreId")) {
+                localRole.setUserStoreId(element.getText());
+            }
+
+        }
+
+        return localRole;
+    }
+
     public String getLocalRoleName() {
         return localRoleName;
     }
@@ -91,28 +114,5 @@ public class LocalRole implements Serializable {
         int result = localRoleName.hashCode();
         result = 31 * result + (userStoreId != null ? userStoreId.hashCode() : 0);
         return result;
-    }
-
-    /*
-     * <LocalRole> <LocalRoleName></LocalRoleName> <UserStoreId></UserStoreId> </LocalRole>
-     */
-    public static LocalRole build(OMElement localRoleOM) {
-        LocalRole localRole = new LocalRole();
-
-        Iterator<?> iter = localRoleOM.getChildElements();
-
-        while (iter.hasNext()) {
-            OMElement element = (OMElement) (iter.next());
-            String elementName = element.getLocalName();
-
-            if (elementName.equals("LocalRoleName")) {
-                localRole.setLocalRoleName(element.getText());
-            } else if (elementName.equals("UserStoreId")) {
-                localRole.setUserStoreId(element.getText());
-            }
-
-        }
-
-        return localRole;
     }
 }

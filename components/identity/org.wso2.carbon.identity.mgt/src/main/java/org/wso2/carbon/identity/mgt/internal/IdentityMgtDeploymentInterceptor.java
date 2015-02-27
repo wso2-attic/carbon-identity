@@ -19,8 +19,6 @@
 
 package org.wso2.carbon.identity.mgt.internal;
 
-import java.util.ArrayList;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.description.AxisModule;
@@ -33,12 +31,14 @@ import org.apache.axis2.engine.AxisObserver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.ArrayList;
+
 /**
  *
  */
 public class IdentityMgtDeploymentInterceptor implements AxisObserver {
 
-    private static final Log log = LogFactory.getLog(IdentityMgtDeploymentInterceptor.class);    
+    private static final Log log = LogFactory.getLog(IdentityMgtDeploymentInterceptor.class);
 
     @Override
     public void init(AxisConfiguration axisConfiguration) {
@@ -47,7 +47,7 @@ public class IdentityMgtDeploymentInterceptor implements AxisObserver {
 
     @Override
     public void serviceUpdate(AxisEvent axisEvent, AxisService axisService) {
-          // TODO
+        // TODO
 //        int eventType = axisEvent.getEventType();
 //        if (eventType == AxisEvent.SERVICE_DEPLOY &&
 //                                    "UserIdentityManagementService".equals(axisService.getName())) {

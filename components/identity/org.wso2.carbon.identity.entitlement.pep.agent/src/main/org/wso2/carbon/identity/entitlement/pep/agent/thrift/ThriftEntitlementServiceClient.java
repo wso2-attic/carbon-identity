@@ -20,9 +20,13 @@ import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSSLTransportFactory;
 import org.apache.thrift.transport.TTransport;
-import org.wso2.carbon.identity.entitlement.pep.agent.*;
+import org.wso2.carbon.identity.entitlement.pep.agent.AbstractEntitlementServiceClient;
+import org.wso2.carbon.identity.entitlement.pep.agent.Attribute;
+import org.wso2.carbon.identity.entitlement.pep.agent.ProxyConstants;
+import org.wso2.carbon.identity.entitlement.pep.agent.XACMLRequetBuilder;
 import org.wso2.carbon.identity.entitlement.pep.agent.exception.EntitlementAgentException;
-import org.wso2.carbon.identity.entitlement.pep.agent.generatedCode.*;
+import org.wso2.carbon.identity.entitlement.pep.agent.generatedCode.EntitlementException;
+import org.wso2.carbon.identity.entitlement.pep.agent.generatedCode.EntitlementThriftClient;
 
 import java.util.List;
 import java.util.Map;
@@ -42,11 +46,11 @@ public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceCl
 
     private Map<String, Authenticator> authenticators = new ConcurrentHashMap<String, Authenticator>();
 
-    public ThriftEntitlementServiceClient(String serverUrl, String username, String password, String thriftHost, int thriftPort, boolean reuseSession){
+    public ThriftEntitlementServiceClient(String serverUrl, String username, String password, String thriftHost, int thriftPort, boolean reuseSession) {
         this.serverUrl = serverUrl;
         this.userName = username;
         this.password = password;
-        this.thriftHost =  thriftHost;
+        this.thriftHost = thriftHost;
         this.thriftPort = thriftPort;
         this.reuseSession = reuseSession;
     }
@@ -57,7 +61,7 @@ public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceCl
         EntitlementThriftClient.Client client = getThriftClient(appId);
         Authenticator authenticator = getAuthenticator(serverUrl, userName,
                 password);
-        return getDecision(xacmlRequest,client,authenticator.getSessionId(false));
+        return getDecision(xacmlRequest, client, authenticator.getSessionId(false));
     }
 
     @Override
@@ -71,7 +75,7 @@ public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceCl
         String xacmlRequest = XACMLRequetBuilder.buildXACML3Request(tempArr);
         EntitlementThriftClient.Client client = getThriftClient(appId);
         Authenticator authenticator = getAuthenticator(serverUrl, userName, password);
-        return (getDecision(xacmlRequest,client,authenticator.getSessionId(false))).contains("Permit");
+        return (getDecision(xacmlRequest, client, authenticator.getSessionId(false))).contains("Permit");
     }
 
     @Override
@@ -88,8 +92,8 @@ public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceCl
         attrs[attrs.length - 1] = new Attribute("urn:oasis:names:tc:xacml:3.0:attribute-category:environment", "urn:oasis:names:tc:xacml:1.0:environment:environment-id", ProxyConstants.DEFAULT_DATA_TYPE, domainId);
         String xacmlRequest = XACMLRequetBuilder.buildXACML3Request(attrs);
         EntitlementThriftClient.Client client = getThriftClient(appId);
-        Authenticator authenticator = getAuthenticator(serverUrl,userName,password);
-        return (getDecision(xacmlRequest,client,authenticator.getSessionId(false))).contains("Permit");
+        Authenticator authenticator = getAuthenticator(serverUrl, userName, password);
+        return (getDecision(xacmlRequest, client, authenticator.getSessionId(false))).contains("Permit");
     }
 
     @Override
@@ -112,7 +116,7 @@ public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceCl
 
     @Override
     public List<String> getActionableChildResourcesForAlias(String alias, String parentResource,
-                                                           String action, String appId) throws Exception {
+                                                            String action, String appId) throws Exception {
         // TODO Auto-generated method stub
         return null;
     }
@@ -129,7 +133,7 @@ public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceCl
 
     private Authenticator getAuthenticator(String serverUrl, String userName, String password)
             throws Exception {
-        if(reuseSession){
+        if (reuseSession) {
             if (authenticators.containsKey(serverUrl)) {
                 return authenticators.get(serverUrl);
             }

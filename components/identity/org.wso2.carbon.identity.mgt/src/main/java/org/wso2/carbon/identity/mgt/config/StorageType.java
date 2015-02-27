@@ -18,5 +18,5 @@
 package org.wso2.carbon.identity.mgt.config;
 
 public enum StorageType {
-	REGISTRY, FILE, DB
+    REGISTRY, FILE, DB
 }

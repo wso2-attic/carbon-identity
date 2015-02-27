@@ -34,8 +34,8 @@ import java.util.*;
 
 public class ThriftAuthenticationConfigParser {
 
-    private static final String IDENTITY_CONFIG = "thrift-authentication.xml";
     public static final String IDENTITY_DEFAULT_NAMESPACE = "http://wso2.org/projects/carbon/carbon.xml";
+    private static final String IDENTITY_CONFIG = "thrift-authentication.xml";
     private static Map<String, Object> configuration = new HashMap<String, Object>();
     private static ThriftAuthenticationConfigParser parser;
     private static SecretResolver secretResolver;
@@ -55,16 +55,16 @@ public class ThriftAuthenticationConfigParser {
         }
     }
 
-	public static ThriftAuthenticationConfigParser getInstance() throws ServerConfigurationException {
-		if (parser == null) {
-			synchronized (lock) {
-				if (parser == null) {
-					parser = new ThriftAuthenticationConfigParser();
-				}
-			}
-		}
-		return parser;
-	}
+    public static ThriftAuthenticationConfigParser getInstance() throws ServerConfigurationException {
+        if (parser == null) {
+            synchronized (lock) {
+                if (parser == null) {
+                    parser = new ThriftAuthenticationConfigParser();
+                }
+            }
+        }
+        return parser;
+    }
 
     public static ThriftAuthenticationConfigParser getInstance(String filePath)
             throws ServerConfigurationException {
@@ -133,8 +133,8 @@ public class ThriftAuthenticationConfigParser {
                 String key = getKey(nameStack);
                 Object currentObject = configuration.get(key);
                 String value = replaceSystemProperty(element.getText());
-                if(secretResolver != null && secretResolver.isInitialized() &&
-                                                    secretResolver.isTokenProtected(key)){
+                if (secretResolver != null && secretResolver.isInitialized() &&
+                        secretResolver.isTokenProtected(key)) {
                     value = secretResolver.resolve(key);
                 }
                 if (currentObject == null) {

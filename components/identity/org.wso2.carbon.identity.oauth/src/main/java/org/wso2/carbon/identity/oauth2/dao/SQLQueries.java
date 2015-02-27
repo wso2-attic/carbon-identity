@@ -94,8 +94,6 @@ public class SQLQueries {
             " TOKEN_STATE_ID=? WHERE ACCESS_TOKEN=?";
 
 
-
-
     public static final String GET_DISTINCT_APPS_AUTHORIZED_BY_USER_ALL_TIME =
             "SELECT DISTINCT CONSUMER_KEY FROM IDN_OAUTH2_ACCESS_TOKEN WHERE " +
                     "AUTHZ_USER=? AND (TOKEN_STATE='ACTIVE' OR TOKEN_STATE='EXPIRED')";

@@ -36,7 +36,7 @@ public class SAML2GrantManager {
 
     private SSOAgentConfig ssoAgentConfig = null;
 
-    public SAML2GrantManager(SSOAgentConfig ssoAgentConfig){
+    public SAML2GrantManager(SSOAgentConfig ssoAgentConfig) {
         this.ssoAgentConfig = ssoAgentConfig;
     }
 
@@ -44,28 +44,28 @@ public class SAML2GrantManager {
             throws SSOAgentException {
 
 
-        String samlAssertionString =  ((LoggedInSessionBean)request.getSession(false).
+        String samlAssertionString = ((LoggedInSessionBean) request.getSession(false).
                 getAttribute(SSOAgentConstants.SESSION_BEAN_NAME)).getSAML2SSO().
                 getAssertionString();
 
         String accessTokenResponse = executePost(
                 "grant_type=" + SSOAgentConstants.OAuth2.SAML2_BEARER_GRANT_TYPE + "&assertion=" +
                         URLEncoder.encode(Base64.encodeBytes(
-                                samlAssertionString.getBytes()).replaceAll("\n","")),
+                                samlAssertionString.getBytes()).replaceAll("\n", "")),
                 Base64.encodeBytes(new String(ssoAgentConfig.getOAuth2().getClientId() + ":" +
-                        ssoAgentConfig.getOAuth2().getClientSecret()).getBytes()).replace("\n",""));
+                        ssoAgentConfig.getOAuth2().getClientSecret()).getBytes()).replace("\n", ""));
 
         Gson gson = new Gson();
         LoggedInSessionBean.AccessTokenResponseBean accessTokenResp =
                 gson.fromJson(accessTokenResponse, LoggedInSessionBean.AccessTokenResponseBean.class);
 
-        ((LoggedInSessionBean)request.getSession(false).getAttribute(
+        ((LoggedInSessionBean) request.getSession(false).getAttribute(
                 SSOAgentConstants.SESSION_BEAN_NAME)).getSAML2SSO()
                 .setAccessTokenResponseBean(accessTokenResp);
     }
 
     protected String executePost(String urlParameters, String basicAuthHeader)
-            throws SSOAgentException{
+            throws SSOAgentException {
 
         URL url;
         HttpURLConnection connection = null;
@@ -73,31 +73,31 @@ public class SAML2GrantManager {
 
             //Create connection
             url = new URL(ssoAgentConfig.getOAuth2().getTokenURL());
-            connection = (HttpURLConnection)url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            connection.setRequestProperty("Authorization","Basic " + basicAuthHeader);
+            connection.setRequestProperty("Authorization", "Basic " + basicAuthHeader);
 
             connection.setRequestProperty("Content-Length", "" +
                     Integer.toString(urlParameters.getBytes().length));
 
-            connection.setUseCaches (false);
+            connection.setUseCaches(false);
             connection.setDoInput(true);
             connection.setDoOutput(true);
 
             //Send request
-            DataOutputStream wr = new DataOutputStream (
-                    connection.getOutputStream ());
-            wr.writeBytes (urlParameters);
-            wr.flush ();
-            wr.close ();
+            DataOutputStream wr = new DataOutputStream(
+                    connection.getOutputStream());
+            wr.writeBytes(urlParameters);
+            wr.flush();
+            wr.close();
 
             //Get Response
             InputStream is = connection.getInputStream();
             BufferedReader rd = new BufferedReader(new InputStreamReader(is));
             String line;
             StringBuffer response = new StringBuffer();
-            while((line = rd.readLine()) != null) {
+            while ((line = rd.readLine()) != null) {
                 response.append(line);
                 response.append('\r');
             }
@@ -108,7 +108,7 @@ public class SAML2GrantManager {
             throw new SSOAgentException(
                     "Error occurred while executing SAML2 grant request to OAuth2 Token URL", e);
         } finally {
-            if(connection != null) {
+            if (connection != null) {
                 connection.disconnect();
             }
         }

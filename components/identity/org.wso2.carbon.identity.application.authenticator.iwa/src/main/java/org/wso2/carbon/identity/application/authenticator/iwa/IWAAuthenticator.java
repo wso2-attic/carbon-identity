@@ -41,17 +41,15 @@ import java.security.Principal;
 
 /**
  * Username Password based Authenticator
- *
  */
 public class IWAAuthenticator extends AbstractApplicationAuthenticator implements
         LocalApplicationAuthenticator {
-	
-	private static final long serialVersionUID = -713445365200141399L;
 
     public static final String AUTHENTICATOR_NAME = "IWAAuthenticator";
     public static final String AUTHENTICATOR_FRIENDLY_NAME = "iwa";
     //the following param of the request will be set once the request is processed by the IWAServlet
     public static final String IWA_PROCESSED = "iwaauth";
+    private static final long serialVersionUID = -713445365200141399L;
     private static Log log = LogFactory.getLog(IWAAuthenticator.class);
 
     @Override
@@ -61,13 +59,13 @@ public class IWAAuthenticator extends AbstractApplicationAuthenticator implement
         return StringUtils.isNotEmpty(osName) && osName.contains(IWAConstants.WINDOWS_OS_MATCH_STRING) && request
                 .getParameter(IWA_PROCESSED) != null;
     }
-    
+
     @Override
     protected void initiateAuthenticationRequest(HttpServletRequest request, HttpServletResponse response,
                                                  AuthenticationContext context) throws AuthenticationFailedException {
         sendToLoginPage(request, response, context.getContextIdentifier());
-	}
-    
+    }
+
     @Override
     protected void processAuthenticationResponse(HttpServletRequest request, HttpServletResponse response,
                                                  AuthenticationContext context) throws AuthenticationFailedException {
@@ -97,24 +95,24 @@ public class IWAAuthenticator extends AbstractApplicationAuthenticator implement
         boolean isAuthenticated;
         UserStoreManager userStoreManager;
         // Check the authentication
-         try {
-             userStoreManager = (UserStoreManager) CarbonContext.getThreadLocalCarbonContext().getUserRealm()
-                     .getUserStoreManager();
-             isAuthenticated = userStoreManager.isExistingUser(MultitenantUtils.getTenantAwareUsername(username));
-         } catch (org.wso2.carbon.user.api.UserStoreException e) {
-             throw new AuthenticationFailedException("IWAAuthenticator failed while trying to find user existence", e);
-         }
-         
-         if (!isAuthenticated) {
-             if (log.isDebugEnabled()) {
-                 log.debug("user authentication failed, user:" + username + " is not in the user store");
-             }
-             throw new AuthenticationFailedException("Authentication Failed");
-         }
-         username = FrameworkUtils.prependUserStoreDomainToName(username);
-         context.setSubject(username);
-	}
-    
+        try {
+            userStoreManager = (UserStoreManager) CarbonContext.getThreadLocalCarbonContext().getUserRealm()
+                    .getUserStoreManager();
+            isAuthenticated = userStoreManager.isExistingUser(MultitenantUtils.getTenantAwareUsername(username));
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new AuthenticationFailedException("IWAAuthenticator failed while trying to find user existence", e);
+        }
+
+        if (!isAuthenticated) {
+            if (log.isDebugEnabled()) {
+                log.debug("user authentication failed, user:" + username + " is not in the user store");
+            }
+            throw new AuthenticationFailedException("Authentication Failed");
+        }
+        username = FrameworkUtils.prependUserStoreDomainToName(username);
+        context.setSubject(username);
+    }
+
     public void sendToLoginPage(HttpServletRequest request, HttpServletResponse response, String ctx)
             throws AuthenticationFailedException {
         String iwaURL = null;
@@ -129,18 +127,18 @@ public class IWAAuthenticator extends AbstractApplicationAuthenticator implement
         }
     }
 
-	@Override
-	public String getContextIdentifier(HttpServletRequest request) {
+    @Override
+    public String getContextIdentifier(HttpServletRequest request) {
         return request.getParameter(IWAConstants.IWA_PARAM_STATE);
     }
 
-	@Override
-	public String getFriendlyName() {
+    @Override
+    public String getFriendlyName() {
         return AUTHENTICATOR_FRIENDLY_NAME;
     }
 
     @Override
-	public String getName() {
+    public String getName() {
         return AUTHENTICATOR_NAME;
     }
 }

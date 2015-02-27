@@ -44,18 +44,6 @@ public class OAuthCallbackHandlerRegistry {
 
     private OAuthCallbackHandler[] authzCallbackHandlers;
 
-    /**
-     * Comparator for OAuthCallbackHandler based on their priority.
-     */
-    private class OAuthAuthzCbHandlerComparator
-            implements Comparator<OAuthCallbackHandler> {
-
-        public int compare(OAuthCallbackHandler o1,
-                           OAuthCallbackHandler o2) {
-            return o1.getPriority() - o2.getPriority();
-        }
-    }
-
     private OAuthCallbackHandlerRegistry() throws IdentityOAuth2Exception {
         initAuthzCallbackHandlers();
     }
@@ -64,8 +52,8 @@ public class OAuthCallbackHandlerRegistry {
 
         CarbonUtils.checkSecurity();
 
-        if(instance == null){
-            synchronized (OAuthCallbackHandlerRegistry.class){
+        if (instance == null) {
+            synchronized (OAuthCallbackHandlerRegistry.class) {
                 if (instance == null) {
                     instance = new OAuthCallbackHandlerRegistry();
                 }
@@ -73,7 +61,6 @@ public class OAuthCallbackHandlerRegistry {
         }
         return instance;
     }
-
 
     /**
      * Initialize the OAuthAuthorizationCallbackHandlers. This is a one-time operation.
@@ -148,8 +135,8 @@ public class OAuthCallbackHandlerRegistry {
      *
      * @param authzCallback <Code>OAuthCallback</Code> object
      * @return <Code>OAuthCallbackHandler</Code> instance which can handle the
-     *         given callback, return <Code>null</Code> if there is no OAuthCallbackHandler which
-     *         can handle the given callback
+     * given callback, return <Code>null</Code> if there is no OAuthCallbackHandler which
+     * can handle the given callback
      * @throws IdentityOAuth2Exception Error while evaluating the canHandle method
      */
     public OAuthCallbackHandler getOAuthAuthzHandler(
@@ -175,5 +162,17 @@ public class OAuthCallbackHandlerRegistry {
                     " Scope : " + OAuth2Util.buildScopeString(authzCallback.getRequestedScope()));
         }
         return null;
+    }
+
+    /**
+     * Comparator for OAuthCallbackHandler based on their priority.
+     */
+    private class OAuthAuthzCbHandlerComparator
+            implements Comparator<OAuthCallbackHandler> {
+
+        public int compare(OAuthCallbackHandler o1,
+                           OAuthCallbackHandler o2) {
+            return o1.getPriority() - o2.getPriority();
+        }
     }
 }

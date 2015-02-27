@@ -18,7 +18,6 @@
 package org.wso2.carbon.identity.entitlement.policy.publisher;
 
 
-import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
@@ -33,7 +32,6 @@ import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.entitlement.EntitlementException;
-import org.wso2.carbon.identity.entitlement.EntitlementPolicyAdminService;
 import org.wso2.carbon.identity.entitlement.dto.PolicyDTO;
 import org.wso2.carbon.identity.entitlement.dto.PublisherDataHolder;
 import org.wso2.carbon.identity.entitlement.dto.PublisherPropertyDTO;
@@ -48,12 +46,9 @@ import java.util.Properties;
  */
 public class CarbonBasicPolicyPublisherModule extends AbstractPolicyPublisherModule {
 
-    private ConfigurationContext configCtx;
-
     private static final String MODULE_NAME = "Carbon Basic Auth Policy Publisher Module";
-        
-	private static Log log = LogFactory.getLog(CarbonBasicPolicyPublisherModule.class);
-
+    private static Log log = LogFactory.getLog(CarbonBasicPolicyPublisherModule.class);
+    private ConfigurationContext configCtx;
     private String serverUrl;
 
     private String serverUserName;
@@ -64,18 +59,18 @@ public class CarbonBasicPolicyPublisherModule extends AbstractPolicyPublisherMod
     public void init(PublisherDataHolder propertyHolder) throws EntitlementException {
 
         PublisherPropertyDTO[] propertyDTOs = propertyHolder.getPropertyDTOs();
-        for(PublisherPropertyDTO dto : propertyDTOs){
-            if("subscriberURL".equals(dto.getId())){
+        for (PublisherPropertyDTO dto : propertyDTOs) {
+            if ("subscriberURL".equals(dto.getId())) {
                 serverUrl = dto.getValue();
-            } else if("subscriberUserName".equals(dto.getId())){
+            } else if ("subscriberUserName".equals(dto.getId())) {
                 serverUserName = dto.getValue();
-            } else if("subscriberPassword".equals(dto.getId())){
+            } else if ("subscriberPassword".equals(dto.getId())) {
                 serverPassword = dto.getValue();
             }
         }
 
         try {
-            configCtx  = ConfigurationContextFactory.createConfigurationContextFromFileSystem(null, null);
+            configCtx = ConfigurationContextFactory.createConfigurationContextFromFileSystem(null, null);
         } catch (AxisFault axisFault) {
             log.error("Error while initializing module", axisFault);
             throw new EntitlementException("Error while initializing module", axisFault);
@@ -116,9 +111,9 @@ public class CarbonBasicPolicyPublisherModule extends AbstractPolicyPublisherMod
 
     public void publishNew(PolicyDTO policyDTO) throws EntitlementException {
 
-        String body  =  "<xsd:addPolicy xmlns:xsd=\"http://org.apache.axis2/xsd\" xmlns:xsd1=\"http://dto.entitlement.identity.carbon.wso2.org/xsd\">" +
+        String body = "<xsd:addPolicy xmlns:xsd=\"http://org.apache.axis2/xsd\" xmlns:xsd1=\"http://dto.entitlement.identity.carbon.wso2.org/xsd\">" +
                 "  <xsd:policyDTO>" +
-                "  <xsd1:active>" +Boolean.toString(policyDTO.isActive()) + "</xsd1:active>" +
+                "  <xsd1:active>" + Boolean.toString(policyDTO.isActive()) + "</xsd1:active>" +
                 "  <xsd1:policy><![CDATA[" + policyDTO.getPolicy() + "]]>  </xsd1:policy>" +
                 "  <xsd1:policyId>" + policyDTO.getPolicyId() + "</xsd1:policyId>" +
                 "  <xsd1:policyOrder>" + policyDTO.getPolicyOrder() + "</xsd1:policyOrder>" +
@@ -131,7 +126,7 @@ public class CarbonBasicPolicyPublisherModule extends AbstractPolicyPublisherMod
     @Override
     public void order(PolicyDTO policyDTO) throws EntitlementException {
 
-        String body  =  "<xsd:orderPolicy xmlns:xsd=\"http://org.apache.axis2/xsd\">" +
+        String body = "<xsd:orderPolicy xmlns:xsd=\"http://org.apache.axis2/xsd\">" +
                 "<xsd:policyId>" + policyDTO.getPolicyId() + "</xsd:policyId>" +
                 "<xsd:newOrder>" + policyDTO.getPolicyOrder() + "</xsd:newOrder>" +
                 "</xsd:orderPolicy>";
@@ -141,8 +136,8 @@ public class CarbonBasicPolicyPublisherModule extends AbstractPolicyPublisherMod
     @Override
     public void disable(PolicyDTO policyDTO) throws EntitlementException {
 
-        String body  =  "<xsd:enableDisablePolicy  xmlns:xsd=\"http://org.apache.axis2/xsd\">" +
-                "<xsd:policyId>" + policyDTO.getPolicyId() +  "</xsd:policyId>" +
+        String body = "<xsd:enableDisablePolicy  xmlns:xsd=\"http://org.apache.axis2/xsd\">" +
+                "<xsd:policyId>" + policyDTO.getPolicyId() + "</xsd:policyId>" +
                 "<xsd:enable>false</xsd:enable>" +
                 "</xsd:enableDisablePolicy>";
         doSend(body);
@@ -151,8 +146,8 @@ public class CarbonBasicPolicyPublisherModule extends AbstractPolicyPublisherMod
     @Override
     public void enable(PolicyDTO policyDTO) throws EntitlementException {
 
-        String body  =  "<xsd:enableDisablePolicy  xmlns:xsd=\"http://org.apache.axis2/xsd\">" +
-                "<xsd:policyId>" + policyDTO.getPolicyId() +  "</xsd:policyId>" +
+        String body = "<xsd:enableDisablePolicy  xmlns:xsd=\"http://org.apache.axis2/xsd\">" +
+                "<xsd:policyId>" + policyDTO.getPolicyId() + "</xsd:policyId>" +
                 "<xsd:enable>true</xsd:enable>" +
                 "</xsd:enableDisablePolicy>";
         doSend(body);
@@ -161,7 +156,7 @@ public class CarbonBasicPolicyPublisherModule extends AbstractPolicyPublisherMod
     @Override
     public void update(PolicyDTO policyDTO) throws EntitlementException {
 
-        String body  =  "<xsd:updatePolicy xmlns:xsd=\"http://org.apache.axis2/xsd\" xmlns:xsd1=\"http://dto.entitlement.identity.carbon.wso2.org/xsd\">" +
+        String body = "<xsd:updatePolicy xmlns:xsd=\"http://org.apache.axis2/xsd\" xmlns:xsd1=\"http://dto.entitlement.identity.carbon.wso2.org/xsd\">" +
                 "  <xsd:policyDTO>" +
                 "  <xsd1:policy><![CDATA[" + policyDTO.getPolicy() + "]]>  </xsd1:policy>" +
                 "  <xsd:policyId>" + policyDTO.getPolicyId() + "</xsd:policyId>" +
@@ -173,18 +168,17 @@ public class CarbonBasicPolicyPublisherModule extends AbstractPolicyPublisherMod
 
     @Override
     public void delete(PolicyDTO policyDTO) throws EntitlementException {
-        
+
         String body = "<xsd:dePromotePolicy xmlns:xsd=\"http://org.apache.axis2/xsd\">" +
                 "<xsd:policyId>" + policyDTO.getPolicyId() + "</xsd:policyId>" +
                 "</xsd:dePromotePolicy>";
         doSend(body);
     }
 
-    
 
     private void doSend(String body) throws EntitlementException {
 
-        if(serverUrl != null){
+        if (serverUrl != null) {
             serverUrl = serverUrl.trim();
             if (!serverUrl.endsWith("/")) {
                 serverUrl += "/";
@@ -193,9 +187,9 @@ public class CarbonBasicPolicyPublisherModule extends AbstractPolicyPublisherMod
 
         String serverEndPoint = serverUrl + "EntitlementPolicyAdminService";
         ServiceClient client = null;
-        try{
+        try {
             MultiThreadedHttpConnectionManager httpConnectionManager = new MultiThreadedHttpConnectionManager();
-            HttpClient httpClient = new HttpClient(httpConnectionManager);        
+            HttpClient httpClient = new HttpClient(httpConnectionManager);
             client = new ServiceClient(configCtx, null);
             Options option = client.getOptions();
             option.setManageSession(true);
@@ -216,14 +210,14 @@ public class CarbonBasicPolicyPublisherModule extends AbstractPolicyPublisherMod
             log.error("Policy publish fails due : " + e.getMessage(), e);
             throw new EntitlementException("Policy publish fails due : " + e.getMessage());
         } finally {
-            if(client != null){
-                try{
+            if (client != null) {
+                try {
                     client.cleanupTransport();
                     client.cleanup();
                 } catch (AxisFault axisFault) {
                     log.error("Error while cleaning HTTP client", axisFault);
                 }
             }
-        }        
+        }
     }
 }

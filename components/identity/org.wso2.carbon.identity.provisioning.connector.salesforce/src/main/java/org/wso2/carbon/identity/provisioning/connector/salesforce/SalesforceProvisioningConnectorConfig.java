@@ -18,34 +18,29 @@
  */
 package org.wso2.carbon.identity.provisioning.connector.salesforce;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
 
 public class SalesforceProvisioningConnectorConfig implements Serializable {
-
-    private static final long serialVersionUID = 1466757093641438420L;
-    
-    private static final Log log = LogFactory.getLog(SalesforceProvisioningConnectorConfig.class);
-    private Properties configs;
 
     public static final String SALESFORCE_LIST_USER_SIMPLE_QUERY = "SELECT Id, Alias, Email, LastName, Name, ProfileId, Username from User";
     public static final String SALESFORCE_LIST_USER_FULL_QUERY = "SELECT Id, Username, Name, Alias, Email, EmailEncodingKey, LanguageLocaleKey, LastName, LocaleSidKey, ProfileId, TimeZoneSidKey, UserPermissionsCallCenterAutoLogin, UserPermissionsMarketingUser, UserPermissionsOfflineUser from User";
     public static final String SALESFORCE_SERVICES_DATA = "/services/data/";
     public static final String SALESFORCE_ENDPOINT_QUERY = "/query";
-
     public static final String IDENTITY_PROVISIONING_CONNECTOR = "Identity.Provisioning.Connector.Salesforce.Domain.Name";
+    private static final long serialVersionUID = 1466757093641438420L;
+    private static final Log log = LogFactory.getLog(SalesforceProvisioningConnectorConfig.class);
+    private Properties configs;
 
     /**
-     * 
      * @param configs
      */
     public SalesforceProvisioningConnectorConfig(Properties configs) {
@@ -53,7 +48,6 @@ public class SalesforceProvisioningConnectorConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      */
     @SuppressWarnings("unchecked")
@@ -69,7 +63,6 @@ public class SalesforceProvisioningConnectorConfig implements Serializable {
     }
 
     /**
-     * 
      * @return
      * @throws IdentityProvisioningException
      */
@@ -88,7 +81,6 @@ public class SalesforceProvisioningConnectorConfig implements Serializable {
     }
 
     /**
-     * 
      * @param key
      * @return
      */

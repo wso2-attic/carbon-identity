@@ -71,7 +71,7 @@ public class AuthenticationRequest implements Serializable {
     /**
      * To retrieve request query params which are stored.
      *
-     * @return  A map of query parameters
+     * @return A map of query parameters
      */
     public Map<String, String[]> getRequestQueryParams() {
         return requestQueryParams;
@@ -106,21 +106,21 @@ public class AuthenticationRequest implements Serializable {
     }
 
     /**
-     * Get request headers in authentication requests
-     *
-     * @return A map of headers in authentication request
-     */
-    public Map<String, String> getRequestHeaders() {
-        return requestHeaders;
-    }
-
-    /**
      * Set the relying party of the authentication request
      *
      * @param relyingParty Relying party. Party that sends the request
      */
     public void setRelyingParty(String relyingParty) {
         this.relyingParty = relyingParty;
+    }
+
+    /**
+     * Get request headers in authentication requests
+     *
+     * @return A map of headers in authentication request
+     */
+    public Map<String, String> getRequestHeaders() {
+        return requestHeaders;
     }
 
     /**

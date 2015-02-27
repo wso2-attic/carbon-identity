@@ -23,19 +23,17 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 /**
  * Abstract representation of the UserInfoResponse. The response can be a JSON
  * or a JWT
- * 
  */
 public interface UserInfoResponseBuilder {
 
-	/**
-	 * 
-	 * @param tokenResponse 
-	 * @param claims
-	 * @return
-	 * @throws OAuthSystemException 
-	 * @throws OAuthProblemException TODO
-	 */
-	public String getResponseString(OAuth2TokenValidationResponseDTO tokenResponse)
-	                                                                               throws UserInfoEndpointException, OAuthSystemException;
+    /**
+     * @param tokenResponse
+     * @param claims
+     * @return
+     * @throws OAuthSystemException
+     * @throws OAuthProblemException TODO
+     */
+    public String getResponseString(OAuth2TokenValidationResponseDTO tokenResponse)
+            throws UserInfoEndpointException, OAuthSystemException;
 
 }

@@ -70,9 +70,9 @@ public class BulkResource {
 
             BulkResourceEndpoint bulkResourceEndpoint = new BulkResourceEndpoint();
             SCIMResponse responseString = bulkResourceEndpoint.processBulkData(resourceString,
-                                                                               inputFormat,
-                                                                               outputFormat,
-                                                                               userManager);
+                    inputFormat,
+                    outputFormat,
+                    userManager);
 
 
             return new JAXRSResponseBuilder().buildResponse(responseString);

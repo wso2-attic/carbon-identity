@@ -37,12 +37,7 @@ import org.wso2.charon.core.encoder.json.JSONEncoder;
 import org.wso2.charon.core.exceptions.CharonException;
 import org.wso2.charon.core.exceptions.FormatNotSupportedException;
 import org.wso2.charon.core.exceptions.UnauthorizedException;
-import org.wso2.charon.core.extensions.AuthenticationHandler;
-import org.wso2.charon.core.extensions.AuthenticationInfo;
-import org.wso2.charon.core.extensions.CharonManager;
-import org.wso2.charon.core.extensions.TenantDTO;
-import org.wso2.charon.core.extensions.TenantManager;
-import org.wso2.charon.core.extensions.UserManager;
+import org.wso2.charon.core.extensions.*;
 import org.wso2.charon.core.protocol.ResponseCodeConstants;
 import org.wso2.charon.core.protocol.endpoints.AbstractResourceEndpoint;
 import org.wso2.charon.core.schema.SCIMConstants;
@@ -52,40 +47,20 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class IdentitySCIMManager implements CharonManager {
+    private static final String INSTANCE = "instance";
     /*private static AuthenticationHandler authenticationHandler;
     private static AuthenticationInfo authenticationInfo;*/
     //private TenantManager tenantManager;
     private static Log log = LogFactory.getLog(IdentitySCIMManager.class);
-
     private static volatile IdentitySCIMManager identitySCIMManager;
-
     private static Map<String, Encoder> encoderMap = new HashMap<String, Encoder>();
     private static Map<String, Decoder> decoderMap = new HashMap<String, Decoder>();
     private static Map<String, Map> authenticators = new HashMap<String, Map>();
     private static Map<String, String> endpointURLs = new HashMap<String, String>();
-
     private static Map<Integer, UserManager> userManagers = new ConcurrentHashMap<Integer, UserManager>();
-    private static final String INSTANCE = "instance";
 
-    /**
-     * Perform initialization at the deployment of the webapp.
-     */
-    private void init() throws CharonException {
-        //TODO:read config and init stuff, if nothing in config, make sure to initialize default stuff.
-
-        //if no encoder/decoders provided by the configuration, register defaults.
-        encoderMap.put(SCIMConstants.JSON, new JSONEncoder());
-        decoderMap.put(SCIMConstants.JSON, new JSONDecoder());
-
-        //register encoder,decoders in AbstractResourceEndpoint, since they are called with in the API
-        registerCoders();
-
-        //Define endpoint urls to be used in Location Header
-        endpointURLs.put(SCIMConstants.USER_ENDPOINT, SCIMCommonUtils.getSCIMUserURL());
-        endpointURLs.put(SCIMConstants.GROUP_ENDPOINT, SCIMCommonUtils.getSCIMGroupURL());
-
-        //register endpoint URLs in AbstractResourceEndpoint since they are called with in the API
-        registerEndpointURLs();
+    private IdentitySCIMManager() throws CharonException {
+        init();
     }
 
     /**
@@ -109,15 +84,32 @@ public class IdentitySCIMManager implements CharonManager {
         }
     }
 
-    private IdentitySCIMManager() throws CharonException {
-        init();
+    /**
+     * Perform initialization at the deployment of the webapp.
+     */
+    private void init() throws CharonException {
+        //TODO:read config and init stuff, if nothing in config, make sure to initialize default stuff.
+
+        //if no encoder/decoders provided by the configuration, register defaults.
+        encoderMap.put(SCIMConstants.JSON, new JSONEncoder());
+        decoderMap.put(SCIMConstants.JSON, new JSONDecoder());
+
+        //register encoder,decoders in AbstractResourceEndpoint, since they are called with in the API
+        registerCoders();
+
+        //Define endpoint urls to be used in Location Header
+        endpointURLs.put(SCIMConstants.USER_ENDPOINT, SCIMCommonUtils.getSCIMUserURL());
+        endpointURLs.put(SCIMConstants.GROUP_ENDPOINT, SCIMCommonUtils.getSCIMGroupURL());
+
+        //register endpoint URLs in AbstractResourceEndpoint since they are called with in the API
+        registerEndpointURLs();
     }
 
     public Encoder getEncoder(String format) throws FormatNotSupportedException {
         if (!encoderMap.containsKey(format)) {
             //Error is logged by the caller.
             throw new FormatNotSupportedException(ResponseCodeConstants.CODE_FORMAT_NOT_SUPPORTED,
-                                                  ResponseCodeConstants.DESC_FORMAT_NOT_SUPPORTED);
+                    ResponseCodeConstants.DESC_FORMAT_NOT_SUPPORTED);
         }
         return encoderMap.get(format);
     }
@@ -126,7 +118,7 @@ public class IdentitySCIMManager implements CharonManager {
         if (!decoderMap.containsKey(format)) {
             //Error is logged by the caller.
             throw new FormatNotSupportedException(ResponseCodeConstants.CODE_FORMAT_NOT_SUPPORTED,
-                                                  ResponseCodeConstants.DESC_FORMAT_NOT_SUPPORTED);
+                    ResponseCodeConstants.DESC_FORMAT_NOT_SUPPORTED);
         }
         return decoderMap.get(format);
 
@@ -186,11 +178,11 @@ public class IdentitySCIMManager implements CharonManager {
                         PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(tenantLessUserName);
                         if (log.isDebugEnabled()) {
                             log.debug("User read from carbon context is null, hence setting " +
-                                      "authenticated user: " + tenantLessUserName);
+                                    "authenticated user: " + tenantLessUserName);
                         }
                     }
                     scimUserManager = new SCIMUserManager((UserStoreManager) userRealm.getUserStoreManager(),
-                                                          userName, claimManager);
+                            userName, claimManager);
                 }
             } else {
                 String error = "Can not obtain carbon realm service..";
@@ -245,11 +237,11 @@ public class IdentitySCIMManager implements CharonManager {
                         PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(tenantLessUserName);
                         if (log.isDebugEnabled()) {
                             log.debug("User read from carbon context is null, hence setting " +
-                                      "authenticated user: " + tenantLessUserName);
+                                    "authenticated user: " + tenantLessUserName);
                         }
                     }
                     scimUserManager = new SCIMUserManager((UserStoreManager) userRealm.getUserStoreManager(),
-                                                          userName, claimManager);
+                            userName, claimManager);
                 }
             } else {
                 String error = "Can not obtain carbon realm service..";
@@ -274,6 +266,7 @@ public class IdentitySCIMManager implements CharonManager {
     public boolean isAuthenticationSupported(String s) {
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
+
     /*This method is no longer used..*/
     public AuthenticationInfo handleAuthentication(Map<String, String> authHeaderMap)
             throws UnauthorizedException {

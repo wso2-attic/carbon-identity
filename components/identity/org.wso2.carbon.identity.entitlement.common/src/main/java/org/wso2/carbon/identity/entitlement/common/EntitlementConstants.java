@@ -69,9 +69,9 @@ public class EntitlementConstants {
         public static final String PUBLISH_POLICY = "PUBLISH_POLICY";
 
         public static final String ROLLBACK_POLICY = "ROLLBACK_POLICY";
-        
+
         public static final String[] ALL_TYPES = new String[]{ADD_POLICY, UPDATE_POLICY, GET_POLICY,
-                                DELETE_POLICY, ENABLE_POLICY, PUBLISH_POLICY, ROLLBACK_POLICY};
+                DELETE_POLICY, ENABLE_POLICY, PUBLISH_POLICY, ROLLBACK_POLICY};
     }
 
     public static final class Status {
@@ -92,7 +92,7 @@ public class EntitlementConstants {
 
         public static final String SET = "SET";
 
-        public static final String[] EDITOR_TYPES = new String[] {BASIC, STANDARD, RBAC, SET};
+        public static final String[] EDITOR_TYPES = new String[]{BASIC, STANDARD, RBAC, SET};
 
         public static final String BASIC_CATEGORY_SUBJECT = "Subject";
 
@@ -102,7 +102,7 @@ public class EntitlementConstants {
 
         public static final String BASIC_CATEGORY_RESOURCE = "Resource";
 
-        public static final String[] BASIC_CATEGORIES = new String[] {BASIC_CATEGORY_SUBJECT,
+        public static final String[] BASIC_CATEGORIES = new String[]{BASIC_CATEGORY_SUBJECT,
                 BASIC_CATEGORY_RESOURCE, BASIC_CATEGORY_ACTION, BASIC_CATEGORY_ENVIRONMENT};
 
     }

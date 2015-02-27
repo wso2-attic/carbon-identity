@@ -44,14 +44,18 @@ import java.util.Map;
 
 public class IdentityUtil {
 
-	private static Log log = LogFactory.getLog(IdentityUtil.class);
-	private static Map<String, Object> configuration = new HashMap<String, Object>();
-	private static Document importerDoc = null;
-	private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
+    private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
+    private final static char[] ppidDisplayCharMap = new char[]{'Q', 'L', '2', '3', '4', '5',
+            '6', '7', '8', '9', 'A', 'B', 'C',
+            'D', 'E', 'F', 'G', 'H', 'J', 'K',
+            'M', 'N', 'P', 'R', 'S', 'T', 'U',
+            'V', 'W', 'X', 'Y', 'Z'};
+    private static Log log = LogFactory.getLog(IdentityUtil.class);
+    private static Map<String, Object> configuration = new HashMap<String, Object>();
+    private static Document importerDoc = null;
     private static ThreadLocal<IdentityErrorMsgContext> IdentityError = new ThreadLocal<IdentityErrorMsgContext>();
 
     /**
-     *
      * @return
      */
     public static IdentityErrorMsgContext getIdentityErrorMsg() {
@@ -62,7 +66,6 @@ public class IdentityUtil {
     }
 
     /**
-     *
      * @param error
      */
     public static void setIdentityErrorMsg(IdentityErrorMsgContext error) {
@@ -72,112 +75,104 @@ public class IdentityUtil {
     /**
      *
      */
-    public static void clearIdentityErrorMsg(){
+    public static void clearIdentityErrorMsg() {
         IdentityError.remove();
     }
 
-
-
     /**
      * Read configuration elements from the identity.xml
+     *
      * @param key Element Name as specified from the parent elements in the XML structure.
      *            To read the element value of b in {@code<a><b>text</b></a>}, the property
      *            name should be passed as "a.b"
      * @return Element text value, "text" for the above element.
      */
-	public static String getProperty(String key) {
-		Object value = configuration.get(key);
-		if (value instanceof ArrayList) {
-			return (String) ((ArrayList) value).get(0);
-		}
-		return (String) value;
-	}
+    public static String getProperty(String key) {
+        Object value = configuration.get(key);
+        if (value instanceof ArrayList) {
+            return (String) ((ArrayList) value).get(0);
+        }
+        return (String) value;
+    }
 
-	public static void populateProperties() throws ServerConfigurationException {
-		configuration = IdentityConfigParser.getInstance().getConfiguration();
-	}
+    public static void populateProperties() throws ServerConfigurationException {
+        configuration = IdentityConfigParser.getInstance().getConfiguration();
+    }
 
-	private final static char[] ppidDisplayCharMap = new char[] { 'Q', 'L', '2', '3', '4', '5',
-	                                                              '6', '7', '8', '9', 'A', 'B', 'C',
-	                                                              'D', 'E', 'F', 'G', 'H', 'J', 'K',
-	                                                              'M', 'N', 'P', 'R', 'S', 'T', 'U',
-	                                                              'V', 'W', 'X', 'Y', 'Z' };
+    public static String getPPIDDisplayValue(String value) throws Exception {
+        log.info("Generating display value of PPID : " + value);
+        byte[] rawPpid = Base64.decode(value);
+        MessageDigest sha1 = MessageDigest.getInstance("SHA1");
+        sha1.update(rawPpid);
+        byte[] hashId = sha1.digest();
+        char[] returnChars = new char[10];
+        for (int i = 0; i < 10; i++) {
+            int rawValue = (hashId[i] + 128) % 32;
+            returnChars[i] = ppidDisplayCharMap[rawValue];
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(returnChars, 0, 3);
+        sb.append("-");
+        sb.append(returnChars, 3, 4);
+        sb.append("-");
+        sb.append(returnChars, 6, 3);
+        return sb.toString();
 
-	public static String getPPIDDisplayValue(String value) throws Exception {
-		log.info("Generating display value of PPID : " + value);
-		byte[] rawPpid = Base64.decode(value);
-		MessageDigest sha1 = MessageDigest.getInstance("SHA1");
-		sha1.update(rawPpid);
-		byte[] hashId = sha1.digest();
-		char[] returnChars = new char[10];
-		for (int i = 0; i < 10; i++) {
-			int rawValue = (hashId[i] + 128) % 32;
-			returnChars[i] = ppidDisplayCharMap[rawValue];
-		}
-		StringBuilder sb = new StringBuilder();
-		sb.append(returnChars, 0, 3);
-		sb.append("-");
-		sb.append(returnChars, 3, 4);
-		sb.append("-");
-		sb.append(returnChars, 6, 3);
-		return sb.toString();
+    }
 
-	}
+    /**
+     * Serialize the given node to a String.
+     *
+     * @param node Node to be serialized.
+     * @return The serialized node as a java.lang.String instance.
+     */
+    public static String nodeToString(Node node) {
 
-	/**
-	 * Serialize the given node to a String.
-	 * 
-	 * @param node
-	 *            Node to be serialized.
-	 * @return The serialized node as a java.lang.String instance.
-	 */
-	public static String nodeToString(Node node) {
+        if (importerDoc == null) {
+            OMDOMFactory fac = new OMDOMFactory();
+            importerDoc = (Document) fac.createOMDocument();
+        }
+        // Import the node as an AXIOM-DOOM node and use toSting()
+        Node axiomNode = importerDoc.importNode(node, true);
+        return axiomNode.toString();
+    }
 
-		if (importerDoc == null) {
-			OMDOMFactory fac = new OMDOMFactory();
-			importerDoc = (Document) fac.createOMDocument();
-		}
-		// Import the node as an AXIOM-DOOM node and use toSting()
-		Node axiomNode = importerDoc.importNode(node, true);
-		return axiomNode.toString();
-	}
+    public static String getHMAC(String secretKey, String baseString) throws SignatureException {
+        try {
+            SecretKeySpec key = new SecretKeySpec(secretKey.getBytes(), HMAC_SHA1_ALGORITHM);
+            Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
+            mac.init(key);
+            byte[] rawHmac = mac.doFinal(baseString.getBytes());
+            return Base64.encode(rawHmac);
+        } catch (Exception e) {
+            throw new SignatureException("Failed to generate HMAC : " + e.getMessage());
+        }
+    }
 
-	public static String getHMAC(String secretKey, String baseString) throws SignatureException {
-		try {
-			SecretKeySpec key = new SecretKeySpec(secretKey.getBytes(), HMAC_SHA1_ALGORITHM);
-			Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
-			mac.init(key);
-			byte[] rawHmac = mac.doFinal(baseString.getBytes());
-			return Base64.encode(rawHmac);
-		} catch (Exception e) {
-			throw new SignatureException("Failed to generate HMAC : " + e.getMessage());
-		}
-	}
+    /**
+     * Generates a secure random hexadecimal string using SHA1 PRNG and digest
+     *
+     * @return Random hexadecimal encoded String
+     * @throws Exception
+     */
+    public static String generateUUID() throws Exception {
 
-	/**
-	 * Generates a secure random hexadecimal string using SHA1 PRNG and digest
-	 * 
-	 * @return Random hexadecimal encoded String
-	 * @throws Exception
-	 */
-	public static String generateUUID() throws Exception {
+        try {
+            // SHA1 Pseudo Random Number Generator
+            SecureRandom prng = SecureRandom.getInstance("SHA1PRNG");
 
-		try {
-			// SHA1 Pseudo Random Number Generator
-			SecureRandom prng = SecureRandom.getInstance("SHA1PRNG");
+            // random number
+            String randomNum = Integer.toString(prng.nextInt());
+            MessageDigest sha = MessageDigest.getInstance("SHA-1");
+            byte[] digest = sha.digest(randomNum.getBytes());
 
-			// random number
-			String randomNum = Integer.toString(prng.nextInt());
-			MessageDigest sha = MessageDigest.getInstance("SHA-1");
-			byte[] digest = sha.digest(randomNum.getBytes());
+            // Hexadecimal encoding
+            return new String(Hex.encodeHex(digest));
 
-			// Hexadecimal encoding
-			return new String(Hex.encodeHex(digest));
-
-		} catch (NoSuchAlgorithmException e) {
-			throw new Exception("Failed to generate UUID ", e);
-		}
-	}
+        } catch (NoSuchAlgorithmException e) {
+            throw new Exception("Failed to generate UUID ", e);
+        }
+    }
 
     /**
      * Get the tenant id of the given user.
@@ -205,7 +200,8 @@ public class IdentityUtil {
 
     /**
      * Generates a random number using two UUIDs and HMAC-SHA1
-     * @return  Random Number generated.
+     *
+     * @return Random Number generated.
      * @throws IdentityException Exception due to Invalid Algorithm or Invalid Key
      */
     public static String getRandomNumber() throws IdentityException {
@@ -228,21 +224,21 @@ public class IdentityUtil {
             throw new IdentityException("Error when generating a random number.", e);
         }
     }
-    
-    public static int getRandomInteger() throws IdentityException{
-    	
-    	try {
-	        SecureRandom prng = SecureRandom.getInstance("SHA1PRNG");
-	        int number = prng.nextInt();
-	        while (number < 0){
-	        	number = prng.nextInt();
-	        }
-	        return number;
+
+    public static int getRandomInteger() throws IdentityException {
+
+        try {
+            SecureRandom prng = SecureRandom.getInstance("SHA1PRNG");
+            int number = prng.nextInt();
+            while (number < 0) {
+                number = prng.nextInt();
+            }
+            return number;
         } catch (NoSuchAlgorithmException e) {
-        	log.error("Error when generating a random number.", e);
+            log.error("Error when generating a random number.", e);
             throw new IdentityException("Error when generating a random number.", e);
         }
-    	
+
     }
 
 }

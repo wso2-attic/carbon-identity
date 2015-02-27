@@ -33,7 +33,7 @@ public class OAuthTokenReqMessageContext {
     private int tenantID;
 
     private long validityPeriod;
-    
+
     private Properties properties = new Properties();
 
     public OAuthTokenReqMessageContext(OAuth2AccessTokenReqDTO oauth2AccessTokenReqDTO) {
@@ -55,17 +55,17 @@ public class OAuthTokenReqMessageContext {
     public String[] getScope() {
         return scope;
     }
-    
-    public int getTenantID() {
-	return tenantID;
-    }
-
-    public void setTenantID(int tenantID) {
-	this.tenantID = tenantID;
-    }
 
     public void setScope(String[] scope) {
         this.scope = scope;
+    }
+
+    public int getTenantID() {
+        return tenantID;
+    }
+
+    public void setTenantID(int tenantID) {
+        this.tenantID = tenantID;
     }
 
     public long getValidityPeriod() {
@@ -75,12 +75,12 @@ public class OAuthTokenReqMessageContext {
     public void setValidityPeriod(long validityPeriod) {
         this.validityPeriod = validityPeriod;
     }
-    
-    public void addProperty(Object propName, Object propValue){
+
+    public void addProperty(Object propName, Object propValue) {
         properties.put(propName, propValue);
     }
-    
-    public Object getProperty(Object propName){
+
+    public Object getProperty(Object propName) {
         return properties.get(propName);
     }
 }

@@ -32,17 +32,14 @@ public interface SSOEncrypter {
 
     /**
      * Encrypt the SAML assertion
-     * @param assertion
-     *          SAML assertion to be encrypted
-     * @param cred
-     *          Encrypting credential
-     * @param alias
-     *          Certificate alias against which use to Encrypt the assertion.
-     * @param encryptionAlgorithm
-     *          Encryption algorithm
-     * @return  SAML EncryptedAssertion
+     *
+     * @param assertion           SAML assertion to be encrypted
+     * @param cred                Encrypting credential
+     * @param alias               Certificate alias against which use to Encrypt the assertion.
+     * @param encryptionAlgorithm Encryption algorithm
+     * @return SAML EncryptedAssertion
      * @throws IdentityException
      */
     public EncryptedAssertion doEncryptedAssertion(Assertion assertion, X509Credential cred, String alias,
-                                                   String encryptionAlgorithm )throws IdentityException;
+                                                   String encryptionAlgorithm) throws IdentityException;
 }

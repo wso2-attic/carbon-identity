@@ -26,11 +26,9 @@ import org.wso2.carbon.registry.core.Resource;
 
 public class PAPPolicyStoreManager {
 
-    private PAPPolicyStore store;
-
-    private PAPPolicyStoreReader storeReader;
-
     private static Log log = LogFactory.getLog(PAPPolicyStoreManager.class);
+    private PAPPolicyStore store;
+    private PAPPolicyStoreReader storeReader;
 
     public PAPPolicyStoreManager() {
         store = new PAPPolicyStore();
@@ -44,16 +42,16 @@ public class PAPPolicyStoreManager {
     public void removePolicy(String policyId) throws EntitlementException {
         store.removePolicy(policyId);
     }
-    
+
     public String[] getPolicyIds() throws EntitlementException {
         return store.getAllPolicyIds();
     }
-    
+
     public PolicyDTO getPolicy(String policyId) throws EntitlementException {
         return storeReader.readPolicyDTO(policyId);
     }
 
-    public boolean isExistPolicy(String policyId ) {
+    public boolean isExistPolicy(String policyId) {
         return storeReader.isExistPolicy(policyId);
     }
 

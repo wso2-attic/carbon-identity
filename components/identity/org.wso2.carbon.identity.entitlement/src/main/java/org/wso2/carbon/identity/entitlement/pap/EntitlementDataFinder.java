@@ -34,8 +34,8 @@ import java.util.*;
  */
 public class EntitlementDataFinder {
 
-	private static Log log = LogFactory.getLog(EntitlementDataFinder.class);
-    
+    private static Log log = LogFactory.getLog(EntitlementDataFinder.class);
+
     /**
      * List of entitlement data finder modules
      */
@@ -52,33 +52,33 @@ public class EntitlementDataFinder {
         Map<EntitlementDataFinderModule, Properties> metaDataFinderConfigs = EntitlementServiceComponent.
                 getEntitlementConfig().getPolicyEntitlementDataFinders();
         // only one module can be there.
-        if(metaDataFinderConfigs != null && !metaDataFinderConfigs.isEmpty()){
+        if (metaDataFinderConfigs != null && !metaDataFinderConfigs.isEmpty()) {
             dataFinderModules = metaDataFinderConfigs.keySet();
         }
     }
 
-    public EntitlementFinderDataHolder[] getEntitlementDataModules(){
+    public EntitlementFinderDataHolder[] getEntitlementDataModules() {
 
         List<EntitlementFinderDataHolder> dataHolders = new ArrayList<EntitlementFinderDataHolder>();
-        
-        for(EntitlementDataFinderModule module : dataFinderModules){
+
+        for (EntitlementDataFinderModule module : dataFinderModules) {
             EntitlementFinderDataHolder holder = new EntitlementFinderDataHolder();
-            
+
             String name = module.getModuleName();
-            if(name == null || name.trim().length() == 0){
+            if (name == null || name.trim().length() == 0) {
                 name = module.getClass().getName();
             }
 
             Set<String> applicationIds = module.getRelatedApplications();
-            if(applicationIds == null) {
+            if (applicationIds == null) {
                 applicationIds = new HashSet<String>();
             }
 
             Set<String> supportedCategories = module.getSupportedCategories();
-            if(supportedCategories == null) {
+            if (supportedCategories == null) {
                 supportedCategories = new HashSet<String>();
             }
-            
+
             holder.setName(name);
             holder.setApplicationIds(applicationIds.toArray(new String[applicationIds.size()]));
             holder.setFullPathSupported(module.isFullPathSupported());
@@ -94,18 +94,18 @@ public class EntitlementDataFinder {
     }
 
     public EntitlementTreeNodeDTO getEntitlementData(String dataModule, String category,
-                                                                String regex, int level, int limit){
+                                                     String regex, int level, int limit) {
 
-        for(EntitlementDataFinderModule module : dataFinderModules){
-            if(dataModule != null && dataModule.trim().equalsIgnoreCase(module.getModuleName())){
+        for (EntitlementDataFinderModule module : dataFinderModules) {
+            if (dataModule != null && dataModule.trim().equalsIgnoreCase(module.getModuleName())) {
                 try {
-                    if(level == 0){
+                    if (level == 0) {
                         return module.getEntitlementData(category, regex, limit);
                     } else {
                         return module.getEntitlementDataByLevel(category, level);
                     }
                 } catch (Exception e) {
-                    log.error("Error while retrieving entitlement data by " + dataModule , e);
+                    log.error("Error while retrieving entitlement data by " + dataModule, e);
                 }
             }
         }

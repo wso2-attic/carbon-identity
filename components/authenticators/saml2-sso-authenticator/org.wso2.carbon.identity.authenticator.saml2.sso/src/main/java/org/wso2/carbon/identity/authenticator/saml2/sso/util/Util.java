@@ -1,20 +1,21 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *  Copyright (c) 2005 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.identity.authenticator.saml2.sso.util;
 
 import org.apache.commons.logging.Log;
@@ -51,12 +52,11 @@ import java.security.cert.X509Certificate;
 
 public class Util {
 
-    private static boolean bootStrapped = false;
-    private static Log log = LogFactory.getLog(Util.class);
-
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
             Constants.SECURITY_MANAGER_PROPERTY;
     private static final int ENTITY_EXPANSION_LIMIT = 0;
+    private static boolean bootStrapped = false;
+    private static Log log = LogFactory.getLog(Util.class);
 
     /**
      * Constructing the XMLObject Object from a String
@@ -66,8 +66,8 @@ public class Util {
      * @throws org.wso2.carbon.identity.authenticator.saml2.sso.SAML2SSOAuthenticatorException
      */
     public static XMLObject unmarshall(String authReqStr) throws SAML2SSOAuthenticatorException {
-        XMLObject response;
 
+        XMLObject response;
         try {
             doBootstrap();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -88,7 +88,7 @@ public class Util {
             Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(element);
             response = unmarshaller.unmarshall(element);
             // Check for duplicate samlp:Response
-            NodeList list = response.getDOM().getElementsByTagNameNS( SAMLConstants.SAML20P_NS,"Response");
+            NodeList list = response.getDOM().getElementsByTagNameNS(SAMLConstants.SAML20P_NS, "Response");
             if (list.getLength() > 0) {
                 log.error("Invalid schema for the SAML2 reponse");
                 throw new SAML2SSOAuthenticatorException("Error occured while processing saml2 response");
@@ -115,6 +115,7 @@ public class Util {
      * is not initialized yet.
      */
     public static void doBootstrap() {
+
         if (!bootStrapped) {
             try {
                 DefaultBootstrap.bootstrap();
@@ -127,6 +128,7 @@ public class Util {
 
     /**
      * Get the X509CredentialImpl object for a particular tenant
+     *
      * @param domainName domain name
      * @return X509CredentialImpl object containing the public certificate of that tenant
      * @throws org.wso2.carbon.identity.authenticator.saml2.sso.SAML2SSOAuthenticatorException Error when creating X509CredentialImpl object
@@ -155,16 +157,19 @@ public class Util {
 
         X509CredentialImpl credentialImpl = null;
         try {
-            if (tenantID != MultitenantConstants.SUPER_TENANT_ID) {    // for non zero tenants, load private key from their generated key store
+            if (tenantID != MultitenantConstants.SUPER_TENANT_ID) {
+                // for non zero tenants, load private key from their generated key store
+
                 KeyStore keystore = keyStoreManager.getKeyStore(generateKSNameFromDomainName(domainName));
-                java.security.cert.X509Certificate cert = (java.security.cert.X509Certificate) keystore.getCertificate(domainName);
+                java.security.cert.X509Certificate cert =
+                        (java.security.cert.X509Certificate) keystore.getCertificate(domainName);
                 credentialImpl = new X509CredentialImpl(cert);
             } else {    // for tenant zero, load the cert corresponding to given alias in authenticators.xml
                 String alias = SAML2SSOAuthBEDataHolder.getInstance().getIdPCertAlias();
                 java.security.cert.X509Certificate cert = null;
                 if (alias != null) {
                     cert = (X509Certificate) keyStoreManager.getPrimaryKeyStore().getCertificate(alias);
-                    if(cert == null){
+                    if (cert == null) {
                         String errorMsg = "Cannot find a certificate with the alias " + alias +
                                 " in the default key store. Please check the 'KeyAlias' property in" +
                                 " the SSO configuration of the authenticators.xml";
@@ -186,6 +191,7 @@ public class Util {
 
     /**
      * Generate the key store name from the domain name
+     *
      * @param tenantDomain tenant domain name
      * @return key store file name
      */

@@ -14,8 +14,8 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import java.util.*;
 
 public class ClaimUtil {
-    private static Log log = LogFactory.getLog(ClaimUtil.class);
     final static String spDialect = "http://wso2.org/oidc/claim";
+    private static Log log = LogFactory.getLog(ClaimUtil.class);
 
     public static Map<String, Object> getClaimsFromUserStore(OAuth2TokenValidationResponseDTO tokenResponse) throws Exception {
         String username = tokenResponse.getAuthorizedUser();

@@ -24,7 +24,6 @@ public class OAuth2AccessTokenRespDTO {
     String tokenType;
     String accessToken;
     String refreshToken;
-    private String idToken;
     String callbackURI;
     boolean error;
     String errorCode;
@@ -32,11 +31,11 @@ public class OAuth2AccessTokenRespDTO {
     long expiresIn;
     long expiresInMillis;
     ResponseHeader[] responseHeaders;
-
     String authorizedScopes;
+    private String idToken;
 
     public ResponseHeader[] getResponseHeaders() {
-        if (responseHeaders ==null){
+        if (responseHeaders == null) {
             return new ResponseHeader[0];
         }
         return responseHeaders;
@@ -118,18 +117,18 @@ public class OAuth2AccessTokenRespDTO {
         this.expiresInMillis = expiresInMillis;
     }
 
-	/**
-	 * @return the idToken
-	 */
+    /**
+     * @return the idToken
+     */
     public String getIDToken() {
-	    return idToken;
+        return idToken;
     }
 
-	/**
-	 * @param idToken the idToken to set
-	 */
+    /**
+     * @param idToken the idToken to set
+     */
     public void setIDToken(String idToken) {
-	    this.idToken = idToken;
+        this.idToken = idToken;
     }
 
     public String getAuthorizedScopes() {

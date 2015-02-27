@@ -41,7 +41,6 @@ public class IdentityProviderDAOImpl implements IdentityProviderDAO {
     public static final String FACEBOOK_AUTH = "facebook";
 
     /**
-     * 
      * @param idpName
      * @return
      * @throws IdentityApplicationManagementException
@@ -93,23 +92,23 @@ public class IdentityProviderDAOImpl implements IdentityProviderDAO {
                         .toArray(new FederatedAuthenticatorConfig[federatedAuthenticators.size()]));
             }
 
-			List<ProvisioningConnectorConfig> provisioningConnectors = new ArrayList<ProvisioningConnectorConfig>();
+            List<ProvisioningConnectorConfig> provisioningConnectors = new ArrayList<ProvisioningConnectorConfig>();
 
-			ProvisioningConnectorConfig[] provisioningConnectorConfigs = idp.getProvisioningConnectorConfigs();
-			if (provisioningConnectorConfigs != null && provisioningConnectorConfigs.length > 0) {
-				for (ProvisioningConnectorConfig config : provisioningConnectorConfigs) {
-					if (config.isEnabled()) {
-						provisioningConnectors.add(config);
-					}
-				}
-			}
+            ProvisioningConnectorConfig[] provisioningConnectorConfigs = idp.getProvisioningConnectorConfigs();
+            if (provisioningConnectorConfigs != null && provisioningConnectorConfigs.length > 0) {
+                for (ProvisioningConnectorConfig config : provisioningConnectorConfigs) {
+                    if (config.isEnabled()) {
+                        provisioningConnectors.add(config);
+                    }
+                }
+            }
 
-			if (provisioningConnectors.size() > 0) {
-				identityProvider.setProvisioningConnectorConfigs(provisioningConnectors
-				                                                 .toArray(new ProvisioningConnectorConfig[provisioningConnectors.size()]));
-			}
+            if (provisioningConnectors.size() > 0) {
+                identityProvider.setProvisioningConnectorConfigs(provisioningConnectors
+                        .toArray(new ProvisioningConnectorConfig[provisioningConnectors.size()]));
+            }
 
-			identityProvider.setEnable(idp.isEnable());
+            identityProvider.setEnable(idp.isEnable());
 
             return identityProvider;
 
@@ -158,7 +157,7 @@ public class IdentityProviderDAOImpl implements IdentityProviderDAO {
 
     @Override
     /**
-     * 
+     *
      */
     public List<RequestPathAuthenticatorConfig> getAllRequestPathAuthenticators()
             throws IdentityApplicationManagementException {

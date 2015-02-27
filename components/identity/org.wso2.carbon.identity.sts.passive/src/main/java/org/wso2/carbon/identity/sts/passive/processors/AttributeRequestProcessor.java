@@ -17,8 +17,6 @@
 */
 package org.wso2.carbon.identity.sts.passive.processors;
 
-import java.util.Vector;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.context.MessageContext;
 import org.apache.rahas.RahasConstants;
@@ -32,6 +30,8 @@ import org.apache.ws.security.handler.WSHandlerConstants;
 import org.apache.ws.security.handler.WSHandlerResult;
 import org.wso2.carbon.identity.sts.passive.RequestToken;
 import org.wso2.carbon.identity.sts.passive.ResponseToken;
+
+import java.util.Vector;
 
 public class AttributeRequestProcessor extends RequestProcessor {
 
@@ -80,7 +80,7 @@ public class AttributeRequestProcessor extends RequestProcessor {
             reponseToken.setResults(rstr.toStringWithConsume());
 
         } catch (Exception e) {
-            throw new TrustException("errorWhileProcessingAttributeRequest",e);
+            throw new TrustException("errorWhileProcessingAttributeRequest", e);
         }
 
         return reponseToken;

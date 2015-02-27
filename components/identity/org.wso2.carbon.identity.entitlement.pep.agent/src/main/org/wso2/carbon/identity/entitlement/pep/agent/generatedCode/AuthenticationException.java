@@ -9,76 +9,7 @@ import java.util.*;
 
 
 public class AuthenticationException extends Exception implements org.apache.thrift.TBase<AuthenticationException, AuthenticationException._Fields>, java.io.Serializable, Cloneable {
-    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("AuthenticationException");
-
-    private static final org.apache.thrift.protocol.TField MESSAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("message", org.apache.thrift.protocol.TType.STRING, (short) 1);
-
-    public String message; // required
-
-    /**
-     * The set of fields this struct contains, along with convenience methods for finding and manipulating them.
-     */
-    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-        MESSAGE((short) 1, "message");
-
-        private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
-
-        static {
-            for (_Fields field : EnumSet.allOf(_Fields.class)) {
-                byName.put(field.getFieldName(), field);
-            }
-        }
-
-        /**
-         * Find the _Fields constant that matches fieldId, or null if its not found.
-         */
-        public static _Fields findByThriftId(int fieldId) {
-            switch (fieldId) {
-                case 1: // MESSAGE
-                    return MESSAGE;
-                default:
-                    return null;
-            }
-        }
-
-        /**
-         * Find the _Fields constant that matches fieldId, throwing an exception
-         * if it is not found.
-         */
-        public static _Fields findByThriftIdOrThrow(int fieldId) {
-            _Fields fields = findByThriftId(fieldId);
-            if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
-            return fields;
-        }
-
-        /**
-         * Find the _Fields constant that matches name, or null if its not found.
-         */
-        public static _Fields findByName(String name) {
-            return byName.get(name);
-        }
-
-        private final short _thriftId;
-        private final String _fieldName;
-
-        _Fields(short thriftId, String fieldName) {
-            _thriftId = thriftId;
-            _fieldName = fieldName;
-        }
-
-        public short getThriftFieldId() {
-            return _thriftId;
-        }
-
-        public String getFieldName() {
-            return _fieldName;
-        }
-    }
-
-    // isset id assignments
-
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
-
     static {
         Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
         tmpMap.put(_Fields.MESSAGE, new org.apache.thrift.meta_data.FieldMetaData("message", org.apache.thrift.TFieldRequirementType.REQUIRED,
@@ -86,6 +17,11 @@ public class AuthenticationException extends Exception implements org.apache.thr
         metaDataMap = Collections.unmodifiableMap(tmpMap);
         org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(AuthenticationException.class, metaDataMap);
     }
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("AuthenticationException");
+    private static final org.apache.thrift.protocol.TField MESSAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("message", org.apache.thrift.protocol.TType.STRING, (short) 1);
+
+    // isset id assignments
+    public String message; // required
 
     public AuthenticationException() {
     }
@@ -108,7 +44,6 @@ public class AuthenticationException extends Exception implements org.apache.thr
     public AuthenticationException deepCopy() {
         return new AuthenticationException(this);
     }
-
 
     public void clear() {
         this.message = null;
@@ -308,6 +243,65 @@ public class AuthenticationException extends Exception implements org.apache.thr
             read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
         } catch (org.apache.thrift.TException te) {
             throw new java.io.IOException(te);
+        }
+    }
+
+    /**
+     * The set of fields this struct contains, along with convenience methods for finding and manipulating them.
+     */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+        MESSAGE((short) 1, "message");
+
+        private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+        static {
+            for (_Fields field : EnumSet.allOf(_Fields.class)) {
+                byName.put(field.getFieldName(), field);
+            }
+        }
+        private final short _thriftId;
+        private final String _fieldName;
+
+        _Fields(short thriftId, String fieldName) {
+            _thriftId = thriftId;
+            _fieldName = fieldName;
+        }
+
+        /**
+         * Find the _Fields constant that matches fieldId, or null if its not found.
+         */
+        public static _Fields findByThriftId(int fieldId) {
+            switch (fieldId) {
+                case 1: // MESSAGE
+                    return MESSAGE;
+                default:
+                    return null;
+            }
+        }
+
+        /**
+         * Find the _Fields constant that matches fieldId, throwing an exception
+         * if it is not found.
+         */
+        public static _Fields findByThriftIdOrThrow(int fieldId) {
+            _Fields fields = findByThriftId(fieldId);
+            if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+            return fields;
+        }
+
+        /**
+         * Find the _Fields constant that matches name, or null if its not found.
+         */
+        public static _Fields findByName(String name) {
+            return byName.get(name);
+        }
+
+        public short getThriftFieldId() {
+            return _thriftId;
+        }
+
+        public String getFieldName() {
+            return _fieldName;
         }
     }
 

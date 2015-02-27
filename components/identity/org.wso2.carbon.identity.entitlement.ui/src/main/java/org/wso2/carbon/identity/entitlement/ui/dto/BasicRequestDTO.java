@@ -36,7 +36,7 @@ public class BasicRequestDTO {
     private String enviornement;
 
     private String userAttributeValue;
-    
+
     private String userAttributeId;
 
     public String getResources() {

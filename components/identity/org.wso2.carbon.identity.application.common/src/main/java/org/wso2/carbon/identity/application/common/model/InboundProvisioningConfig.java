@@ -18,52 +18,20 @@
 
 package org.wso2.carbon.identity.application.common.model;
 
+import org.apache.axiom.om.OMElement;
+
 import java.io.Serializable;
 import java.util.Iterator;
-
-import org.apache.axiom.om.OMElement;
 
 public class InboundProvisioningConfig implements Serializable {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -7268191162277514923L;
 
     private String provisioningUserStore;
     private boolean provisioningEnabled;
-
-    /**
-     * 
-     * @return
-     */
-    public String getProvisioningUserStore() {
-        return provisioningUserStore;
-    }
-
-    /**
-     * 
-     * @param provisioningUserStore
-     */
-    public void setProvisioningUserStore(String provisioningUserStore) {
-        this.provisioningUserStore = provisioningUserStore;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public boolean isProvisioningEnabled() {
-        return provisioningEnabled;
-    }
-
-    /**
-     * 
-     * @param provisioningEnabled
-     */
-    public void setProvisioningEnabled(boolean provisioningEnabled) {
-        this.provisioningEnabled = provisioningEnabled;
-    }
 
     /*
      * <InboundProvisioningConfig> <ProvisioningUserStore></ProvisioningUserStore>
@@ -93,6 +61,34 @@ public class InboundProvisioningConfig implements Serializable {
         }
 
         return inboundProvisioningConfig;
+    }
+
+    /**
+     * @return
+     */
+    public String getProvisioningUserStore() {
+        return provisioningUserStore;
+    }
+
+    /**
+     * @param provisioningUserStore
+     */
+    public void setProvisioningUserStore(String provisioningUserStore) {
+        this.provisioningUserStore = provisioningUserStore;
+    }
+
+    /**
+     * @return
+     */
+    public boolean isProvisioningEnabled() {
+        return provisioningEnabled;
+    }
+
+    /**
+     * @param provisioningEnabled
+     */
+    public void setProvisioningEnabled(boolean provisioningEnabled) {
+        this.provisioningEnabled = provisioningEnabled;
     }
 
 }

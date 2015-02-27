@@ -17,12 +17,6 @@
  */
 package org.wso2.carbon.identity.application.authenticator.requestpath.oauth;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
@@ -36,76 +30,81 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationRequestDTO.OAuth
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class OAuthRequestPathAuthenticator extends AbstractApplicationAuthenticator implements RequestPathApplicationAuthenticator {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private static final String AUTHORIZATION_HEADER_NAME = "Authorization";
-	private static final String BEARER_SCHEMA = "Bearer";
-	private static final String AUTHENTICATOR_NAME = "OAuthRequestPathAuthenticator";
-	private static Log log = LogFactory.getLog(OAuthRequestPathAuthenticator.class);
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+    private static final String AUTHORIZATION_HEADER_NAME = "Authorization";
+    private static final String BEARER_SCHEMA = "Bearer";
+    private static final String AUTHENTICATOR_NAME = "OAuthRequestPathAuthenticator";
+    private static Log log = LogFactory.getLog(OAuthRequestPathAuthenticator.class);
 
-	@Override
-	public boolean canHandle(HttpServletRequest request) {
-		
-		if (log.isTraceEnabled()) {
-    		log.trace("Inside canHandle()");
-    	}
-		
-		String headerValue = (String) request.getSession().getAttribute(AUTHORIZATION_HEADER_NAME);
-		
-		if (headerValue != null && !"".equals(headerValue.trim())) {
-			String[] headerPart = headerValue.trim().split(" ");
-			if (BEARER_SCHEMA.equals(headerPart[0])) {
-				return true;
-			}
-		} else if(request.getParameter("token") != null) {
-			return true;
-		}
-		
-		return false;
-	}
-	
-	@Override
-	protected void processAuthenticationResponse(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationContext context)
-			throws AuthenticationFailedException {
+    @Override
+    public boolean canHandle(HttpServletRequest request) {
 
-		String headerValue = (String) request.getSession().getAttribute(AUTHORIZATION_HEADER_NAME);
-		
-		String token = null;
-		if(headerValue != null) {
-			token = headerValue.trim().split(" ")[1];
-		} else {
-			token = request.getParameter("token");
-		}
-		
-		
-		try {
-			OAuth2TokenValidationService validationService = new OAuth2TokenValidationService();
-			OAuth2TokenValidationRequestDTO validationReqDTO = new OAuth2TokenValidationRequestDTO();
-			OAuth2AccessToken accessToken = validationReqDTO.new OAuth2AccessToken();
-			accessToken.setIdentifier(token);
-			accessToken.setTokenType("bearer");
-			validationReqDTO.setAccessToken(accessToken);
-			OAuth2TokenValidationResponseDTO validationResponse = validationService.validate(validationReqDTO);
-			
-			if(!validationResponse.isValid()) {
-				log.error("RequestPath OAuth authentication failed");
-				throw new AuthenticationFailedException("Authentication Failed");
-			}
-			
-			String user = validationResponse.getAuthorizedUser();
+        if (log.isTraceEnabled()) {
+            log.trace("Inside canHandle()");
+        }
+
+        String headerValue = (String) request.getSession().getAttribute(AUTHORIZATION_HEADER_NAME);
+
+        if (headerValue != null && !"".equals(headerValue.trim())) {
+            String[] headerPart = headerValue.trim().split(" ");
+            if (BEARER_SCHEMA.equals(headerPart[0])) {
+                return true;
+            }
+        } else if (request.getParameter("token") != null) {
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    protected void processAuthenticationResponse(HttpServletRequest request,
+                                                 HttpServletResponse response, AuthenticationContext context)
+            throws AuthenticationFailedException {
+
+        String headerValue = (String) request.getSession().getAttribute(AUTHORIZATION_HEADER_NAME);
+
+        String token = null;
+        if (headerValue != null) {
+            token = headerValue.trim().split(" ")[1];
+        } else {
+            token = request.getParameter("token");
+        }
+
+
+        try {
+            OAuth2TokenValidationService validationService = new OAuth2TokenValidationService();
+            OAuth2TokenValidationRequestDTO validationReqDTO = new OAuth2TokenValidationRequestDTO();
+            OAuth2AccessToken accessToken = validationReqDTO.new OAuth2AccessToken();
+            accessToken.setIdentifier(token);
+            accessToken.setTokenType("bearer");
+            validationReqDTO.setAccessToken(accessToken);
+            OAuth2TokenValidationResponseDTO validationResponse = validationService.validate(validationReqDTO);
+
+            if (!validationResponse.isValid()) {
+                log.error("RequestPath OAuth authentication failed");
+                throw new AuthenticationFailedException("Authentication Failed");
+            }
+
+            String user = validationResponse.getAuthorizedUser();
             String tenantDomain = MultitenantUtils.getTenantDomain(user);
-			
+
             if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
                 user = MultitenantUtils.getTenantAwareUsername(user);
             }
 
-			Map<String, Object> authProperties = context.getProperties();
+            Map<String, Object> authProperties = context.getProperties();
 
             if (authProperties == null) {
                 authProperties = new HashMap<String, Object>();
@@ -115,30 +114,30 @@ public class OAuthRequestPathAuthenticator extends AbstractApplicationAuthentica
             // TODO: user tenant domain has to be an attribute in the
             // AuthenticationContext
             authProperties.put("user-tenant-domain", tenantDomain);
-			
-			if(log.isDebugEnabled()) {
-				log.debug("Authenticated user " + user);
-			}
-			
-			context.setSubject(user);
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			throw new AuthenticationFailedException(e.getMessage(), e);
-		}
-	}
 
-	@Override
-	public String getContextIdentifier(HttpServletRequest request) {
-		return null;
-	}
+            if (log.isDebugEnabled()) {
+                log.debug("Authenticated user " + user);
+            }
 
-	@Override
-	public String getFriendlyName() {
-		return "oauth-bearer";
-	}
+            context.setSubject(user);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new AuthenticationFailedException(e.getMessage(), e);
+        }
+    }
 
-	@Override
-	public String getName() {
-		return AUTHENTICATOR_NAME;
-	}
+    @Override
+    public String getContextIdentifier(HttpServletRequest request) {
+        return null;
+    }
+
+    @Override
+    public String getFriendlyName() {
+        return "oauth-bearer";
+    }
+
+    @Override
+    public String getName() {
+        return AUTHENTICATOR_NAME;
+    }
 }

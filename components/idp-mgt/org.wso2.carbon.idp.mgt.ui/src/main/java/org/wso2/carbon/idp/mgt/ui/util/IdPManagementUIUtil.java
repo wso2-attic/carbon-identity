@@ -25,24 +25,11 @@ import org.apache.commons.fileupload.servlet.ServletRequestContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
-import org.wso2.carbon.identity.application.common.model.*;
 import org.wso2.carbon.identity.application.common.model.idp.xsd.*;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.Claim;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.ClaimConfig;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.ClaimMapping;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.JustInTimeProvisioningConfig;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.LocalRole;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.PermissionsAndRoleConfig;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.Property;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.RoleMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.ui.CarbonUIUtil;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -53,7 +40,7 @@ public class IdPManagementUIUtil {
 
     /**
      * Validates an URI.
-     * 
+     *
      * @param uriString URI String
      * @return <code>true</code> if valid URI, <code>false</code> otherwise
      */
@@ -105,7 +92,6 @@ public class IdPManagementUIUtil {
     }
 
     /**
-     * 
      * @param request
      * @return
      * @throws Exception
@@ -284,13 +270,12 @@ public class IdPManagementUIUtil {
     }
 
     /**
-     * 
      * @param fedIdp
      * @param paramMap
      * @throws IdentityApplicationManagementException
      */
     private static void buildOutboundProvisioningConfiguration(IdentityProvider fedIdp,
-            Map<String, String> paramMap) throws IdentityApplicationManagementException {
+                                                               Map<String, String> paramMap) throws IdentityApplicationManagementException {
 
         // build SPML provisioning configuration.
         buildSPMLProvisioningConfiguration(fedIdp, paramMap);
@@ -307,13 +292,12 @@ public class IdPManagementUIUtil {
     }
 
     /**
-     * 
      * @param fedIdp
      * @param paramMap
      * @throws IdentityApplicationManagementException
      */
     private static void buildSPMLProvisioningConfiguration(IdentityProvider fedIdp,
-            Map<String, String> paramMap) throws IdentityApplicationManagementException {
+                                                           Map<String, String> paramMap) throws IdentityApplicationManagementException {
 
         ProvisioningConnectorConfig proConnector = new ProvisioningConnectorConfig();
         proConnector.setName("spml");
@@ -358,8 +342,8 @@ public class IdPManagementUIUtil {
             objectClass.setValue(paramMap.get("spml-oc"));
         }
 
-        Property[] proProperties = new Property[] { userNameProp, passwordProp, endPointProp,
-                objectClass };
+        Property[] proProperties = new Property[]{userNameProp, passwordProp, endPointProp,
+                objectClass};
 
         proConnector.setProvisioningProperties(proProperties);
 
@@ -367,23 +351,22 @@ public class IdPManagementUIUtil {
 
         if (proConnector.getName() != null) {
             if (proConnectors == null || proConnectors.length == 0) {
-                fedIdp.setProvisioningConnectorConfigs((new ProvisioningConnectorConfig[] { proConnector }));
+                fedIdp.setProvisioningConnectorConfigs((new ProvisioningConnectorConfig[]{proConnector}));
             } else {
                 fedIdp.setProvisioningConnectorConfigs(concatArrays(
-                        new ProvisioningConnectorConfig[] { proConnector }, proConnectors));
+                        new ProvisioningConnectorConfig[]{proConnector}, proConnectors));
             }
         }
 
     }
 
     /**
-     * 
      * @param fedIdp
      * @param paramMap
      * @throws IdentityApplicationManagementException
      */
     private static void buildGoogleProvisioningConfiguration(IdentityProvider fedIdp,
-            Map<String, String> paramMap) throws IdentityApplicationManagementException {
+                                                             Map<String, String> paramMap) throws IdentityApplicationManagementException {
         ProvisioningConnectorConfig proConnector = new ProvisioningConnectorConfig();
         proConnector.setName("googleapps");
 
@@ -397,6 +380,8 @@ public class IdPManagementUIUtil {
         Property privateKey = null;
         Property adminEmail = null;
         Property appName = null;
+        Property googleProvPatten = null;
+        Property googleProvSeparator = null;
         String oldGooglePvtKey = null;
         String newGooglePvtKey = null;
 
@@ -487,14 +472,20 @@ public class IdPManagementUIUtil {
         }
 
         if (paramMap.get("google_prov_pattern") != null) {
-            appName = new Property();
-            appName.setName("google_prov_pattern");
-            appName.setValue(paramMap.get("google_prov_pattern"));
+            googleProvPatten = new Property();
+            googleProvPatten.setName("google_prov_pattern");
+            googleProvPatten.setValue(paramMap.get("google_prov_pattern"));
         }
 
-        Property[] proProperties = new Property[] { appName, adminEmail, privateKey,
+        if (paramMap.get("google_prov_separator") != null) {
+            googleProvSeparator = new Property();
+            googleProvSeparator.setName("google_prov_separator");
+            googleProvSeparator.setValue(paramMap.get("google_prov_separator"));
+        }
+
+        Property[] proProperties = new Property[]{appName, adminEmail, privateKey,
                 serviceAccEmail, familyNameDefault, familyNameClaim, givenNameDefaultVal,
-                givenNameClaim, emailClaim, domainName };
+                givenNameClaim, emailClaim, domainName, googleProvPatten, googleProvSeparator};
 
         proConnector.setProvisioningProperties(proProperties);
 
@@ -502,22 +493,21 @@ public class IdPManagementUIUtil {
 
         if (proConnector.getName() != null) {
             if (proConnectors == null || proConnectors.length == 0) {
-                fedIdp.setProvisioningConnectorConfigs(new ProvisioningConnectorConfig[] { proConnector });
+                fedIdp.setProvisioningConnectorConfigs(new ProvisioningConnectorConfig[]{proConnector});
             } else {
                 fedIdp.setProvisioningConnectorConfigs(concatArrays(
-                        new ProvisioningConnectorConfig[] { proConnector }, proConnectors));
+                        new ProvisioningConnectorConfig[]{proConnector}, proConnectors));
             }
         }
     }
 
     /**
-     * 
      * @param fedIdp
      * @param paramMap
      * @throws IdentityApplicationManagementException
      */
     private static void buildSCIMProvisioningConfiguration(IdentityProvider fedIdp,
-            Map<String, String> paramMap) throws IdentityApplicationManagementException {
+                                                           Map<String, String> paramMap) throws IdentityApplicationManagementException {
         ProvisioningConnectorConfig proConnector = new ProvisioningConnectorConfig();
         proConnector.setName("scim");
 
@@ -568,8 +558,8 @@ public class IdPManagementUIUtil {
             scimUserStoreDomain.setValue(paramMap.get("scim-user-store-domain"));
         }
 
-        Property[] proProperties = new Property[] { userNameProp, passwordProp, userEpProp,
-                groupEpProp, scimUserStoreDomain };
+        Property[] proProperties = new Property[]{userNameProp, passwordProp, userEpProp,
+                groupEpProp, scimUserStoreDomain};
 
         proConnector.setProvisioningProperties(proProperties);
 
@@ -577,23 +567,22 @@ public class IdPManagementUIUtil {
 
         if (proConnector.getName() != null) {
             if (proConnectors == null || proConnectors.length == 0) {
-                fedIdp.setProvisioningConnectorConfigs(new ProvisioningConnectorConfig[] { proConnector });
+                fedIdp.setProvisioningConnectorConfigs(new ProvisioningConnectorConfig[]{proConnector});
             } else {
                 fedIdp.setProvisioningConnectorConfigs(concatArrays(
-                        new ProvisioningConnectorConfig[] { proConnector }, proConnectors));
+                        new ProvisioningConnectorConfig[]{proConnector}, proConnectors));
             }
         }
 
     }
 
     /**
-     * 
      * @param fedIdp
      * @param paramMap
      * @throws IdentityApplicationManagementException
      */
     private static void buildSalesforceProvisioningConfiguration(IdentityProvider fedIdp,
-            Map<String, String> paramMap) throws IdentityApplicationManagementException {
+                                                                 Map<String, String> paramMap) throws IdentityApplicationManagementException {
 
         ProvisioningConnectorConfig proConnector = new ProvisioningConnectorConfig();
         proConnector.setName("salesforce");
@@ -605,6 +594,9 @@ public class IdPManagementUIUtil {
         Property apiVersionProp = null;
         Property domainNameProp = null;
         Property tokenEndpointProp = null;
+        Property provisioningPattern = null;
+        Property provisioningSeparator = null;
+        Property provisioningDomain = null;
 
         if (paramMap.get("sfProvEnabled") != null && "on".equals(paramMap.get("sfProvEnabled"))) {
             proConnector.setEnabled(true);
@@ -666,8 +658,27 @@ public class IdPManagementUIUtil {
             tokenEndpointProp.setValue(paramMap.get("sf-token-endpoint"));
         }
 
-        Property[] proProperties = new Property[] { userNameProp, passwordProp, clentIdProp,
-                clientSecretProp, apiVersionProp, domainNameProp, tokenEndpointProp };
+        if (paramMap.get("sf-prov-pattern") != null) {
+            provisioningPattern = new Property();
+            provisioningPattern.setName("sf-prov-pattern");
+            provisioningPattern.setValue(paramMap.get("sf-prov-pattern"));
+        }
+
+        if (paramMap.get("sf-prov-separator") != null) {
+            provisioningSeparator = new Property();
+            provisioningSeparator.setName("sf-prov-separator");
+            provisioningSeparator.setValue(paramMap.get("sf-prov-separator"));
+        }
+
+        if (paramMap.get("sf-prov-domainName") != null) {
+            provisioningDomain = new Property();
+            provisioningDomain.setName("sf-prov-domainName");
+            provisioningDomain.setValue(paramMap.get("sf-prov-domainName"));
+        }
+
+        Property[] proProperties = new Property[]{userNameProp, passwordProp, clentIdProp,
+                clientSecretProp, apiVersionProp, domainNameProp, tokenEndpointProp, provisioningPattern,
+                provisioningSeparator, provisioningDomain};
 
         proConnector.setProvisioningProperties(proProperties);
 
@@ -675,29 +686,28 @@ public class IdPManagementUIUtil {
 
         if (proConnector.getName() != null) {
             if (proConnectors == null || proConnectors.length == 0) {
-                fedIdp.setProvisioningConnectorConfigs(new ProvisioningConnectorConfig[] { proConnector });
+                fedIdp.setProvisioningConnectorConfigs(new ProvisioningConnectorConfig[]{proConnector});
             } else {
                 fedIdp.setProvisioningConnectorConfigs(concatArrays(
-                        new ProvisioningConnectorConfig[] { proConnector }, proConnectors));
+                        new ProvisioningConnectorConfig[]{proConnector}, proConnectors));
             }
         }
     }
 
     /**
-     * 
      * @param fedIdp
      * @param paramMap
      * @throws IdentityApplicationManagementException
      */
     private static void buildClaimConfiguration(IdentityProvider fedIdp,
-            Map<String, String> paramMap, List<String> idpClaims, ClaimMapping[] currentClaimMapping)
+                                                Map<String, String> paramMap, List<String> idpClaims, ClaimMapping[] currentClaimMapping)
             throws IdentityApplicationManagementException {
 
         ClaimConfig claimConfiguration = new ClaimConfig();
 
         if (idpClaims != null && idpClaims.size() > 0) {
             List<Claim> idPClaimList = new ArrayList<Claim>();
-            for (Iterator<String> iterator = idpClaims.iterator(); iterator.hasNext();) {
+            for (Iterator<String> iterator = idpClaims.iterator(); iterator.hasNext(); ) {
                 String claimUri = iterator.next();
                 Claim idpClaim = new Claim();
                 idpClaim.setClaimUri(claimUri);
@@ -715,7 +725,7 @@ public class IdPManagementUIUtil {
     }
 
     private static ClaimConfig claimMappingFromUI(ClaimConfig claimConfiguration,
-            Map<String, String> paramMap) {
+                                                  Map<String, String> paramMap) {
         Set<ClaimMapping> claimMappingList = new HashSet<ClaimMapping>();
         HashMap<String, String> advancedMapping = new HashMap<String, String>();
 
@@ -732,7 +742,7 @@ public class IdPManagementUIUtil {
                     advancedMapping.put(paramMap.get("advancnedIdpClaim_" + i),
                             paramMap.get("advancedDefault_" + i));
                 } else { // if default value is not set. But still it is under advanced claim
-                         // mapping
+                    // mapping
                     advancedMapping.put(paramMap.get("advancnedIdpClaim_" + i), "");
                 }
             }
@@ -803,7 +813,7 @@ public class IdPManagementUIUtil {
     }
 
     private static void claimMappingFromFile(ClaimConfig claimConfiguration,
-            String claimMappingFromFile) {
+                                             String claimMappingFromFile) {
         String[] claimMappings;
         claimMappings = claimMappingFromFile.replaceAll("\\s", "").split(",");
 
@@ -838,7 +848,6 @@ public class IdPManagementUIUtil {
     }
 
     /**
-     * 
      * @param fedIdp
      * @param paramMap
      */
@@ -901,13 +910,12 @@ public class IdPManagementUIUtil {
     }
 
     /**
-     * 
      * @param fedIdp
      * @param paramMap
      * @throws IdentityApplicationManagementException
      */
     private static void buildOutboundAuthenticationConfiguration(IdentityProvider fedIdp,
-            Map<String, String> paramMap) throws IdentityApplicationManagementException {
+                                                                 Map<String, String> paramMap) throws IdentityApplicationManagementException {
         // build OpenID authentication configuration.
         buildOpenIDAuthenticationConfiguration(fedIdp, paramMap);
 
@@ -926,13 +934,12 @@ public class IdPManagementUIUtil {
     }
 
     /**
-     * 
      * @param fedIdp
      * @param paramMap
      * @throws IdentityApplicationManagementException
      */
     private static void buildOpenIDAuthenticationConfiguration(IdentityProvider fedIdp,
-            Map<String, String> paramMap) throws IdentityApplicationManagementException {
+                                                               Map<String, String> paramMap) throws IdentityApplicationManagementException {
 
         FederatedAuthenticatorConfig openIdAuthnConfig = new FederatedAuthenticatorConfig();
         openIdAuthnConfig.setName("OpenIDAuthenticator");
@@ -983,22 +990,21 @@ public class IdPManagementUIUtil {
         if (paramMap.get("openIdUrl") != null && !"".equals(paramMap.get("openIdUrl"))) {
             // openIdUrl is mandatory for out-bound openid configuration.
             if (authenticators == null || authenticators.length == 0) {
-                fedIdp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[] { openIdAuthnConfig });
+                fedIdp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[]{openIdAuthnConfig});
             } else {
                 fedIdp.setFederatedAuthenticatorConfigs(concatArrays(
-                        new FederatedAuthenticatorConfig[] { openIdAuthnConfig }, authenticators));
+                        new FederatedAuthenticatorConfig[]{openIdAuthnConfig}, authenticators));
             }
         }
     }
 
     /**
-     * 
      * @param fedIdp
      * @param paramMap
      * @throws IdentityApplicationManagementException
      */
     private static void buildFacebookAuthenticationConfiguration(IdentityProvider fedIdp,
-            Map<String, String> paramMap) throws IdentityApplicationManagementException {
+                                                                 Map<String, String> paramMap) throws IdentityApplicationManagementException {
 
         FederatedAuthenticatorConfig facebookAuthnConfig = new FederatedAuthenticatorConfig();
         facebookAuthnConfig.setName("FacebookAuthenticator");
@@ -1038,22 +1044,21 @@ public class IdPManagementUIUtil {
                 && !"".equals(paramMap.get("fbClientSecret"))) {
             // facebook authenticator cannot exist without client id and client secret.
             if (authenticators == null || authenticators.length == 0) {
-                fedIdp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[] { facebookAuthnConfig });
+                fedIdp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[]{facebookAuthnConfig});
             } else {
                 fedIdp.setFederatedAuthenticatorConfigs(concatArrays(
-                        new FederatedAuthenticatorConfig[] { facebookAuthnConfig }, authenticators));
+                        new FederatedAuthenticatorConfig[]{facebookAuthnConfig}, authenticators));
             }
         }
     }
 
     /**
-     * 
      * @param fedIdp
      * @param paramMap
      * @throws IdentityApplicationManagementException
      */
     private static void buildOpenIDConnectAuthenticationConfiguration(IdentityProvider fedIdp,
-            Map<String, String> paramMap) throws IdentityApplicationManagementException {
+                                                                      Map<String, String> paramMap) throws IdentityApplicationManagementException {
 
         FederatedAuthenticatorConfig oidcAuthnConfig = new FederatedAuthenticatorConfig();
         oidcAuthnConfig.setName("OpenIDConnectAuthenticator");
@@ -1116,22 +1121,21 @@ public class IdPManagementUIUtil {
                 && paramMap.get("clientId") != null && !"".equals(paramMap.get("clientId"))
                 && paramMap.get("clientSecret") != null && !"".equals(paramMap.get("clientSecret"))) {
             if (authenticators == null || authenticators.length == 0) {
-                fedIdp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[] { oidcAuthnConfig });
+                fedIdp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[]{oidcAuthnConfig});
             } else {
                 fedIdp.setFederatedAuthenticatorConfigs(concatArrays(
-                        new FederatedAuthenticatorConfig[] { oidcAuthnConfig }, authenticators));
+                        new FederatedAuthenticatorConfig[]{oidcAuthnConfig}, authenticators));
             }
         }
     }
 
     /**
-     * 
      * @param fedIdp
      * @param paramMap
      * @throws IdentityApplicationManagementException
      */
     private static void buildPassiveSTSAuthenticationConfiguration(IdentityProvider fedIdp,
-            Map<String, String> paramMap) throws IdentityApplicationManagementException {
+                                                                   Map<String, String> paramMap) throws IdentityApplicationManagementException {
 
         FederatedAuthenticatorConfig passiveSTSAuthnConfig = new FederatedAuthenticatorConfig();
         passiveSTSAuthnConfig.setName("PassiveSTSAuthenticator");
@@ -1181,10 +1185,10 @@ public class IdPManagementUIUtil {
 
         if (paramMap.get("passiveSTSUrl") != null && !"".equals(paramMap.get("passiveSTSUrl"))) {
             if (authenticators == null || authenticators.length == 0) {
-                fedIdp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[] { passiveSTSAuthnConfig });
+                fedIdp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[]{passiveSTSAuthnConfig});
             } else {
                 fedIdp.setFederatedAuthenticatorConfigs(concatArrays(
-                        new FederatedAuthenticatorConfig[] { passiveSTSAuthnConfig },
+                        new FederatedAuthenticatorConfig[]{passiveSTSAuthnConfig},
                         authenticators));
             }
         }
@@ -1192,8 +1196,8 @@ public class IdPManagementUIUtil {
     }
 
     private static void buildCustomProvisioningConfiguration(IdentityProvider fedIdp,
-            List<String> proConnectorNames, Map<String, List<Property>> customProProperties,
-            Map<String, String> paramMap) throws IdentityApplicationManagementException {
+                                                             List<String> proConnectorNames, Map<String, List<Property>> customProProperties,
+                                                             Map<String, String> paramMap) throws IdentityApplicationManagementException {
 
         if (proConnectorNames != null && proConnectorNames.size() > 0) {
 
@@ -1235,14 +1239,13 @@ public class IdPManagementUIUtil {
     }
 
     /**
-     * 
      * @param fedIdp
      * @param paramMap
      * @throws IdentityApplicationManagementException
      */
     private static void buildCustomAuthenticationConfiguration(IdentityProvider fedIdp,
-            List<String> authenticatorNames,
-            Map<String, List<Property>> customAuthenticatorProperties, Map<String, String> paramMap)
+                                                               List<String> authenticatorNames,
+                                                               Map<String, List<Property>> customAuthenticatorProperties, Map<String, String> paramMap)
             throws IdentityApplicationManagementException {
 
         if (authenticatorNames != null && authenticatorNames.size() > 0) {
@@ -1288,13 +1291,12 @@ public class IdPManagementUIUtil {
     }
 
     /**
-     * 
      * @param fedIdp
      * @param paramMap
      * @throws IdentityApplicationManagementException
      */
     private static void buildSAMLAuthenticationConfiguration(IdentityProvider fedIdp,
-            Map<String, String> paramMap) throws IdentityApplicationManagementException {
+                                                             Map<String, String> paramMap) throws IdentityApplicationManagementException {
 
         FederatedAuthenticatorConfig saml2SSOAuthnConfig = new FederatedAuthenticatorConfig();
         saml2SSOAuthnConfig.setName("SAMLSSOAuthenticator");
@@ -1401,7 +1403,7 @@ public class IdPManagementUIUtil {
         }
 
         properties[11] = property;
-        
+
         property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.REQUEST_METHOD);
         property.setValue(paramMap
@@ -1415,16 +1417,15 @@ public class IdPManagementUIUtil {
         if (paramMap.get("ssoUrl") != null && !"".equals(paramMap.get("ssoUrl"))
                 && paramMap.get("idPEntityId") != null && !"".equals(paramMap.get("idPEntityId"))) {
             if (authenticators == null || authenticators.length == 0) {
-                fedIdp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[] { saml2SSOAuthnConfig });
+                fedIdp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[]{saml2SSOAuthnConfig});
             } else {
                 fedIdp.setFederatedAuthenticatorConfigs(concatArrays(
-                        new FederatedAuthenticatorConfig[] { saml2SSOAuthnConfig }, authenticators));
+                        new FederatedAuthenticatorConfig[]{saml2SSOAuthnConfig}, authenticators));
             }
         }
     }
 
     /**
-     * 
      * @param fedIdp
      * @param paramMap
      * @param idpRoles
@@ -1433,7 +1434,7 @@ public class IdPManagementUIUtil {
      */
 
     private static void buildRoleConfiguration(IdentityProvider fedIdp,
-            Map<String, String> paramMap, List<String> idpRoles, RoleMapping[] currentRoleMapping)
+                                               Map<String, String> paramMap, List<String> idpRoles, RoleMapping[] currentRoleMapping)
             throws IdentityApplicationManagementException {
 
         PermissionsAndRoleConfig roleConfiguration = new PermissionsAndRoleConfig();
@@ -1486,13 +1487,12 @@ public class IdPManagementUIUtil {
     }
 
     /**
-     * 
      * @param fedIdp
      * @param paramMap
      * @throws IdentityApplicationManagementException
      */
     private static void buildInboundProvisioningConfiguration(IdentityProvider fedIdp,
-            Map<String, String> paramMap) throws IdentityApplicationManagementException {
+                                                              Map<String, String> paramMap) throws IdentityApplicationManagementException {
 
         String provisioning = paramMap.get("provisioning");
         JustInTimeProvisioningConfig jitProvisioningConfiguration = new JustInTimeProvisioningConfig();
@@ -1519,13 +1519,12 @@ public class IdPManagementUIUtil {
     }
 
     /**
-     * 
      * @param o1
      * @param o2
      * @return
      */
     private static ProvisioningConnectorConfig[] concatArrays(ProvisioningConnectorConfig[] o1,
-            ProvisioningConnectorConfig[] o2) {
+                                                              ProvisioningConnectorConfig[] o2) {
         ProvisioningConnectorConfig[] ret = new ProvisioningConnectorConfig[o1.length + o2.length];
 
         System.arraycopy(o1, 0, ret, 0, o1.length);
@@ -1535,13 +1534,12 @@ public class IdPManagementUIUtil {
     }
 
     /**
-     * 
      * @param o1
      * @param o2
      * @return
      */
     private static FederatedAuthenticatorConfig[] concatArrays(FederatedAuthenticatorConfig[] o1,
-            FederatedAuthenticatorConfig[] o2) {
+                                                               FederatedAuthenticatorConfig[] o2) {
         FederatedAuthenticatorConfig[] ret = new FederatedAuthenticatorConfig[o1.length + o2.length];
 
         System.arraycopy(o1, 0, ret, 0, o1.length);

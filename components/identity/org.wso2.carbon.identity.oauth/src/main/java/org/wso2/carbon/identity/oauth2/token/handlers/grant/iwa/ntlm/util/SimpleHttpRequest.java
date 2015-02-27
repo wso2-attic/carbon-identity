@@ -71,9 +71,19 @@ public class SimpleHttpRequest extends Request {
         return _method;
     }
 
+    // @Override
+    public void setMethod(String methodName) {
+        _method = methodName;
+    }
+
     @Override
     public int getContentLength() {
         return _content == null ? -1 : _content.length;
+    }
+
+    // @Override
+    public void setContentLength(int length) {
+        _content = new byte[length];
     }
 
     @Override
@@ -81,23 +91,13 @@ public class SimpleHttpRequest extends Request {
         return _remotePort;
     }
 
-   // @Override
-    public void setMethod(String methodName) {
-        _method = methodName;
-    }
-
-   // @Override
-    public void setContentLength(int length) {
-        _content = new byte[length];
+    @Override
+    public String getRemoteUser() {
+        return _remoteUser;
     }
 
     public void setRemoteUser(String username) {
         _remoteUser = username;
-    }
-
-    @Override
-    public String getRemoteUser() {
-        return _remoteUser;
     }
 
     @Override
@@ -130,14 +130,14 @@ public class SimpleHttpRequest extends Request {
         }
     }
 
-    //@Override
-    public void setRequestURI(String uri) {
-        _requestURI = uri;
-    }
-
     @Override
     public String getRequestURI() {
         return _requestURI;
+    }
+
+    //@Override
+    public void setRequestURI(String uri) {
+        _requestURI = uri;
     }
 
     @Override

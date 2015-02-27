@@ -19,29 +19,34 @@ package org.wso2.carbon.identity.provider.dto;
 
 public class OpenIDSignInDTO {
 
-	private boolean authenticated;
+    private boolean authenticated;
 
-	private String userID;
+    private String userID;
 
-	private String openID;
+    private String openID;
 
-	public String getOpenID() {
-		return openID;
-	}
-	public void setOpenID(String openID) {
-		this.openID = openID;
-	}
-	public boolean isAuthenticated() {
-		return authenticated;
-	}
-	public void setAuthenticated(boolean authenticated) {
-		this.authenticated = authenticated;
-	}
-	public String getUserID() {
-		return userID;
-	}
-	public void setUserID(String userID) {
-		this.userID = userID;
-	}
+    public String getOpenID() {
+        return openID;
+    }
+
+    public void setOpenID(String openID) {
+        this.openID = openID;
+    }
+
+    public boolean isAuthenticated() {
+        return authenticated;
+    }
+
+    public void setAuthenticated(boolean authenticated) {
+        this.authenticated = authenticated;
+    }
+
+    public String getUserID() {
+        return userID;
+    }
+
+    public void setUserID(String userID) {
+        this.userID = userID;
+    }
 
 }

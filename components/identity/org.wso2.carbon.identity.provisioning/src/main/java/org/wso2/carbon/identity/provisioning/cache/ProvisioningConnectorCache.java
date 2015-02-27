@@ -28,7 +28,6 @@ public class ProvisioningConnectorCache extends BaseCache<CacheKey, CacheEntry> 
     private static volatile ProvisioningConnectorCache instance;
 
     /**
-     * 
      * @param cacheName
      */
     private ProvisioningConnectorCache(String cacheName) {
@@ -36,7 +35,6 @@ public class ProvisioningConnectorCache extends BaseCache<CacheKey, CacheEntry> 
     }
 
     /**
-     *
      * @return
      */
     public static ProvisioningConnectorCache getInstance() {

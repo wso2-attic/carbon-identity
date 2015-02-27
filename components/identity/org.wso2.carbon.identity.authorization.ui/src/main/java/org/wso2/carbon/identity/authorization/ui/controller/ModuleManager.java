@@ -18,107 +18,100 @@
 
 package org.wso2.carbon.identity.authorization.ui.controller;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.authorization.core.dto.xsd.PermissionGroup;
 import org.wso2.carbon.identity.authorization.core.dto.xsd.RolePermission;
 import org.wso2.carbon.identity.authorization.ui.IdentityAuthorizationClient;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.*;
+import java.util.Map.Entry;
+
 public class ModuleManager extends BaseServlet {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+    private static final String ADD = "add";
+    private static final String EDIT = "edit";
+    private static final String DELETE = "delete";
+    private static Log log = LogFactory.getLog(ModuleManager.class);
 
-	private static Log log = LogFactory.getLog(ModuleManager.class);
+    @Override
+    protected void doProcess(HttpServletRequest req, HttpServletResponse resp,
+                             IdentityAuthorizationClient client) {
+        String operation = req.getParameter("op");
+        if (ADD.equals(operation)) {
+            List<PermissionGroup> groups = mapParameters(req);
+            // client.savePermissions(groups);
 
-	private static final String ADD = "add";
-	private static final String EDIT = "edit";
-	private static final String DELETE = "delete";
+        }
+    }
 
-	@Override
-	protected void doProcess(HttpServletRequest req, HttpServletResponse resp,
-	                         IdentityAuthorizationClient client) {
-		String operation = req.getParameter("op");
-		if (ADD.equals(operation)) {
-			List<PermissionGroup> groups = mapParameters(req);
-			// client.savePermissions(groups);
+    private List<PermissionGroup> mapParameters(HttpServletRequest req) {
 
-		}
-	}
+        String module = req.getParameter("permModule_1");
+        int index = 1;
 
-	private List<PermissionGroup> mapParameters(HttpServletRequest req) {
+        Map<String, PermissionGroup> permGroupMap = new HashMap<String, PermissionGroup>();
+        Map<String, List<RolePermission>> rolePermissionMap =
+                new HashMap<String, List<RolePermission>>();
 
-		String module = req.getParameter("permModule_1");
-		int index = 1;
+        while (module != null) {
 
-		Map<String, PermissionGroup> permGroupMap = new HashMap<String, PermissionGroup>();
-		Map<String, List<RolePermission>> rolePermissionMap =
-		                                                      new HashMap<String, List<RolePermission>>();
+            String resource = req.getParameter("permResource_" + index);
+            String action = req.getParameter("permAction_" + index);
 
-		while (module != null) {
+            PermissionGroup group = null;
+            String key = module + resource + action;
+            if (permGroupMap.containsKey(key)) {
+                group = permGroupMap.get(key);
+            } else {
+                group = new PermissionGroup();
+                group.setAction(action);
+                group.setResource(resource);
+                permGroupMap.put(key, group);
+            }
 
-			String resource = req.getParameter("permResource_" + index);
-			String action = req.getParameter("permAction_" + index);
+            List<RolePermission> permissionList = null;
+            if (rolePermissionMap.containsKey(key)) {
+                permissionList = rolePermissionMap.get(key);
+            } else {
+                permissionList = new ArrayList<RolePermission>();
+                rolePermissionMap.put(key, permissionList);
+            }
 
-			PermissionGroup group = null;
-			String key = module + resource + action;
-			if (permGroupMap.containsKey(key)) {
-				group = permGroupMap.get(key);
-			} else {
-				group = new PermissionGroup();
-				group.setAction(action);
-				group.setResource(resource);
-				permGroupMap.put(key, group);
-			}
+            String[] roleNames = req.getParameter("permRole_" + index).split(",");
+            for (String role : roleNames) {
+                RolePermission rolePerm = new RolePermission();
+                rolePerm.setRoleName(role);
+                rolePerm.setAuthorized(true);
 
-			List<RolePermission> permissionList = null;
-			if (rolePermissionMap.containsKey(key)) {
-				permissionList = rolePermissionMap.get(key);
-			} else {
-				permissionList = new ArrayList<RolePermission>();
-				rolePermissionMap.put(key, permissionList);
-			}
+                permissionList.add(rolePerm);
+            }
 
-			String[] roleNames = req.getParameter("permRole_" + index).split(",");
-			for (String role : roleNames) {
-				RolePermission rolePerm = new RolePermission();
-				rolePerm.setRoleName(role);
-				rolePerm.setAuthorized(true);
+            ++index;
+            module = req.getParameter("permModule_" + index);
 
-				permissionList.add(rolePerm);
-			}
+        }
 
-			++index;
-			module = req.getParameter("permModule_" + index);
+        List<PermissionGroup> groupList = new ArrayList<PermissionGroup>();
 
-		}
+        Set<Entry<String, PermissionGroup>> entrySet = permGroupMap.entrySet();
+        for (Entry<String, PermissionGroup> entry : entrySet) {
+            List<RolePermission> roles = rolePermissionMap.get(entry.getKey());
+            if (roles != null) {
+                entry.getValue()
+                        .setRolePermissions(roles.toArray(new RolePermission[roles.size()]));
+                groupList.add(entry.getValue());
+            }
+        }
 
-		List<PermissionGroup> groupList = new ArrayList<PermissionGroup>();
+        return groupList;
 
-		Set<Entry<String, PermissionGroup>> entrySet = permGroupMap.entrySet();
-		for (Entry<String, PermissionGroup> entry : entrySet) {
-			List<RolePermission> roles = rolePermissionMap.get(entry.getKey());
-			if (roles != null) {
-				entry.getValue()
-				     .setRolePermissions(roles.toArray(new RolePermission[roles.size()]));
-				groupList.add(entry.getValue());
-			}
-		}
-
-		return groupList;
-
-	}
+    }
 
 }

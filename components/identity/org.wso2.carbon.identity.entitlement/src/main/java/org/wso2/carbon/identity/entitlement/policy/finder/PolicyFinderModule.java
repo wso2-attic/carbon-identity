@@ -64,7 +64,7 @@ public interface PolicyFinderModule {
     /**
      * initializes policy manage module
      *
-	 * @param properties Properties, that need to initialize the module
+     * @param properties Properties, that need to initialize the module
      * @throws Exception throws when initialization is failed
      */
     public void init(Properties properties) throws Exception;
@@ -79,7 +79,6 @@ public interface PolicyFinderModule {
     /**
      * gets all supported active policies. policies are fetched as Strings.
      * if policy ordering is supported by module itself, these policies must be ordered.
-     *
      *
      * @return array of policies as Strings
      */
@@ -96,7 +95,7 @@ public interface PolicyFinderModule {
     /**
      * gets policy for given policy Id
      *
-     * @param policyId  policy id as String value
+     * @param policyId policy id as String value
      * @return policy as String
      */
     public String getPolicy(String policyId);
@@ -104,19 +103,19 @@ public interface PolicyFinderModule {
 
     /**
      * gets reference policy for given policy Id
-     *
+     * <p/>
      * reference policy can not be with PDP policy store,  may be in some external policy store
      * Therefore new method has been add for retrieve reference policies
      *
-     * @param policyId  policy id as String value
+     * @param policyId policy id as String value
      * @return reference policy as String
      */
-    public String getReferencedPolicy(String policyId);    
+    public String getReferencedPolicy(String policyId);
 
     /**
      * gets attributes that are used for policy searching
      *
-     * @param identifier unique identifier to separate out search attributes
+     * @param identifier     unique identifier to separate out search attributes
      * @param givenAttribute pre-given attributes to retrieve other attributes
      * @return return search attributes based on a given policy.  Map of policy id with search attributes.
      */

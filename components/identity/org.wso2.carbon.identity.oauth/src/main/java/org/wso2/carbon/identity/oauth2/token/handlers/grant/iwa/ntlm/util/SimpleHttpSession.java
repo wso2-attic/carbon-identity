@@ -64,6 +64,11 @@ public class SimpleHttpSession implements HttpSession {
     }
 
     @Override
+    public void setMaxInactiveInterval(int arg0) {
+
+    }
+
+    @Override
     public ServletContext getServletContext() {
         return null;
     }
@@ -110,10 +115,5 @@ public class SimpleHttpSession implements HttpSession {
     @Override
     public void setAttribute(String attributeName, Object attributeValue) {
         _attributes.put(attributeName, attributeValue);
-    }
-
-    @Override
-    public void setMaxInactiveInterval(int arg0) {
-
     }
 }

@@ -27,27 +27,23 @@ import org.wso2.carbon.user.core.service.RealmService;
 /**
  * @scr.component name="usermgt.component"" immediate="true"
  * @scr.reference name="registry.service"
- *                interface="org.wso2.carbon.registry.core.service.RegistryService"
- *                cardinality="1..1" policy="dynamic" bind="setRegistryService"
- *                unbind="unsetRegistryService"
+ * interface="org.wso2.carbon.registry.core.service.RegistryService"
+ * cardinality="1..1" policy="dynamic" bind="setRegistryService"
+ * unbind="unsetRegistryService"
  * @scr.reference name="user.realmservice.default"
- *                interface="org.wso2.carbon.user.core.service.RealmService"
- *                cardinality="1..1" policy="dynamic" bind="setRealmService"
- *                unbind="unsetRealmService"
+ * interface="org.wso2.carbon.user.core.service.RealmService"
+ * cardinality="1..1" policy="dynamic" bind="setRealmService"
+ * unbind="unsetRealmService"
  */
 public class UserRegistrationDSComponent {
-    
+
     private static Log log = LogFactory.getLog(UserRegistrationDSComponent.class);
-    
+
     private static RegistryService registryService = null;
     private static RealmService realmService = null;
-    
-    protected void activate(ComponentContext ctxt) {
-        log.debug("UserRegistration bundle is activated ");
-    }
 
-    protected void deactivate(ComponentContext ctxt) {
-        log.debug("UserRegistration bundle is deactivated ");
+    public static RegistryService getRegistryService() {
+        return registryService;
     }
 
     protected void setRegistryService(RegistryService registryService) {
@@ -57,11 +53,8 @@ public class UserRegistrationDSComponent {
         UserRegistrationDSComponent.registryService = registryService;
     }
 
-    protected void unsetRegistryService(RegistryService registryService) {
-        if (log.isDebugEnabled()) {
-            log.info("Unsetting the Registry Service");
-        }
-        UserRegistrationDSComponent.registryService = null;
+    public static RealmService getRealmService() {
+        return realmService;
     }
 
     protected void setRealmService(RealmService realmService) {
@@ -71,19 +64,26 @@ public class UserRegistrationDSComponent {
         UserRegistrationDSComponent.realmService = realmService;
     }
 
+    protected void activate(ComponentContext ctxt) {
+        log.debug("UserRegistration bundle is activated ");
+    }
+
+    protected void deactivate(ComponentContext ctxt) {
+        log.debug("UserRegistration bundle is deactivated ");
+    }
+
+    protected void unsetRegistryService(RegistryService registryService) {
+        if (log.isDebugEnabled()) {
+            log.info("Unsetting the Registry Service");
+        }
+        UserRegistrationDSComponent.registryService = null;
+    }
+
     protected void unsetRealmService(RealmService realmService) {
         if (log.isDebugEnabled()) {
             log.info("Unsetting the Realm Service");
         }
         UserRegistrationDSComponent.realmService = null;
-    }
-
-    public static RegistryService getRegistryService() {
-        return registryService;
-    }
-
-    public static RealmService getRealmService() {
-        return realmService;
     }
 
 }

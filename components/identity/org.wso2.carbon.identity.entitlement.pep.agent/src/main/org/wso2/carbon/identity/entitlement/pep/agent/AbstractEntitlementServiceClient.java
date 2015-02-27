@@ -38,7 +38,7 @@ public abstract class AbstractEntitlementServiceClient {
             throws Exception;
 
     public abstract List<String> getActionableChildResourcesForAlias(String alias,
-                                                                    String parentResource, String action, String appId) throws Exception;
+                                                                     String parentResource, String action, String appId) throws Exception;
 
     public abstract List<String> getActionsForResource(String alias, String resources, String appId)
             throws Exception;

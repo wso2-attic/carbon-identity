@@ -25,19 +25,19 @@ public interface KeyStoreAdminInterface {
     KeyStoreData[] getKeyStores() throws SecurityConfigException;
 
     void addKeyStore(String file, String filename,
-                                String password, String provider, String type, String pvtkeyPass) throws SecurityConfigException;
+                     String password, String provider, String type, String pvtkeyPass) throws SecurityConfigException;
 
     void addTrustStore(String file, String filename,
-                     String password, String provider, String type) throws SecurityConfigException;
+                       String password, String provider, String type) throws SecurityConfigException;
 
     void deleteStore(String keyStoreName) throws SecurityConfigException;
 
     void importCertToStore(String fileName, String fileData, String keyStoreName) throws SecurityConfigException;
 
     String[] getStoreEntries(String keyStoreName) throws SecurityConfigException;
-    
+
     KeyStoreData getKeystoreInfo(String keyStoreName) throws SecurityConfigException;
-    
+
     void removeCertFromStore(String alias, String keyStoreName) throws SecurityConfigException;
-    
+
 }

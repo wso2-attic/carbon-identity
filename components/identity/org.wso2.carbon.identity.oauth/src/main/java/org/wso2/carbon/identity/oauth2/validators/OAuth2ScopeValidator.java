@@ -32,8 +32,9 @@ public abstract class OAuth2ScopeValidator {
 
     /**
      * Method to validate the scopes associated with the access token against the resource that is being accessed.
+     *
      * @param accessTokenDO - The access token data object
-     * @param resource - The resource that is being accessed.
+     * @param resource      - The resource that is being accessed.
      * @return - true if scope is valid, false otherwise
      * @throws IdentityOAuth2Exception
      */

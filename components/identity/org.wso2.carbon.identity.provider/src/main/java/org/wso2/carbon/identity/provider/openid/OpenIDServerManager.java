@@ -28,43 +28,41 @@ import org.openid4java.server.ServerManager;
  * and Response messages to the ServerManager class of the openid4java library.
  * However the purpose of this class is to force the super class to use the
  * custom AssociationStore instead the default InMemoryAssociationStores.
- * 
+ *
  * @author WSO2 Inc.
- * 
  */
 public class OpenIDServerManager extends ServerManager {
-	
-	protected Log log = LogFactory.getLog(OpenIDServerManager.class);
 
-	/**
-	 * Here we set our AssociationStore implementation to the parent.
-	 * 
-	 * @param dbConnection
-	 *            for the identity database
-	 */
-	public OpenIDServerManager() {
-		/**
-	     * Keeps track of the associations established with consumer sites.
-	     */
-	    ServerAssociationStore sharedAssociations = new OpenIDServerAssociationStore(OpenIDServerConstants.ASSOCIATION_STORE_TYPE_SHARED);
-	    super.setSharedAssociations(sharedAssociations);
+    protected Log log = LogFactory.getLog(OpenIDServerManager.class);
 
-	    /**
-	     * Keeps track of private (internal) associations created for signing
-	     * authentication responses for stateless consumer sites.
-	     */
-	    ServerAssociationStore privateAssociations = new OpenIDServerAssociationStore(OpenIDServerConstants.ASSOCIATION_STORE_TYPE_PRIVATE);
-	    super.setPrivateAssociations(privateAssociations);
-	}
-	
-	public Message authResponse(AuthRequest authReq,
-            String userSelId,
-            String userSelClaimed,
-            boolean authenticatedAndApproved,
-            String opEndpoint,
-            boolean signNow) {
-		log.info("Association handle in AuthRequest : " + authReq.getHandle());
-		return super.authResponse(authReq, userSelId, userSelClaimed, authenticatedAndApproved, opEndpoint, signNow);
-	}
+    /**
+     * Here we set our AssociationStore implementation to the parent.
+     *
+     * @param dbConnection for the identity database
+     */
+    public OpenIDServerManager() {
+        /**
+         * Keeps track of the associations established with consumer sites.
+         */
+        ServerAssociationStore sharedAssociations = new OpenIDServerAssociationStore(OpenIDServerConstants.ASSOCIATION_STORE_TYPE_SHARED);
+        super.setSharedAssociations(sharedAssociations);
+
+        /**
+         * Keeps track of private (internal) associations created for signing
+         * authentication responses for stateless consumer sites.
+         */
+        ServerAssociationStore privateAssociations = new OpenIDServerAssociationStore(OpenIDServerConstants.ASSOCIATION_STORE_TYPE_PRIVATE);
+        super.setPrivateAssociations(privateAssociations);
+    }
+
+    public Message authResponse(AuthRequest authReq,
+                                String userSelId,
+                                String userSelClaimed,
+                                boolean authenticatedAndApproved,
+                                String opEndpoint,
+                                boolean signNow) {
+        log.info("Association handle in AuthRequest : " + authReq.getHandle());
+        return super.authResponse(authReq, userSelId, userSelClaimed, authenticatedAndApproved, opEndpoint, signNow);
+    }
 }
 

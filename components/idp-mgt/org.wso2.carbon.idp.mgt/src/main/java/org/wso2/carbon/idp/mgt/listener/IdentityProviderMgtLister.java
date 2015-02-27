@@ -21,13 +21,13 @@ package org.wso2.carbon.idp.mgt.listener;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 
 public interface IdentityProviderMgtLister {
-	
-	public void updateResidentIdP(IdentityProvider identityProvider);
-	
-	public void addIdP(IdentityProvider identityProvider);
-	
-	public void deleteIdP(String idPName);
-	
-	public void updateIdP(String oldIdPName, IdentityProvider identityProvider);
+
+    public void updateResidentIdP(IdentityProvider identityProvider);
+
+    public void addIdP(IdentityProvider identityProvider);
+
+    public void deleteIdP(String idPName);
+
+    public void updateIdP(String oldIdPName, IdentityProvider identityProvider);
 
 }

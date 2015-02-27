@@ -1,22 +1,12 @@
 package org.wso2.carbon.identity.user.store.remote;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.axis2.description.TransportOutDescription;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.um.ws.api.WSUserStoreManager;
-import org.wso2.carbon.user.api.ClaimManager;
-import org.wso2.carbon.user.api.Permission;
-import org.wso2.carbon.user.api.Properties;
-import org.wso2.carbon.user.api.Property;
-import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.api.*;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
@@ -24,22 +14,27 @@ import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+
 public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
+    private static final String CONNECTION_REFUSED = "Connection refused";
+    private static Log log = LogFactory.getLog(CarbonRemoteUserStoreManger.class);
     private WSUserStoreManager remoteUserStore;
     private RealmConfiguration realmConfig;
     private String domainName;
     private UserStoreManager secondaryUserStoreManager;
     private Map<String, WSUserStoreManager> remoteServers = new HashMap<String, WSUserStoreManager>();
-    private static Log log = LogFactory.getLog(CarbonRemoteUserStoreManger.class);
-    private static final String CONNECTION_REFUSED = "Connection refused";
 
     public CarbonRemoteUserStoreManger() {
 
     }
 
     /**
-     * 
      * @param realmConfig
      * @param properties
      * @throws Exception
@@ -76,11 +71,12 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
     }
 
     /**
-	 * 
-	 */
+     *
+     */
     public Properties getDefaultUserStoreProperties() {
         Properties properties = new Properties();
         Property[] mandatoryProperties = null;
+        Property[] optionalProperties = null;
         Property remoteServerUserName = new Property(
                 "remoteUserName",
                 "",
@@ -110,15 +106,18 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                 "Role Name RegEx (Javascript)#"
                         + UserStoreConfigConstants.roleNameJavaScriptRegExDescription, null);
 
-        mandatoryProperties = new Property[] { remoteServerUserName, password, serverUrls,
-                disabled, passwordJavaScriptRegEx, usernameJavaScriptRegEx, roleNameJavaScriptRegEx };
+        mandatoryProperties = new Property[]{remoteServerUserName, password, serverUrls,
+                passwordJavaScriptRegEx, usernameJavaScriptRegEx, roleNameJavaScriptRegEx};
+        optionalProperties = new Property[]{disabled};
+
+        properties.setOptionalProperties(optionalProperties);
         properties.setMandatoryProperties(mandatoryProperties);
         return properties;
     }
 
     /**
-	 * 
-	 */
+     *
+     */
     @Override
     public boolean isExistingRole(String roleName, boolean isShared)
             throws org.wso2.carbon.user.api.UserStoreException {
@@ -131,7 +130,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
             synchronized (this) {
                 for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, WSUserStoreManager> remoteStore = iterator.next();
                     try {
                         rolesExists = remoteStore.getValue().isExistingRole(roleName, isShared);
@@ -152,10 +151,10 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
     @Override
     public void addRole(String roleName, String[] userList, Permission[] permissions,
-            boolean isSharedRole) throws org.wso2.carbon.user.api.UserStoreException {
+                        boolean isSharedRole) throws org.wso2.carbon.user.api.UserStoreException {
 
         for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext();) {
+                .iterator(); iterator.hasNext(); ) {
             Entry<String, WSUserStoreManager> remoteStore = iterator.next();
             try {
                 remoteStore.getValue().addRole(roleName, userList, permissions);
@@ -173,7 +172,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
     public void addRole(String roleName, String[] userList, Permission[] permissions)
             throws org.wso2.carbon.user.api.UserStoreException {
         for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext();) {
+                .iterator(); iterator.hasNext(); ) {
             Entry<String, WSUserStoreManager> remoteStore = iterator.next();
 
             try {
@@ -199,7 +198,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
             synchronized (this) {
                 for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, WSUserStoreManager> remoteStore = iterator.next();
                     try {
                         properties = remoteStore.getValue().getProperties(tenant);
@@ -267,7 +266,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
             synchronized (this) {
                 for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, WSUserStoreManager> remoteStore = iterator.next();
                     try {
                         users = remoteStore.getValue().listUsers(filter, maxItemLimit);
@@ -306,7 +305,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
             synchronized (this) {
                 for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, WSUserStoreManager> remoteStore = iterator.next();
                     try {
                         usersExists = remoteStore.getValue().isExistingUser(userName);
@@ -336,7 +335,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
             synchronized (this) {
                 for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, WSUserStoreManager> remoteStore = iterator.next();
                     try {
                         roleExists = remoteStore.getValue().isExistingRole(roleName);
@@ -368,7 +367,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
             synchronized (this) {
                 for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, WSUserStoreManager> remoteStore = iterator.next();
                     try {
                         roles = remoteStore.getValue().getRoleNames();
@@ -408,7 +407,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
             synchronized (this) {
                 for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, WSUserStoreManager> remoteStore = iterator.next();
                     try {
                         roles = remoteStore.getValue().getRoleNames(noHybridRoles);
@@ -448,7 +447,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
             synchronized (this) {
                 for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, WSUserStoreManager> remoteStore = iterator.next();
                     try {
                         profileNames = remoteStore.getValue().getRoleListOfUser(userName);
@@ -479,7 +478,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
             synchronized (this) {
                 for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, WSUserStoreManager> remoteStore = iterator.next();
                     try {
                         roles = remoteStore.getValue().getRoleListOfUser(userName);
@@ -517,7 +516,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
             synchronized (this) {
                 for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, WSUserStoreManager> remoteStore = iterator.next();
                     try {
                         users = remoteStore.getValue().getUserListOfRole(roleName);
@@ -557,7 +556,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
             synchronized (this) {
                 for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, WSUserStoreManager> remoteStore = iterator.next();
                     try {
                         claimValue = remoteStore.getValue().getUserClaimValue(userName, claim,
@@ -579,7 +578,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
     @Override
     public Map<String, String> getUserClaimValues(String userName, String[] claims,
-            String profileName) throws UserStoreException {
+                                                  String profileName) throws UserStoreException {
         Map<String, String> claimValue = new HashMap<String, String>();
 
         try {
@@ -590,7 +589,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
             synchronized (this) {
                 for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, WSUserStoreManager> remoteStore = iterator.next();
                     try {
                         claimValue = remoteStore.getValue().getUserClaimValues(userName, claims,
@@ -611,7 +610,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
     }
 
     /**
-     * 
+     *
      */
     @Override
     public Claim[] getUserClaimValues(String userName, String profileName)
@@ -625,7 +624,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
             synchronized (this) {
                 for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, WSUserStoreManager> remoteStore = iterator.next();
                     try {
                         claim = remoteStore.getValue().getUserClaimValues(userName, profileName);
@@ -645,7 +644,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
     }
 
     /**
-     * 
+     *
      */
     @Override
     public String[] getAllProfileNames() throws UserStoreException {
@@ -658,7 +657,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
             synchronized (this) {
                 for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, WSUserStoreManager> remoteStore = iterator.next();
                     try {
                         profileNames = remoteStore.getValue().getAllProfileNames();
@@ -688,7 +687,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
             synchronized (this) {
                 for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, WSUserStoreManager> remoteStore = iterator.next();
                     try {
                         readOnly = remoteStore.getValue().isReadOnly();
@@ -709,10 +708,10 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
     @Override
     public void addUser(String userName, Object credential, String[] roleList,
-            Map<String, String> claims, String profileName) throws UserStoreException {
+                        Map<String, String> claims, String profileName) throws UserStoreException {
 
         for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext();) {
+                .iterator(); iterator.hasNext(); ) {
             Entry<String, WSUserStoreManager> remoteStore = iterator.next();
             try {
                 remoteStore.getValue().addUser(userName, credential, roleList, claims, profileName);
@@ -727,10 +726,10 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
     @Override
     public void addUser(String userName, Object credential, String[] roleList,
-            Map<String, String> claims, String profileName, boolean requirePasswordChange)
+                        Map<String, String> claims, String profileName, boolean requirePasswordChange)
             throws UserStoreException {
         for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext();) {
+                .iterator(); iterator.hasNext(); ) {
             Entry<String, WSUserStoreManager> remoteStore = iterator.next();
             try {
                 remoteStore.getValue().addUser(userName, credential, roleList, claims, profileName);
@@ -747,7 +746,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
     public void updateCredential(String userName, Object newCredential, Object oldCredential)
             throws UserStoreException {
         for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext();) {
+                .iterator(); iterator.hasNext(); ) {
             Entry<String, WSUserStoreManager> remoteStore = iterator.next();
             try {
                 remoteStore.getValue().updateCredential(userName, newCredential, oldCredential);
@@ -764,7 +763,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
     public void updateCredentialByAdmin(String userName, Object newCredential)
             throws UserStoreException {
         for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext();) {
+                .iterator(); iterator.hasNext(); ) {
             Entry<String, WSUserStoreManager> remoteStore = iterator.next();
             try {
                 remoteStore.getValue().updateCredentialByAdmin(userName, newCredential);
@@ -779,11 +778,11 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
     @Override
     public void deleteUser(String userName) throws UserStoreException {
-        
+
         userName = UserCoreUtil.removeDomainFromName(userName);
 
         for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext();) {
+                .iterator(); iterator.hasNext(); ) {
             Entry<String, WSUserStoreManager> remoteStore = iterator.next();
             try {
                 remoteStore.getValue().deleteUser(userName);
@@ -798,11 +797,11 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
     @Override
     public void deleteRole(String roleName) throws UserStoreException {
-        
+
         roleName = UserCoreUtil.removeDomainFromName(roleName);
 
         for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext();) {
+                .iterator(); iterator.hasNext(); ) {
             Entry<String, WSUserStoreManager> remoteStore = iterator.next();
             try {
                 remoteStore.getValue().deleteRole(roleName);
@@ -819,7 +818,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
     public void updateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers)
             throws UserStoreException {
         for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext();) {
+                .iterator(); iterator.hasNext(); ) {
             Entry<String, WSUserStoreManager> remoteStore = iterator.next();
             try {
                 remoteStore.getValue().updateUserListOfRole(roleName, deletedUsers, newUsers);
@@ -836,7 +835,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
     public void updateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles)
             throws UserStoreException {
         for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext();) {
+                .iterator(); iterator.hasNext(); ) {
             Entry<String, WSUserStoreManager> remoteStore = iterator.next();
             try {
                 remoteStore.getValue().updateRoleListOfUser(userName, deletedRoles, newRoles);
@@ -851,9 +850,9 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
     @Override
     public void setUserClaimValue(String userName, String claimURI, String claimValue,
-            String profileName) throws UserStoreException {
+                                  String profileName) throws UserStoreException {
         for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext();) {
+                .iterator(); iterator.hasNext(); ) {
             Entry<String, WSUserStoreManager> remoteStore = iterator.next();
             try {
                 remoteStore.getValue().setUserClaimValue(userName, claimURI, claimValue,
@@ -871,7 +870,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
     public void setUserClaimValues(String userName, Map<String, String> claims, String profileName)
             throws UserStoreException {
         for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext();) {
+                .iterator(); iterator.hasNext(); ) {
             Entry<String, WSUserStoreManager> remoteStore = iterator.next();
             try {
                 remoteStore.getValue().setUserClaimValues(userName, claims, profileName);
@@ -888,7 +887,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
     public void deleteUserClaimValue(String userName, String claimURI, String profileName)
             throws UserStoreException {
         for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext();) {
+                .iterator(); iterator.hasNext(); ) {
             Entry<String, WSUserStoreManager> remoteStore = iterator.next();
             try {
                 remoteStore.getValue().deleteUserClaimValue(userName, claimURI, profileName);
@@ -905,7 +904,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
     public void deleteUserClaimValues(String userName, String[] claims, String profileName)
             throws UserStoreException {
         for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext();) {
+                .iterator(); iterator.hasNext(); ) {
             Entry<String, WSUserStoreManager> remoteStore = iterator.next();
             try {
                 remoteStore.getValue().deleteUserClaimValues(userName, claims, profileName);
@@ -929,7 +928,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
             synchronized (this) {
                 for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, WSUserStoreManager> remoteStore = iterator.next();
                     try {
                         roles = remoteStore.getValue().getHybridRoles();
@@ -968,7 +967,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
             synchronized (this) {
                 for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, WSUserStoreManager> remoteStore = iterator.next();
                     try {
                         roles = remoteStore.getValue().getAllSecondaryRoles();
@@ -1005,7 +1004,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
             synchronized (this) {
                 for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, WSUserStoreManager> remoteStore = iterator.next();
                     try {
                         date = remoteStore.getValue().getPasswordExpirationTime(username);
@@ -1035,7 +1034,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
             synchronized (this) {
                 for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, WSUserStoreManager> remoteStore = iterator.next();
                     try {
                         userId = remoteStore.getValue().getUserId(username);
@@ -1065,7 +1064,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
             synchronized (this) {
                 for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, WSUserStoreManager> remoteStore = iterator.next();
                     try {
                         tenantId = remoteStore.getValue().getTenantId(username);
@@ -1095,7 +1094,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
             synchronized (this) {
                 for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, WSUserStoreManager> remoteStore = iterator.next();
                     try {
                         tenantId = remoteStore.getValue().getTenantId();
@@ -1125,7 +1124,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
             synchronized (this) {
                 for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, WSUserStoreManager> remoteStore = iterator.next();
                     try {
                         properties = remoteStore.getValue().getProperties(tenant);
@@ -1147,7 +1146,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
     @Override
     public void updateRoleName(String roleName, String newRoleName) throws UserStoreException {
         for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext();) {
+                .iterator(); iterator.hasNext(); ) {
             Entry<String, WSUserStoreManager> remoteStore = iterator.next();
             try {
                 remoteStore.getValue().updateRoleName(roleName, newRoleName);
@@ -1177,7 +1176,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
             synchronized (this) {
                 for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext();) {
+                        .entrySet().iterator(); iterator.hasNext(); ) {
                     Entry<String, WSUserStoreManager> remoteStore = iterator.next();
                     try {
                         users = remoteStore.getValue().getUserList(claim, claimValue, profileName);
@@ -1210,18 +1209,18 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
     }
 
     @Override
+    public void setSecondaryUserStoreManager(UserStoreManager userStoreManager) {
+        this.secondaryUserStoreManager = userStoreManager;
+
+    }
+
+    @Override
     public UserStoreManager getSecondaryUserStoreManager(String userDomain) {
         return secondaryUserStoreManager;
     }
 
     @Override
     public void addSecondaryUserStoreManager(String userDomain, UserStoreManager userStoreManager) {
-
-    }
-
-    @Override
-    public void setSecondaryUserStoreManager(UserStoreManager userStoreManager) {
-        this.secondaryUserStoreManager = userStoreManager;
 
     }
 

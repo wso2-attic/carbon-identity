@@ -31,7 +31,6 @@ import org.wso2.carbon.identity.application.authentication.framework.config.mode
 import org.wso2.carbon.identity.application.authentication.framework.config.model.SequenceConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.StepConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
-import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
 import org.wso2.carbon.identity.application.authentication.framework.context.SessionContext;
 import org.wso2.carbon.identity.application.authentication.framework.handler.claims.ClaimHandler;
 import org.wso2.carbon.identity.application.authentication.framework.handler.claims.impl.DefaultClaimHandler;
@@ -56,6 +55,7 @@ import org.wso2.carbon.identity.application.authentication.framework.handler.ste
 import org.wso2.carbon.identity.application.authentication.framework.internal.FrameworkServiceComponent;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedIdPData;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationFrameworkWrapper;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
 import org.wso2.carbon.identity.application.common.model.*;
 import org.wso2.carbon.ui.CarbonUIUtil;
@@ -76,12 +76,13 @@ public class FrameworkUtils {
 
     private static Log log = LogFactory.getLog(FrameworkUtils.class);
 
-	/**
-	 * To add authentication request cache entry to cache, with timeout
-	 * @param key cache entry key
-	 * @param authReqEntry AuthenticationReqCache Entry.
-	 * @param cacheTimeout Cache timeout
-	 */
+    /**
+     * To add authentication request cache entry to cache, with timeout
+     *
+     * @param key          cache entry key
+     * @param authReqEntry AuthenticationReqCache Entry.
+     * @param cacheTimeout Cache timeout
+     */
     public static void addAuthenticationRequestToCache(
             String key, AuthenticationRequestCacheEntry authReqEntry, int cacheTimeout) {
 
@@ -89,11 +90,12 @@ public class FrameworkUtils {
         AuthenticationRequestCache.getInstance(cacheTimeout).addToCache(cacheKey, authReqEntry);
     }
 
-	/**
-	 * To add authentication request cache entry to the cache without timout
-	 * @param key cache entry key
-	 * @param authReqEntry AuthenticationReqCache Entry.
-	 */
+    /**
+     * To add authentication request cache entry to the cache without timout
+     *
+     * @param key          cache entry key
+     * @param authReqEntry AuthenticationReqCache Entry.
+     */
     public static void addAuthenticationRequestToCache(
             String key, AuthenticationRequestCacheEntry authReqEntry) {
 
@@ -101,11 +103,12 @@ public class FrameworkUtils {
         AuthenticationRequestCache.getInstance().addToCache(cacheKey, authReqEntry);
     }
 
-	/**
-	 * To get authentication cache request from cache
-	 * @param key Key of the cache entry
-	 * @return
-	 */
+    /**
+     * To get authentication cache request from cache
+     *
+     * @param key Key of the cache entry
+     * @return
+     */
     public static AuthenticationRequestCacheEntry getAuthenticationRequestFromCache(String key) {
 
         AuthenticationRequestCacheEntry authRequest = null;
@@ -119,10 +122,11 @@ public class FrameworkUtils {
         return authRequest;
     }
 
-	/**
-	 * removes authentication request from cache.
-	 * @param key SessionDataKey
-	 */
+    /**
+     * removes authentication request from cache.
+     *
+     * @param key SessionDataKey
+     */
     public static void removeAuthenticationRequestFromCache(String key) {
 
         if (key != null) {
@@ -131,12 +135,13 @@ public class FrameworkUtils {
         }
     }
 
-	/**
-	 * Builds the wrapper, wrapping incoming request and information take from cache entry
-	 * @param request Original request coming to authentication framework
-	 * @param cacheEntry Cache entry from the cache, which is added from calling servlets
-	 * @return
-	 */
+    /**
+     * Builds the wrapper, wrapping incoming request and information take from cache entry
+     *
+     * @param request    Original request coming to authentication framework
+     * @param cacheEntry Cache entry from the cache, which is added from calling servlets
+     * @return
+     */
     public static HttpServletRequest getCommonAuthReqWithParams(HttpServletRequest request,
                                                                 AuthenticationRequestCacheEntry cacheEntry) {
 
@@ -526,14 +531,12 @@ public class FrameworkUtils {
     }
 
 
-
     /**
      * @param key
      * @param sessionContext
      * @param cacheTimeout
      */
-    public static void addSessionContextToCache(String key, SessionContext sessionContext, int cacheTimeout)
-    {
+    public static void addSessionContextToCache(String key, SessionContext sessionContext, int cacheTimeout) {
         SessionContextCacheKey cacheKey = new SessionContextCacheKey(key);
         SessionContextCacheEntry cacheEntry = new SessionContextCacheEntry();
 
@@ -541,7 +544,7 @@ public class FrameworkUtils {
         if (seqData != null) {
             for (Entry<String, SequenceConfig> entry : seqData.entrySet()) {
                 if (entry.getValue() != null) {
-                    ((SequenceConfig)entry.getValue()).setUserAttributes(null);
+                    ((SequenceConfig) entry.getValue()).setUserAttributes(null);
                 }
             }
         }
@@ -604,8 +607,8 @@ public class FrameworkUtils {
             authnContext = ((AuthenticationContextCacheEntry) cacheEntryObj).getContext();
         }
 
-        if(log.isDebugEnabled()){
-            if(authnContext == null){
+        if (log.isDebugEnabled()) {
+            if (authnContext == null) {
                 log.debug("Authentication Context is null");
             }
         }
@@ -668,8 +671,8 @@ public class FrameworkUtils {
         for (Iterator<Entry<String, String>> iterator = attributeValue.entrySet().iterator(); iterator
                 .hasNext(); ) {
             Entry<String, String> entry = iterator.next();
-            if(entry.getValue() == null){
-            	continue;
+            if (entry.getValue() == null) {
+                continue;
             }
             claimMap.put(ClaimMapping.build(entry.getKey(), entry.getKey(), null, false),
                     entry.getValue());
@@ -868,24 +871,25 @@ public class FrameworkUtils {
         return authenticatorIdPStr.toString();
     }
 
-	/**
-	 * when getting query params through this, only configured params will be appended as query params
-	 * The required params can be configured from application-authenticators.xml
-	 * @param request
-	 * @return
-	 */
+    /**
+     * when getting query params through this, only configured params will be appended as query params
+     * The required params can be configured from application-authenticators.xml
+     *
+     * @param request
+     * @return
+     */
     public static String getQueryStringWithConfiguredParams(HttpServletRequest request) {
-        
+
         boolean configAvailable = FileBasedConfigurationBuilder.getInstance()
                 .isAuthEndpointQueryParamsConfigAvailable();
         List<String> queryParams = FileBasedConfigurationBuilder.getInstance()
                 .getAuthEndpointQueryParams();
         String action = FileBasedConfigurationBuilder.getInstance()
                 .getAuthEndpointQueryParamsAction();
-        
+
         StringBuilder queryStrBuilder = new StringBuilder("");
         Map<String, String[]> reqParamMap = request.getParameterMap();
-        
+
         if (configAvailable) {
             if (action != null
                     && action.equals(FrameworkConstants.AUTH_ENDPOINT_QUERY_PARAMS_ACTION_EXCLUDE)) {
@@ -893,7 +897,7 @@ public class FrameworkUtils {
                     for (Map.Entry<String, String[]> entry : reqParamMap.entrySet()) {
                         String paramName = entry.getKey();
                         String paramValue = entry.getValue()[0];
-                        
+
                         //skip the sessionDataKey sent from the servlet.
                         if (paramName.equals("sessionDataKey")) {
                             continue;
@@ -903,7 +907,7 @@ public class FrameworkUtils {
                             if (queryStrBuilder.length() > 0) {
                                 queryStrBuilder.append('&');
                             }
-                            
+
                             try {
                                 queryStrBuilder.append(URLEncoder.encode(paramName, "UTF-8")).append('=')
                                         .append(URLEncoder.encode(paramValue, "UTF-8"));
@@ -918,7 +922,7 @@ public class FrameworkUtils {
             } else {
                 for (String param : queryParams) {
                     String paramValue = request.getParameter(param);
-                    
+
                     if (paramValue != null) {
                         if (queryStrBuilder.length() > 0) {
                             queryStrBuilder.append('&');
@@ -939,7 +943,7 @@ public class FrameworkUtils {
                 for (Map.Entry<String, String[]> entry : reqParamMap.entrySet()) {
                     String paramName = entry.getKey();
                     String paramValue = entry.getValue()[0];
-                    
+
                     //skip the sessionDataKey sent from the servlet.
                     if (paramName.equals("sessionDataKey")) {
                         continue;
@@ -948,7 +952,7 @@ public class FrameworkUtils {
                     if (queryStrBuilder.length() > 0) {
                         queryStrBuilder.append('&');
                     }
-                    
+
                     try {
                         queryStrBuilder.append(URLEncoder.encode(paramName, "UTF-8")).append('=')
                                 .append(URLEncoder.encode(paramValue, "UTF-8"));
@@ -960,7 +964,7 @@ public class FrameworkUtils {
                 }
             }
         }
-        
+
         return queryStrBuilder.toString();
     }
 
@@ -976,18 +980,18 @@ public class FrameworkUtils {
 
         if (authenticatedSubject == null || authenticatedSubject.trim().isEmpty()) {
             throw new IllegalArgumentException("Invalid argument. authenticatedSubject : "
-                  +  authenticatedSubject);
+                    + authenticatedSubject);
         }
         if (authenticatedSubject.indexOf(CarbonConstants.DOMAIN_SEPARATOR) < 0) {
             if (UserCoreUtil.getDomainFromThreadLocal() != null
                     && !UserCoreUtil.getDomainFromThreadLocal().isEmpty()) {
                 authenticatedSubject = UserCoreUtil.getDomainFromThreadLocal()
-                + CarbonConstants.DOMAIN_SEPARATOR + authenticatedSubject;
+                        + CarbonConstants.DOMAIN_SEPARATOR + authenticatedSubject;
             }
         } else if (authenticatedSubject.indexOf(CarbonConstants.DOMAIN_SEPARATOR) == 0) {
             throw new IllegalArgumentException("Invalid argument. authenticatedSubject : "
-                   + authenticatedSubject + " begins with \'" + CarbonConstants.DOMAIN_SEPARATOR
-                   + "\'");
+                    + authenticatedSubject + " begins with \'" + CarbonConstants.DOMAIN_SEPARATOR
+                    + "\'");
         }
         return authenticatedSubject;
     }
@@ -996,7 +1000,7 @@ public class FrameworkUtils {
      * Find the Subject identifier among federated claims
      */
     public static String getFederatedSubjectFromClaims(IdentityProvider identityProvider,
-                                                       Map<ClaimMapping, String> claimMappings){
+                                                       Map<ClaimMapping, String> claimMappings) {
 
         String userIdClaimURI = identityProvider.getClaimConfig().getUserClaimURI();
         ClaimMapping claimMapping = new ClaimMapping();

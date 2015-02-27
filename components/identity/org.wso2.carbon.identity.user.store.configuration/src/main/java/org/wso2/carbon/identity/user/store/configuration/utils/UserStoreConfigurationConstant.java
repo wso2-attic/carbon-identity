@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -19,18 +19,20 @@
 package org.wso2.carbon.identity.user.store.configuration.utils;
 
 /**
- *  Constant class to hold IdentityUserStoreMgtConstants
+ * Constant class to hold IdentityUserStoreMgtConstants
  */
 
-public class IdentityUserStoreMgtConstants {
-
-    private IdentityUserStoreMgtConstants(){
-
-    }
+public class UserStoreConfigurationConstant {
 
     public static final String UNIQUE_ID_CONSTANT = "UniqueID";
-
     public static final String RANDOM_PHRASE_PREFIX = "random-password-generated!@#$%^&*(0)+_";
-
     public static final String ENCRYPT_TEXT = "#encrypt";
+    //name constant of the cache manager
+    public static final String SECONDARY_STORAGE_CACHE_MANAGER = "secondaryStorageCacheManager";
+    //random password container cache
+    public static final String RANDOM_PASSWORD_CONTAINER_CACHE = "randomPasswordContainerCache";
+
+    private UserStoreConfigurationConstant() {
+
+    }
 }

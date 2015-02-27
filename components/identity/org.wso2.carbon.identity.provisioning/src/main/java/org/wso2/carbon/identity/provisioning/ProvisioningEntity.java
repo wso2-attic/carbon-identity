@@ -18,16 +18,16 @@
  */
 package org.wso2.carbon.identity.provisioning;
 
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
-
-public class ProvisioningEntity implements Serializable{
+public class ProvisioningEntity implements Serializable {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -7300897205165960442L;
     private ProvisioningEntityType entityType;
@@ -39,13 +39,12 @@ public class ProvisioningEntity implements Serializable{
     private Map<String, String> inboundAttributes;
 
     /**
-     * 
      * @param entityTpe
      * @param method
      * @param attributes
      */
     public ProvisioningEntity(ProvisioningEntityType entityType, String entityName,
-            ProvisioningOperation operation, Map<ClaimMapping, List<String>> attributes) {
+                              ProvisioningOperation operation, Map<ClaimMapping, List<String>> attributes) {
         super();
         this.entityType = entityType;
         this.entityName = entityName;
@@ -54,7 +53,6 @@ public class ProvisioningEntity implements Serializable{
     }
 
     /**
-     * 
      * @param entityTpe
      * @param operation
      * @param attributes
@@ -65,7 +63,6 @@ public class ProvisioningEntity implements Serializable{
     }
 
     /**
-     * 
      * @return
      */
     public ProvisioningEntityType getEntityType() {
@@ -73,7 +70,6 @@ public class ProvisioningEntity implements Serializable{
     }
 
     /**
-     * 
      * @return
      */
     public ProvisioningOperation getOperation() {
@@ -81,7 +77,6 @@ public class ProvisioningEntity implements Serializable{
     }
 
     /**
-     * 
      * @return
      */
     public Map<ClaimMapping, List<String>> getAttributes() {
@@ -89,7 +84,6 @@ public class ProvisioningEntity implements Serializable{
     }
 
     /**
-     * 
      * @return
      */
     public ProvisionedIdentifier getIdentifier() {
@@ -97,7 +91,6 @@ public class ProvisioningEntity implements Serializable{
     }
 
     /**
-     * 
      * @param identifier
      */
     public void setIdentifier(ProvisionedIdentifier identifier) {
@@ -105,7 +98,6 @@ public class ProvisioningEntity implements Serializable{
     }
 
     /**
-     * 
      * @return
      */
     public Map<String, String> getInboundAttributes() {
@@ -113,7 +105,6 @@ public class ProvisioningEntity implements Serializable{
     }
 
     /**
-     * 
      * @param inboundAttributes
      */
     public void setInboundAttributes(Map<String, String> inboundAttributes) {
@@ -121,7 +112,6 @@ public class ProvisioningEntity implements Serializable{
     }
 
     /**
-     * 
      * @return
      */
     public String getEntityName() {

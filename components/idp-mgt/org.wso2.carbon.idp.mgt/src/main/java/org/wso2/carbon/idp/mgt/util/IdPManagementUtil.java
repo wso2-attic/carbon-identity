@@ -18,26 +18,11 @@
 
 package org.wso2.carbon.idp.mgt.util;
 
-import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.core.RegistryResources;
-import org.wso2.carbon.core.util.KeyStoreManager;
-import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
-import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.idp.mgt.internal.IdPManagementServiceComponent;
 import org.wso2.carbon.user.api.TenantManager;
 import org.wso2.carbon.user.api.UserStoreException;
-
-import java.io.ByteArrayInputStream;
-import java.security.KeyStore;
-import java.security.MessageDigest;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.util.Enumeration;
 
 public class IdPManagementUtil {
 
@@ -45,7 +30,7 @@ public class IdPManagementUtil {
 
     /**
      * Get the tenant id of the given tenant domain.
-     * 
+     *
      * @param tenantDomain Tenant Domain
      * @return Tenant Id of domain user belongs to.
      * @throws UserStoreException Error when getting tenant id from tenant domain

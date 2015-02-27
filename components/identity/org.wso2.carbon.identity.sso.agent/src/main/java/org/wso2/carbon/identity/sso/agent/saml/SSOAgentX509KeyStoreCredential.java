@@ -33,7 +33,7 @@ public class SSOAgentX509KeyStoreCredential implements SSOAgentX509Credential {
 
     public SSOAgentX509KeyStoreCredential(KeyStore keyStore, String publicCertAlias,
                                           String privateKeyAlias, char[] privateKeyPassword)
-            throws SSOAgentException{
+            throws SSOAgentException {
 
         readX509Credentials(keyStore, publicCertAlias, privateKeyAlias, privateKeyPassword);
     }
@@ -41,7 +41,7 @@ public class SSOAgentX509KeyStoreCredential implements SSOAgentX509Credential {
     public SSOAgentX509KeyStoreCredential(InputStream keyStoreInputStream, char[] keyStorePassword,
                                           String publicCertAlias, String privateKeyAlias,
                                           char[] privateKeyPassword)
-            throws SSOAgentException{
+            throws SSOAgentException {
 
         readX509Credentials(keyStoreInputStream, keyStorePassword, publicCertAlias,
                 privateKeyAlias, privateKeyPassword);
@@ -67,7 +67,7 @@ public class SSOAgentX509KeyStoreCredential implements SSOAgentX509Credential {
             throws SSOAgentException {
 
         try {
-            entityCertificate = (X509Certificate)keyStore.getCertificate(publicCertAlias);
+            entityCertificate = (X509Certificate) keyStore.getCertificate(publicCertAlias);
         } catch (KeyStoreException e) {
             throw new SSOAgentException(
                     "Error occurred while retrieving public certificate for alias " +
@@ -75,7 +75,7 @@ public class SSOAgentX509KeyStoreCredential implements SSOAgentX509Credential {
         }
         publicKey = entityCertificate.getPublicKey();
         try {
-            privateKey = (PrivateKey)keyStore.getKey(privateKeyAlias, privateKeyPassword);
+            privateKey = (PrivateKey) keyStore.getKey(privateKeyAlias, privateKeyPassword);
         } catch (KeyStoreException e) {
             throw new SSOAgentException(
                     "Error occurred while retrieving private key for alias " +
@@ -101,7 +101,7 @@ public class SSOAgentX509KeyStoreCredential implements SSOAgentX509Credential {
             keyStore.load(keyStoreInputStream, keyStorePassword);
             readX509Credentials(keyStore, publicCertAlias, privateKeyAlias, privateKeyPassword);
         } catch (Exception e) {
-            throw new SSOAgentException("Error while loading key store file" , e);
+            throw new SSOAgentException("Error while loading key store file", e);
         } finally {
             if (keyStoreInputStream != null) {
                 try {

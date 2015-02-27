@@ -25,44 +25,46 @@ import java.util.Calendar;
 import java.util.Map;
 
 public class RememberMeStore {
-	
-	private Map<String, Long> rememberMeMap = new HashedMap();
-	private static RememberMeStore store = new RememberMeStore();
-	private static Log log = LogFactory.getLog(RememberMeStore.class);
 
-	private RememberMeStore() {
-		
-	}
-	
-	public static synchronized RememberMeStore getInstance() {
-		return store;
-	}
-	
-	/**
-	 * Adds the user to the store
-	 * @param username
-	 */
-	public synchronized void addUserToStore(String username) {
-		long timestamp = Calendar.getInstance().getTimeInMillis();
-		rememberMeMap.put(username, timestamp);
-	}
-	
-	/**
-	 * Check if the user authenticated
-	 * @param username
-	 * @return
-	 */
-	public synchronized boolean isUserInStore(String username) {
-		if(rememberMeMap.containsKey(username)) {
-			long timestamp = rememberMeMap.get(username);
-			long curtime = Calendar.getInstance().getTimeInMillis();
-			if(curtime - timestamp > 1200000) { // after 20 mins invalidates
-				log.warn("RememberMe session expired. Please login");
-				return false;
-			}
-			return true;
-		}
-		return false;
-	}
+    private static RememberMeStore store = new RememberMeStore();
+    private static Log log = LogFactory.getLog(RememberMeStore.class);
+    private Map<String, Long> rememberMeMap = new HashedMap();
+
+    private RememberMeStore() {
+
+    }
+
+    public static synchronized RememberMeStore getInstance() {
+        return store;
+    }
+
+    /**
+     * Adds the user to the store
+     *
+     * @param username
+     */
+    public synchronized void addUserToStore(String username) {
+        long timestamp = Calendar.getInstance().getTimeInMillis();
+        rememberMeMap.put(username, timestamp);
+    }
+
+    /**
+     * Check if the user authenticated
+     *
+     * @param username
+     * @return
+     */
+    public synchronized boolean isUserInStore(String username) {
+        if (rememberMeMap.containsKey(username)) {
+            long timestamp = rememberMeMap.get(username);
+            long curtime = Calendar.getInstance().getTimeInMillis();
+            if (curtime - timestamp > 1200000) { // after 20 mins invalidates
+                log.warn("RememberMe session expired. Please login");
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
 
 }

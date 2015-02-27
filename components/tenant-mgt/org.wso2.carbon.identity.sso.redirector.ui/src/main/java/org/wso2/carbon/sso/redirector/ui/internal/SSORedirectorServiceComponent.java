@@ -55,7 +55,7 @@ public class SSORedirectorServiceComponent {
         redirectorPageFilterParams.put("associated-filter", redirectPageFilter);
         redirectorPageFilterParams.put("servlet-attributes", redirectorPageFilterAttrs);
         ctxt.getBundleContext().registerService(Servlet.class.getName(), redirectJSPRedirectorServlet,
-                                                redirectorPageFilterParams);
+                redirectorPageFilterParams);
         log.debug("Stratos SSO Redirector bundle is activated..");
     }
 

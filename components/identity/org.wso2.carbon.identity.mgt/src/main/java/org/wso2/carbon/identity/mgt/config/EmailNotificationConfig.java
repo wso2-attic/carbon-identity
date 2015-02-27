@@ -21,32 +21,32 @@ import java.util.Properties;
 
 public class EmailNotificationConfig implements Config {
 
-	private Properties properties;
-	
-	public EmailNotificationConfig() {
-		properties = new Properties();
-	}
-	
-	@Override
-	public String getProperty(String key) {
-		
-		return properties.getProperty(key);
-	}
+    private Properties properties;
 
-	@Override
-	public void setProperty(String key, String value) {
-		properties.setProperty(key, value);		
-	}
+    public EmailNotificationConfig() {
+        properties = new Properties();
+    }
 
-	@Override
-	public Properties getProperties() {
-		return this.properties;
-	}
+    @Override
+    public String getProperty(String key) {
 
-	@Override
-	public void setProperties(Properties props) {
-		this.properties = props;		
-	}
-	
-	
+        return properties.getProperty(key);
+    }
+
+    @Override
+    public void setProperty(String key, String value) {
+        properties.setProperty(key, value);
+    }
+
+    @Override
+    public Properties getProperties() {
+        return this.properties;
+    }
+
+    @Override
+    public void setProperties(Properties props) {
+        this.properties = props;
+    }
+
+
 }

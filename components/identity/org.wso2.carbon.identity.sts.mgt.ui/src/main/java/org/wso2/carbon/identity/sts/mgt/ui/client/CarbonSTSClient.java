@@ -33,14 +33,14 @@ import javax.servlet.http.HttpSession;
 
 public class CarbonSTSClient {
 
+    private static final Log log = LogFactory.getLog(CarbonSTSClient.class);
     private STSAdminServiceStub stub;
     private String serviceEndPoint;
     private ConfigurationContext configContext = null;
-    private static final Log log = LogFactory.getLog(CarbonSTSClient.class);
 
     /**
      * Initializes STSUtil
-     * 
+     *
      * @param cookie Cookie string
      * @throws Exception
      */
@@ -72,7 +72,7 @@ public class CarbonSTSClient {
 
     /**
      * Returns the key aliases from the primary key store.
-     * 
+     *
      * @return A set of key aliases from the primary key store.
      * @throws Exception
      */
@@ -87,7 +87,7 @@ public class CarbonSTSClient {
 
     /**
      * Returns services already added as trusted services.
-     * 
+     *
      * @return A set of services already added as trusted services.
      * @throws Exception
      */
@@ -102,7 +102,7 @@ public class CarbonSTSClient {
 
     /**
      * Adds an end point URL of a service as a trusted
-     * 
+     *
      * @param endpoint The end point URL of the service
      * @param keyAlias Key alias used from the primary key store.
      * @throws Exception
@@ -120,7 +120,6 @@ public class CarbonSTSClient {
     }
 
     /**
-     * 
      * @param endpoint
      * @throws Exception
      */

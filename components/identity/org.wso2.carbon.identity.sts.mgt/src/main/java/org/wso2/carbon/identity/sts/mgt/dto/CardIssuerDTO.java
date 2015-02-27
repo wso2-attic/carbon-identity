@@ -21,41 +21,41 @@ import java.util.Arrays;
 
 public class CardIssuerDTO {
 
-	private String cardName;
-	private int validPeriodInDays;
-	private CardIssuerTokenDTO[] supportedTokenTypes;
-	private boolean symmetricBinding;
+    private String cardName;
+    private int validPeriodInDays;
+    private CardIssuerTokenDTO[] supportedTokenTypes;
+    private boolean symmetricBinding;
 
-	public String getCardName() {
-		return cardName;
-	}
+    public String getCardName() {
+        return cardName;
+    }
 
-	public void setCardName(String cardName) {
-		this.cardName = cardName;
-	}
+    public void setCardName(String cardName) {
+        this.cardName = cardName;
+    }
 
-	public int getValidPeriodInDays() {
-		return validPeriodInDays;
-	}
+    public int getValidPeriodInDays() {
+        return validPeriodInDays;
+    }
 
-	public void setValidPeriodInDays(int validPeriodInDays) {
-		this.validPeriodInDays = validPeriodInDays;
-	}
+    public void setValidPeriodInDays(int validPeriodInDays) {
+        this.validPeriodInDays = validPeriodInDays;
+    }
 
-	public CardIssuerTokenDTO[] getSupportedTokenTypes() {
-		return Arrays.copyOf(supportedTokenTypes, supportedTokenTypes.length);
-	}
+    public CardIssuerTokenDTO[] getSupportedTokenTypes() {
+        return Arrays.copyOf(supportedTokenTypes, supportedTokenTypes.length);
+    }
 
-	public void setSupportedTokenTypes(CardIssuerTokenDTO[] supportedTokenTypes) {
-		this.supportedTokenTypes = Arrays.copyOf(supportedTokenTypes, supportedTokenTypes.length);
-	}
+    public void setSupportedTokenTypes(CardIssuerTokenDTO[] supportedTokenTypes) {
+        this.supportedTokenTypes = Arrays.copyOf(supportedTokenTypes, supportedTokenTypes.length);
+    }
 
-	public boolean isSymmetricBinding() {
-		return symmetricBinding;
-	}
+    public boolean isSymmetricBinding() {
+        return symmetricBinding;
+    }
 
-	public void setSymmetricBinding(boolean symmetricBinding) {
-		this.symmetricBinding = symmetricBinding;
-	}
+    public void setSymmetricBinding(boolean symmetricBinding) {
+        this.symmetricBinding = symmetricBinding;
+    }
 
 }

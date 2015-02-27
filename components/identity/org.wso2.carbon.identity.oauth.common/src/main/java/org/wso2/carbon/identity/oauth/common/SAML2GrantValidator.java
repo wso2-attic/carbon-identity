@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 
 public class SAML2GrantValidator extends AbstractValidator<HttpServletRequest> {
 
-    public SAML2GrantValidator(){
+    public SAML2GrantValidator() {
         requiredParams.add(OAuth.OAUTH_GRANT_TYPE);
         requiredParams.add(OAuth.OAUTH_ASSERTION);
     }

@@ -18,66 +18,66 @@
 package org.wso2.carbon.identity.provider.openid.admin.dto;
 
 public class OpenIDConfigurationDTO {
-	
-	private String subDomain;
-	
-	private String defaultOpenIDPattern;
-	
-	private String tenantOpenIDPattern;
-	
-	private String[] availableTenantOpenIDPattern;
-	
-	private String domainName;
-	
-	private String userName;	
 
-	public String getDomainName() {
-		return domainName;
-	}
+    private String subDomain;
 
-	public void setDomainName(String domainName) {
-		this.domainName = domainName;
-	}
+    private String defaultOpenIDPattern;
 
-	public String getUserName() {
-		return userName;
-	}
+    private String tenantOpenIDPattern;
 
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
+    private String[] availableTenantOpenIDPattern;
 
-	public String getSubDomain() {
-		return subDomain;
-	}
+    private String domainName;
 
-	public void setSubDomain(String subDomain) {
-		this.subDomain = subDomain;
-	}
+    private String userName;
 
-	public String getDefaultOpenIDPattern() {
-		return defaultOpenIDPattern;
-	}
+    public String getDomainName() {
+        return domainName;
+    }
 
-	public void setDefaultOpenIDPattern(String defaultOpenIDPattern) {
-		this.defaultOpenIDPattern = defaultOpenIDPattern;
-	}
+    public void setDomainName(String domainName) {
+        this.domainName = domainName;
+    }
 
-	public String getTenantOpenIDPattern() {
-		return tenantOpenIDPattern;
-	}
+    public String getUserName() {
+        return userName;
+    }
 
-	public void setTenantOpenIDPattern(String tenantOpenIDPattern) {
-		this.tenantOpenIDPattern = tenantOpenIDPattern;
-	}
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
-	public String[] getAvailableTenantOpenIDPattern() {
-		return availableTenantOpenIDPattern;
-	}
+    public String getSubDomain() {
+        return subDomain;
+    }
 
-	public void setAvailableTenantOpenIDPattern(
-			String[] availableTenantOpenIDPattern) {
-		this.availableTenantOpenIDPattern = availableTenantOpenIDPattern;
-	}
-	
+    public void setSubDomain(String subDomain) {
+        this.subDomain = subDomain;
+    }
+
+    public String getDefaultOpenIDPattern() {
+        return defaultOpenIDPattern;
+    }
+
+    public void setDefaultOpenIDPattern(String defaultOpenIDPattern) {
+        this.defaultOpenIDPattern = defaultOpenIDPattern;
+    }
+
+    public String getTenantOpenIDPattern() {
+        return tenantOpenIDPattern;
+    }
+
+    public void setTenantOpenIDPattern(String tenantOpenIDPattern) {
+        this.tenantOpenIDPattern = tenantOpenIDPattern;
+    }
+
+    public String[] getAvailableTenantOpenIDPattern() {
+        return availableTenantOpenIDPattern;
+    }
+
+    public void setAvailableTenantOpenIDPattern(
+            String[] availableTenantOpenIDPattern) {
+        this.availableTenantOpenIDPattern = availableTenantOpenIDPattern;
+    }
+
 }

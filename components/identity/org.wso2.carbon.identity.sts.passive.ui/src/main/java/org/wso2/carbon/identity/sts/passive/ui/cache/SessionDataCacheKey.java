@@ -20,24 +20,24 @@ package org.wso2.carbon.identity.sts.passive.ui.cache;
 
 public class SessionDataCacheKey extends CacheKey {
 
-	private static final long serialVersionUID = 7859698110485394156L;
-	
-	private String sessionDataKey;
+    private static final long serialVersionUID = 7859698110485394156L;
 
-	public SessionDataCacheKey(String sessionDataKey) {
-		this.sessionDataKey = sessionDataKey;
-	}
-	
-	public String getSessionDataKey() {
-		return sessionDataKey;
-	}
-	
-	@Override
+    private String sessionDataKey;
+
+    public SessionDataCacheKey(String sessionDataKey) {
+        this.sessionDataKey = sessionDataKey;
+    }
+
+    public String getSessionDataKey() {
+        return sessionDataKey;
+    }
+
+    @Override
     public boolean equals(Object o) {
-        if(!(o instanceof SessionDataCacheKey)){
+        if (!(o instanceof SessionDataCacheKey)) {
             return false;
         }
-        return this.sessionDataKey.equals(((SessionDataCacheKey)o).getSessionDataKey());
+        return this.sessionDataKey.equals(((SessionDataCacheKey) o).getSessionDataKey());
     }
 
     @Override

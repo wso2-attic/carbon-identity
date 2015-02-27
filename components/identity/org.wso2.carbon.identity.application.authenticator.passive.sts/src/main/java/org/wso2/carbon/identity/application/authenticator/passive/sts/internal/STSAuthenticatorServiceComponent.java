@@ -18,13 +18,13 @@
 
 package org.wso2.carbon.identity.application.authenticator.passive.sts.internal;
 
-import java.util.Hashtable;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.passive.sts.PassiveSTSAuthenticator;
+
+import java.util.Hashtable;
 
 /**
  * @scr.component name="identity.application.authenticator.passive.sts.component" immediate="true"
@@ -32,13 +32,13 @@ import org.wso2.carbon.identity.application.authenticator.passive.sts.PassiveSTS
 public class STSAuthenticatorServiceComponent {
 
     private static Log log = LogFactory.getLog(STSAuthenticatorServiceComponent.class);
-    
+
     protected void activate(ComponentContext ctxt) {
         PassiveSTSAuthenticator stsAuthenticator = new PassiveSTSAuthenticator();
-    	Hashtable<String, String> props = new Hashtable<String, String>();
-    	
+        Hashtable<String, String> props = new Hashtable<String, String>();
+
         ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(), stsAuthenticator, props);
-        
+
         if (log.isDebugEnabled()) {
             log.info("SAMLSSO Authenticator bundle is activated");
         }

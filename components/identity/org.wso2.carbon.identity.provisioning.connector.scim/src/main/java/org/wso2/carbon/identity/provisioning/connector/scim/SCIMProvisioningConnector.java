@@ -1,20 +1,9 @@
 package org.wso2.carbon.identity.provisioning.connector.scim;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.model.Property;
-import org.wso2.carbon.identity.provisioning.AbstractOutboundProvisioningConnector;
-import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
-import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
-import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
-import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
-import org.wso2.carbon.identity.provisioning.ProvisioningEntityType;
-import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
+import org.wso2.carbon.identity.provisioning.*;
 import org.wso2.carbon.identity.scim.common.impl.ProvisioningClient;
 import org.wso2.carbon.identity.scim.common.utils.AttributeMapper;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -24,13 +13,12 @@ import org.wso2.charon.core.objects.Group;
 import org.wso2.charon.core.objects.User;
 import org.wso2.charon.core.schema.SCIMConstants;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConnector {
-    
-    private static final long serialVersionUID = -2800777564581005554L;
-    
-    private static Log log = LogFactory.getLog(SCIMProvisioningConnector.class);
-    private SCIMProvider scimProvider;
-    private String userStoreDomainName;
 
     public static final String SCIM_USER_EP = "scim-user-ep";
     public static final String SCIM_GROUP_EP = "scim-group-ep";
@@ -38,9 +26,13 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
     public static final String SCIM_PASSWORD = "scim-password";
     public static final String SCIM_USERSTORE_DOMAIN = "scim-user-store-domain";
     public static final String DEFAULT_SCIM_DIALECT = "urn:scim:schemas:core:1.0";
+    private static final long serialVersionUID = -2800777564581005554L;
+    private static Log log = LogFactory.getLog(SCIMProvisioningConnector.class);
+    private SCIMProvider scimProvider;
+    private String userStoreDomainName;
 
     /**
-     * 
+     *
      */
     public void init(Property[] provisioningProperties) throws IdentityProvisioningException {
         scimProvider = new SCIMProvider();
@@ -74,13 +66,13 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
     }
 
     /**
-     * 
+     *
      */
     public ProvisionedIdentifier provision(ProvisioningEntity provisioningEntity)
             throws IdentityProvisioningException {
 
         if (provisioningEntity != null) {
-            
+
             if (provisioningEntity.isJitProvisioning() && !isJitProvisioningEnabled()) {
                 log.debug("JIT provisioning disabled for SCIM connector");
                 return null;
@@ -117,7 +109,6 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
     }
 
     /**
-     * 
      * @param userEntity
      * @throws IdentityProvisioningException
      */
@@ -159,7 +150,6 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
     }
 
     /**
-     * 
      * @param userEntity
      * @throws UserStoreException
      */
@@ -197,7 +187,6 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
     }
 
     /**
-     * 
      * @param userEntity
      * @throws IdentityProvisioningException
      */
@@ -225,7 +214,6 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
     }
 
     /**
-     * 
      * @param roleName
      * @param userList
      * @param permissions
@@ -250,7 +238,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
             List<String> userList = getUserNames(groupEntity.getAttributes());
 
             if (userList != null && userList.size() > 0) {
-                for (Iterator<String> iterator = userList.iterator(); iterator.hasNext();) {
+                for (Iterator<String> iterator = userList.iterator(); iterator.hasNext(); ) {
                     String userName = iterator.next();
                     Map<String, Object> members = new HashMap<String, Object>();
                     members.put(SCIMConstants.CommonSchemaConstants.DISPLAY, userName);
@@ -269,7 +257,6 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
     }
 
     /**
-     * 
      * @param groupEntity
      * @throws IdentityProvisioningException
      */
@@ -299,7 +286,6 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
     }
 
     /**
-     * 
      * @param groupEntity
      * @throws IdentityProvisioningException
      */
@@ -320,7 +306,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
             List<String> userList = getUserNames(groupEntity.getAttributes());
 
             if (userList != null && userList.size() > 0) {
-                for (Iterator<String> iterator = userList.iterator(); iterator.hasNext();) {
+                for (Iterator<String> iterator = userList.iterator(); iterator.hasNext(); ) {
                     String userName = iterator.next();
                     Map<String, Object> members = new HashMap<String, Object>();
                     members.put(SCIMConstants.CommonSchemaConstants.DISPLAY, userName);
@@ -338,14 +324,13 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
     }
 
     /**
-     * 
+     *
      */
     protected String getUserStoreDomainName() {
         return userStoreDomainName;
     }
 
     /**
-     * 
      * @param property
      * @param scimPropertyName
      * @throws IdentityProvisioningException
@@ -366,7 +351,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
     }
 
     /**
-     * 
+     *
      */
     public boolean isEnabled() throws IdentityProvisioningException {
         return true;

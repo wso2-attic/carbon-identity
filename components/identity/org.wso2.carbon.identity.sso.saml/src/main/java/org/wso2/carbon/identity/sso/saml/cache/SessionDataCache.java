@@ -30,26 +30,26 @@ public class SessionDataCache extends BaseCache<CacheKey, CacheEntry> {
     private SessionDataCache(String cacheName) {
         super(cacheName);
     }
-    
+
     private SessionDataCache(String cacheName, int timeout) {
         super(cacheName, timeout);
         useCache = !Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Only"));
     }
 
     public static SessionDataCache getInstance(int timeout) {
-    	if (instance == null) {
-    		synchronized (SessionDataCache.class) {
-				if (instance == null) {
-					instance = new SessionDataCache(SESSION_DATA_CACHE_NAME, timeout);
-				}
-			}
-    	}
+        if (instance == null) {
+            synchronized (SessionDataCache.class) {
+                if (instance == null) {
+                    instance = new SessionDataCache(SESSION_DATA_CACHE_NAME, timeout);
+                }
+            }
+        }
         return instance;
     }
 
     @Override
     public void addToCache(CacheKey key, CacheEntry entry) {
-        if(useCache){
+        if (useCache) {
             super.addToCache(key, entry);
         }
         String keyValue = ((SessionDataCacheKey) key).getSessionDataKey();
@@ -59,20 +59,20 @@ public class SessionDataCache extends BaseCache<CacheKey, CacheEntry> {
     @Override
     public CacheEntry getValueFromCache(CacheKey key) {
         CacheEntry cacheEntry = null;
-        if(useCache){
+        if (useCache) {
             cacheEntry = super.getValueFromCache(key);
         }
-        if(cacheEntry == null){
+        if (cacheEntry == null) {
             String keyValue = ((SessionDataCacheKey) key).getSessionDataKey();
             cacheEntry = (SessionDataCacheEntry) SessionDataStore.getInstance().
-                                                    getSessionData(keyValue, SESSION_DATA_CACHE_NAME);
+                    getSessionData(keyValue, SESSION_DATA_CACHE_NAME);
         }
         return cacheEntry;
     }
 
     @Override
     public void clearCacheEntry(CacheKey key) {
-        if(useCache){
+        if (useCache) {
             super.clearCacheEntry(key);
         }
         String keyValue = ((SessionDataCacheKey) key).getSessionDataKey();

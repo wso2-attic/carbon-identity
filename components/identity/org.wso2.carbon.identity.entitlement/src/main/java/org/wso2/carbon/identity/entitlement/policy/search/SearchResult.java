@@ -25,14 +25,13 @@ import java.io.Serializable;
 /**
  * Encapsulate result
  */
-public class SearchResult implements Serializable{
+public class SearchResult implements Serializable {
 
     private static final long serialVersionUID = -6701359087661169326L;
     /**
      * Result
      */
     private EntitledResultSetDTO resultSetDTO;
-
 
 
     public EntitledResultSetDTO getResultSetDTO() {
