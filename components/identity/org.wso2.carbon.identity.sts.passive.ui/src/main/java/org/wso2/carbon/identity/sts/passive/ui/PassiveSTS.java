@@ -219,8 +219,7 @@ public class PassiveSTS extends HttpServlet {
         FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest,
                 request.getSession().getMaxInactiveInterval());
         StringBuilder queryStringBuilder = new StringBuilder();
-        queryStringBuilder.append(commonAuthURL).
-                append("?").
+        queryStringBuilder.append("?").
                 append(FrameworkConstants.SESSION_DATA_KEY).
                 append("=").
                 append(sessionDataKey).
