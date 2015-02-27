@@ -228,7 +228,7 @@ public class PassiveSTS extends HttpServlet {
                 append(FrameworkConstants.RequestParams.TYPE).
                 append("=").
                 append(FrameworkConstants.PASSIVE_STS);
-        response.sendRedirect(commonAuthURL + queryStringBuilder.toString());
+        response.sendRedirect(queryStringBuilder.toString());
     }
 
     private void handleResponseFromAuthenticationFramework(HttpServletRequest request, HttpServletResponse response)
