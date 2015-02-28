@@ -364,8 +364,7 @@ public class OAuthServerConfiguration {
                             try {
                                 clientAuthenticationHandler = (ClientAuthenticationHandler)
                                         Class.forName(entry.getKey()).newInstance();
-                                clientAuthenticationHandler.init();
-                                clientAuthenticationHandler.setProperties(entry.getValue());
+                                clientAuthenticationHandler.init(entry.getValue());
                             } catch (InstantiationException e) {
                                 log.error("Error instantiating " + entry);
                             } catch (IllegalAccessException e) {

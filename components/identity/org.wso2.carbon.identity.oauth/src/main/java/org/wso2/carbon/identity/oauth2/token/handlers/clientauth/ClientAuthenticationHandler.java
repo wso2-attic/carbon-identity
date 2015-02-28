@@ -30,7 +30,7 @@ public interface ClientAuthenticationHandler {
      *
      * @throws org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception Error when initializing the OAuth 2.0 client authentication handler.
      */
-    public void init() throws IdentityOAuth2Exception;
+    public void init(Properties properties) throws IdentityOAuth2Exception;
 
     /**
      * Tells if the request contains required information for the OAuth 2.0 client to be authenticated
@@ -47,12 +47,5 @@ public interface ClientAuthenticationHandler {
      * @throws org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception Error when validating the OAuth 2.0 client.
      */
     public boolean authenticateClient(OAuthTokenReqMessageContext tokReqMsgCtx) throws IdentityOAuth2Exception;
-
-    /**
-     * Set configured properties for authentication class
-     *
-     * @param properties
-     */
-    public void setProperties(Properties properties);
 
 }

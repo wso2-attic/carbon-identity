@@ -27,11 +27,6 @@ import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 public class BasicAuthClientAuthHandler extends AbstractClientAuthHandler {
 
     @Override
-    public void init() throws IdentityOAuth2Exception {
-
-    }
-
-    @Override
     public boolean authenticateClient(OAuthTokenReqMessageContext tokReqMsgCtx)
             throws IdentityOAuth2Exception {
 
