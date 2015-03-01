@@ -42,6 +42,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.authenticator.passive.sts.exception.PassiveSTSException;
 import org.wso2.carbon.identity.application.authenticator.passive.sts.util.CarbonEntityResolver;
@@ -241,8 +242,10 @@ public class PassiveSTSManager {
             throw new PassiveSTSException("Cannot find federated User Identifier");
         }
 
-        context.setSubject(subject);
-        context.setSubjectAttributes(claimMappingStringMap);
+        AuthenticatedUser authenticatedUser =
+                AuthenticatedUser.createFederateAuthenticatedUserFromSubjectIdentifier(subject);
+        authenticatedUser.setUserAttributes(claimMappingStringMap);
+        context.setSubject(authenticatedUser);
     }
 
     /**
