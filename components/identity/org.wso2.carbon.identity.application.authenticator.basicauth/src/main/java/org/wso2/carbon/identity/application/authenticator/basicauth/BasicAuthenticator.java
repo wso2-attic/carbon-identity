@@ -10,6 +10,7 @@ import org.wso2.carbon.identity.application.authentication.framework.context.Aut
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.exception.InvalidCredentialsException;
 import org.wso2.carbon.identity.application.authentication.framework.exception.LogoutFailedException;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.authenticator.basicauth.internal.BasicAuthenticatorServiceComponent;
 import org.wso2.carbon.identity.base.IdentityException;
@@ -238,7 +239,7 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
                 }
             }
         }
-        context.setSubject(username);
+        context.setSubject(AuthenticatedUser.createLocalAuthenticatedUserFromSubjectIdentifier(username));
         String rememberMe = request.getParameter("chkRemember");
 
         if (rememberMe != null && "on".equals(rememberMe)) {
