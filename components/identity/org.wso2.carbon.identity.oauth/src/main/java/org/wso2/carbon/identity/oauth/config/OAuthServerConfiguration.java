@@ -365,6 +365,7 @@ public class OAuthServerConfiguration {
                                 clientAuthenticationHandler = (ClientAuthenticationHandler)
                                         Class.forName(entry.getKey()).newInstance();
                                 clientAuthenticationHandler.init(entry.getValue());
+                                supportedClientAuthHandlers.add(clientAuthenticationHandler);
                             } catch (InstantiationException e) {
                                 log.error("Error instantiating " + entry);
                             } catch (IllegalAccessException e) {
@@ -374,7 +375,6 @@ public class OAuthServerConfiguration {
                             } catch (IdentityOAuth2Exception e) {
                                 log.error("Error while initializing " + entry);
                             }
-                        supportedClientAuthHandlers.add(clientAuthenticationHandler);
                     }
                 }
             }
