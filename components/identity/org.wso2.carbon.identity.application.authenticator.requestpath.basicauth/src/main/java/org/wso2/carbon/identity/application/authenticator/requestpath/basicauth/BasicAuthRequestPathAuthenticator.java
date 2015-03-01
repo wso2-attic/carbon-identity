@@ -24,6 +24,7 @@ import org.wso2.carbon.identity.application.authentication.framework.AbstractApp
 import org.wso2.carbon.identity.application.authentication.framework.RequestPathApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.authenticator.requestpath.basicauth.internal.BasicAuthRequestPathAuthenticatorServiceComponent;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
@@ -108,7 +109,9 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
             // AuthenticationContext
             authProperties.put("user-tenant-domain", tenantDomain);
 
-            context.setSubject(FrameworkUtils.prependUserStoreDomainToName(cred[0]));
+            context.setSubject(AuthenticatedUser.createLocalAuthenticatedUserFromSubjectIdentifier(
+                    FrameworkUtils.prependUserStoreDomainToName(
+                            cred[0])));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new AuthenticationFailedException("Authentication Failed");
