@@ -27,6 +27,7 @@ import org.wso2.carbon.identity.application.authentication.framework.context.Aut
 import org.wso2.carbon.identity.application.authentication.framework.context.SessionContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
 import org.wso2.carbon.identity.application.authentication.framework.handler.request.AuthenticationRequestHandler;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
@@ -194,7 +195,6 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
      *
      * @param request
      * @param response
-     * @param isAuthenticated
      * @throws ServletException
      * @throws IOException
      */
@@ -225,17 +225,12 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
 
         if (isAuthenticated) {
 
-            authenticationResult.setSubject(sequenceConfig.getAuthenticatedUser());
+            authenticationResult.setSubject(new AuthenticatedUser(sequenceConfig.getAuthenticatedUser()));
             ApplicationConfig appConfig = sequenceConfig.getApplicationConfig();
 
             if (appConfig.getServiceProvider().getLocalAndOutBoundAuthenticationConfig()
                     .isAlwaysSendBackAuthenticatedListOfIdPs()) {
                 authenticationResult.setAuthenticatedIdPs(sequenceConfig.getAuthenticatedIdPs());
-            }
-
-            if (sequenceConfig.getUserAttributes() != null
-                    && !sequenceConfig.getUserAttributes().isEmpty()) {
-                authenticationResult.setUserAttributes(sequenceConfig.getUserAttributes());
             }
 
             // SessionContext is retained across different SP requests in the same browser session.
@@ -314,14 +309,20 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
                                 AuthenticationContext context) throws FrameworkException {
 
         if (log.isDebugEnabled()) {
-            log.debug("Sending response back to: " + context.getCallerPath() + "...\n"
-                    + FrameworkConstants.ResponseParams.AUTHENTICATED + ": "
-                    + String.valueOf(context.isRequestAuthenticated()) + "\n"
-                    + FrameworkConstants.ResponseParams.AUTHENTICATED_USER + ": "
-                    + context.getSequenceConfig().getAuthenticatedUser() + "\n"
-                    + FrameworkConstants.ResponseParams.AUTHENTICATED_IDPS + ": "
-                    + context.getSequenceConfig().getAuthenticatedIdPs() + "\n"
-                    + FrameworkConstants.SESSION_DATA_KEY + ": " + context.getCallerSessionKey());
+            StringBuilder debugMessage = new StringBuilder();
+            debugMessage.append("Sending response back to: ");
+            debugMessage.append(context.getCallerPath()).append("...\n");
+            debugMessage.append(FrameworkConstants.ResponseParams.AUTHENTICATED).append(": ");
+            debugMessage.append(String.valueOf(context.isRequestAuthenticated())).append("\n");
+            debugMessage.append(FrameworkConstants.ResponseParams.AUTHENTICATED_USER).append(": ");
+            debugMessage.append(context.getSequenceConfig().getAuthenticatedUser().getAuthenticatedSubjectIdentifier())
+                        .append("\n");
+            debugMessage.append(FrameworkConstants.ResponseParams.AUTHENTICATED_IDPS).append(": ");
+            debugMessage.append(context.getSequenceConfig().getAuthenticatedIdPs()).append("\n");
+            debugMessage.append(FrameworkConstants.SESSION_DATA_KEY).append(": ");
+            debugMessage.append(context.getCallerSessionKey());
+
+            log.debug(debugMessage);
         }
 
         // TODO rememberMe should be handled by a cookie authenticator. For now rememberMe flag that

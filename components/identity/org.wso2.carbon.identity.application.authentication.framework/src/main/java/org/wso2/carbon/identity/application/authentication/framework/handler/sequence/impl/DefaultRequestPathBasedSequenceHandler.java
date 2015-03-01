@@ -14,9 +14,9 @@ import org.wso2.carbon.identity.application.authentication.framework.exception.I
 import org.wso2.carbon.identity.application.authentication.framework.exception.LogoutFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.handler.sequence.RequestPathBasedSequenceHandler;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedIdPData;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -77,25 +77,21 @@ public class DefaultRequestPathBasedSequenceHandler implements RequestPathBasedS
                                 + status.toString());
                     }
 
-                    String authenticatedUser = context.getSubject();
+                    AuthenticatedUser authenticatedUser = context.getSubject();
                     seqConfig.setAuthenticatedUser(authenticatedUser);
 
                     String authenticatedUserTenantDomain = (String) context.getProperty("user-tenant-domain");
                     seqConfig.setAuthenticatedUserTenantDomain(authenticatedUserTenantDomain);
 
                     if (log.isDebugEnabled()) {
-                        log.debug("Authenticated User: " + authenticatedUser);
+                        log.debug("Authenticated User: " + authenticatedUser.getAuthenticatedSubjectIdentifier());
                         log.debug("Authenticated User Tenant Domain: " + authenticatedUserTenantDomain);
                     }
 
                     AuthenticatedIdPData authenticatedIdPData = new AuthenticatedIdPData();
 
                     // store authenticated user
-                    authenticatedIdPData.setUsername(authenticatedUser);
-
-                    // store authenticated user's attributes
-                    Map<ClaimMapping, String> userAttributes = context.getSubjectAttributes();
-                    authenticatedIdPData.setUserAttributes(userAttributes);
+                    authenticatedIdPData.setUser(authenticatedUser);
 
                     // store authenticated idp
                     authenticatedIdPData.setIdpName(FrameworkConstants.LOCAL_IDP_NAME);
@@ -169,7 +165,7 @@ public class DefaultRequestPathBasedSequenceHandler implements RequestPathBasedS
                     getServiceProviderMappedUserRoles(sequenceConfig, Arrays.asList(roles)));
         }
 
-        sequenceConfig.setUserAttributes(FrameworkUtils.buildClaimMappings(mappedAttrs));
+        sequenceConfig.getAuthenticatedUser().setUserAttributes(FrameworkUtils.buildClaimMappings(mappedAttrs));
 
         if (context.getSequenceConfig().getApplicationConfig().getSubjectClaimUri() != null
                 && context.getSequenceConfig().getApplicationConfig().getSubjectClaimUri().trim()
@@ -187,13 +183,15 @@ public class DefaultRequestPathBasedSequenceHandler implements RequestPathBasedS
                         .getSubjectClaimUri().trim());
             }
             if (subjectValue != null) {
-                sequenceConfig.setAuthenticatedUser(subjectValue);
+                AuthenticatedUser authenticatedUser = sequenceConfig.getAuthenticatedUser();
+                authenticatedUser.setAuthenticatedSubjectIdentifier(subjectValue);
 
                 String authenticatedUserTenantDomain = (String) context.getProperty("user-tenant-domain");
                 sequenceConfig.setAuthenticatedUserTenantDomain(authenticatedUserTenantDomain);
 
                 if (log.isDebugEnabled()) {
-                    log.debug("Authenticated User: " + sequenceConfig.getAuthenticatedUser());
+                    log.debug("Authenticated User: " +
+                              sequenceConfig.getAuthenticatedUser().getAuthenticatedSubjectIdentifier());
                     log.debug("Authenticated User Tenant Domain: " + authenticatedUserTenantDomain);
                 }
             }

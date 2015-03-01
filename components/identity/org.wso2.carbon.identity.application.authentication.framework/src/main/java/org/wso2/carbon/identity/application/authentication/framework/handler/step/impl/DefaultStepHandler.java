@@ -16,9 +16,9 @@ import org.wso2.carbon.identity.application.authentication.framework.exception.I
 import org.wso2.carbon.identity.application.authentication.framework.exception.LogoutFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.handler.step.StepHandler;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedIdPData;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -393,14 +393,9 @@ public class DefaultStepHandler implements StepHandler {
             AuthenticatedIdPData authenticatedIdPData = new AuthenticatedIdPData();
 
             // store authenticated user
-            String authenticatedUser = context.getSubject();
+            AuthenticatedUser authenticatedUser = context.getSubject();
             stepConfig.setAuthenticatedUser(authenticatedUser);
-            authenticatedIdPData.setUsername(authenticatedUser);
-
-            // store authenticated user's attributes
-            Map<ClaimMapping, String> userAttributes = context.getSubjectAttributes();
-            stepConfig.setAuthenticatedUserAttributes(userAttributes);
-            authenticatedIdPData.setUserAttributes(userAttributes);
+            authenticatedIdPData.setUser(authenticatedUser);
 
             authenticatorConfig.setAuthenticatorStateInfo(context.getStateInfo());
             stepConfig.setAuthenticatedAutenticator(authenticatorConfig);
@@ -435,8 +430,7 @@ public class DefaultStepHandler implements StepHandler {
     protected void populateStepConfigWithAuthenticationDetails(StepConfig stepConfig,
                                                                AuthenticatedIdPData authenticatedIdPData) {
 
-        stepConfig.setAuthenticatedUser(authenticatedIdPData.getUsername());
-        stepConfig.setAuthenticatedUserAttributes(authenticatedIdPData.getUserAttributes());
+        stepConfig.setAuthenticatedUser(authenticatedIdPData.getUser());
         stepConfig.setAuthenticatedIdP(authenticatedIdPData.getIdpName());
         stepConfig.setAuthenticatedAutenticator(authenticatedIdPData.getAuthenticator());
     }
