@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.config.model;
 
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 
 import java.io.Serializable;
 import java.util.*;
@@ -39,9 +39,8 @@ public class SequenceConfig implements Serializable {
     private ApplicationConfig applicationConfig = null;
     private boolean completed;
 
-    private String authenticatedUser;
+    private AuthenticatedUser authenticatedUser;
     private String authenticatedUserTenantDomain;
-    private Map<ClaimMapping, String> userAttributes = new HashMap<ClaimMapping, String>();
     private String authenticatedIdPs;
 
     private AuthenticatorConfig authenticatedReqPathAuthenticator;
@@ -114,11 +113,11 @@ public class SequenceConfig implements Serializable {
         this.completed = completed;
     }
 
-    public String getAuthenticatedUser() {
+    public AuthenticatedUser getAuthenticatedUser() {
         return authenticatedUser;
     }
 
-    public void setAuthenticatedUser(String authenticatedUser) {
+    public void setAuthenticatedUser(AuthenticatedUser authenticatedUser) {
         this.authenticatedUser = authenticatedUser;
     }
 
@@ -128,14 +127,6 @@ public class SequenceConfig implements Serializable {
 
     public void setAuthenticatedUserTenantDomain(String authenticatedUserTenantDomain) {
         this.authenticatedUserTenantDomain = authenticatedUserTenantDomain;
-    }
-
-    public Map<ClaimMapping, String> getUserAttributes() {
-        return userAttributes;
-    }
-
-    public void setUserAttributes(Map<ClaimMapping, String> userAttributes) {
-        this.userAttributes = userAttributes;
     }
 
     public String getAuthenticatedIdPs() {

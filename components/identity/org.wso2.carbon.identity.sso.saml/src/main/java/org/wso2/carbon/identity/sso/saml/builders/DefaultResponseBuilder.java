@@ -33,7 +33,6 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -84,7 +83,7 @@ public class DefaultResponseBuilder implements ResponseBuilder {
 
         if (authReqDTO.isDoSignResponse()) {
             SAMLSSOUtil.setSignature(response, XMLSignature.ALGO_ID_SIGNATURE_RSA,
-                    new SignKeyDataHolder(authReqDTO.getUsername()));
+                    new SignKeyDataHolder(authReqDTO.getUser().getAuthenticatedSubjectIdentifier()));
         }
         return response;
     }
@@ -108,7 +107,7 @@ public class DefaultResponseBuilder implements ResponseBuilder {
         response.getAssertions().add(assertion);
         if (authReqDTO.isDoSignResponse()) {
             SAMLSSOUtil.setSignature(response, XMLSignature.ALGO_ID_SIGNATURE_RSA,
-                    new SignKeyDataHolder(authReqDTO.getUsername()));
+                    new SignKeyDataHolder(authReqDTO.getUser().getAuthenticatedSubjectIdentifier()));
         }
         return response;
     }
@@ -127,15 +126,14 @@ public class DefaultResponseBuilder implements ResponseBuilder {
             NameID nameId = new NameIDBuilder().buildObject();
 
             if (authReqDTO.getUseFullyQualifiedUsernameAsSubject()) {
-                nameId.setValue(authReqDTO.getUsername());
+                nameId.setValue(authReqDTO.getUser().getAuthenticatedSubjectIdentifier());
                 if (authReqDTO.getNameIDFormat() != null) {
                     nameId.setFormat(authReqDTO.getNameIDFormat());
                 } else {
                     nameId.setFormat(NameIdentifier.EMAIL);
                 }
             } else {
-                nameId.setValue(MultitenantUtils.getTenantAwareUsername(authReqDTO
-                        .getUsername()));
+                nameId.setValue(authReqDTO.getUser().getUserName());
                 nameId.setFormat(authReqDTO.getNameIDFormat());
             }
 
@@ -213,7 +211,7 @@ public class DefaultResponseBuilder implements ResponseBuilder {
 
             if (authReqDTO.getDoSignAssertions()) {
                 SAMLSSOUtil.setSignature(samlAssertion, XMLSignature.ALGO_ID_SIGNATURE_RSA,
-                        new SignKeyDataHolder(authReqDTO.getUsername()));
+                        new SignKeyDataHolder(authReqDTO.getUser().getAuthenticatedSubjectIdentifier()));
             }
 
             return samlAssertion;

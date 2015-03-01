@@ -1,10 +1,8 @@
 package org.wso2.carbon.identity.application.authentication.framework.model;
 
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 
 import java.io.Serializable;
-import java.util.Map;
 
 public class AuthenticatedIdPData implements Serializable {
 
@@ -12,8 +10,7 @@ public class AuthenticatedIdPData implements Serializable {
 
     private String idpName;
     private AuthenticatorConfig authenticator;
-    private String username;
-    private Map<ClaimMapping, String> userAttributes;
+    private AuthenticatedUser user;
 
     public String getIdpName() {
         return idpName;
@@ -23,20 +20,12 @@ public class AuthenticatedIdPData implements Serializable {
         this.idpName = idpName;
     }
 
-    public String getUsername() {
-        return username;
+    public AuthenticatedUser getUser() {
+        return user;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public Map<ClaimMapping, String> getUserAttributes() {
-        return userAttributes;
-    }
-
-    public void setUserAttributes(Map<ClaimMapping, String> userAttributes) {
-        this.userAttributes = userAttributes;
+    public void setUser(AuthenticatedUser user) {
+        this.user = user;
     }
 
     public AuthenticatorConfig getAuthenticator() {

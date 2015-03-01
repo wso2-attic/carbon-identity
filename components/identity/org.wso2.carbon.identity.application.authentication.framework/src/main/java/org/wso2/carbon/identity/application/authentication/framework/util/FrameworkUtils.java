@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.claim.mgt.ClaimManagerHandler;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.cache.*;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
@@ -59,7 +60,9 @@ import org.wso2.carbon.identity.application.authentication.framework.model.Authe
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
 import org.wso2.carbon.identity.application.common.model.*;
 import org.wso2.carbon.ui.CarbonUIUtil;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -544,7 +547,7 @@ public class FrameworkUtils {
         if (seqData != null) {
             for (Entry<String, SequenceConfig> entry : seqData.entrySet()) {
                 if (entry.getValue() != null) {
-                    ((SequenceConfig) entry.getValue()).setUserAttributes(null);
+                    entry.getValue().getAuthenticatedUser().setUserAttributes(null);
                 }
             }
         }
@@ -1019,7 +1022,7 @@ public class FrameworkUtils {
         String value;
         boolean useLocalClaimDialect = context.getExternalIdP().useDefaultLocalIdpDialect();
         String userIdClaimURI = context.getExternalIdP().getUserIdClaimUri();
-        Map<ClaimMapping, String> claimMappings = context.getSubjectAttributes();
+        Map<ClaimMapping, String> claimMappings = context.getSubject().getUserAttributes();
 
         if (useLocalClaimDialect) {
             Map<String, String> extAttributesValueMap = FrameworkUtils.getClaimMappings(claimMappings, false);
@@ -1036,5 +1039,39 @@ public class FrameworkUtils {
             value = claimMappings.get(claimMapping);
         }
         return value;
+    }
+
+    /**
+     * Starts the tenant flow for the given tenant domain
+     *
+     * @param tenantDomain tenant domain
+     */
+    public static void startTenantFlow(String tenantDomain){
+        String tenantDomainParam = tenantDomain;
+        int tenantId = MultitenantConstants.SUPER_TENANT_ID;
+
+        if (tenantDomainParam != null && !tenantDomainParam.trim().isEmpty()) {
+            try {
+                tenantId = FrameworkServiceComponent.getRealmService().getTenantManager()
+                                                    .getTenantId(tenantDomain);
+            } catch (UserStoreException e) {
+                log.error("Error while getting tenantId from tenantDomain query param", e);
+            }
+        } else {
+            tenantDomainParam = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+        }
+
+        PrivilegedCarbonContext.startTenantFlow();
+        PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
+                .getThreadLocalCarbonContext();
+        carbonContext.setTenantId(tenantId);
+        carbonContext.setTenantDomain(tenantDomainParam);
+    }
+
+    /**
+     * Ends the tenant flow
+     */
+    public static void endTenantFlow(){
+        PrivilegedCarbonContext.endTenantFlow();
     }
 }

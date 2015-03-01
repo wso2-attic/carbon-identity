@@ -1097,7 +1097,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
      * @throws SQLException
      */
     private ServiceProvider getBasicApplicationData(String applicationName, Connection connection,
-                                                    int tenantID) throws SQLException {
+                                                    int tenantID)
+            throws SQLException, IdentityApplicationManagementException {
 
         ServiceProvider serviceProvider = null;
 
@@ -1124,9 +1125,22 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 serviceProvider.setApplicationName(basicAppDataResultSet.getString(3));
                 serviceProvider.setDescription(basicAppDataResultSet.getString(6));
 
+                String tenantDomain;
+                try {
+                    tenantDomain = ApplicationManagementServiceComponentHolder.getRealmService()
+                                                                              .getTenantManager()
+                                                                              .getDomain(
+                                                                                      basicAppDataResultSet.getInt(2));
+                } catch (UserStoreException e) {
+                    log.error("Error while reading tenantDomain", e);
+                    throw new IdentityApplicationManagementException("Error while reading tenant " +
+                                                                     "domain for application " +
+                                                                     applicationName);
+                }
+
                 User owner = new User();
                 owner.setUserName(basicAppDataResultSet.getString(5));
-                owner.setTenantId(basicAppDataResultSet.getInt(2));
+                owner.setTenantDomain(tenantDomain);
                 owner.setUserStoreDomain(basicAppDataResultSet.getString(4));
                 serviceProvider.setOwner(owner);
 
@@ -1151,7 +1165,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                     log.debug("ApplicationID: " + serviceProvider.getApplicationID()
                             + " ApplicationName: " + serviceProvider.getApplicationName()
                             + " UserName: " + serviceProvider.getOwner().getUserName()
-                            + " TenantID: " + serviceProvider.getOwner().getTenantId());
+                            + " TenantDomain: " + serviceProvider.getOwner().getTenantDomain());
                 }
             }
 

@@ -34,6 +34,7 @@ import org.wso2.carbon.identity.application.authentication.framework.AbstractApp
 import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
@@ -332,7 +333,6 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                             }
 
                         }
-                        context.setSubjectAttributes(claims);
 
                         String authenticatedUser = null;
                         String isSubjectInClaimsProp = context.getAuthenticatorProperties().get(
@@ -351,7 +351,11 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                         if (authenticatedUser == null) {
                             throw new AuthenticationFailedException("Cannot find federated User Identifier");
                         }
-                        context.setSubject(authenticatedUser);
+
+                        AuthenticatedUser authenticatedUserObj = AuthenticatedUser
+                                .createFederateAuthenticatedUserFromSubjectIdentifier(authenticatedUser);
+                        authenticatedUserObj.setUserAttributes(claims);
+                        context.setSubject(authenticatedUserObj);
 
                     } else {
                         if (log.isDebugEnabled()) {
@@ -360,8 +364,10 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                         throw new AuthenticationFailedException("Decoded json object is null");
                     }
                 } else {
-                    context.setSubjectAttributes(getSubjectAttributes(oAuthResponse));
-                    context.setSubject(getAuthenticateUser(oAuthResponse));
+                    AuthenticatedUser authenticatedUserObj = AuthenticatedUser
+                            .createFederateAuthenticatedUserFromSubjectIdentifier(getAuthenticateUser(oAuthResponse));
+                    authenticatedUserObj.setUserAttributes(getSubjectAttributes(oAuthResponse));
+                    context.setSubject(authenticatedUserObj);
                 }
 
             } else {

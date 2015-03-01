@@ -22,8 +22,8 @@ import org.wso2.carbon.identity.application.authentication.framework.Authenticat
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.SequenceConfig;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedIdPData;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
@@ -73,9 +73,8 @@ public class AuthenticationContext implements Serializable {
     private boolean retrying;
     private boolean previousSessionFound;
 
-    //subject and subjectAttributes should be set by each authenticator
-    private String subject;
-    private Map<ClaimMapping, String> subjectAttributes = new HashMap<ClaimMapping, String>();
+    //subject should be set by each authenticator
+    private AuthenticatedUser subject;
 
     /* Holds any (state) information that would be required by the authenticator
      * for later processing.
@@ -145,11 +144,11 @@ public class AuthenticationContext implements Serializable {
         this.sequenceConfig = sequenceConfig;
     }
 
-    public String getSubject() {
+    public AuthenticatedUser getSubject() {
         return subject;
     }
 
-    public void setSubject(String subject) {
+    public void setSubject(AuthenticatedUser subject) {
         this.subject = subject;
     }
 
@@ -175,14 +174,6 @@ public class AuthenticationContext implements Serializable {
 
     public void setRequestAuthenticated(boolean requestAuthenticated) {
         this.requestAuthenticated = requestAuthenticated;
-    }
-
-    public Map<ClaimMapping, String> getSubjectAttributes() {
-        return subjectAttributes;
-    }
-
-    public void setSubjectAttributes(Map<ClaimMapping, String> subjectAttributes) {
-        this.subjectAttributes = subjectAttributes;
     }
 
     public boolean isRememberMe() {

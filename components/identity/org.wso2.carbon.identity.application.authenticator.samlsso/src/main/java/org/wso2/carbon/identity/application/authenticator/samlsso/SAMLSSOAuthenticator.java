@@ -26,6 +26,7 @@ import org.wso2.carbon.identity.application.authentication.framework.FederatedAp
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.exception.LogoutFailedException;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.authenticator.samlsso.exception.SAMLSSOException;
@@ -149,8 +150,6 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
             Map<ClaimMapping, String> receivedClaims = (Map<ClaimMapping, String>) request
                     .getSession(false).getAttribute("samlssoAttributes");
 
-            context.setSubjectAttributes(receivedClaims);
-
             String subject = null;
             String isSubjectInClaimsProp = context.getAuthenticatorProperties().get(
                     IdentityApplicationConstants.Authenticator.SAML2SSO.IS_USER_ID_IN_CLAIMS);
@@ -180,7 +179,11 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
             stateInfoDO.setSessionIndex(sessionIndex);
             stateInfoDO.setSubject(subject);
             context.setStateInfo(stateInfoDO);
-            context.setSubject(subject);
+
+            AuthenticatedUser authenticatedUser =
+                    AuthenticatedUser.createFederateAuthenticatedUserFromSubjectIdentifier(subject);
+            authenticatedUser.setUserAttributes(receivedClaims);
+            context.setSubject(authenticatedUser);
         } catch (SAMLSSOException e) {
             throw new AuthenticationFailedException(e.getMessage(), e);
         }

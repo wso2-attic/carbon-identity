@@ -17,15 +17,14 @@
  */
 package org.wso2.carbon.identity.sso.saml.dto;
 
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
 public class SAMLSSOAuthnReqDTO implements Serializable {
 
-    private String username;
+    private AuthenticatedUser user;
     private String password;
     private String issuer;
     private String subject;
@@ -54,7 +53,6 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
     private boolean isIdPInitSSO;
     private boolean doEnableEncryptedAssertion;
     private boolean doValidateSignatureInRequests;
-    private Map<ClaimMapping, String> userAttributes = new HashMap<ClaimMapping, String>();
     private Map<String, String> claimMapping = null;
     private String tenantDomain;
     private String certAlias;
@@ -84,12 +82,12 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
         this.certAlias = certAlias;
     }
 
-    public String getUsername() {
-        return username;
+    public AuthenticatedUser getUser() {
+        return user;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUser(AuthenticatedUser user) {
+        this.user = user;
     }
 
     public String getPassword() {
@@ -332,14 +330,6 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
     public void setDoValidateSignatureInRequests(
             boolean doValidateSignatureInRequests) {
         this.doValidateSignatureInRequests = doValidateSignatureInRequests;
-    }
-
-    public Map<ClaimMapping, String> getUserAttributes() {
-        return userAttributes;
-    }
-
-    public void setUserAttributes(Map<ClaimMapping, String> subjectAttributes) {
-        this.userAttributes = subjectAttributes;
     }
 
     public Map<String, String> getClaimMapping() {

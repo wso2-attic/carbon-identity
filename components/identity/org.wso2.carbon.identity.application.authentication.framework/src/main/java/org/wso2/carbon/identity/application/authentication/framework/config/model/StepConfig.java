@@ -18,13 +18,11 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.config.model;
 
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Holds the login page and the authenticator objects
@@ -36,10 +34,9 @@ public class StepConfig implements Serializable {
 
     private int order;
     private String loginPage;
-    private String authenticatedUser;
+    private AuthenticatedUser authenticatedUser;
     private boolean subjectIdentifierStep;
     private boolean subjectAttributeStep;
-    private Map<ClaimMapping, String> authenticatedUserAttributes = new HashMap<ClaimMapping, String>();
     private String authenticatedIdP;
     private AuthenticatorConfig authenticatedAutenticator;
     private List<AuthenticatorConfig> authenticatorList = new ArrayList<AuthenticatorConfig>();
@@ -111,14 +108,14 @@ public class StepConfig implements Serializable {
     /**
      * @return
      */
-    public String getAuthenticatedUser() {
+    public AuthenticatedUser getAuthenticatedUser() {
         return authenticatedUser;
     }
 
     /**
      * @param authenticatedUser
      */
-    public void setAuthenticatedUser(String authenticatedUser) {
+    public void setAuthenticatedUser(AuthenticatedUser authenticatedUser) {
         this.authenticatedUser = authenticatedUser;
     }
 
@@ -149,21 +146,6 @@ public class StepConfig implements Serializable {
     public void setAuthenticatedAutenticator(
             AuthenticatorConfig authenticatedAutenticator) {
         this.authenticatedAutenticator = authenticatedAutenticator;
-    }
-
-    /**
-     * @return
-     */
-    public Map<ClaimMapping, String> getAuthenticatedUserAttributes() {
-        return authenticatedUserAttributes;
-    }
-
-    /**
-     * @param authenticatedUserAttributes
-     */
-    public void setAuthenticatedUserAttributes(
-            Map<ClaimMapping, String> authenticatedUserAttributes) {
-        this.authenticatedUserAttributes = authenticatedUserAttributes;
     }
 
     /**
