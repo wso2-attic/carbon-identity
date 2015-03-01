@@ -32,6 +32,7 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheKey;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
@@ -47,7 +48,6 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientValidationResponseDTO;
 import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -162,17 +162,12 @@ public class OAuth2AuthzEndpoint {
 
                     String redirectURL = null;
                     if (authnResult.isAuthenticated()) {
-
-                        String username = authnResult.getSubject();
-                        String tenantDomain = MultitenantUtils.getTenantDomain(username);
-                        String tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(username);
-                        username = tenantAwareUserName + "@" + tenantDomain;
-                        username = username.toLowerCase();
-                        sessionDataCacheEntry.setLoggedInUser(username);
-                        if (authnResult.getUserAttributes() != null) {
-                            sessionDataCacheEntry.setUserAttributes(new ConcurrentHashMap<ClaimMapping, String>(
-                                    authnResult.getUserAttributes()));
+                        AuthenticatedUser authenticatedUser = authnResult.getSubject();
+                        if (authenticatedUser.getUserAttributes() != null) {
+                            authenticatedUser.setUserAttributes(new ConcurrentHashMap<ClaimMapping, String>(
+                                    authenticatedUser.getUserAttributes()));
                         }
+                        sessionDataCacheEntry.setLoggedInUser(authenticatedUser);
                         sessionDataCacheEntry.setAuthenticatedIdPs(authnResult.getAuthenticatedIdPs());
                         SessionDataCache.getInstance().addToCache(cacheKey, sessionDataCacheEntry);
                         redirectURL = doUserAuthz(request, sessionDataKeyFromLogin, sessionDataCacheEntry);
@@ -334,7 +329,7 @@ public class OAuth2AuthzEndpoint {
                                      SessionDataCacheEntry sessionDataCacheEntry) throws OAuthSystemException {
 
         String applicationName = sessionDataCacheEntry.getoAuth2Parameters().getApplicationName();
-        String loggedInUser = sessionDataCacheEntry.getLoggedInUser();
+        String loggedInUser = sessionDataCacheEntry.getLoggedInUser().getAuthenticatedSubjectIdentifier();
 
         boolean skipConsent = EndpointUtil.getOAuthServerConfiguration().getOpenIDConnectSkipeUserConsentConfig();
         if (!skipConsent) {
@@ -380,7 +375,7 @@ public class OAuth2AuthzEndpoint {
     private void addUserAttributesToCache(SessionDataCacheEntry sessionDataCacheEntry, String code) {
         AuthorizationGrantCacheKey authorizationGrantCacheKey = new AuthorizationGrantCacheKey(code);
         AuthorizationGrantCacheEntry authorizationGrantCacheEntry = new AuthorizationGrantCacheEntry(
-                sessionDataCacheEntry.getUserAttributes());
+                sessionDataCacheEntry.getLoggedInUser().getUserAttributes());
         authorizationGrantCacheEntry.setNonceValue(sessionDataCacheEntry.getoAuth2Parameters().getNonce());
         AuthorizationGrantCache.getInstance().addToCache(authorizationGrantCacheKey, authorizationGrantCacheEntry);
     }
@@ -585,7 +580,7 @@ public class OAuth2AuthzEndpoint {
             throws OAuthSystemException {
 
         OAuth2Parameters oauth2Params = sessionDataCacheEntry.getoAuth2Parameters();
-        String loggedInUser = sessionDataCacheEntry.getLoggedInUser();
+        String loggedInUser = sessionDataCacheEntry.getLoggedInUser().getAuthenticatedSubjectIdentifier();
 
         boolean skipConsent = EndpointUtil.getOAuthServerConfiguration().getOpenIDConnectSkipeUserConsentConfig();
 
@@ -635,7 +630,7 @@ public class OAuth2AuthzEndpoint {
         authzReqDTO.setConsumerKey(oauth2Params.getClientId());
         authzReqDTO.setResponseType(oauth2Params.getResponseType());
         authzReqDTO.setScopes(oauth2Params.getScopes().toArray(new String[oauth2Params.getScopes().size()]));
-        authzReqDTO.setUsername(sessionDataCacheEntry.getLoggedInUser());
+        authzReqDTO.setUsername(sessionDataCacheEntry.getLoggedInUser().getAuthenticatedSubjectIdentifier());
         authzReqDTO.setACRValues(oauth2Params.getACRValues());
         return EndpointUtil.getOAuth2Service().authorize(authzReqDTO);
     }
