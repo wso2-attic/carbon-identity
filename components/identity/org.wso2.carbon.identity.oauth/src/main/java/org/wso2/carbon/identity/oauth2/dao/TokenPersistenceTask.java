@@ -19,7 +19,7 @@ package org.wso2.carbon.identity.oauth2.dao;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
+import org.wso2.carbon.identity.base.IdentityException;
 
 import java.util.concurrent.BlockingDeque;
 
@@ -41,8 +41,9 @@ public class TokenPersistenceTask implements Runnable {
         log.debug("Access Token context persist consumer is started");
 
         while (true) {
+            AccessContextTokenDO accessContextTokenDO = null;
             try {
-                AccessContextTokenDO accessContextTokenDO = accessContextTokenQueue.take();
+                accessContextTokenDO =  accessContextTokenQueue.take();
                 if (accessContextTokenDO != null) {
                     if (accessContextTokenDO.getAccessToken() == null) {
                         log.debug("Access Token Data removing Task is started to run");
@@ -56,9 +57,11 @@ public class TokenPersistenceTask implements Runnable {
                     }
                 }
             } catch (InterruptedException e) {
-                log.error(e);
-            } catch (IdentityOAuth2Exception e) {
-                log.error(e);
+                log.error("Error occurred while persisting access token " +
+                        accessContextTokenDO.getAccessToken(), e);
+            } catch (IdentityException e) {
+                log.error("Error occurred while persisting access token " +
+                        accessContextTokenDO.getAccessToken(), e);
             }
 
         }

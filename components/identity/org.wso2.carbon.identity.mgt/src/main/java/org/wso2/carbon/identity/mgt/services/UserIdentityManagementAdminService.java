@@ -140,8 +140,9 @@ public class UserIdentityManagementAdminService {
                     getTenantUserRealm(CarbonContext.getThreadLocalCarbonContext().getTenantId()).getUserStoreManager();
             userStoreManager.deleteUser(userName);
         } catch (UserStoreException e) {
-            log.error("Error while deleting user", e);
-            throw new IdentityMgtServiceException("Error while deleting user");
+            String errorMessage = "Error occured while deleting user : " + userName;
+            log.error(errorMessage, e);
+            throw new IdentityMgtServiceException(errorMessage);
         }
     }
 
@@ -294,8 +295,9 @@ public class UserIdentityManagementAdminService {
         try {
             questionDTOs = processor.getAllChallengeQuestions();
         } catch (IdentityException e) {
-            log.error("Error while loading user challenges", e);
-            throw new IdentityMgtServiceException("Error while loading user challenges");
+            String errorMessage = "Error while loading user challenge questions";
+            log.error(errorMessage, e);
+            throw new IdentityMgtServiceException(errorMessage);
         }
         return questionDTOs.toArray(new ChallengeQuestionDTO[questionDTOs.size()]);
 
@@ -339,9 +341,9 @@ public class UserIdentityManagementAdminService {
         try {
             processor.setChallengesOfUser(userName, CarbonContext.getThreadLocalCarbonContext().getTenantId(), challengesDTOs);
         } catch (IdentityException e) {
-            log.error("Error while persisting user challenges for user : " + userName, e);
-            throw new IdentityMgtServiceException("Error while persisting user " +
-                    "challenges for user : " + userName, e);
+            String errorMessage = "Error while persisting user challenges for user : " + userName;
+            log.error(errorMessage, e);
+            throw new IdentityMgtServiceException(errorMessage);
         }
     }
 
@@ -374,13 +376,13 @@ public class UserIdentityManagementAdminService {
             userStoreManager.setUserClaimValues(userName, claims, null);
 
         } catch (UserStoreException e) {
-            log.error("Error while updating user identity recovery data", e);
-            throw new IdentityMgtServiceException(
-                    "Error while updating user identity recovery data");
+            String errorMessage = "Error while updating user identity recovery data";
+            log.error(errorMessage, e);
+            throw new IdentityMgtServiceException(errorMessage);
         } catch (IdentityException e) {
-            log.error("Error while updating user identity recovery data", e);
-            throw new IdentityMgtServiceException(
-                    "Error while updating user identity recovery data");
+            String errorMessage = "Error while updating user identity recovery data";
+            log.error(errorMessage, e);
+            throw new IdentityMgtServiceException(errorMessage);
         }
     }
 
@@ -448,7 +450,8 @@ public class UserIdentityManagementAdminService {
 
         } catch (Exception e) {
             String msg = "Error retrieving the user store manager for the tenant";
-            throw new IdentityMgtServiceException(msg, e);
+            log.error(msg, e);
+            throw new IdentityMgtServiceException(msg);
         }
 
         try {
@@ -458,7 +461,9 @@ public class UserIdentityManagementAdminService {
                 isReadOnly = false;
 
         } catch (org.wso2.carbon.user.core.UserStoreException e) {
-            throw new IdentityMgtServiceException("Error while retrieving user store manager");
+            String errorMessage = "Error while retrieving user store manager";
+            log.error(errorMessage, e);
+            throw new IdentityMgtServiceException(errorMessage);
         }
 
         return isReadOnly;

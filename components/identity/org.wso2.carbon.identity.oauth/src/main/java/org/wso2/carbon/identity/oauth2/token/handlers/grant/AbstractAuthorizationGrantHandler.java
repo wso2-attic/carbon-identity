@@ -26,6 +26,7 @@ import org.apache.amber.oauth2.common.message.types.GrantType;
 import org.apache.axiom.util.base64.Base64Utils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.oauth.cache.AppInfoCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
@@ -115,10 +116,24 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                                 " for client Id " + consumerKey + ", user " + authorizedUser +
                                 " and scope " + scope + " from cache");
                     }
-                    long expireTime = OAuth2Util.getTokenExpireTimeMillis(accessTokenDO);
-                    if (expireTime > 0) {
+                    long expireTime = 0;
+                    if(!isOfTypeApplicationUser() && OAuthServerConfiguration.getInstance().
+                            getApplicationAccessTokenValidityPeriodInSeconds() < 0) {
+                        expireTime = -1;
+                    } else if(isOfTypeApplicationUser() && OAuthServerConfiguration.getInstance().
+                            getUserAccessTokenValidityPeriodInSeconds() < 0) {
+                        expireTime = -1;
+                    } else {
+                        expireTime = OAuth2Util.getTokenExpireTimeMillis(accessTokenDO);
+                    }
+                    if (expireTime > 0 || expireTime < 0) {
                         if (log.isDebugEnabled()) {
-                            log.debug("Access Token " + accessTokenDO.getAccessToken() + " is still valid");
+                            if(expireTime > 0) {
+                                log.debug("Access Token " + accessTokenDO.getAccessToken() + " is still valid");
+                            } else {
+                                log.debug("Infinite lifetime Access Token " + accessTokenDO.getAccessToken() +
+                                        " found in cache");
+                            }
                         }
                         tokenRespDTO = new OAuth2AccessTokenRespDTO();
                         tokenRespDTO.setAccessToken(accessTokenDO.getAccessToken());
@@ -127,8 +142,13 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                                         GrantType.REFRESH_TOKEN.toString())) {
                             tokenRespDTO.setRefreshToken(accessTokenDO.getRefreshToken());
                         }
-                        tokenRespDTO.setExpiresIn(expireTime / 1000);
-                        tokenRespDTO.setExpiresInMillis(expireTime);
+                        if(expireTime > 0){
+                            tokenRespDTO.setExpiresIn(expireTime/1000);
+                            tokenRespDTO.setExpiresInMillis(expireTime);
+                        } else {
+                            tokenRespDTO.setExpiresIn(Long.MAX_VALUE/1000);
+                            tokenRespDTO.setExpiresInMillis(Long.MAX_VALUE);
+                        }
                         return tokenRespDTO;
                     } else {
                         //Token is expired. Clear it from cache and mark it as expired on database
@@ -155,11 +175,27 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                             " for client Id " + consumerKey + ", user " + authorizedUser +
                             " and scope " + scope + " from database");
                 }
-                if (OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE.equals(accessTokenDO.getTokenState()) &&
-                        OAuth2Util.getTokenExpireTimeMillis(accessTokenDO) > 0) {
+                long expireTime = 0;
+                if(!isOfTypeApplicationUser() && OAuthServerConfiguration.getInstance().
+                                getApplicationAccessTokenValidityPeriodInSeconds() < 0) {
+                        expireTime = -1;
+                    } else if(isOfTypeApplicationUser() && OAuthServerConfiguration.getInstance().
+                                getUserAccessTokenValidityPeriodInSeconds() < 0) {
+                        expireTime = -1;
+                    } else {
+                        expireTime = OAuth2Util.getTokenExpireTimeMillis(accessTokenDO);
+                    }
+                if(OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE.equals(
+                                accessTokenDO.getTokenState()) && (expireTime > 0 || expireTime < 0)){
                     // token is active and valid
                     if (log.isDebugEnabled()) {
-                        log.debug("Access token " + accessTokenDO.getAccessToken() + " is still valid");
+                        if(expireTime > 0){
+                            log.debug("Access token " + accessTokenDO.getAccessToken() +
+                                            " is valid for another " + expireTime + "ms");
+                        } else {
+                            log.debug("Infinite lifetime Access Token " + accessTokenDO.getAccessToken() +
+                                            " found in cache");
+                        }
                     }
                     tokenRespDTO = new OAuth2AccessTokenRespDTO();
                     tokenRespDTO.setAccessToken(accessTokenDO.getAccessToken());
@@ -168,9 +204,13 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                                     GrantType.REFRESH_TOKEN.toString())) {
                         tokenRespDTO.setRefreshToken(accessTokenDO.getRefreshToken());
                     }
-                    long expireTime = OAuth2Util.getTokenExpireTimeMillis(accessTokenDO);
-                    tokenRespDTO.setExpiresIn(expireTime / 1000);
-                    tokenRespDTO.setExpiresInMillis(expireTime);
+                    if(expireTime > 0) {
+                        tokenRespDTO.setExpiresIn(expireTime / 1000);
+                        tokenRespDTO.setExpiresInMillis(expireTime);
+                    } else {
+                        tokenRespDTO.setExpiresIn(Long.MAX_VALUE/1000);
+                        tokenRespDTO.setExpiresInMillis(Long.MAX_VALUE);
+                    }
                     if (cacheEnabled) {
                         oauthCache.addToCache(cacheKey, accessTokenDO);
                         if (log.isDebugEnabled()) {
@@ -252,8 +292,12 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
 
             Timestamp timestamp = new Timestamp(new Date().getTime());
             // Default Validity Period (in seconds)
-            long validityPeriod = OAuthServerConfiguration.getInstance()
-                    .getUserAccessTokenValidityPeriodInSeconds();
+            long validityPeriod = OAuthServerConfiguration.getInstance().
+                    getApplicationAccessTokenValidityPeriodInSeconds();
+            if(isOfTypeApplicationUser()){
+                    validityPeriod = OAuthServerConfiguration.getInstance().
+                            getUserAccessTokenValidityPeriodInSeconds();
+            }
             // if a VALID validity period is set through the callback, then use it
             long callbackValidityPeriod = tokReqMsgCtx.getValidityPeriod();
             if ((callbackValidityPeriod != OAuthConstants.UNASSIGNED_VALIDITY_PERIOD)
@@ -269,8 +313,13 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
             accessTokenDO.setTenantID(tokReqMsgCtx.getTenantID());
 
             // Persist the access token in database
-            tokenMgtDAO.storeAccessToken(accessToken, oAuth2AccessTokenReqDTO.getClientId(),
-                    accessTokenDO, userStoreDomain);
+            try {
+                tokenMgtDAO.storeAccessToken(accessToken, oAuth2AccessTokenReqDTO.getClientId(),
+                                accessTokenDO, userStoreDomain);
+            } catch (IdentityException e) {
+                throw new IdentityOAuth2Exception(
+                                "Error occurred while storing new access token : " + accessToken, e);
+            }
 
             if (log.isDebugEnabled()) {
                 log.debug("Persisted Access Token : " + accessToken + " for " +
@@ -298,9 +347,13 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                             GrantType.REFRESH_TOKEN.toString())) {
                 tokenRespDTO.setRefreshToken(refreshToken);
             }
-            long expiryTime = OAuth2Util.getTokenExpireTimeMillis(accessTokenDO);
-            tokenRespDTO.setExpiresInMillis(expiryTime);
-            tokenRespDTO.setExpiresIn(expiryTime / 1000);
+            if(validityPeriod > 0) {
+                tokenRespDTO.setExpiresInMillis(accessTokenDO.getValidityPeriodInMillis());
+                tokenRespDTO.setExpiresIn(accessTokenDO.getValidityPeriod());
+            } else {
+                tokenRespDTO.setExpiresInMillis(Long.MAX_VALUE);
+                tokenRespDTO.setExpiresIn(Long.MAX_VALUE/1000);
+            }
             tokenRespDTO.setAuthorizedScopes(scope);
             return tokenRespDTO;
         }

@@ -60,6 +60,8 @@ public class EmailSubscription extends Subscription {
         emailEndpointInfoList = new ArrayList<EmailEndpointInfo>();
         // Build specific subscription objects out of generic subscription objects
         buildEmailSubscription();
+        setSubscriptionProperties(NotificationManagementUtils.buildSingleWordKeyProperties( EmailModuleConstants
+                .Config.SUBSCRIPTION_NS + "." + getSubscriptionName(), getSubscriptionProperties()));
     }
 
     /**
@@ -135,15 +137,18 @@ public class EmailSubscription extends Subscription {
             emailAddress = (String) endpointProperties.remove(EmailModuleConstants.Config.ADDRESS_QNAME);
         }
         // If there is no configured email address, stop building endpoint, throw an exception
-        if (StringUtils.isEmpty(emailAddress)) {
-            throw new NotificationManagementException("No email address configured for endpoint");
+        if (StringUtils.isNotEmpty(emailAddress)) {
+            emailAddress = emailAddress.trim();
+            if (log.isDebugEnabled()) {
+                log.debug("Registering email endpoint with address " + emailAddress);
+            }
+            emailEndpointInfo.setEmailAddress(emailAddress);
+        }else{
+            if(log.isDebugEnabled()){
+                log.debug("Registering email endpoint with prefix " + prefix + " without address. Expecting the email " +
+                        "address at event time");
+            }
         }
-
-        emailAddress = emailAddress.trim();
-        if (log.isDebugEnabled()) {
-            log.debug("Registering email endpoint with address " + emailAddress);
-        }
-        emailEndpointInfo.setEmailAddress(emailAddress);
 
         String template = (String) endpointProperties.remove(prefix + "." + EmailModuleConstants.Config.
                 MAIL_TEMPLATE_QNAME);

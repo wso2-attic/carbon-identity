@@ -50,7 +50,7 @@ public class OAuth2ServiceComponent {
         OAuth2TokenValidationService tokenValidationService = new OAuth2TokenValidationService();
         bundleContext.registerService(OAuth2TokenValidationService.class.getName(), tokenValidationService, null);
         if (log.isDebugEnabled()) {
-            log.info("Identity OAuth bundle is activated");
+            log.debug("Identity OAuth bundle is activated");
         }
     }
 

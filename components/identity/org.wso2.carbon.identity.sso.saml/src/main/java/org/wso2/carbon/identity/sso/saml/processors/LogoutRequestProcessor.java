@@ -192,7 +192,10 @@ public class LogoutRequestProcessor {
                 reqValidationResponseDTO.setLogoutRespDTO(singleLogoutReqDTOs);
 
                 LogoutResponse logoutResponse = logoutMsgBuilder.buildLogoutResponse(
-                        logoutRequest.getID(), SAMLSSOConstants.StatusCodes.SUCCESS_CODE, null, sessionInfoData, logoutReqIssuer.isDoSignResponse());
+                        logoutRequest.getID(), SAMLSSOConstants.StatusCodes.SUCCESS_CODE, null,
+                        sessionInfoData, logoutReqIssuer.isDoSignResponse(),
+                        reqValidationResponseDTO.getAssertionConsumerURL());
+
                 reqValidationResponseDTO.setLogoutResponse(SAMLSSOUtil.encode(SAMLSSOUtil
                         .marshall(logoutResponse)));
                 reqValidationResponseDTO.setValid(true);

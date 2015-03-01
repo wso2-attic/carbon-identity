@@ -90,9 +90,11 @@
 		<!-- Process the token before storing it in database, e.g. encrypting -->
 		<TokenPersistenceProcessor>org.wso2.carbon.identity.oauth.tokenprocessor.PlainTextPersistenceProcessor</TokenPersistenceProcessor>
 		<!-- Supported Client Autnetication Methods -->
-		<ClientAuthHandlers>
-		    <ClientAuthHandlerImplClass>org.wso2.carbon.identity.oauth2.token.handlers.clientauth.BasicAuthClientAuthHandler</ClientAuthHandlerImplClass>
-		</ClientAuthHandlers>		
+        <ClientAuthHandlers>
+            <ClientAuthHandler Class="org.wso2.carbon.identity.oauth2.token.handlers.clientauth.BasicAuthClientAuthHandler">
+                <Property Name="StrictClientCredentialValidation">false</Property>
+            </ClientAuthHandler>
+        </ClientAuthHandlers>
 		<!-- Supported Response Types -->
 		<SupportedResponseTypes>
 		    <SupportedResponseType>

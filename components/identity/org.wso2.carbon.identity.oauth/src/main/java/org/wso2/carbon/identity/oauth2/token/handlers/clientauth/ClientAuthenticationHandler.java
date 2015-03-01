@@ -21,6 +21,8 @@ package org.wso2.carbon.identity.oauth2.token.handlers.clientauth;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 
+import java.util.Properties;
+
 public interface ClientAuthenticationHandler {
 
     /**
@@ -28,7 +30,7 @@ public interface ClientAuthenticationHandler {
      *
      * @throws org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception Error when initializing the OAuth 2.0 client authentication handler.
      */
-    public void init() throws IdentityOAuth2Exception;
+    public void init(Properties properties) throws IdentityOAuth2Exception;
 
     /**
      * Tells if the request contains required information for the OAuth 2.0 client to be authenticated

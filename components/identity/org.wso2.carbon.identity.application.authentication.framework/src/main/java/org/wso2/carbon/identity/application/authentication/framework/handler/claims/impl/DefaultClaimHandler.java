@@ -18,6 +18,14 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.handler.claims.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonException;
@@ -141,7 +149,15 @@ public class DefaultClaimHandler implements ClaimHandler {
         // claim mapping from local IDP to remote IDP : local-claim-uri / idp-claim-uri
 
         Map<String, String> localToIdPClaimMap = null;
+        Map<String, String> defaultValuesForClaims = new HashMap<String, String>();
 
+        for (ClaimMapping claimMapping : idPClaimMappings) {
+            String defaultValue = claimMapping.getDefaultValue();
+            if (defaultValue != null && !defaultValue.isEmpty()) {
+                defaultValuesForClaims
+                        .put(claimMapping.getLocalClaim().getClaimUri(), defaultValue);
+            }
+        }
         if (useDefaultIdpDialect) {
             if (idPStandardDialect == null) {
                 idPStandardDialect = ApplicationConstants.LOCAL_IDP_DEFAULT_CLAIM_DIALECT;
@@ -172,6 +188,9 @@ public class DefaultClaimHandler implements ClaimHandler {
             Entry<String, String> entry = iterator.next();
             String localClaimURI = entry.getKey();
             String claimValue = remoteClaims.get(localToIdPClaimMap.get(localClaimURI));
+            if (StringUtils.isEmpty(claimValue)) {
+                claimValue = defaultValuesForClaims.get(localClaimURI);
+            }
             localUnfilteredClaims.put(localClaimURI, claimValue);
         }
         // set all locally mapped unfiltered remote claims as a property
