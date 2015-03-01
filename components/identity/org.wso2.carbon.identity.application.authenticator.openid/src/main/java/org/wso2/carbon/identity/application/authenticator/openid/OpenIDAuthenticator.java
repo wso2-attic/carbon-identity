@@ -7,6 +7,7 @@ import org.wso2.carbon.identity.application.authentication.framework.FederatedAp
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.authenticator.openid.exception.OpenIDException;
@@ -119,7 +120,7 @@ public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implem
         try {
             manager.processOpenIDLoginResponse(request, response, context);
 
-            String authenticatedSubject = context.getSubject();
+            AuthenticatedUser authenticatedSubject = context.getSubject();
             String subject = null;
             String isSubjectInClaimsProp = context.getAuthenticatorProperties().get(
                     IdentityApplicationConstants.Authenticator.SAML2SSO.IS_USER_ID_IN_CLAIMS);
@@ -128,14 +129,14 @@ public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implem
             }
 
             if (subject == null) {
-                subject = authenticatedSubject;
+                subject = authenticatedSubject.getAuthenticatedSubjectIdentifier();
             }
 
             if (subject == null) {
                 throw new OpenIDException("Cannot find federated User Identifier");
             }
 
-            context.setSubject(subject);
+            authenticatedSubject.setAuthenticatedSubjectIdentifier(subject);
 
         } catch (OpenIDException e) {
             log.error("Error when processing response from OpenID Provider", e);
