@@ -92,7 +92,7 @@ public class OAuthServerConfiguration {
     private Map<String, String> supportedResponseTypeClassNames = new Hashtable<String, String>();
     private Map<String, ResponseTypeHandler> supportedResponseTypes;
     private String[] supportedClaims = null;
-    private List<String> supportedClientAuthHandlerClassNames = new ArrayList<String>();
+    private Map<String, Properties> supportedClientAuthHandlerData = new Hashtable<String, Properties>();
     private List<ClientAuthenticationHandler> supportedClientAuthHandlers;
     private String saml2TokenCallbackHandlerName = null;
     private SAML2TokenCallbackHandler saml2TokenCallbackHandler = null;
@@ -147,13 +147,16 @@ public class OAuthServerConfiguration {
             }
 
             // read callback handler configurations
-            parseOAuthCallbackHandlers(oauthElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.OAUTH_CALLBACK_HANDLERS)));
+            parseOAuthCallbackHandlers(oauthElem.getFirstChildWithName(
+                    getQNameWithIdentityNS(ConfigElements.OAUTH_CALLBACK_HANDLERS)));
 
             // get the token validators by type
-            parseTokenValidators(oauthElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.TOKEN_VALIDATORS)));
+            parseTokenValidators(oauthElem.getFirstChildWithName(
+                    getQNameWithIdentityNS(ConfigElements.TOKEN_VALIDATORS)));
 
             // Get the configured scope validator
-            OMElement scopeValidatorElem = oauthElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.SCOPE_VALIDATOR));
+            OMElement scopeValidatorElem = oauthElem.getFirstChildWithName(
+                    getQNameWithIdentityNS(ConfigElements.SCOPE_VALIDATOR));
             if (scopeValidatorElem != null) {
                 parseScopeValidator(scopeValidatorElem);
             }
@@ -177,7 +180,8 @@ public class OAuthServerConfiguration {
             parseSupportedResponseTypesConfig(oauthElem);
 
             // read supported response types
-            parseSupportedClientAuthHandlersConfig(oauthElem);
+            parseSupportedClientAuthHandlersConfig(oauthElem.getFirstChildWithName(
+                    getQNameWithIdentityNS(ConfigElements.CLIENT_AUTH_HANDLERS)));
 
             // read SAML2 grant config
             parseSAML2GrantConfig(oauthElem);
@@ -354,21 +358,26 @@ public class OAuthServerConfiguration {
             synchronized (this) {
                 if (supportedClientAuthHandlers == null) {
                     supportedClientAuthHandlers = new ArrayList<ClientAuthenticationHandler>();
-                    for (String entry : supportedClientAuthHandlerClassNames) {
+
+                    for (Map.Entry<String, Properties> entry : supportedClientAuthHandlerData.entrySet()) {
                         ClientAuthenticationHandler clientAuthenticationHandler = null;
-                        try {
-                            clientAuthenticationHandler = (ClientAuthenticationHandler) Class.forName(entry).newInstance();
-                            clientAuthenticationHandler.init();
-                        } catch (InstantiationException e) {
-                            log.error("Error instantiating " + entry);
-                        } catch (IllegalAccessException e) {
-                            log.error("Illegal access to " + entry);
-                        } catch (ClassNotFoundException e) {
-                            log.error("Cannot find class: " + entry);
-                        } catch (IdentityOAuth2Exception e) {
-                            log.error("Error while initializing " + entry);
-                        }
-                        supportedClientAuthHandlers.add(clientAuthenticationHandler);
+                            try {
+                                clientAuthenticationHandler = (ClientAuthenticationHandler)
+                                        Class.forName(entry.getKey()).newInstance();
+                                clientAuthenticationHandler.init(entry.getValue());
+                                supportedClientAuthHandlers.add(clientAuthenticationHandler);
+
+                            //Exceptions necessarily don't have to break the flow since there are cases
+                            //runnable without client auth handlers
+                            } catch (InstantiationException e) {
+                                log.error("Error instantiating " + entry);
+                            } catch (IllegalAccessException e) {
+                                log.error("Illegal access to " + entry);
+                            } catch (ClassNotFoundException e) {
+                                log.error("Cannot find class: " + entry);
+                            } catch (IdentityOAuth2Exception e) {
+                                log.error("Error while initializing " + entry);
+                            }
                     }
                 }
             }
@@ -957,31 +966,56 @@ public class OAuthServerConfiguration {
         }
     }
 
-    private void parseSupportedClientAuthHandlersConfig(OMElement oauthConfigElem) {
-        OMElement supportedClientAuthHandlersElem =
-                oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.CLIENT_AUTH_HANDLERS));
+    private void parseSupportedClientAuthHandlersConfig(OMElement clientAuthElement) {
 
-        if (supportedClientAuthHandlersElem != null) {
-            Iterator<OMElement> iterator = supportedClientAuthHandlersElem.getChildrenWithName(getQNameWithIdentityNS(ConfigElements.CLIENT_AUTH_HANDLER_IMPL_CLASS));
+        if (clientAuthElement != null) {
+            Iterator<OMElement> iterator = clientAuthElement.getChildrenWithLocalName(
+                    ConfigElements.CLIENT_AUTH_HANDLER_IMPL_CLASS);
             while (iterator.hasNext()) {
                 OMElement supportedClientAuthHandler = iterator.next();
-                String clientAuthHandlerImplClass = supportedClientAuthHandler.getText();
-                if (clientAuthHandlerImplClass != null && !clientAuthHandlerImplClass.equals("")) {
-                    supportedClientAuthHandlerClassNames.add(clientAuthHandlerImplClass);
+                Iterator<OMElement> confProperties = supportedClientAuthHandler
+                        .getChildrenWithLocalName(ConfigElements.CLIENT_AUTH_PROPERTY);
+                Properties properties = null;
+                while (confProperties.hasNext()) {
+                    properties = new Properties();
+                    OMElement paramElem = confProperties.next();
+                    String paramName = paramElem.getAttributeValue(
+                            new QName(ConfigElements.CLIENT_AUTH_NAME));
+                    String paramValue = paramElem.getText();
+                    properties.put(paramName, paramValue);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Property name : " + paramName + ", Property Value : " + paramValue);
+                    }
                 }
+                String clientAuthHandlerImplClass = supportedClientAuthHandler.getAttributeValue(
+                        new QName(ConfigElements.CLIENT_AUTH_CLASS));
+
+                if (StringUtils.isEmpty(clientAuthHandlerImplClass)) {
+                    log.error("Mandatory attribute \"Class\" is not present in the "
+                            + "ClientAuthHandler element. ");
+                    return;
+                }
+                if (properties != null) {
+                    supportedClientAuthHandlerData.put(clientAuthHandlerImplClass, properties);
+                } else {
+                    supportedClientAuthHandlerData.put(clientAuthHandlerImplClass, new Properties());
+                }
+
             }
+
         } else {
             // if this element is not present, assume the default case.
             log.warn("\'SupportedClientAuthMethods\' element not configured in identity.xml. " +
                     "Therefore instantiating default client authentication handlers");
 
-            List<String> defaultClientAuthHandlers = new ArrayList<String>(1);
-            defaultClientAuthHandlers.add("org.wso2.carbon.identity.oauth2.token.handlers.clientauth.BasicAuthClientAuthHandler");
-            supportedClientAuthHandlerClassNames.addAll(defaultClientAuthHandlers);
+            Map<String, Properties> defaultClientAuthHandlers = new Hashtable<String, Properties>(1);
+            defaultClientAuthHandlers.put(
+                    ConfigElements.DEFAULT_CLIENT_AUTHENTICATOR, new Properties());
+            supportedClientAuthHandlerData.putAll(defaultClientAuthHandlers);
         }
         if (log.isDebugEnabled()) {
-            for (String className : supportedClientAuthHandlerClassNames) {
-                log.debug("Supported client authentication method " + className);
+            for (Map.Entry<String, Properties> clazz : supportedClientAuthHandlerData.entrySet()) {
+                log.debug("Supported client authentication method " + clazz.getKey());
             }
         }
     }
@@ -1196,7 +1230,12 @@ public class OAuthServerConfiguration {
         private static final String GRANT_TYPE_VALIDATOR_IMPL_CLASS = "GrantTypeValidatorImplClass";
         // Supported Client Authentication Methods
         private static final String CLIENT_AUTH_HANDLERS = "ClientAuthHandlers";
-        private static final String CLIENT_AUTH_HANDLER_IMPL_CLASS = "ClientAuthHandlerImplClass";
+        private static final String CLIENT_AUTH_HANDLER_IMPL_CLASS = "ClientAuthHandler";
+        private static final String STRICT_CLIENT_AUTHENTICATION = "StrictClientCredentialValidation";
+        private static final String CLIENT_AUTH_CLASS = "Class";
+        private static final String DEFAULT_CLIENT_AUTHENTICATOR = "org.wso2.carbon.identity.oauth2.token.handlers.clientauth.BasicAuthClientAuthHandler";
+        private static final String CLIENT_AUTH_PROPERTY = "Property";
+        private static final String CLIENT_AUTH_NAME = "Name";
         // Supported Response Types
         private static final String SUPPORTED_RESP_TYPES = "SupportedResponseTypes";
         private static final String SUPPORTED_RESP_TYPE = "SupportedResponseType";

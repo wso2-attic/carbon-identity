@@ -24,32 +24,28 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 
-public class BasicAuthClientAuthHandler implements ClientAuthenticationHandler {
+public class BasicAuthClientAuthHandler extends AbstractClientAuthHandler {
 
     @Override
-    public void init() throws IdentityOAuth2Exception {
+    public boolean authenticateClient(OAuthTokenReqMessageContext tokReqMsgCtx)
+            throws IdentityOAuth2Exception {
 
-    }
+        boolean isAuthenticated = super.authenticateClient(tokReqMsgCtx);
 
-    @Override
-    public boolean canAuthenticate(OAuthTokenReqMessageContext tokReqMsgCtx) throws IdentityOAuth2Exception {
-        if (tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientId() != null &&
-                tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientSecret() != null) {
-            return true;
+        if (!isAuthenticated) {
+            OAuth2AccessTokenReqDTO oAuth2AccessTokenReqDTO =
+                    tokReqMsgCtx.getOauth2AccessTokenReqDTO();
+            try {
+                return OAuth2Util.authenticateClient(
+                        oAuth2AccessTokenReqDTO.getClientId(),
+                        oAuth2AccessTokenReqDTO.getClientSecret());
+            } catch (IdentityOAuthAdminException e) {
+                throw new IdentityOAuth2Exception("Error while authenticating client", e);
+            }
         } else {
-            return false;
+            return true;
         }
+
     }
 
-    @Override
-    public boolean authenticateClient(OAuthTokenReqMessageContext tokReqMsgCtx) throws IdentityOAuth2Exception {
-        OAuth2AccessTokenReqDTO oAuth2AccessTokenReqDTO = tokReqMsgCtx.getOauth2AccessTokenReqDTO();
-        try {
-            return OAuth2Util.authenticateClient(
-                    oAuth2AccessTokenReqDTO.getClientId(),
-                    oAuth2AccessTokenReqDTO.getClientSecret());
-        } catch (IdentityOAuthAdminException e) {
-            throw new IdentityOAuth2Exception(e.getMessage(), e);
-        }
-    }
 }
