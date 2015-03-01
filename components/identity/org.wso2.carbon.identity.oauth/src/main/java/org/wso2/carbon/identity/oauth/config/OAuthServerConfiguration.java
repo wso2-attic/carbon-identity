@@ -366,6 +366,9 @@ public class OAuthServerConfiguration {
                                         Class.forName(entry.getKey()).newInstance();
                                 clientAuthenticationHandler.init(entry.getValue());
                                 supportedClientAuthHandlers.add(clientAuthenticationHandler);
+
+                            //Exceptions necessarily don't have to break the flow since there are cases
+                            //runnable without client auth handlers
                             } catch (InstantiationException e) {
                                 log.error("Error instantiating " + entry);
                             } catch (IllegalAccessException e) {
