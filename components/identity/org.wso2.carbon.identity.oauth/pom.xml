@@ -117,7 +117,7 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core.common</artifactId>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
         </dependency>
