@@ -753,7 +753,7 @@ public class SAMLSSOUtil {
     public static boolean validateAuthnRequestSignature(SAMLSSOAuthnReqDTO authnReqDTO) {
         log.debug("Validating SAML Request signature");
 
-        //String domainName = MultitenantUtils.getTenantDomain(authnReqDTO.getUsername());
+        //String domainName = MultitenantUtils.getTenantDomain(authnReqDTO.getUser());
         String domainName = authnReqDTO.getTenantDomain();
         if (authnReqDTO.isStratosDeployment()) {
             domainName = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
@@ -978,8 +978,8 @@ public class SAMLSSOUtil {
         }
 
         Map<String, String> claimsMap = new HashMap<String, String>();
-        if (authnReqDTO.getUserAttributes() != null) {
-            for (Map.Entry<ClaimMapping, String> entry : authnReqDTO.getUserAttributes().entrySet()) {
+        if (authnReqDTO.getUser().getUserAttributes() != null) {
+            for (Map.Entry<ClaimMapping, String> entry : authnReqDTO.getUser().getUserAttributes().entrySet()) {
                 claimsMap.put(entry.getKey().getRemoteClaim().getClaimUri(), entry.getValue());
             }
         }
