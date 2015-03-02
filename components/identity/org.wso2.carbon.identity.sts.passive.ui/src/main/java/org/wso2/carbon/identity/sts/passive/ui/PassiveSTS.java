@@ -261,7 +261,7 @@ public class PassiveSTS extends HttpServlet {
 
         RequestToken reqToken = new RequestToken();
 
-        Map<ClaimMapping, String> attrMap = authnResult.getUserAttributes();
+        Map<ClaimMapping, String> attrMap = authnResult.getSubject().getUserAttributes();
         StringBuffer buffer = null;
 
         if (attrMap != null && attrMap.size() > 0) {
@@ -288,7 +288,7 @@ public class PassiveSTS extends HttpServlet {
         reqToken.setRequestPointer(sessionDTO.getRequestPointer());
         reqToken.setPolicy(sessionDTO.getPolicy());
         reqToken.setPseudo(session.getId());
-        reqToken.setUserName(authnResult.getSubject());
+        reqToken.setUserName(authnResult.getSubject().getAuthenticatedSubjectIdentifier());
 
         String serverURL = CarbonUIUtil.getServerURL(session.getServletContext(), session);
         ConfigurationContext configContext = (ConfigurationContext) session.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);

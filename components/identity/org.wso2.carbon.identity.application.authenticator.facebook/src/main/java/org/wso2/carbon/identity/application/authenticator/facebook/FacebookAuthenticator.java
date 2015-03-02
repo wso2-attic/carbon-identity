@@ -32,6 +32,7 @@ import org.wso2.carbon.identity.application.authentication.framework.FederatedAp
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.ApplicationAuthenticatorException;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.ui.CarbonUIUtil;
@@ -226,7 +227,9 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
         if (StringUtils.isEmpty(authenticatedUserId)) {
             throw new ApplicationAuthenticatorException("Authenticated user identifier is empty");
         }
-        context.setSubject(authenticatedUserId);
+        AuthenticatedUser authenticatedUser =
+                AuthenticatedUser.createFederateAuthenticatedUserFromSubjectIdentifier(authenticatedUserId);
+        context.setSubject(authenticatedUser);
     }
 
     private Map<String, Object> getUserInfoJson(String fbauthUserInfoUrl, String token)
@@ -258,16 +261,19 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
                 }
 
             }
-            context.setSubjectAttributes(claims);
             context.getExternalIdP().getUserIdClaimUri();
 
             String subjectFromClaims = FrameworkUtils.getFederatedSubjectFromClaims(
                     context.getExternalIdP().getIdentityProvider(), claims);
             if (subjectFromClaims != null && !subjectFromClaims.isEmpty()) {
-                context.setSubject(subjectFromClaims);
+                AuthenticatedUser authenticatedUser =
+                        AuthenticatedUser.createFederateAuthenticatedUserFromSubjectIdentifier(subjectFromClaims);
+                context.setSubject(authenticatedUser);
             } else {
                 setSubject(context, jsonObject);
             }
+
+            context.getSubject().setUserAttributes(claims);
 
         } else {
             if (log.isDebugEnabled()) {

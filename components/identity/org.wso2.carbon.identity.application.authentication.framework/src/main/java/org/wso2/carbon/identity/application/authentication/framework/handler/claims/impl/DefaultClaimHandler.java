@@ -38,6 +38,7 @@ import org.wso2.carbon.identity.application.authentication.framework.context.Aut
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
 import org.wso2.carbon.identity.application.authentication.framework.handler.claims.ClaimHandler;
 import org.wso2.carbon.identity.application.authentication.framework.internal.FrameworkServiceComponent;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
@@ -46,9 +47,13 @@ import org.wso2.carbon.user.api.ClaimManager;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserRealm;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import java.util.*;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
 import java.util.Map.Entry;
 
 public class DefaultClaimHandler implements ClaimHandler {
@@ -269,7 +274,7 @@ public class DefaultClaimHandler implements ClaimHandler {
             requestedClaimMappings = new HashMap<String, String>();
         }
 
-        String authenticatedUser = null;
+        AuthenticatedUser authenticatedUser = null;
         if (stepConfig != null) {
             //calling from StepBasedSequenceHandler
             authenticatedUser = stepConfig.getAuthenticatedUser();
@@ -277,8 +282,8 @@ public class DefaultClaimHandler implements ClaimHandler {
             //calling from RequestPathBasedSequenceHandler
             authenticatedUser = context.getSequenceConfig().getAuthenticatedUser();
         }
-        String tenantDomain = MultitenantUtils.getTenantDomain(authenticatedUser);
-        String tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(authenticatedUser);
+        String tenantDomain = authenticatedUser.getTenantDomain();
+        String tenantAwareUserName = authenticatedUser.getUserName();
 
         UserRealm realm = null;
         try {
@@ -333,8 +338,7 @@ public class DefaultClaimHandler implements ClaimHandler {
                 String claimURI = mapping.getClaim().getClaimUri();
                 localClaimURIs.add(claimURI);
             }
-            allLocalClaims = userStore.getUserClaimValues(
-                    MultitenantUtils.getTenantAwareUsername(authenticatedUser),
+            allLocalClaims = userStore.getUserClaimValues(tenantAwareUserName,
                     localClaimURIs.toArray(new String[localClaimURIs.size()]), null);
         } catch (UserStoreException e) {
             throw new FrameworkException("Error occurred while getting all user claims for " +

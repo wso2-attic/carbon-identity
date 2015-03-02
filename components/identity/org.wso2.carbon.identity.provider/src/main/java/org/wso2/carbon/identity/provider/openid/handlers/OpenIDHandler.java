@@ -378,7 +378,7 @@ public class OpenIDHandler {
         // setting the user claims received from the framework
         if (session.getAttribute(OpenIDConstants.AUTHENTICATION_RESULT) != null) {
             AuthenticationResult authResult = (AuthenticationResult) session.getAttribute(OpenIDConstants.AUTHENTICATION_RESULT);
-            openIDAuthRequest.setResponseClaims(authResult.getUserAttributes());
+            openIDAuthRequest.setResponseClaims(authResult.getSubject().getUserAttributes());
             String authenticatedIdPs = authResult.getAuthenticatedIdPs();
 
             if (authenticatedIdPs != null && !authenticatedIdPs.isEmpty()) {
@@ -597,7 +597,7 @@ public class OpenIDHandler {
             if (claimedID.endsWith("/openid/")) {
 
                 if (authnResult != null && authnResult.isAuthenticated()) {
-                    userName = authnResult.getSubject();
+                    userName = authnResult.getSubject().getAuthenticatedSubjectIdentifier();
                     session.setAttribute(OpenIDConstants.AUTHENTICATION_RESULT, authnResult);
                 }
 
@@ -753,7 +753,7 @@ public class OpenIDHandler {
             authnResult = getAuthenticationResultFromCache(req.getParameter("sessionDataKey"));
         }
 
-        Map<ClaimMapping, String> userAttributes = authnResult.getUserAttributes();
+        Map<ClaimMapping, String> userAttributes = authnResult.getSubject().getUserAttributes();
 
         out.println("<input type='hidden' name='openid.identity' value='" +
                 session.getAttribute(OpenIDConstants.SessionAttribute.AUTHENTICATED_OPENID) + "'>");

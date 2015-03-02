@@ -79,8 +79,11 @@ public class IdPInitSSOAuthnRequestProcessor {
 
             // if subject is specified in AuthnRequest only that user should be
             // allowed to logged-in
-            if (authnReqDTO.getSubject() != null && authnReqDTO.getUsername() != null) {
-                if (!authnReqDTO.getUsername().equals(authnReqDTO.getSubject())) {
+            if (authnReqDTO.getSubject() != null && authnReqDTO.getUser() != null) {
+                String authenticatedSubjectIdentifier =
+                        authnReqDTO.getUser().getAuthenticatedSubjectIdentifier();
+                if (authenticatedSubjectIdentifier != null &&
+                    !authenticatedSubjectIdentifier.equals(authnReqDTO.getSubject())) {
                     String msg = "Provided username does not match with the requested subject";
                     log.warn(msg);
                     return buildErrorResponse(authnReqDTO.getId(),
@@ -109,9 +112,10 @@ public class IdPInitSSOAuthnRequestProcessor {
                     spDO.setCertAlias(authnReqDTO.getCertAlias());
                     spDO.setLogoutURL(authnReqDTO.getLogoutURL());
                     sessionPersistenceManager.persistSession(sessionIndexId,
-                            authnReqDTO.getUsername(), spDO, authnReqDTO.getRpSessionId()
-                            , authnReqDTO.getTenantDomain(), authnReqDTO.getIssuer()
-                            , authnReqDTO.getAssertionConsumerURL());
+                                                             authnReqDTO.getUser().getAuthenticatedSubjectIdentifier(),
+                                                             spDO, authnReqDTO.getRpSessionId(),
+                                                             authnReqDTO.getTenantDomain(), authnReqDTO.getIssuer(),
+                                                             authnReqDTO.getAssertionConsumerURL());
                 }
 
                 // Build the response for the successful scenario
@@ -128,7 +132,7 @@ public class IdPInitSSOAuthnRequestProcessor {
                 samlssoRespDTO.setSessionEstablished(true);
                 samlssoRespDTO.setAssertionConsumerURL(authnReqDTO.getAssertionConsumerURL());
                 samlssoRespDTO.setLoginPageURL(authnReqDTO.getLoginPageURL());
-                samlssoRespDTO.setSubject(authnReqDTO.getUsername());
+                samlssoRespDTO.setSubject(authnReqDTO.getUser());
             }
 
             if (log.isDebugEnabled()) {

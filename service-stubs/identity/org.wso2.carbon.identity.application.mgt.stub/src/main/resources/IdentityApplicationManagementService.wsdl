@@ -325,7 +325,7 @@
             </xs:complexType>
             <xs:complexType name="User">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="tenantId" type="xs:int"></xs:element>
+                    <xs:element minOccurs="0" name="tenantDomain" nillable="true" type="xs:string"></xs:element>
                     <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"></xs:element>
                     <xs:element minOccurs="0" name="userStoreDomain" nillable="true" type="xs:string"></xs:element>
                 </xs:sequence>

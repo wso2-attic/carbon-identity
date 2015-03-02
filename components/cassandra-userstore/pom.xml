@@ -84,11 +84,4 @@
         <module>org.wso2.carbon.user.cassandra</module>
     </modules>
 
-    <properties>
-        <!--libthrift.version>0.8.0</libthrift.version-->
-        <hector-core.version>1.1-0</hector-core.version>
-        <axis2.osgi.version.range.cassandra>${axis2.osgi.version.range}</axis2.osgi.version.range.cassandra>
-        <axiom.osgi.version.range.cassandra>${axiom.osgi.version.range}</axiom.osgi.version.range.cassandra>
-    </properties>
-
 </project>

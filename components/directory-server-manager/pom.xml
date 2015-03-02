@@ -43,5 +43,5 @@
         <axis2.osgi.version.range.directory.server.manager>${axis2.osgi.version.range}</axis2.osgi.version.range.directory.server.manager>
         <axiom.osgi.version.range.directory.server.manager>${axiom.osgi.version.range}</axiom.osgi.version.range.directory.server.manager>
     </properties>
-    
+
 </project>

@@ -33,7 +33,6 @@ import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.builders.SignKeyDataHolder;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -60,7 +59,7 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
             NameID nameId = new NameIDBuilder().buildObject();
 
             if (authReqDTO.getUseFullyQualifiedUsernameAsSubject()) {
-                nameId.setValue(authReqDTO.getUsername());
+                nameId.setValue(authReqDTO.getUser().getAuthenticatedSubjectIdentifier());
                 if (authReqDTO.getNameIDFormat() != null) {
                     nameId.setFormat(authReqDTO.getNameIDFormat());
                 } else {
@@ -68,8 +67,7 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
                 }
             } else {
                 // get tenant domain name from the username
-                String tenantDomainFromUserName = MultitenantUtils.getTenantDomain(authReqDTO
-                        .getUsername());
+                String tenantDomainFromUserName = authReqDTO.getUser().getTenantDomain();
                 String authenticatedUserTenantDomain = SAMLSSOUtil.getUserTenantDomain();
 
                 if (authenticatedUserTenantDomain == null
@@ -77,10 +75,9 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
                     // this means username comes from a federated Idp. no local
                     // authenticator used.
                     // no asserted identity for the user.
-                    nameId.setValue(authReqDTO.getUsername());
+                    nameId.setValue(authReqDTO.getUser().getAuthenticatedSubjectIdentifier());
                 } else {
-                    nameId.setValue(MultitenantUtils.getTenantAwareUsername(authReqDTO
-                            .getUsername()));
+                    nameId.setValue(authReqDTO.getUser().getUserName());
                 }
 
                 nameId.setFormat(authReqDTO.getNameIDFormat());
@@ -160,7 +157,7 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
 
             if (authReqDTO.getDoSignAssertions()) {
                 SAMLSSOUtil.setSignature(samlAssertion, XMLSignature.ALGO_ID_SIGNATURE_RSA,
-                        new SignKeyDataHolder(authReqDTO.getUsername()));
+                        new SignKeyDataHolder(authReqDTO.getUser().getAuthenticatedSubjectIdentifier()));
             }
 
             return samlAssertion;

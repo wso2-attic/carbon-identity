@@ -29,10 +29,22 @@ public class User implements Serializable {
      *
      */
     private static final long serialVersionUID = -3605277664796682611L;
-    private int tenantId;
-    private String userStoreDomain;
-    private String userName;
+    protected String tenantDomain;
+    protected String userStoreDomain;
+    protected String userName;
 
+    /**
+     * Returns a User instance populated from the given OMElement
+     * The OMElement is of the form below
+     * <User>
+     *  <TenantDomain></TenantDomain>
+     *  <UserStoreDomain></UserStoreDomain>
+     *  <UserName></UserName>
+     * </User>
+     *
+     * @param userOM OMElement to populate user
+     * @return       populated User instance
+     */
     public static User build(OMElement userOM) {
         User user = new User();
 
@@ -43,9 +55,9 @@ public class User implements Serializable {
         Iterator<?> iter = userOM.getChildElements();
         while (iter.hasNext()) {
             OMElement member = (OMElement) iter.next();
-            if (member.getLocalName().equals("TenantId")) {
+            if (member.getLocalName().equals("TenantDomain")) {
                 if (member.getText() != null) {
-                    user.setTenantId(Integer.parseInt(member.getText()));
+                    user.setTenantDomain(member.getText());
                 }
             } else if (member.getLocalName().equalsIgnoreCase("UserStoreDomain")) {
                 user.setUserStoreDomain(member.getText());
@@ -58,50 +70,56 @@ public class User implements Serializable {
     }
 
     /**
-     * @return
+     * Returns the tenant domain of the user
+     *
+     * @return tenant domain
      */
-    public int getTenantId() {
-        return tenantId;
+    public String getTenantDomain() {
+        return tenantDomain;
     }
 
     /**
-     * @param tenantId
+     * Sets the tenant domain of the user
+     *
+     * @param tenantDomain tenant domain of the user
      */
-    public void setTenantId(int tenantId) {
-        this.tenantId = tenantId;
+    public void setTenantDomain(String tenantDomain) {
+        this.tenantDomain = tenantDomain;
     }
 
     /**
-     * @return
+     * Returns the user store domain of the user
+     *
+     * @return user store domain
      */
     public String getUserStoreDomain() {
         return userStoreDomain;
     }
 
     /**
-     * @param userStoreDomain
+     * Sets the user store domain of the user
+     *
+     * @param userStoreDomain user store domain of the user
      */
     public void setUserStoreDomain(String userStoreDomain) {
         this.userStoreDomain = userStoreDomain;
     }
 
     /**
-     * @return
+     * Returns the username of the user
+     *
+     * @return username
      */
     public String getUserName() {
         return userName;
     }
 
-    /*
-     * <User> <TenantId></TenantId> <UserStoreDomain></UserStoreDomain> <UserName></UserName>
-     * </User>
-     */
-
     /**
+     * Sets the username of the user
+     *
      * @param userName
      */
     public void setUserName(String userName) {
         this.userName = userName;
     }
-
 }

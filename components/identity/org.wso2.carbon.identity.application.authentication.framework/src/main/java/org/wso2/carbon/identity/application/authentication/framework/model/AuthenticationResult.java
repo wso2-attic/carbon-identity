@@ -18,8 +18,6 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.model;
 
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
-
 import java.io.Serializable;
 import java.util.Map;
 
@@ -28,8 +26,7 @@ public class AuthenticationResult implements Serializable {
     private static final long serialVersionUID = -2555005773164092641L;
 
     private boolean authenticated;
-    private String subject;
-    private Map<ClaimMapping, String> userAttributes;
+    private AuthenticatedUser subject;
     private String authenticatedIdPs;
     private String authenticatedAuthenticators;
     private boolean isSaaSApp;
@@ -41,12 +38,10 @@ public class AuthenticationResult implements Serializable {
     public AuthenticationResult() {
     }
 
-    public AuthenticationResult(boolean authenticated, String subject,
-                                Map<ClaimMapping, String> userAttributes, String authenticatedAuthenticators) {
+    public AuthenticationResult(boolean authenticated, AuthenticatedUser subject, String authenticatedAuthenticators) {
 
         this.authenticated = authenticated;
         this.subject = subject;
-        this.userAttributes = userAttributes;
         this.authenticatedAuthenticators = authenticatedAuthenticators;
     }
 
@@ -58,20 +53,12 @@ public class AuthenticationResult implements Serializable {
         this.authenticated = authenticated;
     }
 
-    public String getSubject() {
+    public AuthenticatedUser getSubject() {
         return subject;
     }
 
-    public void setSubject(String subject) {
+    public void setSubject(AuthenticatedUser subject) {
         this.subject = subject;
-    }
-
-    public Map<ClaimMapping, String> getUserAttributes() {
-        return userAttributes;
-    }
-
-    public void setUserAttributes(Map<ClaimMapping, String> userAttributes) {
-        this.userAttributes = userAttributes;
     }
 
     public String getAuthenticatedAuthenticators() {

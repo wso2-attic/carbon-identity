@@ -35,29 +35,4 @@
         <module>org.wso2.carbon.policyeditor.ui</module>
     </modules>
 
-    <!-- dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.core</artifactId>
-                <version>${wso2carbon.version.policy-editor}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.utils</artifactId>
-                <version>${wso2carbon.version.policy-editor}</version>
-              </dependency>
-              <dependency>
-                 <groupId>xerces.wso2</groupId>
-  <artifactId>xercesImpl</artifactId>
-  <version>${xercesImpl.wso2.version}</version>
-              </dependency>
-        </dependencies>
-    </dependencyManagement-->
-
-    <properties>
-        <!--<wso2carbon.version.policy-editor>${wso2carbon.version}</wso2carbon.version.policy-editor>-->
-        <axis2.osgi.version.range.policy-editor>${axis2.osgi.version.range}</axis2.osgi.version.range.policy-editor>
-    </properties>
-
 </project>

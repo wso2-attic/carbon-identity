@@ -14,6 +14,7 @@ import org.wso2.carbon.identity.application.authentication.framework.context.Ses
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
 import org.wso2.carbon.identity.application.authentication.framework.handler.request.RequestCoordinator;
 import org.wso2.carbon.identity.application.authentication.framework.internal.FrameworkServiceComponent;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
@@ -271,7 +272,7 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
 
                     context.setPreviousSessionFound(true);
                     sequenceConfig = previousAuthenticatedSeq;
-                    String authenticatedUser = sequenceConfig.getAuthenticatedUser();
+                    AuthenticatedUser authenticatedUser = sequenceConfig.getAuthenticatedUser();
                     String authenticatedUserTenantDomain = sequenceConfig.getAuthenticatedUserTenantDomain();
 
                     if (authenticatedUser != null) {
@@ -279,7 +280,8 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                         context.setSubject(authenticatedUser);
 
                         if (log.isDebugEnabled()) {
-                            log.debug("Already authenticated by username: " + authenticatedUser);
+                            log.debug("Already authenticated by username: " +
+                                      authenticatedUser.getAuthenticatedSubjectIdentifier());
                         }
 
                         if (authenticatedUserTenantDomain != null) {

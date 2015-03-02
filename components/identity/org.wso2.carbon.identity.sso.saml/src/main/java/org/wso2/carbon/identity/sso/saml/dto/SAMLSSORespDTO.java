@@ -17,6 +17,8 @@
 */
 package org.wso2.carbon.identity.sso.saml.dto;
 
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
+
 import java.io.Serializable;
 
 public class SAMLSSORespDTO implements Serializable {
@@ -26,7 +28,7 @@ public class SAMLSSORespDTO implements Serializable {
     private String assertionConsumerURL;
     private String loginPageURL;
     private String errorMsg;
-    private String subject;
+    private AuthenticatedUser subject;
 
     public String getRespString() {
         return respString;
@@ -68,11 +70,11 @@ public class SAMLSSORespDTO implements Serializable {
         this.errorMsg = errorMsg;
     }
 
-    public String getSubject() {
+    public AuthenticatedUser getSubject() {
         return subject;
     }
 
-    public void setSubject(String subject) {
+    public void setSubject(AuthenticatedUser subject) {
         this.subject = subject;
     }
 }

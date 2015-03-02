@@ -36,7 +36,7 @@ public class GoogleOpenIDAuthenticator extends OpenIDAuthenticator {
 
         String subject = super.getSubjectFromUserIDClaimURI(context);
         if (subject != null) {
-            context.setSubject(subject);
+            context.getSubject().setAuthenticatedSubjectIdentifier(subject);
         }
     }
 

@@ -68,6 +68,8 @@ public final class OAuthConstants {
     public static String OAUTH_SAML2_BEARER_METHOD = "urn:oasis:names:tc:SAML:2.0:cm:bearer";
     public static String OAUTH_SAML2_BEARER_GRANT_ENUM = "SAML20_BEARER";
     public static String OAUTH_IWA_NTLM_GRANT_ENUM = "IWA_NTLM";
+    // OAuth client authenticator properties
+    public static final String CLIENT_AUTH_CREDENTIAL_VALIDATION = "StrictClientCredentialValidation";
 
     public static class OAuthVersions {
         public static final String VERSION_1A = "OAuth-1.0a";

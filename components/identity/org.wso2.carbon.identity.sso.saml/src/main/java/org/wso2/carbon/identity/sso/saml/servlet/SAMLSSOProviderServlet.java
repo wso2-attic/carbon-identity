@@ -620,7 +620,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                 removeSessionDataFromCache(req.getParameter("sessionDataKey"));
 
                 sendResponse(req, resp, relayState, authRespDTO.getRespString(),
-                        authRespDTO.getAssertionConsumerURL(), authRespDTO.getSubject(),
+                        authRespDTO.getAssertionConsumerURL(), authRespDTO.getSubject().getAuthenticatedSubjectIdentifier(),
                         authResult.getAuthenticatedIdPs());
             } else { // authentication FAILURE
                 sendNotification(SAMLSSOConstants.Notification.EXCEPTION_STATUS,
@@ -673,9 +673,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         authnReqDTO.setRequestMessageString(sessionDTO.getRequestMessageString());
         authnReqDTO.setQueryString(sessionDTO.getHttpQueryString());
         authnReqDTO.setDestination(sessionDTO.getDestination());
-        authnReqDTO.setUsername(authResult.getSubject());
+        authnReqDTO.setUser(authResult.getSubject());
         authnReqDTO.setIdPInitSSO(sessionDTO.isIdPInitSSO());
-        authnReqDTO.setUserAttributes(authResult.getUserAttributes());
         authnReqDTO.setClaimMapping(authResult.getClaimMapping());
         authnReqDTO.setTenantDomain(sessionDTO.getTenantDomain());
 

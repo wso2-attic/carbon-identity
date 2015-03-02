@@ -36,6 +36,7 @@ import org.openid4java.message.ax.FetchRequest;
 import org.openid4java.message.ax.FetchResponse;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authenticator.openid.exception.OpenIDException;
 import org.wso2.carbon.identity.application.common.model.Claim;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
@@ -151,6 +152,8 @@ public class DefaultOpenIDManager implements OpenIDManager {
 
                 AttributesRequestor attributesRequestor = getAttributeRequestor();
 
+                AuthenticatedUser authenticatedSubject = new AuthenticatedUser();
+
                 // Get requested attributes using AX extension
                 if (authSuccess.hasExtension(AxMessage.OPENID_NS_AX)) {
 
@@ -178,12 +181,11 @@ public class DefaultOpenIDManager implements OpenIDManager {
                         }
                     }
 
-                    context.setSubjectAttributes(externalIDPClaims);
+                    authenticatedSubject.setUserAttributes(externalIDPClaims);
                 }
 
-                String subject = authSuccess.getClaimed();
-
-                context.setSubject(subject);
+                authenticatedSubject.setAuthenticatedSubjectIdentifier(authSuccess.getClaimed());
+                context.setSubject(authenticatedSubject);
 
             } else {
                 throw new OpenIDException("OpenID verification failed");

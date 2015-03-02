@@ -37,23 +37,4 @@
         <module>org.wso2.carbon.captcha.mgt</module>
     </modules>
 
-    <!--dependencyManagement>
-	    <dependencies>
-		    <dependency>
-    	            <groupId>kaptcha.wso2</groupId>
-    	            <artifactId>kaptcha</artifactId>
-    	            <version>${kaptcha.wso2.version}</version>
-				<exclusions>
-    	            	 <exclusion>
-    	                		<groupId>com.google.code</groupId>
-    	                		<artifactId>kaptcha</artifactId>
-    	            	</exclusion>
-			       </exclusions>
-    	        </dependency>
-    	</dependencies>
-    </dependencyManagement>
-
-    <properties>
-		<kaptcha.wso2.version>2.3.0.wso2v1</kaptcha.wso2.version>
-    </properties-->
 </project>
