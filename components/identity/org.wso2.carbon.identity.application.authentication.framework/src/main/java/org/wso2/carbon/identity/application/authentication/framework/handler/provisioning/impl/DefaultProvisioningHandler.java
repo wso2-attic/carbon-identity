@@ -73,6 +73,7 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
             String[] newRoles = new String[]{};
 
             if (roles != null) {
+                roles = removeDomainFromNamesExcludeInternal(roles);
                 newRoles = roles.toArray(new String[roles.size()]);
             }
 
@@ -84,7 +85,8 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
             // addingRoles = newRoles AND allExistingRoles
             Collection<String> addingRoles = new ArrayList<String>();
             Collections.addAll(addingRoles, newRoles);
-            Collection<String> allExistingRoles = Arrays.asList(userstore.getRoleNames());
+            Collection<String> allExistingRoles = removeDomainFromNamesExcludeInternal(
+                    Arrays.asList(userstore.getRoleNames()));
             addingRoles.retainAll(allExistingRoles);
 
             if (userstore.isExistingUser(username)) {
@@ -216,5 +218,23 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
             }
         }
         return null;
+    }
+
+    /**
+     * remove user store domain from names except the domain 'Internal'
+     * @param names
+     * @return
+     */
+    private List<String> removeDomainFromNamesExcludeInternal(List<String> names){
+        List<String> nameList = new ArrayList<String>();
+        for(String name:names){
+            String userStoreDomain = UserCoreUtil.extractDomainFromName(name);
+            if(UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStoreDomain)){
+                nameList.add(name);
+            }else{
+                nameList.add(UserCoreUtil.removeDomainFromName(name));
+            }
+        }
+        return nameList;
     }
 }
