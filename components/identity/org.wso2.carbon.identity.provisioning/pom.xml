@@ -101,9 +101,4 @@
         </plugins>
     </build>
 
-    
-    
-	<properties>
-        <charon.version>2.0.0</charon.version>
-    </properties>
 </project>
