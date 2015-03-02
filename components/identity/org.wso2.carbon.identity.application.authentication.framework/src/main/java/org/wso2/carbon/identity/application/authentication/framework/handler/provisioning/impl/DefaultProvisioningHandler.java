@@ -10,6 +10,7 @@ import org.wso2.carbon.identity.application.authentication.framework.handler.pro
 import org.wso2.carbon.identity.application.authentication.framework.internal.FrameworkServiceComponent;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
