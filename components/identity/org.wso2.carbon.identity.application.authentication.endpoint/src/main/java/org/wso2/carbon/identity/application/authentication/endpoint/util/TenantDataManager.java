@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.InputStream;
 import java.util.*;
 
 public class TenantDataManager {
@@ -69,20 +70,22 @@ public class TenantDataManager {
     private static final String RELATIVE_PATH_START_CHAR = ".";
     private static final String CHARACTER_ENCODING = "UTF-8";
     private static final String CONFIG_RELATIVE_PATH = "./repository/conf/TenantConfig.properties";
+    private static final String CONFIG_FILE_NAME = "TenantConfig.properties";
     private static Properties prop;
     private static String carbonLogin = "";
     private static String serviceURL;
     private static String usernameHeaderName = "";
     private static List<String> tenantDomainList = new ArrayList<String>();
     private static boolean initialized = false;
-    private static boolean configFileExist = true;
+    private static boolean initAttempted = false;
 
     /**
      * Initialize Tenant data manager
      */
     public static synchronized void init() {
 
-        FileInputStream fileInputStream = null;
+        InputStream inputStream = null;
+        initAttempted = true;
 
         try {
             if (!initialized) {
@@ -91,53 +94,51 @@ public class TenantDataManager {
                 File configFile = new File(configFilePath);
 
                 if (configFile.exists()) {
-                    configFileExist = true;
-                    fileInputStream = new FileInputStream(configFile);
+                    log.info(CONFIG_FILE_NAME + " file loaded from " + CONFIG_RELATIVE_PATH);
+                    inputStream = new FileInputStream(configFile);
 
-                    prop.load(fileInputStream);
+                    prop.load(inputStream);
                     // Resolve encrypted properties with secure vault
                     resolveSecrets(prop);
-
-                    usernameHeaderName = getPropertyValue(USERNAME_HEADER);
-
-                    carbonLogin = getPropertyValue(USERNAME);
-
-                    // Base64 encoded username
-                    carbonLogin = new String(Base64.encode(carbonLogin.getBytes(CHARACTER_ENCODING)));
-
-                    String clientKeyStorePath = buildFilePath(getPropertyValue(CLIENT_KEY_STORE));
-                    String clientTrustStorePath = buildFilePath(getPropertyValue(CLIENT_TRUST_STORE));
-
-                    TenantMgtAdminServiceClient
-                            .loadKeyStore(clientKeyStorePath, getPropertyValue(CLIENT_KEY_STORE_PASSWORD));
-                    TenantMgtAdminServiceClient
-                            .loadTrustStore(clientTrustStorePath, getPropertyValue(CLIENT_TRUST_STORE_PASSWORD));
-                    TenantMgtAdminServiceClient.initMutualSSLConnection(Boolean.parseBoolean(
-                            getPropertyValue(HOSTNAME_VERIFICATION_ENABLED)));
-
-                    // Build the service URL of tenant management admin service
-                    StringBuilder builder = new StringBuilder();
-                    serviceURL = builder.append(HTTPS_URL).append(getPropertyValue(HOST)).append(COLON)
-                            .append(getPropertyValue(PORT)).append(TENANT_MGT_ADMIN_SERVICE_URL).toString();
-
-                    initialized = true;
                 } else {
-                    configFileExist = false;
-
-                    if (log.isDebugEnabled()) {
-                        log.debug("Configuration file " + configFilePath + " not found");
-                    }
+                    log.info(CONFIG_FILE_NAME + " file loaded from authentication endpoint webapp");
+                    inputStream = TenantDataManager.class.getClassLoader().getResourceAsStream(CONFIG_FILE_NAME);
+                    prop.load(inputStream);
                 }
+
+                usernameHeaderName = getPropertyValue(USERNAME_HEADER);
+
+                carbonLogin = getPropertyValue(USERNAME);
+
+                // Base64 encoded username
+                carbonLogin = new String(Base64.encode(carbonLogin.getBytes(CHARACTER_ENCODING)));
+
+                String clientKeyStorePath = buildFilePath(getPropertyValue(CLIENT_KEY_STORE));
+                String clientTrustStorePath = buildFilePath(getPropertyValue(CLIENT_TRUST_STORE));
+
+                TenantMgtAdminServiceClient
+                        .loadKeyStore(clientKeyStorePath, getPropertyValue(CLIENT_KEY_STORE_PASSWORD));
+                TenantMgtAdminServiceClient
+                        .loadTrustStore(clientTrustStorePath, getPropertyValue(CLIENT_TRUST_STORE_PASSWORD));
+                TenantMgtAdminServiceClient.initMutualSSLConnection(Boolean.parseBoolean(
+                        getPropertyValue(HOSTNAME_VERIFICATION_ENABLED)));
+
+                // Build the service URL of tenant management admin service
+                StringBuilder builder = new StringBuilder();
+                serviceURL = builder.append(HTTPS_URL).append(getPropertyValue(HOST)).append(COLON)
+                                    .append(getPropertyValue(PORT)).append(TENANT_MGT_ADMIN_SERVICE_URL).toString();
+
+                initialized = true;
             }
 
         } catch (Exception e) {
             log.error("Initialization failed : ", e);
         } finally {
-            if (fileInputStream != null) {
+            if (inputStream != null) {
                 try {
-                    fileInputStream.close();
+                    inputStream.close();
                 } catch (IOException e) {
-                    log.error("Failed to close the FileInputStream, file : " + CONFIG_RELATIVE_PATH, e);
+                    log.error("Failed to close the FileInputStream, file : " + CONFIG_FILE_NAME, e);
                 }
             }
         }
@@ -318,14 +319,10 @@ public class TenantDataManager {
      * @return Tenant list enabled or disabled status
      */
     public static boolean isTenantListEnabled() {
-        if (configFileExist && !initialized) {
+        if (!initAttempted && !initialized) {
             init();
         }
-        if (configFileExist) {
-            return Boolean.parseBoolean(getPropertyValue(TENANT_LIST_ENABLED));
-        }
-
-        return false;
+        return Boolean.parseBoolean(getPropertyValue(TENANT_LIST_ENABLED));
     }
 
     /**
