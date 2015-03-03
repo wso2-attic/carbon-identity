@@ -14,13 +14,14 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>identity</artifactId>
         <version>4.3.4-SNAPSHOT</version>
-	<relativePath>../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -102,8 +103,10 @@
                             !org.apache.axis2.databinding.utils.reader,
                             !org.pache.axis2.databinding.utils.writer,
                             !org.wso2.carbon.identity.entitlement.filter.*,
-                            org.wso2.carbon.identity.entitlement.stub.*;version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.authenticator.stub.*;version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.identity.entitlement.stub.*;
+                            version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.authenticator.stub.*;
+                            version="${carbon.kernel.package.import.version.range}",
                             *; resolution:=optional
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
