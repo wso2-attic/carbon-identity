@@ -40,7 +40,7 @@
         <module>components/user-mgt</module>
         <module>components/user-store</module>
         <module>components/idp-mgt</module>
-        <module>components/authenticators</module>
+        <module>components/carbon-authenticators</module>
         <module>components/cassandra-userstore</module>
         <module>components/claim-mgt</module>
         <module>components/directory-server-manager</module>
