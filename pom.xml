@@ -23,6 +23,21 @@
 
     <modules>
         <module>service-stubs/identity</module>
+        <module>components/agents</module>
+        <module>components/application-authenticators</module>
+        <module>components/authentication-framework</module>
+        <module>components/entitlement</module>
+        <module>components/identity-core</module>
+        <module>components/identity-mgt</module>
+        <module>components/notification-mgt</module>
+        <module>components/oauth</module>
+        <module>components/openid</module>
+        <module>components/provisioning</module>
+        <module>components/scim</module>
+        <module>components/sso-saml</module>
+        <module>components/tools</module>
+        <module>components/user-mgt</module>
+        <module>components/user-store</module>
         <module>components/idp-mgt</module>
         <module>components/authenticators</module>
         <module>components/cassandra-userstore</module>
