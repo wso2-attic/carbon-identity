@@ -14,7 +14,8 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
@@ -53,31 +54,6 @@
                 <checksumPolicy>fail</checksumPolicy>
             </releases>
         </repository>
-        <!--moved to nexus
-
-        <repository>
-            <id>central</id>
-            <name>Maven Central Repo</name>
-            <url>http://repo1.maven.org/maven2</url>
-        </repository>
-        <repository>
-            <id>riptano</id>
-            <name>riptano</name>
-            <url>http://mvn.riptano.com/content/repositories/public/</url>
-        </repository>
-        <repository>
-            <id>wso2-m2</id>
-            <name>WSO2 Maven 2 Repository</name>
-            <url>http://dist.wso2.org/maven2/</url>
-            <releases>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-
-        -->
     </repositories>
 
     <modules>
