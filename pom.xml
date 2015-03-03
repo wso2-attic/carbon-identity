@@ -28,6 +28,7 @@
         <module>components/authentication-framework</module>
         <module>components/entitlement</module>
         <module>components/identity-core</module>
+        <module>components/application-mgt</module>
         <module>components/identity-mgt</module>
         <module>components/notification-mgt</module>
         <module>components/oauth</module>
