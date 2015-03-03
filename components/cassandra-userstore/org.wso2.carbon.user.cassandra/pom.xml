@@ -15,9 +15,10 @@
  ~ limitations under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-	 <parent>
+    <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>cassandra-userstore</artifactId>
         <version>4.3.4-SNAPSHOT</version>
@@ -39,7 +40,6 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.user.core</artifactId>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -55,8 +55,6 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <!-- Bundle-Activator>org.wso2.carbon.user.cassandra.internal.TNServiceComponent
-                        </Bundle-Activator-->
                         <Private-Package>org.wso2.carbon.user.cassandra.internal</Private-Package>
                         <Export-Package>
                             org.wso2.carbon.user.cassandra.*
@@ -78,4 +76,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

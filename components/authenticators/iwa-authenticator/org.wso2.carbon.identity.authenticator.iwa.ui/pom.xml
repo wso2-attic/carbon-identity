@@ -14,15 +14,16 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>iwa-authenticator</artifactId>
         <version>4.3.4-SNAPSHOT</version>
-	<relativePath>../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
-    
+
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.identity.authenticator.iwa.ui</artifactId>
     <packaging>bundle</packaging>
@@ -55,7 +56,7 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.utils</artifactId>
         </dependency>
-	    <dependency>
+        <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.authenticator.iwa.stub</artifactId>
         </dependency>
@@ -67,29 +68,32 @@
 
     <build>
         <plugins>
-         <plugin>
+            <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                
+
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                         <Bundle-Name>${project.artifactId}</Bundle-Name>
-                         <Bundle-Activator>org.wso2.carbon.identity.authenticator.iwa.ui.internal.Activator</Bundle-Activator>
-                         <Private-Package>org.wso2.carbon.identity.authenticator.iwa.ui.internal</Private-Package>
-                         <Export-Package>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <Bundle-Activator>org.wso2.carbon.identity.authenticator.iwa.ui.internal.Activator
+                        </Bundle-Activator>
+                        <Private-Package>org.wso2.carbon.identity.authenticator.iwa.ui.internal</Private-Package>
+                        <Export-Package>
                             !org.wso2.carbon.identity.authenticator.iwa.ui.internal,
                             org.wso2.carbon.identity.authenticator.iwa.ui.*;version="1.0.0",
-                         </Export-Package>
-                         <Import-Package>
-                             !org.wso2.carbon.identity.authenticator.iwa.ui,
-                             javax.xml.namespace.*;version="0.0.0",
-                             *;resolution:=optional
-                         </Import-Package>
-			 <Embed-Dependency>org.wso2.carbon.identity.authenticator.iwa.stub;scope=compile|runtime;inline=true</Embed-Dependency>
-                         <Carbon-Component>UIBundle</Carbon-Component>
-                     </instructions>
+                        </Export-Package>
+                        <Import-Package>
+                            !org.wso2.carbon.identity.authenticator.iwa.ui,
+                            javax.xml.namespace.*;version="0.0.0",
+                            *;resolution:=optional
+                        </Import-Package>
+                        <Embed-Dependency>
+                            org.wso2.carbon.identity.authenticator.iwa.stub;scope=compile|runtime;inline=true
+                        </Embed-Dependency>
+                        <Carbon-Component>UIBundle</Carbon-Component>
+                    </instructions>
                 </configuration>
             </plugin>
         </plugins>
