@@ -4,7 +4,7 @@
 
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
-        <artifactId>identity</artifactId>
+        <artifactId>provisioning</artifactId>
         <version>4.3.4-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
