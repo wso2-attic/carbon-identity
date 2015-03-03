@@ -1950,6 +1950,7 @@
         <commons-lang.wso2.version>2.6.0.wso2v1</commons-lang.wso2.version>
 
         <neethi.osgi.version>2.0.4.wso2v4</neethi.osgi.version>
+        <neethi.osgi.version.range>[2.0.4.wso2v4,2.1.0)</neethi.osgi.version.range>
         <slf4j.wso2.version>1.5.10.wso2v1</slf4j.wso2.version>
         <libthrift.wso2.version>0.8.0.wso2v1</libthrift.wso2.version>
         <log4j.version>1.2.13</log4j.version>
