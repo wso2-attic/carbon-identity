@@ -89,7 +89,7 @@
                             org.wso2.carbon.directory.server.manager
                         </Export-Package>
                         <Import-Package>
-                            org.apache.axiom.*; version="${axiom.osgi.version.range.directory.server.manager}",
+                            org.apache.axiom.*; version="${axiom.osgi.version.range}",
                             org.wso2.carbon.user.core.*,
                             org.wso2.carbon.user.api.*,
                             org.wso2.carbon.directory.server.manager.common.*,
