@@ -21,30 +21,22 @@
 
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
-        <artifactId>tools</artifactId>
+        <artifactId>samlsso-validator</artifactId>
         <version>4.3.4-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.identity.tools.saml.validator.ui</artifactId>
+    <artifactId>org.wso2.carbon.identity.tools.saml.validator</artifactId>
     <packaging>bundle</packaging>
-    <name>WSO2 Carbon - SAML Request/Response Validator UI</name>
-    <description>SAML Request/Response UI component for WSO2 Carbon</description>
+    <name>WSO2 Carbon - SAML Request/Response Validator</name>
+    <description>A custom wso2 products or solution</description>
     <url>http://www.wso2.com</url>
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.application.mgt.ui</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.ui</artifactId>
+            <artifactId>org.wso2.carbon.utils</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
@@ -52,7 +44,23 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.common</artifactId>
+            <artifactId>org.wso2.carbon.identity.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.provider</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.sso.saml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.security.mgt</artifactId>
         </dependency>
         <dependency>
             <groupId>opensaml.wso2</groupId>
@@ -63,16 +71,12 @@
             <artifactId>org.wso2.carbon.logging</artifactId>
         </dependency>
         <dependency>
+            <groupId>bouncycastle</groupId>
+            <artifactId>bcprov-jdk15</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.tools.saml.validator.stub</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents.wso2</groupId>
-            <artifactId>httpcore</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents.wso2</groupId>
-            <artifactId>httpclient</artifactId>
+            <artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.common</artifactId>
         </dependency>
     </dependencies>
 
@@ -85,28 +89,40 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
-                        <Import-Package>
-                            !javax.xml.namespace,
-                            javax.xml.namespace;
-                            version=0.0.0,
+                        <Import-Package>org.apache.axis2.*;
+                            version="${axis2.osgi.version.range}",
+                            org.apache.axiom.*;
+                            version="${axiom.osgi.version.range}",
+                            org.apache.rahas.*,
+                            org.apache.ws.security.*,
+                            org.apache.rahas.client.*,
+                            org.apache.rahas.impl.*,
+                            org.apache.rahas.impl.util.*,
+                            org.wso2.carbon.core.utils.*,
+                            org.wso2.carbon.core.*,
+                            org.wso2.carbon.registry.core.*,
+                            org.wso2.carbon.security.keystore.*,
+                            org.wso2.carbon.security.keystore.service.*,
+                            org.wso2.carbon.security.util.*,
+                            org.wso2.carbon.utils.*,
                             org.apache.commons.logging.*; version="1.0.4",
+                            org.osgi.framework,
+                            org.wso2.carbon.identity.sso.saml.common.*,
+                            org.wso2.carbon.identity.application.authentication.common.*,
                             javax.servlet;version="${imp.pkg.version.javax.servlet}",
                             javax.servlet.http;version="${imp.pkg.version.javax.servlet}",
-                            javax.xml.stream.*; version=1.0.1,
-                            org.wso2.carbon.identity.core.*;
-                            org.apache.http.client,
-                            org.apache.commons.httpclient.*,
-                            org.wso2.carbon.identity.sso.saml.common.*,
                             *;resolution:=optional
                         </Import-Package>
-                        <Export-Package>org.wso2.carbon.identity.tools.saml.validator.ui.*</Export-Package>
-                        <Carbon-Component>UIBundle</Carbon-Component>
+                        <Export-Package>org.wso2.carbon.identity.tools.saml.validator.*</Export-Package>
+                        <Embed-Dependency>
+                            bcprov-jdk15|naming-factory|naming-resources|commons-collections;scope=compile|runtime;
+                            inline=false
+                        </Embed-Dependency>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
