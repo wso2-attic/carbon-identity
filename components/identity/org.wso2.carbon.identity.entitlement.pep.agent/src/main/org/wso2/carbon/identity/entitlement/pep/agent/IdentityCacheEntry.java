@@ -29,15 +29,15 @@ import java.util.Date;
  */
 public class IdentityCacheEntry implements Serializable {
 
+    private static final long serialVersionUID = 3746964700806693258L;
     private String cacheEntry;
-//    private Set<String> cacheEntrySet;
+    //    private Set<String> cacheEntrySet;
     private String[] cacheEntryArray;
     private int hashEntry;
     private long cacheInterval;
     private boolean cacheClearing;
     private Key secretKey;
-    private Date date;    
-    private static final long serialVersionUID = 3746964700806693258L;
+    private Date date;
 
     public IdentityCacheEntry(String cacheEntry) {
         this.cacheEntry = cacheEntry;

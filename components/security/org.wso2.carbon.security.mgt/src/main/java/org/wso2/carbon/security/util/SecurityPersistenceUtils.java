@@ -19,13 +19,12 @@ public class SecurityPersistenceUtils {
     private static Log log = LogFactory.getLog(SecurityPersistenceUtils.class);
 
     /**
-     *
-     * @param serviceGroupId serviceGroupId
-     * @param serviceId  serviceId
-     * @param realm realm
+     * @param serviceGroupId      serviceGroupId
+     * @param serviceId           serviceId
+     * @param realm               realm
      * @param tenantAwareUserName tenantAwareUserName
-     * @param permissionType Probably UserCoreConstants.INVOKE_SERVICE_PERMISSION is all you need for this
-     * @param serviceGroupFilePM serviceGroupFilePM
+     * @param permissionType      Probably UserCoreConstants.INVOKE_SERVICE_PERMISSION is all you need for this
+     * @param serviceGroupFilePM  serviceGroupFilePM
      * @return false if any of the roles of user does not have permission to access it or no roles assigned for the service.
      * @throws UserStoreException
      * @deprecated do not use this method
@@ -36,13 +35,13 @@ public class SecurityPersistenceUtils {
         try {
             String[] rolesList = realm.getUserStoreManager().getRoleListOfUser(tenantAwareUserName);
 
-            String serviceXPath = Resources.ServiceProperties.ROOT_XPATH+PersistenceUtils.
+            String serviceXPath = Resources.ServiceProperties.ROOT_XPATH + PersistenceUtils.
                     getXPathAttrPredicate(Resources.NAME, serviceId);
-            String rolesPath = serviceXPath+
-                    "/"+ Resources.SecurityManagement.ROLE_XML_TAG+
+            String rolesPath = serviceXPath +
+                    "/" + Resources.SecurityManagement.ROLE_XML_TAG +
                     PersistenceUtils.getXPathAttrPredicate(
-                            Resources.Associations.TYPE, permissionType)+
-                    "/@"+ Resources.SecurityManagement.ROLENAME_XML_ATTR;
+                            Resources.Associations.TYPE, permissionType) +
+                    "/@" + Resources.SecurityManagement.ROLENAME_XML_ATTR;
 
             List tmpAllowedRolesAttr = serviceGroupFilePM.getAll(serviceGroupId, rolesPath);
             List<String> allowedRoles = new ArrayList<String>(tmpAllowedRolesAttr.size());

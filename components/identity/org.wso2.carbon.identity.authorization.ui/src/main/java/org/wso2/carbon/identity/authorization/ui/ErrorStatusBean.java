@@ -22,29 +22,29 @@ package org.wso2.carbon.identity.authorization.ui;
  *
  */
 public class ErrorStatusBean {
-	private String status;
-	private String msg;
+    private String status;
+    private String msg;
 
-	public ErrorStatusBean(String status, String msg) {
-		super();
-		this.status = status;
-		this.msg = msg;
-	}
+    public ErrorStatusBean(String status, String msg) {
+        super();
+        this.status = status;
+        this.msg = msg;
+    }
 
-	public String getStatus() {
-		return status;
-	}
+    public String getStatus() {
+        return status;
+    }
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-	public String getMsg() {
-		return msg;
-	}
+    public String getMsg() {
+        return msg;
+    }
 
-	public void setMsg(String msg) {
-		this.msg = msg;
-	}
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
 
 }

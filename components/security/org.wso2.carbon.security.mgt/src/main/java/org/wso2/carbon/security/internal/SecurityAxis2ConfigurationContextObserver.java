@@ -28,7 +28,7 @@ import org.wso2.carbon.utils.AbstractAxis2ConfigurationContextObserver;
  * This service will be notified when AxisConfigurationContexts are created and destroyed.
  */
 public class SecurityAxis2ConfigurationContextObserver extends
-                                                       AbstractAxis2ConfigurationContextObserver {
+        AbstractAxis2ConfigurationContextObserver {
 
     private static final Log log = LogFactory.getLog(SecurityAxis2ConfigurationContextObserver.class);
 

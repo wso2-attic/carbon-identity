@@ -23,9 +23,9 @@ package org.wso2.carbon.apacheds;
  */
 public enum PasswordAlgorithm {
 
-    PLAIN_TEXT ("Plaintext"),
-    MD5 ("MD5"),
-    SHA ("SHA");
+    PLAIN_TEXT("Plaintext"),
+    MD5("MD5"),
+    SHA("SHA");
 
     private String algorithmName;
 

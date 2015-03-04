@@ -16,6 +16,7 @@
 package org.wso2.carbon.identity.entitlement.pep.agent.wsxacml;
 
 import org.apache.axiom.om.OMAbstractFactory;
+import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.axis2.addressing.EndpointReference;
@@ -24,10 +25,6 @@ import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.entitlement.pep.agent.AbstractEntitlementServiceClient;
-import org.wso2.carbon.identity.entitlement.pep.agent.Attribute;
-import org.wso2.carbon.identity.entitlement.pep.agent.XACMLRequetBuilder;
-import org.apache.axiom.om.OMElement;
 import org.apache.xml.security.Init;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.signature.XMLSignature;
@@ -63,6 +60,9 @@ import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.identity.entitlement.pep.agent.AbstractEntitlementServiceClient;
+import org.wso2.carbon.identity.entitlement.pep.agent.Attribute;
+import org.wso2.carbon.identity.entitlement.pep.agent.XACMLRequetBuilder;
 import org.wso2.carbon.identity.entitlement.pep.agent.exception.EntitlementAgentException;
 
 import javax.xml.namespace.QName;
@@ -73,19 +73,20 @@ import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceClient {
 
-    private String serverUrl;
+    private static final Log log = LogFactory.getLog(WSXACMLEntitlementServiceClient.class);
     private static boolean isBootStrapped = false;
     private static OMNamespace xacmlContextNS = OMAbstractFactory.getOMFactory().createOMNamespace
             ("urn:oasis:names:tc:xacml:2.0:context:schema:os", "xacml-context");
-    private static final Log log = LogFactory.getLog(WSXACMLEntitlementServiceClient.class);
     HttpTransportProperties.Authenticator authenticator;
+    private String serverUrl;
 
-    public WSXACMLEntitlementServiceClient(String serverUrl, String userName, String password){
+    public WSXACMLEntitlementServiceClient(String serverUrl, String userName, String password) {
         this.serverUrl = serverUrl;
         authenticator = new HttpTransportProperties.Authenticator();
         authenticator.setUsername(userName);
@@ -93,7 +94,52 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
         authenticator.setPreemptiveAuthentication(true);
     }
 
-  /**
+    /**
+     * Bootstrap the OpenSAML2 library only if it is not bootstrapped.
+     */
+    public static void doBootstrap() {
+        if (!isBootStrapped) {
+            try {
+                DefaultBootstrap.bootstrap();
+                isBootStrapped = true;
+            } catch (ConfigurationException e) {
+                log.error("Error in bootstrapping the OpenSAML2 library", e);
+            }
+        }
+    }
+
+    /**
+     * Set relevant xacml namespace to all the children in the given iterator.
+     *
+     * @param iterator: Iterator for all children inside OMElement
+     */
+    private static void setXACMLNamespace(Iterator iterator) {
+
+        while (iterator.hasNext()) {
+            OMElement omElemnt2 = (OMElement) iterator.next();
+            omElemnt2.setNamespace(xacmlContextNS);
+            if (omElemnt2.getChildElements().hasNext()) {
+                setXACMLNamespace(omElemnt2.getChildElements());
+            }
+        }
+    }
+
+    /**
+     * Create the issuer object to be added
+     *
+     * @return : the issuer of the statements
+     */
+    private static Issuer createIssuer() {
+
+        IssuerBuilder issuer = (IssuerBuilder) org.opensaml.xml.Configuration.getBuilderFactory().getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
+        Issuer issuerObject = issuer.buildObject();
+        issuerObject.setValue("https://identity.carbon.wso2.org");
+        issuerObject.setSPProvidedID("SPPProvierId");
+
+        return issuerObject;
+    }
+
+    /**
      * Get decision in a secured manner using the
      * SAML implementation of XACML using X.509 credentials
      *
@@ -168,20 +214,6 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
     }
 
     /**
-     * Bootstrap the OpenSAML2 library only if it is not bootstrapped.
-     */
-    public static void doBootstrap() {
-        if (!isBootStrapped) {
-            try {
-                DefaultBootstrap.bootstrap();
-                isBootStrapped = true;
-            } catch (ConfigurationException e) {
-                log.error("Error in bootstrapping the OpenSAML2 library", e);
-            }
-        }
-    }
-
-    /**
      * Extract XACML response from the SAML response
      *
      * @param samlResponse : SAML response that carries the XACML response from PDP
@@ -212,11 +244,11 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
                 if (validateIssuer(assertion1.getIssuer())) {
 
                     xacmlResponse = ((XACMLAuthzDecisionStatementType) assertion1.
-                    getStatements(XACMLAuthzDecisionStatementType.TYPE_NAME_XACML20).get(0)).getResponse();
+                            getStatements(XACMLAuthzDecisionStatementType.TYPE_NAME_XACML20).get(0)).getResponse();
                     //decision = xacmlResponse.getResult().getDecision().getDecision().toString();
                     try {
                         xacmlResponseString = org.apache.axis2.util.XMLUtils.toOM(xacmlResponse.getDOM()).
-                                toString().replaceAll("xacml-context:","");
+                                toString().replaceAll("xacml-context:", "");
 
                     } catch (Exception e) {
                         log.error("Error occurred while converting the SAML Response DOM to OMElement", e);
@@ -234,7 +266,6 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
         return xacmlResponseString;
     }
 
-
     /**
      * Check for the validity of the issuer
      *
@@ -249,7 +280,6 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
         }
         return isValidated;
     }
-
 
     /**
      * Check the validity of the Signature
@@ -272,7 +302,6 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
         return isSignatureValid;
     }
 
-
     /**
      * get public X509Credentials using the configured basic credentials
      *
@@ -287,7 +316,6 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
         return credentialImpl;
 
     }
-
 
     /**
      * Build the SAML XACMLAuthzDecisionQuery to be passed to PDP
@@ -343,7 +371,6 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
         return xacmlAuthzDecisionQueryString;
     }
 
-
     /**
      * Format the sent in request as required by OpenSAML
      *
@@ -369,31 +396,12 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
 
     }
 
-
-    /**
-     * Set relevant xacml namespace to all the children in the given iterator.
-     *
-     * @param iterator: Iterator for all children inside OMElement
-     */
-    private static void setXACMLNamespace(Iterator iterator) {
-
-        while (iterator.hasNext()) {
-            OMElement omElemnt2 = (OMElement) iterator.next();
-            omElemnt2.setNamespace(xacmlContextNS);
-            if (omElemnt2.getChildElements().hasNext()) {
-                setXACMLNamespace(omElemnt2.getChildElements());
-            }
-        }
-    }
-
-
     /**
      * Constructing the SAML or XACML Objects from a String
      *
      * @param xmlString Decoded SAML or XACML String
      * @return SAML or XACML Object
      * @throws EntitlementAgentException
-     *
      */
     private XMLObject unmarshall(String xmlString) throws EntitlementAgentException {
         try {
@@ -411,7 +419,6 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
             throw new EntitlementAgentException("Error in constructing XML(SAML or XACML) from the encoded String ", e);
         }
     }
-
 
     /**
      * Serialize XML objects
@@ -443,7 +450,6 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
             throw new EntitlementAgentException("Error Serializing the SAML Response", e);
         }
     }
-
 
     /**
      * Overloaded method to sign a XACMLAuthzDecisionQuery
@@ -496,7 +502,6 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
             throw new EntitlementAgentException("Error When signing the assertion.", e);
         }
     }
-
 
     /**
      * Create basic X509 credentials using server configuration
@@ -561,21 +566,6 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
         }
         return builder.buildObject(objectQName.getNamespaceURI(), objectQName.getLocalPart(),
                 objectQName.getPrefix());
-    }
-
-    /**
-     * Create the issuer object to be added
-     *
-     * @return : the issuer of the statements
-     */
-    private static Issuer createIssuer() {
-
-        IssuerBuilder issuer = (IssuerBuilder) org.opensaml.xml.Configuration.getBuilderFactory().getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
-        Issuer issuerObject = issuer.buildObject();
-        issuerObject.setValue("https://identity.carbon.wso2.org");
-        issuerObject.setSPProvidedID("SPPProvierId");
-
-        return issuerObject;
     }
 
 

@@ -18,38 +18,33 @@
 
 package org.wso2.carbon.identity.authorization.core.jdbc.dao;
 
-import org.wso2.carbon.identity.authorization.core.dao.DAOFactory;
-import org.wso2.carbon.identity.authorization.core.dao.DBConstants;
-import org.wso2.carbon.identity.authorization.core.dao.ModuleDAO;
-import org.wso2.carbon.identity.authorization.core.dao.PermissionDAO;
-import org.wso2.carbon.identity.authorization.core.dao.RolePermissionDAO;
-import org.wso2.carbon.identity.authorization.core.dao.UserPermissionDAO;
+import org.wso2.carbon.identity.authorization.core.dao.*;
 
 public class JDBCDAOFactory extends DAOFactory {
 
-	@Override
-	public ModuleDAO createModule() {
-		return new JDBCModuleDAO();
-	}
+    @Override
+    public ModuleDAO createModule() {
+        return new JDBCModuleDAO();
+    }
 
-	@Override
-	public PermissionDAO createPermission() {
-		return new JDBCPermissionDAO();
-	}
+    @Override
+    public PermissionDAO createPermission() {
+        return new JDBCPermissionDAO();
+    }
 
-	@Override
-	public UserPermissionDAO createUserPermission() {
-		return new JDBCUserPermissionDAO();
-	}
+    @Override
+    public UserPermissionDAO createUserPermission() {
+        return new JDBCUserPermissionDAO();
+    }
 
-	@Override
-	public RolePermissionDAO createRolePermission() {
-		return new JDBCRolePermissionDAO();
-	}
+    @Override
+    public RolePermissionDAO createRolePermission() {
+        return new JDBCRolePermissionDAO();
+    }
 
-	@Override
-	public DBConstants createConstants() {
-		return JDBCConstantsDAO.getInstance();
-	}
+    @Override
+    public DBConstants createConstants() {
+        return JDBCConstantsDAO.getInstance();
+    }
 
 }

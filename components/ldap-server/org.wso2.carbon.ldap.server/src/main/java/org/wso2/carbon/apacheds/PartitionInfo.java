@@ -24,11 +24,11 @@ import java.util.Arrays;
 /**
  * This class encapsulates information needed to create an apacheds partition.
  * <defaultPartition>
- *  <Property name="id">root</Property>
- *  <Property name="realm">wso2.com</Property>
- *  <Property name="kdcEnabled">false</Property>
- *  <Property name="kdcPassword">secret</Property>
- *  <Property name="ldapServerPrinciplePassword">randall</Property>
+ * <Property name="id">root</Property>
+ * <Property name="realm">wso2.com</Property>
+ * <Property name="kdcEnabled">false</Property>
+ * <Property name="kdcPassword">secret</Property>
+ * <Property name="ldapServerPrinciplePassword">randall</Property>
  * </defaultPartition>
  */
 @SuppressWarnings({"UnusedDeclaration"})
@@ -69,9 +69,9 @@ public class PartitionInfo extends DomainNameEntry {
      */
     private boolean kdcEnabled = false;
 
-    public PartitionInfo() {                                                                                      
+    public PartitionInfo() {
         this.objectClassList.addAll(Arrays.asList("top", "organization", "dcObject",
-                                                  "extensibleObject"));
+                "extensibleObject"));
     }
 
     public PartitionInfo(String partitionId, String realm, String rootDN,
@@ -82,7 +82,7 @@ public class PartitionInfo extends DomainNameEntry {
         this.partitionAdministrator = partitionAdministrator;
 
         this.objectClassList.addAll(Arrays.asList("top", "organization", "dcObject",
-                                                  "extensibleObject"));
+                "extensibleObject"));
     }
 
     public boolean isKdcEnabled() {
@@ -129,15 +129,16 @@ public class PartitionInfo extends DomainNameEntry {
 
     public void setPartitionAdministrator(AdminInfo partitionAdministrator) {
         if (partitionAdministrator == null) return;
-        
+
         this.partitionAdministrator = partitionAdministrator;
     }
 
     /**
      * This method will construct the admin domain name for given partition.
+     *
      * @return Will return domain name in the form, uid=aj,dc=example,dc=com
      */
-    public String getAdminDomainName () {
+    public String getAdminDomainName() {
         StringBuilder builder = new StringBuilder("uid=");
         builder.append(this.getPartitionAdministrator().getAdminUserName());
         builder.append(",");
@@ -145,13 +146,14 @@ public class PartitionInfo extends DomainNameEntry {
         builder.append(",");
         builder.append(this.getRootDN());
 
-        return builder.toString(); 
+        return builder.toString();
     }
 
     /**
      * Usually domain DN of a partition will have a domain component.
      * This method will gets the first domain component.
      * E.g :- dc=example,dc=com would return "example" as the domain component.
+     *
      * @return First domain component in the domain name. If dc not found in rootDN will return null.
      */
     public String getPreferredDomainComponent() {
@@ -184,7 +186,7 @@ public class PartitionInfo extends DomainNameEntry {
 
     public void setLdapServerPrinciplePassword(String ldapServerPrinciplePassword) {
         if (ldapServerPrinciplePassword == null) return;
-        
+
         this.ldapServerPrinciplePassword = ldapServerPrinciplePassword;
     }
 

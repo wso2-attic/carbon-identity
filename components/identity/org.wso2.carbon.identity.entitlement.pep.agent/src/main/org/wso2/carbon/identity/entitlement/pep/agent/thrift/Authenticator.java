@@ -20,7 +20,7 @@ import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.THttpClient;
 import org.wso2.carbon.identity.entitlement.pep.agent.exception.EntitlementAgentException;
-import org.wso2.carbon.identity.entitlement.pep.agent.generatedCode.*;
+import org.wso2.carbon.identity.entitlement.pep.agent.generatedCode.AuthenticatorService;
 
 public class Authenticator {
 

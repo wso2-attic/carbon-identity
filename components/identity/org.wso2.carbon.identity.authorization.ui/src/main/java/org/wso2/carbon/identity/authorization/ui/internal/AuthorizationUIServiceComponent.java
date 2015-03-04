@@ -18,9 +18,6 @@
 
 package org.wso2.carbon.identity.authorization.ui.internal;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.equinox.http.helper.ContextPathServletAdaptor;
@@ -29,47 +26,50 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 import org.wso2.carbon.identity.authorization.ui.controller.ModuleManager;
 
+import javax.servlet.Servlet;
+import javax.servlet.ServletException;
+
 /**
  * @scr.component name=
- *                "org.wso2.carbon.identity.authorization.ui.internal.AuthorizationUIServiceComponent"
- *                immediate="true"
+ * "org.wso2.carbon.identity.authorization.ui.internal.AuthorizationUIServiceComponent"
+ * immediate="true"
  * @scr.reference name="osgi.httpservice"
- *                interface="org.osgi.service.http.HttpService"
- *                cardinality="1..1" policy="dynamic" bind="setHttpService"
- *                unbind="unsetHttpService"
+ * interface="org.osgi.service.http.HttpService"
+ * cardinality="1..1" policy="dynamic" bind="setHttpService"
+ * unbind="unsetHttpService"
  */
 public class AuthorizationUIServiceComponent {
 
-	private static HttpService httpService;
-	private static final Log log = LogFactory.getLog(AuthorizationUIServiceComponent.class);
+    private static final Log log = LogFactory.getLog(AuthorizationUIServiceComponent.class);
+    private static HttpService httpService;
 
-	protected void activate(ComponentContext context) {
+    protected void activate(ComponentContext context) {
 
-		String url = "/carbon/identity-authorization/moduleManager";
-		Servlet authoServlet = new ContextPathServletAdaptor(new ModuleManager(), url);
-		try {
-			httpService.registerServlet(url, authoServlet, null, null);
-			log.info("Successfully registered an instance of Base Servelet");
-		} catch (ServletException e) {
-			e.printStackTrace();
-		} catch (NamespaceException e) {
-			e.printStackTrace();
-		}
+        String url = "/carbon/identity-authorization/moduleManager";
+        Servlet authoServlet = new ContextPathServletAdaptor(new ModuleManager(), url);
+        try {
+            httpService.registerServlet(url, authoServlet, null, null);
+            log.info("Successfully registered an instance of Base Servelet");
+        } catch (ServletException e) {
+            e.printStackTrace();
+        } catch (NamespaceException e) {
+            e.printStackTrace();
+        }
 
-	}
+    }
 
-	protected void deactivate(ComponentContext ctxt) {
-		if (log.isDebugEnabled()) {
-			log.debug("Identity Authorization bundle is deactivated");
-		}
-	}
+    protected void deactivate(ComponentContext ctxt) {
+        if (log.isDebugEnabled()) {
+            log.debug("Identity Authorization bundle is deactivated");
+        }
+    }
 
-	protected void setHttpService(HttpService httpService) {
-		AuthorizationUIServiceComponent.httpService = httpService;
-	}
+    protected void setHttpService(HttpService httpService) {
+        AuthorizationUIServiceComponent.httpService = httpService;
+    }
 
-	protected void unsetHttpService(HttpService httpService) {
-		AuthorizationUIServiceComponent.httpService = null;
-	}
+    protected void unsetHttpService(HttpService httpService) {
+        AuthorizationUIServiceComponent.httpService = null;
+    }
 
 }

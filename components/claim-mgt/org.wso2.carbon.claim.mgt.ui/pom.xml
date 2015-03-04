@@ -14,19 +14,18 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.wso2.carbon</groupId>
+        <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>claim-mgt</artifactId>
-        <version>4.3.0-SNAPSHOT</version>
-	<relativePath>../pom.xml</relativePath>
+        <version>4.3.4-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.wso2.carbon</groupId>
     <artifactId>org.wso2.carbon.claim.mgt.ui</artifactId>
-    <version>4.3.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Claim Management UI</name>
     <description>Claim Management UI component for WSO2 Carbon</description>
@@ -36,7 +35,6 @@
         <dependency>
             <groupId>org.apache.axis2.wso2</groupId>
             <artifactId>axis2</artifactId>
-            <!--<version>${axis2.wso2.version.claim-mgt}</version>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -46,10 +44,9 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.logging</artifactId>
         </dependency>
-	    <dependency>
-            <groupId>org.wso2.carbon</groupId>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.claim.mgt.stub</artifactId>
-            <!--<version>${wso2carbon.version.claim-mgt}</version>-->
         </dependency>
     </dependencies>
 
@@ -58,14 +55,13 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Import-Package>
-                            org.wso2.carbon.claim.mgt.stub.*;version="${carbon.platform.package.import.version.range}",
+                            org.wso2.carbon.claim.mgt.stub.*;version="${carbon.identity.package.import.version.range}",
                             !javax.xml.namespace,
                             javax.xml.namespace; version=0.0.0,
                             javax.xml.stream.*; version=1.0.1,

@@ -25,7 +25,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.identity.user.profile.stub.UserProfileMgtServiceStub;
-import org.wso2.carbon.identity.user.profile.stub.types.UserProfileDTO;
 import org.wso2.carbon.user.cassandra.CFConstants;
 import org.wso2.carbon.user.mgt.multiplecredentials.stub.types.Credential;
 import org.wso2.carbon.user.mgt.multiplecredentials.stub.types.carbon.ClaimValue;
@@ -35,10 +34,7 @@ import org.wso2.carbon.user.mgt.stub.MultipleCredentialsUserAdminStub;
 import java.rmi.RemoteException;
 import java.util.UUID;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
-import static org.testng.Assert.fail;
+import static org.testng.Assert.*;
 
 
 public class BasicTest {
@@ -72,7 +68,7 @@ public class BasicTest {
     @Test
     public void CRDUser()
             throws MultipleCredentialsUserAdminMultipleCredentialsUserAdminExceptionException,
-                   RemoteException {
+            RemoteException {
         try {
             multipleCredsAdminStub.deleteUser("Tharindu", CFConstants.DEFAULT_TYPE);
         } catch (RemoteException e) {
@@ -91,9 +87,9 @@ public class BasicTest {
         Credential[] credentials = multipleCredsAdminStub.getCredentials("Tharindu", CFConstants.DEFAULT_TYPE);
         for (Credential returnedCreds : credentials) {
             Assert.assertEquals(returnedCreds.getIdentifier(), credential.getIdentifier(),
-                                "Returned creds not equal to actual creds");
+                    "Returned creds not equal to actual creds");
             Assert.assertEquals(returnedCreds.getCredentialsType(), credential.getCredentialsType(),
-                                "Returned creds not equal to actual creds");
+                    "Returned creds not equal to actual creds");
         }
 
         // delete user
@@ -114,7 +110,7 @@ public class BasicTest {
     @Test
     public void CRUDCredentials()
             throws MultipleCredentialsUserAdminMultipleCredentialsUserAdminExceptionException,
-                   RemoteException {
+            RemoteException {
         try {
             multipleCredsAdminStub.deleteUser("Caressa", CFConstants.DEFAULT_TYPE);
         } catch (RemoteException e) {
@@ -254,7 +250,7 @@ public class BasicTest {
     @Test
     public void authenticateWithAnyUser()
             throws MultipleCredentialsUserAdminMultipleCredentialsUserAdminExceptionException,
-                   RemoteException {
+            RemoteException {
         // delete off user to init
         try {
             multipleCredsAdminStub.deleteUser("tharindu@wso2.com", "Email");
@@ -298,7 +294,7 @@ public class BasicTest {
     @Test
     public void CRUDclaims()
             throws MultipleCredentialsUserAdminMultipleCredentialsUserAdminExceptionException,
-                   RemoteException {
+            RemoteException {
 
         // clean up users
         try {
@@ -340,7 +336,7 @@ public class BasicTest {
         String phoneClaimVal = "12334455";
         claimValue3.setValue(phoneClaimVal);
 
-        ClaimValue[] claimValues = { claimValue1, claimValue2, claimValue3 };
+        ClaimValue[] claimValues = {claimValue1, claimValue2, claimValue3};
 
         // add user with claims
         multipleCredsAdminStub.addUser(credential, null, claimValues, null);
@@ -348,14 +344,14 @@ public class BasicTest {
         // retreive single claim and check equality
         String actualEmailClaimValue = multipleCredsAdminStub
                 .getUserClaimValue(credential.getIdentifier(),
-                                   credential.getCredentialsType(), emailClaimURI, null);
+                        credential.getCredentialsType(), emailClaimURI, null);
         assertEquals(actualEmailClaimValue, emailClaimVal);
 
         // retrieve 2 claims and check
         ClaimValue[] retrievedUserClaimVals = multipleCredsAdminStub
                 .getUserClaimValues(credential.getIdentifier(),
-                                    credential.getCredentialsType(),
-                                    new String[]{countryClaimURI, phoneClaimURI}, null);
+                        credential.getCredentialsType(),
+                        new String[]{countryClaimURI, phoneClaimURI}, null);
         assertTrue(retrievedUserClaimVals.length == 2);
 
         if (retrievedUserClaimVals[0].getClaimURI().equals(claimValue2.getClaimURI())) {
@@ -371,16 +367,16 @@ public class BasicTest {
 
         // retrieve all claims and check
         ClaimValue[] allUserClaimValues = multipleCredsAdminStub.getAllUserClaimValues(credential.getIdentifier(),
-                                                                                       credential.getCredentialsType(), null);
+                credential.getCredentialsType(), null);
         assertTrue(allUserClaimValues.length == 3);
 
         // delete single claim value
         multipleCredsAdminStub.deleteUserClaimValue(credential.getIdentifier(),
-                                                    credential.getCredentialsType(), claimValue1.getClaimURI(), null);
+                credential.getCredentialsType(), claimValue1.getClaimURI(), null);
 
         // retrieve and check after deletion
         ClaimValue[] retrievedAfterDeletionClaims = multipleCredsAdminStub.getAllUserClaimValues(credential.getIdentifier(),
-                                                                                       credential.getCredentialsType(), null);
+                credential.getCredentialsType(), null);
 
         assertTrue(retrievedAfterDeletionClaims.length == 2);
 
@@ -397,9 +393,9 @@ public class BasicTest {
 
         // delete all claims
         multipleCredsAdminStub.deleteUserClaimValues(credential.getIdentifier(),
-                                                     credential.getCredentialsType(),
-                                                     new String[]{claimValue2.getClaimURI(),
-                                                                  claimValue3.getClaimURI()}, null);
+                credential.getCredentialsType(),
+                new String[]{claimValue2.getClaimURI(),
+                        claimValue3.getClaimURI()}, null);
 
         // set claim values
         ClaimValue claimValue4 = new ClaimValue();
@@ -409,11 +405,11 @@ public class BasicTest {
         claimValue4.setValue(claimCityVal);
 
         multipleCredsAdminStub.setUserClaimValue(credential.getIdentifier(),
-                                                 credential.getCredentialsType(),
-                                                 cityClaimURI, claimCityVal, null);
+                credential.getCredentialsType(),
+                cityClaimURI, claimCityVal, null);
 
         String actualCityClaimVal = multipleCredsAdminStub.getUserClaimValue(credential.getIdentifier(),
-                                                                         credential.getCredentialsType(), cityClaimURI, null);
+                credential.getCredentialsType(), cityClaimURI, null);
 
         assertEquals(actualCityClaimVal, claimCityVal);
 
@@ -425,17 +421,17 @@ public class BasicTest {
         multipleCredsAdminStub.addUser(credential1, null, null, null);
 
         multipleCredsAdminStub.setUserClaimValues(credential1.getIdentifier(),
-                                                  credential1.getCredentialsType(), claimValues, null);
+                credential1.getCredentialsType(), claimValues, null);
         multipleCredsAdminStub.deleteUserClaimValue(credential1.getIdentifier(),
-                                                    credential1.getCredentialsType(),
-                                                    claimValue1.getClaimURI(),
-                                                    null);
+                credential1.getCredentialsType(),
+                claimValue1.getClaimURI(),
+                null);
 
         // retrieve 2 claims and check
         ClaimValue[] retrievedDifferentUserClaimVals = multipleCredsAdminStub
                 .getUserClaimValues(credential1.getIdentifier(),
-                                    credential1.getCredentialsType(),
-                                    new String[]{countryClaimURI, phoneClaimURI}, null);
+                        credential1.getCredentialsType(),
+                        new String[]{countryClaimURI, phoneClaimURI}, null);
         assertTrue(retrievedDifferentUserClaimVals.length == 2);
 
         if (retrievedDifferentUserClaimVals[0].getClaimURI().equals(claimValue2.getClaimURI())) {
@@ -453,7 +449,7 @@ public class BasicTest {
     @Test
     public void AddUserId()
             throws MultipleCredentialsUserAdminMultipleCredentialsUserAdminExceptionException,
-                   RemoteException {
+            RemoteException {
         try {
             multipleCredsAdminStub.deleteUser("Tharindu", CFConstants.DEFAULT_TYPE);
         } catch (RemoteException e) {
@@ -496,7 +492,7 @@ public class BasicTest {
              */
             configContext =
                     ConfigurationContextFactory.createConfigurationContextFromFileSystem(null,
-                                                                                         null);
+                            null);
 
             String serviceEndPoint = backendServerURL + "UserProfileMgtService";
 
@@ -522,7 +518,6 @@ public class BasicTest {
     }
 
 
-
     private void initMultiCredsStub() {
 
         String keyStoreLoc = keyStoreLocation;
@@ -545,7 +540,7 @@ public class BasicTest {
              */
             configContext =
                     ConfigurationContextFactory.createConfigurationContextFromFileSystem(null,
-                                                                                         null);
+                            null);
 
             String serviceEndPoint = backendServerURL + "MultipleCredentialsUserAdmin";
 

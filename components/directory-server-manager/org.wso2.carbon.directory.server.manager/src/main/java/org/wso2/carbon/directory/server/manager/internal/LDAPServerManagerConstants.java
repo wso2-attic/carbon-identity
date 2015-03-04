@@ -24,6 +24,10 @@ package org.wso2.carbon.directory.server.manager.internal;
 @SuppressWarnings({"UnusedDeclaration"})
 public class LDAPServerManagerConstants {
 
+    public static final String SERVICE_PASSWORD_REGEX_PROPERTY = "ServicePasswordJavaRegEx";
+    public static final String SERVICE_PRINCIPLE_NAME_REGEX_PROPERTY = "ServiceNameJavaRegEx";
+    public static final String DEFAULT_PASSWORD_REGULAR_EXPRESSION = "[\\\\S]{5,30}";
+    public static final String DEFAULT_SERVICE_NAME_REGULAR_EXPRESSION = "[a-zA-Z\\d]{2,10}/[a-zA-Z]{2,30}";
     static final String SERVER_PRINCIPAL_ATTRIBUTE_VALUE = "Service";
     static final String SERVER_PRINCIPAL_ATTRIBUTE_NAME = "sn";
     static final String PASSWORD_HASH_METHOD = "passwordHashMethod";
@@ -31,7 +35,6 @@ public class LDAPServerManagerConstants {
     static final String KRB5_KEY_VERSION_NUMBER_ATTRIBUTE = "krb5KeyVersionNumber";
     static final String PASSWORD_HASH_METHOD_PLAIN_TEXT = "PlainText";
     static final String KERBEROS_TGT = "krbtgt";
-
     //LDAP constants
     static final String LDAP_UID = "uid";
     static final String LDAP_PASSWORD = "userPassword";
@@ -44,12 +47,6 @@ public class LDAPServerManagerConstants {
     static final String LDAP_KRB5_KDC = "krb5kdcentry";
     static final String LDAP_SUB_SCHEMA = "subschema";
     static final String LDAP_COMMON_NAME = "cn";
-
-    public static final String SERVICE_PASSWORD_REGEX_PROPERTY = "ServicePasswordJavaRegEx";
-    public static final String SERVICE_PRINCIPLE_NAME_REGEX_PROPERTY = "ServiceNameJavaRegEx";
-    public static final String DEFAULT_PASSWORD_REGULAR_EXPRESSION = "[\\\\S]{5,30}";
-    public static final String DEFAULT_SERVICE_NAME_REGULAR_EXPRESSION = "[a-zA-Z\\d]{2,10}/[a-zA-Z]{2,30}";
-
     // For back-end we have to use following default values
     static final String DEFAULT_BE_PASSWORD_REGULAR_EXPRESSION = "[\\S]{5,30}";
     static final String DEFAULT_BE_SERVICE_NAME_REGULAR_EXPRESSION = DEFAULT_SERVICE_NAME_REGULAR_EXPRESSION;

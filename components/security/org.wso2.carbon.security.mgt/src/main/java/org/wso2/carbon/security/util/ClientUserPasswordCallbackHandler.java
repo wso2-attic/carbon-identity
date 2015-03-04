@@ -41,7 +41,7 @@ public class ClientUserPasswordCallbackHandler implements CallbackHandler {
                 passwordCallback.setPassword(this.password);
             } else {
                 throw new UnsupportedCallbackException(callbacks[i],
-                                                       "Unrecognized Callback");
+                        "Unrecognized Callback");
             }
         }
     }

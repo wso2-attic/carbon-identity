@@ -20,13 +20,13 @@ package org.wso2.carbon.security.keystore.service;
 import java.security.cert.X509Certificate;
 
 public class CertDataDetail extends CertData {
-	private X509Certificate certificate;
+    private X509Certificate certificate;
 
-	public X509Certificate getCertificate() {
-		return certificate;
-	}
+    public X509Certificate getCertificate() {
+        return certificate;
+    }
 
-	public void setCertificate(X509Certificate certificate) {
-		this.certificate = certificate;
-	}
+    public void setCertificate(X509Certificate certificate) {
+        this.certificate = certificate;
+    }
 }

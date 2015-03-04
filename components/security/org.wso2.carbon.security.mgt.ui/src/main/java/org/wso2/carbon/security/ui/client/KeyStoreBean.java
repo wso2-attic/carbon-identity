@@ -18,30 +18,34 @@
 package org.wso2.carbon.security.ui.client;
 
 public class KeyStoreBean {
-    
+
     private String ksPassword = "";
-    private String provider= "";
+    private String provider = "";
     private String keystoreType = "";
-    
+
     public String getKsPassword() {
         return ksPassword;
     }
+
     public void setKsPassword(String ksPassword) {
         this.ksPassword = ksPassword;
     }
+
     public String getProvider() {
         return provider;
     }
+
     public void setProvider(String provider) {
         this.provider = provider;
     }
+
     public String getKeystoreType() {
         return keystoreType;
     }
+
     public void setKeystoreType(String keystoreType) {
         this.keystoreType = keystoreType;
     }
-    
-    
-    
+
+
 }

@@ -33,11 +33,11 @@ public class SecurityUIConstants {
     public static final String ALL_DOMAINS = "ALL-USER-STORE-DOMAINS";
     public static final String DOMAIN_SEPARATOR = "/";
     public static final String ROLE_LIST_DOMAIN_FILTER = "org.wso2.carbon.role.domain.filter";
-    
+
     public static final int KEYSTORE_DEFAULT_ITEMS_PER_PAGE = 5;
     public static final String SESSION_ATTR_KEYSTORES = "keystores";
     public static final String RE_FETCH_KEYSTORES = "refetchKeystores";
-    
+
     public static final String KEYSTORE_LIST_FILTER = "org.wso2.carbon.keystore.filter";
     public static final String KEYSTORE_CERT_LIST_FILTER = "org.wso2.carbon.keystore.cert.filter";
 }

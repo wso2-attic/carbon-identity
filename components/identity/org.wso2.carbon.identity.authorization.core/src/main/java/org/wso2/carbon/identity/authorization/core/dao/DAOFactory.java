@@ -21,30 +21,29 @@ package org.wso2.carbon.identity.authorization.core.dao;
 import org.wso2.carbon.identity.authorization.core.jdbc.dao.JDBCDAOFactory;
 
 /**
- * 
  * @author venura
  * @date May 13, 2013
  */
 public abstract class DAOFactory {
 
-	public static DAOFactory createFactory() {
-		DAOFactory factory = null;
-		// If the data connection is JDBC this should be true. These setting
-		// should be read from a configuration file.
-		if (true) {
-			factory = new JDBCDAOFactory();
-		}
-		return factory;
-	}
+    public static DAOFactory createFactory() {
+        DAOFactory factory = null;
+        // If the data connection is JDBC this should be true. These setting
+        // should be read from a configuration file.
+        if (true) {
+            factory = new JDBCDAOFactory();
+        }
+        return factory;
+    }
 
-	public abstract ModuleDAO createModule();
+    public abstract ModuleDAO createModule();
 
-	public abstract PermissionDAO createPermission();
+    public abstract PermissionDAO createPermission();
 
-	public abstract UserPermissionDAO createUserPermission();
+    public abstract UserPermissionDAO createUserPermission();
 
-	public abstract RolePermissionDAO createRolePermission();
+    public abstract RolePermissionDAO createRolePermission();
 
-	public abstract DBConstants createConstants();
+    public abstract DBConstants createConstants();
 
 }

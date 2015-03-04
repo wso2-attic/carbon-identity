@@ -14,13 +14,14 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.wso2.carbon</groupId>
+        <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>directory-server-manager</artifactId>
-        <version>4.3.0-SNAPSHOT</version>
-	<relativePath>../pom.xml</relativePath>
+        <version>4.3.4-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -28,25 +29,22 @@
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Service Principle Management UI</name>
     <description>This is the core module of the project.</description>
-	<version>4.3.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.axis2.wso2</groupId>
             <artifactId>axis2</artifactId>
-            <!--<version>${axis2.wso2.version}</version>-->
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.directory.server.manager.common</artifactId>
-            <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.logging</artifactId>
         </dependency>
-	<dependency>
-            <groupId>org.wso2.carbon</groupId>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.directory.server.manager.stub</artifactId>
         </dependency>
     </dependencies>
@@ -56,26 +54,25 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                         <Bundle-Name>${project.artifactId}</Bundle-Name>
-                         <Export-Package>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <Export-Package>
                             org.wso2.carbon.directory.server.manager.ui.*;version="1.0.0",
                             org.wso2.carbon.directory.server.ui.*;version="1.0.0",
                             org.wso2.carbon.directory.common.ui.*;version="1.0.0",
-                         </Export-Package>
-                         <Import-Package>
-                             !org.wso2.carbon.directory.server.manager.ui.i18n,
-                             javax.xml.namespace.*;version="0.0.0",
-                             org.wso2.carbon.directory.server.manager.stub.*;version="${carbon.platform.package.import.version.range}",
-							 org.wso2.carbon.directory.server.manager.xsd.*;version="${carbon.platform.package.import.version.range}", 
-                             *;resolution:=optional
-                         </Import-Package>
-                         <Carbon-Component>UIBundle</Carbon-Component>
-                     </instructions>
+                        </Export-Package>
+                        <Import-Package>
+                            !org.wso2.carbon.directory.server.manager.ui.i18n,
+                            javax.xml.namespace.*;version="0.0.0",
+                            org.wso2.carbon.directory.server.manager.stub.*;version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.directory.server.manager.xsd.*;version="${carbon.identity.package.import.version.range}",
+                            *;resolution:=optional
+                        </Import-Package>
+                        <Carbon-Component>UIBundle</Carbon-Component>
+                    </instructions>
                 </configuration>
             </plugin>
         </plugins>

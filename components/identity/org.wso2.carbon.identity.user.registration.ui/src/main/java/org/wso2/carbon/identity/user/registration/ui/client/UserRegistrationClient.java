@@ -24,37 +24,32 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityConstants;
-import org.wso2.carbon.identity.user.registration.stub.UserRegistrationAdminServiceIdentityException;
 import org.wso2.carbon.identity.user.registration.stub.UserRegistrationAdminServiceStub;
 import org.wso2.carbon.identity.user.registration.stub.dto.PasswordRegExDTO;
 import org.wso2.carbon.identity.user.registration.stub.dto.UserDTO;
 import org.wso2.carbon.identity.user.registration.stub.dto.UserFieldDTO;
 
-import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 
 public class UserRegistrationClient {
 
-    private UserRegistrationAdminServiceStub stub;
     private static final Log log = LogFactory.getLog(UserRegistrationClient.class);
-
     public static String USER_REGISTRATION_CLIENT_NAME =
             "org.wso2.carbon.identity.user.registration.ui.client.UserRegistrationClient";
+    private UserRegistrationAdminServiceStub stub;
 
     /**
      * Instantiates UserRegistrationServiceClient
-     * 
-     * @param cookie For session management
+     *
+     * @param cookie           For session management
      * @param backendServerURL URL of the back end server where UserRegistrationAdminService is
-     *        running.
-     * @param configCtx ConfigurationContext
+     *                         running.
+     * @param configCtx        ConfigurationContext
      * @throws org.apache.axis2.AxisFault
      */
     public UserRegistrationClient(String cookie, String backendServerURL,
-            ConfigurationContext configCtx) throws AxisFault {
+                                  ConfigurationContext configCtx) throws AxisFault {
         String serviceURL = backendServerURL + "UserRegistrationAdminService";
         stub = new UserRegistrationAdminServiceStub(configCtx, serviceURL);
         ServiceClient client = stub._getServiceClient();
@@ -64,7 +59,6 @@ public class UserRegistrationClient {
     }
 
     /**
-     * 
      * @return
      * @throws AxisFault
      */
@@ -92,7 +86,6 @@ public class UserRegistrationClient {
     }
 
     /**
-     * 
      * @return
      * @throws AxisFault
      */
@@ -130,22 +123,21 @@ public class UserRegistrationClient {
         }
 
     }
-    
+
     /**
-     * 
      * @return
      * @throws AxisFault
      */
-	public PasswordRegExDTO[] getPasswordRegularExpressions() throws AxisFault {
-		try {
-			return stub.getPasswordRegularExpressions();
-		} catch (Exception e) {
-			handleException(
-					"Error ouccured while adding a user at the backend service",
-					e);
-		}
-		return null;
-	}
+    public PasswordRegExDTO[] getPasswordRegularExpressions() throws AxisFault {
+        try {
+            return stub.getPasswordRegularExpressions();
+        } catch (Exception e) {
+            handleException(
+                    "Error ouccured while adding a user at the backend service",
+                    e);
+        }
+        return null;
+    }
 
 
     /**
@@ -195,19 +187,19 @@ public class UserRegistrationClient {
 
     /**
      * Logs and wraps the given exception.
-     * 
+     *
      * @param msg Error message
-     * @param e Exception
+     * @param e   Exception
      * @throws AxisFault
      */
     private void handleException(String msg, Exception e) throws AxisFault {
-       // log.error(msg, e);
+        // log.error(msg, e);
         throw new AxisFault(msg, e);
     }
 
     /**
      * Returns the UserFieldDTO[] of the given dialect.
-     * 
+     *
      * @param dialect
      * @return
      * @throws AxisFault

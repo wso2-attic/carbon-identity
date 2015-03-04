@@ -36,7 +36,7 @@ public class ClaimDTO {
     private String regEx;
 
     private String dialectURI;
-    
+
     private String value;
 
     private int displayOrder;

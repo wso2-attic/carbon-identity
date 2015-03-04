@@ -41,21 +41,17 @@ import org.wso2.carbon.utils.ConfigurationContextService;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @scr.component name="idp.mgt.dscomponent" immediate=true
  * @scr.reference name="user.realmservice.default"
- *                interface="org.wso2.carbon.user.core.service.RealmService" cardinality="1..1"
- *                policy="dynamic" bind="setRealmService" unbind="unsetRealmService"
+ * interface="org.wso2.carbon.user.core.service.RealmService" cardinality="1..1"
+ * policy="dynamic" bind="setRealmService" unbind="unsetRealmService"
  * @scr.reference name="config.context.service"
- *                interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
- *                policy="dynamic" bind="setConfigurationContextService"
- *                unbind="unsetConfigurationContextService"
+ * interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
+ * policy="dynamic" bind="setConfigurationContextService"
+ * unbind="unsetConfigurationContextService"
  */
 public class IdPManagementServiceComponent {
 
@@ -68,6 +64,41 @@ public class IdPManagementServiceComponent {
     private static Map<String, IdentityProvider> fileBasedIdPs = new HashMap<String, IdentityProvider>();
 
     private static Set<String> sharedIdps = new HashSet<String>();
+
+    /**
+     * @return
+     */
+    public static Map<String, IdentityProvider> getFileBasedIdPs() {
+        return fileBasedIdPs;
+    }
+
+    /**
+     * @return
+     */
+    public static RealmService getRealmService() {
+        return realmService;
+    }
+
+    /**
+     * @param rlmService
+     */
+    protected void setRealmService(RealmService rlmService) {
+        realmService = rlmService;
+    }
+
+    /**
+     * @return
+     */
+    public static ConfigurationContextService getConfigurationContextService() {
+        return configurationContextService;
+    }
+
+    /**
+     * @param service
+     */
+    protected void setConfigurationContextService(ConfigurationContextService service) {
+        configurationContextService = service;
+    }
 
     protected void activate(ComponentContext ctxt) {
         try {
@@ -91,7 +122,7 @@ public class IdPManagementServiceComponent {
             }
 
             JDBCPersistenceManager jdbcPersistenceManager = JDBCPersistenceManager.getInstance();
-            if(System.getProperty("setup") != null){
+            if (System.getProperty("setup") != null) {
                 // initialize the identity application persistence manager
                 jdbcPersistenceManager.initializeDatabase();
             } else {
@@ -157,7 +188,7 @@ public class IdPManagementServiceComponent {
                 } catch (Exception e) {
                     log.error("Error while loading idp from file system.", e);
                 } finally {
-                    if(fileInputStream != null){
+                    if (fileInputStream != null) {
                         try {
                             fileInputStream.close();
                         } catch (IOException e) {
@@ -169,7 +200,7 @@ public class IdPManagementServiceComponent {
         }
     }
 
-    private void cleanUpRemovedIdps(){
+    private void cleanUpRemovedIdps() {
         IdentityProviderManager idpManager = IdentityProviderManager.getInstance();
         String superTenantDN = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
         List<IdentityProvider> idPs;
@@ -200,15 +231,6 @@ public class IdPManagementServiceComponent {
     }
 
     /**
-     *
-     * @return
-     */
-    public static Map<String, IdentityProvider> getFileBasedIdPs() {
-        return fileBasedIdPs;
-    }
-
-    /**
-     *
      * @param ctxt
      */
     protected void deactivate(ComponentContext ctxt) {
@@ -216,31 +238,6 @@ public class IdPManagementServiceComponent {
     }
 
     /**
-     *
-     * @return
-     */
-    public static RealmService getRealmService() {
-        return realmService;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public static ConfigurationContextService getConfigurationContextService() {
-        return configurationContextService;
-    }
-
-    /**
-     *
-     * @param rlmService
-     */
-    protected void setRealmService(RealmService rlmService) {
-        realmService = rlmService;
-    }
-
-    /**
-     *
      * @param realmService
      */
     protected void unsetRealmService(RealmService realmService) {
@@ -248,15 +245,6 @@ public class IdPManagementServiceComponent {
     }
 
     /**
-     *
-     * @param service
-     */
-    protected void setConfigurationContextService(ConfigurationContextService service) {
-        configurationContextService = service;
-    }
-
-    /**
-     * 
      * @param service
      */
     protected void unsetConfigurationContextService(ConfigurationContextService service) {

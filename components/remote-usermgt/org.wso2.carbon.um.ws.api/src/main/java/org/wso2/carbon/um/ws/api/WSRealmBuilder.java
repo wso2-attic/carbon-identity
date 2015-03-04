@@ -18,10 +18,10 @@ package org.wso2.carbon.um.ws.api;
 
 
 import org.apache.axis2.context.ConfigurationContext;
-import org.wso2.carbon.user.core.UserRealm;
-import org.wso2.carbon.user.core.UserStoreException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.config.RealmConfiguration;
 
 public class WSRealmBuilder {
@@ -29,8 +29,6 @@ public class WSRealmBuilder {
     private static Log logger = LogFactory.getLog(WSRealmBuilder.class);
 
     /**
-     * 
-     *
      * @param realmProperties
      * @return
      */
@@ -48,30 +46,29 @@ public class WSRealmBuilder {
         return realm;
     }
 
-   
+
     /**
      * Method to create WSRealm for non-Carbon environment
      * Recommended method
      */
     public static UserRealm createWSRealm(RealmConfiguration realmConfig,
                                           ConfigurationContext configContext)
-                                                                             throws UserStoreException {
+            throws UserStoreException {
         WSRealm realm = new WSRealm();
         realm.init(realmConfig, configContext);
         return realm;
     }
-    
+
     /**
      * Method to create WSRealm for non-Carbon environment
      * Recommended method
-     * 
      */
     public static UserRealm createWSRealm(String serverUrl, String cookie, ConfigurationContext configContext)
-                                                                                               throws UserStoreException {
-        
+            throws UserStoreException {
+
         WSRealm realm = new WSRealm();
         realm.init(serverUrl, cookie, configContext);
         return realm;
     }
-    
+
 }

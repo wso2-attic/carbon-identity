@@ -18,66 +18,63 @@
 
 package org.wso2.carbon.identity.authorization.ui.controller;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.axis2.context.ConfigurationContext;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.authorization.ui.IdentityAuthorizationClient;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.utils.ServerConstants;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+
 /**
- * 
  * @author venura
- * 
  */
 public abstract class BaseServlet extends HttpServlet {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
-	                                                                      IOException {
-		doPost(req, resp);
-	}
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
+            IOException {
+        doPost(req, resp);
+    }
 
-	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-	                                                                       throws ServletException,
-	                                                                       IOException {
-		HttpSession session = req.getSession();
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException,
+            IOException {
+        HttpSession session = req.getSession();
 
-		String backendServerURL =
-		                          CarbonUIUtil.getServerURL(getServletConfig().getServletContext(),
-		                                                    session);
-		ConfigurationContext configContext =
-		                                     (ConfigurationContext) getServletConfig().getServletContext()
-		                                                                              .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+        String backendServerURL =
+                CarbonUIUtil.getServerURL(getServletConfig().getServletContext(),
+                        session);
+        ConfigurationContext configContext =
+                (ConfigurationContext) getServletConfig().getServletContext()
+                        .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
 
-		// String backendServerURL =
-		// CarbonUIUtil.getServerURL(getServletContext(), session);
-		// ConfigurationContext configContext =
-		// (ConfigurationContext)
-		// getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-		String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+        // String backendServerURL =
+        // CarbonUIUtil.getServerURL(getServletContext(), session);
+        // ConfigurationContext configContext =
+        // (ConfigurationContext)
+        // getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+        String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
 
-		IdentityAuthorizationClient client =
-		                                     new IdentityAuthorizationClient(cookie,
-		                                                                     backendServerURL,
-		                                                                     configContext);
+        IdentityAuthorizationClient client =
+                new IdentityAuthorizationClient(cookie,
+                        backendServerURL,
+                        configContext);
 
-		doProcess(req, resp, client);
-	}
+        doProcess(req, resp, client);
+    }
 
-	protected abstract void doProcess(HttpServletRequest req, HttpServletResponse resp,
-	                                  IdentityAuthorizationClient client);
+    protected abstract void doProcess(HttpServletRequest req, HttpServletResponse resp,
+                                      IdentityAuthorizationClient client);
 }

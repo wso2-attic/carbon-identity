@@ -60,9 +60,9 @@ public class STSAdminServiceImpl extends AbstractAdmin implements STSAdminServic
                 samlConfig.addTrustedServiceEndpointAddress(serviceAddress, certAlias);
                 setSTSParameter(samlConfig);
                 persistTrustedService(ServerConstants.STS_NAME,
-                                      ServerConstants.STS_NAME,
-                                      serviceAddress,
-                                      certAlias);
+                        ServerConstants.STS_NAME,
+                        serviceAddress,
+                        certAlias);
             } else {
                 throw new AxisFault("missing parameter : "
                         + SAMLTokenIssuerConfig.SAML_ISSUER_CONFIG.getLocalPart());
@@ -98,28 +98,6 @@ public class STSAdminServiceImpl extends AbstractAdmin implements STSAdminServic
         }
     }
 
-    public void setProofKeyType(String keyType) throws SecurityConfigException {
-        try {
-            AxisService service = getAxisConfig().getService(ServerConstants.STS_NAME);
-            Parameter origParam = service.getParameter(SAMLTokenIssuerConfig.SAML_ISSUER_CONFIG
-                    .getLocalPart());
-            if (origParam != null) {
-                OMElement samlConfigElem = origParam.getParameterElement().getFirstChildWithName(
-                        SAMLTokenIssuerConfig.SAML_ISSUER_CONFIG);
-                SAMLTokenIssuerConfig samlConfig = new SAMLTokenIssuerConfig(samlConfigElem);
-                samlConfig.setProofKeyType(keyType);
-                setSTSParameter(samlConfig);
-            } else {
-                throw new AxisFault("missing parameter : "
-                        + SAMLTokenIssuerConfig.SAML_ISSUER_CONFIG.getLocalPart());
-            }
-
-        } catch (Exception e) {
-            log.error("Error setting proof key type", e);
-            throw new SecurityConfigException(e.getMessage(), e);
-        }
-    }
-
     public TrustedServiceData[] getTrustedServices() throws SecurityConfigException {
         try {
             AxisService service = getAxisConfig().getService(ServerConstants.STS_NAME);
@@ -133,7 +111,7 @@ public class STSAdminServiceImpl extends AbstractAdmin implements STSAdminServic
                 Set addresses = trustedServicesMap.keySet();
 
                 ArrayList serviceBag = new ArrayList();
-                for (Iterator iterator = addresses.iterator(); iterator.hasNext();) {
+                for (Iterator iterator = addresses.iterator(); iterator.hasNext(); ) {
                     String address = (String) iterator.next();
                     String alias = (String) trustedServicesMap.get(address);
                     TrustedServiceData data = new TrustedServiceData(address, alias);
@@ -171,27 +149,49 @@ public class STSAdminServiceImpl extends AbstractAdmin implements STSAdminServic
         }
     }
 
+    public void setProofKeyType(String keyType) throws SecurityConfigException {
+        try {
+            AxisService service = getAxisConfig().getService(ServerConstants.STS_NAME);
+            Parameter origParam = service.getParameter(SAMLTokenIssuerConfig.SAML_ISSUER_CONFIG
+                    .getLocalPart());
+            if (origParam != null) {
+                OMElement samlConfigElem = origParam.getParameterElement().getFirstChildWithName(
+                        SAMLTokenIssuerConfig.SAML_ISSUER_CONFIG);
+                SAMLTokenIssuerConfig samlConfig = new SAMLTokenIssuerConfig(samlConfigElem);
+                samlConfig.setProofKeyType(keyType);
+                setSTSParameter(samlConfig);
+            } else {
+                throw new AxisFault("missing parameter : "
+                        + SAMLTokenIssuerConfig.SAML_ISSUER_CONFIG.getLocalPart());
+            }
+
+        } catch (Exception e) {
+            log.error("Error setting proof key type", e);
+            throw new SecurityConfigException(e.getMessage(), e);
+        }
+    }
+
     public String[] getCertAliasOfPrimaryKeyStore() throws SecurityConfigException {
-        
+
         KeyStoreData[] keyStores = getKeyStores();
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         KeyStoreData primaryKeystore = null;
         for (KeyStoreData keyStore : keyStores) {
             if (keyStore != null) {
-                if (tenantId == MultitenantConstants.SUPER_TENANT_ID){
-                    if(KeyStoreUtil.isPrimaryStore(keyStore.getKeyStoreName())){
+                if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
+                    if (KeyStoreUtil.isPrimaryStore(keyStore.getKeyStoreName())) {
                         primaryKeystore = keyStore;
                         break;
                     }
                 } else {
-                    if (keyStore.getPrivateStore()){
+                    if (keyStore.getPrivateStore()) {
                         primaryKeystore = keyStore;
                         break;
                     }
                 }
             }
         }
-        
+
         if (primaryKeystore != null) {
             return getStoreEntries(primaryKeystore.getKeyStoreName());
         }
@@ -208,7 +208,7 @@ public class STSAdminServiceImpl extends AbstractAdmin implements STSAdminServic
         KeyStoreAdmin admin = new KeyStoreAdmin(CarbonContext.getThreadLocalCarbonContext().getTenantId(),
                 getGovernanceSystemRegistry());
         boolean isSuperTenant = CarbonContext.getThreadLocalCarbonContext().getTenantId() ==
-                                                        MultitenantConstants.SUPER_TENANT_ID;
+                MultitenantConstants.SUPER_TENANT_ID;
         return admin.getKeyStores(isSuperTenant);
     }
 
@@ -219,7 +219,7 @@ public class STSAdminServiceImpl extends AbstractAdmin implements STSAdminServic
     }
 
     private void persistTrustedService(String groupName, String serviceName, String trustedService,
-            String certAlias) throws SecurityConfigException {
+                                       String certAlias) throws SecurityConfigException {
         Registry registry;
         String resourcePath;
         Resource resource;

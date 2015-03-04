@@ -21,8 +21,6 @@ package org.wso2.carbon.idp.mgt.cache;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 
-import java.io.Serializable;
-
 
 public class IdPCacheEntry extends CacheEntry {
 
@@ -36,7 +34,7 @@ public class IdPCacheEntry extends CacheEntry {
         return identityProvider;
     }
 
-    public void setIdentityProvider(IdentityProvider identityProvider){
+    public void setIdentityProvider(IdentityProvider identityProvider) {
         this.identityProvider = identityProvider;
     }
 

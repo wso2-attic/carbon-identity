@@ -38,13 +38,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class BasicAuthEntitlementServiceClient extends AbstractEntitlementServiceClient {
 
+    HttpTransportProperties.Authenticator authenticator;
     private Map<String, EntitlementServiceStub> entitlementStub = new ConcurrentHashMap<String, EntitlementServiceStub>();
     private Map<String, EntitlementPolicyAdminServiceStub> policyAdminStub = new ConcurrentHashMap<String, EntitlementPolicyAdminServiceStub>();
     private String serverUrl;
 
-    HttpTransportProperties.Authenticator authenticator;
-
-    public BasicAuthEntitlementServiceClient(String serverUrl, String userName, String password){
+    public BasicAuthEntitlementServiceClient(String serverUrl, String userName, String password) {
         this.serverUrl = serverUrl;
         authenticator = new HttpTransportProperties.Authenticator();
         authenticator.setUsername(userName);
@@ -131,7 +130,7 @@ public class BasicAuthEntitlementServiceClient extends AbstractEntitlementServic
 
     @Override
     public List<String> getActionableChildResourcesForAlias(String alias, String parentResource,
-                                                           String action, String appId) throws Exception {
+                                                            String action, String appId) throws Exception {
 
         EntitlementServiceStub stub = getEntitlementStub(serverUrl);
         List<String> results = getResources(getEntitledAttributes(alias, parentResource,
@@ -185,7 +184,7 @@ public class BasicAuthEntitlementServiceClient extends AbstractEntitlementServic
     }
 
     private String getDecision(String request, EntitlementServiceStub stub) throws Exception {
-            return stub.getDecision(request);
+        return stub.getDecision(request);
     }
 
     private EntitledAttributesDTO[] getEntitledAttributes(String subjectName, String resourceName,
@@ -193,7 +192,7 @@ public class BasicAuthEntitlementServiceClient extends AbstractEntitlementServic
                                                           EntitlementServiceStub stub) throws Exception {
         EntitledResultSetDTO results;
         results = stub.getEntitledAttributes(subjectName, resourceName, subjectId, action,
-                                                 enableChildSearch);
+                enableChildSearch);
         return results.getEntitledAttributesDTOs();
     }
 

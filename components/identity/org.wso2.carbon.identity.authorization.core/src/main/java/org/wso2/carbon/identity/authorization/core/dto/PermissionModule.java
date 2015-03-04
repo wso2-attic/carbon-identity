@@ -23,60 +23,60 @@ package org.wso2.carbon.identity.authorization.core.dto;
  */
 public class PermissionModule {
 
-	private String moduleName;
-	private int moduleId;
+    private String moduleName;
+    private int moduleId;
 
-	private Permission[] permissions;
-	private String[] actions;
-	private String[] deletedActions;
-	private Resource[] resources;
+    private Permission[] permissions;
+    private String[] actions;
+    private String[] deletedActions;
+    private Resource[] resources;
 
-	public String getModuleName() {
-		return moduleName;
-	}
+    public String getModuleName() {
+        return moduleName;
+    }
 
-	public void setModuleName(String moduleName) {
-		this.moduleName = moduleName;
-	}
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
+    }
 
-	public int getModuleId() {
-		return moduleId;
-	}
+    public int getModuleId() {
+        return moduleId;
+    }
 
-	public void setModuleId(int moduleId) {
-		this.moduleId = moduleId;
-	}
+    public void setModuleId(int moduleId) {
+        this.moduleId = moduleId;
+    }
 
-	public Permission[] getPermissions() {
-		return permissions;
-	}
+    public Permission[] getPermissions() {
+        return permissions;
+    }
 
-	public void setPermissions(Permission[] permissions) {
-		this.permissions = permissions;
-	}
+    public void setPermissions(Permission[] permissions) {
+        this.permissions = permissions;
+    }
 
-	public String[] getActions() {
-		return actions;
-	}
+    public String[] getActions() {
+        return actions;
+    }
 
-	public void setActions(String[] actions) {
-		this.actions = actions;
-	}
+    public void setActions(String[] actions) {
+        this.actions = actions;
+    }
 
-	public String[] getDeletedActions() {
-		return deletedActions;
-	}
+    public String[] getDeletedActions() {
+        return deletedActions;
+    }
 
-	public void setDeletedActions(String[] deletedActions) {
-		this.deletedActions = deletedActions;
-	}
+    public void setDeletedActions(String[] deletedActions) {
+        this.deletedActions = deletedActions;
+    }
 
-	public Resource[] getResources() {
-		return resources;
-	}
+    public Resource[] getResources() {
+        return resources;
+    }
 
-	public void setResources(Resource[] resources) {
-		this.resources = resources;
-	}
+    public void setResources(Resource[] resources) {
+        this.resources = resources;
+    }
 
 }
