@@ -23,8 +23,24 @@
 
     <modules>
         <module>service-stubs/identity</module>
+        <module>components/agents</module>
+        <module>components/application-authenticators</module>
+        <module>components/authentication-framework</module>
+        <module>components/entitlement</module>
+        <module>components/identity-core</module>
+        <module>components/application-mgt</module>
+        <module>components/identity-mgt</module>
+        <module>components/notification-mgt</module>
+        <module>components/oauth</module>
+        <module>components/openid</module>
+        <module>components/provisioning</module>
+        <module>components/scim</module>
+        <module>components/sso-saml</module>
+        <module>components/tools</module>
+        <module>components/user-mgt</module>
+        <module>components/user-store</module>
         <module>components/idp-mgt</module>
-        <module>components/authenticators</module>
+        <module>components/carbon-authenticators</module>
         <module>components/cassandra-userstore</module>
         <module>components/claim-mgt</module>
         <module>components/directory-server-manager</module>
@@ -1950,6 +1966,7 @@
         <commons-lang.wso2.version>2.6.0.wso2v1</commons-lang.wso2.version>
 
         <neethi.osgi.version>2.0.4.wso2v4</neethi.osgi.version>
+        <neethi.osgi.version.range>[2.0.4.wso2v4,2.1.0)</neethi.osgi.version.range>
         <slf4j.wso2.version>1.5.10.wso2v1</slf4j.wso2.version>
         <libthrift.wso2.version>0.8.0.wso2v1</libthrift.wso2.version>
         <log4j.version>1.2.13</log4j.version>
