@@ -93,8 +93,8 @@
         request.getSession().invalidate();
         String queryString = request.getQueryString();
         Map<String, String> idpAuthenticatorMapping = null;
-        if (request.getAttribute("idpAuthenticatorMap") != null) {
-            idpAuthenticatorMapping = (Map<String, String>)request.getAttribute("idpAuthenticatorMap");
+        if (request.getAttribute(Constants.IDP_AUTHENTICATOR_MAP) != null) {
+            idpAuthenticatorMapping = (Map<String, String>)request.getAttribute(Constants.IDP_AUTHENTICATOR_MAP);
         }
         
         String errorMessage = "Authentication Failed! Please Retry";
