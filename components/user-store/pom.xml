@@ -35,8 +35,21 @@
     </description>
     <url>http://wso2.org</url>
 
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.3</version>
+            </plugin>
+        </plugins>
+    </build>
+
+
     <modules>
         <module>org.wso2.carbon.identity.user.store.remote</module>
+        <module>org.wso2.carbon.user.cassandra</module>
     </modules>
 
 </project>
