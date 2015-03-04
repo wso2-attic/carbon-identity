@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  * 
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -93,7 +93,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * user will assigned to the created role.Internal roles used.
      *
      * @param serviceProvider Service Provider
-     * @return
+     * @return applicationId
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
     public int createApplication(ServiceProvider serviceProvider)
@@ -477,8 +477,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
     /**
      * Get application data for given client Id and type
      *
-     * @param clientId
-     * @param type
+     * @param clientId Client ID
+     * @param type  Type
      * @return ServiceProvider
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
