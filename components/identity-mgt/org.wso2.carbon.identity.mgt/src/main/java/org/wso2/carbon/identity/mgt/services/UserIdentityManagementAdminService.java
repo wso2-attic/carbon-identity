@@ -37,10 +37,7 @@ import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This is the admin service for the identity management. Some of these
@@ -334,17 +331,36 @@ public class UserIdentityManagementAdminService {
             log.error("no challenges provided by user");
             throw new IdentityMgtServiceException("no challenges provided by user");
         }
+        //Validating security question whether these are available in his tenant
+        validateSecurityQuestionDuplicate(challengesDTOs);
 
         ChallengeQuestionProcessor processor = IdentityMgtServiceComponent.
                 getRecoveryProcessor().getQuestionProcessor();
 
         try {
+            List<ChallengeQuestionDTO> challengeQuestionDTOs = processor.getAllChallengeQuestions();
+            for (UserChallengesDTO userChallengesDTO : challengesDTOs){
+                boolean found = false ;
+                for (ChallengeQuestionDTO challengeQuestionDTO :challengeQuestionDTOs ){
+                    if(challengeQuestionDTO.getQuestion().equals(userChallengesDTO.getQuestion()) &&
+                            challengeQuestionDTO.getQuestionSetId().equals(userChallengesDTO.getId())){
+                        found = true ;
+                        break ;
+                    }
+                }
+                if(!found){
+                    String errMsg = "Error while persisting user challenges for user : " + userName + ", because these user challengers are not registered with the tenant" ;
+                    log.error(errMsg);
+                    throw new IdentityMgtServiceException(errMsg);
+                }
+            }
             processor.setChallengesOfUser(userName, CarbonContext.getThreadLocalCarbonContext().getTenantId(), challengesDTOs);
         } catch (IdentityException e) {
             String errorMessage = "Error while persisting user challenges for user : " + userName;
             log.error(errorMessage, e);
             throw new IdentityMgtServiceException(errorMessage);
         }
+
     }
 
 
@@ -489,4 +505,20 @@ public class UserIdentityManagementAdminService {
         }
         return userName;
     }
+
+    private void validateSecurityQuestionDuplicate(UserChallengesDTO[] challengesDTOs) throws IdentityMgtServiceException {
+
+        Set<String> tmpMap = new HashSet<String>();
+        for (int i = 0; i < challengesDTOs.length ; i++) {
+            UserChallengesDTO userChallengesDTO = challengesDTOs[i];
+            if(tmpMap.contains(userChallengesDTO.getId())){
+                String errMsg = "Error while validating user challenges, because these can't be more than one security challenges for one claim uri" ;
+                log.error(errMsg);
+                throw new IdentityMgtServiceException(errMsg);
+             }
+         tmpMap.add(userChallengesDTO.getId());
+        }
+    }
+
+
 }
