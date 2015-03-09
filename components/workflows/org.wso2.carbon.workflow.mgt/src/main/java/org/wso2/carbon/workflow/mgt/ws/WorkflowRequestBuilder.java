@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.wso2.carbon.workflow.mgt;
+package org.wso2.carbon.workflow.mgt.ws;
 
 import org.apache.commons.lang.StringUtils;
-import org.wso2.carbon.workflow.mgt.bean.WorkflowExecutionData;
+import org.wso2.carbon.workflow.mgt.WorkflowException;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -166,7 +166,7 @@ public class WorkflowRequestBuilder {
      * Builds the SOAP request body for the Service endpoint
      *
      * @return
-     * @throws WorkflowException
+     * @throws org.wso2.carbon.workflow.mgt.WorkflowException
      */
     public String buildRequest() throws WorkflowException {
         StringWriter writer = new StringWriter();
@@ -231,23 +231,6 @@ public class WorkflowRequestBuilder {
             throw new WorkflowException("Error when building workflow request for action: " + action, e);
         }
         return null;
-    }
-
-    public static String buildRequestFrom(WorkflowExecutionData executionData) throws WorkflowException {
-        WorkflowRequestBuilder requestBuilder = new WorkflowRequestBuilder(executionData.getUuid(),
-                executionData.getAction(),null);
-        for (Map.Entry<String, Object> paramEntry : executionData.getParams().entrySet()) {
-            if(paramEntry.getValue() instanceof Map){
-                requestBuilder.addMapTypeParam(paramEntry.getKey(), (Map<String, Object>) paramEntry.getValue());
-            } else if (paramEntry.getValue() instanceof List){
-                requestBuilder.addListTypeParam(paramEntry.getKey(), (List<Object>) paramEntry.getValue());
-            } else if (SUPPORTED_CLASS_TYPES.contains(paramEntry.getValue().getClass())){
-                requestBuilder.addSingleValuedParam(paramEntry.getKey(),paramEntry.getValue());
-            } else {
-                //todo log.warn
-            }
-        }
-        return requestBuilder.buildRequest();
     }
 
     /**

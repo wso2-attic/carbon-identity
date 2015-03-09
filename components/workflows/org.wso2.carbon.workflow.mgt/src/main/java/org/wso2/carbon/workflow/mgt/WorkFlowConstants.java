@@ -18,13 +18,14 @@
 
 package org.wso2.carbon.workflow.mgt;
 
-import org.wso2.carbon.workflow.mgt.bean.WorkFlowRequest;
+public class WorkFlowConstants {
 
-public interface WorkFlowExecutor {
+    public static final String WF_STATUS_NO_MATCHING_EXECUTORS = "NO_MATCHING_EXECUTOR";
 
-    public abstract boolean canHandle(WorkFlowRequest workFlowRequest);
+    public static final String WF_PARAM_TYPE_PRIMITIVE = "primitive";
+    public static final String WF_PARAM_TYPE_STRING = "string";
+    public static final String WF_PARAM_TYPE_BASIC_LIST = "list";
+    public static final String WF_PARAM_TYPE_BASIC_MAP = "map";
 
-    public int getPriority();
-
-    public void execute(WorkFlowRequest workFlowRequest) throws WorkflowException;
+    public static final String WF_REQUEST_STATUS_CREATED = "created";
 }

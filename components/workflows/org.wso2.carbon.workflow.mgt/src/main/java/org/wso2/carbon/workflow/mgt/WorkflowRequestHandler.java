@@ -18,29 +18,11 @@
 
 package org.wso2.carbon.workflow.mgt;
 
-import org.wso2.carbon.workflow.mgt.bean.WFCallBackDTO;
-import org.wso2.carbon.workflow.mgt.bean.WorkflowExecutionData;
+public interface WorkflowRequestHandler {
 
-public class WSWorkflowExecutor implements WorkFlowExecutor{
+    public void engageWorkflow() throws WorkflowException;
 
-    @Override
-    public boolean canHandle(WorkflowExecutionData workflowData) {
-        return false;
-    }
+    public String getActionIdentifier();
 
-    @Override
-    public int getPriority() {
-        return 10;
-    }
-
-    @Override
-    public void execute(WorkflowExecutionData workflowExecutionData) throws WorkflowException {
-        String wsRequest = WorkflowRequestBuilder.buildRequestFrom(workflowExecutionData);
-        //get service from db and call
-    }
-
-    @Override
-    public void complete(WFCallBackDTO wfCallBackDTO) {
-
-    }
+    public void onWorkflowCompletion(Object workflowRequest, String Status, Object additionalData);
 }

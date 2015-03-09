@@ -18,24 +18,23 @@
 
 package org.wso2.carbon.workflow.mgt.dao;
 
-import org.wso2.carbon.workflow.mgt.bean.WorkflowServiceBean;
+import org.wso2.carbon.workflow.mgt.bean.WSServiceBean;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class WorkflowServicesDAO {
 
-    public void addWorkflowService(WorkflowServiceBean workflowService){
+    public void addWorkflowService(WSServiceBean workflowService){
 
     }
 
-    public List<WorkflowServiceBean> getServicesForAction(String action){
+    public List<WSServiceBean> getServicesForAction(String action){
         return null;
     }
 
     public void removeWorkflowService(String alias){
     }
 
-    public void updateWorkflowService(String alias, WorkflowServiceBean newService){
+    public void updateWorkflowService(String alias, WSServiceBean newService){
     }
 }

@@ -18,13 +18,13 @@
 
 package org.wso2.carbon.workflow.mgt.bean;
 
-import java.util.Map;
+import java.io.Serializable;
+import java.util.List;
 
-public class WFCallBackDTO {
+public class WorkFlowRequest implements Serializable {
     private String uuid;
-    private String action;
-    private String status;
-    private Map<String,Object> params;
+    private String requesterId;
+    private List<WorkflowParameter> workflowParameters;
 
     public String getUuid() {
         return uuid;
@@ -34,27 +34,19 @@ public class WFCallBackDTO {
         this.uuid = uuid;
     }
 
-    public String getAction() {
-        return action;
+    public String getRequesterId() {
+        return requesterId;
     }
 
-    public void setAction(String action) {
-        this.action = action;
+    public void setRequesterId(String requesterId) {
+        this.requesterId = requesterId;
     }
 
-    public String getStatus() {
-        return status;
+    public List<WorkflowParameter> getWorkflowParameters() {
+        return workflowParameters;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Map<String, Object> getParams() {
-        return params;
-    }
-
-    public void setParams(Map<String, Object> params) {
-        this.params = params;
+    public void setWorkflowParameters(List<WorkflowParameter> workflowParameters) {
+        this.workflowParameters = workflowParameters;
     }
 }

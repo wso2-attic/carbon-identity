@@ -18,11 +18,14 @@
 
 package org.wso2.carbon.workflow.mgt;
 
-import org.wso2.carbon.workflow.mgt.bean.WorkflowExecutionData;
+import org.wso2.carbon.workflow.mgt.bean.WorkFlowRequest;
 
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.UUID;
 
 public class WorkFlowExecutorManager {
 
@@ -36,6 +39,7 @@ public class WorkFlowExecutorManager {
             }
         };
         workFlowExecutors = new TreeSet<WorkFlowExecutor>(priorityBasedComparator);
+        workflowRequestHandlers = new HashMap<String, WorkflowRequestHandler>();
     }
 
     public static WorkFlowExecutorManager getInstance() {
@@ -43,23 +47,50 @@ public class WorkFlowExecutorManager {
     }
 
     private SortedSet<WorkFlowExecutor> workFlowExecutors;
+    private Map<String,WorkflowRequestHandler> workflowRequestHandlers;
 
-    public void executeWorkflow(WorkflowExecutionData requestData){
+    public void executeWorkflow(WorkFlowRequest workFlowRequest) throws WorkflowException {
+
+        workFlowRequest.setUuid(UUID.randomUUID().toString());
         //executors are sorted by priority by the time they are added.
         for (WorkFlowExecutor workFlowExecutor : workFlowExecutors) {
-            if(workFlowExecutor.canHandle(requestData)){
+            if(workFlowExecutor.canHandle(workFlowRequest)){
                 try {
-                    workFlowExecutor.execute(requestData);
+                    //todo:persist request (and drop non needed params ?)
+                    workFlowExecutor.execute(workFlowRequest);
+                    return;
                 } catch (WorkflowException e) {
                     //todo
                 }
                 return;
             }
         }
+        //If none of the executors were called
+        handleCallback(workFlowRequest, WorkFlowConstants.WF_STATUS_NO_MATCHING_EXECUTORS, null);
+    }
 
+    public void handleCallback(String uuid, String status, Object additionalParams) throws WorkflowException {
+        WorkFlowRequest request = null; //todo: load
+        handleCallback(request,status,additionalParams);
+    }
+
+    private void handleCallback(WorkFlowRequest request, String status, Object additionalParams)
+            throws WorkflowException {
+        if(request!=null){
+            String requesterId = request.getRequesterId();
+            WorkflowRequestHandler requestHandler = workflowRequestHandlers.get(requesterId);
+            if(requestHandler==null){
+                throw new WorkflowException("No request handlers registered for the id: "+requesterId);
+            }
+            requestHandler.onWorkflowCompletion(request,status,additionalParams);
+        }
     }
 
     public void registerExecutor(WorkFlowExecutor workFlowExecutor){
         workFlowExecutors.add(workFlowExecutor);
+    }
+
+    public void registerRequester(WorkflowRequestHandler workflowRequestHandler){
+        workflowRequestHandlers.put(workflowRequestHandler.getActionIdentifier(), workflowRequestHandler);
     }
 }

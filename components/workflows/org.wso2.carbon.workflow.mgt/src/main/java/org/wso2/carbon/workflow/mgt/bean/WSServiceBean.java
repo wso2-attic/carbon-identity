@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.workflow.mgt.bean;
 
-public class WorkflowServiceBean {
+public class WSServiceBean {
 
     private String alias;
     private String action;
@@ -26,6 +26,7 @@ public class WorkflowServiceBean {
     private String serviceEndpoint;
     private String userName;
     private char[] password;
+    private String preCondition;
 
     public String getAlias() {
         return alias;
@@ -73,5 +74,13 @@ public class WorkflowServiceBean {
 
     public void setPassword(char[] password) {
         this.password = password;
+    }
+
+    public String getPreCondition() {
+        return preCondition;
+    }
+
+    public void setPreCondition(String preCondition) {
+        this.preCondition = preCondition;
     }
 }

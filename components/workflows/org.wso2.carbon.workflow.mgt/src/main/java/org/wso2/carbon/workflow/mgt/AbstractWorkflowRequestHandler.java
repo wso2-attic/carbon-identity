@@ -20,11 +20,14 @@ package org.wso2.carbon.workflow.mgt;
 
 import org.wso2.carbon.workflow.mgt.bean.WorkFlowRequest;
 
-public interface WorkFlowExecutor {
+public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestHandler {
 
-    public abstract boolean canHandle(WorkFlowRequest workFlowRequest);
+    @Override
+    public void engageWorkflow() throws WorkflowException {
+        WorkFlowRequest workFlowRequest = buildWorkflowRequest();
+        WorkFlowExecutorManager.getInstance().executeWorkflow(workFlowRequest);
+    }
 
-    public int getPriority();
+    protected abstract WorkFlowRequest buildWorkflowRequest();
 
-    public void execute(WorkFlowRequest workFlowRequest) throws WorkflowException;
 }
