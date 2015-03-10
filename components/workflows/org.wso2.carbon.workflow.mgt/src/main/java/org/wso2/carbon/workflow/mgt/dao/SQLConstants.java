@@ -24,6 +24,13 @@ package org.wso2.carbon.workflow.mgt.dao;
 public class SQLConstants {
 
     public static final String REQUEST_COLUMN = "REQUEST";
+    public static final String ALIAS_COLUMN = "ALIAS";
+    public static final String WS_ACTION_COLUMN = "WS_ACTION";
+    public static final String SERVICE_EP_COLUMN = "SERVICE_EP";
+    public static final String PRIORITY_COLUMN = "PRIORITY";
+    public static final String USERNAME_COLUMN = "USERNAME";
+    public static final String PASSWORD_COLUMN = "PASSWORD";
+    public static final String CONDITION_COLUMN = "CONDITION";
 
 
     public static final String ADD_WORKFLOW_REQUEST_QUERY = "INSERT INTO WF_REQUESTS(UUID, CREATED_AT, UPDATED_AT, " +
@@ -31,6 +38,17 @@ public class SQLConstants {
 
     public static final String GET_WORKFLOW_REQUEST_QUERY = "SELECT UUID, REQUEST, STATUS FROM WF_REQUESTS WHERE UUID" +
             " = ?";
+
+    public static final String ADD_WS_SERVICE_QUERY = "INSERT INTO WF_WS_SERVICES(ALIAS, WS_ACTION, SERVICE_EP, " +
+            "PRIORITY, USERNAME, PASSWORD) VALUES (?, ?, ?, ?, ?, ?)";
+
+    public static final String GET_WS_SERVICES_FOR_REQUESTER_QUERY = "SELECT WF_WS_SERVICES.ALIAS, " +
+            "WF_WS_SERVICES.WS_ACTION, WF_WS_SERVICES.SERVICE_EP, WF_WS_SERVICES.PRIORITY, WF_WS_SERVICES.USERNAME, " +
+            "WF_WS_SERVICES.PASSWORD, WF_REQUESTER_SERVICE_MAP.CONDITION FROM WF_WS_SERVICES, " +
+            "WF_REQUESTER_SERVICE_MAP WHERE WF_REQUESTER_SERVICE_MAP.SERVICE_ALIAS = WF_WS_SERVICES.ALIAS AND " +
+            "WF_REQUESTER_SERVICE_MAP.REQUESTER = ?";
+
+
     private SQLConstants(){
     }
 }

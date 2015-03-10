@@ -26,7 +26,6 @@ public class WSServiceBean {
     private String serviceEndpoint;
     private String userName;
     private char[] password;
-    private String preCondition;
 
     public String getAlias() {
         return alias;
@@ -74,13 +73,5 @@ public class WSServiceBean {
 
     public void setPassword(char[] password) {
         this.password = password;
-    }
-
-    public String getPreCondition() {
-        return preCondition;
-    }
-
-    public void setPreCondition(String preCondition) {
-        this.preCondition = preCondition;
     }
 }

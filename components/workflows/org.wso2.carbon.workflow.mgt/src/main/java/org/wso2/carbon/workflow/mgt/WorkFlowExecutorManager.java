@@ -19,6 +19,7 @@
 package org.wso2.carbon.workflow.mgt;
 
 import org.wso2.carbon.workflow.mgt.bean.WorkFlowRequest;
+import org.wso2.carbon.workflow.mgt.dao.WorkflowRequestDAO;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -30,6 +31,8 @@ import java.util.UUID;
 public class WorkFlowExecutorManager {
 
     private static WorkFlowExecutorManager instance = new WorkFlowExecutorManager();
+    private SortedSet<WorkFlowExecutor> workFlowExecutors;
+    private Map<String, WorkflowRequestHandler> workflowRequestHandlers;
 
     private WorkFlowExecutorManager(){
         Comparator<WorkFlowExecutor> priorityBasedComparator = new Comparator<WorkFlowExecutor>() {
@@ -46,9 +49,6 @@ public class WorkFlowExecutorManager {
         return instance;
     }
 
-    private SortedSet<WorkFlowExecutor> workFlowExecutors;
-    private Map<String,WorkflowRequestHandler> workflowRequestHandlers;
-
     public void executeWorkflow(WorkFlowRequest workFlowRequest) throws WorkflowException {
 
         workFlowRequest.setUuid(UUID.randomUUID().toString());
@@ -56,7 +56,9 @@ public class WorkFlowExecutorManager {
         for (WorkFlowExecutor workFlowExecutor : workFlowExecutors) {
             if(workFlowExecutor.canHandle(workFlowRequest)){
                 try {
-                    //todo:persist request (and drop non needed params ?)
+                    WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
+                    requestDAO.addWorkflowEntry(workFlowRequest);
+                    //todo: drop unused parameters?
                     workFlowExecutor.execute(workFlowRequest);
                     return;
                 } catch (WorkflowException e) {
@@ -70,8 +72,9 @@ public class WorkFlowExecutorManager {
     }
 
     public void handleCallback(String uuid, String status, Object additionalParams) throws WorkflowException {
-        WorkFlowRequest request = null; //todo: load
-        handleCallback(request,status,additionalParams);
+        WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
+        WorkFlowRequest request = requestDAO.retrieveWorkflow(uuid);
+        handleCallback(request, status, additionalParams);
     }
 
     private void handleCallback(WorkFlowRequest request, String status, Object additionalParams)

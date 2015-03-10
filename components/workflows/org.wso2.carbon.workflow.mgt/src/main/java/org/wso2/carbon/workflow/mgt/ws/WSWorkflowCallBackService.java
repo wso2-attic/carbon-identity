@@ -18,5 +18,22 @@
 
 package org.wso2.carbon.workflow.mgt.ws;
 
+import org.wso2.carbon.workflow.mgt.WorkFlowExecutorManager;
+import org.wso2.carbon.workflow.mgt.WorkflowException;
+import org.wso2.carbon.workflow.mgt.bean.WSWorkflowResponse;
+
+/**
+ * This is the Callback service for the WS Workflow requests. Once workflow executor completes its workflow,
+ * it will call back this service with the results.
+ */
 public class WSWorkflowCallBackService {
+
+    public void onCallback(WSWorkflowResponse response) {
+        try {
+            WorkFlowExecutorManager.getInstance()
+                    .handleCallback(response.getUuid(), response.getStatus(), response.getOutputParams());
+        } catch (WorkflowException e) {
+            //todo
+        }
+    }
 }

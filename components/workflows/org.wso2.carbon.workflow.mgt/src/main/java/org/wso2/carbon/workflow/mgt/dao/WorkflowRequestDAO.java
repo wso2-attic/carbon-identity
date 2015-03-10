@@ -21,16 +21,14 @@ package org.wso2.carbon.workflow.mgt.dao;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.workflow.mgt.WorkFlowConstants;
-import org.wso2.carbon.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.workflow.mgt.WorkflowException;
+import org.wso2.carbon.workflow.mgt.bean.WorkFlowRequest;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -47,8 +45,6 @@ public class WorkflowRequestDAO {
     public void addWorkflowEntry(WorkFlowRequest workflow) throws WorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
-        ResultSet rs = null;
-
         String query = SQLConstants.ADD_WORKFLOW_REQUEST_QUERY;
         try {
             Timestamp createdDateStamp = new Timestamp(System.currentTimeMillis());

@@ -33,11 +33,13 @@ import org.wso2.carbon.workflow.mgt.WorkflowException;
 import org.wso2.carbon.workflow.mgt.bean.WSServiceBean;
 import org.wso2.carbon.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.workflow.mgt.bean.WorkflowParameter;
+import org.wso2.carbon.workflow.mgt.dao.WorkflowServicesDAO;
 import org.wso2.carbon.workflow.mgt.internal.WorkflowMgtServiceComponent;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class WSWorkflowExecutor implements WorkFlowExecutor {
 
@@ -45,24 +47,39 @@ public class WSWorkflowExecutor implements WorkFlowExecutor {
     @Override
     public boolean canHandle(WorkFlowRequest workFlowRequest) {
         try {
-            String request = buildWSRequest(workFlowRequest);
-            //todo: load and match conditions
+            WorkflowServicesDAO servicesDAO = new WorkflowServicesDAO();
+            Map<WSServiceBean, String> servicesForRequester = servicesDAO.getEnabledServicesForRequester(workFlowRequest
+                    .getRequesterId());
+            for (Map.Entry<WSServiceBean, String> entry : servicesForRequester.entrySet()) {
+                //todo cache?
+                String request = buildWSRequest(workFlowRequest);
+                //todo match condition
+                //todo IF matches
+                return true;
+            }
         } catch (WorkflowException e) {
             //todo:
         }
-
         return false;
     }
 
     @Override
     public int getPriority() {
-        return 0;
+        return 100;
     }
 
     @Override
     public void execute(WorkFlowRequest workFlowRequest) throws WorkflowException {
         String requestBody = buildWSRequest(workFlowRequest); //todo:cache from canHandle()?
-
+        WorkflowServicesDAO servicesDAO = new WorkflowServicesDAO();
+        Map<WSServiceBean, String> servicesForRequester = servicesDAO.getEnabledServicesForRequester(workFlowRequest
+                .getRequesterId());
+        for (Map.Entry<WSServiceBean, String> entry : servicesForRequester.entrySet()) {
+            //todo check the request with condition
+            //todo IF matches
+            callService(requestBody, entry.getKey());
+            return;
+        }
     }
 
     private String buildWSRequest(WorkFlowRequest workFlowRequest) throws WorkflowException {
