@@ -803,19 +803,14 @@ public class SAMLSSOUtil {
      * @return
      */
     public static boolean validateLogoutRequestSignature(LogoutRequest logoutRequest, String alias,
-                                                         String subject, String queryString) {
+                                                         String subject, String queryString) throws IdentityException {
         String domainName = getTenantDomainFromThreadLocal();
-        try {
-            if (queryString != null) {
-                return validateDeflateSignature(queryString, logoutRequest.getIssuer().getValue(),
-                        alias,
-                        domainName);
-            } else {
-                return validateXMLSignature(logoutRequest, alias, domainName);
-            }
-        } catch (IdentityException e) {
-            log.error("Failed to validate logout request signature ", e);
-            return false;
+        if (queryString != null) {
+            return validateDeflateSignature(queryString, logoutRequest.getIssuer().getValue(),
+                                            alias,
+                                            domainName);
+        } else {
+            return validateXMLSignature(logoutRequest, alias, domainName);
         }
     }
 
