@@ -814,7 +814,7 @@ public class SAMLSSOUtil {
                 return validateXMLSignature(logoutRequest, alias, domainName);
             }
         } catch (IdentityException e) {
-            log.error("Failed to validate login request signature ", e);
+            log.error("Failed to validate logout request signature ", e);
             return false;
         }
     }
