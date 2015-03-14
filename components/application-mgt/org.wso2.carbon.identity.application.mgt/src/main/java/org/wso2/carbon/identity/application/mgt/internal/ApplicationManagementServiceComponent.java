@@ -82,7 +82,7 @@ public class ApplicationManagementServiceComponent {
             bundleContext.registerService(ApplicationManagementService.class.getName(),
                     ApplicationManagementServiceImpl.getInstance(), null);
             ApplicationMgtSystemConfig.getInstance();
-            buidFileBasedSPList();
+            buildFileBasedSPList();
 
             log.info("Identity ApplicationManagementComponent bundle is activated");
         } catch (Exception e) {
@@ -138,12 +138,12 @@ public class ApplicationManagementServiceComponent {
         ApplicationManagementServiceComponentHolder.setConfigContextService(null);
     }
 
-    private void buidFileBasedSPList() {
+    private void buildFileBasedSPList() {
         String spConfigDirPath = CarbonUtils.getCarbonConfigDirPath() + File.separator + "identity"
                 + File.separator + "service-providers";
         FileInputStream fileInputStream = null;
         File spConfigDir = new File(spConfigDirPath);
-        OMElement documentElement = null;
+        OMElement documentElement;
 
         if (spConfigDir.exists()) {
 
@@ -164,7 +164,7 @@ public class ApplicationManagementServiceComponent {
                         try {
                             fileInputStream.close();
                         } catch (IOException e) {
-                            log.error(e.getMessage(), e);
+                            log.error("Error occurred while closing file input stream for file " + spConfigDirPath, e);
                         }
                     }
                 }
