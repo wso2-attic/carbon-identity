@@ -164,7 +164,7 @@ public class ApplicationManagementServiceComponent {
                         try {
                             fileInputStream.close();
                         } catch (IOException e) {
-                            log.error(e.getMessage(), e);
+                            log.error("Error occurred while closing file input stream.", e);
                         }
                     }
                 }
