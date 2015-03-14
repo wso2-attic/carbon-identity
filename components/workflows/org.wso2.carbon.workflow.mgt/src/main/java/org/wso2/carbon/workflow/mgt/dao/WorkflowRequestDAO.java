@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.workflow.mgt.dao;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.workflow.mgt.WorkFlowConstants;
@@ -36,6 +38,8 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 public class WorkflowRequestDAO {
+
+    protected static Log log = LogFactory.getLog(WorkflowRequestDAO.class);
 
     /**
      * Persists WorkflowDTO to Database
@@ -63,6 +67,19 @@ public class WorkflowRequestDAO {
             //todo
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection,null,prepStmt);
+        }
+    }
+
+    private byte[] serializeWorkflowRequest(WorkFlowRequest workFlowRequest) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(workFlowRequest);
+            oos.close();
+            return baos.toByteArray();
+        } catch (IOException e) {
+            //todo
+            return null;
         }
     }
 
@@ -98,23 +115,11 @@ public class WorkflowRequestDAO {
         return null;
     }
 
-    private byte[] serializeWorkflowRequest(WorkFlowRequest workFlowRequest){
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(workFlowRequest);
-            oos.close();
-            return baos.toByteArray();
-        } catch (IOException e) {
-            //todo
-            return null;
-        }
-    }
-
     private WorkFlowRequest deserializeWorkflowRequest(byte[] serializedData){
+        ByteArrayInputStream bais = new ByteArrayInputStream(serializedData);
+        ObjectInputStream ois = null;
         try {
-            ByteArrayInputStream baos = new ByteArrayInputStream(serializedData);
-            ObjectInputStream ois = new ObjectInputStream(baos);
+            ois = new ObjectInputStream(bais);
             Object objectRead = ois.readObject();
             if(objectRead != null && objectRead instanceof WorkFlowRequest){
                 return (WorkFlowRequest) objectRead;
@@ -125,6 +130,14 @@ public class WorkflowRequestDAO {
             //todo
         } catch (ClassNotFoundException e) {
             //todo
+        } finally {
+            if (ois != null) {
+                try {
+                    ois.close();
+                } catch (IOException e) {
+                    log.error("Error occurred when closing input stream to read serialized request.", e);
+                }
+            }
         }
         return null;
     }

@@ -35,27 +35,40 @@ import org.wso2.carbon.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.workflow.mgt.bean.WorkflowParameter;
 import org.wso2.carbon.workflow.mgt.dao.WorkflowServicesDAO;
 import org.wso2.carbon.workflow.mgt.internal.WorkflowMgtServiceComponent;
+import org.xml.sax.InputSource;
 
 import javax.xml.stream.XMLStreamException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class WSWorkflowExecutor implements WorkFlowExecutor {
 
-
     @Override
     public boolean canHandle(WorkFlowRequest workFlowRequest) {
         try {
+            String request = buildWSRequest(workFlowRequest);
             WorkflowServicesDAO servicesDAO = new WorkflowServicesDAO();
             Map<WSServiceBean, String> servicesForRequester = servicesDAO.getEnabledServicesForRequester(workFlowRequest
                     .getRequesterId());
             for (Map.Entry<WSServiceBean, String> entry : servicesForRequester.entrySet()) {
                 //todo cache?
-                String request = buildWSRequest(workFlowRequest);
-                //todo match condition
-                //todo IF matches
-                return true;
+                XPath xPath = XPathFactory.newInstance().newXPath();
+                try {
+                    Object result = xPath.evaluate(entry.getValue(), new InputSource(new StringReader(request)),
+                            XPathConstants.BOOLEAN);
+                    if (result != null && result instanceof Boolean && (Boolean) result) {
+                        return true;    //todo and cache
+                    }
+                } catch (XPathExpressionException e) {
+                    //debug log
+                    continue;
+                }
             }
         } catch (WorkflowException e) {
             //todo:
@@ -75,10 +88,47 @@ public class WSWorkflowExecutor implements WorkFlowExecutor {
         Map<WSServiceBean, String> servicesForRequester = servicesDAO.getEnabledServicesForRequester(workFlowRequest
                 .getRequesterId());
         for (Map.Entry<WSServiceBean, String> entry : servicesForRequester.entrySet()) {
-            //todo check the request with condition
-            //todo IF matches
-            callService(requestBody, entry.getKey());
+            XPath xPath = XPathFactory.newInstance().newXPath();
+            try {
+                Object result = xPath.evaluate(entry.getValue(), new InputSource(new StringReader(requestBody)),
+                        XPathConstants.BOOLEAN);
+                if (result != null && result instanceof Boolean && (Boolean) result) {
+                    callService(requestBody, entry.getKey());
+                }
+            } catch (XPathExpressionException e) {
+                //debug log
+                continue;
+            }
+
             return;
+        }
+    }
+
+    private void callService(String messagePayload, WSServiceBean service) throws WorkflowException {
+        try {
+            ServiceClient client = new ServiceClient(WorkflowMgtServiceComponent.getConfigurationContextService()
+                    .getClientConfigContext(), null);
+            Options options = new Options();
+            options.setAction(service.getAction());
+            options.setTo(new EndpointReference(service.getServiceEndpoint())); //todo
+            options.setProperty(Constants.Configuration.MESSAGE_TYPE,
+                    HTTPConstants.MEDIA_TYPE_APPLICATION_XML);
+
+            HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
+            auth.setUsername(service.getUserName());
+            auth.setPassword(new String(service.getPassword()));
+            auth.setPreemptiveAuthentication(true);
+            List<String> authSchemes = new ArrayList<String>();
+            authSchemes.add(HttpTransportProperties.Authenticator.BASIC);
+            auth.setAuthSchemes(authSchemes);
+            options.setProperty(org.apache.axis2.transport.http.HTTPConstants.AUTHENTICATE, auth);
+            options.setManageSession(true);
+            client.setOptions(options);
+            client.fireAndForget(AXIOMUtil.stringToOM(messagePayload));
+        } catch (AxisFault e) {
+            throw new WorkflowException("Error invoking service:" + service.getAlias(), e);
+        } catch (XMLStreamException e) {
+            throw new WorkflowException("Error with message payload: " + messagePayload, e);
         }
     }
 
@@ -100,33 +150,5 @@ public class WSWorkflowExecutor implements WorkFlowExecutor {
             }
         }
         return requestBuilder.buildRequest();
-    }
-
-    private void callService(String messagePayload, WSServiceBean service) throws WorkflowException {
-        try {
-            ServiceClient client = new ServiceClient(WorkflowMgtServiceComponent.getConfigurationContextService()
-                    .getClientConfigContext(),null);
-            Options options = new Options();
-            options.setAction(service.getAction());
-            options.setTo(new EndpointReference(service.getServiceEndpoint())); //todo
-            options.setProperty(Constants.Configuration.MESSAGE_TYPE,
-                    HTTPConstants.MEDIA_TYPE_APPLICATION_XML);
-
-            HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
-            auth.setUsername(service.getUserName());
-            auth.setPassword(new String(service.getPassword()));
-            auth.setPreemptiveAuthentication(true);
-            List<String> authSchemes = new ArrayList<String>();
-            authSchemes.add(HttpTransportProperties.Authenticator.BASIC);
-            auth.setAuthSchemes(authSchemes);
-            options.setProperty(org.apache.axis2.transport.http.HTTPConstants.AUTHENTICATE, auth);
-            options.setManageSession(true);
-            client.setOptions(options);
-            client.fireAndForget(AXIOMUtil.stringToOM(messagePayload));
-        } catch (AxisFault e) {
-            throw new WorkflowException("Error invoking service:"+service.getAlias(), e);
-        } catch (XMLStreamException e) {
-            throw new WorkflowException("Error with message payload: "+messagePayload, e);
-        }
     }
 }
