@@ -164,7 +164,7 @@ public class ApplicationManagementServiceComponent {
                         try {
                             fileInputStream.close();
                         } catch (IOException e) {
-                            log.error("Error occurred while closing file input stream.", e);
+                            log.error("Error occurred while closing file input stream for file " + spConfigDirPath, e);
                         }
                     }
                 }
