@@ -90,6 +90,10 @@ public class ClaimMapping implements Serializable {
                 claimMapping.setDefaultValue(element.getText());
             }
 
+            if (elementName.equals("RequestClaim")) {
+                claimMapping.setRequested(Boolean.parseBoolean(element.getText()));
+            }
+
         }
 
         return claimMapping;

@@ -106,7 +106,10 @@ public class LogoutRequestProcessor {
                     String[] splitIssuer = issuer.split("@");
                     issuer = splitIssuer[0];
                     SAMLSSOUtil.setTenantDomainInThreadLocal(splitIssuer[1]);
+                } else {
+                    SAMLSSOUtil.setTenantDomainInThreadLocal(sessionInfoData.getTenantDomain());
                 }
+
                 Map<String, SAMLSSOServiceProviderDO> sessionsList = sessionInfoData
                         .getServiceProviderList();
                 SAMLSSOServiceProviderDO logoutReqIssuer = sessionsList.get(issuer);

@@ -94,7 +94,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         } finally {
             SAMLSSOUtil.removeSaaSApplicationThreaLocal();
             SAMLSSOUtil.removeUserTenantDomainThreaLocal();
-            ;
+            SAMLSSOUtil.removeTenantDomainFromThreadLocal();
         }
     }
 
@@ -106,7 +106,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         } finally {
             SAMLSSOUtil.removeSaaSApplicationThreaLocal();
             SAMLSSOUtil.removeUserTenantDomainThreaLocal();
-            ;
+            SAMLSSOUtil.removeTenantDomainFromThreadLocal();
         }
     }
 
@@ -126,10 +126,6 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             throws ServletException, IOException {
         String sessionId = null;
         Cookie ssoTokenIdCookie = getTokenIdCookie(req);
-        String tenantDomain = req.getParameter("tenantDomain");
-        if (tenantDomain != null) {
-            SAMLSSOUtil.setTenantDomainInThreadLocal(tenantDomain);
-        }
 
         if (ssoTokenIdCookie != null) {
             sessionId = ssoTokenIdCookie.getValue();
@@ -155,14 +151,15 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         String sessionDataKey = req.getParameter("sessionDataKey");
 
         try {
+
+            String tenantDomain = req.getParameter("tenantDomain");
+            SAMLSSOUtil.setTenantDomainInThreadLocal(tenantDomain);
+
             if (sessionDataKey != null) { //Response from common authentication framework.
                 SAMLSSOSessionDTO sessionDTO = getSessionDataFromCache(sessionDataKey);
 
                 if (sessionDTO != null) {
-                    tenantDomain = sessionDTO.getTenantDomain();
-                    if (tenantDomain != null) {
-                        SAMLSSOUtil.setTenantDomainInThreadLocal(sessionDTO.getTenantDomain());
-                    }
+                    SAMLSSOUtil.setTenantDomainInThreadLocal(sessionDTO.getTenantDomain());
                     if (sessionDTO.isInvalidLogout()) {
                         sendNotification(SAMLSSOConstants.Notification.INVALID_MESSAGE_STATUS,
                                 SAMLSSOConstants.Notification.INVALID_MESSAGE_MESSAGE, req,
@@ -199,6 +196,12 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                     sendToFrameworkForLogout(req, resp, null, null, sessionId, true, false);
                 }
             }
+        } catch (UserStoreException e){
+            if(log.isDebugEnabled()){
+                log.debug("Error occurred while handling SAML2 SSO request", e);
+            }
+            sendNotification(SAMLSSOConstants.Notification.EXCEPTION_STATUS,
+                    SAMLSSOConstants.Notification.EXCEPTION_MESSAGE, req, resp);
         } catch (IdentityException e) {
             log.error("Error when processing the authentication request!", e);
             sendNotification(SAMLSSOConstants.Notification.EXCEPTION_STATUS,
@@ -227,7 +230,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
     private void handleIdPInitSSO(HttpServletRequest req, HttpServletResponse resp, String spEntityID, String relayState,
                                   String queryString, String authMode, String sessionId)
-            throws IdentityException, IOException, ServletException {
+            throws UserStoreException, IdentityException, IOException, ServletException {
 
         String rpSessionId = req.getParameter(MultitenantConstants.SSO_AUTH_SESSION_ID);
         SAMLSSOService samlSSOService = new SAMLSSOService();
@@ -264,7 +267,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
     private void handleSPInitSSO(HttpServletRequest req, HttpServletResponse resp,
                                  String queryString, String relayState, String authMode,
                                  String samlRequest, String sessionId, boolean isPost)
-            throws IdentityException, IOException, ServletException {
+            throws UserStoreException, IdentityException, IOException, ServletException {
 
         String rpSessionId = req.getParameter(MultitenantConstants.SSO_AUTH_SESSION_ID);
         SAMLSSOService samlSSOService = new SAMLSSOService();
@@ -303,7 +306,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
      */
     private void sendToFrameworkForAuthentication(HttpServletRequest req, HttpServletResponse resp,
                                                   SAMLSSOReqValidationResponseDTO signInRespDTO, String relayState, boolean isPost)
-            throws ServletException, IOException {
+            throws ServletException, IOException, UserStoreException, IdentityException {
 
         SAMLSSOSessionDTO sessionDTO = new SAMLSSOSessionDTO();
         sessionDTO.setHttpQueryString(req.getQueryString());
@@ -315,24 +318,22 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         sessionDTO.setSubject(signInRespDTO.getSubject());
         sessionDTO.setRelyingPartySessionId(signInRespDTO.getRpSessionId());
         sessionDTO.setAssertionConsumerURL(signInRespDTO.getAssertionConsumerURL());
-        sessionDTO.setTenantDomain(req.getParameter(FrameworkConstants.RequestParams.TENANT_DOMAIN));
+        sessionDTO.setTenantDomain(SAMLSSOUtil.getTenantDomainFromThreadLocal());
 
-        if (sessionDTO.getTenantDomain() == null
-                || "null".equalsIgnoreCase(sessionDTO.getTenantDomain())
-                || "".equals(sessionDTO.getTenantDomain())) {
-            String issuer = sessionDTO.getIssuer();
-            String[] splitIssuer = issuer.split("@");
-            if (splitIssuer.length == 2 && !"".equals(splitIssuer[0]) && !"".equals(splitIssuer[1])) {
+        if(sessionDTO.getTenantDomain() == null) {
+            String[] splitIssuer = sessionDTO.getIssuer().split("@");
+            if (splitIssuer != null && splitIssuer.length == 2 &&
+                    !splitIssuer[0].trim().isEmpty() && !splitIssuer[1].trim().isEmpty()) {
                 sessionDTO.setTenantDomain(splitIssuer[1]);
             } else {
                 sessionDTO.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             }
         }
+        SAMLSSOUtil.setTenantDomainInThreadLocal(sessionDTO.getTenantDomain());
 
         sessionDTO.setForceAuth(signInRespDTO.isForceAuthn());
         sessionDTO.setPassiveAuth(signInRespDTO.isPassive());
         sessionDTO.setValidationRespDTO(signInRespDTO);
-        SAMLSSOUtil.setTenantDomainInThreadLocal(sessionDTO.getTenantDomain());
         sessionDTO.setIdPInitSSO(signInRespDTO.isIdPInitSSO());
 
         String sessionDataKey = UUIDGenerator.generateUUID();
@@ -346,18 +347,29 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                 .CLAIM_TYPE_SAML_SSO, "UTF-8");
         // Setting authentication request context
         AuthenticationRequest authenticationRequest = new AuthenticationRequest();
-        authenticationRequest.setRelyingParty(signInRespDTO.getIssuer());
-        authenticationRequest.setCommonAuthCallerPath(selfPath);
-        authenticationRequest.setForceAuth(signInRespDTO.isForceAuthn());
-        authenticationRequest.setPassiveAuth(signInRespDTO.isPassive());
-        authenticationRequest.setTenantDomain(sessionDTO.getTenantDomain());
-        authenticationRequest.setPost(isPost);
+
         // Adding query parameters
         authenticationRequest.appendRequestQueryParams(req.getParameterMap());
         for (Enumeration headerNames = req.getHeaderNames(); headerNames.hasMoreElements(); ) {
             String headerName = headerNames.nextElement().toString();
             authenticationRequest.addHeader(headerName, req.getHeader(headerName));
         }
+
+        authenticationRequest.setRelyingParty(signInRespDTO.getIssuer());
+        authenticationRequest.setCommonAuthCallerPath(selfPath);
+        authenticationRequest.setForceAuth(signInRespDTO.isForceAuthn());
+        if(!authenticationRequest.getForceAuth()){
+            if(authenticationRequest.getRequestQueryParam("forceAuth") != null){
+                String[] forceAuth = authenticationRequest.getRequestQueryParam("forceAuth");
+                if(!forceAuth[0].trim().isEmpty() && Boolean.parseBoolean(forceAuth[0].trim())){
+                    authenticationRequest.setForceAuth(Boolean.parseBoolean(forceAuth[0].trim()));
+                }
+             }
+        }
+        authenticationRequest.setPassiveAuth(signInRespDTO.isPassive());
+        authenticationRequest.setTenantDomain(sessionDTO.getTenantDomain());
+        authenticationRequest.setPost(isPost);
+
         // Creating cache entry and adding entry to the cache before calling to commonauth
         AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry
                 (authenticationRequest);
@@ -453,7 +465,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
      * @throws IOException
      */
     private void sendResponse(HttpServletRequest req, HttpServletResponse resp, String relayState,
-                              String response, String acUrl, String subject, String authenticatedIdPs)
+                              String response, String acUrl, String subject, String authenticatedIdPs,
+                              String tenantDomain)
             throws ServletException, IOException, IdentityException {
 
         if (relayState != null) {
@@ -464,7 +477,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             relayState = "null";
         }
 
-        acUrl = getACSUrlWithTenantPartitioning(acUrl, subject);
+        acUrl = getACSUrlWithTenantPartitioning(acUrl, tenantDomain);
 
         if (acUrl == null || acUrl.trim().length() == 0) {
             // if ACS is null. Send to error page
@@ -548,7 +561,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
      * @throws ServletException
      */
     private void handleAuthenticationReponseFromFramework(HttpServletRequest req, HttpServletResponse resp,
-                                                          String sessionId, SAMLSSOSessionDTO sessionDTO) throws IdentityException, IOException, ServletException {
+                                                          String sessionId, SAMLSSOSessionDTO sessionDTO)
+            throws UserStoreException, IdentityException, IOException, ServletException {
 
         String sessionDataKey = req.getParameter("sessionDataKey");
         AuthenticationResult authResult = getAuthenticationResultFromCache(sessionDataKey);
@@ -578,7 +592,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
                 sendResponse(req, resp, sessionDTO.getRelayState(), reqValidationDTO.getResponse(),
                         reqValidationDTO.getAssertionConsumerURL(), reqValidationDTO.getSubject(),
-                        null);
+                        null, sessionDTO.getTenantDomain());
                 return;
 
             } else { // if forceAuthn or normal flow
@@ -599,9 +613,6 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             }
 
             startTenantFlow(authnReqDTO.getTenantDomain());
-            if (authnReqDTO.getTenantDomain() == null || authnReqDTO.getTenantDomain().isEmpty() || authnReqDTO.getTenantDomain().equalsIgnoreCase("null")) {
-                authnReqDTO.setTenantDomain(CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
-            }
 
             if (sessionId == null && !sessionDTO.isPassiveAuth()) {
                 sessionId = UUIDGenerator.generateUUID();
@@ -621,7 +632,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
                 sendResponse(req, resp, relayState, authRespDTO.getRespString(),
                         authRespDTO.getAssertionConsumerURL(), authRespDTO.getSubject().getAuthenticatedSubjectIdentifier(),
-                        authResult.getAuthenticatedIdPs());
+                        authResult.getAuthenticatedIdPs(), sessionDTO.getTenantDomain());
             } else { // authentication FAILURE
                 sendNotification(SAMLSSOConstants.Notification.EXCEPTION_STATUS,
                         SAMLSSOConstants.Notification.EXCEPTION_MESSAGE, req, resp);
@@ -642,7 +653,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             removeSessionDataFromCache(request.getParameter("sessionDataKey"));
             // sending LogoutResponse back to the initiator
             sendResponse(request, response, sessionDTO.getRelayState(), validatonResponseDTO.getLogoutResponse(),
-                    validatonResponseDTO.getAssertionConsumerURL(), validatonResponseDTO.getSubject(), null);
+                    validatonResponseDTO.getAssertionConsumerURL(), validatonResponseDTO.getSubject(), null,
+                    sessionDTO.getTenantDomain());
         } else {
             try {
                 samlSsoService.doSingleLogout(request.getSession().getId());
@@ -664,7 +676,9 @@ public class SAMLSSOProviderServlet extends HttpServlet {
      * @param authnReqDTO
      */
     private void populateAuthnReqDTO(HttpServletRequest req, SAMLSSOAuthnReqDTO authnReqDTO,
-                                     SAMLSSOSessionDTO sessionDTO, AuthenticationResult authResult) {
+                                     SAMLSSOSessionDTO sessionDTO, AuthenticationResult authResult)
+            throws UserStoreException, IdentityException {
+
         authnReqDTO.setAssertionConsumerURL(sessionDTO.getAssertionConsumerURL());
         authnReqDTO.setId(sessionDTO.getRequestID());
         authnReqDTO.setIssuer(sessionDTO.getIssuer());
@@ -771,14 +785,11 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         }
     }
 
-    private String getACSUrlWithTenantPartitioning(String acsUrl, String subject) {
+    private String getACSUrlWithTenantPartitioning(String acsUrl, String tenantDomain) {
         String domain = null;
         String acsUrlWithTenantDomain = acsUrl;
-        if (subject != null && MultitenantUtils.getTenantDomain(subject) != null) {
-            domain = MultitenantUtils.getTenantDomain(subject);
-        }
-        if (domain != null &&
-                "true".equals(IdentityUtil.getProperty((IdentityConstants.ServerConfig.SSO_TENANT_PARTITIONING_ENABLED)))) {
+        if (domain != null && "true".equals(IdentityUtil.getProperty(
+                IdentityConstants.ServerConfig.SSO_TENANT_PARTITIONING_ENABLED))) {
             acsUrlWithTenantDomain =
                     acsUrlWithTenantDomain + "?" +
                             MultitenantConstants.TENANT_DOMAIN + "=" + domain;
@@ -840,31 +851,33 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
     private void startTenantFlow(String tenantDomain) throws IdentityException {
 
-        String tenantDomainParam = tenantDomain;
         int tenantId = MultitenantConstants.SUPER_TENANT_ID;
 
-        if (tenantDomainParam != null && tenantDomainParam.trim().length() > 0
-                && !"null".equalsIgnoreCase(tenantDomainParam)) {
+        if (tenantDomain != null && !tenantDomain.trim().isEmpty() && !"null".equalsIgnoreCase(tenantDomain.trim())) {
             try {
-                tenantId = SAMLSSOUtil.getRealmService().getTenantManager()
-                        .getTenantId(tenantDomainParam);
+                tenantId = SAMLSSOUtil.getRealmService().getTenantManager().getTenantId(tenantDomain);
                 if (tenantId == -1) {
                     // invalid tenantId, hence throw exception to avoid setting invalid tenant info
                     // to CC
-                    throw new IdentityException(
-                            "Invalid tenant id. Please specify valid tenant domain in request parameters");
+                    String message = "Invalid Tenant Domain : " + tenantDomain;
+                    if(log.isDebugEnabled()){
+                        log.debug(message);
+                    }
+                    throw new IdentityException(message);
                 }
             } catch (UserStoreException e) {
-                log.error("while getting tenantId from tenantDomain query param", e);
+                String message = "Error occurred while getting tenant ID from tenantDomain " + tenantDomain;
+                log.error(message, e);
+                throw new IdentityException(message, e);
             }
         } else {
-            tenantDomainParam = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+            tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
         }
 
         PrivilegedCarbonContext.startTenantFlow();
         PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
                 .getThreadLocalCarbonContext();
         carbonContext.setTenantId(tenantId);
-        carbonContext.setTenantDomain(tenantDomainParam);
+        carbonContext.setTenantDomain(tenantDomain);
     }
 }

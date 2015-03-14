@@ -75,6 +75,7 @@ import org.wso2.carbon.identity.sso.saml.validators.SAML2HTTPRedirectSignatureVa
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -154,6 +155,10 @@ public class SAMLSSOUtil {
         isSaaSApplication.set(isSaaSApp);
     }
 
+    public static void removeSaaSApplicationThreaLocal() {
+        isSaaSApplication.remove();
+    }
+
     public static String getUserTenantDomain() {
 
         if (userTenantDomainThreadLocal == null) {
@@ -164,16 +169,16 @@ public class SAMLSSOUtil {
         return userTenantDomainThreadLocal.get();
     }
 
-    public static void setUserTenantDomain(String userTenantDomain) {
-        userTenantDomainThreadLocal.set(userTenantDomain);
+    public static void setUserTenantDomain(String tenantDomain) throws UserStoreException, IdentityException {
+
+        tenantDomain = validateTenantDomain(tenantDomain);
+        if(tenantDomain != null){
+            userTenantDomainThreadLocal.set(tenantDomain);
+        }
     }
 
     public static void removeUserTenantDomainThreaLocal() {
         userTenantDomainThreadLocal.remove();
-    }
-
-    public static void removeSaaSApplicationThreaLocal() {
-        isSaaSApplication.remove();
     }
 
     public static BundleContext getBundleContext() {
@@ -395,15 +400,13 @@ public class SAMLSSOUtil {
      * @return Issuer
      */
     public static Issuer getIssuer() throws IdentityException {
+
         Issuer issuer = new IssuerBuilder().buildObject();
         String idPEntityId = null;
         IdentityProvider identityProvider;
-        String tenantDomain = null;
+        String tenantDomain = getTenantDomainFromThreadLocal();
         try {
-            tenantDomain = getTenantDomainFromThreadLocal();
-            if (tenantDomain == null || tenantDomain.equals("null")) {
-                tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
-            }
+
             identityProvider = IdentityProviderManager.getInstance().getResidentIdP(tenantDomain);
         } catch (IdentityApplicationManagementException e) {
             throw new IdentityException(
@@ -751,6 +754,7 @@ public class SAMLSSOUtil {
      * @return
      */
     public static boolean validateAuthnRequestSignature(SAMLSSOAuthnReqDTO authnReqDTO) {
+
         log.debug("Validating SAML Request signature");
 
         //String domainName = MultitenantUtils.getTenantDomain(authnReqDTO.getUser());
@@ -804,11 +808,10 @@ public class SAMLSSOUtil {
      */
     public static boolean validateLogoutRequestSignature(LogoutRequest logoutRequest, String alias,
                                                          String subject, String queryString) throws IdentityException {
+
         String domainName = getTenantDomainFromThreadLocal();
         if (queryString != null) {
-            return validateDeflateSignature(queryString, logoutRequest.getIssuer().getValue(),
-                                            alias,
-                                            domainName);
+            return validateDeflateSignature(queryString, logoutRequest.getIssuer().getValue(), alias, domainName);
         } else {
             return validateXMLSignature(logoutRequest, alias, domainName);
         }
@@ -1156,12 +1159,42 @@ public class SAMLSSOUtil {
         SSOSessionPersistenceManager.removeSessionIndexFromCache(sessionId);
     }
 
-    public static void setTenantDomainInThreadLocal(String tenantDomain) {
-        SAMLSSOUtil.tenantDomainInThreadLocal.set(tenantDomain);
+    public static void setTenantDomainInThreadLocal(String tenantDomain) throws UserStoreException, IdentityException {
+
+        tenantDomain = validateTenantDomain(tenantDomain);
+        if(tenantDomain != null){
+            SAMLSSOUtil.tenantDomainInThreadLocal.set(tenantDomain);
+        }
     }
 
     public static String getTenantDomainFromThreadLocal() {
+
+        if (SAMLSSOUtil.tenantDomainInThreadLocal == null) {
+            // this is the default behavior.
+            return null;
+        }
         return (String) SAMLSSOUtil.tenantDomainInThreadLocal.get();
+    }
+
+    public static void removeTenantDomainFromThreadLocal() {
+        SAMLSSOUtil.tenantDomainInThreadLocal.remove();
+    }
+
+    public static String validateTenantDomain(String tenantDomain) throws UserStoreException, IdentityException {
+
+        if(tenantDomain != null && !tenantDomain.trim().isEmpty() && !"null".equalsIgnoreCase(tenantDomain.trim())) {
+            int tenantID = SAMLSSOUtil.getRealmService().getTenantManager().getTenantId(tenantDomain);
+            if(tenantID == -1){
+                String message = "Invalid tenant domain : " + tenantDomain;
+                if(log.isDebugEnabled()){
+                    log.debug(message);
+                }
+                throw new IdentityException(message);
+            } else {
+                return tenantDomain;
+            }
+        }
+        return null;
     }
 
 }
