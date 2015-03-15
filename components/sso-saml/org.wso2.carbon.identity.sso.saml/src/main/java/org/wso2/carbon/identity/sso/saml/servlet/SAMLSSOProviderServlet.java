@@ -150,6 +150,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         String samlRequest = req.getParameter("SAMLRequest");
         String sessionDataKey = req.getParameter("sessionDataKey");
 
+        boolean isExpFired = false;
         try {
 
             String tenantDomain = req.getParameter("tenantDomain");
@@ -161,9 +162,12 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                 if (sessionDTO != null) {
                     SAMLSSOUtil.setTenantDomainInThreadLocal(sessionDTO.getTenantDomain());
                     if (sessionDTO.isInvalidLogout()) {
-                        sendNotification(SAMLSSOConstants.Notification.INVALID_MESSAGE_STATUS,
-                                SAMLSSOConstants.Notification.INVALID_MESSAGE_MESSAGE, req,
-                                resp);
+                        String errorResp = SAMLSSOUtil.buildErrorResponse(
+                                SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
+                                "Invalid SAML SSO Logout Request");
+                        sendNotification(errorResp, SAMLSSOConstants.Notification.INVALID_MESSAGE_STATUS,
+                                SAMLSSOConstants.Notification.INVALID_MESSAGE_MESSAGE,
+                                sessionDTO.getAssertionConsumerURL(), req, resp);
                         return;
                     }
 
@@ -177,8 +181,11 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
                 } else {
                     log.error("Failed to retrieve sessionDTO from the cache for key " + sessionDataKey);
-                    sendNotification(SAMLSSOConstants.Notification.EXCEPTION_STATUS,
-                            SAMLSSOConstants.Notification.EXCEPTION_MESSAGE, req, resp);
+                    String errorResp = SAMLSSOUtil.buildErrorResponse(
+                            SAMLSSOConstants.StatusCodes.IDENTITY_PROVIDER_ERROR,
+                            SAMLSSOConstants.Notification.EXCEPTION_STATUS);
+                    sendNotification(errorResp, SAMLSSOConstants.Notification.EXCEPTION_STATUS,
+                            SAMLSSOConstants.Notification.EXCEPTION_MESSAGE, null, req, resp);
                     return;
                 }
             } else if (spEntityID != null) { // idp initiated SSO
@@ -189,8 +196,11 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                 log.debug("Invalid request message or single logout message ");
 
                 if (sessionId == null) {
-                    sendNotification(SAMLSSOConstants.Notification.INVALID_MESSAGE_STATUS,
-                            SAMLSSOConstants.Notification.INVALID_MESSAGE_MESSAGE, req, resp);
+                    String errorResp = SAMLSSOUtil.buildErrorResponse(
+                            SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
+                            "Invalid request message");
+                    sendNotification(errorResp, SAMLSSOConstants.Notification.INVALID_MESSAGE_STATUS,
+                            SAMLSSOConstants.Notification.INVALID_MESSAGE_MESSAGE, null, req, resp);
                 } else {
                     // Non-SAML request are assumed to be logout requests
                     sendToFrameworkForLogout(req, resp, null, null, sessionId, true, false);
@@ -200,12 +210,28 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             if(log.isDebugEnabled()){
                 log.debug("Error occurred while handling SAML2 SSO request", e);
             }
-            sendNotification(SAMLSSOConstants.Notification.EXCEPTION_STATUS,
-                    SAMLSSOConstants.Notification.EXCEPTION_MESSAGE, req, resp);
+            String errorResp = null;
+            try {
+                errorResp = SAMLSSOUtil.buildErrorResponse(
+                        SAMLSSOConstants.StatusCodes.IDENTITY_PROVIDER_ERROR,
+                        "Error occurred while handling SAML2 SSO request");
+            } catch (IdentityException e1) {
+                log.error("Error while building SAML response");
+            }
+            sendNotification(errorResp, SAMLSSOConstants.Notification.EXCEPTION_STATUS,
+                    SAMLSSOConstants.Notification.EXCEPTION_MESSAGE, null, req, resp);
         } catch (IdentityException e) {
             log.error("Error when processing the authentication request!", e);
-            sendNotification(SAMLSSOConstants.Notification.EXCEPTION_STATUS,
-                    SAMLSSOConstants.Notification.EXCEPTION_MESSAGE, req, resp);
+            String errorResp = null;
+            try {
+                errorResp = SAMLSSOUtil.buildErrorResponse(
+                        SAMLSSOConstants.StatusCodes.IDENTITY_PROVIDER_ERROR,
+                        "Error when processing the authentication request");
+            } catch (IdentityException e1) {
+                log.error("Error while building SAML response");
+            }
+            sendNotification(errorResp, SAMLSSOConstants.Notification.EXCEPTION_STATUS,
+                    SAMLSSOConstants.Notification.EXCEPTION_MESSAGE, null, req, resp);
         }
     }
 
@@ -217,14 +243,25 @@ public class SAMLSSOProviderServlet extends HttpServlet {
      * @throws ServletException
      * @throws IOException
      */
-    private void sendNotification(String status, String message, HttpServletRequest req,
+    private void sendNotification(String errorResp, String status, String message,
+                                  String acUrl, HttpServletRequest req,
                                   HttpServletResponse resp) throws ServletException, IOException {
         String redirectURL = CarbonUIUtil.getAdminConsoleURL(req);
         redirectURL = redirectURL.replace("samlsso/carbon/",
                 "authenticationendpoint/samlsso_notification.do");
+
         //TODO Send status codes rather than full messages in the GET request
         String queryParams = "?" + SAMLSSOConstants.STATUS + "=" + status + "&" +
                 SAMLSSOConstants.STATUS_MSG + "=" + message;
+
+        if (errorResp != null) {
+            queryParams += "&" + SAMLSSOConstants.SAML_RESP + "=" + errorResp;
+        }
+
+        if (acUrl != null) {
+            queryParams += "&" + SAMLSSOConstants.ASSRTN_CONSUMER_URL + "=" + acUrl;
+        }
+
         resp.sendRedirect(redirectURL + queryParams);
     }
 
@@ -241,8 +278,13 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         if (signInRespDTO.isValid()) {
             sendToFrameworkForAuthentication(req, resp, signInRespDTO, relayState, false);
         } else {
-            log.debug("Invalid SAML SSO Request");
-            throw new IdentityException("Invalid SAML SSO Request");
+            if (log.isDebugEnabled()) {
+                log.debug("Invalid SAML SSO Request");
+            }
+            String errorResp = signInRespDTO.getResponse();
+            sendNotification(errorResp, SAMLSSOConstants.Notification.EXCEPTION_STATUS,
+                    SAMLSSOConstants.Notification.EXCEPTION_MESSAGE,
+                    signInRespDTO.getAssertionConsumerURL(), req, resp);
         }
     }
 
@@ -280,16 +322,26 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                 sendToFrameworkForAuthentication(req, resp, signInRespDTO, relayState, isPost);
             } else {
                 // send invalid response to SP TODO
-                log.debug("Invalid SAML SSO Request");
-                throw new IdentityException("Invalid SAML SSO Request");
+                if (log.isDebugEnabled()) {
+                    log.debug("Invalid SAML SSO Request");
+                }
+                String errorResp = signInRespDTO.getResponse();
+                sendNotification(errorResp, SAMLSSOConstants.Notification.EXCEPTION_STATUS,
+                        SAMLSSOConstants.Notification.EXCEPTION_MESSAGE,
+                        signInRespDTO.getAssertionConsumerURL(), req, resp);
             }
         } else { // a <LogoutRequest> received
             if (signInRespDTO.isValid()) {
                 sendToFrameworkForLogout(req, resp, signInRespDTO, relayState, sessionId, false, isPost);
             } else {
                 // send invalid response to SP TODO
-                log.debug("Invalid SAML SSO Logout Request");
-                throw new IdentityException("Invalid SAML SSO Logout Request");
+                if (log.isDebugEnabled()) {
+                    log.debug("Invalid SAML SSO Logout Request");
+                }
+                String errorResp = signInRespDTO.getResponse();
+                sendNotification(errorResp, SAMLSSOConstants.Notification.EXCEPTION_STATUS,
+                        SAMLSSOConstants.Notification.EXCEPTION_MESSAGE,
+                        signInRespDTO.getAssertionConsumerURL(), req, resp);
             }
         }
     }
@@ -597,9 +649,17 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
             } else { // if forceAuthn or normal flow
                 //TODO send a saml response with a status message.
-                sendNotification(SAMLSSOConstants.Notification.EXCEPTION_STATUS,
-                        SAMLSSOConstants.Notification.EXCEPTION_MESSAGE, req, resp);
-                return;
+                if (!authResult.isAuthenticated()) {
+                    String errorResp = SAMLSSOUtil.buildErrorResponse(
+                            SAMLSSOConstants.StatusCodes.AUTHN_FAILURE,
+                            "User authentication failed");
+                    sendNotification(errorResp, SAMLSSOConstants.Notification.EXCEPTION_STATUS,
+                            SAMLSSOConstants.Notification.EXCEPTION_MESSAGE,
+                            reqValidationDTO.getAssertionConsumerURL(), req, resp);
+                    return;
+                } else {
+                    throw new IdentityException("Session data is not found for authenticated user");
+                }
             }
         } else {
             populateAuthnReqDTO(req, authnReqDTO, sessionDTO, authResult);
@@ -634,8 +694,10 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                         authRespDTO.getAssertionConsumerURL(), authRespDTO.getSubject().getAuthenticatedSubjectIdentifier(),
                         authResult.getAuthenticatedIdPs(), sessionDTO.getTenantDomain());
             } else { // authentication FAILURE
-                sendNotification(SAMLSSOConstants.Notification.EXCEPTION_STATUS,
-                        SAMLSSOConstants.Notification.EXCEPTION_MESSAGE, req, resp);
+                String errorResp = authRespDTO.getRespString();
+                sendNotification(errorResp, SAMLSSOConstants.Notification.EXCEPTION_STATUS,
+                        SAMLSSOConstants.Notification.EXCEPTION_MESSAGE,
+                        authRespDTO.getAssertionConsumerURL(), req, resp);
             }
         }
     }
@@ -660,14 +722,14 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                 samlSsoService.doSingleLogout(request.getSession().getId());
             } catch (IdentityException e) {
                 log.error("Error when processing the logout request!", e);
-                sendNotification(SAMLSSOConstants.Notification.EXCEPTION_STATUS,
-                        SAMLSSOConstants.Notification.EXCEPTION_MESSAGE, request, response);
-                return;
             }
 
-            sendNotification(SAMLSSOConstants.Notification.INVALID_MESSAGE_STATUS,
-                    SAMLSSOConstants.Notification.INVALID_MESSAGE_MESSAGE, request,
-                    response);
+            String errorResp = SAMLSSOUtil.buildErrorResponse(
+                    SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
+                    "Invalid request");
+            sendNotification(errorResp, SAMLSSOConstants.Notification.INVALID_MESSAGE_STATUS,
+                    SAMLSSOConstants.Notification.INVALID_MESSAGE_MESSAGE,
+                    sessionDTO.getAssertionConsumerURL(), request, response);
         }
     }
 

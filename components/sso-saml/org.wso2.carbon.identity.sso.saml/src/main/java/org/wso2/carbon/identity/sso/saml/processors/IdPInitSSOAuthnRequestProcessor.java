@@ -228,7 +228,9 @@ public class IdPInitSSOAuthnRequestProcessor {
         List<String> statusCodeList = new ArrayList<String>();
         statusCodeList.add(status);
         Response resp = errRespBuilder.buildResponse(id, statusCodeList, statMsg);
-        samlSSORespDTO.setRespString(SAMLSSOUtil.encode(SAMLSSOUtil.marshall(resp)));
+        String encodedResponse = SAMLSSOUtil.compressResponse(SAMLSSOUtil.marshall(resp));
+
+        samlSSORespDTO.setRespString(encodedResponse);
         samlSSORespDTO.setSessionEstablished(false);
         return samlSSORespDTO;
     }

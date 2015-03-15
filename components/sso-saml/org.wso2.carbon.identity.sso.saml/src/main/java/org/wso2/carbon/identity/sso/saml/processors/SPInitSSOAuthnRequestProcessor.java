@@ -266,7 +266,8 @@ public class SPInitSSOAuthnRequestProcessor {
         List<String> statusCodeList = new ArrayList<String>();
         statusCodeList.add(status);
         Response resp = errRespBuilder.buildResponse(id, statusCodeList, statMsg);
-        samlSSORespDTO.setRespString(SAMLSSOUtil.encode(SAMLSSOUtil.marshall(resp)));
+        String encodedResp = SAMLSSOUtil.compressResponse(SAMLSSOUtil.marshall(resp));
+        samlSSORespDTO.setRespString(encodedResp);
         samlSSORespDTO.setSessionEstablished(false);
         return samlSSORespDTO;
     }
