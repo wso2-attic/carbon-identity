@@ -19,19 +19,15 @@ package org.wso2.carbon.identity.sso.saml.validators;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opensaml.saml2.core.Response;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
-import org.wso2.carbon.identity.sso.saml.builders.ErrorResponseBuilder;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOReqValidationResponseDTO;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class IdPInitSSOAuthnRequestValidator {
@@ -64,8 +60,8 @@ public class IdPInitSSOAuthnRequestValidator {
                 validationResponse.setIssuer(spEntityID);
             } else {
                 validationResponse.setValid(false);
-                String errorResp =
-                        buildErrorResponse(SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
+                String errorResp = SAMLSSOUtil.buildErrorResponse(
+                        SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
                                 "spEntityID parameter not found in request");
                 log.debug("spEntityID parameter not found in request");
                 validationResponse.setResponse(errorResp);
@@ -109,19 +105,4 @@ public class IdPInitSSOAuthnRequestValidator {
         }
     }
 
-    /**
-     * build the error response
-     *
-     * @param status
-     * @param message
-     * @return decoded response
-     * @throws org.wso2.carbon.identity.base.IdentityException
-     */
-    private String buildErrorResponse(String status, String message) throws Exception {
-        ErrorResponseBuilder respBuilder = new ErrorResponseBuilder();
-        List<String> statusCodeList = new ArrayList<String>();
-        statusCodeList.add(status);
-        Response response = respBuilder.buildResponse(null, statusCodeList, message);
-        return SAMLSSOUtil.encode(SAMLSSOUtil.marshall(response));
-    }
 }

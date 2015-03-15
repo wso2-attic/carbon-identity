@@ -88,9 +88,7 @@ import java.io.*;
 import java.net.*;
 import java.security.KeyStore;
 import java.util.*;
-import java.util.zip.DataFormatException;
-import java.util.zip.Inflater;
-import java.util.zip.InflaterInputStream;
+import java.util.zip.*;
 
 public class SAMLSSOUtil {
 
@@ -1195,6 +1193,41 @@ public class SAMLSSOUtil {
             }
         }
         return null;
+    }
+
+    /**
+     * build the error response
+     * @param status
+     * @param message
+     * @return decoded response
+     * @throws org.wso2.carbon.identity.base.IdentityException
+     */
+    public static String buildErrorResponse(String status, String message)
+            throws IdentityException, IOException {
+        ErrorResponseBuilder respBuilder = new ErrorResponseBuilder();
+        List<String> statusCodeList = new ArrayList<String>();
+        statusCodeList.add(status);
+        Response response = respBuilder.buildResponse(null, statusCodeList, message);
+        String resp = SAMLSSOUtil.marshall(response);
+
+        return compressResponse(resp);
+
+    }
+
+    /**
+     * Compresses the response String
+     *
+     * @param response
+     * @return
+     * @throws IOException
+     */
+    public static String compressResponse(String response) throws IOException {
+        Deflater deflater = new Deflater(Deflater.DEFLATED, true);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(byteArrayOutputStream, deflater);
+        deflaterOutputStream.write(response.getBytes());
+        deflaterOutputStream.close();
+        return Base64.encodeBytes(byteArrayOutputStream.toByteArray(), Base64.DONT_BREAK_LINES);
     }
 
 }
