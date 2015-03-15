@@ -22,8 +22,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
-import org.wso2.carbon.workflow.mgt.WorkFlowConstants;
 import org.wso2.carbon.workflow.mgt.WorkflowException;
+import org.wso2.carbon.workflow.mgt.WorkflowStatus;
 import org.wso2.carbon.workflow.mgt.bean.WorkFlowRequest;
 
 import java.io.ByteArrayInputStream;
@@ -43,6 +43,7 @@ public class WorkflowRequestDAO {
 
     /**
      * Persists WorkflowDTO to Database
+     *
      * @param workflow
      * @throws org.wso2.carbon.workflow.mgt.WorkflowException
      */
@@ -57,8 +58,8 @@ public class WorkflowRequestDAO {
             prepStmt.setString(1, workflow.getUuid());
             prepStmt.setTimestamp(2, createdDateStamp);
             prepStmt.setTimestamp(3, createdDateStamp);
-            prepStmt.setBytes(4,serializeWorkflowRequest(workflow));
-            prepStmt.setString(5, WorkFlowConstants.WF_REQUEST_STATUS_CREATED);
+            prepStmt.setBytes(4, serializeWorkflowRequest(workflow));
+            prepStmt.setString(5, WorkflowStatus.PENDING);
             prepStmt.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {
@@ -66,7 +67,7 @@ public class WorkflowRequestDAO {
         } catch (SQLException e) {
             //todo
         } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection,null,prepStmt);
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
     }
 
@@ -86,7 +87,7 @@ public class WorkflowRequestDAO {
     public void updateWorkflowStatus(WorkFlowRequest workflowDataBean) {
     }
 
-    public WorkFlowRequest retrieveWorkflow(String uuid){
+    public WorkFlowRequest retrieveWorkflow(String uuid) {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -98,7 +99,7 @@ public class WorkflowRequestDAO {
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, uuid);
             rs = prepStmt.executeQuery();
-            if(rs.next()){
+            if (rs.next()) {
                 byte[] requestBytes = rs.getBytes(SQLConstants.REQUEST_COLUMN);
                 return deserializeWorkflowRequest(requestBytes);
             } else {
@@ -109,19 +110,19 @@ public class WorkflowRequestDAO {
         } catch (SQLException e) {
             //todo
         } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection,null,prepStmt);
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
 
         return null;
     }
 
-    private WorkFlowRequest deserializeWorkflowRequest(byte[] serializedData){
+    private WorkFlowRequest deserializeWorkflowRequest(byte[] serializedData) {
         ByteArrayInputStream bais = new ByteArrayInputStream(serializedData);
         ObjectInputStream ois = null;
         try {
             ois = new ObjectInputStream(bais);
             Object objectRead = ois.readObject();
-            if(objectRead != null && objectRead instanceof WorkFlowRequest){
+            if (objectRead != null && objectRead instanceof WorkFlowRequest) {
                 return (WorkFlowRequest) objectRead;
             } else {
                 //todo

@@ -105,6 +105,16 @@ public class WorkflowRequestBuilder {
     }
 
     /**
+     * Check whether the given object is of valid type
+     *
+     * @param obj The object to be tested
+     * @return
+     */
+    private boolean isValidValue(Object obj) {
+        return obj != null && SUPPORTED_CLASS_TYPES.contains(obj.getClass());
+    }
+
+    /**
      * Adds a parameter with a list value. eg. roleList={"admin","manager"}
      *
      * @param key   The param name
@@ -226,20 +236,9 @@ public class WorkflowRequestBuilder {
             xmlStreamWriter.writeEndElement();  //for params elem
             xmlStreamWriter.writeEndElement();  //for root elem
             xmlStreamWriter.close();
-
+            return writer.toString();
         } catch (XMLStreamException e) {
             throw new WorkflowException("Error when building workflow request for action: " + action, e);
         }
-        return null;
-    }
-
-    /**
-     * Check whether the given object is of valid type
-     *
-     * @param obj The object to be tested
-     * @return
-     */
-    private boolean isValidValue(Object obj) {
-        return obj != null && SUPPORTED_CLASS_TYPES.contains(obj.getClass());
     }
 }

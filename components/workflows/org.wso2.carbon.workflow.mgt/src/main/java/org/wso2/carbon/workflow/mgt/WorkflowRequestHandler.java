@@ -18,11 +18,13 @@
 
 package org.wso2.carbon.workflow.mgt;
 
+import org.wso2.carbon.workflow.mgt.bean.WorkFlowRequest;
+
 public interface WorkflowRequestHandler {
 
-    public void engageWorkflow() throws WorkflowException;
+    public void engageWorkflow(WorkFlowRequest workFlowRequest) throws WorkflowException;
 
     public String getActionIdentifier();
 
-    public void onWorkflowCompletion(Object workflowRequest, String Status, Object additionalData);
+    public void onWorkflowCompletion(String status, WorkFlowRequest originalRequest, Object additionalData);
 }

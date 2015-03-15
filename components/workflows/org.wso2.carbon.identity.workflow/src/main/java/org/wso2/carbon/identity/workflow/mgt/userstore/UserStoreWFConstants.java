@@ -16,37 +16,8 @@
  * under the License.
  */
 
-package org.wso2.carbon.workflow.mgt.bean;
+package org.wso2.carbon.identity.workflow.mgt.userstore;
 
-import java.util.Map;
-
-public class WorkflowExecutionData {
-
-    private String uuid;
-    private String action;
-    private Map<String, Object> params;
-
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
-
-    public String getAction() {
-        return action;
-    }
-
-    public void setAction(String action) {
-        this.action = action;
-    }
-
-    public Map<String, Object> getParams() {
-        return params;
-    }
-
-    public void setParams(Map<String, Object> params) {
-        this.params = params;
-    }
+public class UserStoreWFConstants {
+    public static final String ADD_USER_REQUESTER = "ADD_USER";
 }

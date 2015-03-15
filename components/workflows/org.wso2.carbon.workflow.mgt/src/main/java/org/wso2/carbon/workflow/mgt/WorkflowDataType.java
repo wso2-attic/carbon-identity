@@ -18,30 +18,23 @@
 
 package org.wso2.carbon.workflow.mgt;
 
-import java.util.HashSet;
-import java.util.Set;
-
-public class WorkFlowConstants {
-
-    public static final String WF_STATUS_NO_MATCHING_EXECUTORS = "NO_MATCHING_EXECUTOR";
-
-    public static final String WF_PARAM_TYPE_PRIMITIVE = "primitive";
+public class WorkflowDataType {
     public static final String WF_PARAM_TYPE_STRING = "string";
+    public static final String WF_PARAM_TYPE_BOOLEAN = "boolean";
+    /**
+     * Represent either integer family or floating point family values.
+     */
+    public static final String WF_PARAM_TYPE_NUMERIC = "numeric";
+
+    /**
+     * Represent a collection of primitives or strings. Can be used for arrays, lists, sets,...etc
+     */
     public static final String WF_PARAM_TYPE_BASIC_LIST = "list";
+
+    /**
+     * Represent key value pair set, with key being a string and value being a string or primitive
+     */
     public static final String WF_PARAM_TYPE_BASIC_MAP = "map";
 
-    public static final String WF_REQUEST_STATUS_CREATED = "created";
-
-    public static final Set<Class> NUMERIC_CLASSES;
-
-    static {
-        NUMERIC_CLASSES = new HashSet<Class>();
-        NUMERIC_CLASSES.add(Integer.class);
-        NUMERIC_CLASSES.add(Long.class);
-        NUMERIC_CLASSES.add(Short.class);
-        NUMERIC_CLASSES.add(Character.class);
-        NUMERIC_CLASSES.add(Byte.class);
-        NUMERIC_CLASSES.add(Float.class);
-        NUMERIC_CLASSES.add(Double.class);
-    }
+    public static final String WF_PARAM_TYPE_UNDEFINED = "undefined";
 }

@@ -18,6 +18,12 @@
 
 package org.wso2.carbon.workflow.mgt;
 
-public enum WorkflowStatus {
-    CREATED, APPROVED, REJECTED, REGISTERED
+public class WorkflowStatus {
+
+    public static final String APPROVED = "APPROVED";
+    public static final String REJECTED = "REJECTED";
+    public static final String PENDING = "PENDING";
+
+    private WorkflowStatus() {
+    }
 }

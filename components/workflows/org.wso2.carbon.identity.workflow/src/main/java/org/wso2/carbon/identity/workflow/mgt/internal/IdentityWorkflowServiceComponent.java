@@ -16,14 +16,18 @@
  * under the License.
  */
 
-package org.wso2.carbon.workflow.mgt.internal;
+package org.wso2.carbon.identity.workflow.mgt.internal;
+
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.workflow.mgt.userstore.AddUserWFRequestHandler;
+import org.wso2.carbon.identity.workflow.mgt.userstore.UserStoreActionListener;
+import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.workflow.mgt.WorkFlowExecutorManager;
-import org.wso2.carbon.workflow.mgt.ws.WSWorkflowExecutor;
 
 /**
  * @scr.component name="identity.workflow" immediate="true"
@@ -35,7 +39,7 @@ import org.wso2.carbon.workflow.mgt.ws.WSWorkflowExecutor;
  * cardinality="1..1" policy="dynamic"  bind="setConfigurationContextService"
  * unbind="unsetConfigurationContextService"
  */
-public class WorkflowMgtServiceComponent {
+public class IdentityWorkflowServiceComponent {
     private static RealmService realmService;
     private static ConfigurationContextService configurationContextService;
 
@@ -46,7 +50,7 @@ public class WorkflowMgtServiceComponent {
     }
 
     protected void setRealmService(RealmService realmService) {
-        WorkflowMgtServiceComponent.realmService = realmService;
+        IdentityWorkflowServiceComponent.realmService = realmService;
     }
 
     public static ConfigurationContextService getConfigurationContextService() {
@@ -54,21 +58,23 @@ public class WorkflowMgtServiceComponent {
     }
 
     protected void setConfigurationContextService(ConfigurationContextService contextService) {
-        WorkflowMgtServiceComponent.configurationContextService = contextService;
+        IdentityWorkflowServiceComponent.configurationContextService = contextService;
     }
 
     protected void activate(ComponentContext context) {
         bundleContext = context.getBundleContext();
-        WorkFlowExecutorManager workFlowExecutorManager = WorkFlowExecutorManager.getInstance();
-        bundleContext.registerService(WorkFlowExecutorManager.class, workFlowExecutorManager, null);
-        workFlowExecutorManager.registerExecutor(new WSWorkflowExecutor());
+        bundleContext.registerService(UserOperationEventListener.class.getName(), new UserStoreActionListener(), null);
+        WorkFlowExecutorManager manager = (WorkFlowExecutorManager) CarbonContext.getThreadLocalCarbonContext()
+                .getOSGiService(WorkFlowExecutorManager.class, null);
+        manager.registerRequester(new AddUserWFRequestHandler());
+
     }
 
     protected void unsetRealmService(RealmService realmService) {
-        WorkflowMgtServiceComponent.realmService = null;
+        IdentityWorkflowServiceComponent.realmService = null;
     }
 
     protected void unsetConfigurationContextService(ConfigurationContextService contextService) {
-        WorkflowMgtServiceComponent.configurationContextService = null;
+        IdentityWorkflowServiceComponent.configurationContextService = null;
     }
 }

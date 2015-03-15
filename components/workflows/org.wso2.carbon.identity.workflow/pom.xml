@@ -27,23 +27,19 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.workflow.mgt</artifactId>
+
+    <artifactId>org.wso2.carbon.identity.workflow</artifactId>
     <packaging>bundle</packaging>
-    <name>WSO2 Carbon - Workflow Mgt</name>
-    <url>http://wso2.org</url>
 
     <dependencies>
         <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.workflow.mgt</artifactId>
+            <version>${carbon.identity.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.utils</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.base</artifactId>
+            <artifactId>org.wso2.carbon.user.core</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-lang.wso2</groupId>
@@ -66,13 +62,13 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Private-Package>
-                            org.wso2.carbon.workflow.mgt.internal,
+                            org.wso2.carbon.identity.workflow.mgt.internal,
                         </Private-Package>
                         <Import-Package>
                             *;resolution:=optional
                         </Import-Package>
                         <Export-Package>
-                            org.wso2.carbon.workflow.mgt.*
+                            org.wso2.carbon.identity.workflow.mgt.*
                         </Export-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
@@ -80,7 +76,4 @@
             </plugin>
         </plugins>
     </build>
-
-
 </project>
-

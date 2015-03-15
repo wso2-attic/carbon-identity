@@ -34,11 +34,11 @@ public class WorkFlowExecutorManager {
     private SortedSet<WorkFlowExecutor> workFlowExecutors;
     private Map<String, WorkflowRequestHandler> workflowRequestHandlers;
 
-    private WorkFlowExecutorManager(){
+    private WorkFlowExecutorManager() {
         Comparator<WorkFlowExecutor> priorityBasedComparator = new Comparator<WorkFlowExecutor>() {
             @Override
             public int compare(WorkFlowExecutor o1, WorkFlowExecutor o2) {
-                return o1.getPriority()-o2.getPriority();
+                return o1.getPriority() - o2.getPriority();
             }
         };
         workFlowExecutors = new TreeSet<WorkFlowExecutor>(priorityBasedComparator);
@@ -54,7 +54,7 @@ public class WorkFlowExecutorManager {
         workFlowRequest.setUuid(UUID.randomUUID().toString());
         //executors are sorted by priority by the time they are added.
         for (WorkFlowExecutor workFlowExecutor : workFlowExecutors) {
-            if(workFlowExecutor.canHandle(workFlowRequest)){
+            if (workFlowExecutor.canHandle(workFlowRequest)) {
                 try {
                     WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
                     requestDAO.addWorkflowEntry(workFlowRequest);
@@ -71,29 +71,29 @@ public class WorkFlowExecutorManager {
         handleCallback(workFlowRequest, WorkFlowConstants.WF_STATUS_NO_MATCHING_EXECUTORS, null);
     }
 
+    private void handleCallback(WorkFlowRequest request, String status, Object additionalParams)
+            throws WorkflowException {
+        if (request != null) {
+            String requesterId = request.getRequesterId();
+            WorkflowRequestHandler requestHandler = workflowRequestHandlers.get(requesterId);
+            if (requestHandler == null) {
+                throw new WorkflowException("No request handlers registered for the id: " + requesterId);
+            }
+            requestHandler.onWorkflowCompletion(status, request, additionalParams);
+        }
+    }
+
     public void handleCallback(String uuid, String status, Object additionalParams) throws WorkflowException {
         WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
         WorkFlowRequest request = requestDAO.retrieveWorkflow(uuid);
         handleCallback(request, status, additionalParams);
     }
 
-    private void handleCallback(WorkFlowRequest request, String status, Object additionalParams)
-            throws WorkflowException {
-        if(request!=null){
-            String requesterId = request.getRequesterId();
-            WorkflowRequestHandler requestHandler = workflowRequestHandlers.get(requesterId);
-            if(requestHandler==null){
-                throw new WorkflowException("No request handlers registered for the id: "+requesterId);
-            }
-            requestHandler.onWorkflowCompletion(request,status,additionalParams);
-        }
-    }
-
-    public void registerExecutor(WorkFlowExecutor workFlowExecutor){
+    public void registerExecutor(WorkFlowExecutor workFlowExecutor) {
         workFlowExecutors.add(workFlowExecutor);
     }
 
-    public void registerRequester(WorkflowRequestHandler workflowRequestHandler){
+    public void registerRequester(WorkflowRequestHandler workflowRequestHandler) {
         workflowRequestHandlers.put(workflowRequestHandler.getActionIdentifier(), workflowRequestHandler);
     }
 }
