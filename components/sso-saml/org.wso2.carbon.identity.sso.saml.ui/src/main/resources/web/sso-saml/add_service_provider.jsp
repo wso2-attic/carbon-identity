@@ -205,7 +205,9 @@ function disableAssertionSignature(chkbx) {
             : false;
 }
 function disableAttributeProfile(chkbx) {
-    if (!(chkbx.checked))document.addServiceProvider.enableDefaultAttributeProfile.checked = false;
+    if (!(chkbx.checked)){
+    document.addServiceProvider.enableDefaultAttributeProfile.checked = false;
+    }
     document.addServiceProvider.enableDefaultAttributeProfile.value = (chkbx.checked) ? true : false;
     document.addServiceProvider.enableDefaultAttributeProfile.disabled = (chkbx.checked) ? false
             : true;
