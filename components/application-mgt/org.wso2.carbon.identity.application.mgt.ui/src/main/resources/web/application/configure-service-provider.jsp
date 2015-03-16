@@ -89,12 +89,9 @@ location.href = 'list-service-provider.jsp';
 	samlIssuerName = appBean.getSAMLIssuer();
 	
     String attributeConsumingServiceIndex = CharacterEncoder.getSafeText(request.getParameter("attrConServIndex"));
-	if(attributeConsumingServiceIndex != null && !attributeConsumingServiceIndex.isEmpty()){
+	if(attributeConsumingServiceIndex != null){
 		appBean.setAttributeConsumingServiceIndex(attributeConsumingServiceIndex);
 	}
-    if ("".equals(attributeConsumingServiceIndex)) {
-        appBean.setAttributeConsumingServiceIndex("");
-    }
     
     String oauthapp = CharacterEncoder.getSafeText(request.getParameter("oauthapp"));
     
