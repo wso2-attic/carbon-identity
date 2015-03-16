@@ -92,6 +92,9 @@ location.href = 'list-service-provider.jsp';
 	if(attributeConsumingServiceIndex != null && !attributeConsumingServiceIndex.isEmpty()){
 		appBean.setAttributeConsumingServiceIndex(attributeConsumingServiceIndex);
 	}
+    if ("".equals(attributeConsumingServiceIndex)) {
+        appBean.setAttributeConsumingServiceIndex("");
+    }
     
     String oauthapp = CharacterEncoder.getSafeText(request.getParameter("oauthapp"));
     

@@ -34,6 +34,7 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
     private String[] requestedClaims;
     private String[] requestedAudiences;
     private String[] requestedRecipients;
+    private boolean enableAttributeProfile;
     private boolean enableAttributesByDefault;
     private String nameIdClaimUri;
     private String nameIDFormat;
@@ -55,6 +56,14 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
 
     public void setNameIdClaimUri(String nameIdClaimUri) {
         this.nameIdClaimUri = nameIdClaimUri;
+    }
+
+    public boolean isEnableAttributeProfile() {
+        return enableAttributeProfile;
+    }
+
+    public void setEnableAttributeProfile(boolean enableAttributeProfile) {
+        this.enableAttributeProfile = enableAttributeProfile;
     }
 
     public boolean isEnableAttributesByDefault() {
