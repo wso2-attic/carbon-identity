@@ -31,6 +31,7 @@
         import="java.util.ArrayList" %>
 <%@ page import="java.util.Collections" %>
 <%@ page import="org.wso2.carbon.security.keystore.service.CertData" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
@@ -208,7 +209,7 @@ function disableAttributeProfile(chkbx) {
     if (!(chkbx.checked)){
     document.addServiceProvider.enableDefaultAttributeProfile.checked = false;
     }
-    document.addServiceProvider.enableDefaultAttributeProfile.value = (chkbx.checked) ? true : false;
+    document.addServiceProvider.enableDefaultAttributeProfile.value = chkbx.checked;
     document.addServiceProvider.enableDefaultAttributeProfile.disabled = (chkbx.checked) ? false
             : true;
 
@@ -826,7 +827,7 @@ if (isEditSP && show) {
 %>
 <tr>
     <td colspan="2">
-        <% if (provider.getAttributeConsumingServiceIndex() != null && !"".equals(provider.getAttributeConsumingServiceIndex())) { %>
+        <% if (StringUtils.isNotEmpty(provider.getAttributeConsumingServiceIndex())) { %>
         <input type="checkbox"
                name="enableAttributeProfile" id="enableAttributeProfile" checked="checked" value="true"
                onclick="disableAttributeProfile(this);"/>
@@ -866,7 +867,7 @@ if (isEditSP && show) {
 <% 		} %>
 <tr>
     <td style="padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;" colspan="2">
-        <% if (provider.getAttributeConsumingServiceIndex() != null) {
+        <% if (StringUtils.isNotEmpty(provider.getAttributeConsumingServiceIndex())) {
             if (provider.getEnableAttributesByDefault()) {
         %> <input type="checkbox"
                   name="enableDefaultAttributeProfile" id="enableDefaultAttributeProfile" checked="checked" value="true"

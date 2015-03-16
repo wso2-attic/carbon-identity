@@ -16,6 +16,7 @@
 
 package org.wso2.carbon.identity.sso.saml.admin;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml1.core.NameIdentifier;
@@ -89,7 +90,7 @@ public class SAMLSSOConfigAdmin {
 
         if (serviceProviderDTO.isEnableAttributeProfile()) {
             String attributeConsumingIndex = serviceProviderDTO.getAttributeConsumingServiceIndex();
-            if (attributeConsumingIndex != null && !attributeConsumingIndex.isEmpty()) {
+            if (StringUtils.isNotEmpty(attributeConsumingIndex)) {
                 serviceProviderDO.setAttributeConsumingServiceIndex(attributeConsumingIndex);
             } else {
                 serviceProviderDO.setAttributeConsumingServiceIndex(Integer.toString(IdentityUtil.getRandomInteger()));
