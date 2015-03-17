@@ -75,6 +75,7 @@ import org.wso2.carbon.identity.sso.saml.validators.SAML2HTTPRedirectSignatureVa
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -87,9 +88,7 @@ import java.io.*;
 import java.net.*;
 import java.security.KeyStore;
 import java.util.*;
-import java.util.zip.DataFormatException;
-import java.util.zip.Inflater;
-import java.util.zip.InflaterInputStream;
+import java.util.zip.*;
 
 public class SAMLSSOUtil {
 
@@ -154,6 +153,10 @@ public class SAMLSSOUtil {
         isSaaSApplication.set(isSaaSApp);
     }
 
+    public static void removeSaaSApplicationThreaLocal() {
+        isSaaSApplication.remove();
+    }
+
     public static String getUserTenantDomain() {
 
         if (userTenantDomainThreadLocal == null) {
@@ -164,16 +167,16 @@ public class SAMLSSOUtil {
         return userTenantDomainThreadLocal.get();
     }
 
-    public static void setUserTenantDomain(String userTenantDomain) {
-        userTenantDomainThreadLocal.set(userTenantDomain);
+    public static void setUserTenantDomain(String tenantDomain) throws UserStoreException, IdentityException {
+
+        tenantDomain = validateTenantDomain(tenantDomain);
+        if(tenantDomain != null){
+            userTenantDomainThreadLocal.set(tenantDomain);
+        }
     }
 
     public static void removeUserTenantDomainThreaLocal() {
         userTenantDomainThreadLocal.remove();
-    }
-
-    public static void removeSaaSApplicationThreaLocal() {
-        isSaaSApplication.remove();
     }
 
     public static BundleContext getBundleContext() {
@@ -395,15 +398,13 @@ public class SAMLSSOUtil {
      * @return Issuer
      */
     public static Issuer getIssuer() throws IdentityException {
+
         Issuer issuer = new IssuerBuilder().buildObject();
         String idPEntityId = null;
         IdentityProvider identityProvider;
-        String tenantDomain = null;
+        String tenantDomain = getTenantDomainFromThreadLocal();
         try {
-            tenantDomain = getTenantDomainFromThreadLocal();
-            if (tenantDomain == null || tenantDomain.equals("null")) {
-                tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
-            }
+
             identityProvider = IdentityProviderManager.getInstance().getResidentIdP(tenantDomain);
         } catch (IdentityApplicationManagementException e) {
             throw new IdentityException(
@@ -751,6 +752,7 @@ public class SAMLSSOUtil {
      * @return
      */
     public static boolean validateAuthnRequestSignature(SAMLSSOAuthnReqDTO authnReqDTO) {
+
         log.debug("Validating SAML Request signature");
 
         //String domainName = MultitenantUtils.getTenantDomain(authnReqDTO.getUser());
@@ -803,22 +805,13 @@ public class SAMLSSOUtil {
      * @return
      */
     public static boolean validateLogoutRequestSignature(LogoutRequest logoutRequest, String alias,
-                                                         String subject, String queryString) {
+                                                         String subject, String queryString) throws IdentityException {
+
         String domainName = getTenantDomainFromThreadLocal();
-        try {
-            if (queryString != null) {
-                return validateDeflateSignature(queryString, logoutRequest.getIssuer().getValue(),
-                        alias,
-                        domainName);
-            } else {
-                return validateXMLSignature(logoutRequest, alias, domainName);
-            }
-        } catch (IdentityException e) {
-            log.warn("Failed to validate login request signature ");
-            if (log.isDebugEnabled()) {
-                log.debug(e);
-            }
-            return false;
+        if (queryString != null) {
+            return validateDeflateSignature(queryString, logoutRequest.getIssuer().getValue(), alias, domainName);
+        } else {
+            return validateXMLSignature(logoutRequest, alias, domainName);
         }
     }
 
@@ -1164,12 +1157,77 @@ public class SAMLSSOUtil {
         SSOSessionPersistenceManager.removeSessionIndexFromCache(sessionId);
     }
 
-    public static void setTenantDomainInThreadLocal(String tenantDomain) {
-        SAMLSSOUtil.tenantDomainInThreadLocal.set(tenantDomain);
+    public static void setTenantDomainInThreadLocal(String tenantDomain) throws UserStoreException, IdentityException {
+
+        tenantDomain = validateTenantDomain(tenantDomain);
+        if(tenantDomain != null){
+            SAMLSSOUtil.tenantDomainInThreadLocal.set(tenantDomain);
+        }
     }
 
     public static String getTenantDomainFromThreadLocal() {
+
+        if (SAMLSSOUtil.tenantDomainInThreadLocal == null) {
+            // this is the default behavior.
+            return null;
+        }
         return (String) SAMLSSOUtil.tenantDomainInThreadLocal.get();
+    }
+
+    public static void removeTenantDomainFromThreadLocal() {
+        SAMLSSOUtil.tenantDomainInThreadLocal.remove();
+    }
+
+    public static String validateTenantDomain(String tenantDomain) throws UserStoreException, IdentityException {
+
+        if(tenantDomain != null && !tenantDomain.trim().isEmpty() && !"null".equalsIgnoreCase(tenantDomain.trim())) {
+            int tenantID = SAMLSSOUtil.getRealmService().getTenantManager().getTenantId(tenantDomain);
+            if(tenantID == -1){
+                String message = "Invalid tenant domain : " + tenantDomain;
+                if(log.isDebugEnabled()){
+                    log.debug(message);
+                }
+                throw new IdentityException(message);
+            } else {
+                return tenantDomain;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * build the error response
+     * @param status
+     * @param message
+     * @return decoded response
+     * @throws org.wso2.carbon.identity.base.IdentityException
+     */
+    public static String buildErrorResponse(String status, String message)
+            throws IdentityException, IOException {
+        ErrorResponseBuilder respBuilder = new ErrorResponseBuilder();
+        List<String> statusCodeList = new ArrayList<String>();
+        statusCodeList.add(status);
+        Response response = respBuilder.buildResponse(null, statusCodeList, message);
+        String resp = SAMLSSOUtil.marshall(response);
+
+        return compressResponse(resp);
+
+    }
+
+    /**
+     * Compresses the response String
+     *
+     * @param response
+     * @return
+     * @throws IOException
+     */
+    public static String compressResponse(String response) throws IOException {
+        Deflater deflater = new Deflater(Deflater.DEFLATED, true);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(byteArrayOutputStream, deflater);
+        deflaterOutputStream.write(response.getBytes());
+        deflaterOutputStream.close();
+        return Base64.encodeBytes(byteArrayOutputStream.toByteArray(), Base64.DONT_BREAK_LINES);
     }
 
 }

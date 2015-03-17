@@ -539,12 +539,16 @@ public class DefaultClaimHandler implements ClaimHandler {
         } else if (claimMappings == null || claimMappings.isEmpty()) {
             return ApplicationConstants.LOCAL_IDP_DEFAULT_CLAIM_DIALECT;
         } else {
+            boolean isAtLeastOneNotEqual = false;
             for (Map.Entry<String, String> entry : claimMappings.entrySet()) {
-                if (entry.getKey().equals(entry.getValue())) {
-                    return ApplicationConstants.LOCAL_IDP_DEFAULT_CLAIM_DIALECT;
+                if(!entry.getKey().equals(entry.getValue())){
+                    isAtLeastOneNotEqual = true;
+                    break;
                 }
             }
-
+            if(!isAtLeastOneNotEqual){
+                return ApplicationConstants.LOCAL_IDP_DEFAULT_CLAIM_DIALECT;
+            }
         }
         return null;
     }

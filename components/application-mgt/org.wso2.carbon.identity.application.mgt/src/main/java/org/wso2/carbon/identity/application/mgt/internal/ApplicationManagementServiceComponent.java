@@ -72,15 +72,17 @@ public class ApplicationManagementServiceComponent {
                 JDBCPersistenceManager jdbcPersistenceManager = JDBCPersistenceManager.getInstance();
                 jdbcPersistenceManager.initializeDatabase();
             } else {
-                log.debug("Identity Application Management Database initialization not attempted since \'setup\' " +
-                        "variable was not provided during startup");
+                if (log.isDebugEnabled()) {
+                    log.debug("Identity Application Management Database initialization not attempted since \'setup\' " +
+                            "variable was not provided during startup");
+                }
             }
             // Registering Application management service as a OSGIService
             bundleContext = context.getBundleContext();
             bundleContext.registerService(ApplicationManagementService.class.getName(),
                     ApplicationManagementServiceImpl.getInstance(), null);
             ApplicationMgtSystemConfig.getInstance();
-            buidFileBasedSPList();
+            buildFileBasedSPList();
 
             log.info("Identity ApplicationManagementComponent bundle is activated");
         } catch (Exception e) {
@@ -90,58 +92,58 @@ public class ApplicationManagementServiceComponent {
 
     protected void deactivate(ComponentContext context) {
         if (log.isDebugEnabled()) {
-            log.info("Identity ApplicationManagementComponent bundle is deactivated");
+            log.debug("Identity ApplicationManagementComponent bundle is deactivated");
         }
     }
 
     protected void setRegistryService(RegistryService registryService) {
         if (log.isDebugEnabled()) {
-            log.info("RegistryService set in Identity ApplicationManagementComponent bundle");
+            log.debug("RegistryService set in Identity ApplicationManagementComponent bundle");
         }
         ApplicationManagementServiceComponentHolder.setRegistryService(registryService);
     }
 
     protected void unsetRegistryService(RegistryService registryService) {
         if (log.isDebugEnabled()) {
-            log.info("RegistryService unset in Identity ApplicationManagementComponent bundle");
+            log.debug("RegistryService unset in Identity ApplicationManagementComponent bundle");
         }
         ApplicationManagementServiceComponentHolder.setRegistryService(null);
     }
 
     protected void setRealmService(RealmService realmService) {
         if (log.isDebugEnabled()) {
-            log.info("Setting the Realm Service");
+            log.debug("Setting the Realm Service");
         }
         ApplicationManagementServiceComponentHolder.setRealmService(realmService);
     }
 
     protected void unsetRealmService(RealmService realmService) {
         if (log.isDebugEnabled()) {
-            log.info("Unsetting the Realm Service");
+            log.debug("Unsetting the Realm Service");
         }
         ApplicationManagementServiceComponentHolder.setRealmService(null);
     }
 
     protected void setConfigurationContextService(ConfigurationContextService configContextService) {
         if (log.isDebugEnabled()) {
-            log.info("Setting the Configuration Context Service");
+            log.debug("Setting the Configuration Context Service");
         }
         ApplicationManagementServiceComponentHolder.setConfigContextService(configContextService);
     }
 
     protected void unsetConfigurationContextService(ConfigurationContextService configContextService) {
         if (log.isDebugEnabled()) {
-            log.info("Unsetting the Configuration Context Service");
+            log.debug("Unsetting the Configuration Context Service");
         }
         ApplicationManagementServiceComponentHolder.setConfigContextService(null);
     }
 
-    private void buidFileBasedSPList() {
+    private void buildFileBasedSPList() {
         String spConfigDirPath = CarbonUtils.getCarbonConfigDirPath() + File.separator + "identity"
                 + File.separator + "service-providers";
         FileInputStream fileInputStream = null;
         File spConfigDir = new File(spConfigDirPath);
-        OMElement documentElement = null;
+        OMElement documentElement;
 
         if (spConfigDir.exists()) {
 
@@ -162,7 +164,7 @@ public class ApplicationManagementServiceComponent {
                         try {
                             fileInputStream.close();
                         } catch (IOException e) {
-                            log.error(e.getMessage(), e);
+                            log.error("Error occurred while closing file input stream for file " + spConfigDirPath, e);
                         }
                     }
                 }
