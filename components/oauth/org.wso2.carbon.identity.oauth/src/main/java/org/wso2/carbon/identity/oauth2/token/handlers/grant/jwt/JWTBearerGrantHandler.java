@@ -41,11 +41,7 @@ public class JWTBearerGrantHandler extends AbstractAuthorizationGrantHandler{
 
     // JWT Profile for Oauth2 constants
     public static final String OAUTH_JWT_BEARER_GRANT_TYPE = "urn:ietf:params:oauth:grant-type:jwt-bearer";
-    public static final String OAUTH_JWT_BEARER_GRANT_ERROR = "invalid_grant";
-    public static final String OAUTH_JWT_BEARER_ISSUER = "issuer";
     public static final String OAUTH_JWT_ASSERTION = "assertion";
-
-    private static String ISSUER = "org.wso2.jwt.test.issuer";
 
     // allowed number of minutes a token can be old for
     private static final int REJECT_TOKEN_ISSUED_BEFORE = 30;
