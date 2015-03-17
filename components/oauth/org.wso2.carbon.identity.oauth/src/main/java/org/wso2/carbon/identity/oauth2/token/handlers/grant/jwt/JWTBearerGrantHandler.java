@@ -122,7 +122,7 @@ public class JWTBearerGrantHandler extends AbstractAuthorizationGrantHandler{
             }
         }
 
-        //logging the JSON Web Token(JWT) assertion
+        //logging the JSON Web Token(JWT) assertionm
         if (log.isDebugEnabled()){
             log.debug("Received JSON Web Token assertion: " +
                     assertion);
