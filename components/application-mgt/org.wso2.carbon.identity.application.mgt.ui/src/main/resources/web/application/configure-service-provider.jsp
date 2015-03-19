@@ -84,6 +84,13 @@ location.href = 'list-service-provider.jsp';
     
     if (samlIssuerName != null && "delete".equals(action)){
     	appBean.deleteSAMLIssuer();
+        //After deleting the SAMLIssuer from the ApplicationBean, need to remove the issuer data from the database.
+        String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+        String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
+        ConfigurationContext configContext = (ConfigurationContext) config.getServletContext()
+                .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+        ApplicationManagementServiceClient serviceClient = new ApplicationManagementServiceClient(cookie, backendServerURL, configContext);
+        serviceClient.updateApplicationData(appBean.getServiceProvider());
     }
     
 	samlIssuerName = appBean.getSAMLIssuer();
