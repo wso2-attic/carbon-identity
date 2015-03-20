@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
  ~ Copyright (c) 2005-2011, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  ~
@@ -15,71 +16,75 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-	<parent>
-		<groupId>org.wso2.carbon.identity</groupId>
-		<artifactId>iwa-authenticator-feature</artifactId>
-		<version>4.3.4-SNAPSHOT</version>
-	<relativePath>../pom.xml</relativePath>
-	</parent>
+    <parent>
+        <groupId>org.wso2.carbon.identity</groupId>
+        <artifactId>iwa-authenticator-feature</artifactId>
+        <version>4.3.4-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-	<modelVersion>4.0.0</modelVersion>
-	<artifactId>org.wso2.carbon.identity.authenticator.iwa.ui.feature</artifactId>
-	<packaging>pom</packaging>
-	<name>IWA based authenticator UI Feature</name>
-	<url>http://wso2.org</url>
-	<description>This feature contains the bundles required for IWA based authentication UI functionality</description>
-    
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>org.wso2.carbon.identity.authenticator.iwa.ui.feature</artifactId>
+    <packaging>pom</packaging>
+    <name>IWA based authenticator UI Feature</name>
+    <url>http://wso2.org</url>
+    <description>This feature contains the bundles required for IWA based authentication UI functionality</description>
+
     <dependencies>
-		<dependency>
-			<groupId>org.wso2.carbon.identity</groupId>
-			<artifactId>org.wso2.carbon.identity.authenticator.iwa.ui</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.wso2.carbon.identity</groupId>
-			<artifactId>org.wso2.carbon.identity.authenticator.iwa.stub</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.authenticator.iwa.ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.authenticator.iwa.stub</artifactId>
+        </dependency>
         <dependency>
             <groupId>waffle.apache.wso2</groupId>
             <artifactId>waffle</artifactId>
         </dependency>
-	</dependencies>
-      
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.wso2.maven</groupId>
-				<artifactId>carbon-p2-plugin</artifactId>
-				<version>${carbon.p2.plugin.version}</version>
-				<executions>
-					<execution>
-						<id>4-p2-feature-generation</id>
-						<phase>package</phase>
-						<goals>
-							<goal>p2-feature-gen</goal>
-						</goals>
-						<configuration>
-							<id>org.wso2.carbon.identity.authenticator.iwa.ui</id>
-							<propertiesFile>../../../../etc/feature.properties</propertiesFile>
-							<adviceFile>
-								<properties>
-									<propertyDef>org.wso2.carbon.p2.category.type:console</propertyDef>
-                                    <propertyDef>org.eclipse.equinox.p2.type.group:false</propertyDef>                                                                        
-								</properties>
-							</adviceFile>
-							<bundles>
-								<bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.authenticator.iwa.ui</bundleDef>
-								<bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.authenticator.iwa.stub</bundleDef>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.wso2.maven</groupId>
+                <artifactId>carbon-p2-plugin</artifactId>
+                <version>${carbon.p2.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>4-p2-feature-generation</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>p2-feature-gen</goal>
+                        </goals>
+                        <configuration>
+                            <id>org.wso2.carbon.identity.authenticator.iwa.ui</id>
+                            <propertiesFile>../../../../etc/feature.properties</propertiesFile>
+                            <adviceFile>
+                                <properties>
+                                    <propertyDef>org.wso2.carbon.p2.category.type:console</propertyDef>
+                                    <propertyDef>org.eclipse.equinox.p2.type.group:false</propertyDef>
+                                </properties>
+                            </adviceFile>
+                            <bundles>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.authenticator.iwa.ui
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.authenticator.iwa.stub
+                                </bundleDef>
                                 <bundleDef>waffle.apache.wso2:waffle</bundleDef>
-							</bundles>
-							<importFeatures>
-								<importFeatureDef>org.wso2.carbon.core.ui:${carbon.kernel.version}</importFeatureDef>
-							</importFeatures>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+                            </bundles>
+                            <importFeatures>
+                                <importFeatureDef>org.wso2.carbon.core.ui:${carbon.kernel.version}</importFeatureDef>
+                            </importFeatures>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
