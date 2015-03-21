@@ -244,7 +244,17 @@
 							+ val);
 						}
 					}
-			}
+			} else {
+                ClaimAttributeDTO[] attrMap = claims[j].getMappedAttributes();
+                if (attrMap != null) {
+                    String val = "";
+                    for (int x = 0; x < attrMap.length; x++) {
+                        val += "; " + attrMap[x].getDomainName() + "/" + attrMap[x].getAttributeName();
+                    }
+                    val = val.substring(1);
+                    claims[j].setMappedAttribute(val);
+                }
+            }
 			
 			%>
 
