@@ -1871,7 +1871,7 @@
 
         <!--Carbon identity version-->
         <carbon.identity.version>4.3.4-SNAPSHOT</carbon.identity.version>
-        <carbon.identity.package.export.version>4.3.4</carbon.identity.package.export.version>
+        <carbon.identity.package.export.version>4.3.4-SNAPSHOT</carbon.identity.package.export.version>
         <carbon.identity.package.import.version.range>[4.3.0, 4.4.0)</carbon.identity.package.import.version.range>
 
         <!-- Axis2 Version -->
