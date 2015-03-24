@@ -20,11 +20,11 @@
         <transports>
             <transport>https</transport>
         </transports>
-        <schema schemaNamespace="http://cb.mgt.workflow.carbon.wso2.org/xsd" elementFormDefaultQualified="true"/>
+        <schema schemaNamespace="http://callback.mgt.workflow.carbon.wso2.org/xsd" elementFormDefaultQualified="true"/>
         <description>
             Handles callbacks from the WS workflow executors.
         </description>
-        <parameter name="ServiceClass">org.wso2.carbon.workflow.mgt.cb.WSWorkflowCallBackService</parameter>
+        <parameter name="ServiceClass">org.wso2.carbon.workflow.mgt.callback.WSWorkflowCallBackService</parameter>
     </service>
     <!--todo: define a new permission?-->
     <parameter name="AuthorizationAction" locked="true">/permission/admin/configure</parameter>

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.workflow.mgt.cb;
+package org.wso2.carbon.workflow.mgt.callback;
 
 public class WSParameter {
 
