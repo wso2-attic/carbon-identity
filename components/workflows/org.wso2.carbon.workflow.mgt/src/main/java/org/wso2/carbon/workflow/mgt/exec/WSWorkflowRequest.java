@@ -16,14 +16,12 @@
  * under the License.
  */
 
-package org.wso2.carbon.workflow.mgt.bean;
+package org.wso2.carbon.workflow.mgt.exec;
 
-public class WSWorkflowResponse {
-
+public class WSWorkflowRequest {
     private String uuid;
     private String requesterId;
-    private String status;
-    private WorkflowParameter[] outputParams;
+    private WSParameter[] params;
 
     public String getUuid() {
         return uuid;
@@ -41,19 +39,11 @@ public class WSWorkflowResponse {
         this.requesterId = requesterId;
     }
 
-    public String getStatus() {
-        return status;
+    public WSParameter[] getParams() {
+        return params;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public WorkflowParameter[] getOutputParams() {
-        return outputParams;
-    }
-
-    public void setOutputParams(WorkflowParameter[] outputParams) {
-        this.outputParams = outputParams;
+    public void setParams(WSParameter[] params) {
+        this.params = params;
     }
 }

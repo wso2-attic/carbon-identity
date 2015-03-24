@@ -16,11 +16,12 @@
  * under the License.
  */
 
-package org.wso2.carbon.workflow.mgt.ws;
+package org.wso2.carbon.workflow.mgt.cb;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.workflow.mgt.WorkFlowExecutorManager;
 import org.wso2.carbon.workflow.mgt.WorkflowException;
-import org.wso2.carbon.workflow.mgt.bean.WSWorkflowResponse;
 
 /**
  * This is the Callback service for the WS Workflow requests. Once workflow executor completes its workflow,
@@ -28,12 +29,15 @@ import org.wso2.carbon.workflow.mgt.bean.WSWorkflowResponse;
  */
 public class WSWorkflowCallBackService {
 
+    private static Log log = LogFactory.getLog(WSWorkflowCallBackService.class);
+
     public void onCallback(WSWorkflowResponse response) {
         try {
             WorkFlowExecutorManager.getInstance()
                     .handleCallback(response.getUuid(), response.getStatus(), response.getOutputParams());
         } catch (WorkflowException e) {
-            //todo
+            log.error("Error when handling callback for the workflow, id:" + response.getUuid() + ", event:" + response
+                    .getRequesterId());
         }
     }
 }

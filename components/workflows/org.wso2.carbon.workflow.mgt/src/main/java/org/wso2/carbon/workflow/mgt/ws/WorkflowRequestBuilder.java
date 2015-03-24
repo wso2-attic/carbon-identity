@@ -18,13 +18,14 @@
 
 package org.wso2.carbon.workflow.mgt.ws;
 
+import org.apache.axiom.om.OMAbstractFactory;
+import org.apache.axiom.om.OMAttribute;
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMFactory;
+import org.apache.axiom.om.OMNamespace;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.workflow.mgt.WorkflowException;
 
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -33,14 +34,14 @@ import java.util.Set;
 
 public class WorkflowRequestBuilder {
 
-    private static final String WF_NS = "http://workflow.is.wso2.org/";
-    private static final String WF_NS_PREFIX = "wor";
-    private static final String WF_REQ_ROOT_ELEM = "GenericWorkflowRequest";
+    private static final String WF_NS = "http://bpel.mgt.workflow.carbon.wso2.org";
+    private static final String WF_NS_PREFIX = "cwf";
+    private static final String WF_REQ_ROOT_ELEM = "CarbonBPELRequest";
     private static final String WF_REQ_UUID_ELEM = "uuid";
-    private static final String WF_REQ_ACTION_ELEM = "action";
+    private static final String WF_REQ_ACTION_ELEM = "requesterId";
     private static final String WF_REQ_TENANT_DOMAIN_ELEM = "tenantDomain";
-    private static final String WF_REQ_PARAMS_ELEM = "params";
-    private static final String WF_REQ_PARAM_ELEM = "param";
+    //    private static final String WF_REQ_PARAMS_ELEM = "params";
+    private static final String WF_REQ_PARAM_ELEM = "parameter";
     private static final String WF_REQ_LIST_ITEM_ELEM = "item";
     private static final String WF_REQ_KEY_ATTRIB = "key";
 
@@ -178,67 +179,56 @@ public class WorkflowRequestBuilder {
      * @return
      * @throws org.wso2.carbon.workflow.mgt.WorkflowException
      */
-    public String buildRequest() throws WorkflowException {
-        StringWriter writer = new StringWriter();
-        XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
-        try {
-            XMLStreamWriter xmlStreamWriter = xmlOutputFactory.createXMLStreamWriter(writer);
-            xmlStreamWriter.writeStartElement(WF_NS_PREFIX, WF_REQ_ROOT_ELEM, WF_NS);
-            xmlStreamWriter.writeNamespace(WF_NS_PREFIX, WF_NS);
-
-            xmlStreamWriter.writeStartElement(WF_NS, WF_REQ_UUID_ELEM);
-            xmlStreamWriter.writeCharacters(uuid);
-            xmlStreamWriter.writeEndElement();
-
-            xmlStreamWriter.writeStartElement(WF_NS, WF_REQ_ACTION_ELEM);
-            xmlStreamWriter.writeCharacters(action);
-            xmlStreamWriter.writeEndElement();
-
-            xmlStreamWriter.writeStartElement(WF_NS, WF_REQ_TENANT_DOMAIN_ELEM);
-            xmlStreamWriter.writeCharacters(tenantDomain);
-            xmlStreamWriter.writeEndElement();
-
-            xmlStreamWriter.writeStartElement(WF_NS, WF_REQ_PARAMS_ELEM);
-
-            for (Map.Entry<String, Object> entry : singleValuedParams.entrySet()) {
-                xmlStreamWriter.writeStartElement(WF_NS, WF_REQ_PARAM_ELEM);
-                xmlStreamWriter.writeAttribute(WF_REQ_KEY_ATTRIB, entry.getKey());
-                xmlStreamWriter.writeCharacters(entry.getValue().toString());
-                xmlStreamWriter.writeEndElement();  //for param elem
-            }
-
-            for (Map.Entry<String, List<Object>> entry : listTypeParams.entrySet()) {
-                xmlStreamWriter.writeStartElement(WF_NS, WF_REQ_PARAM_ELEM);
-                xmlStreamWriter.writeAttribute(WF_REQ_KEY_ATTRIB, entry.getKey());
-                for (Object listItem : entry.getValue()) {
-                    if (listItem != null) {
-                        xmlStreamWriter.writeStartElement(WF_NS, WF_REQ_LIST_ITEM_ELEM);
-                        xmlStreamWriter.writeCharacters(listItem.toString());
-                        xmlStreamWriter.writeEndElement();
-                    }
-                }
-                xmlStreamWriter.writeEndElement();  //for param elem
-            }
-
-            for (Map.Entry<String, Map<String, Object>> entry : mapTypeParams.entrySet()) {
-                xmlStreamWriter.writeStartElement(WF_NS, WF_REQ_PARAM_ELEM);
-                xmlStreamWriter.writeAttribute(WF_REQ_KEY_ATTRIB, entry.getKey());
-                for (Map.Entry<String, Object> mapItem : entry.getValue().entrySet()) {
-                    if (mapItem.getKey() != null && mapItem.getValue() != null) {
-                        xmlStreamWriter.writeStartElement(WF_NS, WF_REQ_LIST_ITEM_ELEM);
-                        xmlStreamWriter.writeAttribute(WF_REQ_KEY_ATTRIB, mapItem.getKey());
-                        xmlStreamWriter.writeCharacters(mapItem.getValue().toString());
-                        xmlStreamWriter.writeEndElement();
-                    }
-                }
-                xmlStreamWriter.writeEndElement();  //for param elem
-            }
-            xmlStreamWriter.writeEndElement();  //for params elem
-            xmlStreamWriter.writeEndElement();  //for root elem
-            xmlStreamWriter.close();
-            return writer.toString();
-        } catch (XMLStreamException e) {
-            throw new WorkflowException("Error when building workflow request for action: " + action, e);
+    public OMElement buildRequest() throws WorkflowException {
+        OMFactory omFactory = OMAbstractFactory.getOMFactory();
+        OMNamespace omNs = omFactory.createOMNamespace(WF_NS, WF_NS_PREFIX);
+        OMElement rootElement = omFactory.createOMElement(WF_REQ_ROOT_ELEM, omNs);
+        OMElement uuidElement = omFactory.createOMElement(WF_REQ_UUID_ELEM, omNs);
+        uuidElement.setText(uuid);
+        rootElement.addChild(uuidElement);
+        OMElement reqIdElement = omFactory.createOMElement(WF_REQ_ACTION_ELEM, omNs);
+        reqIdElement.setText(action);
+        rootElement.addChild(reqIdElement);
+        OMElement tenantDomainElement = omFactory.createOMElement(WF_REQ_TENANT_DOMAIN_ELEM, omNs);
+        tenantDomainElement.setText(tenantDomain);
+        rootElement.addChild(tenantDomainElement);
+        for (Map.Entry<String, Object> entry : singleValuedParams.entrySet()) {
+            OMElement paramElement = omFactory.createOMElement(WF_REQ_PARAM_ELEM, omNs);
+            OMAttribute paramNameAttribute = omFactory.createOMAttribute(WF_REQ_KEY_ATTRIB, null, entry.getKey());
+            paramElement.addAttribute(paramNameAttribute);
+            paramElement.setText(entry.getValue().toString());
+            rootElement.addChild(paramElement);
         }
+        for (Map.Entry<String, List<Object>> entry : listTypeParams.entrySet()) {
+            OMElement paramElement = omFactory.createOMElement(WF_REQ_PARAM_ELEM, omNs);
+            OMAttribute paramNameAttribute = omFactory.createOMAttribute(WF_REQ_KEY_ATTRIB, null, entry.getKey());
+            paramElement.addAttribute(paramNameAttribute);
+            for (Object listItem : entry.getValue()) {
+                if (listItem != null) {
+                    OMElement listItemElement = omFactory.createOMElement(WF_REQ_LIST_ITEM_ELEM, null);
+                    listItemElement.setText(listItem.toString());
+                    paramElement.addChild(listItemElement);
+                }
+            }
+            rootElement.addChild(paramElement);
+        }
+
+        for (Map.Entry<String, Map<String, Object>> entry : mapTypeParams.entrySet()) {
+            OMElement paramElement = omFactory.createOMElement(WF_REQ_PARAM_ELEM, omNs);
+            OMAttribute paramNameAttribute = omFactory.createOMAttribute(WF_REQ_KEY_ATTRIB, null, entry.getKey());
+            paramElement.addAttribute(paramNameAttribute);
+            for (Map.Entry<String, Object> mapItem : entry.getValue().entrySet()) {
+                if (mapItem.getKey() != null && mapItem.getValue() != null) {
+                    OMElement listItemElement = omFactory.createOMElement(WF_REQ_LIST_ITEM_ELEM, null);
+                    OMAttribute itemNameAttribute = omFactory.createOMAttribute(WF_REQ_KEY_ATTRIB, null, mapItem.getKey
+                            ());
+                    listItemElement.addAttribute(itemNameAttribute);
+                    listItemElement.setText(mapItem.getValue().toString());
+                    paramElement.addChild(listItemElement);
+                }
+            }
+            rootElement.addChild(paramElement);
+        }
+        return rootElement;
     }
 }

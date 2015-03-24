@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.workflow.mgt;
 
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.workflow.mgt.bean.WorkflowParameter;
 
@@ -29,6 +30,23 @@ import java.util.Map;
 
 public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestHandler {
 
+    /**
+     * Used to skip the workflow execution on the successive call after workflow completion.
+     */
+    private static ThreadLocal<Boolean> workFlowCompleted = new ThreadLocal<Boolean>();
+
+    public static Boolean getWorkFlowCompleted() {
+        return workFlowCompleted.get();
+    }
+
+    public static void setWorkFlowCompleted(Boolean workFlowCompleted) {
+        AbstractWorkflowRequestHandler.workFlowCompleted.set(workFlowCompleted);
+    }
+
+    public static void unsetWorkFlowCompleted() {
+        AbstractWorkflowRequestHandler.workFlowCompleted.remove();
+    }
+
     public void engageWorkflow(Map<String, Object> wfParams, Map<String, Object> nonWfParams) throws WorkflowException {
         WorkFlowRequest workFlowRequest = new WorkFlowRequest();
         List<WorkflowParameter> parameters = new ArrayList<WorkflowParameter>(wfParams.size() + nonWfParams.size());
@@ -39,6 +57,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
             parameters.add(getParameter(paramEntry.getKey(), paramEntry.getValue(), false));
         }
         workFlowRequest.setWorkflowParameters(parameters);
+        workFlowRequest.setTenantId(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         engageWorkflow(workFlowRequest);
     }
 
@@ -46,13 +65,15 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
         WorkflowParameter parameter = new WorkflowParameter();
         parameter.setName(name);
         parameter.setValue(value);
-        if (WorkFlowConstants.NUMERIC_CLASSES.contains(value.getClass())) {
+        if (value == null) {
+            parameter.setValueType(WorkflowDataType.WF_PARAM_TYPE_UNDEFINED);
+        } else if (WorkFlowConstants.NUMERIC_CLASSES.contains(value.getClass())) {
             parameter.setValueType(WorkflowDataType.WF_PARAM_TYPE_NUMERIC);
         } else if (value instanceof Boolean) {
             parameter.setValueType(WorkflowDataType.WF_PARAM_TYPE_BOOLEAN);
         } else if (value instanceof String) {
             parameter.setValueType(WorkflowDataType.WF_PARAM_TYPE_STRING);
-        } else if (value instanceof Object[] || value instanceof Collection) {
+        } else if (value instanceof Collection) {
             parameter.setValueType(WorkflowDataType.WF_PARAM_TYPE_BASIC_LIST);
         } else if (value instanceof Map) {
             parameter.setValueType(WorkflowDataType.WF_PARAM_TYPE_BASIC_MAP);
@@ -70,7 +91,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
     }
 
     @Override
-    public void onWorkflowCompletion(String status, WorkFlowRequest originalRequest, Object additionalData) {
+    public void onWorkflowCompletion(String status, WorkFlowRequest originalRequest, Object additionalData) throws WorkflowException {
         Map<String, Object> requestParams = new HashMap<String, Object>();
         for (WorkflowParameter parameter : originalRequest.getWorkflowParameters()) {
             requestParams.put(parameter.getName(), parameter.getValue());
@@ -81,9 +102,10 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
         } else {
             additionalResponseParams = new HashMap<String, Object>();
         }
-        onWorkflowCompletion(status, requestParams, additionalResponseParams);
+        setWorkFlowCompleted(true);
+        onWorkflowCompletion(status, requestParams, additionalResponseParams, originalRequest.getTenantId());
     }
 
     public abstract void onWorkflowCompletion(String status, Map<String, Object> requestParams, Map<String, Object>
-            responseAdditionalParams);
+            responseAdditionalParams, int tenantId) throws WorkflowException;
 }

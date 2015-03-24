@@ -18,31 +18,24 @@
 
 package org.wso2.carbon.workflow.mgt;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.workflow.mgt.bean.WorkFlowRequest;
+import org.wso2.carbon.workflow.mgt.bean.WorkflowParameter;
 import org.wso2.carbon.workflow.mgt.dao.WorkflowRequestDAO;
+import org.wso2.carbon.workflow.mgt.internal.WorkflowMgtServiceComponent;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class WorkFlowExecutorManager {
 
     private static WorkFlowExecutorManager instance = new WorkFlowExecutorManager();
-    private SortedSet<WorkFlowExecutor> workFlowExecutors;
-    private Map<String, WorkflowRequestHandler> workflowRequestHandlers;
+
+    private static Log log = LogFactory.getLog(WorkFlowExecutorManager.class);
 
     private WorkFlowExecutorManager() {
-        Comparator<WorkFlowExecutor> priorityBasedComparator = new Comparator<WorkFlowExecutor>() {
-            @Override
-            public int compare(WorkFlowExecutor o1, WorkFlowExecutor o2) {
-                return o1.getPriority() - o2.getPriority();
-            }
-        };
-        workFlowExecutors = new TreeSet<WorkFlowExecutor>(priorityBasedComparator);
-        workflowRequestHandlers = new HashMap<String, WorkflowRequestHandler>();
     }
 
     public static WorkFlowExecutorManager getInstance() {
@@ -53,16 +46,25 @@ public class WorkFlowExecutorManager {
 
         workFlowRequest.setUuid(UUID.randomUUID().toString());
         //executors are sorted by priority by the time they are added.
-        for (WorkFlowExecutor workFlowExecutor : workFlowExecutors) {
+        for (WorkFlowExecutor workFlowExecutor : WorkflowMgtServiceComponent.getWorkFlowExecutors()) {
             if (workFlowExecutor.canHandle(workFlowRequest)) {
                 try {
                     WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
                     requestDAO.addWorkflowEntry(workFlowRequest);
-                    //todo: drop unused parameters?
+
+                    //Drop parameters that should not be sent to the workflow executor (all params are persisted by now)
+                    List<WorkflowParameter> parameterListToSend = new ArrayList<WorkflowParameter>();
+                    for (WorkflowParameter parameter : workFlowRequest.getWorkflowParameters()) {
+                        if (parameter.isRequiredInWorkflow()) {
+                            parameterListToSend.add(parameter);
+                        }
+                    }
+                    workFlowRequest.setWorkflowParameters(parameterListToSend);
+
                     workFlowExecutor.execute(workFlowRequest);
                     return;
                 } catch (WorkflowException e) {
-                    //todo
+                    log.error("Error executing workflow at " + workFlowExecutor.getName(), e);
                 }
                 return;
             }
@@ -75,7 +77,8 @@ public class WorkFlowExecutorManager {
             throws WorkflowException {
         if (request != null) {
             String requesterId = request.getRequesterId();
-            WorkflowRequestHandler requestHandler = workflowRequestHandlers.get(requesterId);
+            WorkflowRequestHandler requestHandler = WorkflowMgtServiceComponent.getWorkflowRequestHandlers().get
+                    (requesterId);
             if (requestHandler == null) {
                 throw new WorkflowException("No request handlers registered for the id: " + requesterId);
             }
@@ -87,13 +90,5 @@ public class WorkFlowExecutorManager {
         WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
         WorkFlowRequest request = requestDAO.retrieveWorkflow(uuid);
         handleCallback(request, status, additionalParams);
-    }
-
-    public void registerExecutor(WorkFlowExecutor workFlowExecutor) {
-        workFlowExecutors.add(workFlowExecutor);
-    }
-
-    public void registerRequester(WorkflowRequestHandler workflowRequestHandler) {
-        workflowRequestHandlers.put(workflowRequestHandler.getActionIdentifier(), workflowRequestHandler);
     }
 }

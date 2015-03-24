@@ -16,17 +16,11 @@
  * under the License.
  */
 
-package org.wso2.carbon.workflow.mgt;
+package org.wso2.carbon.workflow.mgt.exec;
 
-import org.wso2.carbon.workflow.mgt.bean.WorkFlowRequest;
+public class WSWorkflowService {
 
-public interface WorkFlowExecutor {
+    public void initiate(WSWorkflowRequest request) {
 
-    public abstract boolean canHandle(WorkFlowRequest workFlowRequest);
-
-    public int getPriority();
-
-    public void execute(WorkFlowRequest workFlowRequest) throws WorkflowException;
-
-    public String getName();
+    }
 }

@@ -25,13 +25,6 @@ public class WorkFlowConstants {
 
     public static final String WF_STATUS_NO_MATCHING_EXECUTORS = "NO_MATCHING_EXECUTOR";
 
-    public static final String WF_PARAM_TYPE_PRIMITIVE = "primitive";
-    public static final String WF_PARAM_TYPE_STRING = "string";
-    public static final String WF_PARAM_TYPE_BASIC_LIST = "list";
-    public static final String WF_PARAM_TYPE_BASIC_MAP = "map";
-
-    public static final String WF_REQUEST_STATUS_CREATED = "created";
-
     public static final Set<Class> NUMERIC_CLASSES;
 
     static {

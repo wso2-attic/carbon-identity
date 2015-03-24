@@ -16,16 +16,14 @@
  * under the License.
  */
 
-package org.wso2.carbon.workflow.mgt.bean;
+package org.wso2.carbon.workflow.mgt.cb;
 
-import java.io.Serializable;
-import java.util.List;
+public class WSWorkflowResponse {
 
-public class WorkFlowRequest implements Serializable {
     private String uuid;
     private String requesterId;
-    private int tenantId;
-    private List<WorkflowParameter> workflowParameters;
+    private String status;
+    private WSParameter[] outputParams;
 
     public String getUuid() {
         return uuid;
@@ -43,29 +41,19 @@ public class WorkFlowRequest implements Serializable {
         this.requesterId = requesterId;
     }
 
-    public List<WorkflowParameter> getWorkflowParameters() {
-        return workflowParameters;
+    public String getStatus() {
+        return status;
     }
 
-    public void setWorkflowParameters(List<WorkflowParameter> workflowParameters) {
-        this.workflowParameters = workflowParameters;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
-    public int getTenantId() {
-        return tenantId;
+    public WSParameter[] getOutputParams() {
+        return outputParams;
     }
 
-    public void setTenantId(int tenantId) {
-        this.tenantId = tenantId;
-    }
-
-    @Override
-    public String toString() {
-        return "WorkFlowRequest{" +
-                "uuid='" + uuid + "\'\n" +
-                ", requesterId='" + requesterId + "\'\n" +
-                ", tenantId=" + tenantId + '\n' +
-                ", workflowParameters=" + workflowParameters + '\n' +
-                '}';
+    public void setOutputParams(WSParameter[] outputParams) {
+        this.outputParams = outputParams;
     }
 }

@@ -26,5 +26,5 @@ public interface WorkflowRequestHandler {
 
     public String getActionIdentifier();
 
-    public void onWorkflowCompletion(String status, WorkFlowRequest originalRequest, Object additionalData);
+    public void onWorkflowCompletion(String status, WorkFlowRequest originalRequest, Object additionalData) throws WorkflowException;
 }

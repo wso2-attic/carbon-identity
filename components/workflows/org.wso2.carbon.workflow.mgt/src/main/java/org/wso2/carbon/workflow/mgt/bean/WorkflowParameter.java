@@ -58,4 +58,14 @@ public class WorkflowParameter implements Serializable{
     public void setRequiredInWorkflow(boolean requiredInWorkflow) {
         this.requiredInWorkflow = requiredInWorkflow;
     }
+
+    @Override
+    public String toString() {
+        return "WorkflowParameter{" +
+                "name='" + name + "\'\n" +
+                ", value=" + value + "\n" +
+                ", valueType='" + valueType + "\'\n" +
+                ", requiredInWorkflow=" + requiredInWorkflow + "\n" +
+                '}';
+    }
 }

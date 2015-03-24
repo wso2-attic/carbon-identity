@@ -20,6 +20,7 @@ package org.wso2.carbon.workflow.mgt.dao;
 
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.workflow.mgt.WorkflowException;
 import org.wso2.carbon.workflow.mgt.bean.WSServiceBean;
 
 import java.sql.Connection;
@@ -31,7 +32,7 @@ import java.util.Map;
 
 public class WorkflowServicesDAO {
 
-    public void addWorkflowService(WSServiceBean workflowService){
+    public void addWorkflowService(WSServiceBean workflowService) throws WorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
 
@@ -48,9 +49,9 @@ public class WorkflowServicesDAO {
             prepStmt.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {
-            //todo
+            throw new WorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
-            //todo
+            throw new WorkflowException("Error when executing the sql query:" + query, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
@@ -63,7 +64,7 @@ public class WorkflowServicesDAO {
      * @param requesterId
      * @return
      */
-    public Map<WSServiceBean, String> getEnabledServicesForRequester(String requesterId) {
+    public Map<WSServiceBean, String> getEnabledServicesForRequester(String requesterId) throws WorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -92,9 +93,9 @@ public class WorkflowServicesDAO {
                 servicesMatched.put(serviceBean, condition);
             }
         } catch (IdentityException e) {
-            //todo
+            throw new WorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
-            //todo
+            throw new WorkflowException("Error when executing the sql query:" + query, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }

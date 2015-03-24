@@ -16,17 +16,26 @@
  * under the License.
  */
 
-package org.wso2.carbon.workflow.mgt;
+package org.wso2.carbon.workflow.mgt.cb;
 
-import org.wso2.carbon.workflow.mgt.bean.WorkFlowRequest;
+public class WSParameter {
 
-public interface WorkFlowExecutor {
+    private String paramName;
+    private Object value;
 
-    public abstract boolean canHandle(WorkFlowRequest workFlowRequest);
+    public String getParamName() {
+        return paramName;
+    }
 
-    public int getPriority();
+    public void setParamName(String paramName) {
+        this.paramName = paramName;
+    }
 
-    public void execute(WorkFlowRequest workFlowRequest) throws WorkflowException;
+    public Object getValue() {
+        return value;
+    }
 
-    public String getName();
+    public void setValue(Object value) {
+        this.value = value;
+    }
 }

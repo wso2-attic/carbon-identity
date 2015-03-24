@@ -39,7 +39,7 @@ import java.sql.Timestamp;
 
 public class WorkflowRequestDAO {
 
-    protected static Log log = LogFactory.getLog(WorkflowRequestDAO.class);
+    private static Log log = LogFactory.getLog(WorkflowRequestDAO.class);
 
     /**
      * Persists WorkflowDTO to Database
@@ -63,31 +63,28 @@ public class WorkflowRequestDAO {
             prepStmt.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {
-            //todo
+            throw new WorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
-            //todo
+            throw new WorkflowException("Error when executing the sql query:" + query, e);
+        } catch (IOException e) {
+            throw new WorkflowException("Error when serializing the workflow request: " + workflow, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
     }
 
-    private byte[] serializeWorkflowRequest(WorkFlowRequest workFlowRequest) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(workFlowRequest);
-            oos.close();
-            return baos.toByteArray();
-        } catch (IOException e) {
-            //todo
-            return null;
-        }
+    private byte[] serializeWorkflowRequest(WorkFlowRequest workFlowRequest) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(workFlowRequest);
+        oos.close();
+        return baos.toByteArray();
     }
 
     public void updateWorkflowStatus(WorkFlowRequest workflowDataBean) {
     }
 
-    public WorkFlowRequest retrieveWorkflow(String uuid) {
+    public WorkFlowRequest retrieveWorkflow(String uuid) throws WorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -102,43 +99,27 @@ public class WorkflowRequestDAO {
             if (rs.next()) {
                 byte[] requestBytes = rs.getBytes(SQLConstants.REQUEST_COLUMN);
                 return deserializeWorkflowRequest(requestBytes);
-            } else {
-                //todo
             }
         } catch (IdentityException e) {
-            //todo
+            throw new WorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
-            //todo
+            throw new WorkflowException("Error when executing the sql query:" + query, e);
+        } catch (ClassNotFoundException e) {
+            throw new WorkflowException("Error when deserializing the workflow request. uuid = " + uuid, e);
+        } catch (IOException e) {
+            throw new WorkflowException("Error when deserializing the workflow request. uuid = " + uuid, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-
         return null;
     }
 
-    private WorkFlowRequest deserializeWorkflowRequest(byte[] serializedData) {
+    private WorkFlowRequest deserializeWorkflowRequest(byte[] serializedData) throws IOException, ClassNotFoundException {
         ByteArrayInputStream bais = new ByteArrayInputStream(serializedData);
-        ObjectInputStream ois = null;
-        try {
-            ois = new ObjectInputStream(bais);
-            Object objectRead = ois.readObject();
-            if (objectRead != null && objectRead instanceof WorkFlowRequest) {
-                return (WorkFlowRequest) objectRead;
-            } else {
-                //todo
-            }
-        } catch (IOException e) {
-            //todo
-        } catch (ClassNotFoundException e) {
-            //todo
-        } finally {
-            if (ois != null) {
-                try {
-                    ois.close();
-                } catch (IOException e) {
-                    log.error("Error occurred when closing input stream to read serialized request.", e);
-                }
-            }
+        ObjectInputStream ois = new ObjectInputStream(bais);
+        Object objectRead = ois.readObject();
+        if (objectRead != null && objectRead instanceof WorkFlowRequest) {
+            return (WorkFlowRequest) objectRead;
         }
         return null;
     }
