@@ -21,13 +21,12 @@ package org.wso2.carbon.identity.workflow.mgt.internal;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.userstore.AddUserWFRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.userstore.UserStoreActionListener;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
-import org.wso2.carbon.workflow.mgt.WorkFlowExecutorManager;
+import org.wso2.carbon.workflow.mgt.WorkflowRequestHandler;
 
 /**
  * @scr.component name="identity.workflow" immediate="true"
@@ -64,10 +63,7 @@ public class IdentityWorkflowServiceComponent {
     protected void activate(ComponentContext context) {
         bundleContext = context.getBundleContext();
         bundleContext.registerService(UserOperationEventListener.class.getName(), new UserStoreActionListener(), null);
-        WorkFlowExecutorManager manager = (WorkFlowExecutorManager) CarbonContext.getThreadLocalCarbonContext()
-                .getOSGiService(WorkFlowExecutorManager.class, null);
-        manager.registerRequester(new AddUserWFRequestHandler());
-
+        bundleContext.registerService(WorkflowRequestHandler.class.getName(), new AddUserWFRequestHandler(), null);
     }
 
     protected void unsetRealmService(RealmService realmService) {

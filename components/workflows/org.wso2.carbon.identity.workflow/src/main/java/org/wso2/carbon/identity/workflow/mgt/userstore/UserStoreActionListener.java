@@ -18,7 +18,10 @@
 
 package org.wso2.carbon.identity.workflow.mgt.userstore;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.user.api.Permission;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
@@ -28,20 +31,22 @@ import java.util.Map;
 
 public class UserStoreActionListener extends AbstractUserOperationEventListener {
 
-    private AddUserWFRequestHandler addUserWFRequestHandler;
+    private static Log log = LogFactory.getLog(UserStoreActionListener.class);
 
     @Override
     public int getExecutionOrderId() {
-        return 0;
+        return 15;
     }
 
     @Override
     public boolean doPreAddUser(String s, Object o, String[] strings, Map<String, String> map, String s1,
                                 UserStoreManager userStoreManager) throws UserStoreException {
         try {
-            return new AddUserWFRequestHandler().startAddUserFlow(s, o, strings, map, s1);
+            String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                    .PROPERTY_DOMAIN_NAME);
+            return new AddUserWFRequestHandler().startAddUserFlow(domain, s, o, strings, map, s1);
         } catch (WorkflowException e) {
-            e.printStackTrace(); //todo
+            log.error("Initiating workflow for creating user: " + s + " failed.", e);
         }
         return false;
     }

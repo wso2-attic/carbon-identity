@@ -19,51 +19,62 @@
 package org.wso2.carbon.identity.workflow.mgt.userstore;
 
 import org.apache.commons.lang.StringUtils;
-import org.wso2.carbon.context.CarbonContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.workflow.mgt.internal.IdentityWorkflowServiceComponent;
+import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.workflow.mgt.AbstractWorkflowRequestHandler;
 import org.wso2.carbon.workflow.mgt.WorkflowException;
 
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
 
     private static final String USERNAME = "username";
+    private static final String USER_STORE_DOMAIN = "userStoreDomain";
     private static final String CREDENTIAL = "credential";
     private static final String ROLE_LIST = "roleList";
     private static final String CLAIM_LIST = "claimList";
     private static final String PROFILE = "profile";
 
-    private static final String APPROVED_ID_CLAIM = "approvalId";
+    private static Log log = LogFactory.getLog(AddUserWFRequestHandler.class);
 
-    private static Set<String> pendingRequests = new HashSet<String>(); //todo:move to cache or db
-    private static Set<String> approvedRequests = new HashSet<String>(); //todo:move to cache or db
 
-    public boolean startAddUserFlow(String userName, Object credential, String[] roleList, Map<String, String> claims,
-                                    String profile) throws WorkflowException {
-        if (claims != null) {
-            String approvalId = claims.get(APPROVED_ID_CLAIM);
-            if (StringUtils.isNotBlank(approvalId) && approvedRequests.contains(approvalId)) {
-                return true;
-            }
+    /**
+     * Starts the workflow execution
+     *
+     * @param userStoreDomain
+     * @param userName
+     * @param credential
+     * @param roleList
+     * @param claims
+     * @param profile
+     * @return <code>true</code> if the workflow request is ready to be continued (i.e. has been approved from
+     * workflow) <code>false</code> otherwise (i.e. request placed for approval)
+     * @throws WorkflowException
+     */
+    public boolean startAddUserFlow(String userStoreDomain, String userName, Object credential, String[] roleList,
+                                    Map<String, String> claims, String profile) throws WorkflowException {
+        //Check whether the request is already approved, if so return true
+        if (getWorkFlowCompleted() != null && getWorkFlowCompleted()) {
+            unsetWorkFlowCompleted();
+            return true;
         }
-        if (!pendingRequests.contains(userName)) {
-            Map<String, Object> wfParams = new HashMap<String, Object>();
-            wfParams.put(USERNAME, userName);
-//            wfParams.put(CREDENTIAL,credential);
-            wfParams.put(ROLE_LIST, roleList);
-            wfParams.put(CLAIM_LIST, claims);
-            wfParams.put(PROFILE, profile);
-            Map<String, Object> nonWfParams = new HashMap<String, Object>();
-            nonWfParams.put(CREDENTIAL, credential);
-            engageWorkflow(wfParams, nonWfParams);
-        }
-        //else : possible duplicate request, hence ignoring
 
+        Map<String, Object> wfParams = new HashMap<String, Object>();
+        wfParams.put(USERNAME, userName);
+        wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
+        wfParams.put(ROLE_LIST, Arrays.asList(roleList));
+        wfParams.put(CLAIM_LIST, claims);
+        wfParams.put(PROFILE, profile);
+        Map<String, Object> nonWfParams = new HashMap<String, Object>();
+        nonWfParams.put(CREDENTIAL, credential.toString());
+        engageWorkflow(wfParams, nonWfParams);
         return false;
     }
 
@@ -74,37 +85,40 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
 
     @Override
     public void onWorkflowCompletion(String status, Map<String, Object> requestParams, Map<String, Object>
-            responseAdditionalParams) {
+            responseAdditionalParams, int tenantId) throws WorkflowException {
         String userName = "";
         Object credential = null;
-        String[] roleList = null;
+        String[] roles = null;
         Map<String, String> claims = null;
         String profile = null;
         Object requestUsername = requestParams.get(USERNAME);
         if (requestUsername == null || !(requestUsername instanceof String)) {
-            //error: not possible
+            throw new WorkflowException("Callback request for Add User received without the mandatory " +
+                    "parameter 'username'");
         }
-        userName = (String) requestUsername;
+        String userStoreDomain = (String) requestParams.get(USER_STORE_DOMAIN);
+        if (StringUtils.isNotBlank(userStoreDomain)) {
+            userName = userStoreDomain + "/" + requestUsername;
+        } else {
+            userName = (String) requestUsername;
+        }
         credential = requestParams.get(CREDENTIAL);
-        roleList = (String[]) requestParams.get(ROLE_LIST);
+        List<String> roleList = ((List<String>) requestParams.get(ROLE_LIST));
+        if (roleList != null) {
+            roles = new String[roleList.size()];
+            roles = roleList.toArray(roles);
+        } else {
+            roles = new String[0];
+        }
         claims = (Map<String, String>) requestParams.get(CLAIM_LIST);
         profile = (String) requestParams.get(PROFILE);
-        if (pendingRequests.contains(userName)) {
-            pendingRequests.remove(userName);
-        }
-        //todo error if not?
+
         try {
-            //add a uuid as a claim to identify and filter out the request from the next execution
-            if (claims == null) {
-                claims = new HashMap<String, String>();
-            }
-            String uuid = UUID.randomUUID().toString();
-            claims.put(APPROVED_ID_CLAIM, uuid);
-            approvedRequests.add(uuid);
-            CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager().addUser(userName,
-                    credential, roleList, claims, profile);
+            RealmService realmService = IdentityWorkflowServiceComponent.getRealmService();
+            UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
+            userRealm.getUserStoreManager().addUser(userName, credential, roles, claims, profile);
         } catch (UserStoreException e) {
-            //todo
+            throw new WorkflowException("Error when re-requesting addUser operation for " + userName, e);
         }
     }
 }
