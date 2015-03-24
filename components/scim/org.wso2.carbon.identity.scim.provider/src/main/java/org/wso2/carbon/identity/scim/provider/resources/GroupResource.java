@@ -69,6 +69,7 @@ public class GroupResource extends AbstractResource {
         requestAttributes.put(SCIMProviderConstants.OUTPUT_FORMAT, outputFormat);
         requestAttributes.put(SCIMProviderConstants.AUTHORIZATION, authorization);
         requestAttributes.put(SCIMProviderConstants.HTTP_VERB, POST.class.getSimpleName());
+        requestAttributes.put(SCIMProviderConstants.RESOURCE_STRING, resourceString);
         return processRequest(requestAttributes);
     }
 
@@ -98,6 +99,7 @@ public class GroupResource extends AbstractResource {
         requestAttributes.put(SCIMProviderConstants.OUTPUT_FORMAT, outputFormat);
         requestAttributes.put(SCIMProviderConstants.AUTHORIZATION, authorization);
         requestAttributes.put(SCIMProviderConstants.HTTP_VERB, PUT.class.getSimpleName());
+        requestAttributes.put(SCIMProviderConstants.RESOURCE_STRING, resourceString);
         return processRequest(requestAttributes);
     }
 
@@ -114,6 +116,7 @@ public class GroupResource extends AbstractResource {
         requestAttributes.put(SCIMProviderConstants.OUTPUT_FORMAT, outputFormat);
         requestAttributes.put(SCIMProviderConstants.AUTHORIZATION, authorization);
         requestAttributes.put(SCIMProviderConstants.HTTP_VERB, SCIMProviderConstants.PATCH);
+        requestAttributes.put(SCIMProviderConstants.RESOURCE_STRING, resourceString);
         return processRequest(requestAttributes);
     }
 
@@ -166,19 +169,7 @@ public class GroupResource extends AbstractResource {
             //create charon-SCIM group endpoint and hand-over the request.
             GroupResourceEndpoint groupResourceEndpoint = new GroupResourceEndpoint();
             SCIMResponse scimResponse = null;
-            if (GET.class.getSimpleName().equals(httpVerb)) {
-                scimResponse = groupResourceEndpoint.get(id, outputFormat, userManager);
-            } else if (POST.class.getSimpleName().equals(httpVerb)) {
-                scimResponse = groupResourceEndpoint.create(resourceString, inputFormat, outputFormat, userManager);
-            } else if (PUT.class.getSimpleName().equals(httpVerb)) {
-                scimResponse =
-                        groupResourceEndpoint.updateWithPUT(id, resourceString, inputFormat, outputFormat, userManager);
-            } else if (SCIMProviderConstants.PATCH.equals(httpVerb)) {
-                scimResponse = groupResourceEndpoint
-                        .updateWithPATCH(id, resourceString, inputFormat, outputFormat, userManager);
-            } else if (DELETE.class.getSimpleName().equals(httpVerb)) {
-                scimResponse = groupResourceEndpoint.delete(id, userManager, outputFormat);
-            } else if (GET.class.getSimpleName().equals(httpVerb) && id == null) {
+            if (GET.class.getSimpleName().equals(httpVerb) && id == null) {
                 String searchAttribute = requestAttributes.get(SCIMProviderConstants.SEARCH_ATTRIBUTE);
                 String filter = requestAttributes.get(SCIMProviderConstants.FILTER);
                 String startIndex = requestAttributes.get(SCIMProviderConstants.START_INDEX);
@@ -191,17 +182,29 @@ public class GroupResource extends AbstractResource {
                     scimResponse = groupResourceEndpoint.listByFilter(filter, userManager, outputFormat);
                 } else if (startIndex != null && count != null) {
                     scimResponse = groupResourceEndpoint.listWithPagination(Integer.valueOf(startIndex),
-                            Integer.valueOf(count),
-                            userManager, outputFormat);
+                                                                            Integer.valueOf(count),
+                                                                            userManager, outputFormat);
                 } else if (sortBy != null) {
                     scimResponse = groupResourceEndpoint.listBySort(sortBy, sortOrder, userManager, outputFormat);
                 } else if (searchAttribute == null && filter == null && startIndex == null &&
-                        count == null && sortBy == null) {
+                           count == null && sortBy == null) {
                     scimResponse = groupResourceEndpoint.list(userManager, outputFormat);
                 } else {
                     //bad request
                     throw new BadRequestException(ResponseCodeConstants.DESC_BAD_REQUEST_GET);
                 }
+            } else if (GET.class.getSimpleName().equals(httpVerb)) {
+                scimResponse = groupResourceEndpoint.get(id, outputFormat, userManager);
+            } else if (POST.class.getSimpleName().equals(httpVerb)) {
+                scimResponse = groupResourceEndpoint.create(resourceString, inputFormat, outputFormat, userManager);
+            } else if (PUT.class.getSimpleName().equals(httpVerb)) {
+                scimResponse =
+                        groupResourceEndpoint.updateWithPUT(id, resourceString, inputFormat, outputFormat, userManager);
+            } else if (SCIMProviderConstants.PATCH.equals(httpVerb)) {
+                scimResponse = groupResourceEndpoint
+                        .updateWithPATCH(id, resourceString, inputFormat, outputFormat, userManager);
+            } else if (DELETE.class.getSimpleName().equals(httpVerb)) {
+                scimResponse = groupResourceEndpoint.delete(id, userManager, outputFormat);
             }
 
             return new JAXRSResponseBuilder().buildResponse(scimResponse);
