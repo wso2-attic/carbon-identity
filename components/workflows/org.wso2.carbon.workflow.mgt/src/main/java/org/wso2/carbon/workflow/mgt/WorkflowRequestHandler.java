@@ -22,9 +22,30 @@ import org.wso2.carbon.workflow.mgt.bean.WorkFlowRequest;
 
 public interface WorkflowRequestHandler {
 
+    /**
+     * Creates the workflow request for an event and engage it.
+     *
+     * @param workFlowRequest
+     * @throws WorkflowException
+     */
     public void engageWorkflow(WorkFlowRequest workFlowRequest) throws WorkflowException;
 
-    public String getActionIdentifier();
+    /**
+     * Gets the event that this handler is subscribed, used when handling the callback
+     *
+     * @return
+     */
+    public String getEventId();
 
-    public void onWorkflowCompletion(String status, WorkFlowRequest originalRequest, Object additionalData) throws WorkflowException;
+    /**
+     * Called on workflow completion
+     *
+     * @param status          The workflow status
+     * @param originalRequest The original request that was made by
+     *                        {@link #engageWorkflow(org.wso2.carbon.workflow.mgt.bean.WorkFlowRequest)}
+     * @param additionalData  Additional data returned from workflow
+     * @throws WorkflowException
+     */
+    public void onWorkflowCompletion(String status, WorkFlowRequest originalRequest, Object additionalData) throws
+            WorkflowException;
 }

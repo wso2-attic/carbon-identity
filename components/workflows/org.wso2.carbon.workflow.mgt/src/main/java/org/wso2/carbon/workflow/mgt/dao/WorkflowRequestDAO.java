@@ -42,9 +42,9 @@ public class WorkflowRequestDAO {
     private static Log log = LogFactory.getLog(WorkflowRequestDAO.class);
 
     /**
-     * Persists WorkflowDTO to Database
+     * Persists WorkflowRequest to be used when workflow is completed
      *
-     * @param workflow
+     * @param workflow The workflow object to be persisted
      * @throws org.wso2.carbon.workflow.mgt.WorkflowException
      */
     public void addWorkflowEntry(WorkFlowRequest workflow) throws WorkflowException {
@@ -59,7 +59,7 @@ public class WorkflowRequestDAO {
             prepStmt.setTimestamp(2, createdDateStamp);
             prepStmt.setTimestamp(3, createdDateStamp);
             prepStmt.setBytes(4, serializeWorkflowRequest(workflow));
-            prepStmt.setString(5, WorkflowStatus.PENDING);
+            prepStmt.setString(5, WorkflowStatus.PENDING.toString());
             prepStmt.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {
@@ -73,6 +73,13 @@ public class WorkflowRequestDAO {
         }
     }
 
+    /**
+     * Serialize the workflow request to be persisted as blob
+     *
+     * @param workFlowRequest The workflow request to be persisted
+     * @return
+     * @throws IOException
+     */
     private byte[] serializeWorkflowRequest(WorkFlowRequest workFlowRequest) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -84,6 +91,12 @@ public class WorkflowRequestDAO {
     public void updateWorkflowStatus(WorkFlowRequest workflowDataBean) {
     }
 
+    /**
+     * Retrieve workflow request specified by the given uuid
+     * @param uuid The uuid of the request to be retrieved
+     * @return
+     * @throws WorkflowException
+     */
     public WorkFlowRequest retrieveWorkflow(String uuid) throws WorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -114,7 +127,16 @@ public class WorkflowRequestDAO {
         return null;
     }
 
-    private WorkFlowRequest deserializeWorkflowRequest(byte[] serializedData) throws IOException, ClassNotFoundException {
+    /**
+     * Deserialize the persisted Workflow request
+     *
+     * @param serializedData Serialized request
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    private WorkFlowRequest deserializeWorkflowRequest(byte[] serializedData) throws IOException,
+            ClassNotFoundException {
         ByteArrayInputStream bais = new ByteArrayInputStream(serializedData);
         ObjectInputStream ois = new ObjectInputStream(bais);
         Object objectRead = ois.readObject();

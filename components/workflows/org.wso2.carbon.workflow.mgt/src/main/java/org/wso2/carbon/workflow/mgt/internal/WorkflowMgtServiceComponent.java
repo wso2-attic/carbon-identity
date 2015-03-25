@@ -117,7 +117,7 @@ public class WorkflowMgtServiceComponent {
 
     protected void setWorkflowRequestHandlerService(WorkflowRequestHandler workflowRequestHandler) {
         if (workflowRequestHandler != null) {
-            getWorkflowRequestHandlers().put(workflowRequestHandler.getActionIdentifier(), workflowRequestHandler);
+            getWorkflowRequestHandlers().put(workflowRequestHandler.getEventId(), workflowRequestHandler);
         }
     }
 
@@ -130,7 +130,7 @@ public class WorkflowMgtServiceComponent {
 
     protected void unsetWorkflowRequestHandlerService(WorkflowRequestHandler workflowRequestHandler) {
         if (workflowRequestHandler != null) {
-            getWorkflowRequestHandlers().remove(workflowRequestHandler.getActionIdentifier());
+            getWorkflowRequestHandlers().remove(workflowRequestHandler.getEventId());
         }
     }
 }

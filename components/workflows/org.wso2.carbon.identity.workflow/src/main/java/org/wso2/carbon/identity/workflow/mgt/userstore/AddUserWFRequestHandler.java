@@ -79,8 +79,8 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
     }
 
     @Override
-    public String getActionIdentifier() {
-        return UserStoreWFConstants.ADD_USER_REQUESTER;
+    public String getEventId() {
+        return UserStoreWFConstants.ADD_USER_EVENT;
     }
 
     @Override

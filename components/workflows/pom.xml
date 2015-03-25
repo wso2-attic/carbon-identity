@@ -37,6 +37,7 @@
     <modules>
         <module>org.wso2.carbon.workflow.mgt</module>
         <module>org.wso2.carbon.identity.workflow</module>
+        <module>org.wso2.carbon.workflow.mgt.bpel</module>
     </modules>
 
 </project>

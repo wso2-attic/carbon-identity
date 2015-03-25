@@ -22,11 +22,34 @@ import org.wso2.carbon.workflow.mgt.bean.WorkFlowRequest;
 
 public interface WorkFlowExecutor {
 
+    /**
+     * Returns whether this executor can execute the request.
+     * {@link #execute(org.wso2.carbon.workflow.mgt.bean.WorkFlowRequest)} will be called only when this return true
+     *
+     * @param workFlowRequest The request that need to be checked
+     * @return
+     */
     public abstract boolean canHandle(WorkFlowRequest workFlowRequest);
+//todo: return a code, detail to decide whether retry?,...
 
+    /**
+     * Returns the priority level that would be the decider for the execution order
+     * @return
+     */
     public int getPriority();
+//todo: add workflow request as a parameter
 
+    /**
+     * Execute the workflow. Once workflow is finish it should call the callback service
+     * @param workFlowRequest
+     * @throws WorkflowException
+     */
     public void execute(WorkFlowRequest workFlowRequest) throws WorkflowException;
+//todo: return a code, detail to decide whether retry?,...
 
+    /**
+     * Returns the name of the executor
+     * @return
+     */
     public String getName();
 }

@@ -54,9 +54,9 @@ public class WSWorkflowExecutor implements WorkFlowExecutor {
         try {
             OMElement requestBody = buildWSRequest(workFlowRequest); //todo:cache for later use?
             WorkflowServicesDAO servicesDAO = new WorkflowServicesDAO();
-            Map<WSServiceBean, String> servicesForRequester = servicesDAO.getEnabledServicesForRequester(workFlowRequest
-                    .getRequesterId());
-            for (Map.Entry<WSServiceBean, String> entry : servicesForRequester.entrySet()) {
+            Map<WSServiceBean, String> servicesForEvent = servicesDAO.getSubscribedServicesForEvent(workFlowRequest
+                    .getEventId());
+            for (Map.Entry<WSServiceBean, String> entry : servicesForEvent.entrySet()) {
                 try {
                     AXIOMXPath axiomxPath = new AXIOMXPath(entry.getValue());
                     return axiomxPath.booleanValueOf(requestBody);
@@ -82,9 +82,9 @@ public class WSWorkflowExecutor implements WorkFlowExecutor {
     public void execute(WorkFlowRequest workFlowRequest) throws WorkflowException {
         OMElement requestBody = buildWSRequest(workFlowRequest); //todo:cache from canHandle()?
         WorkflowServicesDAO servicesDAO = new WorkflowServicesDAO();
-        Map<WSServiceBean, String> servicesForRequester = servicesDAO.getEnabledServicesForRequester(workFlowRequest
-                .getRequesterId());
-        for (Map.Entry<WSServiceBean, String> entry : servicesForRequester.entrySet()) {
+        Map<WSServiceBean, String> servicesForEvent = servicesDAO.getSubscribedServicesForEvent(workFlowRequest
+                .getEventId());
+        for (Map.Entry<WSServiceBean, String> entry : servicesForEvent.entrySet()) {
             try {
                 AXIOMXPath axiomxPath = new AXIOMXPath(entry.getValue());
                 if (axiomxPath.booleanValueOf(requestBody)) {
@@ -110,7 +110,7 @@ public class WSWorkflowExecutor implements WorkFlowExecutor {
             ServiceClient client = new ServiceClient(WorkflowMgtServiceComponent.getConfigurationContextService()
                     .getClientConfigContext(), null);
             Options options = new Options();
-            options.setAction(service.getAction());
+            options.setAction(service.getWsAction());
             options.setTo(new EndpointReference(service.getServiceEndpoint()));
             options.setProperty(Constants.Configuration.MESSAGE_TYPE, HTTPConstants.MEDIA_TYPE_APPLICATION_XML);
 
@@ -134,7 +134,7 @@ public class WSWorkflowExecutor implements WorkFlowExecutor {
     private OMElement buildWSRequest(WorkFlowRequest workFlowRequest) throws WorkflowException {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         WorkflowRequestBuilder requestBuilder = new WorkflowRequestBuilder(workFlowRequest.getUuid(),
-                workFlowRequest.getRequesterId(), tenantDomain);
+                workFlowRequest.getEventId(), tenantDomain);
         for (WorkflowParameter parameter : workFlowRequest.getWorkflowParameters()) {
             if (parameter.isRequiredInWorkflow()) {
                 if (WorkflowDataType.WF_PARAM_TYPE_NUMERIC.equals(parameter.getValueType()) || WorkflowDataType

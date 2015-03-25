@@ -18,10 +18,13 @@
 
 package org.wso2.carbon.workflow.mgt.callback;
 
+/**
+ * Represents the response from WS workflow executors
+ */
 public class WSWorkflowResponse {
 
     private String uuid;
-    private String requesterId;
+    private String eventId;
     private String status;
     private WSParameter[] outputParams;
 
@@ -33,12 +36,12 @@ public class WSWorkflowResponse {
         this.uuid = uuid;
     }
 
-    public String getRequesterId() {
-        return requesterId;
+    public String getEventId() {
+        return eventId;
     }
 
-    public void setRequesterId(String requesterId) {
-        this.requesterId = requesterId;
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
     }
 
     public String getStatus() {

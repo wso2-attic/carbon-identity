@@ -76,11 +76,11 @@ public class WorkFlowExecutorManager {
     private void handleCallback(WorkFlowRequest request, String status, Object additionalParams)
             throws WorkflowException {
         if (request != null) {
-            String requesterId = request.getRequesterId();
+            String eventId = request.getEventId();
             WorkflowRequestHandler requestHandler = WorkflowMgtServiceComponent.getWorkflowRequestHandlers().get
-                    (requesterId);
+                    (eventId);
             if (requestHandler == null) {
-                throw new WorkflowException("No request handlers registered for the id: " + requesterId);
+                throw new WorkflowException("No request handlers registered for the id: " + eventId);
             }
             requestHandler.onWorkflowCompletion(status, request, additionalParams);
         }

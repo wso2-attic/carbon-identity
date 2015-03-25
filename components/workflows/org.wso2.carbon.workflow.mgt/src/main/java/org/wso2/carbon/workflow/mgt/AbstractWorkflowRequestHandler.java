@@ -35,19 +35,23 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
      */
     private static ThreadLocal<Boolean> workFlowCompleted = new ThreadLocal<Boolean>();
 
-    public static Boolean getWorkFlowCompleted() {
-        return workFlowCompleted.get();
-    }
-
-    public static void setWorkFlowCompleted(Boolean workFlowCompleted) {
-        AbstractWorkflowRequestHandler.workFlowCompleted.set(workFlowCompleted);
-    }
-
     public static void unsetWorkFlowCompleted() {
         AbstractWorkflowRequestHandler.workFlowCompleted.remove();
     }
 
+    /**
+     * Prepare the workflow request and calls {@link #engageWorkflow(org.wso2.carbon.workflow.mgt.bean.WorkFlowRequest)}
+     *
+     * @param wfParams    The parameters that should be sent to the workflow executor service
+     * @param nonWfParams The parameters that should not be sent to the workflow executor service (eg. passwords)
+     * @throws WorkflowException
+     */
     public void engageWorkflow(Map<String, Object> wfParams, Map<String, Object> nonWfParams) throws WorkflowException {
+        //Additional check to prevent executor being called again and again
+        if (getWorkFlowCompleted() != null && getWorkFlowCompleted()) {
+            return;
+        }
+
         WorkFlowRequest workFlowRequest = new WorkFlowRequest();
         List<WorkflowParameter> parameters = new ArrayList<WorkflowParameter>(wfParams.size() + nonWfParams.size());
         for (Map.Entry<String, Object> paramEntry : wfParams.entrySet()) {
@@ -61,7 +65,23 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
         engageWorkflow(workFlowRequest);
     }
 
-    private WorkflowParameter getParameter(String name, Object value, boolean required) {
+    public static Boolean getWorkFlowCompleted() {
+        return workFlowCompleted.get();
+    }
+
+    public static void setWorkFlowCompleted(Boolean workFlowCompleted) {
+        AbstractWorkflowRequestHandler.workFlowCompleted.set(workFlowCompleted);
+    }
+
+    /**
+     * Wraps the parameters to the WorkflowParameter
+     *
+     * @param name     Name of the parameter
+     * @param value    Value of the parameter
+     * @param required Whether it is required to sent to the workflow executor
+     * @return
+     */
+    protected WorkflowParameter getParameter(String name, Object value, boolean required) {
         WorkflowParameter parameter = new WorkflowParameter();
         parameter.setName(name);
         parameter.setValue(value);
@@ -86,7 +106,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
 
     @Override
     public void engageWorkflow(WorkFlowRequest workFlowRequest) throws WorkflowException {
-        workFlowRequest.setRequesterId(getActionIdentifier());
+        workFlowRequest.setEventId(getEventId());
         WorkFlowExecutorManager.getInstance().executeWorkflow(workFlowRequest);
     }
 
@@ -106,6 +126,15 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
         onWorkflowCompletion(status, requestParams, additionalResponseParams, originalRequest.getTenantId());
     }
 
+    /**
+     * Callback method from the executor, implementation should be similar to the
+     * {@link #engageWorkflow(java.util.Map, java.util.Map)}
+     * @param status The return status from the workflow executor
+     * @param requestParams The params that were in the original request
+     * @param responseAdditionalParams The params sent from the workflow executor
+     * @param tenantId
+     * @throws WorkflowException
+     */
     public abstract void onWorkflowCompletion(String status, Map<String, Object> requestParams, Map<String, Object>
             responseAdditionalParams, int tenantId) throws WorkflowException;
 }

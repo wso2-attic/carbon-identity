@@ -32,6 +32,12 @@ import java.util.Map;
 
 public class WorkflowServicesDAO {
 
+    /**
+     * Stores Workflow executor service details
+     *
+     * @param workflowService The service to be stored
+     * @throws WorkflowException
+     */
     public void addWorkflowService(WSServiceBean workflowService) throws WorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -41,7 +47,7 @@ public class WorkflowServicesDAO {
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, workflowService.getAlias());
-            prepStmt.setString(2, workflowService.getAction());
+            prepStmt.setString(2, workflowService.getWsAction());
             prepStmt.setString(3, workflowService.getServiceEndpoint());
             prepStmt.setInt(4, workflowService.getPriority());
             prepStmt.setString(5, workflowService.getUserName());
@@ -58,22 +64,32 @@ public class WorkflowServicesDAO {
     }
 
     /**
-     * Gets a map where the keys are the WSServices that are configured for the requester and the values are the
+     * Stores the association of workflow executor service to a event type with the condition.
+     *
+     * @param serviceAlias The service alias
+     * @param eventId      The event to be subscribed
+     * @param condition    The condition to be match as a XPath Expression.
+     */
+    public void associateServiceWithEvent(String serviceAlias, String eventId, String condition) {
+    }
+
+    /**
+     * Gets a map where the keys are the Services that are configured for the event and the values are the
      * condition on which they are called.
      *
-     * @param requesterId
+     * @param eventId
      * @return
      */
-    public Map<WSServiceBean, String> getEnabledServicesForRequester(String requesterId) throws WorkflowException {
+    public Map<WSServiceBean, String> getSubscribedServicesForEvent(String eventId) throws WorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         Map<WSServiceBean, String> servicesMatched = new HashMap<WSServiceBean, String>();
-        String query = SQLConstants.GET_WS_SERVICES_FOR_REQUESTER_QUERY;
+        String query = SQLConstants.GET_WS_SERVICES_FOR_EVENT_QUERY;
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
-            prepStmt.setString(1, requesterId);
+            prepStmt.setString(1, eventId);
             rs = prepStmt.executeQuery();
             while (rs.next()) {
                 String alias = rs.getString(SQLConstants.ALIAS_COLUMN);
@@ -85,7 +101,7 @@ public class WorkflowServicesDAO {
                 int priority = rs.getInt(SQLConstants.PRIORITY_COLUMN);
                 WSServiceBean serviceBean = new WSServiceBean();
                 serviceBean.setAlias(alias);
-                serviceBean.setAction(action);
+                serviceBean.setWsAction(action);
                 serviceBean.setServiceEndpoint(serviceEP);
                 serviceBean.setUserName(username);
                 serviceBean.setPassword(password.toCharArray());

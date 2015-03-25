@@ -21,7 +21,7 @@ package org.wso2.carbon.workflow.mgt.bean;
 public class WSServiceBean {
 
     private String alias;
-    private String action;
+    private String wsAction;
     private int priority;
     private String serviceEndpoint;
     private String userName;
@@ -35,12 +35,12 @@ public class WSServiceBean {
         this.alias = alias;
     }
 
-    public String getAction() {
-        return action;
+    public String getWsAction() {
+        return wsAction;
     }
 
-    public void setAction(String action) {
-        this.action = action;
+    public void setWsAction(String wsAction) {
+        this.wsAction = wsAction;
     }
 
     public int getPriority() {

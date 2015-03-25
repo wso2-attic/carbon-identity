@@ -31,13 +31,18 @@ public class WSWorkflowCallBackService {
 
     private static Log log = LogFactory.getLog(WSWorkflowCallBackService.class);
 
+    /**
+     * The callback operation to be called on the completion of the workflow executor service
+     *
+     * @param response
+     */
     public void onCallback(WSWorkflowResponse response) {
         try {
             WorkFlowExecutorManager.getInstance()
                     .handleCallback(response.getUuid(), response.getStatus(), response.getOutputParams());
         } catch (WorkflowException e) {
             log.error("Error when handling callback for the workflow, id:" + response.getUuid() + ", event:" + response
-                    .getRequesterId());
+                    .getEventId());
         }
     }
 }
