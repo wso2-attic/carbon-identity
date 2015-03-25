@@ -113,6 +113,22 @@ limitations under the License.
                     </instructions>
                 </configuration>
             </plugin>
+	    <plugin>
+               <groupId>org.apache.axis2</groupId>
+               <artifactId>axis2-java2wsdl-maven-plugin</artifactId>
+               <executions>
+                   <execution>
+                       <goals>
+                           <goal>java2wsdl</goal>
+                       </goals>
+                   </execution>
+               </executions>
+               <configuration>
+                   <className>
+                       org.wso2.carbon.identity.application.authentication.framework.SessionManagementService
+                   </className>
+               </configuration>
+           </plugin>
         </plugins>
     </build>
 </project>

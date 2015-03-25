@@ -18,11 +18,17 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.cache;
 
-import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.SequenceConfig;
+import org.wso2.carbon.identity.application.authentication.framework.model.SessionInfo;
+import
+        org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.application.common.cache.CacheKey;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+
+import java.sql.Timestamp;
+import java.util.*;
 
 public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
 
@@ -106,4 +112,102 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
         String keyValue = ((SessionContextCacheKey) key).getContextId();
         SessionDataStore.getInstance().clearSessionData(keyValue, SESSION_CONTEXT_CACHE_NAME);
     }
+
+    /**
+     * Get Session details from database and cache.
+     * @return sessionInfo list.
+     */
+    public ArrayList<SessionInfo> getSessionDetailsFromDbAndCache() {
+        Object sessionDetails = null;
+        String[] userDetailsArray;
+        Timestamp sessionCreatedTime = null;
+        ArrayList<SessionInfo> sessionInfoList = new ArrayList<SessionInfo>();
+        Set<String> cacheIdSet = new HashSet<String>();
+        if (Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Enable"))) {
+            List<String> dbSessionList = SessionDataStore.getInstance().getSessionIdsFromDb(SESSION_CONTEXT_CACHE_NAME);
+            if (dbSessionList != null) {
+                for(String cacheId : dbSessionList){
+                    sessionDetails = SessionDataStore.getInstance().getSessionData(cacheId,SESSION_CONTEXT_CACHE_NAME);
+                    sessionCreatedTime = SessionDataStore.getInstance().getSessionCreatedTime(cacheId,SESSION_CONTEXT_CACHE_NAME);
+                    if(sessionDetails instanceof SessionContextCacheEntry){
+                        Set<Map.Entry<String, SequenceConfig>> sessions = ((SessionContextCacheEntry) sessionDetails).getContext().getAuthenticatedSequences().entrySet();
+                        for (Map.Entry<String, SequenceConfig> session : sessions) {
+                            String applicationId = session.getValue().getApplicationId();
+                            String userName = session.getValue().getAuthenticatedUser().getUserName();
+
+                            SessionInfo sessionInfo = new SessionInfo();
+                            sessionInfo.setUserName(userName);
+                            sessionInfo.setApplicationId(applicationId);
+                            sessionInfo.setLoggedInTimeStamp(sessionCreatedTime);
+
+                            if(!cacheIdSet.contains(cacheId)) {
+                                cacheIdSet.add(cacheId);
+                                sessionInfoList.add(sessionInfo);
+                            }
+
+                        }
+
+                    }
+                }
+            }
+        } else {
+            List<String> cacheSessionList = SessionContextCache.getInstance(0).getCacheKeyList();
+            //get details from cache
+            if (cacheSessionList != null) {
+                for(String cacheId : cacheSessionList){
+                    sessionDetails = SessionContextCache.getInstance(0).getValueFromCache(cacheId);
+                    if(sessionDetails instanceof SessionContextCacheEntry) {
+                        Set<Map.Entry<String, SequenceConfig>> sessions = ((SessionContextCacheEntry) sessionDetails).getContext().getAuthenticatedSequences().entrySet();
+                        for (Map.Entry<String, SequenceConfig> session : sessions) {
+                            String applicationId = session.getValue().getApplicationId();
+                            String userName = session.getValue().getAuthenticatedUser().getUserName();
+
+                            SessionInfo sessionInfo = new SessionInfo();
+                            sessionInfo.setUserName(userName);
+                            if(!cacheIdSet.contains(cacheId)) {
+                                cacheIdSet.add(cacheId);
+                                sessionInfoList.add(sessionInfo);
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+
+        return  sessionInfoList;
+    }
+
+    /**
+     * Remove Session details from db and cache.
+     * @param userName String.
+     * @return boolean value.
+     */
+    public void removeSessionDetailsFromDbAndCache(String userName) {
+        if (Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Enable"))) {
+            List<String> sessionIdList = SessionDataStore.getInstance().getSessionIdsForUserName(userName);
+            for(String cacheId: sessionIdList) {
+                SessionDataStore.getInstance().removeSessionData(cacheId, SESSION_CONTEXT_CACHE_NAME);
+            }
+        } else {
+            List<String> cacheSessionList = SessionContextCache.getInstance(0).getCacheKeyList();
+            Object sessionDetails = null;
+            //get details from cache
+            if (cacheSessionList != null) {
+                for(String cacheId : cacheSessionList){
+                    sessionDetails = SessionContextCache.getInstance(0).getValueFromCache(cacheId);
+                    if(sessionDetails instanceof SessionContextCacheEntry) {
+                        Set<Map.Entry<String, SequenceConfig>> sessions = ((SessionContextCacheEntry) sessionDetails).getContext().getAuthenticatedSequences().entrySet();
+                        for (Map.Entry<String, SequenceConfig> session : sessions) {
+                            if(userName.equals(session.getValue().getAuthenticatedUser().getUserName())) {
+                                clearCacheEntry(cacheId);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
 }

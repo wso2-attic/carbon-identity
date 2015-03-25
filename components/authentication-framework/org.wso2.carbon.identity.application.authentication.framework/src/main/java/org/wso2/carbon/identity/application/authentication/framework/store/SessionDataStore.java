@@ -20,13 +20,22 @@ package org.wso2.carbon.identity.application.authentication.framework.store;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.application.authentication.framework.cache.SessionContextCache;
+import org.wso2.carbon.identity.application.authentication.framework.cache.SessionContextCacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.SequenceConfig;
+import org.wso2.carbon.identity.application.authentication.framework.model.SessionInfo;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.user.api.TenantManager;
+import org.wso2.carbon.user.api.UserStoreException;
 
 import java.io.*;
 import java.sql.*;
+import java.util.*;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -45,9 +54,17 @@ public class SessionDataStore {
     private static final String SQL_DELETE_SERIALIZED_OBJECT = "DELETE FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID = ? AND SESSION_TYPE=?";
     private static final String SQL_DELETE_SERIALIZED_OBJECT_TASK = "DELETE FROM IDN_AUTH_SESSION_STORE WHERE TIME_CREATED<?";
     private static final String SQL_SELECT_TIME_CREATED = "SELECT TIME_CREATED FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID =? AND SESSION_TYPE =?";
+    private static final String SQL_SELECT_LOGGED_IN_SESSION_IDS = "SELECT SESSION_ID FROM IDN_AUTH_SESSION_STORE WHERE SESSION_TYPE=?";
+    private static final String SQL_INSERT_USER_SESSION_DATA = "INSERT INTO USER_SESSION_DATA(SESSION_ID,USER_NAME,TENANT_ID,TENANT_NAME,LAST_UPDATED_TIME) VALUES (?, ?, ?, ?,?)";
+    private static final String SQL_UPDATE_USER_SESSION_DATA = "UPDATE USER_SESSION_DATA SET LAST_UPDATED_TIME=?";
+    private static final String SQL_SELECT_SESSION_IDS_MAPPED_TO_USER_NAME="SELECT SESSION_ID FROM USER_SESSION_DATA WHERE USER_NAME=? AND TENANT_ID=? AND TENANT_NAME=?";
+
     private static int maxPoolSize = 100;
     private static BlockingDeque<SessionContextDO> sessionContextQueue = new LinkedBlockingDeque<SessionContextDO>();
     private static Log log = LogFactory.getLog(SessionDataStore.class);
+    private static final String SESSION_CONTEXT_CACHE_NAME = "AppAuthFrameworkSessionContextCache";
+
+
     static {
 
         try {
@@ -208,7 +225,7 @@ public class SessionDataStore {
 
     public void storeSessionData(String key, String type, Object entry) {
 
-        if (!enablePersist) {
+       if (!enablePersist) {
             return;
         }
 
@@ -311,13 +328,17 @@ public class SessionDataStore {
 
         if (!enablePersist) {
             return;
-        }
+       }
 
         boolean isExist = isExist(key, type);
-
+        boolean IsLoggeduser = false;
+        String domainName = "";
+        String userName = "";
 
         Connection connection = null;
+        Connection usdConnection = null;
         PreparedStatement preparedStatement = null;
+        PreparedStatement usdPreparedStatement = null;
         ResultSet resultSet = null;
         Timestamp timestamp = new java.sql.Timestamp(new java.util.Date().getTime());
         try {
@@ -345,9 +366,39 @@ public class SessionDataStore {
                 preparedStatement.setString(2, type);
                 setBlobObject(preparedStatement, entry, 3);
                 preparedStatement.setTimestamp(4, timestamp);
+
+                usdConnection = jdbcPersistenceManager.getDBConnection();
+                usdConnection.setAutoCommit(false);
+
+                if(SESSION_CONTEXT_CACHE_NAME.equalsIgnoreCase(type)) {
+                    IsLoggeduser = true;
+                    usdPreparedStatement = usdConnection.prepareStatement(SQL_INSERT_USER_SESSION_DATA);
+                    usdPreparedStatement.setString(1,key);
+
+                    if(entry instanceof SessionContextCacheEntry) {
+                        Set<Map.Entry<String, SequenceConfig>> sessions = ((SessionContextCacheEntry) entry).getContext().getAuthenticatedSequences().entrySet();
+                        for (Map.Entry<String, SequenceConfig> session : sessions) {
+                             userName = session.getValue().getAuthenticatedUser().getUserName();
+                            domainName = session.getValue().getAuthenticatedUserTenantDomain();
+                        }
+                    }
+                    usdPreparedStatement.setString(2, userName);
+
+
+                    TenantManager tenantManager = IdentityTenantUtil.getRealmService().getTenantManager();
+                    int tenantId = tenantManager.getTenantId(domainName);
+                    usdPreparedStatement.setString(3,String.valueOf(tenantId));
+                    usdPreparedStatement.setString(4,domainName);
+                    usdPreparedStatement.setTimestamp(5,timestamp);
+                }
+
             }
             preparedStatement.executeUpdate();
             connection.commit();
+            if(IsLoggeduser) {
+                usdPreparedStatement.executeUpdate();
+                usdConnection.commit();
+            }
         } catch (IdentityException e) {
             //ignore
             log.error("Error while storing session data", e);
@@ -357,13 +408,23 @@ public class SessionDataStore {
         } catch (IOException e) {
             //ignore
             log.error("Error while storing session data", e);
-        } finally {
+        } catch (UserStoreException e) {
+            String errorMsg = "Error when getting the tenant id from the tenant domain : " +
+                    domainName;
+            log.error(errorMsg, e);
+        }finally {
             try {
                 if (preparedStatement != null) {
                     preparedStatement.close();
                 }
                 if (connection != null) {
                     connection.close();
+                }
+                if (usdPreparedStatement != null) {
+                    usdPreparedStatement.close();
+                }
+                if (usdConnection != null) {
+                    usdConnection.close();
                 }
             } catch (SQLException e) {
                 log.error("Error while closing the stream", e);
@@ -448,5 +509,144 @@ public class SessionDataStore {
         }
         return null;
     }
+
+    public List<String> getSessionIdsFromDb(String type) {
+
+        List<String> cacheKeyList = null;
+
+        if (!enablePersist) {
+            return cacheKeyList;
+        }
+
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+            cacheKeyList = new ArrayList<String>();;
+            connection = jdbcPersistenceManager.getDBConnection();
+            connection.setAutoCommit(false);
+            preparedStatement = connection.prepareStatement(SQL_SELECT_LOGGED_IN_SESSION_IDS);
+            preparedStatement.setString(1, type);
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                cacheKeyList.add(resultSet.getString(1));
+            }
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+        } catch (IdentityException e) {
+            //ignore
+            log.error("Error while getting session data", e);
+        } catch (SQLException e) {
+            //ignore
+            log.error("Error while getting session data", e);
+        } finally {
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                log.error("Error while closing the stream", e);
+            }
+        }
+        return cacheKeyList;
+    }
+
+    public Timestamp getSessionCreatedTime(String key, String type) {
+
+        Timestamp timestamp = null;
+
+        if (!enablePersist) {
+            return timestamp;
+        }
+
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+            connection = jdbcPersistenceManager.getDBConnection();
+            connection.setAutoCommit(false);
+            preparedStatement = connection.prepareStatement(SQL_SELECT_TIME_CREATED);
+            preparedStatement.setString(1, key);
+            preparedStatement.setString(2, type);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                timestamp = resultSet.getTimestamp(1);
+            }
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+        } catch (IdentityException e) {
+            //ignore
+            log.error("Error while getting session data", e);
+        } catch (SQLException e) {
+            //ignore
+            log.error("Error while getting session data", e);
+        } finally {
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                log.error("Error while closing the stream", e);
+            }
+        }
+        return timestamp;
+    }
+
+    public List<String> getSessionIdsForUserName(String userName) {
+
+        List<String> sessionIdList = null;
+
+        if (!enablePersist) {
+            return sessionIdList;
+        }
+
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+            sessionIdList = new ArrayList<String>();;
+            connection = jdbcPersistenceManager.getDBConnection();
+            connection.setAutoCommit(false);
+            preparedStatement = connection.prepareStatement(SQL_SELECT_SESSION_IDS_MAPPED_TO_USER_NAME);
+            preparedStatement.setString(1, userName);
+            preparedStatement.setString(2, userName);
+            preparedStatement.setString(3, userName);
+
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                sessionIdList.add(resultSet.getString(1));
+            }
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+        } catch (IdentityException e) {
+            //ignore
+            log.error("Error while getting session data", e);
+        } catch (SQLException e) {
+            //ignore
+            log.error("Error while getting session data", e);
+        } finally {
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                log.error("Error while closing the stream", e);
+            }
+        }
+        return sessionIdList;
+    }
+
 
 }
