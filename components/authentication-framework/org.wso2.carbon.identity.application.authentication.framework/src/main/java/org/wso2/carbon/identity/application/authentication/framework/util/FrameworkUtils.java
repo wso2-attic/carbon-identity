@@ -153,6 +153,11 @@ public class FrameworkUtils {
         Map<String, String[]> modifiableParameters = new TreeMap<String, String[]>();
         if (cacheEntry != null) {
             AuthenticationRequest authenticationRequest = cacheEntry.getAuthenticationRequest();
+
+            if (!authenticationRequest.getRequestQueryParams().isEmpty()) {
+                modifiableParameters.putAll(authenticationRequest.getRequestQueryParams());
+            }
+
             // Adding field variables to wrapper
             if (authenticationRequest.getType() != null) {
                 modifiableParameters.put(FrameworkConstants.RequestParams.TYPE,
@@ -174,10 +179,6 @@ public class FrameworkUtils {
                     new String[]{String.valueOf(authenticationRequest.getForceAuth())});
             modifiableParameters.put(FrameworkConstants.RequestParams.PASSIVE_AUTHENTICATION,
                     new String[]{String.valueOf(authenticationRequest.getPassiveAuth())});
-
-            if (!authenticationRequest.getRequestQueryParams().isEmpty()) {
-                modifiableParameters.putAll(authenticationRequest.getRequestQueryParams());
-            }
 
             if (log.isDebugEnabled()) {
                 StringBuilder queryStringBuilder = new StringBuilder("");

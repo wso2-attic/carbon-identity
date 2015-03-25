@@ -61,16 +61,33 @@ public class UserIdentityClaimsDO implements Serializable {
         this.userIdentityDataMap = userDataMap;
 
         if (userDataMap.get(UserIdentityDataStore.FAIL_LOGIN_ATTEMPTS) != null) {
-            setFailAttempts(Integer.parseInt(userDataMap.get(UserIdentityDataStore.FAIL_LOGIN_ATTEMPTS)));
+            String failedAttempts = userDataMap.get(UserIdentityDataStore.FAIL_LOGIN_ATTEMPTS)
+                    .trim();
+            if (!failedAttempts.isEmpty()) {
+                setFailAttempts(Integer.parseInt(failedAttempts));
+            } else {
+                setFailAttempts(0);
+            }
         }
         if (userDataMap.get(UserIdentityDataStore.LAST_FAILED_LOGIN_ATTEMPT_TIME) != null) {
             setLastFailAttemptTime(Long.parseLong(userDataMap.get(UserIdentityDataStore.LAST_FAILED_LOGIN_ATTEMPT_TIME)));
         }
         if (userDataMap.get(UserIdentityDataStore.UNLOCKING_TIME) != null) {
-            setUnlockTime(Long.parseLong(userDataMap.get(UserIdentityDataStore.UNLOCKING_TIME)));
+            String unlockTime = userDataMap.get(UserIdentityDataStore.UNLOCKING_TIME).trim();
+            if (!unlockTime.isEmpty()) {
+                setUnlockTime(Long.parseLong(unlockTime));
+            } else {
+                setUnlockTime(0);
+            }
         }
         if (userDataMap.get(UserIdentityDataStore.ONE_TIME_PASSWORD) != null) {
-            setOneTimeLogin(Boolean.parseBoolean(userDataMap.get(UserIdentityDataStore.ONE_TIME_PASSWORD)));
+            String oneTimePassword = userDataMap.get(UserIdentityDataStore.ONE_TIME_PASSWORD)
+                    .trim();
+            if (!oneTimePassword.isEmpty()) {
+                setOneTimeLogin(Boolean.parseBoolean(oneTimePassword));
+            } else {
+                setOneTimeLogin(false);
+            }
         }
         if (userDataMap.get(UserIdentityDataStore.PASSWORD_CHANGE_REQUIRED) != null) {
             setPasswordChangeRequired(Boolean.parseBoolean(userDataMap.get(UserIdentityDataStore.PASSWORD_CHANGE_REQUIRED)));
@@ -82,11 +99,13 @@ public class UserIdentityClaimsDO implements Serializable {
             setAccountLock(Boolean.parseBoolean(userDataMap.get(UserIdentityDataStore.ACCOUNT_LOCK)));
         }
         if (userDataMap.get(UserIdentityDataStore.PASSWORD_TIME_STAMP) != null) {
-            setPasswordTimeStamp(Long.parseLong(userDataMap.get(UserIdentityDataStore.PASSWORD_TIME_STAMP)));
+            String passwordTs = userDataMap.get(UserIdentityDataStore.PASSWORD_TIME_STAMP).trim();
+            if (!passwordTs.isEmpty()) {
+                setPasswordTimeStamp(Long.parseLong(passwordTs));
+            } else {
+                setPasswordTimeStamp(0);
+            }
         }
-//		if (userDataMap.get(UserIdentityDataStore.PASSWORD_TIME_STAMP) != null) {
-//			setPasswordTimeStamp(Long.parseLong(userDataMap.get(UserIdentityDataStore.PASSWORD_TIME_STAMP)));
-//		}
     }
 
     public String getUserName() {

@@ -23,6 +23,12 @@ import org.apache.axis2.context.MessageContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.rahas.TrustException;
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.identity.application.common.model.InboundAuthenticationRequestConfig;
+import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.model.ServiceProvider;
+import org.wso2.carbon.identity.application.mgt.ApplicationInfoProvider;
 import org.wso2.carbon.identity.sts.passive.internal.RegistryBasedTrustedServiceStore;
 import org.wso2.carbon.identity.sts.passive.processors.RequestProcessor;
 
@@ -40,6 +46,9 @@ public class PassiveSTSService {
         RequestProcessor processor = null;
         ResponseToken responseToken = null;
         String soapfault = null;
+
+        // Setting wreply url from sp config
+        setReplyToURL(request);
 
         processor = RequestProcessorFactory.getInstance().getRequestProcessor(request.getAction());
 
@@ -170,5 +179,75 @@ public class PassiveSTSService {
         // check in registry if not found in in-memory store
         RegistryBasedTrustedServiceStore registryBasedTrustedServiceStore = new RegistryBasedTrustedServiceStore();
         return registryBasedTrustedServiceStore.getTrustedServiceClaims(realmName);
+    }
+
+
+    private void setReplyToURL(RequestToken request) {
+
+        String wreply = request.getReplyTo();
+
+//        if(wreply != null) {
+//            log.debug("Request contains ReplyTo URL : " + wreply +
+//                    ". Skip setting ReplyTo URL from Realm (Service Provider config)");
+//            return;
+//        }
+
+        String realm = request.getRealm();
+        if (realm == null) {
+            log.debug("Request does not contains Realm. Skip setting ReplyTo URL from Realm (Service Provider config)");
+            return;
+        }
+        ServiceProvider sp = null;
+        try {
+//            String tenantDomain = MultitenantUtils.getTenantDomain(request.getUserName());
+            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            if(log.isDebugEnabled()) {
+                log.debug("Retrieving wreply url for : " + realm + " in tenant : " + tenantDomain);
+            }
+            sp = ApplicationInfoProvider.getInstance().
+                    getServiceProviderByClienId(realm, "passivests", tenantDomain);
+        } catch (IdentityApplicationManagementException e) {
+            log.error("Error while retrieving Service Provider corresponding to Realm : " + realm +
+                    ". Skip setting ReplyTo URL from Realm (Service Provider config)", e);
+            return;
+        }
+
+
+        if(sp == null) {
+            log.error("Cannot find Service Provider corresponding to Realm : " + realm +
+                    ". Skip setting ReplyTo URL from Realm (Service Provider config)");
+        }
+
+        InboundAuthenticationRequestConfig[] inboundAuthenticationConfigs =
+                sp.getInboundAuthenticationConfig().getInboundAuthenticationRequestConfigs();
+        if(inboundAuthenticationConfigs != null) {
+            for (int i = 0; i < inboundAuthenticationConfigs.length; i++) {
+                if ("passivests".equalsIgnoreCase(inboundAuthenticationConfigs[i].getInboundAuthType())) {
+
+                    // get wreply url from properties
+                    Property[] properties = inboundAuthenticationConfigs[i].getProperties();
+                    if (properties != null) {
+                        for (int j = 0; j < properties.length; j++) {
+                            if("passiveSTSWReply".equalsIgnoreCase(properties[j].getName())) {
+                                wreply = properties[j].getValue();
+                                if (wreply != null && !wreply.isEmpty()) {
+                                    if (log.isDebugEnabled()) {
+                                        log.debug("Setting ReplyTo URL : " + wreply + " for Realm : " + realm);
+                                    }
+                                    request.setReplyTo(wreply);
+                                }
+                                return;
+                            }
+                        }
+                    }
+
+                    if(log.isDebugEnabled()) {
+                        log.debug("WReply URL does not specified for Realm : " + realm + " in Service Provider configs");
+                    }
+                    return;
+                }
+            }
+        }
+
     }
 }

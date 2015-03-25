@@ -455,7 +455,13 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             // setting the thread-local to check in doPostAddUser
             threadLocalProperties.get().put(EMPTY_PASSWORD_USED, true);
             // temporary passwords will be used
-            char[] temporaryPassword = UserIdentityManagementUtil.generateTemporaryPassword();
+            char[] temporaryPassword = null;
+            if (IdentityMgtConfig.getInstance().getTemporaryDefaultPassword() != null) {
+                temporaryPassword = IdentityMgtConfig.getInstance().getTemporaryDefaultPassword()
+                        .toCharArray();
+            } else {
+                temporaryPassword = UserIdentityManagementUtil.generateTemporaryPassword();
+            }
 
             // setting the password value
             ((StringBuffer) credential).replace(0, temporaryPassword.length, new String(temporaryPassword));
@@ -511,6 +517,14 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 
             // empty password account creation
             if (threadLocalProperties.get().containsKey(EMPTY_PASSWORD_USED)) {
+
+                String domainName = ((org.wso2.carbon.user.core.UserStoreManager) userStoreManager)
+                        .getRealmConfiguration().getUserStoreProperty(
+                                UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+                if (!UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(domainName)) {
+                    userName = domainName + UserCoreConstants.DOMAIN_SEPARATOR + userName;
+                }
+
                 // store identity data
                 userIdentityClaimsDO.setAccountLock(false).setPasswordTimeStamp(System.currentTimeMillis());
                 try {
