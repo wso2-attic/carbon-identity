@@ -15,11 +15,21 @@ import java.util.ArrayList;
 public class SessionManagementService extends AbstractAdmin {
     private static Log log = LogFactory.getLog(SessionManagementService.class);
 
+    /**
+     * Get All Session Details.
+     * @return sessionInfo object arraylist.
+     */
     public ArrayList<SessionInfo> getAllSessionInfo() {
         return SessionContextCache.getInstance(0).getSessionDetailsFromDbAndCache();
     }
 
-    public void removeSession(String userName) {
-        SessionContextCache.getInstance(0).removeSessionDetailsFromDbAndCache(userName);
+    /**
+     * Remove sessions for a given user name.
+     * @param userName String.
+     * @param userStoreDomain String.
+     * @param tenantDomainName String.
+     */
+    public void removeSession(String userName,String userStoreDomain, String tenantDomainName) {
+        SessionContextCache.getInstance(0).removeSessionDetailsFromDbAndCache(userName,userStoreDomain,tenantDomainName);
     }
 }

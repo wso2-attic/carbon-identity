@@ -12,6 +12,8 @@ public class SessionInfo {
     private String userName = null;
     private String applicationId = null;
     private Timestamp loggedInTimeStamp= null;
+    private String userStoreDomain = null;
+    private String tenantDomain = null;
 
     public String getUserName() {
         return userName;
@@ -35,5 +37,21 @@ public class SessionInfo {
 
     public void setLoggedInTimeStamp(Timestamp loggedInTimeStamp) {
         this.loggedInTimeStamp = loggedInTimeStamp;
+    }
+
+    public String getUserStoreDomain() {
+        return userStoreDomain;
+    }
+
+    public void setUserStoreDomain(String userStoreDomain) {
+        this.userStoreDomain = userStoreDomain;
+    }
+
+    public String getTenantDomain() {
+        return tenantDomain;
+    }
+
+    public void setTenantDomain(String tenantDomain) {
+        this.tenantDomain = tenantDomain;
     }
 }

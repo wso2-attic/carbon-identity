@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.cache;
 
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.SequenceConfig;
 import org.wso2.carbon.identity.application.authentication.framework.model.SessionInfo;
 import
@@ -134,11 +136,15 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
                         for (Map.Entry<String, SequenceConfig> session : sessions) {
                             String applicationId = session.getValue().getApplicationId();
                             String userName = session.getValue().getAuthenticatedUser().getUserName();
+                            String userStoreDomain = session.getValue().getAuthenticatedUser().getUserStoreDomain();
+                            String tenantDomainName = session.getValue().getAuthenticatedUser().getTenantDomain();
 
                             SessionInfo sessionInfo = new SessionInfo();
                             sessionInfo.setUserName(userName);
                             sessionInfo.setApplicationId(applicationId);
                             sessionInfo.setLoggedInTimeStamp(sessionCreatedTime);
+                            sessionInfo.setUserStoreDomain(userStoreDomain);
+                            sessionInfo.setTenantDomain(tenantDomainName);
 
                             if(!cacheIdSet.contains(cacheId)) {
                                 cacheIdSet.add(cacheId);
@@ -161,9 +167,15 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
                         for (Map.Entry<String, SequenceConfig> session : sessions) {
                             String applicationId = session.getValue().getApplicationId();
                             String userName = session.getValue().getAuthenticatedUser().getUserName();
+                            String userStoreDomain = session.getValue().getAuthenticatedUser().getUserStoreDomain();
+                            String tenantDomainName = session.getValue().getAuthenticatedUser().getTenantDomain();
 
                             SessionInfo sessionInfo = new SessionInfo();
                             sessionInfo.setUserName(userName);
+                            sessionInfo.setApplicationId(applicationId);
+                            sessionInfo.setUserStoreDomain(userStoreDomain);
+                            sessionInfo.setTenantDomain(tenantDomainName);
+
                             if(!cacheIdSet.contains(cacheId)) {
                                 cacheIdSet.add(cacheId);
                                 sessionInfoList.add(sessionInfo);
@@ -183,9 +195,9 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
      * @param userName String.
      * @return boolean value.
      */
-    public void removeSessionDetailsFromDbAndCache(String userName) {
+    public void removeSessionDetailsFromDbAndCache(String userName, String userStoreDomain, String tenantDomainName) {
         if (Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Enable"))) {
-            List<String> sessionIdList = SessionDataStore.getInstance().getSessionIdsForUserName(userName);
+            List<String> sessionIdList = SessionDataStore.getInstance().getSessionIdsForUserName(userName,tenantDomainName,userStoreDomain);
             for(String cacheId: sessionIdList) {
                 SessionDataStore.getInstance().removeSessionData(cacheId, SESSION_CONTEXT_CACHE_NAME);
             }
@@ -207,7 +219,6 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
                 }
             }
         }
-
     }
 
 }

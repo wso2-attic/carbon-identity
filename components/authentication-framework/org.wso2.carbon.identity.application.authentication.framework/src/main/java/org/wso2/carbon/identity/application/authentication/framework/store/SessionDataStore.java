@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.application.authentication.framework.store;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.cache.SessionContextCache;
 import org.wso2.carbon.identity.application.authentication.framework.cache.SessionContextCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.SequenceConfig;
@@ -55,14 +56,15 @@ public class SessionDataStore {
     private static final String SQL_DELETE_SERIALIZED_OBJECT_TASK = "DELETE FROM IDN_AUTH_SESSION_STORE WHERE TIME_CREATED<?";
     private static final String SQL_SELECT_TIME_CREATED = "SELECT TIME_CREATED FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID =? AND SESSION_TYPE =?";
     private static final String SQL_SELECT_LOGGED_IN_SESSION_IDS = "SELECT SESSION_ID FROM IDN_AUTH_SESSION_STORE WHERE SESSION_TYPE=?";
-    private static final String SQL_INSERT_USER_SESSION_DATA = "INSERT INTO USER_SESSION_DATA(SESSION_ID,USER_NAME,TENANT_ID,TENANT_NAME,LAST_UPDATED_TIME) VALUES (?, ?, ?, ?,?)";
+    private static final String SQL_INSERT_USER_SESSION_DATA = "INSERT INTO USER_SESSION_DATA(SESSION_ID,USER_NAME,USER_DOMAIN_NAME,TENANT_NAME,LAST_UPDATED_TIME) VALUES (?, ?, ?, ?,?)";
     private static final String SQL_UPDATE_USER_SESSION_DATA = "UPDATE USER_SESSION_DATA SET LAST_UPDATED_TIME=?";
-    private static final String SQL_SELECT_SESSION_IDS_MAPPED_TO_USER_NAME="SELECT SESSION_ID FROM USER_SESSION_DATA WHERE USER_NAME=? AND TENANT_ID=? AND TENANT_NAME=?";
+    private static final String SQL_SELECT_SESSION_IDS_MAPPED_TO_USER_NAME="SELECT SESSION_ID FROM USER_SESSION_DATA WHERE USER_NAME=? AND USER_DOMAIN_NAME=? AND TENANT_NAME=?";
 
     private static int maxPoolSize = 100;
     private static BlockingDeque<SessionContextDO> sessionContextQueue = new LinkedBlockingDeque<SessionContextDO>();
     private static Log log = LogFactory.getLog(SessionDataStore.class);
     private static final String SESSION_CONTEXT_CACHE_NAME = "AppAuthFrameworkSessionContextCache";
+    private static final String PRIMARY_USER_STORE_NAME="PRIMARY";
 
 
     static {
@@ -334,6 +336,8 @@ public class SessionDataStore {
         boolean IsLoggeduser = false;
         String domainName = "";
         String userName = "";
+        String tenantDomainName = "";
+        String userStoreDomain = "";
 
         Connection connection = null;
         Connection usdConnection = null;
@@ -371,25 +375,31 @@ public class SessionDataStore {
                 usdConnection.setAutoCommit(false);
 
                 if(SESSION_CONTEXT_CACHE_NAME.equalsIgnoreCase(type)) {
-                    IsLoggeduser = true;
-                    usdPreparedStatement = usdConnection.prepareStatement(SQL_INSERT_USER_SESSION_DATA);
-                    usdPreparedStatement.setString(1,key);
+                    if (CarbonContext.getThreadLocalCarbonContext() != null) {
+                        IsLoggeduser = true;
+                        usdPreparedStatement = usdConnection.prepareStatement(SQL_INSERT_USER_SESSION_DATA);
+                        usdPreparedStatement.setString(1,key);
+                        if(entry instanceof SessionContextCacheEntry) {
+                            Set<Map.Entry<String, SequenceConfig>> sessions = ((SessionContextCacheEntry) entry).getContext().getAuthenticatedSequences().entrySet();
+                            for (Map.Entry<String, SequenceConfig> session : sessions) {
+                               userName = session.getValue().getAuthenticatedUser().getUserName();
+                               userStoreDomain = session.getValue().getAuthenticatedUser().getUserStoreDomain();
+                               tenantDomainName = session.getValue().getAuthenticatedUser().getTenantDomain();
+                               if(userStoreDomain != null) {
+                                   if(userStoreDomain.length() < 1) {
+                                       userStoreDomain = PRIMARY_USER_STORE_NAME;
+                                   }
+                               }
+                            }
 
-                    if(entry instanceof SessionContextCacheEntry) {
-                        Set<Map.Entry<String, SequenceConfig>> sessions = ((SessionContextCacheEntry) entry).getContext().getAuthenticatedSequences().entrySet();
-                        for (Map.Entry<String, SequenceConfig> session : sessions) {
-                             userName = session.getValue().getAuthenticatedUser().getUserName();
-                            domainName = session.getValue().getAuthenticatedUserTenantDomain();
-                        }
+                         }
+                        usdPreparedStatement.setString(2,userName);
+                        usdPreparedStatement.setString(3,userStoreDomain);
+                        usdPreparedStatement.setString(4,tenantDomainName);
+                        usdPreparedStatement.setTimestamp(5,timestamp);
+
                     }
-                    usdPreparedStatement.setString(2, userName);
 
-
-                    TenantManager tenantManager = IdentityTenantUtil.getRealmService().getTenantManager();
-                    int tenantId = tenantManager.getTenantId(domainName);
-                    usdPreparedStatement.setString(3,String.valueOf(tenantId));
-                    usdPreparedStatement.setString(4,domainName);
-                    usdPreparedStatement.setTimestamp(5,timestamp);
                 }
 
             }
@@ -408,11 +418,7 @@ public class SessionDataStore {
         } catch (IOException e) {
             //ignore
             log.error("Error while storing session data", e);
-        } catch (UserStoreException e) {
-            String errorMsg = "Error when getting the tenant id from the tenant domain : " +
-                    domainName;
-            log.error(errorMsg, e);
-        }finally {
+        } finally {
             try {
                 if (preparedStatement != null) {
                     preparedStatement.close();
@@ -600,7 +606,7 @@ public class SessionDataStore {
         return timestamp;
     }
 
-    public List<String> getSessionIdsForUserName(String userName) {
+    public List<String> getSessionIdsForUserName(String userName,String tenantDomain,String userStoreDomain) {
 
         List<String> sessionIdList = null;
 
@@ -617,8 +623,8 @@ public class SessionDataStore {
             connection.setAutoCommit(false);
             preparedStatement = connection.prepareStatement(SQL_SELECT_SESSION_IDS_MAPPED_TO_USER_NAME);
             preparedStatement.setString(1, userName);
-            preparedStatement.setString(2, userName);
-            preparedStatement.setString(3, userName);
+            preparedStatement.setString(2, userStoreDomain);
+            preparedStatement.setString(3, tenantDomain);
 
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
