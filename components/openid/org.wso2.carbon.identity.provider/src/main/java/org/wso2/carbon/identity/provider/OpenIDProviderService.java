@@ -653,13 +653,14 @@ public class OpenIDProviderService {
      */
     public OpenIDUserRPDTO[] getOpenIDUserRPs(String openID) throws Exception {
 
+        String username = OpenIDUtil.getUserName(openID);
         String domainName = MultitenantUtils.getDomainNameFromOpenId(openID);
         OpenIDUserRPDO[] rpdos = null;
         OpenIDUserRPDAO dao;
 
         try {
             dao = new OpenIDUserRPDAO();
-            rpdos = dao.getOpenIDUserRPs(openID);
+            rpdos = dao.getOpenIDUserRPs(username);
             if (rpdos == null) {
                 return null;
             }
