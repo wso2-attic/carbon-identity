@@ -22,18 +22,13 @@ import org.apache.commons.logging.LogFactory;
 import org.opensaml.common.SAMLVersion;
 import org.opensaml.saml2.core.AuthnRequest;
 import org.opensaml.saml2.core.Issuer;
-import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.core.Subject;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
-import org.wso2.carbon.identity.sso.saml.builders.ErrorResponseBuilder;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOReqValidationResponseDTO;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class SPInitSSOAuthnRequestValidator {
@@ -59,49 +54,49 @@ public class SPInitSSOAuthnRequestValidator {
             Issuer issuer = authnReq.getIssuer();
             Subject subject = authnReq.getSubject();
 
-            // Validate the version
-            if (!(authnReq.getVersion().equals(SAMLVersion.VERSION_20))) {
-                String errorResp =
-                        buildErrorResponse(SAMLSSOConstants.StatusCodes.VERSION_MISMATCH,
-                                "Invalid SAML Version in Authentication Request. SAML Version should be equal to 2.0");
-                if (log.isDebugEnabled()) {
-                    log.debug("Invalid version in the SAMLRequest" + authnReq.getVersion());
-                }
-                validationResponse.setResponse(errorResp);
-                validationResponse.setValid(false);
-                return validationResponse;
-            }
+			// Validate the version
+			if (!(authnReq.getVersion().equals(SAMLVersion.VERSION_20))) {
+				String errorResp = SAMLSSOUtil.buildErrorResponse(
+                        SAMLSSOConstants.StatusCodes.VERSION_MISMATCH,
+				        "Invalid SAML Version in Authentication Request. SAML Version should be equal to 2.0");
+				if (log.isDebugEnabled()) {
+					log.debug("Invalid version in the SAMLRequest" + authnReq.getVersion());
+				}
+				validationResponse.setResponse(errorResp);
+				validationResponse.setValid(false);
+				return validationResponse;
+			}
 
-            // Issuer MUST NOT be null
-            if (issuer.getValue() != null) {
-                validationResponse.setIssuer(issuer.getValue());
-            } else if (issuer.getSPProvidedID() != null) {
-                validationResponse.setIssuer(issuer.getSPProvidedID());
-            } else {
-                validationResponse.setValid(false);
-                String errorResp =
-                        buildErrorResponse(SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
-                                "Issuer/ProviderName should not be empty in the Authentication Request.");
-                log.debug("SAML Request issuer validation failed. Issuer should not be empty");
-                validationResponse.setResponse(errorResp);
-                validationResponse.setValid(false);
-                return validationResponse;
-            }
+			// Issuer MUST NOT be null
+			if (issuer.getValue() != null) {
+				validationResponse.setIssuer(issuer.getValue());
+			} else if (issuer.getSPProvidedID() != null) {
+				validationResponse.setIssuer(issuer.getSPProvidedID());
+			} else {
+				validationResponse.setValid(false);
+				String errorResp = SAMLSSOUtil.buildErrorResponse(
+                        SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
+				        "Issuer/ProviderName should not be empty in the Authentication Request.");
+				log.debug("SAML Request issuer validation failed. Issuer should not be empty");
+				validationResponse.setResponse(errorResp);
+				validationResponse.setValid(false);
+				return validationResponse;
+			}
 
-            // Issuer Format attribute
-            if ((issuer.getFormat() != null) &&
-                    !(issuer.getFormat().equals(SAMLSSOConstants.Attribute.ISSUER_FORMAT))) {
-                validationResponse.setValid(false);
-                String errorResp =
-                        buildErrorResponse(SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
-                                "Issuer Format attribute value is invalid");
-                if (log.isDebugEnabled()) {
-                    log.debug("Invalid Issuer Format attribute value " + issuer.getFormat());
-                }
-                validationResponse.setResponse(errorResp);
-                validationResponse.setValid(false);
-                return validationResponse;
-            }
+			// Issuer Format attribute
+			if ((issuer.getFormat() != null) &&
+			    !(issuer.getFormat().equals(SAMLSSOConstants.Attribute.ISSUER_FORMAT))) {
+				validationResponse.setValid(false);
+				String errorResp = SAMLSSOUtil.buildErrorResponse(
+                        SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
+				        "Issuer Format attribute value is invalid");
+				if (log.isDebugEnabled()) {
+					log.debug("Invalid Issuer Format attribute value " + issuer.getFormat());
+				}
+				validationResponse.setResponse(errorResp);
+				validationResponse.setValid(false);
+				return validationResponse;
+			}
 
             // set the custom login page URL and ACS URL if available
             SSOServiceProviderConfigManager spConfigManager = SSOServiceProviderConfigManager.getInstance();
@@ -119,13 +114,13 @@ public class SPInitSSOAuthnRequestValidator {
                         "Possibly an attempt for a spoofing attack from Provider " +
                         authnReq.getIssuer().getValue());
 
-                String errorResp =
-                        buildErrorResponse(SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
-                                "Invalid Assertion Consumer Service URL in the Authentication Request.");
-                validationResponse.setResponse(errorResp);
-                validationResponse.setValid(false);
-                return validationResponse;
-            }
+				String errorResp = SAMLSSOUtil.buildErrorResponse(
+                        SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
+				        "Invalid Assertion Consumer Service URL in the Authentication Request.");
+				validationResponse.setResponse(errorResp);
+				validationResponse.setValid(false);
+				return validationResponse;
+			}
 
             //TODO : Validate the NameID Format
             if (subject != null) {
@@ -135,18 +130,19 @@ public class SPInitSSOAuthnRequestValidator {
             }
 
             // subject confirmation should not exist
-            if (subject != null && subject.getSubjectConfirmations() != null && subject.getSubjectConfirmations().size() > 0) {
-                validationResponse.setValid(false);
-                String errorResp =
-                        buildErrorResponse(SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
-                                "Subject Confirmation methods should NOT be in the request.");
-                if (log.isDebugEnabled()) {
-                    log.debug("Invalid Request message. A Subject confirmation method found " +
-                            subject.getSubjectConfirmations().get(0));
-                }
-                validationResponse.setResponse(errorResp);
-                validationResponse.setValid(false);
-                return validationResponse;
+            if(subject != null && subject.getSubjectConfirmations() != null &&
+                    subject.getSubjectConfirmations().size() > 0) {
+				validationResponse.setValid(false);
+				String errorResp = SAMLSSOUtil.buildErrorResponse(
+                        SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
+				        "Subject Confirmation methods should NOT be in the request.");
+				if (log.isDebugEnabled()) {
+					log.debug("Invalid Request message. A Subject confirmation method found " +
+					          subject.getSubjectConfirmations().get(0));
+				}
+				validationResponse.setResponse(errorResp);
+				validationResponse.setValid(false);
+				return validationResponse;
             }
             validationResponse.setId(authnReq.getID());
             validationResponse.setAssertionConsumerURL(authnReq.getAssertionConsumerServiceURL());
@@ -164,19 +160,4 @@ public class SPInitSSOAuthnRequestValidator {
         }
     }
 
-    /**
-     * build the error response
-     *
-     * @param status
-     * @param message
-     * @return decoded response
-     * @throws org.wso2.carbon.identity.base.IdentityException
-     */
-    private String buildErrorResponse(String status, String message) throws Exception {
-        ErrorResponseBuilder respBuilder = new ErrorResponseBuilder();
-        List<String> statusCodeList = new ArrayList<String>();
-        statusCodeList.add(status);
-        Response response = respBuilder.buildResponse(authnReq.getID(), statusCodeList, message);
-        return SAMLSSOUtil.encode(SAMLSSOUtil.marshall(response));
-    }
 }

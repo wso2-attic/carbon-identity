@@ -40,7 +40,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
     private static Log log = LogFactory.getLog(IdentityProviderManager.class);
     private static String LOCAL_DEFAULT_CLAIM_DIALECT = "http://wso2.org/claims";
 
-    /**
+    /**f
      * Retrieves resident Identity provider for the logged-in tenant
      *
      * @return <code>IdentityProvider</code>

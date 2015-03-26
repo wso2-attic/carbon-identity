@@ -50,6 +50,7 @@ public class ApplicationBean {
     private String attrConsumServiceIndex;
     private String wstrustEp;
     private String passivests;
+    private String passiveSTSWReply;
     private String openid;
     private String[] claimUris;
 
@@ -70,6 +71,7 @@ public class ApplicationBean {
         oauthAppName = null;
         wstrustEp = null;
         passivests = null;
+        passiveSTSWReply = null;
         openid = null;
         oauthConsumerSecret = null;
         attrConsumServiceIndex = null;
@@ -685,6 +687,42 @@ public class ApplicationBean {
     }
 
     /**
+     *
+     * @return
+     */
+    public String getPassiveSTSWReply() {
+
+        if (passiveSTSWReply != null) {
+            return passiveSTSWReply;
+        }
+
+        InboundAuthenticationRequestConfig[] authRequest = serviceProvider
+                .getInboundAuthenticationConfig().getInboundAuthenticationRequestConfigs();
+
+        if (authRequest != null) {
+            for (int i = 0; i < authRequest.length; i++) {
+                if ("passivests".equalsIgnoreCase(authRequest[i].getInboundAuthType())) {
+
+                    // get wreply url from properties
+                    Property[] properties = authRequest[i].getProperties();
+                    if (properties != null) {
+                        for (int j = 0; j < properties.length; j++) {
+                            if("passiveSTSWReply".equalsIgnoreCase(properties[j].getName())) {
+                                passiveSTSWReply = properties[j].getValue();
+                                break;
+                            }
+                        }
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        return passiveSTSWReply;
+    }
+
+    /**
      * @return
      */
     public String[] getClaimUris() {
@@ -932,11 +970,19 @@ public class ApplicationBean {
         }
 
         String passiveSTSRealm = CharacterEncoder.getSafeText(request.getParameter("passiveSTSRealm"));
+        String passiveSTSWReply = CharacterEncoder.getSafeText(request.getParameter("passiveSTSWReply"));
 
         if (passiveSTSRealm != null) {
             InboundAuthenticationRequestConfig opicAuthenticationRequest = new InboundAuthenticationRequestConfig();
             opicAuthenticationRequest.setInboundAuthKey(passiveSTSRealm);
             opicAuthenticationRequest.setInboundAuthType("passivests");
+            if (passiveSTSWReply != null && !passiveSTSWReply.isEmpty()) {
+                Property property = new Property();
+                property.setName("passiveSTSWReply");
+                property.setValue(passiveSTSWReply);
+                Property[] properties = { property };
+                opicAuthenticationRequest.setProperties(properties);
+            }
             authRequestList.add(opicAuthenticationRequest);
         }
 
@@ -1120,6 +1166,14 @@ public class ApplicationBean {
      */
     public void setPassivests(String passivests) {
         this.passivests = passivests;
+    }
+
+    /**
+     *
+     * @param passiveSTSWReply
+     */
+    public void setPassiveSTSWReply(String passiveSTSWReply) {
+        this.passiveSTSWReply = passiveSTSWReply;
     }
 
     /**
