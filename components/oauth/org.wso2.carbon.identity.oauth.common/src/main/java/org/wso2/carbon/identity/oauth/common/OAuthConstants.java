@@ -19,7 +19,8 @@
 package org.wso2.carbon.identity.oauth.common;
 
 public final class OAuthConstants {
-
+    //OIDC Session Management parameters
+    public static final String IDP_NAME="LOCAL";
     //OAuth2 request headers.
     public static final String HTTP_REQ_HEADER_AUTHZ = "Authorization";
     // OAuth2 response headers
