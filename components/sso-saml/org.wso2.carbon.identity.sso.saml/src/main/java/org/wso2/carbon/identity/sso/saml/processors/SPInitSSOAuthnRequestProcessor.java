@@ -145,10 +145,10 @@ public class SPInitSSOAuthnRequestProcessor {
                     spDO.setAssertionConsumerUrl(authnReqDTO.getAssertionConsumerURL());
                     spDO.setCertAlias(authnReqDTO.getCertAlias());
                     spDO.setLogoutURL(authnReqDTO.getLogoutURL());
+                    spDO.setTenantDomain(authnReqDTO.getTenantDomain());
                     sessionPersistenceManager.persistSession(sessionIndexId,
                                                              authnReqDTO.getUser().getAuthenticatedSubjectIdentifier(),
                                                              spDO, authnReqDTO.getRpSessionId(),
-                                                             authnReqDTO.getTenantDomain(),
                                                              authnReqDTO.getIssuer(),
                                                              authnReqDTO.getAssertionConsumerURL());
                 }

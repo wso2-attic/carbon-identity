@@ -111,11 +111,11 @@ public class IdPInitSSOAuthnRequestProcessor {
                     spDO.setAssertionConsumerUrl(authnReqDTO.getAssertionConsumerURL());
                     spDO.setCertAlias(authnReqDTO.getCertAlias());
                     spDO.setLogoutURL(authnReqDTO.getLogoutURL());
+                    spDO.setTenantDomain(authnReqDTO.getTenantDomain());
                     sessionPersistenceManager.persistSession(sessionIndexId,
-                                                             authnReqDTO.getUser().getAuthenticatedSubjectIdentifier(),
-                                                             spDO, authnReqDTO.getRpSessionId(),
-                                                             authnReqDTO.getTenantDomain(), authnReqDTO.getIssuer(),
-                                                             authnReqDTO.getAssertionConsumerURL());
+                            authnReqDTO.getUser().getAuthenticatedSubjectIdentifier(), spDO,
+                            authnReqDTO.getRpSessionId(), authnReqDTO.getIssuer(),
+                            authnReqDTO.getAssertionConsumerURL());
                 }
 
                 // Build the response for the successful scenario

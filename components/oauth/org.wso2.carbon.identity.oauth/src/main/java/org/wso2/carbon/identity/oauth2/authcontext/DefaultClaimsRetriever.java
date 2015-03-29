@@ -20,9 +20,11 @@ package org.wso2.carbon.identity.oauth2.authcontext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth.internal.OAuthComponentServiceHolder;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
+import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.user.api.ClaimManager;
 import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -62,38 +64,37 @@ public class DefaultClaimsRetriever implements ClaimsRetriever {
 
     @Override
     public SortedMap<String, String> getClaims(String endUserName, String[] requestedClaims) throws IdentityOAuth2Exception {
+
         SortedMap<String, String> claimValues;
+        int tenantId = MultitenantConstants.SUPER_TENANT_ID;
         try {
-            int tenantId = JWTTokenGenerator.getTenantId(endUserName);
+            tenantId = OAuth2Util.getTenantIdFromUserName(endUserName);
             String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(endUserName);
-            UserStoreManager userStoreManager = OAuthComponentServiceHolder.getRealmService()
-                    .getTenantUserRealm(tenantId).getUserStoreManager();
+            UserStoreManager userStoreManager = OAuthComponentServiceHolder.getRealmService().
+                    getTenantUserRealm(tenantId).getUserStoreManager();
             claimValues = new TreeMap(userStoreManager.getUserClaimValues(tenantAwareUsername, requestedClaims, null));
         } catch (UserStoreException e) {
-            log.debug("Error while reading user claims ", e);
-            throw new IdentityOAuth2Exception("Error while retrieving user claim values from "
-                    + "user store: " + e.getMessage());
+            throw new IdentityOAuth2Exception("Error while reading claims for user : " + endUserName, e);
         }
         return claimValues;
     }
 
     @Override
     public String[] getDefaultClaims(String endUserName) throws IdentityOAuth2Exception {
-        int tenantId = 0;
-        String[] requestedClaims;
+
+        int tenantId = MultitenantConstants.SUPER_TENANT_ID;
         try {
-            tenantId = JWTTokenGenerator.getTenantId(endUserName);
-            String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(endUserName);
+            tenantId = OAuth2Util.getTenantIdFromUserName(endUserName);
             // if no claims were requested, return all
-            log.debug("No claims set requested. Returning all claims in the dialect");
+            if(log.isDebugEnabled()){
+                log.debug("No claims set requested. Returning all claims in the dialect");
+            }
             ClaimManager claimManager =
                     OAuthComponentServiceHolder.getRealmService().getTenantUserRealm(tenantId).getClaimManager();
             ClaimMapping[] claims = claimManager.getAllClaimMappings(dialectURI);
-            return requestedClaims = claimToString(claims);
+            return claimToString(claims);
         } catch (UserStoreException e) {
-            log.debug("Error while reading user claims ", e);
-            throw new IdentityOAuth2Exception("Error while retrieving user claim values from "
-                    + "user store: " + e.getMessage());
+            throw new IdentityOAuth2Exception("Error while reading default claims for user : " + endUserName, e);
         }
     }
 

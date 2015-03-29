@@ -74,9 +74,35 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
                         validationDataDO.getRefreshTokenState()) &&
                 !OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED.equals(
                         validationDataDO.getRefreshTokenState())) {
-            log.debug("Refresh Token is not in 'ACTIVE' or 'EXPIRED' state for Client with " +
-                    "Client Id : " + tokenReqDTO.getClientId() + " " +
-                    "Refresh Token: " + tokenReqDTO.getRefreshToken());
+            if(log.isDebugEnabled()) {
+                log.debug("Access Token is not in 'ACTIVE' or 'EXPIRED' state for Client with " +
+                        "Client Id : " + tokenReqDTO.getClientId() + " " +
+                        "Refresh Token: " + tokenReqDTO.getRefreshToken());
+            }
+            return false;
+        }
+
+        String userStoreDomain = null;
+        if (OAuth2Util.checkAccessTokenPartitioningEnabled() && OAuth2Util.checkUserNameAssertionEnabled()) {
+            try {
+                userStoreDomain = OAuth2Util.getUserStoreDomainFromUserId(validationDataDO.getAuthorizedUser());
+            } catch (IdentityOAuth2Exception e) {
+                String errorMsg = "Error occurred while getting user store domain for User ID : " + validationDataDO.getAuthorizedUser();
+                log.error(errorMsg, e);
+                throw new IdentityOAuth2Exception(errorMsg, e);
+            }
+        }
+
+        AccessTokenDO accessTokenDO = tokenMgtDAO.retrieveLatestAccessToken(tokenReqDTO.getClientId(),
+                validationDataDO.getAuthorizedUser(),
+                userStoreDomain, OAuth2Util.buildScopeString(validationDataDO.getScope()), true);
+
+        if(accessTokenDO == null || !refreshToken.equals(accessTokenDO.getRefreshToken())){
+            String message = "Refresh token : " + refreshToken + " is not the latest. Latest refresh token is : " +
+                    accessTokenDO.getRefreshToken();
+            if(log.isDebugEnabled()){
+                log.debug(message);
+            }
             return false;
         }
 
@@ -117,6 +143,10 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
                                 oauth2AccessTokenReqDTO.getRefreshToken());
                 if (OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE.equals(
                         refreshTokenValidationDataDO.getRefreshTokenState())) {
+                    // We don't check for EXPIRED state here because latest token can never be in EXPIRED state since
+                    // tokens are expired only in TokenResponseTypeHandler, AbstractAuthorizationGrantHandler and
+                    // RefreshGrantHandler. In all the cases as soon as the token is expired the new ACTIVE is stored
+                    // Latest tokens can only be EXPIRED if we expire them during token validation which we don't do
                     long issuedAt = refreshTokenValidationDataDO.getIssuedAt();
                     long refreshValidity =
                             OAuthServerConfiguration.getInstance().getRefreshTokenValidityPeriodInSeconds() * 1000;

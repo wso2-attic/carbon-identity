@@ -85,14 +85,13 @@ public class SignKeyDataHolder implements X509Credential {
                     SAMLSSOConstants.FileBasedSPConfig.USE_AUTHENTICATED_USER_DOMAIN_CRYPTO);
             if (signWithValue != null && "true".equalsIgnoreCase(signWithValue.trim())) {
                 tenantDomain = userTenantDomain;
-                tenantID = SAMLSSOUtil.getRealmService().getTenantManager().
-                        getTenantId(tenantDomain);
+                tenantID = SAMLSSOUtil.getRealmService().getTenantManager().getTenantId(tenantDomain);
             } else {
                 tenantDomain = spTenantDomain;
                 tenantID = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
             }
 
-            initializeRegistry(tenantID);
+            SAMLSSOUtil.initializeRegistry(tenantID, tenantDomain);
 
             if (tenantID != MultitenantConstants.SUPER_TENANT_ID) {
                 String keyStoreName = SAMLSSOUtil.generateKSNameFromDomainName(tenantDomain);
@@ -146,23 +145,6 @@ public class SignKeyDataHolder implements X509Credential {
             throw new IdentityException(e.getMessage(), e);
         }
 
-    }
-
-    private void initializeRegistry(int tenantId) {
-        BundleContext bundleContext = SAMLSSOUtil.getBundleContext();
-        if (bundleContext != null) {
-            ServiceTracker tracker =
-                    new ServiceTracker(bundleContext,
-                            AuthenticationObserver.class.getName(), null);
-            tracker.open();
-            Object[] services = tracker.getServices();
-            if (services != null) {
-                for (Object service : services) {
-                    ((AuthenticationObserver) service).startedAuthentication(tenantId);
-                }
-            }
-            tracker.close();
-        }
     }
 
     public String getSignatureAlgorithm() {
