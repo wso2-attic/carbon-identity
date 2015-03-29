@@ -27,21 +27,11 @@ public class SessionInfoData implements Serializable {
 
     private static final long serialVersionUID = -2997545986276529377L;
 
-    private String subject;
     private Map<String, String> rpSessionList = new ConcurrentHashMap<String, String>();
     private Map<String, SAMLSSOServiceProviderDO> serviceProviderList = new ConcurrentHashMap<String, SAMLSSOServiceProviderDO>();
+    private Map<String, String> issuerSubjectMap = new ConcurrentHashMap<String, String>();
     /*private String authenticators;
     private Map<ClaimMapping, String> attributes = new HashMap<ClaimMapping, String>();*/
-    private String tenantDomain;
-
-    public SessionInfoData(String subject, String tenantDomain) {
-        this.subject = subject;
-        this.tenantDomain = tenantDomain;
-    }
-
-    public String getSubject() {
-        return subject;
-    }
 
     public Map<String, SAMLSSOServiceProviderDO> getServiceProviderList() {
         return serviceProviderList;
@@ -79,8 +69,12 @@ public class SessionInfoData implements Serializable {
 		this.attributes = attributes;
 	}*/
 
-    public String getTenantDomain() {
-        return tenantDomain;
+    public String getSubject(String issuer){
+        return issuerSubjectMap.get(issuer);
+    }
+
+    public void setSubject(String issuer, String subject){
+        issuerSubjectMap.put(issuer, subject);
     }
 }
 

@@ -23,10 +23,13 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.IdentityRegistryResources;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
+import org.wso2.carbon.registry.core.session.UserRegistry;
+import org.wso2.carbon.user.api.UserStoreException;
 
 public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProviderDO> {
 
@@ -338,16 +341,24 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
      */
     public SAMLSSOServiceProviderDO getServiceProvider(String issuer) throws IdentityException {
 
-        SAMLSSOServiceProviderDO serviceProviderDO = null;
         String path = IdentityRegistryResources.SAML_SSO_SERVICE_PROVIDERS + encodePath(issuer);
+        SAMLSSOServiceProviderDO serviceProviderDO = null;
 
+        UserRegistry userRegistry = null;
+        String tenantDomain = null;
         try {
+            userRegistry = (UserRegistry) registry;
+            tenantDomain = IdentityTenantUtil.getRealmService().getTenantManager().getDomain(userRegistry.getTenantId());
             if (registry.resourceExists(path)) {
                 serviceProviderDO = resourceToObject(registry.get(path));
+                serviceProviderDO.setTenantDomain(tenantDomain);
             }
         } catch (RegistryException e) {
-            log.error("Error reading Service Providers from Registry", e);
-            throw new IdentityException("Error reading Service Providers from Registry", e);
+            throw new IdentityException("Error occurred while checking if resource path \'" + path + "\' exists in " +
+                    "registry for tenant domain : " + tenantDomain, e);
+            } catch (UserStoreException e) {
+                throw new IdentityException("Error occurred while getting tenant domain from tenant ID : " +
+                    userRegistry.getTenantId(), e);
         }
 
         return serviceProviderDO;

@@ -104,7 +104,9 @@ public class FileBasedConfigManager {
         boolean fullQualifyUserName = true;
         boolean singleLogout = true;
         boolean signAssertion = true;
+        boolean validateSignature = false;
         boolean encryptAssertion = false;
+        String certAlias = null;
 
         for (int i = 0; i < nodeSet.getLength(); i++) {
             Element elem = (Element) nodeSet.item(i);
@@ -122,11 +124,19 @@ public class FileBasedConfigManager {
             if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SIGN_ASSERTION)) != null) {
                 signAssertion = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SIGN_ASSERTION));
             }
+            if((getTextValue(elem , SAMLSSOConstants.FileBasedSPConfig.SIG_VALIDATION)) != null){
+                validateSignature = Boolean.valueOf(getTextValue(elem , SAMLSSOConstants.FileBasedSPConfig.SIG_VALIDATION));
+            }
             if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ENCRYPT_ASSERTION)) != null) {
                 encryptAssertion = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ENCRYPT_ASSERTION));
             }
-            if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SIG_VALIDATION))) {
-                spDO.setCertAlias(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.CERT_ALIAS));
+            if(validateSignature || encryptAssertion){
+                certAlias = getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.CERT_ALIAS);
+                if(certAlias == null){
+                    log.warn("Certificate alias for Signature verification or Assertion encryption not specified. " +
+                            "Defaulting to \'wso2carbon\'");
+                    certAlias = "wso2carbon";
+                }
             }
             if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ATTRIBUTE_PROFILE))) {
                 if (elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.CLAIMS) != null) {
@@ -148,8 +158,10 @@ public class FileBasedConfigManager {
             spDO.setUseFullyQualifiedUsername(fullQualifyUserName);
             spDO.setDoSingleLogout(singleLogout);
             spDO.setDoSignAssertions(signAssertion);
+            spDO.setDoValidateSignatureInRequests(validateSignature);
             spDO.setDoEnableEncryptedAssertion(encryptAssertion);
             spDO.setDoSignResponse(Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SIGN_RESPONSE)));
+            spDO.setCertAlias(certAlias);
             spDO.setIdPInitSSOEnabled(Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.IDP_INIT)));
             spDO.setAttributeConsumingServiceIndex(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.CONSUMING_SERVICE_INDEX));
             serviceProviders[i] = spDO;

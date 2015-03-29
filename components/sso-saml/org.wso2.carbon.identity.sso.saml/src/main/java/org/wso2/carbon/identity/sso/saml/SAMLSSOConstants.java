@@ -26,7 +26,7 @@ public class SAMLSSOConstants {
     public static final String PASSWORD = "password";
     public static final String FEDERATED_IDP = "federated-idp-domain";
     public static final String ISSUER = "issuer";
-    public static final String ASSRTN_CONSUMER_URL = "assertnConsumerURL";
+    public static final String ASSRTN_CONSUMER_URL = "ACSUrl";
     public static final String REQ_ID = "id";
     public static final String SUBJECT = "subject";
     public static final String RP_SESSION_ID = "relyingPartySessionId";

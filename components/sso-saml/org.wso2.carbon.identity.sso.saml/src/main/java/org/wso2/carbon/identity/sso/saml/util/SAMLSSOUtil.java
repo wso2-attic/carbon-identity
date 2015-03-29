@@ -39,6 +39,7 @@ import org.opensaml.xml.security.x509.X509Credential;
 import org.opensaml.xml.util.Base64;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpService;
+import org.osgi.util.tracker.ServiceTracker;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
@@ -73,10 +74,13 @@ import org.wso2.carbon.identity.sso.saml.exception.IdentitySAML2SSOException;
 import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
 import org.wso2.carbon.identity.sso.saml.validators.SAML2HTTPRedirectSignatureValidator;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
+import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.utils.AuthenticationObserver;
 import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -118,6 +122,7 @@ public class SAMLSSOUtil {
     }
     private static Log log = LogFactory.getLog(SAMLSSOUtil.class);
     private static RegistryService registryService;
+    private static TenantRegistryLoader tenantRegistryLoader;
     private static BundleContext bundleContext;
     private static RealmService realmService;
     private static ConfigurationContextService configCtxService;
@@ -193,6 +198,14 @@ public class SAMLSSOUtil {
 
     public static void setRegistryService(RegistryService registryService) {
         SAMLSSOUtil.registryService = registryService;
+    }
+
+    public static TenantRegistryLoader getTenantRegistryLoader() {
+        return tenantRegistryLoader;
+    }
+
+    public static void setTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
+        SAMLSSOUtil.tenantRegistryLoader = tenantRegistryLoader;
     }
 
     public static RealmService getRealmService() {
@@ -402,9 +415,21 @@ public class SAMLSSOUtil {
         Issuer issuer = new IssuerBuilder().buildObject();
         String idPEntityId = null;
         IdentityProvider identityProvider;
+        int tenantId;
         String tenantDomain = getTenantDomainFromThreadLocal();
+        if(tenantDomain == null || tenantDomain.equals("null")){
+            tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+        }
         try {
+            tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
+        } catch(UserStoreException e){
+            String errorMsg = "Error getting the tenant ID for the tenant domain : " + tenantDomain;
+            throw new IdentityException(errorMsg, e);
+        }
 
+        initializeRegistry(tenantId, tenantDomain);
+
+        try {
             identityProvider = IdentityProviderManager.getInstance().getResidentIdP(tenantDomain);
         } catch (IdentityApplicationManagementException e) {
             throw new IdentityException(
@@ -695,38 +720,37 @@ public class SAMLSSOUtil {
     /**
      * Get the X509CredentialImpl object for a particular tenant
      *
-     * @param domainName domain name
+     * @param tenantDomain
+     * @param alias
      * @return X509CredentialImpl object containing the public certificate of
      * that tenant
      * @throws org.wso2.carbon.identity.sso.saml.exception.IdentitySAML2SSOException Error when creating X509CredentialImpl object
      */
-    public static X509CredentialImpl getX509CredentialImplForTenant(String domainName, String alias)
+    public static X509CredentialImpl getX509CredentialImplForTenant(String tenantDomain, String alias)
             throws IdentitySAML2SSOException {
 
-        int tenantID = -1234;
-        RealmService realmService = SAMLSSOUtil.getRealmService();
-
-        // get the tenantID
-        if (domainName != null) {
-            try {
-                tenantID = realmService.getTenantManager().getTenantId(domainName);
-            } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                String errorMsg = "Error getting the TenantID for the domain name";
-                log.error(errorMsg, e);
-                throw new IdentitySAML2SSOException(errorMsg, e);
-            }
+        if(tenantDomain == null || tenantDomain.trim().isEmpty() || alias == null || alias.trim().isEmpty()){
+            throw new IllegalArgumentException("Invalid parameters; domain name : " + tenantDomain + ", " +
+                    "alias : " + alias);
+        }
+        int tenantId;
+        try {
+            tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            String errorMsg = "Error getting the tenant ID for the tenant domain : " + tenantDomain;
+            throw new IdentitySAML2SSOException(errorMsg, e);
         }
 
         KeyStoreManager keyStoreManager;
         // get an instance of the corresponding Key Store Manager instance
-        keyStoreManager = KeyStoreManager.getInstance(tenantID);
+        keyStoreManager = KeyStoreManager.getInstance(tenantId);
 
         X509CredentialImpl credentialImpl = null;
         KeyStore keyStore;
 
         try {
-            if (tenantID != -1234) {// for tenants, load private key from their generated key store
-                keyStore = keyStoreManager.getKeyStore(generateKSNameFromDomainName(domainName));
+            if (tenantId != -1234) {// for tenants, load private key from their generated key store
+                keyStore = keyStoreManager.getKeyStore(generateKSNameFromDomainName(tenantDomain));
             } else { // for super tenant, load the default pub. cert using the
                 // config. in carbon.xml
                 keyStore = keyStoreManager.getPrimaryKeyStore();
@@ -736,9 +760,7 @@ public class SAMLSSOUtil {
             credentialImpl = new X509CredentialImpl(cert);
 
         } catch (Exception e) {
-            String errorMsg =
-                    "Error instantiating an X509CredentialImpl object for the public cert.";
-            log.error(errorMsg, e);
+            String errorMsg = "Error instantiating an X509CredentialImpl object for the public certificate of " + tenantDomain;
             throw new IdentitySAML2SSOException(errorMsg, e);
         }
         return credentialImpl;
@@ -924,7 +946,8 @@ public class SAMLSSOUtil {
             IdentityPersistenceManager persistenceManager =
                     IdentityPersistenceManager.getPersistanceManager();
 
-            Registry registry = (Registry) PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_CONFIGURATION);
+            Registry registry = (Registry)PrivilegedCarbonContext.getThreadLocalCarbonContext().
+                    getRegistry(RegistryType.SYSTEM_CONFIGURATION);
             spDO = persistenceManager.getServiceProvider(registry, authnReqDTO.getIssuer());
         }
 
@@ -1228,6 +1251,42 @@ public class SAMLSSOUtil {
         deflaterOutputStream.write(response.getBytes());
         deflaterOutputStream.close();
         return Base64.encodeBytes(byteArrayOutputStream.toByteArray(), Base64.DONT_BREAK_LINES);
+    }
+
+    public static void initializeRegistry(int tenantId, String tenantDomain) throws IdentityException {
+
+        if (tenantId != MultitenantConstants.SUPER_TENANT_ID) {
+            try {
+                PrivilegedCarbonContext.startTenantFlow();
+                PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                carbonContext.setTenantDomain(tenantDomain, true);
+                BundleContext bundleContext = SAMLSSOUtil.getBundleContext();
+                if (bundleContext != null) {
+                    ServiceTracker tracker = new ServiceTracker(bundleContext, AuthenticationObserver.class.getName(), null);
+                    tracker.open();
+                    Object[] services = tracker.getServices();
+                    if (services != null) {
+                        for (Object service : services) {
+                            ((AuthenticationObserver) service).startedAuthentication(tenantId);
+                        }
+                    }
+                    tracker.close();
+                    try {
+                        SAMLSSOUtil.getTenantRegistryLoader().loadTenantRegistry(tenantId);
+                    } catch (RegistryException e) {
+                        throw new IdentityException("Error loading tenant registry for tenant domain " + tenantDomain, e);
+                    }
+                    try {
+                        registryService.getGovernanceSystemRegistry(tenantId);
+                    } catch (RegistryException e) {
+                        throw new IdentityException("Error obtaining governance system registry for tenant domain " +
+                                tenantDomain, e);
+                    }
+                }
+            } finally {
+                PrivilegedCarbonContext.endTenantFlow();
+            }
+        }
     }
 
 }

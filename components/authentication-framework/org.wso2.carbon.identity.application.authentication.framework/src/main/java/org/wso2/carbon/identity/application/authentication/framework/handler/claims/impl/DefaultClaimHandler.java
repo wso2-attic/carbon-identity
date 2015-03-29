@@ -191,7 +191,9 @@ public class DefaultClaimHandler implements ClaimHandler {
             if (StringUtils.isEmpty(claimValue)) {
                 claimValue = defaultValuesForClaims.get(localClaimURI);
             }
-            localUnfilteredClaims.put(localClaimURI, claimValue);
+            if (!StringUtils.isEmpty(claimValue)) {
+                localUnfilteredClaims.put(localClaimURI, claimValue);
+            }
         }
         // set all locally mapped unfiltered remote claims as a property
         context.setProperty(FrameworkConstants.UNFILTERED_LOCAL_CLAIM_VALUES, localUnfilteredClaims);
