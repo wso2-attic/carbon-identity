@@ -226,6 +226,8 @@ public class OAuth2TokenEndpoint {
             tokenReqDTO.setAssertion(oauthRequest.getAssertion());
         } else if (org.wso2.carbon.identity.oauth.common.GrantType.IWA_NTLM.toString().equals(grantType)) {
             tokenReqDTO.setWindowsToken(oauthRequest.getWindowsToken());
+        } else if (org.wso2.carbon.identity.oauth.common.GrantType.JWT.toString().equals(grantType)) {
+            tokenReqDTO.setAssertion(oauthRequest.getAssertion());
         } else {
             // Set all request parameters to the OAuth2AccessTokenReqDTO
             tokenReqDTO.setRequestParameters(oauthRequest.getRequestParameters());
