@@ -98,7 +98,8 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
                     getClientId(), INBOUND_AUTH2_TYPE);
             serviceProvider = applicationMgtService.getApplication(spName);
         } catch (IdentityApplicationManagementException ex) {
-            String error = "Error occurred while getting service provider information.";
+            String error = "Error occurred while getting service provider information for client Id " +
+                    request.getOauth2AccessTokenReqDTO().getClientId();
             throw new IdentityOAuth2Exception(error, ex);
         }
 
@@ -118,10 +119,12 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
                         subject = request.getAuthorizedUser();
                     }
                 } catch (IdentityException e) {
-                    String error = "Error occurred while generating the IDToken.";
-                    throw new IdentityOAuth2Exception("Error while generating the IDToken", e);
+                    String error = "Error occurred while getting user claim for domain " + domainName + ", " +
+                            "user " + username + ", claim " + claim;
+                    throw new IdentityOAuth2Exception(error, e);
                 } catch (UserStoreException e) {
-                    String error = "Error occurred while generating the IDToken.";
+                    String error = "Error occurred while getting user claim for domain " + domainName + ", " +
+                            "user " + username + ", claim " + claim;
                     throw new IdentityOAuth2Exception(error, e);
                 }
             }

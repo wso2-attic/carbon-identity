@@ -28,6 +28,7 @@
         <module>components/authentication-framework</module>
         <module>components/entitlement</module>
         <module>components/identity-core</module>
+        <module>components/application-mgt</module>
         <module>components/identity-mgt</module>
         <module>components/notification-mgt</module>
         <module>components/oauth</module>
@@ -39,8 +40,7 @@
         <module>components/user-mgt</module>
         <module>components/user-store</module>
         <module>components/idp-mgt</module>
-        <module>components/authenticators</module>
-        <module>components/cassandra-userstore</module>
+        <module>components/carbon-authenticators</module>
         <module>components/claim-mgt</module>
         <module>components/directory-server-manager</module>
         <module>components/identity</module>

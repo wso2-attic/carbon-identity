@@ -214,7 +214,6 @@ public class TokenValidationHandler {
                 clientApp.setAccessTokenValidationResponse(responseDTO);
                 return clientApp;
             }
-            return clientApp;
         }
 
         // Add the token back to the cache in the case of a cache miss
