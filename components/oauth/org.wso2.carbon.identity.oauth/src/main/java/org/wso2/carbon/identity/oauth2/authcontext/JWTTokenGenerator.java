@@ -1,23 +1,33 @@
 /*
-*Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*WSO2 Inc. licenses this file to you under the Apache License,
-*Version 2.0 (the "License"); you may not use this file except
-*in compliance with the License.
-*You may obtain a copy of the License at
-*
-*http://www.apache.org/licenses/LICENSE-2.0
-*
-*Unless required by applicable law or agreed to in writing,
-*software distributed under the License is distributed on an
-*"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*KIND, either express or implied.  See the License for the
-*specific language governing permissions and limitations
-*under the License.
-*/
+ *Copyright (c) 2012, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *WSO2 Inc. licenses this file to you under the Apache License,
+ *Version 2.0 (the "License"); you may not use this file except
+ *in compliance with the License.
+ *You may obtain a copy of the License at
+ *
+ *http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *Unless required by applicable law or agreed to in writing,
+ *software distributed under the License is distributed on an
+ *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *KIND, either express or implied.  See the License for the
+ *specific language governing permissions and limitations
+ *under the License.
+ */
 
 package org.wso2.carbon.identity.oauth2.authcontext;
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.util.Base64URL;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.PlainJWT;
+import com.nimbusds.jwt.SignedJWT;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,22 +38,22 @@ import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth.dao.OAuthAppDAO;
-import org.wso2.carbon.identity.oauth.internal.OAuthComponentServiceHolder;
 import org.wso2.carbon.identity.oauth.util.ClaimCache;
 import org.wso2.carbon.identity.oauth.util.ClaimCacheKey;
 import org.wso2.carbon.identity.oauth.util.UserClaims;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
+import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.identity.oauth2.validators.OAuth2TokenValidationMessageContext;
-import org.wso2.carbon.user.api.UserStoreException;
-import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import java.security.*;
+import java.security.Key;
+import java.security.KeyStore;
+import java.security.MessageDigest;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
+import java.security.interfaces.RSAPrivateKey;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.SortedMap;
 import java.util.TreeSet;
@@ -63,19 +73,23 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
 
     private static final String API_GATEWAY_ID = "http://wso2.org/gateway";
 
-    private static final String SHA256_WITH_RSA = "SHA256withRSA";
-
     private static final String NONE = "NONE";
 
     private static final Base64 base64Url = new Base64(0, null, true);
 
     private static volatile long ttl = -1L;
+
+    private ClaimsRetriever claimsRetriever;
+
+    private JWSAlgorithm signatureAlgorithm = new JWSAlgorithm(JWSAlgorithm.RS256.getName());
+
+    private boolean includeClaims = true;
+
+    private boolean enableSigning = true;
+
     private static ConcurrentHashMap<Integer, Key> privateKeys = new ConcurrentHashMap<Integer, Key>();
     private static ConcurrentHashMap<Integer, Certificate> publicCerts = new ConcurrentHashMap<Integer, Certificate>();
-    private ClaimsRetriever claimsRetriever;
-    private String signatureAlgorithm = SHA256_WITH_RSA;
-    private boolean includeClaims = true;
-    private boolean enableSigning = true;
+
     private ClaimCache claimsLocalCache;
 
     public JWTTokenGenerator() {
@@ -86,28 +100,7 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
     public JWTTokenGenerator(boolean includeClaims, boolean enableSigning) {
         this.includeClaims = includeClaims;
         this.enableSigning = enableSigning;
-        signatureAlgorithm = NONE;
-    }
-
-    /**
-     * Helper method to get tenantId from userName
-     *
-     * @param userName
-     * @return tenantId
-     * @throws IdentityOAuth2Exception
-     */
-    static int getTenantId(String userName) throws IdentityOAuth2Exception {
-        //get tenant domain from user name
-        String tenantDomain = MultitenantUtils.getTenantDomain(userName);
-        RealmService realmService = OAuthComponentServiceHolder.getRealmService();
-        try {
-            int tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
-            return tenantId;
-        } catch (UserStoreException e) {
-            String error = "Error in obtaining tenantId from Domain";
-            //do not log
-            throw new IdentityOAuth2Exception(error);
-        }
+        signatureAlgorithm = new JWSAlgorithm(JWSAlgorithm.NONE.getName());
     }
 
     /**
@@ -119,23 +112,22 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
     @Override
     public void init() throws IdentityOAuth2Exception {
         if (includeClaims && enableSigning) {
-            String claimsRetrieverImplClass =
-                    OAuthServerConfiguration.getInstance().getClaimsRetrieverImplClass();
-            signatureAlgorithm = OAuthServerConfiguration.getInstance().getSignatureAlgorithm();
-            if (signatureAlgorithm == null || !(signatureAlgorithm.equals(NONE) || signatureAlgorithm.equals(SHA256_WITH_RSA))) {
-                signatureAlgorithm = SHA256_WITH_RSA;
+            String claimsRetrieverImplClass = OAuthServerConfiguration.getInstance().getClaimsRetrieverImplClass();
+            String sigAlg =  OAuthServerConfiguration.getInstance().getSignatureAlgorithm();
+            if(sigAlg != null && !sigAlg.trim().isEmpty()){
+                signatureAlgorithm = mapSignatureAlgorithm(sigAlg);
             }
-            if (claimsRetrieverImplClass != null) {
-                try {
-                    claimsRetriever = (ClaimsRetriever) Class.forName(claimsRetrieverImplClass).newInstance();
+            if(claimsRetrieverImplClass != null){
+                try{
+                    claimsRetriever = (ClaimsRetriever)Class.forName(claimsRetrieverImplClass).newInstance();
                     claimsRetriever.init();
-                } catch (ClassNotFoundException e) {
-                    log.error("Cannot find class: " + claimsRetrieverImplClass, e);
+                } catch (ClassNotFoundException e){
+                    log.error("Cannot find class: " + claimsRetrieverImplClass,e);
                 } catch (InstantiationException e) {
                     log.error("Error instantiating " + claimsRetrieverImplClass);
                 } catch (IllegalAccessException e) {
                     log.error("Illegal access to " + claimsRetrieverImplClass);
-                } catch (IdentityOAuth2Exception e) {
+                } catch (IdentityOAuth2Exception e){
                     log.error("Error while initializing " + claimsRetrieverImplClass);
                 }
             }
@@ -151,9 +143,13 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
     @Override
     public void generateToken(OAuth2TokenValidationMessageContext messageContext) throws IdentityOAuth2Exception {
 
-        String clientId = ((AccessTokenDO) messageContext.getProperty("AccessTokenDO")).getConsumerKey();
+        String clientId = ((AccessTokenDO)messageContext.getProperty("AccessTokenDO")).getConsumerKey();
+        long issuedTime = ((AccessTokenDO)messageContext.getProperty("AccessTokenDO")).getIssuedTime().getTime();
+        String authzUser = messageContext.getResponseDTO().getAuthorizedUser();
+        int tenantID = ((AccessTokenDO)messageContext.getProperty("AccessTokenDO")).getTenantID();
+        String tenantDomain = OAuth2Util.getTenantDomain(tenantID);
 
-        OAuthAppDAO appDAO = new OAuthAppDAO();
+        OAuthAppDAO appDAO =  new OAuthAppDAO();
         OAuthAppDO appDO;
         try {
             appDO = appDAO.getAppInformation(clientId);
@@ -168,58 +164,33 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
         }
         String subscriber = appDO.getUserName();
         String applicationName = appDO.getApplicationName();
-        String authzUser = messageContext.getResponseDTO().getAuthorizedUser();
 
         //generating expiring timestamp
         long currentTime = Calendar.getInstance().getTimeInMillis();
         long expireIn = currentTime + 1000 * 60 * getTTL();
 
-        String jwtBody;
+        // Prepare JWT with claims set
+        JWTClaimsSet claimsSet = new JWTClaimsSet();
+        claimsSet.setIssuer(API_GATEWAY_ID);
+        claimsSet.setSubject(authzUser);
+        claimsSet.setIssueTime(new Date(issuedTime));
+        claimsSet.setExpirationTime(new Date(expireIn));
+        claimsSet.setClaim("subscriber",subscriber);
+        claimsSet.setClaim("applicationname",applicationName);
+        claimsSet.setClaim("enduser",authzUser);
 
-        //Sample JWT body
-        //{"iss":"wso2.org/gateway","exp":1349267862304,"http://wso2.org/claims/subscriber":"johann",
-        // "http://wso2.org/claims/applicationname":"App1","http://wso2.org/claims/enduser":"asela"}
-
-        StringBuilder jwtBuilder = new StringBuilder();
-        jwtBuilder.append("{");
-        jwtBuilder.append("\"iss\":\"");
-        jwtBuilder.append(API_GATEWAY_ID);
-        jwtBuilder.append("\",");
-
-        jwtBuilder.append("\"exp\":");
-        jwtBuilder.append(String.valueOf(expireIn));
-        jwtBuilder.append(",");
-
-        jwtBuilder.append("\"");
-        jwtBuilder.append(API_GATEWAY_ID);
-        jwtBuilder.append("/subscriber\":\"");
-        jwtBuilder.append(subscriber);
-        jwtBuilder.append("\",");
-
-        jwtBuilder.append("\"");
-        jwtBuilder.append(API_GATEWAY_ID);
-        jwtBuilder.append("/applicationname\":\"");
-        jwtBuilder.append(applicationName);
-        jwtBuilder.append("\",");
-
-        jwtBuilder.append("\"");
-        jwtBuilder.append(API_GATEWAY_ID);
-        jwtBuilder.append("/enduser\":\"");
-        jwtBuilder.append(authzUser);
-        jwtBuilder.append("\"");
-
-        if (claimsRetriever != null) {
+        if(claimsRetriever != null){
 
             //check in local cache
             String[] requestedClaims = messageContext.getRequestDTO().getRequiredClaimURIs();
-            if (requestedClaims == null) {
+            if(requestedClaims == null)  {
                 // if no claims were requested, return all
                 requestedClaims = claimsRetriever.getDefaultClaims(authzUser);
             }
             CacheKey cacheKey = new ClaimCacheKey(authzUser, requestedClaims);
             Object result = claimsLocalCache.getValueFromCache(cacheKey);
 
-            SortedMap<String, String> claimValues = null;
+            SortedMap<String,String> claimValues = null;
             if (result != null) {
                 claimValues = ((UserClaims) result).getClaimValues();
             } else {
@@ -228,204 +199,124 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
                 claimsLocalCache.addToCache(cacheKey, userClaims);
             }
 
-
             Iterator<String> it = new TreeSet(claimValues.keySet()).iterator();
-            while (it.hasNext()) {
+            while(it.hasNext()){
                 String claimURI = it.next();
-                jwtBuilder.append(", \"");
-                jwtBuilder.append(claimURI);
-                jwtBuilder.append("\":\"");
-                jwtBuilder.append(claimValues.get(claimURI));
-                jwtBuilder.append("\"");
+                claimsSet.setClaim(claimURI,claimValues.get(claimURI));
             }
         }
 
-        jwtBuilder.append("}");
-        jwtBody = jwtBuilder.toString();
-
-        String jwtHeader = null;
-
-        //if signature algo==NONE, header with "alg":"none"
-        if (signatureAlgorithm.equals(NONE)) {
-            jwtHeader = "{\"typ\":\"JWT\",\"alg\":\"none\"}";
-        } else if (signatureAlgorithm.equals(SHA256_WITH_RSA)) {
-            jwtHeader = addCertToHeader(authzUser);
-        }
-
-        String base64EncodedHeader = new String(base64Url.encode(jwtHeader.getBytes()));
-        String base64EncodedBody = new String(base64Url.encode(jwtBody.getBytes()));
-        OAuth2TokenValidationResponseDTO.AuthorizationContextToken token;
-        if (signatureAlgorithm.equals(SHA256_WITH_RSA)) {
-            String assertion = base64EncodedHeader + "." + base64EncodedBody;
-
-            //get the assertion signed
-            byte[] signedAssertion = signJWT(assertion, authzUser);
-
-            if (log.isDebugEnabled()) {
-                log.debug("Signed assertion value : " + new String(signedAssertion));
-            }
-            String base64EncodedAssertion = new String(base64Url.encode(signedAssertion));
-
-            token = messageContext.getResponseDTO().new AuthorizationContextToken(
-                    "JWT", base64EncodedHeader + "." + base64EncodedBody + "." + base64EncodedAssertion);
-            messageContext.getResponseDTO().setAuthorizationContextToken(token);
+        JWT jwt = null;
+        if(!JWSAlgorithm.NONE.equals(signatureAlgorithm)){
+            JWSHeader header = new JWSHeader(JWSAlgorithm.RS256);
+            header.setX509CertThumbprint(new Base64URL(getThumbPrint(tenantDomain, tenantID)));
+            jwt = new SignedJWT(header, claimsSet);
+            jwt = signJWT((SignedJWT)jwt, tenantDomain, tenantID);
         } else {
-            token = messageContext.getResponseDTO().new AuthorizationContextToken(
-                    "JWT", base64EncodedHeader + "." + base64EncodedBody + ".");
-            messageContext.getResponseDTO().setAuthorizationContextToken(token);
+            jwt = new PlainJWT(claimsSet);
         }
+
+        if (log.isDebugEnabled()) {
+            log.debug("JWT Assertion Value : " + jwt.serialize());
+        }
+        OAuth2TokenValidationResponseDTO.AuthorizationContextToken token;
+        token = messageContext.getResponseDTO().new AuthorizationContextToken("JWT", jwt.serialize());
+        messageContext.getResponseDTO().setAuthorizationContextToken(token);
     }
 
     /**
-     * Helper method to sign the JWT
+     * Sign with given RSA Algorithm
      *
-     * @param assertion
-     * @param endUserName
-     * @return signed assertion
+     * @param signedJWT
+     * @param jwsAlgorithm
+     * @param tenantDomain
+     * @param tenantId
+     * @return
      * @throws IdentityOAuth2Exception
      */
-    private byte[] signJWT(String assertion, String endUserName)
+    protected SignedJWT signJWTWithRSA(SignedJWT signedJWT, JWSAlgorithm jwsAlgorithm, String tenantDomain,
+                                       int tenantId)
             throws IdentityOAuth2Exception {
 
         try {
-            //get tenant domain
-            String tenantDomain = MultitenantUtils.getTenantDomain(endUserName);
-            //get tenantId
-            int tenantId = getTenantId(endUserName);
-
-            Key privateKey = null;
-
-            if (!(privateKeys.containsKey(tenantId))) {
-                //get tenant's key store manager
-                KeyStoreManager tenantKSM = KeyStoreManager.getInstance(tenantId);
-
-                if (!tenantDomain.equals(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME)) {
-                    //derive key store name
-                    String ksName = tenantDomain.trim().replace(".", "-");
-                    String jksName = ksName + ".jks";
-                    //obtain private key
-                    //TODO: maintain a hash map with tenants' private keys after first initialization
-                    privateKey = tenantKSM.getPrivateKey(jksName, tenantDomain);
-                } else {
-                    try {
-                        privateKey = tenantKSM.getDefaultPrivateKey();
-                    } catch (Exception e) {
-                        log.error("Error while obtaining private key for super tenant", e);
-                    }
-                }
-                if (privateKey != null) {
-                    privateKeys.put(tenantId, privateKey);
-                }
-            } else {
-                privateKey = privateKeys.get(tenantId);
-            }
-
-            //initialize signature with private key and algorithm
-            Signature signature = Signature.getInstance(signatureAlgorithm);
-            signature.initSign((PrivateKey) privateKey);
-
-            //update signature with data to be signed
-            byte[] dataInBytes = assertion.getBytes();
-            signature.update(dataInBytes);
-
-            //sign the assertion and return the signature
-            byte[] signedInfo = signature.sign();
-            return signedInfo;
-
-        } catch (NoSuchAlgorithmException e) {
-            String error = "Signature algorithm not found.";
-            //do not log
-            throw new IdentityOAuth2Exception(error);
-        } catch (InvalidKeyException e) {
-            String error = "Invalid private key provided for the signature";
-            //do not log
-            throw new IdentityOAuth2Exception(error);
-        } catch (SignatureException e) {
-            String error = "Error in signature";
-            //do not log
-            throw new IdentityOAuth2Exception(error);
-        } catch (IdentityOAuth2Exception e) {
-            //do not log
-            throw new IdentityOAuth2Exception(e.getMessage());
+            Key privateKey = getPrivateKey(tenantDomain, tenantId);
+            JWSSigner signer = new RSASSASigner((RSAPrivateKey) privateKey);
+            signedJWT.sign(signer);
+            return signedJWT;
+        } catch (JOSEException e) {
+            log.error("Error in obtaining tenant's keystore", e);
+            throw new IdentityOAuth2Exception("Error in obtaining tenant's keystore", e);
+        } catch (Exception e) {
+            log.error("Error in obtaining tenant's keystore", e);
+            throw new IdentityOAuth2Exception("Error in obtaining tenant's keystore", e);
         }
     }
 
     /**
-     * Helper method to add public certificate to JWT_HEADER to signature verification.
+     * Generic Signing function
      *
-     * @param endUserName
+     * @param signedJWT
+     * @param tenantDomain
+     * @param tenantId
+     * @return
      * @throws IdentityOAuth2Exception
      */
-    private String addCertToHeader(String endUserName) throws IdentityOAuth2Exception {
+    protected JWT signJWT(SignedJWT signedJWT, String tenantDomain, int tenantId)
+            throws IdentityOAuth2Exception {
 
-        try {
-            //get tenant domain
-            String tenantDomain = MultitenantUtils.getTenantDomain(endUserName);
-            //get tenantId
-            int tenantId = getTenantId(endUserName);
-            Certificate publicCert = null;
-
-            if (!(publicCerts.containsKey(tenantId))) {
-                //get tenant's key store manager
-                KeyStoreManager tenantKSM = KeyStoreManager.getInstance(tenantId);
-
-                KeyStore keyStore = null;
-                if (!tenantDomain.equals(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME)) {
-                    //derive key store name
-                    String ksName = tenantDomain.trim().replace(".", "-");
-                    String jksName = ksName + ".jks";
-                    keyStore = tenantKSM.getKeyStore(jksName);
-                    publicCert = keyStore.getCertificate(tenantDomain);
-                } else {
-                    publicCert = tenantKSM.getDefaultPrimaryCertificate();
-                }
-                if (publicCert != null) {
-                    publicCerts.put(tenantId, publicCert);
-                }
-            } else {
-                publicCert = publicCerts.get(tenantId);
-            }
-
-            //generate the SHA-1 thumbprint of the certificate
-            //TODO: maintain a hashmap with tenants' pubkey thumbprints after first initialization
-            MessageDigest digestValue = MessageDigest.getInstance("SHA-1");
-            byte[] der = publicCert.getEncoded();
-            digestValue.update(der);
-            byte[] digestInBytes = digestValue.digest();
-
-            String publicCertThumbprint = hexify(digestInBytes);
-            String base64EncodedThumbPrint = new String(base64Url.encode(publicCertThumbprint.getBytes()));
-
-            StringBuilder jwtHeader = new StringBuilder();
-
-            //Sample header
-            //{"typ":"JWT", "alg":"SHA256withRSA", "x5t":"NmJmOGUxMzZlYjM2ZDRhNTZlYTA1YzdhZTRiOWE0NWI2M2JmOTc1ZA=="}
-
-            jwtHeader.append("{\"typ\":\"JWT\",");
-            jwtHeader.append("\"alg\":\"");
-            jwtHeader.append(signatureAlgorithm);
-            jwtHeader.append("\",");
-
-            jwtHeader.append("\"x5t\":\"");
-            jwtHeader.append(base64EncodedThumbPrint);
-            jwtHeader.append("\"");
-
-            jwtHeader.append("}");
-            return jwtHeader.toString();
-
-        } catch (KeyStoreException e) {
-            String error = "Error in obtaining tenant's keystore";
-            throw new IdentityOAuth2Exception(error);
-        } catch (CertificateEncodingException e) {
-            String error = "Error in generating public cert thumbprint";
-            throw new IdentityOAuth2Exception(error);
-        } catch (NoSuchAlgorithmException e) {
-            String error = "Error in generating public cert thumbprint";
-            throw new IdentityOAuth2Exception(error);
-        } catch (Exception e) {
-            String error = "Error in obtaining tenant's keystore";
-            throw new IdentityOAuth2Exception(error);
+        if (JWSAlgorithm.RS256.equals(signatureAlgorithm) || JWSAlgorithm.RS384.equals(signatureAlgorithm) ||
+                JWSAlgorithm.RS512.equals(signatureAlgorithm)) {
+            return signJWTWithRSA(signedJWT, signatureAlgorithm, tenantDomain, tenantId);
+        } else if (JWSAlgorithm.HS256.equals(signatureAlgorithm) ||
+                JWSAlgorithm.HS384.equals(signatureAlgorithm) ||
+                JWSAlgorithm.HS512.equals(signatureAlgorithm)) {
+            // return signWithHMAC(payLoad,jwsAlgorithm,tenantDomain,tenantId); implementation
+            // need to be done
+        } else if (JWSAlgorithm.ES256.equals(signatureAlgorithm) ||
+                JWSAlgorithm.ES384.equals(signatureAlgorithm) ||
+                JWSAlgorithm.ES512.equals(signatureAlgorithm)) {
+            // return signWithEC(payLoad,jwsAlgorithm,tenantDomain,tenantId); implementation
+            // need to be done
         }
+        log.error("UnSupported Signature Algorithm");
+        throw new IdentityOAuth2Exception("UnSupported Signature Algorithm");
+    }
+
+    /**
+     * This method map signature algorithm define in identity.xml to nimbus
+     * signature algorithm
+     * format, Strings are defined inline hence there are not being used any
+     * where
+     *
+     * @param signatureAlgorithm
+     * @return
+     * @throws IdentityOAuth2Exception
+     */
+    protected JWSAlgorithm mapSignatureAlgorithm(String signatureAlgorithm)
+            throws IdentityOAuth2Exception {
+        if ("SHA256withRSA".equals(signatureAlgorithm)) {
+            return JWSAlgorithm.RS256;
+        } else if ("SHA384withRSA".equals(signatureAlgorithm)) {
+            return JWSAlgorithm.RS384;
+        } else if ("SHA512withRSA".equals(signatureAlgorithm)) {
+            return JWSAlgorithm.RS512;
+        } else if ("SHA256withHMAC".equals(signatureAlgorithm)) {
+            return JWSAlgorithm.HS256;
+        } else if ("SHA384withHMAC".equals(signatureAlgorithm)) {
+            return JWSAlgorithm.HS384;
+        } else if ("SHA512withHMAC".equals(signatureAlgorithm)) {
+            return JWSAlgorithm.HS512;
+        } else if ("SHA256withEC".equals(signatureAlgorithm)) {
+            return JWSAlgorithm.ES256;
+        } else if ("SHA384withEC".equals(signatureAlgorithm)) {
+            return JWSAlgorithm.ES384;
+        } else if ("SHA512withEC".equals(signatureAlgorithm)) {
+            return JWSAlgorithm.ES512;
+        } else if(NONE.equals(signatureAlgorithm)){
+            return new JWSAlgorithm(JWSAlgorithm.NONE.getName());
+        }
+        log.error("Unsupported Signature Algorithm in identity.xml");
+        throw new IdentityOAuth2Exception("Unsupported Signature Algorithm in identity.xml");
     }
 
     private long getTTL() {
@@ -448,11 +339,116 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
     }
 
     /**
+     * Helper method to add public certificate to JWT_HEADER to signature verification.
+     *
+     * @param tenantDomain
+     * @param tenantId
+     * @throws IdentityOAuth2Exception
+     */
+    private String getThumbPrint(String tenantDomain, int tenantId) throws IdentityOAuth2Exception {
+
+        try {
+
+            Certificate certificate = getCertificate(tenantDomain, tenantId);
+
+            // TODO: maintain a hashmap with tenants' pubkey thumbprints after first initialization
+
+            //generate the SHA-1 thumbprint of the certificate
+            MessageDigest digestValue = MessageDigest.getInstance("SHA-1");
+            byte[] der = certificate.getEncoded();
+            digestValue.update(der);
+            byte[] digestInBytes = digestValue.digest();
+
+            String publicCertThumbprint = hexify(digestInBytes);
+            String base64EncodedThumbPrint = new String(base64Url.encode(publicCertThumbprint.getBytes()));
+            return base64EncodedThumbPrint;
+
+        } catch (Exception e) {
+            String error = "Error in obtaining certificate for tenant " + tenantDomain;
+            throw new IdentityOAuth2Exception(error, e);
+        }
+    }
+
+    private Key getPrivateKey(String tenantDomain, int tenantId) throws IdentityOAuth2Exception {
+
+        if (tenantDomain == null) {
+            tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+        }
+
+        if (tenantId == 0) {
+            tenantId = OAuth2Util.getTenantId(tenantDomain);
+        }
+
+        Key privateKey = null;
+
+        if (!(privateKeys.containsKey(tenantId))) {
+            // get tenant's key store manager
+            KeyStoreManager tenantKSM = KeyStoreManager.getInstance(tenantId);
+
+            if (!tenantDomain.equals(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME)) {
+                // derive key store name
+                String ksName = tenantDomain.trim().replace(".", "-");
+                String jksName = ksName + ".jks";
+                // obtain private key
+                privateKey = tenantKSM.getPrivateKey(jksName, tenantDomain);
+
+            } else {
+                try {
+                    privateKey = tenantKSM.getDefaultPrivateKey();
+                } catch (Exception e) {
+                    log.error("Error while obtaining private key for super tenant", e);
+                }
+            }
+            if (privateKey != null) {
+                privateKeys.put(tenantId, privateKey);
+            }
+        } else {
+            privateKey = privateKeys.get(tenantId);
+        }
+        return privateKey;
+    }
+
+    private Certificate getCertificate(String tenantDomain, int tenantId) throws Exception {
+
+        if (tenantDomain == null) {
+            tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+        }
+
+        if (tenantId == 0) {
+            tenantId = OAuth2Util.getTenantId(tenantDomain);
+        }
+
+        Certificate publicCert = null;
+
+        if (!(publicCerts.containsKey(tenantId))) {
+            // get tenant's key store manager
+            KeyStoreManager tenantKSM = KeyStoreManager.getInstance(tenantId);
+
+            KeyStore keyStore = null;
+            if (!tenantDomain.equals(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME)) {
+                // derive key store name
+                String ksName = tenantDomain.trim().replace(".", "-");
+                String jksName = ksName + ".jks";
+                keyStore = tenantKSM.getKeyStore(jksName);
+                publicCert = keyStore.getCertificate(tenantDomain);
+            } else {
+                publicCert = tenantKSM.getDefaultPrimaryCertificate();
+            }
+            if (publicCert != null) {
+                publicCerts.put(tenantId, publicCert);
+            }
+        } else {
+            publicCert = publicCerts.get(tenantId);
+        }
+        return publicCert;
+    }
+
+    /**
      * Helper method to hexify a byte array.
      * TODO:need to verify the logic
      *
      * @param bytes
-     * @return hexadecimal representation
+     * @return  hexadecimal representation
      */
     private String hexify(byte bytes[]) {
 
@@ -468,5 +464,4 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
 
         return buf.toString();
     }
-
 }
