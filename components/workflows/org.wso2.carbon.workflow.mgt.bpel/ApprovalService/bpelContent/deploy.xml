@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deploy xmlns:cb.mgt.workflow.carbon.wso2.org="http://cb.mgt.workflow.carbon.wso2.org"
+        xmlns:sample="http://bpel.mgt.workflow.carbon.wso2.org/approvalProcess"
+        xmlns:wsdl="http://ht.bpel.mgt.workflow.identity.carbon.wso2.org/wsdl"
+        xmlns="http://www.apache.org/ode/schemas/dd/2007/03">
+    <process name="sample:ApprovalProcess">
+        <active>true</active>
+        <retired>false</retired>
+        <process-events generate="all"/>
+        <provide partnerLink="client">
+            <service name="sample:ApprovalProcessService" port="ApprovalProcessPort"/>
+        </provide>
+        <provide partnerLink="b4pApprovalPL">
+            <service name="wsdl:ApprovalTaskService" port="ApprovalTaskPort"/>
+        </provide>
+        <invoke partnerLink="callbackService">
+            <service name="cb.mgt.workflow.carbon.wso2.org:WorkflowCallbackService"
+                     port="WorkflowCallbackServiceHttpsSoap11Endpoint"/>
+        </invoke>
+        <invoke partnerLink="b4pApprovalPL">
+            <service name="wsdl:ApprovalTaskServiceCB" port="ApprovalTaskCBPort"/>
+        </invoke>
+    </process>
+</deploy>
