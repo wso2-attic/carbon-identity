@@ -15,13 +15,14 @@
  ~ limitations under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-   <parent>
+    <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>claim-mgt</artifactId>
         <version>4.3.4-SNAPSHOT</version>
-	<relativePath>../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -29,7 +30,7 @@
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Claim Management BE</name>
     <description>Claim management for WSO2 Carbon</description>
-    <url>http://wso2.org</url>   
+    <url>http://wso2.org</url>
 
     <dependencies>
         <dependency>
@@ -49,13 +50,13 @@
             <artifactId>org.wso2.carbon.logging</artifactId>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                
+
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
@@ -79,9 +80,9 @@
                 </configuration>
             </plugin>
             <plugin>
-		<groupId>org.apache.felix</groupId>
-		<artifactId>maven-scr-plugin</artifactId>
-	    </plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
 </project>
