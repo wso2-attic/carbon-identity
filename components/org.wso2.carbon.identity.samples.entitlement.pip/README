@@ -1,0 +1,22 @@
+Description 
+===========
+
+This is sample PIP attribute finder that can be plugged with WSO2 Identity Server. This  PIP finder has been written for kmarket sample which is shipped with Balana. You can find more details on sample from here [1]
+
+[1] https://svn.wso2.org/repos/wso2/trunk/commons/balana/modules/balana-samples/kmarket-trading-sample
+
+How To
+======
+
+1. Build sample using maven m3 and create the jar file.
+
+2. Copy jar file in to <IS_HOME>/repository/components/lib directory 
+
+3. Register attribute finder in entitlement.properties file which can be found at <IS_HOME>/repository/conf/security directory 
+
+such as following
+
+PIP.AttributeDesignators.Designator.2=org.wso2.carbon.identity.samples.entitlement.pip.KmarketPIPAttributeFinder
+
+4. Restart the server. 
+

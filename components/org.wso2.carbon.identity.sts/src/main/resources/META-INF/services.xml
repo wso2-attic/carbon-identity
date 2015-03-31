@@ -1,0 +1,241 @@
+<!--
+ ~ Copyright (c) 2005-2011, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ ~
+ ~ WSO2 Inc. licenses this file to you under the Apache License,
+ ~ Version 2.0 (the "License"); you may not use this file except
+ ~ in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~    http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied.  See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
+ -->
+<serviceGroup>
+   
+    <parameter name="adminService" locked="true">false</parameter>
+    <parameter name="hiddenService" locked="true">true</parameter>
+    
+    <service name="sts-ut">
+		<module ref="rampart" />
+		<operation name="IssueToken" mep="http://www.w3.org/2006/01/wsdl/in-out">
+			<messageReceiver class="org.apache.rahas.STSMessageReceiver"/>
+	
+			<!-- Action mapping to accept SCT requests -->
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/SCT</actionMapping>
+	
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Issue</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Renew</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Cancel</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/SCT/Cancel</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Validate</actionMapping>
+	
+			<parameter name="token-dispatcher-configuration">
+				<token-dispatcher-configuration>
+						<!-- Issuers. You may have many issuers. -->
+	                <issuer class="org.wso2.carbon.identity.sts.IdentityTokenIssuer" default="true">
+						<configuration type="parameter">saml-issuer-config</configuration>
+						<tokenType>urn:oasis:names:tc:SAML:1.0:assertion</tokenType>
+					</issuer>
+				 </token-dispatcher-configuration>
+			</parameter>
+		</operation>
+
+	</service>
+	
+	<service name="sts-ic">
+		<module ref="rampart" />
+		<operation name="IssueToken" mep="http://www.w3.org/2006/01/wsdl/in-out">
+			<messageReceiver class="org.apache.rahas.STSMessageReceiver"/>
+	
+			<!-- Action mapping to accept SCT requests -->
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/SCT</actionMapping>
+	
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Issue</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Renew</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Cancel</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/SCT/Cancel</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Validate</actionMapping>
+	
+			<parameter name="token-dispatcher-configuration">
+				<token-dispatcher-configuration>
+						<!-- Issuers. You may have many issuers. -->
+						<issuer class="org.wso2.carbon.identity.sts.IdentityTokenIssuer" default="true">
+					<configuration type="parameter">saml-issuer-config</configuration>
+					<tokenType>urn:oasis:names:tc:SAML:1.0:assertion</tokenType>
+				</issuer>
+				 </token-dispatcher-configuration>
+			</parameter>
+		</operation>
+
+	</service>
+
+	<service name="sts-ut-symm">
+		<module ref="rampart" />
+		<operation name="IssueToken" mep="http://www.w3.org/2006/01/wsdl/in-out">
+			<messageReceiver class="org.apache.rahas.STSMessageReceiver"/>
+	
+			<!-- Action mapping to accept SCT requests -->
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/SCT</actionMapping>
+	
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Issue</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Renew</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Cancel</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/SCT/Cancel</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Validate</actionMapping>
+	
+			<parameter name="token-dispatcher-configuration">
+				<token-dispatcher-configuration>
+						<!-- Issuers. You may have many issuers. -->
+						<issuer class="org.wso2.carbon.identity.sts.IdentityTokenIssuer" default="true">
+					<configuration type="parameter">saml-issuer-config</configuration>
+					<tokenType>urn:oasis:names:tc:SAML:1.0:assertion</tokenType>
+				</issuer>
+				 </token-dispatcher-configuration>
+			</parameter>
+		</operation>
+	</service>
+
+	<service name="sts-ic-symm">
+		<module ref="rampart" />
+		<operation name="IssueToken" mep="http://www.w3.org/2006/01/wsdl/in-out">
+			<messageReceiver class="org.apache.rahas.STSMessageReceiver"/>
+	
+			<!-- Action mapping to accept SCT requests -->
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/SCT</actionMapping>
+	
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Issue</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Renew</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Cancel</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/SCT/Cancel</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Validate</actionMapping>
+	
+			<parameter name="token-dispatcher-configuration">
+				<token-dispatcher-configuration>
+						<!-- Issuers. You may have many issuers. -->
+						<issuer class="org.wso2.carbon.identity.sts.IdentityTokenIssuer" default="true">
+					<configuration type="parameter">saml-issuer-config</configuration>
+					<tokenType>urn:oasis:names:tc:SAML:1.0:assertion</tokenType>
+				</issuer>
+				 </token-dispatcher-configuration>
+			</parameter>
+		</operation>
+
+	</service>
+
+	<service name="sts-openid-ut">
+		<module ref="rampart" />
+		<operation name="IssueToken" mep="http://www.w3.org/2006/01/wsdl/in-out">
+			<messageReceiver class="org.apache.rahas.STSMessageReceiver"/>
+	
+			<!-- Action mapping to accept SCT requests -->
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/SCT</actionMapping>
+	
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Issue</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Renew</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Cancel</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/SCT/Cancel</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Validate</actionMapping>
+	
+			<parameter name="token-dispatcher-configuration">
+				<token-dispatcher-configuration>
+						<!-- Issuers. You may have many issuers. -->
+	                <issuer class="org.wso2.carbon.identity.sts.OpenIDTokenIssuer" default="true">
+						<configuration type="parameter">saml-issuer-config</configuration>
+						<tokenType>urn:oasis:names:tc:SAML:1.0:assertion</tokenType>
+					</issuer>
+				 </token-dispatcher-configuration>
+			</parameter>
+		</operation>
+	</service>
+	
+	<service name="sts-openid-ic">
+		<module ref="rampart" />
+		<operation name="IssueToken" mep="http://www.w3.org/2006/01/wsdl/in-out">
+			<messageReceiver class="org.apache.rahas.STSMessageReceiver"/>
+	
+			<!-- Action mapping to accept SCT requests -->
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/SCT</actionMapping>
+	
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Issue</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Renew</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Cancel</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/SCT/Cancel</actionMapping>
+			<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Validate</actionMapping>
+	
+			<parameter name="token-dispatcher-configuration">
+				<token-dispatcher-configuration>
+						<!-- Issuers. You may have many issuers. -->
+					<issuer class="org.wso2.carbon.identity.sts.OpenIDTokenIssuer" default="true">
+						<configuration type="parameter">saml-issuer-config</configuration>
+						<tokenType>urn:oasis:names:tc:SAML:1.0:assertion</tokenType>
+					</issuer>
+				 </token-dispatcher-configuration>
+			</parameter>
+		</operation>
+	</service>
+	
+	<service name="mex-ut">
+	
+		<operation name="get">
+			<actionMapping>http://schemas.xmlsoap.org/ws/2004/09/transfer/Get</actionMapping>
+			<messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/>
+		</operation>
+		<parameter name="ServiceClass" locked="false">org.wso2.carbon.identity.sts.mex.MexGetService</parameter>
+
+	</service>
+
+	<service name="mex-ic">
+	
+		<operation name="get">
+			<actionMapping>http://schemas.xmlsoap.org/ws/2004/09/transfer/Get</actionMapping>
+			<messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/>
+		</operation>
+		<parameter name="ServiceClass" locked="false">org.wso2.carbon.identity.sts.mex.MexGetService</parameter>
+
+	</service>
+
+	<service name="mex-ut-symm">
+
+		<operation name="get">
+			<actionMapping>http://schemas.xmlsoap.org/ws/2004/09/transfer/Get</actionMapping>
+			<messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/>
+		</operation>
+		<parameter name="ServiceClass" locked="false">org.wso2.carbon.identity.sts.mex.MexGetService</parameter>
+
+	</service>
+
+	<service name="mex-ic-symm">
+	
+		<operation name="get">
+			<actionMapping>http://schemas.xmlsoap.org/ws/2004/09/transfer/Get</actionMapping>
+			<messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/>
+		</operation>
+		<parameter name="ServiceClass" locked="false">org.wso2.carbon.identity.sts.mex.MexGetService</parameter>
+
+	</service>
+	
+	<service name="mex-openid-ut">
+	
+		<operation name="get">
+			<actionMapping>http://schemas.xmlsoap.org/ws/2004/09/transfer/Get</actionMapping>
+			<messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/>
+		</operation>
+		<parameter name="ServiceClass" locked="false">org.wso2.carbon.identity.sts.mex.MexGetService</parameter>
+
+	</service>
+	
+	<service name="mex-openid-ic">
+	
+		<operation name="get">
+			<actionMapping>http://schemas.xmlsoap.org/ws/2004/09/transfer/Get</actionMapping>
+			<messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/>
+		</operation>
+		<parameter name="ServiceClass" locked="false">org.wso2.carbon.identity.sts.mex.MexGetService</parameter>
+
+	</service>
+  </serviceGroup>
