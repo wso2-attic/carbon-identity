@@ -4,7 +4,7 @@
     <groupId>org.wso2.carbon.identity</groupId>
     <artifactId>carbon-identity</artifactId>
     <packaging>pom</packaging>
-    <version>4.3.4-SNAPSHOT</version>
+    <version>4.2.5-SNAPSHOT</version>
     <name>WSO2 Carbon - Platform Aggregator Pom</name>
     <url>http://wso2.org</url>
 
@@ -102,6 +102,36 @@
         </pluginRepository>
     </pluginRepositories>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.igniterealtime.smack.wso2</groupId>
+                <artifactId>smack</artifactId>
+                <version>${smack.wso2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.gdata.wso2</groupId>
+                <artifactId>gdata-core</artifactId>
+                <version>${gdata-core.wso2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava.wso2</groupId>
+                <artifactId>guava</artifactId>
+                <version>${google.guava.wso2.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <properties>
+        <carbon.kernel.version>4.2.0</carbon.kernel.version>
+        <carbon.p2.plugin.version>1.5.3</carbon.p2.plugin.version>
+        <google.guice.wso2.version>3.0.wso2v1</google.guice.wso2.version>
+        <smack.wso2.version>3.0.4.wso2v1</smack.wso2.version>
+        <google.guava.wso2.version>12.0.0.wso2v1</google.guava.wso2.version>
+        <gdata-core.wso2.version>1.47.0.wso2v1</gdata-core.wso2.version>
+        <google.step2.wso2.version>1.0.wso2v2</google.step2.wso2.version>
+        <jdom.wso2.version>1.0.0.wso2v1</jdom.wso2.version>
+    </properties>
 
     <build>
         <pluginManagement>

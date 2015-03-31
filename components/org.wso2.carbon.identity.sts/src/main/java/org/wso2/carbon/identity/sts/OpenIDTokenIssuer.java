@@ -16,14 +16,6 @@
 
 package org.wso2.carbon.identity.sts;
 
-import java.io.ByteArrayInputStream;
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.Iterator;
-
-import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.soap.SOAPEnvelope;
 import org.apache.commons.logging.Log;
@@ -40,11 +32,9 @@ import org.openid4java.message.MessageException;
 import org.openid4java.message.Parameter;
 import org.openid4java.message.ParameterList;
 import org.opensaml.SAMLException;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.wso2.carbon.core.util.AnonymousSessionUtil;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.provider.GenericIdentityProviderData;
 import org.wso2.carbon.identity.provider.IdentityProviderData;
@@ -54,8 +44,15 @@ import org.wso2.carbon.identity.provider.RequestedClaimData;
 import org.wso2.carbon.identity.provider.openid.OpenIDProvider;
 import org.wso2.carbon.identity.provider.openid.infocard.OpenIDInfoCardHeader;
 import org.wso2.carbon.identity.provider.openid.infocard.OpenIDInfoCardProviderData;
-import org.wso2.carbon.identity.provider.openid.infocard.OpenIDInfoCardToken;
 import org.wso2.carbon.identity.provider.openid.infocard.OpenIDInfoCardProviderData.OpenIDRequestedClaimData;
+import org.wso2.carbon.identity.provider.openid.infocard.OpenIDInfoCardToken;
+
+import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.ByteArrayInputStream;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Iterator;
 
 public class OpenIDTokenIssuer extends IdentityTokenIssuer {
 

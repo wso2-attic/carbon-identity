@@ -17,9 +17,7 @@
  */
 package org.wso2.carbon.identity.mgt;
 
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.dto.NotificationDataDTO;
-import org.wso2.carbon.identity.mgt.dto.UserRecoveryDTO;
 import org.wso2.carbon.identity.mgt.mail.Notification;
 
 /**

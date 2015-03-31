@@ -17,15 +17,6 @@
 */
 package org.wso2.carbon.identity.sts;
 
-import java.io.ByteArrayInputStream;
-import java.security.cert.X509Certificate;
-import java.text.DateFormat;
-import java.util.Date;
-
-import javax.crypto.SecretKey;
-import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNode;
@@ -59,11 +50,18 @@ import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.provider.GenericIdentityProviderData;
 import org.wso2.carbon.identity.provider.IdentityProviderException;
-import org.wso2.carbon.identity.provider.IdentityProviderUtil;
 import org.wso2.carbon.identity.provider.saml.SAML1TokenBuilder;
 import org.wso2.carbon.identity.provider.saml.SAML2TokenBuilder;
 import org.wso2.carbon.identity.provider.saml.SAMLTokenBuilder;
 import org.wso2.carbon.identity.provider.saml.SAMLTokenDirector;
+
+import javax.crypto.SecretKey;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.ByteArrayInputStream;
+import java.security.cert.X509Certificate;
+import java.text.DateFormat;
+import java.util.Date;
 
 public class GenericTokenIssuer implements TokenIssuer {
     private static Log log = LogFactory.getLog(IdentityTokenIssuer.class);

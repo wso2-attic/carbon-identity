@@ -15,21 +15,21 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.wso2.carbon</groupId>
+        <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>basicauth-application-authenticator-feature</artifactId>
-        <version>4.2.0</version>
-	<relativePath>../../pom.xml</relativePath>
+        <version>4.2.5-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.identity.application.authenticator.basicauth.server.feature</artifactId>
-    <version>4.2.2</version>
     <packaging>pom</packaging>
+    <version>4.2.5-SNAPSHOT</version>
     <name>BasicAuth Application Authenticator Server Feature</name>
     <url>http://wso2.org</url>
     <description>This feature contains the core bundles required for BasicAuth Application Authenticator 

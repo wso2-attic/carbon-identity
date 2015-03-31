@@ -12,13 +12,14 @@
 		limitations under the License.
 	-->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<parent>
-		<groupId>org.wso2.carbon</groupId>
-		<artifactId>carbon-features</artifactId>
-		<version>4.2.0</version>
+		<groupId>org.wso2.carbon.identity</groupId>
+		<artifactId>carbon-identity</artifactId>
+		<version>4.2.5-SNAPSHOT</version>
+		<relativePath>../../pom.xml</relativePath>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
@@ -29,11 +30,6 @@
 
 			<modules>
 				<module>saml2-sso</module>
-				<module>iwa-authenticator</module>
-<!--	
-				<module>webseal-authenticator</module>
--->
- 				<!--module>token-based</module-->
 			</modules>
 
 	<dependencyManagement>
@@ -41,21 +37,17 @@
 			<dependency>
 				<groupId>org.wso2.carbon</groupId>
 				<artifactId>org.wso2.carbon.core.server</artifactId>
-				<version>${project.version}</version>
+				<version>${carbon.kernel.version}</version>
 				<type>zip</type>
 			</dependency>
 			<dependency>
 				<groupId>org.wso2.carbon</groupId>
 				<artifactId>org.wso2.carbon.core.ui</artifactId>
-				<version>${project.version}</version>
+				<version>${carbon.kernel.version}</version>
 				<type>zip</type>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-
-	<properties>
-		<wso2carbon.version.identity.authenticator>${wso2carbon.version}</wso2carbon.version.identity.authenticator>
-	</properties>
 
 </project>
 
