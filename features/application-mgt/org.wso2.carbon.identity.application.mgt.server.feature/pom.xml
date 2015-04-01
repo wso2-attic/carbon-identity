@@ -37,12 +37,12 @@
       <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.common</artifactId>
-	     <version>4.2.1</version>
+          <version>4.2.5-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.mgt</artifactId>
-	     <version>4.2.1</version>
+            <version>4.2.5-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
@@ -71,8 +71,8 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.application.common:4.2.1</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.application.mgt:4.2.1</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.application.common:4.2.5-SNAPSHOT</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.application.mgt:4.2.5-SNAPSHOT</bundleDef>
                             </bundles>
                         </configuration>
                     </execution>

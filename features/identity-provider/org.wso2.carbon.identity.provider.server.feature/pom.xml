@@ -39,12 +39,12 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.provider</artifactId>
-            <version>4.2.3</version>
+            <version>4.2.5-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.sts.mgt</artifactId>
-            <version>4.2.0</version>
+            <version>4.2.5-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -164,9 +164,9 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.sts.mgt:4.2.0</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.sts.mgt:4.2.5-SNAPSHOT</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.sts:4.2.2</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.provider:4.2.3</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.provider:4.2.5-SNAPSHOT</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.service.mgt</bundleDef>
                                 <bundleDef>org.openid4java.wso2:openid4java-nodeps</bundleDef>
                                 <bundleDef>org.igniterealtime.smack.wso2:smack</bundleDef>
@@ -176,10 +176,10 @@
                                 <importBundleDef>com.google.guice.wso2:guice</importBundleDef>
                             </importBundles>
                             <importFeatures>
-                                <importFeatureDef>org.wso2.carbon.identity.core.server:4.2.2</importFeatureDef>
-                                <importFeatureDef>org.wso2.carbon.identity.relying.party.server:4.2.2</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.core.server:4.2.5-SNAPSHOT</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.relying.party.server:4.2.5-SNAPSHOT</importFeatureDef>
                                 <importFeatureDef>
-                                    org.wso2.carbon.identity.application.authentication.framework.server:4.2.3
+                                    org.wso2.carbon.identity.application.authentication.framework.server:4.2.5-SNAPSHOT
                                 </importFeatureDef>
                             </importFeatures>
                         </configuration>

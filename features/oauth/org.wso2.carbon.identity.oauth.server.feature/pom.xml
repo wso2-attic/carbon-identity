@@ -41,7 +41,7 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.oauth</artifactId>
-            <version>4.2.4</version>
+            <version>4.2.5-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.google.gdata.wso2</groupId>
@@ -167,8 +167,8 @@
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.oauth</bundleDef>
                             </bundles>
                             <importFeatures>
-                                <importFeatureDef>org.wso2.carbon.identity.core.server:4.2.2</importFeatureDef>
-                                <importFeatureDef>org.wso2.carbon.identity.oauth.common:4.2.3</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.core.server:4.2.5-SNAPSHOT</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.oauth.common:4.2.5-SNAPSHOT</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.idp.mgt:4.2.1</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.jaxws.webapp.mgt.server:4.2.0</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.webapp.mgt.server:4.2.0</importFeatureDef>

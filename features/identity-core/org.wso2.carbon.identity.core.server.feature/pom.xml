@@ -36,12 +36,12 @@
 		<dependency>
 			<groupId>org.wso2.carbon</groupId>
 			<artifactId>org.wso2.carbon.identity.base</artifactId>
-			<version>4.2.2</version>
+			<version>4.2.5-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.wso2.carbon</groupId>
 			<artifactId>org.wso2.carbon.identity.core</artifactId>
-			<version>4.2.4</version>
+			<version>4.2.5-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -101,7 +101,7 @@
                             </adviceFile>
 							<bundles>
 								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.base</bundleDef>
-								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.core:4.2.4</bundleDef>
+								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.core:4.2.5-SNAPSHOT</bundleDef>
 							</bundles>
 							<importFeatures>
 								<importFeatureDef>org.wso2.carbon.core.server:4.2.0</importFeatureDef>

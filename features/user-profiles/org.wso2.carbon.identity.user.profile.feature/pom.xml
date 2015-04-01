@@ -37,13 +37,13 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.user.profile.server.feature</artifactId>
-            <version>4.2.2</version>
+            <version>4.2.5-SNAPSHOT</version>
             <type>zip</type>
 	    </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.user.profile.ui.feature</artifactId>
-            <version>4.2.2</version>
+            <version>4.2.5-SNAPSHOT</version>
             <type>zip</type>
 	    </dependency>
     </dependencies>
@@ -65,11 +65,11 @@
 							<id>org.wso2.carbon.identity.user.profile</id>
 							<propertiesFile>../../../../etc/feature.properties</propertiesFile>
 							<importFeatures>
-                                <importFeatureDef>org.wso2.carbon.identity.core:${project.version}</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.core:4.2.5-SNAPSHOT</importFeatureDef>
                             </importFeatures>
                             <includedFeatures>
-                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.user.profile.server.feature:4.2.2</includedFeatureDef>
-                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.user.profile.ui.feature:4.2.2</includedFeatureDef>
+                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.user.profile.server.feature:4.2.5-SNAPSHOT</includedFeatureDef>
+                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.user.profile.ui.feature:4.2.5-SNAPSHOT</includedFeatureDef>
                             </includedFeatures>
 						</configuration>
 					</execution>

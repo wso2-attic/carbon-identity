@@ -37,7 +37,7 @@
 		<dependency>
 			<groupId>org.wso2.carbon</groupId>
 			<artifactId>org.wso2.carbon.identity.oauth.ui</artifactId>
-			<version>4.2.3</version>
+			<version>4.2.5-SNAPSHOT</version>
 		</dependency>
         <dependency>
 			<groupId>org.wso2.carbon</groupId>
@@ -84,7 +84,7 @@
 							</bundles>
 							<importFeatures>
 								<importFeatureDef>org.wso2.carbon.core.ui:4.2.0</importFeatureDef>
-								<importFeatureDef>org.wso2.carbon.identity.oauth.common:4.2.3</importFeatureDef>
+								<importFeatureDef>org.wso2.carbon.identity.oauth.common:4.2.5-SNAPSHOT</importFeatureDef>
 							</importFeatures>
 						</configuration>
 					</execution>
