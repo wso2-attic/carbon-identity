@@ -15,15 +15,14 @@
 
 	<parent>
 		<groupId>org.wso2.carbon</groupId>
-		<artifactId>identity</artifactId>
-		<version>4.2.0</version>
-	<relativePath>../../pom.xml</relativePath>
+		<artifactId>identity-components</artifactId>
+		<version>4.2.5-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.wso2.carbon.identity.menu.ui</artifactId>
 	<packaging>bundle</packaging>
-	<version>4.2.1</version>
 	<name>WSO2 Carbon - identity tree menu structure</name>
 	<description>core tree menu structure</description>
 

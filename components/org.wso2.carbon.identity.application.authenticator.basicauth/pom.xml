@@ -17,15 +17,14 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 
 	<parent>
 		<groupId>org.wso2.carbon</groupId>
-		<artifactId>identity</artifactId>
-		<version>4.2.0</version>
-	<relativePath>../../pom.xml</relativePath>
+		<artifactId>identity-components</artifactId>
+		<version>4.2.5-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
+
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.wso2.carbon</groupId>
 	<artifactId>org.wso2.carbon.identity.application.authenticator.basicauth</artifactId>
 	<packaging>bundle</packaging>
-	<version>4.2.2</version>
     <name>WSO2 Carbon - BasicAuth Identity Application Authenticator</name>
 	<dependencies>
         <dependency>
@@ -41,7 +40,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 		<dependency>
 			<groupId>org.wso2.carbon</groupId>
 			<artifactId>org.wso2.carbon.identity.core</artifactId>
-			<version>4.2.3</version>
+			<version>4.2.5-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.wso2.carbon</groupId>
@@ -56,7 +55,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 		<dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
-            <version>4.2.2</version>
+			<version>4.2.5-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>

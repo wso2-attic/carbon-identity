@@ -21,15 +21,14 @@
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
-        <artifactId>saml2-sso-authenticator</artifactId>
-        <version>4.2.0</version>
-	<relativePath>../../pom.xml</relativePath>
+        <artifactId>identity-components</artifactId>
+        <version>4.2.5-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.identity.authenticator.saml2.sso</artifactId>
     <packaging>bundle</packaging>
-    <version>4.2.2</version>
     <name>SAML2 SSO Authenticator - BE bundle</name>
     <description>SAML2 based SSO Authenticator - BE bundle</description>
     <url>http://wso2.org</url>
@@ -43,10 +42,12 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core.common</artifactId>
+            <version>4.2.0</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.logging</artifactId>
+            <version>4.2.0</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
