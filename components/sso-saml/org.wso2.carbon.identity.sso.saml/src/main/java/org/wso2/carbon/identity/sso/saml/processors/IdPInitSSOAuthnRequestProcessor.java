@@ -111,11 +111,11 @@ public class IdPInitSSOAuthnRequestProcessor {
                     spDO.setAssertionConsumerUrl(authnReqDTO.getAssertionConsumerURL());
                     spDO.setCertAlias(authnReqDTO.getCertAlias());
                     spDO.setLogoutURL(authnReqDTO.getLogoutURL());
+                    spDO.setTenantDomain(authnReqDTO.getTenantDomain());
                     sessionPersistenceManager.persistSession(sessionIndexId,
-                                                             authnReqDTO.getUser().getAuthenticatedSubjectIdentifier(),
-                                                             spDO, authnReqDTO.getRpSessionId(),
-                                                             authnReqDTO.getTenantDomain(), authnReqDTO.getIssuer(),
-                                                             authnReqDTO.getAssertionConsumerURL());
+                            authnReqDTO.getUser().getAuthenticatedSubjectIdentifier(), spDO,
+                            authnReqDTO.getRpSessionId(), authnReqDTO.getIssuer(),
+                            authnReqDTO.getAssertionConsumerURL());
                 }
 
                 // Build the response for the successful scenario
@@ -228,7 +228,9 @@ public class IdPInitSSOAuthnRequestProcessor {
         List<String> statusCodeList = new ArrayList<String>();
         statusCodeList.add(status);
         Response resp = errRespBuilder.buildResponse(id, statusCodeList, statMsg);
-        samlSSORespDTO.setRespString(SAMLSSOUtil.encode(SAMLSSOUtil.marshall(resp)));
+        String encodedResponse = SAMLSSOUtil.compressResponse(SAMLSSOUtil.marshall(resp));
+
+        samlSSORespDTO.setRespString(encodedResponse);
         samlSSORespDTO.setSessionEstablished(false);
         return samlSSORespDTO;
     }

@@ -127,6 +127,7 @@ public abstract class RequestProcessor {
         String keyStoreName = null;
         String issuerName = null;
         ServerConfiguration serverConfig = null;
+        String ttl;
 
         systemRegistry = (UserRegistry) IdentityPassiveSTSServiceComponent.getGovernanceSystemRegistry();
 
@@ -141,6 +142,7 @@ public abstract class RequestProcessor {
         keyAlias = serverConfig.getFirstProperty("Security.KeyStore.KeyAlias");
         keyPassword = serverConfig.getFirstProperty("Security.KeyStore.KeyPassword");
         issuerName = serverConfig.getFirstProperty("HostName");
+        ttl = serverConfig.getFirstProperty("STSTimeToLive");
 
         if (issuerName == null) {
             // HostName not set :-( use wso2wsas-sts
@@ -175,7 +177,16 @@ public abstract class RequestProcessor {
             stsSamlConfig.setKeyComputation(2);
             stsSamlConfig.setProofKeyType(TokenIssuerUtil.BINARY_SECRET);
             stsSamlConfig.setCallbackHandlerName(AttributeCallbackHandler.class.getName());
-
+            if (ttl != null && ttl.length() > 0) {
+                try {
+                    stsSamlConfig.setTtl(Long.parseLong(ttl));
+                    if (log.isDebugEnabled()) {
+                        log.debug("STSTimeToLive read from carbon.xml in passive STS " + ttl);
+                    }
+                } catch (NumberFormatException e) {
+                    log.error("Error while reading STSTimeToLive from carbon.xml", e);
+                }
+            }
             String resourcePath = null;
             resourcePath = RegistryResources.SERVICE_GROUPS + ServerConstants.STS_NAME
                     + RegistryResources.SERVICES + ServerConstants.STS_NAME + "/trustedServices";

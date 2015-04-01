@@ -19,14 +19,18 @@
 package org.wso2.carbon.identity.oauth2.util;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.oauth.IdentityOAuthAdminException;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
+import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
+import org.wso2.carbon.identity.oauth.dao.OAuthAppDAO;
 import org.wso2.carbon.identity.oauth.dao.OAuthConsumerDAO;
 import org.wso2.carbon.identity.oauth.internal.OAuthComponentServiceHolder;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
@@ -34,6 +38,7 @@ import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.model.ClientCredentialDO;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -119,7 +124,7 @@ public class OAuth2Util {
      * @throws IdentityOAuthAdminException Error when looking up the credentials from the database
      */
     public static boolean authenticateClient(String clientId, String clientSecretProvided)
-            throws IdentityOAuthAdminException {
+            throws IdentityOAuthAdminException, IdentityOAuth2Exception, InvalidOAuthClientException {
 
         boolean cacheHit = false;
         String clientSecret = null;
@@ -154,11 +159,36 @@ public class OAuth2Util {
         }
 
         if (!clientSecret.equals(clientSecretProvided)) {
-            if (log.isDebugEnabled()) {
-                log.debug("Provided the Client ID : " + clientId +
-                        " and Client Secret do not match with the issued credentials.");
+            if(StringUtils.isEmpty(clientSecretProvided) || StringUtils.isEmpty(clientSecretProvided.trim())) {
+                OAuthAppDAO appDAO = new OAuthAppDAO();
+                OAuthAppDO appDO = appDAO.getAppInformation(clientId);
+                String grantTypesString = appDO.getGrantTypes();
+                boolean isOnlyImplicit = true;
+                if (StringUtils.isNotEmpty(grantTypesString) && StringUtils.isNotEmpty(grantTypesString.trim())) {
+                    String[] grantTypes = grantTypesString.split(",");
+                    for (String grantType : grantTypes) {
+                        if (StringUtils.isNotEmpty(grantType) && StringUtils.isNotEmpty(grantType.trim())) {
+                            if (!"implicit".equals(grantType.trim())) {
+                                isOnlyImplicit = false;
+                            }
+                        }
+                    }
+                }
+                if (isOnlyImplicit == true) {
+                    if(log.isDebugEnabled()){
+                        log.debug("Application " + appDO.getApplicationName() + " is registered only for Implicit " +
+                                "grant type. Therefore providing client secret for token revocation is optional");
+                    }
+                } else {
+                    return false;
+                }
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Provided the Client ID : " + clientId +
+                            " and Client Secret do not match with the issued credentials.");
+                    }
+                return false;
             }
-            return false;
         }
 
         if (log.isDebugEnabled()) {
@@ -186,7 +216,7 @@ public class OAuth2Util {
      * @throws IdentityOAuthAdminException Error when looking up the credentials from the database
      */
     public static String getAuthenticatedUsername(String clientId, String clientSecretProvided)
-            throws IdentityOAuthAdminException {
+            throws IdentityOAuthAdminException, IdentityOAuth2Exception, InvalidOAuthClientException {
 
         boolean cacheHit = false;
         String username = null;
@@ -415,10 +445,25 @@ public class OAuth2Util {
         try {
             return realmService.getTenantManager().getTenantId(tenantDomain);
         } catch (UserStoreException e) {
-            String error = "Error in obtaining tenantId from Domain";
-            //do not log
+            String error = "Error in obtaining tenant ID from tenant domain : " + tenantDomain;
             throw new IdentityOAuth2Exception(error);
         }
+    }
+
+    public static String getTenantDomain(int tenantId) throws IdentityOAuth2Exception {
+        RealmService realmService = OAuthComponentServiceHolder.getRealmService();
+        try {
+            return realmService.getTenantManager().getDomain(tenantId);
+        } catch (UserStoreException e) {
+            String error = "Error in obtaining tenant domain from tenant ID : " + tenantId;
+            throw new IdentityOAuth2Exception(error);
+        }
+    }
+
+    public static int getTenantIdFromUserName(String username) throws IdentityOAuth2Exception {
+
+        String domainName = MultitenantUtils.getTenantDomain(username);
+        return getTenantId(domainName);
     }
 
 }

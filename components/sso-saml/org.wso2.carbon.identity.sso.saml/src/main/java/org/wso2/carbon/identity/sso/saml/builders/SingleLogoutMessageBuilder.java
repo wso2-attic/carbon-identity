@@ -67,8 +67,7 @@ public class SingleLogoutMessageBuilder {
         logoutResp.setIssueInstant(new DateTime());
 
         if (isDoSignResponse && sessionInfoData != null) {
-            SAMLSSOUtil.setSignature(logoutResp, XMLSignature.ALGO_ID_SIGNATURE_RSA,
-                    new SignKeyDataHolder(sessionInfoData.getSubject()));
+            SAMLSSOUtil.setSignature(logoutResp, XMLSignature.ALGO_ID_SIGNATURE_RSA, new SignKeyDataHolder(null));
         }
 
         return logoutResp;
@@ -84,8 +83,7 @@ public class SingleLogoutMessageBuilder {
         logoutResp.setStatus(buildStatus(status, statMsg));
         logoutResp.setIssueInstant(new DateTime());
         if (isDoSignResponse && sessionInfoData != null) {
-            SAMLSSOUtil.setSignature(logoutResp, XMLSignature.ALGO_ID_SIGNATURE_RSA,
-                    new SignKeyDataHolder(sessionInfoData.getSubject()));
+            SAMLSSOUtil.setSignature(logoutResp, XMLSignature.ALGO_ID_SIGNATURE_RSA, new SignKeyDataHolder(null));
         }
         return logoutResp;
     }

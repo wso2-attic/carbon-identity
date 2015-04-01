@@ -145,10 +145,10 @@ public class SPInitSSOAuthnRequestProcessor {
                     spDO.setAssertionConsumerUrl(authnReqDTO.getAssertionConsumerURL());
                     spDO.setCertAlias(authnReqDTO.getCertAlias());
                     spDO.setLogoutURL(authnReqDTO.getLogoutURL());
+                    spDO.setTenantDomain(authnReqDTO.getTenantDomain());
                     sessionPersistenceManager.persistSession(sessionIndexId,
                                                              authnReqDTO.getUser().getAuthenticatedSubjectIdentifier(),
                                                              spDO, authnReqDTO.getRpSessionId(),
-                                                             authnReqDTO.getTenantDomain(),
                                                              authnReqDTO.getIssuer(),
                                                              authnReqDTO.getAssertionConsumerURL());
                 }
@@ -266,7 +266,8 @@ public class SPInitSSOAuthnRequestProcessor {
         List<String> statusCodeList = new ArrayList<String>();
         statusCodeList.add(status);
         Response resp = errRespBuilder.buildResponse(id, statusCodeList, statMsg);
-        samlSSORespDTO.setRespString(SAMLSSOUtil.encode(SAMLSSOUtil.marshall(resp)));
+        String encodedResp = SAMLSSOUtil.compressResponse(SAMLSSOUtil.marshall(resp));
+        samlSSORespDTO.setRespString(encodedResp);
         samlSSORespDTO.setSessionEstablished(false);
         return samlSSORespDTO;
     }

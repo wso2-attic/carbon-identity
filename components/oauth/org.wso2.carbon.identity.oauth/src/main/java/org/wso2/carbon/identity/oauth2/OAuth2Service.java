@@ -210,7 +210,6 @@ public class OAuth2Service extends AbstractAdmin {
         OAuthRevocationResponseDTO revokeResponseDTO = new OAuthRevocationResponseDTO();
         try {
             if (StringUtils.isNotEmpty(revokeRequestDTO.getConsumerKey()) &&
-                    StringUtils.isNotEmpty(revokeRequestDTO.getConsumerSecret()) &&
                     StringUtils.isNotEmpty(revokeRequestDTO.getToken())) {
                 if (!OAuth2Util.authenticateClient(revokeRequestDTO.getConsumerKey(), revokeRequestDTO.getConsumerSecret())) {
                     OAuthRevocationResponseDTO revokeRespDTO = new OAuthRevocationResponseDTO();
@@ -302,6 +301,12 @@ public class OAuth2Service extends AbstractAdmin {
             revokeRespDTO.setError(true);
             revokeRespDTO.setErrorCode(OAuth2ErrorCodes.SERVER_ERROR);
             revokeRespDTO.setErrorMsg("Error occurred while revoking authorization grant for applications");
+            return revokeRespDTO;
+        } catch (InvalidOAuthClientException e) {
+            OAuthRevocationResponseDTO revokeRespDTO = new OAuthRevocationResponseDTO();
+            revokeRespDTO.setError(true);
+            revokeRespDTO.setErrorCode(OAuth2ErrorCodes.UNAUTHORIZED_CLIENT);
+            revokeRespDTO.setErrorMsg("Unauthorized Client");
             return revokeRespDTO;
         }
     }

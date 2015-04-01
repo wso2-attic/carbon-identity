@@ -1158,6 +1158,24 @@ var roleMappinRowID = -1;
                         </td>
                         
                     </tr>
+                      <tr>
+                          <td style="width:15%" class="leftCol-med labelField">
+                              <fmt:message key='application.passive.sts.wreply'/>:
+                          </td>
+                          <td>
+                              <%
+                                  if(appBean.getPassiveSTSWReply() != null) {
+                              %>
+                              <input style="width:50%" id="passiveSTSWReply" name="passiveSTSWReply" type="text" value="<%=appBean.getPassiveSTSWReply()%>" autofocus/>
+                              <% } else { %>
+                              <input style="width:50%" id="passiveSTSWReply" name="passiveSTSWReply" type="text" value="" autofocus/>
+                              <% } %>
+                              <div class="sectionHelp">
+                                  <fmt:message key='help.passive.sts.wreply'/>
+                              </div>
+                          </td>
+
+                      </tr>
                    
                   </table>
             </div>

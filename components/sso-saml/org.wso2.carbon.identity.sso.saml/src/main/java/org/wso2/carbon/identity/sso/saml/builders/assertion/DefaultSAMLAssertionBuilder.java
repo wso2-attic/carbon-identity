@@ -133,8 +133,11 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
                 * the spec 2.0 the subject MUST be in the assertion
                 */
             Map<String, String> claims = SAMLSSOUtil.getAttributes(authReqDTO);
-            if (claims != null) {
-                samlAssertion.getAttributeStatements().add(buildAttributeStatement(claims));
+            if (claims != null && !claims.isEmpty()) {
+                AttributeStatement attrStmt = buildAttributeStatement(claims);
+                if(attrStmt != null) {
+                    samlAssertion.getAttributeStatements().add(attrStmt);
+                }
             }
 
             AudienceRestriction audienceRestriction = new AudienceRestrictionBuilder()
@@ -169,28 +172,33 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
     }
 
     private AttributeStatement buildAttributeStatement(Map<String, String> claims) {
-        AttributeStatement attStmt = null;
-        if (claims != null) {
-            attStmt = new AttributeStatementBuilder().buildObject();
-            Iterator<String> ite = claims.keySet().iterator();
 
-            for (int i = 0; i < claims.size(); i++) {
+        AttributeStatement attStmt = new AttributeStatementBuilder().buildObject();
+        Iterator<String> ite = claims.keySet().iterator();
+        boolean atLeastOneNotEmpty = false;
+        for (int i = 0; i < claims.size(); i++) {
+            String claimUri = ite.next();
+            String claimValue = claims.get(claimUri);
+            if(claimUri != null && !claimUri.trim().isEmpty() && claimValue != null && !claimValue.trim().isEmpty()) {
+                atLeastOneNotEmpty = true;
                 Attribute attrib = new AttributeBuilder().buildObject();
-                String claimUri = ite.next();
                 attrib.setName(claimUri);
                 //setting NAMEFORMAT attribute value to basic attribute profile
                 attrib.setNameFormat(SAMLSSOConstants.NAME_FORMAT_BASIC);
                 // look
                 // https://wiki.shibboleth.net/confluence/display/OpenSAML/OSTwoUsrManJavaAnyTypes
-                XSStringBuilder stringBuilder = (XSStringBuilder) Configuration.getBuilderFactory()
-                        .getBuilder(XSString.TYPE_NAME);
-                XSString stringValue = stringBuilder.buildObject(
-                        AttributeValue.DEFAULT_ELEMENT_NAME, XSString.TYPE_NAME);
+                XSStringBuilder stringBuilder = (XSStringBuilder) Configuration.getBuilderFactory().
+                        getBuilder(XSString.TYPE_NAME);
+                XSString stringValue = stringBuilder.buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSString.TYPE_NAME);
                 stringValue.setValue(claims.get(claimUri));
                 attrib.getAttributeValues().add(stringValue);
                 attStmt.getAttributes().add(attrib);
             }
         }
-        return attStmt;
+        if(atLeastOneNotEmpty){
+            return attStmt;
+        } else {
+            return null;
+        }
     }
 }

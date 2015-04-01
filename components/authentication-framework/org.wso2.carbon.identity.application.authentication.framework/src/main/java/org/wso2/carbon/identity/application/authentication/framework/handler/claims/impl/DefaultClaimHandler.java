@@ -191,7 +191,9 @@ public class DefaultClaimHandler implements ClaimHandler {
             if (StringUtils.isEmpty(claimValue)) {
                 claimValue = defaultValuesForClaims.get(localClaimURI);
             }
-            localUnfilteredClaims.put(localClaimURI, claimValue);
+            if (!StringUtils.isEmpty(claimValue)) {
+                localUnfilteredClaims.put(localClaimURI, claimValue);
+            }
         }
         // set all locally mapped unfiltered remote claims as a property
         context.setProperty(FrameworkConstants.UNFILTERED_LOCAL_CLAIM_VALUES, localUnfilteredClaims);
@@ -539,12 +541,16 @@ public class DefaultClaimHandler implements ClaimHandler {
         } else if (claimMappings == null || claimMappings.isEmpty()) {
             return ApplicationConstants.LOCAL_IDP_DEFAULT_CLAIM_DIALECT;
         } else {
+            boolean isAtLeastOneNotEqual = false;
             for (Map.Entry<String, String> entry : claimMappings.entrySet()) {
-                if (entry.getKey().equals(entry.getValue())) {
-                    return ApplicationConstants.LOCAL_IDP_DEFAULT_CLAIM_DIALECT;
+                if(!entry.getKey().equals(entry.getValue())){
+                    isAtLeastOneNotEqual = true;
+                    break;
                 }
             }
-
+            if(!isAtLeastOneNotEqual){
+                return ApplicationConstants.LOCAL_IDP_DEFAULT_CLAIM_DIALECT;
+            }
         }
         return null;
     }
