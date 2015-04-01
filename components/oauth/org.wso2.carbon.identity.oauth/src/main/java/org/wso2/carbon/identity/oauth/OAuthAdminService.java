@@ -48,7 +48,7 @@ public class OAuthAdminService extends AbstractAdmin {
 
     private static List<String> allowedGrants = null;
     protected Log log = LogFactory.getLog(OAuthAdminService.class);
-    private AppInfoCache appInfoCache = AppInfoCache.getInstance();
+    private AppInfoCache appInfoCache = AppInfoCache.getInstance(OAuthServerConfiguration.getInstance().getAppInfoCacheTimeout());
 
     /**
      * Registers an consumer secret against the logged in user. A given user can only have a single
@@ -275,7 +275,7 @@ public class OAuthAdminService extends AbstractAdmin {
         dao.removeConsumerApplication(consumerKey);
         // remove client credentials from cache
         if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
-            OAuthCache.getInstance().clearCacheEntry(new OAuthCacheKey(consumerKey));
+            OAuthCache.getInstance(0).clearCacheEntry(new OAuthCacheKey(consumerKey));
             appInfoCache.clearCacheEntry(consumerKey);
             if (log.isDebugEnabled()) {
                 log.debug("Client credentials are removed from the cache.");

@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.identity.oauth.cache;
 
+import org.wso2.carbon.identity.application.common.cache.BaseCache;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.utils.CarbonUtils;
 
 // Cache used by Authorization endpoint. This class cannot be in oauth.endpoint component
@@ -26,15 +28,22 @@ public class SessionDataCache extends BaseCache<CacheKey, CacheEntry> {
 
     private static final String SESSION_DATA_CACHE_NAME = "OAuthSessionDataCache";
 
-    private static final SessionDataCache instance = new SessionDataCache(SESSION_DATA_CACHE_NAME);
+    private static volatile SessionDataCache instance;
 
-    private SessionDataCache(String cacheName) {
-        super(cacheName);
+    private SessionDataCache(String cacheName, int timeout) {
+        super(cacheName, timeout);
     }
 
-    public static SessionDataCache getInstance() {
+    public static SessionDataCache getInstance(int timeout) {
         CarbonUtils.checkSecurity();
-        return instance;
+	    if (instance == null) {
+		    synchronized (SessionDataCache.class) {
+			    if (instance == null) {
+				    instance = new SessionDataCache(SESSION_DATA_CACHE_NAME,timeout);
+			    }
+		    }
+	    }
+	    return instance;
     }
 
     @Override

@@ -22,9 +22,11 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
 import org.wso2.carbon.identity.sso.saml.cache.*;
 import org.wso2.carbon.registry.core.Registry;
@@ -127,14 +129,17 @@ public class SSOSessionPersistenceManager {
             sessionInfoData.addServiceProvider(spDO.getIssuer(), spDO, rpSessionId);
             /*sessionInfoData.setAuthenticators(authenticators);
             sessionInfoData.setAttributes(userAttributes);*/
-            addSessionInfoDataToCache(sessionIndex, sessionInfoData, CACHE_TIME_OUT);
+	        addSessionInfoDataToCache(sessionIndex, sessionInfoData, Integer.parseInt(IdentityUtil.getProperty
+			        ("SSOService.PersistanceCacheTimeout")));
         } else {
-            persistSession(sessionId, sessionIndex, spDO.getIssuer(), spDO.getAssertionConsumerUrl(), rpSessionId);
+	        persistSession(sessionId, sessionIndex, spDO.getIssuer(), spDO.getAssertionConsumerUrl(), rpSessionId,
+	                       tenantDomain);
         }
     }
 
-    public boolean persistSession(String sessionId, String sessionIndex, String issuer, String assertionConsumerURL, String rpSessionId)
-            throws IdentityException {
+	public boolean persistSession(String sessionId, String sessionIndex, String issuer, String assertionConsumerURL,
+	                              String rpSessionId,String tenantDomain)
+			throws IdentityException {
         try {
             if (sessionIndex != null) {
 
@@ -154,8 +159,9 @@ public class SSOSessionPersistenceManager {
                         spDO.setAssertionConsumerUrl(assertionConsumerURL);
                     }
                     sessionInfoData.addServiceProvider(spDO.getIssuer(), spDO, rpSessionId);
-                    addSessionInfoDataToCache(sessionIndex, sessionInfoData, CACHE_TIME_OUT);
-                    return true;
+	                addSessionInfoDataToCache(sessionIndex, sessionInfoData, Integer.parseInt(IdentityUtil.getProperty
+			                ("SSOService.PersistanceCacheTimeout")));
+	                return true;
                 } else {
                     log.error("Error persisting the new session, there is no previously established session for this " +
                             "user");
@@ -197,7 +203,8 @@ public class SSOSessionPersistenceManager {
                     spDO.setAssertionConsumerUrl(assertionConsumerURL);
                 }
                 sessionInfoData.addServiceProvider(spDO.getIssuer(), spDO, rpSessionId);
-                addSessionInfoDataToCache(sessionIndex, sessionInfoData, CACHE_TIME_OUT);
+	            addSessionInfoDataToCache(sessionIndex, sessionInfoData, Integer.parseInt(IdentityUtil.getProperty
+			            ("SSOService.PersistanceCacheTimeout")));
             }
         } catch (Exception e) {
             log.error("Error obtaining the service provider info from registry", e);
@@ -238,7 +245,7 @@ public class SSOSessionPersistenceManager {
         return false;
     }
 
-    public void persistSession(String tokenId, String sessionIndex) {
+    public void persistSession(String tokenId, String sessionIndex,String tenantDomain) {
         if (tokenId == null) {
             log.debug("SSO Token Id is null.");
             return;
@@ -247,7 +254,7 @@ public class SSOSessionPersistenceManager {
             log.debug("SessionIndex is null.");
             return;
         }
-        addSessionIndexToCache(tokenId, sessionIndex, CACHE_TIME_OUT);
+        addSessionIndexToCache(tokenId, sessionIndex, IdentityApplicationManagementUtil.getIdleSessionTimeOut(tenantDomain));
     }
 
     public boolean isExistingTokenId(String tokenId) {

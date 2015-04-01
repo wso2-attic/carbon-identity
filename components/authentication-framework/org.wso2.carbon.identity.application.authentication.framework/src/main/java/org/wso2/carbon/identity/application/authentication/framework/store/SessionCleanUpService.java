@@ -21,6 +21,8 @@ package org.wso2.carbon.identity.application.authentication.framework.store;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 
 import java.sql.Timestamp;
@@ -71,13 +73,8 @@ public final class SessionCleanUpService {
 
             log.debug("Start running the Session Data cleanup task.");
             Date date = new Date();
-            String sessionDataTimeoutPeriod = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.CleanUp.TimeOut");
-            if (sessionDataTimeoutPeriod == null || sessionDataTimeoutPeriod.trim().length() == 0) {
-                // set default value to 2 weeks
-                sessionDataTimeoutPeriod = "20160";
-            }
-
-            long sessionTimeout = Long.parseLong(sessionDataTimeoutPeriod);
+	        int sessionTimeout = IdentityApplicationManagementUtil.getCleanUpTimeout(CarbonContext
+			                                                                                 .getThreadLocalCarbonContext().getTenantDomain());
 
             Timestamp timestamp = new Timestamp((date.getTime() - (sessionTimeout * 60 * 1000)));
             SessionDataStore.getInstance().removeExpiredSessionData(timestamp);

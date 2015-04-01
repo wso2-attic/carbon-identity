@@ -37,6 +37,10 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.idp.mgt</artifactId>
+        </dependency>
     </dependencies>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Identity Application Common Bundle</name>

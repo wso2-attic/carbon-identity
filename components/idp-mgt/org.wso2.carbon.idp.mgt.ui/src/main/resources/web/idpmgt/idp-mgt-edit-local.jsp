@@ -43,6 +43,8 @@
     String tokenUrl = null;
     String userInfoUrl = null;
     String passiveSTSUrl = null;
+    String sessionIdleTimeout = null;
+    String rememberMeTimeout = null;
     FederatedAuthenticatorConfig[] federatedAuthenticators = residentIdentityProvider.getFederatedAuthenticatorConfigs();
     for(FederatedAuthenticatorConfig federatedAuthenticator : federatedAuthenticators){
         Property[] properties = federatedAuthenticator.getProperties();
@@ -66,6 +68,12 @@
         } else if(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME.equals(federatedAuthenticator.getName())){
             passiveSTSUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.PassiveSTS.PASSIVE_STS_URL).getValue();
+        }else if(IdentityApplicationConstants.Authenticator.IDPProperties.NAME.equals(federatedAuthenticator.getName())){
+            sessionIdleTimeout = IdPManagementUIUtil.getProperty(properties,
+                    IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT).getValue();
+            rememberMeTimeout = IdPManagementUIUtil.
+                    getProperty(properties,
+                                IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT).getValue();
         }
     }
     String scimUserEp = null;
@@ -148,6 +156,24 @@ jQuery(document).ready(function(){
                                 <input id="homeRealmId" name="homeRealmId" type="text" value="<%=homeRealmId%>" autofocus/>
                                 <div class="sectionHelp">
                                     <fmt:message key='home.realm.id.resident.help'/>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="leftCol-med labelField"><fmt:message key='idle.session.timeout'/>:</td>
+                            <td>
+                                <input id="sessionIdleTimeout" name="sessionIdleTimeout" type="text" value="<%=sessionIdleTimeout%>" autofocus/>
+                                <div class="sectionHelp">
+                                    <fmt:message key='idle.session.timeout.help'/>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="leftCol-med labelField"><fmt:message key='remember.me.timeout'/>:</td>
+                            <td>
+                                <input id="rememberMeTimeout" name="rememberMeTimeout" type="text" value="<%=rememberMeTimeout%>" autofocus/>
+                                <div class="sectionHelp">
+                                    <fmt:message key='remember.me.timeout.help'/>
                                 </div>
                             </td>
                         </tr>

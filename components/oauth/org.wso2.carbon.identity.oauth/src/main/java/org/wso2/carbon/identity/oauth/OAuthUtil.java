@@ -82,7 +82,7 @@ public final class OAuthUtil {
 
             CacheKey cacheKey = new OAuthCacheKey(oauthCacheKey);
             if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
-                oauthCache = OAuthCache.getInstance();
+                oauthCache = OAuthCache.getInstance(0);
                 oauthCache.clearCacheEntry(cacheKey);
             }
         } finally {

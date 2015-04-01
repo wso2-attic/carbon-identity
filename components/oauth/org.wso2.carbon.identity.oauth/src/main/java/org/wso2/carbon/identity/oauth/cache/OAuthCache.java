@@ -18,20 +18,29 @@
 
 package org.wso2.carbon.identity.oauth.cache;
 
+import org.wso2.carbon.identity.application.common.cache.BaseCache;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.utils.CarbonUtils;
 
 public class OAuthCache extends BaseCache<CacheKey, CacheEntry> {
 
     private static final String OAUTH_CACHE_NAME = "OAuthCache";
 
-    private static final OAuthCache instance = new OAuthCache(OAUTH_CACHE_NAME);
+    private static volatile OAuthCache instance;
 
-    private OAuthCache(String cacheName) {
-        super(cacheName);
+    private OAuthCache(String cacheName, int timeout) {
+        super(cacheName,timeout);
     }
 
-    public static OAuthCache getInstance() {
+    public static OAuthCache getInstance(int timeout) {
         CarbonUtils.checkSecurity();
+	    if (instance == null) {
+		    synchronized (SessionDataCache.class) {
+			    if (instance == null) {
+				    instance = new OAuthCache(OAUTH_CACHE_NAME, timeout);
+			    }
+		    }
+	    }
         return instance;
     }
 

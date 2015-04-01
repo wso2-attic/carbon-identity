@@ -3,6 +3,7 @@ package org.wso2.carbon.identity.application.mgt.cache;
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.application.common.cache.CacheKey;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 
 public class IdentityServiceProviderCache extends BaseCache<CacheKey, CacheEntry> {
 

@@ -58,7 +58,7 @@ public class AuthenticationContextCache extends BaseCache<CacheKey, CacheEntry> 
     public void addToCache(CacheKey key, CacheEntry entry) {
         String keyValue = ((AuthenticationContextCacheKey) key).getContextId();
         if (useCache) {
-            super.addToCache(keyValue, entry);
+            super.addToCacheStr(keyValue, entry);
         }
         if (enableTemporaryCaches) {
             SessionDataStore.getInstance().storeSessionData(keyValue, AUTHENTICATION_CONTEXT_CACHE_NAME, entry);
@@ -70,7 +70,7 @@ public class AuthenticationContextCache extends BaseCache<CacheKey, CacheEntry> 
         String keyValue = ((AuthenticationContextCacheKey) key).getContextId();
         CacheEntry cacheEntry = null;
         if (useCache) {
-            cacheEntry = super.getValueFromCache(keyValue);
+            cacheEntry = super.getValueFromCacheStr(keyValue);
         }
         if (cacheEntry == null) {
             cacheEntry = (AuthenticationContextCacheEntry) SessionDataStore.getInstance().
@@ -83,7 +83,7 @@ public class AuthenticationContextCache extends BaseCache<CacheKey, CacheEntry> 
     public void clearCacheEntry(CacheKey key) {
         String keyValue = ((AuthenticationContextCacheKey) key).getContextId();
         if (useCache) {
-            super.clearCacheEntry(keyValue);
+            super.clearCacheEntryStr(keyValue);
         }
         if (enableTemporaryCaches) {
             SessionDataStore.getInstance().clearSessionData(keyValue, AUTHENTICATION_CONTEXT_CACHE_NAME);

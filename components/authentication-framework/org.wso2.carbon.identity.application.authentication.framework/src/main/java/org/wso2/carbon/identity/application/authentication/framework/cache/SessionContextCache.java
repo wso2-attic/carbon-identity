@@ -18,11 +18,15 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.cache;
 
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.application.common.cache.CacheKey;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+
+import java.sql.Timestamp;
 
 public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
 
@@ -90,7 +94,13 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
             String keyValue = ((SessionContextCacheKey) key).getContextId();
             SessionContextCacheEntry sessionEntry = (SessionContextCacheEntry) SessionDataStore.getInstance().
                     getSessionData(keyValue, SESSION_CONTEXT_CACHE_NAME);
-            if (sessionEntry != null && sessionEntry.getContext().isRememberMe()) {
+	        Timestamp currentTimestamp = new java.sql.Timestamp(new java.util.Date().getTime());
+	        if (sessionEntry != null && sessionEntry.getContext().isRememberMe() &&
+	            (currentTimestamp.getTime() - SessionDataStore.getInstance().getTimeStamp(keyValue,
+	                                                                                      SESSION_CONTEXT_CACHE_NAME)
+			            .getTime() <=
+	             IdentityApplicationManagementUtil.getRememberMeTimeout(CarbonContext.getThreadLocalCarbonContext()
+			                                                                    .getTenantDomain())*60*1000)) {
                 cacheEntry = sessionEntry;
             }
         }

@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.identity.oauth.cache;
 
+import org.wso2.carbon.identity.application.common.cache.BaseCache;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.utils.CarbonUtils;
 
 /**
@@ -27,15 +29,22 @@ import org.wso2.carbon.utils.CarbonUtils;
 public class AuthorizationGrantCache extends BaseCache<CacheKey, CacheEntry> {
     private static final String AUTHORIZATION_GRANT_CACHE_NAME = "AuthorizationGrantCache";
 
-    private static final AuthorizationGrantCache instance = new AuthorizationGrantCache(AUTHORIZATION_GRANT_CACHE_NAME);
+    private static volatile AuthorizationGrantCache instance;
 
-    private AuthorizationGrantCache(String cacheName) {
-        super(cacheName);
+    private AuthorizationGrantCache(String cacheName, int timeout) {
+        super(cacheName, timeout);
     }
 
-    public static AuthorizationGrantCache getInstance() {
+    public static AuthorizationGrantCache getInstance(int timeout) {
         CarbonUtils.checkSecurity();
-        return instance;
+	    if (instance == null) {
+		    synchronized (SessionDataCache.class) {
+			    if (instance == null) {
+				    instance = new AuthorizationGrantCache(AUTHORIZATION_GRANT_CACHE_NAME, timeout);
+			    }
+		    }
+	    }
+	    return instance;
     }
 
     @Override

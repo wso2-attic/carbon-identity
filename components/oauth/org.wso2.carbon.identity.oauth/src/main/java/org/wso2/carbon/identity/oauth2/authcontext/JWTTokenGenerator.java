@@ -79,7 +79,7 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
     private ClaimCache claimsLocalCache;
 
     public JWTTokenGenerator() {
-        claimsLocalCache = ClaimCache.getInstance();
+        claimsLocalCache = ClaimCache.getInstance(OAuthServerConfiguration.getInstance().getClaimCacheTimeout());
     }
 
     //constructor for testing purposes

@@ -51,7 +51,7 @@ public class AuthorizationHandlerManager {
 
     private AuthorizationHandlerManager() throws IdentityOAuth2Exception {
         responseHandlers = OAuthServerConfiguration.getInstance().getSupportedResponseTypes();
-        appInfoCache = AppInfoCache.getInstance();
+        appInfoCache = AppInfoCache.getInstance(OAuthServerConfiguration.getInstance().getAppInfoCacheTimeout());
         if (appInfoCache != null) {
             if (log.isDebugEnabled()) {
                 log.debug("Successfully created AppInfoCache under " + OAuthConstants.OAUTH_CACHE_MANAGER);

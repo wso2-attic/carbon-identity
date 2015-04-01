@@ -134,7 +134,7 @@ public class SPInitSSOAuthnRequestProcessor {
                     sessionIndexId = sessionPersistenceManager.getSessionIndexFromTokenId(sessionId);
                 } else {
                     sessionIndexId = UUIDGenerator.generateUUID();
-                    sessionPersistenceManager.persistSession(sessionId, sessionIndexId);
+                    sessionPersistenceManager.persistSession(sessionId, sessionIndexId, authnReqDTO.getTenantDomain());
                 }
 
                 //TODO check whether the same SP exists

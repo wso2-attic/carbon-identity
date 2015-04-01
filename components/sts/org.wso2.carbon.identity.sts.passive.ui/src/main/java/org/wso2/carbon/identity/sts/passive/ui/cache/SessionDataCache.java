@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.identity.sts.passive.ui.cache;
 
+import org.wso2.carbon.identity.application.common.cache.BaseCache;
+
 public class SessionDataCache extends BaseCache<CacheKey, CacheEntry> {
 
     private static final String SESSION_DATA_CACHE_NAME = "PassiveSTSSessionDataCache";

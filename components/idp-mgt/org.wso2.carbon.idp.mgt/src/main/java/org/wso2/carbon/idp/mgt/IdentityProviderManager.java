@@ -20,6 +20,7 @@ package org.wso2.carbon.idp.mgt;
 
 import org.apache.axiom.om.util.Base64;
 import org.apache.axis2.engine.AxisConfiguration;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -32,6 +33,7 @@ import org.wso2.carbon.identity.application.common.ProvisioningConnectorService;
 import org.wso2.carbon.identity.application.common.model.*;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.dao.CacheBackedIdPMgtDAO;
 import org.wso2.carbon.idp.mgt.dao.FileBasedIdPMgtDAO;
 import org.wso2.carbon.idp.mgt.dao.IdPManagementDAO;
@@ -274,6 +276,11 @@ public class IdentityProviderManager {
         passiveSTSFedAuthn
                 .setProperties(propertiesList.toArray(new Property[propertiesList.size()]));
         fedAuthnCofigs.add(passiveSTSFedAuthn);
+	    FederatedAuthenticatorConfig idpProperties = IdentityApplicationManagementUtil
+			    .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
+			                               IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
+	    fedAuthnCofigs.add(idpProperties);
+
         identityProvider.setFederatedAuthenticatorConfigs(fedAuthnCofigs
                 .toArray(new FederatedAuthenticatorConfig[fedAuthnCofigs.size()]));
 
@@ -338,6 +345,88 @@ public class IdentityProviderManager {
             fedAuthnConfig.setProperties(new Property[0]);
         }
 
+	    FederatedAuthenticatorConfig propertyHolderConfig = IdentityApplicationManagementUtil
+			    .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs()
+					    ,IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
+	    if(propertyHolderConfig==null){
+		    propertyHolderConfig = new FederatedAuthenticatorConfig();
+		    propertyHolderConfig.setName(IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
+	    }
+	    List<Property> propertiesList = new ArrayList<Property>(Arrays.asList(propertyHolderConfig.getProperties()));
+	    if(IdentityApplicationManagementUtil.getProperty(propertyHolderConfig.getProperties(),
+	                                                     IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT)==null){
+		    Property cacheTimeoutProp = new Property();
+		    cacheTimeoutProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT);
+		    //reading the default value stored in identity.xml
+		    String idleTimeout = IdentityUtil
+				    .getProperty("TimeConfig.SessionIdleTimeout");
+
+		    if (idleTimeout == null || idleTimeout.trim().length() == 0) {
+			    idleTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT_DEFAULT;
+		    }else if(!StringUtils.isNumeric(idleTimeout)){
+			    log.warn("SessionIdleTimeout in identity.xml should be a numeric value");
+			    idleTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT_DEFAULT;
+		    }
+		    cacheTimeoutProp.setValue(idleTimeout);
+		    propertiesList.add(cacheTimeoutProp);
+	    }
+	    if (IdentityApplicationManagementUtil.getProperty(propertyHolderConfig.getProperties(),
+	                                                      IdentityApplicationConstants.Authenticator.IDPProperties
+			                                                      .REMEMBER_ME_TIME_OUT) == null) {
+		    Property rememberMePeriodProp = new Property();
+		    rememberMePeriodProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT);
+		    //reading the default value stored in identity.xml
+		    String rememberMeTimeout = IdentityUtil
+				    .getProperty("TimeConfig.RememberMeTimeout");
+
+		    if (rememberMeTimeout == null || rememberMeTimeout.trim().length() == 0) {
+			    rememberMeTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT_DEFAULT;
+		    }else if(!StringUtils.isNumeric(rememberMeTimeout)){
+			    log.warn("RememberMeTimeout in identity.xml should be a numeric value");
+			    rememberMeTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT_DEFAULT;
+
+		    }
+		    rememberMePeriodProp.setValue(rememberMeTimeout);
+		    propertiesList.add(rememberMePeriodProp);
+	    }
+	    if (IdentityApplicationManagementUtil.getProperty(propertyHolderConfig.getProperties(),
+	                                                      IdentityApplicationConstants.Authenticator.IDPProperties
+			                                                      .CLEAN_UP_TIMEOUT) == null) {
+		    Property cleanUpTimeoutProp = new Property();
+		    cleanUpTimeoutProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_TIMEOUT);
+		    //reading the default value stored in identity.xml
+		    String cleanUpTimeout = IdentityUtil
+				    .getProperty("TimeConfig.PersistanceCleanUpTimeout");
+
+		    if (cleanUpTimeout == null || cleanUpTimeout.trim().length() == 0) {
+			    cleanUpTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_TIMEOUT_DEFAULT;
+		    }else if(!StringUtils.isNumeric(cleanUpTimeout)){
+			    log.warn("PersistanceCleanUpTimeout in identity.xml should be a numeric value");
+			    cleanUpTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_TIMEOUT_DEFAULT;
+		    }
+		    cleanUpTimeoutProp.setValue(cleanUpTimeout);
+		    propertiesList.add(cleanUpTimeoutProp);
+	    }
+
+	    if(IdentityApplicationManagementUtil.getProperty(propertyHolderConfig.getProperties(),
+	                                                     IdentityApplicationConstants.Authenticator.IDPProperties
+			                                                     .CLEAN_UP_PERIOD)==null){
+		    Property cleanUpPeriodProp = new Property();
+		    cleanUpPeriodProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD);
+		    //reading the default value stored in identity.xml
+		    String cleanUpPeriod = IdentityUtil
+				    .getProperty("TimeConfig.PersistanceCleanUpPeriod");
+
+		    if(cleanUpPeriod==null || cleanUpPeriod.trim().length()==0){
+			    cleanUpPeriod = IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD_DEFAULT;
+		    }else if(!StringUtils.isNumeric(cleanUpPeriod)){
+			    log.warn("PersistanceCleanUpPeriod in identity.xml should be a numeric value");
+			    cleanUpPeriod = IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD_DEFAULT;
+		    }
+		    cleanUpPeriodProp.setValue(cleanUpPeriod);
+		    propertiesList.add(cleanUpPeriodProp);
+	    }
+	    propertyHolderConfig.setProperties(propertiesList.toArray(new Property[propertiesList.size()]));
         boolean idPEntityIdAvailable = false;
         for (Property property : fedAuthnConfig.getProperties()) {
             if (IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID.equals(property.getName())) {
@@ -357,7 +446,7 @@ public class IdentityProviderManager {
             }
         }
 
-        FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs = {fedAuthnConfig};
+        FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs = {fedAuthnConfig,propertyHolderConfig};
         identityProvider.setFederatedAuthenticatorConfigs(IdentityApplicationManagementUtil
                 .concatArrays(identityProvider.getFederatedAuthenticatorConfigs(), federatedAuthenticatorConfigs));
 

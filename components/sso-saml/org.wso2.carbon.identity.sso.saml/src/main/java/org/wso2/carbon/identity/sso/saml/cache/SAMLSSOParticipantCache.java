@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.sso.saml.cache;
 
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
+import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 
 public class SAMLSSOParticipantCache extends BaseCache<CacheKey, CacheEntry> {

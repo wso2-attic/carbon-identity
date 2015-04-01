@@ -19,7 +19,7 @@
 package org.wso2.carbon.identity.oauth.util;
 
 
-import org.wso2.carbon.identity.oauth.cache.BaseCache;
+import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
 import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -28,15 +28,22 @@ public class ClaimCache extends BaseCache<CacheKey, CacheEntry> {
 
     private static final String CLAIM_CACHE_NAME = "ClaimCache";
 
-    private static final ClaimCache instance = new ClaimCache(CLAIM_CACHE_NAME);
+    private static ClaimCache instance;
 
-    private ClaimCache(String cacheName) {
-        super(cacheName);
+    private ClaimCache(String cacheName, int timeout) {
+        super(cacheName, timeout);
     }
 
-    public static ClaimCache getInstance() {
+    public static ClaimCache getInstance(int timeout) {
         CarbonUtils.checkSecurity();
-        return instance;
+	    if (instance == null) {
+		    synchronized (ClaimCache.class) {
+			    if (instance == null) {
+				    instance = new ClaimCache(CLAIM_CACHE_NAME,timeout);
+			    }
+		    }
+	    }
+	    return instance;
     }
 
     @Override
