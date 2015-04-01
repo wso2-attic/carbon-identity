@@ -166,9 +166,9 @@
 							*;resolution:=optional
                         </Import-Package>
 						<Export-Package>
-							org.wso2.carbon.identity.oauth.*; version="4.2.4",
-                            org.wso2.carbon.identity.oauth2.*; version="4.2.4",
-                            org.wso2.carbon.identity.openidconnect.*; version="4.2.4",
+							org.wso2.carbon.identity.oauth.*; version="4.2.5-SNAPSHOT",
+                            org.wso2.carbon.identity.oauth2.*; version="4.2.5-SNAPSHOT",
+                            org.wso2.carbon.identity.openidconnect.*; version="4.2.5-SNAPSHOT",
                         </Export-Package>
                         <Embed-Dependency>
                             nimbus-jose-jwt|json-smart;scope=compile|runtime;inline=false
