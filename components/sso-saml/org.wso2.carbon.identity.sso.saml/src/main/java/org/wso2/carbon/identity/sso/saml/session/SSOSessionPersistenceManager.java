@@ -25,6 +25,7 @@ import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
 import org.wso2.carbon.identity.sso.saml.cache.*;
 import org.wso2.carbon.registry.core.Registry;
@@ -123,7 +124,8 @@ public class SSOSessionPersistenceManager {
         }
         sessionInfoData.setSubject(issuer, subject);
         sessionInfoData.addServiceProvider(spDO.getIssuer(), spDO, rpSessionId);
-        addSessionInfoDataToCache(sessionIndex, sessionInfoData, CACHE_TIME_OUT);
+	    addSessionInfoDataToCache(sessionIndex, sessionInfoData,
+	                              Integer.parseInt(IdentityUtil.getProperty("SSOService.PersistanceCacheTimeout")));
 
     }
 
@@ -168,7 +170,7 @@ public class SSOSessionPersistenceManager {
             log.debug("SessionIndex is null.");
             return;
         }
-        addSessionIndexToCache(tokenId, sessionIndex, CACHE_TIME_OUT);
+        addSessionIndexToCache(tokenId, sessionIndex, Integer.parseInt(IdentityUtil.getProperty("SSOService.SessionIndexCacheTimeout")));
     }
 
     public boolean isExistingTokenId(String tokenId) {
