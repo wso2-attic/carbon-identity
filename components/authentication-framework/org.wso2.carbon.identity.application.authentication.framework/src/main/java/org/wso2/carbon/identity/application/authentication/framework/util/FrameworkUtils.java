@@ -75,7 +75,6 @@ import java.util.Map.Entry;
 
 public class FrameworkUtils {
 
-    private static int maxInactiveInterval;
 
     private static Log log = LogFactory.getLog(FrameworkUtils.class);
 
@@ -970,14 +969,6 @@ public class FrameworkUtils {
         }
 
         return queryStrBuilder.toString();
-    }
-
-    public static int getMaxInactiveInterval() {
-        return maxInactiveInterval;
-    }
-
-    public static void setMaxInactiveInterval(int maxInactiveInterval) {
-        FrameworkUtils.maxInactiveInterval = maxInactiveInterval;
     }
 
     public static String prependUserStoreDomainToName(String authenticatedSubject) {
