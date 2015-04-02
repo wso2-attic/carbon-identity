@@ -97,6 +97,7 @@
                             org.wso2.carbon.identity.notification.mgt.json.*,
                             !org.wso2.carbon.identity.notification.mgt.json.internal
                         </Export-Package>
+                        <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>
