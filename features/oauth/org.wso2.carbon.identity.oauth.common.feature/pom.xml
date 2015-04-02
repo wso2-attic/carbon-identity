@@ -27,7 +27,6 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.wso2.carbon.identity.oauth.common.feature</artifactId>
-	<version>4.2.5-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Identity OAuth Common Feature</name>
 	<url>http://wso2.org</url>
@@ -36,7 +35,7 @@
 		<dependency>
 			<groupId>org.wso2.carbon</groupId>
 			<artifactId>org.wso2.carbon.identity.oauth.common</artifactId>
-			<version>4.2.5-SNAPSHOT</version>
+			<version>${identity.component.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.amber.wso2</groupId>
@@ -71,7 +70,7 @@
 								<bundleDef>org.apache.amber.wso2:amber</bundleDef>
 							</bundles>
 							<importFeatures>
-								<importFeatureDef>org.wso2.carbon.identity.core.server:4.2.5-SNAPSHOT</importFeatureDef>
+								<importFeatureDef>org.wso2.carbon.identity.core.server:${identity.component.version}</importFeatureDef>
 							</importFeatures>
 						</configuration>
 					</execution>

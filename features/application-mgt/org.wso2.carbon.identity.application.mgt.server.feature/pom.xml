@@ -28,7 +28,6 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.identity.application.mgt.server.feature</artifactId>
-    <version>4.2.5-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Identity Application Management Server Feature</name>
     <url>http://wso2.org</url>
@@ -37,12 +36,12 @@
       <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.common</artifactId>
-          <version>4.2.5-SNAPSHOT</version>
+          <version>${identity.component.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.mgt</artifactId>
-            <version>4.2.5-SNAPSHOT</version>
+            <version>${identity.component.version}</version>
         </dependency>
     </dependencies>
 
@@ -71,8 +70,8 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.application.common:4.2.5-SNAPSHOT</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.application.mgt:4.2.5-SNAPSHOT</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.application.common:${identity.component.version}</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.application.mgt:${identity.component.version}</bundleDef>
                             </bundles>
                         </configuration>
                     </execution>

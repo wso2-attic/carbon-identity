@@ -99,7 +99,7 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.mgt</artifactId>
-            <version>4.2.5-SNAPSHOT</version>
+            <version>${identity.component.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -166,9 +166,9 @@
 							*;resolution:=optional
                         </Import-Package>
 						<Export-Package>
-							org.wso2.carbon.identity.oauth.*; version="4.2.5-SNAPSHOT",
-                            org.wso2.carbon.identity.oauth2.*; version="4.2.5-SNAPSHOT",
-                            org.wso2.carbon.identity.openidconnect.*; version="4.2.5-SNAPSHOT",
+                            org.wso2.carbon.identity.oauth.*; version="${identity.component.version}",
+                            org.wso2.carbon.identity.oauth2.*; version="$identity.component.versionn}",
+                            org.wso2.carbon.identity.openidconnect.*; version="identity.component.versionon}",
                         </Export-Package>
                         <Embed-Dependency>
                             nimbus-jose-jwt|json-smart;scope=compile|runtime;inline=false

@@ -27,7 +27,6 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.wso2.carbon.identity.user.profile.feature</artifactId>
-	<version>4.2.5-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>User Profiles Feature</name>
 	<url>http://wso2.org</url>
@@ -37,13 +36,13 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.user.profile.server.feature</artifactId>
-            <version>4.2.5-SNAPSHOT</version>
+            <version>${identity.component.version}</version>
             <type>zip</type>
 	    </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.user.profile.ui.feature</artifactId>
-            <version>4.2.5-SNAPSHOT</version>
+            <version>${identity.component.version}</version>
             <type>zip</type>
 	    </dependency>
     </dependencies>
@@ -65,11 +64,11 @@
 							<id>org.wso2.carbon.identity.user.profile</id>
 							<propertiesFile>../../../../etc/feature.properties</propertiesFile>
 							<importFeatures>
-                                <importFeatureDef>org.wso2.carbon.identity.core:4.2.5-SNAPSHOT</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.core:${identity.component.version}</importFeatureDef>
                             </importFeatures>
                             <includedFeatures>
-                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.user.profile.server.feature:4.2.5-SNAPSHOT</includedFeatureDef>
-                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.user.profile.ui.feature:4.2.5-SNAPSHOT</includedFeatureDef>
+                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.user.profile.server.feature:${identity.component.version}</includedFeatureDef>
+                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.identity.user.profile.ui.feature:${identity.component.version}</includedFeatureDef>
                             </includedFeatures>
 						</configuration>
 					</execution>

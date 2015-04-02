@@ -27,7 +27,6 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.wso2.carbon.identity.core.server.feature</artifactId>
-    <version>4.2.5-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Identity Core Server Feature</name>
 	<url>http://wso2.org</url>
@@ -36,12 +35,12 @@
 		<dependency>
 			<groupId>org.wso2.carbon</groupId>
 			<artifactId>org.wso2.carbon.identity.base</artifactId>
-			<version>4.2.5-SNAPSHOT</version>
+			<version>${identity.component.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.wso2.carbon</groupId>
 			<artifactId>org.wso2.carbon.identity.core</artifactId>
-			<version>4.2.5-SNAPSHOT</version>
+			<version>${identity.component.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -101,7 +100,7 @@
                             </adviceFile>
 							<bundles>
 								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.base</bundleDef>
-								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.core:4.2.5-SNAPSHOT</bundleDef>
+								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.core:${identity.component.version}</bundleDef>
 							</bundles>
 							<importFeatures>
 								<importFeatureDef>org.wso2.carbon.core.server:4.2.0</importFeatureDef>

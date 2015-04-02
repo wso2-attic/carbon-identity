@@ -29,7 +29,6 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.identity.application.authentication.framework.server.feature</artifactId>
     <packaging>pom</packaging>
-    <version>4.2.5-SNAPSHOT</version>
     <name>Application Authentication Framework Server Feature</name>
     <url>http://wso2.org</url>
     <description>This feature contains the core bundles required for Application Authentication Framework 
@@ -39,12 +38,12 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
-            <version>4.2.5-SNAPSHOT</version>
+            <version>${identity.component.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.common</artifactId>
-            <version>4.2.5-SNAPSHOT</version>
+            <version>${identity.component.version}</version>
         </dependency>
     </dependencies>
 

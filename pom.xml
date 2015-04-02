@@ -132,6 +132,7 @@
     </dependencyManagement>
 
     <properties>
+        <identity.component.version>4.2.5-SNAPSHOT</identity.component.version>
         <carbon.kernel.version>4.2.0</carbon.kernel.version>
         <carbon.p2.plugin.version>1.5.3</carbon.p2.plugin.version>
         <google.guice.wso2.version>3.0.wso2v1</google.guice.wso2.version>

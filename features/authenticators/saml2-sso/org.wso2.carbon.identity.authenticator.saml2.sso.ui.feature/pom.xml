@@ -27,7 +27,6 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.ui.feature</artifactId>
-	<version>4.2.5-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>SAML2 based authenticator UI Feature</name>
 	<url>http://wso2.org</url>
@@ -37,12 +36,12 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.ui</artifactId>
-			<version>4.2.5-SNAPSHOT</version>
+			<version>${identity.component.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.common</artifactId>
-			<version>4.2.5-SNAPSHOT</version>
+			<version>${identity.component.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -83,9 +82,9 @@
 								</properties>
 							</adviceFile>
 							<bundles>
-								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.saml2.sso.ui:4.2.5-SNAPSHOT</bundleDef>
+								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.saml2.sso.ui:${identity.component.version}</bundleDef>
 								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.saml2.sso.stub:4.2.0</bundleDef>
-								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.saml2.sso.common:4.2.5-SNAPSHOT</bundleDef>
+								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.saml2.sso.common:${identity.component.version}</bundleDef>
 								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.sso.saml.stub:4.2.2</bundleDef>
 								<bundleDef>opensaml.wso2:opensaml2</bundleDef>
 							</bundles>

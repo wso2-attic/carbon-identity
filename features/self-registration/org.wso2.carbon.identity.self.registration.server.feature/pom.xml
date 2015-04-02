@@ -27,7 +27,6 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.wso2.carbon.identity.self.registration.server.feature</artifactId>
-	<version>4.2.5-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Identity Self Registration Server Feature</name>
 	<url>http://wso2.org</url>
@@ -38,7 +37,7 @@
 		<dependency>
 			<groupId>org.wso2.carbon</groupId>
 			<artifactId>org.wso2.carbon.identity.user.registration</artifactId>
-			<version>4.2.5-SNAPSHOT</version>
+			<version>${identity.component.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -65,10 +64,10 @@
                                 </properties>
                             </adviceFile>
 							<bundles>
-								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.user.registration:4.2.5-SNAPSHOT</bundleDef>
+								<bundleDef>org.wso2.carbon:org.wso2.carbon.identity.user.registration:${identity.component.version}</bundleDef>
 							</bundles>
 							<importFeatures>
-								<importFeatureDef>org.wso2.carbon.identity.core.server:4.2.5-SNAPSHOT</importFeatureDef>
+								<importFeatureDef>org.wso2.carbon.identity.core.server:${identity.component.version}</importFeatureDef>
 							</importFeatures>
 						</configuration>
 					</execution>

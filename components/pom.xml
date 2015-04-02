@@ -27,7 +27,6 @@
     <artifactId>identity-components</artifactId>
     <packaging>pom</packaging>
     <name>WSO2 Carbon - Identity Aggregator Module</name>
-    <version>4.2.5-SNAPSHOT</version>
     <description>
         This is a Carbon bundle that represent the Identity module.
     </description>

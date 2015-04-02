@@ -32,9 +32,5 @@
 		<module>org.wso2.carbon.identity.self.registration.server.feature</module>
 	</modules>
 
-	<properties>
-		<wso2carbon.version.identity.registration>${wso2carbon.version.identity}</wso2carbon.version.identity.registration>
-	</properties>
-
 </project>
 

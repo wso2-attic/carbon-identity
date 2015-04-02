@@ -27,7 +27,6 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.wso2.carbon.identity.relying.party.server.feature</artifactId>
-	<version>4.2.5-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Identity Relying Party Server Feature</name>
 	<url>http://wso2.org</url>
@@ -37,12 +36,12 @@
 		<dependency>
 			<groupId>org.wso2.carbon</groupId>
 			<artifactId>org.wso2.carbon.identity.relyingparty</artifactId>
-			<version>4.2.5-SNAPSHOT</version>
+			<version>${identity.component.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.wso2.carbon</groupId>
 			<artifactId>org.wso2.carbon.identity.provider</artifactId>
-			<version>4.2.5-SNAPSHOT</version>
+			<version>${identity.component.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openid4java.wso2</groupId>
@@ -135,7 +134,7 @@
 								<importBundleDef>com.google.guava.wso2:guava</importBundleDef>
 							</importBundles>
 							<importFeatures>
-								<importFeatureDef>org.wso2.carbon.identity.core.server:4.2.5-SNAPSHOT</importFeatureDef>
+								<importFeatureDef>org.wso2.carbon.identity.core.server:${identity.component.version}</importFeatureDef>
 							</importFeatures>
 						</configuration>
 					</execution>
