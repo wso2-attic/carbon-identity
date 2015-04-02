@@ -781,19 +781,19 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         resp.addCookie(samlssoTokenIdCookie);
     }
 
-	public void removeTokenIdCookie(HttpServletRequest req, HttpServletResponse resp) {
+    public void removeTokenIdCookie(HttpServletRequest req, HttpServletResponse resp) {
 
-		Cookie[] cookies = req.getCookies();
-		if (cookies != null) {
-			for (Cookie cookie : cookies) {
-				if (cookie.getName().equals("samlssoTokenId")) {
-					cookie.setMaxAge(0);
-					resp.addCookie(cookie);
-					break;
-				}
-			}
-		}
-	}
+        Cookie[] cookies = req.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("samlssoTokenId")) {
+                    cookie.setMaxAge(0);
+                    resp.addCookie(cookie);
+                    break;
+                }
+            }
+        }
+    }
 
     private String getACSUrlWithTenantPartitioning(String acsUrl, String tenantDomain) {
         String domain = null;
