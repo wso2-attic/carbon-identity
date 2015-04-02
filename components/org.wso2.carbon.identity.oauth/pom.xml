@@ -167,8 +167,8 @@
                         </Import-Package>
 						<Export-Package>
                             org.wso2.carbon.identity.oauth.*; version="${identity.component.version}",
-                            org.wso2.carbon.identity.oauth2.*; version="$identity.component.versionn}",
-                            org.wso2.carbon.identity.openidconnect.*; version="identity.component.versionon}",
+                            org.wso2.carbon.identity.oauth2.*; version="${identity.component.version}",
+                            org.wso2.carbon.identity.openidconnect.*; version="${identity.component.version}",
                         </Export-Package>
                         <Embed-Dependency>
                             nimbus-jose-jwt|json-smart;scope=compile|runtime;inline=false
