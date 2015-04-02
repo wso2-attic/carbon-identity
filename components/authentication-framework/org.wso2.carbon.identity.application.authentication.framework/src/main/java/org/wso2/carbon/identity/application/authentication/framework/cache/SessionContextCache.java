@@ -28,7 +28,7 @@ import org.wso2.carbon.identity.core.util.IdentityUtil;
 
 import java.sql.Timestamp;
 
-public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
+public class SessionContextCache extends BaseCache<String, CacheEntry> {
 
     private static final String SESSION_CONTEXT_CACHE_NAME = "AppAuthFrameworkSessionContextCache";
     private static volatile SessionContextCache instance;
@@ -75,20 +75,18 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
         return instance;
     }
 
-    @Override
     public void addToCache(CacheKey key, CacheEntry entry) {
         if (useCache) {
-            super.addToCache(key, entry);
+            super.addToCache(((SessionContextCacheKey) key).getContextId(), entry);
         }
         String keyValue = ((SessionContextCacheKey) key).getContextId();
         SessionDataStore.getInstance().storeSessionData(keyValue, SESSION_CONTEXT_CACHE_NAME, entry);
     }
 
-    @Override
     public CacheEntry getValueFromCache(CacheKey key) {
         CacheEntry cacheEntry = null;
         if (useCache) {
-            cacheEntry = super.getValueFromCache(key);
+            cacheEntry = super.getValueFromCache(((SessionContextCacheKey) key).getContextId());
         }
         if (cacheEntry == null) {
             String keyValue = ((SessionContextCacheKey) key).getContextId();
@@ -108,10 +106,9 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
 
     }
 
-    @Override
     public void clearCacheEntry(CacheKey key) {
         if (useCache) {
-            super.clearCacheEntry(key);
+            super.clearCacheEntry(((SessionContextCacheKey) key).getContextId());
         }
         String keyValue = ((SessionContextCacheKey) key).getContextId();
         SessionDataStore.getInstance().clearSessionData(keyValue, SESSION_CONTEXT_CACHE_NAME);

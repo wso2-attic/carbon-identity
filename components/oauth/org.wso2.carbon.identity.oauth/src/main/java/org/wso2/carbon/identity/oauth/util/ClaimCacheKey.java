@@ -68,4 +68,12 @@ public class ClaimCacheKey extends CacheKey {
     public String[] getRequiredClaims() {
         return requiredClaims;
     }
+
+	@Override
+	public String toString() {
+		return "ClaimCacheKey{" +
+		       "endUserName='" + endUserName + '\'' +
+		       ", requiredClaims=" + Arrays.toString(requiredClaims) +
+		       '}';
+	}
 }

@@ -34,7 +34,6 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
     private static final String CACHE_MANAGER_NAME
             = "IdentityApplicationManagementCacheManager";
     private CacheBuilder<K, V> cacheBuilder;
-    private CacheBuilder<String, V> stringCacheBuilder;
     private String cacheName;
     private int cacheTimeout;
     private int capacity = 0;
@@ -64,56 +63,6 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
         } else {
             this.cacheTimeout = -1;
         }
-    }
-
-    private Cache<String, V> getBaseCacheWithStringKey() {
-
-        Cache<String, V> cache = null;
-        try {
-
-            PrivilegedCarbonContext.startTenantFlow();
-            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
-                    .getThreadLocalCarbonContext();
-            carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
-            carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
-
-            CacheManager cacheManager = Caching.getCacheManagerFactory()
-                    .getCacheManager(CACHE_MANAGER_NAME);
-
-            if (cacheTimeout > 0) {
-                if (stringCacheBuilder == null) {
-                    synchronized (cacheName.intern()) {
-                        if (stringCacheBuilder == null) {
-                            cacheManager.removeCache(cacheName);
-                            stringCacheBuilder = cacheManager.<String, V>createCacheBuilder(cacheName).
-                                    setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
-                                            new CacheConfiguration
-                                                    .Duration(TimeUnit.SECONDS, cacheTimeout)).
-                                    setStoreByValue(false).
-		                            setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
-		                                      new CacheConfiguration
-				                                      .Duration(TimeUnit.SECONDS, cacheTimeout)).
-		                            setStoreByValue(false);
-                            cache = stringCacheBuilder.build();
-                            if (capacity != 0) {
-                                ((CacheImpl) cache).setCapacity(capacity);
-                            }
-                        } else {
-                            cache = cacheManager.getCache(cacheName);
-                        }
-                    }
-                } else {
-                    cache = cacheManager.getCache(cacheName);
-                }
-            } else {
-                cache = cacheManager.getCache(cacheName);
-
-            }
-        } finally {
-            PrivilegedCarbonContext.endTenantFlow();
-        }
-
-        return cache;
     }
 
     private Cache<K, V> getBaseCache() {
@@ -190,24 +139,6 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
         }
     }
 
-    public void addToCacheStr(String key, V entry) {
-        try {
-            PrivilegedCarbonContext.startTenantFlow();
-            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
-                    .getThreadLocalCarbonContext();
-            carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
-            carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
-            // Element already in the cache. Remove it first
-            //clearCacheEntry(key);
-            Cache<String, V> cache = getBaseCacheWithStringKey();
-            if (cache != null) {
-                cache.put(key, entry);
-            }
-        } finally {
-            PrivilegedCarbonContext.endTenantFlow();
-        }
-    }
-
     /**
      * Retrieves a cache entry.
      *
@@ -227,41 +158,6 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
                 return (V) cache.get(key);
             }
             return null;
-        } finally {
-            PrivilegedCarbonContext.endTenantFlow();
-        }
-    }
-
-    public V getValueFromCacheStr(String key) {
-
-        try {
-            PrivilegedCarbonContext.startTenantFlow();
-            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
-                    .getThreadLocalCarbonContext();
-            carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
-            carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
-            Cache<String, V> cache = getBaseCacheWithStringKey();
-            if (cache != null) {
-                return (V) cache.get(key);
-            }
-            return null;
-        } finally {
-            PrivilegedCarbonContext.endTenantFlow();
-        }
-    }
-
-    public void clearCacheEntryStr(String key) {
-
-        try {
-            PrivilegedCarbonContext.startTenantFlow();
-            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
-                    .getThreadLocalCarbonContext();
-            carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
-            carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
-            Cache<String, V> cache = getBaseCacheWithStringKey();
-            if (cache != null) {
-                cache.remove(key);
-            }
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }

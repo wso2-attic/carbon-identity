@@ -56,7 +56,7 @@ public class JDBCScopeValidator extends OAuth2ScopeValidator {
         // Check the cache, if caching is enabled.
         if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
             OAuthCache oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
-            CacheKey cacheKey = new OAuthCacheKey(resource);
+	        OAuthCacheKey cacheKey = new OAuthCacheKey(resource);
             CacheEntry result = oauthCache.getValueFromCache(cacheKey);
 
             //Cache hit
@@ -73,7 +73,7 @@ public class JDBCScopeValidator extends OAuth2ScopeValidator {
             if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
                 OAuthCache oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance()
 		                                                       .getOAuthCacheTimeout());
-                CacheKey cacheKey = new OAuthCacheKey(resource);
+	            OAuthCacheKey cacheKey = new OAuthCacheKey(resource);
                 ResourceScopeCacheEntry cacheEntry = new ResourceScopeCacheEntry(resourceScope);
                 //Store resourceScope in cache even if it is null (to avoid database calls when accessing resources for
                 //which scopes haven't been defined).

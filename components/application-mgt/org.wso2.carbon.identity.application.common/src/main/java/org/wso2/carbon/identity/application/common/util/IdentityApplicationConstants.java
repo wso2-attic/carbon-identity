@@ -95,17 +95,17 @@ public class IdentityApplicationConstants {
             public static final String NAME = "wstrust";
         }
 
-        public static class IDPProperties {
-            public static final String NAME = "IDPProperties";
-            public static final String SESSION_IDLE_TIME_OUT = "SessionIdleTimeout";
-	        public static final String SESSION_IDLE_TIME_OUT_DEFAULT = "15";
-	        public static final String REMEMBER_ME_TIME_OUT = "RememberMeTimeout";
-	        public static final String REMEMBER_ME_TIME_OUT_DEFAULT = "20160";
-	        public static final String CLEAN_UP_TIMEOUT = "CleanUpTimeout";
-	        public static final String CLEAN_UP_TIMEOUT_DEFAULT = "20160";
-	        public static final String CLEAN_UP_PERIOD = "CleanUpPeriod";
-	        public static final String CLEAN_UP_PERIOD_DEFAULT = "1140";
-        }
+	    public static class IDPProperties {
+		    public static final String NAME = "IDPProperties";
+		    public static final String SESSION_IDLE_TIME_OUT = "SessionIdleTimeout";
+		    public static final String SESSION_IDLE_TIME_OUT_DEFAULT = "15";
+		    public static final String REMEMBER_ME_TIME_OUT = "RememberMeTimeout";
+		    public static final String REMEMBER_ME_TIME_OUT_DEFAULT = "20160";
+		    public static final String CLEAN_UP_TIMEOUT = "CleanUpTimeout";
+		    public static final String CLEAN_UP_TIMEOUT_DEFAULT = "20160";
+		    public static final String CLEAN_UP_PERIOD = "CleanUpPeriod";
+		    public static final String CLEAN_UP_PERIOD_DEFAULT = "1140";
+	    }
     }
 
     public static class OAuth10A {

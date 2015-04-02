@@ -163,7 +163,6 @@ public class IdentityConstants {
         public static final String SINGLE_LOGOUT_RETRY_COUNT = "SSOService.SingleLogoutRetryCount";
         public static final String SINGLE_LOGOUT_RETRY_INTERVAL = "SSOService.SingleLogoutRetryInterval";
         public static final String SSO_TENANT_PARTITIONING_ENABLED = "SSOService.TenantPartitioningEnabled";
-        public static final String SSO_SESSION_TIMEOUT = "SSOService.SessionTimeout";
         public static final String ACCEPT_OPENID_LOGIN = "SSOService.AcceptOpenIDLogin";
         public static final String SAML_RESPONSE_VALIDITY_PERIOD = "SSOService.SAMLResponseValidityPeriod";
 

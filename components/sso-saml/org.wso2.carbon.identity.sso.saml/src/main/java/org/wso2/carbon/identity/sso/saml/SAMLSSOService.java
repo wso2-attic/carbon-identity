@@ -38,20 +38,6 @@ import javax.servlet.http.HttpServletResponse;
 
 public class SAMLSSOService {
 
-    /**
-     * Get the SSO session's timeout
-     *
-     * @return timeout for SSO session
-     */
-    public static int getSSOSessionTimeout() {
-        if (IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_SESSION_TIMEOUT) != null &&
-                !IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_SESSION_TIMEOUT).trim().equals("")) {
-            return Integer.parseInt(IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_SESSION_TIMEOUT).trim());
-        } else {
-            return 36000;
-        }
-    }
-
     public static boolean isOpenIDLoginAccepted() {
         if (IdentityUtil.getProperty(IdentityConstants.ServerConfig.ACCEPT_OPENID_LOGIN) != null &&
                 !IdentityUtil.getProperty(IdentityConstants.ServerConfig.ACCEPT_OPENID_LOGIN).trim().equals("")) {

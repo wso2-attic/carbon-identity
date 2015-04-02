@@ -102,7 +102,7 @@ public class IdPInitSSOAuthnRequestProcessor {
                     sessionIndexId = sessionPersistenceManager.getSessionIndexFromTokenId(sessionId);
                 } else {
                     sessionIndexId = UUIDGenerator.generateUUID();
-                    sessionPersistenceManager.persistSession(sessionId, sessionIndexId,authnReqDTO.getTenantDomain());
+                    sessionPersistenceManager.persistSession(sessionId, sessionIndexId);
                 }
 
                 if (authMode.equals(SAMLSSOConstants.AuthnModes.USERNAME_PASSWORD)) {

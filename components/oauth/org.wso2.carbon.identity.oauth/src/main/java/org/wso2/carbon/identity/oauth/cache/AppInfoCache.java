@@ -18,8 +18,10 @@
 
 package org.wso2.carbon.identity.oauth.cache;
 
+import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 
 /**
@@ -30,9 +32,13 @@ public class AppInfoCache extends BaseCache<String, OAuthAppDO> {
     private static final String OAUTH_APP_INFO_CACHE_NAME = "AppInfoCache";
 
     private static volatile AppInfoCache instance;
+	private boolean enableRequestScopeCache = false;
 
     private AppInfoCache(String cacheName, int timeout) {
         super(cacheName, timeout);
+	    if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
+		    enableRequestScopeCache = Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
+	    }
     }
 
     /**
@@ -55,15 +61,27 @@ public class AppInfoCache extends BaseCache<String, OAuthAppDO> {
     @Override
     public void addToCache(String key, OAuthAppDO entry) {
         super.addToCache(key, entry);
+	    SessionDataStore.getInstance().storeSessionData(key, OAUTH_APP_INFO_CACHE_NAME, entry);
+	    if(enableRequestScopeCache){
+		    SessionDataStore.getInstance().storeSessionData(key,OAUTH_APP_INFO_CACHE_NAME,entry);
+	    }
     }
 
     @Override
-    public OAuthAppDO getValueFromCacheStr(String key) {
-        return super.getValueFromCacheStr(key);
+    public OAuthAppDO getValueFromCache(String key) {
+	    OAuthAppDO oAuthAppDO = super.getValueFromCache(key);
+	    if(oAuthAppDO==null){
+		    oAuthAppDO = (OAuthAppDO)SessionDataStore.getInstance().getSessionData(key, OAUTH_APP_INFO_CACHE_NAME);
+	    }
+        return oAuthAppDO;
     }
 
     @Override
     public void clearCacheEntry(String key) {
-        super.clearCacheEntryStr(key);
+        super.clearCacheEntry(key);
+	    SessionDataStore.getInstance().clearSessionData(key, OAUTH_APP_INFO_CACHE_NAME);
+	    if(enableRequestScopeCache){
+		    SessionDataStore.getInstance().clearSessionData(key,OAUTH_APP_INFO_CACHE_NAME);
+	    }
     }
 }
