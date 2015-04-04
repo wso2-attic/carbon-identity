@@ -3,19 +3,20 @@
 
 <bpel:process xmlns:tns="http://bpel.mgt.workflow.carbon.wso2.org/approvalProcess"
               xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
-              xmlns:ns="http://cb.mgt.workflow.carbon.wso2.org"
               xmlns:b4p="http://docs.oasis-open.org/ns/bpel4people/bpel4people/200803"
               xmlns:htw="http://ht.bpel.mgt.workflow.identity.carbon.wso2.org/wsdl"
               xmlns:bsch="http://schema.bpel.mgt.workflow.carbon.wso2.org/"
-              xmlns:clb="http://cb.mgt.workflow.carbon.wso2.org/xsd"
+              xmlns:ns1="http://callback.mgt.workflow.identity.carbon.wso2.org"
+              xmlns:xsd="http://callback.mgt.workflow.identity.carbon.wso2.org/xsd"
               name="ApprovalProcess"
               targetNamespace="http://bpel.mgt.workflow.carbon.wso2.org/approvalProcess"
               suppressJoinFailure="yes">
+    <!-- Import the client WSDL -->
     <bpel:extensions>
         <bpel:extension namespace="http://docs.oasis-open.org/ns/bpel4people/bpel4people/200803"
                         mustUnderstand="yes"></bpel:extension>
     </bpel:extensions>
-    <bpel:import namespace="http://cb.mgt.workflow.carbon.wso2.org" location="CallbackService.wsdl"
+    <bpel:import namespace="http://callback.mgt.workflow.identity.carbon.wso2.org" location="CallbackService.wsdl"
                  importType="http://schemas.xmlsoap.org/wsdl/"></bpel:import>
     <bpel:import namespace="http://ht.bpel.mgt.workflow.identity.carbon.wso2.org/wsdl"
                  location="ApprovalTaskService.wsdl" importType="http://schemas.xmlsoap.org/wsdl/"></bpel:import>
@@ -26,8 +27,8 @@
     <bpel:partnerLinks>
         <bpel:partnerLink name="client"
                           partnerLinkType="tns:ApprovalProcessPLT" myRole="partnerRole"/>
-        <bpel:partnerLink name="callbackService"
-                          partnerLinkType="tns:CallbackServicePLT" partnerRole="callbackPartnerRole"></bpel:partnerLink>
+        <bpel:partnerLink name="callbackService" partnerLinkType="tns:callbackServicePLT"
+                          partnerRole="callbackServicePartnerRole"></bpel:partnerLink>
         <bpel:partnerLink name="b4pApprovalPL" partnerLinkType="tns:ApprovalTaskPLT" myRole="ApprovalCallbackRole"
                           partnerRole="approvalPartnerRole"></bpel:partnerLink>
     </bpel:partnerLinks>
@@ -46,13 +47,14 @@
         <bpel:assign validate="no" name="assignHTVars">
             <bpel:copy>
                 <bpel:from>
-                    <bpel:literal
-                            xml:space="preserve"><tns:ApprovalData xmlns:tns="http://ht.bpel.mgt.workflow.identity.carbon.wso2.org/wsdl/schema" >
-  <taskSubject>Unknown Task</taskSubject>
-  <taskDescription>No description available</taskDescription>
-  <priority>5</priority>
-</tns:ApprovalData>
-                </bpel:literal>
+                    <bpel:literal xml:space="preserve">
+                        <tns:ApprovalData
+                            xmlns:tns="http://ht.bpel.mgt.workflow.identity.carbon.wso2.org/wsdl/schema" >
+                            <taskSubject>Unknown Task</taskSubject>
+                            <taskDescription>No description available</taskDescription>
+                            <priority>5</priority>
+                        </tns:ApprovalData>
+                    </bpel:literal>
                 </bpel:from>
                 <bpel:to variable="b4pApprovalInput" part="ApprovalRequest"></bpel:to>
             </bpel:copy>
@@ -79,17 +81,17 @@
         </bpel:assign>
         <bpel:extensionActivity>
             <b4p:peopleActivity name="getApproved" inputVariable="b4pApprovalInput" outputVariable="b4pApprovalOutput">
-                <b4p:remoteTask partnerLink="b4pApprovalPL"
-                                operation="approve" responseOperation="approvalResponse"></b4p:remoteTask>
+                <b4p:remoteTask partnerLink="b4pApprovalPL" operation="approve"
+                                responseOperation="approvalResponse"></b4p:remoteTask>
             </b4p:peopleActivity>
         </bpel:extensionActivity>
         <bpel:assign validate="no" name="assignResponseVars">
             <bpel:copy>
                 <bpel:from>
                     <bpel:literal xml:space="preserve">
-                        <ns:onCallback xmlns:ns="http://cb.mgt.workflow.carbon.wso2.org/xsd">
+                        <ns:onCallback xmlns:ns="http://callback.mgt.workflow.identity.carbon.wso2.org/xsd" >
                             <ns:response>
-                                <ns:requesterId>UNDEFINED</ns:requesterId>
+                                <ns:eventId>UNDEFINED</ns:eventId>
                                 <ns:status>UNDEFINED</ns:status>
                                 <ns:uuid>UNDEFINED</ns:uuid>
                             </ns:response>
@@ -106,7 +108,7 @@
                 </bpel:from>
                 <bpel:to part="parameters" variable="callbackServiceRequest">
                     <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                        <![CDATA[clb:response/clb:status]]>
+                        <![CDATA[xsd:response/xsd:status]]>
                     </bpel:query>
                 </bpel:to>
             </bpel:copy>
@@ -118,7 +120,7 @@
                 </bpel:from>
                 <bpel:to part="parameters" variable="callbackServiceRequest">
                     <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                        <![CDATA[clb:response/clb:uuid]]>
+                        <![CDATA[xsd:response/xsd:uuid]]>
                     </bpel:query>
                 </bpel:to>
             </bpel:copy>
@@ -129,14 +131,15 @@
                 </bpel:from>
                 <bpel:to part="parameters" variable="callbackServiceRequest">
                     <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                        <![CDATA[clb:response/clb:requesterId]]>
+                        <![CDATA[xsd:response/xsd:eventId]]>
                     </bpel:query>
                 </bpel:to>
             </bpel:copy>
         </bpel:assign>
         <bpel:invoke name="callbackClient"
                      partnerLink="callbackService" operation="onCallback"
-                     portType="ns:WorkflowCallbackServicePortType" inputVariable="callbackServiceRequest"/>
+                     portType="ns1:WorkflowCallbackServicePortType" inputVariable="callbackServiceRequest"/>
+
 
     </bpel:sequence>
 </bpel:process>

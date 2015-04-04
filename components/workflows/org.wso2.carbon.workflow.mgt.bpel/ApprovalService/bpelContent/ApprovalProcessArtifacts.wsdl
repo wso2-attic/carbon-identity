@@ -3,29 +3,23 @@
              xmlns:schema="http://schema.bpel.mgt.workflow.carbon.wso2.org/"
              xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
              xmlns:tns="http://bpel.mgt.workflow.carbon.wso2.org/approvalProcess"
-             xmlns:wsdl="http://cb.mgt.workflow.carbon.wso2.org"
              xmlns:wsdl1="http://ht.bpel.mgt.workflow.identity.carbon.wso2.org/wsdl"
+             xmlns:wsdl2="http://callback.mgt.workflow.identity.carbon.wso2.org"
              xmlns="http://schemas.xmlsoap.org/wsdl/" name="ApprovalProcess"
              targetNamespace="http://bpel.mgt.workflow.carbon.wso2.org/approvalProcess">
 
-    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-         TYPE DEFINITION - List of services participating in this BPEL process
-         The default output of the BPEL designer uses strings as input and
-         output to the BPEL Process. But you can define or import any XML
-         Schema type and us them as part of the message types.
-         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
     <plnk:partnerLinkType name="ApprovalProcessPLT">
         <plnk:role name="partnerRole" portType="tns:ApprovalProcess"/>
-    </plnk:partnerLinkType>
-    <plnk:partnerLinkType name="CallbackServicePLT">
-        <plnk:role name="callbackPartnerRole" portType="wsdl:WorkflowCallbackServicePortType"/>
     </plnk:partnerLinkType>
     <plnk:partnerLinkType name="ApprovalTaskPLT">
         <plnk:role name="approvalPartnerRole" portType="wsdl1:ApprovalTaskPT"/>
         <plnk:role name="ApprovalCallbackRole" portType="wsdl1:ApprovalTaskCBPT"/>
     </plnk:partnerLinkType>
-    <import location="CallbackService.wsdl" namespace="http://cb.mgt.workflow.carbon.wso2.org"/>
+    <plnk:partnerLinkType name="callbackServicePLT">
+        <plnk:role name="callbackServicePartnerRole" portType="wsdl2:WorkflowCallbackServicePortType"/>
+    </plnk:partnerLinkType>
     <import location="ApprovalTaskService.wsdl" namespace="http://ht.bpel.mgt.workflow.identity.carbon.wso2.org/wsdl"/>
+    <import location="CallbackService.wsdl" namespace="http://callback.mgt.workflow.identity.carbon.wso2.org"/>
     <types>
         <schema xmlns:tns="http://schema.bpel.mgt.workflow.carbon.wso2.org/" xmlns="http://www.w3.org/2001/XMLSchema"
                 attributeFormDefault="unqualified" elementFormDefault="qualified"
@@ -49,41 +43,16 @@
         </schema>
     </types>
 
-    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-         MESSAGE TYPE DEFINITION - Definition of the message types used as
-         part of the port type defintions
-         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
     <message name="ApprovalProcessRequestMessage">
         <part element="schema:ProcessRequest" name="payload"/>
     </message>
 
-
-    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-         PORT TYPE DEFINITION - A port type groups a set of operations into
-         a logical service unit.
-         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-    <!-- portType implemented by the ApprovalProcess BPEL process -->
     <portType name="ApprovalProcess">
         <operation name="initiate">
             <input message="tns:ApprovalProcessRequestMessage"/>
         </operation>
     </portType>
 
-    <!-- portType implemented by the requester of ApprovalProcess BPEL process 
-         for asynchronous callback purposes
-         -->
-
-
-    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-         PARTNER LINK TYPE DEFINITION
-             the ApprovalProcess partnerLinkType binds the provider and
-             requester portType into an asynchronous conversation.
-         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-
-    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-         BINDING DEFINITION - Defines the message format and protocol details
-         for a web service.
-         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
     <binding name="ApprovalProcessBinding" type="tns:ApprovalProcess">
         <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
         <operation name="initiate">
@@ -93,12 +62,6 @@
             </input>
         </operation>
     </binding>
-
-
-    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-         SERVICE DEFINITION - A service groups a set of ports into
-         a service unit.
-         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
     <service name="ApprovalProcessService">
         <port binding="tns:ApprovalProcessBinding" name="ApprovalProcessPort">
             <soap:address location="http://localhost:8080/ApprovalProcess"/>
