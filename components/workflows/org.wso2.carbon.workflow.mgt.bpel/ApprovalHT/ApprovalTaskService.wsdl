@@ -104,12 +104,12 @@
     </wsdl:binding>
     <wsdl:service name="ApprovalTaskService">
         <wsdl:port binding="tns:ApprovalTaskServiceSOAP" name="ApprovalTaskPort">
-            <soap:address location="http://www.example.org/"/>
+            <soap:address location="http://localhost:9763/services/ApprovalTaskService"/>
         </wsdl:port>
     </wsdl:service>
     <wsdl:service name="ApprovalTaskServiceCB">
         <wsdl:port name="ApprovalTaskCBPort" binding="tns:ApprovalTaskServiceCBSOAP">
-            <soap:address location="http://www.example.org/"/>
+            <soap:address location="http://localhost:9763/services/ApprovalTaskServiceCB"/>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>
