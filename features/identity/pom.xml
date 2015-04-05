@@ -49,6 +49,7 @@
         <module>tools-saml</module>
         <module>thrift</module>
         <module>notification-mgt</module>
+        <module>user-account-association</module>
     </modules>
 
     <!--dependencyManagement>
