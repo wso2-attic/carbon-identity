@@ -1,0 +1,12 @@
+<wsa:EndpointReference
+        xmlns:wsa="http://www.w3.org/2005/08/addressing"
+        >
+    <wsa:Address>${serverServicesRoot}/WorkflowCallbackService</wsa:Address>
+    <wsa:Metadata>
+        <id>SInvokeEPR</id>
+        <transport type="http">
+            <authorization-username>${callbackServiceAuthUser}</authorization-username>
+            <authorization-password>${callbackServiceAuthPassword}</authorization-password>
+        </transport>
+    </wsa:Metadata>
+</wsa:EndpointReference>

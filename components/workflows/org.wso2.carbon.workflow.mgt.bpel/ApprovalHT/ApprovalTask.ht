@@ -24,9 +24,7 @@
         xmlns:htdef="http://ht.bpel.mgt.workflow.identity.carbon.wso2.org/wsdl"
         targetNamespace="http://ht.bpel.mgt.workflow.identity.carbon.wso2.org"
         xsi:schemaLocation="http://docs.oasis-open.org/ns/bpel4people/ws-humantask/200803
-                ../resources/ws-humantask.xsd
-
-                /resources/ws-humantask-types.xsd">
+                ../resources/ws-humantask.xsd">
 
     <htd:documentation>
         Human task for request approvals
@@ -63,7 +61,7 @@
                            responseOperation="approvalResponse"/>
 
             <htd:priority>
-                htd:getInput("ApprovalRequest")/htsch:priority
+                htd:getInput("ApprovalRequest")//priority
             </htd:priority>
 
             <htd:peopleAssignments>
@@ -92,11 +90,11 @@
                                                type="xsd:string">
                         htd:getInput("ApprovalRequest")//taskSubject
                     </htd:presentationParameter>
-                    <htd:presentationParameter name="subject"
+                    <htd:presentationParameter name="description"
                                                type="xsd:string">
                         htd:getInput("ApprovalRequest")//taskDescription
                     </htd:presentationParameter>
-                    <htd:presentationParameter name="description"
+                    <htd:presentationParameter name="params"
                                                type="xsd:string">
                         htd:getInput("ApprovalRequest")//inputParams
                     </htd:presentationParameter>
