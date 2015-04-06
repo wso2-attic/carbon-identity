@@ -89,13 +89,37 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.directory.wso2</groupId>
+            <groupId>org.wso2.apache.directory</groupId>
             <artifactId>apacheds</artifactId>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
         </dependency>
+        <dependency>
+            <artifactId>apacheds-protocol-ldap</artifactId>
+            <groupId>org.apache.directory.server</groupId>
+            <version>1.5.7</version>
+        </dependency>
+
+        <dependency>
+            <artifactId>apacheds-protocol-kerberos</artifactId>
+            <groupId>org.apache.directory.server</groupId>
+            <version>1.5.7</version>
+        </dependency>
+
+        <dependency>
+            <artifactId>apacheds-interceptor-kerberos</artifactId>
+            <groupId>org.apache.directory.server</groupId>
+            <version>1.5.7</version>
+        </dependency>
+
+        <dependency>
+            <artifactId>apacheds-core-annotations</artifactId>
+            <groupId>org.apache.directory.server</groupId>
+            <version>1.5.7</version>
+        </dependency>
+
     </dependencies>
 
 </project>

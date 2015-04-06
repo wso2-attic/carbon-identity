@@ -35,7 +35,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.directory.wso2</groupId>
+            <groupId>org.wso2.apache.directory</groupId>
             <artifactId>apacheds</artifactId>
         </dependency>
         <dependency>
@@ -98,7 +98,7 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.apache.directory.wso2:apacheds</bundleDef>
+                                <bundleDef>org.wso2.apache.directory:apacheds</bundleDef>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.ldap.server</bundleDef>
                             </bundles>
                             <importFeatures>

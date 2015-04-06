@@ -112,7 +112,7 @@
             <artifactId>waffle-jna</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.nimbusds.wso2</groupId>
+            <groupId>org.wso2.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
         </dependency>
         <dependency>
