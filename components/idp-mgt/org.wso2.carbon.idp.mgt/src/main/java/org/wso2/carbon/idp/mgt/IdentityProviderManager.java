@@ -32,6 +32,7 @@ import org.wso2.carbon.identity.application.common.ProvisioningConnectorService;
 import org.wso2.carbon.identity.application.common.model.*;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.dao.CacheBackedIdPMgtDAO;
 import org.wso2.carbon.idp.mgt.dao.FileBasedIdPMgtDAO;
 import org.wso2.carbon.idp.mgt.dao.IdPManagementDAO;
@@ -55,6 +56,8 @@ public class IdentityProviderManager {
     private static CacheBackedIdPMgtDAO dao = new CacheBackedIdPMgtDAO(new IdPManagementDAO());
 
     private static volatile IdentityProviderManager instance = new IdentityProviderManager();
+
+    private static String residentIdPEntityId;
 
     private IdentityProviderManager() {
 
@@ -347,7 +350,7 @@ public class IdentityProviderManager {
         if (!idPEntityIdAvailable) {
             Property property = new Property();
             property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
-            property.setValue("localhost");
+            property.setValue(getResidentIdPEntityId());
             if (fedAuthnConfig.getProperties().length > 0) {
                 List<Property> properties = Arrays.asList(fedAuthnConfig.getProperties());
                 properties.add(property);
@@ -1184,6 +1187,21 @@ public class IdentityProviderManager {
         }
 
         return true;
+    }
+
+    private String getResidentIdPEntityId() {
+
+        if (residentIdPEntityId == null) {
+            synchronized (IdentityProviderManager.class) {
+                if (residentIdPEntityId == null) {
+                    residentIdPEntityId = IdentityUtil.getProperty("SSOService.EntityId");
+                    if (residentIdPEntityId == null) {
+                        residentIdPEntityId = "localhost";
+                    }
+                }
+            }
+        }
+        return residentIdPEntityId;
     }
 
 }

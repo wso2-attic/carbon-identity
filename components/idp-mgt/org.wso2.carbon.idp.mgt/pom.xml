@@ -73,6 +73,7 @@
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Import-Package>
                             org.wso2.carbon.registry.core.*,
+                            org.wso2.carbon.identity.core.*,
                             !javax.xml.namespace,
                             javax.xml.namespace,
                             javax.servlet; version=2.4.0,
