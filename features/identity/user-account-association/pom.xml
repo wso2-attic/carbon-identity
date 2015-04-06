@@ -30,7 +30,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>user-account-association</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 Carbon User Account Assoociation Feature Aggregator Module</name>
+    <name>WSO2 Carbon User Account Association Feature Aggregator Module</name>
     <url>http://wso2.org</url>
 
     <modules>
