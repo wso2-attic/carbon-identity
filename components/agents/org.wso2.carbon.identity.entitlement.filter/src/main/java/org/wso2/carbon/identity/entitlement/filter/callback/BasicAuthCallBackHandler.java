@@ -40,6 +40,7 @@ public class BasicAuthCallBackHandler extends EntitlementFilterCallBackHandler {
                     setUserName(tempArr[0]);
                 }
             }
+        } else {
             throw new EntitlementFilterException("Unable to retrieve username from Authorization header");
         }
     }
