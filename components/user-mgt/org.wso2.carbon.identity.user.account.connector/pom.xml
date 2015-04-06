@@ -18,22 +18,32 @@
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
-        <artifactId>identity-provider-management</artifactId>
+        <artifactId>identity</artifactId>
         <version>4.3.4-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.idp.mgt</artifactId>
+    <artifactId>org.wso2.carbon.identity.user.account.connector</artifactId>
     <packaging>bundle</packaging>
-    <name>WSO2 Carbon - Identity Provider Management Bundle</name>
+    <name>WSO2 Carbon User Account Association</name>
+    <description>WSO2 Carbon User Account Association</description>
 
     <dependencies>
         <dependency>
-            <groupId>opensaml.wso2</groupId>
-            <artifactId>opensaml2</artifactId>
+            <groupId>org.apache.axis2.wso2</groupId>
+            <artifactId>axis2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang.wso2</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ws.commons.axiom.wso2</groupId>
+            <artifactId>axiom</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -44,16 +54,24 @@
             <artifactId>org.wso2.carbon.user.api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.commons</groupId>
-            <artifactId>org.wso2.carbon.tenant.common</artifactId>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.user.core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.application.common</artifactId>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.core.services</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.logging</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.application.common</artifactId>
         </dependency>
     </dependencies>
 
@@ -72,24 +90,16 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Import-Package>
-                            org.wso2.carbon.registry.core.*,
-                            !javax.xml.namespace,
-                            javax.xml.namespace,
-                            javax.servlet; version=2.4.0,
-                            javax.servlet.http; version=2.4.0,
                             org.apache.axis2.*; version="${axis2.osgi.version.range}",
                             org.apache.axiom.*; version="${axiom.osgi.version.range}",
                             *;resolution:=optional
                         </Import-Package>
                         <Private-Package>
-                            org.wso2.carbon.idp.mgt.internal
+                            org.wso2.carbon.identity.user.account.connector.internal
                         </Private-Package>
                         <Export-Package>
-                            !org.wso2.carbon.idp.mgt.internal,
-                            org.wso2.carbon.idp.mgt.*,
-                            org.wso2.carbon.idp.mgt.dto.*,
-                            org.wso2.carbon.idp.mgt.util.*
-                            org.wso2.carbon.idp.mgt.listener.*
+                            !org.wso2.carbon.identity.user.account.connector.internal,
+                            org.wso2.carbon.identity.user.account.connector.*
                         </Export-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
