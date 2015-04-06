@@ -69,7 +69,7 @@
             <type>war</type>
         </dependency>
         <dependency>
-            <groupId>com.nimbusds.wso2</groupId>
+            <groupId>org.wso2.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
         </dependency>
         <dependency>
@@ -168,7 +168,7 @@
                                 <bundleDef>com.thetransactioncompany.wso2:java-property-utils</bundleDef>
                                 <bundleDef>com.thetransactioncompany.wso2:cors-filter</bundleDef>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.oauth</bundleDef>
-                                <bundleDef>com.nimbusds.wso2:nimbus-jose-jwt</bundleDef>
+                                <bundleDef>org.wso2.nimbusds:nimbus-jose-jwt</bundleDef>
                                 <bundleDef>net.minidev:json-smart</bundleDef>
                             </bundles>
                             <importFeatures>
