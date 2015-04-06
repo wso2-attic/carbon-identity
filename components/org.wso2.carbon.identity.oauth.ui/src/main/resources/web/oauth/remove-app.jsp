@@ -16,9 +16,9 @@
  ~ under the License.
  -->
 
-<%@page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@page import="org.wso2.carbon.identity.oauth.stub.dto.OAuthConsumerAppDTO"%>
+<%@ page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
-<%@ page import="org.wso2.carbon.identity.oauth.stub.dto.OAuthConsumerAppDTO"%>
 <%@ page import="org.wso2.carbon.identity.oauth.ui.client.OAuthAdminClient"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
