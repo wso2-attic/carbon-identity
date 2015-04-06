@@ -33,7 +33,10 @@
         <module>features/relying-party</module>
         <module>features/user-profiles</module>
         <module>features/self-registration</module>
-	<module>features/scim</module>
+	    <module>features/scim</module>
+        <module>features/idp-mgt</module>
+        <module>features/user-manager</module>
+        <module>features/sso-saml</module>
     </modules>
 
     <repositories>
