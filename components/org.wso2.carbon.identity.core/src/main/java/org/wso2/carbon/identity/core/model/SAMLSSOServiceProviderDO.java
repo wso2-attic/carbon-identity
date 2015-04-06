@@ -47,6 +47,7 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     private boolean isIdPInitSSOEnabled;
     private boolean doEnableEncryptedAssertion;
     private boolean doValidateSignatureInRequests;
+    private String tenantDomain;
 
 	public String getNameIDFormat() {
 		return nameIDFormat;
@@ -284,5 +285,13 @@ public class SAMLSSOServiceProviderDO implements Serializable {
 
     public void setDoValidateSignatureInRequests(boolean doValidateSignatureInRequests) {
         this.doValidateSignatureInRequests = doValidateSignatureInRequests;
+    }
+
+    public String getTenantDomain(){
+        return tenantDomain;
+    }
+
+    public void setTenantDomain(String tenantDomain){
+        this.tenantDomain = tenantDomain;
     }
 }

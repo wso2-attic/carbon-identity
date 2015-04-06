@@ -15,15 +15,15 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
-<%@page import="org.opensaml.saml2.core.AuthnRequest"%>
+<%@page import="org.wso2.carbon.core.security.AuthenticatorsConfiguration"%>
+<%@page import="org.opensaml.saml2.core.AuthnRequest" %>
 <%@page import="org.opensaml.saml2.core.LogoutRequest" %>
-<%@page import="org.wso2.carbon.core.security.AuthenticatorsConfiguration" %>
 <%@ page import="org.wso2.carbon.identity.authenticator.saml2.sso.common.SAML2SSOAuthenticatorConstants" %>
 <%@ page import="org.wso2.carbon.identity.authenticator.saml2.sso.common.SSOSessionManager" %>
-<%@ page import="org.wso2.carbon.identity.authenticator.saml2.sso.common.Util" %>
 <%@ page import="org.wso2.carbon.identity.authenticator.saml2.sso.common.builders.AuthenticationRequestBuilder" %>
+<%@ page import="org.wso2.carbon.identity.authenticator.saml2.sso.common.builders.LogoutRequestBuilder" %>
 <%@ page
-        import="org.wso2.carbon.identity.authenticator.saml2.sso.common.builders.LogoutRequestBuilder" %>
+        import="org.wso2.carbon.identity.authenticator.saml2.sso.common.Util" %>
 <%@ page import="org.wso2.carbon.registry.core.utils.UUIDGenerator" %>
 <%@ page import="org.wso2.carbon.utils.multitenancy.MultitenantConstants" %>
 <html>
