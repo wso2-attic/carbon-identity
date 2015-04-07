@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-# Copyright (c) 2005-2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
- -->
+  ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
@@ -2010,6 +2010,7 @@
         <!-- Rampart -->
         <rampart.version>1.6.1-wso2v14T</rampart.version>
         <rampart.wso2.version>1.6.1.wso2v14</rampart.wso2.version>
+        <rampart.wso2.osgi.version.range>[1.6.1.wso2v14,1.6.2)</rampart.wso2.osgi.version.range>
         <rampart.mar.version>1.6.1.wso2v14</rampart.mar.version>
         <rampart.osgi.version>1.6.1.wso2v14</rampart.osgi.version>
         <orbit.version.rampart>1.6.1.wso2v14</orbit.version.rampart>
@@ -2029,9 +2030,9 @@
         <commons-httpclient.version>4.2.5.wso2v1</commons-httpclient.version>
         <commons-dbcp.version>1.2.2</commons-dbcp.version>
         <commons-logging.version>1.1</commons-logging.version>
-        <commons-logging.osgi.version.range>[1.1,1.1]</commons-logging.osgi.version.range>
+        <commons-logging.osgi.version.range>[1.1,1.2)</commons-logging.osgi.version.range>
         <commons-lang.wso2.version>2.6.0.wso2v1</commons-lang.wso2.version>
-        <commons-lang.wso2.osgi.version.range>[2.6.0.wso2v1,2.6.0.wso2v1]</commons-lang.wso2.osgi.version.range>
+        <commons-lang.wso2.osgi.version.range>[2.6.0,2.7.0)</commons-lang.wso2.osgi.version.range>
 
         <neethi.osgi.version>2.0.4.wso2v4</neethi.osgi.version>
         <neethi.osgi.version.range>[2.0.4.wso2v4,2.1.0)</neethi.osgi.version.range>
