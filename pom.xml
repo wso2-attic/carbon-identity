@@ -1,3 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+# Copyright (c) 2005-2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+ -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
@@ -1902,10 +1918,12 @@
     </dependencyManagement>
     <properties>
 
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
         <!-- Carbon kernel version -->
         <carbon.kernel.version>4.4.0</carbon.kernel.version>
         <carbon.kernel.package.import.version.range>[4.4.0, 4.5.0)</carbon.kernel.package.import.version.range>
-	<carbon.kernel.registry.imp.pkg.version>[1.0.1, 2.0.0)</carbon.kernel.registry.imp.pkg.version>
+        <carbon.kernel.registry.imp.pkg.version>[1.0.1, 2.0.0)</carbon.kernel.registry.imp.pkg.version>
 
         <!--Carbon commons version-->
         <carbon.commons.version>4.3.6-SNAPSHOT</carbon.commons.version>
@@ -1924,8 +1942,8 @@
         <axis2.osgi.version.range>[1.6.1.wso2v12, 1.7.0)</axis2.osgi.version.range>
         <orbit.version.wsdl4j>1.6.2.wso2v4</orbit.version.wsdl4j>
         <orbit.version.neethi>2.0.4.wso2v4</orbit.version.neethi>
-        <axis2-transports.version>1.1.0-wso2v10</axis2-transports.version>
-        <axis2-transports.version.range>[1.1.0-wso2v10,1.2.0)</axis2-transports.version.range>
+        <axis2-transports.version>1.1.0-wso2v12</axis2-transports.version>
+        <axis2-transports.version.range>[1.1.0-wso2v12,1.2.0)</axis2-transports.version.range>
 
         <!-- Axiom Version -->
         <axiom.version>1.2.11-wso2v6</axiom.version>
@@ -2011,7 +2029,9 @@
         <commons-httpclient.version>4.2.5.wso2v1</commons-httpclient.version>
         <commons-dbcp.version>1.2.2</commons-dbcp.version>
         <commons-logging.version>1.1</commons-logging.version>
+        <commons-logging.osgi.version.range>[1.1,1.1]</commons-logging.osgi.version.range>
         <commons-lang.wso2.version>2.6.0.wso2v1</commons-lang.wso2.version>
+        <commons-lang.wso2.osgi.version.range>[2.6.0.wso2v1,2.6.0.wso2v1]</commons-lang.wso2.osgi.version.range>
 
         <neethi.osgi.version>2.0.4.wso2v4</neethi.osgi.version>
         <neethi.osgi.version.range>[2.0.4.wso2v4,2.1.0)</neethi.osgi.version.range>
@@ -2084,7 +2104,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration>
-                    <arguments>-Dmaven.test.skip=true</arguments>
                     <preparationGoals>clean install</preparationGoals>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                 </configuration>
@@ -2098,6 +2117,7 @@
                 <version>2.3.1</version>
                 <inherited>true</inherited>
                 <configuration>
+                    <encoding>UTF-8</encoding>
                     <source>1.7</source>
                     <target>1.7</target>
                 </configuration>
