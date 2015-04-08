@@ -68,7 +68,7 @@
                             org.apache.commons.logging.*; version="1.0.4",
                         </Import-Package>
                         <Export-Package>
-                            org.wso2.carbon.identity.base.*; version="${carbon.identity.package.export.version}",
+                            org.wso2.carbon.identity.base.*; version="${carbon.identity.package.export.version}"
                         </Export-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>

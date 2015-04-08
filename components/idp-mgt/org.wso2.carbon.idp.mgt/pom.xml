@@ -86,7 +86,7 @@
                         </Private-Package>
                         <Export-Package>
                             !org.wso2.carbon.idp.mgt.internal,
-                            org.wso2.carbon.idp.mgt.*; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.idp.mgt.*; version="${carbon.identity.package.export.version}",
                         </Export-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
