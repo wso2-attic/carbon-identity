@@ -57,8 +57,13 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Import-Package>
-                            <!--javax.*,-->
-                            javax.cache, javax.crypto, javax.crypto.spec, javax.naming, javax.sql, javax.xml.namespace, javax.xml.stream
+                            javax.cache,
+                            javax.crypto,
+                            javax.crypto.spec,
+                            javax.naming,
+                            javax.sql,
+                            javax.xml.namespace,
+                            javax.xml.stream,
                             org.apache.axiom.*; version="${axiom.osgi.version.range}",
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
                             org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}",
