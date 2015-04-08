@@ -643,8 +643,8 @@ public class TokenMgtDAO {
                 long validityPeriod = resultSet.getLong(5);
                 String tokenType = resultSet.getString(6);
                 String refreshToken = resultSet.getString(7);
-                dataDO = new AccessTokenDO(consumerKey, authorizedUser, scope, timestamp, validityPeriod / 1000
-                        , tokenType);
+                dataDO = new AccessTokenDO(consumerKey, authorizedUser, scope, timestamp, validityPeriod / 1000, tokenType);
+                dataDO.setAccessToken(accessTokenIdentifier);
                 dataDO.setRefreshToken(refreshToken);
             }
 

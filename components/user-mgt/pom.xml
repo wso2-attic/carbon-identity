@@ -39,6 +39,7 @@
         <module>org.wso2.carbon.identity.user.registration</module>
         <module>org.wso2.carbon.identity.user.profile</module>
         <module>org.wso2.carbon.identity.user.profile.ui</module>
+	<module>org.wso2.carbon.identity.user.account.connector</module>
     </modules>
 
 </project>

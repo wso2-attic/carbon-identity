@@ -1,5 +1,6 @@
 package org.wso2.carbon.identity.application.authentication.framework.handler.provisioning.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonException;
@@ -90,6 +91,17 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
                     Arrays.asList(userstore.getRoleNames()));
             addingRoles.retainAll(allExistingRoles);
 
+            Map<String, String> userClaims = new HashMap<String, String>();
+            if (attributes != null && !attributes.isEmpty()) {
+                for (Map.Entry<String, String> entry : attributes.entrySet()) {
+                    String claimURI = entry.getKey();
+                    String claimValue = entry.getValue();
+                    if (!(StringUtils.isEmpty(claimURI) || StringUtils.isEmpty(claimValue))) {
+                        userClaims.put(claimURI, claimURI);
+                    }
+                }
+            }
+
             if (userstore.isExistingUser(username)) {
 
                 if (roles != null && roles.size() > 0) {
@@ -141,27 +153,14 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
                     }
                 }
 
-                if (attributes != null && attributes.size() > 0) {
-                    userstore.setUserClaimValues(username, attributes, null);
+                if (!userClaims.isEmpty()) {
+                    userstore.setUserClaimValues(username, userClaims, null);
                 }
 
             } else {
 
-                Map<String, String> userClaim = new HashMap<String, String>();
-                if (attributes != null && attributes.size() > 0) {
-                    // Provision user
-                    for (Map.Entry<String, String> entry : attributes.entrySet()) {
-                        if (entry.getValue() != null && !entry.getValue().isEmpty()) {
-                            userClaim.put(entry.getKey(), entry.getValue());
-                        }
-                    }
-
-                    userstore.addUser(username, generatePassword(username),
-                            addingRoles.toArray(new String[0]), userClaim, null);
-                } else {
-                    userstore.addUser(username, generatePassword(username),
-                            addingRoles.toArray(new String[0]), userClaim, null);
-                }
+                userstore.addUser(username, generatePassword(username), addingRoles.toArray(new String[0]),
+                        userClaims, null);
 
                 if (log.isDebugEnabled()) {
                     log.debug("Federated user: " + username
