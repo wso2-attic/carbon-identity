@@ -71,7 +71,7 @@ User Name: {user-name}
 Please click the following link to unlock. If clicking the link doesn't seem to work, you can copy and paste the
 link into your browser's address window.
 
-https://localhost:8443/InfoRecoverySample/confirmReg?confirmation={confirmation-code}&amp;userName={user-name}
+https://localhost:8443/InfoRecoverySample/confirmReg?confirmation={confirmation-code}&amp;userName={url:user-name}
 	</body>
 	<footer>
 Best Regards,
