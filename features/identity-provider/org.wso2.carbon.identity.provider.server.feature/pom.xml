@@ -100,7 +100,7 @@
                                 <artifactItem>
                                     <groupId>org.wso2.carbon</groupId>
                                     <artifactId>org.wso2.carbon.identity.application.authentication.endpoint</artifactId>
-                                    <version>4.2.3</version>
+                                    <version>4.2.5-SNAPSHOT</version>
                                     <type>war</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${basedir}/src/main/resources/</outputDirectory>

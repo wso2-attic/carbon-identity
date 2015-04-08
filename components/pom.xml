@@ -33,6 +33,7 @@
     <url>http://wso2.org</url>
 
     <modules>
+        <module>org.wso2.carbon.identity.application.authentication.endpoint</module>
 	    <module>org.wso2.carbon.identity.application.authentication.framework</module>
 	    <module>org.wso2.carbon.identity.core</module>
 	    <module>org.wso2.carbon.identity.application.common</module>
@@ -46,6 +47,7 @@
 	    <module>org.wso2.carbon.identity.menu.ui</module>
 	    <module>org.wso2.carbon.identity.mgt</module>
 	    <module>org.wso2.carbon.identity.oauth</module>
+        <module>org.wso2.carbon.identity.oauth.endpoint</module>
 	    <module>org.wso2.carbon.identity.oauth.common</module>
 	    <module>org.wso2.carbon.identity.oauth.ui</module>
 	    <module>org.wso2.carbon.identity.provider</module>
