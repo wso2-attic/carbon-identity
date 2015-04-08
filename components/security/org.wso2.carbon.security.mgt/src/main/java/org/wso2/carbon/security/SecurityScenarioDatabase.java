@@ -27,25 +27,25 @@ public class SecurityScenarioDatabase {
     private static Map<String, SecurityScenario> scenarios =
             new LinkedHashMap<String, SecurityScenario>();
 
-    public static void put(String scenarioId, SecurityScenario scenario){
+    public static void put(String scenarioId, SecurityScenario scenario) {
         scenarios.put(scenarioId, scenario);
     }
 
-    public static SecurityScenario get(String scenarioId){
+    public static SecurityScenario get(String scenarioId) {
         return scenarios.get(scenarioId);
     }
 
-    public static Collection<SecurityScenario> getAllScenarios(){
+    public static Collection<SecurityScenario> getAllScenarios() {
         return scenarios.values();
     }
-    
-        
-    public static SecurityScenario getByWsuId(String wsuIdValue){
+
+
+    public static SecurityScenario getByWsuId(String wsuIdValue) {
         SecurityScenario scenario = null;
         Iterator<SecurityScenario> ite = scenarios.values().iterator();
-        while(ite.hasNext()){
+        while (ite.hasNext()) {
             SecurityScenario temp = ite.next();
-            if(wsuIdValue.equals(temp.getWsuId())){
+            if (wsuIdValue.equals(temp.getWsuId())) {
                 scenario = temp;
                 break;
             }

@@ -16,10 +16,6 @@
  */
 package org.wso2.carbon.identity.relyingparty.ui.openid;
 
-import org.openid4java.consumer.ConsumerAssociationStore;
-import org.openid4java.message.Message;
-import org.openid4java.message.MessageException;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.CreationException;
 import com.google.inject.Provides;
@@ -32,6 +28,9 @@ import com.google.step2.xmlsimplesign.CertValidator;
 import com.google.step2.xmlsimplesign.CnConstraintCertValidator;
 import com.google.step2.xmlsimplesign.DefaultCertValidator;
 import com.google.step2.xmlsimplesign.DisjunctiveCertValidator;
+import org.openid4java.consumer.ConsumerAssociationStore;
+import org.openid4java.message.Message;
+import org.openid4java.message.MessageException;
 
 /**
  * Guice module for configuring the Step2 library.  Modified from the original example consumer
@@ -67,6 +66,7 @@ public class GuiceModule extends AbstractModule {
 
     /**
      * Simple detection of whether or not we're running under GAE.
+     *
      * @return True if running on app engine.
      */
     private boolean isRunningOnAppengine() {
@@ -74,7 +74,7 @@ public class GuiceModule extends AbstractModule {
             return false;
         }
         return System.getSecurityManager().getClass().getCanonicalName()
-            .startsWith("com.google");
+                .startsWith("com.google");
     }
 
     @Provides
@@ -102,7 +102,7 @@ public class GuiceModule extends AbstractModule {
         // on the Google hosted version if that fails.  A parallel fetching strategy can also
         // be used to speed up fetching.
         //return new SerialHostMetaFetcher(fetcher1, fetcher2);
-        return fetcher2; 
+        return fetcher2;
     }
 
 

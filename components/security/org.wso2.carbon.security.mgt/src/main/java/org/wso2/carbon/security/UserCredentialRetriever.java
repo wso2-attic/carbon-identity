@@ -8,6 +8,7 @@ password. In default callback handler class uses this class. Usually, this inter
 public interface UserCredentialRetriever {
     /**
      * Provide the password based on user store implementation.
+     *
      * @param username - Domain less username; eg; fooUser but not Domain/fooUser
      * @return - plain text password of username
      * @throws Exception - throws if failed to provide plain text password.

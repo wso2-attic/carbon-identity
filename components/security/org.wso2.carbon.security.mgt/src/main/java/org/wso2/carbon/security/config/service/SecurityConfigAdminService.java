@@ -16,8 +16,6 @@
 
 package org.wso2.carbon.security.config.service;
 
-import java.util.Collection;
-
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.security.SecurityConfigException;
@@ -26,8 +24,10 @@ import org.wso2.carbon.security.SecurityScenarioDatabase;
 import org.wso2.carbon.security.config.SecurityConfigAdmin;
 import org.wso2.carbon.user.core.UserRealm;
 
+import java.util.Collection;
+
 public class SecurityConfigAdminService extends AbstractAdmin {
-    
+
     @Override
     protected UserRealm getUserRealm() {
         return (UserRealm) CarbonContext.getThreadLocalCarbonContext().getUserRealm();
@@ -47,16 +47,17 @@ public class SecurityConfigAdminService extends AbstractAdmin {
     }
 
     public void applySecurity(String serviceName, String policyId, String policyPath, String[] trustedStores,
-        String privateStore, String[] userGroupNames) throws SecurityConfigException {
+                              String privateStore, String[] userGroupNames) throws SecurityConfigException {
         SecurityConfigAdmin admin = new SecurityConfigAdmin(getUserRealm(), getConfigSystemRegistry(), getAxisConfig());
         admin.applySecurity(serviceName, policyId, policyPath, trustedStores, privateStore, userGroupNames);
     }
 
     /**
      * This method will apply Kerberos security policy to a given service.
-     * @param serviceName Name of the service that security policy is applied.
-     * @param policyId The scenario id.
-     * @param servicePrincipalName Service principal name.
+     *
+     * @param serviceName              Name of the service that security policy is applied.
+     * @param policyId                 The scenario id.
+     * @param servicePrincipalName     Service principal name.
      * @param servicePrincipalPassword Service principal password.
      * @throws org.wso2.carbon.security.SecurityConfigException If unable to add kerberos attributes.
      */

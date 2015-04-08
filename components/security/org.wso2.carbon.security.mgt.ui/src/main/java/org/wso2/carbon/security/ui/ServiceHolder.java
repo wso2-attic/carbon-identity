@@ -32,7 +32,7 @@ public class ServiceHolder {
     private ServiceHolder() {
 
     }
-    
+
 
     public static void init(BundleContext context) {
         bundleContext = context;
@@ -47,9 +47,8 @@ public class ServiceHolder {
     }
 
     public RegistryService getRegistryService() {
-        return (RegistryService)registryTracker.getService();
+        return (RegistryService) registryTracker.getService();
     }
-    
 
-    
+
 }

@@ -38,13 +38,13 @@ public class CarbonPostAuthorizationExtension implements PostAuthorizationExtens
     public void doPostAuthorization(String subject, String resource, String action,
                                     boolean authorized, String authorizationAction) {
 
-        if(PostAuthorizationExtension.ADD.equals(authorizationAction)){
-            if(authorized){
+        if (PostAuthorizationExtension.ADD.equals(authorizationAction)) {
+            if (authorized) {
                 log.info("Permit authorization for subject : " + subject +
-                                        " and resource : " + resource + " and action : " + action);
+                        " and resource : " + resource + " and action : " + action);
             } else {
                 log.info("Deny authorization for subject : " + subject +
-                                        " and resource : " + resource + " and action : " + action);
+                        " and resource : " + resource + " and action : " + action);
             }
         }
     }

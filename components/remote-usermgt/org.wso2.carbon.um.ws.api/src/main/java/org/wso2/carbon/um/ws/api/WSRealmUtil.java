@@ -17,16 +17,11 @@
 */
 package org.wso2.carbon.um.ws.api;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.wso2.carbon.um.ws.api.stub.*;
-import org.wso2.carbon.user.api.Claim;
 import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.user.api.RealmConfiguration;
+
+import java.util.*;
 
 /**
  * Utility class used for conversions
@@ -145,7 +140,7 @@ public class WSRealmUtil {
         profz.setProfileName(profileConfig.getProfileName());
         return profz;
     }
-    
+
     public static RealmConfiguration convertToRealmConfiguration(RealmConfigurationDTO realmConfigDTO) {
         RealmConfiguration realmConfig = new RealmConfiguration();
         realmConfig.setRealmClassName(realmConfigDTO.getRealmClassName());
@@ -160,12 +155,12 @@ public class WSRealmUtil {
         realmConfig.setAuthzProperties(getPropertyValueMap(realmConfigDTO.getAuthzProperties()));
         realmConfig.setRealmProperties(getPropertyValueMap(realmConfigDTO.getRealmProperties()));
         return realmConfig;
-        
+
     }
-    
+
     private static Map<String, String> getPropertyValueMap(RealmPropertyDTO[] properties) {
         Map<String, String> map = new HashMap<String, String>();
-        if(properties == null) {
+        if (properties == null) {
             return map;
         }
         for (int i = 0; i < properties.length; i++) {

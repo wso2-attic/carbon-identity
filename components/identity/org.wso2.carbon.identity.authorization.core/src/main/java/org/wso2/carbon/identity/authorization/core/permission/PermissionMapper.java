@@ -18,89 +18,78 @@
 
 package org.wso2.carbon.identity.authorization.core.permission;
 
+import org.wso2.carbon.identity.authorization.core.dao.*;
+import org.wso2.carbon.identity.authorization.core.dto.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.wso2.carbon.identity.authorization.core.dao.DAOFactory;
-import org.wso2.carbon.identity.authorization.core.dao.ModuleDAO;
-import org.wso2.carbon.identity.authorization.core.dao.ModuleResourceDAO;
-import org.wso2.carbon.identity.authorization.core.dao.PermissionAssignmentDAO;
-import org.wso2.carbon.identity.authorization.core.dao.PermissionDAO;
-import org.wso2.carbon.identity.authorization.core.dto.PermissionAssignment;
-import org.wso2.carbon.identity.authorization.core.dto.PermissionGroup;
-import org.wso2.carbon.identity.authorization.core.dto.PermissionModule;
-import org.wso2.carbon.identity.authorization.core.dto.Resource;
-import org.wso2.carbon.identity.authorization.core.dto.RolePermission;
-import org.wso2.carbon.identity.authorization.core.dto.UserPermission;
-
 /**
- * 
  * @author venura
  * @dat May 22, 2013
  */
 public final class PermissionMapper {
 
-	private DAOFactory factory;
+    private static PermissionMapper instance;
+    private DAOFactory factory;
 
-	private static PermissionMapper instance;
+    private PermissionMapper() {
+        super();
+        factory = DAOFactory.createFactory();
+    }
 
-	private PermissionMapper() {
-		super();
-		factory = DAOFactory.createFactory();
-	}
+    public static PermissionMapper getInstance() {
+        if (instance == null) {
+            instance = new PermissionMapper();
+        }
+        return instance;
+    }
 
-	public static PermissionMapper getInstance() {
-		if (instance == null) {
-			instance = new PermissionMapper();
-		}
-		return instance;
-	}
+    public PermissionDAO mapPermission(final PermissionGroup permission) {
+        PermissionDAO perm = factory.createPermission();
+        perm.map(permission);
+        return perm;
+    }
 
-	public PermissionDAO mapPermission(final PermissionGroup permission) {
-		PermissionDAO perm = factory.createPermission();
-		perm.map(permission);
-		return perm;
-	}
+    public PermissionAssignmentDAO mapPermission(final PermissionAssignment permission) {
+        PermissionAssignmentDAO perm = null;
+        if (permission instanceof UserPermission) {
+            perm = factory.createUserPermission();
+        } else if (permission instanceof RolePermission) {
+            perm = factory.createRolePermission();
+        }
+        perm.map(permission);
+        return perm;
+    }
 
-	public PermissionAssignmentDAO mapPermission(final PermissionAssignment permission) {
-		PermissionAssignmentDAO perm = null;
-		if (permission instanceof UserPermission) {
-			perm = factory.createUserPermission();
-		} else if (permission instanceof RolePermission) {
-			perm = factory.createRolePermission();
-		}
-		perm.map(permission);
-		return perm;
-	}
+    public ModuleDAO mapModule(PermissionModule module) {
+        ModuleDAO dao = factory.createModule();
+        dao.map(module);
+        return dao;
+    }
 
-	public ModuleDAO mapModule(PermissionModule module) {
-		ModuleDAO dao = factory.createModule();
-		dao.map(module);
-		return dao;
-	}
+    public PermissionModule mapModule(ModuleDAO moduleDAO) {
+        PermissionModule module = new PermissionModule();
+        module.setModuleId(moduleDAO.getModuleId());
+        module.setModuleName(moduleDAO.getModuleName());
+        if (moduleDAO.getAllowedActions() != null && !moduleDAO.getAllowedActions().isEmpty()) {
+            module.setActions(moduleDAO.getAllowedActions()
+                    .toArray(new String[moduleDAO.getAllowedActions().size()]));
+        }
 
-	public PermissionModule mapModule(ModuleDAO moduleDAO) {
-		PermissionModule module = new PermissionModule();
-		module.setModuleId(moduleDAO.getModuleId());
-		module.setModuleName(moduleDAO.getModuleName());
-		if (moduleDAO.getAllowedActions() != null && !moduleDAO.getAllowedActions().isEmpty()) {
-			module.setActions(moduleDAO.getAllowedActions()
-			                           .toArray(new String[moduleDAO.getAllowedActions().size()]));
-		}
+        if (moduleDAO.getResources() != null && !moduleDAO.getResources().isEmpty()) {
+            List<Resource> resourceList = new ArrayList<Resource>();
+            for (ModuleResourceDAO resDao : moduleDAO.getResources()) {
+                Resource res = new Resource();
+                res.setId(resDao.getId());
+                res.setModuleId(resDao.getModuleId());
+                res.setName(resDao.getResource());
 
-		if (moduleDAO.getResources() != null && !moduleDAO.getResources().isEmpty()) {
-			List<Resource> resourceList = new ArrayList<Resource>();
-			for (ModuleResourceDAO resDao : moduleDAO.getResources()) {
-				Resource res = new Resource();
-				res.setId(resDao.getId());
-				res.setModuleId(resDao.getModuleId());
-				res.setName(resDao.getResource());
-
-				resourceList.add(res);
-			}
-			module.setResources(resourceList.toArray(new Resource[resourceList.size()]));
-		}
-		return module;
-	}
+                resourceList.add(res);
+            }
+            module.setResources(resourceList.toArray(new Resource[resourceList.size()]));
+        }
+        return module;
+    }
 
 }

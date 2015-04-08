@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.authorization.core.dto;
 import java.util.Arrays;
 
 /**
- * 
+ *
  */
 public class PermissionModuleDTO {
 

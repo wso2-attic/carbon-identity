@@ -21,31 +21,31 @@ import org.wso2.carbon.user.api.ClaimMapping;
 
 public class ClaimDialect {
 
-	private ClaimMapping[] claimMapping;
-	private String dialectUri;
-	private String userStore;
+    private ClaimMapping[] claimMapping;
+    private String dialectUri;
+    private String userStore;
 
-	public String getUserStore() {
-		return userStore;
-	}
+    public String getUserStore() {
+        return userStore;
+    }
 
-	public void setUserStore(String userStore) {
-		this.userStore = userStore;
-	}
+    public void setUserStore(String userStore) {
+        this.userStore = userStore;
+    }
 
-	public ClaimMapping[] getClaimMapping() {
-		return claimMapping;
-	}
+    public ClaimMapping[] getClaimMapping() {
+        return claimMapping;
+    }
 
-	public void setClaimMapping(ClaimMapping[] claimMapping) {
-		this.claimMapping = claimMapping;
-	}
+    public void setClaimMapping(ClaimMapping[] claimMapping) {
+        this.claimMapping = claimMapping;
+    }
 
-	public String getDialectUri() {
-		return dialectUri;
-	}
+    public String getDialectUri() {
+        return dialectUri;
+    }
 
-	public void setDialectUri(String dialectUri) {
-		this.dialectUri = dialectUri;
-	}
+    public void setDialectUri(String dialectUri) {
+        this.dialectUri = dialectUri;
+    }
 }

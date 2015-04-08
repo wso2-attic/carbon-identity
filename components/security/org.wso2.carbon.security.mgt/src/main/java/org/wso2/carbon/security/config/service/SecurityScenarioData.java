@@ -30,30 +30,39 @@ public class SecurityScenarioData {
     public String getScenarioId() {
         return scenarioId;
     }
+
     public void setScenarioId(String scenarioId) {
         this.scenarioId = scenarioId;
     }
+
     public String getSummary() {
         return summary;
     }
+
     public void setSummary(String summary) {
         this.summary = summary;
     }
+
     public String getCategory() {
         return category;
     }
+
     public void setCategory(String category) {
         this.category = category;
     }
+
     public String getDescription() {
         return description;
     }
+
     public void setDescription(String description) {
         this.description = description;
     }
+
     public boolean getCurrentScenario() {
         return currentScenario;
     }
+
     public void setCurrentScenario(boolean currentScenario) {
         this.currentScenario = currentScenario;
     }

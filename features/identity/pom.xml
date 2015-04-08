@@ -49,6 +49,7 @@
         <module>tools-saml</module>
         <module>thrift</module>
         <module>notification-mgt</module>
+        <module>user-account-association</module>
     </modules>
 
     <!--dependencyManagement>
@@ -397,9 +398,8 @@
     <properties>
         <!--<identity.version>${wso2carbon.version}</identity.version>-->
         <!--<wso2carbon.version.identity>${wso2carbon.version}</wso2carbon.version.identity>-->
-        <libthrift.wso2.version>0.8.0.wso2v1</libthrift.wso2.version>
-        <charon.wso2.version.identity>2.0.0</charon.wso2.version.identity>
     </properties>
 
 </project>
+
 

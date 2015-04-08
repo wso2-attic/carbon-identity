@@ -44,31 +44,25 @@ import java.util.List;
 class CarbonDirectoryServiceFactory implements DirectoryServiceFactory {
 
     /**
-     * A logger for this class
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(CarbonDirectoryServiceFactory.class);
-
-
-    /**
      * The default factory returns stock instances of a apacheds service with smart defaults
      */
     public static final DirectoryServiceFactory DEFAULT = new CarbonDirectoryServiceFactory();
-
+    /**
+     * A logger for this class
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(CarbonDirectoryServiceFactory.class);
+    /*Partition cache size is expressed as number of entries*/
+    private static final int PARTITION_CACHE_SIZE = 500;
+    private static final int INDEX_CACHE_SIZE = 100;
     /**
      * The apacheds service.
      */
     private DirectoryService directoryService;
-
     /**
      * The partition factory.
      */
     private PartitionFactory partitionFactory;
-
     private String schemaZipStore;
-
-    /*Partition cache size is expressed as number of entries*/
-    private static final int PARTITION_CACHE_SIZE = 500;
-    private static final int INDEX_CACHE_SIZE = 100;
 
     /* default access */
 
@@ -113,7 +107,7 @@ class CarbonDirectoryServiceFactory implements DirectoryServiceFactory {
         if (this.schemaZipStore == null) {
             throw new DirectoryServerException(
                     "Schema Jar repository is not set. Please set schema.jar.location property " +
-                    "with proper schema storage");
+                            "with proper schema storage");
         }
 
         if (directoryService != null && directoryService.isStarted()) {
@@ -133,7 +127,7 @@ class CarbonDirectoryServiceFactory implements DirectoryServiceFactory {
 
         if (workingDirectory == null) {
             workingDirectory = System.getProperty("java.io.tmpdir") + File.separator +
-                               "server-work-" + name;
+                    "server-work-" + name;
         }
 
         directoryService.setWorkingDirectory(new File(workingDirectory));
@@ -158,7 +152,7 @@ class CarbonDirectoryServiceFactory implements DirectoryServiceFactory {
         if (!schemaRepository.exists()) {
             SchemaLdifExtractor extractor =
                     new CarbonSchemaLdifExtractor(new File(workingDirectory),
-                                                  new File(this.schemaZipStore));
+                            new File(this.schemaZipStore));
             extractor.extractOrCopy();
         }
 
@@ -200,7 +194,7 @@ class CarbonDirectoryServiceFactory implements DirectoryServiceFactory {
         systemPartition.setSchemaManager(directoryService.getSchemaManager());
 
         partitionFactory.addIndex(systemPartition, SchemaConstants.OBJECT_CLASS_AT,
-                                  INDEX_CACHE_SIZE);
+                INDEX_CACHE_SIZE);
 
         directoryService.setSystemPartition(systemPartition);
     }

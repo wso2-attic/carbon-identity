@@ -31,19 +31,20 @@ public interface PartitionManager {
      * Adds a new partition to current apacheds store.
      *
      * @param partitionInformation This contains necessary information to create a partition.
-     *Mainly it contains following information,
-     *1. partitionId - The partition id. Usually this is tenant id.
-     *2. realm domain - name of the partition. Usually domain name and partition DN are same.
-     *       Ex :- o=example.com
-     *3. partitionDN - Suffix used when creating the partition. Usually this is the domain name.
-     *       DN: dc=example,dc=com
-     *4. adminInfo - User information for the domain.
+     *                             Mainly it contains following information,
+     *                             1. partitionId - The partition id. Usually this is tenant id.
+     *                             2. realm domain - name of the partition. Usually domain name and partition DN are same.
+     *                             Ex :- o=example.com
+     *                             3. partitionDN - Suffix used when creating the partition. Usually this is the domain name.
+     *                             DN: dc=example,dc=com
+     *                             4. adminInfo - User information for the domain.
      * @throws DirectoryServerException If an error occurs while adding the partition.
      */
     void addPartition(PartitionInfo partitionInformation) throws DirectoryServerException;
 
     /**
      * This checks whether a partition directory exists with the given partition ID.
+     *
      * @param partitionID
      * @return
      * @throws DirectoryServerException

@@ -1,0 +1,236 @@
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://connector.account.user.identity.carbon.wso2.org" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ax2383="http://exception.connector.account.user.identity.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://connector.account.user.identity.carbon.wso2.org">
+    <wsdl:documentation>UserAccountConnectorService</wsdl:documentation>
+    <wsdl:types>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://exception.connector.account.user.identity.carbon.wso2.org/xsd">
+            <xs:complexType name="UserAccountConnectorException">
+                <xs:sequence/>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema xmlns:ax2384="http://exception.connector.account.user.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://connector.account.user.identity.carbon.wso2.org">
+            <xs:import namespace="http://exception.connector.account.user.identity.carbon.wso2.org/xsd"/>
+            <xs:element name="UserAccountConnectorServiceUserAccountConnectorException">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="UserAccountConnectorException" nillable="true" type="ax2384:UserAccountConnectorException"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="switchLoggedInUser">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="switchLoggedInUserResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getConnectedAccountsOfUser">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getConnectedAccountsOfUserResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="deleteUserAccountConnection">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="connectUserAccount">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="password" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="deleteUserAccountConnectionRequest">
+        <wsdl:part name="parameters" element="ns:deleteUserAccountConnection"/>
+    </wsdl:message>
+    <wsdl:message name="UserAccountConnectorServiceUserAccountConnectorException">
+        <wsdl:part name="parameters" element="ns:UserAccountConnectorServiceUserAccountConnectorException"/>
+    </wsdl:message>
+    <wsdl:message name="switchLoggedInUserRequest">
+        <wsdl:part name="parameters" element="ns:switchLoggedInUser"/>
+    </wsdl:message>
+    <wsdl:message name="switchLoggedInUserResponse">
+        <wsdl:part name="parameters" element="ns:switchLoggedInUserResponse"/>
+    </wsdl:message>
+    <wsdl:message name="connectUserAccountRequest">
+        <wsdl:part name="parameters" element="ns:connectUserAccount"/>
+    </wsdl:message>
+    <wsdl:message name="getConnectedAccountsOfUserRequest">
+        <wsdl:part name="parameters" element="ns:getConnectedAccountsOfUser"/>
+    </wsdl:message>
+    <wsdl:message name="getConnectedAccountsOfUserResponse">
+        <wsdl:part name="parameters" element="ns:getConnectedAccountsOfUserResponse"/>
+    </wsdl:message>
+    <wsdl:portType name="UserAccountConnectorServicePortType">
+        <wsdl:operation name="deleteUserAccountConnection">
+            <wsdl:input message="ns:deleteUserAccountConnectionRequest" wsaw:Action="urn:deleteUserAccountConnection"/>
+            <wsdl:fault message="ns:UserAccountConnectorServiceUserAccountConnectorException" name="UserAccountConnectorServiceUserAccountConnectorException" wsaw:Action="urn:deleteUserAccountConnectionUserAccountConnectorServiceUserAccountConnectorException"/>
+        </wsdl:operation>
+        <wsdl:operation name="switchLoggedInUser">
+            <wsdl:input message="ns:switchLoggedInUserRequest" wsaw:Action="urn:switchLoggedInUser"/>
+            <wsdl:output message="ns:switchLoggedInUserResponse" wsaw:Action="urn:switchLoggedInUserResponse"/>
+            <wsdl:fault message="ns:UserAccountConnectorServiceUserAccountConnectorException" name="UserAccountConnectorServiceUserAccountConnectorException" wsaw:Action="urn:switchLoggedInUserUserAccountConnectorServiceUserAccountConnectorException"/>
+        </wsdl:operation>
+        <wsdl:operation name="connectUserAccount">
+            <wsdl:input message="ns:connectUserAccountRequest" wsaw:Action="urn:connectUserAccount"/>
+            <wsdl:fault message="ns:UserAccountConnectorServiceUserAccountConnectorException" name="UserAccountConnectorServiceUserAccountConnectorException" wsaw:Action="urn:connectUserAccountUserAccountConnectorServiceUserAccountConnectorException"/>
+        </wsdl:operation>
+        <wsdl:operation name="getConnectedAccountsOfUser">
+            <wsdl:input message="ns:getConnectedAccountsOfUserRequest" wsaw:Action="urn:getConnectedAccountsOfUser"/>
+            <wsdl:output message="ns:getConnectedAccountsOfUserResponse" wsaw:Action="urn:getConnectedAccountsOfUserResponse"/>
+            <wsdl:fault message="ns:UserAccountConnectorServiceUserAccountConnectorException" name="UserAccountConnectorServiceUserAccountConnectorException" wsaw:Action="urn:getConnectedAccountsOfUserUserAccountConnectorServiceUserAccountConnectorException"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="UserAccountConnectorServiceSoap11Binding" type="ns:UserAccountConnectorServicePortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="switchLoggedInUser">
+            <soap:operation soapAction="urn:switchLoggedInUser" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="UserAccountConnectorServiceUserAccountConnectorException">
+                <soap:fault use="literal" name="UserAccountConnectorServiceUserAccountConnectorException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="deleteUserAccountConnection">
+            <soap:operation soapAction="urn:deleteUserAccountConnection" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="UserAccountConnectorServiceUserAccountConnectorException">
+                <soap:fault use="literal" name="UserAccountConnectorServiceUserAccountConnectorException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="connectUserAccount">
+            <soap:operation soapAction="urn:connectUserAccount" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="UserAccountConnectorServiceUserAccountConnectorException">
+                <soap:fault use="literal" name="UserAccountConnectorServiceUserAccountConnectorException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getConnectedAccountsOfUser">
+            <soap:operation soapAction="urn:getConnectedAccountsOfUser" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="UserAccountConnectorServiceUserAccountConnectorException">
+                <soap:fault use="literal" name="UserAccountConnectorServiceUserAccountConnectorException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="UserAccountConnectorServiceSoap12Binding" type="ns:UserAccountConnectorServicePortType">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="switchLoggedInUser">
+            <soap12:operation soapAction="urn:switchLoggedInUser" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="UserAccountConnectorServiceUserAccountConnectorException">
+                <soap12:fault use="literal" name="UserAccountConnectorServiceUserAccountConnectorException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="deleteUserAccountConnection">
+            <soap12:operation soapAction="urn:deleteUserAccountConnection" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="UserAccountConnectorServiceUserAccountConnectorException">
+                <soap12:fault use="literal" name="UserAccountConnectorServiceUserAccountConnectorException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="connectUserAccount">
+            <soap12:operation soapAction="urn:connectUserAccount" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="UserAccountConnectorServiceUserAccountConnectorException">
+                <soap12:fault use="literal" name="UserAccountConnectorServiceUserAccountConnectorException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getConnectedAccountsOfUser">
+            <soap12:operation soapAction="urn:getConnectedAccountsOfUser" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="UserAccountConnectorServiceUserAccountConnectorException">
+                <soap12:fault use="literal" name="UserAccountConnectorServiceUserAccountConnectorException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="UserAccountConnectorServiceHttpBinding" type="ns:UserAccountConnectorServicePortType">
+        <http:binding verb="POST"/>
+        <wsdl:operation name="switchLoggedInUser">
+            <http:operation location="switchLoggedInUser"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="deleteUserAccountConnection">
+            <http:operation location="deleteUserAccountConnection"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="connectUserAccount">
+            <http:operation location="connectUserAccount"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="getConnectedAccountsOfUser">
+            <http:operation location="getConnectedAccountsOfUser"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="UserAccountConnectorService">
+        <wsdl:port name="UserAccountConnectorServiceHttpsSoap11Endpoint" binding="ns:UserAccountConnectorServiceSoap11Binding">
+            <soap:address location="https://localhost:9443/services/UserAccountConnectorService.UserAccountConnectorServiceHttpsSoap11Endpoint/"/>
+        </wsdl:port>
+        <wsdl:port name="UserAccountConnectorServiceHttpsSoap12Endpoint" binding="ns:UserAccountConnectorServiceSoap12Binding">
+            <soap12:address location="https://localhost:9443/services/UserAccountConnectorService.UserAccountConnectorServiceHttpsSoap12Endpoint/"/>
+        </wsdl:port>
+        <wsdl:port name="UserAccountConnectorServiceHttpsEndpoint" binding="ns:UserAccountConnectorServiceHttpBinding">
+            <http:address location="https://localhost:9443/services/UserAccountConnectorService.UserAccountConnectorServiceHttpsEndpoint/"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

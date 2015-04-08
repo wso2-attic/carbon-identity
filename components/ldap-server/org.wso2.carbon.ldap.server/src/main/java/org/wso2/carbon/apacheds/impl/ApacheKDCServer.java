@@ -37,13 +37,7 @@ import org.wso2.carbon.ldap.server.exception.DirectoryServerException;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.ModificationItem;
+import javax.naming.directory.*;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import java.io.IOException;
@@ -53,39 +47,39 @@ import java.util.Hashtable;
  * An implementation of the KDC server. This uses KDC server which comes with ApacheDS.
  */
 public class ApacheKDCServer implements KDCServer {
-        
+
     private static final Logger logger = LoggerFactory.getLogger(ApacheKDCServer.class);
 
     private static final int START_PORT = 6088;
-
+    /**
+     * the context root for the schema
+     */
+    protected LdapContext schemaRoot;
     private KdcServer kdcServer;
 
-    /** the context root for the schema */
-    protected LdapContext schemaRoot;
-
-    public ApacheKDCServer () {
+    public ApacheKDCServer() {
         this.kdcServer = new KdcServer();
     }
 
     public void init(final KdcConfiguration configuration, LDAPServer ldapServer)
-        throws DirectoryServerException {
+            throws DirectoryServerException {
 
         if (configuration == null) {
             throw new DirectoryServerException("Could not initialize KDC server. " +
-                                               "KDC configurations are null");
+                    "KDC configurations are null");
         }
 
         if (ldapServer == null) {
             throw new DirectoryServerException("Could not initialize KDC server. " +
-                                               "Directory service is null.");
+                    "Directory service is null.");
         }
 
         if (!(ldapServer instanceof ApacheLDAPServer)) {
             throw new DirectoryServerException("Apache KDC server is only compatible with " +
-                                               "ApacheLDAPServer");
+                    "ApacheLDAPServer");
         }
 
-        ApacheLDAPServer apacheLDAP = (ApacheLDAPServer)ldapServer;
+        ApacheLDAPServer apacheLDAP = (ApacheLDAPServer) ldapServer;
 
         this.kdcServer.setServiceName(configuration.getKdcName());
         this.kdcServer.setKdcPrincipal(configuration.getKdcPrinciple());
@@ -95,14 +89,14 @@ public class ApacheKDCServer implements KDCServer {
         this.kdcServer.setSearchBaseDn(configuration.getSearchBaseDomainName());
         this.kdcServer.setPaEncTimestampRequired(
                 configuration.isPreAuthenticateTimeStampRequired());
-        
+
         configureTransportHandlers(configuration);
 
         DirectoryService directoryService = apacheLDAP.getService();
 
         if (directoryService == null) {
             throw new DirectoryServerException("LDAP service is null. " +
-                                               "Could not configure Kerberos.");
+                    "Could not configure Kerberos.");
         }
 
         this.kdcServer.setDirectoryService(directoryService);
@@ -122,15 +116,15 @@ public class ApacheKDCServer implements KDCServer {
             boolean isKrb5KdcDisabled = false;
             if (krb5kdcAttrs.get("m-disabled") != null) {
                 isKrb5KdcDisabled = (
-                        (String)krb5kdcAttrs.get("m-disabled").get()).equalsIgnoreCase("TRUE");
+                        (String) krb5kdcAttrs.get("m-disabled").get()).equalsIgnoreCase("TRUE");
             }
 
             // if krb5kdc is disabled then enable it
             if (isKrb5KdcDisabled) {
                 Attribute disabled = new BasicAttribute("m-disabled");
                 ModificationItem[] mods =
-                    new ModificationItem[]{new ModificationItem(
-                            DirContext.REMOVE_ATTRIBUTE, disabled)};
+                        new ModificationItem[]{new ModificationItem(
+                                DirContext.REMOVE_ATTRIBUTE, disabled)};
                 schemaRoot.modifyAttributes("cn=Krb5kdc", mods);
             }
         } catch (NamingException e) {
@@ -141,7 +135,7 @@ public class ApacheKDCServer implements KDCServer {
     }
 
     public void kerberizePartition(final PartitionInfo partitionInfo, final LDAPServer ldapServer)
-        throws DirectoryServerException {
+            throws DirectoryServerException {
 
         DirContext ctx = null;
 
@@ -149,10 +143,10 @@ public class ApacheKDCServer implements KDCServer {
 
             if (!(ldapServer instanceof ApacheLDAPServer)) {
                 throw new DirectoryServerException("Apache KDC server is only compatible with " +
-                                                   "ApacheLDAPServer");
+                        "ApacheLDAPServer");
             }
 
-            ApacheLDAPServer apacheLDAP = (ApacheLDAPServer)ldapServer;
+            ApacheLDAPServer apacheLDAP = (ApacheLDAPServer) ldapServer;
 
             // Get a context, create the ou=users subcontext, then create the 3 principals.
             Hashtable<String, Object> env = new Hashtable<String, Object>();
@@ -160,7 +154,7 @@ public class ApacheKDCServer implements KDCServer {
             env.put(Context.INITIAL_CONTEXT_FACTORY,
                     ConfigurationConstants.LDAP_INITIAL_CONTEXT_FACTORY);
             env.put(Context.PROVIDER_URL, ConfigurationConstants.USER_SUB_CONTEXT + "," +
-                                          partitionInfo.getRootDN());
+                    partitionInfo.getRootDN());
             env.put(Context.SECURITY_PRINCIPAL, partitionInfo.getAdminDomainName());
             env.put(Context.SECURITY_CREDENTIALS,
                     partitionInfo.getPartitionAdministrator().getAdminPassword());
@@ -171,25 +165,25 @@ public class ApacheKDCServer implements KDCServer {
 
             // Set KDC principle for this partition
             Attributes attrs = getPrincipalAttributes(ConfigurationConstants.SERVER_PRINCIPLE,
-                                           ConfigurationConstants.KDC_SERVER_COMMON_NAME,
-                                           ConfigurationConstants.KDC_SERVER_UID,
-                                           partitionInfo.getPartitionKdcPassword(),
-                                           getKDCPrincipleName(partitionInfo));      
+                    ConfigurationConstants.KDC_SERVER_COMMON_NAME,
+                    ConfigurationConstants.KDC_SERVER_UID,
+                    partitionInfo.getPartitionKdcPassword(),
+                    getKDCPrincipleName(partitionInfo));
 
             ctx.createSubcontext("uid=" + ConfigurationConstants.KDC_SERVER_UID, attrs);
 
             // Set LDAP principle for this partition
             attrs = getPrincipalAttributes(ConfigurationConstants.SERVER_PRINCIPLE,
-                                           ConfigurationConstants.LDAP_SERVER_COMMON_NAME,
-                                           ConfigurationConstants.LDAP_SERVER_UID,
-                                           partitionInfo.getLdapServerPrinciplePassword(),
-                                           getLDAPPrincipleName(partitionInfo));
+                    ConfigurationConstants.LDAP_SERVER_COMMON_NAME,
+                    ConfigurationConstants.LDAP_SERVER_UID,
+                    partitionInfo.getLdapServerPrinciplePassword(),
+                    getLDAPPrincipleName(partitionInfo));
 
             ctx.createSubcontext("uid=" + ConfigurationConstants.LDAP_SERVER_UID, attrs);
 
         } catch (NamingException e) {
             String msg = "Unable to add server principles for KDC and LDAP. " +
-                         "Incorrect domain names.";
+                    "Incorrect domain names.";
             logger.error(msg, e);
             throw new DirectoryServerException(msg, e);
         } finally {
@@ -208,13 +202,13 @@ public class ApacheKDCServer implements KDCServer {
     private String getKDCPrincipleName(final PartitionInfo partitionInfo) {
 
         return ConfigurationConstants.KDC_SERVER_UID + "/" + partitionInfo.getRealm() + "@" +
-               partitionInfo.getRealm();
+                partitionInfo.getRealm();
     }
 
     private String getLDAPPrincipleName(PartitionInfo partitionInfo) {
         // TODO find a way to get host name
         return ConfigurationConstants.LDAP_SERVER_UID + "/" + "localhost" + "@" +
-               partitionInfo.getRealm();
+                partitionInfo.getRealm();
     }
 
     /**
@@ -227,30 +221,29 @@ public class ApacheKDCServer implements KDCServer {
      * @param userPassword the credentials of the person
      * @return the attributes of the person principal
      */
-    protected Attributes getPrincipalAttributes( String sn, String cn, String uid,
-                                                 String userPassword, String principal )
-    {
-        Attributes attributes = new BasicAttributes( true );
-        Attribute basicAttribute = new BasicAttribute( "objectClass" );
-        basicAttribute.add( "top" );
-        basicAttribute.add( "person" ); // sn $ cn
-        basicAttribute.add( "inetOrgPerson" ); // uid
-        basicAttribute.add( "krb5principal" );
-        basicAttribute.add( "krb5kdcentry" );
-        attributes.put( basicAttribute );
-        attributes.put( "cn", cn );
-        attributes.put( "sn", sn );
-        attributes.put( "uid", uid );
-        attributes.put( SchemaConstants.USER_PASSWORD_AT, userPassword );
-        attributes.put( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, principal );
-        attributes.put( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, "0" );
+    protected Attributes getPrincipalAttributes(String sn, String cn, String uid,
+                                                String userPassword, String principal) {
+        Attributes attributes = new BasicAttributes(true);
+        Attribute basicAttribute = new BasicAttribute("objectClass");
+        basicAttribute.add("top");
+        basicAttribute.add("person"); // sn $ cn
+        basicAttribute.add("inetOrgPerson"); // uid
+        basicAttribute.add("krb5principal");
+        basicAttribute.add("krb5kdcentry");
+        attributes.put(basicAttribute);
+        attributes.put("cn", cn);
+        attributes.put("sn", sn);
+        attributes.put("uid", uid);
+        attributes.put(SchemaConstants.USER_PASSWORD_AT, userPassword);
+        attributes.put(KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, principal);
+        attributes.put(KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, "0");
 
         return attributes;
     }
 
     private void setSchemaContext(KdcConfiguration configuration, DirectoryService service,
                                   String connectionUser)
-        throws DirectoryServerException {
+            throws DirectoryServerException {
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put(DirectoryService.JNDI_KEY, service);
         env.put(Context.SECURITY_PRINCIPAL, connectionUser);
@@ -264,15 +257,14 @@ public class ApacheKDCServer implements KDCServer {
             schemaRoot = new InitialLdapContext(env, null);
         } catch (NamingException e) {
             throw new DirectoryServerException(
-                "Unable to create Schema context with user " + connectionUser);
+                    "Unable to create Schema context with user " + connectionUser);
         }
 
     }
 
 
-
     public void start()
-        throws DirectoryServerException {
+            throws DirectoryServerException {
         try {
             this.kdcServer.start();
             logger.info("KDC server started ...");
@@ -294,7 +286,7 @@ public class ApacheKDCServer implements KDCServer {
     }
 
     public void stop()
-        throws DirectoryServerException {
+            throws DirectoryServerException {
 
         this.kdcServer.stop();
         logger.info("KDC server stopped ...");
@@ -305,10 +297,10 @@ public class ApacheKDCServer implements KDCServer {
 
         int port = getServerPort(configuration);
         if (configuration.getKdcCommunicationProtocol() ==
-            KdcConfiguration.ProtocolType.UDP_PROTOCOL) {
+                KdcConfiguration.ProtocolType.UDP_PROTOCOL) {
 
             logger.info("Starting KDC on UDP mode at port - " + port + " at host - " +
-                configuration.getKdcHostAddress());
+                    configuration.getKdcHostAddress());
 
             UdpTransport defaultTransport = new UdpTransport(port);
             this.kdcServer.addTransports(defaultTransport);
@@ -316,11 +308,11 @@ public class ApacheKDCServer implements KDCServer {
         } else {
 
             logger.info("Starting KDC on a TCP port " + port + " at host " +
-                        configuration.getKdcHostAddress());
+                    configuration.getKdcHostAddress());
             Transport tcp =
-                new TcpTransport(configuration.getKdcHostAddress(), port,
-                                 configuration.getNumberOfThreads(),
-                                 configuration.getBackLogCount());
+                    new TcpTransport(configuration.getKdcHostAddress(), port,
+                            configuration.getNumberOfThreads(),
+                            configuration.getBackLogCount());
             this.kdcServer.addTransports(tcp);
 
         }

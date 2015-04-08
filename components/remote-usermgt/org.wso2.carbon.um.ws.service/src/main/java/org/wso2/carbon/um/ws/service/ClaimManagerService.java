@@ -18,11 +18,11 @@
 package org.wso2.carbon.um.ws.service;
 
 import org.wso2.carbon.core.AbstractAdmin;
+import org.wso2.carbon.user.api.Claim;
+import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.user.api.Claim;
 import org.wso2.carbon.user.core.claim.ClaimManager;
-import org.wso2.carbon.user.api.ClaimMapping;
 
 public class ClaimManagerService extends AbstractAdmin {
 

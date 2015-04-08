@@ -30,12 +30,12 @@ import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 
 public class TenantManagementListener implements TenantMgtListener {
 
-    private static Log log = LogFactory.getLog(TenantManagementListener.class);
-
     private static final int EXEC_ORDER = 21;
+    private static Log log = LogFactory.getLog(TenantManagementListener.class);
 
     /**
      * Add the default Resident Identity Provider entry when a new tenant is registered.
+     *
      * @param tenantInfo Information about the newly created tenant
      */
     public void onTenantCreate(TenantInfoBean tenantInfo) throws StratosException {
@@ -46,11 +46,10 @@ public class TenantManagementListener implements TenantMgtListener {
             identityProvider.setHomeRealmId("localhost");
             identityProvider.setPrimary(true);
             IdentityProviderManager.getInstance().addResidentIdP(identityProvider, tenantDomain);
-        }  catch (IdentityApplicationManagementException e) {
+        } catch (IdentityApplicationManagementException e) {
             String message = "Error when adding Resident Identity Provider entry for tenant " +
                     tenantInfo.getTenantDomain();
-            log.error(message, e);
-            throw new StratosException(message);
+            throw new StratosException(message, e);
         }
     }
 
@@ -59,7 +58,7 @@ public class TenantManagementListener implements TenantMgtListener {
     }
 
     @Override
-    public void onPreDelete(int tenantId) throws StratosException{
+    public void onPreDelete(int tenantId) throws StratosException {
 
     }
 

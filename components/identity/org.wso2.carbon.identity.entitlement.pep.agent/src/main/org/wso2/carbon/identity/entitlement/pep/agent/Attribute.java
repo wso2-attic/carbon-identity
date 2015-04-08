@@ -65,10 +65,10 @@ public class Attribute {
 
     @Override
     public int hashCode() {
-        int  result = 1;
-        result = 7 * result+ ((type == null) ? 0 : type.hashCode());
-        result = 17 * result+ ((id == null) ? 0 : id.hashCode());
-        result = 37 * result+ ((value == null) ? 0 : value.hashCode());
+        int result = 1;
+        result = 7 * result + ((type == null) ? 0 : type.hashCode());
+        result = 17 * result + ((id == null) ? 0 : id.hashCode());
+        result = 37 * result + ((value == null) ? 0 : value.hashCode());
         result = 57 * result + ((category == null) ? 0 : category.hashCode());
         return result;
     }

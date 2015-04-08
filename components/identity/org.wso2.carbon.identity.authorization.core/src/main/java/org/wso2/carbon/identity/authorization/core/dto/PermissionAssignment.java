@@ -19,46 +19,45 @@
 package org.wso2.carbon.identity.authorization.core.dto;
 
 /**
- * 
  * @author venura
  * @date May 16, 2013
  */
 public abstract class PermissionAssignment {
-	private int id;
-	private int permissionId;
-	private int tenantId;
-	private boolean authorized;
+    private int id;
+    private int permissionId;
+    private int tenantId;
+    private boolean authorized;
 
-	public int getId() {
-		return id;
-	}
+    public int getId() {
+        return id;
+    }
 
-	public void setId(int id) {
-		this.id = id;
-	}
+    public void setId(int id) {
+        this.id = id;
+    }
 
-	public int getPermissionId() {
-		return permissionId;
-	}
+    public int getPermissionId() {
+        return permissionId;
+    }
 
-	public void setPermissionId(int permissionId) {
-		this.permissionId = permissionId;
-	}
+    public void setPermissionId(int permissionId) {
+        this.permissionId = permissionId;
+    }
 
-	public int getTenantId() {
-		return tenantId;
-	}
+    public int getTenantId() {
+        return tenantId;
+    }
 
-	public void setTenantId(int tenantId) {
-		this.tenantId = tenantId;
-	}
+    public void setTenantId(int tenantId) {
+        this.tenantId = tenantId;
+    }
 
-	public boolean isAuthorized() {
-		return authorized;
-	}
+    public boolean isAuthorized() {
+        return authorized;
+    }
 
-	public void setAuthorized(boolean authorized) {
-		this.authorized = authorized;
-	}
+    public void setAuthorized(boolean authorized) {
+        this.authorized = authorized;
+    }
 
 }

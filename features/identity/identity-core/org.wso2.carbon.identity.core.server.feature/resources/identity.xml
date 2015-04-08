@@ -21,6 +21,16 @@
 			required to skip schema initialization during the server start up, set the 
 			following property to "true". -->
 		<!-- <SkipDBSchemaCreation>false</SkipDBSchemaCreation> -->
+		<!--SessionDataPersist>
+			<Enable>true</Enable>
+			<RememberMePeriod>20160</RememberMePeriod>
+			<CleanUp>
+				<Enable>true</Enable>
+					<Period>1</Period>
+					<TimeOut>20160</TimeOut-->
+			<!--/CleanUp>
+			<Temporary>false</Temporary-->
+		<!--/SessionDataPersist-->
 	</JDBCPersistenceManager>
 
 	<!-- Security configurations -->
@@ -90,9 +100,11 @@
 		<!-- Process the token before storing it in database, e.g. encrypting -->
 		<TokenPersistenceProcessor>org.wso2.carbon.identity.oauth.tokenprocessor.PlainTextPersistenceProcessor</TokenPersistenceProcessor>
 		<!-- Supported Client Autnetication Methods -->
-		<ClientAuthHandlers>
-		    <ClientAuthHandlerImplClass>org.wso2.carbon.identity.oauth2.token.handlers.clientauth.BasicAuthClientAuthHandler</ClientAuthHandlerImplClass>
-		</ClientAuthHandlers>		
+        <ClientAuthHandlers>
+            <ClientAuthHandler Class="org.wso2.carbon.identity.oauth2.token.handlers.clientauth.BasicAuthClientAuthHandler">
+                <Property Name="StrictClientCredentialValidation">false</Property>
+            </ClientAuthHandler>
+        </ClientAuthHandlers>
 		<!-- Supported Response Types -->
 		<SupportedResponseTypes>
 		    <SupportedResponseType>
@@ -204,6 +216,7 @@
                 <AttributesClaimDialect>http://wso2.org/claims</AttributesClaimDialect>
 		<AcceptOpenIDLogin>false</AcceptOpenIDLogin>
 		<ClaimsRetrieverImplClass>org.wso2.carbon.identity.sso.saml.builders.claims.DefaultClaimsRetriever</ClaimsRetrieverImplClass>
+		<SAMLSSOAssertionBuilder>org.wso2.carbon.identity.sso.saml.builders.assertion.DefaultSAMLAssertionBuilder</SAMLSSOAssertionBuilder>
 		<SAMLSSOEncrypter>org.wso2.carbon.identity.sso.saml.builders.encryption.DefaultSSOEncrypter</SAMLSSOEncrypter>
                 <SAMLSSOSigner>org.wso2.carbon.identity.sso.saml.builders.signature.DefaultSSOSigner</SAMLSSOSigner>
                 <SAML2HTTPRedirectSignatureValidator>org.wso2.carbon.identity.sso.saml.validators.SAML2HTTPRedirectDeflateSignatureValidator</SAML2HTTPRedirectSignatureValidator>
@@ -233,6 +246,8 @@
 				<Location>${carbon.home}/repository/resources/security/wso2carbon.jks</Location>
 				<Password>wso2carbon</Password>
 			</KeyStore>
+			<!-- Enable this element to mention the host-name of your IS machine -->
+			<ThriftHostName>localhost</ThriftHostName>
 		</ThirftBasedEntitlementConfig>
 	</EntitlementSettings>
 
@@ -248,4 +263,8 @@
 			<Property name="Password">admin</Property-->
 		</Authenticator>
 	</SCIMAuthenticators>
+	<!--SessionContextCache> 
+		<Enable>true</Enable> 
+		<Capacity>100000</Capacity>	
+	</SessionContextCache-->
 </Server>

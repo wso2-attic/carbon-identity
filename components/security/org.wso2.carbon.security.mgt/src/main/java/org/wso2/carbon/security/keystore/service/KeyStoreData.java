@@ -18,7 +18,7 @@
 package org.wso2.carbon.security.keystore.service;
 
 public class KeyStoreData {
-    
+
     private CertData[] certs;
     private CertData key;
     private String keyValue;
@@ -26,36 +26,44 @@ public class KeyStoreData {
     private String keyStoreType = null;
     private String provider = null;
     private String pubKeyFilePath = null;
-    private boolean isPrivateStore = false; 
-    
+    private boolean isPrivateStore = false;
+
     public String getKeyStoreName() {
         return keyStoreName;
     }
+
     public void setKeyStoreName(String keyStoreName) {
         this.keyStoreName = keyStoreName;
     }
+
     public String getKeyStoreType() {
         return keyStoreType;
     }
+
     public void setKeyStoreType(String keyStoreType) {
         this.keyStoreType = keyStoreType;
     }
+
     public String getProvider() {
         return provider;
     }
+
     public void setProvider(String provider) {
         this.provider = provider;
     }
+
     public boolean getPrivateStore() {
         return isPrivateStore;
     }
+
     public void setPrivateStore(boolean isPrivateStore) {
         this.isPrivateStore = isPrivateStore;
-    } 
+    }
+
     public CertData[] getCerts() {
         return certs;
     }
-    
+
     public void setCerts(CertData[] certs) {
         this.certs = certs;
     }
@@ -67,7 +75,7 @@ public class KeyStoreData {
     public void setKey(CertData key) {
         this.key = key;
     }
-    
+
     public String getKeyValue() {
         return keyValue;
     }

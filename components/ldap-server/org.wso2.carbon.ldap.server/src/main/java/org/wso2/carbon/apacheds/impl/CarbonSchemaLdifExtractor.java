@@ -19,16 +19,10 @@ package org.wso2.carbon.apacheds.impl;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -51,8 +45,9 @@ class CarbonSchemaLdifExtractor implements SchemaLdifExtractor {
 
     /**
      * This will instantiate a Schema extractor.
+     *
      * @param outputDirectory The directory which LDIF files will be extracted to.
-     * @param zipSchemaStore A zip file containing all default LDIF schema files.
+     * @param zipSchemaStore  A zip file containing all default LDIF schema files.
      */
     public CarbonSchemaLdifExtractor(File outputDirectory, File zipSchemaStore) {
 
@@ -63,23 +58,23 @@ class CarbonSchemaLdifExtractor implements SchemaLdifExtractor {
             logger.debug(String.format("Creating output directory: %s", outputDirectory));
             if (!outputDirectory.mkdir()) {
                 logger.error(String.format("Failed to create outputDirectory: %s",
-                                           outputDirectory));
+                        outputDirectory));
             }
         } else {
             logger.debug("Output directory exists: no need to create.");
         }
 
         if (!schemaDirectory.exists()) {
-            if (logger.isDebugEnabled()){
+            if (logger.isDebugEnabled()) {
                 logger.debug(String.format("Schema directory '%s' does NOT exist: extracted state " +
-                                      "set to false.", schemaDirectory));
+                        "set to false.", schemaDirectory));
             }
 
             extracted = false;
         } else {
             if (logger.isDebugEnabled()) {
                 logger.debug(String.format("Schema directory '%s' does exist: extracted state set to " +
-                                      "true.", schemaDirectory));
+                        "true.", schemaDirectory));
             }
 
             extracted = true;
@@ -92,7 +87,7 @@ class CarbonSchemaLdifExtractor implements SchemaLdifExtractor {
     }
 
     public void extractOrCopy(boolean overwrite)
-        throws IOException {
+            throws IOException {
 
         if (schemaDirectory.exists() && overwrite) {
             // remove the existing schema directory
@@ -102,13 +97,13 @@ class CarbonSchemaLdifExtractor implements SchemaLdifExtractor {
         if (!schemaDirectory.exists()) {
             if (!schemaDirectory.mkdir()) {
                 throw new IOException("Unable to create schema directory " +
-                                      schemaDirectory.getAbsolutePath());
+                        schemaDirectory.getAbsolutePath());
             }
         }
-        
+
         if (!this.zipSchemaStore.exists()) {
             String msg = "Did not find LDAP schema files in " +
-                         this.zipSchemaStore.getAbsolutePath();
+                    this.zipSchemaStore.getAbsolutePath();
             logger.error(msg);
             throw new IOException(msg);
         }
@@ -119,7 +114,7 @@ class CarbonSchemaLdifExtractor implements SchemaLdifExtractor {
     }
 
     protected void unzipSchemaFile()
-        throws IOException {
+            throws IOException {
         try {
             FileInputStream schemaFileStream = new FileInputStream(this.zipSchemaStore);
             ZipInputStream zipFileStream = new ZipInputStream(new BufferedInputStream(
@@ -134,7 +129,7 @@ class CarbonSchemaLdifExtractor implements SchemaLdifExtractor {
                     File newDirectory = new File(basePath, entry.getName());
                     if (!newDirectory.mkdir()) {
                         throw new IOException("Unable to create directory - " +
-                                              newDirectory.getAbsolutePath());
+                                newDirectory.getAbsolutePath());
                     }
                     continue;
                 }
@@ -145,7 +140,7 @@ class CarbonSchemaLdifExtractor implements SchemaLdifExtractor {
                 FileOutputStream extractedSchemaFile = new FileOutputStream(
                         new File(basePath, entry.getName()));
                 BufferedOutputStream extractingBufferedStream =
-                    new BufferedOutputStream(extractedSchemaFile, buffer.length);
+                        new BufferedOutputStream(extractedSchemaFile, buffer.length);
 
                 while ((size = zipFileStream.read(buffer, 0, buffer.length)) != -1) {
                     extractingBufferedStream.write(buffer, 0, size);
@@ -157,9 +152,9 @@ class CarbonSchemaLdifExtractor implements SchemaLdifExtractor {
             zipFileStream.close();
             schemaFileStream.close();
         } catch (IOException e) {
-            String msg ="Unable to extract schema directory to location " +
-                        this.schemaDirectory.getAbsolutePath() + " from " +
-                        this.zipSchemaStore.getAbsolutePath();
+            String msg = "Unable to extract schema directory to location " +
+                    this.schemaDirectory.getAbsolutePath() + " from " +
+                    this.zipSchemaStore.getAbsolutePath();
             logger.error(msg, e);
             throw new IOException(msg, e);
         }
@@ -173,7 +168,7 @@ class CarbonSchemaLdifExtractor implements SchemaLdifExtractor {
     }
 
     public void extractOrCopy()
-        throws IOException {
+            throws IOException {
         extractOrCopy(false);
     }
 }

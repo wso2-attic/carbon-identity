@@ -78,7 +78,10 @@
 		</AuthenticatorConfig>
     -->
 	<AuthenticatorConfigs>
-		<AuthenticatorConfig name="BasicAuthenticator" enabled="true" />
+		<AuthenticatorConfig name="BasicAuthenticator" enabled="true">
+			<!--Parameter name="UserNameAttributeClaimUri">http://wso2.org/claims/emailaddress</Parameter-->
+			<!--Parameter name="showAuthFailureReason">true</Parameter-->	
+		</AuthenticatorConfig>
 		<AuthenticatorConfig name="OAuthRequestPathAuthenticator" enabled="true" />
 		<AuthenticatorConfig name="BasicAuthRequestPathAuthenticator" enabled="true" />
  		<AuthenticatorConfig name="SAMLSSOAuthenticator" enabled="true">
@@ -119,5 +122,26 @@
                 <SystemIDPDAO>org.wso2.carbon.identity.application.mgt.dao.impl.IdentityProviderDAOImpl</SystemIDPDAO>
                 <ClaimDialect>http://wso2.org/claims</ClaimDialect>
         </ServiceProvidersManagement>
+	
+	<!-- 
+        	AuthenticationEndpointQueryParams are the request parameters 
+        	that would be sent to the AuthenticationEndpoint. 
+        	'action' defines the behaviour: if 'include', only the defined 
+        	parameters would be included in the request. 
+        	If 'exclude' specified, all the parameters received by the 
+        	Authentication Framework would be sent in the request except 
+        	the ones specified. 
+        	'sessionDataKey', 'type', 'relyingParty', 'sp' and 'authenticators' 
+        	parameters will be always sent. They should not be specified here.  
+    	-->
+    	<!--AuthenticationEndpointQueryParams action="exclude"-->
+        	<!--AuthenticationEndpointQueryParam name="username"/-->
+        	<!--AuthenticationEndpointQueryParam name="password"/-->
+    	<!--/AuthenticationEndpointQueryParams-->
+	
+	    <!--TenantDomainDropDownEnabled>true</TenantDomainDropDownEnabled>
+	    <TenantDataListenerURLs>
+		  <TenantDataListenerURL>/authenticationendpoint/tenantlistrefresher.do</TenantDataListenerURL>
+	    </TenantDataListenerURLs-->
 
 </ApplicationAuthentication>

@@ -17,13 +17,6 @@
 */
 package org.wso2.carbon.identity.relyingparty.ui.client;
 
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
@@ -36,23 +29,26 @@ import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+
 public class AuthenticationServiceClient {
 
     private AuthenticationAdminStub stub;
+
     /**
      * Instantiates RelyingPartyServiceClient
-     * 
-     * @param cookie
-     *            For session management
-     * @param backendServerURL
-     *            URL of the back end server where UserRegistrationAdminService is running.
-     * @param configCtx
-     *            ConfigurationContext
-     * @throws org.apache.axis2.AxisFault
-     *             if error occurs when instantiating the stub
+     *
+     * @param cookie           For session management
+     * @param backendServerURL URL of the back end server where UserRegistrationAdminService is running.
+     * @param configCtx        ConfigurationContext
+     * @throws org.apache.axis2.AxisFault if error occurs when instantiating the stub
      */
     public AuthenticationServiceClient(String cookie, String backendServerURL,
-            ConfigurationContext configCtx) throws AxisFault {
+                                       ConfigurationContext configCtx) throws AxisFault {
         String serviceURL = backendServerURL + "AuthenticationAdmin";
         stub = new AuthenticationAdminStub(configCtx, serviceURL);
         ServiceClient client = stub._getServiceClient();
@@ -93,13 +89,13 @@ public class AuthenticationServiceClient {
             session.setAttribute(ServerConstants.ADMIN_SERVICE_COOKIE, cookie);
             String tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(userName);
             if (userName.equals(tenantAwareUserName)) {
-            	 session.setAttribute(MultitenantConstants.IS_MASTER_TENANT,"true");
+                session.setAttribute(MultitenantConstants.IS_MASTER_TENANT, "true");
             }
             String domain = MultitenantUtils.getTenantDomain(userName);
             session.setAttribute("logged-user", tenantAwareUserName);
             session.setAttribute(MultitenantConstants.TENANT_DOMAIN, domain);
             session.getServletContext().setAttribute("logged-user", tenantAwareUserName);
-            
+
         } catch (AxisFault e) {
             throw e;
         } catch (RemoteException e) {

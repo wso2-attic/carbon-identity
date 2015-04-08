@@ -25,65 +25,60 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- * 
+ *
  */
 public interface PermissionFinderModule {
 
-	/**
-	 * initializes the Attribute finder module
-	 * 
-	 * @param properties
-	 *            properties, that need to initialize the module.
-	 * @throws Exception
-	 *             throws when initialization is failed
-	 */
-	public void init(Properties properties) throws Exception;
+    /**
+     * initializes the Attribute finder module
+     *
+     * @param properties properties, that need to initialize the module.
+     * @throws Exception throws when initialization is failed
+     */
+    public void init(Properties properties) throws Exception;
 
-	/**
-	 * gets name of this module
-	 * 
-	 * @return name as String
-	 */
-	public String getModuleName();
+    /**
+     * gets name of this module
+     *
+     * @return name as String
+     */
+    public String getModuleName();
 
-	/**
-	 * finds attribute values for given category type
-	 * 
-	 * @param root
-	 *            category of the attribute
-	 * @param secondaryRoot
-	 * @return Set of attribute values as String Set
-	 * @throws Exception
-	 *             throws if fails
-	 */
-	//public PermissionTreeNodeDTO getPermissionTree(String root, String secondaryRoot, String filter);
+    /**
+     * finds attribute values for given category type
+     *
+     * @param root          category of the attribute
+     * @param secondaryRoot
+     * @return Set of attribute values as String Set
+     * @throws Exception throws if fails
+     */
+    //public PermissionTreeNodeDTO getPermissionTree(String root, String secondaryRoot, String filter);
+    public Set<String> getRootNodeNames(String filter);
 
-	public Set<String> getRootNodeNames(String filter);
+    public Set<String> getSecondaryRootNodeNames(String primaryRoot, String filter);
 
-	public Set<String> getSecondaryRootNodeNames(String primaryRoot, String filter);
+    /**
+     * defines whether node (AttributeTreeNodeDTO) is defined by child node name
+     * or by full path name with parent node names
+     *
+     * @return true or false
+     */
+    public boolean isFullPathSupported();
 
-	/**
-	 * defines whether node (AttributeTreeNodeDTO) is defined by child node name
-	 * or by full path name with parent node names
-	 * 
-	 * @return true or false
-	 */
-	public boolean isFullPathSupported();
+    /**
+     * defines whether nodes (AttributeValueTreeNodeDTOs) are shown in UI by as
+     * a tree or flat
+     *
+     * @return if as a tree -> true or else -> false
+     */
+    public boolean isHierarchicalTree();
 
-	/**
-	 * defines whether nodes (AttributeValueTreeNodeDTOs) are shown in UI by as
-	 * a tree or flat
-	 * 
-	 * @return if as a tree -> true or else -> false
-	 */
-	public boolean isHierarchicalTree();
+    public boolean isSecondaryRootSupported();
 
-	public boolean isSecondaryRootSupported();
+    public Set<String> getSupportedActions();
 
-	public Set<String> getSupportedActions();
+    public String getRootIdentifier();
 
-	public String getRootIdentifier();
-
-	public List<String> getNameForChildRootNodeSet();
+    public List<String> getNameForChildRootNodeSet();
 
 }
