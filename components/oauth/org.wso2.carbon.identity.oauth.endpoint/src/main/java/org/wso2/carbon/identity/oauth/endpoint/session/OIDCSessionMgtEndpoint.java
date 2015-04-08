@@ -26,7 +26,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
-
 /**
  * This class consists OpenID Connect Endpoint which returns the login status of the IS server
  */
