@@ -176,16 +176,16 @@
                             org.apache.thrift.*; version="${libthrift.wso2.osgi.version.range}",
                             org.apache.xerces.util,
                             org.apache.xml.security.*; version="${imp.pkg.version.wss4j}",
-                            org.joda.time,
-                            org.opensaml.*,
+                            org.joda.time; version="${joda-time.osgi.version.range}",
+                            org.opensaml.*; version="${opensaml2.wso2.osgi.version.range}",
                             org.slf4j; version="${slf4j.wso2.version.range}",
                             org.w3c.dom.*,
+                            org.xml.sax,
                             org.wso2.carbon.authenticator.stub.*;
                             version="${carbon.kernel.package.import.version.range}",
-                            org.wso2.carbon.base; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.base; version="${carbon.base.imp.pkg.version.range}",
                             org.wso2.carbon.identity.entitlement.stub.*;
                             version="${carbon.identity.package.import.version.range}",
-                            org.xml.sax,
                         </Import-Package>
                     </instructions>
                 </configuration>
