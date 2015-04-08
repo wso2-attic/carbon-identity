@@ -92,7 +92,7 @@
             <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
             <releases>
                 <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
+                <updatePolicy>never</updatePolicy>
                 <checksumPolicy>ignore</checksumPolicy>
             </releases>
         </repository>
@@ -104,7 +104,7 @@
             <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
             <releases>
                 <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
+                <updatePolicy>never</updatePolicy>
                 <checksumPolicy>ignore</checksumPolicy>
             </releases>
         </repository>
@@ -115,7 +115,7 @@
             <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
             <snapshots>
                 <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
+                <updatePolicy>never</updatePolicy>
             </snapshots>
             <releases>
                 <enabled>false</enabled>
@@ -131,7 +131,7 @@
             <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
             <releases>
                 <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
+                <updatePolicy>never</updatePolicy>
                 <checksumPolicy>ignore</checksumPolicy>
             </releases>
         </pluginRepository>
@@ -142,7 +142,7 @@
             <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
             <snapshots>
                 <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
+                <updatePolicy>never</updatePolicy>
             </snapshots>
             <releases>
                 <enabled>false</enabled>
@@ -154,7 +154,7 @@
             <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
             <releases>
                 <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
+                <updatePolicy>never</updatePolicy>
                 <checksumPolicy>ignore</checksumPolicy>
             </releases>
         </pluginRepository>
@@ -2029,8 +2029,8 @@
         <commons-fileupload.version>1.1.1</commons-fileupload.version>
         <commons-httpclient.version>4.2.5.wso2v1</commons-httpclient.version>
         <commons-dbcp.version>1.2.2</commons-dbcp.version>
-        <commons-logging.version>1.1</commons-logging.version>
-        <commons-logging.osgi.version.range>[1.1,1.2)</commons-logging.osgi.version.range>
+        <commons-logging.version>1.2</commons-logging.version>
+        <commons-logging.osgi.version.range>[1.2,1.3)</commons-logging.osgi.version.range>
         <commons-lang.wso2.version>2.6.0.wso2v1</commons-lang.wso2.version>
         <commons-lang.wso2.osgi.version.range>[2.6.0,2.7.0)</commons-lang.wso2.osgi.version.range>
 
