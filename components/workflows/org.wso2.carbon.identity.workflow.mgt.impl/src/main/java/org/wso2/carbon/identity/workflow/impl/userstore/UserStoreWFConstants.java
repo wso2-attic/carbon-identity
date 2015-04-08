@@ -20,4 +20,5 @@ package org.wso2.carbon.identity.workflow.impl.userstore;
 
 public class UserStoreWFConstants {
     public static final String ADD_USER_EVENT = "ADD_USER";
+    public static final String DELETE_USER_EVENT = "DELETE_USER";
 }

@@ -42,7 +42,7 @@ public class WSWorkflowCallBackService {
                     .handleCallback(response.getUuid(), response.getStatus(), response.getOutputParams());
         } catch (WorkflowException e) {
             log.error("Error when handling callback for the workflow, id:" + response.getUuid() + ", event:" + response
-                    .getEventId());
+                    .getEventType());
         }
     }
 }

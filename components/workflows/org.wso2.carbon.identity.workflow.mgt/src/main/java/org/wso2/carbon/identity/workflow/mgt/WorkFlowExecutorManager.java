@@ -70,13 +70,13 @@ public class WorkFlowExecutorManager {
             }
         }
         //If none of the executors were called
-        handleCallback(workFlowRequest, WorkFlowConstants.WF_STATUS_NO_MATCHING_EXECUTORS, null);
+        handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null);
     }
 
     private void handleCallback(WorkFlowRequest request, String status, Object additionalParams)
             throws WorkflowException {
         if (request != null) {
-            String eventId = request.getEventId();
+            String eventId = request.getEventType();
             WorkflowRequestHandler requestHandler = WorkflowMgtServiceComponent.getWorkflowRequestHandlers().get
                     (eventId);
             if (requestHandler == null) {

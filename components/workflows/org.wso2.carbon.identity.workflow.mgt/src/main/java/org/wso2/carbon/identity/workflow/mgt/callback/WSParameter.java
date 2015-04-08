@@ -24,7 +24,7 @@ package org.wso2.carbon.identity.workflow.mgt.callback;
 public class WSParameter {
 
     private String paramName;
-    private Object value;
+    private String value;
 
     public String getParamName() {
         return paramName;
@@ -34,11 +34,11 @@ public class WSParameter {
         this.paramName = paramName;
     }
 
-    public Object getValue() {
+    public String getValue() {
         return value;
     }
 
-    public void setValue(Object value) {
+    public void setValue(String value) {
         this.value = value;
     }
 }

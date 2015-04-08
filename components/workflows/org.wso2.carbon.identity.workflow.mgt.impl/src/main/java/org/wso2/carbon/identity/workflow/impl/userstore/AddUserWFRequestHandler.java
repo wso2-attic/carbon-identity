@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.workflow.impl.internal.IdentityWorkflowServiceComponent;
 import org.wso2.carbon.identity.workflow.mgt.AbstractWorkflowRequestHandler;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowException;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -42,8 +43,18 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
     private static final String CLAIM_LIST = "claimList";
     private static final String PROFILE = "profile";
 
+    private static final Map<String, String> PARAM_DEFINITION;
     private static Log log = LogFactory.getLog(AddUserWFRequestHandler.class);
 
+    static {
+        PARAM_DEFINITION = new HashMap<>();
+        PARAM_DEFINITION.put(USERNAME, WorkflowDataType.STRING_TYPE);
+        PARAM_DEFINITION.put(USER_STORE_DOMAIN, WorkflowDataType.STRING_TYPE);
+        PARAM_DEFINITION.put(CREDENTIAL, WorkflowDataType.STRING_TYPE);
+        PARAM_DEFINITION.put(PROFILE, WorkflowDataType.STRING_TYPE);
+        PARAM_DEFINITION.put(ROLE_LIST, WorkflowDataType.STRING_LIST_TYPE);
+        PARAM_DEFINITION.put(CLAIM_LIST, WorkflowDataType.STRING_STRING_MAP_TYPE);
+    }
 
     /**
      * Starts the workflow execution
@@ -60,27 +71,31 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
      */
     public boolean startAddUserFlow(String userStoreDomain, String userName, Object credential, String[] roleList,
                                     Map<String, String> claims, String profile) throws WorkflowException {
-        //Check whether the request is already approved, if so return true
-        if (getWorkFlowCompleted() != null && getWorkFlowCompleted()) {
-            unsetWorkFlowCompleted();
-            return true;
-        }
-
-        Map<String, Object> wfParams = new HashMap<String, Object>();
+        Map<String, Object> wfParams = new HashMap<>();
+        Map<String, Object> nonWfParams = new HashMap<>();
         wfParams.put(USERNAME, userName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
         wfParams.put(ROLE_LIST, Arrays.asList(roleList));
         wfParams.put(CLAIM_LIST, claims);
         wfParams.put(PROFILE, profile);
-        Map<String, Object> nonWfParams = new HashMap<String, Object>();
         nonWfParams.put(CREDENTIAL, credential.toString());
-        engageWorkflow(wfParams, nonWfParams);
+        startWorkFlow(wfParams, nonWfParams);
         return false;
     }
 
     @Override
     public String getEventId() {
         return UserStoreWFConstants.ADD_USER_EVENT;
+    }
+
+    @Override
+    public Map<String, String> getParamDefinitions() {
+        return PARAM_DEFINITION;
+    }
+
+    @Override
+    public boolean retryNeedAtCallback() {
+        return true;
     }
 
     @Override

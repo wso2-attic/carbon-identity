@@ -54,70 +54,77 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
     @Override
     public boolean doPreUpdateCredential(String s, Object o, Object o1, UserStoreManager userStoreManager) throws
             UserStoreException {
-        return false;
+        return true;
     }
 
     @Override
     public boolean doPreUpdateCredentialByAdmin(String s, Object o, UserStoreManager userStoreManager) throws
             UserStoreException {
-        return false;
+        return true;
     }
 
     @Override
     public boolean doPreDeleteUser(String s, UserStoreManager userStoreManager) throws UserStoreException {
+        String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                .PROPERTY_DOMAIN_NAME);
+        try {
+            return new DeleteUserWFRequestHandler().startDeleteUserFlow(s, domain);
+        } catch (WorkflowException e) {
+            log.error("Initiating workflow for deleting user: " + s + " failed.", e);
+        }
         return false;
     }
 
     @Override
     public boolean doPreSetUserClaimValue(String s, String s1, String s2, String s3, UserStoreManager
             userStoreManager) throws UserStoreException {
-        return false;
+        return true;
     }
 
     @Override
     public boolean doPreSetUserClaimValues(String s, Map<String, String> map, String s1, UserStoreManager
             userStoreManager) throws UserStoreException {
-        return false;
+        return true;
     }
 
     @Override
     public boolean doPreDeleteUserClaimValues(String s, String[] strings, String s1, UserStoreManager
             userStoreManager) throws UserStoreException {
-        return false;
+        return true;
     }
 
     @Override
     public boolean doPreDeleteUserClaimValue(String s, String s1, String s2, UserStoreManager userStoreManager)
             throws UserStoreException {
-        return false;
+        return true;
     }
 
     @Override
     public boolean doPreAddRole(String s, String[] strings, Permission[] permissions, UserStoreManager
             userStoreManager) throws UserStoreException {
-        return false;
+        return true;
     }
 
     @Override
     public boolean doPreDeleteRole(String s, UserStoreManager userStoreManager) throws UserStoreException {
-        return false;
+        return true;
     }
 
     @Override
     public boolean doPreUpdateRoleName(String s, String s1, UserStoreManager userStoreManager) throws
             UserStoreException {
-        return false;
+        return true;
     }
 
     @Override
     public boolean doPreUpdateUserListOfRole(String s, String[] strings, String[] strings1, UserStoreManager
             userStoreManager) throws UserStoreException {
-        return false;
+        return true;
     }
 
     @Override
     public boolean doPreUpdateRoleListOfUser(String s, String[] strings, String[] strings1, UserStoreManager
             userStoreManager) throws UserStoreException {
-        return false;
+        return true;
     }
 }

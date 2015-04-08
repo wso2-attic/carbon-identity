@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowException;
-import org.wso2.carbon.identity.workflow.mgt.WorkflowStatus;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowRequestStatus;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 
 import java.io.ByteArrayInputStream;
@@ -59,7 +59,7 @@ public class WorkflowRequestDAO {
             prepStmt.setTimestamp(2, createdDateStamp);
             prepStmt.setTimestamp(3, createdDateStamp);
             prepStmt.setBytes(4, serializeWorkflowRequest(workflow));
-            prepStmt.setString(5, WorkflowStatus.PENDING.toString());
+            prepStmt.setString(5, WorkflowRequestStatus.PENDING.toString());
             prepStmt.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {

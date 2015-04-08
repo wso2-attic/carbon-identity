@@ -88,7 +88,7 @@
                     <bpel:literal xml:space="preserve">
                         <ns:onCallback xmlns:ns="http://callback.mgt.workflow.identity.carbon.wso2.org/xsd" >
                             <ns:response>
-                                <ns:eventId>UNDEFINED</ns:eventId>
+                                <ns:eventType>UNDEFINED</ns:eventType>
                                 <ns:status>UNDEFINED</ns:status>
                                 <ns:uuid>UNDEFINED</ns:uuid>
                             </ns:response>
@@ -128,7 +128,7 @@
                 </bpel:from>
                 <bpel:to part="parameters" variable="callbackServiceRequest">
                     <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                        <![CDATA[xsd:response/xsd:eventId]]>
+                        <![CDATA[xsd:response/xsd:eventType]]>
                     </bpel:query>
                 </bpel:to>
             </bpel:copy>

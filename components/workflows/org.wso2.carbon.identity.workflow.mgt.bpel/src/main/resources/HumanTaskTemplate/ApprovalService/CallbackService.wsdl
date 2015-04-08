@@ -22,7 +22,7 @@
             </xs:element>
             <xs:complexType name="WSWorkflowResponse">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="eventId" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="eventType" nillable="true" type="xs:string"></xs:element>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="outputParams" nillable="true"
                                 type="ns:WSParameter"></xs:element>
                     <xs:element minOccurs="0" name="status" nillable="true" type="xs:string"></xs:element>

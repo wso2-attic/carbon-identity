@@ -18,6 +18,6 @@
 
 package org.wso2.carbon.identity.workflow.mgt;
 
-public enum WorkflowStatus {
-    APPROVED, REJECTED, PENDING
+public enum WorkflowRequestStatus {
+    SKIPPED, CREATED, PENDING, APPROVED, REJECTED, UNDEFINED
 }

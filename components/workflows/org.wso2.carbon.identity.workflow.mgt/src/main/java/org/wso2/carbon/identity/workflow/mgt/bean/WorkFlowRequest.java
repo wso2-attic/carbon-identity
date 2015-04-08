@@ -23,7 +23,7 @@ import java.util.List;
 
 public class WorkFlowRequest implements Serializable {
     private String uuid;
-    private String eventId;
+    private String eventType;
     private int tenantId;
     private List<WorkflowParameter> workflowParameters;
 
@@ -35,12 +35,12 @@ public class WorkFlowRequest implements Serializable {
         this.uuid = uuid;
     }
 
-    public String getEventId() {
-        return eventId;
+    public String getEventType() {
+        return eventType;
     }
 
-    public void setEventId(String eventId) {
-        this.eventId = eventId;
+    public void setEventType(String eventType) {
+        this.eventType = eventType;
     }
 
     public List<WorkflowParameter> getWorkflowParameters() {
@@ -63,7 +63,7 @@ public class WorkFlowRequest implements Serializable {
     public String toString() {
         return "WorkFlowRequest{" +
                 "uuid='" + uuid + "\'\n" +
-                ", eventId='" + eventId + "\'\n" +
+                ", eventType='" + eventType + "\'\n" +
                 ", tenantId=" + tenantId + '\n' +
                 ", workflowParameters=" + workflowParameters + '\n' +
                 '}';

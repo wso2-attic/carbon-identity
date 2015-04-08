@@ -20,6 +20,8 @@ package org.wso2.carbon.identity.workflow.mgt;
 
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 
+import java.util.Map;
+
 public interface WorkflowRequestHandler {
 
     /**
@@ -28,14 +30,14 @@ public interface WorkflowRequestHandler {
      * @param workFlowRequest
      * @throws WorkflowException
      */
-    public void engageWorkflow(WorkFlowRequest workFlowRequest) throws WorkflowException;
+    void engageWorkflow(WorkFlowRequest workFlowRequest) throws WorkflowException;
 
     /**
      * Gets the event that this handler is subscribed, used when handling the callback
      *
      * @return
      */
-    public String getEventId();
+    String getEventId();
 
     /**
      * Called on workflow completion
@@ -46,6 +48,13 @@ public interface WorkflowRequestHandler {
      * @param additionalData  Additional data returned from workflow
      * @throws WorkflowException
      */
-    public void onWorkflowCompletion(String status, WorkFlowRequest originalRequest, Object additionalData) throws
+    void onWorkflowCompletion(String status, WorkFlowRequest originalRequest, Object additionalData) throws
             WorkflowException;
+
+    /**
+     * Returns the parameter names and their types. Will be used in input validation and in UIs.
+     *
+     * @return
+     */
+    Map<String, String> getParamDefinitions();
 }

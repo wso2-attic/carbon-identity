@@ -55,7 +55,7 @@ public class WSWorkflowExecutor implements WorkFlowExecutor {
             OMElement requestBody = buildWSRequest(workFlowRequest); //todo:cache for later use?
             WorkflowServicesDAO servicesDAO = new WorkflowServicesDAO();
             Map<WSServiceBean, String> servicesForEvent = servicesDAO.getSubscribedServicesForEvent(workFlowRequest
-                    .getEventId());
+                    .getEventType());
             for (Map.Entry<WSServiceBean, String> entry : servicesForEvent.entrySet()) {
                 try {
                     AXIOMXPath axiomxPath = new AXIOMXPath(entry.getValue());
@@ -83,7 +83,7 @@ public class WSWorkflowExecutor implements WorkFlowExecutor {
         OMElement requestBody = buildWSRequest(workFlowRequest); //todo:cache from canHandle()?
         WorkflowServicesDAO servicesDAO = new WorkflowServicesDAO();
         Map<WSServiceBean, String> servicesForEvent = servicesDAO.getSubscribedServicesForEvent(workFlowRequest
-                .getEventId());
+                .getEventType());
         for (Map.Entry<WSServiceBean, String> entry : servicesForEvent.entrySet()) {
             try {
                 AXIOMXPath axiomxPath = new AXIOMXPath(entry.getValue());
@@ -134,18 +134,27 @@ public class WSWorkflowExecutor implements WorkFlowExecutor {
     private OMElement buildWSRequest(WorkFlowRequest workFlowRequest) throws WorkflowException {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         WorkflowRequestBuilder requestBuilder = new WorkflowRequestBuilder(workFlowRequest.getUuid(),
-                workFlowRequest.getEventId(), tenantDomain);
+                workFlowRequest.getEventType(), tenantDomain);
+
         for (WorkflowParameter parameter : workFlowRequest.getWorkflowParameters()) {
             if (parameter.isRequiredInWorkflow()) {
-                if (WorkflowDataType.WF_PARAM_TYPE_NUMERIC.equals(parameter.getValueType()) || WorkflowDataType
-                        .WF_PARAM_TYPE_STRING.equals(parameter.getValueType()) || WorkflowDataType
-                        .WF_PARAM_TYPE_BOOLEAN.equals(parameter.getValueType())) {
-                    requestBuilder.addSingleValuedParam(parameter.getName(), parameter.getValue());
-                } else if (WorkflowDataType.WF_PARAM_TYPE_BASIC_LIST.equals(parameter.getValueType())) {
-                    requestBuilder.addListTypeParam(parameter.getName(), (List<Object>) parameter.getValue());
-                } else if (WorkflowDataType.WF_PARAM_TYPE_BASIC_MAP.equals(parameter.getValueType())) {
-                    requestBuilder.addMapTypeParam(parameter.getName(),
-                            (Map<String, Object>) parameter.getValue());
+                switch (parameter.getValueType()) {
+                    case WorkflowDataType.BOOLEAN_TYPE:
+                    case WorkflowDataType.STRING_TYPE:
+                    case WorkflowDataType.INTEGER_TYPE:
+                    case WorkflowDataType.DOUBLE_TYPE:
+                        requestBuilder.addSingleValuedParam(parameter.getName(), parameter.getValue());
+                        break;
+                    case WorkflowDataType.STRING_LIST_TYPE:
+                    case WorkflowDataType.DOUBLE_LIST_TYPE:
+                    case WorkflowDataType.INTEGER_LIST_TYPE:
+                    case WorkflowDataType.BOOLEAN_LIST_TYPE:
+                        requestBuilder.addListTypeParam(parameter.getName(), (List<Object>) parameter.getValue());
+                        break;
+                    case WorkflowDataType.STRING_STRING_MAP_TYPE:
+                        requestBuilder.addMapTypeParam(parameter.getName(), (Map<String, Object>) parameter.getValue());
+                        break;
+                    //ignoring the other types
                 }
             }
         }

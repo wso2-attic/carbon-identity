@@ -19,22 +19,18 @@
 package org.wso2.carbon.identity.workflow.mgt;
 
 public class WorkflowDataType {
-    public static final String WF_PARAM_TYPE_STRING = "string";
-    public static final String WF_PARAM_TYPE_BOOLEAN = "boolean";
+    public static final String STRING_TYPE = "STRING";
+    public static final String BOOLEAN_TYPE = "BOOLEAN";
     /**
-     * Represent either integer family or floating point family values.
+     * Represent either integer family.
      */
-    public static final String WF_PARAM_TYPE_NUMERIC = "numeric";
+    public static final String INTEGER_TYPE = "INTEGER";
+    public static final String DOUBLE_TYPE = "DOUBLE";
+    public static final String DOUBLE_LIST_TYPE = "DOUBLE_LIST";
+    public static final String INTEGER_LIST_TYPE = "INTEGER_LIST";
+    public static final String STRING_LIST_TYPE = "STRING_LIST";
+    public static final String BOOLEAN_LIST_TYPE = "BOOLEAN_LIST";
+    public static final String STRING_STRING_MAP_TYPE = "STRING_STRING_MAP";
+    public static final String OTHER_TYPE = "OTHER";
 
-    /**
-     * Represent a collection of primitives or strings. Can be used for arrays, lists, sets,...etc
-     */
-    public static final String WF_PARAM_TYPE_BASIC_LIST = "list";
-
-    /**
-     * Represent key value pair set, with key being a string and value being a string or primitive
-     */
-    public static final String WF_PARAM_TYPE_BASIC_MAP = "map";
-
-    public static final String WF_PARAM_TYPE_UNDEFINED = "undefined";
 }
