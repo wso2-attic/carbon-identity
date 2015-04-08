@@ -24,6 +24,7 @@
 <%@page import="org.wso2.carbon.CarbonConstants"%>
 <%@page import="java.util.Map"%>
 <%@page import="java.util.Iterator"%>
+<%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 
 <%@page import="org.wso2.carbon.identity.user.profile.ui.client.UserProfileCient"%>
 <%@page import="java.util.ResourceBundle"%>
@@ -51,7 +52,7 @@
         ConfigurationContext configContext =
                 (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         UserProfileCient client = new UserProfileCient(cookie, backendServerURL, configContext);
-        client.deleteUserProfile(username, profile);
+        client.deleteUserProfile(Util.decodeHTMLCharacters(username), profile);
         String message = resourceBundle.getString("user.profile.deleted.successfully");
         CarbonUIMessage.sendCarbonUIMessage(message,CarbonUIMessage.INFO, request);
         if ("true".equals(fromUserMgt)) {
