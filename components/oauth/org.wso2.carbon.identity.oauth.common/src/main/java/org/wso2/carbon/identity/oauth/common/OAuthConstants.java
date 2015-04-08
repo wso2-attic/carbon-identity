@@ -71,7 +71,9 @@ public final class OAuthConstants {
     public static String OAUTH_IWA_NTLM_GRANT_ENUM = "IWA_NTLM";
     // OAuth client authenticator properties
     public static final String CLIENT_AUTH_CREDENTIAL_VALIDATION = "StrictClientCredentialValidation";
-
+    //OIDC Session Management Endpoint constants
+    public static final String OP_STATUS_LOGGED="true";
+    public static final String OP_STATUS_LOGOUT="false";
     public static class OAuthVersions {
         public static final String VERSION_1A = "OAuth-1.0a";
         public static final String VERSION_2 = "OAuth-2.0";
@@ -125,4 +127,6 @@ public final class OAuthConstants {
             public static final String UNSUPPORTED_CLIENT_AUTHENTICATION_METHOD = "unsupported_client_authentication_method";
         }
     }
+      
+      
 }
