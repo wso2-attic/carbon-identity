@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+        "http://java.sun.com/dtd/web-app_2_3.dtd" >
+
+<web-app>
+
+    <servlet>
+        <servlet-name>AuthenticationEndpoint</servlet-name>
+        <servlet-class>org.wso2.carbon.identity.application.authentication.endpoint.AuthenticationEndpoint</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>TenantListRefreshEndpoint</servlet-name>
+        <servlet-class>org.wso2.carbon.identity.application.authentication.endpoint.TenantListRefreshEndpoint</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>OAuth2Login</servlet-name>
+        <servlet-class>org.wso2.carbon.identity.application.authentication.endpoint.oauth2.OAuth2Login</servlet-class>
+        <!--  Custom Page configurations -->
+
+        <!-- *************** LoginPage configs for SampleApp ********************** -->
+        <!--init-param>
+            <param-name>SampleApp-LoginPage</param-name>
+            <param-value>https://localhost:9443/sampleapp-pages/login</param-value>
+        </init-param>
+        <init-param>
+            <param-name>SampleApp-AuthzPage</param-name>
+            <param-value>https://localhost:9443/sampleapp-pages/authz</param-value>
+        </init-param>
+        <init-param>
+            <param-name>SampleApp-ErrorPage</param-name>
+            <param-value>https://localhost:9443/sampleapp-pages/error</param-value>
+        </init-param>
+        <init-param>
+            <param-name>SampleApp-ConsentPage</param-name>
+            <param-value>https://localhost:9443/sampleapp-pages/consent</param-value>
+        </init-param-->
+        <!-- **************** End of configs for SampleApp ************************* -->
+
+        <!-- ################## Global config ##################################### -->
+        <!--init-param>
+            <param-name>Global-LoginPage</param-name>
+            <param-value>https://localhost:9443/sampleapp-pages/login</param-value>
+        </init-param>
+        <init-param>
+            <param-name>Global-AuthzPage</param-name>
+            <param-value>https://localhost:9443/sampleapp-pages/authz</param-value>
+        </init-param>
+        <init-param>
+            <param-name>Global-ErrorPage</param-name>
+            <param-value>https://localhost:9443/sampleapp-pages/error</param-value>
+        </init-param>
+        <init-param>
+            <param-name>Global-ConsentPage</param-name>
+            <param-value>https://localhost:9443/sampleapp-pages/consent</param-value>
+        </init-param-->
+        <!-- ################## End of Global config ############################## -->
+    </servlet>
+
+    <servlet>
+        <servlet-name>SAML2SSO</servlet-name>
+        <servlet-class>org.wso2.carbon.identity.application.authentication.endpoint.samlsso.SAMLSSOLogin</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>OpenIDLogin</servlet-name>
+        <servlet-class>org.wso2.carbon.identity.application.authentication.endpoint.openid.OpenIDLogin</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>PassiveSTSLogin</servlet-name>
+        <servlet-class>org.wso2.carbon.identity.application.authentication.endpoint.passivests.PassiveSTSLogin</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>AuthenticationEndpoint</servlet-name>
+        <url-pattern>/login.do</url-pattern>
+        <url-pattern>/retry.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>TenantListRefreshEndpoint</servlet-name>
+        <url-pattern>/tenantlistrefresher.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>OAuth2Login</servlet-name>
+        <url-pattern>/oauth2_login.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>OAuth2Login</servlet-name>
+        <url-pattern>/oauth2_authz.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>OAuth2Login</servlet-name>
+        <url-pattern>/oauth2_consent.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>OAuth2Login</servlet-name>
+        <url-pattern>/oauth2_error.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>SAML2SSO</servlet-name>
+        <url-pattern>/samlsso_login.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>SAML2SSO</servlet-name>
+        <url-pattern>/samlsso_error.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>SAML2SSO</servlet-name>
+        <url-pattern>/samlsso_notification.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>OpenIDLogin</servlet-name>
+        <url-pattern>/openid_login.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>OpenIDLogin</servlet-name>
+        <url-pattern>/openid_profile.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>PassiveSTSLogin</servlet-name>
+        <url-pattern>/passivests_login.do</url-pattern>
+    </servlet-mapping>
+    <error-page>
+        <exception-type>java.lang.Throwable</exception-type>
+        <location>/generic-exception-response.jsp</location>
+    </error-page>
+</web-app>

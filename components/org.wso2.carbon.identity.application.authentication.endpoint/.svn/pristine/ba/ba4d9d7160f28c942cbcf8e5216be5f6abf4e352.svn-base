@@ -1,0 +1,9 @@
+tenantListEnabled=false
+mutual.ssl.username=tenantuser
+client.keyStore=./repository/resources/security/wso2carbon.jks
+client.keyStore.password=wso2carbon
+client.trustStore=./repository/resources/security/client-truststore.jks
+client.trustStore.password=wso2carbon
+identity.server.host=localhost
+identity.server.port=9443
+username.header=UserName
