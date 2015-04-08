@@ -288,7 +288,7 @@ public class FrameworkUtils {
         Object obj = ConfigurationFacade.getInstance().getExtensions()
                 .get(FrameworkConstants.Config.QNAME_EXT_LOGOUT_REQ_HANDLER);
 
-        if (obj instanceof AuthenticationRequestHandler) {
+        if (obj instanceof LogoutRequestHandler) {
             logoutRequestHandler = (LogoutRequestHandler) obj;
         } else {
             logoutRequestHandler = DefaultLogoutRequestHandler.getInstance();
