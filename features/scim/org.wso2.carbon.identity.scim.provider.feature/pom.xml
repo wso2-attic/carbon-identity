@@ -119,12 +119,10 @@
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.claim.mgt:4.2.0</importFeatureDef>
-				                <importFeatureDef>org.wso2.carbon.identity.scim.common:4.2.1</importFeatureDef>
+				<importFeatureDef>org.wso2.carbon.identity.scim.common:4.2.1</importFeatureDef>
+				<importFeatureDef>org.wso2.carbon.jaxws.webapp.mgt.server:4.2.0</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.webapp.mgt.server:${carbon.webapp.feature.version}</importFeatureDef>
                             </importFeatures>
-                            <includedFeatures>
-                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.jaxws.webapp.mgt.server.feature:4.2.0</includedFeatureDef>
-                                <includedFeatureDef>org.wso2.carbon.deployment:org.wso2.carbon.webapp.mgt.server.feature:${carbon.webapp.feature.version}</includedFeatureDef>
-                            </includedFeatures>
                         </configuration>
                     </execution>
                 </executions>
