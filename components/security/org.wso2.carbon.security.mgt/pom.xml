@@ -119,7 +119,7 @@
                         </Private-Package>
                         <Export-Package>
                             !org.wso2.carbon.security.internal,
-                            org.wso2.carbon.security.*
+                            org.wso2.carbon.security.*; version="${carbon.identity.package.export.version}",
                         </Export-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                         <Axis2RequiredServices>org.apache.axis2.engine.AxisObserver</Axis2RequiredServices>

@@ -57,7 +57,13 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Import-Package>
-                            javax.*,
+                            javax.cache,
+                            javax.crypto,
+                            javax.crypto.spec,
+                            javax.naming,
+                            javax.sql,
+                            javax.xml.namespace,
+                            javax.xml.stream,
                             org.apache.axiom.*; version="${axiom.osgi.version.range}",
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
                             org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}",
@@ -66,10 +72,9 @@
                             org.wso2.carbon.context; version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.caching.impl; version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.claim.mgt; version="${carbon.identity.package.import.version.range}"
-                            <!--*;resolution:=optional-->
                         </Import-Package>
                         <Export-Package>
-                            org.wso2.carbon.identity.application.common.*,
+                            org.wso2.carbon.identity.application.common.*; version="${carbon.identity.package.export.version}"
                         </Export-Package>
                     </instructions>
                 </configuration>

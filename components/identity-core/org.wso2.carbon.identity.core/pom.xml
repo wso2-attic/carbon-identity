@@ -95,7 +95,7 @@
                             org.wso2.carbon.identity.core.internal,
                         </Private-Package>
                         <Export-Package>
-                            org.wso2.carbon.identity.core.*,
+                            org.wso2.carbon.identity.core.*; version="${carbon.identity.package.export.version}"
                         </Export-Package>
                         <Import-Package>
                             !org.wso2.carbon.identity.core.*,
