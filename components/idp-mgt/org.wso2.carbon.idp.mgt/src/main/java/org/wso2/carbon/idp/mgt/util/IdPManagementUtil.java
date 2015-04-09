@@ -20,6 +20,7 @@ package org.wso2.carbon.idp.mgt.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.internal.IdPManagementServiceComponent;
 import org.wso2.carbon.user.api.TenantManager;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -46,5 +47,17 @@ public class IdPManagementUtil {
             log.debug("Invalid tenant domain: \'NULL\'");
             throw new IllegalArgumentException("Invalid tenant domain: \'NULL\'");
         }
+    }
+
+    /**
+     +     * Get the resident entity id configured in identity.xml.
+     +     *
+     +     */
+    public static String getResidentIdPEntityId() {
+        String localEntityId = IdentityUtil.getProperty("SSOService.EntityId");
+            if (localEntityId == null || localEntityId.trim().isEmpty()) {
+                localEntityId = "localhost";
+            }
+        return localEntityId;
     }
 }

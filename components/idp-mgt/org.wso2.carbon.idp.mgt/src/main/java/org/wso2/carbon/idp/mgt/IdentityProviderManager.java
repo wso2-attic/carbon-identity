@@ -216,7 +216,7 @@ public class IdentityProviderManager {
             Property idPEntityIdProp = new Property();
             idPEntityIdProp
                     .setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
-            idPEntityIdProp.setValue(identityProvider.getHomeRealmId());
+            idPEntityIdProp.setValue(IdPManagementUtil.getResidentIdPEntityId());
             propertiesList.add(idPEntityIdProp);
         }
         saml2SSOFedAuthn.setProperties(propertiesList.toArray(new Property[propertiesList.size()]));
