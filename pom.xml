@@ -2079,14 +2079,13 @@
         <orbit.version.apacheds>1.5.7.wso2v3</orbit.version.apacheds>
         <version.apacheds.shared.ldap>0.9.18</version.apacheds.shared.ldap>
         <httpcomponents-httpclient.wso2.version>4.2.5.wso2v1</httpcomponents-httpclient.wso2.version>
+        <httpcomponents-httpclient.imp.pkg.version.range>[0.0.0,0.1.0)</httpcomponents-httpclient.imp.pkg.version.range>
         <orbit.version.commons.lang>2.6.0.wso2v1</orbit.version.commons.lang>
         <org.wso2.securevault.version>1.0.0-wso2v2</org.wso2.securevault.version>
 
         <version.commons.logging>1.1.1</version.commons.logging>
         <kaptcha.wso2.version>2.3.0.wso2v1</kaptcha.wso2.version>
         <json.wso2.version>2.0.0.wso2v1</json.wso2.version>
-
-        <joda-time.osgi.version.range>[2.4.1.wso2v1,2.5.0)</joda-time.osgi.version.range>
 
         <project.scm.id>my-scm-server</project.scm.id>
     </properties>
