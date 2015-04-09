@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.workflow.mgt.AbstractWorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowRequestStatus;
 import org.wso2.carbon.identity.workflow.mgt.impl.internal.IdentityWorkflowServiceComponent;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -100,6 +101,7 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
     @Override
     public void onWorkflowCompletion(String status, Map<String, Object> requestParams, Map<String, Object>
             responseAdditionalParams, int tenantId) throws WorkflowException {
+
         String userName = "";
         Object credential = null;
         String[] roles = null;
@@ -127,12 +129,23 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
         claims = (Map<String, String>) requestParams.get(CLAIM_LIST);
         profile = (String) requestParams.get(PROFILE);
 
-        try {
-            RealmService realmService = IdentityWorkflowServiceComponent.getRealmService();
-            UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
-            userRealm.getUserStoreManager().addUser(userName, credential, roles, claims, profile);
-        } catch (UserStoreException e) {
-            throw new WorkflowException("Error when re-requesting addUser operation for " + userName, e);
+        if (WorkflowRequestStatus.APPROVED.equals(status) || WorkflowRequestStatus.SKIPPED.equals(status)) {
+            try {
+                RealmService realmService = IdentityWorkflowServiceComponent.getRealmService();
+                UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
+                userRealm.getUserStoreManager().addUser(userName, credential, roles, claims, profile);
+            } catch (UserStoreException e) {
+                throw new WorkflowException("Error when re-requesting addUser operation for " + userName, e);
+            }
+        } else {
+            if (retryNeedAtCallback()) {
+                //unset threadlocal variable
+                unsetWorkFlowCompleted();
+            }
+            if (log.isDebugEnabled()) {
+                log.debug(
+                        "Adding user is aborted for user '" + userName + "', Reason: Workflow response was " + status);
+            }
         }
     }
 }

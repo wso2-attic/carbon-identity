@@ -19,9 +19,12 @@
 package org.wso2.carbon.identity.workflow.mgt.impl.userstore;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.workflow.mgt.AbstractWorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowRequestStatus;
 import org.wso2.carbon.identity.workflow.mgt.impl.internal.IdentityWorkflowServiceComponent;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -36,6 +39,8 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
     private static final String USER_STORE_DOMAIN = "userStoreDomain";
 
     private static final Map<String, String> PARAM_DEFINITION;
+    private static Log log = LogFactory.getLog(DeleteUserWFRequestHandler.class);
+
 
     static {
         PARAM_DEFINITION = new HashMap<>();
@@ -67,12 +72,24 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
         } else {
             userName = (String) requestUsername;
         }
-        try {
-            RealmService realmService = IdentityWorkflowServiceComponent.getRealmService();
-            UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
-            userRealm.getUserStoreManager().deleteUser(userName);
-        } catch (UserStoreException e) {
-            throw new WorkflowException("Error when re-requesting addUser operation for " + userName, e);
+
+        if (WorkflowRequestStatus.APPROVED.equals(status) || WorkflowRequestStatus.SKIPPED.equals(status)) {
+            try {
+                RealmService realmService = IdentityWorkflowServiceComponent.getRealmService();
+                UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
+                userRealm.getUserStoreManager().deleteUser(userName);
+            } catch (UserStoreException e) {
+                throw new WorkflowException("Error when re-requesting addUser operation for " + userName, e);
+            }
+        } else {
+            if (retryNeedAtCallback()) {
+                //unset threadlocal variable
+                unsetWorkFlowCompleted();
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Deleting user is aborted for user '" + userName + "', Reason: Workflow response was " +
+                        status);
+            }
         }
     }
 
