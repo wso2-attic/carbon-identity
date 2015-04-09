@@ -100,6 +100,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
         WorkflowParameter parameter = new WorkflowParameter();
         parameter.setName(name);
         parameter.setValue(value);
+        parameter.setRequiredInWorkflow(required);
         String valueType = getParamDefinitions().get(name);
         if (valueType == null || value == null) {
             //null value as param, or undefined param

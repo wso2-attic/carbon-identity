@@ -16,14 +16,15 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.impl.internal;
+package org.wso2.carbon.identity.workflow.mgt.impl.internal;
 
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.identity.workflow.impl.userstore.AddUserWFRequestHandler;
-import org.wso2.carbon.identity.workflow.impl.userstore.UserStoreActionListener;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowRequestHandler;
+import org.wso2.carbon.identity.workflow.mgt.impl.userstore.AddUserWFRequestHandler;
+import org.wso2.carbon.identity.workflow.mgt.impl.userstore.DeleteUserWFRequestHandler;
+import org.wso2.carbon.identity.workflow.mgt.impl.userstore.UserStoreActionListener;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
@@ -64,6 +65,7 @@ public class IdentityWorkflowServiceComponent {
         bundleContext = context.getBundleContext();
         bundleContext.registerService(UserOperationEventListener.class.getName(), new UserStoreActionListener(), null);
         bundleContext.registerService(WorkflowRequestHandler.class.getName(), new AddUserWFRequestHandler(), null);
+        bundleContext.registerService(WorkflowRequestHandler.class.getName(), new DeleteUserWFRequestHandler(), null);
     }
 
     protected void unsetRealmService(RealmService realmService) {

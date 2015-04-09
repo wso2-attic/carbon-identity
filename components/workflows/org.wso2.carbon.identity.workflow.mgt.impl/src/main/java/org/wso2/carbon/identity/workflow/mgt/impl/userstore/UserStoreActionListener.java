@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.impl.userstore;
+package org.wso2.carbon.identity.workflow.mgt.impl.userstore;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -68,7 +68,7 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
         String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                 .PROPERTY_DOMAIN_NAME);
         try {
-            return new DeleteUserWFRequestHandler().startDeleteUserFlow(s, domain);
+            return new DeleteUserWFRequestHandler().startDeleteUserFlow(domain, s);
         } catch (WorkflowException e) {
             log.error("Initiating workflow for deleting user: " + s + " failed.", e);
         }

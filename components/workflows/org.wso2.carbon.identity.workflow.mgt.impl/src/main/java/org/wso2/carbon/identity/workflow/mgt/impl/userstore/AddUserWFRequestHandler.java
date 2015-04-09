@@ -16,15 +16,15 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.impl.userstore;
+package org.wso2.carbon.identity.workflow.mgt.impl.userstore;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.workflow.impl.internal.IdentityWorkflowServiceComponent;
 import org.wso2.carbon.identity.workflow.mgt.AbstractWorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.impl.internal.IdentityWorkflowServiceComponent;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -79,8 +79,7 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
         wfParams.put(CLAIM_LIST, claims);
         wfParams.put(PROFILE, profile);
         nonWfParams.put(CREDENTIAL, credential.toString());
-        startWorkFlow(wfParams, nonWfParams);
-        return false;
+        return startWorkFlow(wfParams, nonWfParams);
     }
 
     @Override

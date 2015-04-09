@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.impl.userstore;
+package org.wso2.carbon.identity.workflow.mgt.impl.userstore;
 
 public class UserStoreWFConstants {
     public static final String ADD_USER_EVENT = "ADD_USER";

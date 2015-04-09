@@ -65,12 +65,21 @@
                             org.wso2.carbon.identity.workflow.mgt.impl.internal,
                         </Private-Package>
                         <Import-Package>
-                            *;resolution:=optional
+                            org.apache.commons.lang,
+                            org.apache.commons.logging,
+                            org.osgi.framework,
+                            org.osgi.service.component,
+                            org.wso2.carbon.identity.workflow.mgt,
+                            org.wso2.carbon.user.api,
+                            org.wso2.carbon.user.core,
+                            org.wso2.carbon.user.core.common,
+                            org.wso2.carbon.user.core.listener,
+                            org.wso2.carbon.user.core.service,
+                            org.wso2.carbon.utils
                         </Import-Package>
                         <Export-Package>
                             org.wso2.carbon.identity.workflow.mgt.impl.*
                         </Export-Package>
-                        <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>
