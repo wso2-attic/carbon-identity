@@ -45,10 +45,10 @@ public interface WorkflowRequestHandler {
      * @param status          The workflow status
      * @param originalRequest The original request that was made by
      *                        {@link #engageWorkflow(WorkFlowRequest)}
-     * @param additionalData  Additional data returned from workflow
+     * @param responseParams  Additional data returned from workflow
      * @throws WorkflowException
      */
-    void onWorkflowCompletion(String status, WorkFlowRequest originalRequest, Object additionalData) throws
+    void onWorkflowCompletion(String status, WorkFlowRequest originalRequest, Map<String, Object> responseParams) throws
             WorkflowException;
 
     /**

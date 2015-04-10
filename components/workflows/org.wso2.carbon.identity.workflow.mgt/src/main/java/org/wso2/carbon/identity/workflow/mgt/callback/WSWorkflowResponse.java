@@ -24,7 +24,6 @@ package org.wso2.carbon.identity.workflow.mgt.callback;
 public class WSWorkflowResponse {
 
     private String uuid;
-    private String eventType;
     private String status;
     private WSParameter[] outputParams;
 
@@ -34,14 +33,6 @@ public class WSWorkflowResponse {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
-    }
-
-    public String getEventType() {
-        return eventType;
-    }
-
-    public void setEventType(String eventType) {
-        this.eventType = eventType;
     }
 
     public String getStatus() {

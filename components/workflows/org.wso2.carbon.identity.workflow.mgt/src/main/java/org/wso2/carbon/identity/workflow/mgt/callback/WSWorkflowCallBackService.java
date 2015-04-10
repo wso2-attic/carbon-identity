@@ -23,6 +23,9 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.workflow.mgt.WorkFlowExecutorManager;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowException;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * This is the Callback service for the WS Workflow requests. Once workflow executor completes its workflow,
  * it will call back this service with the results.
@@ -38,11 +41,15 @@ public class WSWorkflowCallBackService {
      */
     public void onCallback(WSWorkflowResponse response) {
         try {
+            Map<String, Object> outputParams = new HashMap<>(response.getOutputParams().length);
+            for (WSParameter parameter : response.getOutputParams()) {
+                outputParams.put(parameter.getName(), parameter.getValue());
+            }
             WorkFlowExecutorManager.getInstance()
-                    .handleCallback(response.getUuid(), response.getStatus(), response.getOutputParams());
+                    .handleCallback(response.getUuid(), response.getStatus(), outputParams);
         } catch (WorkflowException e) {
-            log.error("Error when handling callback for the workflow, id:" + response.getUuid() + ", event:" + response
-                    .getEventType());
+            log.error("Error when handling callback for the workflow, id:" + response.getUuid() + ", status:" + response
+                    .getStatus());
         }
     }
 }

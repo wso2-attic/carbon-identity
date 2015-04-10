@@ -124,22 +124,16 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
     }
 
     @Override
-    public void onWorkflowCompletion(String status, WorkFlowRequest originalRequest, Object additionalData) throws
-            WorkflowException {
+    public void onWorkflowCompletion(String status, WorkFlowRequest originalRequest, Map<String, Object> responseParams)
+            throws WorkflowException {
         Map<String, Object> requestParams = new HashMap<String, Object>();
         for (WorkflowParameter parameter : originalRequest.getWorkflowParameters()) {
             requestParams.put(parameter.getName(), parameter.getValue());
         }
-        Map<String, Object> additionalResponseParams;
-        if (additionalData instanceof Map) {
-            additionalResponseParams = (Map<String, Object>) additionalData;
-        } else {
-            additionalResponseParams = new HashMap<String, Object>();
-        }
         if (retryNeedAtCallback()) {
             setWorkFlowCompleted(true);
         }
-        onWorkflowCompletion(status, requestParams, additionalResponseParams, originalRequest.getTenantId());
+        onWorkflowCompletion(status, requestParams, responseParams, originalRequest.getTenantId());
     }
 
     /**
@@ -151,7 +145,6 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
      * @param tenantId
      * @throws WorkflowException
      */
-
     public abstract void onWorkflowCompletion(String status, Map<String, Object> requestParams, Map<String, Object>
             responseAdditionalParams, int tenantId) throws WorkflowException;
 

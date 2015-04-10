@@ -43,7 +43,8 @@ public class WorkflowRequestBuilder {
     //    private static final String WF_REQ_PARAMS_ELEM = "params";
     private static final String WF_REQ_PARAM_ELEM = "parameter";
     private static final String WF_REQ_LIST_ITEM_ELEM = "item";
-    private static final String WF_REQ_KEY_ATTRIB = "key";
+    private static final String WF_REQ_KEY_ATTRIB = "name";
+    private static final String WF_REQ_VALUE_ELEM = "value";
 
     private static final Set<Class> SUPPORTED_CLASS_TYPES;
 

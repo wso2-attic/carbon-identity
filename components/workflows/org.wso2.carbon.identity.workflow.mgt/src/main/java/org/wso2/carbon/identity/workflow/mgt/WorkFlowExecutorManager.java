@@ -27,6 +27,7 @@ import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowMgtServiceComponen
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class WorkFlowExecutorManager {
@@ -73,7 +74,7 @@ public class WorkFlowExecutorManager {
         handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null);
     }
 
-    private void handleCallback(WorkFlowRequest request, String status, Object additionalParams)
+    private void handleCallback(WorkFlowRequest request, String status, Map<String, Object> additionalParams)
             throws WorkflowException {
         if (request != null) {
             String eventId = request.getEventType();
@@ -86,7 +87,8 @@ public class WorkFlowExecutorManager {
         }
     }
 
-    public void handleCallback(String uuid, String status, Object additionalParams) throws WorkflowException {
+    public void handleCallback(String uuid, String status, Map<String, Object> additionalParams)
+            throws WorkflowException {
         WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
         WorkFlowRequest request = requestDAO.retrieveWorkflow(uuid);
         handleCallback(request, status, additionalParams);
