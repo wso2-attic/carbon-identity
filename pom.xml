@@ -500,7 +500,7 @@
             </dependency-->
 
             <dependency>
-                <groupId>org.wso2.orbit.apache.directory</groupId>
+                <groupId>org.wso2.orbit.org.apache.directory</groupId>
                 <artifactId>apacheds</artifactId>
                 <version>${orbit.version.apacheds}</version>
             </dependency>
@@ -1884,7 +1884,7 @@
                 <version>${json.wso2.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.orbit.nimbusds</groupId>
+                <groupId>org.wso2.orbit.com.nimbusds</groupId>
                 <artifactId>nimbus-jose-jwt</artifactId>
                 <version>2.26.1.wso2v3</version>
             </dependency>
