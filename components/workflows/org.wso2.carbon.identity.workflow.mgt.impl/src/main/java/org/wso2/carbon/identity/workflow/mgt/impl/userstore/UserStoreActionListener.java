@@ -54,7 +54,14 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
     @Override
     public boolean doPreUpdateCredential(String s, Object o, Object o1, UserStoreManager userStoreManager) throws
             UserStoreException {
-        return true;
+        String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                .PROPERTY_DOMAIN_NAME);
+        try {
+            return new ChangeCredentialWFRequestHandler().startChangeCredentialWorkflow(domain, s, o, o1);
+        } catch (WorkflowException e) {
+            log.error("Initiating workflow for updating credentials of user: " + s + " failed.", e);
+        }
+        return false;
     }
 
     @Override

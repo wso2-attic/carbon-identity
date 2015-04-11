@@ -60,7 +60,7 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
     public void onWorkflowCompletion(String status, Map<String, Object> requestParams,
                                      Map<String, Object> responseAdditionalParams, int tenantId)
             throws WorkflowException {
-        String userName = "";
+        String userName;
         Object requestUsername = requestParams.get(USERNAME);
         if (requestUsername == null || !(requestUsername instanceof String)) {
             throw new WorkflowException("Callback request for delete user received without the mandatory " +

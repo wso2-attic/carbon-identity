@@ -30,82 +30,45 @@ import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
-
+public class ChangeCredentialWFRequestHandler extends AbstractWorkflowRequestHandler {
     private static final String USERNAME = "username";
     private static final String USER_STORE_DOMAIN = "userStoreDomain";
-    private static final String CREDENTIAL = "credential";
-    private static final String ROLE_LIST = "roleList";
-    private static final String CLAIM_LIST = "claimList";
-    private static final String PROFILE = "profile";
+    private static final String OLD_CREDENTIAL = "oldCredential";
+    private static final String NEW_CREDENTIAL = "newCredential";
 
     private static final Map<String, String> PARAM_DEFINITION;
-    private static Log log = LogFactory.getLog(AddUserWFRequestHandler.class);
+    private static Log log = LogFactory.getLog(ChangeCredentialWFRequestHandler.class);
 
     static {
         PARAM_DEFINITION = new HashMap<>();
         PARAM_DEFINITION.put(USERNAME, WorkflowDataType.STRING_TYPE);
         PARAM_DEFINITION.put(USER_STORE_DOMAIN, WorkflowDataType.STRING_TYPE);
-        PARAM_DEFINITION.put(CREDENTIAL, WorkflowDataType.STRING_TYPE);
-        PARAM_DEFINITION.put(PROFILE, WorkflowDataType.STRING_TYPE);
-        PARAM_DEFINITION.put(ROLE_LIST, WorkflowDataType.STRING_LIST_TYPE);
-        PARAM_DEFINITION.put(CLAIM_LIST, WorkflowDataType.STRING_STRING_MAP_TYPE);
+        PARAM_DEFINITION.put(OLD_CREDENTIAL, WorkflowDataType.STRING_TYPE);
+        PARAM_DEFINITION.put(NEW_CREDENTIAL, WorkflowDataType.STRING_TYPE);
     }
 
-    /**
-     * Starts the workflow execution
-     *
-     * @param userStoreDomain
-     * @param userName
-     * @param credential
-     * @param roleList
-     * @param claims
-     * @param profile
-     * @return <code>true</code> if the workflow request is ready to be continued (i.e. has been approved from
-     * workflow) <code>false</code> otherwise (i.e. request placed for approval)
-     * @throws WorkflowException
-     */
-    public boolean startAddUserFlow(String userStoreDomain, String userName, Object credential, String[] roleList,
-                                    Map<String, String> claims, String profile) throws WorkflowException {
+    public boolean startChangeCredentialWorkflow(String userStoreDomain, String userName, Object newCredential, Object
+            oldCredential) throws WorkflowException {
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
         wfParams.put(USERNAME, userName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
-        wfParams.put(ROLE_LIST, Arrays.asList(roleList));
-        wfParams.put(CLAIM_LIST, claims);
-        wfParams.put(PROFILE, profile);
-        nonWfParams.put(CREDENTIAL, credential.toString());
+        nonWfParams.put(OLD_CREDENTIAL, oldCredential.toString());
+        nonWfParams.put(NEW_CREDENTIAL, newCredential.toString());
         return startWorkFlow(wfParams, nonWfParams);
     }
 
     @Override
-    public String getEventId() {
-        return UserStoreWFConstants.ADD_USER_EVENT;
-    }
-
-    @Override
-    public Map<String, String> getParamDefinitions() {
-        return PARAM_DEFINITION;
-    }
-
-    @Override
-    public boolean retryNeedAtCallback() {
-        return true;
-    }
-
-    @Override
-    public void onWorkflowCompletion(String status, Map<String, Object> requestParams, Map<String, Object>
-            responseAdditionalParams, int tenantId) throws WorkflowException {
-
+    public void onWorkflowCompletion(String status, Map<String, Object> requestParams,
+                                     Map<String, Object> responseAdditionalParams, int tenantId)
+            throws WorkflowException {
         String userName;
         Object requestUsername = requestParams.get(USERNAME);
         if (requestUsername == null || !(requestUsername instanceof String)) {
-            throw new WorkflowException("Callback request for Add User received without the mandatory " +
+            throw new WorkflowException("Callback request for update credential without the mandatory " +
                     "parameter 'username'");
         }
         String userStoreDomain = (String) requestParams.get(USER_STORE_DOMAIN);
@@ -114,25 +77,16 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
         } else {
             userName = (String) requestUsername;
         }
-        Object credential = requestParams.get(CREDENTIAL);
-        List<String> roleList = ((List<String>) requestParams.get(ROLE_LIST));
-        String[] roles;
-        if (roleList != null) {
-            roles = new String[roleList.size()];
-            roles = roleList.toArray(roles);
-        } else {
-            roles = new String[0];
-        }
-        Map<String, String> claims = (Map<String, String>) requestParams.get(CLAIM_LIST);
-        String profile = (String) requestParams.get(PROFILE);
 
+        Object oldCredential = requestParams.get(OLD_CREDENTIAL);
+        Object newCredential = requestParams.get(NEW_CREDENTIAL);
         if (WorkflowRequestStatus.APPROVED.equals(status) || WorkflowRequestStatus.SKIPPED.equals(status)) {
             try {
                 RealmService realmService = IdentityWorkflowServiceComponent.getRealmService();
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
-                userRealm.getUserStoreManager().addUser(userName, credential, roles, claims, profile);
+                userRealm.getUserStoreManager().updateCredential(userName, newCredential, oldCredential);
             } catch (UserStoreException e) {
-                throw new WorkflowException("Error when re-requesting addUser operation for " + userName, e);
+                throw new WorkflowException("Error when re-requesting update credentials operation for " + userName, e);
             }
         } else {
             if (retryNeedAtCallback()) {
@@ -141,8 +95,25 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
             }
             if (log.isDebugEnabled()) {
                 log.debug(
-                        "Adding user is aborted for user '" + userName + "', Reason: Workflow response was " + status);
+                        "Updating credentials for user '" + userName + "', Reason: Workflow response" + " was " +
+                                status);
             }
         }
+
+    }
+
+    @Override
+    public boolean retryNeedAtCallback() {
+        return true;
+    }
+
+    @Override
+    public String getEventId() {
+        return UserStoreWFConstants.CHANGE_USER_CREDENTIAL_EVENT;
+    }
+
+    @Override
+    public Map<String, String> getParamDefinitions() {
+        return PARAM_DEFINITION;
     }
 }
