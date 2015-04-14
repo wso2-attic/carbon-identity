@@ -100,6 +100,7 @@
                             <bundles>
                                 <bundleDef>org.wso2.apache.directory:apacheds</bundleDef>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.ldap.server</bundleDef>
+                                <bundleDef>commons-io.wso2:commons-io</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.core.server:${carbon.kernel.version}
