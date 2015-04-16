@@ -85,6 +85,13 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
     @Override
     public boolean doPreSetUserClaimValue(String s, String s1, String s2, String s3, UserStoreManager
             userStoreManager) throws UserStoreException {
+        String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                .PROPERTY_DOMAIN_NAME);
+        try {
+            return new SetUserClaimWFRequestHandler().startSetClaimWorkflow(domain, s, s1, s2, s3);
+        } catch (WorkflowException e) {
+            log.error("Initiating workflow failed for setting claim " + s1 + "=" + s2 + " of user: " + s, e);
+        }
         return true;
     }
 
