@@ -66,6 +66,10 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                 && request.getParameter(OIDCAuthenticatorConstants.OAUTH2_PARAM_STATE) != null
                 && OIDCAuthenticatorConstants.LOGIN_TYPE.equals(getLoginType(request))) {
             return true;
+        } else if (request.getParameter(OIDCAuthenticatorConstants.OAUTH2_PARAM_STATE) != null &&
+                   request.getParameter(OIDCAuthenticatorConstants.OAUTH2_ERROR) != null) {
+            //if sends error like access_denied
+            return true;
         }
         // TODO : What if IdP failed?
 

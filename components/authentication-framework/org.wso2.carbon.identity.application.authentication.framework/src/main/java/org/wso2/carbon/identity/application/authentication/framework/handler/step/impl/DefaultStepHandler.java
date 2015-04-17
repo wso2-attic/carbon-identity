@@ -338,6 +338,7 @@ public class DefaultStepHandler implements StepHandler {
 
         SequenceConfig sequenceConfig = context.getSequenceConfig();
         int currentStep = context.getCurrentStep();
+        boolean isNoneCanHandle = true;
         StepConfig stepConfig = sequenceConfig.getStepMap().get(currentStep);
 
         for (AuthenticatorConfig authenticatorConfig : stepConfig.getAuthenticatorList()) {
@@ -348,6 +349,7 @@ public class DefaultStepHandler implements StepHandler {
             if (authenticator != null && authenticator.canHandle(request)
                     && (context.getCurrentAuthenticator() == null || authenticator.getName()
                     .equals(context.getCurrentAuthenticator()))) {
+                isNoneCanHandle = false;
 
                 if (log.isDebugEnabled()) {
                     log.debug(authenticator.getName() + " can handle the request.");
@@ -357,7 +359,9 @@ public class DefaultStepHandler implements StepHandler {
                 break;
             }
         }
-        // TODO: What if none canHandle?
+        if (isNoneCanHandle) {
+            throw new FrameworkException("No authenticator can handle the request in step :  " + currentStep);
+        }
     }
 
     protected void doAuthentication(HttpServletRequest request, HttpServletResponse response,
