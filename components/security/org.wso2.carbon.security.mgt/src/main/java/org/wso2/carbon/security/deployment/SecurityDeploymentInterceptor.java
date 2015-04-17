@@ -193,11 +193,14 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
         }
         if (eventType == AxisEvent.SERVICE_DEPLOY) {
             try {
-                Resource resource = getService(axisService);
-                if (resource == null) {
-                    servicePersistenceManager.handleNewServiceAddition(axisService);
-                } else {
-                    servicePersistenceManager.handleExistingServiceInit(resource, axisService);
+
+                if(axisService.getName().contains("org.wso2.carbon.sts")) {
+                    Resource resource = getService(axisService);
+                    if (resource == null) {
+                        servicePersistenceManager.handleNewServiceAddition(axisService);
+                    } else {
+                        servicePersistenceManager.handleExistingServiceInit(resource, axisService);
+                    }
                 }
             } catch (RegistryException e) {
                 throw new RuntimeException(
