@@ -107,6 +107,7 @@
                             org.wso2.carbon.core.*,
                             org.wso2.carbon.registry.core.*,
                             org.wso2.carbon.security.keystore.*,
+                            org.apache.commons.lang.StringUtils,
                             org.wso2.carbon.security.keystore.service.*,
                             org.wso2.carbon.security.util.*,
                             org.wso2.carbon.utils.*,
