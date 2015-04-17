@@ -31,23 +31,26 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.RegistryResources;
+import org.wso2.carbon.core.util.SystemFilter;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.ResourceImpl;
+import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.security.SecurityConstants;
 import org.wso2.carbon.security.SecurityScenario;
 import org.wso2.carbon.security.SecurityScenarioDatabase;
 import org.wso2.carbon.security.SecurityServiceHolder;
+import org.wso2.carbon.security.persistence.ServicePersistenceManager;
 import org.wso2.carbon.security.util.XmlConfiguration;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 import org.wso2.carbon.utils.PreAxisConfigurationPopulationObserver;
-import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -76,19 +79,20 @@ import java.util.Iterator;
 
 public class SecurityDeploymentInterceptor implements AxisObserver {
     private static final Log log = LogFactory.getLog(SecurityDeploymentInterceptor.class);
+    private Registry configRegistry;
+    private int tenantId = MultitenantConstants.INVALID_TENANT_ID;
+    private String tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+    private AxisConfiguration axisConfig;
+    private ServicePersistenceManager servicePersistenceManager;
 
+    protected void activate(ComponentContext context) {
 
-    protected void activate(ComponentContext ctxt) {
-        BundleContext bundleCtx = ctxt.getBundleContext();
+        BundleContext bundleCtx = context.getBundleContext();
         try {
-            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-            carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
-            carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
-
-            loadSecurityScenarios(SecurityServiceHolder.getRegistryService().getConfigSystemRegistry(),
-                    bundleCtx);
+            loadSecurityScenarios(SecurityServiceHolder.getRegistryService().getConfigSystemRegistry(),bundleCtx);
+            configRegistry = SecurityServiceHolder.getRegistry();
         } catch (Exception e) {
-            String msg = "Cannot load security scenarios";
+            String msg = "Error occurred while loading security scenarios";
             log.error(msg, e);
             throw new RuntimeException(msg, e);
         }
@@ -96,7 +100,7 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
         try {
             addKeystores();
         } catch (Exception e) {
-            String msg = "Cannot add keystores";
+            String msg = "Error occurred while adding keystores";
             log.error(msg, e);
             throw new RuntimeException(msg, e);
         }
@@ -124,11 +128,57 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
     }
 
     public void init(AxisConfiguration axisConfig) {
-
+        this.axisConfig = axisConfig;
+        extractTenantInfo(axisConfig);
+        try {
+            servicePersistenceManager = new ServicePersistenceManager(axisConfig);
+        } catch (Exception e) {
+            log.error("Error occurred while creating service persistence manager", e);
+        }
     }
 
-    public void moduleUpdate(AxisEvent event, AxisModule module) {
-        // This method will not be used
+    private void extractTenantInfo(AxisConfiguration axisConfig) {
+        PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+        tenantId = carbonContext.getTenantId();
+        tenantDomain = carbonContext.getTenantDomain();
+    }
+
+    public void moduleUpdate(AxisEvent axisEvent, AxisModule axisModule) {
+
+            String moduleName = axisModule.getName();
+
+            // Handle.MODULE_DEPLOY event. This may be a new or existing module
+            if (axisEvent.getEventType() == AxisEvent.MODULE_DEPLOY) {
+                String moduleVersion;
+                if (axisModule.getVersion() == null) {
+                    moduleVersion = RegistryResources.ModuleProperties.UNDEFINED;
+                } else {
+                    moduleVersion = axisModule.getVersion().toString();
+                }
+
+                Resource module = null;
+                try {
+                    module = new ServicePersistenceManager().getModule(moduleName, moduleVersion);
+                } catch (Exception e) {
+                    log.error("Couldn't read the module resource", e);
+                }
+
+                if (module != null) {
+                    try {
+                        new ServicePersistenceManager().handleExistingModuleInit(module, axisModule);
+                    } catch (Exception e) {
+                        log.error("Could not handle initialization of existing module", e);
+                    }
+                    module.discard();
+                } else { // this is a new module which has not been registered in the DB yet
+                    try {
+                        new ServicePersistenceManager().handleNewModuleAddition(axisModule, moduleName,
+                                moduleVersion);
+                    } catch (Exception e) {
+                        log.error("Could not handle addition of new module", e);
+                    }
+                }
+        }
     }
 
     public void serviceGroupUpdate(AxisEvent event, AxisServiceGroup serviceGroup) {
@@ -136,34 +186,63 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
     }
 
     public void serviceUpdate(AxisEvent axisEvent, AxisService axisService) {
+
         int eventType = axisEvent.getEventType();
-        String serviceGroupId = axisService.getAxisServiceGroup().getServiceGroupName();
-
+        if (SystemFilter.isFilteredOutService((AxisServiceGroup) axisService.getParent())) {
+            return;
+        }
         if (eventType == AxisEvent.SERVICE_DEPLOY) {
-
-        } else if (eventType == AxisEvent.SERVICE_REMOVE) {
-
             try {
-                //TODO: https://wso2.org/jira/browse/WSAS-1602
-//				UserRealm userRealm = SecurityServiceHolder.getRegistryService().getUserRealm(
-//						tenantId);
-//				AuthorizationManager acAdmin = userRealm.getAuthorizationManager();
-//				String resourceName = serviceGroupId + "/" + axisService.getName();
-//				String[] roles = acAdmin.getAllowedRolesForResource(resourceName,
-//						UserCoreConstants.INVOKE_SERVICE_PERMISSION);
-//				for (int i = 0; i < roles.length; i++) {
-//					acAdmin.clearRoleAuthorization(roles[i], resourceName,
-//							UserCoreConstants.INVOKE_SERVICE_PERMISSION);
-//				}
+                Resource resource = getService(axisService);
+                if (resource == null) {
+                    servicePersistenceManager.handleNewServiceAddition(axisService);
+                } else {
+                    servicePersistenceManager.handleExistingServiceInit(resource, axisService);
+                }
+            } catch (RegistryException e) {
+                throw new RuntimeException(
+                        "Error while adding service resource " + axisService.getName() + "resources to registry.");
             } catch (Exception e) {
                 throw new RuntimeException(
-                        "Error while removing security while undeploying the service "
-                                + axisService.getName(), e);
+                        "Error while adding service resource " + axisService.getName() + "resources to registry.");
             }
-        }
+        } else if (eventType == AxisEvent.SERVICE_REMOVE) {
 
+        }
     }
 
+    /**
+     * Get Service as a resource from conf registry
+     *
+     * @param axisService Axis Service
+     * @return Registry resource
+     * @throws Exception
+     */
+    private Resource getService(AxisService axisService) throws Exception {
+
+        String serviceResourcePath =
+                RegistryResources.SERVICE_GROUPS + axisService.getAxisServiceGroup().getServiceGroupName()
+                        + RegistryResources.SERVICES + axisService.getName();
+        configRegistry = SecurityServiceHolder.getRegistry();
+        if (configRegistry.resourceExists(serviceResourcePath)) {
+            Resource resource = configRegistry.get(serviceResourcePath);
+            if (resource.getProperty(RegistryResources.SUCCESSFULLY_ADDED) != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Successfully retrieved resource for " + axisService.getName() + " Service");
+                }
+                return resource;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Load Security scenario
+     *
+     * @param registry      Registry
+     * @param bundleContext Bundle context
+     * @throws Exception
+     */
     private void loadSecurityScenarios(Registry registry,
                                        BundleContext bundleContext) throws Exception {
 
@@ -232,7 +311,13 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
         }
     }
 
+    /**
+     * Add Key stores to governance registry
+     *
+     * @throws Exception
+     */
     private void addKeystores() throws Exception {
+
         Registry registry = SecurityServiceHolder.getRegistryService().getGovernanceSystemRegistry();
         try {
             boolean transactionStarted = Transaction.isStarted();
@@ -256,10 +341,6 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
             registry.rollbackTransaction();
             throw e;
         }
-    }
-
-    private void applySecurityParameters(AxisService service, SecurityScenario secScenario) {
-
     }
 
     public void addParameter(Parameter param) throws AxisFault {

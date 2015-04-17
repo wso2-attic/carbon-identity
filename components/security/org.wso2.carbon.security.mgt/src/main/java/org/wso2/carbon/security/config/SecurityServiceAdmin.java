@@ -17,27 +17,26 @@
 */
 package org.wso2.carbon.security.config;
 
-import org.apache.axiom.om.OMAbstractFactory;
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.OMFactory;
-import org.apache.axiom.om.util.UUIDGenerator;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.description.*;
 import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.neethi.Policy;
+import org.apache.ws.security.util.UUIDGenerator;
 import org.wso2.carbon.core.RegistryResources;
-import org.wso2.carbon.core.Resources;
-import org.wso2.carbon.core.persistence.PersistenceFactory;
-import org.wso2.carbon.core.persistence.PersistenceUtils;
-import org.wso2.carbon.core.persistence.file.ModuleFilePersistenceManager;
-import org.wso2.carbon.core.persistence.file.ServiceGroupFilePersistenceManager;
 import org.wso2.carbon.registry.core.Registry;
+import org.wso2.carbon.registry.core.Resource;
+import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
+import org.wso2.carbon.security.SecurityServiceHolder;
 import org.wso2.carbon.utils.ServerException;
 
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -45,102 +44,50 @@ public class SecurityServiceAdmin {
 
     private static Log log = LogFactory.getLog(SecurityServiceAdmin.class);
     protected AxisConfiguration axisConfig = null;
-    private PersistenceFactory persistenceFactory;
+    private Registry registry = null;
 
-    private ServiceGroupFilePersistenceManager serviceGroupFilePM;
+    public SecurityServiceAdmin(AxisConfiguration config) {
 
-    private ModuleFilePersistenceManager moduleFilePM;
-
-    public SecurityServiceAdmin(AxisConfiguration config) throws ServerException {
         this.axisConfig = config;
-        try {
-            persistenceFactory = PersistenceFactory.getInstance(config);
-            serviceGroupFilePM = persistenceFactory.getServiceGroupFilePM();
-            moduleFilePM = persistenceFactory.getModuleFilePM();
-        } catch (Exception e) {
-            log.error("Error creating an PersistenceFactory instance", e);
-            throw new ServerException("Error creating an PersistenceFactory instance", e);
-        }
+        this.registry = SecurityServiceHolder.getRegistry();
     }
 
     public SecurityServiceAdmin(AxisConfiguration config, Registry registry) {
+
         this.axisConfig = config;
-        try {
-            persistenceFactory = PersistenceFactory.getInstance(config);
-            serviceGroupFilePM = persistenceFactory.getServiceGroupFilePM();
-            moduleFilePM = persistenceFactory.getModuleFilePM();
-        } catch (Exception e) {
-            log.error("Error creating an PersistenceFactory instance", e);
-        }
+        this.registry = SecurityServiceHolder.getRegistry();
     }
 
     /**
-     * This method add Policy to service at the Registry. Does not add the
-     * policy to Axis2. To all Bindings available
+     * Add security policy to all bindings
      *
-     * @param axisService Service
-     * @param policy      Policy
-     * @throws org.wso2.carbon.utils.ServerException se
+     * @param axisService Axis service
+     * @param policy      Security Policy
+     * @throws ServerException
      */
-    public void addSecurityPolicyToAllBindings(AxisService axisService, Policy policy)
-            throws ServerException {
-        String serviceGroupId = axisService.getAxisServiceGroup().getServiceGroupName();
-        boolean isProxyService = PersistenceUtils.isProxyService(axisService);
+    public void addSecurityPolicyToAllBindings(AxisService axisService, Policy policy) throws ServerException {
+
         try {
             if (policy.getId() == null) {
-                // Generate an ID
                 policy.setId(UUIDGenerator.getUUID());
             }
-            boolean transactionStarted = serviceGroupFilePM.isTransactionStarted(serviceGroupId);
-            if (!transactionStarted) {
-                serviceGroupFilePM.beginTransaction(serviceGroupId);
-            }
+            this.registry = SecurityServiceHolder.getRegistry();
+            String servicePath = getRegistryServicePath(axisService);
 
-            OMFactory omFactory = OMAbstractFactory.getOMFactory();
-            String serviceXPath = PersistenceUtils.getResourcePath(axisService);
+            String policyResourcePath = servicePath + RegistryResources.POLICIES + policy.getId();
+            if (!registry.resourceExists(policyResourcePath)) {
 
-            String policiesXPath = serviceXPath + "/" + Resources.POLICIES;
-
-            String policyResourcePath = policiesXPath +
-                    "/" + Resources.POLICY +
-                    PersistenceUtils.getXPathTextPredicate(Resources.ServiceProperties.POLICY_UUID, policy.getId());
-            if (!serviceGroupFilePM.elementExists(serviceGroupId, policyResourcePath)) {
-
-//            todo use persistenceFactory.getServicePM().persistServicePolicy method instead of below code chunk - kasung
-
-                OMElement policyWrapperElement = omFactory.createOMElement(Resources.POLICY, null);
-                policyWrapperElement.addAttribute(Resources.ServiceProperties.POLICY_TYPE,
-                        "" + PolicyInclude.BINDING_POLICY, null);
-
-                OMElement idElement = omFactory.createOMElement(Resources.ServiceProperties.POLICY_UUID, null);
-                idElement.setText("" + policy.getId());
-                policyWrapperElement.addChild(idElement);
-
-                OMElement policyElementToPersist = PersistenceUtils.createPolicyElement(policy);
-                policyWrapperElement.addChild(policyElementToPersist);
-
-                if (!serviceGroupFilePM.elementExists(serviceGroupId, policiesXPath)) {
-                    serviceGroupFilePM.put(serviceGroupId,
-                            omFactory.createOMElement(Resources.POLICIES, null), serviceXPath);
-                }
-                serviceGroupFilePM.put(serviceGroupId, policyWrapperElement, policiesXPath);
-
-//           todo the old impl doesn't add the policyUUID to the binding elements. Is it ok?
-//            if (!serviceGroupFilePM.elementExists(serviceGroupId, serviceXPath+
-//                    PersistenceUtils.getXPathTextPredicate(
-//                            Resources.ServiceProperties.POLICY_UUID, policy.getId() ))) {
-//                serviceGroupFilePM.put(serviceGroupId, idElement.cloneOMElement(), serviceXPath); + path to bindings?
-//            }
-            }
-
-            //to registry if proxy
-            if (isProxyService) {
-                String registryServicePath = RegistryResources.SERVICE_GROUPS
-                        + axisService.getAxisServiceGroup().getServiceGroupName()
-                        + RegistryResources.SERVICES + axisService.getName();
-
-                persistenceFactory.getServicePM().persistPolicyToRegistry(policy,
-                        "" + PolicyInclude.BINDING_POLICY, registryServicePath);
+                Resource policyResource = registry.newResource();
+                policyResource.setProperty(RegistryResources.ServiceProperties.POLICY_UUID, policy.getId());
+                //TODO check with registry team, do a performance improvement
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(baos);
+                policy.serialize(writer);
+                writer.flush();
+                policyResource.setContent(baos.toString());
+                policyResource.setProperty(RegistryResources.ServiceProperties.POLICY_TYPE,
+                        "" + PolicyInclude.BINDING_POLICY);
+                registry.put(policyResourcePath, policyResource);
             }
 
             Map endPointMap = axisService.getEndpoints();
@@ -149,131 +96,143 @@ public class SecurityServiceAdmin {
                 Map.Entry entry = (Map.Entry) o;
                 AxisEndpoint point = (AxisEndpoint) entry.getValue();
                 AxisBinding binding = point.getBinding();
-                String bindingName = binding.getName().getLocalPart();
-
-                //only UTOverTransport is allowed for HTTP
-                if (bindingName.endsWith("HttpBinding") &&
-                        (!policy.getAttributes().containsValue("UTOverTransport"))) {
-                    continue;
-                }
-
                 binding.getPolicySubject().attachPolicy(policy);
+                String bindingName = binding.getName().getLocalPart();
                 if (lst.contains(bindingName)) {
                     continue;
                 } else {
                     lst.add(bindingName);
                 }
-                // Add the new policy to the registry
             }
-            Iterator<String> ite = lst.iterator();
-            while (ite.hasNext()) {
-                String bindingName = ite.next();
 
-                //only UTOverTransport is allowed for HTTP
-                if (bindingName.endsWith("HttpBinding") &&
-                        (!policy.getAttributes().containsValue("UTOverTransport"))) {
-                    continue;
+            boolean transactionStarted = Transaction.isStarted();
+            if (!transactionStarted) {
+                registry.beginTransaction();
+            }
+
+            for (String bindingName : lst) {
+                String bindingResourcePath = servicePath + RegistryResources.ServiceProperties.BINDINGS + bindingName;
+                Resource bindingResource;
+                if (registry.resourceExists(bindingResourcePath)) {
+                    bindingResource = registry.get(bindingResourcePath);
+                } else {
+                    bindingResource = registry.newResource();
                 }
-
-                String bindingElementPath = serviceXPath +
-                        "/" + Resources.ServiceProperties.BINDINGS +
-                        "/" + Resources.ServiceProperties.BINDING_XML_TAG +
-                        PersistenceUtils.getXPathAttrPredicate(Resources.NAME, bindingName);
-
-                if (!serviceGroupFilePM.elementExists(serviceGroupId, bindingElementPath +
-                        "/" + Resources.ServiceProperties.POLICY_UUID +
-                        PersistenceUtils.getXPathTextPredicate(null, policy.getId()))) {
-
-                    OMElement bindingElement;
-                    if (serviceGroupFilePM.elementExists(serviceGroupId, bindingElementPath)) {
-                        bindingElement = (OMElement) serviceGroupFilePM.get(serviceGroupId, bindingElementPath);
-                    } else {
-                        bindingElement = omFactory.createOMElement(Resources.ServiceProperties.BINDINGS, null);
-                    }
-
-                    OMElement idElement = omFactory.createOMElement(Resources.ServiceProperties.POLICY_UUID, null);
-                    idElement.setText("" + policy.getId());
-                    bindingElement.addChild(idElement.cloneOMElement());
-
-                    serviceGroupFilePM.put(serviceGroupId, bindingElement, serviceXPath + "/" + Resources.ServiceProperties.BINDINGS);
-                }
+                bindingResource.addProperty(RegistryResources.ServiceProperties.POLICY_UUID, policy.getId());
+                registry.put(bindingResourcePath, bindingResource);
             }
             if (!transactionStarted) {
-                serviceGroupFilePM.commitTransaction(serviceGroupId);
+                registry.commitTransaction();
             }
-            // at axis2
-        } catch (Exception e) {
-            log.error(e);
-            serviceGroupFilePM.rollbackTransaction(serviceGroupId);
-            throw new ServerException("addPoliciesToService");
+        } catch (RegistryException e) {
+            try {
+                registry.rollbackTransaction();
+            } catch (Exception ex) {
+                throw new ServerException("Error occurred while rollback transaction", ex);
+            }
+            throw new ServerException(
+                    "Error occurred while adding security policy to all bindings for service " + axisService.getName(),
+                    e);
+        } catch (XMLStreamException e) {
+            try {
+                registry.rollbackTransaction();
+            } catch (Exception ex) {
+                throw new ServerException("Error occurred while rollback transaction", ex);
+            }
+            throw new ServerException(
+                    "Error occurred while adding security policy to all bindings for service " + axisService.getName(),
+                    e);
         }
     }
 
-    public void removeSecurityPolicyFromAllBindings(AxisService axisService, String uuid)
-            throws ServerException {
-        //todo apparently policyFromRegistry in bindings didn't got removed1 - kasung
-        String serviceGroupId = axisService.getAxisServiceGroup().getServiceGroupName();
-        try {
-            String serviceXPath = PersistenceUtils.getResourcePath(axisService);
+    /**
+     * Get registry service path
+     *
+     * @param service Axis service
+     * @return Registry service path
+     */
+    private String getRegistryServicePath(AxisService service) {
 
+        return RegistryResources.SERVICE_GROUPS + service.getAxisServiceGroup().getServiceGroupName() +
+                RegistryResources.SERVICES + service.getName();
+    }
+
+    /**
+     * Remove security policy
+     *
+     * @param axisService Axis service
+     * @param uuid        UUID
+     * @throws ServerException
+     */
+    public void removeSecurityPolicyFromAllBindings(AxisService axisService, String uuid) throws ServerException {
+
+        try {
+            String servicePath = getRegistryServicePath(axisService);
             Map endPointMap = axisService.getEndpoints();
             List<String> lst = new ArrayList<String>();
             for (Object o : endPointMap.entrySet()) {
                 Map.Entry entry = (Map.Entry) o;
                 AxisEndpoint point = (AxisEndpoint) entry.getValue();
                 AxisBinding binding = point.getBinding();
-                if (binding.getPolicySubject().getAttachedPolicyComponent(uuid) != null) {
-                    binding.getPolicySubject().detachPolicyComponent(uuid);
-                    String bindingName = binding.getName().getLocalPart();
-                    if (lst.contains(bindingName)) {
-                        continue;
-                    } else {
-                        lst.add(bindingName);
-                    }
+                binding.getPolicySubject().detachPolicyComponent(uuid);
+                String bindingName = binding.getName().getLocalPart();
+
+                if (lst.contains(bindingName)) {
+                    continue;
+                } else {
+                    lst.add(bindingName);
                 }
-                // Add the new policy to the registry
             }
-            boolean transactionStarted = serviceGroupFilePM.isTransactionStarted(serviceGroupId);
+
+            boolean transactionStarted = Transaction.isStarted();
             if (!transactionStarted) {
-                serviceGroupFilePM.beginTransaction(serviceGroupId);
+                registry.beginTransaction();
             }
+
             for (String bindingName : lst) {
-                String bindingElementPath = serviceXPath +
-                        "/" + Resources.ServiceProperties.BINDINGS +
-                        "/" + Resources.ServiceProperties.BINDING_XML_TAG +
-                        PersistenceUtils.getXPathAttrPredicate(Resources.NAME, bindingName);
-                serviceGroupFilePM.delete(serviceGroupId, bindingElementPath +
-                        "/" + Resources.ServiceProperties.POLICY_UUID +
-                        PersistenceUtils.getXPathTextPredicate(null, uuid));
+                String bindingResourcePath = servicePath + RegistryResources.ServiceProperties.BINDINGS + bindingName;
+                Resource bindingResource = registry.get(bindingResourcePath);
+                List uuids = bindingResource.getPropertyValues(RegistryResources.ServiceProperties.POLICY_UUID);
+                uuids.remove(uuid);
+                bindingResource.setProperty(RegistryResources.ServiceProperties.POLICY_UUID, uuids);
+                registry.put(bindingResourcePath, bindingResource);
             }
             if (!transactionStarted) {
-                serviceGroupFilePM.commitTransaction(serviceGroupId);
+                registry.commitTransaction();
             }
-            // at axis2
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            serviceGroupFilePM.rollbackTransaction(serviceGroupId);
-            throw new ServerException("addPoliciesToService");
+        } catch (RegistryException e) {
+            try {
+                registry.rollbackTransaction();
+            } catch (Exception ex) {
+                log.error("Error occurred while rolling back transaction", ex);
+            }
+            String error = "Error occurred while removing security policy from all bindings for service " + axisService
+                    .getName();
+            throw new ServerException(error, e);
         }
     }
 
-    public void setServiceParameterElement(String serviceName, Parameter parameter)
-            throws AxisFault {
-        AxisService axisService = axisConfig.getService(serviceName);
+    /**
+     * Set service parameter element
+     *
+     * @param serviceName Axis service name
+     * @param parameter   Parameters
+     * @throws AxisFault
+     */
+    public void setServiceParameterElement(String serviceName, Parameter parameter) throws AxisFault {
 
+        AxisService axisService = axisConfig.getService(serviceName);
         if (axisService == null) {
             throw new AxisFault("Invalid service name '" + serviceName + "'");
         }
-
-        Parameter p = axisService.getParameter(parameter.getName());
-        if (p != null) {
-            if (!p.isLocked()) {
+        Parameter serviceParameter = axisService.getParameter(parameter.getName());
+        if (serviceParameter != null) {
+            if (!serviceParameter.isLocked()) {
                 axisService.addParameter(parameter);
             }
         } else {
             axisService.addParameter(parameter);
         }
-
     }
 
 }

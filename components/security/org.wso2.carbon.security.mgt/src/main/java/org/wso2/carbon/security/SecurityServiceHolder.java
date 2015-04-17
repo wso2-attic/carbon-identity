@@ -18,6 +18,9 @@
 package org.wso2.carbon.security;
 
 import org.apache.axis2.context.ConfigurationContext;
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.RegistryType;
+import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.service.RegistryService;
@@ -40,7 +43,7 @@ public class SecurityServiceHolder {
 
     }
 
-    public static RegistryService getRegistryService() throws Exception {
+    public static RegistryService getRegistryService() throws RegistryException {
         return registryService;
     }
 
@@ -48,13 +51,12 @@ public class SecurityServiceHolder {
         SecurityServiceHolder.registryService = registryService;
     }
 
-    public static Registry getRegistry() throws Exception {
-        if (registryService == null) {
-            throw new SecurityConfigException("Registry Service is null");
-        }
+    public static Registry getRegistry()  {
+        return (Registry)CarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_CONFIGURATION);
+    }
 
-        return registryService.getConfigSystemRegistry();
-
+    public static Registry getRegistry(int tenantId) throws Exception {
+        return (Registry)CarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_CONFIGURATION);
     }
 
     public static RealmService getRealmService() throws Exception {
