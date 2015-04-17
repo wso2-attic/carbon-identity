@@ -547,7 +547,9 @@ public class SCIMUserManager implements UserManager {
             Set<String> roleNames = groupHandler.listSCIMRoles();
             for (String roleName : roleNames) {
                 Group group = this.getGroupWithName(roleName);
-                groupList.add(group);
+                if (group.getId() != null) {
+                    groupList.add(group);
+                }
             }
         } catch (org.wso2.carbon.user.core.UserStoreException e) {
             String errMsg = "Error in obtaining role names from user store.";
