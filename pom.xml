@@ -518,7 +518,7 @@
             <dependency>
                 <groupId>commons-fileupload.wso2</groupId>
                 <artifactId>commons-fileupload</artifactId>
-                <version>${orbit.version.commons.fileuploader}</version>
+                <version>${commons-fileupload.wso2.version}</version>
             </dependency>
 
             <dependency>
@@ -710,7 +710,6 @@
                 <groupId>commons-io.wso2</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commons-io.wso2.version}</version>
-
             </dependency>
 
             <dependency>
@@ -1976,7 +1975,8 @@
         <activation.version>1.1</activation.version>
         <javamail.version>1.4</javamail.version>
         <wss4j.version>1.5.11.wso2v10-SNAPSHOT</wss4j.version>
-        <imp.pkg.version.wss4j>[1.4.2.patched,1.5.0)</imp.pkg.version.wss4j>
+        <wss4j.xml.security.imp.pkg.version.range>[1.4.2.patched,1.5.0)</wss4j.xml.security.imp.pkg.version.range>
+        <wss4j.ws.security.imp.pkg.version.range>[1.5.11.wso2v9,1.6.0)</wss4j.ws.security.imp.pkg.version.range>
         <wsdl4j.wso2.version>1.6.2.wso2v4</wsdl4j.wso2.version>
         <jetty.version>6.1.5</jetty.version>
         <xml-apis.version>1.3.04</xml-apis.version>
@@ -2026,6 +2026,7 @@
         <!-- Equinox -->
         <version.equinox.osgi.services>3.3.100.v20130513-1956</version.equinox.osgi.services>
         <version.equinox.osgi>3.9.1.v20130814-1242</version.equinox.osgi>
+        <equinox.osgi.stax-api.imp.pkg.version.range>[1.0.1,1.1.0)</equinox.osgi.stax-api.imp.pkg.version.range>
 
         <!-- Commons -->
         <commons-beanutils.version>1.8.0</commons-beanutils.version>
@@ -2034,7 +2035,8 @@
         <orbit.version.commons.beanutils>1.8.0.wso2v1</orbit.version.commons.beanutils>
         <commons-io.wso2.version>2.4.0.wso2v1</commons-io.wso2.version>
         <commons.io.wso2.osgi.version.range>[2.4.0,2.5.0)</commons.io.wso2.osgi.version.range>
-        <commons-fileupload.version>1.1.1</commons-fileupload.version>
+        <commons-fileupload.wso2.version>1.2.2.wso2v1</commons-fileupload.wso2.version>
+        <commons-fileupload.imp.pkg.version.range>[1.2.2,1.3.0)</commons-fileupload.imp.pkg.version.range>
         <commons-httpclient.wso2.version>3.1.0.wso2v2</commons-httpclient.wso2.version>
         <commons-httpclient.wso2.osgi.version>[3.1.0,3.2.0)</commons-httpclient.wso2.osgi.version>
         <commons-dbcp.version>1.2.2</commons-dbcp.version>
@@ -2052,7 +2054,6 @@
         <libthrift.wso2.version>0.8.0.wso2v1</libthrift.wso2.version>
         <libthrift.wso2.osgi.version.range>[0.8.0.wso2v1,0.9.0)</libthrift.wso2.osgi.version.range>
         <log4j.version>1.2.13</log4j.version>
-        <orbit.version.commons.fileuploader>1.2.0.wso2v1</orbit.version.commons.fileuploader>
         <opensaml2.wso2.version>2.4.1.wso2v1</opensaml2.wso2.version>
         <opensaml2.wso2.osgi.version.range>[2.4.1.wso2v1,2.5.0)</opensaml2.wso2.osgi.version.range>
         <commons-codec.version>1.4.0.wso2v1</commons-codec.version>
@@ -2073,6 +2074,7 @@
         <openid4java.wso2.osgi.version.range>[0.9.6.wso2v2,0.10)</openid4java.wso2.osgi.version.range>
         <opensaml.wso2.version>1.1.0.wso2v1</opensaml.wso2.version>
         <balana.version>1.0.0.wso2v9-SNAPSHOT</balana.version>
+        <balana.imp.pkg.version.range>[1.0.0.wso2v8,1.1.0)</balana.imp.pkg.version.range>
         <gdata-core.wso2.version>1.47.0.wso2v1</gdata-core.wso2.version>
         <smack.wso2.version>3.0.4.wso2v1</smack.wso2.version>
         <smackx.wso2.version>3.0.4.wso2v1</smackx.wso2.version>

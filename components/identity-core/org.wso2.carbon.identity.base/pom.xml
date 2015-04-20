@@ -77,7 +77,7 @@
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
                             org.apache.neethi; version="${neethi.osgi.version.range}",
                             org.apache.rampart.policy.model; version="${rampart.wso2.osgi.version.range}",
-                            org.apache.ws.security; version="${imp.pkg.version.wss4j}",
+                            org.apache.ws.security; version="${wss4j.ws.security.imp.pkg.version.range}",
 
                             org.wso2.carbon.base; version="${carbon.base.imp.pkg.version.range}"
                         </Import-Package>

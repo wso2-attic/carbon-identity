@@ -86,11 +86,6 @@
                         <Private-Package>
                             org.wso2.carbon.directory.server.manager.internal
                         </Private-Package>
-                        <Export-Package>
-                            !org.wso2.carbon.directory.server.manager.internal,
-                            org.wso2.carbon.directory.server.manager;
-                            version="${carbon.identity.package.export.version}"
-                        </Export-Package>
                         <Import-Package>
                             javax.naming.*,
                             org.apache.axiom.om.util; version="${axiom.osgi.version.range}",
@@ -101,6 +96,11 @@
                             org.wso2.carbon.directory.server.manager.common;
                             version="${carbon.identity.package.import.version.range}",
                         </Import-Package>
+                        <Export-Package>
+                            !org.wso2.carbon.directory.server.manager.internal,
+                            org.wso2.carbon.directory.server.manager;
+                            version="${carbon.identity.package.export.version}"
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

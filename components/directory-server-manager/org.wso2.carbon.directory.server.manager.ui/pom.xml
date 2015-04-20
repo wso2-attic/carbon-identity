@@ -61,10 +61,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
-                        <Export-Package>
-                            org.wso2.carbon.directory.server.manager.ui.*;
-                            version="${carbon.identity.package.export.version}",
-                        </Export-Package>
                         <Import-Package>
                             org.apache.axis2.*; version="${axis2.osgi.version.range}",
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
@@ -73,6 +69,10 @@
                             org.wso2.carbon.directory.server.manager.stub;
                             version="${carbon.identity.package.import.version.range}",
                         </Import-Package>
+                        <Export-Package>
+                            org.wso2.carbon.directory.server.manager.ui.*;
+                            version="${carbon.identity.package.export.version}",
+                        </Export-Package>
                         <Carbon-Component>UIBundle</Carbon-Component>
                     </instructions>
                 </configuration>

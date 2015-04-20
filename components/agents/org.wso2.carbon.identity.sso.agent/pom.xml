@@ -92,7 +92,7 @@
                             com.google.gson;version="${com.google.code.gson.osgi.version.range}",
                             org.apache.http.conn.ssl; version="${httpcomponents-httpclient.imp.pkg.version.range}",
                             org.apache.xerces.util,
-                            org.apache.xml.security.*; version="${imp.pkg.version.wss4j}",
+                            org.apache.xml.security.*; version="${wss4j.xml.security.imp.pkg.version.range}",
                             org.joda.time;version="${opensaml2.wso2.osgi.version.range}",
                             org.openid4java.*;version="${openid4java.wso2.osgi.version.range}",
                             org.opensaml.*; version="${opensaml2.wso2.osgi.version.range}",

@@ -101,7 +101,7 @@
                             org.apache.commons.logging.*; version="1.0.4",
                             org.apache.rampart.*; version="[${rampart.wso2.version}, 2)",
                             org.apache.rahas.*; version="[1.6.1.wso2v12, 2)",
-                            org.apache.ws.security.*; version="${imp.pkg.version.wss4j}",
+                            org.apache.ws.security.*; version="${wss4j.ws.security.imp.pkg.version.range}",
                             org.wso2.carbon.core.*; version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.user.core,
                             org.wso2.carbon.utils,
