@@ -495,13 +495,12 @@ public class Utils {
             throw new IdentityException(msg, e);
         }
 
-        userName = MultitenantUtils.getTenantAwareUsername(userName);
-
         try {
             if (userStoreManager != null) {
-                String oldValue = userStoreManager.getUserClaimValue(userName, claim, null);
+                String oldValue = userStoreManager.getUserClaimValue(MultitenantUtils.getTenantAwareUsername(userName),
+                        claim, null);
                 if (oldValue == null || !oldValue.equals(value)) {
-                    userStoreManager.setUserClaimValue(userName, claim, value,
+                    userStoreManager.setUserClaimValue(MultitenantUtils.getTenantAwareUsername(userName), claim, value,
                             UserCoreConstants.DEFAULT_PROFILE);
                 }
             }
