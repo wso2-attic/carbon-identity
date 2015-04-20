@@ -79,6 +79,7 @@
                             org.wso2.carbon.identity.mgt.*,
                         </Export-Package>
                         <Import-Package>
+                            org.wso2.carbon.utils.*,
                             !org.wso2.carbon.identity.mgt.*,
                             org.apache.commons.logging.*;
                             version="1.0.4",
