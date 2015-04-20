@@ -24,7 +24,7 @@ import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.application.common.cache.CacheKey;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 
-public class AuthenticationResultCache extends BaseCache<CacheKey, CacheEntry> {
+public class AuthenticationResultCache extends BaseCache<String, CacheEntry> {
 
     private static final String CACHE_NAME = "AuthenticationResultCache";
 
@@ -58,10 +58,9 @@ public class AuthenticationResultCache extends BaseCache<CacheKey, CacheEntry> {
         return instance;
     }
 
-    @Override
     public void addToCache(CacheKey key, CacheEntry entry) {
         if (useCache) {
-            super.addToCache(key, entry);
+            super.addToCache(((AuthenticationResultCacheKey) key).getResultId(), entry);
         }
         if (enableTemporaryCaches) {
             String keyValue = ((AuthenticationResultCacheKey) key).getResultId();
@@ -69,11 +68,10 @@ public class AuthenticationResultCache extends BaseCache<CacheKey, CacheEntry> {
         }
     }
 
-    @Override
     public CacheEntry getValueFromCache(CacheKey key) {
         CacheEntry cacheEntry = null;
         if (useCache) {
-            cacheEntry = super.getValueFromCache(key);
+            cacheEntry = super.getValueFromCache(((AuthenticationResultCacheKey) key).getResultId());
         }
         if (cacheEntry == null) {
             String keyValue = ((AuthenticationResultCacheKey) key).getResultId();
@@ -83,10 +81,9 @@ public class AuthenticationResultCache extends BaseCache<CacheKey, CacheEntry> {
         return cacheEntry;
     }
 
-    @Override
     public void clearCacheEntry(CacheKey key) {
         if (useCache) {
-            super.clearCacheEntry(key);
+            super.clearCacheEntry(((AuthenticationResultCacheKey) key).getResultId());
         }
         if (enableTemporaryCaches) {
             String keyValue = ((AuthenticationResultCacheKey) key).getResultId();

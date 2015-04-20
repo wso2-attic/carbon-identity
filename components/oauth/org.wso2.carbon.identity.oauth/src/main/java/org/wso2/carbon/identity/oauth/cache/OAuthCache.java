@@ -18,35 +18,61 @@
 
 package org.wso2.carbon.identity.oauth.cache;
 
+import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
+import org.wso2.carbon.identity.application.common.cache.BaseCache;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 
-public class OAuthCache extends BaseCache<CacheKey, CacheEntry> {
+public class OAuthCache extends BaseCache<String, CacheEntry> {
 
     private static final String OAUTH_CACHE_NAME = "OAuthCache";
 
-    private static final OAuthCache instance = new OAuthCache(OAUTH_CACHE_NAME);
+    private static volatile OAuthCache instance;
+	private boolean enableRequestScopeCache = false;
 
-    private OAuthCache(String cacheName) {
-        super(cacheName);
+    private OAuthCache(String cacheName, int timeout) {
+        super(cacheName,timeout);
+	    if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
+		    enableRequestScopeCache = Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
+	    }
     }
 
-    public static OAuthCache getInstance() {
+    public static OAuthCache getInstance(int timeout) {
         CarbonUtils.checkSecurity();
+	    if (instance == null) {
+		    synchronized (SessionDataCache.class) {
+			    if (instance == null) {
+				    instance = new OAuthCache(OAUTH_CACHE_NAME, timeout);
+			    }
+		    }
+	    }
         return instance;
     }
 
-    @Override
     public void addToCache(CacheKey key, CacheEntry entry) {
-        super.addToCache(key, entry);
+	    String keyValue = ((OAuthCacheKey)key).getCacheKeyString();
+        super.addToCache(keyValue, entry);
+	    SessionDataStore.getInstance().storeSessionData(keyValue, OAUTH_CACHE_NAME, entry);
+	    if(enableRequestScopeCache){
+		    SessionDataStore.getInstance().storeSessionData(keyValue,OAUTH_CACHE_NAME,entry);
+	    }
     }
 
-    @Override
     public CacheEntry getValueFromCache(CacheKey key) {
-        return super.getValueFromCache(key);
+	    String keyValue = ((OAuthCacheKey)key).getCacheKeyString();
+	    CacheEntry cacheEntry = super.getValueFromCache(keyValue);
+        if(cacheEntry == null){
+	        cacheEntry = (CacheEntry) SessionDataStore.getInstance().getSessionData(keyValue,OAUTH_CACHE_NAME);
+        }
+	    return cacheEntry;
     }
 
-    @Override
     public void clearCacheEntry(CacheKey key) {
-        super.clearCacheEntry(key);
+	    String keyValue = ((OAuthCacheKey)key).getCacheKeyString();
+        super.clearCacheEntry(keyValue);
+	    SessionDataStore.getInstance().clearSessionData(keyValue,OAUTH_CACHE_NAME);
+	    if(enableRequestScopeCache){
+		    SessionDataStore.getInstance().clearSessionData(keyValue,OAUTH_CACHE_NAME);
+	    }
     }
 }

@@ -161,6 +161,7 @@
                             org.apache.axiom.*;
                             version="${axiom.osgi.version.range}",
                             org.wso2.carbon.identity.base.*,
+                            org.wso2.carbon.identity.application.authentication.framework.*,
                             org.wso2.carbon.identity.core.*,
                             *;resolution:=optional
                         </Import-Package>

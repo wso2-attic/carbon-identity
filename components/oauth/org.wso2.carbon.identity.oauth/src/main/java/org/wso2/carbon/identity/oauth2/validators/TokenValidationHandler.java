@@ -177,7 +177,8 @@ public class TokenValidationHandler {
         boolean cacheHit = false;
         // Check the cache, if caching is enabled.
         if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
-            OAuthCache oauthCache = OAuthCache.getInstance();
+            OAuthCache oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance()
+		                                                   .getOAuthCacheTimeout());
             CacheKey cacheKey = new OAuthCacheKey(requestDTO.getAccessToken().getIdentifier());
             CacheEntry result = oauthCache.getValueFromCache(cacheKey);
             // cache hit, do the type check.
@@ -218,7 +219,8 @@ public class TokenValidationHandler {
 
         // Add the token back to the cache in the case of a cache miss
         if (OAuthServerConfiguration.getInstance().isCacheEnabled() && !cacheHit) {
-            OAuthCache oauthCache = OAuthCache.getInstance();
+            OAuthCache oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance()
+		                                                   .getOAuthCacheTimeout());
             CacheKey cacheKey = new OAuthCacheKey(accessTokenIdentifier);
             oauthCache.addToCache(cacheKey, accessTokenDO);
             if (log.isDebugEnabled()) {

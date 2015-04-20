@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth.listener.IdentityOathEventListener;
@@ -51,8 +52,8 @@ public class OAuthServiceComponent {
         if (oauthServerConfig.isCacheEnabled()) {
             log.debug("OAuth Caching is enabled. Initializing the cache.");
             // initialize the cache
-            OAuthCache cache = OAuthCache.getInstance();
-            if (cache != null) {
+	        OAuthCache cache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
+	        if (cache != null) {
                 log.debug("OAuth Cache initialization was successful.");
             } else {
                 log.debug("OAuth Cache initialization was unsuccessful.");

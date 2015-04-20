@@ -20,7 +20,10 @@ package org.wso2.carbon.identity.application.authentication.framework.store;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.identity.application.common.cache.CacheKey;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
@@ -81,7 +84,12 @@ public class SessionDataStore {
         try {
 
             jdbcPersistenceManager = JDBCPersistenceManager.getInstance();
-            enablePersist = Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Enable"));
+	        //this will keep hidden configuration parameters
+	        String enablePersistVal = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Enable");
+	        enablePersist = true;
+	        if(enablePersistVal!=null){
+		        enablePersist = Boolean.parseBoolean(enablePersistVal);
+	        }
             String sqlStore = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.Store");
             String sqlUpdate = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.Update");
             String sqlDelete = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.Delete");
@@ -126,16 +134,18 @@ public class SessionDataStore {
         if (!enablePersist) {
             log.info("Session Data Persistence of Authentication framework is not enabled.");
         }
+	    //this will keep hidden configuration parameters
+	    String isCleanUpEnabledVal = IdentityUtil.getProperty("JDBCPersistenceManager" +
+	                                                          ".SessionDataPersist.CleanUp.Enable");
+	    if (isCleanUpEnabledVal == null) {
+		    isCleanUpEnabledVal = "true";
+	    }
 
-        if (Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.CleanUp.Enable"))) {
-            String sessionCleanupPeriod = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.CleanUp.Period");
-            if (sessionCleanupPeriod == null || sessionCleanupPeriod.trim().length() == 0) {
-                // default period is set to 1 day
-                sessionCleanupPeriod = "1140";
-            }
-            long sessionCleanupTime = Long.parseLong(sessionCleanupPeriod);
-            SessionCleanUpService sessionCleanUpService = new SessionCleanUpService(sessionCleanupTime,
-                    sessionCleanupTime);
+	    if (Boolean.parseBoolean(isCleanUpEnabledVal)) {
+		    long sessionCleanupPeriod = IdentityApplicationManagementUtil.
+				    getCleanUpPeriod(CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
+		    SessionCleanUpService sessionCleanUpService = new SessionCleanUpService(sessionCleanupPeriod,
+		                                                                            sessionCleanupPeriod);
             sessionCleanUpService.activateCleanUp();
         } else {
             log.info("Session Data CleanUp Task of Authentication framework is not enabled.");
@@ -449,4 +459,37 @@ public class SessionDataStore {
         return null;
     }
 
+	public Timestamp getTimeStamp(String key, String type) {
+		boolean isExist = isExist(key, type);
+
+		if (isExist) {
+			Connection connection = null;
+			PreparedStatement preparedStatement = null;
+			ResultSet resultSet = null;
+			Timestamp timestamp = null;
+			try {
+				connection = jdbcPersistenceManager.getDBConnection();
+				connection.setAutoCommit(false);
+				preparedStatement = connection.prepareStatement(SQL_SELECT_TIME_CREATED);
+				preparedStatement.setString(1, key);
+				preparedStatement.setString(2, type);
+				resultSet = preparedStatement.executeQuery();
+				if (resultSet.next()) {
+					timestamp = resultSet.getTimestamp(1);
+					if (preparedStatement != null) {
+						preparedStatement.close();
+					}
+				}
+			} catch (SQLException e) {
+				//ignore
+				log.error("Error while storing session data", e);
+			} catch (IdentityException e) {
+				//ignore
+				log.error("Error while storing session data", e);
+			}
+			return timestamp;
+		} else {
+			return null;
+		}
+	}
 }

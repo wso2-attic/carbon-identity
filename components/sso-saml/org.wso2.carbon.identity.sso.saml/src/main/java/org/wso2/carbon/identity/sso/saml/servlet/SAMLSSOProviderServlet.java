@@ -30,6 +30,7 @@ import org.wso2.carbon.identity.application.authentication.framework.model.Authe
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
@@ -129,11 +130,6 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
         if (ssoTokenIdCookie != null) {
             sessionId = ssoTokenIdCookie.getValue();
-        }
-
-        Cookie rememberMeCookie = getRememberMeCookie(req);
-        if (rememberMeCookie != null) {
-            sessionId = rememberMeCookie.getValue();
         }
 
         String queryString = req.getQueryString();
@@ -387,9 +383,10 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         sessionDTO.setPassiveAuth(signInRespDTO.isPassive());
         sessionDTO.setValidationRespDTO(signInRespDTO);
         sessionDTO.setIdPInitSSO(signInRespDTO.isIdPInitSSO());
-
+        //Used only to share data between framework and sso layer
         String sessionDataKey = UUIDGenerator.generateUUID();
-        addSessionDataToCache(sessionDataKey, sessionDTO, req.getSession().getMaxInactiveInterval());
+	    addSessionDataToCache(sessionDataKey, sessionDTO, IdentityApplicationManagementUtil.getIdleSessionTimeOut
+			    (sessionDTO.getTenantDomain()));
 
         String commonAuthURL = CarbonUIUtil.getAdminConsoleURL(req);
         commonAuthURL = commonAuthURL.replace(FrameworkConstants.RequestType
@@ -426,7 +423,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry
                 (authenticationRequest);
         FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest,
-                req.getSession().getMaxInactiveInterval());
+                IdentityApplicationManagementUtil.getIdleSessionTimeOut(sessionDTO.getTenantDomain()));
         StringBuilder queryStringBuilder = new StringBuilder();
         queryStringBuilder.append(commonAuthURL).
                 append("?").
@@ -466,7 +463,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             }
 
             String sessionDataKey = UUIDGenerator.generateUUID();
-            addSessionDataToCache(sessionDataKey, sessionDTO, request.getSession().getMaxInactiveInterval());
+	        addSessionDataToCache(sessionDataKey, sessionDTO, IdentityApplicationManagementUtil.getIdleSessionTimeOut
+			        (CarbonContext.getThreadLocalCarbonContext().getTenantDomain()));
 
             String commonAuthURL = CarbonUIUtil.getAdminConsoleURL(request);
             commonAuthURL = commonAuthURL.replace("samlsso/carbon/", "commonauth");
@@ -495,8 +493,9 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
             AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry
                     (authenticationRequest);
-            FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest,
-                    request.getSession().getMaxInactiveInterval());
+	        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest,
+	                                                       IdentityApplicationManagementUtil.getIdleSessionTimeOut
+			                                                       (CarbonContext.getThreadLocalCarbonContext().getTenantDomain()));
             String queryParams = "?" + SAMLSSOConstants.SESSION_DATA_KEY + "=" + sessionDataKey
                     + "&" + "type" + "=" + "samlsso";
 
@@ -683,11 +682,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                     authResult.getAuthenticatedAuthenticators(), SAMLSSOConstants.AuthnModes.USERNAME_PASSWORD);
 
             if (authRespDTO.isSessionEstablished()) { // authenticated
-                if (req.getParameter("chkRemember") != null && req.getParameter("chkRemember").equals("on")) {
-                    storeRememberMeCookie(sessionId, req, resp, SAMLSSOService.getSSOSessionTimeout());
-                }
 
-                storeTokenIdCookie(sessionId, req, resp);
+                storeTokenIdCookie(sessionId, req, resp,authnReqDTO.getTenantDomain());
                 removeSessionDataFromCache(req.getParameter("sessionDataKey"));
 
                 sendResponse(req, resp, relayState, authRespDTO.getRespString(),
@@ -758,52 +754,6 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         SAMLSSOUtil.setUserTenantDomain(authResult.getAuthenticatedUserTenantDomain());
     }
 
-    /**
-     * @param req
-     * @return
-     */
-    private Cookie getRememberMeCookie(HttpServletRequest req) {
-        Cookie[] cookies = req.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("samlssoRememberMe")) {
-                    return cookie;
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * @param sessionId
-     * @param req
-     * @param resp
-     */
-    private void storeRememberMeCookie(String sessionId, HttpServletRequest req, HttpServletResponse resp,
-                                       int sessionTimeout) {
-        Cookie rememberMeCookie = getRememberMeCookie(req);
-        if (rememberMeCookie == null) {
-            rememberMeCookie = new Cookie("samlssoRememberMe", sessionId);
-        }
-        rememberMeCookie.setMaxAge(sessionTimeout);
-        rememberMeCookie.setSecure(true);
-        rememberMeCookie.setHttpOnly(true);
-        resp.addCookie(rememberMeCookie);
-    }
-
-    public void removeRememberMeCookie(HttpServletRequest req, HttpServletResponse resp) {
-
-        Cookie[] cookies = req.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("samlssoRememberMe")) {
-                    cookie.setMaxAge(0);
-                    resp.addCookie(cookie);
-                    break;
-                }
-            }
-        }
-    }
 
     private Cookie getTokenIdCookie(HttpServletRequest req) {
         Cookie[] cookies = req.getCookies();
@@ -822,15 +772,13 @@ public class SAMLSSOProviderServlet extends HttpServlet {
      * @param req
      * @param resp
      */
-    private void storeTokenIdCookie(String sessionId, HttpServletRequest req, HttpServletResponse resp) {
-        Cookie rememberMeCookie = getRememberMeCookie(req);
-        if (rememberMeCookie == null) {
-            rememberMeCookie = new Cookie("samlssoTokenId", sessionId);
-            rememberMeCookie.setMaxAge(SAMLSSOService.getSSOSessionTimeout());
-            rememberMeCookie.setSecure(true);
-            rememberMeCookie.setHttpOnly(true);
-        }
-        resp.addCookie(rememberMeCookie);
+    private void storeTokenIdCookie(String sessionId, HttpServletRequest req, HttpServletResponse resp,
+                                    String tenantDomain) {
+        Cookie samlssoTokenIdCookie = new Cookie("samlssoTokenId", sessionId);
+	    samlssoTokenIdCookie.setMaxAge(IdentityApplicationManagementUtil.getIdleSessionTimeOut(tenantDomain)*60);
+        samlssoTokenIdCookie.setSecure(true);
+        samlssoTokenIdCookie.setHttpOnly(true);
+        resp.addCookie(samlssoTokenIdCookie);
     }
 
     public void removeTokenIdCookie(HttpServletRequest req, HttpServletResponse resp) {

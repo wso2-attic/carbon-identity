@@ -33,6 +33,7 @@ import org.wso2.carbon.identity.application.authentication.framework.model.Authe
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 
@@ -129,7 +130,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
             concludeFlow(request, response, context);
         } else { // redirecting outside
             FrameworkUtils.addAuthenticationContextToCache(context.getContextIdentifier(), context,
-                    FrameworkUtils.getMaxInactiveInterval());
+                    IdentityApplicationManagementUtil.getIdleSessionTimeOut(context.getTenantDomain()));
         }
     }
 
@@ -255,8 +256,9 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
                 sessionContext.getAuthenticatedIdPs().putAll(context.getCurrentAuthenticatedIdPs());
                 // TODO add to cache?
                 // store again. when replicate  cache is used. this may be needed.
-                FrameworkUtils.addSessionContextToCache(commonAuthCookie, sessionContext,
-                        FrameworkUtils.getMaxInactiveInterval());
+	            FrameworkUtils.addSessionContextToCache(commonAuthCookie, sessionContext,
+	                                                    IdentityApplicationManagementUtil.getIdleSessionTimeOut
+			                                                    (authenticatedUserTenantDomain));
             } else {
                 sessionContext = new SessionContext();
                 sessionContext.getAuthenticatedSequences().put(appConfig.getApplicationName(),
@@ -264,33 +266,22 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
                 sessionContext.setAuthenticatedIdPs(context.getCurrentAuthenticatedIdPs());
                 sessionContext.setRememberMe(context.isRememberMe());
                 String sessionKey = UUIDGenerator.generateUUID();
-                FrameworkUtils.addSessionContextToCache(sessionKey, sessionContext,
-                        FrameworkUtils.getMaxInactiveInterval());
+
+	            FrameworkUtils.addSessionContextToCache(sessionKey, sessionContext, IdentityApplicationManagementUtil
+			            .getIdleSessionTimeOut(authenticatedUserTenantDomain));
 
                 Integer authCookieAge = null;
 
                 if (context.isRememberMe()) {
-                    String rememberMePeriod = IdentityUtil
-                            .getProperty("JDBCPersistenceManager.SessionDataPersist.RememberMePeriod");
-
-                    if (rememberMePeriod == null || rememberMePeriod.trim().length() == 0) {
-                        // set default value to 2 weeks
-                        rememberMePeriod = "20160";
-                    }
-
-                    try {
-                        authCookieAge = Integer.valueOf(rememberMePeriod);
-                    } catch (NumberFormatException e) {
-                        throw new FrameworkException(
-                                "RememberMePeriod in identity.xml must be a numeric value", e);
-                    }
+                    authCookieAge = IdentityApplicationManagementUtil.getRememberMeTimeout(authenticatedUserTenantDomain);
                 }
 
                 FrameworkUtils.storeAuthCookie(request, response, sessionKey, authCookieAge);
             }
 
             if (authenticatedUserTenantDomain == null) {
-                PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+	            authenticatedUserTenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext()
+			            .getTenantDomain();
             }
 
             String auditData = "\"" + "ContextIdentifier" + "\" : \"" + context.getContextIdentifier()
@@ -313,7 +304,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
         // the redirect is done to that servlet, it will retrieve the result from the cache using
         // that key.
         FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(),
-                authenticationResult, FrameworkUtils.getMaxInactiveInterval());
+                authenticationResult, IdentityApplicationManagementUtil.getIdleSessionTimeOut(context.getTenantDomain()));
 
         /*
          * TODO Cache retaining is a temporary fix. Remove after Google fixes
