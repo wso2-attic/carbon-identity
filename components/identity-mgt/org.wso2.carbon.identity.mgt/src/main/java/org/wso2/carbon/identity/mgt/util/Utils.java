@@ -43,6 +43,8 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import java.io.ByteArrayInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -500,7 +502,9 @@ public class Utils {
                 String oldValue = userStoreManager.getUserClaimValue(MultitenantUtils.getTenantAwareUsername(userName),
                         claim, null);
                 if (oldValue == null || !oldValue.equals(value)) {
-                    userStoreManager.setUserClaimValue(MultitenantUtils.getTenantAwareUsername(userName), claim, value,
+                    Map<String,String> claimMap = new HashMap<String,String>();
+                    claimMap.put(claim, value);
+                    userStoreManager.setUserClaimValues(MultitenantUtils.getTenantAwareUsername(userName), claimMap, 
                             UserCoreConstants.DEFAULT_PROFILE);
                 }
             }

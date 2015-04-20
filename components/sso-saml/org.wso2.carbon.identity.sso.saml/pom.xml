@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>sso-saml</artifactId>
-        <version>4.3.5-SNAPSHOT</version>
+        <version>4.4.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -107,7 +107,7 @@
                             org.wso2.carbon.core.*,
                             org.wso2.carbon.registry.core.*,
                             org.wso2.carbon.security.keystore.*,
-                            org.apache.commons.lang.StringUtils,
+                            org.apache.commons.lang.*,
                             org.wso2.carbon.security.keystore.service.*,
                             org.wso2.carbon.security.util.*,
                             org.wso2.carbon.utils.*,

@@ -29,8 +29,6 @@ public class Constants {
     public static final String STATUS = "status";
     public static final String STATUS_MSG = "statusMsg";
 
-    public static final String IDP_AUTHENTICATOR_MAP = "idpAuthenticatorMap";
-
     public static class SAML2SSO {
         public static final String ASSERTION_CONSUMER_URL = "assertnConsumerURL";
         public static final String RELAY_STATE = "RelayState";
