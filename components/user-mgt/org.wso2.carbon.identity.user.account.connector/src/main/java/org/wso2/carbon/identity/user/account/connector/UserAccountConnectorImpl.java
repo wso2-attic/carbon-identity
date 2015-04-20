@@ -81,9 +81,12 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
         if (!StringUtils.isBlank(userName) && !StringUtils.isBlank(password)) {
 
             boolean authentic = false;
-            final String loggedInUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
-            final int loggedInTenant = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+            String loggedInUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
+            int loggedInTenant = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+            String loggedInDomain = UserAccountConnectorUtil.getDomainName(loggedInUser);
+            loggedInUser = UserAccountConnectorUtil.getUsernameWithoutDomain(loggedInUser);
             String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
+            String domainName = null;
             int tenantId = -1;
 
             try {
@@ -95,10 +98,13 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
                     authentic = userRealm.getUserStoreManager().authenticate(tenantAwareUsername, password);
                     int index = tenantAwareUsername.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
                     if (index < 0) {
-                        String domain = UserCoreUtil.getDomainFromThreadLocal();
-                        if (domain != null) {
-                            tenantAwareUsername = domain + CarbonConstants.DOMAIN_SEPARATOR + tenantAwareUsername;
+                        domainName = UserCoreUtil.getDomainFromThreadLocal();
+                        if (domainName == null) {
+                            domainName = UserAccountConnectorConstants.PRIMARY_USER_DOMAIN;
                         }
+                    } else {
+                        domainName = UserAccountConnectorUtil.getDomainName(tenantAwareUsername);
+                        tenantAwareUsername = UserAccountConnectorUtil.getUsernameWithoutDomain(tenantAwareUsername);
                     }
 
                 } else {
@@ -119,7 +125,8 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
                 boolean hasAssociation = false;
 
                 try {
-                    hasAssociation = ConnectorDAO.getInstance().isValidAssociation(tenantAwareUsername, tenantId);
+                    hasAssociation = ConnectorDAO.getInstance().isValidAssociation(domainName, tenantId,
+                                                                                   tenantAwareUsername);
                     if(!hasAssociation && tenantAwareUsername.equals(CarbonContext.getThreadLocalCarbonContext()
                                                           .getUsername()) && (tenantId == CarbonContext
                             .getThreadLocalCarbonContext().getTenantId())) {
@@ -142,28 +149,30 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
 
                 try {
                     // Get association key if logged in user has one
-                    String associationKey = ConnectorDAO.getInstance().getAssociationKeyOfUser(loggedInUser,
-                                                                                               loggedInTenant);
+                    String associationKey = ConnectorDAO.getInstance().getAssociationKeyOfUser(loggedInDomain,
+                                                                                               loggedInTenant,
+                                                                                               loggedInUser);
                     boolean validAssociationKey = associationKey != null;
 
                     // If connecting account already connected to other accounts
                     String connUserAssociationKey = ConnectorDAO.getInstance().getAssociationKeyOfUser
-                            (tenantAwareUsername, tenantId);
+                            (domainName, tenantId, tenantAwareUsername);
                     boolean validConnUserAssociationKey = connUserAssociationKey != null;
 
                     if (!validAssociationKey && !validConnUserAssociationKey) {
                         String newAssociationKey = UserAccountConnectorUtil.getRandomNumber();
-                        ConnectorDAO.getInstance().createConnection(newAssociationKey, loggedInUser,
-                                                                    loggedInTenant);
-                        ConnectorDAO.getInstance().createConnection(newAssociationKey, tenantAwareUsername,
-                                                                    tenantId);
+                        ConnectorDAO.getInstance().createConnection(newAssociationKey, loggedInDomain,
+                                                                    loggedInTenant, loggedInUser);
+                        ConnectorDAO.getInstance().createConnection(newAssociationKey, domainName, tenantId,
+                                                                    tenantAwareUsername);
 
                     } else if (validAssociationKey && !validConnUserAssociationKey) {
-                        ConnectorDAO.getInstance().createConnection(associationKey, tenantAwareUsername, tenantId);
+                        ConnectorDAO.getInstance().createConnection(associationKey, domainName, tenantId,
+                                                                    tenantAwareUsername);
 
                     } else if (!validAssociationKey && validConnUserAssociationKey) {
-                        ConnectorDAO.getInstance().createConnection(connUserAssociationKey, loggedInUser,
-                                                                    loggedInTenant);
+                        ConnectorDAO.getInstance().createConnection(connUserAssociationKey, loggedInDomain,
+                                                                    loggedInTenant, loggedInUser);
 
                     } else {
                         ConnectorDAO.getInstance().updateAssociationKey(connUserAssociationKey, associationKey);
@@ -223,10 +232,14 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
                                                                 .ERROR_IN_GET_TENANT_ID.toString());
             }
 
+            String domainName = UserAccountConnectorUtil.getDomainName(tenantAwareUsername);
+            tenantAwareUsername = UserAccountConnectorUtil.getUsernameWithoutDomain(tenantAwareUsername);
+
             boolean hasAssociation = false;
 
             try {
-                hasAssociation = ConnectorDAO.getInstance().isValidAssociation(tenantAwareUsername, tenantId);
+                hasAssociation = ConnectorDAO.getInstance().isValidAssociation(domainName, tenantId,
+                                                                               tenantAwareUsername);
             } catch (Exception e) {
                 log.error(UserAccountConnectorConstants.ErrorMessages.CONN_DELETE_ERROR.getDescription(), e);
                 throw new UserAccountConnectorException(UserAccountConnectorConstants.ErrorMessages.CONN_DELETE_ERROR
@@ -243,7 +256,7 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
             }
 
             try {
-                ConnectorDAO.getInstance().deleteAccountConnection(tenantAwareUsername, tenantId);
+                ConnectorDAO.getInstance().deleteAccountConnection(domainName, tenantId, tenantAwareUsername);
 
             } /**catch (SQLException e) {
                 log.error(UserAccountConnectorConstants.ErrorMessages.CONN_DELETE_DB_ERROR.getDescription(), e);
@@ -280,10 +293,10 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
 
         List<String> connections = null;
         try {
-            connections = ConnectorDAO.getInstance().getConnectionsOfUser(CarbonContext.getThreadLocalCarbonContext()
-                                                                                  .getUsername(),
-                                                                          CarbonContext.getThreadLocalCarbonContext()
-                                                                                  .getTenantId());
+            connections = ConnectorDAO.getInstance().getConnectionsOfUser(UserAccountConnectorUtil.getDomainName
+                    (CarbonContext.getThreadLocalCarbonContext().getUsername()),
+                    CarbonContext.getThreadLocalCarbonContext().getTenantId(), UserAccountConnectorUtil
+                            .getUsernameWithoutDomain(CarbonContext.getThreadLocalCarbonContext().getUsername()));
 
         } /**catch (SQLException e) {
             log.error(UserAccountConnectorConstants.ErrorMessages.CONN_LIST_DB_ERROR.getDescription(), e);
@@ -323,6 +336,8 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
 
             String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
             String tenantDomain = MultitenantUtils.getTenantDomain(userName);
+            String domainName = UserAccountConnectorUtil.getDomainName(tenantAwareUsername);
+            tenantAwareUsername = UserAccountConnectorUtil.getUsernameWithoutDomain(tenantAwareUsername);
             RealmService realmService = null;
             int tenantId = -1;
 
@@ -338,7 +353,8 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
             boolean hasAssociation = false;
 
             try {
-                hasAssociation = ConnectorDAO.getInstance().isValidAssociation(tenantAwareUsername, tenantId);
+                hasAssociation = ConnectorDAO.getInstance().isValidAssociation(domainName, tenantId,
+                                                                               tenantAwareUsername);
             } catch (Exception e) {
                 log.error(UserAccountConnectorConstants.ErrorMessages.ACCOUNT_SWITCHING_ERROR.getDescription(),
                           e);
@@ -371,12 +387,8 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
                         return false;
                     }
 
-                    int index = tenantAwareUsername.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
-                    if (index < 0) {
-                        String domain = UserCoreUtil.getDomainFromThreadLocal();
-                        if (domain != null) {
-                            tenantAwareUsername = domain + CarbonConstants.DOMAIN_SEPARATOR + tenantAwareUsername;
-                        }
+                    if (!UserAccountConnectorConstants.PRIMARY_USER_DOMAIN.equals(domainName)) {
+                        tenantAwareUsername = domainName + CarbonConstants.DOMAIN_SEPARATOR + tenantAwareUsername;
                     }
 
                     // Only pre and post authentication listeners will get executed,

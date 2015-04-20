@@ -24,6 +24,7 @@ import org.wso2.carbon.identity.application.common.persistence.JDBCPersistenceMa
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.user.account.connector.internal.IdentityAccountConnectorServiceComponent;
 import org.wso2.carbon.identity.user.account.connector.util.UserAccountConnectorConstants;
+import org.wso2.carbon.identity.user.account.connector.util.UserAccountConnectorUtil;
 import org.wso2.carbon.user.core.service.RealmService;
 
 import java.sql.Connection;
@@ -52,7 +53,8 @@ public class ConnectorDAO {
         return instance;
     }
 
-    public void createConnection(String associationKey, String userName, int tenantId) throws Exception {
+    public void createConnection(String associationKey, String domainName, int tenantId,
+                                 String userName) throws Exception {
 
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
@@ -60,11 +62,13 @@ public class ConnectorDAO {
         try {
             dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
             preparedStatement = dbConnection.prepareStatement(UserAccountConnectorConstants
-                                                                      .SQLQueries.ADD_CONNECTION);
+                                                                      .SQLQueries.ADD_USER_ACCOUNT_ASSOCIATION);
 
             preparedStatement.setString(1, associationKey);
-            preparedStatement.setString(2, userName);
-            preparedStatement.setInt(3, tenantId);
+            preparedStatement.setInt(2, tenantId);
+            preparedStatement.setString(3, userName);
+            preparedStatement.setString(4, domainName);
+            preparedStatement.setInt(5, tenantId);
             preparedStatement.executeUpdate();
 
             if (!dbConnection.getAutoCommit()) {
@@ -78,7 +82,7 @@ public class ConnectorDAO {
         }
     }
 
-    public void deleteAccountConnection(String userName, int tenantId) throws Exception {
+    public void deleteAccountConnection(String domainName, int tenantId, String userName) throws Exception {
 
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
@@ -88,8 +92,10 @@ public class ConnectorDAO {
             preparedStatement = dbConnection.prepareStatement(UserAccountConnectorConstants
                                                                       .SQLQueries.DELETE_CONNECTION);
 
-            preparedStatement.setString(1, userName);
+            preparedStatement.setString(1, domainName);
             preparedStatement.setInt(2, tenantId);
+            preparedStatement.setInt(3, tenantId);
+            preparedStatement.setString(4, userName);
             preparedStatement.executeUpdate();
 
             if (!dbConnection.getAutoCommit()) {
@@ -103,48 +109,55 @@ public class ConnectorDAO {
         }
     }
 
-    public List<String> getConnectionsOfUser(String userName, int tenantId) throws Exception {
+    public List<String> getConnectionsOfUser(String domainName, int tenantId, String userName) throws Exception {
 
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         List<String> accountConnections = new ArrayList<String>();
         RealmService realmService = null;
-        try {
-            realmService = IdentityAccountConnectorServiceComponent.getRealmService();
+        String associationKey = getAssociationKeyOfUser(domainName, tenantId, userName);
 
-            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
-            preparedStatement = dbConnection.prepareStatement(UserAccountConnectorConstants
-                                                                      .SQLQueries.LIST_USER_CONNECTIONS);
+        if (associationKey != null) {
+            try {
+                realmService = IdentityAccountConnectorServiceComponent.getRealmService();
 
-            preparedStatement.setString(1, userName);
-            preparedStatement.setInt(2, tenantId);
-            resultSet = preparedStatement.executeQuery();
+                dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
+                preparedStatement = dbConnection.prepareStatement(UserAccountConnectorConstants
+                                                                          .SQLQueries.LIST_USER_ACCOUNT_ASSOCIATIONS);
+                preparedStatement.setString(1, associationKey);
+                resultSet = preparedStatement.executeQuery();
 
-            while (resultSet.next()) {
-                String connectedUser = resultSet.getString(1);
-                int connectedUserTenantId = resultSet.getInt(2);
-                if (userName.equals(connectedUser) && (tenantId == connectedUserTenantId)) {
-                    continue;
+                while (resultSet.next()) {
+                    String conUserDomainName = resultSet.getString(1);
+                    int conUserTenantId = resultSet.getInt(2);
+                    String conUserName = resultSet.getString(3);
+                    if (domainName.equals(conUserDomainName) && (tenantId == conUserTenantId) && userName.equals
+                            (conUserName)) {
+                        continue;
+                    }
+                    if (!UserAccountConnectorConstants.PRIMARY_USER_DOMAIN.equals(conUserDomainName)) {
+                        conUserName = conUserDomainName + CarbonConstants.DOMAIN_SEPARATOR + conUserName;
+                    }
+                    if (realmService != null) {
+                        conUserName = conUserName + CarbonConstants.ROLE_TENANT_DOMAIN_SEPARATOR + realmService
+                                .getTenantManager().getDomain(conUserTenantId);
+                    }
+                    accountConnections.add(conUserName);
                 }
-                if (realmService != null) {
-                    connectedUser = connectedUser + CarbonConstants.ROLE_TENANT_DOMAIN_SEPARATOR + realmService
-                            .getTenantManager().getDomain(connectedUserTenantId);
-                }
-                accountConnections.add(connectedUser);
+            } catch (Exception e) {
+                throw e;
+            } finally {
+                IdentityApplicationManagementUtil.closeResultSet(resultSet);
+                IdentityApplicationManagementUtil.closeStatement(preparedStatement);
+                IdentityApplicationManagementUtil.closeConnection(dbConnection);
             }
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            IdentityApplicationManagementUtil.closeResultSet(resultSet);
-            IdentityApplicationManagementUtil.closeStatement(preparedStatement);
-            IdentityApplicationManagementUtil.closeConnection(dbConnection);
         }
 
         return accountConnections;
     }
 
-    public String getAssociationKeyOfUser(String userName, int tenantId) throws Exception {
+    public String getAssociationKeyOfUser(String domainName, int tenantId, String userName) throws Exception {
 
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
@@ -154,10 +167,12 @@ public class ConnectorDAO {
         try {
             dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
             preparedStatement = dbConnection.prepareStatement(UserAccountConnectorConstants
-                                                                      .SQLQueries.GET_ASSOCIATE_KEY_OF_USER);
+                                                                      .SQLQueries.GET_ASSOCIATION_KEY_OF_USER);
 
-            preparedStatement.setString(1, userName);
+            preparedStatement.setString(1, domainName);
             preparedStatement.setInt(2, tenantId);
+            preparedStatement.setInt(3, tenantId);
+            preparedStatement.setString(4, userName);
             resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
@@ -198,7 +213,7 @@ public class ConnectorDAO {
         }
     }
 
-    public boolean isValidAssociation(String userName, int tenantId) throws Exception {
+    public boolean isValidAssociation(String domainName, int tenantId, String userName) throws Exception {
 
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
@@ -210,10 +225,17 @@ public class ConnectorDAO {
             preparedStatement = dbConnection.prepareStatement(UserAccountConnectorConstants
                                                                       .SQLQueries.IS_VALID_ASSOCIATION);
 
-            preparedStatement.setString(1, userName);
+            preparedStatement.setString(1, domainName);
             preparedStatement.setInt(2, tenantId);
-            preparedStatement.setString(3, CarbonContext.getThreadLocalCarbonContext().getUsername());
-            preparedStatement.setInt(4, CarbonContext.getThreadLocalCarbonContext().getTenantId());
+            preparedStatement.setInt(3, tenantId);
+            preparedStatement.setString(4, userName);
+            preparedStatement.setString(5, UserAccountConnectorUtil.getDomainName(CarbonContext
+                                                                                          .getThreadLocalCarbonContext()
+                                                                                          .getUsername()));
+            preparedStatement.setInt(6, CarbonContext.getThreadLocalCarbonContext().getTenantId());
+            preparedStatement.setInt(7, CarbonContext.getThreadLocalCarbonContext().getTenantId());
+            preparedStatement.setString(8, UserAccountConnectorUtil.getUsernameWithoutDomain(CarbonContext
+                                                                                                     .getThreadLocalCarbonContext().getUsername()));
             resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
