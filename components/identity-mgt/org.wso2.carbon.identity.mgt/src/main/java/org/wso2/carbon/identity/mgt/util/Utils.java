@@ -38,6 +38,7 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.io.ByteArrayInputStream;
 import java.security.MessageDigest;
@@ -366,7 +367,7 @@ public class Utils {
         }
         try {
             if (userStoreManager != null) {
-                claimValue = userStoreManager.getUserClaimValue(userName, claim,
+                claimValue = userStoreManager.getUserClaimValue(MultitenantUtils.getTenantAwareUsername(userName), claim,
                         UserCoreConstants.DEFAULT_PROFILE);
             }
             return claimValue;
@@ -493,6 +494,8 @@ public class Utils {
             log.error(msg, e);
             throw new IdentityException(msg, e);
         }
+
+        userName = MultitenantUtils.getTenantAwareUsername(userName);
 
         try {
             if (userStoreManager != null) {
