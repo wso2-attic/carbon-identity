@@ -69,16 +69,19 @@
                             org.wso2.carbon.idp.mgt.ui.*,
                         </Export-Package>
                         <Import-Package>
-                            !javax.xml.namespace,
-                            javax.xml.namespace,
-                            !org.apache.commons.logging.*,
-                            javax.servlet;version="${imp.pkg.version.javax.servlet}",
-                            javax.servlet.http;version="${imp.pkg.version.javax.servlet}",
-                            javax.xml.stream.*,
-                            org.wso2.carbon.idp.mgt.stub.*;version="${carbon.identity.package.import.version.range}",
-                            *;resolution:=optional
+                            javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
+                            org.apache.axis2.*; version="${axis2.osgi.version.range}",
+                            org.apache.axiom.om.util; version="${axiom.osgi.version.range}",
+                            org.apache.commons.fileupload.*; version="${commons-fileupload.imp.pkg.version.range}",
+                            org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
+                            org.wso2.carbon.ui;version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.user.mgt.stub.*;version="${carbon.commons.imp.pkg.version}",
+                            org.wso2.carbon.identity.application.common;
+                            version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.application.common.model.idp.xsd;
+                            version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.idp.mgt.stub; version="${carbon.identity.package.import.version.range}",
                         </Import-Package>
-                        <DynamicImport-Package>*</DynamicImport-Package>
                         <Carbon-Component>UIBundle</Carbon-Component>
                     </instructions>
                 </configuration>
