@@ -292,7 +292,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         }
 
         // only if the application has been renamed
-        if (!applicationName.equalsIgnoreCase(storedAppName)) {
+        if (!applicationName.equals(storedAppName)) {
             // rename the role
             ApplicationMgtUtil.renameRole(storedAppName, applicationName);
             if (debugMode) {
