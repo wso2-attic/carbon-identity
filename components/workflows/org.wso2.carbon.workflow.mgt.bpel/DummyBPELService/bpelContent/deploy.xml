@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <deploy xmlns:epr="http://wso2.org/bps/bpel/endpoint/config"
-        xmlns:callback.mgt.workflow.carbon.wso2.org="http://callback.mgt.workflow.carbon.wso2.org"
+        xmlns:clb="http://callback.mgt.workflow.identity.carbon.wso2.org"
         xmlns:sample="http://bpel.mgt.workflow.carbon.wso2.org" xmlns="http://www.apache.org/ode/schemas/dd/2007/03">
     <process name="sample:CarbonBPEL">
         <active>true</active>
@@ -10,7 +10,7 @@
             <service name="sample:CarbonBPEL" port="CarbonBPELPort"/>
         </provide>
         <invoke partnerLink="callbackPL">
-            <service name="callback.mgt.workflow.carbon.wso2.org:WorkflowCallbackService"
+            <service name="clb:WorkflowCallbackService"
                      port="WorkflowCallbackServiceHttpsSoap11Endpoint">
                 <epr:endpoint endpointReference="callbackService.epr"/>
             </service>

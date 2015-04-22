@@ -3,12 +3,12 @@
 
 <bpel:process xmlns:tns="http://bpel.mgt.workflow.carbon.wso2.org"
               xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
-              xmlns:ns="http://callback.mgt.workflow.carbon.wso2.org"
-              xmlns:clb="http://callback.mgt.workflow.carbon.wso2.org/xsd"
+              xmlns:ns="http://callback.mgt.workflow.identity.carbon.wso2.org"
+              xmlns:clb="http://callback.mgt.workflow.identity.carbon.wso2.org/xsd"
               name="CarbonBPEL"
               targetNamespace="http://bpel.mgt.workflow.carbon.wso2.org" suppressJoinFailure="yes">
     <!-- Import the client WSDL -->
-    <bpel:import namespace="http://callback.mgt.workflow.carbon.wso2.org" location="CallbackService.wsdl"
+    <bpel:import namespace="http://callback.mgt.workflow.identity.carbon.wso2.org" location="CallbackService.wsdl"
                  importType="http://schemas.xmlsoap.org/wsdl/"></bpel:import>
     <bpel:import location="CarbonBPELArtifacts.wsdl" namespace="http://bpel.mgt.workflow.carbon.wso2.org"
                  importType="http://schemas.xmlsoap.org/wsdl/"/>
@@ -32,7 +32,6 @@
 
         <bpel:partnerLink name="callbackPL" partnerLinkType="tns:callbackPLT"
                           partnerRole="callbackRole"></bpel:partnerLink>
-
     </bpel:partnerLinks>
 
     <!-- ================================================================= -->
@@ -74,13 +73,13 @@
 
             <bpel:copy>
                 <bpel:from>
-                    <bpel:literal xml:space="preserve"><ns:onCallback xmlns:ns="http://callback.mgt.workflow.carbon.wso2.org/xsd" >
+                    <bpel:literal xml:space="preserve"><ns:onCallback xmlns:ns="http://callback.mgt.workflow.identity.carbon.wso2.org/xsd" >
   <ns:response>
-    <ns:requesterId>ns:requesterId</ns:requesterId>
-    <ns:status>ns:status</ns:status>
-    <ns:uuid>ns:uuid</ns:uuid>
+    <ns:status>UNDEFINED</ns:status>
+    <ns:uuid>UNDEFINED</ns:uuid>
   </ns:response>
-</ns:onCallback></bpel:literal>
+</ns:onCallback>
+</bpel:literal>
                 </bpel:from>
                 <bpel:to variable="callbackPLRequest" part="parameters"></bpel:to>
             </bpel:copy>
@@ -92,16 +91,6 @@
                 <bpel:to part="parameters" variable="callbackPLRequest">
                     <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
                         <![CDATA[clb:response/clb:uuid]]></bpel:query>
-                </bpel:to>
-            </bpel:copy>
-            <bpel:copy>
-                <bpel:from part="payload" variable="input">
-                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                        <![CDATA[tns:requesterId]]></bpel:query>
-                </bpel:from>
-                <bpel:to part="parameters" variable="callbackPLRequest">
-                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                        <![CDATA[clb:response/clb:requesterId]]></bpel:query>
                 </bpel:to>
             </bpel:copy>
             <bpel:copy>

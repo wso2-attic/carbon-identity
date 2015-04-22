@@ -18,7 +18,7 @@
   </extensions>
   <extensions>
     <extendedObject href="CarbonBPEL.bpel#/"/>
-    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:ProcessExtension" modificationStamp="1427179606000"/>
+    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:ProcessExtension" modificationStamp="1429683921000"/>
   </extensions>
   <extensions>
     <extendedObject href="CarbonBPEL.bpel#//@activity/@activities.1"/>
@@ -38,10 +38,6 @@
   </extensions>
   <extensions>
     <extendedObject href="CarbonBPEL.bpel#//@activity/@activities.1/@copy.2"/>
-    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
-  </extensions>
-  <extensions>
-    <extendedObject href="CarbonBPEL.bpel#//@activity/@activities.1/@copy.3"/>
     <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
   </extensions>
 </extensionmodel:ExtensionMap>
