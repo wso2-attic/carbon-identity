@@ -126,7 +126,8 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
         Map<String, String> claims = (Map<String, String>) requestParams.get(CLAIM_LIST);
         String profile = (String) requestParams.get(PROFILE);
 
-        if (WorkflowRequestStatus.APPROVED.equals(status) || WorkflowRequestStatus.SKIPPED.equals(status)) {
+        if (WorkflowRequestStatus.APPROVED.toString().equals(status) ||
+                WorkflowRequestStatus.SKIPPED.toString().equals(status)) {
             try {
                 RealmService realmService = IdentityWorkflowServiceComponent.getRealmService();
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);

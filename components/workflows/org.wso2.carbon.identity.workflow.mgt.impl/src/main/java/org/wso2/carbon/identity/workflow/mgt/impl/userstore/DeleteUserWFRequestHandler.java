@@ -73,7 +73,8 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
             userName = (String) requestUsername;
         }
 
-        if (WorkflowRequestStatus.APPROVED.equals(status) || WorkflowRequestStatus.SKIPPED.equals(status)) {
+        if (WorkflowRequestStatus.APPROVED.toString().equals(status) ||
+                WorkflowRequestStatus.SKIPPED.toString().equals(status)) {
             try {
                 RealmService realmService = IdentityWorkflowServiceComponent.getRealmService();
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);

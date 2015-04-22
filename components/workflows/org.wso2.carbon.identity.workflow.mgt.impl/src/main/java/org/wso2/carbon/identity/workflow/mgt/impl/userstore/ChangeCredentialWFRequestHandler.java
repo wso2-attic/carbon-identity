@@ -80,7 +80,8 @@ public class ChangeCredentialWFRequestHandler extends AbstractWorkflowRequestHan
 
         Object oldCredential = requestParams.get(OLD_CREDENTIAL);
         Object newCredential = requestParams.get(NEW_CREDENTIAL);
-        if (WorkflowRequestStatus.APPROVED.equals(status) || WorkflowRequestStatus.SKIPPED.equals(status)) {
+        if (WorkflowRequestStatus.APPROVED.toString().equals(status) ||
+                WorkflowRequestStatus.SKIPPED.toString().equals(status)) {
             try {
                 RealmService realmService = IdentityWorkflowServiceComponent.getRealmService();
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
