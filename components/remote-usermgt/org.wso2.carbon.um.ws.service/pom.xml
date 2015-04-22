@@ -84,7 +84,9 @@
                             org.wso2.carbon.registry.core.service; version="${carbon.kernel.registry.imp.pkg.version}",
                             org.wso2.carbon.user.api; version="${carbon.user.api.imp.pkg.version.range}",
                         </Import-Package>
-                        <Export-Package>org.wso2.carbon.um.ws.service.*</Export-Package>
+                        <Export-Package>
+                            org.wso2.carbon.um.ws.service.*; version="${carbon.identity.package.export.version}"
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
