@@ -46,6 +46,7 @@
         <module>org.wso2.carbon.identity.application.authenticator.requestpath.basicauth</module>
         <module>org.wso2.carbon.identity.application.authenticator.requestpath.oauth</module>
         <module>org.wso2.carbon.identity.application.authenticator.samlsso</module>
+        <module>org.wso2.carbon.identity.application.authenticator.fido</module>
     </modules>
 
 </project>
