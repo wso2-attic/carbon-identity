@@ -69,6 +69,7 @@
                             org.wso2.carbon.identity.workflow.mgt.internal,
                         </Private-Package>
                         <Import-Package>
+                            javax.xml.xpath,
                             org.apache.axiom.om,
                             org.apache.axiom.om.xpath,
                             org.apache.axis2,

@@ -21,14 +21,15 @@ package org.wso2.carbon.identity.workflow.mgt.dao;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.bean.WSServiceAssociation;
 import org.wso2.carbon.identity.workflow.mgt.bean.WSServiceBean;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class WorkflowServicesDAO {
 
@@ -49,15 +50,14 @@ public class WorkflowServicesDAO {
             prepStmt.setString(1, workflowService.getAlias());
             prepStmt.setString(2, workflowService.getWsAction());
             prepStmt.setString(3, workflowService.getServiceEndpoint());
-            prepStmt.setInt(4, workflowService.getPriority());
-            prepStmt.setString(5, workflowService.getUserName());
-            prepStmt.setString(6, new String(workflowService.getPassword()));   //todo: encrypt pw?
+            prepStmt.setString(4, workflowService.getUserName());
+            prepStmt.setString(5, new String(workflowService.getPassword()));   //todo: encrypt pw?
             prepStmt.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {
             throw new WorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
-            throw new WorkflowException("Error when executing the sql query:" + query, e);
+            throw new WorkflowException("Error when executing the sql query", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
@@ -70,7 +70,28 @@ public class WorkflowServicesDAO {
      * @param eventId      The event to be subscribed
      * @param condition    The condition to be match as a XPath Expression.
      */
-    public void associateServiceWithEvent(String serviceAlias, String eventId, String condition) {
+    public void associateServiceWithEvent(String serviceAlias, String eventId, String condition, int priority)
+            throws WorkflowException {
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+
+        String query = SQLConstants.ASSOCIATE_SERVICE_TO_ACTION;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, serviceAlias);
+            prepStmt.setString(2, eventId);
+            prepStmt.setString(3, condition);
+            prepStmt.setInt(4, priority);
+            prepStmt.executeUpdate();
+            connection.commit();
+        } catch (IdentityException e) {
+            throw new WorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new WorkflowException("Error when executing the sql query", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
     }
 
     /**
@@ -80,11 +101,11 @@ public class WorkflowServicesDAO {
      * @param eventId
      * @return
      */
-    public Map<WSServiceBean, String> getSubscribedServicesForEvent(String eventId) throws WorkflowException {
+    public List<WSServiceAssociation> getSubscribedServicesForEvent(String eventId) throws WorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
-        Map<WSServiceBean, String> servicesMatched = new HashMap<WSServiceBean, String>();
+        List<WSServiceAssociation> servicesMatched = new ArrayList<>();
         String query = SQLConstants.GET_WS_SERVICES_FOR_EVENT_QUERY;
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
@@ -99,28 +120,48 @@ public class WorkflowServicesDAO {
                 String password = rs.getString(SQLConstants.PASSWORD_COLUMN);
                 String condition = rs.getString(SQLConstants.CONDITION_COLUMN);
                 int priority = rs.getInt(SQLConstants.PRIORITY_COLUMN);
+                //todo use priority to sort
                 WSServiceBean serviceBean = new WSServiceBean();
                 serviceBean.setAlias(alias);
                 serviceBean.setWsAction(action);
                 serviceBean.setServiceEndpoint(serviceEP);
                 serviceBean.setUserName(username);
                 serviceBean.setPassword(password.toCharArray());
-                serviceBean.setPriority(priority);
-                servicesMatched.put(serviceBean, condition);
+                WSServiceAssociation association = new WSServiceAssociation();
+                association.setService(serviceBean);
+                association.setCondition(condition);
+                association.setPriority(priority);
+                servicesMatched.add(association);
             }
         } catch (IdentityException e) {
             throw new WorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
-            throw new WorkflowException("Error when executing the sql query:" + query, e);
+            throw new WorkflowException("Error when executing the sql.", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
         return servicesMatched;
     }
 
-    public void removeWorkflowService(String alias){
+    public void removeWorkflowService(String alias) throws WorkflowException {
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        String query = SQLConstants.DELETE_WS_SERVICE_QUERY;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, alias);
+            prepStmt.executeUpdate();
+        } catch (IdentityException e) {
+            throw new WorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new WorkflowException("Error when executing the sql.", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
     }
 
     public void updateWorkflowService(String alias, WSServiceBean newService){
+
     }
 }

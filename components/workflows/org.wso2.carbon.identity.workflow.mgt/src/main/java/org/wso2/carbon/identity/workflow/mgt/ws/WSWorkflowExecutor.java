@@ -34,6 +34,7 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.WorkFlowExecutor;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.bean.WSServiceAssociation;
 import org.wso2.carbon.identity.workflow.mgt.bean.WSServiceBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowParameter;
@@ -41,6 +42,8 @@ import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowServicesDAO;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowMgtServiceComponent;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -54,15 +57,17 @@ public class WSWorkflowExecutor implements WorkFlowExecutor {
         try {
             OMElement requestBody = buildWSRequest(workFlowRequest); //todo:cache for later use?
             WorkflowServicesDAO servicesDAO = new WorkflowServicesDAO();
-            Map<WSServiceBean, String> servicesForEvent = servicesDAO.getSubscribedServicesForEvent(workFlowRequest
+            List<WSServiceAssociation> servicesForEvent = servicesDAO.getSubscribedServicesForEvent(workFlowRequest
                     .getEventType());
-            for (Map.Entry<WSServiceBean, String> entry : servicesForEvent.entrySet()) {
+            for (WSServiceAssociation association : servicesForEvent) {
                 try {
-                    AXIOMXPath axiomxPath = new AXIOMXPath(entry.getValue());
-                    return axiomxPath.booleanValueOf(requestBody);
+                    AXIOMXPath axiomxPath = new AXIOMXPath(association.getCondition());
+                    if (axiomxPath.booleanValueOf(requestBody)) {
+                        return true;
+                    }
                 } catch (JaxenException e) {
                     if (log.isDebugEnabled()) {
-                        log.debug("Error when executing the xpath expression:" + entry.getValue() + " , on " +
+                        log.debug("Error when executing the xpath expression:" + association.getCondition() + " , on " +
                                 requestBody, e);
                     }
                 }
@@ -82,18 +87,26 @@ public class WSWorkflowExecutor implements WorkFlowExecutor {
     public void execute(WorkFlowRequest workFlowRequest) throws WorkflowException {
         OMElement requestBody = buildWSRequest(workFlowRequest); //todo:cache from canHandle()?
         WorkflowServicesDAO servicesDAO = new WorkflowServicesDAO();
-        Map<WSServiceBean, String> servicesForEvent = servicesDAO.getSubscribedServicesForEvent(workFlowRequest
+        List<WSServiceAssociation> servicesForEvent = servicesDAO.getSubscribedServicesForEvent(workFlowRequest
                 .getEventType());
-        for (Map.Entry<WSServiceBean, String> entry : servicesForEvent.entrySet()) {
+
+        Collections.sort(servicesForEvent, new Comparator<WSServiceAssociation>() {
+            @Override
+            public int compare(WSServiceAssociation o1, WSServiceAssociation o2) {
+                return o1.getPriority() - o2.getPriority();
+            }
+        });
+
+        for (WSServiceAssociation association : servicesForEvent) {
             try {
-                AXIOMXPath axiomxPath = new AXIOMXPath(entry.getValue());
+                AXIOMXPath axiomxPath = new AXIOMXPath(association.getCondition());
                 if (axiomxPath.booleanValueOf(requestBody)) {
-                    callService(requestBody, entry.getKey());
+                    callService(requestBody, association.getService());
                     return;
                 }
             } catch (JaxenException e) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Error when executing the xpath expression:" + entry.getValue() + " , on " +
+                    log.debug("Error when executing the xpath expression:" + association.getCondition() + " , on " +
                             requestBody, e);
                 }
             }
@@ -131,7 +144,7 @@ public class WSWorkflowExecutor implements WorkFlowExecutor {
         }
     }
 
-    private OMElement buildWSRequest(WorkFlowRequest workFlowRequest) throws WorkflowException {
+    protected OMElement buildWSRequest(WorkFlowRequest workFlowRequest) throws WorkflowException {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         WorkflowRequestBuilder requestBuilder = new WorkflowRequestBuilder(workFlowRequest.getUuid(),
                 workFlowRequest.getEventType(), tenantDomain);
@@ -159,5 +172,10 @@ public class WSWorkflowExecutor implements WorkFlowExecutor {
             }
         }
         return requestBuilder.buildRequest();
+    }
+
+    @Override
+    public String toString() {
+        return "WSWorkflowExecutor{priority:" + getPriority() + "}";
     }
 }

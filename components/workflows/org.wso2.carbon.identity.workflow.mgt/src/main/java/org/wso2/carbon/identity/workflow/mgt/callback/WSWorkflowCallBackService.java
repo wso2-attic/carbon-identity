@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.workflow.mgt.WorkFlowExecutorManager;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowException;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,16 +41,23 @@ public class WSWorkflowCallBackService {
      * @param response
      */
     public void onCallback(WSWorkflowResponse response) {
-        try {
-            Map<String, Object> outputParams = new HashMap<>(response.getOutputParams().length);
-            for (WSParameter parameter : response.getOutputParams()) {
-                outputParams.put(parameter.getName(), parameter.getValue());
+        if (response != null) {
+            Map<String, Object> outputParams;
+            if (response.getOutputParams() != null) {
+                outputParams = new HashMap<>(response.getOutputParams().length);
+                for (WSParameter parameter : response.getOutputParams()) {
+                    outputParams.put(parameter.getName(), parameter.getValue());
+                }
+            } else {
+                outputParams = Collections.emptyMap();
             }
-            WorkFlowExecutorManager.getInstance()
-                    .handleCallback(response.getUuid(), response.getStatus(), outputParams);
-        } catch (WorkflowException e) {
-            log.error("Error when handling callback for the workflow, id:" + response.getUuid() + ", status:" + response
-                    .getStatus());
+            try {
+                WorkFlowExecutorManager.getInstance()
+                        .handleCallback(response.getUuid(), response.getStatus(), outputParams);
+            } catch (WorkflowException e) {
+                log.error("Error when handling callback for the workflow, id:" + response.getUuid() + ", status:" +
+                        response.getStatus());
+            }
         }
     }
 }

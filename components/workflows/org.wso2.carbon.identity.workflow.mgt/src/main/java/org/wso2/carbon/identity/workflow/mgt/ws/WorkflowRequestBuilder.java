@@ -34,9 +34,9 @@ import java.util.Set;
 
 public class WorkflowRequestBuilder {
 
-    private static final String WF_NS = "http://schema.bpel.mgt.workflow.carbon.wso2.org";
+    private static final String WF_NS = "http://bpel.mgt.workflow.carbon.wso2.org";
     private static final String WF_NS_PREFIX = "cwf";
-    private static final String WF_REQ_ROOT_ELEM = "CarbonBPELRequest";
+    private static final String WF_REQ_ROOT_ELEM = "ProcessRequest";
     private static final String WF_REQ_UUID_ELEM = "uuid";
     private static final String WF_REQ_ACTION_ELEM = "eventType";
     private static final String WF_REQ_TENANT_DOMAIN_ELEM = "tenantDomain";

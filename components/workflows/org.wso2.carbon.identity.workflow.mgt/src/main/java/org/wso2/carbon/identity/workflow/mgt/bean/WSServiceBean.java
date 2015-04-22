@@ -22,7 +22,6 @@ public class WSServiceBean {
 
     private String alias;
     private String wsAction;
-    private int priority;
     private String serviceEndpoint;
     private String userName;
     private char[] password;
@@ -41,14 +40,6 @@ public class WSServiceBean {
 
     public void setWsAction(String wsAction) {
         this.wsAction = wsAction;
-    }
-
-    public int getPriority() {
-        return priority;
-    }
-
-    public void setPriority(int priority) {
-        this.priority = priority;
     }
 
     public String getServiceEndpoint() {
