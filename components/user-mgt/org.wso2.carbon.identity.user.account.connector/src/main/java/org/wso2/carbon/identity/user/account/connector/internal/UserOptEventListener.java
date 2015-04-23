@@ -21,8 +21,8 @@ package org.wso2.carbon.identity.user.account.connector.internal;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.user.account.connector.dao.ConnectorDAO;
+import org.wso2.carbon.identity.user.account.connector.util.UserAccountConnectorConstants;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
@@ -98,8 +98,8 @@ public class UserOptEventListener implements UserOperationEventListener {
     public boolean doPostDeleteUser(String userName, UserStoreManager userStoreManager) throws UserStoreException {
 
         String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
-        if (!StringUtils.isBlank(domainName) && !"PRIMARY".equals(domainName)) {
-            userName = domainName + CarbonConstants.DOMAIN_SEPARATOR + userName;
+        if (StringUtils.isBlank(domainName)) {
+            domainName = UserAccountConnectorConstants.PRIMARY_USER_DOMAIN;
         }
 
         try {
@@ -108,7 +108,7 @@ public class UserOptEventListener implements UserOperationEventListener {
                           userStoreManager.getTenantId() + " is getting deleted.");
             }
 
-            ConnectorDAO.getInstance().deleteAccountConnection(userName, userStoreManager.getTenantId());
+            ConnectorDAO.getInstance().deleteAccountConnection(domainName, userStoreManager.getTenantId(), userName);
             return true;
 
         } catch (Exception e) {
