@@ -49,8 +49,7 @@ public class TenantManagementListener implements TenantMgtListener {
         } catch (IdentityApplicationManagementException e) {
             String message = "Error when adding Resident Identity Provider entry for tenant " +
                     tenantInfo.getTenantDomain();
-            log.error(message, e);
-            throw new StratosException(message);
+            throw new StratosException(message, e);
         }
     }
 

@@ -248,6 +248,17 @@ public class SSOAgentConfig {
             saml2.isResponseSigned = false;
         }
 
+        if (saml2.isResponseSigned()) {
+            String signatureValidatorImplClass = properties.getProperty(
+                    SSOAgentConstants.SSOAgentConfig.SAML2.SIGNATURE_VALIDATOR);
+            if (signatureValidatorImplClass != null) {
+                saml2.signatureValidatorImplClass = signatureValidatorImplClass;
+            } else {
+                LOGGER.log(Level.FINE, SSOAgentConstants.SSOAgentConfig.SAML2.SIGNATURE_VALIDATOR +
+                                       " not configured.");
+            }
+        }
+
         String isRequestSignedString = properties.getProperty(
                 SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_REQUEST_SIGNING);
         if (isRequestSignedString != null) {
@@ -432,6 +443,7 @@ public class SSOAgentConfig {
         private Boolean isPassiveAuthn = false;
         private Boolean isForceAuthn = false;
         private String relayState = null;
+        private String signatureValidatorImplClass = null;
         /**
          * The html page that will auto-submit the SAML2 to the IdP.
          * This should be in valid HTML syntax, with following section within the
@@ -578,6 +590,10 @@ public class SSOAgentConfig {
 
         public void setForceAuthn(Boolean isForceAuthn) {
             this.isForceAuthn = isForceAuthn;
+        }
+
+        public String getSignatureValidatorImplClass() {
+            return signatureValidatorImplClass;
         }
     }
 

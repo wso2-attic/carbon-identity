@@ -16,13 +16,12 @@
   ~  specific language governing permissions and limitations
   ~  under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>ldap-server</artifactId>
-        <version>4.3.4-SNAPSHOT</version>
+        <version>4.4.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -50,6 +49,7 @@
                             org.apache.directory.shared.ldap.exception.*,
                             org.apache.directory.shared.ldap.message.*,
                             org.apache.directory.shared.ldap.schema.*,
+                            org.apache.commons.io.*;version="${commons.io.wso2.osgi.version.range}",
                             *;resolution:=optional
                         </Import-Package>
                         <Export-Package>
@@ -88,13 +88,37 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.directory.wso2</groupId>
+            <groupId>org.wso2.orbit.org.apache.directory</groupId>
             <artifactId>apacheds</artifactId>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
         </dependency>
+        <dependency>
+            <artifactId>apacheds-protocol-ldap</artifactId>
+            <groupId>org.apache.directory.server</groupId>
+            <version>1.5.7</version>
+        </dependency>
+
+        <dependency>
+            <artifactId>apacheds-protocol-kerberos</artifactId>
+            <groupId>org.apache.directory.server</groupId>
+            <version>1.5.7</version>
+        </dependency>
+
+        <dependency>
+            <artifactId>apacheds-interceptor-kerberos</artifactId>
+            <groupId>org.apache.directory.server</groupId>
+            <version>1.5.7</version>
+        </dependency>
+
+        <dependency>
+            <artifactId>apacheds-core-annotations</artifactId>
+            <groupId>org.apache.directory.server</groupId>
+            <version>1.5.7</version>
+        </dependency>
+
     </dependencies>
 
 </project>

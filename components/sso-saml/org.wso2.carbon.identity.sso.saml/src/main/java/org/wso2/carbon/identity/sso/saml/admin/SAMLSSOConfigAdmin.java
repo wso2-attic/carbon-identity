@@ -16,6 +16,7 @@
 
 package org.wso2.carbon.identity.sso.saml.admin;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml1.core.NameIdentifier;
@@ -87,21 +88,15 @@ public class SAMLSSOConfigAdmin {
 
         serviceProviderDO.setNameIDFormat(serviceProviderDTO.getNameIDFormat());
 
-        if (serviceProviderDTO.getRequestedClaims() != null && serviceProviderDTO.getRequestedClaims().length != 0) {
-            if (serviceProviderDTO.getAttributeConsumingServiceIndex() != null &&
-                    !serviceProviderDTO.getAttributeConsumingServiceIndex().equals("")) {
-                serviceProviderDO.setAttributeConsumingServiceIndex(serviceProviderDTO.getAttributeConsumingServiceIndex());
+        if (serviceProviderDTO.isEnableAttributeProfile()) {
+            String attributeConsumingIndex = serviceProviderDTO.getAttributeConsumingServiceIndex();
+            if (StringUtils.isNotEmpty(attributeConsumingIndex)) {
+                serviceProviderDO.setAttributeConsumingServiceIndex(attributeConsumingIndex);
             } else {
                 serviceProviderDO.setAttributeConsumingServiceIndex(Integer.toString(IdentityUtil.getRandomInteger()));
             }
-            serviceProviderDO.setRequestedClaims(serviceProviderDTO.getRequestedClaims());
         } else {
-            if (serviceProviderDTO.getAttributeConsumingServiceIndex() == null ||
-                    serviceProviderDTO.getAttributeConsumingServiceIndex().isEmpty()) {
-                serviceProviderDO.setAttributeConsumingServiceIndex(Integer.toString(IdentityUtil.getRandomInteger()));
-            } else {
-                serviceProviderDO.setAttributeConsumingServiceIndex(serviceProviderDTO.getAttributeConsumingServiceIndex());
-            }
+            serviceProviderDO.setAttributeConsumingServiceIndex("");
         }
 
         if (serviceProviderDTO.getRequestedAudiences() != null && serviceProviderDTO.getRequestedAudiences().length != 0) {
