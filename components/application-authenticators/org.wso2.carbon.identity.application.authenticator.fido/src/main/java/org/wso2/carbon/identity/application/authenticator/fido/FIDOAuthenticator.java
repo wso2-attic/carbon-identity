@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.application.authenticator.fido;
@@ -28,6 +28,7 @@ import org.wso2.carbon.identity.application.authentication.framework.LocalApplic
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
+import org.wso2.carbon.identity.application.authentication.framework.exception.InvalidCredentialsException;
 import org.wso2.carbon.identity.application.authentication.framework.exception.LogoutFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authenticator.fido.dto.FIDOUser;
@@ -38,6 +39,7 @@ import org.wso2.carbon.identity.application.authenticator.fido.util.Util;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLEncoder;
 
 /**
  * FIDO U2F Specification based authenticator.
@@ -57,16 +59,23 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator implemen
 			AuthenticationContext context) throws AuthenticationFailedException {
 
 		String tokenResponse = request.getParameter("tokenResponse");
-		String appID = Util.getOrigin(request);
-		//		String appID = request.getServerName();
-		String username = getUsername(context);
-		//		String username = request.getParameter("username");
+        if(tokenResponse != null && !tokenResponse.contains("errorCode")) {
+            String appID = Util.getOrigin(request);
+            String username = getUsername(context);
 
-		U2FService u2FService = U2FService.getInstance();
-		//TODO enhancement: tenant domain, user store domain
-		FIDOUser fidoUser = new FIDOUser(username, "", "", AuthenticateResponse.fromJson(tokenResponse));
-		fidoUser.setAppID(appID);
-		u2FService.finishAuthentication(fidoUser);
+            U2FService u2FService = U2FService.getInstance();
+            //TODO enhancement: tenant domain, user store domain
+            FIDOUser fidoUser = new FIDOUser(username, "", "", AuthenticateResponse.fromJson(tokenResponse));
+            fidoUser.setAppID(appID);
+            u2FService.finishAuthentication(fidoUser);
+        }
+        else {
+            if (log.isDebugEnabled()) {
+                log.debug("FODO authentication filed : " + tokenResponse );
+            }
+
+            throw new InvalidCredentialsException();
+        }
 
 	}
 
@@ -112,10 +121,21 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator implemen
 			FIDOUser fidoUser = new FIDOUser(user, "", "", appID);
 			AuthenticateRequestData data = u2FService.startAuthentication(fidoUser);
 			//redirect to FIDO login page
+            if(data != null){
+
+
 			response.sendRedirect(response.encodeRedirectURL(loginPage + ("?"))
 			                      + "&authenticators=" + getName() + ":" + "LOCAL"  + "&type=fido&sessionDataKey=" +
 			                      request.getParameter("sessionDataKey") +
 			                      "&data=" + data.toJson());
+            }
+            else {
+                String redirectURL = loginPage.replace("login.do", "retry.do");
+                redirectURL = response.encodeRedirectURL(redirectURL + ("?")) + "&failedUsername=" + URLEncoder.encode(user, "UTF-8") +
+                "&statusMsg=" + URLEncoder.encode("No registered device found, Please register your device before sign in.", "UTF-8") +
+                        "&status=" + URLEncoder.encode("Authentication Failed !", "UTF-8");
+                response.sendRedirect(redirectURL);
+            }
 
 		} catch (IOException e) {
 			throw new AuthenticationFailedException(

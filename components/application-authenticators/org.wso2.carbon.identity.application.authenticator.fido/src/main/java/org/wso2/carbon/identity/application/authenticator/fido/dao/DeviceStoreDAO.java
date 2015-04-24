@@ -40,11 +40,6 @@ public class DeviceStoreDAO {
 	private static Log log = LogFactory.getLog(DeviceStoreDAO.class);
 	private static final String ADD_DEVICE_REGISTRATION_QUERY = "INSERT INTO FIDO_DEVICE_STORE values(?, ?, ?)";
 	private static final String GET_DEVICE_REGISTRATION_QUERY = "SELECT * FROM FIDO_DEVICE_STORE WHERE USER_NAME = ?";
-	//public static boolean isTraceEnabled = log.isTraceEnabled();
-
-	/*static {
-		LogManager.getRootLogger().setLevel(Level.TRACE);
-	}*/
 
 	/**
 	 * Add Device Registration to store.
