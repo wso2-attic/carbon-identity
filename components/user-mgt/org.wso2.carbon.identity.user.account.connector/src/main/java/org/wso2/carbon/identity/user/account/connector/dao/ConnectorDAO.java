@@ -252,4 +252,28 @@ public class ConnectorDAO {
         return valid;
     }
 
+    public void deleteAccountConnectionsFromTenantId(int tenantId) throws Exception {
+
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+
+        try {
+            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
+            preparedStatement = dbConnection.prepareStatement(UserAccountConnectorConstants
+                                                                      .SQLQueries.DELETE_CONNECTION_FROM_TENANT_ID);
+
+            preparedStatement.setInt(1, tenantId);
+            preparedStatement.executeUpdate();
+
+            if (!dbConnection.getAutoCommit()) {
+                dbConnection.commit();
+            }
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            IdentityApplicationManagementUtil.closeStatement(preparedStatement);
+            IdentityApplicationManagementUtil.closeConnection(dbConnection);
+        }
+    }
+
 }
