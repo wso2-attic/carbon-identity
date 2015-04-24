@@ -38,6 +38,8 @@ public class UserAccountConnectorConstants {
         ALREADY_CONNECTED(8511, "Provided user account is already associated to the logged in user"),
         USER_NOT_AUTHENTIC(8512, "The user name or password you entered is incorrect"),
         CONN_DELETE_ERROR(8513, "Error occurred while deleting the user account association"),
+        CONN_DELETE_FROM_TENANT_ID_ERROR(8513, "Error occurred while deleting the user account associations for " +
+                                               "tenant id %s"),
         INVALID_ASSOCIATION(8514, "User does not have valid association to proceed with this operation"),
         ERROR_RETRIEVE_REMOTE_ADDRESS(8515, "Error occurred while retrieving remote address from the request"),
         ACCOUNT_SWITCHING_ERROR(8516, "Error occurred while switching the user account"),
@@ -91,6 +93,9 @@ public class UserAccountConnectorConstants {
         public static final String DELETE_CONNECTION = "DELETE FROM UM_USER_ACCOUNT_ASSOCIATIONS WHERE DOMAIN_ID = " +
                                                        "(SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_DOMAIN_NAME = ? " +
                                                        "AND UM_TENANT_ID= ?) AND TENANT_ID = ? AND USER_NAME = ?";
+
+        public static final String DELETE_CONNECTION_FROM_TENANT_ID = "DELETE FROM UM_USER_ACCOUNT_ASSOCIATIONS WHERE" +
+                                                                      " TENANT_ID = ?";
 
         public static final String UPDATE_ASSOCIATION_KEY = "UPDATE UM_USER_ACCOUNT_ASSOCIATIONS SET ASSOCIATION_KEY " +
                                                             "= ? WHERE ASSOCIATION_KEY = ?";

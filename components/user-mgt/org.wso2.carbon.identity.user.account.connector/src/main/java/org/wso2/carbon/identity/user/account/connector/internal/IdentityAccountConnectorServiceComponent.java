@@ -25,6 +25,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.user.account.connector.UserAccountConnector;
 import org.wso2.carbon.identity.user.account.connector.UserAccountConnectorImpl;
+import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.listener.UserStoreManagerListener;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -83,6 +84,16 @@ public class IdentityAccountConnectorServiceComponent {
                 }
             } else {
                 log.error("Identity account association - UserOptEventListener could not be registered.");
+            }
+
+            ServiceRegistration tenantMgtListenerSR = bundleContext.registerService(
+                    TenantMgtListener.class.getName(), new TenantManagementListener(), null);
+            if (tenantMgtListenerSR != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Identity account association - TenantMgtListener registered.");
+                }
+            } else {
+                log.error("Identity account association - TenantMgtListener could not be registered.");
             }
 
         } catch (Exception e) {
