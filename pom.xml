@@ -29,6 +29,7 @@
         <module>features/authenticators</module>
         <module>features/identity-core</module>
         <module>features/identity-provider</module>
+        <module>features/identity-sts</module>
         <module>features/oauth</module>
         <module>features/relying-party</module>
         <module>features/user-profiles</module>
