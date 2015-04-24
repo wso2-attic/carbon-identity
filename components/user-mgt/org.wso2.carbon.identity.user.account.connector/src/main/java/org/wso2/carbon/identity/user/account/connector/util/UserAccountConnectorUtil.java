@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.user.account.connector.util;
 
 import org.apache.xml.security.utils.Base64;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.user.account.connector.exception.UserAccountConnectorException;
 import org.wso2.carbon.identity.user.account.connector.internal.IdentityAccountConnectorServiceComponent;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
@@ -59,18 +60,18 @@ public class UserAccountConnectorUtil {
     /**
      * Execute pre and post authentication listeners
      *
-     * @param userName
+     * @param username
      * @param userStoreManager
      * @return is authentic
      * @throws UserStoreException
      */
-    public static boolean executePrePostAuthenticationListeners(String userName, UserStoreManager userStoreManager)
+    public static boolean executePrePostAuthenticationListeners(String username, UserStoreManager userStoreManager)
             throws UserStoreException {
 
         // Pre authentication listeners
         for (UserOperationEventListener listener : IdentityAccountConnectorServiceComponent
                 .getUserOperationEventListeners()) {
-            if (!listener.doPreAuthenticate(userName, null, userStoreManager)) {
+            if (!listener.doPreAuthenticate(username, null, userStoreManager)) {
                 return false;
             }
         }
@@ -78,11 +79,27 @@ public class UserAccountConnectorUtil {
         // Post authentication listeners
         for (UserOperationEventListener listener : IdentityAccountConnectorServiceComponent
                 .getUserOperationEventListeners()) {
-            if (!listener.doPostAuthenticate(userName, true, userStoreManager)) {
+            if (!listener.doPostAuthenticate(username, true, userStoreManager)) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    public static String getDomainName(String username) {
+        int index = username.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+        if (index < 0) {
+            return UserAccountConnectorConstants.PRIMARY_USER_DOMAIN;
+        }
+        return username.substring(0, index);
+    }
+
+    public static String getUsernameWithoutDomain(String username) {
+        int index = username.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+        if (index < 0) {
+            return username;
+        }
+        return username.substring(index + 1, username.length());
     }
 }
