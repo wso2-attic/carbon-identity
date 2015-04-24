@@ -1051,12 +1051,6 @@
                 <artifactId>amber</artifactId>
                 <version>${amber.version}</version>
             </dependency>
-            <!--dependency>
-                <groupId>org.apache.amber</groupId>
-                <artifactId>amber</artifactId>
-                <version>${amber.version}</version>
-            </dependency-->
-
             <dependency>
                 <groupId>com.thetransactioncompany.wso2</groupId>
                 <artifactId>cors-filter</artifactId>
@@ -1138,7 +1132,7 @@
             <dependency>
                 <groupId>org.hectorclient.wso2</groupId>
                 <artifactId>hector-core</artifactId>
-                <version>1.1.4.wso2v1</version>
+                <version>${hector-core.wso2.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.amber</groupId>
@@ -1185,7 +1179,7 @@
             <dependency>
                 <groupId>waffle.apache.wso2</groupId>
                 <artifactId>waffle</artifactId>
-                <version>1.4.wso2v1</version>
+                <version>${waffle.wso2.version.range}</version>
             </dependency>
 
             <dependency>
@@ -1721,7 +1715,7 @@
             <dependency>
                 <groupId>com.github.dblock.waffle.wso2</groupId>
                 <artifactId>waffle-jna</artifactId>
-                <version>1.6.wso2v1</version>
+                <version>${waffle-jna.wso2.version}</version>
             </dependency>
 
             <dependency>
@@ -1991,6 +1985,7 @@
         <junit.version>4.11</junit.version>
         <version.javax.servlet>3.0.0.v201112011016</version.javax.servlet>
         <amber.version>0.22.1358727.wso2v8-SNAPSHOT</amber.version>
+        <amber.package.import.version.range>[0.22.1358727.wso2v8-SNAPSHOT, 0.23)</amber.package.import.version.range>
         <apacheds.core.version>1.5.7</apacheds.core.version>
         <apacheds.imp.pkg.version.range>[1.5.7,1.6.0)</apacheds.imp.pkg.version.range>
         <nimbusds.version>2.26.1.wso2v3</nimbusds.version>
@@ -2047,6 +2042,7 @@
         <commons-lang.wso2.osgi.version.range>[2.6.0,2.7.0)</commons-lang.wso2.osgi.version.range>
         <commons-pool.wso2.osgi.version.range>[1.5.6,1.6.0)</commons-pool.wso2.osgi.version.range>
         <commons-codec.wso2.osgi.version.range>[1.4.0,1.5.0)</commons-codec.wso2.osgi.version.range>
+        <commons-collections.wso2.osgi.version.range>[3.2.0,3.3.0)</commons-collections.wso2.osgi.version.range>
 
         <neethi.osgi.version>2.0.4.wso2v4</neethi.osgi.version>
         <neethi.osgi.version.range>[2.0.4.wso2v4,2.1.0)</neethi.osgi.version.range>
@@ -2079,6 +2075,7 @@
         <balana.version>1.0.0.wso2v9-SNAPSHOT</balana.version>
         <balana.imp.pkg.version.range>[1.0.0.wso2v8,1.1.0)</balana.imp.pkg.version.range>
         <gdata-core.wso2.version>1.47.0.wso2v1</gdata-core.wso2.version>
+        <gdata-core.imp.pkg.version.range>[1.47.0.wso2v1,1.48.0)</gdata-core.imp.pkg.version.range>
         <smack.wso2.version>3.0.4.wso2v1</smack.wso2.version>
         <smackx.wso2.version>3.0.4.wso2v1</smackx.wso2.version>
         <orbit.version.apacheds>1.5.7.wso2v3</orbit.version.apacheds>
@@ -2087,6 +2084,14 @@
         <httpcomponents-httpclient.imp.pkg.version.range>[0.0.0,0.1.0)</httpcomponents-httpclient.imp.pkg.version.range>
         <orbit.version.commons.lang>2.6.0.wso2v1</orbit.version.commons.lang>
         <org.wso2.securevault.version>1.0.0-wso2v2</org.wso2.securevault.version>
+        <hector-core.wso2.version>1.1.4.wso2v1</hector-core.wso2.version>
+        <hector-core.imp.pkg.version.range>[1.1.4.wso2v1,1.2.0)</hector-core.imp.pkg.version.range>
+        <codehaus.jettison.import.version.range>[0.0.0, 0.1.0)</codehaus.jettison.import.version.range>
+        <waffle.wso2.version.range>1.4.wso2v1</waffle.wso2.version.range>
+        <waffle.imp.pkg.version.range>[1.4.0.wso2v1, 1.5.0)</waffle.imp.pkg.version.range>
+        <waffle-jna.wso2.version>1.6.wso2v1</waffle-jna.wso2.version>
+        <waffle-jna.imp.pkg.version.range>[1.6.0.wso2v1, 1.7.0)</waffle-jna.imp.pkg.version.range>
+        <tomcat.wso2.imp.pkg.version.range>[1.7.0,1.8.0)</tomcat.wso2.imp.pkg.version.range>
 
         <version.commons.logging>1.1.1</version.commons.logging>
         <kaptcha.wso2.version>2.3.0.wso2v1</kaptcha.wso2.version>
