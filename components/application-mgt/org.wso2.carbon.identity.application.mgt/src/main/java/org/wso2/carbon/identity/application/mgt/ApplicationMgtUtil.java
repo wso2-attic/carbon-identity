@@ -92,6 +92,9 @@ public class ApplicationMgtUtil {
         String applicationRoleName = UserCoreUtil.addInternalDomainName(applicationName);
 
         try {
+            if(log.isDebugEnabled()) {
+                log.debug("Checking whether user has role : " + applicationRoleName + " by retrieving role list of user : " + user);
+            }
             String[] userRoles = CarbonContext.getThreadLocalCarbonContext().getUserRealm()
                     .getUserStoreManager().getRoleListOfUser(user);
             for (String userRole : userRoles) {
@@ -136,6 +139,9 @@ public class ApplicationMgtUtil {
 
         try {
             // create a role for the application and assign the user to that role.
+            if(log.isDebugEnabled()) {
+                log.debug("Creating application role : " + roleName + " and assign the user : " + Arrays.toString(user) + " to that role");
+            }
             CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
                     .addRole(roleName, user, null);
         } catch (UserStoreException e) {
@@ -154,6 +160,9 @@ public class ApplicationMgtUtil {
         String roleName = UserCoreUtil.addInternalDomainName(applicationName);
 
         try {
+            if(log.isDebugEnabled()) {
+                log.debug("Deleting application role : " + roleName);
+            }
             CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
                     .deleteRole(roleName);
         } catch (UserStoreException e) {
@@ -168,6 +177,10 @@ public class ApplicationMgtUtil {
      */
     public static void renameRole(String oldName, String newName) throws UserStoreException {
 
+        if(log.isDebugEnabled()) {
+           log.debug("Renaming application role : " + UserCoreUtil.addInternalDomainName(oldName)
+                + " to new role : " + UserCoreUtil.addInternalDomainName(newName));
+        }
         CarbonContext
                 .getThreadLocalCarbonContext()
                 .getUserRealm()
