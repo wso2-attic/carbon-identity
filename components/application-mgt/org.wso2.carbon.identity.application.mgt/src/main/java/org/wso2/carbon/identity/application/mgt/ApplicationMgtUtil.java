@@ -38,8 +38,8 @@ import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -132,7 +132,7 @@ public class ApplicationMgtUtil {
     public static void createAppRole(String applicationName) throws IdentityApplicationManagementException {
         String roleName = UserCoreUtil.addInternalDomainName(applicationName);
         String qualifiedUsername = CarbonContext.getThreadLocalCarbonContext().getUsername();
-        String[] user = {MultitenantUtils.getTenantAwareUsername(qualifiedUsername)};
+        String[] user = {qualifiedUsername};
 
         try {
             // create a role for the application and assign the user to that role.
