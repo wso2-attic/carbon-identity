@@ -74,6 +74,9 @@ public class AuthenticationEndpoint extends HttpServlet {
             } else if (request.getParameter("type").equals("oauth2") || request.getParameter("type").equals("oidc")) {
                 loadPage = "oauth2_login.do";
             }
+            else if(request.getParameter("type").equals("fido")){
+                loadPage = "authentication.jsp";
+            }
             request.getRequestDispatcher(loadPage).forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
