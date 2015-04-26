@@ -39,27 +39,29 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
     }
 
     @Override
-    public boolean doPreAddUser(String s, Object o, String[] strings, Map<String, String> map, String s1,
-                                UserStoreManager userStoreManager) throws UserStoreException {
+    public boolean doPreAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
+                                String profile, UserStoreManager userStoreManager) throws UserStoreException {
         try {
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                     .PROPERTY_DOMAIN_NAME);
-            return new AddUserWFRequestHandler().startAddUserFlow(domain, s, o, strings, map, s1);
+            return new AddUserWFRequestHandler()
+                    .startAddUserFlow(domain, userName, credential, roleList, claims, profile);
         } catch (WorkflowException e) {
-            log.error("Initiating workflow for creating user: " + s + " failed.", e);
+            log.error("Initiating workflow for creating user: " + userName + " failed.", e);
         }
         return false;
     }
 
     @Override
-    public boolean doPreUpdateCredential(String s, Object o, Object o1, UserStoreManager userStoreManager) throws
-            UserStoreException {
+    public boolean doPreUpdateCredential(String userName, Object newCredential, Object oldCredential,
+                                         UserStoreManager userStoreManager) throws UserStoreException {
         String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                 .PROPERTY_DOMAIN_NAME);
         try {
-            return new ChangeCredentialWFRequestHandler().startChangeCredentialWorkflow(domain, s, o, o1);
+            return new ChangeCredentialWFRequestHandler()
+                    .startChangeCredentialWorkflow(domain, userName, newCredential, oldCredential);
         } catch (WorkflowException e) {
-            log.error("Initiating workflow for updating credentials of user: " + s + " failed.", e);
+            log.error("Initiating workflow for updating credentials of user: " + userName + " failed.", e);
         }
         return false;
     }
@@ -71,46 +73,72 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
     }
 
     @Override
-    public boolean doPreDeleteUser(String s, UserStoreManager userStoreManager) throws UserStoreException {
+    public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager) throws UserStoreException {
         String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                 .PROPERTY_DOMAIN_NAME);
         try {
-            return new DeleteUserWFRequestHandler().startDeleteUserFlow(domain, s);
+            return new DeleteUserWFRequestHandler().startDeleteUserFlow(domain, userName);
         } catch (WorkflowException e) {
-            log.error("Initiating workflow for deleting user: " + s + " failed.", e);
+            log.error("Initiating workflow for deleting user: " + userName + " failed.", e);
         }
         return false;
     }
 
     @Override
-    public boolean doPreSetUserClaimValue(String s, String s1, String s2, String s3, UserStoreManager
+    public boolean doPreSetUserClaimValue(String userName, String claimURI, String claimValue, String profileName,
+                                          UserStoreManager userStoreManager) throws UserStoreException {
+        String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                .PROPERTY_DOMAIN_NAME);
+        try {
+            return new SetUserClaimWFRequestHandler()
+                    .startSetClaimWorkflow(domain, userName, claimURI, claimValue, profileName);
+        } catch (WorkflowException e) {
+            log.error("Initiating workflow failed for setting claim " + claimURI + "=" + claimValue + " of user: " +
+                    userName, e);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean doPreSetUserClaimValues(String userName, Map<String, String> claims, String profileName,
+                                           UserStoreManager userStoreManager) throws UserStoreException {
+        String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                .PROPERTY_DOMAIN_NAME);
+        try {
+            return new SetMultipleClaimsWFRequestHandler()
+                    .startSetMultipleClaimsWorkflow(domain, userName, claims, profileName);
+        } catch (WorkflowException e) {
+            log.error("Initiating workflow failed for setting claims of user: " + userName, e);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean doPreDeleteUserClaimValues(String userName, String[] claims, String profileName, UserStoreManager
             userStoreManager) throws UserStoreException {
         String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                 .PROPERTY_DOMAIN_NAME);
         try {
-            return new SetUserClaimWFRequestHandler().startSetClaimWorkflow(domain, s, s1, s2, s3);
+            return new DeleteMultipleClaimsWFRequestHandler()
+                    .startDeleteMultipleClaimsWorkflow(domain, userName, claims, profileName);
         } catch (WorkflowException e) {
-            log.error("Initiating workflow failed for setting claim " + s1 + "=" + s2 + " of user: " + s, e);
+            log.error("Initiating workflow failed for setting claims of user: " + userName, e);
         }
-        return true;
+        return false;
     }
 
     @Override
-    public boolean doPreSetUserClaimValues(String s, Map<String, String> map, String s1, UserStoreManager
-            userStoreManager) throws UserStoreException {
-        return true;
-    }
-
-    @Override
-    public boolean doPreDeleteUserClaimValues(String s, String[] strings, String s1, UserStoreManager
-            userStoreManager) throws UserStoreException {
-        return true;
-    }
-
-    @Override
-    public boolean doPreDeleteUserClaimValue(String s, String s1, String s2, UserStoreManager userStoreManager)
-            throws UserStoreException {
-        return true;
+    public boolean doPreDeleteUserClaimValue(String userName, String claimURI, String profileName,
+                                             UserStoreManager userStoreManager) throws UserStoreException {
+        String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                .PROPERTY_DOMAIN_NAME);
+        try {
+            return new DeleteClaimWFRequestHandler()
+                    .startDeleteClaimWorkflow(domain, userName, claimURI, profileName);
+        } catch (WorkflowException e) {
+            log.error("Initiating workflow failed for deleting claim " + claimURI + " of user: " + userName, e);
+        }
+        return false;
     }
 
     @Override

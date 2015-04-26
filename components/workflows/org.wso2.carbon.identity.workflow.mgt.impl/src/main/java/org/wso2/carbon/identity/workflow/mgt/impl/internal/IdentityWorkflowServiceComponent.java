@@ -24,7 +24,10 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.impl.userstore.AddUserWFRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.impl.userstore.ChangeCredentialWFRequestHandler;
+import org.wso2.carbon.identity.workflow.mgt.impl.userstore.DeleteClaimWFRequestHandler;
+import org.wso2.carbon.identity.workflow.mgt.impl.userstore.DeleteMultipleClaimsWFRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.impl.userstore.DeleteUserWFRequestHandler;
+import org.wso2.carbon.identity.workflow.mgt.impl.userstore.SetMultipleClaimsWFRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.impl.userstore.SetUserClaimWFRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.impl.userstore.UserStoreActionListener;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
@@ -68,9 +71,14 @@ public class IdentityWorkflowServiceComponent {
         bundleContext.registerService(UserOperationEventListener.class.getName(), new UserStoreActionListener(), null);
         bundleContext.registerService(WorkflowRequestHandler.class.getName(), new AddUserWFRequestHandler(), null);
         bundleContext.registerService(WorkflowRequestHandler.class.getName(), new DeleteUserWFRequestHandler(), null);
-        bundleContext
-                .registerService(WorkflowRequestHandler.class.getName(), new ChangeCredentialWFRequestHandler(), null);
+        bundleContext.registerService(WorkflowRequestHandler.class.getName(), new ChangeCredentialWFRequestHandler(),
+                null);
         bundleContext.registerService(WorkflowRequestHandler.class.getName(), new SetUserClaimWFRequestHandler(), null);
+        bundleContext.registerService(WorkflowRequestHandler.class.getName(), new DeleteClaimWFRequestHandler(), null);
+        bundleContext.registerService(WorkflowRequestHandler.class.getName(),
+                new DeleteMultipleClaimsWFRequestHandler(), null);
+        bundleContext.registerService(WorkflowRequestHandler.class.getName(), new SetMultipleClaimsWFRequestHandler()
+                , null);
     }
 
     protected void unsetRealmService(RealmService realmService) {

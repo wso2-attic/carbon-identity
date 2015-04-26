@@ -23,4 +23,7 @@ public class UserStoreWFConstants {
     public static final String DELETE_USER_EVENT = "DELETE_USER";
     public static final String CHANGE_USER_CREDENTIAL_EVENT = "CHANGE_CREDENTIAL";
     public static final String SET_USER_CLAIM_EVENT = "SET_USER_CLAIM";
+    public static final String DELETE_USER_CLAIM_EVENT = "DELETE_USER_CLAIM";
+    public static final String SET_MULTIPLE_USER_CLAIM_EVENT = "SET_MULTIPLE_USER_CLAIM";
+    public static final String DELETE_MULTIPLE_USER_CLAIM_EVENT = "SET_MULTIPLE_USER_CLAIM";
 }
