@@ -24,7 +24,7 @@ public class WSServiceBean {
     private String wsAction;
     private String serviceEndpoint;
     private String userName;
-    private char[] password;
+    private String password;    //todo: using char[] here makes the parameter as an String[] at the wsdl and stub
 
     public String getAlias() {
         return alias;
@@ -58,11 +58,11 @@ public class WSServiceBean {
         this.userName = userName;
     }
 
-    public char[] getPassword() {
+    public String getPassword() {
         return password;
     }
 
-    public void setPassword(char[] password) {
+    public void setPassword(String password) {
         this.password = password;
     }
 }

@@ -51,7 +51,7 @@ public class WorkflowServicesDAO {
             prepStmt.setString(2, workflowService.getWsAction());
             prepStmt.setString(3, workflowService.getServiceEndpoint());
             prepStmt.setString(4, workflowService.getUserName());
-            prepStmt.setString(5, new String(workflowService.getPassword()));   //todo: encrypt pw?
+            prepStmt.setString(5, workflowService.getPassword());   //todo: encrypt pw?
             prepStmt.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {
@@ -126,7 +126,7 @@ public class WorkflowServicesDAO {
                 serviceBean.setWsAction(action);
                 serviceBean.setServiceEndpoint(serviceEP);
                 serviceBean.setUserName(username);
-                serviceBean.setPassword(password.toCharArray());
+                serviceBean.setPassword(password);
                 WSServiceAssociation association = new WSServiceAssociation();
                 association.setService(serviceBean);
                 association.setCondition(condition);

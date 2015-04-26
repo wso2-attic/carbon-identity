@@ -129,7 +129,7 @@ public class WSWorkflowExecutor implements WorkFlowExecutor {
 
             HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
             auth.setUsername(service.getUserName());
-            auth.setPassword(new String(service.getPassword()));
+            auth.setPassword(service.getPassword());
             auth.setPreemptiveAuthentication(true);
             List<String> authSchemes = new ArrayList<String>();
             authSchemes.add(HttpTransportProperties.Authenticator.BASIC);

@@ -16,26 +16,32 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt.ws;
+package org.wso2.carbon.identity.workflow.mgt;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.workflow.mgt.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.bean.WSServiceBean;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventBean;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventParameterBean;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowServicesDAO;
+import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowMgtServiceComponent;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
-public class WSWorkflowAdminService {
+public class WorkflowAdminService {
 
-    private static Log log = LogFactory.getLog(WSWorkflowAdminService.class);
+    private static Log log = LogFactory.getLog(WorkflowAdminService.class);
 
     WorkflowServicesDAO servicesDAO = new WorkflowServicesDAO();
 
-    public void addService(WSServiceBean service) throws WorkflowException {
+    public void addWSService(WSServiceBean service) throws WorkflowException {
         if (service != null) {
             if (StringUtils.isBlank(service.getAlias())) {
                 throw new WorkflowException("Service alias cannot be null or empty");
@@ -52,7 +58,7 @@ public class WSWorkflowAdminService {
         }
     }
 
-    public void removeService(String alias) throws WorkflowException {
+    public void removeWSService(String alias) throws WorkflowException {
         if (StringUtils.isBlank(alias)) {
             throw new WorkflowException("Service alias cannot be null or empty");
         }
@@ -64,7 +70,7 @@ public class WSWorkflowAdminService {
         }
     }
 
-    public void associateServiceToEvent(String serviceAlias, String eventType, String condition, int priority)
+    public void associateWSServiceToEvent(String serviceAlias, String eventType, String condition, int priority)
             throws WorkflowException {
         if (StringUtils.isBlank(serviceAlias)) {
             throw new WorkflowException("Service alias cannot be null");
@@ -86,5 +92,35 @@ public class WSWorkflowAdminService {
             throw new WorkflowException("The condition:" + condition + " is not an valid xpath expression.", e);
         }
         servicesDAO.associateServiceWithEvent(serviceAlias, eventType, condition, priority);
+    }
+
+    public WorkflowEventBean[] listWorkflowEvents() {
+        Collection<WorkflowRequestHandler> workflowRequestHandlers =
+                WorkflowMgtServiceComponent.getWorkflowRequestHandlers()
+                        .values();
+        WorkflowEventBean[] eventBeans = new WorkflowEventBean[workflowRequestHandlers.size()];
+        int handlerIndex = 0;
+        for (WorkflowRequestHandler workflowRequestHandler : workflowRequestHandlers) {
+            WorkflowEventBean workflowEventBean = new WorkflowEventBean();
+            workflowEventBean.setEventName(workflowRequestHandler.getEventId());
+            List<WorkflowEventParameterBean> parameterBeanList = new ArrayList<>();
+            for (Map.Entry<String, String> paramDefEntry : workflowRequestHandler.getParamDefinitions()
+                    .entrySet()) {
+                WorkflowEventParameterBean parameterBean = new WorkflowEventParameterBean();
+                parameterBean.setParameterName(paramDefEntry.getKey());
+                parameterBean.setParameterType(paramDefEntry.getValue());
+                parameterBeanList.add(parameterBean);
+            }
+            workflowEventBean.setParameters(parameterBeanList.toArray(new
+                    WorkflowEventParameterBean[parameterBeanList.size()]));
+            eventBeans[handlerIndex] = workflowEventBean;
+            handlerIndex++;
+        }
+        return eventBeans;
+    }
+
+    public WSServiceBean[] listWSServices() {
+        //todo: implement
+        return null;
     }
 }
