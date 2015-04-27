@@ -23,6 +23,7 @@ import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.user.account.association.dto.UserAccountAssociationDTO;
 import org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationClientException;
 import org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException;
+import org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationServerException;
 import org.wso2.carbon.identity.user.account.association.util.UserAccountAssociationConstants;
 
 public class UserAccountAssociationService extends AbstractAdmin {
@@ -40,14 +41,12 @@ public class UserAccountAssociationService extends AbstractAdmin {
                                                                      UserAccountAssociationClientException {
         try {
             UserAccountConnectorImpl.getInstance().createUserAccountAssociation(userName, password);
+        } catch (UserAccountAssociationServerException e) {
+            log.error(UserAccountAssociationConstants.ErrorMessages.ACCOUNT_CONNECTING_ERROR.getDescription(), e);
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                                                                    .ACCOUNT_CONNECTING_ERROR.toString());
         } catch (UserAccountAssociationException e) {
-            if (e instanceof UserAccountAssociationClientException) {
-                throw (UserAccountAssociationClientException) e;
-            } else {
-                log.error(UserAccountAssociationConstants.ErrorMessages.ACCOUNT_CONNECTING_ERROR.getDescription(), e);
-                throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
-                                                                        .ACCOUNT_CONNECTING_ERROR.toString());
-            }
+            throw (UserAccountAssociationClientException) e;
         }
     }
 
@@ -60,14 +59,12 @@ public class UserAccountAssociationService extends AbstractAdmin {
     public void deleteUserAccountAssociation(String userName) throws UserAccountAssociationClientException {
         try {
             UserAccountConnectorImpl.getInstance().deleteUserAccountAssociation(userName);
+        } catch (UserAccountAssociationServerException e) {
+            log.error(UserAccountAssociationConstants.ErrorMessages.CONN_DELETE_ERROR.getDescription(), e);
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                                                                    .CONN_DELETE_ERROR.toString());
         } catch (UserAccountAssociationException e) {
-            if (e instanceof UserAccountAssociationClientException) {
-                throw (UserAccountAssociationClientException) e;
-            } else {
-                log.error(UserAccountAssociationConstants.ErrorMessages.CONN_DELETE_ERROR.getDescription(), e);
-                throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
-                                                                        .CONN_DELETE_ERROR.toString());
-            }
+            throw (UserAccountAssociationClientException) e;
         }
     }
 
@@ -80,14 +77,12 @@ public class UserAccountAssociationService extends AbstractAdmin {
     public UserAccountAssociationDTO[] getAccountAssociationsOfUser() throws UserAccountAssociationClientException {
         try {
             return UserAccountConnectorImpl.getInstance().getAccountAssociationsOfUser();
+        } catch (UserAccountAssociationServerException e) {
+            log.error(UserAccountAssociationConstants.ErrorMessages.CONN_LIST_ERROR.getDescription(), e);
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                                                                    .CONN_LIST_ERROR.toString());
         } catch (UserAccountAssociationException e) {
-            if (e instanceof UserAccountAssociationClientException) {
-                throw (UserAccountAssociationClientException) e;
-            } else {
-                log.error(UserAccountAssociationConstants.ErrorMessages.CONN_LIST_ERROR.getDescription(), e);
-                throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
-                                                                        .CONN_LIST_ERROR.toString());
-            }
+            throw (UserAccountAssociationClientException) e;
         }
     }
 
@@ -101,14 +96,12 @@ public class UserAccountAssociationService extends AbstractAdmin {
     public boolean switchLoggedInUser(String userName) throws UserAccountAssociationClientException {
         try {
             return UserAccountConnectorImpl.getInstance().switchLoggedInUser(userName);
+        } catch (UserAccountAssociationServerException e) {
+            log.error(UserAccountAssociationConstants.ErrorMessages.ACCOUNT_SWITCHING_ERROR.getDescription(), e);
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                                                                    .ACCOUNT_SWITCHING_ERROR.toString());
         } catch (UserAccountAssociationException e) {
-            if (e instanceof UserAccountAssociationClientException) {
-                throw (UserAccountAssociationClientException) e;
-            } else {
-                log.error(UserAccountAssociationConstants.ErrorMessages.ACCOUNT_SWITCHING_ERROR.getDescription(), e);
-                throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
-                                                                        .ACCOUNT_SWITCHING_ERROR.toString());
-            }
+            throw (UserAccountAssociationClientException) e;
         }
     }
 
