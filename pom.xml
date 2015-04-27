@@ -1915,6 +1915,11 @@
                 <groupId>org.apache.directory.server</groupId>
                 <version>${apacheds.core.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.workflow.mgt.stub</artifactId>
+                <version>${carbon.identity.version}</version>
+            </dependency>
         </dependencies>
 
     </dependencyManagement>
