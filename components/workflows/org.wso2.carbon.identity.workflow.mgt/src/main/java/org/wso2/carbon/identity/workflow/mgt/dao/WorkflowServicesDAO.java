@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.workflow.mgt.dao;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.bean.ServiceAssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.WSServiceAssociation;
 import org.wso2.carbon.identity.workflow.mgt.bean.WSServiceBean;
 
@@ -162,6 +163,37 @@ public class WorkflowServicesDAO {
     }
 
     public void updateWorkflowService(String alias, WSServiceBean newService){
+//        todo:implement
+    }
 
+    public List<ServiceAssociationDTO> listServiceAssociations() throws WorkflowException {
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        List<ServiceAssociationDTO> associationDTOList = new ArrayList<>();
+        String query = SQLConstants.GET_SERVICE_ASSOCIATIONS_QUERY;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            rs = prepStmt.executeQuery();
+            while (rs.next()) {
+                String alias = rs.getString(SQLConstants.SERVICE_ALIAS_COLUMN);
+                String event = rs.getString(SQLConstants.EVENT_COLUMN);
+                int priority = rs.getInt(SQLConstants.PRIORITY_COLUMN);
+                //todo use priority to sort
+                ServiceAssociationDTO associationDTO = new ServiceAssociationDTO();
+                associationDTO.setServiceAlias(alias);
+                associationDTO.setEvent(event);
+                associationDTO.setPriority(priority);
+                associationDTOList.add(associationDTO);
+            }
+        } catch (IdentityException e) {
+            throw new WorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new WorkflowException("Error when executing the sql.", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+        return associationDTOList;
     }
 }

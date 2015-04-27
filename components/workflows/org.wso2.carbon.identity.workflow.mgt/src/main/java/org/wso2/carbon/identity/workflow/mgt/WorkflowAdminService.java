@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.workflow.mgt;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.workflow.mgt.bean.ServiceAssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.WSServiceBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventParameterBean;
@@ -119,8 +120,8 @@ public class WorkflowAdminService {
         return eventBeans;
     }
 
-    public WSServiceBean[] listWSServices() {
-        //todo: implement
-        return null;
+    public ServiceAssociationDTO[] listWSServices() throws WorkflowException {
+        List<ServiceAssociationDTO> dtoList = servicesDAO.listServiceAssociations();
+        return dtoList.toArray(new ServiceAssociationDTO[dtoList.size()]);
     }
 }

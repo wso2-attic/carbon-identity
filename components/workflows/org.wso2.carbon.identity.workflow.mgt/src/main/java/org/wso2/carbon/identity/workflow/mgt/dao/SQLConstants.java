@@ -25,6 +25,8 @@ public class SQLConstants {
 
     public static final String REQUEST_COLUMN = "REQUEST";
     public static final String ALIAS_COLUMN = "ALIAS";
+    public static final String SERVICE_ALIAS_COLUMN = "SERVICE_ALIAS";
+    public static final String EVENT_COLUMN = "EVENT";
     public static final String WS_ACTION_COLUMN = "WS_ACTION";
     public static final String SERVICE_EP_COLUMN = "SERVICE_EP";
     public static final String PRIORITY_COLUMN = "PRIORITY";
@@ -52,6 +54,9 @@ public class SQLConstants {
 
     public static final String ASSOCIATE_SERVICE_TO_ACTION = "INSERT INTO WF_EVENT_SUBSCRIPTIONS(SERVICE_ALIAS, " +
             "EVENT, CONDITION, PRIORITY) VALUES (?, ?, ?, ?)";
+
+    public static final String GET_SERVICE_ASSOCIATIONS_QUERY = "SELECT SERVICE_ALIAS,EVENT,PRIORITY FROM " +
+            "WF_EVENT_SUBSCRIPTIONS ORDER BY EVENT , PRIORITY";
 
     private SQLConstants(){
     }
