@@ -77,7 +77,7 @@ public class SignKeyDataHolder implements X509Credential {
             }
 
             if (!SAMLSSOUtil.isSaaSApplication() && !spTenantDomain.equalsIgnoreCase(userTenantDomain)) {
-                throw new IdentityException("Service Provider tenant domian must be equal to user tenant domain"
+                throw new IdentityException("Service Provider tenant domain must be equal to user tenant domain"
                         + " for non-SaaS applications");
             }
 
