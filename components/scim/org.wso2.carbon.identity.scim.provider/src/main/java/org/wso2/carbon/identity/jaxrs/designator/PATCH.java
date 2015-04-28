@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.core.jaxrs.designator;
+package org.wso2.carbon.identity.jaxrs.designator;
 
 import javax.ws.rs.HttpMethod;
 import java.lang.annotation.ElementType;
