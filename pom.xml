@@ -1932,7 +1932,7 @@
         <!--Carbon identity version-->
         <carbon.identity.version>4.4.1-SNAPSHOT</carbon.identity.version>
         <carbon.identity.package.export.version>${carbon.identity.version}</carbon.identity.package.export.version>
-        <carbon.identity.package.import.version.range>[4.3.0, 4.4.0)</carbon.identity.package.import.version.range>
+        <carbon.identity.package.import.version.range>[4.4.0, 4.5.0)</carbon.identity.package.import.version.range>
 
         <!-- Axis2 Version -->
         <axis2.version>1.6.1-wso2v12</axis2.version>
