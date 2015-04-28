@@ -31,6 +31,7 @@
         import="java.util.ArrayList" %>
 <%@ page import="java.util.Collections" %>
 <%@ page import="org.wso2.carbon.security.keystore.service.CertData" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
@@ -205,11 +206,10 @@ function disableAssertionSignature(chkbx) {
             : false;
 }
 function disableAttributeProfile(chkbx) {
-    document.addServiceProvider.claim.disabled = (chkbx.checked) ? false
-            : true;
-    document.addServiceProvider.addClaims.disabled = (chkbx.checked) ? false
-            : true;
-
+    if (!(chkbx.checked)){
+    document.addServiceProvider.enableDefaultAttributeProfile.checked = false;
+    }
+    document.addServiceProvider.enableDefaultAttributeProfile.value = chkbx.checked;
     document.addServiceProvider.enableDefaultAttributeProfile.disabled = (chkbx.checked) ? false
             : true;
 
@@ -826,11 +826,18 @@ if (applicationSPName == null || applicationSPName.isEmpty()) {
 if (isEditSP && show) {
 %>
 <tr>
-    <td colspan="2"><input type="checkbox"
-                           name="enableAttributeProfile" id="enableAttributeProfile" value="true"
-                           checked="checked"
-                           onclick="disableAttributeProfile(this);"/> <fmt:message
-            key="enable.attribute.profile"/></td>
+    <td colspan="2">
+        <% if (StringUtils.isNotEmpty(provider.getAttributeConsumingServiceIndex())) { %>
+        <input type="checkbox"
+               name="enableAttributeProfile" id="enableAttributeProfile" checked="checked" value="true"
+               onclick="disableAttributeProfile(this);"/>
+        <% } else { %>
+        <input type="checkbox"
+               name="enableAttributeProfile" id="enableAttributeProfile"
+               onclick="disableAttributeProfile(this);"/>
+        <% } %>
+        <fmt:message
+                key="enable.attribute.profile"/></td>
 </tr>
 <% if(applicationSPName == null || applicationSPName.isEmpty()){ %>
 <tr>
@@ -860,14 +867,25 @@ if (isEditSP && show) {
 <% 		} %>
 <tr>
     <td style="padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;" colspan="2">
-        <% if (provider.getEnableAttributesByDefault()) { %>
+        <% if (StringUtils.isNotEmpty(provider.getAttributeConsumingServiceIndex())) {
+            if (provider.getEnableAttributesByDefault()) {
+        %> <input type="checkbox"
+                  name="enableDefaultAttributeProfile" id="enableDefaultAttributeProfile" checked="checked" value="true"
+                  onclick="disableDefaultAttributeProfile(this);"/>
+        <input type="hidden" id="enableDefaultAttributeProfileHidden" name="enableDefaultAttributeProfileHidden"
+               value="true"/>
+        <%} else {%>
         <input type="checkbox"
-               name="enableDefaultAttributeProfile" id="enableDefaultAttributeProfile"  checked="checked" value="true" onclick="disableDefaultAttributeProfile(this);"/>
-        <input type="hidden" id="enableDefaultAttributeProfileHidden" name="enableDefaultAttributeProfileHidden" value="true" />
-        <% } else { %>
-        <input type="hidden" id="enableDefaultAttributeProfileHidden" name="enableDefaultAttributeProfileHidden" />
+               name="enableDefaultAttributeProfile" id="enableDefaultAttributeProfile"
+               onclick="disableDefaultAttributeProfile(this);"/>
+        <input type="hidden" id="enableDefaultAttributeProfileHidden" name="enableDefaultAttributeProfileHidden"
+                />
+        <% }
+        } else {%>
+        <input type="hidden" id="enableDefaultAttributeProfileHidden" name="enableDefaultAttributeProfileHidden"/>
         <input type="checkbox"
-               name="enableDefaultAttributeProfile" id="enableDefaultAttributeProfile" onclick="disableDefaultAttributeProfile(this);" />
+               name="enableDefaultAttributeProfile" id="enableDefaultAttributeProfile" disabled="disabled"
+               onclick="disableDefaultAttributeProfile(this);"/>
         <% } %>
         <fmt:message key="enable.default.attribute.profile"/>
     </td>

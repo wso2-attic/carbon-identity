@@ -16,13 +16,12 @@
   ~  specific language governing permissions and limitations
   ~  under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>oauth-feature</artifactId>
-        <version>4.3.4-SNAPSHOT</version>
+        <version>4.4.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -69,7 +68,7 @@
             <type>war</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.nimbusds</groupId>
+            <groupId>org.wso2.orbit.com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
         </dependency>
         <dependency>
@@ -168,7 +167,7 @@
                                 <bundleDef>com.thetransactioncompany.wso2:java-property-utils</bundleDef>
                                 <bundleDef>com.thetransactioncompany.wso2:cors-filter</bundleDef>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.oauth</bundleDef>
-                                <bundleDef>org.wso2.nimbusds:nimbus-jose-jwt</bundleDef>
+                                <bundleDef>org.wso2.orbit.com.nimbusds:nimbus-jose-jwt</bundleDef>
                                 <bundleDef>net.minidev:json-smart</bundleDef>
                             </bundles>
                             <importFeatures>

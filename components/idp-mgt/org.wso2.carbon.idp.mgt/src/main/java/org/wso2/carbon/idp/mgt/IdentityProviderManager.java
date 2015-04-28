@@ -110,7 +110,21 @@ public class IdentityProviderManager {
         if (mgtTransportPort <= 0) {
             mgtTransportPort = CarbonUtils.getTransportPort(axisConfiguration, mgtTransport);
         }
-        String serverUrl = mgtTransport + "://" + hostName + ":" + mgtTransportPort + "/";
+        String serverUrl = mgtTransport + "://" + hostName.toLowerCase();
+        // If it's well known HTTPS port, skip adding port
+        if (mgtTransportPort != 443) {
+            serverUrl += ":" + mgtTransportPort;
+        }
+        // If ProxyContextPath is defined then append it
+        String proxyContextPath = ServerConfiguration.getInstance().getFirstProperty("ProxyContextPath");
+        if (proxyContextPath != null && !proxyContextPath.trim().isEmpty()){
+            if (proxyContextPath.charAt(0) == '/'){
+                serverUrl += proxyContextPath;
+            } else {
+                serverUrl += "/" + proxyContextPath;
+            }
+        }
+        serverUrl += "/";
         String stsUrl = serverUrl + "services/" + tenantContext + "wso2carbon-sts";
         String openIdUrl = serverUrl + "openid";
         String samlSSOUrl = serverUrl + "samlsso";

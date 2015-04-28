@@ -88,8 +88,7 @@ public class ApplicationMgtUtil {
      * @throws IdentityApplicationManagementException
      */
     public static boolean isUserAuthorized(String applicationName) throws IdentityApplicationManagementException {
-        String tenantUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
-        String user = MultitenantUtils.getTenantAwareUsername(tenantUser);
+        String user = CarbonContext.getThreadLocalCarbonContext().getUsername();
         String applicationRoleName = UserCoreUtil.addInternalDomainName(applicationName);
 
         try {

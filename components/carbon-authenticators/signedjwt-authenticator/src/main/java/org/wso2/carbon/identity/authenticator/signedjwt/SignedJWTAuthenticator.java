@@ -111,6 +111,11 @@ public class SignedJWTAuthenticator implements CarbonServerAuthenticator {
                         .getRealmService().getTenantManager();
                 int tenantId = tenantManager.getTenantId(tenantDomain);
 
+	            if(tenantId == -1){
+		            log.error("tenantDomain is not valid. username : " + userName + ", tenantDomain : " + tenantDomain);
+		            return false;
+	            }
+
                 handleAuthenticationStarted(tenantId);
 
                 UserStoreManager userStore = SignedJWTAuthenticatorServiceComponent
