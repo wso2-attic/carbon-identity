@@ -33,33 +33,26 @@ import org.wso2.carbon.user.core.service.RealmService;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHandler {
-    private static final String USERNAME = "username";
+public class DeleteRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
+
+    private static final String ROLENAME = "roleName";
     private static final String USER_STORE_DOMAIN = "userStoreDomain";
-    private static final String CLAIMS = "claims";
-    private static final String CLAIM_VALUE = "claimValue";
-    private static final String PROFILE_NAME = "profileName";
 
     private static final Map<String, String> PARAM_DEFINITION;
-    private static Log log = LogFactory.getLog(SetMultipleClaimsWFRequestHandler.class);
+    private static Log log = LogFactory.getLog(DeleteRoleWFRequestHandler.class);
+
 
     static {
         PARAM_DEFINITION = new HashMap<>();
-        PARAM_DEFINITION.put(USERNAME, WorkflowDataType.STRING_TYPE);
+        PARAM_DEFINITION.put(ROLENAME, WorkflowDataType.STRING_TYPE);
         PARAM_DEFINITION.put(USER_STORE_DOMAIN, WorkflowDataType.STRING_TYPE);
-        PARAM_DEFINITION.put(CLAIMS, WorkflowDataType.STRING_STRING_MAP_TYPE);
-        PARAM_DEFINITION.put(CLAIM_VALUE, WorkflowDataType.STRING_TYPE);
-        PARAM_DEFINITION.put(PROFILE_NAME, WorkflowDataType.STRING_TYPE);
     }
 
-    public boolean startSetMultipleClaimsWorkflow(String userStoreDomain, String userName, Map<String, String>
-            claims, String profileName) throws WorkflowException {
+    public boolean startDeleteRoleFlow(String userStoreDomain, String roleName) throws WorkflowException {
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
-        wfParams.put(USERNAME, userName);
+        wfParams.put(ROLENAME, roleName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
-        wfParams.put(CLAIMS, claims);
-        wfParams.put(PROFILE_NAME, profileName);
         return startWorkFlow(wfParams, nonWfParams);
     }
 
@@ -67,30 +60,25 @@ public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHa
     public void onWorkflowCompletion(String status, Map<String, Object> requestParams,
                                      Map<String, Object> responseAdditionalParams, int tenantId)
             throws WorkflowException {
-        String userName;
-        Object requestUsername = requestParams.get(USERNAME);
-        if (requestUsername == null || !(requestUsername instanceof String)) {
-            throw new WorkflowException("Callback request for Set User Claim received without the mandatory " +
+        String roleName = (String) requestParams.get(ROLENAME);
+        if (roleName == null) {
+            throw new WorkflowException("Callback request for delete role received without the mandatory " +
                     "parameter 'username'");
         }
+
         String userStoreDomain = (String) requestParams.get(USER_STORE_DOMAIN);
         if (StringUtils.isNotBlank(userStoreDomain)) {
-            userName = userStoreDomain + "/" + requestUsername;
-        } else {
-            userName = (String) requestUsername;
+            roleName = userStoreDomain + "/" + roleName;
         }
-
-        Map<String, String> claims = (Map<String, String>) requestParams.get(CLAIMS);
-        String profile = (String) requestParams.get(PROFILE_NAME);
 
         if (WorkflowRequestStatus.APPROVED.toString().equals(status) ||
                 WorkflowRequestStatus.SKIPPED.toString().equals(status)) {
             try {
                 RealmService realmService = IdentityWorkflowServiceComponent.getRealmService();
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
-                userRealm.getUserStoreManager().setUserClaimValues(userName, claims, profile);
+                userRealm.getUserStoreManager().deleteRole(roleName);
             } catch (UserStoreException e) {
-                throw new WorkflowException("Error when re-requesting setUserClaimValues operation for " + userName, e);
+                throw new WorkflowException("Error when re-requesting deleteRole operation for " + roleName, e);
             }
         } else {
             if (retryNeedAtCallback()) {
@@ -98,7 +86,7 @@ public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHa
                 unsetWorkFlowCompleted();
             }
             if (log.isDebugEnabled()) {
-                log.debug("Setting User Claims is aborted for user '" + userName + "', Reason: Workflow response was " +
+                log.debug("Deleting role is aborted for role '" + roleName + "', Reason: Workflow response was " +
                         status);
             }
         }
@@ -111,7 +99,7 @@ public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHa
 
     @Override
     public String getEventId() {
-        return UserStoreWFConstants.SET_MULTIPLE_USER_CLAIMS_EVENT;
+        return UserStoreWFConstants.DELETE_ROLE_EVENT;
     }
 
     @Override

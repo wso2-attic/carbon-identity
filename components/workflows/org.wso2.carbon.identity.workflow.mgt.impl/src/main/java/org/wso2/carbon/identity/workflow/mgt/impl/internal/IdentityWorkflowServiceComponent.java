@@ -22,13 +22,18 @@ package org.wso2.carbon.identity.workflow.mgt.impl.internal;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowRequestHandler;
+import org.wso2.carbon.identity.workflow.mgt.impl.userstore.AddRoleWFRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.impl.userstore.AddUserWFRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.impl.userstore.ChangeCredentialWFRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.impl.userstore.DeleteClaimWFRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.impl.userstore.DeleteMultipleClaimsWFRequestHandler;
+import org.wso2.carbon.identity.workflow.mgt.impl.userstore.DeleteRoleWFRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.impl.userstore.DeleteUserWFRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.impl.userstore.SetMultipleClaimsWFRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.impl.userstore.SetUserClaimWFRequestHandler;
+import org.wso2.carbon.identity.workflow.mgt.impl.userstore.UpdateRoleNameWFRequestHandler;
+import org.wso2.carbon.identity.workflow.mgt.impl.userstore.UpdateRoleUsersWFRequestHandler;
+import org.wso2.carbon.identity.workflow.mgt.impl.userstore.UpdateUserRolesWFRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.impl.userstore.UserStoreActionListener;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -70,7 +75,9 @@ public class IdentityWorkflowServiceComponent {
         bundleContext = context.getBundleContext();
         bundleContext.registerService(UserOperationEventListener.class.getName(), new UserStoreActionListener(), null);
         bundleContext.registerService(WorkflowRequestHandler.class.getName(), new AddUserWFRequestHandler(), null);
+        bundleContext.registerService(WorkflowRequestHandler.class.getName(), new AddRoleWFRequestHandler(), null);
         bundleContext.registerService(WorkflowRequestHandler.class.getName(), new DeleteUserWFRequestHandler(), null);
+        bundleContext.registerService(WorkflowRequestHandler.class.getName(), new DeleteRoleWFRequestHandler(), null);
         bundleContext.registerService(WorkflowRequestHandler.class.getName(), new ChangeCredentialWFRequestHandler(),
                 null);
         bundleContext.registerService(WorkflowRequestHandler.class.getName(), new SetUserClaimWFRequestHandler(), null);
@@ -78,6 +85,12 @@ public class IdentityWorkflowServiceComponent {
         bundleContext.registerService(WorkflowRequestHandler.class.getName(),
                 new DeleteMultipleClaimsWFRequestHandler(), null);
         bundleContext.registerService(WorkflowRequestHandler.class.getName(), new SetMultipleClaimsWFRequestHandler()
+                , null);
+        bundleContext.registerService(WorkflowRequestHandler.class.getName(), new UpdateUserRolesWFRequestHandler()
+                , null);
+        bundleContext.registerService(WorkflowRequestHandler.class.getName(), new UpdateRoleUsersWFRequestHandler()
+                , null);
+        bundleContext.registerService(WorkflowRequestHandler.class.getName(), new UpdateRoleNameWFRequestHandler()
                 , null);
     }
 

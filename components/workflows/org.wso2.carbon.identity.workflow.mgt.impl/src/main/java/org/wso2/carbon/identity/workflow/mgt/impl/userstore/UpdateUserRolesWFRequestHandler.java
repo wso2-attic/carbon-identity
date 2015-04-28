@@ -30,78 +30,47 @@ import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHandler {
+public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHandler {
     private static final String USERNAME = "username";
     private static final String USER_STORE_DOMAIN = "userStoreDomain";
-    private static final String CLAIMS = "claims";
-    private static final String CLAIM_VALUE = "claimValue";
-    private static final String PROFILE_NAME = "profileName";
+    private static final String DELETED_ROLE_LIST = "deletedRoleList";
+    private static final String NEW_ROLE_LIST = "newRoleList";
 
     private static final Map<String, String> PARAM_DEFINITION;
-    private static Log log = LogFactory.getLog(SetMultipleClaimsWFRequestHandler.class);
+    private static Log log = LogFactory.getLog(AddUserWFRequestHandler.class);
 
     static {
         PARAM_DEFINITION = new HashMap<>();
         PARAM_DEFINITION.put(USERNAME, WorkflowDataType.STRING_TYPE);
         PARAM_DEFINITION.put(USER_STORE_DOMAIN, WorkflowDataType.STRING_TYPE);
-        PARAM_DEFINITION.put(CLAIMS, WorkflowDataType.STRING_STRING_MAP_TYPE);
-        PARAM_DEFINITION.put(CLAIM_VALUE, WorkflowDataType.STRING_TYPE);
-        PARAM_DEFINITION.put(PROFILE_NAME, WorkflowDataType.STRING_TYPE);
+        PARAM_DEFINITION.put(DELETED_ROLE_LIST, WorkflowDataType.STRING_LIST_TYPE);
+        PARAM_DEFINITION.put(NEW_ROLE_LIST, WorkflowDataType.STRING_LIST_TYPE);
     }
 
-    public boolean startSetMultipleClaimsWorkflow(String userStoreDomain, String userName, Map<String, String>
-            claims, String profileName) throws WorkflowException {
+    public boolean startUpdateUserRolesFlow(String userStoreDomain, String userName, String[] deletedRoles, String[]
+            newRoles) throws WorkflowException {
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
         wfParams.put(USERNAME, userName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
-        wfParams.put(CLAIMS, claims);
-        wfParams.put(PROFILE_NAME, profileName);
+        wfParams.put(DELETED_ROLE_LIST, Arrays.asList(deletedRoles));
+        wfParams.put(NEW_ROLE_LIST, Arrays.asList(newRoles));
         return startWorkFlow(wfParams, nonWfParams);
     }
 
     @Override
-    public void onWorkflowCompletion(String status, Map<String, Object> requestParams,
-                                     Map<String, Object> responseAdditionalParams, int tenantId)
-            throws WorkflowException {
-        String userName;
-        Object requestUsername = requestParams.get(USERNAME);
-        if (requestUsername == null || !(requestUsername instanceof String)) {
-            throw new WorkflowException("Callback request for Set User Claim received without the mandatory " +
-                    "parameter 'username'");
-        }
-        String userStoreDomain = (String) requestParams.get(USER_STORE_DOMAIN);
-        if (StringUtils.isNotBlank(userStoreDomain)) {
-            userName = userStoreDomain + "/" + requestUsername;
-        } else {
-            userName = (String) requestUsername;
-        }
+    public String getEventId() {
+        return UserStoreWFConstants.UPDATE_USER_ROLES_EVENT;
+    }
 
-        Map<String, String> claims = (Map<String, String>) requestParams.get(CLAIMS);
-        String profile = (String) requestParams.get(PROFILE_NAME);
-
-        if (WorkflowRequestStatus.APPROVED.toString().equals(status) ||
-                WorkflowRequestStatus.SKIPPED.toString().equals(status)) {
-            try {
-                RealmService realmService = IdentityWorkflowServiceComponent.getRealmService();
-                UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
-                userRealm.getUserStoreManager().setUserClaimValues(userName, claims, profile);
-            } catch (UserStoreException e) {
-                throw new WorkflowException("Error when re-requesting setUserClaimValues operation for " + userName, e);
-            }
-        } else {
-            if (retryNeedAtCallback()) {
-                //unset threadlocal variable
-                unsetWorkFlowCompleted();
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("Setting User Claims is aborted for user '" + userName + "', Reason: Workflow response was " +
-                        status);
-            }
-        }
+    @Override
+    public Map<String, String> getParamDefinitions() {
+        return PARAM_DEFINITION;
     }
 
     @Override
@@ -110,12 +79,59 @@ public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHa
     }
 
     @Override
-    public String getEventId() {
-        return UserStoreWFConstants.SET_MULTIPLE_USER_CLAIMS_EVENT;
-    }
+    public void onWorkflowCompletion(String status, Map<String, Object> requestParams, Map<String, Object>
+            responseAdditionalParams, int tenantId) throws WorkflowException {
 
-    @Override
-    public Map<String, String> getParamDefinitions() {
-        return PARAM_DEFINITION;
+        String userName;
+        Object requestUsername = requestParams.get(USERNAME);
+        if (requestUsername == null || !(requestUsername instanceof String)) {
+            throw new WorkflowException("Callback request for Add User received without the mandatory " +
+                    "parameter 'username'");
+        }
+        String userStoreDomain = (String) requestParams.get(USER_STORE_DOMAIN);
+        if (StringUtils.isNotBlank(userStoreDomain)) {
+            userName = userStoreDomain + "/" + requestUsername;
+        } else {
+            userName = (String) requestUsername;
+        }
+        List<String> deletedRoleList = ((List<String>) requestParams.get(DELETED_ROLE_LIST));
+        String[] deletedRoles;
+        if (deletedRoleList != null) {
+            deletedRoles = new String[deletedRoleList.size()];
+            deletedRoles = deletedRoleList.toArray(deletedRoles);
+        } else {
+            deletedRoles = new String[0];
+        }
+
+        List<String> newRoleList = ((List<String>) requestParams.get(NEW_ROLE_LIST));
+        String[] newRoles;
+        if (newRoleList != null) {
+            newRoles = new String[newRoleList.size()];
+            newRoles = newRoleList.toArray(newRoles);
+        } else {
+            newRoles = new String[0];
+        }
+
+        if (WorkflowRequestStatus.APPROVED.toString().equals(status) ||
+                WorkflowRequestStatus.SKIPPED.toString().equals(status)) {
+            try {
+                RealmService realmService = IdentityWorkflowServiceComponent.getRealmService();
+                UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
+                userRealm.getUserStoreManager().updateRoleListOfUser(userName,deletedRoles,newRoles);
+            } catch (UserStoreException e) {
+                throw new WorkflowException("Error when re-requesting updateRoleListOfUser operation for " + userName,
+                        e);
+            }
+        } else {
+            if (retryNeedAtCallback()) {
+                //unset threadlocal variable
+                unsetWorkFlowCompleted();
+            }
+            if (log.isDebugEnabled()) {
+                log.debug(
+                        "Updating user roles is aborted for user '" + userName + "', Reason: Workflow response was " +
+                                status);
+            }
+        }
     }
 }

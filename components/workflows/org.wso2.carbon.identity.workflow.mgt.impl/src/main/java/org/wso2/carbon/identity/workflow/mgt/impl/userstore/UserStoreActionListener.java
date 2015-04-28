@@ -122,7 +122,7 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
             return new DeleteMultipleClaimsWFRequestHandler()
                     .startDeleteMultipleClaimsWorkflow(domain, userName, claims, profileName);
         } catch (WorkflowException e) {
-            log.error("Initiating workflow failed for setting claims of user: " + userName, e);
+            log.error("Initiating workflow failed for deleting claims of user: " + userName, e);
         }
         return false;
     }
@@ -142,31 +142,69 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
     }
 
     @Override
-    public boolean doPreAddRole(String s, String[] strings, Permission[] permissions, UserStoreManager
+    public boolean doPreAddRole(String roleName, String[] userList, Permission[] permissions, UserStoreManager
             userStoreManager) throws UserStoreException {
-        return true;
+        String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                .PROPERTY_DOMAIN_NAME);
+        try {
+            return new AddRoleWFRequestHandler().startAddRoleFlow(domain, roleName, userList, permissions);
+        } catch (WorkflowException e) {
+            log.error("Initiating workflow failed for adding role " + roleName, e);
+        }
+        return false;
     }
 
     @Override
-    public boolean doPreDeleteRole(String s, UserStoreManager userStoreManager) throws UserStoreException {
-        return true;
+    public boolean doPreDeleteRole(String roleName, UserStoreManager userStoreManager) throws UserStoreException {
+        String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                .PROPERTY_DOMAIN_NAME);
+        try {
+            return new DeleteRoleWFRequestHandler().startDeleteRoleFlow(domain, roleName);
+        } catch (WorkflowException e) {
+            log.error("Initiating workflow failed for deleting role " + roleName, e);
+        }
+        return false;
     }
 
     @Override
-    public boolean doPreUpdateRoleName(String s, String s1, UserStoreManager userStoreManager) throws
+    public boolean doPreUpdateRoleName(String roleName, String newRoleName, UserStoreManager userStoreManager) throws
             UserStoreException {
-        return true;
+        String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                .PROPERTY_DOMAIN_NAME);
+        try {
+            return new UpdateRoleNameWFRequestHandler()
+                    .startUpdateRoleNameFlow(domain, roleName, newRoleName);
+        } catch (WorkflowException e) {
+            log.error("Initiating workflow failed for updating role users of role: " + roleName, e);
+        }
+        return false;
     }
 
     @Override
-    public boolean doPreUpdateUserListOfRole(String s, String[] strings, String[] strings1, UserStoreManager
+    public boolean doPreUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers, UserStoreManager
             userStoreManager) throws UserStoreException {
-        return true;
+        String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                .PROPERTY_DOMAIN_NAME);
+        try {
+            return new UpdateRoleUsersWFRequestHandler()
+                    .startUpdateRoleUsersFlow(domain, roleName, deletedUsers, newUsers);
+        } catch (WorkflowException e) {
+            log.error("Initiating workflow failed for updating role users of role: " + roleName, e);
+        }
+        return false;
     }
 
     @Override
-    public boolean doPreUpdateRoleListOfUser(String s, String[] strings, String[] strings1, UserStoreManager
+    public boolean doPreUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles, UserStoreManager
             userStoreManager) throws UserStoreException {
-        return true;
+        String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                .PROPERTY_DOMAIN_NAME);
+        try {
+            return new UpdateUserRolesWFRequestHandler()
+                    .startUpdateUserRolesFlow(domain, userName, deletedRoles, newRoles);
+        } catch (WorkflowException e) {
+            log.error("Initiating workflow failed for updating user roles of user: " + userName, e);
+        }
+        return false;
     }
 }
