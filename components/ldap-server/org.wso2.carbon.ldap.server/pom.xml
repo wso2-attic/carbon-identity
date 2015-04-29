@@ -44,52 +44,52 @@
                             org.wso2.carbon.apacheds.*
                         </Private-Package>
                         <Import-Package>
-                            javax.naming,
-                            javax.naming.ldap,
-                            javax.naming.directory,
-                            javax.xml.namespace,
-                            javax.xml.stream,
-                            org.slf4j; version="${slf4j.wso2.version.range}",
-                            org.apache.axiom.*; version="${axiom.osgi.version.range}",
-                            org.apache.log4j; version="${carbon.logging.imp.pkg.version.range}",
-                            org.apache.commons.io; version="${commons.io.wso2.osgi.version.range}",
-                            org.apache.directory.server.core,
-                            org.apache.directory.server.core.changelog,
-                            org.apache.directory.server.core.factory,
-                            org.apache.directory.server.core.interceptor,
-                            org.apache.directory.server.core.jndi,
-                            org.apache.directory.server.core.kerberos,
-                            org.apache.directory.server.core.partition,
-                            org.apache.directory.server.core.partition.impl.btree.jdbm,
-                            org.apache.directory.server.core.partition.ldif,
-                            org.apache.directory.server.core.schema,
-                            org.apache.directory.server.i18n,
-                            org.apache.directory.server.kerberos.kdc,
-                            org.apache.directory.server.ldap,
-                            org.apache.directory.server.ldap.handlers.bind.cramMD5,
-                            org.apache.directory.server.ldap.handlers.bind.digestMD5,
-                            org.apache.directory.server.ldap.handlers.bind.gssapi,
-                            org.apache.directory.server.ldap.handlers.bind.ntlm,
-                            org.apache.directory.server.ldap.handlers.bind.plain,
-                            org.apache.directory.server.ldap.handlers.extended,
-                            org.apache.directory.server.protocol.shared.transport,
-                            org.apache.directory.shared.ldap.entry,
-                            org.apache.directory.shared.ldap.exception,
-                            org.apache.directory.shared.ldap.message,
-                            org.apache.directory.shared.ldap.message.internal,
-                            org.apache.directory.shared.ldap.name,
-                            org.apache.directory.shared.ldap.schema,
-                            org.apache.directory.shared.ldap.schema.ldif.extractor,
-                            org.apache.directory.shared.ldap.schema.loader.ldif,
-                            org.apache.directory.shared.ldap.schema.manager.impl,
-                            org.apache.directory.shared.ldap.schema.registries,
-                            org.apache.directory.shared.ldap.util,
-                            <!--org.apache.directory.server.*; version="${apacheds.imp.pkg.version.range}",-->
-                            <!--org.apache.directory.shared.*; version="${apacheds.imp.pkg.version.range}",-->
-                            org.osgi.framework; version="${osgi.framework.imp.pkg.version.range}",
-                            org.wso2.carbon.user.core.*;version="${carbon.kernel.package.import.version.range}",
-                            org.wso2.carbon.utils;version="${carbon.kernel.package.import.version.range}",
-                            org.wso2.carbon.user.api; version="${carbon.user.api.imp.pkg.version.range}",
+                            <!--javax.naming,-->
+                            <!--javax.naming.ldap,-->
+                            <!--javax.naming.directory,-->
+                            <!--javax.xml.namespace,-->
+                            <!--javax.xml.stream,-->
+                            <!--org.slf4j; version="${slf4j.wso2.version.range}",-->
+                            <!--org.apache.axiom.*; version="${axiom.osgi.version.range}",-->
+                            <!--org.apache.log4j; version="${carbon.logging.imp.pkg.version.range}",-->
+                            <!--org.apache.commons.io; version="${commons.io.wso2.osgi.version.range}",-->
+                            <!--org.apache.directory.server.core,-->
+                            <!--org.apache.directory.server.core.changelog,-->
+                            <!--org.apache.directory.server.core.factory,-->
+                            <!--org.apache.directory.server.core.interceptor,-->
+                            <!--org.apache.directory.server.core.jndi,-->
+                            <!--org.apache.directory.server.core.kerberos,-->
+                            <!--org.apache.directory.server.core.partition,-->
+                            <!--org.apache.directory.server.core.partition.impl.btree.jdbm,-->
+                            <!--org.apache.directory.server.core.partition.ldif,-->
+                            <!--org.apache.directory.server.core.schema,-->
+                            <!--org.apache.directory.server.i18n,-->
+                            <!--org.apache.directory.server.kerberos.kdc,-->
+                            <!--org.apache.directory.server.ldap,-->
+                            <!--org.apache.directory.server.ldap.handlers.bind.cramMD5,-->
+                            <!--org.apache.directory.server.ldap.handlers.bind.digestMD5,-->
+                            <!--org.apache.directory.server.ldap.handlers.bind.gssapi,-->
+                            <!--org.apache.directory.server.ldap.handlers.bind.ntlm,-->
+                            <!--org.apache.directory.server.ldap.handlers.bind.plain,-->
+                            <!--org.apache.directory.server.ldap.handlers.extended,-->
+                            <!--org.apache.directory.server.protocol.shared.transport,-->
+                            <!--org.apache.directory.shared.ldap.entry,-->
+                            <!--org.apache.directory.shared.ldap.exception,-->
+                            <!--org.apache.directory.shared.ldap.message,-->
+                            <!--org.apache.directory.shared.ldap.message.internal,-->
+                            <!--org.apache.directory.shared.ldap.name,-->
+                            <!--org.apache.directory.shared.ldap.schema,-->
+                            <!--org.apache.directory.shared.ldap.schema.ldif.extractor,-->
+                            <!--org.apache.directory.shared.ldap.schema.loader.ldif,-->
+                            <!--org.apache.directory.shared.ldap.schema.manager.impl,-->
+                            <!--org.apache.directory.shared.ldap.schema.registries,-->
+                            <!--org.apache.directory.shared.ldap.util,-->
+                            <!--&lt;!&ndash;org.apache.directory.server.*; version="${apacheds.imp.pkg.version.range}",&ndash;&gt;-->
+                            <!--&lt;!&ndash;org.apache.directory.shared.*; version="${apacheds.imp.pkg.version.range}",&ndash;&gt;-->
+                            <!--org.osgi.framework; version="${osgi.framework.imp.pkg.version.range}",-->
+                            <!--org.wso2.carbon.user.core.*;version="${carbon.kernel.package.import.version.range}",-->
+                            <!--org.wso2.carbon.utils;version="${carbon.kernel.package.import.version.range}",-->
+                            <!--org.wso2.carbon.user.api; version="${carbon.user.api.imp.pkg.version.range}",-->
                         </Import-Package>
                         <Export-Package>
                             org.wso2.carbon.ldap.server.*;version="${carbon.identity.package.export.version}"
