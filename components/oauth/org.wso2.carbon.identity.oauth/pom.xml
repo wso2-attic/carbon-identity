@@ -201,7 +201,8 @@
                             waffle.util; version="${waffle.imp.pkg.version.range}",
                             waffle.windows.auth; version="${waffle.imp.pkg.version.range}",
                             waffle.windows.auth.impl; version="${waffle.imp.pkg.version.range}",
-                            com.sun.jna.platform.win32; version="${waffle-jna.imp.pkg.version.range}",
+                            <!--com.sun.jna.platform.win32;-->
+                            <!--com.sun.jna.platform.win32; version="${waffle-jna.imp.pkg.version.range}",-->
 
                             org.joda.time;version="${opensaml2.wso2.osgi.version.range}",
                             org.opensaml.*; version="${opensaml2.wso2.osgi.version.range}",
