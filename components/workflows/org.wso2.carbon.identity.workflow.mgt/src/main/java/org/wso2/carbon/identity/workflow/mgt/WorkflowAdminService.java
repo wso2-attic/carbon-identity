@@ -26,6 +26,8 @@ import org.wso2.carbon.identity.workflow.mgt.bean.WSServiceBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventParameterBean;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowServicesDAO;
+import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowMgtServiceComponent;
 
 import javax.xml.xpath.XPath;
@@ -53,34 +55,40 @@ public class WorkflowAdminService {
         }
         try {
             servicesDAO.addWorkflowService(service);
-        } catch (WorkflowException e) {
+        } catch (InternalWorkflowException e) {
             log.error("Error while adding service.", e);
-            throw new WorkflowException("Error occurred when adding the service.");
+            throw new WorkflowException("Server error occurred when adding the service.");
         }
     }
 
     public void removeWSService(String alias) throws WorkflowException {
         if (StringUtils.isBlank(alias)) {
+            log.error("Null or empty string given as service alias to be removed.");
             throw new WorkflowException("Service alias cannot be null or empty");
         }
         try {
             servicesDAO.removeWorkflowService(alias);
-        } catch (WorkflowException e) {
+        } catch (InternalWorkflowException e) {
             log.error("Error while adding service.", e);
-            throw new WorkflowException("Error occurred when removing service");
+            throw new WorkflowException("Server error occurred when adding the service.");
         }
     }
 
     public void associateWSServiceToEvent(String serviceAlias, String eventType, String condition, int priority)
             throws WorkflowException {
         if (StringUtils.isBlank(serviceAlias)) {
+            log.error("Null or empty string given as service alias to be associated to event.");
             throw new WorkflowException("Service alias cannot be null");
         }
         if (StringUtils.isBlank(eventType)) {
+            log.error("Null or empty string given as 'event' to be associated with the service.");
             throw new WorkflowException("Event type cannot be null");
         }
 
         if (StringUtils.isBlank(condition)) {
+            log.error("Null or empty string given as condition expression when associating " + serviceAlias +
+                    " to event " +
+                    eventType);
             throw new WorkflowException("Condition cannot be null");
         }
 
@@ -89,16 +97,20 @@ public class WorkflowAdminService {
         XPath xpath = factory.newXPath();
         try {
             xpath.compile(condition);
+            servicesDAO.associateServiceWithEvent(serviceAlias, eventType, condition, priority);
         } catch (XPathExpressionException e) {
-            throw new WorkflowException("The condition:" + condition + " is not an valid xpath expression.", e);
+            log.error("The condition:" + condition + " is not an valid xpath expression.", e);
+            throw new WorkflowException("The condition:" + condition + " is not an valid xpath expression.");
+        } catch (InternalWorkflowException e) {
+            log.error("Error while associating service " + serviceAlias + " to event " + eventType, e);
+            throw new WorkflowException(
+                    "Server error occurred when associating the service " + serviceAlias + " to " + eventType);
         }
-        servicesDAO.associateServiceWithEvent(serviceAlias, eventType, condition, priority);
     }
 
     public WorkflowEventBean[] listWorkflowEvents() {
         Collection<WorkflowRequestHandler> workflowRequestHandlers =
-                WorkflowMgtServiceComponent.getWorkflowRequestHandlers()
-                        .values();
+                WorkflowMgtServiceComponent.getWorkflowRequestHandlers().values();
         WorkflowEventBean[] eventBeans = new WorkflowEventBean[workflowRequestHandlers.size()];
         int handlerIndex = 0;
         for (WorkflowRequestHandler workflowRequestHandler : workflowRequestHandlers) {
@@ -121,7 +133,14 @@ public class WorkflowAdminService {
     }
 
     public ServiceAssociationDTO[] listWSServices() throws WorkflowException {
-        List<ServiceAssociationDTO> dtoList = servicesDAO.listServiceAssociations();
-        return dtoList.toArray(new ServiceAssociationDTO[dtoList.size()]);
+        List<ServiceAssociationDTO> dtoList;
+        try {
+            dtoList = servicesDAO.listServiceAssociations();
+            return dtoList.toArray(new ServiceAssociationDTO[dtoList.size()]);
+        } catch (InternalWorkflowException e) {
+            log.error("Error while listing service associations", e);
+            throw new WorkflowException(
+                    "Server error occurred when listing services");
+        }
     }
 }

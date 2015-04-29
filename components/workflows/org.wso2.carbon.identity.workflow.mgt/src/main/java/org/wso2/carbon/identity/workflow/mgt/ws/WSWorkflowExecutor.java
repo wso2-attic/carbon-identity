@@ -33,12 +33,14 @@ import org.jaxen.JaxenException;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.WorkFlowExecutor;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowDataType;
-import org.wso2.carbon.identity.workflow.mgt.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.bean.WSServiceAssociation;
 import org.wso2.carbon.identity.workflow.mgt.bean.WSServiceBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowParameter;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowServicesDAO;
+import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowMgtServiceComponent;
 
 import java.util.ArrayList;
@@ -73,6 +75,7 @@ public class WSWorkflowExecutor implements WorkFlowExecutor {
                 }
             }
         } catch (WorkflowException e) {
+            //catching and logging all exceptions, because the flow will continue with the next executor if one fails
             log.error("Unable to build the WS request for the request.", e);
         }
         return false;
@@ -118,7 +121,7 @@ public class WSWorkflowExecutor implements WorkFlowExecutor {
         return EXECUTOR_NAME;
     }
 
-    private void callService(OMElement messagePayload, WSServiceBean service) throws WorkflowException {
+    private void callService(OMElement messagePayload, WSServiceBean service) throws InternalWorkflowException {
         try {
             ServiceClient client = new ServiceClient(WorkflowMgtServiceComponent.getConfigurationContextService()
                     .getClientConfigContext(), null);
@@ -140,11 +143,11 @@ public class WSWorkflowExecutor implements WorkFlowExecutor {
             client.setOptions(options);
             client.fireAndForget(messagePayload);
         } catch (AxisFault e) {
-            throw new WorkflowException("Error invoking service:" + service.getAlias(), e);
+            throw new InternalWorkflowException("Error invoking service:" + service.getAlias(), e);
         }
     }
 
-    protected OMElement buildWSRequest(WorkFlowRequest workFlowRequest) throws WorkflowException {
+    protected OMElement buildWSRequest(WorkFlowRequest workFlowRequest) throws RuntimeWorkflowException {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         WorkflowRequestBuilder requestBuilder = new WorkflowRequestBuilder(workFlowRequest.getUuid(),
                 workFlowRequest.getEventType(), tenantDomain);

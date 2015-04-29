@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowParameter;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestDAO;
+import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowMgtServiceComponent;
 
 import java.util.ArrayList;

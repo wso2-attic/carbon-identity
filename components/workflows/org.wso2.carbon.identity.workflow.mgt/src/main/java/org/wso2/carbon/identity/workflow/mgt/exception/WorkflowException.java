@@ -16,36 +16,15 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt;
+package org.wso2.carbon.identity.workflow.mgt.exception;
 
-public enum WorkflowRequestStatus {
-    /**
-     * No matching executor for the event.
-     */
-    SKIPPED,
+public class WorkflowException extends Exception{
 
-    /**
-     * Request is received and persisted, but the executor is yet to be invoked
-     */
-    CREATED,
+    public WorkflowException(String message){
+        super(message);
+    }
 
-    /**
-     * Invoked the executor and waiting for the callback
-     */
-    PENDING,
-
-    /**
-     * The request is approved.
-     */
-    APPROVED,
-
-    /**
-     * The request is rejected.
-     */
-    REJECTED,
-
-    /**
-     * The request failed at the executor.
-     */
-    UNDEFINED
+    public WorkflowException(String message, Throwable e){
+        super(message, e);
+    }
 }

@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.workflow.mgt.callback;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.workflow.mgt.WorkFlowExecutorManager;
-import org.wso2.carbon.identity.workflow.mgt.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
 import java.util.Collections;
 import java.util.HashMap;

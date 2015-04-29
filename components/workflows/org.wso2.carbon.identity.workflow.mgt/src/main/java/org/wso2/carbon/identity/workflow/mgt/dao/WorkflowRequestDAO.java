@@ -22,7 +22,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
-import org.wso2.carbon.identity.workflow.mgt.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowRequestStatus;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 
@@ -63,11 +64,11 @@ public class WorkflowRequestDAO {
             prepStmt.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {
-            throw new WorkflowException("Error when connecting to the Identity Database.", e);
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
-            throw new WorkflowException("Error when executing the sql query:" + query, e);
+            throw new InternalWorkflowException("Error when executing the sql query:" + query, e);
         } catch (IOException e) {
-            throw new WorkflowException("Error when serializing the workflow request: " + workflow, e);
+            throw new InternalWorkflowException("Error when serializing the workflow request: " + workflow, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
@@ -88,7 +89,7 @@ public class WorkflowRequestDAO {
         return baos.toByteArray();
     }
 
-    public void updateWorkflowStatus(WorkFlowRequest workflowDataBean) {
+    public void updateWorkflowStatus(WorkFlowRequest workflowDataBean) throws InternalWorkflowException{
     }
 
     /**
@@ -97,7 +98,7 @@ public class WorkflowRequestDAO {
      * @return
      * @throws WorkflowException
      */
-    public WorkFlowRequest retrieveWorkflow(String uuid) throws WorkflowException {
+    public WorkFlowRequest retrieveWorkflow(String uuid) throws InternalWorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -114,13 +115,11 @@ public class WorkflowRequestDAO {
                 return deserializeWorkflowRequest(requestBytes);
             }
         } catch (IdentityException e) {
-            throw new WorkflowException("Error when connecting to the Identity Database.", e);
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
-            throw new WorkflowException("Error when executing the sql query:" + query, e);
-        } catch (ClassNotFoundException e) {
-            throw new WorkflowException("Error when deserializing the workflow request. uuid = " + uuid, e);
-        } catch (IOException e) {
-            throw new WorkflowException("Error when deserializing the workflow request. uuid = " + uuid, e);
+            throw new InternalWorkflowException("Error when executing the sql query:" + query, e);
+        } catch (ClassNotFoundException | IOException e) {
+            throw new InternalWorkflowException("Error when deserializing the workflow request. uuid = " + uuid, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }

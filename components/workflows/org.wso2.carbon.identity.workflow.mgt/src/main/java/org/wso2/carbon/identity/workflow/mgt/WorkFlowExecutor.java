@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.workflow.mgt;
 
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
+import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
 public interface WorkFlowExecutor {
 
@@ -34,6 +35,7 @@ public interface WorkFlowExecutor {
 
     /**
      * Returns the priority level that would be the decider for the execution order
+     *
      * @return
      */
     public int getPriority();
@@ -41,6 +43,7 @@ public interface WorkFlowExecutor {
 
     /**
      * Execute the workflow. Once workflow is finish it should call the callback service
+     *
      * @param workFlowRequest
      * @throws WorkflowException
      */
@@ -49,6 +52,7 @@ public interface WorkFlowExecutor {
 
     /**
      * Returns the name of the executor
+     *
      * @return
      */
     public String getName();

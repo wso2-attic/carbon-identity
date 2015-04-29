@@ -16,15 +16,14 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt;
+package org.wso2.carbon.identity.workflow.mgt.exception;
 
-public class WorkflowException extends Exception{
-
-    public WorkflowException(String message){
+public class RuntimeWorkflowException extends WorkflowException {
+    public RuntimeWorkflowException(String message) {
         super(message);
     }
 
-    public WorkflowException(String message, Throwable e){
+    public RuntimeWorkflowException(String message, Throwable e) {
         super(message, e);
     }
 }

@@ -21,12 +21,16 @@ package org.wso2.carbon.identity.workflow.mgt;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowParameter;
+import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+//import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
 public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestHandler {
 
@@ -96,7 +100,8 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
      * @param required Whether it is required to sent to the workflow executor
      * @return
      */
-    protected WorkflowParameter getParameter(String name, Object value, boolean required) throws WorkflowException {
+    protected WorkflowParameter getParameter(String name, Object value, boolean required)
+            throws RuntimeWorkflowException {
         WorkflowParameter parameter = new WorkflowParameter();
         parameter.setName(name);
         parameter.setValue(value);
@@ -109,9 +114,8 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
             if (isValueValid(name, value, valueType)) {
                 parameter.setValueType(valueType);
             } else {
-                throw new WorkflowException(
-                        "Invalid value for '" + name + "', Expected: '" + valueType + "', but was of " +
-                                "" + value.getClass().getName());
+                throw new RuntimeWorkflowException("Invalid value for '" + name + "', Expected: '" + valueType + "', " +
+                        "but was of " + value.getClass().getName());
             }
         }
         return parameter;
@@ -124,8 +128,8 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
     }
 
     @Override
-    public void onWorkflowCompletion(String status, WorkFlowRequest originalRequest, Map<String, Object> responseParams)
-            throws WorkflowException {
+    public void onWorkflowCompletion(String status, WorkFlowRequest originalRequest, Map<String, Object>
+            responseParams) {
         Map<String, Object> requestParams = new HashMap<String, Object>();
         for (WorkflowParameter parameter : originalRequest.getWorkflowParameters()) {
             requestParams.put(parameter.getName(), parameter.getValue());
@@ -143,10 +147,9 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
      * @param requestParams            The params that were in the original request
      * @param responseAdditionalParams The params sent from the workflow executor
      * @param tenantId
-     * @throws WorkflowException
      */
     public abstract void onWorkflowCompletion(String status, Map<String, Object> requestParams, Map<String, Object>
-            responseAdditionalParams, int tenantId) throws WorkflowException;
+            responseAdditionalParams, int tenantId);
 
     /**
      * Whether the same request is initiated at the callback. If set to <code>true</code>, this will take actions to

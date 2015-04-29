@@ -20,10 +20,10 @@ package org.wso2.carbon.identity.workflow.mgt.dao;
 
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
-import org.wso2.carbon.identity.workflow.mgt.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.bean.ServiceAssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.WSServiceAssociation;
 import org.wso2.carbon.identity.workflow.mgt.bean.WSServiceBean;
+import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,9 +38,9 @@ public class WorkflowServicesDAO {
      * Stores Workflow executor service details
      *
      * @param workflowService The service to be stored
-     * @throws WorkflowException
+     * @throws InternalWorkflowException
      */
-    public void addWorkflowService(WSServiceBean workflowService) throws WorkflowException {
+    public void addWorkflowService(WSServiceBean workflowService) throws InternalWorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
 
@@ -56,9 +56,9 @@ public class WorkflowServicesDAO {
             prepStmt.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {
-            throw new WorkflowException("Error when connecting to the Identity Database.", e);
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
-            throw new WorkflowException("Error when executing the sql query", e);
+            throw new InternalWorkflowException("Error when executing the sql query", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
@@ -72,7 +72,7 @@ public class WorkflowServicesDAO {
      * @param condition    The condition to be match as a XPath Expression.
      */
     public void associateServiceWithEvent(String serviceAlias, String eventId, String condition, int priority)
-            throws WorkflowException {
+            throws InternalWorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
 
@@ -87,9 +87,9 @@ public class WorkflowServicesDAO {
             prepStmt.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {
-            throw new WorkflowException("Error when connecting to the Identity Database.", e);
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
-            throw new WorkflowException("Error when executing the sql query", e);
+            throw new InternalWorkflowException("Error when executing the sql query", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
@@ -102,7 +102,7 @@ public class WorkflowServicesDAO {
      * @param eventId
      * @return
      */
-    public List<WSServiceAssociation> getSubscribedServicesForEvent(String eventId) throws WorkflowException {
+    public List<WSServiceAssociation> getSubscribedServicesForEvent(String eventId) throws InternalWorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -135,16 +135,16 @@ public class WorkflowServicesDAO {
                 servicesMatched.add(association);
             }
         } catch (IdentityException e) {
-            throw new WorkflowException("Error when connecting to the Identity Database.", e);
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
-            throw new WorkflowException("Error when executing the sql.", e);
+            throw new InternalWorkflowException("Error when executing the sql.", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
         return servicesMatched;
     }
 
-    public void removeWorkflowService(String alias) throws WorkflowException {
+    public void removeWorkflowService(String alias) throws InternalWorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         String query = SQLConstants.DELETE_WS_SERVICE_QUERY;
@@ -154,9 +154,9 @@ public class WorkflowServicesDAO {
             prepStmt.setString(1, alias);
             prepStmt.executeUpdate();
         } catch (IdentityException e) {
-            throw new WorkflowException("Error when connecting to the Identity Database.", e);
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
-            throw new WorkflowException("Error when executing the sql.", e);
+            throw new InternalWorkflowException("Error when executing the sql.", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
@@ -166,7 +166,7 @@ public class WorkflowServicesDAO {
 //        todo:implement
     }
 
-    public List<ServiceAssociationDTO> listServiceAssociations() throws WorkflowException {
+    public List<ServiceAssociationDTO> listServiceAssociations() throws InternalWorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -188,9 +188,9 @@ public class WorkflowServicesDAO {
                 associationDTOList.add(associationDTO);
             }
         } catch (IdentityException e) {
-            throw new WorkflowException("Error when connecting to the Identity Database.", e);
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
-            throw new WorkflowException("Error when executing the sql.", e);
+            throw new InternalWorkflowException("Error when executing the sql.", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
