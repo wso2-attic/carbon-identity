@@ -2284,11 +2284,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
      * @throws SQLException
      */
     public void deleteAssignedPermissions(Connection connection, String applicationName, ApplicationPermission[] permissions)
-        throws IdentityApplicationManagementException, SQLException {
+            throws IdentityApplicationManagementException, SQLException {
 
         List<ApplicationPermission> loadPermissions = ApplicationMgtUtil.loadPermissions(applicationName);
         List<ApplicationPermission> removedPermissions = null;
-        if(loadPermissions !=null && loadPermissions.size() > 0) {
+        if (loadPermissions != null && loadPermissions.size() > 0) {
 
             if (permissions == null || permissions.length == 0) {
                 removedPermissions = new ArrayList<ApplicationPermission>(loadPermissions);
@@ -2296,20 +2296,20 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 removedPermissions = new ArrayList<ApplicationPermission>();
                 for (ApplicationPermission storedPermission : loadPermissions) {
                     boolean isStored = false;
-                    for(ApplicationPermission applicationPermission: permissions){
-                        if(applicationPermission.getValue().equals(storedPermission.getValue())){
+                    for (ApplicationPermission applicationPermission : permissions) {
+                        if (applicationPermission.getValue().equals(storedPermission.getValue())) {
                             isStored = true;
                             break;
                         }
                     }
-                    if(!isStored){
+                    if (!isStored) {
                         removedPermissions.add(storedPermission);
                     }
                 }
             }
         }
 
-        if(removedPermissions != null && removedPermissions.size() > 0){
+        if (removedPermissions != null && removedPermissions.size() > 0) {
             //delete permissions
             for (ApplicationPermission applicationPermission : removedPermissions) {
                 String permissionValue = ApplicationMgtUtil.PATH_CONSTANT +
@@ -2318,11 +2318,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                         applicationName + ApplicationMgtUtil.PATH_CONSTANT +
                         applicationPermission.getValue();
                 PreparedStatement selectQuery = null;
-                try{
+                try {
                     selectQuery = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS_W);
-                    selectQuery.setString(1,permissionValue.toLowerCase());
+                    selectQuery.setString(1, permissionValue.toLowerCase());
                     ResultSet resultSet = selectQuery.executeQuery();
-                    if(resultSet.next()){
+                    if (resultSet.next()) {
                         int UM_ID = resultSet.getInt(1);
                         PreparedStatement deleteRolePermission = null;
                         PreparedStatement deletePermission = null;
@@ -2332,15 +2332,15 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                             deleteRolePermission.executeUpdate();
 
                             deletePermission = connection.prepareStatement(ApplicationMgtDBQueries.REMOVE_UM_PERMISSIONS);
-                            deletePermission.setInt(1,UM_ID);
+                            deletePermission.setInt(1, UM_ID);
                             deletePermission.executeUpdate();
 
-                        }finally {
+                        } finally {
                             IdentityApplicationManagementUtil.closeStatement(deleteRolePermission);
                             IdentityApplicationManagementUtil.closeStatement(deletePermission);
                         }
                     }
-                }finally {
+                } finally {
                     IdentityApplicationManagementUtil.closeStatement(selectQuery);
                 }
             }

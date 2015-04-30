@@ -184,27 +184,27 @@ public class ApplicationMgtUtil {
      * @throws IdentityApplicationManagementException
      */
     public static void renameAppPermissionPathNode(String oldName, String newName)
-            throws IdentityApplicationManagementException{
+            throws IdentityApplicationManagementException {
 
         List<ApplicationPermission> loadPermissions = loadPermissions(oldName);
         String newApplicationNode = ApplicationMgtUtil.getApplicationPermissionPath() + PATH_CONSTANT + oldName;
         Registry tenantGovReg = CarbonContext.getThreadLocalCarbonContext().getRegistry(
                 RegistryType.USER_GOVERNANCE);
         //creating new application node
-        try{
-            for(ApplicationPermission applicationPermission : loadPermissions) {
-                tenantGovReg.delete(newApplicationNode + PATH_CONSTANT +applicationPermission.getValue());
+        try {
+            for (ApplicationPermission applicationPermission : loadPermissions) {
+                tenantGovReg.delete(newApplicationNode + PATH_CONSTANT + applicationPermission.getValue());
             }
             tenantGovReg.delete(newApplicationNode);
             Collection permissionNode = tenantGovReg.newCollection();
-            permissionNode.setProperty("name",newName);
+            permissionNode.setProperty("name", newName);
             newApplicationNode = ApplicationMgtUtil.getApplicationPermissionPath() + PATH_CONSTANT + newName;
             ApplicationMgtUtil.applicationNode = newApplicationNode;
-            tenantGovReg.put(newApplicationNode,permissionNode);
-            addPermission(loadPermissions.toArray(new ApplicationPermission[loadPermissions.size()]),tenantGovReg);
-        }catch(Exception e){
+            tenantGovReg.put(newApplicationNode, permissionNode);
+            addPermission(loadPermissions.toArray(new ApplicationPermission[loadPermissions.size()]), tenantGovReg);
+        } catch (Exception e) {
             throw new IdentityApplicationManagementException("Error while renaming permission node "
-                    +oldName +"to "+newName, e);
+                    + oldName + "to " + newName, e);
         }
     }
 
