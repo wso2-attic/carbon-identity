@@ -2285,11 +2285,9 @@ public class ApplicationDAOImpl implements ApplicationDAO {
      */
     public void deleteAssignedPermissions(Connection connection, String applicationName, ApplicationPermission[] permissions)
             throws IdentityApplicationManagementException, SQLException {
-
         List<ApplicationPermission> loadPermissions = ApplicationMgtUtil.loadPermissions(applicationName);
         List<ApplicationPermission> removedPermissions = null;
         if (loadPermissions != null && loadPermissions.size() > 0) {
-
             if (permissions == null || permissions.length == 0) {
                 removedPermissions = new ArrayList<ApplicationPermission>(loadPermissions);
             } else {
@@ -2308,7 +2306,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 }
             }
         }
-
         if (removedPermissions != null && removedPermissions.size() > 0) {
             //delete permissions
             for (ApplicationPermission applicationPermission : removedPermissions) {
@@ -2330,11 +2327,9 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                             deleteRolePermission = connection.prepareStatement(ApplicationMgtDBQueries.REMOVE_UM_ROLE_PERMISSION);
                             deleteRolePermission.setInt(1, UM_ID);
                             deleteRolePermission.executeUpdate();
-
                             deletePermission = connection.prepareStatement(ApplicationMgtDBQueries.REMOVE_UM_PERMISSIONS);
                             deletePermission.setInt(1, UM_ID);
                             deletePermission.executeUpdate();
-
                         } finally {
                             IdentityApplicationManagementUtil.closeStatement(deleteRolePermission);
                             IdentityApplicationManagementUtil.closeStatement(deletePermission);
