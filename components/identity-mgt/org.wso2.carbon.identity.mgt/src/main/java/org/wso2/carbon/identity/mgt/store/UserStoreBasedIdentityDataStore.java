@@ -141,7 +141,7 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
 
             Cache<String, UserIdentityClaimsDO> cache = getCache();
             if (cache != null) {
-                cache.put(tenantId + userName, userIdentityDTO);
+                cache.put(userStoreManager.hashCode() + "" + tenantId + userName, userIdentityDTO);
             }
             return userIdentityDTO;
         }
