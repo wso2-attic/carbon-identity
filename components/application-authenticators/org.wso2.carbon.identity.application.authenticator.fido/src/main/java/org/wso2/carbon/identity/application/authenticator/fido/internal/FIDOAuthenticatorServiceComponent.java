@@ -51,7 +51,7 @@ public class FIDOAuthenticatorServiceComponent {
 				log.debug("FIDOAuthenticator service is registered");
 			}
 		} catch (Throwable e) {
-			log.error("Error registering FIDOAuthenticator service", e);
+			log.fatal("Error registering FIDOAuthenticator service", e);
 		}
 
 		U2FService u2FService = U2FService.getInstance();
@@ -61,7 +61,7 @@ public class FIDOAuthenticatorServiceComponent {
 				log.debug("U2FService service is registered");
 			}
 			}catch(Throwable e){
-				log.error("Error registering U2FService service", e);
+				log.fatal("Error registering U2FService service", e);
 			}
 	}
 
