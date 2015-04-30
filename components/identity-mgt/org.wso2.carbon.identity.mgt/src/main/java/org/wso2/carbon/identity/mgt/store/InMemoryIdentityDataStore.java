@@ -49,7 +49,7 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
             throws IdentityException {
         if (userIdentityDTO != null && userIdentityDTO.getUserName() != null) {
             String key =
-                    CarbonContext.getThreadLocalCarbonContext().getTenantId() +
+                    userStoreManager.hashCode()+""+CarbonContext.getThreadLocalCarbonContext().getTenantId() +
                             userIdentityDTO.getUserName();
 //			if (cache.containsKey(key)) {
 //				invalidateCache(userIdentityDTO.getUserName());
@@ -67,7 +67,7 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
 
         Cache<String, UserIdentityClaimsDO> cache = getCache();
         if (userName != null && cache != null) {
-            return (UserIdentityClaimsDO) cache.get(CarbonContext.getThreadLocalCarbonContext().getTenantId() +
+            return (UserIdentityClaimsDO) cache.get(userStoreManager.hashCode()+""+CarbonContext.getThreadLocalCarbonContext().getTenantId() +
                     userName);
         }
         return null;
@@ -79,7 +79,7 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
             return;
         }
 
-        cache.remove(CarbonContext.getThreadLocalCarbonContext().getTenantId() + userName);
+        cache.remove(userStoreManager+""+CarbonContext.getThreadLocalCarbonContext().getTenantId() + userName);
 
 //		invalidateCache(userName);
     }
