@@ -55,18 +55,14 @@
                         <Bundle-SymbolicName>
                             ${project.artifactId}
                         </Bundle-SymbolicName>
-                        <Private-Package>
-                            org.wso2.carbon.identity.oauth.internal,
-                        </Private-Package>
                         <Import-Package>
-                            org.apache.commons.logging.*; version="1.0.4",
-                            org.wso2.carbon.identity.core.*,
-                            *;resolution:=optional
+                            org.apache.amber.oauth2.common.validators; version="${amber.package.import.version.range}",
+                            org.wso2.carbon.identity.base; version="${carbon.identity.package.import.version.range}"
                         </Import-Package>
                         <Export-Package>
-                            org.wso2.carbon.identity.oauth.common*,
+                            org.wso2.carbon.identity.oauth.common.*;
+                            version="${carbon.identity.package.export.version}"
                         </Export-Package>
-                        <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>
