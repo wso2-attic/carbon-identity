@@ -247,8 +247,4 @@ public class AuthenticationEndpointTenantActivityListener implements TenantMgtLi
         return 0;
     }
 
-	@Override
-	public void onPreDelete(int tenantId) throws StratosException {
-		// Implement this method to delete product specific data
-	}
 }
