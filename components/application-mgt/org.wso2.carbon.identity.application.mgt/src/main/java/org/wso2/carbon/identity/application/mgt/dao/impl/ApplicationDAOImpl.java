@@ -223,6 +223,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             deletePermissionAndRoleConfiguration(applicationId, connection);
             updatePermissionAndRoleConfiguration(serviceProvider.getApplicationID(),
                     serviceProvider.getPermissionAndRoleConfig(), connection);
+            deleteAssignedPermissions(connection,serviceProvider.getApplicationName(),
+                    serviceProvider.getPermissionAndRoleConfig().getPermissions());
 
             if (!connection.getAutoCommit()) {
                 connection.commit();
@@ -292,12 +294,40 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         }
 
         // only if the application has been renamed
-        if (!applicationName.equalsIgnoreCase(storedAppName)) {
+        if (!applicationName.equals(storedAppName)) {
             // rename the role
             ApplicationMgtUtil.renameRole(storedAppName, applicationName);
             if (debugMode) {
                 log.debug("Renaming application role from " + storedAppName + " to "
                         + applicationName);
+            }
+            // rename already existing permission node
+            ApplicationMgtUtil.renameAppPermissionPathNode(storedAppName, applicationName);
+
+            PreparedStatement readPermissions = null;
+            try {
+                readPermissions = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS);
+                readPermissions.setString(1, "%" + ApplicationMgtUtil.getApplicationPermissionPath() + "%");
+                ResultSet resultSet = readPermissions.executeQuery();
+                while (resultSet.next()) {
+                    String UM_ID = resultSet.getString(1);
+                    String permission = resultSet.getString(2);
+                    if (permission.contains(ApplicationMgtUtil.getApplicationPermissionPath() +
+                            ApplicationMgtUtil.PATH_CONSTANT + storedAppName.toLowerCase())) {
+                        permission = permission.replace(storedAppName.toLowerCase(), applicationName.toLowerCase());
+                        PreparedStatement updatePermission = null;
+                        try {
+                            updatePermission = connection.prepareStatement(ApplicationMgtDBQueries.UPDATE_SP_PERMISSIONS);
+                            updatePermission.setString(1, permission);
+                            updatePermission.setString(2, UM_ID);
+                            updatePermission.executeUpdate();
+                        } finally {
+                            IdentityApplicationManagementUtil.closeStatement(updatePermission);
+                        }
+                    }
+                }
+            } finally {
+                IdentityApplicationManagementUtil.closeStatement(readPermissions);
             }
         }
 
@@ -2245,6 +2275,78 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             deleteRoleMappingPrepStmt.execute();
         } finally {
             IdentityApplicationManagementUtil.closeStatement(deleteRoleMappingPrepStmt);
+        }
+    }
+
+    /***
+     * Delete assigned role permission mappings for deleted permissions
+     * @param connection
+     * @param applicationName
+     * @param permissions
+     * @throws IdentityApplicationManagementException
+     * @throws SQLException
+     */
+    public void deleteAssignedPermissions(Connection connection, String applicationName, ApplicationPermission[] permissions)
+    throws IdentityApplicationManagementException, SQLException {
+
+        List<ApplicationPermission> loadPermissions = ApplicationMgtUtil.loadPermissions(applicationName);
+        List<ApplicationPermission> removedPermissions = null;
+        if(loadPermissions !=null && loadPermissions.size() > 0) {
+
+            if (permissions == null || permissions.length == 0) {
+                removedPermissions = new ArrayList<ApplicationPermission>(loadPermissions);
+            } else {
+                removedPermissions = new ArrayList<ApplicationPermission>();
+                for (ApplicationPermission storedPermission : loadPermissions) {
+                    boolean isStored = false;
+                    for(ApplicationPermission applicationPermission: permissions){
+                        if(applicationPermission.getValue().equals(storedPermission.getValue())){
+                            isStored = true;
+                            break;
+                        }
+                    }
+                    if(!isStored){
+                        removedPermissions.add(storedPermission);
+                    }
+                }
+            }
+        }
+
+        if(removedPermissions != null && removedPermissions.size() > 0){
+            //delete permissions
+            for (ApplicationPermission applicationPermission : removedPermissions) {
+                String permissionValue = ApplicationMgtUtil.PATH_CONSTANT +
+                        ApplicationMgtUtil.getApplicationPermissionPath() +
+                        ApplicationMgtUtil.PATH_CONSTANT +
+                        applicationName + ApplicationMgtUtil.PATH_CONSTANT +
+                        applicationPermission.getValue();
+                PreparedStatement selectQuery = null;
+                try{
+                    selectQuery = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS_W);
+                    selectQuery.setString(1,permissionValue.toLowerCase());
+                    ResultSet resultSet = selectQuery.executeQuery();
+                    if(resultSet.next()){
+                        int UM_ID = resultSet.getInt(1);
+                        PreparedStatement deleteRolePermission = null;
+                        PreparedStatement deletePermission = null;
+                        try {
+                            deleteRolePermission = connection.prepareStatement(ApplicationMgtDBQueries.REMOVE_UM_ROLE_PERMISSION);
+                            deleteRolePermission.setInt(1, UM_ID);
+                            deleteRolePermission.executeUpdate();
+
+                            deletePermission = connection.prepareStatement(ApplicationMgtDBQueries.REMOVE_UM_PERMISSIONS);
+                            deletePermission.setInt(1,UM_ID);
+                            deletePermission.executeUpdate();
+
+                        }finally {
+                            IdentityApplicationManagementUtil.closeStatement(deleteRolePermission);
+                            IdentityApplicationManagementUtil.closeStatement(deletePermission);
+                        }
+                    }
+                }finally {
+                    IdentityApplicationManagementUtil.closeStatement(selectQuery);
+                }
+            }
         }
     }
 

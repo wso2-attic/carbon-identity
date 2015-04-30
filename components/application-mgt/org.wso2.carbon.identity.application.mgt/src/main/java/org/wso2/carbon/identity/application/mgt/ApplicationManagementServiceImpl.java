@@ -244,7 +244,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             ApplicationPermission[] permissions =
                     serviceProvider.getPermissionAndRoleConfig()
                             .getPermissions();
-            if (permissions != null && permissions.length > 0) {
+            if (permissions != null) {
                 ApplicationMgtUtil.updatePermissions(serviceProvider.getApplicationName(),
                         permissions);
             }
