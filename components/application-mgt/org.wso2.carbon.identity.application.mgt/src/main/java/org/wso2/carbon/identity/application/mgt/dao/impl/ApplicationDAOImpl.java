@@ -301,9 +301,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 log.debug("Renaming application role from " + storedAppName + " to "
                         + applicationName);
             }
-            // rename already existing permission node
-            ApplicationMgtUtil.renameAppPermissionPathNode(storedAppName, applicationName);
-
             PreparedStatement readPermissions = null;
             try {
                 readPermissions = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS);
@@ -2287,7 +2284,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
      * @throws SQLException
      */
     public void deleteAssignedPermissions(Connection connection, String applicationName, ApplicationPermission[] permissions)
-    throws IdentityApplicationManagementException, SQLException {
+        throws IdentityApplicationManagementException, SQLException {
 
         List<ApplicationPermission> loadPermissions = ApplicationMgtUtil.loadPermissions(applicationName);
         List<ApplicationPermission> removedPermissions = null;
