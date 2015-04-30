@@ -69,20 +69,22 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
-                        <Export-Package>
-                            org.wso2.carbon.security.ui.*;version="1.0.0",
-                        </Export-Package>
                         <Import-Package>
+                            javax.activation; version="[0.0.0,0.1.0)",
                             org.apache.axis2.*; version="${axis2.osgi.version.range}",
-                            org.apache.axiom.*; version="${axiom.osgi.version.range}",
-                            org.wso2.carbon.utils,
-                            org.wso2.carbon.registry.core.*,
-                            org.wso2.carbon.user.mgt.common.*,
-                            org.wso2.carbon.user.mgt.ui.*,
-                            org.wso2.carbon.security.mgt.stub.*;version="${carbon.identity.package.import.version.range}",
-                            org.apache.commons.fileupload.*; version="0.0.0",
-                            *;resolution:=optional
+                            org.apache.axiom.om.util; version="${axiom.osgi.version.range}",
+                            org.apache.commons.fileupload.*; version="${commons-fileupload.imp.pkg.version.range}",
+                            org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
+                            org.osgi.framework; version="${osgi.framework.imp.pkg.version.range}",
+                            org.osgi.util.tracker; version="${osgi.util.tracker.imp.pkg.version.range}",
+                            org.wso2.carbon.registry.core.*; version="${carbon.kernel.registry.imp.pkg.version}",
+                            org.wso2.carbon.security.mgt.stub.*;
+                            version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.user.mgt.stub.types.carbon; version="${carbon.commons.imp.pkg.version}",
                         </Import-Package>
+                        <Export-Package>
+                            org.wso2.carbon.security.ui.*; version="${carbon.identity.package.export.version}"
+                        </Export-Package>
                         <Carbon-Component>UIBundle</Carbon-Component>
                     </instructions>
                 </configuration>

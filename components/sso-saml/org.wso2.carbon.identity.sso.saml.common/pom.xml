@@ -77,20 +77,18 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Import-Package>
-                            !javax.xml.namespace,
-                            javax.xml.namespace;
-                            version=0.0.0,
-                            org.apache.commons.logging.*; version="1.0.4",
-                            javax.servlet;version="${imp.pkg.version.javax.servlet}",
-                            javax.servlet.http;version="${imp.pkg.version.javax.servlet}",
-                            javax.xml.stream.*; version=1.0.1,
-                            org.wso2.carbon.identity.core.*;
-                            org.apache.http.client,
-                            org.apache.commons.httpclient.*,
-                            *;resolution:=optional
+                            javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
+                            org.wso2.carbon.ui.util; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.identity.base; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.core.util;
+                            version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.sso.saml.stub.types;
+                            version="${carbon.identity.package.import.version.range}",
                         </Import-Package>
-                        <Export-Package>org.wso2.carbon.identity.sso.saml.common.*</Export-Package>
-                        <DynamicImport-Package>*</DynamicImport-Package>
+                        <Export-Package>
+                            org.wso2.carbon.identity.sso.saml.common.*;
+                            version="${carbon.identity.package.export.version}",
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
