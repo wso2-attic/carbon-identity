@@ -100,14 +100,18 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>2.3.5</version>
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.carbon.identity.authorization.*;version="1.0.0",
+                            org.wso2.carbon.identity.authorization.core.dto.xsd;
+                            version="${carbon.identity.package.export.version}",
+                            org.wso2.carbon.identity.authorization.core.xsd;
+                            version="${carbon.identity.package.export.version}",
+                            org.wso2.carbon.identity.authorization.stub;
+                            version="${carbon.identity.package.export.version}",
                         </Export-Package>
                         <Import-Package>
                             !javax.xml.namespace,
