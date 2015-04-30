@@ -34,7 +34,7 @@ import org.wso2.carbon.identity.application.authentication.framework.model.Authe
 import org.wso2.carbon.identity.application.authenticator.fido.dto.FIDOUser;
 import org.wso2.carbon.identity.application.authenticator.fido.u2f.U2FService;
 import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOAuthenticatorConstants;
-import org.wso2.carbon.identity.application.authenticator.fido.util.Util;
+import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,140 +44,146 @@ import java.net.URLEncoder;
 /**
  * FIDO U2F Specification based authenticator.
  */
-public class FIDOAuthenticator extends AbstractApplicationAuthenticator implements LocalApplicationAuthenticator {
-	private static Log log = LogFactory.getLog(FIDOAuthenticator.class);
-	private static FIDOAuthenticator instance = new FIDOAuthenticator();
-	@Override
-	public AuthenticatorFlowStatus process(HttpServletRequest request, HttpServletResponse response,
-	                                       AuthenticationContext context)
-			throws AuthenticationFailedException, LogoutFailedException {
-		return super.process(request, response, context);
-	}
+public class FIDOAuthenticator extends AbstractApplicationAuthenticator
+        implements LocalApplicationAuthenticator {
+    private static Log log = LogFactory.getLog(FIDOAuthenticator.class);
+    private static FIDOAuthenticator instance = new FIDOAuthenticator();
 
-	@Override
-	protected void processAuthenticationResponse(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationContext context) throws AuthenticationFailedException {
+    @Override
+    public AuthenticatorFlowStatus process(HttpServletRequest request, HttpServletResponse response,
+                                           AuthenticationContext context)
+            throws AuthenticationFailedException, LogoutFailedException {
+        return super.process(request, response, context);
+    }
 
-		String tokenResponse = request.getParameter("tokenResponse");
-        if(tokenResponse != null && !tokenResponse.contains("errorCode")) {
-            String appID = Util.getOrigin(request);
-            String username = getUsername(context);
+    @Override
+    protected void processAuthenticationResponse(HttpServletRequest request,
+                                                 HttpServletResponse response,
+                                                 AuthenticationContext context)
+            throws AuthenticationFailedException {
+
+        String tokenResponse = request.getParameter("tokenResponse");
+        if (tokenResponse != null && !tokenResponse.contains("errorCode")) {
+            String appID = FIDOUtil.getOrigin(request);
+            AuthenticatedUser user = getUsername(context);
 
             U2FService u2FService = U2FService.getInstance();
             //TODO enhancement: tenant domain, user store domain
-            FIDOUser fidoUser = new FIDOUser(username, "", "", AuthenticateResponse.fromJson(tokenResponse));
+            FIDOUser fidoUser = new FIDOUser(user.getUserName(), user.getTenantDomain(),
+                                             user.getUserStoreDomain(), AuthenticateResponse.fromJson(tokenResponse));
             fidoUser.setAppID(appID);
             u2FService.finishAuthentication(fidoUser);
-        }
-        else {
+        } else {
             if (log.isDebugEnabled()) {
-                log.debug("FODO authentication filed : " + tokenResponse );
+                log.debug("FIDO authentication filed : " + tokenResponse);
             }
 
-            throw new InvalidCredentialsException();
+            throw new InvalidCredentialsException("FIDO device authentication failed ");
         }
 
-	}
+    }
 
-	@Override
-	public boolean canHandle(javax.servlet.http.HttpServletRequest httpServletRequest) {
-		String tokenResponse = httpServletRequest.getParameter("tokenResponse");
-		return null != tokenResponse;
+    @Override
+    public boolean canHandle(javax.servlet.http.HttpServletRequest httpServletRequest) {
+        String tokenResponse = httpServletRequest.getParameter("tokenResponse");
+        return null != tokenResponse;
 
-	}
+    }
 
-	@Override
-	public String getContextIdentifier(
-			javax.servlet.http.HttpServletRequest httpServletRequest) {
-		return httpServletRequest.getParameter("sessionDataKey");
-	}
+    @Override
+    public String getContextIdentifier(
+            javax.servlet.http.HttpServletRequest httpServletRequest) {
+        return httpServletRequest.getParameter("sessionDataKey");
+    }
 
-	@Override
-	public String getName() {
-		return FIDOAuthenticatorConstants.AUTHENTICATOR_NAME;
-	}
+    @Override
+    public String getName() {
+        return FIDOAuthenticatorConstants.AUTHENTICATOR_NAME;
+    }
 
-	@Override public String getFriendlyName() {
-		return FIDOAuthenticatorConstants.AUTHENTICATOR_FRIENDLY_NAME;
-	}
+    @Override
+    public String getFriendlyName() {
+        return FIDOAuthenticatorConstants.AUTHENTICATOR_FRIENDLY_NAME;
+    }
 
-	@Override
-	protected void initiateAuthenticationRequest(HttpServletRequest request,
-	                                             HttpServletResponse response,
-	                                             AuthenticationContext context)
-			throws AuthenticationFailedException {
-		//FIDO BE service component
-		U2FService u2FService = U2FService.getInstance();
-		try {
-			//authentication page's URL.
-			String loginPage = ConfigurationFacade.getInstance().getAuthenticationEndpointURL();
+    @Override
+    protected void initiateAuthenticationRequest(HttpServletRequest request,
+                                                 HttpServletResponse response,
+                                                 AuthenticationContext context)
+            throws AuthenticationFailedException {
+        //FIDO BE service component
+        U2FService u2FService = U2FService.getInstance();
+        try {
+            //authentication page's URL.
+            String loginPage = ConfigurationFacade.getInstance().getAuthenticationEndpointURL();
             loginPage.replace("login.do", "authentication.jsp");
-			//username from basic authenticator.
-			String user = getUsername(context);
-			//origin as appID eg.: http://example.com:8080
-			String appID = Util.getOrigin(request);
-			//calls BE service method to generate challenge.
-			//TODO enhancement: tenant domain, user store domain
-			FIDOUser fidoUser = new FIDOUser(user, "", "", appID);
-			AuthenticateRequestData data = u2FService.startAuthentication(fidoUser);
-			//redirect to FIDO login page
-            if(data != null){
+            //username from basic authenticator.
+            AuthenticatedUser user = getUsername(context);
+            //origin as appID eg.: http://example.com:8080
+            String appID = FIDOUtil.getOrigin(request);
+            //calls BE service method to generate challenge.
+            FIDOUser fidoUser = new FIDOUser(user.getUserName(), user.getTenantDomain(), user.getUserStoreDomain(), appID);
+            AuthenticateRequestData data = u2FService.startAuthentication(fidoUser);
+            //redirect to FIDO login page
+            if (data != null) {
 
 
-			response.sendRedirect(response.encodeRedirectURL(loginPage + ("?"))
-			                      + "&authenticators=" + getName() + ":" + "LOCAL"  + "&type=fido&sessionDataKey=" +
-			                      request.getParameter("sessionDataKey") +
-			                      "&data=" + data.toJson());
-            }
-            else {
+                response.sendRedirect(response.encodeRedirectURL(loginPage + ("?"))
+                                      + "&authenticators=" + getName() + ":" + "LOCAL" + "&type=fido&sessionDataKey=" +
+                                      request.getParameter("sessionDataKey") +
+                                      "&data=" + data.toJson());
+            } else {
                 String redirectURL = loginPage.replace("login.do", "retry.do");
-                redirectURL = response.encodeRedirectURL(redirectURL + ("?")) + "&failedUsername=" + URLEncoder.encode(user, "UTF-8") +
-                "&statusMsg=" + URLEncoder.encode("No registered device found, Please register your device before sign in.", "UTF-8") +
-                        "&status=" + URLEncoder.encode("Authentication Failed !", "UTF-8");
+                redirectURL = response.encodeRedirectURL(redirectURL + ("?")) + "&failedUsername=" + URLEncoder.encode(user.getUserName(), "UTF-8") +
+                              "&statusMsg=" + URLEncoder.encode(FIDOAuthenticatorConstants.AUTHENTICATION_ERROR_MESSAGE, "UTF-8") +
+                              "&status=" + URLEncoder.encode(FIDOAuthenticatorConstants.AUTHENTICATION_STATUS, "UTF-8");
                 response.sendRedirect(redirectURL);
             }
 
-		} catch (IOException e) {
-			throw new AuthenticationFailedException(
-					"Could not initiate FIDO authentication request", e);
-		}
-	}
+        } catch (IOException e) {
+            throw new AuthenticationFailedException(
+                    "Could not initiate FIDO authentication request", e);
+        }
+    }
 
-	@Override
-	protected boolean retryAuthenticationEnabled() {
-		//retry disabled
-		return false;
-	}
+    @Override
+    protected boolean retryAuthenticationEnabled() {
+        //retry disabled
+        return false;
+    }
 
-	private String getUsername(AuthenticationContext context) {
-		//username from authentication context.
-		String username = "";
-        AuthenticatedUser authenticatedUser;
-		for (int i = 1; i <= context.getSequenceConfig().getStepMap().size(); i++) {
-			if (context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser() != null &&
-			    context.getSequenceConfig().getStepMap().get(i).getAuthenticatedAutenticator()
-			           .getApplicationAuthenticator() instanceof LocalApplicationAuthenticator) {
+    private AuthenticatedUser getUsername(AuthenticationContext context) {
+        //username from authentication context.
+        String username = "";
+        AuthenticatedUser authenticatedUser = null;
+        for (int i = 1; i <= context.getSequenceConfig().getStepMap().size(); i++) {
+            if (context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser() != null &&
+                context.getSequenceConfig().getStepMap().get(i).getAuthenticatedAutenticator()
+                        .getApplicationAuthenticator() instanceof LocalApplicationAuthenticator) {
                 authenticatedUser = context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser();
-                username = authenticatedUser.getUserName();
-
-				if (log.isDebugEnabled()) {
-					log.debug("username :" + username);
-				}
-				break;
-			}
-		}
-		return username;
-	}
+                if (authenticatedUser.getUserStoreDomain() == null) {
+                    authenticatedUser.setUserStoreDomain(FIDOAuthenticatorConstants.PRIMARY_USER_DOMAIN);
+                }
 
 
-	/**
-	 * Gets a FIDOAuthenticator instance.
-	 *
-	 * @return a FIDOAuthenticator.
-	 */
-	public static FIDOAuthenticator getInstance() {
-		return instance;
-	}
+                if (log.isDebugEnabled()) {
+                    log.debug("username :" + username);
+                }
+                break;
+            }
+        }
+        return authenticatedUser;
+    }
+
+
+    /**
+     * Gets a FIDOAuthenticator instance.
+     *
+     * @return a FIDOAuthenticator.
+     */
+    public static FIDOAuthenticator getInstance() {
+        return instance;
+    }
 
 }
 

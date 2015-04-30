@@ -18,13 +18,18 @@
 package org.wso2.carbon.identity.application.authenticator.fido.util;
 
 import org.apache.commons.logging.Log;
+import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.identity.application.authenticator.fido.internal.FIDOAuthenticatorServiceComponent;
+import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Util class for FIDO authentication component.
+ * FIDOUtil class for FIDO authentication component.
  */
-public class Util {
+public class FIDOUtil {
 	public static void logTrace(String msg, Log log) {
 		if (log.isTraceEnabled()) {
 			log.trace(msg);
@@ -32,10 +37,19 @@ public class Util {
 	}
 
 	public static String getOrigin(HttpServletRequest request) {
-		//origin as appID eg.: http://example.com:8080
+
 		return request.getScheme() + "://" + request.getServerName() + ":" +
 		       request.getServerPort();
 	}
+
+    public static int getTenantID(String tenantDomain) throws UserStoreException {
+
+        RealmService realmService = null;
+        int tenantId;
+        realmService = FIDOAuthenticatorServiceComponent.getRealmService();
+            tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
+        return tenantId;
+    }
 
 	public static String getSafeText(String text) {
 		if (text == null) {
@@ -53,4 +67,20 @@ public class Util {
 	public static String getUniqueUsername(HttpServletRequest request, String username){
 		return request.getServerName() + "/" + username;
 	}
+
+    public static String getDomainName(String username) {
+        int index = username.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+        if (index < 0) {
+            return FIDOAuthenticatorConstants.PRIMARY_USER_DOMAIN;
+        }
+        return username.substring(0, index);
+    }
+
+    public static String getUsernameWithoutDomain(String username) {
+        int index = username.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+        if (index < 0) {
+            return username;
+        }
+        return username.substring(index + 1, username.length());
+    }
 }

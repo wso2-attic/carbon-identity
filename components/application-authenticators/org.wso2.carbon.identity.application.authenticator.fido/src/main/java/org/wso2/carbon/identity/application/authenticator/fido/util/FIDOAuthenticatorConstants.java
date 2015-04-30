@@ -26,5 +26,19 @@ public class FIDOAuthenticatorConstants {
 	public static final String AUTHENTICATOR_NAME = "FIDOAuthenticator";
 	public static final String AUTHENTICATOR_FRIENDLY_NAME = "fido";
 	public static final String UNUSED = "unused";
+    public static final String AUTHENTICATION_STATUS = "Authentication Failed !";
+    public static final String AUTHENTICATION_ERROR_MESSAGE = "No registered device found, Please register your device before sign in.";
+    public static final String PRIMARY_USER_DOMAIN = "PRIMARY";
+
+    public static final String U2F_KEY_HANDLE = "KEY_HANDLE";
+    public static final String U2F_DEVICE_DATA = "DEVICE_DATA";
+
+    public static class SQLQueries {
+        public static final String ADD_DEVICE_REGISTRATION_QUERY = "INSERT INTO FIDO_DEVICE_STORE (TENANT_ID, DOMAIN_ID," +
+                " USER_NAME, KEY_HANDLE, DEVICE_DATA ) SELECT ?, UM_DOMAIN_ID, ?,?,? FROM UM_DOMAIN WHERE UM_DOMAIN_NAME = ? " +
+                "AND UM_TENANT_ID = ?";
+        public static final String GET_DEVICE_REGISTRATION_QUERY = "SELECT * FROM FIDO_DEVICE_STORE WHERE DOMAIN_ID = (SELECT " +
+                "UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_DOMAIN_NAME = ? AND UM_TENANT_ID= ?)  AND TENANT_ID = ? AND USER_NAME = ?";
+    }
 }
 
