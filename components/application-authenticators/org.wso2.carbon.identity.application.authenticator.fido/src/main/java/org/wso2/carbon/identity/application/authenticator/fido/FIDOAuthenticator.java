@@ -34,7 +34,7 @@ import org.wso2.carbon.identity.application.authentication.framework.model.Authe
 import org.wso2.carbon.identity.application.authenticator.fido.dto.FIDOUser;
 import org.wso2.carbon.identity.application.authenticator.fido.u2f.U2FService;
 import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOAuthenticatorConstants;
-import org.wso2.carbon.identity.application.authenticator.fido.util.Util;
+import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -60,21 +60,21 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator implemen
 
 		String tokenResponse = request.getParameter("tokenResponse");
         if(tokenResponse != null && !tokenResponse.contains("errorCode")) {
-            String appID = Util.getOrigin(request);
-            String username = getUsername(context);
+            String appID = FIDOUtil.getOrigin(request);
+            AuthenticatedUser user = getUsername(context);
 
             U2FService u2FService = U2FService.getInstance();
             //TODO enhancement: tenant domain, user store domain
-            FIDOUser fidoUser = new FIDOUser(username, "", "", AuthenticateResponse.fromJson(tokenResponse));
+            FIDOUser fidoUser = new FIDOUser(user.getUserName(), user.getTenantDomain(), user.getUserStoreDomain(), AuthenticateResponse.fromJson(tokenResponse));
             fidoUser.setAppID(appID);
             u2FService.finishAuthentication(fidoUser);
         }
         else {
             if (log.isDebugEnabled()) {
-                log.debug("FODO authentication filed : " + tokenResponse );
+                log.debug("FIDO authentication filed : " + tokenResponse );
             }
 
-            throw new InvalidCredentialsException();
+            throw new InvalidCredentialsException("FIDO device authentication failed ");
         }
 
 	}
@@ -113,12 +113,11 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator implemen
 			String loginPage = ConfigurationFacade.getInstance().getAuthenticationEndpointURL();
             loginPage.replace("login.do", "authentication.jsp");
 			//username from basic authenticator.
-			String user = getUsername(context);
+            AuthenticatedUser user = getUsername(context);
 			//origin as appID eg.: http://example.com:8080
-			String appID = Util.getOrigin(request);
+			String appID = FIDOUtil.getOrigin(request);
 			//calls BE service method to generate challenge.
-			//TODO enhancement: tenant domain, user store domain
-			FIDOUser fidoUser = new FIDOUser(user, "", "", appID);
+			FIDOUser fidoUser = new FIDOUser(user.getUserName(), user.getTenantDomain(), user.getUserStoreDomain(), appID);
 			AuthenticateRequestData data = u2FService.startAuthentication(fidoUser);
 			//redirect to FIDO login page
             if(data != null){
@@ -131,9 +130,9 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator implemen
             }
             else {
                 String redirectURL = loginPage.replace("login.do", "retry.do");
-                redirectURL = response.encodeRedirectURL(redirectURL + ("?")) + "&failedUsername=" + URLEncoder.encode(user, "UTF-8") +
-                "&statusMsg=" + URLEncoder.encode("No registered device found, Please register your device before sign in.", "UTF-8") +
-                        "&status=" + URLEncoder.encode("Authentication Failed !", "UTF-8");
+                redirectURL = response.encodeRedirectURL(redirectURL + ("?")) + "&failedUsername=" + URLEncoder.encode(user.getUserName(), "UTF-8") +
+                "&statusMsg=" + URLEncoder.encode(FIDOAuthenticatorConstants.AUTHENTICATION_ERROR_MESSAGE, "UTF-8") +
+                        "&status=" + URLEncoder.encode(FIDOAuthenticatorConstants.AUTHENTICATION_STATUS, "UTF-8");
                 response.sendRedirect(redirectURL);
             }
 
@@ -149,16 +148,19 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator implemen
 		return false;
 	}
 
-	private String getUsername(AuthenticationContext context) {
+	private AuthenticatedUser getUsername(AuthenticationContext context) {
 		//username from authentication context.
 		String username = "";
-        AuthenticatedUser authenticatedUser;
+        AuthenticatedUser authenticatedUser = null;
 		for (int i = 1; i <= context.getSequenceConfig().getStepMap().size(); i++) {
 			if (context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser() != null &&
 			    context.getSequenceConfig().getStepMap().get(i).getAuthenticatedAutenticator()
 			           .getApplicationAuthenticator() instanceof LocalApplicationAuthenticator) {
                 authenticatedUser = context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser();
-                username = authenticatedUser.getUserName();
+                if(authenticatedUser.getUserStoreDomain() == null){
+                    authenticatedUser.setUserStoreDomain(FIDOAuthenticatorConstants.PRIMARY_USER_DOMAIN);
+                }
+
 
 				if (log.isDebugEnabled()) {
 					log.debug("username :" + username);
@@ -166,7 +168,7 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator implemen
 				break;
 			}
 		}
-		return username;
+		return authenticatedUser;
 	}
 
 

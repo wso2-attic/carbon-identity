@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.identity.application.authenticator.fido.dto;
 
 import com.yubico.u2f.data.DeviceRegistration;

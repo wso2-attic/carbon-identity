@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.identity.application.authenticator.fido.dao;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -22,7 +23,8 @@ import com.google.common.collect.Multimap;
 import com.yubico.u2f.data.DeviceRegistration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.application.authenticator.fido.util.Util;
+import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOAuthenticatorConstants;
+import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 
@@ -38,8 +40,7 @@ import java.util.Collection;
 public class DeviceStoreDAO {
 
 	private static Log log = LogFactory.getLog(DeviceStoreDAO.class);
-	private static final String ADD_DEVICE_REGISTRATION_QUERY = "INSERT INTO FIDO_DEVICE_STORE values(?, ?, ?)";
-	private static final String GET_DEVICE_REGISTRATION_QUERY = "SELECT * FROM FIDO_DEVICE_STORE WHERE USER_NAME = ?";
+
 
 	/**
 	 * Add Device Registration to store.
@@ -48,23 +49,27 @@ public class DeviceStoreDAO {
 	 * @param registration The FIDO Registration.
 	 * @throws IdentityException when SQL statement can not be executed.
 	 */
-	public void addDeviceRegistration(String username, DeviceRegistration registration) throws IdentityException {
-		Util.logTrace("Executing {addDeviceRegistration} method", log);
+	public void addDeviceRegistration(String username, DeviceRegistration registration, int tenantID, String userStoreDomain)
+            throws IdentityException {
+
+		FIDOUtil.logTrace("Executing {addDeviceRegistration} method", log);
 		if (log.isDebugEnabled()) {
 			log.debug("addDeviceRegistration inputs {username: " + username + ", registration :" +
 			          registration.toJsonWithAttestationCert() + "}");
 		}
 		Connection connection = null;
-		//String sql = "";
 		PreparedStatement preparedStatement = null;
 
 		try {
 			connection = IdentityDatabaseUtil.getDBConnection();
-			preparedStatement = connection.prepareStatement(ADD_DEVICE_REGISTRATION_QUERY);
-			preparedStatement.setString(1, username);
-			preparedStatement.setString(2, registration.getKeyHandle());
-			preparedStatement.setString(3, registration.toJson());
-			preparedStatement.executeUpdate();
+			preparedStatement = connection.prepareStatement(FIDOAuthenticatorConstants.SQLQueries.ADD_DEVICE_REGISTRATION_QUERY);
+            preparedStatement.setInt(1, tenantID);
+			preparedStatement.setString(2, username);
+			preparedStatement.setString(3, registration.getKeyHandle());
+			preparedStatement.setString(4, registration.toJson());
+            preparedStatement.setString(5, userStoreDomain);
+            preparedStatement.setInt(6, tenantID);
+            preparedStatement.executeUpdate();
 			connection.commit();
 
 		} catch (SQLException e) {
@@ -73,12 +78,12 @@ public class DeviceStoreDAO {
 			} catch (SQLException e1) {
 				log.error("Error rolling back the transaction to FIDO registration", e1);
 			}
-			throw new IdentityException("Error when executing FIDO registration SQL : " + ADD_DEVICE_REGISTRATION_QUERY,
+			throw new IdentityException("Error when executing FIDO registration SQL : " + FIDOAuthenticatorConstants.SQLQueries.ADD_DEVICE_REGISTRATION_QUERY,
 			                            e);
 		} finally {
 			IdentityDatabaseUtil.closeAllConnections(connection, null, preparedStatement);
 		}
-		Util.logTrace("Completed {addDeviceRegistration} method", log);
+		FIDOUtil.logTrace("Completed {addDeviceRegistration} method", log);
 	}
 
 	/**
@@ -88,8 +93,9 @@ public class DeviceStoreDAO {
 	 * @return Collection of Device Registration.
 	 * @throws IdentityException when SQL statement can not be executed.
 	 */
-	public Collection getDeviceRegistration(String username) throws IdentityException {
-		Util.logTrace("Executing {getDeviceRegistration} method", log);
+	public Collection getDeviceRegistration(String username, int tenantID, String userStoreDomain) throws IdentityException {
+
+		FIDOUtil.logTrace("Executing {getDeviceRegistration} method", log);
 		if (log.isDebugEnabled()) {
 			log.debug("getDeviceRegistration inputs {username:" + username + "}");
 		}
@@ -98,14 +104,18 @@ public class DeviceStoreDAO {
 		ResultSet resultSet = null;
 		//String sql = "";
 		Multimap<String, String> devices = ArrayListMultimap.create();
+
 		try {
 			connection = IdentityDatabaseUtil.getDBConnection();
-			preparedStatement = connection.prepareStatement(GET_DEVICE_REGISTRATION_QUERY);
-			preparedStatement.setString(1, username);
+			preparedStatement = connection.prepareStatement(FIDOAuthenticatorConstants.SQLQueries.GET_DEVICE_REGISTRATION_QUERY);
+            preparedStatement.setString(1, userStoreDomain);
+            preparedStatement.setInt(2, tenantID);
+            preparedStatement.setInt(3, tenantID);
+            preparedStatement.setString(4, username);
 			resultSet = preparedStatement.executeQuery();
 			while (resultSet.next()) {
-				String keyHandle = resultSet.getString("KEY_HANDLE");
-				String deviceData = resultSet.getString("DEVICE_DATA");
+				String keyHandle = resultSet.getString(FIDOAuthenticatorConstants.U2F_KEY_HANDLE);
+				String deviceData = resultSet.getString(FIDOAuthenticatorConstants.U2F_DEVICE_DATA);
 				devices.put(keyHandle, deviceData);
 
 			}
@@ -114,11 +124,11 @@ public class DeviceStoreDAO {
 			}
 		} catch (SQLException e) {
 			throw new IdentityException(
-					"Error executing get device registration SQL : " + GET_DEVICE_REGISTRATION_QUERY, e);
+					"Error executing get device registration SQL : " + FIDOAuthenticatorConstants.SQLQueries.GET_DEVICE_REGISTRATION_QUERY, e);
 		} finally {
 			IdentityDatabaseUtil.closeAllConnections(connection, resultSet, preparedStatement);
 		}
-		Util.logTrace("Completed {getDeviceRegistration} method, returns devices of size :" + devices.size(), log);
+		FIDOUtil.logTrace("Completed {getDeviceRegistration} method, returns devices of size :" + devices.size(), log);
 		return devices.values();
 	}
 }
