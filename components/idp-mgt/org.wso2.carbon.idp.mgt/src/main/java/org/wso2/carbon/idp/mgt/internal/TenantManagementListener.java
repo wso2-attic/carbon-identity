@@ -92,8 +92,4 @@ public class TenantManagementListener implements TenantMgtListener {
         // It is not required to implement this method for IdP mgt.
     }
 
-	@Override
-	public void onPreDelete(int tenantId) throws StratosException {
-		// Implement this method to delete product specific data
-	}
 }
