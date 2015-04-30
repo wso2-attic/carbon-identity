@@ -202,7 +202,7 @@ public class ApplicationMgtUtil {
             ApplicationMgtUtil.applicationNode = newApplicationNode;
             tenantGovReg.put(newApplicationNode, permissionNode);
             addPermission(loadPermissions.toArray(new ApplicationPermission[loadPermissions.size()]), tenantGovReg);
-        } catch (Exception e) {
+        } catch (RegistryException e) {
             throw new IdentityApplicationManagementException("Error while renaming permission node "
                     + oldName + "to " + newName, e);
         }
