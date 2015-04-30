@@ -302,10 +302,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                         + applicationName);
             }
             PreparedStatement readPermissions = null;
+            ResultSet resultSet = null;
             try {
                 readPermissions = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS);
                 readPermissions.setString(1, "%" + ApplicationMgtUtil.getApplicationPermissionPath() + "%");
-                ResultSet resultSet = readPermissions.executeQuery();
+                resultSet = readPermissions.executeQuery();
                 while (resultSet.next()) {
                     String UM_ID = resultSet.getString(1);
                     String permission = resultSet.getString(2);
@@ -324,6 +325,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                     }
                 }
             } finally {
+                IdentityApplicationManagementUtil.closeResultSet(resultSet);
                 IdentityApplicationManagementUtil.closeStatement(readPermissions);
             }
         }
@@ -2315,10 +2317,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                         applicationName + ApplicationMgtUtil.PATH_CONSTANT +
                         applicationPermission.getValue();
                 PreparedStatement selectQuery = null;
+                ResultSet resultSet = null;
                 try {
                     selectQuery = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS_W);
                     selectQuery.setString(1, permissionValue.toLowerCase());
-                    ResultSet resultSet = selectQuery.executeQuery();
+                    resultSet = selectQuery.executeQuery();
                     if (resultSet.next()) {
                         int UM_ID = resultSet.getInt(1);
                         PreparedStatement deleteRolePermission = null;
@@ -2336,6 +2339,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                         }
                     }
                 } finally {
+                    IdentityApplicationManagementUtil.closeResultSet(resultSet);
                     IdentityApplicationManagementUtil.closeStatement(selectQuery);
                 }
             }
