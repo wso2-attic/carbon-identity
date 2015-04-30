@@ -101,42 +101,29 @@
                             org.wso2.carbon.identity.sts.passive.internal,
                         </Private-Package>
                         <Import-Package>
-                            javax.xml.namespace,
-                            javax.xml.stream; version="${equinox.osgi.stax-api.imp.pkg.version.range}",
-                            javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
-
-                            org.apache.axiom.*; version="${axiom.osgi.version.range}",
                             org.apache.axis2.*; version="${axis2.osgi.version.range}",
-                            org.apache.rahas.*; version="${rampart.wso2.osgi.version.range}",
-                            org.apache.ws.secpolicy; version="${rampart.wso2.osgi.version.range}",
-                            org.apache.ws.security.*; version="${wss4j.ws.security.imp.pkg.version.range}",
-                            org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
-
-                            org.osgi.service.component; version="${osgi.service.component.imp.pkg.version.range}",
-
-                            org.wso2.carbon.context; version="${carbon.kernel.package.import.version.range}",
-                            org.wso2.carbon.core.util; version="${carbon.kernel.package.import.version.range}",
-                            org.wso2.carbon.user.core.service;version="${carbon.kernel.package.import.version.range}",
-
-                            org.wso2.carbon.base; version="${carbon.base.imp.pkg.version.range}",
-                            org.wso2.carbon.registry.api;version="${carbon.kernel.registry.imp.pkg.version}",
-                            org.wso2.carbon.registry.core.*;version="${carbon.kernel.registry.imp.pkg.version}",
-
-                            org.wso2.carbon.identity.provider;
-                            version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.identity.application.common.*;
-                            version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.identity.application.mgt;
-                            version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.security.keystore.*;
-                            version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.security.util;
-                            version="${carbon.identity.package.import.version.range}",
+                            org.apache.axiom.*; version="${axiom.osgi.version.range}",
+                            org.apache.rahas.*,
+                            org.apache.ws.security.*,
+                            org.apache.rahas.client.*,
+                            org.apache.rahas.impl.*,
+                            org.apache.rahas.impl.util.*,
+                            org.wso2.carbon.core.utils.*,
+                            org.wso2.carbon.core.*,
+                            org.wso2.carbon.registry.core.*,
+                            org.wso2.carbon.security.keystore.*,
+                            org.wso2.carbon.security.keystore.service.*,
+                            org.wso2.carbon.security.util.*,
+                            org.wso2.carbon.utils.*,
+                            org.wso2.carbon.identity.provider.*,
+                            org.apache.commons.logging.*; version="1.0.4",
+                            org.osgi.framework,
+                            *;resolution:=optional
                         </Import-Package>
                         <Export-Package>
-                            !org.wso2.carbon.identity.sts.passive.internal,
-                            org.wso2.carbon.identity.sts.passive.*; version="${carbon.identity.package.export.version}",
+                            org.wso2.carbon.identity.sts.passive.*
                         </Export-Package>
+                        <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>

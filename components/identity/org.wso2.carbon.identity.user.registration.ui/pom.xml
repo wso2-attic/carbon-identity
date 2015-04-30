@@ -66,23 +66,18 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Import-Package>
-                            javax.crypto,
-                            javax.xml.parsers,
-                            javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
-                            org.w3c.dom,
-                            org.apache.axis2.*; version="${axis2.osgi.version.range}",
-                            org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
-                            org.apache.ws.security.*; version="${wss4j.ws.security.imp.pkg.version.range}",
-                            org.apache.xml.security.encryption; version="${wss4j.xml.security.imp.pkg.version.range}",
-                            org.wso2.carbon.base; version="${carbon.base.imp.pkg.version.range}",
-                            org.wso2.carbon.core.util; version="${carbon.kernel.package.import.version.range}",
-                            org.wso2.carbon.identity.user.registration.stub.*;
-                            version="${carbon.identity.package.import.version.range}",
+                            org.apache.ws.security.*,
+                            org.apache.commons.logging.*; version="1.0.4",
+                            !javax.xml.namespace,
+                            javax.xml.namespace; version=0.0.0,
+                            javax.servlet;version="${imp.pkg.version.javax.servlet}",
+                            javax.servlet.http;version="${imp.pkg.version.javax.servlet}",
+                            javax.xml.stream.*; version=1.0.1,
+                            *;resolution:=optional
                         </Import-Package>
-                        <Export-Package>org.wso2.carbon.identity.user.registration.ui.*;
-                            version="${carbon.identity.package.export.version}"
-                        </Export-Package>
+                        <Export-Package>org.wso2.carbon.identity.user.registration.ui.*</Export-Package>
                         <Carbon-Component>UIBundle</Carbon-Component>
+                        <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>
