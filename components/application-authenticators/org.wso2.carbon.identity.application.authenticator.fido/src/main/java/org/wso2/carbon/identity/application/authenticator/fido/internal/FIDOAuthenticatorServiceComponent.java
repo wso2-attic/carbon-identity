@@ -37,51 +37,51 @@ import java.util.Hashtable;
  */
 public class FIDOAuthenticatorServiceComponent {
 
-	private static Log log = LogFactory.getLog(FIDOAuthenticatorServiceComponent.class);
+    private static Log log = LogFactory.getLog(FIDOAuthenticatorServiceComponent.class);
 
-	private static RealmService realmService;
+    private static RealmService realmService;
 
-	protected void activate(ComponentContext context) {
-		BundleContext bundleContext = context.getBundleContext();
-		FIDOAuthenticator fidoAuthenticator = FIDOAuthenticator.getInstance();
-		Hashtable<String, String> props = new Hashtable<String, String>();
-		try {
-			bundleContext.registerService(ApplicationAuthenticator.class.getName(), fidoAuthenticator, props);
-			if (log.isDebugEnabled()) {
-				log.debug("FIDOAuthenticator service is registered");
-			}
-		} catch (Throwable e) {
-			log.error("Error registering FIDOAuthenticator service", e);
-		}
+    protected void activate(ComponentContext context) {
+        BundleContext bundleContext = context.getBundleContext();
+        FIDOAuthenticator fidoAuthenticator = FIDOAuthenticator.getInstance();
+        Hashtable<String, String> props = new Hashtable<String, String>();
+        try {
+            bundleContext.registerService(ApplicationAuthenticator.class.getName(), fidoAuthenticator, props);
+            if (log.isDebugEnabled()) {
+                log.debug("FIDOAuthenticator service is registered");
+            }
+        } catch (Throwable e) {
+            log.fatal("Error registering FIDOAuthenticator service", e);
+        }
 
-		U2FService u2FService = U2FService.getInstance();
-		try {
-			bundleContext.registerService(U2FService.class, u2FService, null);
-			if (log.isDebugEnabled()) {
-				log.debug("U2FService service is registered");
-			}
-			}catch(Throwable e){
-				log.error("Error registering U2FService service", e);
-			}
-	}
+        U2FService u2FService = U2FService.getInstance();
+        try {
+            bundleContext.registerService(U2FService.class, u2FService, null);
+            if (log.isDebugEnabled()) {
+                log.debug("U2FService service is registered");
+            }
+        } catch (Throwable e) {
+            log.fatal("Error registering U2FService service", e);
+        }
+    }
 
-	protected void deactivate(ComponentContext context) {
-		if (log.isDebugEnabled()) {
-			log.debug("Deactivating FIDOAuthenticator bundle...");
-		}
-	}
+    protected void deactivate(ComponentContext context) {
+        if (log.isDebugEnabled()) {
+            log.debug("Deactivating FIDOAuthenticator bundle...");
+        }
+    }
 
-	protected void setRealmService(RealmService realmService) {
-		log.debug("Setting the Realm Service");
-		FIDOAuthenticatorServiceComponent.realmService = realmService;
-	}
+    protected void setRealmService(RealmService realmService) {
+        log.debug("Setting the Realm Service");
+        FIDOAuthenticatorServiceComponent.realmService = realmService;
+    }
 
-	protected void unsetRealmService(RealmService realmService) {
-		log.debug("UnSetting the Realm Service");
-		FIDOAuthenticatorServiceComponent.realmService = null;
-	}
+    protected void unsetRealmService(RealmService realmService) {
+        log.debug("UnSetting the Realm Service");
+        FIDOAuthenticatorServiceComponent.realmService = null;
+    }
 
-	public static RealmService getRealmService() {
-		return realmService;
-	}
+    public static RealmService getRealmService() {
+        return realmService;
+    }
 }

@@ -82,38 +82,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
-                        <!--Private-Package>
-                            org.wso2.carbon.identity.application.authenticator.fido.u2f.internal,
-                            org.wso2.carbon.identity.application.authenticator.fido.dao,
-                            org.wso2.carbon.identity.application.authenticator.fido.service,
-                            org.wso2.carbon.identity.application.authenticator.fido.util
-                        </Private-Package-->
                         <Import-Package>
-                            <!--org.apache.axis2.*; version="${axis2.osgi.version.range}",-->
-                            <!--org.apache.axiom.*; version="${axiom.osgi.version.range}",-->
-                            <!--org.apache.rahas.*,-->
-                            <!--org.wso2.carbon.core.*,-->
-                            <!--org.wso2.carbon.registry.core.*,-->
-                            <!--org.wso2.carbon.utils.*,-->
-                            <!--org.apache.commons.logging.*; version="1.0.4",-->
-                            <!--org.osgi.framework,-->
-                            <!--org.wso2.carbon.identity.application.authentication.framework,-->
-                            <!--javax.servlet;version="${imp.pkg.version.javax.servlet}",-->
-                            <!--javax.servlet.http;version="${imp.pkg.version.javax.servlet}",-->
-                            <!--com.yubico.u2f.exceptions,-->
-                            <!--com.yubico.u2f.data.messages,-->
-                            <!--com.yubico.u2f.data,-->
-                            <!--com.yubico.u2f,-->
-                            <!--com.yubico.u2f.exceptions; version="0.13.0",-->
-                            <!--com.yubico.u2f.data.DeviceRegistration; version="0.13.0",-->
-                            <!--com.yubico.u2f.data.messages; version="0.13.0",-->
-                            <!--com.yubico.u2f.data; version="0.13.0",-->
-                            <!--com.yubico.u2f; version="0.13.0",-->
-                            <!--com.google.common.collect; version="13.0.1",-->
-                            <!--org.osgi.service.component,-->
-                            <!--org.wso2.carbon.identity.base,-->
-                            <!--org.wso2.carbon.user.core.service,-->
-                            <!--org.wso2.carbon.identity.core.util,-->
                             !org.wso2.carbon.identity.application.authenticator.fido,
                             *;resolution:=optional
                         </Import-Package>
