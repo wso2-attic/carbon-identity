@@ -17,7 +17,7 @@
 package org.wso2.carbon.identity.oauth.endpoint.user.impl;
 
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
-import org.wso2.carbon.identity.oauth.endpoint.user.UserInfoClaimRetriever;
+import org.wso2.carbon.identity.oauth.user.UserInfoClaimRetriever;
 
 import java.util.HashMap;
 import java.util.Map;
