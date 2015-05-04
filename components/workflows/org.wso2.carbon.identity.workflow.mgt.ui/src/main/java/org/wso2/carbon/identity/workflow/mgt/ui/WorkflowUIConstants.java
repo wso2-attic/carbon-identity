@@ -22,7 +22,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class WorkflowUIConstants {
-    public static final String ADD_SERVICE = "addService";
+    public static final String PARAM_ACTION = "action";
+    public static final String ACTION_VALUE_ADD = "addNew";
+    public static final String ACTION_VALUE_EDIT = "edit";
     public static final String ASSOCIATE_SERVICE = "associateService";
 
     public static final String PARAM_SERVICE_ALIAS = "serviceAlias";

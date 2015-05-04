@@ -62,11 +62,12 @@
                 if (WorkflowUIConstants.VALUE_EXISTING_SERVICE.equals(template)) {
                     //routing to add existing service page
                     forwardTo = "service-data.jsp?" + WorkflowUIConstants.PARAM_SERVICE_ALIAS + "=" + alias + "&" +
-                            WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_EVENT + "=" + event;
+                            WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_EVENT + "=" + event + "&" +
+                            WorkflowUIConstants.PARAM_ACTION + "=" + WorkflowUIConstants.ACTION_VALUE_ADD;
                 } else if (WorkflowUIConstants.TEMPLATE_MAP.containsKey(template)) {
                     //routing to add new service page
                     forwardTo = "template-indep-config.jsp?" + WorkflowUIConstants.PARAM_SERVICE_TEMPLATE + "=" +
-                            template +"&" + WorkflowUIConstants.PARAM_SERVICE_ALIAS + "=" + alias + "&" +
+                            template + "&" + WorkflowUIConstants.PARAM_SERVICE_ALIAS + "=" + alias + "&" +
                             WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_EVENT + "=" + event;
                 } else {
                     String message = resourceBundle.getString("workflow.error.non.existing.template");
@@ -146,7 +147,6 @@
 
         <div id="workArea">
             <form method="post" name="serviceAdd" onsubmit="return doValidation();">
-                <input type="hidden" name="<%=WorkflowUIConstants.ADD_SERVICE%>" value="true">
                 <table class="styledLeft">
                     <thead>
                     <tr>
