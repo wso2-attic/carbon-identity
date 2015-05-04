@@ -26,10 +26,11 @@ public class WorkflowUIConstants {
     public static final String ACTION_VALUE_ADD = "addNew";
     public static final String ACTION_VALUE_FINISH = "finishAdd";
     public static final String ACTION_VALUE_EDIT = "edit";
-    public static final String ASSOCIATE_SERVICE = "associateService";
 
     public static final String PARAM_SERVICE_ALIAS = "serviceAlias";
     public static final String PARAM_SERVICE_TEMPLATE = "serviceTemplate";
+    public static final String VALUE_EXISTING_SERVICE = "EXISTING";
+    public static final String PARAM_SERVICE_ASSOCIATION_EVENT = "event";
 
     public static final String PARAM_SERVICE_EPR = "serviceEPR";
     public static final String PARAM_SERVICE_ACTION = "serviceAction";
@@ -37,12 +38,16 @@ public class WorkflowUIConstants {
     public static final String PARAM_SERVICE_AUTH_PASSWORD = "serviceUserPassword";
 
     public static final String PARAM_SERVICE_ASSOCIATION_PRIORITY = "priority";
-    public static final String PARAM_SERVICE_ASSOCIATION_EVENT = "event";
     public static final String PARAM_SERVICE_ASSOCIATION_CONDITION = "condition";
 
-    public static final String PARAM_PAGE_NUMBER = "pageNumber";
-    public static final String VALUE_EXISTING_SERVICE = "EXISTING";
+    public static final String PARAM_PROCESS_NAME = "processName";
+    public static final String PARAM_BPS_HOST = "bpsHost";
+    public static final String PARAM_CARBON_HOST = "carbonHost";
+    public static final String PARAM_CARBON_AUTH_USER = "carbonUser";
+    public static final String PARAM_CARBON_AUTH_PASSWORD = "carbonUserPassword";
 
+
+    public static final String PARAM_PAGE_NUMBER = "pageNumber";
     public static final int SERVICES_PER_PAGE = 20;
 
     public static final Map<String,String> TEMPLATE_MAP;

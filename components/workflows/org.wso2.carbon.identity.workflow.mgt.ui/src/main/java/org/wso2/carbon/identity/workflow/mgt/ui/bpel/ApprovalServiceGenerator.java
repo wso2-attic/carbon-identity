@@ -29,7 +29,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -53,11 +52,9 @@ public class ApprovalServiceGenerator {
         placeHolderValues.put(Constants.BPEL_PROCESS_NAME, serviceParams.getBpelProcessName());
         placeHolderValues.put(Constants.HT_SERVICE_NAME, serviceParams.getHtServiceName());
         placeHolderValues.put(Constants.BPS_HOST_NAME, serviceParams.getBpsHostName());
-        placeHolderValues.put(Constants.BPS_PORT, serviceParams.getBpsPort());
-        placeHolderValues.put(Constants.IS_HOST_NAME, serviceParams.getIsHostName());
-        placeHolderValues.put(Constants.IS_PORT, serviceParams.getIsPort());
-        placeHolderValues.put(Constants.IS_CALLBACK_AUTH_USER, serviceParams.getIsAuthUser());
-        placeHolderValues.put(Constants.IS_CALLBACK_AUTH_PASSWORD, serviceParams.getIsUserPassword());
+        placeHolderValues.put(Constants.CARBON_HOST_NAME, serviceParams.getCarbonHostName());
+        placeHolderValues.put(Constants.CARBON_CALLBACK_AUTH_USER, serviceParams.getCarbonAuthUser());
+        placeHolderValues.put(Constants.CARBON_CALLBACK_AUTH_PASSWORD, serviceParams.getCarbonUserPassword());
         placeHolderValues.put(Constants.HT_SUBJECT, serviceParams.getHumanTaskSubject());
         placeHolderValues.put(Constants.HT_DESCRIPTION, serviceParams.getHumanTaskDescription());
         placeHolderValues.put(Constants.HT_OWNER_ROLE, serviceParams.getHtPotentialOwnerRole());
@@ -67,11 +64,11 @@ public class ApprovalServiceGenerator {
 
     private void removePlaceHolders(String relativeFilePath, String destination) throws IOException {
         InputStream inputStream = getClass().getResourceAsStream(relativeFilePath);
-        String content = IOUtils.toString(inputStream, Charset.defaultCharset());
+        String content = IOUtils.toString(inputStream);
         for (Map.Entry<String, String> placeHolderEntry : getPlaceHolderValues().entrySet()) {
             content = content.replaceAll(placeHolderEntry.getKey(), placeHolderEntry.getValue());
         }
-        IOUtils.write(content, new FileOutputStream(new File(destination), false), Charset.defaultCharset());
+        IOUtils.write(content, new FileOutputStream(new File(destination), false));
     }
 
     private void generateProcessArtifact() throws IOException {
@@ -209,11 +206,9 @@ public class ApprovalServiceGenerator {
         private static final String BPEL_PROCESS_NAME = "${bpelProcessName}";
         private static final String HT_SERVICE_NAME = "${htServiceName}";
         private static final String BPS_HOST_NAME = "${bpsHostName}";
-        private static final String BPS_PORT = "${bpsPort}";
-        private static final String IS_HOST_NAME = "${isHostName}";
-        private static final String IS_PORT = "${isPort}";
-        private static final String IS_CALLBACK_AUTH_USER = "${isUserName}";
-        private static final String IS_CALLBACK_AUTH_PASSWORD = "${isUserPassword}";
+        private static final String CARBON_HOST_NAME = "${carbonHostName}";
+        private static final String CARBON_CALLBACK_AUTH_USER = "${carbonUserName}";
+        private static final String CARBON_CALLBACK_AUTH_PASSWORD = "${carbonUserPassword}";
         private static final String HT_SUBJECT = "${htSubject}";
         private static final String HT_DESCRIPTION = "${htDescription}";
         private static final String HT_OWNER_ROLE = "${htOwnerRole}";

@@ -19,12 +19,12 @@
 <wsa:EndpointReference
         xmlns:wsa="http://www.w3.org/2005/08/addressing"
         >
-    <wsa:Address>https://${isHostName}:${isPort}/services/WorkflowCallbackService</wsa:Address>
+    <wsa:Address>${carbonHostName}/services/WorkflowCallbackService</wsa:Address>
     <wsa:Metadata>
         <id>SInvokeEPR</id>
         <transport type="http">
-            <authorization-username>${isUserName}</authorization-username>
-            <authorization-password>${isUserPassword}</authorization-password>
+            <authorization-username>${carbonUserName}</authorization-username>
+            <authorization-password>${carbonUserPassword}</authorization-password>
         </transport>
     </wsa:Metadata>
 </wsa:EndpointReference>

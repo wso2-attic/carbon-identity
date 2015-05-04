@@ -99,7 +99,7 @@
     </binding>
     <service name="${bpelProcessName}Service">
         <port binding="tns:${bpelProcessName}Binding" name="${bpelProcessName}Port">
-            <soap:address location="https://${bpsHostName}:${bpsPort}/services/${bpelProcessName}Service"/>
+            <soap:address location="${bpsHostName}/services/${bpelProcessName}Service"/>
         </port>
     </service>
 

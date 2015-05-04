@@ -25,12 +25,10 @@ public class ApprovalServiceParams {
     private String htServiceName;           //${htServiceName}
 
     private String bpsHostName;             //${bpsHostName}
-    private String bpsPort;                 //${bpsPort}
 
-    private String isHostName;              //${isHostName}
-    private String isPort;                  //${isPort}
-    private String isAuthUser;              //${isUserName}
-    private String isUserPassword;          //${isUserPassword}
+    private String carbonHostName;          //${carbonHostName}
+    private String carbonAuthUser;              //${isUserName}
+    private String carbonUserPassword;          //${carbonUserPassword}
 
     private String humanTaskSubject;        //${htSubject}
     private String humanTaskDescription;    //${htDescription}
@@ -62,44 +60,28 @@ public class ApprovalServiceParams {
         this.bpsHostName = bpsHostName;
     }
 
-    public String getBpsPort() {
-        return bpsPort;
+    public String getCarbonHostName() {
+        return carbonHostName;
     }
 
-    public void setBpsPort(String bpsPort) {
-        this.bpsPort = bpsPort;
+    public void setCarbonHostName(String carbonHostName) {
+        this.carbonHostName = carbonHostName;
     }
 
-    public String getIsHostName() {
-        return isHostName;
+    public String getCarbonAuthUser() {
+        return carbonAuthUser;
     }
 
-    public void setIsHostName(String isHostName) {
-        this.isHostName = isHostName;
+    public void setCarbonAuthUser(String carbonAuthUser) {
+        this.carbonAuthUser = carbonAuthUser;
     }
 
-    public String getIsPort() {
-        return isPort;
+    public String getCarbonUserPassword() {
+        return carbonUserPassword;
     }
 
-    public void setIsPort(String isPort) {
-        this.isPort = isPort;
-    }
-
-    public String getIsAuthUser() {
-        return isAuthUser;
-    }
-
-    public void setIsAuthUser(String isAuthUser) {
-        this.isAuthUser = isAuthUser;
-    }
-
-    public String getIsUserPassword() {
-        return isUserPassword;
-    }
-
-    public void setIsUserPassword(String isUserPassword) {
-        this.isUserPassword = isUserPassword;
+    public void setCarbonUserPassword(String carbonUserPassword) {
+        this.carbonUserPassword = carbonUserPassword;
     }
 
     public String getHumanTaskSubject() {
