@@ -89,7 +89,7 @@
         <h2><fmt:message key='workflow.service.add'/></h2>
 
         <div id="workArea">
-            <form method="post" name="serviceAdd" onsubmit="return doValidation();" action="service-condition.jsp">
+            <form method="post" name="serviceAdd" onsubmit="return doValidation();" action="<%=template%>-config.jsp">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_SERVICE_ALIAS%>" value="<%=alias%>">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_EVENT%>" value="<%=event%>">
                 <table class="styledLeft">

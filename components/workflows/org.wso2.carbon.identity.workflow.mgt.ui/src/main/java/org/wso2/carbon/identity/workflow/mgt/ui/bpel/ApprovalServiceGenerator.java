@@ -47,6 +47,18 @@ public class ApprovalServiceGenerator {
         this.serviceParams = serviceParams;
     }
 
+    public void generateAndDeployArtifacts() {
+        try {
+            generateProcessArtifact();
+            generateHTArtifact();
+            //todo:deploy
+        } catch (IOException e) {
+            log.error("Error when generating artifacts.", e);
+            //todo: throw
+        }
+
+    }
+
     private Map<String, String> getPlaceHolderValues() {
         Map<String, String> placeHolderValues = new HashMap<>();
         placeHolderValues.put(Constants.BPEL_PROCESS_NAME, serviceParams.getBpelProcessName());
@@ -190,16 +202,6 @@ public class ApprovalServiceGenerator {
         }
         zos.closeEntry();
         fis.close();
-    }
-
-
-    private void generateFiles() {
-        String bpelFilesHome =
-                Constants.TEMPLATE_RESOURCE_LOCATION + File.separator + Constants.BPEL_RESOURCE_LOCATION +
-                        File.separator + Constants.APPROVAL_SERVICE_RESOURCE_LOCATION + File.separator;
-        String htFilesHome = Constants.TEMPLATE_RESOURCE_LOCATION + File.separator + Constants
-                .BPEL_RESOURCE_LOCATION + File.separator + Constants.APPROVAL_HT_RESOURCE_LOCATION + File.separator;
-        //todo replace
     }
 
     private static class Constants {

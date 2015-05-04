@@ -26,6 +26,7 @@ public class WorkflowUIConstants {
     public static final String ACTION_VALUE_ADD = "addNew";
     public static final String ACTION_VALUE_FINISH = "finishAdd";
     public static final String ACTION_VALUE_EDIT = "edit";
+    public static final String ACTION_VALUE_DEPLOY = "deploy";
 
     public static final String PARAM_SERVICE_ALIAS = "serviceAlias";
     public static final String PARAM_SERVICE_TEMPLATE = "serviceTemplate";

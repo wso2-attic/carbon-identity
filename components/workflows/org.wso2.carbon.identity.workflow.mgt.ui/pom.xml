@@ -73,6 +73,7 @@
                             org.apache.axis2,
                             org.apache.axis2.client,
                             org.apache.axis2.context,
+                            org.apache.commons.io,
                             org.apache.commons.logging,
                             org.wso2.carbon.identity.workflow.mgt.stub,
                             org.wso2.carbon.identity.workflow.mgt.stub.bean
@@ -83,6 +84,4 @@
             </plugin>
         </plugins>
     </build>
-
-
 </project>

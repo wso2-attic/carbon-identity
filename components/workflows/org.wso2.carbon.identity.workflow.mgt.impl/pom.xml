@@ -70,6 +70,7 @@
                             org.osgi.framework,
                             org.osgi.service.component,
                             org.wso2.carbon.identity.workflow.mgt,
+                            org.wso2.carbon.identity.workflow.mgt.exception,
                             org.wso2.carbon.user.api,
                             org.wso2.carbon.user.core,
                             org.wso2.carbon.user.core.common,

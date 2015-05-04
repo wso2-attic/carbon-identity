@@ -57,6 +57,7 @@
                 String message = resourceBundle.getString("workflow.error.service.alias.empty");
                 CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
                 forwardTo = "../admin/error.jsp";
+                System.out.println("null alias/event");
             } else {
                 //route to the next page based on template
                 if (WorkflowUIConstants.VALUE_EXISTING_SERVICE.equals(template)) {
@@ -64,11 +65,13 @@
                     forwardTo = "service-data.jsp?" + WorkflowUIConstants.PARAM_SERVICE_ALIAS + "=" + alias + "&" +
                             WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_EVENT + "=" + event + "&" +
                             WorkflowUIConstants.PARAM_ACTION + "=" + WorkflowUIConstants.ACTION_VALUE_ADD;
+                    System.out.println("default template");
                 } else if (WorkflowUIConstants.TEMPLATE_MAP.containsKey(template)) {
                     //routing to add new service page
                     forwardTo = "template-indep-config.jsp?" + WorkflowUIConstants.PARAM_SERVICE_TEMPLATE + "=" +
                             template + "&" + WorkflowUIConstants.PARAM_SERVICE_ALIAS + "=" + alias + "&" +
                             WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_EVENT + "=" + event;
+                    System.out.println(template);
                 } else {
                     String message = resourceBundle.getString("workflow.error.non.existing.template");
                     CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
@@ -136,7 +139,8 @@
         }
 
         function updateTemplate(sel) {
-            if (sel.options[sel.selectedIndex].value != null) {
+            if ($("#newBpelRadio").value != "<%=WorkflowUIConstants.VALUE_EXISTING_SERVICE%>" &&
+                    (sel.options[sel.selectedIndex].value !=null)) {
                 $("#newBpelRadio").value = sel.options[sel.selectedIndex].value;
             }
         }
@@ -146,7 +150,7 @@
         <h2><fmt:message key='workflow.service.add'/></h2>
 
         <div id="workArea">
-            <form method="post" name="serviceAdd" onsubmit="return doValidation();">
+            <form method="post" name="serviceAdd">
                 <table class="styledLeft">
                     <thead>
                     <tr>
@@ -180,12 +184,14 @@
                                     <td><fmt:message key='workflow.service.template.source'/></td>
                                     <td>
                                         <input type="radio" name="<%=WorkflowUIConstants.PARAM_SERVICE_TEMPLATE%>"
-                                               value="<%=WorkflowUIConstants.VALUE_EXISTING_SERVICE%>"/>
+                                               value="<%=WorkflowUIConstants.VALUE_EXISTING_SERVICE%>"
+                                               checked="checked"/>
                                         Existing Service <br/>
                                         <input id="newBpelRadio" type="radio"
                                                name="<%=WorkflowUIConstants.PARAM_SERVICE_TEMPLATE%>" value=""/>
                                         Deploy new BPEL from template<br/>
-                                        <select onchange="updateTemplate(this)">
+                                        <select onchange="updateTemplate(this);">
+                                            <option value="">--Select--</option>
                                             <%
                                                 for (Map.Entry<String, String> eventEntry :
                                                         WorkflowUIConstants.TEMPLATE_MAP.entrySet()) {

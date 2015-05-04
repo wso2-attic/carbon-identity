@@ -146,9 +146,9 @@
                     <td><%=service.getPriority()%>
                     </td>
                     <td>
-                        <a href="associate-service.jsp?<%=WorkflowUIConstants.PARAM_SERVICE_ALIAS%>=<%=service.getServiceAlias()%>"
-                           class="icon-link"><fmt:message
-                                key="service.associate.to.event"/></a>
+                        <%--<a href="associate-service.jsp?<%=WorkflowUIConstants.PARAM_SERVICE_ALIAS%>=<%=service.getServiceAlias()%>"--%>
+                           <%--class="icon-link"><fmt:message--%>
+                                <%--key="service.associate.to.event"/></a>--%>
                             <%--todo delete option--%>
                     </td>
                 </tr>
