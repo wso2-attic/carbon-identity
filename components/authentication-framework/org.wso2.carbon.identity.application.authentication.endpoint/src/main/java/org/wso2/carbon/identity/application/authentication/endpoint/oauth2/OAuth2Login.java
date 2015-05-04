@@ -16,6 +16,8 @@
 
 package org.wso2.carbon.identity.application.authentication.endpoint.oauth2;
 
+import org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -68,7 +70,7 @@ public class OAuth2Login extends HttpServlet {
         String consentPage = null;
 
         // loading configured pages
-        String applicationName = request.getParameter("application");
+        String applicationName = CharacterEncoder.getSafeText(request.getParameter("application"));
 
         if (applicationName != null) {
             String loginPageParam = applicationName.trim() + "-LoginPage";

@@ -16,6 +16,8 @@
 
 package org.wso2.carbon.identity.application.authentication.endpoint;
 
+import org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,10 +32,10 @@ public class AuthenticationEndpoint extends HttpServlet {
 
         try {
             String loadPage = null;
-            String hrdParam = request.getParameter("hrd");
+            String hrdParam = CharacterEncoder.getSafeText(request.getParameter("hrd"));
             Map<String, String> idpAuthenticatorMapping = new HashMap<String, String>();
 
-            String authenticators = request.getParameter("authenticators");
+            String authenticators = CharacterEncoder.getSafeText(request.getParameter("authenticators"));
 
             if (authenticators != null) {
 

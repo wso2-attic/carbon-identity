@@ -17,6 +17,7 @@
 package org.wso2.carbon.identity.application.authentication.endpoint;
 
 import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder;
 import org.wso2.carbon.identity.application.authentication.endpoint.util.TenantDataManager;
 
 import javax.servlet.http.HttpServlet;
@@ -34,7 +35,7 @@ public class TenantListRefreshEndpoint extends HttpServlet {
     private static final String TENANT_LIST = "tenantList";
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        String tenantList = request.getParameter(TENANT_LIST);
+        String tenantList = CharacterEncoder.getSafeText(request.getParameter(TENANT_LIST));
 
         if (StringUtils.isNotEmpty(tenantList)) {
             TenantDataManager.setTenantDataList(tenantList);
@@ -42,7 +43,7 @@ public class TenantListRefreshEndpoint extends HttpServlet {
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        String tenantList = request.getParameter(TENANT_LIST);
+        String tenantList = CharacterEncoder.getSafeText(request.getParameter(TENANT_LIST));
 
         if (StringUtils.isNotEmpty(tenantList)) {
             TenantDataManager.setTenantDataList(tenantList);

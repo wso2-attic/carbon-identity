@@ -24,7 +24,7 @@
 <head>
     <title></title>
     <%
-        String authRequest = (String) request.getParameter("data");
+        String authRequest = CharacterEncoder.getSafeText(request.getParameter("data"));
 
     %>
 
