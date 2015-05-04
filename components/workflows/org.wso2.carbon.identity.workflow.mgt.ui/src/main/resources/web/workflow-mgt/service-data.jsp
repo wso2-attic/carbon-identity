@@ -23,14 +23,13 @@
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventBean" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
@@ -43,46 +42,34 @@
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     WorkflowAdminServiceClient client;
     String forwardTo = null;
-    WorkflowEventBean[] workflowEvents = new WorkflowEventBean[0];
 
     try {
-        String template =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_SERVICE_TEMPLATE));
-        if (StringUtils.isNotBlank(template)) {
-            //coming from a form submission
-            String alias = CharacterEncoder.getSafeText(WorkflowUIConstants.PARAM_SERVICE_ALIAS);
-            String event = CharacterEncoder.getSafeText(WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_EVENT);
-            if (StringUtils.isBlank(alias) || StringUtils.isBlank(event)) {
-                //check whether the mandatory params are not provided.
-                String message = resourceBundle.getString("workflow.error.service.alias.empty");
+        String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+        String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
+        ConfigurationContext configContext =
+                (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+        client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
+
+        if (CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.ADD_SERVICE)) != null) {
+            String serviceAlias =
+                    CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_SERVICE_ALIAS));
+            String serviceAction =
+                    CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_SERVICE_ACTION));
+            String serviceEPR =
+                    CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_SERVICE_EPR));
+            String serviceUser =
+                    CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_SERVICE_AUTH_USERNAME));
+            String serviceUserPassword =
+                    CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_SERVICE_AUTH_PASSWORD));
+            try {
+                client.addExistingService(serviceAlias, serviceEPR, serviceAction, serviceUser, serviceUserPassword);
+                forwardTo = "associate-service.jsp?from=addService&" + WorkflowUIConstants.PARAM_SERVICE_ALIAS + "=" +
+                        serviceAlias;
+            } catch (WorkflowAdminServiceWorkflowException e) {
+                String message = resourceBundle.getString("workflow.error.when.adding.service");
                 CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
                 forwardTo = "../admin/error.jsp";
-            } else {
-                //route to the next page based on template
-                if (WorkflowUIConstants.VALUE_EXISTING_SERVICE.equals(template)) {
-                    //routing to add existing service page
-                    forwardTo = "service-data.jsp?" + WorkflowUIConstants.PARAM_SERVICE_ALIAS + "=" + alias + "&" +
-                            WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_EVENT + "=" + event;
-                } else if (WorkflowUIConstants.TEMPLATE_MAP.containsKey(template)) {
-                    //routing to add new service page
-                    forwardTo = "template-indep-config.jsp?" + WorkflowUIConstants.PARAM_SERVICE_TEMPLATE + "=" +
-                            template +"&" + WorkflowUIConstants.PARAM_SERVICE_ALIAS + "=" + alias + "&" +
-                            WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_EVENT + "=" + event;
-                } else {
-                    String message = resourceBundle.getString("workflow.error.non.existing.template");
-                    CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-                    forwardTo = "../admin/error.jsp";
-                }
             }
-        } else {
-            //display page, request is not from a form submission
-            String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
-            String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
-            ConfigurationContext configContext =
-                    (ConfigurationContext) config.getServletContext()
-                            .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-            client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
-            workflowEvents = client.listWorkflowEvents();
         }
     } catch (AxisFault e) {
         String message = resourceBundle.getString("workflow.error.when.initiating.service.client");
@@ -133,12 +120,6 @@
         function doCancel() {
             location.href = 'list-services.jsp';
         }
-
-        function updateTemplate(sel) {
-            if (sel.options[sel.selectedIndex].value != null) {
-                $("#newBpelRadio").value = sel.options[sel.selectedIndex].value;
-            }
-        }
     </script>
 
     <div id="middle">
@@ -158,44 +139,33 @@
                             <table class="normal">
                                 <tr>
                                     <td><fmt:message key='workflow.service.alias'/></td>
-                                    <td><input type="text" name="<%=WorkflowUIConstants.PARAM_SERVICE_ALIAS%>"/></td>
-                                </tr>
-                                <tr>
-                                    <td><fmt:message key='workflow.service.associate.event'/></td>
                                     <td>
-                                        <select name="<%=WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_EVENT%>">
-                                            <%
-                                                for (WorkflowEventBean event : workflowEvents) {
-                                            %>
-                                            <option value="<%=event.getEventName()%>"><%=event.getEventName()%>
-                                            </option>
-                                            <%
-                                                }
-
-                                            %>
-                                        </select>
+                                        <input type="text" name="<%=WorkflowUIConstants.PARAM_SERVICE_ALIAS%>"/>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><fmt:message key='workflow.service.template.source'/></td>
+                                    <td><fmt:message key='workflow.service.epr'/></td>
                                     <td>
-                                        <input type="radio" name="<%=WorkflowUIConstants.PARAM_SERVICE_TEMPLATE%>"
-                                               value="<%=WorkflowUIConstants.VALUE_EXISTING_SERVICE%>"/>
-                                        Existing Service <br/>
-                                        <input id="newBpelRadio" type="radio"
-                                               name="<%=WorkflowUIConstants.PARAM_SERVICE_TEMPLATE%>" value=""/>
-                                        Deploy new BPEL from template<br/>
-                                        <select onchange="updateTemplate(this)">
-                                            <%
-                                                for (Map.Entry<String, String> eventEntry :
-                                                        WorkflowUIConstants.TEMPLATE_MAP.entrySet()) {
-                                            %>
-                                            <option value="<%=eventEntry.getKey()%>"><%=eventEntry.getValue()%>
-                                            </option>
-                                            <%
-                                                }
-                                            %>
-                                        </select>
+                                        <input type="text" name="<%=WorkflowUIConstants.PARAM_SERVICE_EPR%>"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><fmt:message key='workflow.service.action'/></td>
+                                    <td>
+                                        <input type="text" name="<%=WorkflowUIConstants.PARAM_SERVICE_ACTION%>"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><fmt:message key='workflow.service.auth.user'/></td>
+                                    <td>
+                                        <input type="text" name="<%=WorkflowUIConstants.PARAM_SERVICE_AUTH_USERNAME%>"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><fmt:message key='workflow.service.auth.password'/></td>
+                                    <td>
+                                        <input type="password"
+                                               name="<%=WorkflowUIConstants.PARAM_SERVICE_AUTH_PASSWORD%>"/>
                                     </td>
                                 </tr>
                             </table>
