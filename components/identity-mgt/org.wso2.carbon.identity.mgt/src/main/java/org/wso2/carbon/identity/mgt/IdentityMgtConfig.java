@@ -518,8 +518,17 @@ public class IdentityMgtConfig {
         // First property must start with 1.
         int count = 1;
         String className = null;
-
-        while ((className = properties.getProperty(extensionType + "." + count)) != null) {
+        int size =0;
+        if(properties != null){
+            size = properties.size();
+        }
+        while (size>0) {
+            className = properties.getProperty(extensionType + "." + count);
+            if(className == null){
+                count++;
+                size--;
+                continue;
+            }
             try {
                 Class clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
 
@@ -528,7 +537,7 @@ public class IdentityMgtConfig {
 
                 this.policyRegistry.addPolicy((PolicyEnforcer) policy);
                 count++;
-
+                size--;
             } catch (ClassNotFoundException e) {
                 log.error("Error while loading password policies " + className + " " + e.getMessage());
             } catch (SecurityException e) {
