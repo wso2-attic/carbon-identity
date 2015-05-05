@@ -43,6 +43,7 @@
         <module>passive-sts</module>
         <module>samlsso</module>
         <module>fido</module>
+        <module>google</module>
     </modules>
 
 </project>

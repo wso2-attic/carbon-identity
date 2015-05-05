@@ -63,7 +63,7 @@
             <artifactId>org.wso2.carbon.logging</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
+            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.captcha.mgt</artifactId>
         </dependency>
         <dependency>
@@ -122,7 +122,7 @@
                             org.wso2.carbon.identity.core.*; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.base; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.captcha.mgt.*;
-                            version="${carbon.identity.package.import.version.range}",
+                            version="${carbon.captcha.mgt.imp.pkg.version.range}",
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
