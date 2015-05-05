@@ -518,13 +518,13 @@ public class IdentityMgtConfig {
         // First property must start with 1.
         int count = 1;
         String className = null;
-        int size =0;
-        if(properties != null){
+        int size = 0;
+        if (properties != null) {
             size = properties.size();
         }
-        while (size>0) {
+        while (size > 0) {
             className = properties.getProperty(extensionType + "." + count);
-            if(className == null){
+            if (className == null) {
                 count++;
                 size--;
                 continue;
