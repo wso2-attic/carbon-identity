@@ -171,10 +171,10 @@
                                 <bundleDef>net.minidev:json-smart</bundleDef>
                             </bundles>
                             <importFeatures>
-                                <importFeatureDef>org.wso2.carbon.identity.core.server</importFeatureDef>
-                                <importFeatureDef>org.wso2.carbon.identity.oauth.common</importFeatureDef>
-                                <importFeatureDef>org.wso2.carbon.idp.mgt.server</importFeatureDef>
-                                <importFeatureDef>org.wso2.carbon.identity.provider.server</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.core.server:${carbon.identity.version}</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.oauth.common:${carbon.identity.version}</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.idp.mgt.server:${carbon.identity.version}</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.provider.server:${carbon.identity.version}</importFeatureDef>
                             </importFeatures>
                         </configuration>
                     </execution>
