@@ -128,7 +128,7 @@
                                 <importBundleDef>com.google.guava.wso2:guava</importBundleDef>
                             </importBundles>
                             <importFeatures>
-                                <importFeatureDef>org.wso2.carbon.identity.core.server</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.core.server:${carbon.identity.version}</importFeatureDef>
                             </importFeatures>
                         </configuration>
                     </execution>

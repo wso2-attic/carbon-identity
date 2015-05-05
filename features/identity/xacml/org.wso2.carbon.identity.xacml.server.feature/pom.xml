@@ -119,10 +119,10 @@
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>
-                                    org.wso2.carbon.identity.core.server
+                                    org.wso2.carbon.identity.core.server:${carbon.identity.version}
                                 </importFeatureDef>
                                 <importFeatureDef>
-                                    org.wso2.carbon.claim.mgt.server
+                                    org.wso2.carbon.claim.mgt.server:${carbon.identity.version}
                                 </importFeatureDef>
                             </importFeatures>
                         </configuration>
