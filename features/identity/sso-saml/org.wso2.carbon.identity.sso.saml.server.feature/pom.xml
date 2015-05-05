@@ -135,8 +135,8 @@
                                 <bundleDef>opensaml.wso2:opensaml2</bundleDef>
                             </bundles>
                             <importFeatures>
-                                <importFeatureDef>org.wso2.carbon.identity.core.server</importFeatureDef>
-                                <importFeatureDef>org.wso2.carbon.identity.application.authentication.framework.server
+                                <importFeatureDef>org.wso2.carbon.identity.core.server:${carbon.identity.version}</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.application.authentication.framework.server:${carbon.identity.version}
                                 </importFeatureDef>
                             </importFeatures>
                         </configuration>

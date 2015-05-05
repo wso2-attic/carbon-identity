@@ -70,7 +70,7 @@
                                 <bundleDef>org.apache.amber.wso2:amber</bundleDef>
                             </bundles>
                             <importFeatures>
-                                <importFeatureDef>org.wso2.carbon.identity.core.server</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.core.server:${carbon.identity.version}</importFeatureDef>
                             </importFeatures>
                         </configuration>
                     </execution>

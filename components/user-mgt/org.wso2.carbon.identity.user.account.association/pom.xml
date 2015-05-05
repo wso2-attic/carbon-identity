@@ -26,7 +26,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.identity.user.account.connector</artifactId>
+    <artifactId>org.wso2.carbon.identity.user.account.association</artifactId>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon User Account Association</name>
     <description>WSO2 Carbon User Account Association</description>
@@ -93,7 +93,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Private-Package>
-                            org.wso2.carbon.identity.user.account.connector.internal
+                            org.wso2.carbon.identity.user.account.association.internal
                         </Private-Package>
                         <Import-Package>
                             javax.crypto,
@@ -118,11 +118,11 @@
                             org.wso2.carbon.user.api; version="${carbon.user.api.imp.pkg.version.range}",
                             org.wso2.carbon.registry.core.*; version="${carbon.kernel.registry.imp.pkg.version}",
                             org.wso2.carbon.identity.application.common.*;
-                            version="${carbon.identity.package.import.version.range}",
+                            version="${carbon.identity.package.import.version.range}"
                         </Import-Package>
                         <Export-Package>
-                            !org.wso2.carbon.identity.user.account.connector.internal,
-                            org.wso2.carbon.identity.user.account.connector.*;
+                            !org.wso2.carbon.identity.user.account.association.internal,
+                            org.wso2.carbon.identity.user.account.association.*;
                             version="${carbon.identity.package.export.version}"
                         </Export-Package>
                     </instructions>
