@@ -57,7 +57,6 @@
                 String message = resourceBundle.getString("workflow.error.service.alias.empty");
                 CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
                 forwardTo = "../admin/error.jsp";
-                System.out.println("null alias/event");
             } else {
                 //route to the next page based on template
                 if (WorkflowUIConstants.VALUE_EXISTING_SERVICE.equals(template)) {
@@ -65,13 +64,11 @@
                     forwardTo = "service-data.jsp?" + WorkflowUIConstants.PARAM_SERVICE_ALIAS + "=" + alias + "&" +
                             WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_EVENT + "=" + event + "&" +
                             WorkflowUIConstants.PARAM_ACTION + "=" + WorkflowUIConstants.ACTION_VALUE_ADD;
-                    System.out.println("default template");
                 } else if (WorkflowUIConstants.TEMPLATE_MAP.containsKey(template)) {
                     //routing to add new service page
                     forwardTo = "template-indep-config.jsp?" + WorkflowUIConstants.PARAM_SERVICE_TEMPLATE + "=" +
                             template + "&" + WorkflowUIConstants.PARAM_SERVICE_ALIAS + "=" + alias + "&" +
                             WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_EVENT + "=" + event;
-                    System.out.println(template);
                 } else {
                     String message = resourceBundle.getString("workflow.error.non.existing.template");
                     CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
@@ -138,10 +135,21 @@
             location.href = 'list-services.jsp';
         }
 
-        function updateTemplate(sel) {
-            if ($("#newBpelRadio").value != "<%=WorkflowUIConstants.VALUE_EXISTING_SERVICE%>" &&
-                    (sel.options[sel.selectedIndex].value !=null)) {
-                $("#newBpelRadio").value = sel.options[sel.selectedIndex].value;
+        function switchDropdownState(enabled) {
+            $('#templateDropdown').prop('disabled', !enabled);
+            if (enabled) {
+                updateTemplate();
+            }
+        }
+
+        function updateTemplate() {
+            var dropDown = document.getElementsByName('<%=WorkflowUIConstants.PARAM_SERVICE_TEMPLATE%>');
+            var sel = document.getElementById("templateDropdown");
+            for (var j = 0; j < dropDown.length; j++) {
+                if (dropDown[j].checked && dropDown[j].value != '<%=WorkflowUIConstants.VALUE_EXISTING_SERVICE%>') {
+                    dropDown[j].value = sel.options[sel.selectedIndex].value;
+
+                }
             }
         }
     </script>
@@ -185,13 +193,14 @@
                                     <td>
                                         <input type="radio" name="<%=WorkflowUIConstants.PARAM_SERVICE_TEMPLATE%>"
                                                value="<%=WorkflowUIConstants.VALUE_EXISTING_SERVICE%>"
-                                               checked="checked"/>
+                                               checked="checked" onchange="switchDropdownState(false);"/>
                                         Existing Service <br/>
                                         <input id="newBpelRadio" type="radio"
-                                               name="<%=WorkflowUIConstants.PARAM_SERVICE_TEMPLATE%>" value=""/>
+                                               name="<%=WorkflowUIConstants.PARAM_SERVICE_TEMPLATE%>" value=""
+                                               onchange="switchDropdownState(true);"/>
                                         Deploy new BPEL from template<br/>
-                                        <select onchange="updateTemplate(this);">
-                                            <option value="">--Select--</option>
+                                        <select id="templateDropdown" onchange="updateTemplate();" disabled="disabled">
+                                                <%--<option value="">--Select--</option>--%>
                                             <%
                                                 for (Map.Entry<String, String> eventEntry :
                                                         WorkflowUIConstants.TEMPLATE_MAP.entrySet()) {

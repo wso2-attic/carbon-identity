@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.identity.workflow.mgt.ui.bpel.bean;
 
+import org.apache.commons.lang.StringUtils;
+
 public class ApprovalServiceParams {
 
     private String bpelProcessName;         //${bpelProcessName}
@@ -57,6 +59,9 @@ public class ApprovalServiceParams {
     }
 
     public void setBpsHostName(String bpsHostName) {
+        if (StringUtils.isNotBlank(bpsHostName) && bpsHostName.endsWith("/")) {
+            bpsHostName = bpsHostName.substring(0, bpsHostName.length() - 1);
+        }
         this.bpsHostName = bpsHostName;
     }
 
@@ -65,6 +70,9 @@ public class ApprovalServiceParams {
     }
 
     public void setCarbonHostName(String carbonHostName) {
+        if (StringUtils.isNotBlank(carbonHostName) && carbonHostName.endsWith("/")) {
+            carbonHostName = carbonHostName.substring(0, carbonHostName.length() - 1);
+        }
         this.carbonHostName = carbonHostName;
     }
 

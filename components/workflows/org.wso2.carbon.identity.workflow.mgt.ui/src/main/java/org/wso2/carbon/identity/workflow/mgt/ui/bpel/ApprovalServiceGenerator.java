@@ -33,6 +33,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -75,12 +77,21 @@ public class ApprovalServiceGenerator {
     }
 
     private void removePlaceHolders(String relativeFilePath, String destination) throws IOException {
-        InputStream inputStream = getClass().getResourceAsStream(relativeFilePath);
+        InputStream inputStream = getClass().getResourceAsStream("/" + relativeFilePath);
         String content = IOUtils.toString(inputStream);
         for (Map.Entry<String, String> placeHolderEntry : getPlaceHolderValues().entrySet()) {
-            content = content.replaceAll(placeHolderEntry.getKey(), placeHolderEntry.getValue());
+            content = content.replaceAll(Pattern.quote(placeHolderEntry.getKey()), Matcher.quoteReplacement
+                    (placeHolderEntry.getValue()));
         }
-        IOUtils.write(content, new FileOutputStream(new File(destination), false));
+        File destinationParent = new File(destination).getParentFile();
+        if (!destinationParent.exists()) {
+            destinationParent.mkdirs();
+        }
+        FileOutputStream fileOutputStream = new FileOutputStream(new File(destination), false);
+        IOUtils.write(content, fileOutputStream);
+        fileOutputStream.flush();
+        fileOutputStream.close();
+        inputStream.close();
     }
 
     private void generateProcessArtifact() throws IOException {
@@ -152,6 +163,10 @@ public class ApprovalServiceGenerator {
         //task-input.jsp
         outputFile = outputPath + Constants.APPROVAL_JSP_LOCATION + File.separator + serviceParams
                 .getHtServiceName() + Constants.INPUT_JSP_SUFFIX;
+        File outputFileParent = new File(outputFile).getParentFile();
+        if (!outputFileParent.exists()) {
+            outputFileParent.mkdirs();
+        }
         removePlaceHolders(resourceHomePath + Constants.TASK_INPUT_JSP_FILE, outputFile);
         filesToAdd.add(outputFile);
         //task-output.jsp
@@ -243,7 +258,6 @@ public class ApprovalServiceGenerator {
         private static final String INPUT_JSP_SUFFIX = "-input.jsp";
         private static final String OUTPUT_JSP_SUFFIX = "-output.jsp";
         private static final String RESPONSE_JSP_SUFFIX = "-response.jsp";
-
 
     }
 

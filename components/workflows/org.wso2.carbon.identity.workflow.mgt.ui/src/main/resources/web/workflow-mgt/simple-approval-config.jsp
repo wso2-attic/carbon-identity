@@ -127,7 +127,7 @@
             <form method="post">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ACTION%>"
                        value="<%=WorkflowUIConstants.ACTION_VALUE_DEPLOY%>">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_PROCESS_NAME%>" value="<%=alias%>">
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_SERVICE_ALIAS%>" value="<%=alias%>">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_EVENT%>" value="<%=event%>">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_PROCESS_NAME%>" value="<%=processName%>">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_BPS_HOST%>" value="<%=bpsHost%>">

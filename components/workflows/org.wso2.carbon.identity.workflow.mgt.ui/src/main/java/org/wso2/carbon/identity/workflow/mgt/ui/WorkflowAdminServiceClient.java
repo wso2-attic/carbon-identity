@@ -33,8 +33,8 @@ import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventBean;
 import java.rmi.RemoteException;
 
 public class WorkflowAdminServiceClient {
-    WorkflowAdminServiceStub stub;
-    Log log = LogFactory.getLog(WorkflowAdminServiceClient.class);
+    private WorkflowAdminServiceStub stub;
+    private static final Log log = LogFactory.getLog(WorkflowAdminServiceClient.class);
 
     /**
      * @param cookie
@@ -43,7 +43,7 @@ public class WorkflowAdminServiceClient {
      * @throws AxisFault
      */
     public WorkflowAdminServiceClient(String cookie, String backendServerURL,
-                                              ConfigurationContext configCtx) throws AxisFault {
+                                      ConfigurationContext configCtx) throws AxisFault {
 
         String serviceURL = backendServerURL + "WorkflowAdminService";
         stub = new WorkflowAdminServiceStub(configCtx, serviceURL);

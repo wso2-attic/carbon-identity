@@ -40,7 +40,6 @@
         </invoke>
         <invoke partnerLink="b4pApprovalPL">
             <service name="wsdl:${htServiceName}Service" port="${htServiceName}Port">
-                <epr:endpoint endpointReference="taskService.epr"/>
             </service>
         </invoke>
     </process>

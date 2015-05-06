@@ -16,7 +16,7 @@
   ~ under the License.
   -->
 
-<bpel:process name="ApprovalProcess"
+<bpel:process name="${bpelProcessName}"
               targetNamespace="http://bpel.mgt.workflow.carbon.wso2.org/approvalProcess"
               suppressJoinFailure="yes"
               xmlns:ns1="http://callback.mgt.workflow.identity.carbon.wso2.org"
@@ -27,7 +27,7 @@
               xmlns:bsch="http://schema.bpel.mgt.workflow.carbon.wso2.org/"
               exitOnStandardFault="no">
 
-    <bpel:import location="ApprovalProcessArtifacts.wsdl"
+    <bpel:import location="${bpelProcessName}Artifacts.wsdl"
                  namespace="http://bpel.mgt.workflow.carbon.wso2.org/approvalProcess"
                  importType="http://schemas.xmlsoap.org/wsdl/"/>
 
@@ -40,17 +40,17 @@
     <bpel:partnerLinks>
 
         <bpel:partnerLink name="client"
-                          partnerLinkType="tns:ApprovalProcessPLT"
+                          partnerLinkType="tns:${bpelProcessName}PLT"
                           myRole="partnerRole"
                 />
         <bpel:partnerLink name="callbackService" partnerLinkType="tns:callbackServicePLT"
                           partnerRole="callbackServicePartnerRole"></bpel:partnerLink>
-        <bpel:partnerLink name="b4pApprovalPL" partnerLinkType="tns:ApprovalTaskPLT" myRole="ApprovalCallbackRole"
+        <bpel:partnerLink name="b4pApprovalPL" partnerLinkType="tns:${htServiceName}PLT" myRole="ApprovalCallbackRole"
                           partnerRole="approvalPartnerRole"></bpel:partnerLink>
     </bpel:partnerLinks>
 
     <bpel:variables>
-        <bpel:variable name="input" messageType="tns:ApprovalProcessRequestMessage"/>
+        <bpel:variable name="input" messageType="tns:${bpelProcessName}RequestMessage"/>
         <bpel:variable name="callbackServiceRequest" messageType="ns1:onCallbackRequest">
             <bpel:from>
                 <bpel:literal xml:space="preserve">
@@ -89,7 +89,7 @@
 
     <bpel:sequence name="main">
         <bpel:receive name="receiveInput" partnerLink="client"
-                      portType="tns:ApprovalProcess"
+                      portType="tns:${bpelProcessName}"
                       operation="initiate" variable="input"
                       createInstance="yes"/>
         <bpel:assign validate="no" name="Assign">

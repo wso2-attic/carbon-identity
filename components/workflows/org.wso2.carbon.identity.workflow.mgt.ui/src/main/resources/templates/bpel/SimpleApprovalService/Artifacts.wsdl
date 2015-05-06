@@ -71,8 +71,8 @@
             <complexType name="paraItem">
                 <sequence>
                     <element name="itemValue" type="string"></element>
-                    <element name="itemName" minOccurs="0" type="string"></element>
                 </sequence>
+                <attribute name="itemName" type="string"></attribute>
             </complexType>
 
         </schema>

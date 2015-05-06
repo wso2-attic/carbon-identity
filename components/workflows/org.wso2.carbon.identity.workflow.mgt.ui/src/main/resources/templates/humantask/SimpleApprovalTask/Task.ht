@@ -31,7 +31,7 @@
         Human task for request approvals
     </htd:documentation>
 
-    <htd:import importType="http://schemas.xmlsoap.org/wsdl/" location="ApprovalTaskService.wsdl"
+    <htd:import importType="http://schemas.xmlsoap.org/wsdl/" location="${htServiceName}.wsdl"
                 namespace="http://ht.bpel.mgt.workflow.identity.carbon.wso2.org/wsdl"/>
 
     <htd:logicalPeopleGroups>
@@ -56,9 +56,9 @@
                 This task is used to get approval for the associated event
             </htd:documentation>
 
-            <htd:interface portType="htdef:ApprovalTaskPT"
+            <htd:interface portType="htdef:${htServiceName}PT"
                            operation="approve"
-                           responsePortType="htdef:ApprovalTaskCBPT"
+                           responsePortType="htdef:${htServiceName}CBPT"
                            responseOperation="approvalResponse"/>
 
             <htd:priority>
