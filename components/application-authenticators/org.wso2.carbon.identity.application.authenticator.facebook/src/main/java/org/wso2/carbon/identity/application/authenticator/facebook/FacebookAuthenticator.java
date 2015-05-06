@@ -45,6 +45,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -78,6 +79,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
             String clientId = authenticatorProperties.get(FacebookAuthenticatorConstants.CLIENT_ID);
             String authorizationEP = FacebookAuthenticatorConstants.FB_AUTHZ_URL;
             String scope = authenticatorProperties.get(FacebookAuthenticatorConstants.SCOPE);
+
             if (StringUtils.isEmpty(scope)) {
                 scope = FacebookAuthenticatorConstants.EMAIL;
             }
@@ -122,6 +124,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
             String clientId = authenticatorProperties.get(FacebookAuthenticatorConstants.CLIENT_ID);
             String clientSecret =
                     authenticatorProperties.get(FacebookAuthenticatorConstants.CLIENT_SECRET);
+            String userInfoFields = authenticatorProperties.get(FacebookAuthenticatorConstants.USER_INFO_FIELDS);
 
             String tokenEndPoint = FacebookAuthenticatorConstants.FB_TOKEN_URL;
             String fbauthUserInfoUrl = FacebookAuthenticatorConstants.FB_USER_INFO_URL;
@@ -132,7 +135,23 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
             String code = getAuthorizationCode(request);
             String token = getToken(tokenEndPoint, clientId, clientSecret, callbackurl, code);
 
-            Map<String, Object> userInfoJson = getUserInfoJson(fbauthUserInfoUrl, token);
+            if (!StringUtils.isBlank(userInfoFields)) {
+                if (context.getExternalIdP().getIdentityProvider().getClaimConfig() != null && !StringUtils.isBlank
+                        (context.getExternalIdP().getIdentityProvider().getClaimConfig().getUserClaimURI())) {
+                    String userClaimUri = context.getExternalIdP().getIdentityProvider().getClaimConfig()
+                            .getUserClaimURI();
+                    if (!Arrays.asList(userInfoFields.split(",")).contains(userClaimUri)) {
+                        userInfoFields += ("," + userClaimUri);
+                    }
+                } else {
+                    if (!Arrays.asList(userInfoFields.split(",")).contains(FacebookAuthenticatorConstants
+                                                                                   .DEFAULT_USER_IDENTIFIER)) {
+                        userInfoFields += ("," + FacebookAuthenticatorConstants.DEFAULT_USER_IDENTIFIER);
+                    }
+                }
+            }
+
+            Map<String, Object> userInfoJson = getUserInfoJson(fbauthUserInfoUrl, userInfoFields, token);
             buildClaims(context, userInfoJson);
         } catch (ApplicationAuthenticatorException e) {
             log.error("Failed to process Facebook Connect response.", e);
@@ -200,15 +219,19 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
         return tokenRequest;
     }
 
-    private String getUserInfoString(String fbauthUserInfoUrl, String token)
+    private String getUserInfoString(String fbAuthUserInfoUrl, String userInfoFields, String token)
             throws ApplicationAuthenticatorException {
 
         String userInfoString;
         try {
-            userInfoString = sendRequest(String.format("%s?%s", fbauthUserInfoUrl, token));
+            if (StringUtils.isBlank(userInfoFields)) {
+                userInfoString = sendRequest(String.format("%s?%s", fbAuthUserInfoUrl, token));
+            } else {
+                userInfoString = sendRequest(String.format("%s?fields=%s&%s", fbAuthUserInfoUrl, userInfoFields, token));
+            }
         } catch (MalformedURLException e) {
             if (log.isDebugEnabled()) {
-                log.debug("URL : " + fbauthUserInfoUrl + token, e);
+                log.debug("URL : " + fbAuthUserInfoUrl + token, e);
             }
             throw new ApplicationAuthenticatorException(
                     "MalformedURLException while sending user information request.",
@@ -223,7 +246,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
 
     private void setSubject(AuthenticationContext context, Map<String, Object> jsonObject)
             throws ApplicationAuthenticatorException {
-        String authenticatedUserId = (String) jsonObject.get(FacebookAuthenticatorConstants.EMAIL);
+        String authenticatedUserId = (String) jsonObject.get(FacebookAuthenticatorConstants.DEFAULT_USER_IDENTIFIER);
         if (StringUtils.isEmpty(authenticatedUserId)) {
             throw new ApplicationAuthenticatorException("Authenticated user identifier is empty");
         }
@@ -232,10 +255,10 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
         context.setSubject(authenticatedUser);
     }
 
-    private Map<String, Object> getUserInfoJson(String fbauthUserInfoUrl, String token)
+    private Map<String, Object> getUserInfoJson(String fbAuthUserInfoUrl, String userInfoFields, String token)
             throws ApplicationAuthenticatorException {
         Map<String, Object> jsonObject;
-        String userInfoString = getUserInfoString(fbauthUserInfoUrl, token);
+        String userInfoString = getUserInfoString(fbAuthUserInfoUrl, userInfoFields, token);
         try {
             jsonObject = JSONUtils.parseJSON(userInfoString);
         } catch (JSONException e) {
