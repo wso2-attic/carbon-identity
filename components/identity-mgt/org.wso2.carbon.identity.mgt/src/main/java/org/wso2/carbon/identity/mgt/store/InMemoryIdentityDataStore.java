@@ -21,6 +21,7 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.dto.UserIdentityClaimsDO;
 import org.wso2.carbon.user.api.UserStoreManager;
+import org.wso2.carbon.user.core.UserCoreConstants;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
@@ -48,8 +49,15 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
     public void store(UserIdentityClaimsDO userIdentityDTO, UserStoreManager userStoreManager)
             throws IdentityException {
         if (userIdentityDTO != null && userIdentityDTO.getUserName() != null) {
+
+            org.wso2.carbon.user.core.UserStoreManager store = (org.wso2.carbon.user.core.UserStoreManager) userStoreManager;
+
+            String domainName= store.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+
+
+
             String key =
-                    userStoreManager.hashCode()+""+CarbonContext.getThreadLocalCarbonContext().getTenantId() +
+                    domainName+CarbonContext.getThreadLocalCarbonContext().getTenantId() +
                             userIdentityDTO.getUserName();
 //			if (cache.containsKey(key)) {
 //				invalidateCache(userIdentityDTO.getUserName());
@@ -67,7 +75,14 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
 
         Cache<String, UserIdentityClaimsDO> cache = getCache();
         if (userName != null && cache != null) {
-            return (UserIdentityClaimsDO) cache.get(userStoreManager.hashCode()+""+CarbonContext.getThreadLocalCarbonContext().getTenantId() +
+
+            org.wso2.carbon.user.core.UserStoreManager store = (org.wso2.carbon.user.core.UserStoreManager) userStoreManager;
+
+            String domainName= store.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+
+
+
+            return (UserIdentityClaimsDO) cache.get(domainName+CarbonContext.getThreadLocalCarbonContext().getTenantId() +
                     userName);
         }
         return null;
@@ -79,7 +94,12 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
             return;
         }
 
-        cache.remove(userStoreManager+""+CarbonContext.getThreadLocalCarbonContext().getTenantId() + userName);
+        org.wso2.carbon.user.core.UserStoreManager store = (org.wso2.carbon.user.core.UserStoreManager) userStoreManager;
+
+        String domainName= store.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+
+
+        cache.remove(domainName+CarbonContext.getThreadLocalCarbonContext().getTenantId() + userName);
 
 //		invalidateCache(userName);
     }
