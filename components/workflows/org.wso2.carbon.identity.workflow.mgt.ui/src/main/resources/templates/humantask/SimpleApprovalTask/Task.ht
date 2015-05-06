@@ -97,7 +97,7 @@
                     </htd:presentationParameter>
                     <htd:presentationParameter name="params"
                                                type="xsd:string">
-                        htd:getInput("ApprovalRequest")//inputParams
+                        htd:getInput("ApprovalRequest")//parametersList
                     </htd:presentationParameter>
                 </htd:presentationParameters>
 
