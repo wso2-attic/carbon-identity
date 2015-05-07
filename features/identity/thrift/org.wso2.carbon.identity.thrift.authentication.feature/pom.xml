@@ -91,6 +91,11 @@
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.thrift.authentication
                                 </bundleDef>
                             </bundles>
+                            <importFeatures>
+                                <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.core:${carbon.identity.version}</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.xacml.server:${carbon.identity.version}</importFeatureDef>
+                            </importFeatures>
                         </configuration>
                     </execution>
                 </executions>

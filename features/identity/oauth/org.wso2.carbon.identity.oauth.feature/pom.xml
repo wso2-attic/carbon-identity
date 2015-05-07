@@ -66,9 +66,6 @@
                         <configuration>
                             <id>org.wso2.carbon.identity.oauth</id>
                             <propertiesFile>../../../etc/feature.properties</propertiesFile>
-                            <importFeatures>
-                                <importFeatureDef>org.wso2.carbon.identity.core:${carbon.identity.version}</importFeatureDef>
-                            </importFeatures>
                             <includedFeatures>
                                 <includedFeatureDef>
                                     org.wso2.carbon.identity:org.wso2.carbon.identity.oauth.server.feature

@@ -79,6 +79,9 @@
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.scim.common.stub
                                 </bundleDef>
                             </bundles>
+                            <importFeatures>
+                                <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>
+                            </importFeatures>
                         </configuration>
                     </execution>
                 </executions>

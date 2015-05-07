@@ -160,10 +160,12 @@
                                 <importBundleDef>com.google.guice.wso2:guice</importBundleDef>
                             </importBundles>
                             <importFeatures>
+                                <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.security.mgt.server:${carbon.identity.version}</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.identity.core.server:${carbon.identity.version}</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.application.mgt.server:${carbon.identity.version}</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.identity.relying.party.server:${carbon.identity.version}</importFeatureDef>
-                                <importFeatureDef>org.wso2.carbon.identity.application.authentication.framework.server:${carbon.identity.version}
-                                </importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.application.authentication.framework.server:${carbon.identity.version}</importFeatureDef>
                             </importFeatures>
                         </configuration>
                     </execution>
