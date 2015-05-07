@@ -102,7 +102,7 @@
                                 <bundleDef>commons-io.wso2:commons-io</bundleDef>
                             </bundles>
                             <importFeatures>
-                                <importFeatureDef>org.wso2.carbon.core.server:${carbon.kernel.version}
+                                <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}
                                 </importFeatureDef>
                             </importFeatures>
                         </configuration>
