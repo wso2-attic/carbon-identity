@@ -232,26 +232,29 @@
 				<td class="leftCol-big"><%=claims[j].getClaim().getClaimUri()%></td>
 			</tr>
 			<%
-
-		        ClaimAttributeDTO[] attrMap = claims[j].getMappedAttributes();
-
-		        if (attrMap != null) {
-		            StringBuilder builder = new StringBuilder();
-
-		            if(claims[j].getMappedAttribute() != null){
-		                builder.append(claims[j].getMappedAttribute());
-		            }
-
-		            for(ClaimAttributeDTO attr: attrMap){
-		                String val = attr.getDomainName() + "/" + attr.getAttributeName();
-		                builder.append(";" + val);
-		            }
-
-		            if(builder.charAt(0) == ';'){
-		                builder.deleteCharAt(0);
-		            }
-		            claims[j].setMappedAttribute(builder.toString());
-		        }
+			
+			if (claims[j].getMappedAttribute() != null && claims[j].getMappedAttribute().indexOf(";") <= 0) {
+			
+            	ClaimAttributeDTO[] attrMap = claims[j].getMappedAttributes();
+            
+					if (attrMap != null) {
+						for (int x =0; x < attrMap.length; x++) {
+							String val = attrMap[x].getDomainName() + "/" + attrMap[x].getAttributeName();
+							claims[j].setMappedAttribute(claims[j].getMappedAttribute() + ";"
+							+ val);
+						}
+					}
+					} else {
+                			 	ClaimAttributeDTO[] attrMap = claims[j].getMappedAttributes();
+                				if (attrMap != null) {
+                    					String val = "";
+                    					for (int x = 0; x < attrMap.length; x++) {
+                        				val += "; " + attrMap[x].getDomainName() + "/" + attrMap[x].getAttributeName();
+                    				}
+                    				val = val.substring(1);
+                    				claims[j].setMappedAttribute(val);
+               				 }
+           		}			
 			
 			%>
 

@@ -16,64 +16,71 @@
   ~ limitations under the License.
   -->
 <serviceGroup name="wso2carbon-sts">
-<service name="wso2carbon-sts" scope="application">
-    <module ref="rampart" />
-    <transports>
-        <transport>http</transport>
-        <transport>https</transport>
-    </transports>
-    <operation name="IssueToken" mep="http://www.w3.org/2006/01/wsdl/in-out">
-        <messageReceiver class="org.apache.rahas.STSMessageReceiver"/>
+    <service name="wso2carbon-sts" scope="application">
+        <module ref="rampart"/>
+        <transports>
+            <transport>http</transport>
+            <transport>https</transport>
+        </transports>
+        <messageReceivers>
+            <messageReceiver mep="http://www.w3.org/2006/01/wsdl/in-out"
+                             class="org.apache.rahas.STSMessageReceiver"/>
+        </messageReceivers>
 
-		<!-- Action mapping to accept SCT requests -->
-		<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/SCT</actionMapping>
-
-		<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Issue</actionMapping>
-		<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Renew</actionMapping>
-		<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Cancel</actionMapping>
-		<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/SCT/Cancel</actionMapping>
-		<actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Validate</actionMapping>
-
-		<parameter name="token-dispatcher-configuration">
-			<token-dispatcher-configuration>
+        <parameter name="token-dispatcher-configuration">
+            <token-dispatcher-configuration>
                 <!-- Issuers. You may have many issuers. -->
-				<issuer class="org.apache.rahas.impl.SAMLTokenIssuer" default="true">
-					<configuration type="parameter">saml-issuer-config</configuration>
-					<tokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV1.1</tokenType>
-				</issuer>
+                <issuer class="org.apache.rahas.impl.SAMLTokenIssuer" default="true">
+                    <configuration type="parameter">saml-issuer-config</configuration>
+                    <tokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV1.1</tokenType>
+                </issuer>
                 <issuer class="org.apache.rahas.impl.SAML2TokenIssuer" default="false">
-					<configuration type="parameter">saml-issuer-config</configuration>
-					<tokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</tokenType>
-				</issuer>
+                    <configuration type="parameter">saml-issuer-config</configuration>
+                    <tokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</tokenType>
+                </issuer>
 
                 <!-- Only a single canceler is allowed -->
                 <canceler class="org.apache.rahas.impl.TokenCancelerImpl">
-					<configuration type="parameter">token-canceler-config</configuration>
-				</canceler>
+                    <configuration type="parameter">saml-issuer-config</configuration>
+                </canceler>
 
                 <!-- Renewers. You may have many renewers -->
                 <renewer class="org.apache.rahas.impl.SAMLTokenRenewer" default="true">
-                     <configuration type="parameter">saml-issuer-config</configuration>
-                     <tokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV1.1</tokenType>
+                    <configuration type="parameter">saml-issuer-config</configuration>
+                    <tokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV1.1</tokenType>
                 </renewer>
                 <renewer class="org.apache.rahas.impl.SAML2TokenRenewer">
                     <configuration type="parameter">saml-issuer-config</configuration>
                     <tokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</tokenType>
                 </renewer>
-               <validator class="org.apache.rahas.impl.SAMLTokenValidator" default="true">
+                <validator class="org.apache.rahas.impl.SAMLTokenValidator" default="true">
                     <configuration type="parameter">saml-issuer-config</configuration>
                     <tokenType>http://schemas.xmlsoap.org/ws/2005/02/trust/RSTR/Status</tokenType>
                 </validator>
 
             </token-dispatcher-configuration>
-		</parameter>
+        </parameter>
 
-     </operation>
-	
-	<parameter name="useOrignalWSDL">true</parameter>
-	<parameter name="serviceType">sts</parameter>
-    <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/security</parameter>
-    <parameter name="disableTryIt" locked="true">true</parameter>
-    <parameter name="disableDeletion" locked="true">true</parameter>
-</service>
+        <operation name="IssueToken" mep="http://www.w3.org/2006/01/wsdl/in-out">
+            <actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Issue</actionMapping>
+        </operation>
+
+        <operation name="ValidateToken" mep="http://www.w3.org/2006/01/wsdl/in-out">
+            <actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Validate</actionMapping>
+        </operation>
+
+        <operation name="RenewToken" mep="http://www.w3.org/2006/01/wsdl/in-out">
+            <actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Renew</actionMapping>
+        </operation>
+
+        <operation name="CancelToken" mep="http://www.w3.org/2006/01/wsdl/in-out">
+            <actionMapping>http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Cancel</actionMapping>
+        </operation>
+
+        <parameter name="useOrignalWSDL">true</parameter>
+        <parameter name="serviceType">sts</parameter>
+        <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/security</parameter>
+        <parameter name="disableTryIt" locked="true">true</parameter>
+        <parameter name="disableDeletion" locked="true">true</parameter>
+    </service>
 </serviceGroup>

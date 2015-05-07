@@ -1,60 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
- ~ Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- ~
- ~ Licensed under the Apache License, Version 2.0 (the "License");
- ~ you may not use this file except in compliance with the License.
- ~ You may obtain a copy of the License at
- ~
- ~      http://www.apache.org/licenses/LICENSE-2.0
- ~
- ~ Unless required by applicable law or agreed to in writing, software
- ~ distributed under the License is distributed on an "AS IS" BASIS,
- ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- ~ See the License for the specific language governing permissions and
- ~ limitations under the License.
--->
+  ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~  WSO2 Inc. licenses this file to you under the Apache License,
+  ~  Version 2.0 (the "License"); you may not use this file except
+  ~  in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing,
+  ~  software distributed under the License is distributed on an
+  ~  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~  KIND, either express or implied.  See the License for the
+  ~  specific language governing permissions and limitations
+  ~  under the License.
+  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.wso2.carbon</groupId>
+        <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>identity-provider-management</artifactId>
-        <version>4.3.0-SNAPSHOT</version>
-	<relativePath>../pom.xml</relativePath>
+        <version>4.4.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.idp.mgt.ui</artifactId>
-    <version>4.3.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Identity Provider Management UI Bundle</name>
 
     <dependencies>
-
         <dependency>
             <groupId>org.apache.ws.commons.axiom.wso2</groupId>
             <artifactId>axiom</artifactId>
-            <!--<version>${axiom.wso2.version}</version>-->
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.idp.mgt.stub</artifactId>
-            <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.ui</artifactId>
-            <!--version>${wso2carbon.version}</version-->
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.commons</groupId>
             <artifactId>org.wso2.carbon.user.mgt.stub</artifactId>
-            <!--version>4.2.0</version-->
         </dependency>
-         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.application.common</artifactId>
-            <!--version>4.2.0</version-->
         </dependency>
     </dependencies>
 
@@ -69,24 +64,28 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
-                        <Export-Package>
-                            org.wso2.carbon.idp.mgt.ui.*,
-                        </Export-Package>
                         <Import-Package>
-                            !javax.xml.namespace,
-                            javax.xml.namespace,
-                            !org.apache.commons.logging.*,
-                            javax.servlet;version="${imp.pkg.version.javax.servlet}",
-                            javax.servlet.http;version="${imp.pkg.version.javax.servlet}",
-                            javax.xml.stream.*; version=1.0.1,
-                            org.wso2.carbon.idp.mgt.stub.*;version="${carbon.platform.package.import.version.range}",
-                            *;resolution:=optional
+                            javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
+                            org.apache.axis2.*; version="${axis2.osgi.version.range}",
+                            org.apache.axiom.om.util; version="${axiom.osgi.version.range}",
+                            org.apache.commons.fileupload.*; version="${commons-fileupload.imp.pkg.version.range}",
+                            org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
+                            org.wso2.carbon.ui;version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.user.mgt.stub.*;version="${carbon.commons.imp.pkg.version}",
+                            org.wso2.carbon.identity.application.common;
+                            version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.application.common.model.idp.xsd;
+                            version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.idp.mgt.stub; version="${carbon.identity.package.import.version.range}",
                         </Import-Package>
-                        <DynamicImport-Package>*</DynamicImport-Package>
+                        <Export-Package>
+                            org.wso2.carbon.idp.mgt.ui.*; version="${carbon.identity.package.export.version}",
+                        </Export-Package>
                         <Carbon-Component>UIBundle</Carbon-Component>
                     </instructions>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+    
 </project>

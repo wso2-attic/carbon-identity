@@ -1,34 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-        <!--
-         ~ Copyright (c) 2009-2011, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-         ~
-         ~ Licensed under the Apache License, Version 2.0 (the "License");
-         ~ you may not use this file except in compliance with the License.
-         ~ You may obtain a copy of the License at
-         ~
-         ~      http://www.apache.org/licenses/LICENSE-2.0
-         ~
-         ~ Unless required by applicable law or agreed to in writing, software
-         ~ distributed under the License is distributed on an "AS IS" BASIS,
-         ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-         ~ See the License for the specific language governing permissions and
-         ~ limitations under the License.
-        -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<!--
+  ~ Copyright (c) 2009-2011, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~  WSO2 Inc. licenses this file to you under the Apache License,
+  ~  Version 2.0 (the "License"); you may not use this file except
+  ~  in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-   <parent>
-       <groupId>org.wso2.carbon</groupId>
-       <artifactId>identity</artifactId>
-       <version>4.3.0-SNAPSHOT</version>
-       <relativePath>../pom.xml</relativePath>
+    <parent>
+        <groupId>org.wso2.carbon.identity</groupId>
+        <artifactId>identity</artifactId>
+        <version>4.4.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.wso2.carbon</groupId>
     <artifactId>org.wso2.carbon.identity.entitlement.pep.agent</artifactId>
-    <version>4.3.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Identity Entitlement PDP Proxy</name>
     <description>A custom wso2 products or solution</description>
@@ -36,99 +35,80 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.commons</groupId>
             <artifactId>org.wso2.carbon.user.mgt.stub</artifactId>
-            <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.entitlement.stub</artifactId>
-            <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.authenticator.stub</artifactId>
-            <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
         <dependency>
             <groupId>org.apache.axis2.wso2</groupId>
             <artifactId>axis2</artifactId>
-            <!--<version>1.6.1.wso2v5</version>-->
         </dependency>
         <dependency>
             <groupId>org.apache.ws.commons.axiom</groupId>
             <artifactId>axiom-api</artifactId>
-            <!--<version>1.2.11-wso2v2</version>-->
         </dependency>
         <dependency>
             <groupId>org.apache.ws.commons.axiom</groupId>
             <artifactId>axiom-impl</artifactId>
-            <!--<version>1.2.11-wso2v2</version>-->
         </dependency>
         <dependency>
             <groupId>org.apache.ws.commons.axiom</groupId>
             <artifactId>axiom-dom</artifactId>
-            <!--<version>1.2.11-wso2v2</version>-->
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <!--<version>1.0.4</version>-->
         </dependency>
         <dependency>
             <groupId>org.apache.neethi.wso2</groupId>
             <artifactId>neethi</artifactId>
-            <!--<version>2.0.4.wso2v3</version>-->
         </dependency>
         <dependency>
-            <groupId>wsdl4j</groupId>
+            <groupId>wsdl4j.wso2</groupId>
             <artifactId>wsdl4j</artifactId>
-            <!--<version>1.6.2-wso2v3</version>-->
         </dependency>
         <dependency>
             <groupId>org.apache.ws.commons.schema.wso2</groupId>
             <artifactId>XmlSchema</artifactId>
-            <!--<version>1.4.7-wso2v1</version>-->
         </dependency>
         <dependency>
             <groupId>commons-httpclient.wso2</groupId>
             <artifactId>commons-httpclient</artifactId>
-            <!--<version>3.1.0.wso2v2</version>-->
         </dependency>
         <dependency>
             <groupId>commons-io.wso2</groupId>
             <artifactId>commons-io</artifactId>
-            <!--<version>2.0.0.wso2v2</version>-->
         </dependency>
         <dependency>
             <groupId>commons-lang.wso2</groupId>
             <artifactId>commons-lang</artifactId>
-            <!--<version>2.6.0.wso2v1</version>-->
         </dependency>
         <dependency>
             <groupId>commons-codec.wso2</groupId>
             <artifactId>commons-codec</artifactId>
-            <!--<version>1.4.0.wso2v1</version>-->
         </dependency>
         <dependency>
             <groupId>commons-collections.wso2</groupId>
             <artifactId>commons-collections</artifactId>
-            <!--<version>3.2.0.wso2v1</version>-->
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents.wso2</groupId>
             <artifactId>httpcore</artifactId>
-            <!--<version>4.1.0-wso2v1</version>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.securevault</groupId>
             <artifactId>org.wso2.securevault</artifactId>
-            <!--<version>1.0.0</version>-->
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <!--<version>6.3.1</version>-->
         </dependency>
         <dependency>
             <groupId>libthrift.wso2</groupId>
@@ -145,28 +125,23 @@
         <dependency>
             <groupId>org.wso2.balana</groupId>
             <artifactId>org.wso2.balana</artifactId>
-            <!--<version>1.0.0-wso2v2</version>-->
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>opensaml.wso2</groupId>
             <artifactId>opensaml2</artifactId>
-            <!--<version>2.4.1.wso2v1</version>-->
         </dependency>
         <dependency>
             <groupId>org.apache.ws.security.wso2</groupId>
             <artifactId>wss4j</artifactId>
-            <!--<version>1.5.9.wso2v1</version>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
-            <!--<version>4.3.0-SNAPSHOT</version>-->
         </dependency>
-	<dependency>
-           <groupId>org.wso2.carbon</groupId>
-           <artifactId>javax.cache.wso2</artifactId>
-           <!--<version>4.3.0-SNAPSHOT</version>-->
-       </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>javax.cache.wso2</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -180,24 +155,35 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
-                        <Export-Package>
-                            org.wso2.carbon.identity.entitlement.agent.*,
-                        </Export-Package>
                         <Import-Package>
-                            !javax.xml.namespace,
-                            org.apache.commons.logging.*; version="1.0.4",
-                            !org.osgi.framework,
-                            !javax.servlet,
-                            !javax.servlet.http,
-                            !org.apache.axis2.databinding,
-                            !org.apache.axis2.databinding.utils.reader,
-                            !org.pache.axis2.databinding.utils.writer,
-                            !org.wso2.carbon.identity.entitlement.agent.*,
-                            org.wso2.carbon.identity.entitlement.stub.*;version="${carbon.platform.package.import.version.range}",
-                            org.wso2.carbon.authenticator.stub.*;version="${carbon.platform.package.import.version.range}",
-                            *; resolution:=optional
+                            javax.cache,
+                            javax.crypto,
+                            javax.xml.parsers,
+                            javax.xml.namespace,
+
+                            org.w3c.dom.*,
+
+                            org.joda.time; version="${opensaml2.wso2.osgi.version.range}",
+                            org.opensaml.*; version="${opensaml2.wso2.osgi.version.range}",
+
+                            org.slf4j; version="${slf4j.wso2.version.range}",
+
+                            org.apache.axiom.*; version="${axiom.osgi.version.range}",
+                            org.apache.axis2.*; version="${axis2.osgi.version.range}",
+                            org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
+                            org.apache.thrift.*; version="${libthrift.wso2.osgi.version.range}",
+                            org.apache.xml.security.*; version="${wss4j.xml.security.imp.pkg.version.range}",
+
+                            org.wso2.carbon.context; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.authenticator.stub; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.base; version="${carbon.base.imp.pkg.version.range}",
+                            org.wso2.carbon.identity.entitlement.stub.*;
+                            version="${carbon.identity.package.import.version.range}",
                         </Import-Package>
-                        <DynamicImport-Package>*</DynamicImport-Package>
+                        <Export-Package>
+                            org.wso2.carbon.identity.entitlement.pep.agent.*;
+                            version="${carbon.identity.package.export.version}",
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

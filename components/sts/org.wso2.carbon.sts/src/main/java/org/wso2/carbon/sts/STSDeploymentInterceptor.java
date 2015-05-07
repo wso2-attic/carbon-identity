@@ -49,17 +49,12 @@ import org.wso2.carbon.sts.internal.STSServiceDataHolder;
 import org.wso2.carbon.utils.ServerConstants;
 
 import java.security.KeyStore;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
 
 /**
  * This deployment interceptor will be called whenever STS service being deployed.
- * 
+ *
  * @see AxisObserver
  */
 public class STSDeploymentInterceptor implements AxisObserver {
@@ -67,23 +62,8 @@ public class STSDeploymentInterceptor implements AxisObserver {
     private static final Log log = LogFactory.getLog(DeploymentInterceptor.class);
 
     /**
-     * {@inheritDoc}
-     */
-    public void serviceUpdate(AxisEvent event, AxisService service) {
-        if (event.getEventType() == AxisEvent.SERVICE_DEPLOY
-                && ServerConstants.STS_NAME.equals(service.getName())) {
-            try {
-                updateSTSService(service.getAxisConfiguration());
-            } catch (Exception e) {
-                log.error("Error while updating " + ServerConstants.STS_NAME
-                        + " in STSDeploymentInterceptor", e);
-            }
-        }
-    }
-
-    /**
      * Updates STS service during deployment
-     * 
+     *
      * @param config AxisConfiguration
      * @throws Exception
      */
@@ -116,7 +96,7 @@ public class STSDeploymentInterceptor implements AxisObserver {
         serverConfig = ServerConfiguration.getInstance();
         admin = new KeyStoreAdmin(tenantId, governRegistry);
 
-        if(MultitenantConstants.SUPER_TENANT_ID == tenantId){
+        if (MultitenantConstants.SUPER_TENANT_ID == tenantId) {
             keyPassword = serverConfig.getFirstProperty("Security.KeyStore.KeyPassword");
             keystores = admin.getKeyStores(true);
 
@@ -133,21 +113,21 @@ public class STSDeploymentInterceptor implements AxisObserver {
             // this is not the proper way to find out the primary key store of the tenant. We need
             // check a better way  TODO
             String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            if(tenantDomain == null){
+            if (tenantDomain == null) {
                 tenantDomain = STSServiceDataHolder.getInstance().getRealmService().
-                                                             getTenantManager().getDomain(tenantId);
+                        getTenantManager().getDomain(tenantId);
             }
 
-            if(tenantDomain != null){
+            if (tenantDomain != null) {
                 // assuming domain always in this format -> example.com
                 keyStoreName = tenantDomain.replace(".", "-") + ".jks";
                 KeyStore keyStore = KeyStoreManager.getInstance(tenantId).getKeyStore(keyStoreName);
-                if(keyStore != null){
+                if (keyStore != null) {
                     privateKeyAlias = KeyStoreUtil.getPrivateKeyAlias(keyStore);
                     keyPassword = KeyStoreManager.getInstance(tenantId).getKeyStorePassword(keyStoreName);
                 } else {
                     log.warn("No key store is exist as " + keyStoreName + ". STS would be fail");
-                }                
+                }
             } else {
                 throw new Exception("Tenant Domain can not be null");
             }
@@ -191,7 +171,7 @@ public class STSDeploymentInterceptor implements AxisObserver {
                     iterator = properties.entrySet().iterator();
                     while (iterator.hasNext()) {
                         Entry entry = (Entry) iterator.next();
-                        if(RegistryUtils.isHiddenProperty(entry.getKey().toString())){
+                        if (RegistryUtils.isHiddenProperty(entry.getKey().toString())) {
                             continue;
                         }
                         stsSamlConfig.addTrustedServiceEndpointAddress((String) entry.getKey(),
@@ -267,6 +247,21 @@ public class STSDeploymentInterceptor implements AxisObserver {
                     service.addParameter(stsSamlConfig.getParameter());
                 }
             } catch (AxisFault e) {
+                log.error("Error while updating " + ServerConstants.STS_NAME
+                        + " in STSDeploymentInterceptor", e);
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void serviceUpdate(AxisEvent event, AxisService service) {
+        if (event.getEventType() == AxisEvent.SERVICE_DEPLOY
+                && ServerConstants.STS_NAME.equals(service.getName())) {
+            try {
+                updateSTSService(service.getAxisConfiguration());
+            } catch (Exception e) {
                 log.error("Error while updating " + ServerConstants.STS_NAME
                         + " in STSDeploymentInterceptor", e);
             }

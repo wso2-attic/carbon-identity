@@ -25,37 +25,39 @@ import org.wso2.carbon.apacheds.impl.ApacheLDAPServer;
  */
 public class DirectoryServiceFactory {
 
-    public enum LDAPServerType{
-        APACHE_DIRECTORY_SERVICE
-    }
-
     /**
      * Creates a LDAP server instance.
+     *
      * @param serverType Type of the LDAP server. Currently we only have apacheds implementation.
      * @return An instance of LDAPServer
      */
-    public static LDAPServer createLDAPServer(LDAPServerType serverType){
-        if (serverType == LDAPServerType.APACHE_DIRECTORY_SERVICE){
+    public static LDAPServer createLDAPServer(LDAPServerType serverType) {
+        if (serverType == LDAPServerType.APACHE_DIRECTORY_SERVICE) {
             return new ApacheLDAPServer();
         } else {
             throw new IllegalArgumentException("Does not support LDAP server type " +
-                                               serverType.name());
+                    serverType.name());
         }
     }
 
-     /**
+    /**
      * Creates a KDC server instance.
+     *
      * @param serverType Type of the LDAP server. Currently we only have apacheds based
-      * implementation.
+     *                   implementation.
      * @return An instance of KDCServer
      */
     public static KDCServer createKDCServer(LDAPServerType serverType) {
-        if (serverType == LDAPServerType.APACHE_DIRECTORY_SERVICE){
+        if (serverType == LDAPServerType.APACHE_DIRECTORY_SERVICE) {
             return new ApacheKDCServer();
         } else {
             throw new IllegalArgumentException("Does not support LDAP server type " +
-                                               serverType.name());
+                    serverType.name());
         }
+    }
+
+    public enum LDAPServerType {
+        APACHE_DIRECTORY_SERVICE
     }
 
 }

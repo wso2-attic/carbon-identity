@@ -19,18 +19,17 @@
 package org.wso2.carbon.identity.authorization.core.dto;
 
 /**
- * 
  * @author venura
  * @date May 15, 2013
  */
 public class UserPermission extends PermissionAssignment {
-	private String userName;
+    private String userName;
 
-	public String getUserName() {
-		return userName;
-	}
+    public String getUserName() {
+        return userName;
+    }
 
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 }

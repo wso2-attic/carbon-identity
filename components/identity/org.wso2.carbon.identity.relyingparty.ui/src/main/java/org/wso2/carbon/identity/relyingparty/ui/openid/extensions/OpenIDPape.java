@@ -16,10 +16,6 @@
 
 package org.wso2.carbon.identity.relyingparty.ui.openid.extensions;
 
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openid4java.message.AuthSuccess;
@@ -28,82 +24,83 @@ import org.openid4java.message.MessageExtension;
 import org.openid4java.message.pape.PapeMessage;
 import org.openid4java.message.pape.PapeRequest;
 import org.openid4java.message.pape.PapeResponse;
-import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.relyingparty.stub.dto.ClaimDTO;
 import org.wso2.carbon.identity.relyingparty.ui.openid.AuthPolicyType;
 import org.wso2.carbon.identity.relyingparty.ui.openid.OpenIDAuthenticationRequest;
 
+import java.util.List;
+
 public class OpenIDPape implements OpenIDExtension {
 
-	private AuthSuccess authSuccess;
-	private static Log log = LogFactory.getLog(OpenIDPape.class);
+    private static Log log = LogFactory.getLog(OpenIDPape.class);
+    private AuthSuccess authSuccess;
 
-	/**
-	 * Default constructor
-	 */
-	public OpenIDPape() {
+    /**
+     * Default constructor
+     */
+    public OpenIDPape() {
 
-	}
+    }
 
-	/**
-	 * Constructed during building the response
-	 * 
-	 * @param authSuccess An instance of AuthSuccess
-	 */
-	public OpenIDPape(AuthSuccess authSuccess) {
-		this.authSuccess = authSuccess;
-	}
+    /**
+     * Constructed during building the response
+     *
+     * @param authSuccess An instance of AuthSuccess
+     */
+    public OpenIDPape(AuthSuccess authSuccess) {
+        this.authSuccess = authSuccess;
+    }
 
-	/**
-	 * Creates an instance of MessageExtension for the OpenID authentication request
-	 * 
-	 * @param request OpenID authentication request
-	 * @return An instance of MessageExtension
-	 * @throws RelyingPartyException
-	 */
-	public MessageExtension getMessageExtension(OpenIDAuthenticationRequest request)
-			throws IdentityException {
+    /**
+     * Creates an instance of MessageExtension for the OpenID authentication request
+     *
+     * @param request OpenID authentication request
+     * @return An instance of MessageExtension
+     * @throws RelyingPartyException
+     */
+    public MessageExtension getMessageExtension(OpenIDAuthenticationRequest request)
+            throws IdentityException {
 
-		PapeRequest papeReq = null;
+        PapeRequest papeReq = null;
 
-		papeReq = PapeRequest.createPapeRequest();
+        papeReq = PapeRequest.createPapeRequest();
 
-		for (AuthPolicyType authType : request.getAuthTypes()) {
-			switch (authType) {
-				case PAPE_POLICY_MULTI_FACTOR :
-					papeReq.addPreferredAuthPolicy(PapeMessage.PAPE_POLICY_MULTI_FACTOR);
-					break;
-				case PAPE_POLICY_MULTI_FACTOR_PHYSICAL :
-					papeReq.addPreferredAuthPolicy(PapeMessage.PAPE_POLICY_MULTI_FACTOR_PHYSICAL);
-					break;
-				case PAPE_POLICY_PHISHING_RESISTANT :
-					papeReq.addPreferredAuthPolicy(PapeMessage.PAPE_POLICY_PHISHING_RESISTANT);
-					break;
-				default :
-					break;
-			}
-		}
+        for (AuthPolicyType authType : request.getAuthTypes()) {
+            switch (authType) {
+                case PAPE_POLICY_MULTI_FACTOR:
+                    papeReq.addPreferredAuthPolicy(PapeMessage.PAPE_POLICY_MULTI_FACTOR);
+                    break;
+                case PAPE_POLICY_MULTI_FACTOR_PHYSICAL:
+                    papeReq.addPreferredAuthPolicy(PapeMessage.PAPE_POLICY_MULTI_FACTOR_PHYSICAL);
+                    break;
+                case PAPE_POLICY_PHISHING_RESISTANT:
+                    papeReq.addPreferredAuthPolicy(PapeMessage.PAPE_POLICY_PHISHING_RESISTANT);
+                    break;
+                default:
+                    break;
+            }
+        }
 
-		return papeReq;
-	}
+        return papeReq;
+    }
 
-	/**
-	 * Set session attributes with the received OpenID response
-	 * 
-	 * @param request HttpServletRequest
-	 * @throws RelyingPartyException
-	 */
-	public void setSessionAttributes(List<ClaimDTO> claimList) throws IdentityException {
-		try {
+    /**
+     * Set session attributes with the received OpenID response
+     *
+     * @param request HttpServletRequest
+     * @throws RelyingPartyException
+     */
+    public void setSessionAttributes(List<ClaimDTO> claimList) throws IdentityException {
+        try {
 
-			PapeResponse papeResponse = null;
+            PapeResponse papeResponse = null;
 
-			if (authSuccess.hasExtension(PapeResponse.OPENID_NS_PAPE)) {
-				papeResponse = (PapeResponse) authSuccess.getExtension(PapeResponse.OPENID_NS_PAPE);
-				if (papeResponse != null) {
-					//TODO
-					/*
+            if (authSuccess.hasExtension(PapeResponse.OPENID_NS_PAPE)) {
+                papeResponse = (PapeResponse) authSuccess.getExtension(PapeResponse.OPENID_NS_PAPE);
+                if (papeResponse != null) {
+                    //TODO
+                    /*
 					 * request.setAttribute(IdentityConstants.OpenId.PapeAttributes.AUTH_POLICIES,
 					 * papeResponse.getAuthPolicies());
 					 * request.setAttribute(IdentityConstants.OpenId.PapeAttributes.AUTH_AGE,
@@ -111,13 +108,13 @@ public class OpenIDPape implements OpenIDExtension {
 					 * request.setAttribute(IdentityConstants.OpenId.PapeAttributes.NIST_AUTH_LEVEL,
 					 * papeResponse.getNistAuthLevel());
 					 */
-				}
-			}
-		} catch (MessageException e) {
-			log.error("Error while adding retrieved user attributes to the session in OpenIDPape",
-					e);
-			throw new IdentityException(
-					"Error while adding retrieved user attributes to the session in OpenIDPape", e);
-		}
-	}
+                }
+            }
+        } catch (MessageException e) {
+            log.error("Error while adding retrieved user attributes to the session in OpenIDPape",
+                    e);
+            throw new IdentityException(
+                    "Error while adding retrieved user attributes to the session in OpenIDPape", e);
+        }
+    }
 }

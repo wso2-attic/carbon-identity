@@ -38,6 +38,7 @@ public class DomainNameEntry {
 
     /**
      * Adds a new object class.
+     *
      * @param objectClass Object class name to add
      */
     public void addObjectClass(String objectClass) {
@@ -53,6 +54,7 @@ public class DomainNameEntry {
 
     /**
      * Returns all object classes as a read only collection.
+     *
      * @return A readonly list of object classes.
      */
     public List<String> getObjectClasses() {

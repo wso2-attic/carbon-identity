@@ -20,37 +20,32 @@ package org.wso2.carbon.identity.authorization.core.permission;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.context.CarbonContext;
-//import org.wso2.carbon.identity.authorization.core.dto.PermissionTreeNodeDTO;
-import org.wso2.carbon.identity.authorization.core.internal.AuthorizationServiceComponent;
-import org.wso2.carbon.registry.api.Resource;
-import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
-import org.wso2.carbon.registry.core.exceptions.RegistryException;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+//import org.wso2.carbon.identity.authorization.core.dto.PermissionTreeNodeDTO;
+
 /**
  *
  */
 public class CarbonPermissionFinderModule implements PermissionFinderModule {
 
-	private Registry registry;
+    private static Log log = LogFactory.getLog(CarbonPermissionFinderModule.class);
+    private Registry registry;
 
-	private static Log log = LogFactory.getLog(CarbonPermissionFinderModule.class);
+    @Override
+    public void init(Properties properties) throws Exception {
 
-	@Override
-	public void init(Properties properties) throws Exception {
+    }
 
-	}
-
-	@Override
-	public String getModuleName() {
-		return "CarbonPermissionFinderModule";
-	}
+    @Override
+    public String getModuleName() {
+        return "CarbonPermissionFinderModule";
+    }
 
 //	@Override
 //	public PermissionTreeNodeDTO getPermissionTree(String root, String secondaryRoot, String filter) {
@@ -71,58 +66,55 @@ public class CarbonPermissionFinderModule implements PermissionFinderModule {
 //		return nodeDTO;
 //	}
 
-	@Override
-	public Set<String> getRootNodeNames(String filter) {
+    @Override
+    public Set<String> getRootNodeNames(String filter) {
 
-		Set<String> rootNodes = new HashSet<String>();
+        Set<String> rootNodes = new HashSet<String>();
 
-		rootNodes.add("_system");
-		return rootNodes;
-	}
+        rootNodes.add("_system");
+        return rootNodes;
+    }
 
-	@Override
-	public Set<String> getSecondaryRootNodeNames(String primaryRoot, String filter) {
-		return null;
-	}
+    @Override
+    public Set<String> getSecondaryRootNodeNames(String primaryRoot, String filter) {
+        return null;
+    }
 
-	@Override
-	public boolean isFullPathSupported() {
-		return true;
-	}
+    @Override
+    public boolean isFullPathSupported() {
+        return true;
+    }
 
-	@Override
-	public boolean isHierarchicalTree() {
-		return true;
-	}
+    @Override
+    public boolean isHierarchicalTree() {
+        return true;
+    }
 
-	@Override
-	public boolean isSecondaryRootSupported() {
-		return false;
-	}
+    @Override
+    public boolean isSecondaryRootSupported() {
+        return false;
+    }
 
-	public Set<String> getSupportedActions() {
-		Set<String> actions = new HashSet<String>();
-		actions.add("read");
-		actions.add("write");
-		actions.add("delete");
-		return actions;
-	}
+    public Set<String> getSupportedActions() {
+        Set<String> actions = new HashSet<String>();
+        actions.add("read");
+        actions.add("write");
+        actions.add("delete");
+        return actions;
+    }
 
-	public String getRootIdentifier() {
-		return "WSO2Carbon";
-	}
+    public String getRootIdentifier() {
+        return "WSO2Carbon";
+    }
 
-	/**
-	 * This helps to find resources un a recursive manner
-	 * 
-	 * @param node
-	 *            attribute value node
-	 * @param parentResource
-	 *            parent resource Name
-	 * @return child resource set
-	 * @throws org.wso2.carbon.registry.core.exceptions.RegistryException
-	 *             throws
-	 */
+    /**
+     * This helps to find resources un a recursive manner
+     *
+     * @param node           attribute value node
+     * @param parentResource parent resource Name
+     * @return child resource set
+     * @throws org.wso2.carbon.registry.core.exceptions.RegistryException throws
+     */
 //	private PermissionTreeNodeDTO getChildResources(PermissionTreeNodeDTO node,
 //	                                                String parentResource) throws RegistryException {
 //
@@ -143,9 +135,8 @@ public class CarbonPermissionFinderModule implements PermissionFinderModule {
 //		}
 //		return node;
 //	}
-
-	@Override
-	public List<String> getNameForChildRootNodeSet() {
-		return null;
-	}
+    @Override
+    public List<String> getNameForChildRootNodeSet() {
+        return null;
+    }
 }

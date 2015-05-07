@@ -17,8 +17,6 @@
 */
 package org.wso2.carbon.security.deployment;
 
-import java.util.HashMap;
-
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.commons.logging.Log;
@@ -29,6 +27,8 @@ import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
 import org.wso2.carbon.security.SecurityServiceHolder;
 import org.wso2.carbon.utils.AbstractAxis2ConfigurationContextObserver;
+
+import java.util.HashMap;
 
 public class SecurityDeploymentListener extends AbstractAxis2ConfigurationContextObserver {
 
@@ -62,7 +62,7 @@ public class SecurityDeploymentListener extends AbstractAxis2ConfigurationContex
             }
         } catch (Exception e) {
             String errorMsg = "Error when storing the policy resource in registry for tenant : " +
-                              tenantId;
+                    tenantId;
             log.error(errorMsg, e);
         }
     }

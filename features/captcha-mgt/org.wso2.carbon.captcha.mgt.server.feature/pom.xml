@@ -14,15 +14,12 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
 -->
-        
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.wso2.carbon</groupId>
-   	<artifactId>captcha-mgt-feature</artifactId>
-        <version>4.3.0-SNAPSHOT</version>
+        <groupId>org.wso2.carbon.identity</groupId>
+        <artifactId>captcha-mgt-feature</artifactId>
+        <version>4.4.1-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -35,14 +32,13 @@
     </description>
 
     <dependencies>
-        <dependency>              
-            <groupId>org.wso2.carbon</groupId>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.captcha.mgt</artifactId>
         </dependency>
         <dependency>
             <groupId>kaptcha.wso2</groupId>
             <artifactId>kaptcha</artifactId>
-            <!--version>2.3.0.wso2v1</version-->
         </dependency>
     </dependencies>
 
@@ -61,19 +57,20 @@
                         </goals>
                         <configuration>
                             <id>org.wso2.carbon.captcha.mgt.server</id>
-                            <propertiesFile>../../../etc/feature.properties</propertiesFile>
+                            <propertiesFile>../../etc/feature.properties</propertiesFile>
                             <adviceFile>
                                 <properties>
                                     <propertyDef>org.wso2.carbon.p2.category.type:server</propertyDef>
-                                    <propertyDef>org.eclipse.equinox.p2.type.group:false</propertyDef>   
+                                    <propertyDef>org.eclipse.equinox.p2.type.group:false</propertyDef>
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.captcha.mgt</bundleDef>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.captcha.mgt</bundleDef>
                                 <bundleDef>kaptcha.wso2:kaptcha</bundleDef>
                             </bundles>
                             <importFeatures>
-                                <importFeatureDef>org.wso2.carbon.core.server</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.core.server:${carbon.kernel.version}
+                                </importFeatureDef>
                             </importFeatures>
                         </configuration>
                     </execution>
@@ -81,4 +78,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

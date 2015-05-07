@@ -21,6 +21,7 @@ import java.util.Date;
 
 public class RealmConfigurationDTO {
 
+    boolean isReadOnly = true;
     private String userStoreClass = null;
     private String authorizationManagerClass = null;
     private String adminRoleName = null;
@@ -31,7 +32,6 @@ public class RealmConfigurationDTO {
     private RealmPropertyDTO[] userStoreProperties = new RealmPropertyDTO[0];
     private RealmPropertyDTO[] authzProperties = new RealmPropertyDTO[0];
     private RealmPropertyDTO[] realmProperties = new RealmPropertyDTO[0];
-    boolean isReadOnly = true;
     private int tenantId;
     private Date persistedTimestamp;
     private int maxUserListLength = -1;

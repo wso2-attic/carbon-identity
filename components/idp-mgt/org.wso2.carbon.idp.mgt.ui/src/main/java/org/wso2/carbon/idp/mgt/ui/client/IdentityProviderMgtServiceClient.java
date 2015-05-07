@@ -16,12 +16,6 @@
 
 package org.wso2.carbon.idp.mgt.ui.client;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
@@ -35,6 +29,8 @@ import org.wso2.carbon.idp.mgt.stub.IdentityProviderMgtServiceStub;
 import org.wso2.carbon.user.mgt.stub.UserAdminStub;
 import org.wso2.carbon.user.mgt.stub.types.carbon.UserStoreInfo;
 
+import java.util.*;
+
 public class IdentityProviderMgtServiceClient {
 
     private static Log log = LogFactory.getLog(IdentityProviderMgtServiceClient.class);
@@ -44,12 +40,12 @@ public class IdentityProviderMgtServiceClient {
     private UserAdminStub userAdminStub;
 
     /**
-     * @param cookie HttpSession cookie
+     * @param cookie           HttpSession cookie
      * @param backendServerURL Backend Carbon server URL
-     * @param configCtx Axis2 Configuration Context
+     * @param configCtx        Axis2 Configuration Context
      */
     public IdentityProviderMgtServiceClient(String cookie, String backendServerURL,
-            ConfigurationContext configCtx) {
+                                            ConfigurationContext configCtx) {
 
         String idPMgtServiceURL = backendServerURL + "IdentityProviderMgtService";
         String userAdminServiceURL = backendServerURL + "UserAdmin";
@@ -77,7 +73,7 @@ public class IdentityProviderMgtServiceClient {
 
     /**
      * Retrieves Resident Identity provider for a given tenant
-     * 
+     *
      * @return <code>FederatedIdentityProvider</code>
      * @throws Exception Error when getting Resident Identity Providers
      */
@@ -92,7 +88,7 @@ public class IdentityProviderMgtServiceClient {
 
     /**
      * Updated Resident Identity provider for a given tenant
-     * 
+     *
      * @return <code>FederatedIdentityProvider</code>
      * @throws Exception Error when getting Resident Identity Providers
      */
@@ -107,9 +103,9 @@ public class IdentityProviderMgtServiceClient {
 
     /**
      * Retrieves registered Identity providers for a given tenant
-     * 
+     *
      * @return List of <code>FederatedIdentityProvider</code>. IdP names, primary IdP and home realm
-     *         identifiers of each IdP
+     * identifiers of each IdP
      * @throws Exception Error when getting list of Identity Providers
      */
     public List<IdentityProvider> getIdPs() throws Exception {
@@ -128,9 +124,9 @@ public class IdentityProviderMgtServiceClient {
 
     /**
      * Retrieves Enabled registered Identity providers for a given tenant
-     * 
+     *
      * @return List of <code>FederatedIdentityProvider</code>. IdP names, primary IdP and home realm
-     *         identifiers of each IdP
+     * identifiers of each IdP
      * @throws Exception Error when getting list of Identity Providers
      */
     public List<IdentityProvider> getEnabledIdPs() throws Exception {
@@ -150,7 +146,7 @@ public class IdentityProviderMgtServiceClient {
 
     /**
      * Retrieves Identity provider information about a given tenant by Identity Provider name
-     * 
+     *
      * @param idPName Unique name of the Identity provider of whose information is requested
      * @return <code>FederatedIdentityProvider</code> Identity Provider information
      * @throws Exception Error when getting Identity Provider information by IdP name
@@ -166,9 +162,9 @@ public class IdentityProviderMgtServiceClient {
 
     /**
      * Adds an Identity Provider to the given tenant
-     * 
+     *
      * @param identityProvider <code><FederatedIdentityProvider/code></code> federated Identity
-     *        Provider information
+     *                         Provider information
      * @throws Exception Error when adding Identity Provider information
      */
     public void addIdP(IdentityProvider identityProvider) throws Exception {
@@ -177,14 +173,13 @@ public class IdentityProviderMgtServiceClient {
             idPMgtStub.addIdP(identityProvider);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            throw new Exception("Error occurred while adding Identity Provider "
-                    + identityProvider.getIdentityProviderName());
+            throw e;
         }
     }
 
     /**
      * Deletes an Identity Provider from a given tenant
-     * 
+     *
      * @param idPName Name of the IdP to be deleted
      * @throws Exception Error when deleting Identity Provider information
      */
@@ -198,8 +193,8 @@ public class IdentityProviderMgtServiceClient {
 
     /**
      * Updates a given Identity Provider information
-     * 
-     * @param oldIdPName existing IdP name
+     *
+     * @param oldIdPName       existing IdP name
      * @param identityProvider <code>FederatedIdentityProvider</code> new IdP information
      * @throws Exception Error when updating Identity Provider information
      */
@@ -208,12 +203,11 @@ public class IdentityProviderMgtServiceClient {
             idPMgtStub.updateIdP(oldIdPName, identityProvider);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            throw new Exception("Error occurred while deleting Identity Provider " + oldIdPName);
+            throw e;
         }
     }
 
     /**
-     * 
      * @return
      * @throws Exception
      */
@@ -246,7 +240,6 @@ public class IdentityProviderMgtServiceClient {
     }
 
     /**
-     * 
      * @return
      * @throws Exception
      */
@@ -273,7 +266,6 @@ public class IdentityProviderMgtServiceClient {
     }
 
     /**
-     * 
      * @return
      * @throws Exception
      */
@@ -288,7 +280,6 @@ public class IdentityProviderMgtServiceClient {
     }
 
     /**
-     * 
      * @return
      * @throws Exception
      */

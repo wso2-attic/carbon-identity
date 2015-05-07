@@ -57,9 +57,8 @@ import java.util.Map;
 
 public class WSUserStoreManager implements UserStoreManager {
 
-    private RemoteUserStoreManagerServiceStub stub = null;
-
     private static Log log = LogFactory.getLog(WSUserStoreManager.class);
+    private RemoteUserStoreManagerServiceStub stub = null;
 
     public WSUserStoreManager(String serverUrl, String cookie, ConfigurationContext configCtxt)
             throws UserStoreException {
@@ -76,7 +75,7 @@ public class WSUserStoreManager implements UserStoreManager {
     }
 
     public WSUserStoreManager(String userName, String password, String serverUrl,
-            ConfigurationContext configCtxt) throws UserStoreException {
+                              ConfigurationContext configCtxt) throws UserStoreException {
         try {
 
             if (serverUrl != null && !serverUrl.endsWith("/")) {
@@ -102,7 +101,7 @@ public class WSUserStoreManager implements UserStoreManager {
     }
 
     public void addUser(String userName, Object credential, String[] roleList,
-            Map<String, String> claims, String profileName, boolean requirePasswordChange)
+                        Map<String, String> claims, String profileName, boolean requirePasswordChange)
             throws UserStoreException {
         try {
             if (!(credential instanceof String)) {
@@ -128,7 +127,7 @@ public class WSUserStoreManager implements UserStoreManager {
     }
 
     public void addUser(String userName, Object credential, String[] roleList,
-            Map<String, String> claims, String profileName) throws UserStoreException {
+                        Map<String, String> claims, String profileName) throws UserStoreException {
         if (!(credential instanceof String)) {
             throw new UserStoreException("Unsupported type of password");
         }
@@ -209,7 +208,7 @@ public class WSUserStoreManager implements UserStoreManager {
 
     public String[] getAllSecondaryRoles() throws UserStoreException {
         return new String[0]; // To change body of implemented methods use File | Settings | File
-                              // Templates.
+        // Templates.
     }
 
     public Date getPasswordExpirationTime(String username) throws UserStoreException {
@@ -253,7 +252,7 @@ public class WSUserStoreManager implements UserStoreManager {
 
     public String[] getRoleNames(boolean b) throws UserStoreException {
         return new String[0]; // To change body of implemented methods use File | Settings | File
-                              // Templates.
+        // Templates.
     }
 
     public int getTenantId() throws UserStoreException {
@@ -295,7 +294,7 @@ public class WSUserStoreManager implements UserStoreManager {
     }
 
     public Map<String, String> getUserClaimValues(String userName, String[] claims,
-            String profileName) throws UserStoreException {
+                                                  String profileName) throws UserStoreException {
         try {
             return WSRealmUtil.convertClaimValuesToMap(stub.getUserClaimValuesForClaims(userName,
                     claims, profileName));
@@ -364,7 +363,7 @@ public class WSUserStoreManager implements UserStoreManager {
     }
 
     public void setUserClaimValue(String userName, String claimURI, String claimValue,
-            String profileName) throws UserStoreException {
+                                  String profileName) throws UserStoreException {
 
         try {
             stub.setUserClaimValue(userName, claimURI, claimValue, profileName);
@@ -384,7 +383,7 @@ public class WSUserStoreManager implements UserStoreManager {
     }
 
     public void addUserClaimValue(String userName, String claimURI, String claimValue,
-            String profileName) throws UserStoreException {
+                                  String profileName) throws UserStoreException {
 
         try {
             stub.addUserClaimValue(userName, claimURI, claimValue, profileName);
@@ -459,7 +458,7 @@ public class WSUserStoreManager implements UserStoreManager {
      * This method is to check whether multiple profiles are allowed with a particular user-store.
      * For an example, currently, JDBC user store supports multiple profiles and where as ApacheDS
      * does not allow.
-     * 
+     *
      * @return
      */
     public boolean isMultipleProfilesAllowed() {
@@ -491,12 +490,12 @@ public class WSUserStoreManager implements UserStoreManager {
     }
 
     public void addRole(String roleName, String[] userList,
-            org.wso2.carbon.user.api.Permission[] permissions, boolean isSharedRole)
+                        org.wso2.carbon.user.api.Permission[] permissions, boolean isSharedRole)
             throws org.wso2.carbon.user.core.UserStoreException {
         addRole(roleName, userList, getUseCorePermission(permissions));
 
     }
-    
+
     private Permission[] getUseCorePermission(org.wso2.carbon.user.api.Permission[] permissions) {
         if (permissions != null && permissions.length > 0) {
             Permission[] perm = new Permission[permissions.length];
@@ -508,7 +507,7 @@ public class WSUserStoreManager implements UserStoreManager {
             return new Permission[0];
         }
     }
-    
+
 
     public Map<String, String> getProperties(org.wso2.carbon.user.api.Tenant tenant)
             throws org.wso2.carbon.user.core.UserStoreException {
@@ -556,15 +555,15 @@ public class WSUserStoreManager implements UserStoreManager {
         return null; // To change body of implemented methods use File | Settings | File Templates.
     }
 
+    public void setSecondaryUserStoreManager(UserStoreManager userStoreManager) {
+        // To change body of implemented methods use File | Settings | File Templates.
+    }
+
     public UserStoreManager getSecondaryUserStoreManager(String s) {
         return null; // To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void addSecondaryUserStoreManager(String s, UserStoreManager userStoreManager) {
-        // To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void setSecondaryUserStoreManager(UserStoreManager userStoreManager) {
         // To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -578,7 +577,7 @@ public class WSUserStoreManager implements UserStoreManager {
 
     @Override
     public void addRole(String roleName, String[] userList,
-            org.wso2.carbon.user.api.Permission[] permissions)
+                        org.wso2.carbon.user.api.Permission[] permissions)
             throws org.wso2.carbon.user.api.UserStoreException {
         addRole(roleName, userList, permissions, false);
     }

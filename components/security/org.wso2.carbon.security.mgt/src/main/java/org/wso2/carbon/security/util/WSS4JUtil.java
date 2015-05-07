@@ -38,9 +38,9 @@ public class WSS4JUtil {
      *
      * @param mc The message context of the message
      * @return the UsernameTokenPrincipal from the security results as an
-     *         <code>org.apache.ws.security.WSUsernameTokenPrincipal</code>.
-     *         If a wsse:UsernameToken was not present in the wsse:Security header then
-     *         <code>null</code> will be returned.
+     * <code>org.apache.ws.security.WSUsernameTokenPrincipal</code>.
+     * If a wsse:UsernameToken was not present in the wsse:Security header then
+     * <code>null</code> will be returned.
      * @throws ServerException If there are no security results.
      * @see org.apache.ws.security.WSUsernameTokenPrincipal
      */
@@ -70,7 +70,6 @@ public class WSS4JUtil {
         return null;
     }
 
-    
 
     public static Parameter getClientUsernameTokenHandler(String password) {
         Parameter param = new Parameter();

@@ -27,14 +27,8 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.captcha.mgt.beans.CaptchaInfoBean;
 import org.wso2.carbon.captcha.mgt.constants.CaptchaMgtConstants;
 import org.wso2.carbon.captcha.mgt.internal.CaptchaMgtServiceComponent;
-import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.registry.core.ActionConstants;
-import org.wso2.carbon.registry.core.CollectionImpl;
-import org.wso2.carbon.registry.core.Registry;
-import org.wso2.carbon.registry.core.RegistryConstants;
-import org.wso2.carbon.registry.core.Resource;
-import org.wso2.carbon.registry.core.ResourceImpl;
+import org.wso2.carbon.registry.core.*;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.registry.core.utils.AccessControlConstants;
@@ -56,7 +50,7 @@ import java.util.UUID;
  */
 public class CaptchaUtil {
     private static final Log log = LogFactory.getLog(CaptchaUtil.class);
-    
+
     /**
      * Clean the old captcha's from the registry.
      *
@@ -64,7 +58,7 @@ public class CaptchaUtil {
      */
     public static void cleanOldCaptchas() throws Exception {
         // we will clean captchas older than 20mins
-        new Thread() {            
+        new Thread() {
             public void run() {
                 //  As this is a util method. setting the  super tenant
                 PrivilegedCarbonContext context = PrivilegedCarbonContext.getThreadLocalCarbonContext();
@@ -88,7 +82,7 @@ public class CaptchaUtil {
 
                         // if the current time exceeds the given life time. Set as 20 mins currently.
                         if (currentTime >= createdTime +
-                                           CaptchaMgtConstants.CAPTCHA_IMG_TIMEOUT_MIN * 60 * 1000) {
+                                CaptchaMgtConstants.CAPTCHA_IMG_TIMEOUT_MIN * 60 * 1000) {
                             // just remove the image files
                             String imagePath = resource.getProperty(
                                     CaptchaMgtConstants.CAPTCHA_PATH_PROPERTY_KEY);
@@ -116,7 +110,7 @@ public class CaptchaUtil {
      */
     public static void cleanCaptcha(String secretKey) throws Exception {
         String recordPath = CaptchaMgtConstants.CAPTCHA_DETAILS_PATH +
-                            RegistryConstants.PATH_SEPARATOR + secretKey;
+                RegistryConstants.PATH_SEPARATOR + secretKey;
         Registry superTenantRegistry = CaptchaMgtServiceComponent.getConfigSystemRegistry(
                 MultitenantConstants.SUPER_TENANT_ID);
         Resource resource = superTenantRegistry.get(recordPath);
@@ -142,7 +136,7 @@ public class CaptchaUtil {
     public static CaptchaInfoBean generateCaptchaImage() throws Exception {
         String randomSecretKey = UUID.randomUUID().toString();  //random string for the captcha.
         String imagePath = CaptchaMgtConstants.CAPTCHA_IMAGES_PATH +
-                           RegistryConstants.PATH_SEPARATOR + randomSecretKey + ".jpg";
+                RegistryConstants.PATH_SEPARATOR + randomSecretKey + ".jpg";
 
         Config config = new Config(new Properties());
         Producer captchaProducer = config.getProducerImpl();
@@ -169,7 +163,7 @@ public class CaptchaUtil {
             CaptchaInfoBean captchaInfoBean = new CaptchaInfoBean();
             captchaInfoBean.setSecretKey(randomSecretKey);   //random generated value as secret key
             captchaInfoBean.setImagePath("registry" + RegistryConstants.PATH_SEPARATOR + "resource" +
-                                         RegistryConstants.CONFIG_REGISTRY_BASE_PATH + imagePath);
+                    RegistryConstants.CONFIG_REGISTRY_BASE_PATH + imagePath);
 
             // now create an entry in the registry on the captcha
             Resource recordResource = superTenantRegistry.newResource();
@@ -178,8 +172,8 @@ public class CaptchaUtil {
             recordResource.setProperty(CaptchaMgtConstants.CAPTCHA_PATH_PROPERTY_KEY, imagePath);
 
             superTenantRegistry.put(CaptchaMgtConstants.CAPTCHA_DETAILS_PATH +
-                                    RegistryConstants.PATH_SEPARATOR + randomSecretKey,
-                                    recordResource);
+                            RegistryConstants.PATH_SEPARATOR + randomSecretKey,
+                    recordResource);
             if (log.isDebugEnabled()) {
                 log.debug("Successfully generated the captcha image.");
             }
@@ -203,14 +197,14 @@ public class CaptchaUtil {
         if (userAnswer.equals("")) {
             // if no user answer given we will throw an error
             String msg = CaptchaMgtConstants.CAPTCHA_ERROR_MSG +
-                         " User has not answered to captcha text.";
+                    " User has not answered to captcha text.";
             log.error(msg);
             throw new Exception(msg);
         }
         String secretKey = captchaInfoBean.getSecretKey();  // gets the random generated secret key.
 
         String recordPath = CaptchaMgtConstants.CAPTCHA_DETAILS_PATH +
-                            RegistryConstants.PATH_SEPARATOR + secretKey;
+                RegistryConstants.PATH_SEPARATOR + secretKey;
         Registry superTenantRegistry = CaptchaMgtServiceComponent.getConfigSystemRegistry(
                 MultitenantConstants.SUPER_TENANT_ID);
         if (!superTenantRegistry.resourceExists(recordPath)) {
@@ -229,7 +223,7 @@ public class CaptchaUtil {
         }
         if (!captchaText.equals(userAnswer)) {   //wrong user input
             String msg = CaptchaMgtConstants.CAPTCHA_ERROR_MSG +
-                         " The user's answer doesn't match the captcha text.";
+                    " The user's answer doesn't match the captcha text.";
             log.error(msg);
             throw new Exception(msg);
         }
@@ -269,8 +263,8 @@ public class CaptchaUtil {
         UserRegistry systemTenantRegistry = CaptchaMgtServiceComponent.getConfigSystemRegistry(
                 MultitenantConstants.SUPER_TENANT_ID);
         setAnonAuthorization(RegistryConstants.CONFIG_REGISTRY_BASE_PATH +
-                             CaptchaMgtConstants.CAPTCHA_IMAGES_PATH,
-                             systemTenantRegistry.getUserRealm());
+                        CaptchaMgtConstants.CAPTCHA_IMAGES_PATH,
+                systemTenantRegistry.getUserRealm());
     }
 
     public static void setAnonAuthorization(String path, UserRealm userRealm)

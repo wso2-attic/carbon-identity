@@ -32,12 +32,13 @@ import java.util.Map;
 public class KeyStoreMgtUtil {
 
     private static Log log = LogFactory.getLog(KeyStoreMgtUtil.class);
+
     /**
      * Dumping the generated pub. cert to a file
      *
      * @param configurationContext
-     * @param cert  content of the certificate
-     * @param fileName  file name
+     * @param cert                 content of the certificate
+     * @param fileName             file name
      * @return file system location of the pub. cert
      */
     public static String dumpCert(ConfigurationContext configurationContext, byte[] cert,
@@ -80,7 +81,7 @@ public class KeyStoreMgtUtil {
     /**
      * Check whether the certificate is available in the file system
      *
-     * @param fileName  file name
+     * @param fileName             file name
      * @param configurationContext configuration context of the current message
      */
     private static boolean verifyCertExistence(String fileName, ConfigurationContext configurationContext) {

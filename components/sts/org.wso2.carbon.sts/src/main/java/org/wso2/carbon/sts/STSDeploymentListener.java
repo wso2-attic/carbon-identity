@@ -32,7 +32,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Bundle;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.core.multitenancy.MultitenantDispatcher;
 import org.wso2.carbon.sts.internal.STSServiceDataHolder;
 import org.wso2.carbon.utils.AbstractAxis2ConfigurationContextObserver;
 import org.wso2.carbon.utils.IOStreamUtils;
@@ -45,7 +44,7 @@ import java.net.URL;
 import java.util.*;
 
 /**
- *  This deploys a wso2carbon-sts service when tenant is loaded.
+ * This deploys a wso2carbon-sts service when tenant is loaded.
  */
 public class STSDeploymentListener extends AbstractAxis2ConfigurationContextObserver {
 
@@ -55,18 +54,18 @@ public class STSDeploymentListener extends AbstractAxis2ConfigurationContextObse
 
     static {
         String carbonRepo = System.getenv("CARBON_REPOSITORY");
-        if(carbonRepo == null){
+        if (carbonRepo == null) {
             carbonRepo = System.getProperty("carbon.repository");
         }
-        if(carbonRepo == null){
+        if (carbonRepo == null) {
             carbonRepo = System.getProperty("carbon.home") + File.separator + "repository";
         }
         componentsDirPath = carbonRepo + File.separator + "components";
     }
-    
+
     @Override
     public void createdConfigurationContext(ConfigurationContext configContext) {
-        
+
         AxisService service = null;
         try {
             service = configContext.getAxisConfiguration().getService("wso2carbon-sts");
@@ -75,18 +74,18 @@ public class STSDeploymentListener extends AbstractAxis2ConfigurationContextObse
         }
 
         // creating service if it is null
-        
-        if(service == null){
+
+        if (service == null) {
             configContext.getAxisConfiguration().addObservers(new STSDeploymentInterceptor());
-            Bundle  bundle  = STSServiceDataHolder.getInstance().getBundle();
+            Bundle bundle = STSServiceDataHolder.getInstance().getBundle();
             AxisServiceGroup serviceGroup = createService(bundle, configContext);
-            if(serviceGroup != null){
+            if (serviceGroup != null) {
                 try {
                     configContext.getAxisConfiguration().addServiceGroup(serviceGroup);
                 } catch (AxisFault axisFault) {
                     log.error("Error occurs while adding wso2carbon-sts service group in to axis2" +
                             "configuration of tenant " +
-                            CarbonContext.getThreadLocalCarbonContext().getTenantId() , axisFault);
+                            CarbonContext.getThreadLocalCarbonContext().getTenantId(), axisFault);
                 }
             }
         }
@@ -99,7 +98,7 @@ public class STSDeploymentListener extends AbstractAxis2ConfigurationContextObse
         AxisServiceGroup serviceGroup = null;
         AxisConfiguration axisConfiguration = configContext.getAxisConfiguration();
 
-        if(enumeration != null && enumeration.hasMoreElements()) {
+        if (enumeration != null && enumeration.hasMoreElements()) {
             try {
                 serviceGroup = new AxisServiceGroup(axisConfiguration);
                 ClassLoader loader =
@@ -113,7 +112,7 @@ public class STSDeploymentListener extends AbstractAxis2ConfigurationContextObse
                 DescriptionBuilder builder = new DescriptionBuilder(inputStream, configContext);
                 OMElement rootElement = builder.buildOM();
                 String elementName = rootElement.getLocalName();
-                HashMap<String,AxisService> wsdlServicesMap = processWSDL(bundle);
+                HashMap<String, AxisService> wsdlServicesMap = processWSDL(bundle);
                 if (wsdlServicesMap != null && wsdlServicesMap.size() > 0) {
                     for (AxisService service : wsdlServicesMap.values()) {
                         Iterator<AxisOperation> operations = service.getOperations();
@@ -157,13 +156,13 @@ public class STSDeploymentListener extends AbstractAxis2ConfigurationContextObse
 
             } catch (AxisFault axisFault) {
                 log.error("Error occur while deploying wso2carbon-sts service for tenant " +
-                        CarbonContext.getThreadLocalCarbonContext().getTenantId() , axisFault);
+                        CarbonContext.getThreadLocalCarbonContext().getTenantId(), axisFault);
             } catch (XMLStreamException e) {
                 log.error("Error occur while deploying wso2carbon-sts service for tenant " +
-                        CarbonContext.getThreadLocalCarbonContext().getTenantId() , e);
+                        CarbonContext.getThreadLocalCarbonContext().getTenantId(), e);
             } catch (IOException e) {
                 log.error("Error occur while deploying wso2carbon-sts service for tenant " +
-                        CarbonContext.getThreadLocalCarbonContext().getTenantId() , e);
+                        CarbonContext.getThreadLocalCarbonContext().getTenantId(), e);
             }
         }
 
@@ -218,7 +217,7 @@ public class STSDeploymentListener extends AbstractAxis2ConfigurationContextObse
             //If the bundle does not exits, then we check in the plugins dir.
             bundleFile = new File(componentsDirPath + File.separator + bundleURL.getFile());
         }
-        
+
         if (!bundleFile.exists()) {
             return new HashMap();
         }
