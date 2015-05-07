@@ -74,6 +74,7 @@
                                 </bundleDef>
                             </bundles>
                             <importFeatures>
+                                <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.identity.application.authentication.framework.server:${carbon.identity.version}</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.identity.application.authenticator.oidc.server:${carbon.identity.version}</importFeatureDef>
                             </importFeatures>
