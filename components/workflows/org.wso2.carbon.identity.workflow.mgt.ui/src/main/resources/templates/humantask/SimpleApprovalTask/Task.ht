@@ -51,7 +51,7 @@
 
 
     <htd:tasks>
-        <htd:task name="ApprovalTask">
+        <htd:task name="${htServiceName}">
             <htd:documentation xml:lang="en-US">
                 This task is used to get approval for the associated event
             </htd:documentation>
@@ -85,7 +85,7 @@
             <htd:delegation potentialDelegatees="nobody"/>
 
             <htd:presentationElements>
-                <htd:name xml:lang="en-US">Approval Task</htd:name>
+                <htd:name xml:lang="en-US">${htServiceName}</htd:name>
                 <htd:presentationParameters>
                     <htd:presentationParameter name="subject"
                                                type="xsd:string">
@@ -95,7 +95,7 @@
                                                type="xsd:string">
                         htd:getInput("ApprovalRequest")//taskDescription
                     </htd:presentationParameter>
-                    <htd:presentationParameter name="params"
+                    <htd:presentationParameter name="parametersList"
                                                type="xsd:string">
                         htd:getInput("ApprovalRequest")//parametersList
                     </htd:presentationParameter>
