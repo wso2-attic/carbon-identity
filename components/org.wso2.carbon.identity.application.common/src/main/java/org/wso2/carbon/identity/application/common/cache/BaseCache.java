@@ -24,6 +24,9 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.cache.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -240,6 +243,23 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
+    }
+
+    /**
+     * Get Cache key Object list.
+     * @return cacheKeyList.
+     */
+    public List<Object> getCacheKeyList() {
+        List<Object> cacheKeyList = null;
+        Iterator<K> iterator = getBaseCache().keys();
+        cacheKeyList = new ArrayList<Object>();
+        while (iterator.hasNext()) {
+            Object cacheObject = iterator.next();
+
+            cacheKeyList.add(cacheObject);
+
+        }
+        return cacheKeyList;
     }
 
     public void clearCacheEntry(String key) {

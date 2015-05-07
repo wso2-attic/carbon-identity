@@ -71,6 +71,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -553,6 +554,8 @@ public class FrameworkUtils {
         }
 
         cacheEntry.setContext(sessionContext);
+        Timestamp sessionCreatedTime = new java.sql.Timestamp(new java.util.Date().getTime());
+        cacheEntry.setLoggedInTime(sessionCreatedTime);
         SessionContextCache.getInstance(cacheTimeout).addToCache(cacheKey, cacheEntry);
     }
 
