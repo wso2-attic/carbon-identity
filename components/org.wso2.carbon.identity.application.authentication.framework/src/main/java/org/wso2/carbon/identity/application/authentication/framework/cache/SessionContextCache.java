@@ -190,7 +190,8 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
      * @return HashMap of sessionInformation.
      */
     private HashMap<String, UserSessionInfo> getSessionDetailsFromDb(String loggedInUser, boolean hasViewPermission,
-                                                                     boolean hasKillPermission, String currentUserTenantDomain, String currentUserStoreDomain) {
+                                                           boolean hasKillPermission, String currentUserTenantDomain,
+                                                           String currentUserStoreDomain) {
         Object sessionDetails;
         HashMap<String, UserSessionInfo> userSessionInfoMap = new HashMap<String, UserSessionInfo>();
         List<String> dbSessionList;
@@ -225,14 +226,13 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
      * @return HashMap of sessionInformation.
      */
     private HashMap<String, UserSessionInfo> getSessionDetailsFromCache(String loggedInUserName, boolean hasPermission,
-                                                                        boolean hasKillPermission, String currentUserTenantDomain, String loggedInUserStoreDomain) {
+                                                            boolean hasKillPermission, String currentUserTenantDomain,
+                                                            String loggedInUserStoreDomain) {
         Timestamp sessionCreatedTime;
         HashMap<String, UserSessionInfo> userSessionInfoMap = new HashMap<String, UserSessionInfo>();
         List<Object> cacheSessionIdList = SessionContextCache.getInstance(0).getCacheKeyList();
         if (cacheSessionIdList != null) {
-            ///    String loggedInUser = loggedInUserStoreDomain.concat("/").concat(loggedInUserName).concat("/")
-            //         .concat(currentUserTenantDomain);
-            for (Object cacheObject : cacheSessionIdList) {
+           for (Object cacheObject : cacheSessionIdList) {
                 CacheKey cacheId = ((SessionContextCacheKey) cacheObject);
                 if (cacheId != null) {
                     CacheEntry cacheEntry = getValueFromCache(cacheId);
@@ -243,7 +243,8 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
                                     .getContext().getAuthenticatedSequences().entrySet();
                             for (Map.Entry<String, SequenceConfig> session : sessions) {
                                 readSessionAndPopulateMap(session, userSessionInfoMap, loggedInUserName,
-                                        currentUserTenantDomain, loggedInUserStoreDomain, hasPermission, hasKillPermission, sessionCreatedTime);
+                                            currentUserTenantDomain, loggedInUserStoreDomain, hasPermission,
+                                            hasKillPermission, sessionCreatedTime);
                             }
                         }
                     }
@@ -254,9 +255,9 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
     }
 
     private void readSessionAndPopulateMap(Map.Entry<String, SequenceConfig> session,
-                                           HashMap<String, UserSessionInfo> userSessionInfoMap, String loggedInUser,
-                                           String currentUserTenantDomain, String loggedInUserStoreDomain,
-                                           boolean hasPermission, boolean hasKillPermission, Timestamp sessionCreatedTime) {
+                                       HashMap<String, UserSessionInfo> userSessionInfoMap, String loggedInUser,
+                                       String currentUserTenantDomain, String loggedInUserStoreDomain,
+                                       boolean hasPermission, boolean hasKillPermission, Timestamp sessionCreatedTime) {
         SessionInfo sessionInfo;
         UserSessionInfo userSessionInfo;
         ArrayList<SessionInfo> sessionInfoList;
@@ -277,8 +278,9 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
             }
             String tenantDomainName = sessionValue.getAuthenticatedUserTenantDomain();
             String loggedInUserFullName = loggedInUserStoreDomain.concat("/").concat(loggedInUser).concat("/")
-                    .concat(currentUserTenantDomain);
-            String authenticatedUserName = userStoreDomain.concat("/").concat(userName).concat("/").concat(tenantDomainName);
+                                                                                        .concat(currentUserTenantDomain);
+            String authenticatedUserName = userStoreDomain.concat("/").concat(userName).concat("/")
+                                                                                               .concat(tenantDomainName);
             String applicationTenantDomain;
 
             ApplicationConfig applicationConfigValue = sessionValue.getApplicationConfig();
@@ -331,23 +333,24 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
         String loggedInUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
         loggedInUser = MultitenantUtils.getTenantAwareUsername(loggedInUser);
         String userStoreDomainName = UserCoreUtil.getDomainFromThreadLocal();
+        if (userStoreDomainName == null) {
+            userStoreDomainName = UserStoreConfigConstants.PRIMARY;
+        }
         UserRealm realm = (UserRealm) CarbonContext.getThreadLocalCarbonContext().getUserRealm();
         try {
             boolean hasKillPermission = realm.getAuthorizationManager().isUserAuthorized(
                     loggedInUser, killPermissionResourcePath, UserMgtConstants.EXECUTE_ACTION);
-            if (Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Enable"))) {
-                if (hasKillPermission) {
+            if (hasKillPermission) {
+                if (Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Enable"))) {
                     List<String> sessionIdList = SessionDataStore.getInstance().getSessionIdsForUserName(
                             userName, tenantDomainName, userStoreDomain);
                     for (String cacheId : sessionIdList) {
                         SessionDataStore.getInstance().removeSessionData(cacheId, SESSION_CONTEXT_CACHE_NAME);
                         clearCacheEntry(cacheId);
                     }
-                }
-            } else {
-                List<Object> cacheSessionList = SessionContextCache.getInstance(0).getCacheKeyList();
-                Object sessionDetails;
-                if (hasKillPermission) {
+                } else {
+                    List<Object> cacheSessionList = SessionContextCache.getInstance(0).getCacheKeyList();
+                    Object sessionDetails;
                     //get details from cache
                     if (cacheSessionList != null) {
                         for (Object cacheObject : cacheSessionList) {

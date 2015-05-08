@@ -54,7 +54,7 @@ public class SessionManagementService extends AbstractAdmin {
     public void removeSession(String userName,String userStoreDomain, String tenantDomainName) {
         try {
             SessionContextCache.getInstance(0).removeSessionDetailsFromDbAndCache(userName,userStoreDomain,tenantDomainName);
-        } catch (Exception e) {
+        } catch (RegistryException e) {
             e.printStackTrace();
             log.error("Error is occurred while killing sessions " , e);
         }
