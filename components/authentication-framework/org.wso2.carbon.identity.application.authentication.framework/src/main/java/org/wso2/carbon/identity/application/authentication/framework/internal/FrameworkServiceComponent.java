@@ -22,11 +22,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.equinox.http.helper.ContextPathServletAdaptor;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpService;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.wso2.carbon.identity.application.authentication.framework.*;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
 import org.wso2.carbon.identity.application.authentication.framework.listener.AuthenticationEndpointTenantActivityListener;
@@ -59,6 +56,10 @@ import java.util.List;
  * interface="org.wso2.carbon.registry.core.service.RegistryService"
  * cardinality="1..1" policy="dynamic" bind="setRegistryService"
  * unbind="unsetRegistryService"
+ * @scr.reference name="application.authenticator"
+ * interface="org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator"
+ * cardinality="1..n" policy="dynamic" bind="setAuthenticator"
+ * unbind="unsetAuthenticator"
  */
 public class FrameworkServiceComponent {
 
@@ -121,89 +122,6 @@ public class FrameworkServiceComponent {
             }
         }
 
-        ServiceTracker authServiceTracker = new ServiceTracker(
-                bundleContext,
-                ApplicationAuthenticator.class.getName(),
-                new ServiceTrackerCustomizer<ApplicationAuthenticator, ApplicationAuthenticator>() {
-
-                    @Override
-                    public ApplicationAuthenticator addingService(
-                            ServiceReference<ApplicationAuthenticator> serviceReference) {
-                        ApplicationAuthenticator authenticator = serviceReference
-                                .getBundle().getBundleContext()
-                                .getService(serviceReference);
-                        authenticators.add(authenticator);
-
-                        Property[] configProperties = null;
-
-                        if (authenticator.getConfigurationProperties() != null
-                                && authenticator.getConfigurationProperties().size() > 0) {
-                            configProperties = authenticator.getConfigurationProperties().toArray(new Property[0]);
-                        }
-
-                        if (authenticator instanceof LocalApplicationAuthenticator) {
-                            LocalAuthenticatorConfig localAuthenticatorConfig = new LocalAuthenticatorConfig();
-                            localAuthenticatorConfig.setName(authenticator.getName());
-                            localAuthenticatorConfig.setProperties(configProperties);
-                            localAuthenticatorConfig.setDisplayName(authenticator.getFriendlyName());
-                            ApplicationAuthenticatorService.getInstance().addLocalAuthenticator(localAuthenticatorConfig);
-                        } else if (authenticator instanceof FederatedApplicationAuthenticator) {
-                            FederatedAuthenticatorConfig federatedAuthenticatorConfig = new FederatedAuthenticatorConfig();
-                            federatedAuthenticatorConfig.setName(authenticator.getName());
-                            federatedAuthenticatorConfig.setProperties(configProperties);
-                            federatedAuthenticatorConfig.setDisplayName(authenticator.getFriendlyName());
-                            ApplicationAuthenticatorService.getInstance().addFederatedAuthenticator(federatedAuthenticatorConfig);
-                        } else if (authenticator instanceof RequestPathApplicationAuthenticator) {
-                            RequestPathAuthenticatorConfig reqPathAuthenticatorConfig = new RequestPathAuthenticatorConfig();
-                            reqPathAuthenticatorConfig.setName(authenticator.getName());
-                            reqPathAuthenticatorConfig.setProperties(configProperties);
-                            reqPathAuthenticatorConfig.setDisplayName(authenticator.getFriendlyName());
-                            ApplicationAuthenticatorService.getInstance().addRequestPathAuthenticator(reqPathAuthenticatorConfig);
-                        }
-
-                        if (log.isDebugEnabled()) {
-                            log.debug("Added application authenticator : "
-                                    + authenticator.getName());
-                        }
-                        return authenticator;
-                    }
-
-                    @Override
-                    public void modifiedService(
-                            ServiceReference<ApplicationAuthenticator> serviceReference,
-                            ApplicationAuthenticator service) {
-                    }
-
-                    @Override
-                    public void removedService(
-                            ServiceReference<ApplicationAuthenticator> serviceReference,
-                            ApplicationAuthenticator authenticator) {
-                        authenticators.remove(authenticator);
-                        String authenticatorName = authenticator.getName();
-                        ApplicationAuthenticatorService appAuthenticatorService = ApplicationAuthenticatorService.getInstance();
-
-                        if (authenticator instanceof LocalApplicationAuthenticator) {
-                            LocalAuthenticatorConfig localAuthenticatorConfig = appAuthenticatorService.getLocalAuthenticatorByName(authenticatorName);
-                            appAuthenticatorService.removeLocalAuthenticator(localAuthenticatorConfig);
-                        } else if (authenticator instanceof FederatedApplicationAuthenticator) {
-                            FederatedAuthenticatorConfig federatedAuthenticatorConfig = appAuthenticatorService.getFederatedAuthenticatorByName(authenticatorName);
-                            appAuthenticatorService.removeFederatedAuthenticator(federatedAuthenticatorConfig);
-                        } else if (authenticator instanceof RequestPathApplicationAuthenticator) {
-                            RequestPathAuthenticatorConfig reqPathAuthenticatorConfig = appAuthenticatorService.getRequestPathAuthenticatorByName(authenticatorName);
-                            appAuthenticatorService.removeRequestPathAuthenticator(reqPathAuthenticatorConfig);
-                        }
-
-                        serviceReference.getBundle().getBundleContext()
-                                .ungetService(serviceReference);
-                        if (log.isDebugEnabled()) {
-                            log.debug("Removed application authenticator : "
-                                    + authenticator.getName());
-                        }
-                    }
-
-                });
-        authServiceTracker.open();
-
         // Register Common servlet
         Servlet commonServlet = new ContextPathServletAdaptor(
                 new CommonAuthenticationServlet(),
@@ -264,5 +182,66 @@ public class FrameworkServiceComponent {
             log.debug("RegistryService is unset in the Application Authentication Framework bundle");
         }
         FrameworkServiceComponent.registryService = null;
+    }
+
+
+
+    protected void setAuthenticator(ApplicationAuthenticator authenticator) {
+
+        authenticators.add(authenticator);
+
+        Property[] configProperties = null;
+
+        if (authenticator.getConfigurationProperties() != null
+                && authenticator.getConfigurationProperties().size() > 0) {
+            configProperties = authenticator.getConfigurationProperties().toArray(new Property[0]);
+        }
+
+        if (authenticator instanceof LocalApplicationAuthenticator) {
+            LocalAuthenticatorConfig localAuthenticatorConfig = new LocalAuthenticatorConfig();
+            localAuthenticatorConfig.setName(authenticator.getName());
+            localAuthenticatorConfig.setProperties(configProperties);
+            localAuthenticatorConfig.setDisplayName(authenticator.getFriendlyName());
+            ApplicationAuthenticatorService.getInstance().addLocalAuthenticator(localAuthenticatorConfig);
+        } else if (authenticator instanceof FederatedApplicationAuthenticator) {
+            FederatedAuthenticatorConfig federatedAuthenticatorConfig = new FederatedAuthenticatorConfig();
+            federatedAuthenticatorConfig.setName(authenticator.getName());
+            federatedAuthenticatorConfig.setProperties(configProperties);
+            federatedAuthenticatorConfig.setDisplayName(authenticator.getFriendlyName());
+            ApplicationAuthenticatorService.getInstance().addFederatedAuthenticator(federatedAuthenticatorConfig);
+        } else if (authenticator instanceof RequestPathApplicationAuthenticator) {
+            RequestPathAuthenticatorConfig reqPathAuthenticatorConfig = new RequestPathAuthenticatorConfig();
+            reqPathAuthenticatorConfig.setName(authenticator.getName());
+            reqPathAuthenticatorConfig.setProperties(configProperties);
+            reqPathAuthenticatorConfig.setDisplayName(authenticator.getFriendlyName());
+            ApplicationAuthenticatorService.getInstance().addRequestPathAuthenticator(reqPathAuthenticatorConfig);
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Added application authenticator : " + authenticator.getName());
+        }
+    }
+
+    protected void unsetAuthenticator(ApplicationAuthenticator authenticator) {
+
+        authenticators.remove(authenticator);
+        String authenticatorName = authenticator.getName();
+        ApplicationAuthenticatorService appAuthenticatorService = ApplicationAuthenticatorService.getInstance();
+
+        if (authenticator instanceof LocalApplicationAuthenticator) {
+            LocalAuthenticatorConfig localAuthenticatorConfig = appAuthenticatorService.getLocalAuthenticatorByName(authenticatorName);
+            appAuthenticatorService.removeLocalAuthenticator(localAuthenticatorConfig);
+        } else if (authenticator instanceof FederatedApplicationAuthenticator) {
+            FederatedAuthenticatorConfig federatedAuthenticatorConfig = appAuthenticatorService.getFederatedAuthenticatorByName(authenticatorName);
+            appAuthenticatorService.removeFederatedAuthenticator(federatedAuthenticatorConfig);
+        } else if (authenticator instanceof RequestPathApplicationAuthenticator) {
+            RequestPathAuthenticatorConfig reqPathAuthenticatorConfig = appAuthenticatorService.getRequestPathAuthenticatorByName(authenticatorName);
+            appAuthenticatorService.removeRequestPathAuthenticator(reqPathAuthenticatorConfig);
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Removed application authenticator : " + authenticator.getName());
+        }
+
     }
 }

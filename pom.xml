@@ -2099,9 +2099,9 @@
         <hector-core.imp.pkg.version.range>[1.1.4.wso2v1,1.2.0)</hector-core.imp.pkg.version.range>
         <codehaus.jettison.import.version.range>[0.0.0, 0.1.0)</codehaus.jettison.import.version.range>
         <waffle.wso2.version.range>1.4.wso2v1</waffle.wso2.version.range>
-        <waffle.imp.pkg.version.range>[1.4.0.wso2v1, 1.5.0)</waffle.imp.pkg.version.range>
+        <waffle.imp.pkg.version.range>[1.4.wso2v1, 1.5)</waffle.imp.pkg.version.range>
         <waffle-jna.wso2.version>1.6.wso2v1</waffle-jna.wso2.version>
-        <waffle-jna.imp.pkg.version.range>[1.6.0.wso2v1, 1.7.0)</waffle-jna.imp.pkg.version.range>
+        <waffle-jna.imp.pkg.version.range>[1.6.wso2v1, 1.7)</waffle-jna.imp.pkg.version.range>
         <tomcat.wso2.imp.pkg.version.range>[1.7.0,1.8.0)</tomcat.wso2.imp.pkg.version.range>
 
         <version.commons.logging>1.1.1</version.commons.logging>
