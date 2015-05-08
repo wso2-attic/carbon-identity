@@ -65,22 +65,37 @@
         <module>components/remote-usermgt</module>
         <module>components/security</module>
         <module>components/sts</module>
-        <!--<module>components/user-manager</module>-->
-        <!--<module>components/stratos-sso-mgt</module>-->
         <module>components/captcha-mgt</module>
         <module>components/tenant-mgt</module>
-
         <module>features/security-mgt</module>
         <module>features/authenticators</module>
         <module>features/claim-management</module>
-        <module>features/identity</module>
+        <module>features/identity-core</module>
+        <module>features/identity-provider</module>
+        <module>features/identity-mgt</module>
+        <module>features/identity-authorization</module>
+        <module>features/relying-party</module>
+        <module>features/self-registration</module>
+        <module>features/user-profiles</module>
+        <module>features/xacml</module>
+        <module>features/oauth</module>
+        <module>features/sso-saml</module>
+        <module>features/openid-admin</module>
+        <module>features/passive-sts</module>
+        <module>features/application-authentication-framework</module>
+        <module>features/application-authenticators</module>
+        <module>features/scim</module>
+        <module>features/application-mgt</module>
+        <module>features/identity-provisioning</module>
+        <module>features/tools-saml</module>
+        <module>features/thrift</module>
+        <module>features/notification-mgt</module>
+        <module>features/user-account-association</module>
         <module>features/idp-mgt</module>
         <module>features/ldap-server</module>
         <module>features/remote-usermgt</module>
-        <!--<module>features/user-manager</module>-->
         <module>features/ldap-server-manager</module>
         <module>features/sts</module>
-        <!--<module>features/stratos-sso-mgt</module>-->
         <module>features/captcha-mgt</module>
     </modules>
 
@@ -2099,13 +2114,14 @@
         <hector-core.imp.pkg.version.range>[1.1.4.wso2v1,1.2.0)</hector-core.imp.pkg.version.range>
         <codehaus.jettison.import.version.range>[0.0.0, 0.1.0)</codehaus.jettison.import.version.range>
         <waffle.wso2.version.range>1.4.wso2v1</waffle.wso2.version.range>
-        <waffle.imp.pkg.version.range>[1.4.0.wso2v1, 1.5.0)</waffle.imp.pkg.version.range>
+        <waffle.imp.pkg.version.range>[1.4.wso2v1, 1.5)</waffle.imp.pkg.version.range>
         <waffle-jna.wso2.version>1.6.wso2v1</waffle-jna.wso2.version>
-        <waffle-jna.imp.pkg.version.range>[1.6.0.wso2v1, 1.7.0)</waffle-jna.imp.pkg.version.range>
+        <waffle-jna.imp.pkg.version.range>[1.6.wso2v1, 1.7)</waffle-jna.imp.pkg.version.range>
         <tomcat.wso2.imp.pkg.version.range>[1.7.0,1.8.0)</tomcat.wso2.imp.pkg.version.range>
 
         <version.commons.logging>1.1.1</version.commons.logging>
         <kaptcha.wso2.version>2.3.0.wso2v1</kaptcha.wso2.version>
+        <kaptcha.wso2.version.range>[2.3.0.wso2v1,2.4.0)</kaptcha.wso2.version.range>
         <json.wso2.version>2.0.0.wso2v1</json.wso2.version>
 
         <project.scm.id>my-scm-server</project.scm.id>

@@ -93,19 +93,19 @@
                             org.wso2.carbon.identity.provisioning.connector.google.internal
                         </Private-Package>
                         <Import-Package>
-                            <!--javax.crypto,-->
-                            <!--javax.crypto.spec,-->
-                            <!--javax.net.ssl,-->
-                            <!--org.apache.axiom.util.base64; version="${axiom.osgi.version.range}",-->
-                            <!--org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}",-->
-                            <!--org.apache.commons.logging; version="${commons-logging.osgi.version.range}",-->
+                            javax.crypto,
+                            javax.crypto.spec,
+                            javax.net.ssl,
+                            org.apache.axiom.util.base64; version="${axiom.osgi.version.range}",
+                            org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}",
+                            org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
                             <!--org.apache.http.*; version="${httpcomponents-httpclient.imp.pkg.version.range}",-->
-                            <!--org.osgi.framework; version="${osgi.framework.imp.pkg.version.range}",-->
-                            <!--org.osgi.service.component; version="${osgi.service.component.imp.pkg.version.range}",-->
-                            <!--org.wso2.carbon.identity.provisioning;-->
-                            <!--version="${carbon.identity.package.import.version.range}",-->
-                            <!--org.wso2.carbon.identity.application.common.model;-->
-                            <!--version="${carbon.identity.package.import.version.range}",-->
+                            org.osgi.framework; version="${osgi.framework.imp.pkg.version.range}",
+                            org.osgi.service.component; version="${osgi.service.component.imp.pkg.version.range}",
+                            org.wso2.carbon.identity.provisioning;
+                            version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.application.common.model;
+                            version="${carbon.identity.package.import.version.range}",
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.provisioning.connector.google.internal,

@@ -89,6 +89,7 @@ public class IdentityApplicationConstants {
             public static final String CLIENT_ID = "ClientId";
             public static final String CLIENT_SECRET = "ClientSecret";
             public static final String SCOPE = "Scope";
+            public static final String USER_INFO_FIELDS = "UserInfoFields";
         }
 
         public static class WSTrust {
