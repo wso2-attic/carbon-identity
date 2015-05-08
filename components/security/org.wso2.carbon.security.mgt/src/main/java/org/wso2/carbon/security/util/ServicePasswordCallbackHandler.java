@@ -16,15 +16,11 @@
 
 package org.wso2.carbon.security.util;
 
-import org.apache.axiom.om.OMAttribute;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.rampart.policy.model.KerberosConfig;
 import org.apache.ws.security.WSPasswordCallback;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.persistence.PersistenceException;
-import org.wso2.carbon.core.persistence.PersistenceFactory;
-import org.wso2.carbon.core.persistence.file.ServiceGroupFilePersistenceManager;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.core.util.KeyStoreManager;
@@ -34,6 +30,7 @@ import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.security.SecurityConfigException;
+import org.wso2.carbon.security.SecurityConfigParams;
 import org.wso2.carbon.security.SecurityConstants;
 import org.wso2.carbon.security.SecurityServiceHolder;
 import org.wso2.carbon.security.UserCredentialRetriever;
@@ -58,24 +55,20 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
 
     private String serviceGroupId = null;
     private String serviceId = null;
-    //private Map<String, UserListData> users = new HashMap<String, UserListData>();
     private Registry registry = null;
     private UserRealm realm = null;
-    private String serviceXPath = null;
-    private String registryServicePath = null;
-    private PersistenceFactory persistenceFactory;
+    private SecurityConfigParams configParams;
 
     //todo there's a API change here. apparently only security component uses this. If not, change the invocations accordingly.
-    public ServicePasswordCallbackHandler(PersistenceFactory persistenceFactory, String serviceGroupId, String serviceId, String serviceXPath,
-                                          String registryServicePath, Registry registry, UserRealm realm)
+    public ServicePasswordCallbackHandler(SecurityConfigParams configParams, String serviceGroupId,
+                                          String serviceId,
+                                          Registry registry, UserRealm realm)
             throws RegistryException, SecurityConfigException {
         this.registry = registry;
         this.serviceId = serviceId;
         this.serviceGroupId = serviceGroupId;
         this.realm = realm;
-        this.serviceXPath = serviceXPath;
-        this.registryServicePath = registryServicePath;
-        this.persistenceFactory = persistenceFactory;
+        this.configParams = configParams;
     }
 
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
@@ -199,38 +192,19 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
         }
     }
 
-    private String getServicePrincipalPassword() throws PersistenceException, SecurityConfigException {
-        String kerberosPath = this.serviceXPath + "/" + RampartConfigUtil.KERBEROS_CONFIG_RESOURCE;
-        String servicePrincipalPasswordResource = kerberosPath + "/@" + KerberosConfig.SERVICE_PRINCIPLE_PASSWORD;
+    private String getServicePrincipalPassword()
+            throws PersistenceException, SecurityConfigException {
 
-        ServiceGroupFilePersistenceManager sfpm = persistenceFactory.getServiceGroupFilePM();
-        if (!sfpm.elementExists(serviceGroupId, servicePrincipalPasswordResource)) {
-            String msg = "Unable to find service principle password registry resource in path "
-                    + servicePrincipalPasswordResource;
+        String password = configParams.getServerPrincipalPassword();
+        if (password != null) {
+            if (configParams.isServerPrincipalPasswordEncrypted()) {
+                password = getDecryptedPassword(password);
+            }
+            return password;
+        } else {
+            String msg = "Service principal password param not found";
             log.error(msg);
             throw new SecurityConfigException(msg);
-        }
-
-        OMAttribute principalPassword = sfpm.getAttribute(serviceGroupId,
-                servicePrincipalPasswordResource);
-        if (principalPassword != null) {
-            String password = principalPassword.getAttributeValue();
-            if (password != null) {
-                password = getDecryptedPassword(password);
-                return password;
-            } else {
-                StringBuilder msg = new StringBuilder("Retrieved principal password is null in registry path ")
-                        .append(servicePrincipalPasswordResource).append(" for property ")
-                        .append(KerberosConfig.SERVICE_PRINCIPLE_PASSWORD);
-                log.error(msg.toString());
-                throw new SecurityConfigException(msg.toString());
-            }
-        } else {
-            StringBuilder msg = new StringBuilder("Retrieved principal resource is null in service metafile")
-                    .append(servicePrincipalPasswordResource).append(" for property ")
-                    .append(KerberosConfig.SERVICE_PRINCIPLE_PASSWORD);
-            log.error(msg.toString());
-            throw new SecurityConfigException(msg.toString());
         }
     }
 
