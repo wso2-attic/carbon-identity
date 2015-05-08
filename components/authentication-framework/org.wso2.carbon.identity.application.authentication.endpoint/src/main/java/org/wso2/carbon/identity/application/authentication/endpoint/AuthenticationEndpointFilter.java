@@ -51,6 +51,7 @@ public class AuthenticationEndpointFilter implements Filter {
     private static final String PASSIVESTS = "passivests";
     private static final String OAUTH2 = "oauth2";
     private static final String OIDC = "oidc";
+    private static final String FIDO = "fido";
 
     private static final String URI_LOGIN = "login.do";
     private static final String URI_SAMLSSO_LOGIN = "samlsso_login.do";
@@ -144,7 +145,9 @@ public class AuthenticationEndpointFilter implements Filter {
                 loadPage = URI_PASSIVESTS_LOGIN;
             } else if (OAUTH2.equals(protocolType) || OIDC.equals(protocolType)) {
                 loadPage = URI_OAUTH2_LOGIN;
-            }else{
+            } else if (FIDO.equals(protocolType)) {
+                loadPage = "authentication.jsp";
+            } else {
                 loadPage = "login.jsp";
             }
             servletRequest.getRequestDispatcher(loadPage).forward(servletRequest, servletResponse);
