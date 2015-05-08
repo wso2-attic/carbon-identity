@@ -193,7 +193,7 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
     }
 
     private String getServicePrincipalPassword()
-            throws PersistenceException, SecurityConfigException {
+            throws SecurityConfigException {
 
         String password = configParams.getServerPrincipalPassword();
         if (password != null) {
