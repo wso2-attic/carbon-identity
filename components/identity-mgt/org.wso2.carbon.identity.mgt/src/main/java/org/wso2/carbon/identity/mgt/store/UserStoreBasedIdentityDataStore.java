@@ -139,9 +139,14 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
             int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
             userIdentityDTO.setTenantId(tenantId);
 
+            org.wso2.carbon.user.core.UserStoreManager store = (org.wso2.carbon.user.core.UserStoreManager) userStoreManager;
+
+            String domainName= store.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+
+
             Cache<String, UserIdentityClaimsDO> cache = getCache();
             if (cache != null) {
-                cache.put(tenantId + userName, userIdentityDTO);
+                cache.put(domainName+tenantId + userName, userIdentityDTO);
             }
             return userIdentityDTO;
         }
