@@ -112,7 +112,6 @@
             </releases>
         </repository>
 
-
         <repository>
             <id>wso2.releases</id>
             <name>WSO2 internal Repository</name>
@@ -180,7 +179,7 @@
             <!--Components Dependencies Starts-->
 
             <!-- Carbon Kernel Dependencies-->
-	        <dependency>
+            <dependency>
                 <groupId>org.eclipse.osgi</groupId>
                 <artifactId>org.eclipse.osgi</artifactId>
                 <version>${version.equinox.osgi}</version>
@@ -281,7 +280,6 @@
                 <artifactId>org.wso2.carbon.core.ui</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
-
 
             <dependency>
                 <groupId>org.apache.neethi.wso2</groupId>
@@ -392,11 +390,6 @@
                 <version>${carbon.commons.version}</version>
             </dependency>
 
-            <!--<dependency>-->
-                <!--<groupId>org.wso2.carbon</groupId>-->
-                <!--<artifactId>org.wso2.carbon.xfer</artifactId>-->
-                <!--<version>3.2.0</version>-->
-            <!--</dependency>-->
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.sts</artifactId>
@@ -494,19 +487,13 @@
             <dependency>
                 <groupId>org.apache.cxf.wso2</groupId>
                 <artifactId>cxf-bundle</artifactId>
-                <version>2.6.1.wso2v2</version>
+                <version>${cxf-bundle.wso2.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.securevault</groupId>
                 <artifactId>org.wso2.securevault</artifactId>
                 <version>${org.wso2.securevault.version}</version>
             </dependency>
-
-            <!--dependency>
-                <groupId>slf4j.wso2</groupId>
-                <artifactId>slf4j</artifactId>
-                <version>${slf4j.wso2.version}</version>
-            </dependency-->
 
             <dependency>
                 <groupId>org.wso2.orbit.org.apache.directory</groupId>
@@ -556,17 +543,17 @@
             <dependency>
                 <groupId>au.com.bytecode.opencsv.wso2</groupId>
                 <artifactId>opencsv</artifactId>
-                <version>1.8.wso2v1</version>
+                <version>${opencsv.wso2.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.poi.wso2</groupId>
                 <artifactId>poi-scratchpad</artifactId>
-                <version>3.9.0.wso2v1</version>
+                <version>${apache.poi.wso2.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.poi.wso2</groupId>
                 <artifactId>poi-ooxml</artifactId>
-                <version>3.9.0.wso2v1</version>
+                <version>${apache.poi.wso2.version}</version>
             </dependency>
 
             <dependency>
@@ -766,52 +753,52 @@
             <dependency>
                 <groupId>com.google.api-client</groupId>
                 <artifactId>google-api-client</artifactId>
-                <version>1.17.0-rc</version>
+                <version>${com.google.client.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.apis</groupId>
                 <artifactId>google-api-services-admin</artifactId>
-                <version>directory_v1-rev28-1.17.0-rc</version>
+                <version>${com.google.service.api.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.http-client</groupId>
                 <artifactId>google-http-client</artifactId>
-                <version>1.17.0-rc</version>
+                <version>${com.google.client.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.http-client</groupId>
                 <artifactId>google-http-client-jackson2</artifactId>
-                <version>1.17.0-rc</version>
+                <version>${com.google.client.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.oauth-client</groupId>
                 <artifactId>google-oauth-client</artifactId>
-                <version>1.17.0-rc</version>
+                <version>${com.google.client.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
-                <version>2.1.3</version>
+                <version>${com.fasterxml.jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.code.findbugs</groupId>
                 <artifactId>jsr305</artifactId>
-                <version>1.3.9</version>
+                <version>${com.google.code.findbugs.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.wink</groupId>
                 <artifactId>wink-client</artifactId>
-                <version>1.1.3-incubating</version>
+                <version>${apache.wink.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openspml</groupId>
                 <artifactId>openspml2</artifactId>
-                <version>192-20100413</version>
+                <version>${openspml.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-lang.wso2</groupId>
                 <artifactId>commons-lang</artifactId>
-                <version>2.6.0.wso2v1</version>
+                <version>${commons-lang.wso2.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-codec.wso2</groupId>
@@ -831,7 +818,7 @@
             <dependency>
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
-                <version>6.3.1</version>
+                <version>${testng.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
@@ -1002,31 +989,16 @@
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>
-            <!--dependency>
-                <groupId>org.wso2.balana</groupId>
-                <artifactId>org.wso2.balana.utils</artifactId>
-                <version>1.0.0-wso2v6</version>
-            </dependency-->
-            <!--<dependency>-->
-                <!--<groupId>org.apache.synapse</groupId>-->
-                <!--<artifactId>synapse-core</artifactId>-->
-                <!--<version>${synapse.version}</version>-->
-            <!--</dependency>-->
-            <!--dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.mediator.service</artifactId>
-                <version>${wso2carbon.version}</version>
-            </dependency-->
             <dependency>
                 <groupId>org.openid4java</groupId>
                 <artifactId>openid4java-consumer</artifactId>
-                <version>0.9.6</version>
+                <version>${openid4java.version}</version>
                 <type>pom</type>
             </dependency>
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>javax.servlet-api</artifactId>
-                <version>3.1.0</version>
+                <version>${javax.servlet-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.amber</groupId>
@@ -1069,17 +1041,17 @@
             <dependency>
                 <groupId>com.thetransactioncompany.wso2</groupId>
                 <artifactId>cors-filter</artifactId>
-                <version>1.7.0.wso2v1</version>
+                <version>${thetransactioncompany.cors-filter.wso2.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.thetransactioncompany.wso2</groupId>
                 <artifactId>java-property-utils</artifactId>
-                <version>1.9.0.wso2v1</version>
+                <version>${thetransactioncompany.utils.wso2.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.ws.rs</groupId>
                 <artifactId>jsr311-api</artifactId>
-                <version>1.1.1</version>
+                <version>${jsr311-api.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -1090,12 +1062,12 @@
             <dependency>
                 <groupId>org.opensaml</groupId>
                 <artifactId>opensaml</artifactId>
-                <version>2.4.1</version>
+                <version>${opensaml.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>servlet-api</artifactId>
-                <version>2.5</version>
+                <version>${servlet-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
@@ -1107,11 +1079,6 @@
                 <artifactId>org.wso2.carbon.identity.user.store.configuration</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
-            <!--<dependency>-->
-            <!--<groupId>org.wso2.carbon</groupId>-->
-            <!--<artifactId>org.wso2.carbon.stratos.common</artifactId>-->
-            <!--<version>${stratos.version}</version>-->
-            <!--</dependency>-->
             <dependency>
                 <groupId>org.wso2.carbon.commons</groupId>
                 <artifactId>org.wso2.carbon.tenant.common</artifactId>
@@ -1133,11 +1100,6 @@
                 <artifactId>slf4j-api</artifactId>
                 <version>${org.slf4j.verison}</version>
             </dependency>
-            <!--dependency>
-                <groupId>org.wso2.xkms.wso2</groupId>
-                <artifactId>xkms</artifactId>
-                <version>2.4.0.wso2v1</version>
-            </dependency-->
             <dependency>
                 <groupId>backport-util-concurrent.wso2</groupId>
                 <artifactId>backport-util-concurrent</artifactId>
@@ -1154,16 +1116,6 @@
                 <artifactId>openidconnect-authzserver</artifactId>
                 <version>${openidconnect-authzserver.amber.version}</version>
             </dependency>
-            <!--dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.identity.user.profile</artifactId>
-                <version>${carbon.identity.version}</version>
-            </dependency-->
-            <!--dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.identity.application.common</artifactId>
-                <version>${carbon.identity.version}</version>
-            </dependency-->
 
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
@@ -1730,7 +1682,7 @@
             <dependency>
                 <groupId>tomcat</groupId>
                 <artifactId>tomcat-util</artifactId>
-                <version>3.3.2</version>
+                <version>${tomcat-util.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.dblock.waffle.wso2</groupId>
@@ -1870,7 +1822,7 @@
             <dependency>
                 <groupId>jdom.wso2</groupId>
                 <artifactId>jdom</artifactId>
-                <version>1.0.0.wso2v1</version>
+                <version>${jdom.wso2.version}</version>
             </dependency>
 
             <dependency>
@@ -1898,7 +1850,7 @@
             <dependency>
                 <groupId>net.minidev</groupId>
                 <artifactId>json-smart</artifactId>
-                <version>1.3</version>
+                <version>${json-smart.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.directory.server</groupId>
@@ -1974,6 +1926,8 @@
         <axiom.org.jaxen.imp.pkg.version.range>[1.1.1, 1.2.0)</axiom.org.jaxen.imp.pkg.version.range>
 
         <!-- Servet Version -->
+        <servlet-api.version>2.5</servlet-api.version>
+        <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
         <version.javax.servlet.jsp>2.2.0.v201112011158</version.javax.servlet.jsp>
         <imp.pkg.version.javax.servlet.jsp.jstl>[1.2.1, 1.3.0)</imp.pkg.version.javax.servlet.jsp.jstl>
         <imp.pkg.version.javax.servlet.jsp>[2.2.0, 2.3.0)</imp.pkg.version.javax.servlet.jsp>
@@ -2076,6 +2030,7 @@
         <libthrift.wso2.osgi.version.range>[0.8.0.wso2v1,0.9.0)</libthrift.wso2.osgi.version.range>
         <log4j.version>1.2.13</log4j.version>
         <orbit.version.commons.fileuploader>1.2.0.wso2v1</orbit.version.commons.fileuploader>
+        <opensaml.version>2.4.1</opensaml.version>
         <opensaml2.wso2.version>2.4.1.wso2v1</opensaml2.wso2.version>
         <opensaml2.wso2.osgi.version.range>[2.4.1.wso2v1,2.5.0)</opensaml2.wso2.osgi.version.range>
         <commons-codec.version>1.4.0.wso2v1</commons-codec.version>
@@ -2084,6 +2039,9 @@
         <httpcore.version>4.3.3.wso2v1</httpcore.version>
         <com.google.code.gson.version>2.2.4</com.google.code.gson.version>
         <com.google.code.gson.osgi.version.range>[2.2.4,2.3.0)</com.google.code.gson.osgi.version.range>
+        <com.google.code.findbugs.version>1.3.9</com.google.code.findbugs.version>
+        <com.google.client.version>1.17.0-rc</com.google.client.version>
+        <com.google.service.api.version>directory_v1-rev28-1.17.0-rc</com.google.service.api.version>
         <orbit.version.backport.util>3.1.0.wso2v1</orbit.version.backport.util>
         <bcprov-jdk15.version>132</bcprov-jdk15.version>
         <stratos.version>2.2.0</stratos.version>
@@ -2094,6 +2052,7 @@
         <google.guice.imp.pkg.version.range>[1.3.0,1.4.0)</google.guice.imp.pkg.version.range>
         <charon.wso2.version.identity>2.0.0-wso2v3</charon.wso2.version.identity>
         <charon.core.imp.pkg.version.range>[1.0.0,1.1.0)</charon.core.imp.pkg.version.range>
+        <openid4java.version>0.9.6</openid4java.version>
         <openid4java.wso2.version>0.9.6.wso2v2</openid4java.wso2.version>
         <openid4java.wso2.osgi.version.range>[0.9.6.wso2v2,0.10)</openid4java.wso2.osgi.version.range>
         <opensaml2.version>2.4.1.wso2v1</opensaml2.version>
@@ -2123,6 +2082,19 @@
         <kaptcha.wso2.version>2.3.0.wso2v1</kaptcha.wso2.version>
         <kaptcha.wso2.version.range>[2.3.0.wso2v1,2.4.0)</kaptcha.wso2.version.range>
         <json.wso2.version>2.0.0.wso2v1</json.wso2.version>
+        <com.fasterxml.jackson.version>2.1.3</com.fasterxml.jackson.version>
+        <apache.wink.version>1.1.3-incubating</apache.wink.version>
+        <openspml.version>192-20100413</openspml.version>
+        <testng.version>6.3.1</testng.version>
+        <thetransactioncompany.cors-filter.wso2.version>1.7.0.wso2v1</thetransactioncompany.cors-filter.wso2.version>
+        <thetransactioncompany.utils.wso2.version>1.9.0.wso2v1</thetransactioncompany.utils.wso2.version>
+        <jsr311-api.version>1.1.1</jsr311-api.version>
+        <tomcat-util.version>3.3.2</tomcat-util.version>
+        <jdom.wso2.version>1.0.0.wso2v1</jdom.wso2.version>
+        <json-smart.version>1.3</json-smart.version>
+        <cxf-bundle.wso2.version>2.6.1.wso2v2</cxf-bundle.wso2.version>
+        <opencsv.wso2.version>1.8.wso2v1</opencsv.wso2.version>
+        <apache.poi.wso2.version>3.9.0.wso2v1</apache.poi.wso2.version>
 
         <project.scm.id>my-scm-server</project.scm.id>
     </properties>
