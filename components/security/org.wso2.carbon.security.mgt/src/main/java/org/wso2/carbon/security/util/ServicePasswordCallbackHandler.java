@@ -84,8 +84,8 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                 if (callbacks[i] instanceof WSPasswordCallback) {
                     WSPasswordCallback passwordCallback = (WSPasswordCallback) callbacks[i];
 
-                    String username = passwordCallback.getIdentifer();
-                    String receivedPasswd = null;
+                    String username = passwordCallback.getIdentifier();
+                    String receivedPassword = null;
                     switch (passwordCallback.getUsage()) {
 
                         case WSPasswordCallback.SIGNATURE:
@@ -95,26 +95,21 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                                 throw new UnsupportedCallbackException(callbacks[i],
                                         "User not available " + "in a trusted store");
                             }
-
                             passwordCallback.setPassword(password);
-
                             break;
                         case WSPasswordCallback.KERBEROS_TOKEN:
                             passwordCallback.setPassword(getServicePrincipalPassword());
                             break;
                         case WSPasswordCallback.USERNAME_TOKEN_UNKNOWN:
 
-                            receivedPasswd = passwordCallback.getPassword();
+                            receivedPassword = passwordCallback.getPassword();
                             try {
-                                if (receivedPasswd != null
-                                        && this.authenticateUser(username, receivedPasswd)) {
-                                    // do nothing things are fine
+                                if (receivedPassword != null && this.authenticateUser(username, receivedPassword)) {
                                 } else {
                                     throw new UnsupportedCallbackException(callbacks[i], "check failed");
                                 }
                             } catch (Exception e) {
-                                throw new UnsupportedCallbackException(callbacks[i],
-                                        "Check failed : System error");
+                                throw new UnsupportedCallbackException(callbacks[i], "Check failed : System error");
                             }
 
                             break;
@@ -132,8 +127,8 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                                     storedPassword = userCredentialRetriever.getPassword(username);
                                 } else {
                                     if (log.isDebugEnabled()) {
-                                        log.debug("Can not set user password in callback because primary userstore class" +
-                                                " has not implemented UserCredentialRetriever interface.");
+                                        log.debug("Can not set user password in callback because primary userstore " +
+                                                "class has not implemented UserCredentialRetriever interface.");
                                     }
                                 }
                             } else {
@@ -143,7 +138,8 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                                 } else {
                                     if (log.isDebugEnabled()) {
                                         log.debug("Can not set user password in callback because secondary userstore " +
-                                                "for domain:" + domainName + " has not implemented UserCredentialRetriever interface.");
+                                                "for domain:" + domainName + " has not implemented " +
+                                                "UserCredentialRetriever interface.");
                                     }
                                 }
                             }
@@ -174,7 +170,7 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                          * in this situation.
                          */
 
-                            passwordCallback.setPassword(receivedPasswd);
+                            passwordCallback.setPassword(receivedPassword);
                             break;
 
                     }
@@ -281,8 +277,7 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                 }
 
                 isAuthorized = realm.getAuthorizationManager()
-                        .isUserAuthorized(tenantAwareUserName,
-                                serviceGroupId + "/" + serviceId,
+                        .isUserAuthorized(tenantAwareUserName,registryServicePath,
                                 UserCoreConstants.INVOKE_SERVICE_PERMISSION);
             }
 
