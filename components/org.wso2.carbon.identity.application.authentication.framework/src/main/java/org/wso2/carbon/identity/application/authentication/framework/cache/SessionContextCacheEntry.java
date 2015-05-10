@@ -25,10 +25,10 @@ import java.sql.Timestamp;
 
 public class SessionContextCacheEntry extends CacheEntry {
 
-	private static final long serialVersionUID = 42165605438157753L;
-	
-	SessionContext context;
-	String loggedInUser;
+    private static final long serialVersionUID = 42165605438157753L;
+
+    SessionContext context;
+    String loggedInUser;
     Timestamp loggedInTime;
 
     public String getLoggedInUser() {

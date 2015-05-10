@@ -158,5 +158,4 @@ public class SequenceConfig implements Serializable {
             AuthenticatorConfig authenticatedReqPathAuthenticator) {
         this.authenticatedReqPathAuthenticator = authenticatedReqPathAuthenticator;
     }
-
 }

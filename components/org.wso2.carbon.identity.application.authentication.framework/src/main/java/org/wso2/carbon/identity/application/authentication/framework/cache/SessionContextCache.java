@@ -34,6 +34,7 @@ import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.registry.core.secure.AuthorizationFailedException;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -261,7 +262,6 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
         ArrayList<SessionInfo> sessionInfoList;
         if (session != null && session.getValue() != null) {
             SequenceConfig sessionValue = session.getValue();
-
             String applicationId = sessionValue.getApplicationId();
             String userFullName = sessionValue.getAuthenticatedUser();
             String userName;
@@ -280,7 +280,6 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
             String authenticatedUserName = userStoreDomain.concat("/").concat(userName).concat("/")
                                                                                                .concat(tenantDomainName);
             String applicationTenantDomain;
-
             ApplicationConfig applicationConfigValue = sessionValue.getApplicationConfig();
             if (applicationConfigValue != null) {
                 ServiceProvider serviceProvider = applicationConfigValue.getServiceProvider();
@@ -288,7 +287,6 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
                     User owner = serviceProvider.getOwner();
                     if (owner != null) {
                         int tenantId = owner.getTenantId();
-
                         applicationTenantDomain = FrameworkServiceComponent.getRealmService().getTenantManager()
                                 .getDomain(tenantId);
                     } else {
@@ -318,7 +316,6 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
                     }
                 }
             }
-
         }
     }
 
@@ -329,14 +326,10 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
      * @return boolean value.
      */
     public void removeSessionDetailsFromDbAndCache(String userName, String userStoreDomain, String tenantDomainName)
-            throws UserStoreException {
+            throws UserStoreException, AuthorizationFailedException {
         String killPermissionResourcePath = getPermissionPath(KILL_SESSION_PERMISSION);
         String loggedInUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
         loggedInUser = MultitenantUtils.getTenantAwareUsername(loggedInUser);
-        String userStoreDomainName = UserCoreUtil.getDomainFromThreadLocal();
-        if (userStoreDomainName == null) {
-            userStoreDomainName = UserStoreConfigConstants.PRIMARY;
-        }
         UserRealm realm = (UserRealm) CarbonContext.getThreadLocalCarbonContext().getUserRealm();
         boolean hasKillPermission = realm.getAuthorizationManager().isUserAuthorized(
                 loggedInUser, killPermissionResourcePath, UserMgtConstants.EXECUTE_ACTION);
@@ -368,6 +361,8 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
                     }
                 }
             }
+        } else {
+            throw new AuthorizationFailedException("User doesn't have required permissions to do this action.");
         }
     }
 

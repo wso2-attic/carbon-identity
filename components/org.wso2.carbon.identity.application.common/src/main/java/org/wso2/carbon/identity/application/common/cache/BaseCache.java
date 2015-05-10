@@ -247,6 +247,7 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
 
     /**
      * Get Cache key Object list.
+     *
      * @return cacheKeyList.
      */
     public List<Object> getCacheKeyList() {
@@ -255,9 +256,7 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
         cacheKeyList = new ArrayList<Object>();
         while (iterator.hasNext()) {
             Object cacheObject = iterator.next();
-
             cacheKeyList.add(cacheObject);
-
         }
         return cacheKeyList;
     }

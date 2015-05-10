@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-~ Copyright (c) 2009-2011, WSO2 Inc. (http://www.wso2.org) All Rights
+~ Copyright (c) 2009-2015, WSO2 Inc. (http://www.wso2.org) All Rights
 Reserved. ~ ~ Licensed under the Apache License, Version 2.0 (the
 "License"); ~ you may not use this file except in compliance with the
 License. ~ You may obtain a copy of the License at ~ ~
@@ -84,7 +84,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.common</artifactId>
-            <version>4.2.5-SNAPSHOT</version>
+            <version>${identity.component.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>

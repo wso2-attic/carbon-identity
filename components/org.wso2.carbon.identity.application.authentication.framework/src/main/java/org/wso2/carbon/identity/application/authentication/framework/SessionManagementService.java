@@ -61,11 +61,10 @@ public class SessionManagementService extends AbstractAdmin {
         try {
             SessionContextCache.getInstance(0).removeSessionDetailsFromDbAndCache(
                     userName, userStoreDomain, tenantDomainName);
-        } catch (UserStoreException e) {
+        } catch (Exception e) {
             String errorMsg = "Error is occurred while killing sessions ";
             log.error(errorMsg, e);
             throw new SessionManagementException(errorMsg, e);
         }
-
     }
 }
