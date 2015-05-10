@@ -66,7 +66,6 @@ public class SessionDataStore {
     
     private static Log log = LogFactory.getLog(SessionDataStore.class);
     private static final String SESSION_CONTEXT_CACHE_NAME = "AppAuthFrameworkSessionContextCache";
-    private static final String PRIMARY_USER_STORE_NAME="PRIMARY";
 
     static {
 

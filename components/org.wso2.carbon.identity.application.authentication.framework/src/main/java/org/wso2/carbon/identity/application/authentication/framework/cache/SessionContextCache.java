@@ -20,10 +20,9 @@ package org.wso2.carbon.identity.application.authentication.framework.cache;
 
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ApplicationConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.SequenceConfig;
+import org.wso2.carbon.identity.application.authentication.framework.internal.FrameworkServiceComponent;
 import org.wso2.carbon.identity.application.authentication.framework.model.SessionInfo;
 import org.wso2.carbon.identity.application.authentication.framework.model.UserSessionInfo;
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
@@ -33,14 +32,11 @@ import org.wso2.carbon.identity.application.common.cache.CacheKey;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.registry.api.Registry;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
-import org.wso2.carbon.tenant.mgt.core.internal.TenantMgtCoreServiceComponent;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.user.core.tenant.TenantManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -142,7 +138,8 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
      *
      * @return sessionInfo list.
      */
-    public ArrayList<UserSessionInfo> getSessionDetails() throws RegistryException {
+    public ArrayList<UserSessionInfo> getSessionDetails()
+            throws RegistryException, org.wso2.carbon.user.api.UserStoreException {
         HashMap<String, UserSessionInfo> userSessionInfoMap;
         ArrayList<UserSessionInfo> userSessionInfoList = null;
         String viewPermissionResourcePath = getPermissionPath(VIEW_SESSION_PERMISSION);
@@ -151,13 +148,11 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
         loggedInUserName = MultitenantUtils.getTenantAwareUsername(loggedInUserName);
         String userStoreDomainName = UserCoreUtil.getDomainFromThreadLocal();
         UserRealm realm = (UserRealm) CarbonContext.getThreadLocalCarbonContext().getUserRealm();
-
         boolean hasViewPermission;
         try {
             if (realm.getAuthorizationManager().isUserAuthorized(
                     loggedInUserName, viewPermissionResourcePath, UserMgtConstants.EXECUTE_ACTION)) {
                 hasViewPermission = true;
-
             } else {
                 hasViewPermission = false;
             }
@@ -191,7 +186,8 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
      */
     private HashMap<String, UserSessionInfo> getSessionDetailsFromDb(String loggedInUser, boolean hasViewPermission,
                                                            boolean hasKillPermission, String currentUserTenantDomain,
-                                                           String currentUserStoreDomain) {
+                                                           String currentUserStoreDomain)
+            throws org.wso2.carbon.user.api.UserStoreException {
         Object sessionDetails;
         HashMap<String, UserSessionInfo> userSessionInfoMap = new HashMap<String, UserSessionInfo>();
         List<String> dbSessionList;
@@ -227,7 +223,8 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
      */
     private HashMap<String, UserSessionInfo> getSessionDetailsFromCache(String loggedInUserName, boolean hasPermission,
                                                             boolean hasKillPermission, String currentUserTenantDomain,
-                                                            String loggedInUserStoreDomain) {
+                                                            String loggedInUserStoreDomain)
+            throws org.wso2.carbon.user.api.UserStoreException {
         Timestamp sessionCreatedTime;
         HashMap<String, UserSessionInfo> userSessionInfoMap = new HashMap<String, UserSessionInfo>();
         List<Object> cacheSessionIdList = SessionContextCache.getInstance(0).getCacheKeyList();
@@ -257,7 +254,8 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
     private void readSessionAndPopulateMap(Map.Entry<String, SequenceConfig> session,
                                        HashMap<String, UserSessionInfo> userSessionInfoMap, String loggedInUser,
                                        String currentUserTenantDomain, String loggedInUserStoreDomain,
-                                       boolean hasPermission, boolean hasKillPermission, Timestamp sessionCreatedTime) {
+                                       boolean hasPermission, boolean hasKillPermission, Timestamp sessionCreatedTime)
+            throws org.wso2.carbon.user.api.UserStoreException {
         SessionInfo sessionInfo;
         UserSessionInfo userSessionInfo;
         ArrayList<SessionInfo> sessionInfoList;
@@ -266,8 +264,8 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
 
             String applicationId = sessionValue.getApplicationId();
             String userFullName = sessionValue.getAuthenticatedUser();
-            String userName = null;
-            String userStoreDomain = null;
+            String userName;
+            String userStoreDomain;
             if((userFullName != null) && (userFullName.contains("/"))) {
                 String[] nameParts = userFullName.split("/");
                 userName = nameParts[0];
@@ -289,7 +287,10 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
                 if (serviceProvider != null) {
                     User owner = serviceProvider.getOwner();
                     if (owner != null) {
-                        applicationTenantDomain = String.valueOf(owner.getTenantId());
+                        int tenantId = owner.getTenantId();
+
+                        applicationTenantDomain = FrameworkServiceComponent.getRealmService().getTenantManager()
+                                .getDomain(tenantId);
                     } else {
                         applicationTenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
                     }
@@ -328,7 +329,7 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
      * @return boolean value.
      */
     public void removeSessionDetailsFromDbAndCache(String userName, String userStoreDomain, String tenantDomainName)
-            throws RegistryException {
+            throws UserStoreException {
         String killPermissionResourcePath = getPermissionPath(KILL_SESSION_PERMISSION);
         String loggedInUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
         loggedInUser = MultitenantUtils.getTenantAwareUsername(loggedInUser);
@@ -337,41 +338,36 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
             userStoreDomainName = UserStoreConfigConstants.PRIMARY;
         }
         UserRealm realm = (UserRealm) CarbonContext.getThreadLocalCarbonContext().getUserRealm();
-        try {
-            boolean hasKillPermission = realm.getAuthorizationManager().isUserAuthorized(
-                    loggedInUser, killPermissionResourcePath, UserMgtConstants.EXECUTE_ACTION);
-            if (hasKillPermission) {
-                if (Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Enable"))) {
-                    List<String> sessionIdList = SessionDataStore.getInstance().getSessionIdsForUserName(
-                            userName, tenantDomainName, userStoreDomain);
-                    for (String cacheId : sessionIdList) {
-                        SessionDataStore.getInstance().removeSessionData(cacheId, SESSION_CONTEXT_CACHE_NAME);
-                        clearCacheEntry(cacheId);
-                    }
-                } else {
-                    List<Object> cacheSessionList = SessionContextCache.getInstance(0).getCacheKeyList();
-                    Object sessionDetails;
-                    //get details from cache
-                    if (cacheSessionList != null) {
-                        for (Object cacheObject : cacheSessionList) {
-                            String cacheId = ((SessionContextCacheKey) cacheObject).getContextId();
-                            sessionDetails = SessionContextCache.getInstance(0).getValueFromCache(cacheId);
-                            if (sessionDetails instanceof SessionContextCacheEntry) {
-                                Set<Map.Entry<String, SequenceConfig>> sessions = ((SessionContextCacheEntry) sessionDetails)
-                                        .getContext().getAuthenticatedSequences().entrySet();
-                                for (Map.Entry<String, SequenceConfig> session : sessions) {
-                                    if (userName.equals(session.getValue().getAuthenticatedUser())) {
-                                        clearCacheEntry(cacheId);
-                                    }
+        boolean hasKillPermission = realm.getAuthorizationManager().isUserAuthorized(
+                loggedInUser, killPermissionResourcePath, UserMgtConstants.EXECUTE_ACTION);
+        if (hasKillPermission) {
+            if (Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Enable"))) {
+                List<String> sessionIdList = SessionDataStore.getInstance().getSessionIdsForUserName(
+                        userName, tenantDomainName, userStoreDomain);
+                for (String cacheId : sessionIdList) {
+                    SessionDataStore.getInstance().removeSessionData(cacheId, SESSION_CONTEXT_CACHE_NAME);
+                    clearCacheEntry(cacheId);
+                }
+            } else {
+                List<Object> cacheSessionList = SessionContextCache.getInstance(0).getCacheKeyList();
+                Object sessionDetails;
+                //get details from cache
+                if (cacheSessionList != null) {
+                    for (Object cacheObject : cacheSessionList) {
+                        String cacheId = ((SessionContextCacheKey) cacheObject).getContextId();
+                        sessionDetails = SessionContextCache.getInstance(0).getValueFromCache(cacheId);
+                        if (sessionDetails instanceof SessionContextCacheEntry) {
+                            Set<Map.Entry<String, SequenceConfig>> sessions = ((SessionContextCacheEntry) sessionDetails)
+                                    .getContext().getAuthenticatedSequences().entrySet();
+                            for (Map.Entry<String, SequenceConfig> session : sessions) {
+                                if (userName.equals(session.getValue().getAuthenticatedUser())) {
+                                    clearCacheEntry(cacheId);
                                 }
                             }
                         }
                     }
                 }
             }
-        } catch (UserStoreException e) {
-            String msg = "Error occurred while getting session details.";
-            throw new RegistryException(msg, e);
         }
     }
 
@@ -386,7 +382,7 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
     }
 
     private String timeStampIntoString(Timestamp timeStamp) {
-        String timeString = "";
+        String timeString;
         SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         StringBuilder sb = new StringBuilder(fmt.format(timeStamp));
         timeString = sb.toString();

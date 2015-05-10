@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -22,8 +22,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.application.authentication.framework.cache.SessionContextCache;
+import org.wso2.carbon.identity.application.authentication.framework.exception.SessionManagementException;
 import org.wso2.carbon.identity.application.authentication.framework.model.UserSessionInfo;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.user.api.UserStoreException;
 
 import java.util.ArrayList;
 
@@ -32,31 +34,37 @@ public class SessionManagementService extends AbstractAdmin {
 
     /**
      * Get All Session Details.
+     *
      * @return sessionInfo object arraylist.
      */
-    public ArrayList<UserSessionInfo> getAllSessionInfo() {
+    public ArrayList<UserSessionInfo> getAllSessionInfo() throws SessionManagementException {
         ArrayList<UserSessionInfo> userSessionInfoList = null;
         try {
             userSessionInfoList = SessionContextCache.getInstance(0).getSessionDetails();
-        } catch (RegistryException e) {
-            e.printStackTrace();
-            log.error("Error is occurred while getting session details " , e);
+        } catch (Exception e) {
+            String errorMsg = "Error is occurred while getting session details ";
+            log.error(errorMsg, e);
+            throw new SessionManagementException(errorMsg, e);
         }
         return userSessionInfoList;
     }
 
     /**
      * Remove sessions for a given user name.
-     * @param userName String.
-     * @param userStoreDomain String.
+     *
+     * @param userName         String.
+     * @param userStoreDomain  String.
      * @param tenantDomainName String.
      */
-    public void removeSession(String userName,String userStoreDomain, String tenantDomainName) {
+    public void removeSession(String userName, String userStoreDomain, String tenantDomainName)
+            throws SessionManagementException {
         try {
-            SessionContextCache.getInstance(0).removeSessionDetailsFromDbAndCache(userName,userStoreDomain,tenantDomainName);
-        } catch (RegistryException e) {
-            e.printStackTrace();
-            log.error("Error is occurred while killing sessions " , e);
+            SessionContextCache.getInstance(0).removeSessionDetailsFromDbAndCache(
+                    userName, userStoreDomain, tenantDomainName);
+        } catch (UserStoreException e) {
+            String errorMsg = "Error is occurred while killing sessions ";
+            log.error(errorMsg, e);
+            throw new SessionManagementException(errorMsg, e);
         }
 
     }
