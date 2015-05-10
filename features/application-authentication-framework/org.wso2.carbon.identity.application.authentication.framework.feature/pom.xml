@@ -36,14 +36,16 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
+            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.authentication.framework.server.feature</artifactId>
             <type>zip</type>
+	    <version>${identity.component.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
+            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.authentication.framework.ui.feature</artifactId>
             <type>zip</type>
+	    <version>${identity.component.version}</version>
         </dependency>
     </dependencies>
 
@@ -65,10 +67,10 @@
                             <propertiesFile>../../../../etc/feature.properties</propertiesFile>
                             <includedFeatures>
                                 <includedFeatureDef>
-                                    org.wso2.carbon.identity:org.wso2.carbon.identity.application.authentication.framework.ui.feature
+                                    org.wso2.carbon:org.wso2.carbon.identity.application.authentication.framework.ui.feature
                                 </includedFeatureDef>
                                 <includedFeatureDef>
-                                    org.wso2.carbon.identity:org.wso2.carbon.identity.application.authentication.framework.server.feature
+                                    org.wso2.carbon:org.wso2.carbon.identity.application.authentication.framework.server.feature
                                 </includedFeatureDef>
                             </includedFeatures>
                         </configuration>

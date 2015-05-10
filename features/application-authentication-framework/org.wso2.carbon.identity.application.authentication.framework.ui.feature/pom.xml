@@ -36,8 +36,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
+            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.authentication.framework.ui</artifactId>
+	    <version>${identity.component.version}</version>
         </dependency>
     </dependencies>
 
@@ -59,9 +60,7 @@
                             <propertiesFile>../../../../etc/feature.properties</propertiesFile>
                             <bundles>
                                 <bundleDef>
-                                    org.wso2.carbon.identity:org.wso2.carbon.identity.application.authentication.framework.ui
-                                </bundleDef>
-                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.application.common
+                                    org.wso2.carbon:org.wso2.carbon.identity.application.authentication.framework.ui
                                 </bundleDef>
                             </bundles>
                         </configuration>

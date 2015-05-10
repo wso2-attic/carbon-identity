@@ -46,7 +46,6 @@ public class SequenceConfig implements Serializable {
 	
 	private String authenticatedUser;
     private String authenticatedUserTenantDomain;
-    private String authenticatdUserStoreDomain;
     private Map<ClaimMapping, String> userAttributes = new HashMap<ClaimMapping, String>();
 	private String authenticatedIdPs;
 	
@@ -160,11 +159,4 @@ public class SequenceConfig implements Serializable {
         this.authenticatedReqPathAuthenticator = authenticatedReqPathAuthenticator;
     }
 
-    public String getAuthenticatdUserStoreDomain() {
-        return authenticatdUserStoreDomain;
-    }
-
-    public void setAuthenticatdUserStoreDomain(String authenticatdUserStoreDomain) {
-        this.authenticatdUserStoreDomain = authenticatdUserStoreDomain;
-    }
 }
