@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.mgt;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
-	import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ApplicationPermission;
@@ -41,7 +42,6 @@ import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 public class ApplicationMgtUtil {
 
@@ -89,11 +89,13 @@ public class ApplicationMgtUtil {
      * @throws IdentityApplicationManagementException
      */
     public static boolean isUserAuthorized(String applicationName) throws IdentityApplicationManagementException {
-        String tenantUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
-        String user = MultitenantUtils.getTenantAwareUsername(tenantUser);
+        String user = CarbonContext.getThreadLocalCarbonContext().getUsername();
         String applicationRoleName = UserCoreUtil.addInternalDomainName(applicationName);
 
         try {
+            if(log.isDebugEnabled()) {
+                log.debug("Checking whether user has role : " + applicationRoleName + " by retrieving role list of user : " + user);
+            }
             String[] userRoles = CarbonContext.getThreadLocalCarbonContext().getUserRealm()
                     .getUserStoreManager().getRoleListOfUser(user);
             for (String userRole : userRoles) {
@@ -135,10 +137,13 @@ public class ApplicationMgtUtil {
     public static void createAppRole(String applicationName) throws IdentityApplicationManagementException {
         String roleName = UserCoreUtil.addInternalDomainName(applicationName);
         String qualifiedUsername = CarbonContext.getThreadLocalCarbonContext().getUsername();
-        String[] user = { MultitenantUtils.getTenantAwareUsername(qualifiedUsername)};
+        String[] user = {qualifiedUsername};
 
         try {
             // create a role for the application and assign the user to that role.
+            if(log.isDebugEnabled()) {
+                log.debug("Creating application role : " + roleName + " and assign the user : " + Arrays.toString(user) + " to that role");
+            }
             CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
                     .addRole(roleName, user, null);
         } catch (UserStoreException e) {
@@ -157,6 +162,9 @@ public class ApplicationMgtUtil {
         String roleName = UserCoreUtil.addInternalDomainName(applicationName);
 
         try {
+            if(log.isDebugEnabled()) {
+                log.debug("Deleting application role : " + roleName);
+            }
             CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
                     .deleteRole(roleName);
         } catch (UserStoreException e) {
@@ -172,6 +180,10 @@ public class ApplicationMgtUtil {
      */
     public static void renameRole(String oldName, String newName) throws UserStoreException {
 
+        if(log.isDebugEnabled()) {
+           log.debug("Renaming application role : " + UserCoreUtil.addInternalDomainName(oldName)
+                + " to new role : " + UserCoreUtil.addInternalDomainName(newName));
+        }
         CarbonContext
                 .getThreadLocalCarbonContext()
                 .getUserRealm()
