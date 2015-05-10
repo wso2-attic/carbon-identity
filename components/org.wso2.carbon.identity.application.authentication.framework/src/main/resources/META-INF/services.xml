@@ -21,9 +21,11 @@
         <transports>
             <transport>https</transport>
         </transports>
-        <schema schemaNamespace="http://org.apache.axis2/xsd" elementFormDefaultQualified="true" />
+        <schema schemaNamespace="http://org.apache.axis2/xsd" elementFormDefaultQualified="true"/>
         <description>Session management related functionality.</description>
-        <parameter name="ServiceClass">org.wso2.carbon.identity.application.authentication.framework.SessionManagementService</parameter>
+        <parameter name="ServiceClass">
+            org.wso2.carbon.identity.application.authentication.framework.SessionManagementService
+        </parameter>
         <parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
     </service>
 
