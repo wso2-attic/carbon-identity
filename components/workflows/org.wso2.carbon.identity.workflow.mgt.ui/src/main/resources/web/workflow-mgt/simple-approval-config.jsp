@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
   ~ WSO2 Inc. licenses this file to you under the Apache License,
   ~ Version 2.0 (the "License"); you may not use this file except
@@ -70,10 +70,28 @@
         serviceParams.setHtServiceName(htName);
         serviceParams.setHumanTaskDescription(htDescription);
         serviceParams.setHumanTaskSubject(htSubject);
+        serviceParams.setBpsUsername(bpsUser);
+        serviceParams.setBpsUserPassword(bpsUserPassword);
         ApprovalServiceGenerator serviceGenerator = new ApprovalServiceGenerator(serviceParams);
         serviceGenerator.generateAndDeployArtifacts();
+        String serviceEP =
+                serviceParams.getBpsHostName() + "/services/" + serviceParams.getBpelProcessName() + "Service";
+%>
+<form name="associate_deployed" action="service-condition.jsp" method="POST">
+    <input type="hidden" name="<%=WorkflowUIConstants.PARAM_SERVICE_ALIAS%>" value="<%=alias%>">
+    <input type="hidden" name="<%=WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_EVENT%>" value="<%=event%>">
+    <input type="hidden" name="<%=WorkflowUIConstants.PARAM_SERVICE_EPR%>" value="<%=serviceEP%>">
+    <input type="hidden" name="<%=WorkflowUIConstants.PARAM_SERVICE_ACTION%>"
+           value="<%=ApprovalServiceConstants.SERVICE_ACTION%>">
+    <input type="hidden" name="<%=WorkflowUIConstants.PARAM_SERVICE_AUTH_USERNAME%>" value="<%=bpsUser%>">
+    <input type="hidden" name="<%=WorkflowUIConstants.PARAM_SERVICE_AUTH_PASSWORD%>" value="<%=bpsUserPassword%>">
+    <input type="submit" value="Continue to event association">
+</form>
+<script type="text/javascript">
+    document.forms["associate_deployed"].submit();
+</script>
+<%
     }
-
 %>
 
 <%

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -37,6 +37,10 @@ public class ApprovalServiceParams {
 
     private String htPotentialOwnerRole;    //${htOwnerRole}
     private String htAdminRole;             //${htAdminRole}
+
+    //for deployment
+    private String bpsUsername;
+    private String bpsUserPassword;
 
     public String getBpelProcessName() {
         return bpelProcessName;
@@ -122,5 +126,21 @@ public class ApprovalServiceParams {
 
     public void setHtAdminRole(String htAdminRole) {
         this.htAdminRole = htAdminRole;
+    }
+
+    public String getBpsUsername() {
+        return bpsUsername;
+    }
+
+    public void setBpsUsername(String bpsUsername) {
+        this.bpsUsername = bpsUsername;
+    }
+
+    public String getBpsUserPassword() {
+        return bpsUserPassword;
+    }
+
+    public void setBpsUserPassword(String bpsUserPassword) {
+        this.bpsUserPassword = bpsUserPassword;
     }
 }

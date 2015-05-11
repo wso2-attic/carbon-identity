@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -21,14 +21,20 @@ package org.wso2.carbon.identity.workflow.mgt.ui.bpel;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.bpel.stub.upload.types.UploadedFileItem;
+import org.wso2.carbon.identity.workflow.mgt.ui.WorkflowDeployerClient;
 import org.wso2.carbon.identity.workflow.mgt.ui.bpel.bean.ApprovalServiceParams;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -53,12 +59,53 @@ public class ApprovalServiceGenerator {
         try {
             generateProcessArtifact();
             generateHTArtifact();
+            deployArtifacts();
             //todo:deploy
         } catch (IOException e) {
             log.error("Error when generating artifacts.", e);
             //todo: throw
         }
 
+    }
+
+    private void deployArtifacts() throws RemoteException {
+        String bpelArchiveName = serviceParams.getBpelProcessName() + Constants.ZIP_EXT;
+        String archiveHome = System.getProperty(TEMP_DIR_PROPERTY) + File.separator;
+        DataSource bpelDataSource = new FileDataSource(archiveHome + bpelArchiveName);
+        WorkflowDeployerClient workflowDeployerClient = new WorkflowDeployerClient(serviceParams.getBpsHostName(),
+                serviceParams.getBpsUsername(), serviceParams.getBpsUserPassword().toCharArray());
+        workflowDeployerClient.uploadBPEL(getBPELUploadedFileItem(new DataHandler(bpelDataSource),
+                bpelArchiveName, "zip"));
+        String htArchiveName = serviceParams.getHtServiceName() + Constants.ZIP_EXT;
+        DataSource htDataSource = new FileDataSource(archiveHome + htArchiveName);
+        workflowDeployerClient.uploadHumanTask(getHTUploadedFileItem(new DataHandler(htDataSource), htArchiveName,
+                "zip"));
+    }
+
+    private UploadedFileItem[] getBPELUploadedFileItem(DataHandler dataHandler, String fileName,
+                                                       String fileType) {
+        UploadedFileItem[] uploadedFileItems = new UploadedFileItem[1];
+        UploadedFileItem uploadedFileItem = new UploadedFileItem();
+        uploadedFileItem.setDataHandler(dataHandler);
+        uploadedFileItem.setFileName(fileName);
+        uploadedFileItem.setFileType(fileType);
+        uploadedFileItems[0] = uploadedFileItem;
+        return uploadedFileItems;
+    }
+
+    private org.wso2.carbon.humantask.stub.upload.types.UploadedFileItem[] getHTUploadedFileItem(
+            DataHandler dataHandler,
+            String fileName,
+            String fileType) {
+        org.wso2.carbon.humantask.stub.upload.types.UploadedFileItem[] uploadedFileItems = new org.wso2.carbon
+                .humantask.stub.upload.types.UploadedFileItem[1];
+        org.wso2.carbon.humantask.stub.upload.types.UploadedFileItem uploadedFileItem =
+                new org.wso2.carbon.humantask.stub.upload.types.UploadedFileItem();
+        uploadedFileItem.setDataHandler(dataHandler);
+        uploadedFileItem.setFileName(fileName);
+        uploadedFileItem.setFileType(fileType);
+        uploadedFileItems[0] = uploadedFileItem;
+        return uploadedFileItems;
     }
 
     private Map<String, String> getPlaceHolderValues() {

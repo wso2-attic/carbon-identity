@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
   ~ WSO2 Inc. licenses this file to you under the Apache License,
   ~ Version 2.0 (the "License"); you may not use this file except
@@ -74,14 +74,20 @@
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>org.wso2.carbon.identity.workflow.mgt.ui.*</Export-Package>
                         <Import-Package>
+                            javax.activation;version="0.0.0",
                             org.apache.axis2,
                             org.apache.axis2.client,
                             org.apache.axis2.context,
+                            org.apache.axis2.transport.http,
                             org.apache.commons.io,
                             org.apache.commons.lang,
                             org.apache.commons.logging,
                             org.wso2.carbon.identity.workflow.mgt.stub,
-                            org.wso2.carbon.identity.workflow.mgt.stub.bean
+                            org.wso2.carbon.identity.workflow.mgt.stub.bean,
+                            org.wso2.carbon.bpel.stub.upload,
+                            org.wso2.carbon.bpel.stub.upload.types,
+                            org.wso2.carbon.humantask.stub.upload,
+                            org.wso2.carbon.humantask.stub.upload.types
                         </Import-Package>
                         <Carbon-Component>UIBundle</Carbon-Component>
                     </instructions>
