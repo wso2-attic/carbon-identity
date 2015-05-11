@@ -2,41 +2,16 @@
         "http://java.sun.com/dtd/web-app_2_3.dtd" >
 
 <web-app>
-    <!--  Custom Page configurations -->
-    <!-- *************** Application specific configurations ********************** -->
-    <!--context-param>
-        <param-name>ServiceProviderApp-/samlsso_login.do</param-name>
-        <param-value>http://localhost:8080/customauthenticationendpoint/login.do</param-value>
-    </context-param-->
-    <!--context-param>
-        <param-name>ServiceProviderApp-/oauth2_authz.do</param-name>
-        <param-value>http://localhost:8080/authenticationendpoint/oauth2_authz.do</param-value>
-    </context-param-->
-    <!--context-param>
-        <param-name>ServiceProviderApp-/oauth2_error.do</param-name>
-        <param-value>http://localhost:8080/authenticationendpoint/oauth2_error.do</param-value>
-    </context-param-->
-    <!--context-param>
-        <param-name>ServiceProviderApp-/oauth2_consent.do</param-name>
-        <param-value>http://localhost:8080/authenticationendpoint/oauth2_consent.do</param-value>
-    </context-param-->
-    <!-- **************** End of Application specific configurations ************************* -->
 
-    <!-- *************** Global configurations ********************** -->
-    <!--context-param>
-        <param-name>/retry.do</param-name>
-        <param-value>http://localhost:8080/customauthenticationendpoint/retry.do?type=retry.do</param-value>
-    </context-param-->
-    <!-- *************** End of Global configurations ********************** -->
-    <filter>
-        <filter-name>AuthenticationEndpointFilter</filter-name>
-        <filter-class>org.wso2.carbon.identity.application.authentication.endpoint.AuthenticationEndpointFilter</filter-class>
-    </filter>
+    <servlet>
+        <servlet-name>AuthenticationEndpoint</servlet-name>
+        <servlet-class>org.wso2.carbon.identity.application.authentication.endpoint.AuthenticationEndpoint</servlet-class>
+    </servlet>
 
-    <filter-mapping>
-        <filter-name>AuthenticationEndpointFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
+    <servlet>
+        <servlet-name>TenantListRefreshEndpoint</servlet-name>
+        <servlet-class>org.wso2.carbon.identity.application.authentication.endpoint.TenantListRefreshEndpoint</servlet-class>
+    </servlet>
 
     <listener>
         <listener-class>
@@ -45,125 +20,121 @@
     </listener>
 
     <servlet>
-        <servlet-name>retry.do</servlet-name>
-        <jsp-file>/retry.jsp</jsp-file>
+        <servlet-name>OAuth2Login</servlet-name>
+        <servlet-class>org.wso2.carbon.identity.application.authentication.endpoint.oauth2.OAuth2Login</servlet-class>
+        <!--  Custom Page configurations -->
+
+        <!-- *************** LoginPage configs for SampleApp ********************** -->
+        <!--init-param>
+            <param-name>SampleApp-LoginPage</param-name>
+            <param-value>https://localhost:9443/sampleapp-pages/login</param-value>
+        </init-param>
+        <init-param>
+            <param-name>SampleApp-AuthzPage</param-name>
+            <param-value>https://localhost:9443/sampleapp-pages/authz</param-value>
+        </init-param>
+        <init-param>
+            <param-name>SampleApp-ErrorPage</param-name>
+            <param-value>https://localhost:9443/sampleapp-pages/error</param-value>
+        </init-param>
+        <init-param>
+            <param-name>SampleApp-ConsentPage</param-name>
+            <param-value>https://localhost:9443/sampleapp-pages/consent</param-value>
+        </init-param-->
+        <!-- **************** End of configs for SampleApp ************************* -->
+
+        <!-- ################## Global config ##################################### -->
+        <!--init-param>
+            <param-name>Global-LoginPage</param-name>
+            <param-value>https://localhost:9443/sampleapp-pages/login</param-value>
+        </init-param>
+        <init-param>
+            <param-name>Global-AuthzPage</param-name>
+            <param-value>https://localhost:9443/sampleapp-pages/authz</param-value>
+        </init-param>
+        <init-param>
+            <param-name>Global-ErrorPage</param-name>
+            <param-value>https://localhost:9443/sampleapp-pages/error</param-value>
+        </init-param>
+        <init-param>
+            <param-name>Global-ConsentPage</param-name>
+            <param-value>https://localhost:9443/sampleapp-pages/consent</param-value>
+        </init-param-->
+        <!-- ################## End of Global config ############################## -->
     </servlet>
 
     <servlet>
-        <servlet-name>oauth2_login.do</servlet-name>
-        <jsp-file>/login.jsp</jsp-file>
+        <servlet-name>SAML2SSO</servlet-name>
+        <servlet-class>org.wso2.carbon.identity.application.authentication.endpoint.samlsso.SAMLSSOLogin</servlet-class>
     </servlet>
 
     <servlet>
-        <servlet-name>oauth2_authz.do</servlet-name>
-        <jsp-file>/oauth2_authz.jsp</jsp-file>
+        <servlet-name>OpenIDLogin</servlet-name>
+        <servlet-class>org.wso2.carbon.identity.application.authentication.endpoint.openid.OpenIDLogin</servlet-class>
     </servlet>
 
     <servlet>
-        <servlet-name>oauth2_consent.do</servlet-name>
-        <jsp-file>/oauth2_consent.jsp</jsp-file>
-    </servlet>
-
-    <servlet>
-        <servlet-name>oauth2_error.do</servlet-name>
-        <jsp-file>/oauth2_error.jsp</jsp-file>
-    </servlet>
-
-    <servlet>
-        <servlet-name>samlsso_login.do</servlet-name>
-        <jsp-file>/login.jsp</jsp-file>
-    </servlet>
-
-    <servlet>
-        <servlet-name>samlsso_redirect.do</servlet-name>
-        <jsp-file>/login.jsp</jsp-file>
-    </servlet>
-
-    <servlet>
-        <servlet-name>samlsso_notification.do</servlet-name>
-        <jsp-file>/samlsso_notification.jsp</jsp-file>
-    </servlet>
-
-    <servlet>
-        <servlet-name>openid_login.do</servlet-name>
-        <jsp-file>/login.jsp</jsp-file>
-    </servlet>
-
-    <servlet>
-        <servlet-name>openid_profile.do</servlet-name>
-        <jsp-file>/openid_profile.jsp</jsp-file>
-    </servlet>
-
-    <servlet>
-        <servlet-name>passivests_login.do</servlet-name>
-        <jsp-file>/login.jsp</jsp-file>
-    </servlet>
-
-    <servlet>
-        <servlet-name>tenantlistrefresher.do</servlet-name>
-        <jsp-file>/tenant_refresh_endpoint.jsp</jsp-file>
+        <servlet-name>PassiveSTSLogin</servlet-name>
+        <servlet-class>org.wso2.carbon.identity.application.authentication.endpoint.passivests.PassiveSTSLogin</servlet-class>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>retry.do</servlet-name>
+        <servlet-name>AuthenticationEndpoint</servlet-name>
+        <url-pattern>/login.do</url-pattern>
         <url-pattern>/retry.do</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>oauth2_login.do</servlet-name>
+        <servlet-name>TenantListRefreshEndpoint</servlet-name>
+        <url-pattern>/tenantlistrefresher.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>OAuth2Login</servlet-name>
         <url-pattern>/oauth2_login.do</url-pattern>
     </servlet-mapping>
-
     <servlet-mapping>
-        <servlet-name>oauth2_authz.do</servlet-name>
+        <servlet-name>OAuth2Login</servlet-name>
         <url-pattern>/oauth2_authz.do</url-pattern>
     </servlet-mapping>
-
     <servlet-mapping>
-        <servlet-name>oauth2_consent.do</servlet-name>
+        <servlet-name>OAuth2Login</servlet-name>
         <url-pattern>/oauth2_consent.do</url-pattern>
     </servlet-mapping>
-
     <servlet-mapping>
-        <servlet-name>oauth2_error.do</servlet-name>
+        <servlet-name>OAuth2Login</servlet-name>
         <url-pattern>/oauth2_error.do</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>samlsso_login.do</servlet-name>
+        <servlet-name>SAML2SSO</servlet-name>
         <url-pattern>/samlsso_login.do</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>samlsso_redirect.do</servlet-name>
-        <url-pattern>/samlsso_redirect.do</url-pattern>
+        <servlet-name>SAML2SSO</servlet-name>
+        <url-pattern>/samlsso_error.do</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>samlsso_notification.do</servlet-name>
+        <servlet-name>SAML2SSO</servlet-name>
         <url-pattern>/samlsso_notification.do</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>openid_login.do</servlet-name>
+        <servlet-name>OpenIDLogin</servlet-name>
         <url-pattern>/openid_login.do</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>openid_profile.do</servlet-name>
+        <servlet-name>OpenIDLogin</servlet-name>
         <url-pattern>/openid_profile.do</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>passivests_login.do</servlet-name>
+        <servlet-name>PassiveSTSLogin</servlet-name>
         <url-pattern>/passivests_login.do</url-pattern>
     </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>tenantlistrefresher.do</servlet-name>
-        <url-pattern>/tenantlistrefresher.do</url-pattern>
-    </servlet-mapping>
-
     <error-page>
         <exception-type>java.lang.Throwable</exception-type>
         <location>/generic-exception-response.jsp</location>
