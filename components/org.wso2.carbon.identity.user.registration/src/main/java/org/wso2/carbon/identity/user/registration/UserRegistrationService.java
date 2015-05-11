@@ -261,11 +261,12 @@ public class UserRegistrationService {
                 } catch (org.wso2.carbon.user.api.UserStoreException e) {
                     // If something goes wrong here - then remove the already added user.
                     admin.deleteUser(userName);
-                    throw new IdentityException("Error occurred while adding user : " + userName, e);
+                    throw new IdentityException("Error occurred while adding user : " + userName + ". " +
+                                                e.getMessage(), e);
                 }
             }
         } catch (UserStoreException e) {
-            throw new IdentityException("Error occurred while adding user : " + userName, e);
+            throw new IdentityException("Error occurred while adding user : " + userName + ". " + e.getMessage(), e);
         }
     }
     
