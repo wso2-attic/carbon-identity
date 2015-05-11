@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -116,7 +116,7 @@ public class WorkflowServicesDAO {
             while (rs.next()) {
                 String alias = rs.getString(SQLConstants.ALIAS_COLUMN);
                 String action = rs.getString(SQLConstants.WS_ACTION_COLUMN);
-                String serviceEP = rs.getString(SQLConstants.SERVICE_EP_COLUMN);
+                String serviceEP = rs.getString(SQLConstants.SERVICE_ENDPOINT_COLUMN);
                 String username = rs.getString(SQLConstants.USERNAME_COLUMN);
                 String password = rs.getString(SQLConstants.PASSWORD_COLUMN);
                 String condition = rs.getString(SQLConstants.CONDITION_COLUMN);

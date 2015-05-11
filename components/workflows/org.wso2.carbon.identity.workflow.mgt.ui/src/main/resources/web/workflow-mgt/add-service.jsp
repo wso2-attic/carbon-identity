@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
   ~ WSO2 Inc. licenses this file to you under the Apache License,
   ~ Version 2.0 (the "License"); you may not use this file except
@@ -50,8 +50,9 @@
                 CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_SERVICE_TEMPLATE));
         if (StringUtils.isNotBlank(template)) {
             //coming from a form submission
-            String alias = CharacterEncoder.getSafeText(WorkflowUIConstants.PARAM_SERVICE_ALIAS);
-            String event = CharacterEncoder.getSafeText(WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_EVENT);
+            String alias = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_SERVICE_ALIAS));
+            String event = CharacterEncoder
+                    .getSafeText(request.getParameter(WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_EVENT));
             if (StringUtils.isBlank(alias) || StringUtils.isBlank(event)) {
                 //check whether the mandatory params are not provided.
                 String message = resourceBundle.getString("workflow.error.service.alias.empty");

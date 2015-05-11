@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -28,7 +28,7 @@ public class SQLConstants {
     public static final String SERVICE_ALIAS_COLUMN = "SERVICE_ALIAS";
     public static final String EVENT_COLUMN = "EVENT";
     public static final String WS_ACTION_COLUMN = "WS_ACTION";
-    public static final String SERVICE_EP_COLUMN = "SERVICE_EP";
+    public static final String SERVICE_ENDPOINT_COLUMN = "SERVICE_ENDPOINT";
     public static final String PRIORITY_COLUMN = "PRIORITY";
     public static final String USERNAME_COLUMN = "USERNAME";
     public static final String PASSWORD_COLUMN = "PASSWORD";
@@ -41,11 +41,12 @@ public class SQLConstants {
     public static final String GET_WORKFLOW_REQUEST_QUERY = "SELECT UUID, REQUEST, STATUS FROM WF_REQUESTS WHERE UUID" +
             " = ?";
 
-    public static final String ADD_WS_SERVICE_QUERY = "INSERT INTO WF_WS_SERVICES(ALIAS, WS_ACTION, SERVICE_EP, " +
-            "USERNAME, PASSWORD) VALUES (?, ?, ?, ?, ?)";
+    public static final String ADD_WS_SERVICE_QUERY =
+            "INSERT INTO WF_WS_SERVICES(ALIAS, WS_ACTION, SERVICE_ENDPOINT, " +
+                    "USERNAME, PASSWORD) VALUES (?, ?, ?, ?, ?)";
 
-    public static final String GET_WS_SERVICES_FOR_EVENT_QUERY = "SELECT WF_WS_SERVICES.ALIAS, " +
-            "WF_WS_SERVICES.WS_ACTION, WF_WS_SERVICES.SERVICE_EP, WF_EVENT_SUBSCRIPTIONS.PRIORITY, WF_WS_SERVICES.USERNAME, " +
+    public static final String GET_WS_SERVICES_FOR_EVENT_QUERY = "SELECT WF_WS_SERVICES.ALIAS, WF_WS_SERVICES" +
+            ".WS_ACTION, WF_WS_SERVICES.SERVICE_ENDPOINT, WF_EVENT_SUBSCRIPTIONS.PRIORITY, WF_WS_SERVICES.USERNAME, " +
             "WF_WS_SERVICES.PASSWORD, WF_EVENT_SUBSCRIPTIONS.CONDITION FROM WF_WS_SERVICES, " +
             "WF_EVENT_SUBSCRIPTIONS WHERE WF_EVENT_SUBSCRIPTIONS.SERVICE_ALIAS = WF_WS_SERVICES.ALIAS AND " +
             "WF_EVENT_SUBSCRIPTIONS.EVENT = ?";
@@ -58,6 +59,6 @@ public class SQLConstants {
     public static final String GET_SERVICE_ASSOCIATIONS_QUERY = "SELECT SERVICE_ALIAS,EVENT,PRIORITY FROM " +
             "WF_EVENT_SUBSCRIPTIONS ORDER BY EVENT , PRIORITY";
 
-    private SQLConstants(){
+    private SQLConstants() {
     }
 }
