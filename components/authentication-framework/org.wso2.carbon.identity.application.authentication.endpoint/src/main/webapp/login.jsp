@@ -22,7 +22,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder"%>
-<%@ page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants"%>
 
 <fmt:bundle basename="org.wso2.carbon.identity.application.authentication.endpoint.i18n.Resources">
 
@@ -93,8 +92,8 @@
         request.getSession().invalidate();
         String queryString = request.getQueryString();
         Map<String, String> idpAuthenticatorMapping = null;
-        if (request.getAttribute("idpAuthenticatorMap") != null) {
-            idpAuthenticatorMapping = (Map<String, String>)request.getAttribute("idpAuthenticatorMap");
+        if (request.getAttribute(Constants.IDP_AUTHENTICATOR_MAP) != null) {
+            idpAuthenticatorMapping = (Map<String, String>)request.getAttribute(Constants.IDP_AUTHENTICATOR_MAP);
         }
         
         String errorMessage = "Authentication Failed! Please Retry";
@@ -129,8 +128,8 @@
 boolean hasLocalLoginOptions = false; 
 List<String> localAuthenticatorNames = new ArrayList<String>();
 
-if (idpAuthenticatorMapping.get(IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME) != null){
-	String authList = idpAuthenticatorMapping.get(IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME);
+if (idpAuthenticatorMapping.get(Constants.RESIDENT_IDP_RESERVED_NAME) != null){
+	String authList = idpAuthenticatorMapping.get(Constants.RESIDENT_IDP_RESERVED_NAME);
 	if (authList!=null){
 		localAuthenticatorNames = Arrays.asList(authList.split(","));
 	}
@@ -198,7 +197,7 @@ if (idpAuthenticatorMapping.get(IdentityApplicationConstants.RESIDENT_IDP_RESERV
             } 
             %>
 
-    <%if(idpAuthenticatorMapping.get(IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME) != null){ %>        
+    <%if(idpAuthenticatorMapping.get(Constants.RESIDENT_IDP_RESERVED_NAME) != null){ %>
 	</div>
 	<%} %>
 	<%
@@ -224,7 +223,7 @@ if (idpAuthenticatorMapping.get(IdentityApplicationConstants.RESIDENT_IDP_RESERV
                                                
                     <%
                         for (Map.Entry<String, String> idpEntry : idpAuthenticatorMapping.entrySet())  {
-                            if(!idpEntry.getKey().equals(IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME)) {
+                            if(!idpEntry.getKey().equals(Constants.RESIDENT_IDP_RESERVED_NAME)) {
                             	String idpName = idpEntry.getKey();
                             	boolean isHubIdp = false;
                             	if (idpName.endsWith(".hub")){
