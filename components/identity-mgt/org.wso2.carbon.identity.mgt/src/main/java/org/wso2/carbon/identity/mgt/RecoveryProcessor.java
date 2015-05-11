@@ -185,6 +185,7 @@ public class RecoveryProcessor {
             } else if (IdentityMgtConstants.Notification.ACCOUNT_CONFORM.equals(notification)) {
                 confirmationKey = UUIDGenerator.generateUUID();
                 secretKey = UUIDGenerator.generateUUID();
+                emailNotificationData.setTagData("user-name", userId);
                 emailNotificationData.setTagData("confirmation-code", confirmationKey);
                 emailTemplate = config.getProperty(IdentityMgtConstants.Notification.ACCOUNT_CONFORM);
 
