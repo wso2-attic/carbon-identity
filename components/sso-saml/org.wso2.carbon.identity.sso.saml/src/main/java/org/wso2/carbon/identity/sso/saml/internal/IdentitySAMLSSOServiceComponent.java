@@ -49,7 +49,7 @@ import java.util.Scanner;
  * interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
  * policy="dynamic" bind="setConfigurationContextService"
  * unbind="unsetConfigurationContextService"
- * + * @scr.reference name="registry.loader.default"
+ * @scr.reference name="registry.loader.default"
  * interface="org.wso2.carbon.registry.core.service.TenantRegistryLoader"
  * cardinality="1..1" policy="dynamic" bind="setTenantRegistryLoader"
  * unbind="unsetTenantRegistryLoader"
