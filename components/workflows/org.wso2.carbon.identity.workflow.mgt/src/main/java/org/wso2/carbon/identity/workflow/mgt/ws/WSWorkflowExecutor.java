@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -134,7 +134,7 @@ public class WSWorkflowExecutor implements WorkFlowExecutor {
             auth.setUsername(service.getUserName());
             auth.setPassword(service.getPassword());
             auth.setPreemptiveAuthentication(true);
-            List<String> authSchemes = new ArrayList<String>();
+            List<String> authSchemes = new ArrayList<>();
             authSchemes.add(HttpTransportProperties.Authenticator.BASIC);
             auth.setAuthSchemes(authSchemes);
             options.setProperty(org.apache.axis2.transport.http.HTTPConstants.AUTHENTICATE, auth);
@@ -148,9 +148,8 @@ public class WSWorkflowExecutor implements WorkFlowExecutor {
     }
 
     protected OMElement buildWSRequest(WorkFlowRequest workFlowRequest) throws RuntimeWorkflowException {
-        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         WorkflowRequestBuilder requestBuilder = new WorkflowRequestBuilder(workFlowRequest.getUuid(),
-                workFlowRequest.getEventType(), tenantDomain);
+                workFlowRequest.getEventType());
 
         for (WorkflowParameter parameter : workFlowRequest.getWorkflowParameters()) {
             if (parameter.isRequiredInWorkflow()) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -35,14 +35,15 @@ import java.util.Set;
 
 public class WorkflowRequestBuilder {
 
-    private static final String WF_NS = "http://bpel.mgt.workflow.carbon.wso2.org";
-    private static final String WF_NS_PREFIX = "cwf";
+    private static final String WF_NS = "http://schema.bpel.mgt.workflow.carbon.wso2.org";
+    private static final String WF_NS_PREFIX = "p";
     private static final String WF_REQ_ROOT_ELEM = "ProcessRequest";
     private static final String WF_REQ_UUID_ELEM = "uuid";
     private static final String WF_REQ_ACTION_ELEM = "eventType";
     //    private static final String WF_REQ_TENANT_DOMAIN_ELEM = "tenantDomain";
-    //    private static final String WF_REQ_PARAMS_ELEM = "params";
+    private static final String WF_REQ_PARAMS_ELEM = "parameters";
     private static final String WF_REQ_PARAM_ELEM = "parameter";
+    private static final String WF_REQ_PARAM_NAME_ATTRIB = "name";
     private static final String WF_REQ_LIST_ITEM_ELEM = "itemValue";
     private static final String WF_REQ_KEY_ATTRIB = "itemName";
     private static final String WF_REQ_VALUE_ELEM = "value";
@@ -51,7 +52,7 @@ public class WorkflowRequestBuilder {
 
     static {
         //only following types of objects will be allowed as values to the parameters.
-        SUPPORTED_CLASS_TYPES = new HashSet<Class>();
+        SUPPORTED_CLASS_TYPES = new HashSet<>();
         SUPPORTED_CLASS_TYPES.add(String.class);
         SUPPORTED_CLASS_TYPES.add(Integer.class);
         SUPPORTED_CLASS_TYPES.add(Double.class);
@@ -65,7 +66,6 @@ public class WorkflowRequestBuilder {
 
     private String uuid;
     private String event;
-    private String tenantDomain;
     private Map<String, Object> singleValuedParams;
     private Map<String, List<Object>> listTypeParams;
     private Map<String, Map<String, Object>> mapTypeParams;
@@ -76,11 +76,9 @@ public class WorkflowRequestBuilder {
      * @param uuid   Uniquely identifies the workflow
      * @param action The identifier for the event for which the workflow was triggered
      */
-    public WorkflowRequestBuilder(String uuid, String action, String tenantDomain) {
+    public WorkflowRequestBuilder(String uuid, String action) {
         this.uuid = uuid;
         this.event = action;
-        //todo drop tenant domain
-        this.tenantDomain = tenantDomain;
         singleValuedParams = new HashMap<>();
         listTypeParams = new HashMap<>();
         mapTypeParams = new HashMap<>();
@@ -191,44 +189,43 @@ public class WorkflowRequestBuilder {
         OMElement reqIdElement = omFactory.createOMElement(WF_REQ_ACTION_ELEM, omNs);
         reqIdElement.setText(event);
         rootElement.addChild(reqIdElement);
-//        OMElement tenantDomainElement = omFactory.createOMElement(WF_REQ_TENANT_DOMAIN_ELEM, omNs);
-//        tenantDomainElement.setText(tenantDomain);
-//        rootElement.addChild(tenantDomainElement);
+        OMElement paramsElement = omFactory.createOMElement(WF_REQ_PARAMS_ELEM, omNs);
+
         for (Map.Entry<String, Object> entry : singleValuedParams.entrySet()) {
             OMElement paramElement = omFactory.createOMElement(WF_REQ_PARAM_ELEM, omNs);
-            OMAttribute paramNameAttribute = omFactory.createOMAttribute(WF_REQ_KEY_ATTRIB, null, entry.getKey());
+            OMAttribute paramNameAttribute = omFactory.createOMAttribute(WF_REQ_PARAM_NAME_ATTRIB, null, entry.getKey());
             paramElement.addAttribute(paramNameAttribute);
             OMElement valueElement = omFactory.createOMElement(WF_REQ_VALUE_ELEM, omNs);
             OMElement valueItemElement = omFactory.createOMElement(WF_REQ_LIST_ITEM_ELEM, omNs);
             valueItemElement.setText(entry.getValue().toString());
             valueElement.addChild(valueItemElement);
             paramElement.addChild(valueElement);
-            rootElement.addChild(paramElement);
+            paramsElement.addChild(paramElement);
         }
         for (Map.Entry<String, List<Object>> entry : listTypeParams.entrySet()) {
             OMElement paramElement = omFactory.createOMElement(WF_REQ_PARAM_ELEM, omNs);
-            OMAttribute paramNameAttribute = omFactory.createOMAttribute(WF_REQ_KEY_ATTRIB, null, entry.getKey());
+            OMAttribute paramNameAttribute = omFactory.createOMAttribute(WF_REQ_PARAM_NAME_ATTRIB, null, entry.getKey());
             paramElement.addAttribute(paramNameAttribute);
             OMElement valueElement = omFactory.createOMElement(WF_REQ_VALUE_ELEM, omNs);
             for (Object listItem : entry.getValue()) {
                 if (listItem != null) {
-                    OMElement listItemElement = omFactory.createOMElement(WF_REQ_LIST_ITEM_ELEM, null);
+                    OMElement listItemElement = omFactory.createOMElement(WF_REQ_LIST_ITEM_ELEM, omNs);
                     listItemElement.setText(listItem.toString());
                     valueElement.addChild(listItemElement);
                 }
             }
             paramElement.addChild(valueElement);
-            rootElement.addChild(paramElement);
+            paramsElement.addChild(paramElement);
         }
 
         for (Map.Entry<String, Map<String, Object>> entry : mapTypeParams.entrySet()) {
             OMElement paramElement = omFactory.createOMElement(WF_REQ_PARAM_ELEM, omNs);
-            OMAttribute paramNameAttribute = omFactory.createOMAttribute(WF_REQ_KEY_ATTRIB, null, entry.getKey());
+            OMAttribute paramNameAttribute = omFactory.createOMAttribute(WF_REQ_PARAM_NAME_ATTRIB, null, entry.getKey());
             paramElement.addAttribute(paramNameAttribute);
             OMElement valueElement = omFactory.createOMElement(WF_REQ_VALUE_ELEM, omNs);
             for (Map.Entry<String, Object> mapItem : entry.getValue().entrySet()) {
                 if (mapItem.getKey() != null && mapItem.getValue() != null) {
-                    OMElement listItemElement = omFactory.createOMElement(WF_REQ_LIST_ITEM_ELEM, null);
+                    OMElement listItemElement = omFactory.createOMElement(WF_REQ_LIST_ITEM_ELEM, omNs);
                     OMAttribute itemNameAttribute = omFactory.createOMAttribute(WF_REQ_KEY_ATTRIB, null,
                             mapItem.getKey());
                     listItemElement.addAttribute(itemNameAttribute);
@@ -237,8 +234,9 @@ public class WorkflowRequestBuilder {
                 }
             }
             paramElement.addChild(valueElement);
-            rootElement.addChild(paramElement);
+            paramsElement.addChild(paramElement);
         }
+        rootElement.addChild(paramsElement);
         return rootElement;
     }
 }
