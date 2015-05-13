@@ -81,7 +81,9 @@ public class OAuthConsumerAppDTO {
     }
 
     public void setGrantTypes(String grantTypes) {
-        this.grantTypes = grantTypes;
+        if(grantTypes != null) {
+            this.grantTypes = grantTypes;
+        }
     }
 
 }
