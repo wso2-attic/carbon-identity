@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -78,7 +78,8 @@ public class WorkflowAdminServiceClient {
         return stub.listWSServices();
     }
 
-    public void removeService(String alias) throws RemoteException, WorkflowAdminServiceWorkflowException {
-        stub.removeWSService(alias);
+    public void removeService(String alias, String event) throws RemoteException,
+            WorkflowAdminServiceWorkflowException {
+        stub.removeWSService(alias, event);
     }
 }

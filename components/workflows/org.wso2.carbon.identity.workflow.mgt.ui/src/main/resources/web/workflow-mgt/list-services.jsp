@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
   ~ WSO2 Inc. licenses this file to you under the Apache License,
   ~ Version 2.0 (the "License"); you may not use this file except
@@ -115,6 +115,11 @@
         function doCancel() {
             location.href = 'list-services.jsp';
         }
+        function removeAssociation(alias, event) {
+            location.href = 'service-condition.jsp?<%=WorkflowUIConstants.PARAM_ACTION%>=' +
+            '<%=WorkflowUIConstants.ACTION_VALUE_DELETE%>&<%=WorkflowUIConstants.PARAM_SERVICE_ALIAS%>=' + alias +
+            '&<%=WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_EVENT%>=' + event;
+        }
     </script>
 
     <div id="middle">
@@ -133,9 +138,8 @@
                 </thead>
                 <tbody>
                 <%
-                    if (servicesToDisplay != null) {
-                        for (ServiceAssociationDTO service : servicesToDisplay) {
-                            if (service != null) {
+                    for (ServiceAssociationDTO service : servicesToDisplay) {
+                        if (service != null) {
 
                 %>
                 <tr>
@@ -146,14 +150,13 @@
                     <td><%=service.getPriority()%>
                     </td>
                     <td>
-                        <%--<a href="associate-service.jsp?<%=WorkflowUIConstants.PARAM_SERVICE_ALIAS%>=<%=service.getServiceAlias()%>"--%>
-                           <%--class="icon-link"><fmt:message--%>
-                                <%--key="service.associate.to.event"/></a>--%>
-                            <%--todo delete option--%>
+                        <a title="<fmt:message key='workflow.service.association.delete.title'/>"
+                           onclick="removeAssociation('<%=service.getServiceAlias()%>','<%=service.getEvent()%>');return false;"
+                           href="#" style="background-image: url(images/delete.gif);"
+                           class="icon-link"><fmt:message key='delete'/></a>
                     </td>
                 </tr>
                 <%
-                            }
                         }
                     }
                 %>

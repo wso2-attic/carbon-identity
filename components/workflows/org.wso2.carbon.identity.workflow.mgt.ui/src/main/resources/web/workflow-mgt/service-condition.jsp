@@ -82,6 +82,17 @@
             forwardTo = "../admin/error.jsp";
         }
     }
+    //Handles the association deletion requests
+    if (WorkflowUIConstants.ACTION_VALUE_DELETE.equals(action)){
+        try {
+            client.removeService(alias,event);
+            forwardTo = "list-services.jsp";
+        } catch (WorkflowAdminServiceWorkflowException e) {
+            String message = resourceBundle.getString("workflow.error.when.deleting.service.association");
+            CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+            forwardTo = "../admin/error.jsp";
+        }
+    }
 %>
 
 <%

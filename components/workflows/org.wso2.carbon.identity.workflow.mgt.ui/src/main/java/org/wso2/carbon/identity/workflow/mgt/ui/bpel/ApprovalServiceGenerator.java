@@ -47,6 +47,7 @@ import java.util.zip.ZipOutputStream;
 public class ApprovalServiceGenerator {
 
     private static final String TEMP_DIR_PROPERTY = "java.io.tmpdir";
+    private static final String ZIP_TYPE = "zip";
     private static Log log = LogFactory.getLog(ApprovalServiceGenerator.class);
 
     private ApprovalServiceParams serviceParams;
@@ -75,11 +76,11 @@ public class ApprovalServiceGenerator {
         WorkflowDeployerClient workflowDeployerClient = new WorkflowDeployerClient(serviceParams.getBpsHostName(),
                 serviceParams.getBpsUsername(), serviceParams.getBpsUserPassword().toCharArray());
         workflowDeployerClient.uploadBPEL(getBPELUploadedFileItem(new DataHandler(bpelDataSource),
-                bpelArchiveName, "zip"));
+                bpelArchiveName, ZIP_TYPE));
         String htArchiveName = serviceParams.getHtServiceName() + Constants.ZIP_EXT;
         DataSource htDataSource = new FileDataSource(archiveHome + htArchiveName);
         workflowDeployerClient.uploadHumanTask(getHTUploadedFileItem(new DataHandler(htDataSource), htArchiveName,
-                "zip"));
+                ZIP_TYPE));
     }
 
     private UploadedFileItem[] getBPELUploadedFileItem(DataHandler dataHandler, String fileName,

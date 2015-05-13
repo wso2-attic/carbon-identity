@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -27,6 +27,7 @@ public class WorkflowUIConstants {
     public static final String ACTION_VALUE_FINISH = "finishAdd";
     public static final String ACTION_VALUE_EDIT = "edit";
     public static final String ACTION_VALUE_DEPLOY = "deploy";
+    public static final String ACTION_VALUE_DELETE = "delete";
 
     public static final String PARAM_SERVICE_ALIAS = "serviceAlias";
     public static final String PARAM_SERVICE_TEMPLATE = "serviceTemplate";

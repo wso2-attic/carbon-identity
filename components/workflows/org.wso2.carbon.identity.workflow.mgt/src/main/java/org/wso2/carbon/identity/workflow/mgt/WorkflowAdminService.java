@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -61,13 +61,13 @@ public class WorkflowAdminService {
         }
     }
 
-    public void removeWSService(String alias) throws WorkflowException {
+    public void removeWSService(String alias, String event) throws WorkflowException {
         if (StringUtils.isBlank(alias)) {
             log.error("Null or empty string given as service alias to be removed.");
             throw new WorkflowException("Service alias cannot be null or empty");
         }
         try {
-            servicesDAO.removeWorkflowService(alias);
+            servicesDAO.removeWorkflowAssociation(alias, event);
         } catch (InternalWorkflowException e) {
             log.error("Error while adding service.", e);
             throw new WorkflowException("Server error occurred when adding the service.");

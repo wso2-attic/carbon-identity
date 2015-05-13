@@ -134,6 +134,7 @@ public class WorkflowServicesDAO {
                 association.setPriority(priority);
                 servicesMatched.add(association);
             }
+
         } catch (IdentityException e) {
             throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
@@ -144,15 +145,17 @@ public class WorkflowServicesDAO {
         return servicesMatched;
     }
 
-    public void removeWorkflowService(String alias) throws InternalWorkflowException {
+    public void removeWorkflowAssociation(String alias, String event) throws InternalWorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
-        String query = SQLConstants.DELETE_WS_SERVICE_QUERY;
+        String query = SQLConstants.DELETE_ASSOCIATION_QUERY;
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, alias);
+            prepStmt.setString(2, event);
             prepStmt.executeUpdate();
+            connection.commit();
         } catch (IdentityException e) {
             throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
@@ -162,7 +165,7 @@ public class WorkflowServicesDAO {
         }
     }
 
-    public void updateWorkflowService(String alias, WSServiceBean newService){
+    public void updateWorkflowService(String alias, WSServiceBean newService) {
 //        todo:implement
     }
 
