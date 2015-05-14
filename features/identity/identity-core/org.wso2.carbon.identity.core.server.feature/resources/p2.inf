@@ -1,9 +1,0 @@
-instructions.configure = \
-org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../features/org.wso2.carbon.identity.core.server_${feature.version}/identity.xml,target:${installFolder}/../../conf/identity.xml,overwrite:true);\
-org.eclipse.equinox.p2.touchpoint.natives.mkdir(path:${installFolder}/../../../dbscripts); \
-org.eclipse.equinox.p2.touchpoint.natives.mkdir(path:${installFolder}/../../../dbscripts/identity); \
-org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../features/org.wso2.carbon.identity.core.server_${feature.version}/dbscripts/,target:${installFolder}/../../../dbscripts/identity/,overwrite:true);\
-
-
-
-

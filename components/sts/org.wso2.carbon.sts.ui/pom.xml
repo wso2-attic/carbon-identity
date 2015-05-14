@@ -16,13 +16,12 @@
   ~  specific language governing permissions and limitations
   ~  under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>sts</artifactId>
-        <version>4.3.4-SNAPSHOT</version>
+        <version>4.4.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -69,51 +68,18 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <Import-Package>
+                            javax.servlet; version="${imp.pkg.version.javax.servlet}",
+                            javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
+                            org.apache.axis2.*; version="${axis2.osgi.version.range}",
+                            org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
+                            org.wso2.carbon.ui;version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.sts.stub.service.*;
+                            version="${carbon.identity.package.import.version.range}",
+                        </Import-Package>
                         <Export-Package>
                             org.wso2.carbon.sts.ui.*;version="${carbon.identity.package.export.version}"
                         </Export-Package>
-                        <Import-Package>
-                            org.wso2.carbon.sts.stub.*;version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.utils,
-                            org.wso2.carbon.registry.core.*,
-                            javax.servlet;version="${imp.pkg.version.javax.servlet}",
-                            javax.servlet.http;version="${imp.pkg.version.javax.servlet}",
-                            javax.servlet.jsp;version="${imp.pkg.version.javax.servlet.jsp}",
-                            javax.servlet.jsp.el;version="${imp.pkg.version.javax.servlet.jsp}",
-                            javax.servlet.jsp.jstl.core;version="${imp.pkg.version.javax.servlet.jsp.jstl}",
-                            javax.servlet.jsp.jstl.fmt;version="${imp.pkg.version.javax.servlet.jsp.jstl}",
-                            javax.servlet.jsp.jstl.sql;version="${imp.pkg.version.javax.servlet.jsp.jstl}",
-                            javax.servlet.jsp.jstl.tlv;version="${imp.pkg.version.javax.servlet.jsp.jstl}",
-                            javax.servlet.jsp.resources;version="${imp.pkg.version.javax.servlet.jsp}",
-                            javax.servlet.jsp.tagext;version="${imp.pkg.version.javax.servlet.jsp}",
-                            javax.servlet.resources;version="${imp.pkg.version.javax.servlet}",
-                            org.apache.taglibs.standard,
-                            org.apache.taglibs.standard.extra.spath,
-                            org.apache.taglibs.standard.functions,
-                            org.apache.taglibs.standard.lang.jstl,
-                            org.apache.taglibs.standard.lang.jstl.parser,
-                            org.apache.taglibs.standard.lang.jstl.test,
-                            org.apache.taglibs.standard.lang.jstl.test.beans,
-                            org.apache.taglibs.standard.lang.support,
-                            org.apache.taglibs.standard.resources,
-                            org.apache.taglibs.standard.tag.common.core,
-                            org.apache.taglibs.standard.tag.common.fmt,
-                            org.apache.taglibs.standard.tag.common.sql,
-                            org.apache.taglibs.standard.tag.common.xml,
-                            org.apache.taglibs.standard.tag.el.core,
-                            org.apache.taglibs.standard.tag.el.fmt,
-                            org.apache.taglibs.standard.tag.el.sql,
-                            org.apache.taglibs.standard.tag.el.xml,
-                            org.apache.taglibs.standard.tag.rt.core,
-                            org.apache.taglibs.standard.tag.rt.fmt,
-                            org.apache.taglibs.standard.tag.rt.sql,
-                            org.apache.taglibs.standard.tag.rt.xml,
-                            org.apache.taglibs.standard.tei,
-                            org.apache.taglibs.standard.tlv,
-                            org.eclipse.equinox.http.helper,
-                            org.eclipse.equinox.jsp.jasper,
-                            *;resolution:=optional
-                        </Import-Package>
                         <Carbon-Component>UIBundle</Carbon-Component>
                     </instructions>
                 </configuration>

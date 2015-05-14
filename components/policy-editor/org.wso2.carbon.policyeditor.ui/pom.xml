@@ -16,13 +16,12 @@
   ~  specific language governing permissions and limitations
   ~  under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>policy-editor</artifactId>
-        <version>4.3.4-SNAPSHOT</version>
+        <version>4.4.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -55,19 +54,10 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <Import-Package />
                         <Export-Package>
-                            web; version=1.0.0,
-                            org.wso2.carbon.policyeditor.ui.*; version=1.0.0
+                            org.wso2.carbon.policyeditor.ui.*; version="${carbon.identity.package.export.version}"
                         </Export-Package>
-                        <Import-Package>
-                            javax.servlet;version="${imp.pkg.version.javax.servlet}",
-                            javax.servlet.http;version="${imp.pkg.version.javax.servlet}",
-                            javax.servlet.resources;version="${imp.pkg.version.javax.servlet}",
-                            org.eclipse.equinox.http.helper,
-                            org.eclipse.equinox.jsp.jasper,
-                            *;resolution:=optional
-                        </Import-Package>
-                        <DynamicImport-Package>*</DynamicImport-Package>
                         <Carbon-Component>UIBundle</Carbon-Component>
                     </instructions>
                 </configuration>

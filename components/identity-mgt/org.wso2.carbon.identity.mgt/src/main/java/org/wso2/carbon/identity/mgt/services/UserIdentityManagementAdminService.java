@@ -182,14 +182,25 @@ public class UserIdentityManagementAdminService {
             UserStoreManager userStoreManager = getUserStore(userName);
             userName = UserCoreUtil.removeDomainFromName(userName);
             UserIdentityManagementUtil.unlockUserAccount(userName, userStoreManager);
+            int tenantID = userStoreManager.getTenantId();
+            String tenantDomain = IdentityMgtServiceComponent.getRealmService().getTenantManager().getDomain(tenantID);
             if (notificationType != null) {
-                UserRecoveryDTO dto = new UserRecoveryDTO(userName);
+                UserRecoveryDTO dto = null;
+                if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
+                    dto = new UserRecoveryDTO(userName);
+                } else {
+                    UserDTO userDTO = new UserDTO(UserCoreUtil.addTenantDomainToEntry(userName, tenantDomain));
+                    userDTO.setTenantId(tenantID);
+                    dto = new UserRecoveryDTO(userDTO);
+                }
                 dto.setNotification(IdentityMgtConstants.Notification.ACCOUNT_UNLOCK);
                 dto.setNotificationType(notificationType);
                 try {
                     IdentityMgtServiceComponent.getRecoveryProcessor().recoverWithNotification(dto);
                 } catch (IdentityException e) {
-                    throw new IdentityMgtServiceException("Error while password recovery");
+                    String errorMessage = "Error while password recovery";
+                    log.error(errorMessage, e);
+                    throw new IdentityMgtServiceException(errorMessage);
                 }
             }
         } catch (UserStoreException e) {

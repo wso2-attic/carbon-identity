@@ -16,13 +16,12 @@
   ~  specific language governing permissions and limitations
   ~  under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>sso-saml</artifactId>
-        <version>4.3.4-SNAPSHOT</version>
+        <version>4.4.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -64,11 +63,7 @@
             <artifactId>org.wso2.carbon.identity.sso.saml.stub</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.httpcomponents.wso2</groupId>
-            <artifactId>httpcore</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents.wso2</groupId>
+            <groupId>org.wso2.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
     </dependencies>
@@ -85,22 +80,21 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Import-Package>
-                            !javax.xml.namespace,
-                            javax.xml.namespace;
-                            version=0.0.0,
-                            org.apache.commons.logging.*; version="1.0.4",
-                            javax.servlet;version="${imp.pkg.version.javax.servlet}",
-                            javax.servlet.http;version="${imp.pkg.version.javax.servlet}",
-                            javax.xml.stream.*; version=1.0.1,
-                            org.wso2.carbon.identity.core.*;
-                            org.apache.http.client,
-                            org.apache.commons.httpclient.*,
-                            org.wso2.carbon.identity.sso.saml.common.*,
-                            *;resolution:=optional
+                            javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
+                            org.w3c.dom.*,
+                            org.opensaml.*; version="${opensaml2.wso2.osgi.version.range}",
+                            org.apache.axiom.util; version="${axiom.osgi.version.range}",
+                            org.apache.axis2.*; version="${axis2.osgi.version.range}",
+                            org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
+                            org.wso2.carbon.ui.util; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.identity.base; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.sso.saml.stub.*;
+                            version="${carbon.identity.package.import.version.range}",
                         </Import-Package>
-                        <Export-Package>org.wso2.carbon.identity.sso.saml.ui.*</Export-Package>
+                        <Export-Package>
+                            org.wso2.carbon.identity.sso.saml.ui.*; version="${carbon.identity.package.export.version}",
+                        </Export-Package>
                         <Carbon-Component>UIBundle</Carbon-Component>
-                        <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>

@@ -54,6 +54,7 @@ import org.wso2.carbon.identity.sso.agent.SSOAgentException;
 import org.wso2.carbon.identity.sso.agent.bean.LoggedInSessionBean;
 import org.wso2.carbon.identity.sso.agent.bean.SSOAgentConfig;
 import org.wso2.carbon.identity.sso.agent.util.CarbonEntityResolver;
+import org.wso2.carbon.identity.sso.agent.util.SAMLSignatureValidator;
 import org.wso2.carbon.identity.sso.agent.util.SSOAgentUtils;
 import org.xml.sax.SAXException;
 
@@ -88,11 +89,25 @@ public class SAML2SSOManager {
     private static Logger LOGGER = Logger.getLogger(SSOAgentConstants.LOGGER_NAME);
     private static volatile boolean bootStrapped = false;
     private SSOAgentConfig ssoAgentConfig = null;
+    private static Object signatureValidator = null;
 
     public SAML2SSOManager(SSOAgentConfig ssoAgentConfig) throws SSOAgentException {
 
 		/* Initializing the OpenSAML library, loading default configurations */
         this.ssoAgentConfig = ssoAgentConfig;
+        //load custom Signature Validator Class
+        String signerClassName = ssoAgentConfig.getSAML2().getSignatureValidatorImplClass();
+        try {
+            if (signerClassName != null) {
+                signatureValidator = Class.forName(signerClassName).newInstance();
+            }
+        } catch (ClassNotFoundException e) {
+            throw new SSOAgentException("Error loading custom signature validator class", e);
+        } catch (IllegalAccessException e) {
+            throw new SSOAgentException("Error loading custom signature validator class", e);
+        } catch (InstantiationException e) {
+            throw new SSOAgentException("Error loading custom signature validator class", e);
+        }
         try {
             if (!bootStrapped) {
                 synchronized (this) {
@@ -660,31 +675,36 @@ public class SAML2SSOManager {
      */
     protected void validateSignature(Response response, Assertion assertion) throws SSOAgentException {
 
-        if (ssoAgentConfig.getSAML2().isResponseSigned()) {
-            if (response.getSignature() == null) {
-                throw new SSOAgentException("SAML2 Response signing is enabled, " +
-                        "but signature element not found in SAML2 Response element");
-            } else {
-                try {
-                    SignatureValidator validator = new SignatureValidator(
-                            new X509CredentialImpl(ssoAgentConfig.getSAML2().getSSOAgentX509Credential()));
-                    validator.validate(response.getSignature());
-                } catch (ValidationException e) {
-                    throw new SSOAgentException("Signature validation failed for SAML2 Response");
+        if (signatureValidator != null) {
+            //Custom implemetation of signature validation
+            SAMLSignatureValidator signatureValidatorUtility = (SAMLSignatureValidator) signatureValidator;
+            signatureValidatorUtility.validateSignature(response, assertion, ssoAgentConfig);
+        } else {
+            //If custom implementation not found, Execute the default implementation
+            if (ssoAgentConfig.getSAML2().isResponseSigned()) {
+                if (response.getSignature() == null) {
+                    throw new SSOAgentException("SAML2 Response signing is enabled, but signature element not found in SAML2 Response element");
+                } else {
+                    try {
+                        SignatureValidator validator = new SignatureValidator(
+                                new X509CredentialImpl(ssoAgentConfig.getSAML2().getSSOAgentX509Credential()));
+                        validator.validate(response.getSignature());
+                    } catch (ValidationException e) {
+                        throw new SSOAgentException("Signature validation failed for SAML2 Response");
+                    }
                 }
             }
-        }
-        if (ssoAgentConfig.getSAML2().isAssertionSigned()) {
-            if (assertion.getSignature() == null) {
-                throw new SSOAgentException("SAML2 Assertion signing is enabled, but signature element " +
-                        "not found in SAML2 Assertion element");
-            } else {
-                try {
-                    SignatureValidator validator = new SignatureValidator(
-                            new X509CredentialImpl(ssoAgentConfig.getSAML2().getSSOAgentX509Credential()));
-                    validator.validate(assertion.getSignature());
-                } catch (ValidationException e) {
-                    throw new SSOAgentException("Signature validation failed for SAML2 Assertion");
+            if (ssoAgentConfig.getSAML2().isAssertionSigned()) {
+                if (assertion.getSignature() == null) {
+                    throw new SSOAgentException("SAML2 Assertion signing is enabled, but signature element not found in SAML2 Assertion element");
+                } else {
+                    try {
+                        SignatureValidator validator = new SignatureValidator(
+                                new X509CredentialImpl(ssoAgentConfig.getSAML2().getSSOAgentX509Credential()));
+                        validator.validate(assertion.getSignature());
+                    } catch (ValidationException e) {
+                        throw new SSOAgentException("Signature validation failed for SAML2 Assertion");
+                    }
                 }
             }
         }

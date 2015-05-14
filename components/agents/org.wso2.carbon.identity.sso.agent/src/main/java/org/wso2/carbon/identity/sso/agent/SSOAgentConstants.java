@@ -77,6 +77,7 @@ public class SSOAgentConstants {
                     "SAML2.PostBindingRequestHTMLPayload";
             public static final String POST_BINDING_REQUEST_HTML_FILE_PATH =
                     "SAML2.PostBindingRequestHTMLFilePath";
+            public static final String SIGNATURE_VALIDATOR = "SAML2.SignatureValidatorImplClass";
 
         }
 

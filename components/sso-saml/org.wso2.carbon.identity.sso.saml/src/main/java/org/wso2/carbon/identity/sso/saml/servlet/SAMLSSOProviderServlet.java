@@ -251,15 +251,15 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                 "authenticationendpoint/samlsso_notification.do");
 
         //TODO Send status codes rather than full messages in the GET request
-        String queryParams = "?" + SAMLSSOConstants.STATUS + "=" + status + "&" +
-                SAMLSSOConstants.STATUS_MSG + "=" + message;
+        String queryParams = "?" + SAMLSSOConstants.STATUS + "=" + URLEncoder.encode(status, "UTF-8") +
+                "&" + SAMLSSOConstants.STATUS_MSG + "=" + URLEncoder.encode(message, "UTF-8");
 
         if (errorResp != null) {
-            queryParams += "&" + SAMLSSOConstants.SAML_RESP + "=" + errorResp;
+            queryParams += "&" + SAMLSSOConstants.SAML_RESP + "=" + URLEncoder.encode(errorResp, "UTF-8");
         }
 
         if (acUrl != null) {
-            queryParams += "&" + SAMLSSOConstants.ASSRTN_CONSUMER_URL + "=" + acUrl;
+            queryParams += "&" + SAMLSSOConstants.ASSRTN_CONSUMER_URL + "=" + URLEncoder.encode(acUrl, "UTF-8");
         }
 
         resp.sendRedirect(redirectURL + queryParams);

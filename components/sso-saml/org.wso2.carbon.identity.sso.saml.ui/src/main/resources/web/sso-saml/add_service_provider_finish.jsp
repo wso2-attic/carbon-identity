@@ -89,9 +89,10 @@
         	serviceProviderDTO.setNameIDFormat(serviceProviderDTO.getNameIDFormat().replace(":", "/"));
         }
 
-        if ("true".equals(request.getParameter("enableAttributeProfile"))) {
+        if (request.getParameter("enableAttributeProfile") != null) {
             serviceProviderDTO.setRequestedClaims(samlSsoServuceProviderConfigBean.getSelectedClaimsAttay());
-            
+            serviceProviderDTO.setEnableAttributeProfile(true);
+
             if ("true".equals(request.getParameter("enableDefaultAttributeProfileHidden"))) {
                 serviceProviderDTO.setEnableAttributesByDefault(true);
             }

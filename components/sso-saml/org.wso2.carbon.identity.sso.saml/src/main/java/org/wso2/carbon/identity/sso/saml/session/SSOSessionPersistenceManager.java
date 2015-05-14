@@ -107,103 +107,24 @@ public class SSOSessionPersistenceManager {
         }
     }
 
-    /**
-     * Persist session in memory
-     *
-     * @param sessionIndex
-     * @param subject
-     * @param spDO
-     */
-    public void persistSession(String sessionId, String sessionIndex, String subject, SAMLSSOServiceProviderDO spDO,
-                               String rpSessionId, String authenticators, Map<ClaimMapping, String> userAttributes,
-                               String tenantDomain)
-            throws IdentityException {
-
-        SessionInfoData sessionInfoData = getSessionInfoDataFromCache(sessionIndex);
-
-        if (sessionInfoData == null) {
-
-            sessionInfoData = new SessionInfoData(subject, tenantDomain);
-            sessionInfoData.addServiceProvider(spDO.getIssuer(), spDO, rpSessionId);
-            /*sessionInfoData.setAuthenticators(authenticators);
-            sessionInfoData.setAttributes(userAttributes);*/
-            addSessionInfoDataToCache(sessionIndex, sessionInfoData, CACHE_TIME_OUT);
-        } else {
-            persistSession(sessionId, sessionIndex, spDO.getIssuer(), spDO.getAssertionConsumerUrl(), rpSessionId);
-        }
-    }
-
-    public boolean persistSession(String sessionId, String sessionIndex, String issuer, String assertionConsumerURL, String rpSessionId)
-            throws IdentityException {
-        try {
-            if (sessionIndex != null) {
-
-                SessionInfoData sessionInfoData = getSessionInfoDataFromCache(sessionIndex);
-
-                if (sessionInfoData != null) {
-                    String subject = sessionInfoData.getSubject();
-                    SAMLSSOServiceProviderDO spDO = SSOServiceProviderConfigManager.getInstance().getServiceProvider(issuer);
-                    if (spDO == null) {
-                        IdentityPersistenceManager identityPersistenceManager = IdentityPersistenceManager
-                                .getPersistanceManager();
-                        Registry registry = (Registry) PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_CONFIGURATION);
-                        spDO = identityPersistenceManager.getServiceProvider(registry, issuer);
-                    }
-                    //give priority to assertion consuming URL if specified in the request
-                    if (assertionConsumerURL != null) {
-                        spDO.setAssertionConsumerUrl(assertionConsumerURL);
-                    }
-                    sessionInfoData.addServiceProvider(spDO.getIssuer(), spDO, rpSessionId);
-                    addSessionInfoDataToCache(sessionIndex, sessionInfoData, CACHE_TIME_OUT);
-                    return true;
-                } else {
-                    log.error("Error persisting the new session, there is no previously established session for this " +
-                            "user");
-                    return false;
-                }
-            }
-        } catch (Exception e) {
-            log.error("Error obtaining the service provider info from registry", e);
-            throw new IdentityException("Error obtaining the service provider info from registry", e);
-        }
-        return false;
-    }
-
     public void persistSession(String sessionIndex, String subject, SAMLSSOServiceProviderDO spDO,
-                               String rpSessionId, String tenantDomain, String issuer,
-                               String assertionConsumerURL)
+                               String rpSessionId, String issuer, String assertionConsumerURL)
             throws IdentityException {
 
         SessionInfoData sessionInfoData = getSessionInfoDataFromCache(sessionIndex);
 
         if (sessionInfoData == null) {
-            sessionInfoData = new SessionInfoData(subject, tenantDomain);
-            sessionInfoData.addServiceProvider(spDO.getIssuer(), spDO, rpSessionId);
+            sessionInfoData = new SessionInfoData();
         }
 
-        try {
-            if (sessionIndex != null) {
-                spDO = SSOServiceProviderConfigManager.getInstance().getServiceProvider(issuer);
-                if (spDO == null) {
-                    IdentityPersistenceManager identityPersistenceManager =
-                            IdentityPersistenceManager.getPersistanceManager();
-                    Registry registry = (Registry) PrivilegedCarbonContext
-                            .getThreadLocalCarbonContext()
-                            .getRegistry(RegistryType.SYSTEM_CONFIGURATION);
-                    spDO = identityPersistenceManager.getServiceProvider(registry, issuer);
-                }
-                //give priority to assertion consuming URL if specified in the request
-                if (assertionConsumerURL != null) {
-                    spDO.setAssertionConsumerUrl(assertionConsumerURL);
-                }
-                sessionInfoData.addServiceProvider(spDO.getIssuer(), spDO, rpSessionId);
-                addSessionInfoDataToCache(sessionIndex, sessionInfoData, CACHE_TIME_OUT);
-            }
-        } catch (Exception e) {
-            log.error("Error obtaining the service provider info from registry", e);
-            throw new IdentityException("Error obtaining the service provider info from registry"
-                    , e);
+        //give priority to assertion consuming URL if specified in the request
+        if (assertionConsumerURL != null) {
+            spDO.setAssertionConsumerUrl(assertionConsumerURL);
         }
+        sessionInfoData.setSubject(issuer, subject);
+        sessionInfoData.addServiceProvider(spDO.getIssuer(), spDO, rpSessionId);
+        addSessionInfoDataToCache(sessionIndex, sessionInfoData, CACHE_TIME_OUT);
+
     }
 
     /**

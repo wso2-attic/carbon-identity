@@ -16,13 +16,12 @@
   ~  specific language governing permissions and limitations
   ~  under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>sts</artifactId>
-        <version>4.3.4-SNAPSHOT</version>
+        <version>4.4.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -64,18 +63,26 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Import-Package>
-                            !javax.xml.namespace,
-                            javax.xml.namespace; version=0.0.0,
-                            org.apache.commons.logging.*; version="1.0.4",
-                            org.wso2.carbon.identity.application.authentication.common.*,
-                            javax.servlet;version="${imp.pkg.version.javax.servlet}",
-                            javax.servlet.http;version="${imp.pkg.version.javax.servlet}",
-                            javax.xml.stream.*; version=1.0.1,
-                            *;resolution:=optional
+                            javax.cache,
+                            javax.net.ssl,
+                            javax.servlet; version="${imp.pkg.version.javax.servlet}",
+                            javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
+                            org.apache.axis2.*; version="${axis2.osgi.version.range}",
+                            org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
+                            org.wso2.carbon.ui; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.registry.core.utils; version="${carbon.kernel.registry.imp.pkg.version}",
+                            org.wso2.carbon.identity.application.authentication.framework.*;
+                            version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.application.common.*;
+                            version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.sts.passive.stub.*;
+                            version="${carbon.identity.package.import.version.range}",
                         </Import-Package>
-                        <Export-Package>org.wso2.carbon.identity.sts.passive.ui.*</Export-Package>
+                        <Export-Package>
+                            org.wso2.carbon.identity.sts.passive.ui.*;
+                            version="${carbon.identity.package.export.version}",
+                        </Export-Package>
                         <Carbon-Component>UIBundle</Carbon-Component>
-                        <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>
