@@ -55,8 +55,6 @@ import org.wso2.carbon.identity.application.authentication.framework.handler.ste
 import org.wso2.carbon.identity.application.authentication.framework.handler.step.impl.DefaultStepHandler;
 import org.wso2.carbon.identity.application.authentication.framework.internal.FrameworkServiceComponent;
 import org.wso2.carbon.identity.application.authentication.framework.model.*;
-import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
-import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.application.common.model.*;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -555,6 +553,8 @@ public class FrameworkUtils {
         }
 
         cacheEntry.setContext(sessionContext);
+        Timestamp sessionCreatedTime = new java.sql.Timestamp(new java.util.Date().getTime());
+        cacheEntry.setLoggedInTime(sessionCreatedTime);
         SessionContextCache.getInstance(cacheTimeout).addToCache(cacheKey, cacheEntry);
     }
 
@@ -571,12 +571,7 @@ public class FrameworkUtils {
         if (cacheEntryObj != null) {
             sessionContext = ((SessionContextCacheEntry) cacheEntryObj).getContext();
         }
-        //added by lakshani for testing
-
-        ArrayList<SessionInfo> sessionIdMap = SessionContextCache.getInstance(0).getSessionDetailsFromDbAndCache();
         return sessionContext;
-
-
     }
 
     /**
