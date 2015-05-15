@@ -128,7 +128,7 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
                 return null;
             }
         } catch (UserStoreException e) {
-            log.error("Error while reading user claim values");
+            log.error("Error while reading user claim values", e);
             return null;
         } finally {
             // reset to initial value
