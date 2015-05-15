@@ -128,7 +128,8 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
                 return null;
             }
         } catch (UserStoreException e) {
-            // ignore may be user is not exist
+            log.error("Error while reading user claim values");
+            return null;
         } finally {
             // reset to initial value
             if (log.isDebugEnabled()) {
