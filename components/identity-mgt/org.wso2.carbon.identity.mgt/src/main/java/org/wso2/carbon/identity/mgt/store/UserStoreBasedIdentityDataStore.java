@@ -123,6 +123,9 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
                         userDataMap.put(claimUri, claim.getValue());
                     }
                 }
+            } else {
+                // null is returned when the user doesn't exist
+                return null;
             }
         } catch (UserStoreException e) {
             // ignore may be user is not exist
@@ -133,19 +136,16 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
             }
             userStoreInvoked.set("FALSE");
         }
-        // if user is exiting there must be at least one user attribute.
-        if (userDataMap != null && userDataMap.size() > 0) {
-            userIdentityDTO = new UserIdentityClaimsDO(userName, userDataMap);
-            int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-            userIdentityDTO.setTenantId(tenantId);
 
-            Cache<String, UserIdentityClaimsDO> cache = getCache();
-            if (cache != null) {
-                cache.put(tenantId + userName, userIdentityDTO);
-            }
-            return userIdentityDTO;
+        userIdentityDTO = new UserIdentityClaimsDO(userName, userDataMap);
+        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        userIdentityDTO.setTenantId(tenantId);
+
+        Cache<String, UserIdentityClaimsDO> cache = getCache();
+        if (cache != null) {
+            cache.put(tenantId + userName, userIdentityDTO);
         }
-        return null;
+        return userIdentityDTO;
     }
 
 }
