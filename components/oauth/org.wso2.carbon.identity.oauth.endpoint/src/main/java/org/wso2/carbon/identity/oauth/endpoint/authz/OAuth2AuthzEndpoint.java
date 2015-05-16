@@ -48,6 +48,7 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientValidationResponseDTO;
 import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+import org.wso2.carbon.identity.oauth.endpoint.session.OIDCSessionMgtEndpoint;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -624,7 +625,7 @@ public class OAuth2AuthzEndpoint {
      */
     private OAuth2AuthorizeRespDTO authorize(OAuth2Parameters oauth2Params
             , SessionDataCacheEntry sessionDataCacheEntry) {
-
+        OIDCSessionMgtEndpoint oidcSessionMgtEndpoint=new OIDCSessionMgtEndpoint();
         OAuth2AuthorizeReqDTO authzReqDTO = new OAuth2AuthorizeReqDTO();
         authzReqDTO.setCallbackUrl(oauth2Params.getRedirectURI());
         authzReqDTO.setConsumerKey(oauth2Params.getClientId());
@@ -632,6 +633,7 @@ public class OAuth2AuthzEndpoint {
         authzReqDTO.setScopes(oauth2Params.getScopes().toArray(new String[oauth2Params.getScopes().size()]));
         authzReqDTO.setUsername(sessionDataCacheEntry.getLoggedInUser().getAuthenticatedSubjectIdentifier());
         authzReqDTO.setACRValues(oauth2Params.getACRValues());
+        oidcSessionMgtEndpoint.setCallBackUrl(authzReqDTO);
         return EndpointUtil.getOAuth2Service().authorize(authzReqDTO);
     }
 
