@@ -1,7 +1,7 @@
 /**
  *
  */
-package org.wso2.carbon.identity.oauth.endpoint.user;
+package org.wso2.carbon.identity.oauth.user;
 
 import javax.servlet.http.HttpServletRequest;
 

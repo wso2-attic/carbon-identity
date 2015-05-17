@@ -14,13 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.carbon.identity.oauth.endpoint.user;
+package org.wso2.carbon.identity.oauth.user;
 
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.apache.amber.oauth2.common.exception.OAuthSystemException;
+import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 
-import java.util.Map;
+/**
+ * Abstract representation of the UserInfoResponse. The response can be a JSON
+ * or a JWT
+ */
+public interface UserInfoResponseBuilder {
 
-public interface UserInfoClaimRetriever {
+    /**
+     * @param tokenResponse
+     * @param claims
+     * @return
+     * @throws org.apache.amber.oauth2.common.exception.OAuthSystemException
+     * @throws org.apache.amber.oauth2.common.exception.OAuthProblemException TODO
+     */
+    public String getResponseString(OAuth2TokenValidationResponseDTO tokenResponse)
+            throws UserInfoEndpointException, OAuthSystemException;
 
-    public Map<String, Object> getClaimsMap(Map<ClaimMapping, String> userAttributes);
 }
