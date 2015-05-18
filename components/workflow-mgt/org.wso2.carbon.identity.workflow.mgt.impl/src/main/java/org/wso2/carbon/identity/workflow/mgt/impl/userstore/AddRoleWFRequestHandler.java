@@ -39,6 +39,9 @@ import java.util.Map;
 
 public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
 
+    private static final String FRIENDLY_NAME = "Add Role";
+    private static final String FRIENDLY_DESCRIPTION = "Triggered when a user create a new role.";
+
     private static final String ROLENAME = "username";
     private static final String USER_STORE_DOMAIN = "userStoreDomain";
     private static final String PERMISSIONS = "permissions";
@@ -80,6 +83,21 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
     @Override
     public Map<String, String> getParamDefinitions() {
         return PARAM_DEFINITION;
+    }
+
+    @Override
+    public String getFriendlyName() {
+        return FRIENDLY_NAME;
+    }
+
+    @Override
+    public String getDescription() {
+        return FRIENDLY_DESCRIPTION;
+    }
+
+    @Override
+    public String getCategory() {
+        return UserStoreWFConstants.CATEGORY_USERSTORE_OPERATIONS;
     }
 
     @Override

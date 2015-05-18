@@ -34,6 +34,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHandler {
+
+    private static final String FRIENDLY_NAME = "Update User Claims";
+    private static final String FRIENDLY_DESCRIPTION = "Triggered when a user updates his claims";
+
     private static final String USERNAME = "username";
     private static final String USER_STORE_DOMAIN = "userStoreDomain";
     private static final String CLAIMS = "claims";
@@ -117,5 +121,20 @@ public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHa
     @Override
     public Map<String, String> getParamDefinitions() {
         return PARAM_DEFINITION;
+    }
+
+    @Override
+    public String getFriendlyName() {
+        return FRIENDLY_NAME;
+    }
+
+    @Override
+    public String getDescription() {
+        return FRIENDLY_DESCRIPTION;
+    }
+
+    @Override
+    public String getCategory() {
+        return UserStoreWFConstants.CATEGORY_USERSTORE_OPERATIONS;
     }
 }

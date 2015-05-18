@@ -37,6 +37,9 @@ import java.util.Map;
 
 public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
 
+    private static final String FRIENDLY_NAME = "Add User";
+    private static final String FRIENDLY_DESCRIPTION = "Triggered when a new user is created.";
+
     private static final String USERNAME = "username";
     private static final String USER_STORE_DOMAIN = "userStoreDomain";
     private static final String CREDENTIAL = "credential";
@@ -91,6 +94,21 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
     @Override
     public Map<String, String> getParamDefinitions() {
         return PARAM_DEFINITION;
+    }
+
+    @Override
+    public String getFriendlyName() {
+        return FRIENDLY_NAME;
+    }
+
+    @Override
+    public String getDescription() {
+        return FRIENDLY_DESCRIPTION;
+    }
+
+    @Override
+    public String getCategory() {
+        return UserStoreWFConstants.CATEGORY_USERSTORE_OPERATIONS;
     }
 
     @Override

@@ -34,6 +34,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandler {
+
+    private static final String FRIENDLY_NAME = "Update Rolename";
+    private static final String FRIENDLY_DESCRIPTION = "Triggered when a role name is updates";
+
     private static final String ROLENAME = "roleName";
     private static final String NEW_ROLENAME = "newRoleName";
     private static final String USER_STORE_DOMAIN = "userStoreDomain";
@@ -113,5 +117,20 @@ public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandl
     @Override
     public Map<String, String> getParamDefinitions() {
         return PARAM_DEFINITION;
+    }
+
+    @Override
+    public String getFriendlyName() {
+        return FRIENDLY_NAME;
+    }
+
+    @Override
+    public String getDescription() {
+        return FRIENDLY_DESCRIPTION;
+    }
+
+    @Override
+    public String getCategory() {
+        return UserStoreWFConstants.CATEGORY_USERSTORE_OPERATIONS;
     }
 }

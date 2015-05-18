@@ -34,6 +34,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ChangeCredentialWFRequestHandler extends AbstractWorkflowRequestHandler {
+
+    private static final String FRIENDLY_NAME = "Update user credentials";
+    private static final String FRIENDLY_DESCRIPTION = "Triggered when a user update his/her credential";
+
     private static final String USERNAME = "username";
     private static final String USER_STORE_DOMAIN = "userStoreDomain";
     private static final String OLD_CREDENTIAL = "oldCredential";
@@ -117,4 +121,20 @@ public class ChangeCredentialWFRequestHandler extends AbstractWorkflowRequestHan
     public Map<String, String> getParamDefinitions() {
         return PARAM_DEFINITION;
     }
+
+    @Override
+    public String getFriendlyName() {
+        return FRIENDLY_NAME;
+    }
+
+    @Override
+    public String getDescription() {
+        return FRIENDLY_DESCRIPTION;
+    }
+
+    @Override
+    public String getCategory() {
+        return UserStoreWFConstants.CATEGORY_USERSTORE_OPERATIONS;
+    }
+
 }

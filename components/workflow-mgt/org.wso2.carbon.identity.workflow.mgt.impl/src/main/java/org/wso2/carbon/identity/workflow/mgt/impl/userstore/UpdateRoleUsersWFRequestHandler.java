@@ -36,6 +36,10 @@ import java.util.List;
 import java.util.Map;
 
 public class UpdateRoleUsersWFRequestHandler extends AbstractWorkflowRequestHandler {
+
+    private static final String FRIENDLY_NAME = "Update Role Users";
+    private static final String FRIENDLY_DESCRIPTION = "Triggered when users are added to/removed from a role.";
+
     private static final String ROLENAME = "roleName";
     private static final String USER_STORE_DOMAIN = "userStoreDomain";
     private static final String DELETED_USER_LIST = "deletedUserList";
@@ -71,6 +75,21 @@ public class UpdateRoleUsersWFRequestHandler extends AbstractWorkflowRequestHand
     @Override
     public Map<String, String> getParamDefinitions() {
         return PARAM_DEFINITION;
+    }
+
+    @Override
+    public String getFriendlyName() {
+        return FRIENDLY_NAME;
+    }
+
+    @Override
+    public String getDescription() {
+        return FRIENDLY_DESCRIPTION;
+    }
+
+    @Override
+    public String getCategory() {
+        return UserStoreWFConstants.CATEGORY_USERSTORE_OPERATIONS;
     }
 
     @Override
