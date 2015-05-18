@@ -24,7 +24,8 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.*;
-import org.wso2.carbon.identity.application.common.persistence.JDBCPersistenceManager;
+import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.application.common.util.CharacterEncoder;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
@@ -155,9 +156,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
             return applicationId;
 
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             try {
-                connection.rollback();
+                if (connection != null) {
+                    connection.rollback();
+                }
             } catch (SQLException sql) {
                 throw new IdentityApplicationManagementException(
                         "Error while Creating Application", sql);
@@ -227,27 +230,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             if (!connection.getAutoCommit()) {
                 connection.commit();
             }
-        } catch (IdentityApplicationManagementException e) {
+        } catch (IdentityException | SQLException | UserStoreException e) {
             try {
-                connection.rollback();
-            } catch (SQLException e1) {
-                throw new IdentityApplicationManagementException(
-                        "Failed to update service provider " + applicationId, e);
-            }
-            throw new IdentityApplicationManagementException("Failed to update service provider "
-                    + applicationId, e);
-        } catch (SQLException e) {
-            try {
-                connection.rollback();
-            } catch (SQLException e1) {
-                throw new IdentityApplicationManagementException(
-                        "Failed to update service provider " + applicationId, e);
-            }
-            throw new IdentityApplicationManagementException("Failed to update service provider "
-                    + applicationId, e);
-        } catch (UserStoreException e) {
-            try {
-                connection.rollback();
+                if (connection != null) {
+                    connection.rollback();
+                }
             } catch (SQLException e1) {
                 throw new IdentityApplicationManagementException(
                         "Failed to update service provider " + applicationId, e);
@@ -1082,7 +1069,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             serviceProvider.setRequestPathAuthenticatorConfigs(requestPathAuthenticators);
             return serviceProvider;
 
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             throw new IdentityApplicationManagementException("Failed to update service provider "
                     + applicationId, e);
         } finally {
@@ -1255,7 +1242,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 applicationName = appNameResult.getString(1);
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             throw new IdentityApplicationManagementException("Error while reading application");
         } finally {
@@ -1278,7 +1265,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         try {
             connection = IdentityApplicationManagementUtil.getDBConnection();
             return getApplicationName(applicationID, connection);
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             throw new IdentityApplicationManagementException("Failed loading the application with "
                     + applicationID, e);
         } finally {
@@ -1982,7 +1969,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                     }
                 }
             }
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             throw new IdentityApplicationManagementException("Error while Reading all Applications");
         } finally {
             IdentityApplicationManagementUtil.closeStatement(getAppNamesStmt);
@@ -2032,7 +2019,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 connection.commit();
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             throw new IdentityApplicationManagementException("Error deleting application");
         } finally {
@@ -2286,7 +2273,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             if (appNameResult.next()) {
                 applicationName = appNameResult.getString(1);
             }
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             throw new IdentityApplicationManagementException("Error while reading application");
         } finally {
             IdentityApplicationManagementUtil.closeResultSet(appNameResult);
@@ -2345,6 +2332,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 }
             }
 
+        } catch (IdentityException e) {
+            throw new IdentityApplicationManagementException("Error while reading claim mappings.", e);
         } finally {
             IdentityApplicationManagementUtil.closeStatement(getClaimPreStmt);
             IdentityApplicationManagementUtil.closeResultSet(resultSet);
@@ -2415,7 +2404,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                     reqClaimUris.add(resultSet.getString(1));
                 }
             }
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             throw new IdentityApplicationManagementException(
                     "Error while retrieving requested claims", e);
         } finally {

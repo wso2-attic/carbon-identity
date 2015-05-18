@@ -34,6 +34,14 @@
             <artifactId>org.wso2.carbon.claim.mgt</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.base</artifactId>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
@@ -70,7 +78,9 @@
                             org.wso2.carbon.user.core.util; version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.context; version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.caching.impl; version="${carbon.kernel.package.import.version.range}",
-                            org.wso2.carbon.claim.mgt; version="${carbon.identity.package.import.version.range}"
+                            org.wso2.carbon.claim.mgt; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.base; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.core.persistence; version="${carbon.identity.package.import.version.range}"
                         </Import-Package>
                         <Export-Package>
                             org.wso2.carbon.identity.application.common.*; version="${carbon.identity.package.export.version}"
