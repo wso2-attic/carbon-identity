@@ -26,7 +26,8 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.claim.mgt.ClaimManagerHandler;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.*;
-import org.wso2.carbon.identity.application.common.persistence.JDBCPersistenceManager;
+import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
+import org.wso2.carbon.identity.base.IdentityException;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -340,9 +341,9 @@ public class IdentityApplicationManagementUtil {
 
     /**
      * @return
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityException
      */
-    public static Connection getDBConnection() throws IdentityApplicationManagementException {
+    public static Connection getDBConnection() throws IdentityException {
         return JDBCPersistenceManager.getInstance().getDBConnection();
     }
 
