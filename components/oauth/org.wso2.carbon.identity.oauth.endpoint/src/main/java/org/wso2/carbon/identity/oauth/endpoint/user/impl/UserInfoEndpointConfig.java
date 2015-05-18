@@ -19,11 +19,11 @@ package org.wso2.carbon.identity.oauth.endpoint.user.impl;
 import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.oauth.endpoint.user.UserInfoAccessTokenValidator;
-import org.wso2.carbon.identity.oauth.endpoint.user.UserInfoClaimRetriever;
-import org.wso2.carbon.identity.oauth.endpoint.user.UserInfoRequestValidator;
-import org.wso2.carbon.identity.oauth.endpoint.user.UserInfoResponseBuilder;
 import org.wso2.carbon.identity.oauth.endpoint.util.EndpointUtil;
+import org.wso2.carbon.identity.oauth.user.UserInfoAccessTokenValidator;
+import org.wso2.carbon.identity.oauth.user.UserInfoClaimRetriever;
+import org.wso2.carbon.identity.oauth.user.UserInfoRequestValidator;
+import org.wso2.carbon.identity.oauth.user.UserInfoResponseBuilder;
 
 /**
  * A singleton object halding configurations
