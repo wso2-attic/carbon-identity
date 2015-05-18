@@ -180,7 +180,8 @@
                                 <tr>
                                     <td><fmt:message key='workflow.template.simple.approval.ht.description'/></td>
                                     <td>
-                                        <input type="text" name="<%=ApprovalServiceConstants.PARAM_HT_DESCRIPTION%>"/>
+                                        <textarea name="<%=ApprovalServiceConstants.PARAM_HT_DESCRIPTION%>" />
+                                        <%--<input type="text" name="<%=ApprovalServiceConstants.PARAM_HT_DESCRIPTION%>"/>--%>
                                     </td>
                                 </tr>
                                 <tr>

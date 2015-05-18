@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
   ~ WSO2 Inc. licenses this file to you under the Apache License,
   ~ Version 2.0 (the "License"); you may not use this file except
@@ -20,6 +20,7 @@
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="java.util.ResourceBundle" %>
 <script type="text/javascript" src="extensions/js/vui.js"></script>
@@ -37,6 +38,7 @@
     String event =
             CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_EVENT));
     String template = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_SERVICE_TEMPLATE));
+    String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
 
 
 %>
@@ -113,7 +115,8 @@
                                 <tr>
                                     <td><fmt:message key='workflow.config.host'/></td>
                                     <td>
-                                        <input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_HOST%>"/>
+                                        <input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_HOST%>"
+                                               value="https://localhost:9444/"/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -135,7 +138,8 @@
                                 <tr>
                                     <td><fmt:message key='workflow.config.host'/></td>
                                     <td>
-                                        <input type="text" name="<%=WorkflowUIConstants.PARAM_CARBON_HOST%>"/>
+                                        <input type="text" name="<%=WorkflowUIConstants.PARAM_CARBON_HOST%>"
+                                               value="<%=backendServerURL%>"/>
                                     </td>
                                 </tr>
                                 <tr>

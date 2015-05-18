@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.workflow.mgt.bean;
 public class WSServiceBean {
 
     private String alias;
+    private String description;
     private String wsAction;
     private String serviceEndpoint;
     private String userName;
@@ -32,6 +33,14 @@ public class WSServiceBean {
 
     public void setAlias(String alias) {
         this.alias = alias;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getWsAction() {

@@ -49,10 +49,11 @@ public class WorkflowServicesDAO {
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, workflowService.getAlias());
-            prepStmt.setString(2, workflowService.getWsAction());
-            prepStmt.setString(3, workflowService.getServiceEndpoint());
-            prepStmt.setString(4, workflowService.getUserName());
-            prepStmt.setString(5, workflowService.getPassword());   //todo: encrypt pw?
+            prepStmt.setString(2, workflowService.getDescription());
+            prepStmt.setString(3, workflowService.getWsAction());
+            prepStmt.setString(4, workflowService.getServiceEndpoint());
+            prepStmt.setString(5, workflowService.getUserName());
+            prepStmt.setString(6, workflowService.getPassword());   //todo: encrypt pw?
             prepStmt.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {
@@ -115,6 +116,7 @@ public class WorkflowServicesDAO {
             rs = prepStmt.executeQuery();
             while (rs.next()) {
                 String alias = rs.getString(SQLConstants.ALIAS_COLUMN);
+                String description = rs.getString(SQLConstants.DESCRIPTION_COLUMN);
                 String action = rs.getString(SQLConstants.WS_ACTION_COLUMN);
                 String serviceEP = rs.getString(SQLConstants.SERVICE_ENDPOINT_COLUMN);
                 String username = rs.getString(SQLConstants.USERNAME_COLUMN);
@@ -124,6 +126,7 @@ public class WorkflowServicesDAO {
                 //todo use priority to sort
                 WSServiceBean serviceBean = new WSServiceBean();
                 serviceBean.setAlias(alias);
+                serviceBean.setDescription(description);
                 serviceBean.setWsAction(action);
                 serviceBean.setServiceEndpoint(serviceEP);
                 serviceBean.setUserName(username);
