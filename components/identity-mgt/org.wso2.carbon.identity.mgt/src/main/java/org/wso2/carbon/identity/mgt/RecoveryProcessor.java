@@ -17,6 +17,7 @@ package org.wso2.carbon.identity.mgt;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.beans.VerificationBean;
 import org.wso2.carbon.identity.mgt.config.Config;
@@ -39,6 +40,7 @@ import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.user.api.Tenant;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
+import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 
 import java.util.HashMap;
@@ -53,6 +55,8 @@ import java.util.UUID;
 public class RecoveryProcessor {
 
     private static final Log log = LogFactory.getLog(RecoveryProcessor.class);
+    private final static String TENANT_DOMAIN_PARAMETER = "tenant-domain";
+    private final static String USER_STORE_DOMAIN = "userstore-domain";
     /*
      *  Delimiter that will be used to store the registry resource entries. Must be valid characters.
      *  If this changed the split regex also need to changed in getUserExternalCodeStr method.
@@ -104,6 +108,13 @@ public class RecoveryProcessor {
         String userId = recoveryDTO.getUserId();
         String domainName = recoveryDTO.getTenantDomain();
         int tenantId = recoveryDTO.getTenantId();
+        int index = 0;
+        String userStore = UserStoreConfigConstants.PRIMARY;
+        String userName = userId;
+        if ((index = userId.indexOf(CarbonConstants.DOMAIN_SEPARATOR)) > 0) {
+            userStore = userId.substring(0, index);
+            userName = userId.substring(index + 1);
+        }
 
         TenantManager tenantManager = IdentityMgtServiceComponent.getRealmService().getTenantManager();
         try {
@@ -133,7 +144,9 @@ public class RecoveryProcessor {
         notificationAddress = Utils.getEmailAddressForUser(userId, tenantId);
         String firstName = Utils.getClaimFromUserStoreManager(userId, tenantId, "http://wso2.org/claims/givenname");
         emailNotificationData.setTagData("first-name", firstName);
-        emailNotificationData.setTagData("user-name", userId);
+        emailNotificationData.setTagData(USER_STORE_DOMAIN, userStore);
+        emailNotificationData.setTagData("user-name", userName);
+        emailNotificationData.setTagData(TENANT_DOMAIN_PARAMETER, domainName);
 
         if ((notificationAddress == null) || (notificationAddress.trim().length() < 0)) {
             throw new IdentityException("Notification sending failure. Notification address is not defined for user : " + userId);
@@ -172,6 +185,7 @@ public class RecoveryProcessor {
             } else if (IdentityMgtConstants.Notification.ACCOUNT_CONFORM.equals(notification)) {
                 confirmationKey = UUIDGenerator.generateUUID();
                 secretKey = UUIDGenerator.generateUUID();
+                emailNotificationData.setTagData("user-name", userId);
                 emailNotificationData.setTagData("confirmation-code", confirmationKey);
                 emailTemplate = config.getProperty(IdentityMgtConstants.Notification.ACCOUNT_CONFORM);
 

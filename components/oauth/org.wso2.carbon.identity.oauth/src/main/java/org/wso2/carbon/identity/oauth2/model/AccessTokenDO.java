@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.oauth2.model;
 
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
 
 import java.sql.Timestamp;
@@ -50,7 +51,7 @@ public class AccessTokenDO extends CacheEntry {
 
     private long refreshTokenValidityPeriodInMillis;
 
-    private int tenantID;
+    private int tenantID = MultitenantConstants.SUPER_TENANT_ID;
 
     private String tokenType;
 
