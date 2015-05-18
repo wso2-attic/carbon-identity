@@ -2,17 +2,19 @@
 <!--
   ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
   ~ You may obtain a copy of the License at
   ~
-  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~ http://www.apache.org/licenses/LICENSE-2.0
   ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -67,6 +69,7 @@
         <module>components/sts</module>
         <module>components/captcha-mgt</module>
         <module>components/tenant-mgt</module>
+        <module>components/workflow-mgt</module>
         <module>features/security-mgt</module>
         <module>features/authenticators</module>
         <module>features/claim-management</module>
@@ -97,6 +100,7 @@
         <module>features/ldap-server-manager</module>
         <module>features/sts</module>
         <module>features/captcha-mgt</module>
+        <module>features/workflow-mgt</module>
     </modules>
 
     <repositories>
@@ -1871,6 +1875,38 @@
                 <artifactId>apacheds-core-annotations</artifactId>
                 <groupId>org.apache.directory.server</groupId>
                 <version>${apacheds.core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.workflow.mgt.stub</artifactId>
+                <version>${carbon.identity.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.workflow.mgt</artifactId>
+                <version>${carbon.identity.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.workflow.mgt.impl</artifactId>
+                <version>${carbon.identity.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.workflow.mgt.ui</artifactId>
+                <version>${carbon.identity.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.workflow.mgt.server.feature</artifactId>
+                <version>${carbon.identity.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.workflow.mgt.ui.feature</artifactId>
+                <version>${carbon.identity.version}</version>
+                <type>zip</type>
             </dependency>
         </dependencies>
 
