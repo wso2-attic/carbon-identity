@@ -36,10 +36,15 @@ import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 public class DefaultResponseBuilder implements ResponseBuilder {
 
     private static Log log = LogFactory.getLog(DefaultResponseBuilder.class);
+    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
+
+    private String userAttributeSeparator = ",";
+
 
     static {
         SAMLSSOUtil.doBootstrap();
@@ -244,12 +249,19 @@ public class DefaultResponseBuilder implements ResponseBuilder {
     private AttributeStatement buildAttributeStatement(Map<String, String> claims) {
         AttributeStatement attStmt = null;
         if (claims != null) {
+            String claimSeparator = claims.get(MULTI_ATTRIBUTE_SEPARATOR);
+            if (claimSeparator != null) {
+                userAttributeSeparator = claimSeparator;
+                claims.remove(MULTI_ATTRIBUTE_SEPARATOR);
+            }
+
             attStmt = new AttributeStatementBuilder().buildObject();
             Iterator<String> ite = claims.keySet().iterator();
 
             for (int i = 0; i < claims.size(); i++) {
                 Attribute attrib = new AttributeBuilder().buildObject();
                 String claimUri = ite.next();
+                String claimValue = claims.get(claimUri);
                 attrib.setName(claimUri);
                 //setting NAMEFORMAT attribute value to basic attribute profile
                 attrib.setNameFormat(SAMLSSOConstants.NAME_FORMAT_BASIC);
@@ -257,10 +269,25 @@ public class DefaultResponseBuilder implements ResponseBuilder {
                 // https://wiki.shibboleth.net/confluence/display/OpenSAML/OSTwoUsrManJavaAnyTypes
                 XSStringBuilder stringBuilder = (XSStringBuilder) Configuration.getBuilderFactory()
                         .getBuilder(XSString.TYPE_NAME);
-                XSString stringValue = stringBuilder.buildObject(
-                        AttributeValue.DEFAULT_ELEMENT_NAME, XSString.TYPE_NAME);
-                stringValue.setValue(claims.get(claimUri));
-                attrib.getAttributeValues().add(stringValue);
+                XSString stringValue;
+
+                //Need to check if the claim has multiple values
+                if (userAttributeSeparator != null && claimValue.contains(userAttributeSeparator)) {
+                    StringTokenizer st = new StringTokenizer(claimValue, userAttributeSeparator);
+                    while (st.hasMoreElements()) {
+                        String attValue = st.nextElement().toString();
+                        if (attValue != null && attValue.trim().length() > 0) {
+                            stringValue = stringBuilder.buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSString.TYPE_NAME);
+                            stringValue.setValue(attValue);
+                            attrib.getAttributeValues().add(stringValue);
+                        }
+                    }
+                } else {
+                    stringValue = stringBuilder.buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSString.TYPE_NAME);
+                    stringValue.setValue(claimValue);
+                    attrib.getAttributeValues().add(stringValue);
+                }
+
                 attStmt.getAttributes().add(attrib);
             }
         }

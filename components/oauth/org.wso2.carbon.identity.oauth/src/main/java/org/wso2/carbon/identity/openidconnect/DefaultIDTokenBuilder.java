@@ -21,6 +21,7 @@ import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.SignedJWT;
+import org.apache.amber.oauth2.common.message.types.GrantType;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -91,44 +92,55 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         long curTime = Calendar.getInstance().getTimeInMillis() / 1000;
         // setting subject
         String subject = request.getAuthorizedUser();
-        ApplicationManagementService applicationMgtService = OAuth2ServiceComponentHolder.getApplicationMgtService();
-        ServiceProvider serviceProvider;
-        try {
-            String spName = applicationMgtService.getServiceProviderNameByClientId(request.getOauth2AccessTokenReqDTO().
-                    getClientId(), INBOUND_AUTH2_TYPE);
-            serviceProvider = applicationMgtService.getApplication(spName);
-        } catch (IdentityApplicationManagementException ex) {
-            String error = "Error occurred while getting service provider information for client Id " +
-                    request.getOauth2AccessTokenReqDTO().getClientId();
-            throw new IdentityOAuth2Exception(error, ex);
-        }
 
-        if (serviceProvider != null) {
-            String claim = serviceProvider.getLocalAndOutBoundAuthenticationConfig().getSubjectClaimUri();
+        if (!GrantType.AUTHORIZATION_CODE.toString().equals(request.getOauth2AccessTokenReqDTO().getGrantType()) &&
+            !org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString().equals(request
+                                                                        .getOauth2AccessTokenReqDTO().getGrantType())) {
 
-            if (claim != null) {
-                String username = request.getAuthorizedUser();
-                String tenantUser = MultitenantUtils.getTenantAwareUsername(username);
-                String domainName = MultitenantUtils.getTenantDomain(request.getAuthorizedUser());
-                try {
-                    subject =
-                            IdentityTenantUtil.getRealm(domainName, username)
-                                    .getUserStoreManager()
-                                    .getUserClaimValue(tenantUser, claim, null);
-                    if (subject == null) {
-                        subject = request.getAuthorizedUser();
+            ApplicationManagementService applicationMgtService = OAuth2ServiceComponentHolder
+                    .getApplicationMgtService();
+            ServiceProvider serviceProvider = null;
+
+            try {
+                String spName =
+                        applicationMgtService.getServiceProviderNameByClientId(request.getOauth2AccessTokenReqDTO()
+                                                                                       .getClientId(),
+                                                                               INBOUND_AUTH2_TYPE);
+                serviceProvider = applicationMgtService.getApplication(spName);
+            } catch (IdentityApplicationManagementException ex) {
+                log.error("Error while getting service provider information.", ex);
+                throw new IdentityOAuth2Exception("Error while getting service provider information.",
+                                                  ex);
+            }
+
+            if (serviceProvider != null) {
+                String claim = serviceProvider.getLocalAndOutBoundAuthenticationConfig().getSubjectClaimUri();
+
+                if (claim != null) {
+                    String username = request.getAuthorizedUser();
+                    String tenantUser = MultitenantUtils.getTenantAwareUsername(username);
+                    String domainName = MultitenantUtils.getTenantDomain(request.getAuthorizedUser());
+                    try {
+                        subject =
+                                IdentityTenantUtil.getRealm(domainName, username)
+                                        .getUserStoreManager()
+                                        .getUserClaimValue(tenantUser, claim, null);
+                        if (subject == null) {
+                            subject = request.getAuthorizedUser();
+                        }
+                    } catch (IdentityException e) {
+                        String error = "Error occurred while getting user claim for domain " + domainName + ", " +
+                                       "user " + username + ", claim " + claim;
+                        throw new IdentityOAuth2Exception(error, e);
+                    } catch (UserStoreException e) {
+                        String error = "Error occurred while getting user claim for domain " + domainName + ", " +
+                                       "user " + username + ", claim " + claim;
+                        throw new IdentityOAuth2Exception(error, e);
                     }
-                } catch (IdentityException e) {
-                    String error = "Error occurred while getting user claim for domain " + domainName + ", " +
-                            "user " + username + ", claim " + claim;
-                    throw new IdentityOAuth2Exception(error, e);
-                } catch (UserStoreException e) {
-                    String error = "Error occurred while getting user claim for domain " + domainName + ", " +
-                            "user " + username + ", claim " + claim;
-                    throw new IdentityOAuth2Exception(error, e);
                 }
             }
         }
+
         String nonceValue = null;
         // AuthorizationCode only available for authorization code grant type
         if (request.getProperty(AUTHORIZATION_CODE) != null) {
