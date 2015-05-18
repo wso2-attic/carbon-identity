@@ -54,7 +54,9 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
     public boolean validateGrant(OAuthTokenReqMessageContext tokReqMsgCtx)
             throws IdentityOAuth2Exception {
 
-        super.validateGrant(tokReqMsgCtx);
+        if(!super.validateGrant(tokReqMsgCtx)){
+            return false;
+        }
 
         OAuth2AccessTokenReqDTO tokenReqDTO = tokReqMsgCtx.getOauth2AccessTokenReqDTO();
 

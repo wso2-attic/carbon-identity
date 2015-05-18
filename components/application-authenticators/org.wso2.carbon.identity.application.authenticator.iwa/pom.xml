@@ -1,28 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2014 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
-  ~ WSO2 Inc. licenses this file to you under the Apache License,
-  ~ Version 2.0 (the "License"); you may not use this file except
-  ~ in compliance with the License.
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
   ~
-  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~      http://www.apache.org/licenses/LICENSE-2.0
   ~
-  ~ Unless required by applicable law or agreed to in writing,
-  ~ software distributed under the License is distributed on an
-  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  ~ KIND, either express or implied.  See the License for the
-  ~ specific language governing permissions and limitations
-  ~ under the License.
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>application-authenticators</artifactId>
-        <version>4.4.1-SNAPSHOT</version>
+        <version>4.4.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -63,34 +60,44 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
-                        <Private-Package>org.wso2.carbon.identity.application.authenticator.iwa.internal,
+                        <Private-Package>
+                            org.wso2.carbon.identity.application.authenticator.iwa.internal,
                         </Private-Package>
                         <Import-Package>
-                            org.osgi.framework,
-                            org.wso2.carbon.identity.application.authentication.framework.*,
                             javax.security.auth,
+                            javax.servlet; version="${imp.pkg.version.javax.servlet}",,
+                            javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
+
+                            org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}",
+                            org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
+
                             org.eclipse.equinox.http.helper,
-                            org.osgi.service.component,
-                            org.osgi.service.http,
-                            org.wso2.carbon.context,
-                            org.wso2.carbon.ui,
-                            org.wso2.carbon.user.api,
-                            org.wso2.carbon.user.core,
-                            org.wso2.carbon.utils.multitenancy,
-                            waffle.servlet,
-                            waffle.servlet.spi,
-                            waffle.util,
-                            waffle.windows.auth,
-                            waffle.windows.auth.impl,
-                            javax.servlet;version="${imp.pkg.version.javax.servlet}",
-                            javax.servlet.http;version="${imp.pkg.version.javax.servlet}",
-                            org.apache.commons.logging;resolution:=optional
+
+                            org.osgi.framework; version="${osgi.framework.imp.pkg.version.range}",
+                            org.osgi.service.component; version="${osgi.service.component.imp.pkg.version.range}",
+                            org.osgi.service.http; version="${osgi.service.http.imp.pkg.version.range}",
+
+                            org.wso2.carbon.context; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.ui; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.user.api; version="${carbon.user.api.imp.pkg.version.range}",
+                            org.wso2.carbon.user.core; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.utils.multitenancy; version="${carbon.kernel.package.import.version.range}",
+
+                            org.wso2.carbon.identity.application.authentication.framework.*;
+                            version="${carbon.identity.package.import.version.range}",
+
+                            waffle.servlet; version="${waffle.imp.pkg.version.range}",
+                            waffle.servlet.spi; version="${waffle.imp.pkg.version.range}",
+                            waffle.util; version="${waffle.imp.pkg.version.range}",
+                            waffle.windows.auth; version="${waffle.imp.pkg.version.range}",
+                            waffle.windows.auth.impl; version="${waffle.imp.pkg.version.range}"
                         </Import-Package>
-                        <!--Dynamic class loading is used within the component-->
-                        <DynamicImport-Package>*</DynamicImport-Package>
-                        <Export-Package>!org.wso2.carbon.identity.application.authenticator.iwa.internal,
-                            org.wso2.carbon.identity.application.authenticator.iwa.*
+                        <Export-Package>
+                            !org.wso2.carbon.identity.application.authenticator.iwa.internal,
+                            org.wso2.carbon.identity.application.authenticator.iwa.*;
+                            version="${carbon.identity.package.export.version}"
                         </Export-Package>
+                        <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>

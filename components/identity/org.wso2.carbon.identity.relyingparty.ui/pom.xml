@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>identity</artifactId>
-        <version>4.4.1-SNAPSHOT</version>
+        <version>4.4.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -62,7 +62,7 @@
             <artifactId>guice</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.httpcomponents.wso2</groupId>
+            <groupId>org.wso2.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
         <dependency>
@@ -87,22 +87,47 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Import-Package>
-                            org.apache.ws.security.*,
+                            javax.net,
+                            javax.net.ssl,
+                            javax.crypto.*,
+                            javax.xml.parsers,
+                            javax.security.auth.x500,
+                            javax.servlet; version="${imp.pkg.version.javax.servlet}",
+                            javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
+
                             com.google.step2.*,
-                            !javax.xml.namespace,
-                            org.apache.commons.logging.*; version="1.0.4",
-                            javax.xml.namespace; version=0.0.0,
-                            javax.servlet;version="${imp.pkg.version.javax.servlet}",
-                            javax.servlet.http;version="${imp.pkg.version.javax.servlet}",
-                            javax.xml.stream.*; version=1.0.1,
-                            *;resolution:=optional
+                            com.google.inject.*; version="${google.guice.imp.pkg.version.range}",
+
+                            org.ietf.jgss,
+                            org.w3c.dom,
+                            org.openid4java.*; version="{openid4java.wso2.osgi.version.range}",
+
+                            org.apache.axis2.*; version="${axis2.osgi.version.range}",
+                            org.apache.neethi; version="${neethi.osgi.version.range}",
+                            org.apache.http.*; version="${httpcomponents-httpclient.imp.pkg.version.range}",
+                            org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
+                            org.apache.commons.codec.binary; version="${commons-codec.wso2.osgi.version.range}",
+                            org.apache.ws.security.*; version="{wss4j.ws.security.imp.pkg.version.range}",
+                            org.apache.xml.security.encryption; version="{wss4j.xml.security.imp.pkg.version.range}",
+
+                            org.wso2.carbon.ui;version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.utils;version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.utils.multitenancy;version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.core.util; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.authenticator.stub; version="{carbon.kernel.package.import.version.range}",
+
+                            org.wso2.carbon.base; version="${carbon.base.imp.pkg.version.range}",
+
+                            org.wso2.carbon.identity.base; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.relyingparty.stub.*;
+                            version="${carbon.identity.package.import.version.range}",
                         </Import-Package>
                         <Export-Package>
                             org.wso2.carbon.identity.relyingparty.ui.*;
+                            version="${carbon.identity.package.export.version}",
                         </Export-Package>
                         <Carbon-Component>UIBundle</Carbon-Component>
                         <Embed-Dependency>httpclient;scope=compile|runtime</Embed-Dependency>
-                        <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>
