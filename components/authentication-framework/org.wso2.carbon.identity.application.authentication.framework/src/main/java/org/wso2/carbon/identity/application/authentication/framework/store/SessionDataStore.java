@@ -20,13 +20,17 @@ package org.wso2.carbon.identity.application.authentication.framework.store;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.application.authentication.framework.cache.SessionContextCacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.SequenceConfig;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.user.core.UserStoreConfigConstants;
 
 import java.io.*;
 import java.sql.*;
+import java.util.*;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -45,9 +49,18 @@ public class SessionDataStore {
     private static final String SQL_DELETE_SERIALIZED_OBJECT = "DELETE FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID = ? AND SESSION_TYPE=?";
     private static final String SQL_DELETE_SERIALIZED_OBJECT_TASK = "DELETE FROM IDN_AUTH_SESSION_STORE WHERE TIME_CREATED<?";
     private static final String SQL_SELECT_TIME_CREATED = "SELECT TIME_CREATED FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID =? AND SESSION_TYPE =?";
+    private static final String SQL_SELECT_LOGGED_IN_SESSION_IDS = "SELECT * FROM IDN_AUTH_SESSION_STORE AS a JOIN USER_SESSION_DATA AS b ON a.SESSION_ID = b.SESSION_ID " +
+                                                                 "WHERE a.SESSION_TYPE=? AND b.TENANT_NAME =?";
+    private static final String SQL_SELECT_SESSION_IDS_BY_USERNAME = "SELECT * FROM IDN_AUTH_SESSION_STORE AS a JOIN USER_SESSION_DATA AS b ON a.SESSION_ID = b.SESSION_ID" +
+            " WHERE a.SESSION_TYPE=? AND b.TENANT_NAME =? AND b.USER_DOMAIN_NAME =? AND b.USER_NAME   =?";
+    private static final String SQL_INSERT_USER_SESSION_DATA = "INSERT INTO USER_SESSION_DATA(SESSION_ID,USER_NAME,USER_DOMAIN_NAME,TENANT_NAME,LAST_UPDATED_TIME) VALUES (?, ?, ?, ?,?)";
+    private static final String SQL_SELECT_SESSION_IDS_MAPPED_TO_USER_NAME="SELECT SESSION_ID FROM USER_SESSION_DATA WHERE USER_NAME=? AND USER_DOMAIN_NAME=? AND TENANT_NAME=?";
+
     private static int maxPoolSize = 100;
     private static BlockingDeque<SessionContextDO> sessionContextQueue = new LinkedBlockingDeque<SessionContextDO>();
     private static Log log = LogFactory.getLog(SessionDataStore.class);
+    private static final String SESSION_CONTEXT_CACHE_NAME = "AppAuthFrameworkSessionContextCache";
+
     static {
 
         try {
@@ -208,7 +221,7 @@ public class SessionDataStore {
 
     public void storeSessionData(String key, String type, Object entry) {
 
-        if (!enablePersist) {
+       if (!enablePersist) {
             return;
         }
 
@@ -307,17 +320,26 @@ public class SessionDataStore {
         return false;
     }
 
+    /**
+     * Store Session data if SessionDataPersist is enable.
+     * @param key String.
+     * @param type String.
+     * @param entry Object.
+     */
     public void persistSessionData(String key, String type, Object entry) {
-
         if (!enablePersist) {
             return;
         }
-
         boolean isExist = isExist(key, type);
-
+        boolean IsLoggedIn = false;
+        String userName = "";
+        String tenantDomainName = "";
+        String userStoreDomain = "";
 
         Connection connection = null;
+        Connection usdConnection = null;
         PreparedStatement preparedStatement = null;
+        PreparedStatement usdPreparedStatement = null;
         ResultSet resultSet = null;
         Timestamp timestamp = new java.sql.Timestamp(new java.util.Date().getTime());
         try {
@@ -345,9 +367,41 @@ public class SessionDataStore {
                 preparedStatement.setString(2, type);
                 setBlobObject(preparedStatement, entry, 3);
                 preparedStatement.setTimestamp(4, timestamp);
+                usdConnection = jdbcPersistenceManager.getDBConnection();
+                usdConnection.setAutoCommit(false);
+                if (SESSION_CONTEXT_CACHE_NAME.equalsIgnoreCase(type)) {
+                    IsLoggedIn = true;
+                    usdPreparedStatement = usdConnection.prepareStatement(SQL_INSERT_USER_SESSION_DATA);
+                    usdPreparedStatement.setString(1, key);
+                    usdPreparedStatement.setString(1,key);
+                    if(entry instanceof SessionContextCacheEntry) {
+                        Set<Map.Entry<String, SequenceConfig>> sessions = ((SessionContextCacheEntry) entry)
+                                .getContext().getAuthenticatedSequences().entrySet();
+                        for (Map.Entry<String, SequenceConfig> session : sessions) {
+                            userName = session.getValue().getAuthenticatedUser().getUserName();
+                            userStoreDomain = session.getValue().getAuthenticatedUser().getUserStoreDomain();
+                            tenantDomainName = session.getValue().getAuthenticatedUser().getTenantDomain();
+                            if (userStoreDomain != null) {
+                                if (userStoreDomain.length() < 1) {
+                                    userStoreDomain = UserStoreConfigConstants.PRIMARY;
+                                }
+                            } else {
+                                userStoreDomain = UserStoreConfigConstants.PRIMARY;
+                            }
+                        }
+                    }
+                    usdPreparedStatement.setString(2, userName);
+                    usdPreparedStatement.setString(3, userStoreDomain);
+                    usdPreparedStatement.setString(4, tenantDomainName);
+                    usdPreparedStatement.setTimestamp(5, timestamp);
+                }
             }
             preparedStatement.executeUpdate();
             connection.commit();
+            if (IsLoggedIn) {
+                usdPreparedStatement.executeUpdate();
+                usdConnection.commit();
+            }
         } catch (IdentityException e) {
             //ignore
             log.error("Error while storing session data", e);
@@ -364,6 +418,12 @@ public class SessionDataStore {
                 }
                 if (connection != null) {
                     connection.close();
+                }
+                if (usdPreparedStatement != null) {
+                    usdPreparedStatement.close();
+                }
+                if (usdConnection != null) {
+                    usdConnection.close();
                 }
             } catch (SQLException e) {
                 log.error("Error while closing the stream", e);
@@ -449,4 +509,192 @@ public class SessionDataStore {
         return null;
     }
 
+    /**
+     * Get all logged in sessionIds From Database.
+     * @param type String.
+     * @param tenantName String.
+     * @return cacheKey List.
+     */
+    public List<String> getLoggedInSessionIdsFromDb(String type, String tenantName) {
+        List<String> cacheKeyList = null;
+        if (!enablePersist) {
+            return cacheKeyList;
+        }
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet;
+        try {
+            cacheKeyList = new ArrayList<String>();
+            connection = jdbcPersistenceManager.getDBConnection();
+            connection.setAutoCommit(false);
+            preparedStatement = connection.prepareStatement(SQL_SELECT_LOGGED_IN_SESSION_IDS);
+            preparedStatement.setString(1, type);
+            preparedStatement.setString(2, tenantName);
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                cacheKeyList.add(resultSet.getString(1));
+            }
+        } catch (IdentityException e) {
+            //ignore
+            log.error("Error while getting session data", e);
+        } catch (SQLException e) {
+            //ignore
+            log.error("Error while getting session data", e);
+        } finally {
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                log.error("Error while closing the stream", e);
+            }
+        }
+        return cacheKeyList;
+    }
+
+    /**
+     * Get all logged in sessionIds From Database.
+     *
+     * @param type String.
+     * @return cacheKey List.
+     */
+    public List<String> getSessionIdsFromDbByUserName(String type, String tenantName, String userName, String userDomain) {
+        List<String> cacheKeyList = null;
+        if (!enablePersist) {
+            return cacheKeyList;
+        }
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet;
+        try {
+            cacheKeyList = new ArrayList<String>();
+            connection = jdbcPersistenceManager.getDBConnection();
+            connection.setAutoCommit(false);
+            preparedStatement = connection.prepareStatement(SQL_SELECT_SESSION_IDS_BY_USERNAME);
+            preparedStatement.setString(1, type);
+            preparedStatement.setString(2, tenantName);
+            preparedStatement.setString(3, userDomain);
+            preparedStatement.setString(4, userName);
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                cacheKeyList.add(resultSet.getString(1));
+            }
+        } catch (IdentityException e) {
+            //ignore
+            log.error("Error while getting session data", e);
+        } catch (SQLException e) {
+            //ignore
+            log.error("Error while getting session data", e);
+        } finally {
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                log.error("Error while closing the stream", e);
+            }
+        }
+        return cacheKeyList;
+    }
+
+    /**
+     * Get Session Created Time.
+     *
+     * @param key  String.
+     * @param type String.
+     * @return sessionCreatedTimeStamp.
+     */
+    public Timestamp getSessionCreatedTime(String key, String type) {
+        Timestamp timestamp = null;
+        if (!enablePersist) {
+            return timestamp;
+        }
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+            connection = jdbcPersistenceManager.getDBConnection();
+            connection.setAutoCommit(false);
+            preparedStatement = connection.prepareStatement(SQL_SELECT_TIME_CREATED);
+            preparedStatement.setString(1, key);
+            preparedStatement.setString(2, type);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                timestamp = resultSet.getTimestamp(1);
+            }
+        } catch (IdentityException e) {
+            //ignore
+            log.error("Error while getting session data", e);
+        } catch (SQLException e) {
+            //ignore
+            log.error("Error while getting session data", e);
+        } finally {
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                log.error("Error while closing the stream", e);
+            }
+        }
+        return timestamp;
+    }
+
+    /**
+     * Get SessionIds for a given user name.
+     *
+     * @param userName        String.
+     * @param tenantDomain    String.
+     * @param userStoreDomain String.
+     * @return sessionIdsList.
+     */
+    public List<String> getSessionIdsForUserName(String userName, String tenantDomain, String userStoreDomain) {
+        List<String> sessionIdsList = null;
+        if (!enablePersist) {
+            return sessionIdsList;
+        }
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+            sessionIdsList = new ArrayList<String>();
+            connection = jdbcPersistenceManager.getDBConnection();
+            connection.setAutoCommit(false);
+            preparedStatement = connection.prepareStatement(SQL_SELECT_SESSION_IDS_MAPPED_TO_USER_NAME);
+            preparedStatement.setString(1, userName);
+            preparedStatement.setString(2, userStoreDomain);
+            preparedStatement.setString(3, tenantDomain);
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                sessionIdsList.add(resultSet.getString(1));
+            }
+        } catch (IdentityException e) {
+            //ignore
+            log.error("Error while getting session data", e);
+        } catch (SQLException e) {
+            //ignore
+            log.error("Error while getting session data", e);
+        } finally {
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                log.error("Error while closing the stream", e);
+            }
+        }
+        return sessionIdsList;
+    }
 }

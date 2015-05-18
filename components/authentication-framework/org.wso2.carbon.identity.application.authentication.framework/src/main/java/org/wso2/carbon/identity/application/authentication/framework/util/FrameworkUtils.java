@@ -54,10 +54,7 @@ import org.wso2.carbon.identity.application.authentication.framework.handler.seq
 import org.wso2.carbon.identity.application.authentication.framework.handler.step.StepHandler;
 import org.wso2.carbon.identity.application.authentication.framework.handler.step.impl.DefaultStepHandler;
 import org.wso2.carbon.identity.application.authentication.framework.internal.FrameworkServiceComponent;
-import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedIdPData;
-import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationFrameworkWrapper;
-import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
-import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
+import org.wso2.carbon.identity.application.authentication.framework.model.*;
 import org.wso2.carbon.identity.application.common.model.*;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -70,12 +67,14 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.Map.Entry;
 
 public class FrameworkUtils {
 
     private static int maxInactiveInterval;
+
 
     private static Log log = LogFactory.getLog(FrameworkUtils.class);
 
@@ -554,6 +553,8 @@ public class FrameworkUtils {
         }
 
         cacheEntry.setContext(sessionContext);
+        Timestamp sessionCreatedTime = new java.sql.Timestamp(new java.util.Date().getTime());
+        cacheEntry.setLoggedInTime(sessionCreatedTime);
         SessionContextCache.getInstance(cacheTimeout).addToCache(cacheKey, cacheEntry);
     }
 
@@ -570,7 +571,6 @@ public class FrameworkUtils {
         if (cacheEntryObj != null) {
             sessionContext = ((SessionContextCacheEntry) cacheEntryObj).getContext();
         }
-
         return sessionContext;
     }
 

@@ -21,12 +21,15 @@ package org.wso2.carbon.identity.application.authentication.framework.cache;
 import org.wso2.carbon.identity.application.authentication.framework.context.SessionContext;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 
+import java.sql.Timestamp;
+
 public class SessionContextCacheEntry extends CacheEntry {
 
     private static final long serialVersionUID = 42165605438157753L;
 
     SessionContext context;
     String loggedInUser;
+    Timestamp loggedInTime;
 
     public String getLoggedInUser() {
         return loggedInUser;
@@ -42,5 +45,13 @@ public class SessionContextCacheEntry extends CacheEntry {
 
     public void setContext(SessionContext context) {
         this.context = context;
+    }
+
+    public Timestamp getLoggedInTime() {
+        return loggedInTime;
+    }
+
+    public void setLoggedInTime(Timestamp loggedInTime) {
+        this.loggedInTime = loggedInTime;
     }
 }
