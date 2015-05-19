@@ -65,7 +65,6 @@
         <module>components/security</module>
         <module>components/sts</module>
         <module>components/captcha-mgt</module>
-        <module>components/tenant-mgt</module>
         <module>features/security-mgt</module>
         <module>features/authenticators</module>
         <module>features/claim-management</module>
