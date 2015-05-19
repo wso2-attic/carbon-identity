@@ -132,7 +132,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
             throws OAuthSystemException {
 
         Map<ClaimMapping, String> userAttributes =
-                getUserAttributesFromCache(requestMsgCtx.getProperty("accessToken").toString());
+                getUserAttributesFromCache(requestMsgCtx.getProperty(OAuthConstants.ACCESS_TOKEN).toString());
         Map<String, Object> claims = Collections.EMPTY_MAP;
 
         // If subject claim uri is null, we get the actual user name of the logged in user.

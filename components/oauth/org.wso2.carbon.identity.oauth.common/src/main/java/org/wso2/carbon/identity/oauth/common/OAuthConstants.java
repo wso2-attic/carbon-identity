@@ -70,6 +70,7 @@ public final class OAuthConstants {
     public static String OAUTH_IWA_NTLM_GRANT_ENUM = "IWA_NTLM";
     // OAuth client authenticator properties
     public static final String CLIENT_AUTH_CREDENTIAL_VALIDATION = "StrictClientCredentialValidation";
+    public static final String ACCESS_TOKEN = "accessToken";
 
     public static class OAuthVersions {
         public static final String VERSION_1A = "OAuth-1.0a";
