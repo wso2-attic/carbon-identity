@@ -49,10 +49,10 @@
             <groupId>slf4j.wso2</groupId>
             <artifactId>slf4j</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.authentication</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.wso2.carbon.identity</groupId>-->
+            <!--<artifactId>org.wso2.carbon.identity.authentication</artifactId>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.thrift.authentication</artifactId>
@@ -110,7 +110,6 @@
                             <bundles>
                                 <bundleDef>libthrift.wso2:libthrift</bundleDef>
                                 <bundleDef>slf4j.wso2:slf4j</bundleDef>
-                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.authentication</bundleDef>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.thrift.authentication
                                 </bundleDef>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.entitlement
