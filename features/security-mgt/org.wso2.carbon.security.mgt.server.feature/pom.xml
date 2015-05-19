@@ -110,6 +110,7 @@
                             </adviceFile>
                             <bundles>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.security.mgt</bundleDef>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.base</bundleDef>
                                 <bundleDef>org.apache.rampart.wso2:rampart-policy</bundleDef>
                                 <bundleDef>org.apache.rampart.wso2:rampart-core</bundleDef>
                                 <bundleDef>org.apache.rampart.wso2:rampart-trust</bundleDef>
