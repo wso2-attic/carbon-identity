@@ -26,7 +26,6 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.identity.authentication.AuthenticationService;
 import org.wso2.carbon.identity.thrift.authentication.AuthenticatorServlet;
 import org.wso2.carbon.identity.thrift.authentication.TCPThriftAuthenticationService;
 import org.wso2.carbon.identity.thrift.authentication.ThriftAuthenticatorService;
@@ -49,9 +48,6 @@ import java.util.Hashtable;
  * @scr.component name="org.wso2.carbon.identity.thrift.authentication.internal.ThriftAuthenticationServiceComponent" immediate="true"
  * @scr.reference name="http.service" interface="org.osgi.service.http.HttpService"
  * cardinality="1..1" policy="dynamic" bind="setHttpService" unbind="unsetHttpService"
- * @scr.reference name="org.wso2.carbon.identity.authentication.internal.AuthenticationServiceComponent"
- * interface="org.wso2.carbon.identity.authentication.AuthenticationService"
- * cardinality="1..1" policy="dynamic" bind="setAuthenticationService"  unbind="unsetAuthenticationService"
  * @scr.reference name="org.wso2.carbon.user.core"
  * interface="org.wso2.carbon.user.core.service.RealmService"
  * cardinality="1..1" policy="dynamic" bind="setRealmService" unbind="unsetRealmService"
@@ -66,7 +62,6 @@ public class ThriftAuthenticationServiceComponent {
 
     private static HttpService httpServiceInstance;
     private static RealmService realmServiceInstance;
-    private AuthenticationService authenticationService;
     private ServiceRegistration thriftAuthenticationService;
     private ConfigurationContextService configurationContext;
     private TCPThriftAuthenticationService TCPThriftAuthenticationService;
@@ -105,7 +100,7 @@ public class ThriftAuthenticationServiceComponent {
 
             //get an instance of this to register as an osgi service
             ThriftAuthenticatorServiceImpl thriftAuthenticatorServiceImpl =
-                    new ThriftAuthenticatorServiceImpl(new AuthenticationHandler(authenticationService), realmServiceInstance, thriftSessionDAO, thriftSessionTimeout);
+                    new ThriftAuthenticatorServiceImpl(realmServiceInstance, thriftSessionDAO, thriftSessionTimeout);
 
             //register as an osgi service
             thriftAuthenticationService = compCtx.getBundleContext().registerService(
@@ -142,15 +137,6 @@ public class ThriftAuthenticationServiceComponent {
     protected void unsetHttpService(HttpService httpService) {
 
         httpServiceInstance = null;
-    }
-
-    protected void setAuthenticationService(AuthenticationService authService) {
-
-        authenticationService = authService;
-    }
-
-    protected void unsetAuthenticationService(AuthenticationService authService) {
-        authenticationService = null;
     }
 
     protected void setRealmService(RealmService realmService) {
