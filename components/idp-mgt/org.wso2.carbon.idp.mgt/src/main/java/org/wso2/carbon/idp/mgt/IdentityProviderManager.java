@@ -105,10 +105,12 @@ public class IdentityProviderManager {
             tenantContext = MultitenantConstants.TENANT_AWARE_URL_PREFIX + "/" + tenantDomain + "/";
         }
 
-        String hostName;
+        String hostName = ServerConfiguration.getInstance().getFirstProperty("HostName");
 
         try {
-            hostName = NetworkUtils.getLocalHostname();
+            if (hostName == null) {
+                hostName = NetworkUtils.getLocalHostname();
+            }
         } catch (SocketException e) {
             throw new IdentityApplicationManagementException("Error while trying to read hostname.", e);
         }
