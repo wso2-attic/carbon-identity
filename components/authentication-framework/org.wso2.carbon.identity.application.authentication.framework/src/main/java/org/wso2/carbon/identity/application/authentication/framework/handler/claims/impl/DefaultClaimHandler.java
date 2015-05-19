@@ -411,8 +411,12 @@ public class DefaultClaimHandler implements ClaimHandler {
         * TODO: Should use Map<String, List<String>> in future for claim mapping
         * */
         if (!spRequestedClaims.isEmpty()) {
+            String domain = authenticatedUser.getUserStoreDomain();
+            if(StringUtils.isBlank(domain)){
+                domain = "PRIMARY";
+            }
             RealmConfiguration realmConfiguration = ((org.wso2.carbon.user.core.UserStoreManager) userStore)
-                    .getSecondaryUserStoreManager(authenticatedUser.getUserStoreDomain()).getRealmConfiguration();
+                    .getSecondaryUserStoreManager(domain).getRealmConfiguration();
 
             String claimSeparator = realmConfiguration.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
             if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
