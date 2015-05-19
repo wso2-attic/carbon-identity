@@ -35,17 +35,17 @@
     <url>http://wso2.org</url>
 
     <modules>
-        <module>org.wso2.carbon.identity.provider.ui</module>
+        <!--<module>org.wso2.carbon.identity.provider.ui</module>-->
         <!--module>org.wso2.carbon.identity.provider.openid</module-->
-        <module>org.wso2.carbon.identity.user.registration.ui</module>
-        <module>org.wso2.carbon.identity.relyingparty.ui</module>
-        <module>org.wso2.carbon.identity.authorization.core</module>
-        <module>org.wso2.carbon.identity.authorization.ui</module>
-        <module>org.wso2.carbon.identity.entitlement.pep.agent</module>
+        <!--<module>org.wso2.carbon.identity.user.registration.ui</module>-->
+        <!--<module>org.wso2.carbon.identity.relyingparty.ui</module>-->
+        <!--<module>org.wso2.carbon.identity.authorization.core</module>-->
+        <!--<module>org.wso2.carbon.identity.authorization.ui</module>-->
+        <!--<module>org.wso2.carbon.identity.entitlement.pep.agent</module>-->
         <!--module>org.wso2.carbon.identity.entitlement.mediator</module-->
         <!--module>org.wso2.carbon.identity.sso.agent</module-->
-        <module>org.wso2.carbon.identity.provider.openid.admin</module>
-        <module>org.wso2.carbon.identity.provider.openid.admin.ui</module>
+        <!--<module>org.wso2.carbon.identity.provider.openid.admin</module>-->
+        <!--<module>org.wso2.carbon.identity.provider.openid.admin.ui</module>-->
         <!--module>org.wso2.carbon.identity.oauth.mediator</module-->
         <module>org.wso2.carbon.identity.authentication</module>
         <!--module>org.wso2.carbon.identity.sts</module-->

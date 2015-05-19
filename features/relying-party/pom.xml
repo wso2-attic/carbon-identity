@@ -32,9 +32,9 @@
     <url>http://wso2.org</url>
 
     <modules>
-        <module>org.wso2.carbon.identity.relying.party.ui.feature</module>
+        <!--<module>org.wso2.carbon.identity.relying.party.ui.feature</module>-->
         <module>org.wso2.carbon.identity.relying.party.server.feature</module>
-        <module>org.wso2.carbon.identity.relying.party.feature</module>
+        <!--<module>org.wso2.carbon.identity.relying.party.feature</module>-->
     </modules>
 
 </project>

@@ -39,11 +39,11 @@
         <module>org.wso2.carbon.identity.authenticator.saml2.sso.stub</module>
         <module>org.wso2.carbon.identity.authenticator.token.stub</module>
         <module>org.wso2.carbon.identity.authenticator.webseal.stub</module>
-        <module>org.wso2.carbon.identity.authorization.stub</module>
+        <!--<module>org.wso2.carbon.identity.authorization.stub</module>-->
         <module>org.wso2.carbon.identity.entitlement.stub</module>
         <module>org.wso2.carbon.identity.mgt.stub</module>
         <module>org.wso2.carbon.identity.oauth.stub</module>
-        <module>org.wso2.carbon.identity.provider.openid.admin.stub</module>
+        <!--<module>org.wso2.carbon.identity.provider.openid.admin.stub</module>-->
         <module>org.wso2.carbon.identity.provider.openid.stub</module>
         <module>org.wso2.carbon.identity.provider.stub</module>
         <module>org.wso2.carbon.identity.relyingparty.stub</module>
