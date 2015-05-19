@@ -41,8 +41,10 @@ import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.utils.NetworkUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import java.net.SocketException;
 import java.security.KeyStore;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -102,7 +104,15 @@ public class IdentityProviderManager {
         if (!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equalsIgnoreCase(tenantDomain)) {
             tenantContext = MultitenantConstants.TENANT_AWARE_URL_PREFIX + "/" + tenantDomain + "/";
         }
-        String hostName = ServerConfiguration.getInstance().getFirstProperty("HostName");
+
+        String hostName;
+
+        try {
+            hostName = NetworkUtils.getLocalHostname();
+        } catch (SocketException e) {
+            throw new IdentityApplicationManagementException("Error while trying to read hostname.", e);
+        }
+
         String mgtTransport = CarbonUtils.getManagementTransport();
         AxisConfiguration axisConfiguration = IdPManagementServiceComponent
                 .getConfigurationContextService().getServerConfigContext().getAxisConfiguration();
