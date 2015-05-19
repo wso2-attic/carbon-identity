@@ -17,23 +17,37 @@
   -->
 
 <component xmlns="http://products.wso2.org/carbon">
-    <!-- sample menu configuration -->
     <menus>
         <menu>
-            <id>configure_workflow_menu</id>
-            <i18n-key>workflow.mgt</i18n-key>
+            <id>workflow_mgt_menu</id>
+            <i18n-key>workflow.parent</i18n-key>
             <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
-            <parent-menu>configure_menu</parent-menu>
+            <parent-menu></parent-menu>
             <link>#</link>
             <region>region1</region>
-            <order>50</order>
+            <order>3</order>
             <style-class>manage</style-class>
             <!--<icon>../tools-saml/images/lock_blue.png</icon>-->
             <require-permission>/permission/admin/configure/security</require-permission>
         </menu>
+
+        <!--Workflow management menu-->
         <menu>
-            <id>workflow_services_add_menu</id>
-            <i18n-key>workflow.service.add</i18n-key>
+            <id>configure_workflow_menu</id>
+            <i18n-key>workflow.mgt</i18n-key>
+            <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
+            <parent-menu>workflow_mgt_menu</parent-menu>
+            <link>#</link>
+            <region>region1</region>
+            <order>1</order>
+            <style-class>manage</style-class>
+            <!--<icon>../tools-saml/images/lock_blue.png</icon>-->
+            <require-permission>/permission/admin/configure/security</require-permission>
+        </menu>
+
+        <menu>
+            <id>workflow_add_menu</id>
+            <i18n-key>add</i18n-key>
             <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
             <parent-menu>configure_workflow_menu</parent-menu>
             <link>../workflow-mgt/add-service.jsp</link>
@@ -46,12 +60,51 @@
         </menu>
         <menu>
             <id>workflow_services_list_menu</id>
-            <i18n-key>workflow.service.list</i18n-key>
+            <i18n-key>list</i18n-key>
             <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
             <parent-menu>configure_workflow_menu</parent-menu>
             <link>../workflow-mgt/list-services.jsp</link>
             <region>region1</region>
+            <order>2</order>
+            <style-class>manage</style-class>
+            <!--TODO change icon-->
+            <!--<icon>../workflow-mgt/images/claimmgt.gif</icon>-->
+            <require-permission>/permission/admin/configure/security</require-permission>
+        </menu>
+
+        <menu>
+            <id>bps_profiles_menu</id>
+            <i18n-key>workflow.bps.profiles</i18n-key>
+            <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
+            <parent-menu>workflow_mgt_menu</parent-menu>
+            <link>#</link>
+            <region>region1</region>
             <order>1</order>
+            <style-class>manage</style-class>
+            <!--<icon>../tools-saml/images/lock_blue.png</icon>-->
+            <require-permission>/permission/admin/configure/security</require-permission>
+        </menu>
+        <menu>
+            <id>bps_profiles_add_menu</id>
+            <i18n-key>add</i18n-key>
+            <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
+            <parent-menu>bps_profiles_menu</parent-menu>
+            <link>../workflow-mgt/add-bps-profile.jsp</link>
+            <region>region1</region>
+            <order>1</order>
+            <style-class>manage</style-class>
+            <!--TODO change icon-->
+            <!--<icon>../workflow-mgt/images/claimmgt.gif</icon>-->
+            <require-permission>/permission/admin/configure/security</require-permission>
+        </menu>
+        <menu>
+            <id>bps_profiles_list_menu</id>
+            <i18n-key>list</i18n-key>
+            <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
+            <parent-menu>bps_profiles_menu</parent-menu>
+            <link>../workflow-mgt/list-bps-profiles.jsp</link>
+            <region>region1</region>
+            <order>2</order>
             <style-class>manage</style-class>
             <!--TODO change icon-->
             <!--<icon>../workflow-mgt/images/claimmgt.gif</icon>-->
