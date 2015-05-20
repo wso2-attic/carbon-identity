@@ -27,8 +27,10 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceStub;
 import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.ServiceAssociationDTO;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDTO;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateImplDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.WSServiceBean;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventBean;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventDTO;
 
 import java.rmi.RemoteException;
 
@@ -70,7 +72,7 @@ public class WorkflowAdminServiceClient {
         stub.associateWSServiceToEvent(serviceAlias, eventType, condition, priority);
     }
 
-    public WorkflowEventBean[] listWorkflowEvents() throws RemoteException {
+    public WorkflowEventDTO[] listWorkflowEvents() throws RemoteException {
         return stub.listWorkflowEvents();
     }
 
@@ -81,5 +83,17 @@ public class WorkflowAdminServiceClient {
     public void removeService(String alias, String event) throws RemoteException,
             WorkflowAdminServiceWorkflowException {
         stub.removeWSService(alias, event);
+    }
+
+    public String[] listTemplates() throws RemoteException {
+        return  stub.listWorkflowTemplates();
+    }
+
+    public TemplateDTO getTemplate(String templateName) throws RemoteException {
+        return stub.getTemplateDTO(templateName);
+    }
+
+    public TemplateImplDTO getTemplateImpDTO(String template, String implName) throws RemoteException {
+        return stub.getTemplateImplDTO(template, implName);
     }
 }

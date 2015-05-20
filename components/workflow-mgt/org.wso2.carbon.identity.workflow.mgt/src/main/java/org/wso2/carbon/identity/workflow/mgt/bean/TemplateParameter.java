@@ -18,24 +18,32 @@
 
 package org.wso2.carbon.identity.workflow.mgt.bean;
 
-public class WorkflowEventBean {
+public class TemplateParameter {
+    private String paramName;
+    private String paramType;
+    private boolean mandatory;
 
-    private String eventName;
-    private WorkflowEventParameterBean[] parameters;
-
-    public String getEventName() {
-        return eventName;
+    public String getParamName() {
+        return paramName;
     }
 
-    public void setEventName(String eventName) {
-        this.eventName = eventName;
+    public void setParamName(String paramName) {
+        this.paramName = paramName;
     }
 
-    public WorkflowEventParameterBean[] getParameters() {
-        return parameters;
+    public String getParamType() {
+        return paramType;
     }
 
-    public void setParameters(WorkflowEventParameterBean[] parameters) {
-        this.parameters = parameters;
+    public void setParamType(String paramType) {
+        this.paramType = paramType;
+    }
+
+    public boolean isMandatory() {
+        return mandatory;
+    }
+
+    public void setMandatory(boolean mandatory) {
+        this.mandatory = mandatory;
     }
 }

@@ -50,7 +50,7 @@
             <i18n-key>add</i18n-key>
             <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
             <parent-menu>configure_workflow_menu</parent-menu>
-            <link>../workflow-mgt/add-service.jsp</link>
+            <link>../workflow-mgt/add-workflow.jsp</link>
             <region>region1</region>
             <order>1</order>
             <style-class>manage</style-class>
@@ -79,7 +79,7 @@
             <parent-menu>workflow_mgt_menu</parent-menu>
             <link>#</link>
             <region>region1</region>
-            <order>1</order>
+            <order>2</order>
             <style-class>manage</style-class>
             <!--<icon>../tools-saml/images/lock_blue.png</icon>-->
             <require-permission>/permission/admin/configure/security</require-permission>

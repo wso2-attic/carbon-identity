@@ -18,23 +18,23 @@
 
 package org.wso2.carbon.identity.workflow.mgt.bean;
 
-public class WorkflowEventParameterBean {
-    private String parameterName;
-    private String parameterType;
+public class WorkflowEventParameter {
+    private String name;
+    private String value;
 
-    public String getParameterName() {
-        return parameterName;
+    public String getName() {
+        return name;
     }
 
-    public void setParameterName(String parameterName) {
-        this.parameterName = parameterName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getParameterType() {
-        return parameterType;
+    public String getValue() {
+        return value;
     }
 
-    public void setParameterType(String parameterType) {
-        this.parameterType = parameterType;
+    public void setValue(String value) {
+        this.value = value;
     }
 }

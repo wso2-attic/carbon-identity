@@ -117,8 +117,8 @@
         }
         function removeAssociation(alias, event) {
             location.href = 'service-condition.jsp?<%=WorkflowUIConstants.PARAM_ACTION%>=' +
-            '<%=WorkflowUIConstants.ACTION_VALUE_DELETE%>&<%=WorkflowUIConstants.PARAM_SERVICE_ALIAS%>=' + alias +
-            '&<%=WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_EVENT%>=' + event;
+            '<%=WorkflowUIConstants.ACTION_VALUE_DELETE%>&<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>=' + alias +
+            '&<%=WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION%>=' + event;
         }
     </script>
 

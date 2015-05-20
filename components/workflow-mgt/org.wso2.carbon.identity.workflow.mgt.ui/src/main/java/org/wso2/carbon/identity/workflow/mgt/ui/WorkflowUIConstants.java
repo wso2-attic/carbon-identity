@@ -29,10 +29,11 @@ public class WorkflowUIConstants {
     public static final String ACTION_VALUE_DEPLOY = "deploy";
     public static final String ACTION_VALUE_DELETE = "delete";
 
-    public static final String PARAM_SERVICE_ALIAS = "serviceAlias";
-    public static final String PARAM_SERVICE_TEMPLATE = "serviceTemplate";
+    public static final String PARAM_WORKFLOW_NAME = "workflowName";
+    public static final String PARAM_TEMPLATE_IMPL = "templateImpl";
+    public static final String PARAM_WORKFLOW_TEMPLATE = "workflowTemplate";
     public static final String VALUE_EXISTING_SERVICE = "EXISTING";
-    public static final String PARAM_SERVICE_ASSOCIATION_EVENT = "event";
+    public static final String PARAM_ASSOCIATED_OPERATION = "operation";
 
     public static final String PARAM_SERVICE_EPR = "serviceEPR";
     public static final String PARAM_SERVICE_ACTION = "serviceAction";
@@ -52,10 +53,11 @@ public class WorkflowUIConstants {
     public static final String PARAM_PAGE_NUMBER = "pageNumber";
     public static final int SERVICES_PER_PAGE = 20;
 
-    public static final Map<String,String> TEMPLATE_MAP;
-
-    static {
-        TEMPLATE_MAP = new HashMap<>();
-        TEMPLATE_MAP.put("simple-approval", "Simple Approval");
+    public static class ParamTypes{
+        public static final String BOOLEAN = "BOOLEAN";
+        public static final String INTEGER = "INTEGER";
+        public static final String DOUBLE = "DOUBLE";
+        public static final String STRING = "STRING";
+        public static final String PASSWORD = "PASSWORD";
     }
 }
