@@ -50,7 +50,7 @@
                             javax.xml.namespace,
                             javax.xml.stream,
 
-                            <!--org.slf4j; version="${org.slf4j.imp.pkg.version.range}",-->
+                            org.slf4j; version="${org.slf4j.imp.pkg.version.range}",
 
                             org.apache.axiom.*; version="${axiom.osgi.version.range}",
                             org.apache.log4j; version="${carbon.logging.imp.pkg.version.range}",
