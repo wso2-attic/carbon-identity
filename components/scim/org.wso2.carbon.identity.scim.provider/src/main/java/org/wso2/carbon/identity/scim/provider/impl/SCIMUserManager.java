@@ -226,7 +226,7 @@ public class SCIMUserManager implements UserManager {
                     if (userName.contains(UserCoreConstants.NAME_COMBINER)) {
                         userName = userName.split("\\" + UserCoreConstants.NAME_COMBINER)[0];
                     }
-                    User scimUser = this.getSCIMUserOnlyWithMetaAttributes(userName);
+                    User scimUser = this.getSCIMMetaUser(userName);
                     Map<String, Attribute> attrMap = scimUser.getAttributeList();
                     if (attrMap != null && !attrMap.isEmpty()) {
                         users.add(scimUser);
@@ -283,7 +283,7 @@ public class SCIMUserManager implements UserManager {
                     if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userName)) {
                         continue;
                     }
-                    scimUser = this.getSCIMUserOnlyWithMetaAttributes(userName);
+                    scimUser = this.getSCIMMetaUser(userName);
                     //if SCIM-ID is not present in the attributes, skip
                     if (scimUser.getId() == null) {
                         continue;
@@ -981,7 +981,7 @@ public class SCIMUserManager implements UserManager {
         }
     }
 
-    private User getSCIMUserOnlyWithMetaAttributes(String userName) throws CharonException{
+    private User getSCIMMetaUser(String userName) throws CharonException{
 
         List<String> claimURIList = new ArrayList<String>();
         claimURIList.add(SCIMConstants.ID_URI);
