@@ -54,7 +54,6 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
             prepStmt.setInt(2, recoveryDataDO.getTenantId());
             prepStmt.setString(3, recoveryDataDO.getCode());
             prepStmt.execute();
-            connection.setAutoCommit(false);
             connection.commit();
         } catch (SQLException e) {
             throw new IdentityException("Error while storing user identity data", e);
@@ -76,7 +75,6 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
             prepStmt = connection.prepareStatement(SQLQuery.INVALIDATE_METADATA);
             prepStmt.setString(1, userId);
             prepStmt.setInt(2, tenant);
-            connection.setAutoCommit(false);
             connection.commit();
         } catch (SQLException e) {
             throw new IdentityException("Error while invalidating user identity data", e);
@@ -173,6 +171,7 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
                         results.getString(3), results.getString(4)));
             }
             UserRecoveryDataDO[] resultMetadata = new UserRecoveryDataDO[metada.size()];
+            connection.commit();
             return metada.toArray(resultMetadata);
         } catch (SQLException e) {
             throw new IdentityException("Error while reading user identity data", e);

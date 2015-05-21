@@ -636,6 +636,7 @@ public class UserProfileAdmin extends AbstractAdmin {
                 if(!"PRIMARY".equals(domainName)) {
                     username = domainName + CarbonConstants.DOMAIN_SEPARATOR + username;
                 }
+                connection.commit();
                 return username;
             }
 
@@ -676,6 +677,7 @@ public class UserProfileAdmin extends AbstractAdmin {
             prepStmt.setInt(4, tenantID);
 
             resultSet = prepStmt.executeQuery();
+            connection.commit();
             while (resultSet.next()) {
                 associatedIDs.add(new AssociatedAccountDTO(resultSet.getString(1), resultSet.getString(2)));
             }

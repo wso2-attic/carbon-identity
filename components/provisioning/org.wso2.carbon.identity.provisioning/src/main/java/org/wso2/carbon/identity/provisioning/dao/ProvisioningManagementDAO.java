@@ -177,6 +177,7 @@ public class ProvisioningManagementDAO {
 
 
             ResultSet rs = prepStmt.executeQuery();
+            dbConnection.commit();
             if (rs.next()) {
                 String entityId = rs.getString(1);
                 ProvisionedIdentifier provisionedIdentifier = new ProvisionedIdentifier();
@@ -382,6 +383,7 @@ public class ProvisioningManagementDAO {
             if (rs.next()) {
                 return rs.getInt(1);
             }
+            dbConnection.commit();
         } catch (IdentityException e) {
             throw new IdentityApplicationManagementException("Error while reading Identity Provider by name.", e);
         } finally {

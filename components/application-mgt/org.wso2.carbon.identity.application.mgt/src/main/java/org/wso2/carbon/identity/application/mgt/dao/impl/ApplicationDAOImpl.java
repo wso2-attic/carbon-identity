@@ -1969,6 +1969,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                     }
                 }
             }
+            connection.commit();
         } catch (SQLException | IdentityException e) {
             throw new IdentityApplicationManagementException("Error while Reading all Applications");
         } finally {
@@ -2273,6 +2274,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             if (appNameResult.next()) {
                 applicationName = appNameResult.getString(1);
             }
+            connection.commit();
         } catch (SQLException | IdentityException e) {
             throw new IdentityApplicationManagementException("Error while reading application");
         } finally {
@@ -2331,7 +2333,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                     claimMapping.put(resultSet.getString(2), resultSet.getString(1));
                 }
             }
-
+            connection.commit();
         } catch (IdentityException e) {
             throw new IdentityApplicationManagementException("Error while reading claim mappings.", e);
         } finally {
@@ -2398,12 +2400,12 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             getClaimPreStmt.setString(1, CharacterEncoder.getSafeText(serviceProviderName));
             getClaimPreStmt.setInt(2, tenantID);
             resultSet = getClaimPreStmt.executeQuery();
-
             while (resultSet.next()) {
                 if ("1".equalsIgnoreCase(resultSet.getString(3))) {
                     reqClaimUris.add(resultSet.getString(1));
                 }
             }
+            connection.commit();
         } catch (SQLException | IdentityException e) {
             throw new IdentityApplicationManagementException(
                     "Error while retrieving requested claims", e);

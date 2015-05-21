@@ -106,6 +106,7 @@ public class IdPManagementDAO {
                     idps.add(identityProvider);
                 }
             }
+            dbConnection.commit();
             return idps;
         } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
@@ -996,6 +997,7 @@ public class IdPManagementDAO {
                         dbConnection, idPName, idpId, tenantId));
 
             }
+            dbConnection.commit();
             return federatedIdp;
         } catch (SQLException | IdentityException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
@@ -1145,6 +1147,7 @@ public class IdPManagementDAO {
                         dbConnection, idPName, idpId, tenantId));
 
             }
+            dbConnection.commit();
             return federatedIdp;
         } catch (SQLException | IdentityException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
@@ -1189,6 +1192,7 @@ public class IdPManagementDAO {
             IdentityApplicationManagementUtil.closeStatement(prepStmt);
             IdentityApplicationManagementUtil.closeResultSet(rs);
 
+            dbConnection.commit();
             return getIdPByName(dbConnection, idPName, tenantId, tenantDomain);
         } catch (SQLException | IdentityException e) {
             throw new IdentityApplicationManagementException(
@@ -1574,6 +1578,7 @@ public class IdPManagementDAO {
                     isReffered = rsProvIdp.getInt(1) > 0;
                 }
             }
+            dbConnection.commit();
         } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             String msg = "Error occurred while searching for IDP references in SP ";
@@ -1653,6 +1658,7 @@ public class IdPManagementDAO {
             prepStmt.setInt(1, tenantId);
             prepStmt.setString(2, "1");
             ResultSet rs = prepStmt.executeQuery();
+            dbConnection.commit();
             if (rs.next()) {
                 IdentityProvider identityProviderDO = new IdentityProvider();
                 identityProviderDO.setIdentityProviderName(rs.getString(1));
@@ -2357,6 +2363,7 @@ public class IdPManagementDAO {
             if (rs.next()) {
                 return rs.getInt(1);
             }
+            dbConnection.commit();
         } catch (IdentityException e) {
             throw new IdentityApplicationManagementException("Error occurred while reading Identity Provider by name" +
                                                              ".", e);
@@ -2459,6 +2466,7 @@ public class IdPManagementDAO {
             if (rs.next()) {
                 isAvailable = rs.getInt(1) > 0;
             }
+            dbConnection.commit();
         } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             String msg = "Error occurred while searching for similar IdP EntityIds";

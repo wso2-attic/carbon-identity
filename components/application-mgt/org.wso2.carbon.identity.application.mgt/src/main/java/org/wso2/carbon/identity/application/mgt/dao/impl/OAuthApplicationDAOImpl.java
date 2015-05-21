@@ -48,7 +48,6 @@ public class OAuthApplicationDAOImpl implements OAuthApplicationDAO {
             prepStmt.setString(1, clientIdentifier);
             prepStmt.execute();
             connection.commit();
-
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);

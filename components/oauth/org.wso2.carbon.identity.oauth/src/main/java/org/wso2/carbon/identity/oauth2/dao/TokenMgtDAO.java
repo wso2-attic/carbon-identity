@@ -323,9 +323,11 @@ public class TokenMgtDAO {
                     accessTokenDO.setAccessToken(accessToken);
                     accessTokenDO.setRefreshToken(refreshToken);
                     accessTokenDO.setTokenState(tokenState);
+                    connection.commit();
                     return accessTokenDO;
                 }
             }
+            connection.commit();
             return null;
         } catch (SQLException e) {
             String errorMsg = "Error occurred while trying to retrieve latest 'ACTIVE' " +
@@ -346,7 +348,7 @@ public class TokenMgtDAO {
 
         Set<AccessTokenDO> accessTokenDOs = new HashSet<AccessTokenDO>();
 
-        Connection connection = null;
+        Connection connection;
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
         } catch (IdentityException e) {
@@ -390,6 +392,7 @@ public class TokenMgtDAO {
 
                 accessTokenDOs.add(dataDO);
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance";
             throw new IdentityOAuth2Exception(errorMsg, e);
@@ -432,7 +435,7 @@ public class TokenMgtDAO {
                         OAuth2Util.buildScopeArray(scopeString),
                         issuedTime, validityPeriod, callbackUrl);
             }
-
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -562,7 +565,7 @@ public class TokenMgtDAO {
                         ("UTC"))));
                 validationDataDO.setValidityPeriodInMillis(resultSet.getLong(6));
             }
-
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -669,7 +672,7 @@ public class TokenMgtDAO {
                 dataDO.setAccessToken(accessTokenIdentifier);
                 dataDO.setRefreshToken(refreshToken);
             }
-
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance";
             throw new IdentityOAuth2Exception(errorMsg, e);
@@ -846,6 +849,7 @@ public class TokenMgtDAO {
             if (rs.next()) {
                 return rs.getString("SCOPE_KEY");
             }
+            connection.commit();
             return null;
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";

@@ -154,6 +154,7 @@ public class UserAccountAssociationDAO {
                     associationDTO.setTenantDomain(realmService.getTenantManager().getDomain(conUserTenantId));
                     accountAssociations.add(associationDTO);
                 }
+                dbConnection.commit();
             } catch (SQLException e) {
                 throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                         .CONN_DELETE_DB_ERROR.getDescription(), e);
@@ -200,6 +201,7 @@ public class UserAccountAssociationDAO {
             if (resultSet.next()) {
                 associationKey = resultSet.getString(1);
             }
+            dbConnection.commit();
         } catch (SQLException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                     .ERROR_WHILE_RETRIEVING_ASSOC_KEY.getDescription
@@ -274,6 +276,7 @@ public class UserAccountAssociationDAO {
             if (resultSet.next()) {
                 valid = resultSet.getInt(1) > 0;
             }
+            dbConnection.commit();
         } catch (SQLException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                     .CHECK_ASSOCIATION_DB_ERROR.getDescription(), e);

@@ -98,10 +98,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
                 return true;
             }
             connection.commit();
-        } catch (SQLException e) {
-            log.error("Error while retrieving user identity data in database", e);
-            throw new IdentityException("Error while retrieving user identity data in database", e);
-        } catch (IdentityException e) {
+        } catch (SQLException | IdentityException e) {
             log.error("Error while retrieving user identity data in database", e);
             throw new IdentityException("Error while retrieving user identity data in database", e);
         } finally {
@@ -126,10 +123,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
             prepStmt.setString(4, value);
             prepStmt.execute();
             connection.commit();
-        } catch (SQLException e) {
-            log.error("Error while persisting user identity data in database", e);
-            throw new IdentityException("Error while persisting user identity data in database", e);
-        } catch (IdentityException e) {
+        } catch (SQLException | IdentityException e) {
             log.error("Error while persisting user identity data in database", e);
             throw new IdentityException("Error while persisting user identity data in database", e);
         } finally {
@@ -153,10 +147,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
             prepStmt.setString(4, key);
             prepStmt.executeUpdate();
             connection.commit();
-        } catch (SQLException e) {
-            log.error("Error while persisting user identity data in database", e);
-            throw new IdentityException("Error while persisting user identity data in database", e);
-        } catch (IdentityException e) {
+        } catch (SQLException | IdentityException e) {
             log.error("Error while persisting user identity data in database", e);
             throw new IdentityException("Error while persisting user identity data in database", e);
         } finally {
@@ -201,12 +192,9 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
             }
             dto = new UserIdentityClaimsDO(userName, data);
             dto.setTenantId(tenantId);
+            connection.commit();
             return dto;
-        } catch (SQLException e) {
-            log.error("Error while reading user identity data", e);
-        } catch (UserStoreException e) {
-            log.error("Error while reading user identity data", e);
-        } catch (IdentityException e) {
+        } catch (SQLException | IdentityException | UserStoreException e) {
             log.error("Error while reading user identity data", e);
         } finally {
             IdentityDatabaseUtil.closeResultSet(results);

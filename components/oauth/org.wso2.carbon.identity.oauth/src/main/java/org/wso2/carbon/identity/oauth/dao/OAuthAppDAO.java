@@ -82,7 +82,6 @@ public class OAuthAppDAO {
                 prepStmt.setString(8, consumerAppDO.getGrantTypes());
                 prepStmt.execute();
                 connection.commit();
-
             } catch (IdentityException e) {
                 String errorMsg = "Error when getting an Identity Persistence Store instance.";
                 log.error(errorMsg, e);
@@ -123,9 +122,7 @@ public class OAuthAppDAO {
             // it is assumed that the OAuth version is 1.0a because this is required with OAuth 1.0a
             prepStmt.setString(5, OAuthConstants.OAuthVersions.VERSION_1A);
             prepStmt.execute();
-
             connection.commit();
-
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -174,6 +171,7 @@ public class OAuthAppDAO {
                 }
             }
             oauthAppsOfUser = oauthApps.toArray(new OAuthAppDO[oauthApps.size()]);
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -239,10 +237,8 @@ public class OAuthAppDAO {
                 log.debug(message);
                 throw new InvalidOAuthClientException(message);
             }
-        } catch (IdentityException e) {
-            log.debug(e.getMessage(), e);
-            throw new IdentityOAuth2Exception(e.getMessage());
-        } catch (SQLException e) {
+            connection.commit();
+        } catch (IdentityException | SQLException e) {
             log.debug(e.getMessage(), e);
             throw new IdentityOAuth2Exception(e.getMessage());
         } finally {
@@ -302,10 +298,8 @@ public class OAuthAppDAO {
                 log.debug(message);
                 throw new InvalidOAuthClientException(message);
             }
-        } catch (IdentityException e) {
-            log.debug(e.getMessage(), e);
-            throw new IdentityOAuth2Exception(e.getMessage());
-        } catch (SQLException e) {
+            connection.commit();
+        } catch (IdentityException | SQLException e) {
             log.debug(e.getMessage(), e);
             throw new IdentityOAuth2Exception(e.getMessage());
         } finally {
@@ -389,6 +383,7 @@ public class OAuthAppDAO {
             if (rSet.next()) {
                 isDuplicateApp = true;
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -419,6 +414,7 @@ public class OAuthAppDAO {
             if (rSet.next()) {
                 isDuplicateConsumer = true;
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
