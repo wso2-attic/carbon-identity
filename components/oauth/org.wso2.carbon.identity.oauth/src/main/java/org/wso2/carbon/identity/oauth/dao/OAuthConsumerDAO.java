@@ -162,6 +162,7 @@ public class OAuthConsumerDAO {
             prepStmt = connection.prepareStatement(sqlStmt);
             prepStmt.setString(1, token);
             resultSet = prepStmt.executeQuery();
+            connection.commit();
 
             if (resultSet.next()) {
                 tokenSecret = resultSet.getString(1);
@@ -169,7 +170,6 @@ public class OAuthConsumerDAO {
                 log.error("Invalid token : " + token);
                 throw new IdentityException("Invalid token. No such token is issued");
             }
-            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);

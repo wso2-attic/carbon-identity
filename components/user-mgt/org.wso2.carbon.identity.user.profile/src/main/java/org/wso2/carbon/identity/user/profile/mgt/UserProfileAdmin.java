@@ -630,13 +630,14 @@ public class UserProfileAdmin extends AbstractAdmin {
             prepStmt.setString(4, associatedID);
 
             resultSet = prepStmt.executeQuery();
+            connection.commit();
+
             if (resultSet.next()) {
                 String domainName = resultSet.getString(1);
                 username = resultSet.getString(2);
                 if(!"PRIMARY".equals(domainName)) {
                     username = domainName + CarbonConstants.DOMAIN_SEPARATOR + username;
                 }
-                connection.commit();
                 return username;
             }
 

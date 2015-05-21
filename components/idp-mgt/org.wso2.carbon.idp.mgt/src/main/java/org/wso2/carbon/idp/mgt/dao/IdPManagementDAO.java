@@ -2360,10 +2360,10 @@ public class IdPManagementDAO {
             prepStmt.setInt(2, MultitenantConstants.SUPER_TENANT_ID);
             prepStmt.setString(3, CharacterEncoder.getSafeText(idpName));
             rs = prepStmt.executeQuery();
+            dbConnection.commit();
             if (rs.next()) {
                 return rs.getInt(1);
             }
-            dbConnection.commit();
         } catch (IdentityException e) {
             throw new IdentityApplicationManagementException("Error occurred while reading Identity Provider by name" +
                                                              ".", e);

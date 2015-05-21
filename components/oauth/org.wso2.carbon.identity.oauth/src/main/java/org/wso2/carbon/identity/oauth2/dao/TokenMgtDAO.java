@@ -287,6 +287,7 @@ public class TokenMgtDAO {
                 prepStmt.setString(3, scope);
             }
             ResultSet resultSet = prepStmt.executeQuery();
+            connection.commit();
 
             if (resultSet.next()) {
                 boolean returnToken = false;
@@ -323,11 +324,9 @@ public class TokenMgtDAO {
                     accessTokenDO.setAccessToken(accessToken);
                     accessTokenDO.setRefreshToken(refreshToken);
                     accessTokenDO.setTokenState(tokenState);
-                    connection.commit();
                     return accessTokenDO;
                 }
             }
-            connection.commit();
             return null;
         } catch (SQLException e) {
             String errorMsg = "Error occurred while trying to retrieve latest 'ACTIVE' " +

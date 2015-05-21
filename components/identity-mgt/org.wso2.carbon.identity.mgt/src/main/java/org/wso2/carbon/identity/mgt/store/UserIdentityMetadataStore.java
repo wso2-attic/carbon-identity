@@ -175,7 +175,7 @@ public class UserIdentityMetadataStore {
             prepStmt.setString(3, metadataType);
             prepStmt.setString(4, metadata);
             results = prepStmt.executeQuery();
-
+            connection.commit();
             if (results.next()) {
                 return new IdentityMetadataDO(results.getString(1), results.getInt(2),
                         results.getString(3), results.getString(4),
@@ -184,7 +184,6 @@ public class UserIdentityMetadataStore {
             if (results.next()) {
                 throw new IdentityException("Duplicate entry found for " + metadataType);
             }
-            connection.commit();
             return null;
         } catch (SQLException e) {
             throw new IdentityException("Error while reading user identity data", e);

@@ -380,10 +380,10 @@ public class ProvisioningManagementDAO {
             prepStmt.setInt(1, tenantId);
             prepStmt.setString(2, idpName);
             rs = prepStmt.executeQuery();
+            dbConnection.commit();
             if (rs.next()) {
                 return rs.getInt(1);
             }
-            dbConnection.commit();
         } catch (IdentityException e) {
             throw new IdentityApplicationManagementException("Error while reading Identity Provider by name.", e);
         } finally {
