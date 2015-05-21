@@ -43,6 +43,7 @@ import java.util.Hashtable;
 import java.util.List;
 
 /**
+ *
  * @scr.component name="org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent"
  * immediate="true"
  * @scr.reference name="registry.service"
@@ -51,6 +52,11 @@ import java.util.List;
  * @scr.reference name="realm.service"
  * interface="org.wso2.carbon.user.core.service.RealmService"cardinality="1..1"
  * policy="dynamic" bind="setRealmService" unbind="unsetRealmService"
+ * @scr.reference name="event.handler"
+ * interface="org.wso2.carbon.identity.mgt.handler.EventHandler"
+ * cardinality="0..n" policy="dynamic"
+ * bind="registerEventHandler"
+ * unbind="unRegisterEventHandler"
  */
 
 public class IdentityMgtServiceComponent {
