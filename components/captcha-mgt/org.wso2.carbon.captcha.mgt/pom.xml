@@ -56,8 +56,8 @@
                             org.wso2.carbon.captcha.mgt.internal.*,
                         </Private-Package>
                         <Import-Package>
-                            com.google.code.kaptcha; version="${kaptcha.wso2.version.range}",
-                            com.google.code.kaptcha.util; version="${kaptcha.wso2.version.range}",
+                            com.google.code.kaptcha,
+                            com.google.code.kaptcha.util,
                             javax.imageio,
 
                             org.apache.axis2.*; version="${axis2.osgi.version.range}",

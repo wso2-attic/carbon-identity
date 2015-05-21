@@ -167,7 +167,7 @@
                             org.apache.commons.logging.*; version="${commons-logging.osgi.version.range}",
                             org.apache.commons.pool.*; version="${commons-pool.wso2.osgi.version.range}",
                             org.apache.thrift.*; version="${libthrift.wso2.osgi.version.range}",
-                            org.apache.xerces.util,
+                            org.apache.xerces.util; resolution:=optional,
                             org.apache.xml.security.*; version="${wss4j.xml.security.imp.pkg.version.range}",
                             org.joda.time; version="${opensaml2.wso2.osgi.version.range}",
                             org.opensaml.*; version="${opensaml2.wso2.osgi.version.range}",

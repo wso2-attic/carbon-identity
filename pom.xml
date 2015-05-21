@@ -1975,7 +1975,6 @@
 
         <version.commons.logging>1.1.1</version.commons.logging>
         <kaptcha.wso2.version>2.3.0.wso2v1</kaptcha.wso2.version>
-        <kaptcha.wso2.version.range>[2.3.0.wso2v1,2.4.0)</kaptcha.wso2.version.range>
         <json.wso2.version>2.0.0.wso2v1</json.wso2.version>
         <com.fasterxml.jackson.version>2.1.3</com.fasterxml.jackson.version>
         <apache.wink.version>1.1.3-incubating</apache.wink.version>
