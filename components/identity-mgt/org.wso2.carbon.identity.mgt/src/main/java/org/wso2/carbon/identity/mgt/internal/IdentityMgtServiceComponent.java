@@ -27,6 +27,8 @@ import org.wso2.carbon.identity.mgt.IdentityMgtEventListener;
 import org.wso2.carbon.identity.mgt.RecoveryProcessor;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.dto.ChallengeQuestionDTO;
+import org.wso2.carbon.identity.mgt.handler.EventHandler;
+import org.wso2.carbon.identity.mgt.handler.internal.AccountLockEventHandler;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -63,6 +65,9 @@ public class IdentityMgtServiceComponent {
     private static IdentityMgtEventListener listener = null;
     private static RecoveryProcessor recoveryProcessor;
     private ServiceRegistration serviceRegistration = null;
+
+    // list of all registered event handlers
+    public static List<EventHandler> eventHandlerList = new ArrayList<EventHandler>();
 
     public static RealmService getRealmService() {
         return realmService;
@@ -148,21 +153,31 @@ public class IdentityMgtServiceComponent {
 
     protected void activate(ComponentContext context) {
 
+        context.getBundleContext().registerService(EventHandler.class.getName(),
+                new AccountLockEventHandler(), null);
+        /*context.getBundleContext().registerService(EventHandler.class.getName(),
+                new MaxAttemptsEventHandler(), null);
+        context.getBundleContext().registerService(EventHandler.class.getName(),
+                new OneTimePasswordEventHandler(), null);
+        context.getBundleContext().registerService(EventHandler.class.getName(),
+                new PasswordExpireEventHandler(), null);
+        context.getBundleContext().registerService(EventHandler.class.getName(),
+                new AccountUnlockEventHandler(), null);
+        context.getBundleContext().registerService(EventHandler.class.getName(),
+                new PasswordReuseEventHandler(), null);*/
+
         Dictionary<String, String> props = new Hashtable<String, String>();
         props.put(CarbonConstants.AXIS2_CONFIG_SERVICE, AxisObserver.class.getName());
         context.getBundleContext().registerService(AxisObserver.class.getName(),
                 new IdentityMgtDeploymentInterceptor(), props);
         init();
-        if (IdentityMgtConfig.getInstance().isListenerEnable()) {
-            listener = new IdentityMgtEventListener();
-            serviceRegistration =
+
+        listener = new IdentityMgtEventListener();
+        serviceRegistration =
                     context.getBundleContext().registerService(UserOperationEventListener.class.getName(),
                             listener, null);
-            log.debug("Identity Management Listener is enabled");
-        } else {
-            log.debug("Identity Management Listener is disabled");
-        }
-        log.debug("Identity Management bundle is activated");
+        log.debug("Identity Management Listener is enabled");
+
     }
 
     protected void deactivate(ComponentContext context) {
@@ -212,4 +227,13 @@ public class IdentityMgtServiceComponent {
 //            log.error("Error while locking user account of locked users", e);
 //        }
 //    }
+
+    protected void registerEventHandler(EventHandler eventHandler) {
+        eventHandler.init();
+        eventHandlerList.add(eventHandler);
+    }
+
+    protected void unRegisterEventHandler(EventHandler eventHandler) {
+
+    }
 }

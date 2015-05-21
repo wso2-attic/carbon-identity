@@ -32,12 +32,15 @@ import org.wso2.carbon.identity.mgt.dto.NotificationDataDTO;
 import org.wso2.carbon.identity.mgt.dto.UserIdentityClaimsDO;
 import org.wso2.carbon.identity.mgt.dto.UserRecoveryDTO;
 import org.wso2.carbon.identity.mgt.dto.UserRecoveryDataDO;
+import org.wso2.carbon.identity.mgt.event.IdentityMgtEvent;
 import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
 import org.wso2.carbon.identity.mgt.mail.Notification;
 import org.wso2.carbon.identity.mgt.mail.NotificationBuilder;
 import org.wso2.carbon.identity.mgt.mail.NotificationData;
 import org.wso2.carbon.identity.mgt.policy.PolicyRegistry;
 import org.wso2.carbon.identity.mgt.policy.PolicyViolationException;
+import org.wso2.carbon.identity.mgt.services.IdentityMgtService;
+import org.wso2.carbon.identity.mgt.services.impl.IdentityMgtServiceImpl;
 import org.wso2.carbon.identity.mgt.store.UserIdentityDataStore;
 import org.wso2.carbon.identity.mgt.util.UserIdentityManagementUtil;
 import org.wso2.carbon.identity.mgt.util.Utils;
@@ -77,6 +80,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
     private static final String USER_IDENTITY_DO = "UserIdentityDO";
     PolicyRegistry policyRegistry = null;
     private UserIdentityDataStore module;
+
+    private IdentityMgtService identityMgtService = new IdentityMgtServiceImpl();
 
     public IdentityMgtEventListener() {
 
@@ -127,63 +132,20 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             log.debug("Pre authenticator is called in IdentityMgtEventListener");
         }
 
-        IdentityUtil.clearIdentityErrorMsg();
+        getConfigurations(userStoreManager);
 
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
 
-        if (!config.isEnableAuthPolicy()) {
-            return true;
-        }
+        String eventName = IdentityMgtConstants.Event.PRE_AUTHENTICATION;
 
-        String domainName = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
-        String usernameWithDomain = UserCoreUtil.addDomainToName(userName, domainName);
-        boolean isUserExistInCurrentDomain = userStoreManager.isExistingUser(usernameWithDomain);
+        HashMap<String, Object> properties = new HashMap<String, Object>();
+        properties.put(IdentityMgtConstants.EventProperty.MODULE, module);
+        properties.put(IdentityMgtConstants.EventProperty.USER_NAME, userName);
+        properties.put(IdentityMgtConstants.EventProperty.USER_STORE_MANAGER, userStoreManager);
+        properties.put(IdentityMgtConstants.EventProperty.IDENTITY_MGT_CONFIG, config);
 
-        if (!isUserExistInCurrentDomain) {
-
-            IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(UserCoreConstants.ErrorCode.USER_DOES_NOT_EXIST);
-            IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
-
-            if (log.isDebugEnabled()) {
-                log.debug("Username :" + userName + "does not exists in the system, ErrorCode :" + UserCoreConstants.ErrorCode.USER_DOES_NOT_EXIST);
-            }
-            if (config.isAuthPolicyAccountExistCheck()) {
-                throw new UserStoreException(UserCoreConstants.ErrorCode.USER_DOES_NOT_EXIST);
-            }
-        } else {
-
-            UserIdentityClaimsDO userIdentityDTO = module.load(userName, userStoreManager);
-
-            // if the account is locked, should not be able to log in
-            if (userIdentityDTO != null && userIdentityDTO.isAccountLocked()) {
-
-                // If unlock time is specified then unlock the account.
-                if ((userIdentityDTO.getUnlockTime() != 0) && (System.currentTimeMillis() >= userIdentityDTO.getUnlockTime())) {
-
-                    userIdentityDTO.setAccountLock(false);
-                    userIdentityDTO.setUnlockTime(0);
-
-                    try {
-                        module.store(userIdentityDTO, userStoreManager);
-                    } catch (IdentityException e) {
-                        throw new UserStoreException(
-                                "Error while saving user store data for user : "
-                                        + userName, e);
-                    }
-                } else {
-                    IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(
-                            UserCoreConstants.ErrorCode.USER_IS_LOCKED,
-                            userIdentityDTO.getFailAttempts(),
-                            config.getAuthPolicyMaxLoginAttempts());
-                    IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
-                    String errorMsg = "User account is locked for user : " + userName
-                            + ". cannot login until the account is unlocked ";
-                    log.warn(errorMsg);
-                    throw new UserStoreException(UserCoreConstants.ErrorCode.USER_IS_LOCKED + " "
-                            + errorMsg);
-                }
-            }
-        }
+        IdentityMgtEvent identityMgtEvent = new IdentityMgtEvent(eventName, properties);
+        identityMgtService.handleEvent(identityMgtEvent);
 
         return true;
     }
@@ -962,5 +924,15 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
         }
 
         return true;
+    }
+
+    protected void getConfigurations(UserStoreManager userStoreManager) {
+
+        try {
+            IdentityMgtConfig.getInstance(IdentityMgtServiceComponent.getRealmService().getBootstrapRealmConfiguration(), userStoreManager.getTenantId());
+        } catch (UserStoreException e) {
+            e.printStackTrace();
+        }
+
     }
 }

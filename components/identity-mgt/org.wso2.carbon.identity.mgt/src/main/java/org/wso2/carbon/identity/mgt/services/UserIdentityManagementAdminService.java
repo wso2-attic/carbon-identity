@@ -37,12 +37,7 @@ import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This is the admin service for the identity management. Some of these
@@ -535,4 +530,43 @@ public class UserIdentityManagementAdminService {
         }
     }
 
+
+    /**
+     * Get all the configurations belong to a tenant.
+     *
+     * @return Configurations for the tenant ID
+     */
+    public TenantConfigDTO[] getAllConfigurations() {
+
+        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        HashMap<String, String> configurationDetails = UserIdentityManagementUtil.getAllConfigurations(tenantId);
+        TenantConfigDTO[] tenantConfigDTOs = new TenantConfigDTO[configurationDetails.size()];
+        Iterator<Map.Entry<String, String>> iterator = configurationDetails.entrySet().iterator();
+        int count = 0;
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> pair = iterator.next();
+            TenantConfigDTO tenantConfigDTO = new TenantConfigDTO(pair.getKey(), pair.getValue());
+            tenantConfigDTOs[count] = tenantConfigDTO;
+            iterator.remove();
+            ++count;
+        }
+
+        return tenantConfigDTOs;
+    }
+
+    /**
+     * Set all the configurations of a tenant in database
+     *
+     * @param tenantConfigDTOs Configurations
+     */
+    public void setAllConfigurations(TenantConfigDTO[] tenantConfigDTOs) {
+
+        HashMap<String, String> configurationDetails = new HashMap<String, String>();
+        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        for(int i=0; i<tenantConfigDTOs.length; i++){
+            configurationDetails.put(tenantConfigDTOs[i].getProperty(), tenantConfigDTOs[i].getPropertyValue());
+        }
+
+        UserIdentityManagementUtil.setAllConfigurations(tenantId,configurationDetails);
+    }
 }
