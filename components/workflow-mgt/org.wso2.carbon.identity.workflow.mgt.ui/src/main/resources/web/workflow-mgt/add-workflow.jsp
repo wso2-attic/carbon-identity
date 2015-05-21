@@ -46,7 +46,7 @@
     WorkflowAdminServiceClient client;
     WorkflowEventDTO[] workflowEvents;
     Map<String, List<WorkflowEventDTO>> events = new HashMap<String, List<WorkflowEventDTO>>();
-    String[] templateList = new String[0];
+    String[] templateList = null;
     try {
         String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
         String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
@@ -64,6 +64,9 @@
             }
         }
         templateList = client.listTemplates();
+        if(templateList == null){
+            templateList = new String[0];
+        }
     } catch (AxisFault e) {
         String message = resourceBundle.getString("workflow.error.when.initiating.service.client");
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
@@ -134,7 +137,7 @@
         <h2><fmt:message key='workflow.add'/></h2>
 
         <div id="workArea">
-            <form method="post" name="serviceAdd" action="add-workflow-finish.jsp">
+            <form method="post" name="serviceAdd" action="template-params.jsp">
                 <table class="styledLeft">
                     <thead>
                     <tr>

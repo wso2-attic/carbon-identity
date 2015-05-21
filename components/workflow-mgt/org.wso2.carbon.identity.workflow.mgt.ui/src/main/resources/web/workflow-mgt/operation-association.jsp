@@ -22,13 +22,14 @@
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventBean" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
@@ -41,7 +42,7 @@
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     WorkflowAdminServiceClient client;
     String forwardTo = null;
-    WorkflowEventBean[] workflowEvents = new WorkflowEventBean[0];
+    WorkflowEventDTO[] workflowEvents = new WorkflowEventDTO[0];
     String action = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ACTION));
 
     String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
@@ -51,48 +52,11 @@
                     .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
     client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
 
-    String alias = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_SERVICE_ALIAS));
-    String event =
-            CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_EVENT));
-    String serviceEP = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_SERVICE_EPR));
-    String authUser =
-            CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_SERVICE_AUTH_USERNAME));
-    String authPassword =
-            CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_SERVICE_AUTH_PASSWORD));
-    String serviceAction = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_SERVICE_ACTION));
-    String priority = null;
-    String condition = null;
 
-    if (!WorkflowUIConstants.ACTION_VALUE_ADD.equals(action)) {
-        //should be edit or finish, and following should be available for both
-        priority = CharacterEncoder
-                .getSafeText(request.getParameter(WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_PRIORITY));
-        condition = CharacterEncoder.getSafeText(
-                request.getParameter(WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_CONDITION));
-    }
-    if (WorkflowUIConstants.ACTION_VALUE_FINISH.equals(action)) {
-        //todo : validate?
-        try {
-            client.addExistingService(alias, serviceEP, serviceAction, authUser, authPassword);
-            client.associateServiceToEvent(alias, event, condition, Integer.parseInt(priority));
-            forwardTo = "list-services.jsp";
-        } catch (WorkflowAdminServiceWorkflowException e) {
-            String message = resourceBundle.getString("workflow.error.when.adding.service");
-            CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-            forwardTo = "../admin/error.jsp";
-        }
-    }
-    //Handles the association deletion requests
-    if (WorkflowUIConstants.ACTION_VALUE_DELETE.equals(action)){
-        try {
-            client.removeService(alias,event);
-            forwardTo = "list-services.jsp";
-        } catch (WorkflowAdminServiceWorkflowException e) {
-            String message = resourceBundle.getString("workflow.error.when.deleting.service.association");
-            CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-            forwardTo = "../admin/error.jsp";
-        }
-    }
+    String workflowName = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
+    String event =
+            CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION));
+    String condition = null;
 %>
 
 <%
@@ -127,7 +91,7 @@
 
 
         function doValidation() {
-            if (isEmpty("<%=WorkflowUIConstants.PARAM_SERVICE_ALIAS%>")) {
+            if (isEmpty("<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>")) {
                 CARBON.showWarningDialog("<fmt:message key="workflow.error.service.alias.empty"/>");
                 return false;
             }
@@ -146,25 +110,41 @@
     </script>
 
     <div id="middle">
-        <h2><fmt:message key='workflow.service.add'/></h2>
+        <h2><fmt:message key='workflow.add'/></h2>
 
         <div id="workArea">
-            <form method="post" name="serviceAdd" onsubmit="return doValidation();">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_SERVICE_ALIAS%>" value="<%=alias%>">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_EVENT%>" value="<%=event%>">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_SERVICE_EPR%>" value="<%=serviceEP%>">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_SERVICE_ACTION%>" value="<%=serviceAction%>">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_SERVICE_AUTH_USERNAME%>" value="<%=authUser%>">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_SERVICE_AUTH_PASSWORD%>"
-                       value="<%=authPassword%>">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ACTION%>"
-                       value="<%=WorkflowUIConstants.ACTION_VALUE_FINISH%>">
+            <form method="post" name="serviceAdd" onsubmit="return doValidation();" action="add-workflow-finish.jsp">
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>" value="<%=workflowName%>">
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION%>" value="<%=event%>">
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ACTION%>" value="<%=action%>">
+                <%
+                    if (WorkflowUIConstants.ACTION_VALUE_ADD.equals(action)) {
+                        String template = CharacterEncoder
+                                        .getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE));
+                        String templateImpl = CharacterEncoder
+                                        .getSafeText(request.getParameter(WorkflowUIConstants.PARAM_TEMPLATE_IMPL));
+                %>
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE%>" value="<%=template%>">
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_TEMPLATE_IMPL%>" value="<%=templateImpl%>">
+                <%
+                    Map<String, String[]> parameterMap = request.getParameterMap();
+                    for (Map.Entry<String, String[]> paramEntry : parameterMap.entrySet()) {
+                        if (paramEntry.getKey() != null && (paramEntry.getKey().startsWith("p-") ||
+                                paramEntry.getKey().startsWith("imp-")) && paramEntry.getValue().length > 0) {
+                            String paramValue = CharacterEncoder.getSafeText(paramEntry.getValue()[0]);
+                %>
+                <input type="hidden" name="<%=paramEntry.getKey()%>" value="<%=paramValue%>">
+                <%
+                            }
+                        }
+                    }
+                %>
                 <table class="styledLeft">
                     <thead>
                     <tr>
                         <th>
                             <fmt:message key="workflow.service.association.details">
-                                <fmt:param value="<%=alias%>"/>
+                                <fmt:param value="<%=workflowName%>"/>
                                 <fmt:param value="<%=event%>"/>
                             </fmt:message>
                         </th>
@@ -174,18 +154,10 @@
                         <td class="formRow">
                             <table class="normal">
                                 <tr>
-                                    <td><fmt:message key='workflow.service.associate.priority'/></td>
-                                    <td>
-                                        <input type="number"
-                                               name="<%=WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_PRIORITY%>"
-                                               value="10"/>
-                                    </td>
-                                </tr>
-                                <tr>
                                     <td><fmt:message key='workflow.service.associate.condition'/></td>
                                     <td>
                                         <input type="text"
-                                               name="<%=WorkflowUIConstants.PARAM_SERVICE_ASSOCIATION_CONDITION%>"/>
+                                               name="<%=WorkflowUIConstants.PARAM_ASSOCIATION_CONDITION%>"/>
                                     </td>
                                 </tr>
                             </table>

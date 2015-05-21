@@ -16,7 +16,7 @@
   ~ under the License.
   --%>
 
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" %>
 <%@ page import="org.apache.axis2.AxisFault" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
@@ -119,27 +119,33 @@
                         <th><fmt:message key="workflow.details"/></th>
                     </tr>
                     </thead>
-                    <%
-                        for (TemplateParameter parameter : templateImplDTO.getImplementationParams()) {
-                            String type = "text";
-                            if (WorkflowUIConstants.ParamTypes.BOOLEAN.equals(parameter.getParamType())) {
-                                type = "checkbox";
-                            } else if (WorkflowUIConstants.ParamTypes.INTEGER.equals(parameter.getParamType())) {
-                                type = "number";
-                            } else if (WorkflowUIConstants.ParamTypes.PASSWORD.equals(parameter.getParamType())) {
-                                type = "password";
-                            }
-//                            todo:handle 'required' value
-                    %>
                     <tr>
-                        <td><fmt:message key='<%=parameter.getParamName()%>'/></td>
-                            <%--Appending 'imp-' to differentiate dynamic params--%>
-                        <td><input name="imp-<%=parameter.getParamName()%>" type="<%=type%>"></td>
-                    </tr>
-                    <%
-                        }
+                        <td class="formRow">
+                            <table class="normal">
+                                <%
+                                    for (TemplateParameter parameter : templateImplDTO.getImplementationParams()) {
+                                        String type = "text";
+                                        if (WorkflowUIConstants.ParamTypes.BOOLEAN.equals(parameter.getParamType())) {
+                                            type = "checkbox";
+                                        } else if (WorkflowUIConstants.ParamTypes.INTEGER.equals(parameter.getParamType())) {
+                                            type = "number";
+                                        } else if (WorkflowUIConstants.ParamTypes.PASSWORD.equals(parameter.getParamType())) {
+                                            type = "password";
+                                        }
+//                            todo:handle 'required' value
+                                %>
+                                <tr>
+                                    <td><%=parameter.getParamName()%></td>
+                                        <%--Appending 'imp-' to differentiate dynamic params--%>
+                                    <td><input name="imp-<%=parameter.getParamName()%>" type="<%=type%>"></td>
+                                </tr>
+                                <%
+                                    }
 
-                    %>
+                                %>
+                            </table>
+                        </td>
+                    </tr>
                     <tr>
                         <td class="buttonRow">
                             <input class="button" value="<fmt:message key="next"/>" type="submit"/>

@@ -1,4 +1,4 @@
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page import="org.apache.axis2.AxisFault" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
@@ -99,27 +99,36 @@
                         <th><fmt:message key="workflow.details"/></th>
                     </tr>
                     </thead>
-                    <%
-                        for (TemplateParameter parameter : templateDTO.getParameters()) {
-                            String type = "text";
-                            if (WorkflowUIConstants.ParamTypes.BOOLEAN.equals(parameter.getParamType())) {
-                                type = "checkbox";
-                            } else if (WorkflowUIConstants.ParamTypes.INTEGER.equals(parameter.getParamType())) {
-                                type = "number";
-                            } else if (WorkflowUIConstants.ParamTypes.PASSWORD.equals(parameter.getParamType())) {
-                                type = "password";
-                            }
-//                            todo:handle 'required' value
-                    %>
                     <tr>
-                        <td><fmt:message key='<%=parameter.getParamName()%>'/></td>
-                            <%--Appending 'p-' to differentiate dynamic params--%>
-                        <td><input name="p-<%=parameter.getParamName()%>" type="<%=type%>"></td>
-                    </tr>
-                    <%
-                        }
+                        <td class="formRow">
+                            <table class="normal">
+                                <%
+                                    for (TemplateParameter parameter : templateDTO.getParameters()) {
+                                        String type = "text";
+                                        if (WorkflowUIConstants.ParamTypes.BOOLEAN.equals(parameter.getParamType())) {
+                                            type = "checkbox";
+                                        } else if (WorkflowUIConstants.ParamTypes.INTEGER
+                                                .equals(parameter.getParamType())) {
+                                            type = "number";
+                                        } else if (WorkflowUIConstants.ParamTypes.PASSWORD
+                                                .equals(parameter.getParamType())) {
+                                            type = "password";
+                                        }
+//                            todo:handle 'required' value
+                                %>
+                                <tr>
+                                    <td><%=parameter.getParamName()%>
+                                    </td>
+                                        <%--Appending 'p-' to differentiate dynamic params--%>
+                                    <td><input name="p-<%=parameter.getParamName()%>" type="<%=type%>"></td>
+                                </tr>
+                                <%
+                                    }
 
-                    %>
+                                %>
+                            </table>
+                        </td>
+                    </tr>
                 </table>
                 <table class="styledLeft">
                     <thead>
@@ -129,33 +138,30 @@
                     </thead>
 
                     <tr>
-                        <td><fmt:message key='workflow.deployment.type'/></td>
-                        <td>
-                            <select name="<%=WorkflowUIConstants.PARAM_TEMPLATE_IMPL%>">
-                                <%
-                                    for (String impl : templateDTO.getImplementations()) {
-                                %>
-                                <option value="<%=impl%>"><%=impl%>
-                                </option>
-                                <%
-                                    }
-                                %>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
                         <td class="formRow">
                             <table class="normal">
                                 <tr>
-                                    <td><fmt:message key='workflow.name'/></td>
-                                    <td><input type="text" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>"/></td>
+                                    <td><fmt:message key='workflow.deployment.type'/></td>
+                                    <td>
+                                        <select name="<%=WorkflowUIConstants.PARAM_TEMPLATE_IMPL%>">
+                                            <%
+                                                for (String impl : templateDTO.getImplementations()) {
+                                            %>
+                                            <option value="<%=impl%>"><%=impl%>
+                                            </option>
+                                            <%
+                                                }
+                                            %>
+                                        </select>
+                                    </td>
                                 </tr>
-
                             </table>
                         </td>
                     </tr>
                     <tr>
                         <td class="buttonRow">
+                            <%--todo : implement back--%>
+                            <input class="button" value="<fmt:message key="back"/>" type="button">
                             <input class="button" value="<fmt:message key="next"/>" type="submit"/>
                             <input class="button" value="<fmt:message key="cancel"/>" type="button"
                                    onclick="doCancel();"/>
