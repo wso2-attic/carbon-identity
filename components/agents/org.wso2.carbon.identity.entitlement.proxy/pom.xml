@@ -158,7 +158,7 @@
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Import-Package>
                             !javax.xml.namespace,
-                            javax.xml.parsers,
+                            javax.xml.parsers; resolution:=optional,
                             javax.cache,
                             javax.crypto,
                             org.apache.axiom.om.*; version="${axiom.osgi.version.range}",
