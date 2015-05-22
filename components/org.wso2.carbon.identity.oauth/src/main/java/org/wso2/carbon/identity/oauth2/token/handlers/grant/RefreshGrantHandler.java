@@ -153,8 +153,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
 
         // if a VALID validity period is set through the callback, then use it
         long callbackValidityPeriod = tokReqMsgCtx.getValidityPeriod();
-        if ((callbackValidityPeriod != OAuthConstants.UNASSIGNED_VALIDITY_PERIOD)
-                && callbackValidityPeriod > 0) {
+        if ((callbackValidityPeriod != OAuthConstants.UNASSIGNED_VALIDITY_PERIOD)) {
             validityPeriod = callbackValidityPeriod;
         }
 
@@ -229,7 +228,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
             tokenRespDTO.setExpiresIn(accessTokenDO.getValidityPeriod());
             tokenRespDTO.setExpiresInMillis(accessTokenDO.getValidityPeriodInMillis());
         } else {
-            tokenRespDTO.setExpiresIn(Long.MAX_VALUE/1000);
+            tokenRespDTO.setExpiresIn(Long.MAX_VALUE);
             tokenRespDTO.setExpiresInMillis(Long.MAX_VALUE);
         }
         tokenRespDTO.setAuthorizedScopes(scope);

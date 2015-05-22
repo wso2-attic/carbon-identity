@@ -236,13 +236,13 @@ public class TokenValidationHandler {
 
         // Set the token expiry time
         long expiryTime = OAuth2Util.getAccessTokenExpireMillis(accessTokenDO);
-        if(OAuthConstants.USER_TYPE_FOR_USER_TOKEN.equals(accessTokenDO.getTokenType()) &&
-                OAuthServerConfiguration.getInstance().getUserAccessTokenValidityPeriodInSeconds() < 0){
-            responseDTO.setExpiryTime(Long.MAX_VALUE / 1000);
+        if (OAuthConstants.USER_TYPE_FOR_USER_TOKEN.equals(accessTokenDO.getTokenType()) &&
+            OAuthServerConfiguration.getInstance().getUserAccessTokenValidityPeriodInSeconds() < 0) {
+            responseDTO.setExpiryTime(Long.MAX_VALUE);
         } else if (OAuthConstants.USER_TYPE_FOR_APPLICATION_TOKEN.equals(accessTokenDO.getTokenType()) &&
-                OAuthServerConfiguration.getInstance().getApplicationAccessTokenValidityPeriodInSeconds() < 0) {
-            responseDTO.setExpiryTime(Long.MAX_VALUE / 1000);
-        } else if(expiryTime > 0){
+                   OAuthServerConfiguration.getInstance().getApplicationAccessTokenValidityPeriodInSeconds() < 0) {
+            responseDTO.setExpiryTime(Long.MAX_VALUE);
+        } else if (expiryTime > 0) {
             responseDTO.setExpiryTime(expiryTime / 1000);
         }
 
