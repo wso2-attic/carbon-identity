@@ -309,8 +309,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
             }
             // if a VALID validity period is set through the callback, then use it
             long callbackValidityPeriod = tokReqMsgCtx.getValidityPeriod();
-            if ((callbackValidityPeriod != OAuthConstants.UNASSIGNED_VALIDITY_PERIOD)
-                    && callbackValidityPeriod > 0) {
+            if ((callbackValidityPeriod != OAuthConstants.UNASSIGNED_VALIDITY_PERIOD)) {
                 validityPeriod = callbackValidityPeriod;
             }
 
@@ -361,7 +360,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                 tokenRespDTO.setExpiresIn(accessTokenDO.getValidityPeriod());
             } else {
                 tokenRespDTO.setExpiresInMillis(Long.MAX_VALUE);
-                tokenRespDTO.setExpiresIn(Long.MAX_VALUE/1000);
+                tokenRespDTO.setExpiresIn(Long.MAX_VALUE);
             }
             tokenRespDTO.setAuthorizedScopes(scope);
             return tokenRespDTO;
