@@ -169,6 +169,9 @@ public class IdentityMgtConstants {
         public static final String PASSWORD_LENGTH_MIN = "Password.policy.min.length";
 
         public static final String PASSWORD_LENGTH_MAX = "Password.policy.max.length";
+
+        public static final String  ACCOUNT_LOCK_ENABLE = "Account.Lock.Enable";
+
     }
 
 
@@ -187,6 +190,32 @@ public class IdentityMgtConstants {
         public static final String OTP_PASSWORD = "otp";
 
         public static final String ASK_PASSWORD = "askPassword";
+
+    }
+
+    public class Event {
+
+        public static  final String PRE_AUTHENTICATION = "PRE_AUTHENTICATION";
+
+        public static  final String POST_AUTHENTICATION = "POST_AUTHENTICATION";
+    }
+
+
+    public class EventProperty {
+
+        public static  final String MODULE = "module";
+
+        public static  final String USER_NAME = "userName";
+
+        public static  final String USER_STORE_MANAGER = "userStoreManager";
+
+        public static  final String USER_OTP_ENABLED = "userOTPEnabled";
+
+        public static  final String IDENTITY_MGT_CONFIG = "identityMgtConfig";
+
+        public static  final String AUTHENTICATED = "authenticated";
+
+        public static  final String USER_IDENTITY_DTO = "userIdentityDTO";
 
     }
 }

@@ -27,6 +27,8 @@ import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.stratos.common.beans.TenantInfoBean;
 import org.wso2.carbon.stratos.common.exception.StratosException;
 import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
+import org.wso2.carbon.identity.mgt.services.impl.IdentityMgtServiceImpl;
+import org.wso2.carbon.identity.mgt.services.IdentityMgtService;
 
 public class TenantManagementListener implements TenantMgtListener {
 
@@ -46,6 +48,8 @@ public class TenantManagementListener implements TenantMgtListener {
             identityProvider.setHomeRealmId("localhost");
             identityProvider.setPrimary(true);
             IdentityProviderManager.getInstance().addResidentIdP(identityProvider, tenantDomain);
+	    IdentityMgtService identityMgtService = new IdentityMgtServiceImpl();
+            identityMgtService.addConfigurations(tenantInfo.getTenantId());
         } catch (IdentityApplicationManagementException e) {
             String message = "Error when adding Resident Identity Provider entry for tenant " +
                     tenantInfo.getTenantDomain();

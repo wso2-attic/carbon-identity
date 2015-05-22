@@ -5,7 +5,9 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
 import org.wso2.carbon.identity.mgt.IdentityMgtServiceException;
 import org.wso2.carbon.identity.mgt.NotificationSender;
+import org.wso2.carbon.identity.mgt.beans.TenantConfigBean;
 import org.wso2.carbon.identity.mgt.beans.UserIdentityMgtBean;
+import org.wso2.carbon.identity.mgt.cache.CacheBackedConfig;
 import org.wso2.carbon.identity.mgt.dto.UserIdentityClaimDTO;
 import org.wso2.carbon.identity.mgt.dto.UserIdentityClaimsDO;
 import org.wso2.carbon.identity.mgt.dto.UserRecoveryDTO;
@@ -20,8 +22,7 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * This is the Utility class used by the admin service to read and write
@@ -473,5 +474,63 @@ public class UserIdentityManagementUtil {
             String msg = "Unable to retrieve the claim for the given tenant";
             throw new IdentityMgtServiceException(msg, e);
         }
+    }
+
+
+    /**
+     * Get the configurations of a tenant from cache or database
+     *
+     * @param tenantId Id of the tenant
+     * @return Configurations belong to the tenant
+     */
+    public static HashMap<String, String> getAllConfigurations(int tenantId) {
+
+        CacheBackedConfig cacheBackedConfig = new CacheBackedConfig();
+        HashMap<String, String> configurations = cacheBackedConfig.getConfig(tenantId);
+
+        return configurations;
+    }
+
+    /**
+     * Store the configurations of a tenant in cache and database
+     *
+     * @param tenantId             Id of the tenant
+     * @param configurationDetails Configurations belong to the tenant
+     */
+    public static void setAllConfigurations(int tenantId, HashMap<String, String> configurationDetails) {
+
+        HashMap<String, String> configurationDetailsDB = getAllConfigurations(tenantId);
+
+        for (Map.Entry<String, String> entrydb : configurationDetailsDB.entrySet()) {
+
+            boolean isConfigExists = false;
+
+            for (Map.Entry<String, String> entry : configurationDetails.entrySet()) {
+
+                if (entry.getKey().equals(entrydb.getKey())) {
+
+                    configurationDetails.put(entry.getKey(), entry.getValue());
+                    isConfigExists = true;
+                    break;
+                }
+            }
+
+            if (!isConfigExists) {
+                configurationDetails.put(entrydb.getKey(), entrydb.getValue());
+            }
+        }
+
+        CacheBackedConfig cacheBackedConfig = new CacheBackedConfig();
+        TenantConfigBean tenantConfigBean = new TenantConfigBean(tenantId, configurationDetails);
+        cacheBackedConfig.updateConfig(tenantConfigBean);
+
+        Properties properties = new Properties();
+
+        for (Map.Entry<String, String> configEntry : configurationDetails.entrySet()) {
+            properties.put(configEntry.getKey(), configEntry.getValue());
+        }
+
+        IdentityMgtConfig identityMgtConfig = IdentityMgtConfig.getInstance();
+        identityMgtConfig.setConfigurations(IdentityMgtServiceComponent.getRealmService().getBootstrapRealmConfiguration(), properties);
     }
 }

@@ -70,6 +70,12 @@
 		<operation name="isReadOnlyUserStore">
 			<parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
 		</operation>
+        <operation name="getAllConfigurations">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
+        </operation>
+        <operation name="setAllConfigurations">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
+        </operation>
 		<!--<operation name="updateUserIdentityClaims">-->
 			<!--<parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>-->
 		<!--</operation>-->
