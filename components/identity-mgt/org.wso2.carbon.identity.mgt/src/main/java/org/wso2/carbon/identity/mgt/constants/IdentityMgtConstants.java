@@ -169,6 +169,8 @@ public class IdentityMgtConstants {
         public static final String PASSWORD_LENGTH_MIN = "Password.policy.min.length";
 
         public static final String PASSWORD_LENGTH_MAX = "Password.policy.max.length";
+
+        public static final String  AUTH_POLICY_ACCOUNT_LOCKING_FAIL_ATTEMPTS_EXPIRE_TIME = "Authentication.Policy.Account.Lock.On.Failure.Attempt.Expire.Time";
     }
 
 

@@ -84,6 +84,8 @@ public class IdentityMgtConfig {
      */
     private Pattern propertyPattern = Pattern.compile("(\\.\\d\\.)");
 
+    private int authPolicyLoginAttemptsExpireTime;
+
     public IdentityMgtConfig(RealmConfiguration configuration) {
 
         Properties properties = new Properties();
@@ -302,6 +304,17 @@ public class IdentityMgtConfig {
                 }
             }
 
+            String failAttemptsExpireTime = properties.
+                    getProperty(IdentityMgtConstants.PropertyConfig.AUTH_POLICY_ACCOUNT_LOCKING_FAIL_ATTEMPTS_EXPIRE_TIME);
+            if (failAttemptsExpireTime != null) {
+                this.authPolicyLoginAttemptsExpireTime = Integer.valueOf(failAttemptsExpireTime.trim());
+            }
+
+            if (this.authPolicyLoginAttemptsExpireTime == 0) {
+                // default value is set
+                this.authPolicyLoginAttemptsExpireTime = 10;
+            }
+
             int i = 1;
             while (true) {
                 String module = properties.
@@ -505,6 +518,10 @@ public class IdentityMgtConfig {
 
     public PolicyRegistry getPolicyRegistry() {
         return policyRegistry;
+    }
+
+    public int getAuthPolicyLoginAttemptsExpireTime() {
+        return authPolicyLoginAttemptsExpireTime;
     }
 
     /**
