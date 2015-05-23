@@ -21,11 +21,11 @@ package org.wso2.carbon.security.keystore.service;
 import java.util.Arrays;
 
 public class PaginatedCertData {
-    private CertData [] certDataSet;
+    private CertData[] certDataSet;
 
     private int numberOfPages;
 
-    public CertData [] getCertDataSet() {
+    public CertData[] getCertDataSet() {
         return Arrays.copyOf(certDataSet, certDataSet.length);
     }
 

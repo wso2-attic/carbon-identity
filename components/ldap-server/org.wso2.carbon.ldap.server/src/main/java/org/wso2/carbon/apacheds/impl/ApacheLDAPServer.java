@@ -36,11 +36,7 @@ import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.Modification;
-import org.apache.directory.shared.ldap.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.entry.ServerModification;
+import org.apache.directory.shared.ldap.entry.*;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.ModifyDnRequestImpl;
 import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
@@ -55,7 +51,6 @@ import org.wso2.carbon.apacheds.PartitionManager;
 import org.wso2.carbon.ldap.server.exception.DirectoryServerException;
 
 import javax.naming.NamingException;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -70,24 +65,20 @@ import java.util.Map;
 @SuppressWarnings({"UnusedDeclaration"})
 public class ApacheLDAPServer implements LDAPServer {
 
-    private DirectoryService service;
-
-    private LdapServer ldapServer;
-
-    private PartitionManager partitionManager;
-
-    private LDAPConfiguration ldapConfigurations;
-
     private static final Logger logger = LoggerFactory.getLogger(ApacheLDAPServer.class);
+    private DirectoryService service;
+    private LdapServer ldapServer;
+    private PartitionManager partitionManager;
+    private LDAPConfiguration ldapConfigurations;
 
     public void init(LDAPConfiguration configurations)
             throws DirectoryServerException {
 
         if (configurations == null) {
             logger.error("LDAP server initialization failed. " +
-                         "LDAP server configuration is invalid.");
+                    "LDAP server configuration is invalid.");
             throw new DirectoryServerException("Cannot initialize LDAP server. " +
-                                               "Configuration is null");
+                    "Configuration is null");
         }
 
 
@@ -179,7 +170,7 @@ public class ApacheLDAPServer implements LDAPServer {
                         return registry.lookup(oid);
                     } catch (LdapException e) {
                         String msg = "An error occurred while querying attribute " + attributeName +
-                                     " from registry.";
+                                " from registry.";
                         logger.error(msg, e);
                         throw new DirectoryServerException(msg, e);
                     }
@@ -240,13 +231,13 @@ public class ApacheLDAPServer implements LDAPServer {
                     return adminPrincipal;
                 } else {
                     String msg = "Could not retrieve admin principle. Failed changing connection " +
-                                 "user password.";
+                            "user password.";
                     logger.error(msg);
                     throw new DirectoryServerException(msg);
                 }
             } else {
                 String msg = "Directory admin session is null. The LDAP server may not have " +
-                             "started yet.";
+                        "started yet.";
                 logger.error(msg);
                 throw new DirectoryServerException(msg);
             }
@@ -275,7 +266,7 @@ public class ApacheLDAPServer implements LDAPServer {
                 if (adminPrincipal != null) {
 
                     String passwordToStore = "{" + ConfigurationConstants.ADMIN_PASSWORD_ALGORITHM +
-                                             "}";
+                            "}";
 
                     MessageDigest messageDigest;
                     try {
@@ -284,7 +275,7 @@ public class ApacheLDAPServer implements LDAPServer {
                     } catch (NoSuchAlgorithmException e) {
                         throw new DirectoryServerException(
                                 "Could not find digest algorithm - " +
-                                ConfigurationConstants.ADMIN_PASSWORD_ALGORITHM);
+                                        ConfigurationConstants.ADMIN_PASSWORD_ALGORITHM);
                     }
                     messageDigest.update(password.getBytes());
                     byte[] bytes = messageDigest.digest();
@@ -301,7 +292,7 @@ public class ApacheLDAPServer implements LDAPServer {
 
                     ServerModification serverModification =
                             new ServerModification(ModificationOperation.REPLACE_ATTRIBUTE,
-                                                   passwordAttribute);
+                                    passwordAttribute);
 
                     List<Modification> modifiedList = new ArrayList<Modification>();
                     modifiedList.add(serverModification);
@@ -316,13 +307,13 @@ public class ApacheLDAPServer implements LDAPServer {
 
                 } else {
                     String msg = "Could not retrieve admin principle. Failed changing connection " +
-                                 "user password.";
+                            "user password.";
                     logger.error(msg);
                     throw new DirectoryServerException(msg);
                 }
             } else {
                 String msg = "Directory admin session is null. The LDAP server may not have " +
-                             "started yet.";
+                        "started yet.";
                 logger.error(msg);
                 throw new DirectoryServerException(msg);
             }
@@ -367,7 +358,7 @@ public class ApacheLDAPServer implements LDAPServer {
         if (null == this.service || null == this.ldapConfigurations) {
             throw new DirectoryServerException(
                     "The default apacheds service is not initialized. " +
-                    "Make sure apacheds service is initialized first.");
+                            "Make sure apacheds service is initialized first.");
         }
 
         this.ldapServer = new LdapServer();

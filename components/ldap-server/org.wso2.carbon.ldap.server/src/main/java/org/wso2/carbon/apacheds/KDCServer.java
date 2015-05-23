@@ -28,10 +28,11 @@ public interface KDCServer {
 
     /**
      * Initializes the KDC server.
+     *
      * @param configuration Configuration of the KDC server. This includes,
-     * host name to use, port numbers to use etc ...     *
-     * @param ldapServer KDC server also needs a user store to authenticate users.
-     * This variable represents the LDAP server which stores users.
+     *                      host name to use, port numbers to use etc ...     *
+     * @param ldapServer    KDC server also needs a user store to authenticate users.
+     *                      This variable represents the LDAP server which stores users.
      * @throws DirectoryServerException If an error occurred during initialization.
      */
     void init(final KdcConfiguration configuration, LDAPServer ldapServer)
@@ -39,6 +40,7 @@ public interface KDCServer {
 
     /**
      * Starts the KDC server.
+     *
      * @throws DirectoryServerException If an error occurred during startup.
      */
     void start() throws DirectoryServerException;
@@ -47,8 +49,9 @@ public interface KDCServer {
      * Once we add a new partition to LDAP server we need to make it a kerberos enabled
      * realm. For this we need to add special server principles to newly added partition.
      * Following method will add those new server principles to the given partition.
+     *
      * @param configuration Partition configurations.
-     * @param ldapServer The LDAP server instance which we add the partition.
+     * @param ldapServer    The LDAP server instance which we add the partition.
      * @throws DirectoryServerException If an error occurred during operation.
      */
     public void kerberizePartition(final PartitionInfo configuration, final LDAPServer ldapServer)
@@ -56,16 +59,17 @@ public interface KDCServer {
 
     /**
      * Stops the KDC server.
+     *
      * @throws DirectoryServerException If an error occurred during server termination.
      */
     void stop() throws DirectoryServerException;
 
     /**
      * Says whether KDC server is started or not.
+     *
      * @return <code>true</code> if started else <code>false</code>.
      */
     public boolean isKDCServerStarted();
-
 
 
 }

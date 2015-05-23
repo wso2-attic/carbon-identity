@@ -27,29 +27,33 @@ public interface LDAPServer {
     /**
      * Initializes directory service. Will create a LDAP server instance using apacheeds
      * APIs.
+     *
      * @param configurations This wraps LDAP specific configurations. This includes information
-     * such as ldap running port, kdc running port, whether to enable kdc server etc ...     
+     *                       such as ldap running port, kdc running port, whether to enable kdc server etc ...
      * @throws DirectoryServerException If initialization failed.
      */
     void init(LDAPConfiguration configurations) throws DirectoryServerException;
 
     /**
      * Will start LDAP server. Must be initialized first.
+     *
      * @throws DirectoryServerException If unable to start LDAP server.
      */
     void start() throws DirectoryServerException;
 
     /**
      * Stopes the LDAP server.
+     *
      * @throws DirectoryServerException If unable to stop LDAP server.
      */
     void stop() throws DirectoryServerException;
 
     /**
      * Gets the partition manager from LDAP server. This is used to create partitions for tenants.
+     *
      * @return Returns a {@link PartitionManager}
      * @throws DirectoryServerException If unable to extract PartitionManager from LDAP service
-     * context.
+     *                                  context.
      */
     PartitionManager getPartitionManager() throws DirectoryServerException;
 
@@ -57,18 +61,20 @@ public interface LDAPServer {
      * Changes the connection user password. As for now we don't allow users to change admin domain
      * name.
      * But users can change admin's password using this method.
+     *
      * @param password New password.
      * @throws DirectoryServerException If an error occurred while changing the password.
      */
     void changeConnectionUserPassword(String password)
-        throws DirectoryServerException;
+            throws DirectoryServerException;
 
     /**
      * Gets system admins connection domain name.
      * Ex :- uid=admin,ou=system
+     *
      * @return Admin's domain name as a domain name entry.
      * @throws DirectoryServerException If an error occurred when quarrying the admin user domain
-     * name.
+     *                                  name.
      */
     String getConnectionDomainName() throws DirectoryServerException;
 

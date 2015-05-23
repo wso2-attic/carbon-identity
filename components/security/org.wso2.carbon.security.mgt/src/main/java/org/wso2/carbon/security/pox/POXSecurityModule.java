@@ -25,7 +25,7 @@ import org.apache.axis2.modules.Module;
 import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
 
-public class POXSecurityModule implements Module{
+public class POXSecurityModule implements Module {
 
     // initialize the module
     public void init(ConfigurationContext configContext,
@@ -38,7 +38,7 @@ public class POXSecurityModule implements Module{
 
     public void shutdown(ConfigurationContext configurationContext)
             throws AxisFault {
-	
+
     }
 
     public void applyPolicy(Policy policy, AxisDescription axisDescription) throws AxisFault {

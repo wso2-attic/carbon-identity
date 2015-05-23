@@ -17,8 +17,6 @@
  */
 package org.wso2.carbon.um.ws.service;
 
-import java.util.*;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
@@ -33,12 +31,14 @@ import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.mgt.common.ClaimValue;
 
+import java.util.*;
+
 public class UserStoreManagerService extends AbstractAdmin {
 
     private static Log log = LogFactory.getLog(UserStoreManagerService.class.getClass());
 
     public void addUser(String userName, String credential, String[] roleList, ClaimValue[] claims,
-            String profileName, boolean requirePasswordChange) throws UserStoreException {
+                        String profileName, boolean requirePasswordChange) throws UserStoreException {
         getUserStoreManager().addUser(userName, credential, roleList,
                 convertClaimValueToMap(claims), profileName, requirePasswordChange);
     }
@@ -53,14 +53,14 @@ public class UserStoreManagerService extends AbstractAdmin {
     public void addUserClaimValues(String userName, ClaimValue[] claims, String profileName)
             throws UserStoreException {
 
-        for(ClaimValue claim:claims){
+        for (ClaimValue claim : claims) {
             String existingClaimValue = getUserStoreManager().getUserClaimValue(userName, claim.getClaimURI(), profileName);
-            if(existingClaimValue == null){
+            if (existingClaimValue == null) {
                 existingClaimValue = "";
             }
-            if(claim.getValue() != null && !claim.getValue().equals("")){
+            if (claim.getValue() != null && !claim.getValue().equals("")) {
                 String claimValue;
-                if(!existingClaimValue.equals("")){
+                if (!existingClaimValue.equals("")) {
                     claimValue = existingClaimValue + "," + claim.getValue();
                 } else {
                     claimValue = claim.getValue();
@@ -71,7 +71,7 @@ public class UserStoreManagerService extends AbstractAdmin {
     }
 
     public ClaimValue[] getUserClaimValuesForClaims(String userName, String[] claims,
-            String profileName) throws UserStoreException {
+                                                    String profileName) throws UserStoreException {
         return convertMapToClaimValue(getUserStoreManager().getUserClaimValues(userName, claims,
                 profileName));
     }
@@ -85,7 +85,7 @@ public class UserStoreManagerService extends AbstractAdmin {
         }
     }
 
-    public ClaimDTO [] getUserClaimValues(String userName, String profileName)
+    public ClaimDTO[] getUserClaimValues(String userName, String profileName)
             throws UserStoreException {
         return convertClaimToClaimDTO(getUserStoreManager().getUserClaimValues(userName,
                 profileName));
@@ -161,7 +161,7 @@ public class UserStoreManagerService extends AbstractAdmin {
     }
 
     public String[] getUserList(String claimUri, String claimValue, String profile)
-                                                                        throws UserStoreException {
+            throws UserStoreException {
         return getUserStoreManager().getUserList(claimUri, claimValue, profile);
     }
 
@@ -212,7 +212,7 @@ public class UserStoreManagerService extends AbstractAdmin {
     }
 
     public void setUserClaimValue(String userName, String claimURI, String claimValue,
-            String profileName) throws UserStoreException {
+                                  String profileName) throws UserStoreException {
         getUserStoreManager().setUserClaimValue(userName, claimURI, claimValue, profileName);
 
     }
@@ -221,11 +221,11 @@ public class UserStoreManagerService extends AbstractAdmin {
             throws UserStoreException {
 
         String existingClaimValue = getUserStoreManager().getUserClaimValue(userName, claimURI, profileName);
-        if(existingClaimValue == null){
+        if (existingClaimValue == null) {
             existingClaimValue = "";
         }
-        if(claimValue != null && !claimValue.equals("")){
-            if(!existingClaimValue.equals("")){
+        if (claimValue != null && !claimValue.equals("")) {
+            if (!existingClaimValue.equals("")) {
                 claimValue = existingClaimValue + "," + claimValue;
             }
         }
@@ -281,10 +281,10 @@ public class UserStoreManagerService extends AbstractAdmin {
         return claims;
     }
 
-    private ClaimDTO[] convertClaimToClaimDTO(Claim[] claims){
+    private ClaimDTO[] convertClaimToClaimDTO(Claim[] claims) {
 
         List<ClaimDTO> ClaimDTOs = new ArrayList<ClaimDTO>();
-        for(Claim claim : claims){
+        for (Claim claim : claims) {
             ClaimDTO claimDTO = new ClaimDTO();
             claimDTO.setClaimUri(claim.getClaimUri());
             claimDTO.setValue(claim.getValue());
@@ -299,10 +299,10 @@ public class UserStoreManagerService extends AbstractAdmin {
         return ClaimDTOs.toArray(new ClaimDTO[ClaimDTOs.size()]);
     }
 
-    private Permission[] convertDTOToPermission(PermissionDTO[] permissionDTOs){
+    private Permission[] convertDTOToPermission(PermissionDTO[] permissionDTOs) {
 
         List<Permission> permissions = new ArrayList<Permission>();
-        for(PermissionDTO permissionDTO : permissionDTOs){
+        for (PermissionDTO permissionDTO : permissionDTOs) {
             Permission permission = new Permission(permissionDTO.getResourceId(),
                     permissionDTO.getAction());
             permissions.add(permission);

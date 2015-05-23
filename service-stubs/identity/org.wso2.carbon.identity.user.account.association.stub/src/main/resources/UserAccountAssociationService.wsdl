@@ -1,0 +1,253 @@
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ax2385="http://dto.association.account.user.identity.carbon.wso2.org/xsd" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://association.account.user.identity.carbon.wso2.org" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ax2383="http://exception.association.account.user.identity.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://association.account.user.identity.carbon.wso2.org">
+    <wsdl:documentation>UserAccountAssociationService</wsdl:documentation>
+    <wsdl:types>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://dto.association.account.user.identity.carbon.wso2.org/xsd">
+            <xs:complexType name="UserAccountAssociationDTO">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="domain" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="tenantDomain" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="username" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://exception.association.account.user.identity.carbon.wso2.org/xsd">
+            <xs:complexType name="UserAccountAssociationException">
+                <xs:sequence/>
+            </xs:complexType>
+            <xs:complexType name="UserAccountAssociationClientException">
+                <xs:complexContent>
+                    <xs:extension base="ax2383:UserAccountAssociationException">
+                        <xs:sequence/>
+                    </xs:extension>
+                </xs:complexContent>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema xmlns:ax2384="http://exception.association.account.user.identity.carbon.wso2.org/xsd" xmlns:ax2386="http://dto.association.account.user.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://association.account.user.identity.carbon.wso2.org">
+            <xs:import namespace="http://exception.association.account.user.identity.carbon.wso2.org/xsd"/>
+            <xs:import namespace="http://dto.association.account.user.identity.carbon.wso2.org/xsd"/>
+            <xs:element name="UserAccountAssociationServiceUserAccountAssociationClientException">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="UserAccountAssociationClientException" nillable="true" type="ax2384:UserAccountAssociationClientException"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="deleteUserAccountAssociation">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAccountAssociationsOfUser">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAccountAssociationsOfUserResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2385:UserAccountAssociationDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="createUserAccountAssociation">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="password" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="switchLoggedInUser">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="switchLoggedInUserResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="switchLoggedInUserRequest">
+        <wsdl:part name="parameters" element="ns:switchLoggedInUser"/>
+    </wsdl:message>
+    <wsdl:message name="switchLoggedInUserResponse">
+        <wsdl:part name="parameters" element="ns:switchLoggedInUserResponse"/>
+    </wsdl:message>
+    <wsdl:message name="UserAccountAssociationServiceUserAccountAssociationClientException">
+        <wsdl:part name="parameters" element="ns:UserAccountAssociationServiceUserAccountAssociationClientException"/>
+    </wsdl:message>
+    <wsdl:message name="deleteUserAccountAssociationRequest">
+        <wsdl:part name="parameters" element="ns:deleteUserAccountAssociation"/>
+    </wsdl:message>
+    <wsdl:message name="createUserAccountAssociationRequest">
+        <wsdl:part name="parameters" element="ns:createUserAccountAssociation"/>
+    </wsdl:message>
+    <wsdl:message name="getAccountAssociationsOfUserRequest">
+        <wsdl:part name="parameters" element="ns:getAccountAssociationsOfUser"/>
+    </wsdl:message>
+    <wsdl:message name="getAccountAssociationsOfUserResponse">
+        <wsdl:part name="parameters" element="ns:getAccountAssociationsOfUserResponse"/>
+    </wsdl:message>
+    <wsdl:portType name="UserAccountAssociationServicePortType">
+        <wsdl:operation name="switchLoggedInUser">
+            <wsdl:input message="ns:switchLoggedInUserRequest" wsaw:Action="urn:switchLoggedInUser"/>
+            <wsdl:output message="ns:switchLoggedInUserResponse" wsaw:Action="urn:switchLoggedInUserResponse"/>
+            <wsdl:fault message="ns:UserAccountAssociationServiceUserAccountAssociationClientException" name="UserAccountAssociationServiceUserAccountAssociationClientException" wsaw:Action="urn:switchLoggedInUserUserAccountAssociationServiceUserAccountAssociationClientException"/>
+        </wsdl:operation>
+        <wsdl:operation name="deleteUserAccountAssociation">
+            <wsdl:input message="ns:deleteUserAccountAssociationRequest" wsaw:Action="urn:deleteUserAccountAssociation"/>
+            <wsdl:fault message="ns:UserAccountAssociationServiceUserAccountAssociationClientException" name="UserAccountAssociationServiceUserAccountAssociationClientException" wsaw:Action="urn:deleteUserAccountAssociationUserAccountAssociationServiceUserAccountAssociationClientException"/>
+        </wsdl:operation>
+        <wsdl:operation name="createUserAccountAssociation">
+            <wsdl:input message="ns:createUserAccountAssociationRequest" wsaw:Action="urn:createUserAccountAssociation"/>
+            <wsdl:fault message="ns:UserAccountAssociationServiceUserAccountAssociationClientException" name="UserAccountAssociationServiceUserAccountAssociationClientException" wsaw:Action="urn:createUserAccountAssociationUserAccountAssociationServiceUserAccountAssociationClientException"/>
+        </wsdl:operation>
+        <wsdl:operation name="getAccountAssociationsOfUser">
+            <wsdl:input message="ns:getAccountAssociationsOfUserRequest" wsaw:Action="urn:getAccountAssociationsOfUser"/>
+            <wsdl:output message="ns:getAccountAssociationsOfUserResponse" wsaw:Action="urn:getAccountAssociationsOfUserResponse"/>
+            <wsdl:fault message="ns:UserAccountAssociationServiceUserAccountAssociationClientException" name="UserAccountAssociationServiceUserAccountAssociationClientException" wsaw:Action="urn:getAccountAssociationsOfUserUserAccountAssociationServiceUserAccountAssociationClientException"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="UserAccountAssociationServiceSoap11Binding" type="ns:UserAccountAssociationServicePortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="switchLoggedInUser">
+            <soap:operation soapAction="urn:switchLoggedInUser" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="UserAccountAssociationServiceUserAccountAssociationClientException">
+                <soap:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="deleteUserAccountAssociation">
+            <soap:operation soapAction="urn:deleteUserAccountAssociation" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="UserAccountAssociationServiceUserAccountAssociationClientException">
+                <soap:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="createUserAccountAssociation">
+            <soap:operation soapAction="urn:createUserAccountAssociation" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="UserAccountAssociationServiceUserAccountAssociationClientException">
+                <soap:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getAccountAssociationsOfUser">
+            <soap:operation soapAction="urn:getAccountAssociationsOfUser" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="UserAccountAssociationServiceUserAccountAssociationClientException">
+                <soap:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="UserAccountAssociationServiceSoap12Binding" type="ns:UserAccountAssociationServicePortType">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="switchLoggedInUser">
+            <soap12:operation soapAction="urn:switchLoggedInUser" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="UserAccountAssociationServiceUserAccountAssociationClientException">
+                <soap12:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="deleteUserAccountAssociation">
+            <soap12:operation soapAction="urn:deleteUserAccountAssociation" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="UserAccountAssociationServiceUserAccountAssociationClientException">
+                <soap12:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="createUserAccountAssociation">
+            <soap12:operation soapAction="urn:createUserAccountAssociation" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="UserAccountAssociationServiceUserAccountAssociationClientException">
+                <soap12:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getAccountAssociationsOfUser">
+            <soap12:operation soapAction="urn:getAccountAssociationsOfUser" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="UserAccountAssociationServiceUserAccountAssociationClientException">
+                <soap12:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="UserAccountAssociationServiceHttpBinding" type="ns:UserAccountAssociationServicePortType">
+        <http:binding verb="POST"/>
+        <wsdl:operation name="switchLoggedInUser">
+            <http:operation location="switchLoggedInUser"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="deleteUserAccountAssociation">
+            <http:operation location="deleteUserAccountAssociation"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="createUserAccountAssociation">
+            <http:operation location="createUserAccountAssociation"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="getAccountAssociationsOfUser">
+            <http:operation location="getAccountAssociationsOfUser"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="UserAccountAssociationService">
+        <wsdl:port name="UserAccountAssociationServiceHttpsSoap11Endpoint" binding="ns:UserAccountAssociationServiceSoap11Binding">
+            <soap:address location="https://localhost:9443/services/UserAccountAssociationService.UserAccountAssociationServiceHttpsSoap11Endpoint/"/>
+        </wsdl:port>
+        <wsdl:port name="UserAccountAssociationServiceHttpsSoap12Endpoint" binding="ns:UserAccountAssociationServiceSoap12Binding">
+            <soap12:address location="https://localhost:9443/services/UserAccountAssociationService.UserAccountAssociationServiceHttpsSoap12Endpoint/"/>
+        </wsdl:port>
+        <wsdl:port name="UserAccountAssociationServiceHttpsEndpoint" binding="ns:UserAccountAssociationServiceHttpBinding">
+            <http:address location="https://localhost:9443/services/UserAccountAssociationService.UserAccountAssociationServiceHttpsEndpoint/"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

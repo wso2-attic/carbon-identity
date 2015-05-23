@@ -1,4 +1,0 @@
-instructions.configure = \
-org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../features/org.wso2.carbon.identity.relying.party.server_${feature.version}/conf/claim-config.xml,target:${installFolder}/../../conf/claim-config.xml,overwrite:true);\
-org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../features/org.wso2.carbon.identity.relying.party.server_${feature.version}/conf/userRP.jks,target:${installFolder}/../../resources/security/userRP.jks,overwrite:true);\
-org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../features/org.wso2.carbon.identity.relying.party.server_${feature.version}/conf/wso2is-user-certs.jks,target:${installFolder}/../../resources/security/wso2is-user-certs.jks,overwrite:true);\

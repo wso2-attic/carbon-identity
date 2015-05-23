@@ -21,17 +21,11 @@ package org.wso2.carbon.ldap.server;
 import org.apache.log4j.Logger;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.wso2.carbon.apacheds.DirectoryServiceFactory;
-import org.wso2.carbon.apacheds.KDCServer;
-import org.wso2.carbon.apacheds.KdcConfiguration;
-import org.wso2.carbon.apacheds.LDAPConfiguration;
-import org.wso2.carbon.apacheds.LDAPServer;
-import org.wso2.carbon.apacheds.PartitionInfo;
-import org.wso2.carbon.apacheds.PartitionManager;
-import org.wso2.carbon.ldap.server.exception.DirectoryServerException;
-import org.wso2.carbon.ldap.server.util.EmbeddingLDAPException;
+import org.wso2.carbon.apacheds.*;
 import org.wso2.carbon.ldap.server.configuration.LDAPConfigurationBuilder;
+import org.wso2.carbon.ldap.server.exception.DirectoryServerException;
 import org.wso2.carbon.ldap.server.tenant.LDAPTenantManagerService;
+import org.wso2.carbon.ldap.server.util.EmbeddingLDAPException;
 import org.wso2.carbon.user.core.tenant.LDAPTenantManager;
 
 import java.io.File;
@@ -47,6 +41,7 @@ public class DirectoryActivator implements BundleActivator {
     /**
      * This is called at the bundle start, EmbeddedLDAP-server is started and an implementation
      * of LDAPTenantManager is registered in OSGI.
+     *
      * @param bundleContext The input bundle context.
      */
     public void start(BundleContext bundleContext) {
@@ -79,15 +74,15 @@ public class DirectoryActivator implements BundleActivator {
                         configurationBuilder.getConnectionPassword());
 
                 // Add admin (default)partition if it is not already created.
-				PartitionManager partitionManager = this.ldapServer.getPartitionManager();
-				PartitionInfo defaultPartitionInfo = configurationBuilder.getPartitionConfigurations();
-				boolean defaultPartitionAlreadyExisted =
-				                                         partitionManager.partitionDirectoryExists(defaultPartitionInfo.getPartitionId());
+                PartitionManager partitionManager = this.ldapServer.getPartitionManager();
+                PartitionInfo defaultPartitionInfo = configurationBuilder.getPartitionConfigurations();
+                boolean defaultPartitionAlreadyExisted =
+                        partitionManager.partitionDirectoryExists(defaultPartitionInfo.getPartitionId());
 
                 if (!defaultPartitionAlreadyExisted) {
                     partitionManager.addPartition(defaultPartitionInfo);
-                    if (kdcServer==null) {
-                    	kdcServer =DirectoryServiceFactory.createKDCServer(DirectoryServiceFactory.LDAPServerType.
+                    if (kdcServer == null) {
+                        kdcServer = DirectoryServiceFactory.createKDCServer(DirectoryServiceFactory.LDAPServerType.
                                 APACHE_DIRECTORY_SERVICE);
                     }
                     kdcServer.kerberizePartition(configurationBuilder.
@@ -107,8 +102,8 @@ public class DirectoryActivator implements BundleActivator {
                 LDAPTenantManager ldapTenantManager = new LDAPTenantManagerService(this.ldapServer.
                         getPartitionManager());
                 bundleContext.registerService(LDAPTenantManager.class.getName(), ldapTenantManager,
-                                              null);
-                if(logger.isDebugEnabled()){
+                        null);
+                if (logger.isDebugEnabled()) {
                     logger.debug("apacheds-server component started.");
                 }
 
@@ -121,7 +116,7 @@ public class DirectoryActivator implements BundleActivator {
             String errorMessage = "Could not start the embedded-ldap. ";
             logger.error(errorMessage, e);
 
-        } catch (DirectoryServerException e){
+        } catch (DirectoryServerException e) {
             String errorMessage = "Could not start the embedded-ldap. ";
             logger.error(errorMessage, e);
 
@@ -196,24 +191,24 @@ public class DirectoryActivator implements BundleActivator {
     private void startLdapServer(LDAPConfiguration ldapConfiguration)
             throws DirectoryServerException {
 
-        this.ldapServer =DirectoryServiceFactory.createLDAPServer(DirectoryServiceFactory.
+        this.ldapServer = DirectoryServiceFactory.createLDAPServer(DirectoryServiceFactory.
                 LDAPServerType.APACHE_DIRECTORY_SERVICE);
 
         logger.info("Initializing Directory Server with working directory " + ldapConfiguration.
-                getWorkingDirectory() +" and port " + ldapConfiguration.getLdapPort());
+                getWorkingDirectory() + " and port " + ldapConfiguration.getLdapPort());
 
         this.ldapServer.init(ldapConfiguration);
 
         this.ldapServer.start();
     }
-    
+
     private void startKDC(KdcConfiguration kdcConfiguration)
             throws DirectoryServerException {
 
-		if (kdcServer == null) {
-			kdcServer = DirectoryServiceFactory
-					.createKDCServer(DirectoryServiceFactory.LDAPServerType.APACHE_DIRECTORY_SERVICE);
-		}
+        if (kdcServer == null) {
+            kdcServer = DirectoryServiceFactory
+                    .createKDCServer(DirectoryServiceFactory.LDAPServerType.APACHE_DIRECTORY_SERVICE);
+        }
         kdcServer.init(kdcConfiguration, this.ldapServer);
 
         kdcServer.start();

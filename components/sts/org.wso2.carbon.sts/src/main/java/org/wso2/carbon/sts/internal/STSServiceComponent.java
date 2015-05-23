@@ -60,12 +60,12 @@ public class STSServiceComponent {
             Dictionary props = new Hashtable();
             props.put(CarbonConstants.AXIS2_CONFIG_SERVICE, AxisObserver.class.getName());
             ctxt.getBundleContext().registerService(AxisObserver.class.getName(),
-                                                    new STSDeploymentInterceptor(), props);
+                    new STSDeploymentInterceptor(), props);
 
             // Publish an OSGi service to listen tenant configuration context creation events
             bundleCtx.registerService(Axis2ConfigurationContextObserver.class.getName(),
-                                      new STSDeploymentListener(),
-                                      null);
+                    new STSDeploymentListener(),
+                    null);
         } catch (Throwable e) {
             log.error("Error occurred while updating carbon STS service", e);
         }
@@ -96,14 +96,14 @@ public class STSServiceComponent {
     }
 
     protected void setRealmService(RealmService realmService) {
-        if(log.isDebugEnabled()){
+        if (log.isDebugEnabled()) {
             log.debug("Setting the RealmService");
         }
         STSServiceDataHolder.getInstance().setRealmService(realmService);
     }
 
     protected void unsetRealmService(RealmService realmService) {
-        if(log.isDebugEnabled()){
+        if (log.isDebugEnabled()) {
             log.debug("Unsetting the RealmService");
         }
         STSServiceDataHolder.getInstance().setRealmService(null);

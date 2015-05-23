@@ -20,48 +20,30 @@ package org.wso2.carbon.idp.mgt.dao;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jivesoftware.smackx.packet.DiscoverInfo;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
-import org.wso2.carbon.identity.application.common.model.Claim;
-import org.wso2.carbon.identity.application.common.model.ClaimConfig;
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
-import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
-import org.wso2.carbon.identity.application.common.model.IdentityProvider;
-import org.wso2.carbon.identity.application.common.model.JustInTimeProvisioningConfig;
-import org.wso2.carbon.identity.application.common.model.LocalRole;
-import org.wso2.carbon.identity.application.common.model.PermissionsAndRoleConfig;
-import org.wso2.carbon.identity.application.common.model.Property;
-import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
-import org.wso2.carbon.identity.application.common.model.RoleMapping;
-import org.wso2.carbon.identity.application.common.persistence.JDBCPersistenceManager;
+import org.wso2.carbon.identity.application.common.model.*;
+import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.application.common.util.CharacterEncoder;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.utils.DBUtils;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class IdPManagementDAO {
 
     private static final Log log = LogFactory.getLog(IdPManagementDAO.class);
 
     /**
-     *
      * @param dbConnection
      * @param tenantId
      * @param tenantDomain
@@ -125,7 +107,7 @@ public class IdPManagementDAO {
                 }
             }
             return idps;
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while retrieving registered Identity Provider Entity IDs "
@@ -141,7 +123,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param dbConnection
      * @param idPName
      * @param tenantId
@@ -184,7 +165,7 @@ public class IdPManagementDAO {
 
                 authnConfig.setDisplayName(rs.getString(4));
 
-                if (defaultAuthName != null && authnConfig.getName().equals(defaultAuthName)){
+                if (defaultAuthName != null && authnConfig.getName().equals(defaultAuthName)) {
                     federatedIdp.getDefaultAuthenticatorConfig().setDisplayName(authnConfig.getDisplayName());
                 }
 
@@ -219,7 +200,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param newFederatedAuthenticatorConfigs
      * @param oldFederatedAuthenticatorConfigs
      * @param dbConnection
@@ -256,7 +236,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param federatedAuthenticatorConfig
      * @param dbConnection
      * @param idpId
@@ -326,7 +305,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param authnConfigs
      * @param dbConnection
      * @param idpId
@@ -391,7 +369,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param dbConnection
      * @param idPName
      * @param userClaimUri
@@ -460,7 +437,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param dbConnection
      * @param idPName
      * @param tenantId
@@ -543,7 +519,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param dbConnection
      * @param idPName
      * @param tenantId
@@ -602,7 +577,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param provisioningConnectors
      * @param dbConnection
      * @param idpId
@@ -629,7 +603,7 @@ public class IdPManagementDAO {
             String sqlBaseStmt = IdPManagementConstants.SQLQueries.ADD_IDP_PROVISIONING_CONFIG_SQL;
             String dbProductName = dbConnection.getMetaData().getDatabaseProductName();
             PreparedStatement prepBaseStmt = dbConnection.prepareStatement(sqlBaseStmt,
-                   new String[]{DBUtils.getConvertedAutoGeneratedColumnName(dbProductName,"ID")});
+                    new String[]{DBUtils.getConvertedAutoGeneratedColumnName(dbProductName, "ID")});
 
             if (provisioningConnectors != null) {
                 for (ProvisioningConnectorConfig connector : provisioningConnectors) {
@@ -675,7 +649,7 @@ public class IdPManagementDAO {
                                 prepStmt.setString(3, CharacterEncoder.getSafeText(config.getName()));
 
                                 // TODO : Sect property type accordingly
-                                if (IdentityApplicationConstants.ConfigElements.PROPERTY_TYPE_BLOB.equals(config.getType())){
+                                if (IdentityApplicationConstants.ConfigElements.PROPERTY_TYPE_BLOB.equals(config.getType())) {
                                     prepStmt.setString(4, null);
                                     setBlobValue(config.getValue(), prepStmt, 5);
                                     prepStmt.setString(6, config.getType());
@@ -714,18 +688,17 @@ public class IdPManagementDAO {
     private void setBlobValue(String value, PreparedStatement prepStmt, int index) throws SQLException, IOException {
         if (value != null) {
             InputStream inputStream = new ByteArrayInputStream(CharacterEncoder.getSafeText(value).getBytes());
-            if(inputStream != null){
-                prepStmt.setBinaryStream(index, inputStream ,inputStream.available());
+            if (inputStream != null) {
+                prepStmt.setBinaryStream(index, inputStream, inputStream.available());
             } else {
-                prepStmt.setBinaryStream(index, inputStream , 0);
+                prepStmt.setBinaryStream(index, inputStream, 0);
             }
         } else {
             prepStmt.setBinaryStream(index, null, 0);
-        }      
+        }
     }
 
     /**
-     *
      * @param newProvisioningConnectorConfigs
      * @param dbConnection
      * @param idpId
@@ -755,7 +728,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param dbConnection
      * @param idPName
      * @param tenantId
@@ -829,7 +801,7 @@ public class IdPManagementDAO {
                             String isSecret = rs2.getString(7);
 
                             Property.setName(name);
-                            if(propertyType != null && IdentityApplicationConstants.ConfigElements.PROPERTY_TYPE_BLOB.equals(propertyType.trim())){
+                            if (propertyType != null && IdentityApplicationConstants.ConfigElements.PROPERTY_TYPE_BLOB.equals(propertyType.trim())) {
                                 Property.setValue(blobValue);
                             } else {
                                 Property.setValue(value);
@@ -895,7 +867,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param dbConnection
      * @param idPName
      * @param tenantId
@@ -1026,7 +997,7 @@ public class IdPManagementDAO {
 
             }
             return federatedIdp;
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while retrieving Identity Provider information for tenant : "
                     + tenantDomain + " and Identity Provider name : " + idPName;
@@ -1039,10 +1010,9 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param dbConnection
-     * @param property    Property which has a unique value like EntityID to specifically identify a IdentityProvider
-     *                    Unless it will return first matched IdentityProvider
+     * @param property     Property which has a unique value like EntityID to specifically identify a IdentityProvider
+     *                     Unless it will return first matched IdentityProvider
      * @param value
      * @param tenantId
      * @param tenantDomain
@@ -1176,7 +1146,7 @@ public class IdPManagementDAO {
 
             }
             return federatedIdp;
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while retrieving Identity Provider information for Authenticator Property : "
                     + property + " and value : " + value;
@@ -1189,7 +1159,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param realmId
      * @param tenantId
      * @param tenantDomain
@@ -1221,7 +1190,7 @@ public class IdPManagementDAO {
             IdentityApplicationManagementUtil.closeResultSet(rs);
 
             return getIdPByName(dbConnection, idPName, tenantId, tenantDomain);
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             throw new IdentityApplicationManagementException(
                     "Error while retreiving Identity Provider by realm " + realmId, e);
         } finally {
@@ -1233,7 +1202,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param identityProvider
      * @param tenantId
      * @throws IdentityApplicationManagementException
@@ -1399,7 +1367,7 @@ public class IdPManagementDAO {
             String msg = "An error occurred while processing content stream.";
             log.error(msg, e);
             throw new IdentityApplicationManagementException(msg, e);
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while adding Identity Provider for tenant " + tenantId;
             throw new IdentityApplicationManagementException(msg, e);
@@ -1409,7 +1377,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param newIdentityProvider
      * @param currentIdentityProvider
      * @param tenantId
@@ -1566,7 +1533,7 @@ public class IdPManagementDAO {
             String msg = "An error occurred while processing content stream.";
             log.error(msg, e);
             throw new IdentityApplicationManagementException(msg, e);
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while updating Identity Provider information  for tenant "
@@ -1607,7 +1574,7 @@ public class IdPManagementDAO {
                     isReffered = rsProvIdp.getInt(1) > 0;
                 }
             }
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             String msg = "Error occurred while searching for IDP references in SP ";
             throw new IdentityApplicationManagementException(msg, e);
@@ -1626,7 +1593,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param idPName
      * @param tenantId
      * @param tenantDomain
@@ -1660,7 +1626,7 @@ public class IdPManagementDAO {
             }
 
             dbConnection.commit();
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while deleting Identity Provider of tenant "
@@ -1711,7 +1677,7 @@ public class IdPManagementDAO {
 
                 return identityProviderDO;
             }
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while retrieving primary Identity Provider for tenant "
@@ -1738,7 +1704,7 @@ public class IdPManagementDAO {
             prepStmt.setString(2, role);
             prepStmt.executeUpdate();
             dbConnection.commit();
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while deleting tenant role " + role + " of tenant "
@@ -1753,7 +1719,7 @@ public class IdPManagementDAO {
                                  String tenantDomain) throws IdentityApplicationManagementException {
 
         Connection dbConnection = null;
-        PreparedStatement prepStmt = null;
+        PreparedStatement prepStmt;
         try {
             dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
             String sqlStmt = IdPManagementConstants.SQLQueries.RENAME_ROLE_LISTENER_SQL;
@@ -1763,7 +1729,7 @@ public class IdPManagementDAO {
             prepStmt.setString(3, CharacterEncoder.getSafeText(oldRoleName));
             prepStmt.executeUpdate();
             dbConnection.commit();
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while renaming tenant role " + oldRoleName + " to "
@@ -1775,7 +1741,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param dbConnection
      * @param idpId
      * @throws IdentityApplicationManagementException
@@ -1797,7 +1762,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param dbConnection
      * @param idpId
      * @param tenantId
@@ -1822,7 +1786,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param dbConnection
      * @param idpId
      * @throws IdentityApplicationManagementException
@@ -1844,7 +1807,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param newClaimURI
      * @param oldClaimURI
      * @param tenantId
@@ -1865,7 +1827,7 @@ public class IdPManagementDAO {
             prepStmt.setString(3, CharacterEncoder.getSafeText(oldClaimURI));
             prepStmt.executeUpdate();
             dbConnection.commit();
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             String msg = "Error occurred while renaming tenant role " + oldClaimURI + " to "
                     + newClaimURI + " of tenant " + tenantDomain;
@@ -1876,7 +1838,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param conn
      * @param tenantId
      * @throws SQLException
@@ -1918,7 +1879,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param conn
      * @param idPId
      * @param claims
@@ -1950,7 +1910,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param conn
      * @param idPId
      * @param tenantId
@@ -2001,7 +1960,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param conn
      * @param idPId
      * @param tenantId
@@ -2081,7 +2039,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param conn
      * @param idPId
      * @param idpRoleNames
@@ -2117,7 +2074,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param conn
      * @param idPId
      * @param tenantId
@@ -2191,7 +2147,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param conn
      * @param idPId
      * @param tenantId
@@ -2213,30 +2168,28 @@ public class IdPManagementDAO {
             return;
         }
 
-        if (newClaimConfig.getIdpClaims() == null || newClaimConfig.getIdpClaims().length == 0) {
-            // we cannot add claim mappings without claims.
-            return;
-        }
-
         if (newClaimConfig.isLocalClaimDialect()) {
-            addDefaultClaimValuesForLocalIdP(conn, idPId, tenantId,
-                    newClaimConfig.getClaimMappings());
-        } else {
-            // add identity provider claims.
-            addIdPClaims(conn, idPId, tenantId, newClaimConfig.getIdpClaims());
-
-            if (newClaimConfig.getClaimMappings() == null
-                    || newClaimConfig.getClaimMappings().length == 0) {
-                // we do not have any claim mappings - we either didn't have.
-                return;
+            if (newClaimConfig.getClaimMappings() != null && newClaimConfig.getClaimMappings().length > 0) {
+                // add claim mappings only.
+                addDefaultClaimValuesForLocalIdP(conn, idPId, tenantId,
+                        newClaimConfig.getClaimMappings());
             }
-            addIdPClaimMappings(conn, idPId, tenantId, newClaimConfig.getClaimMappings());
+        } else {
+            boolean addedClaims = false;
+            if (newClaimConfig.getIdpClaims() != null && newClaimConfig.getIdpClaims().length > 0) {
+                // add identity provider claims.
+                addIdPClaims(conn, idPId, tenantId, newClaimConfig.getIdpClaims());
+                addedClaims = true;
+            }
+            if (addedClaims && newClaimConfig.getClaimMappings() != null &&
+                    newClaimConfig.getClaimMappings().length > 0) {
+                // add identity provider claim mappings if and only if IdP claims are not empty.
+                addIdPClaimMappings(conn, idPId, tenantId, newClaimConfig.getClaimMappings());
+            }
         }
-
     }
 
     /**
-     *
      * @param conn
      * @param idPId
      * @param addedRoles
@@ -2300,7 +2253,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param conn
      * @param idPId
      * @param tenantId
@@ -2336,7 +2288,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param conn
      * @param conn
      * @param idPId
@@ -2357,7 +2308,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param conn
      * @param tenantId
      * @param idPName
@@ -2379,7 +2329,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param dbConnection
      * @param idpName
      * @param tenantId
@@ -2408,6 +2357,9 @@ public class IdPManagementDAO {
             if (rs.next()) {
                 return rs.getInt(1);
             }
+        } catch (IdentityException e) {
+            throw new IdentityApplicationManagementException("Error occurred while reading Identity Provider by name" +
+                                                             ".", e);
         } finally {
             IdentityApplicationManagementUtil.closeStatement(prepStmt);
             IdentityApplicationManagementUtil.closeResultSet(rs);
@@ -2419,7 +2371,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param o1
      * @param o2
      * @return
@@ -2434,7 +2385,6 @@ public class IdPManagementDAO {
     }
 
     /**
-     *
      * @param dbConnection
      * @param idPName
      * @param tenantId
@@ -2490,38 +2440,38 @@ public class IdPManagementDAO {
             IdentityApplicationManagementUtil.closeStatement(prepStmt);
         }
     }
-    
-	public boolean isSimilarIdPEntityIdsAvailble(String idPEntityId, int tenantId)
-			throws IdentityApplicationManagementException {
-		boolean isAvailable = false;
-		Connection dbConnection = null;
-		PreparedStatement prepStmt = null;
-		ResultSet rs = null;
 
-		try {
-			dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
-			String sqlStmt = IdPManagementConstants.SQLQueries.GET_SIMILAR_IDP_ENTITIY_IDS;
-			prepStmt = dbConnection.prepareStatement(sqlStmt);
-			prepStmt.setString(1, "IdPEntityId");
-			prepStmt.setString(2, idPEntityId);
-			prepStmt.setInt(3, tenantId);
-			rs = prepStmt.executeQuery();
-			if (rs.next()) {
-				isAvailable = rs.getInt(1) > 0;
-			}
-		} catch (SQLException e) {
-			log.error(e.getMessage(), e);
-			String msg = "Error occurred while searching for similar IdP EntityIds";
-			throw new IdentityApplicationManagementException(msg, e);
-		} finally {
-			if (prepStmt != null) {
-				IdentityApplicationManagementUtil.closeStatement(prepStmt);
-			}
-			if (rs != null) {
-				IdentityApplicationManagementUtil.closeResultSet(rs);
-			}
-			IdentityApplicationManagementUtil.closeConnection(dbConnection);
-		}
-		return isAvailable;
-	}
+    public boolean isSimilarIdPEntityIdsAvailble(String idPEntityId, int tenantId)
+            throws IdentityApplicationManagementException {
+        boolean isAvailable = false;
+        Connection dbConnection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+
+        try {
+            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
+            String sqlStmt = IdPManagementConstants.SQLQueries.GET_SIMILAR_IDP_ENTITIY_IDS;
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, "IdPEntityId");
+            prepStmt.setString(2, idPEntityId);
+            prepStmt.setInt(3, tenantId);
+            rs = prepStmt.executeQuery();
+            if (rs.next()) {
+                isAvailable = rs.getInt(1) > 0;
+            }
+        } catch (SQLException | IdentityException e) {
+            log.error(e.getMessage(), e);
+            String msg = "Error occurred while searching for similar IdP EntityIds";
+            throw new IdentityApplicationManagementException(msg, e);
+        } finally {
+            if (prepStmt != null) {
+                IdentityApplicationManagementUtil.closeStatement(prepStmt);
+            }
+            if (rs != null) {
+                IdentityApplicationManagementUtil.closeResultSet(rs);
+            }
+            IdentityApplicationManagementUtil.closeConnection(dbConnection);
+        }
+        return isAvailable;
+    }
 }

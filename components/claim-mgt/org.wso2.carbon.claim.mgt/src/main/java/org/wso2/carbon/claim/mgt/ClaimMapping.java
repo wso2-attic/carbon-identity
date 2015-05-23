@@ -26,7 +26,7 @@ public class ClaimMapping {
 
     private String carbonClaimURI;
 
-    public ClaimMapping(String nonCarbonDialect, String nonCarbonClaimURI, String carbonClaimURI){
+    public ClaimMapping(String nonCarbonDialect, String nonCarbonClaimURI, String carbonClaimURI) {
         this.nonCarbonDialect = nonCarbonDialect;
         this.nonCarbonClaimURI = nonCarbonClaimURI;
         this.carbonClaimURI = carbonClaimURI;

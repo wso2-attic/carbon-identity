@@ -30,16 +30,15 @@ import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 
 public class WSProfileConfigurationManager implements ProfileConfigurationManager {
 
-    private RemoteProfileConfigurationManagerServiceStub stub = null;
-
     private static Log log = LogFactory.getLog(WSProfileConfigurationManager.class);
+    private RemoteProfileConfigurationManagerServiceStub stub = null;
 
     public WSProfileConfigurationManager(String serverUrl, String cookie,
                                          ConfigurationContext configCtxt) throws UserStoreException {
         try {
             stub =
-                   new RemoteProfileConfigurationManagerServiceStub(configCtxt, serverUrl +
-                                                                                "RemoteProfileConfigurationManagerService");
+                    new RemoteProfileConfigurationManagerServiceStub(configCtxt, serverUrl +
+                            "RemoteProfileConfigurationManagerService");
             ServiceClient client = stub._getServiceClient();
             Options option = client.getOptions();
             option.setManageSession(true);
