@@ -373,7 +373,7 @@ public class IdentityProviderManager {
         if (!idPEntityIdAvailable) {
             Property property = new Property();
             property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
-            property.setValue("localhost");
+            property.setValue(IdPManagementUtil.getResidentIdPEntityId());
             if (fedAuthnConfig.getProperties().length > 0) {
                 List<Property> properties = Arrays.asList(fedAuthnConfig.getProperties());
                 properties.add(property);

@@ -180,6 +180,7 @@ public class RecoveryProcessor {
                 }
                 secretKey = UUIDGenerator.generateUUID();
                 emailNotificationData.setTagData("confirmation-code", confirmationKey);
+                emailNotificationData.setTagData("tenant-domain", domainName);
                 emailTemplate = config.getProperty(IdentityMgtConstants.Notification.PASSWORD_RESET_RECOVERY);
 
             } else if (IdentityMgtConstants.Notification.ACCOUNT_CONFORM.equals(notification)) {
@@ -187,6 +188,7 @@ public class RecoveryProcessor {
                 secretKey = UUIDGenerator.generateUUID();
                 emailNotificationData.setTagData("user-name", userId);
                 emailNotificationData.setTagData("confirmation-code", confirmationKey);
+                emailNotificationData.setTagData("tenant-domain", domainName);
                 emailTemplate = config.getProperty(IdentityMgtConstants.Notification.ACCOUNT_CONFORM);
 
             } else if (IdentityMgtConstants.Notification.TEMPORARY_PASSWORD.equals(notification)) {
@@ -197,6 +199,7 @@ public class RecoveryProcessor {
                 }
                 Utils.updatePassword(userId, tenantId, temporaryPassword);
                 emailNotificationData.setTagData("temporary-password", temporaryPassword);
+                emailNotificationData.setTagData("tenant-domain", domainName);
                 emailTemplate = config.getProperty(IdentityMgtConstants.Notification.TEMPORARY_PASSWORD);
                 persistData = false;
             } else if (IdentityMgtConstants.Notification.ACCOUNT_UNLOCK.equals(notification)) {
@@ -204,6 +207,7 @@ public class RecoveryProcessor {
                 persistData = false;
             } else if (IdentityMgtConstants.Notification.ACCOUNT_ID_RECOVERY.equals(notification)) {
                 emailTemplate = config.getProperty(IdentityMgtConstants.Notification.ACCOUNT_ID_RECOVERY);
+                emailNotificationData.setTagData("tenant-domain", domainName);
                 persistData = false;
             } else if (IdentityMgtConstants.Notification.ASK_PASSWORD.equals(notification)) {
                 if (firstName == null || firstName.isEmpty()) {
@@ -480,6 +484,7 @@ public class RecoveryProcessor {
             if (IdentityMgtConstants.Notification.PASSWORD_RESET_RECOVERY.equals(notification)) {
                 notificationData.setNotificationCode(confirmationKey);
                 emailNotificationData.setTagData("confirmation-code", confirmationKey);
+                emailNotificationData.setTagData("tenant-domain", domainName);
                 emailTemplate = config.getProperty(IdentityMgtConstants.Notification.PASSWORD_RESET_RECOVERY);
 
             } else if (IdentityMgtConstants.Notification.ACCOUNT_CONFORM.equals(notification)) {
@@ -492,6 +497,7 @@ public class RecoveryProcessor {
                 String temporaryPassword = notificationBean.getTemporaryPassword();  // TODO
                 notificationData.setNotificationCode(temporaryPassword);
                 emailNotificationData.setTagData("temporary-password", temporaryPassword);
+                emailNotificationData.setTagData("tenant-domain", domainName);
                 emailTemplate = config.getProperty(IdentityMgtConstants.Notification.TEMPORARY_PASSWORD);
 
             } else if (IdentityMgtConstants.Notification.ACCOUNT_UNLOCK.equals(notification)) {
@@ -499,6 +505,7 @@ public class RecoveryProcessor {
                 notificationData.setNotificationCode(userId);
 
             } else if (IdentityMgtConstants.Notification.ACCOUNT_ID_RECOVERY.equals(notification)) {
+                emailNotificationData.setTagData("tenant-domain", domainName);
                 emailTemplate = config.getProperty(IdentityMgtConstants.Notification.ACCOUNT_ID_RECOVERY);
                 notificationData.setNotificationCode(userId);
 

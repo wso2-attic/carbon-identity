@@ -1388,16 +1388,18 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
                 InboundAuthenticationRequestConfig inbountAuthRequest = null;
                 String authKey = resultSet.getString(1);
+                String authType = resultSet.getString(2);
+                String mapKey = authType + ":" + authKey;
 
-                if (!authRequestMap.containsKey(authKey)) {
+                if (!authRequestMap.containsKey(mapKey)) {
                     inbountAuthRequest = new InboundAuthenticationRequestConfig();
                     inbountAuthRequest.setInboundAuthKey(authKey);
-                    inbountAuthRequest.setInboundAuthType(resultSet.getString(2));
+                    inbountAuthRequest.setInboundAuthType(authType);
                     inbountAuthRequest.setProperties(new Property[0]);
-                    authRequestMap.put(authKey, inbountAuthRequest);
+                    authRequestMap.put(mapKey, inbountAuthRequest);
                 }
 
-                inbountAuthRequest = authRequestMap.get(authKey);
+                inbountAuthRequest = authRequestMap.get(mapKey);
 
                 String propName = resultSet.getString(3);
 
