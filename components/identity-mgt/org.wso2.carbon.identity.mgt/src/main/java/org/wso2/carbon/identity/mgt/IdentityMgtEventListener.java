@@ -931,7 +931,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
         try {
             IdentityMgtConfig.getInstance(IdentityMgtServiceComponent.getRealmService().getBootstrapRealmConfiguration(), userStoreManager.getTenantId());
         } catch (UserStoreException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
 
     }

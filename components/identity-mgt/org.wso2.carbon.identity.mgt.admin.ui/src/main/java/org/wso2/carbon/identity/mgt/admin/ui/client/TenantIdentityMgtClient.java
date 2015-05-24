@@ -11,6 +11,7 @@ import org.wso2.carbon.identity.mgt.stub.dto.TenantConfigDTO;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.rmi.RemoteException;
 
 
 public class TenantIdentityMgtClient {
@@ -29,6 +30,8 @@ public class TenantIdentityMgtClient {
             option.setManageSession(true);
             option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new Exception("Error occurred while creating TenantIdentityMgtClient Object");
         }
     }
 
@@ -50,7 +53,8 @@ public class TenantIdentityMgtClient {
             }
 
             stub.setAllConfigurations(tenantConfigDTOs);
-        } catch (java.rmi.RemoteException e) {
+        } catch (RemoteException e) {
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -66,7 +70,8 @@ public class TenantIdentityMgtClient {
                         tenantConfigDTO.getPropertyValue());
             }
 
-        } catch (java.rmi.RemoteException e) {
+        } catch (RemoteException e) {
+            log.error(e.getMessage(), e);
         }
 
         return configMap;

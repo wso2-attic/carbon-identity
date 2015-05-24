@@ -43,13 +43,13 @@ public class ConfigurationDAOImpl implements ConfigurationDAO {
             return (TenantConfigBean) deSerializedObject;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("Error while persisting tenant configuration data in database", e);
         } catch (IdentityException e) {
             log.error("Error while persisting tenant configuration data in database", e);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            log.error("Error while persisting tenant configuration data in database", e);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Error while persisting tenant configuration data in database", e);
         } finally {
             IdentityDatabaseUtil.closeResultSet(results);
             IdentityDatabaseUtil.closeStatement(prepStmt);
@@ -108,7 +108,7 @@ public class ConfigurationDAOImpl implements ConfigurationDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("Error while persisting tenant configuration data in database", e);
         }
         catch (IdentityException e) {
             log.error("Error while persisting tenant configuration data in database", e);
@@ -138,7 +138,7 @@ public class ConfigurationDAOImpl implements ConfigurationDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("Error while persisting tenant configuration data in database", e);
         } catch (IdentityException e) {
             log.error("Error while persisting tenant configuration data in database", e);
         } finally {

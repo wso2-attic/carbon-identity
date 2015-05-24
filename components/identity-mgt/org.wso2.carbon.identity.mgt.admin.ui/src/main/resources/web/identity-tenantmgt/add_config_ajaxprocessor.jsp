@@ -102,7 +102,6 @@
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
         forwardTo = "../admin/login.jsp";
     } catch (Exception e) {
-        e.printStackTrace();
         String message = MessageFormat.format(resourceBundle.getString("error.adding.config"),
                 new Object[]{e.getMessage()});
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
