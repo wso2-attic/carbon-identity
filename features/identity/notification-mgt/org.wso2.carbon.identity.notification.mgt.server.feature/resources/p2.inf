@@ -1,6 +1,0 @@
-instructions.configure = \
-org.eclipse.equinox.p2.touchpoint.natives.mkdir(path:${installFolder}/../../resources/security/policies); \
-org.eclipse.equinox.p2.touchpoint.natives.mkdir(path:${installFolder}/../../resources/security/policies/xacml); \
-org.eclipse.equinox.p2.touchpoint.natives.mkdir(path:${installFolder}/../../resources/security/policies/xacml/default); \
-org.eclipse.equinox.p2.touchpoint.natives.mkdir(path:${installFolder}/../../conf/security/); \
-org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../features/org.wso2.carbon.identity.notification.mgt.server_${feature.version}/msg-mgt.properties,target:${installFolder}/../../conf/msg-mgt.properties,overwrite:true);\
