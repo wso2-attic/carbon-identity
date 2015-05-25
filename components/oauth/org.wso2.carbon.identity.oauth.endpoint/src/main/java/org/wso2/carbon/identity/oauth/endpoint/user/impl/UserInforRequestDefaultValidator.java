@@ -33,7 +33,7 @@ public class UserInforRequestDefaultValidator implements UserInfoRequestValidato
 
     public String validateRequest(HttpServletRequest request) throws UserInfoEndpointException {
 
-        String schema = request.getParameter("schema");
+        String schema = EndpointUtil.getSafeText(request.getParameter("schema"));
         String authzHeaders = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (!"openid".equals(schema)) {
