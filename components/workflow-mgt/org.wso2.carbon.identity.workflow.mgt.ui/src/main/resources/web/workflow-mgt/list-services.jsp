@@ -43,7 +43,6 @@
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     WorkflowAdminServiceClient client;
     String forwardTo = null;
-    String serviceAlias = null;
     ServiceAssociationDTO[] servicesToDisplay = new ServiceAssociationDTO[0];
     String paginationValue = "region=region1&item=workflow_services_list_menu";
 
@@ -65,11 +64,11 @@
 
         ServiceAssociationDTO[] services = client.listServices();
 
-        numberOfPages = (int) Math.ceil((double) services.length / WorkflowUIConstants.SERVICES_PER_PAGE);
+        numberOfPages = (int) Math.ceil((double) services.length / WorkflowUIConstants.RESULTS_PER_PAGE);
 
-        int startIndex = pageNumberInt * WorkflowUIConstants.SERVICES_PER_PAGE;
-        int endIndex = (pageNumberInt + 1) * WorkflowUIConstants.SERVICES_PER_PAGE;
-        servicesToDisplay = new ServiceAssociationDTO[WorkflowUIConstants.SERVICES_PER_PAGE];
+        int startIndex = pageNumberInt * WorkflowUIConstants.RESULTS_PER_PAGE;
+        int endIndex = (pageNumberInt + 1) * WorkflowUIConstants.RESULTS_PER_PAGE;
+        servicesToDisplay = new ServiceAssociationDTO[WorkflowUIConstants.RESULTS_PER_PAGE];
 
         for (int i = startIndex, j = 0; i < endIndex && i < services.length; i++, j++) {
             servicesToDisplay[j] = services[i];
