@@ -55,10 +55,8 @@ public class UserIdentityClaimsDO implements Serializable {
     // key: timestamp
     // value: encrypted password
     private Map<Long, Object> usedPasswordMap = new TreeMap<Long, Object>();
-    private boolean authPolicyReusePasswordCheck;
-    private int passwordReuseFrequency;
-    private int passwordReuseTime;
     private String saltValue;
+    private int passwordUseFrequency;
 
     public UserIdentityClaimsDO(String userName) {
         this.userName = userName;
@@ -283,16 +281,30 @@ public class UserIdentityClaimsDO implements Serializable {
         return usedPasswordMap;
     }
 
-    public int getPasswordReuseFrequency() {
-        return passwordReuseFrequency;
-    }
-
     public void setSaltValue(String saltValue) {
         this.saltValue = saltValue;
     }
 
     public String getSaltValue() {
         return saltValue;
+    }
+
+    public int getPasswordUseFrequency() {
+        return passwordUseFrequency;
+    }
+
+    public UserIdentityClaimsDO setPasswordUseFrequency() {
+        this.passwordUseFrequency++;
+        this.userIdentityDataMap.put(UserIdentityDataStore.PASSWORD_USE_FREQUENCY,
+                Long.toString(passwordUseFrequency));
+        return this;
+    }
+
+    public UserIdentityClaimsDO setPasswordUseFrequency(int passwordChangeFrequency) {
+        this.passwordUseFrequency = passwordChangeFrequency;
+        this.userIdentityDataMap.put(UserIdentityDataStore.PASSWORD_USE_FREQUENCY,
+                Long.toString(passwordChangeFrequency));
+        return this;
     }
 
     /**

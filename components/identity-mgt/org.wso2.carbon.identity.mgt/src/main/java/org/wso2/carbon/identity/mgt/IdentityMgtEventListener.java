@@ -220,6 +220,11 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 
         boolean userOTPEnabled = userIdentityDTO.getOneTimeLogin();
 
+        if (authenticated && !userOTPEnabled) {
+            // every time login with previous password, increment the frequency of usage
+            userIdentityDTO.setPasswordUseFrequency();
+        }
+
         // One time password check
         if (authenticated && config.isAuthPolicyOneTimePasswordCheck() &&
                 (!userStoreManager.isReadOnly())) {
@@ -416,6 +421,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                 userIdentityDTO.setAccountLock(false);
                 userIdentityDTO.setFailAttempts(0);
                 userIdentityDTO.setUnlockTime(0);
+                userIdentityDTO.setPasswordUseFrequency();
                 try {
                     module.store(userIdentityDTO, userStoreManager);
                 } catch (IdentityException e) {
@@ -671,6 +677,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                 if(log.isDebugEnabled()) {
                     log.debug("Storing identity-mgt claims since they are available in the addUser request");
                 }
+                userIdentityClaimsDO.setPasswordTimeStamp(System.currentTimeMillis());
                 // store the changed password with time stamp
                 userIdentityClaimsDO.getUsedPasswordMap().put(System.currentTimeMillis(), encryptedPassword);
                 module.store(userIdentityClaimsDO, userStoreManager);
@@ -751,6 +758,10 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                 IdentityMgtEvent identityMgtEvent = new IdentityMgtEvent(eventName, properties);
                 identityMgtService.handleEvent(identityMgtEvent);
             }
+
+            userIdentityDTO.setPasswordTimeStamp(currentTime);
+            // set the used frequency of same password to 0, when changing to new password
+            userIdentityDTO.setPasswordUseFrequency(0);
 
             // put newly changed password to usedPasswordMap
             userIdentityDTO.getUsedPasswordMap().put(currentTime, encryptedPassword);
@@ -1026,34 +1037,6 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 
     @Override
     public boolean doPostUpdateCredential(String userName, Object credential, UserStoreManager userStoreManager) throws UserStoreException {
-
-        IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-
-        UserIdentityClaimsDO userIdentityDTO = module.load(userName, userStoreManager);
-
-        if (userIdentityDTO == null) {
-            userIdentityDTO = new UserIdentityClaimsDO(userName);
-        }
-
-        // Do not timestamp if OTP enabled.
-        boolean userOTPEnabled = userIdentityDTO.getOneTimeLogin();
-
-        if (config.isAuthPolicyExpirePasswordCheck() && !userOTPEnabled && (!userStoreManager.isReadOnly())) {
-
-            Calendar currentTime = Calendar.getInstance();
-            userIdentityDTO.setPasswordTimeStamp(Calendar.getInstance().getTimeInMillis());
-
-            try {
-                // Store the new timestamp after change password
-                module.store(userIdentityDTO, userStoreManager);
-
-			} catch (IdentityException e) {
-                throw new UserStoreException(
-                        "Error while saving user store data for user : "
-                                + userName, e);
-			}
-
-        }
 
         return true;
     }

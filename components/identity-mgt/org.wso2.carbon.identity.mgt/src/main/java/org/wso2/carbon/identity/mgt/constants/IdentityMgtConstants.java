@@ -182,6 +182,12 @@ public class IdentityMgtConstants {
 
         public static final String ENCRYPTION_ALGO = "Password.Encryption.Algorithm";
 
+        public static final String  ACCOUNT_PASSWORD_EXPIRE_ENABLE = "Account.Password.Expire.Enable";
+
+        public static final String  PASSWORD_EXPIRE_TIME = "Password.Expire.Time";
+
+        public static final String  PASSWORD_EXPIRE_FREQUENCY = "Password.Expire.Frequency";
+
     }
 
 

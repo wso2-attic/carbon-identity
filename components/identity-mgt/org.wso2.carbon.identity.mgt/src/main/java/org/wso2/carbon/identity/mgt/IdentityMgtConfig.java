@@ -94,6 +94,11 @@ public class IdentityMgtConfig {
     private boolean accountPasswordReuseEnable;
     private String encryptionAlgo;
 
+    private int passwordExpireFrequency;
+    private int passwordExpireTime;
+
+    private boolean accountPasswordExpireEnable;
+
     public IdentityMgtConfig(RealmConfiguration configuration) {
 
         Properties properties = new Properties();
@@ -369,6 +374,36 @@ public class IdentityMgtConfig {
                 this.encryptionAlgo = "SHA-256";
             }
 
+            String accountPasswordExpireEnable = properties.
+                    getProperty(IdentityMgtConstants.PropertyConfig.ACCOUNT_PASSWORD_EXPIRE_ENABLE);
+            if (accountPasswordExpireEnable != null) {
+                this.accountPasswordExpireEnable = Boolean.parseBoolean(accountPasswordExpireEnable.trim());
+            }
+
+            String passwordExpireTime = properties.
+                    getProperty(IdentityMgtConstants.PropertyConfig.PASSWORD_EXPIRE_TIME);
+            if (passwordExpireTime != null) {
+                this.passwordExpireTime = Integer.valueOf(passwordExpireTime.trim());
+            }
+
+            if (this.passwordExpireTime == 0) {
+                // default value is set
+                this.passwordExpireTime = 30;
+            }
+
+
+            String passwordExpireFrequency = properties.
+                    getProperty(IdentityMgtConstants.PropertyConfig.PASSWORD_EXPIRE_FREQUENCY);
+            if (passwordExpireFrequency != null) {
+                this.passwordExpireFrequency = Integer.valueOf(passwordExpireFrequency.trim());
+            }
+
+            if (this.passwordExpireFrequency == 0) {
+                // default value is set
+                this.passwordExpireFrequency = 10;
+            }
+
+
             int i = 1;
             while (true) {
                 String module = properties.
@@ -600,6 +635,18 @@ public class IdentityMgtConfig {
 
     public void setEncryptionAlgo(String encryptionAlgo) {
         this.encryptionAlgo = encryptionAlgo;
+    }
+
+    public boolean isAccountPasswordExpireEnable() {
+        return accountPasswordExpireEnable;
+    }
+
+    public int getPasswordExpireTime() {
+        return passwordExpireTime;
+    }
+
+    public int getPasswordExpireFrequency() {
+        return passwordExpireFrequency;
     }
 
     /**
