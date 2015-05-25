@@ -21,10 +21,15 @@ package org.wso2.carbon.identity.workflow.mgt;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.ServiceAssociationDTO;
+import org.wso2.carbon.identity.workflow.mgt.bean.TemplateDTO;
+import org.wso2.carbon.identity.workflow.mgt.bean.TemplateDeploymentDTO;
+import org.wso2.carbon.identity.workflow.mgt.bean.TemplateImplDTO;
+import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.WSServiceBean;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventBean;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventParameterBean;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventDTO;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventParameter;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowServicesDAO;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
@@ -34,7 +39,9 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -108,27 +115,39 @@ public class WorkflowAdminService {
         }
     }
 
-    public WorkflowEventBean[] listWorkflowEvents() {
+    public WorkflowEventDTO[] listWorkflowEvents() {
         Collection<WorkflowRequestHandler> workflowRequestHandlers =
                 WorkflowMgtServiceComponent.getWorkflowRequestHandlers().values();
-        WorkflowEventBean[] eventBeans = new WorkflowEventBean[workflowRequestHandlers.size()];
+        WorkflowEventDTO[] eventBeans = new WorkflowEventDTO[workflowRequestHandlers.size()];
         int handlerIndex = 0;
         for (WorkflowRequestHandler workflowRequestHandler : workflowRequestHandlers) {
-            WorkflowEventBean workflowEventBean = new WorkflowEventBean();
-            workflowEventBean.setEventName(workflowRequestHandler.getEventId());
-            List<WorkflowEventParameterBean> parameterBeanList = new ArrayList<>();
+            WorkflowEventDTO workflowEventBean = new WorkflowEventDTO();
+            workflowEventBean.setEventId(workflowRequestHandler.getEventId());
+            workflowEventBean.setEventFriendlyName(workflowRequestHandler.getFriendlyName());
+            workflowEventBean.setEventDescription(workflowRequestHandler.getDescription());
+            workflowEventBean.setEventCategory(workflowRequestHandler.getCategory());
+            List<WorkflowEventParameter> parameterBeanList = new ArrayList<>();
             for (Map.Entry<String, String> paramDefEntry : workflowRequestHandler.getParamDefinitions()
                     .entrySet()) {
-                WorkflowEventParameterBean parameterBean = new WorkflowEventParameterBean();
-                parameterBean.setParameterName(paramDefEntry.getKey());
-                parameterBean.setParameterType(paramDefEntry.getValue());
+                WorkflowEventParameter parameterBean = new WorkflowEventParameter();
+                parameterBean.setName(paramDefEntry.getKey());
+                parameterBean.setValue(paramDefEntry.getValue());
                 parameterBeanList.add(parameterBean);
             }
             workflowEventBean.setParameters(parameterBeanList.toArray(new
-                    WorkflowEventParameterBean[parameterBeanList.size()]));
+                    WorkflowEventParameter[parameterBeanList.size()]));
             eventBeans[handlerIndex] = workflowEventBean;
             handlerIndex++;
         }
+        Arrays.sort(eventBeans, new Comparator<WorkflowEventDTO>() {
+            @Override
+            public int compare(WorkflowEventDTO o1, WorkflowEventDTO o2) {
+                if (o1.getEventCategory().equals(o2.getEventCategory())) {
+                    return o1.getEventFriendlyName().compareTo(o2.getEventFriendlyName());
+                }
+                return o1.getEventCategory().compareTo(o2.getEventCategory());
+            }
+        });
         return eventBeans;
     }
 
@@ -142,5 +161,38 @@ public class WorkflowAdminService {
             throw new WorkflowException(
                     "Server error occurred when listing services");
         }
+    }
+
+    public String[] listWorkflowTemplates() {
+        return new String[]{"Simple Approval"}; //todo: implement
+    }
+
+    public TemplateDTO getTemplateDTO(String templateName) {
+//        todo:implement
+        return null;
+    }
+
+    public TemplateImplDTO getTemplateImplDTO(String template, String implName) {
+        //todo: implement
+        return null;
+    }
+
+    public void deployTemplate(TemplateDeploymentDTO templateDeploymentDTO) {
+//        todo:implement
+
+    }
+
+    public void addBPSProfile(String profileName, String host, String user, char[] password) {
+//        todo:implement
+    }
+
+    public BPSProfileBean[] getBPSProfiles(){
+//        todo: implement
+        return null;
+    }
+
+    public void deleteBPSProfile(String profileName){
+//        todo: implement
+
     }
 }

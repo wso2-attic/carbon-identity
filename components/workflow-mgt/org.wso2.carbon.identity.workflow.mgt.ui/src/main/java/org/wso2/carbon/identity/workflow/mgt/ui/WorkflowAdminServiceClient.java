@@ -26,8 +26,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceStub;
 import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileBean;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.ServiceAssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDTO;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDeploymentDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateImplDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.WSServiceBean;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventDTO;
@@ -86,7 +88,7 @@ public class WorkflowAdminServiceClient {
     }
 
     public String[] listTemplates() throws RemoteException {
-        return  stub.listWorkflowTemplates();
+        return stub.listWorkflowTemplates();
     }
 
     public TemplateDTO getTemplate(String templateName) throws RemoteException {
@@ -95,5 +97,22 @@ public class WorkflowAdminServiceClient {
 
     public TemplateImplDTO getTemplateImpDTO(String template, String implName) throws RemoteException {
         return stub.getTemplateImplDTO(template, implName);
+    }
+
+    public void deployTemplate(TemplateDeploymentDTO deploymentDTO) throws RemoteException {
+        stub.deployTemplate(deploymentDTO);
+    }
+
+    public void addBPSProfile(String profileName, String host, String user, String password) throws RemoteException {
+        String[] splittedPw = password.split("(?!^)");
+        stub.addBPSProfile(profileName, host, user, splittedPw);
+    }
+
+    public BPSProfileBean[] listBPSProfiles() throws RemoteException {
+        return stub.getBPSProfiles();
+    }
+
+    public void deleteBPSProfile(String profileName) throws RemoteException {
+        stub.deleteBPSProfile(profileName);
     }
 }
