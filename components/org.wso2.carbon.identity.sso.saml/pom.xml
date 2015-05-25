@@ -18,7 +18,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 	<parent>
 		<groupId>org.wso2.carbon</groupId>
 		<artifactId>identity-components</artifactId>
-		<version>4.2.5-SNAPSHOT</version>
+		<version>4.2.5</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -80,7 +80,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
-			<version>4.2.5-SNAPSHOT</version>
+			<version>4.2.5</version>
         </dependency>
 	</dependencies>
 	<build>
