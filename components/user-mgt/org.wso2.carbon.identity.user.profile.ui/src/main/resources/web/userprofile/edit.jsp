@@ -26,8 +26,6 @@
 <%@page import="org.wso2.carbon.identity.user.profile.ui.client.UserProfileCient" %>
 <%@page import="java.lang.Exception" %>
 <%@page import="java.util.ResourceBundle"%>
-<%@page import="java.net.URLEncoder" %>
-<%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%><script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
@@ -63,7 +61,7 @@
                 .getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         UserProfileCient client = new UserProfileCient(cookie, backendServerURL,
                 configContext);
-        userProfile = client.getUserProfile(Util.decodeHTMLCharacters(username), profile);
+        userProfile = client.getUserProfile(username, profile);
         
         if ("readonly".equals(userProfile.getProfileConifuration())){
         	readOnlyUserStore = true;
@@ -308,7 +306,7 @@
                                 }
                             %>
                             <input type="button" class="button"
-                                              onclick="javascript:location.href='index.jsp?username=<%=URLEncoder.encode(username)%>&fromUserMgt=<%=fromUserMgt%>&editCancel=true'"
+                                              onclick="javascript:location.href='index.jsp?username=<%=username%>&fromUserMgt=<%=fromUserMgt%>&editCancel=true'"  
                                           value="<fmt:message key='cancel'/>"/></td>
                     </tr>
                     </tbody>

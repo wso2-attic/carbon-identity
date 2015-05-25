@@ -26,10 +26,6 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.endpoint.user.impl.UserInfoEndpointConfig;
-import org.wso2.carbon.identity.oauth.user.UserInfoAccessTokenValidator;
-import org.wso2.carbon.identity.oauth.user.UserInfoEndpointException;
-import org.wso2.carbon.identity.oauth.user.UserInfoRequestValidator;
-import org.wso2.carbon.identity.oauth.user.UserInfoResponseBuilder;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 
 import javax.servlet.http.HttpServletRequest;

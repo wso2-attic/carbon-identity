@@ -23,7 +23,6 @@ import org.apache.neethi.PolicyEngine;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
 import org.wso2.carbon.identity.mgt.IdentityMgtServiceException;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.dto.UserDTO;
@@ -88,10 +87,6 @@ public class Utils {
 
         UserDTO userDTO = new UserDTO(userId);
         validateTenant(userDTO);
-        if (!IdentityMgtConfig.getInstance().isSaasEnabled()) {
-            validateTenant(userDTO);
-        }
-        userDTO.setTenantId(getTenantId(userDTO.getTenantDomain()));
         return userDTO;
 
     }

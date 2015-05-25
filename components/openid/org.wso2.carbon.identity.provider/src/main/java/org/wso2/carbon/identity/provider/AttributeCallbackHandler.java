@@ -52,10 +52,6 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
     protected Map<String, RequestedClaimData> requestedClaims = new HashMap<String, RequestedClaimData>();
     protected Map<String, String> requestedClaimValues = new HashMap<String, String>();
 
-    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
-
-    private String userAttributeSeparator = ",";
-
     protected Map<String, Claim> supportedClaims = new HashMap<String, Claim>();
 
     public void handle(SAMLCallback callback) throws SAMLException {
@@ -301,12 +297,6 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
                 mapValues = requestedClaimValues;
             }
 
-            String claimSeparator = mapValues.get(MULTI_ATTRIBUTE_SEPARATOR);
-            if (claimSeparator != null) {
-                userAttributeSeparator = claimSeparator;
-                mapValues.remove(MULTI_ATTRIBUTE_SEPARATOR);
-            }
-			
             ite = requestedClaims.values().iterator();
             while (ite.hasNext()) {
                 SAMLAttribute attribute = null;
@@ -334,23 +324,14 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
                                 name = nameSpace;
                             }
                         }
-
-                        List<String> values = new ArrayList<String>();
-
-                        if(claimData.getValue().contains(userAttributeSeparator)){
-                            StringTokenizer st = new StringTokenizer(claimData.getValue(), userAttributeSeparator);
-                            while (st.hasMoreElements()) {
-                                String attValue = st.nextElement().toString();
-                                if (attValue != null && attValue.trim().length() > 0) {
-                                    values.add(attValue);
-                                }
-                            }
+                        String[] values;
+                        if (claimData.getValue().contains(",")) {
+                            values = claimData.getValue().split(",");
                         } else {
-                            values.add(claimData.getValue());
+                            values = new String[]{claimData.getValue()};
                         }
-
-                        attribute = new SAMLAttribute(name, nameSpace, null, -1, values);
-                        callback.addAttributes(attribute);                        
+                        attribute = new SAMLAttribute(name, nameSpace, null, -1, Arrays.asList(values));
+                        callback.addAttributes(attribute);
                     }
                 }
             }

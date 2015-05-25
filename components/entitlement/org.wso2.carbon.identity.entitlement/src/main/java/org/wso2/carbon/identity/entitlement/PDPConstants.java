@@ -270,5 +270,4 @@ public class PDPConstants {
 
     public static final String REGISTRY_MEDIA_TYPE = "application/xacml-policy+xml";
 
-    public static final String ENTITLEMENT_ENGINE_CACHING_INTERVAL = "Entitlement.Engine.CachingInterval";
 }

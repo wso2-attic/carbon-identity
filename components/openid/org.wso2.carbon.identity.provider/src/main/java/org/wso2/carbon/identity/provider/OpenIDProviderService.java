@@ -17,7 +17,6 @@
  */
 package org.wso2.carbon.identity.provider;
 
-import net.minidev.json.JSONArray;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
@@ -60,7 +59,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 /**
  * The OpenID Provider service class.
@@ -70,8 +68,6 @@ import java.util.StringTokenizer;
 public class OpenIDProviderService {
 
     protected Log log = LogFactory.getLog(OpenIDProviderService.class);
-    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
-    private String userAttributeSeparator = ",";
 
     public static int getOpenIDSessionTimeout() {
         if (IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_SESSION_TIMEOUT).trim() != null &&
@@ -753,37 +749,16 @@ public class OpenIDProviderService {
                 userStore.getUserClaimValues(tenatUser, claimList.toArray(claimArray),
                         profileId);
 
-        String claimSeparator = claimValues.get(MULTI_ATTRIBUTE_SEPARATOR);
-        if (claimSeparator != null) {
-            userAttributeSeparator = claimSeparator;
-            claimValues.remove(MULTI_ATTRIBUTE_SEPARATOR);
-        }
-
         claims = new OpenIDClaimDTO[claimValues.size()];
         int i = 0;
         claimManager = IdentityClaimManager.getInstance();
         claimData = claimManager.getAllSupportedClaims(realm);
-        JSONArray values;
 
         for (Claim element : claimData) {
             if (claimValues.containsKey(element.getClaimUri())) {
                 dto = new OpenIDClaimDTO();
-                values = new JSONArray();
                 dto.setClaimUri(element.getClaimUri());
-
-                String value = claimValues.get(element.getClaimUri());
-                if (userAttributeSeparator != null && value.contains(userAttributeSeparator)) {
-                    StringTokenizer st = new StringTokenizer(value, userAttributeSeparator);
-                    while (st.hasMoreElements()) {
-                        String attValue = st.nextElement().toString();
-                        if (attValue != null && attValue.trim().length() > 0) {
-                            values.add(attValue);
-                        }
-                    }
-                } else {
-                    values.add(value);
-                }
-                dto.setClaimValue(values.toJSONString());
+                dto.setClaimValue(claimValues.get(element.getClaimUri()));
                 dto.setDisplayTag(element.getDisplayTag());
                 dto.setDescription(element.getDescription());
                 claims[i++] = dto;

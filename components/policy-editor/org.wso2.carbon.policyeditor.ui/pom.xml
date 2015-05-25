@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>policy-editor</artifactId>
-        <version>4.5.0-SNAPSHOT</version>
+        <version>4.4.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -54,7 +54,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
-                        <Import-Package />
+                        <Import-Package/>
                         <Export-Package>
                             org.wso2.carbon.policyeditor.ui.*; version="${carbon.identity.package.export.version}"
                         </Export-Package>

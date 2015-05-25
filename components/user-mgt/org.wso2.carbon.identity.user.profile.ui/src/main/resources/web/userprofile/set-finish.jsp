@@ -28,9 +28,7 @@
 <%@page import="java.lang.Exception"%>
 <%@page import="org.wso2.carbon.user.core.UserCoreConstants"%>
 <%@page import="java.util.ResourceBundle"%>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
-<%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
-<script type="text/javascript" src="extensions/js/vui.js"></script>
+<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%><script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
@@ -39,7 +37,6 @@
 <%@ page import="org.wso2.carbon.identity.user.profile.stub.types.UserFieldDTO" %>
 <%@ page import="org.wso2.carbon.identity.user.profile.stub.types.UserProfileDTO" %>
 <%@ page import="java.text.MessageFormat" %>
-<%@page import="java.net.URLEncoder" %>
 
 <%
 	String profile = CharacterEncoder.getSafeText(request.getParameter("profile"));
@@ -62,11 +59,11 @@
         UserProfileCient client = new UserProfileCient(cookie, backendServerURL, configContext);    
         
         try {
-        	profileDTO = client.getUserProfile(Util.decodeHTMLCharacters(username),profile);
+        	profileDTO = client.getUserProfile(username,profile);
         	if (UserCoreConstants.DEFAULT_PROFILE.equals(profile)||profileDTO!=null && profileDTO.getProfileName()!=null) {  
         		 String message = resourceBundle.getString("user.profile.with.given.name.exists");
         		 CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
-        	     forwardTo ="add.jsp?username="+URLEncoder.encode(username);
+        	     forwardTo ="add.jsp?username="+username;
 %>
 <script type="text/javascript">
         location.href = "<%=forwardTo%>";
@@ -91,7 +88,7 @@
         userprofile.setProfileName(profile);
         userprofile.setFieldValues(fieldDTOs); 
         userprofile.setProfileConifuration(profileConfiguration);
-        client.setUserProfile(Util.decodeHTMLCharacters(username), userprofile);
+        client.setUserProfile(username, userprofile);
         String message = resourceBundle.getString("user.profile.added.successfully");
         CarbonUIMessage.sendCarbonUIMessage(message,CarbonUIMessage.INFO, request);
         if ("true".equals(fromUserMgt)) {

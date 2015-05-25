@@ -24,7 +24,6 @@
 <%@page import="org.wso2.carbon.CarbonConstants"%>
 <%@page import="java.util.Map"%>
 <%@page import="java.util.Iterator"%>
-<%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 
 <%@page import="org.wso2.carbon.identity.user.profile.ui.client.UserProfileCient"%>
 <%@page import="java.util.ResourceBundle"%>
@@ -34,7 +33,6 @@
 
 <jsp:include page="../dialog/display_messages.jsp" />
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
-<%@page import="java.net.URLEncoder" %>
 
 <%
     String profile = CharacterEncoder.getSafeText(request.getParameter("profile"));
@@ -53,11 +51,11 @@
         ConfigurationContext configContext =
                 (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         UserProfileCient client = new UserProfileCient(cookie, backendServerURL, configContext);
-        client.deleteUserProfile(Util.decodeHTMLCharacters(username), profile);
+        client.deleteUserProfile(username, profile);
         String message = resourceBundle.getString("user.profile.deleted.successfully");
         CarbonUIMessage.sendCarbonUIMessage(message,CarbonUIMessage.INFO, request);
         if ("true".equals(fromUserMgt)) {
-           forwardTo = "index.jsp?username="+URLEncoder.encode(username);
+           forwardTo = "index.jsp?username="+username;
         }else{
         	forwardTo = "index.jsp";
         }

@@ -111,28 +111,14 @@ public class OAuth2TokenEndpoint {
                     // if there is an auth failure, HTTP 401 Status Code should be sent back to the client.
                     if (OAuth2ErrorCodes.INVALID_CLIENT.equals(oauth2AccessTokenResp.getErrorCode())) {
                         return handleBasicAuthFailure();
-                    } else {
-                        // Otherwise send back HTTP 400 Status Code
-                        OAuthResponse.OAuthErrorResponseBuilder oAuthErrorResponseBuilder = OAuthASResponse
-                                .errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                                .setError(oauth2AccessTokenResp.getErrorCode())
-                                .setErrorDescription(oauth2AccessTokenResp.getErrorMsg());
-                        OAuthResponse response = oAuthErrorResponseBuilder.buildJSONMessage();
-
-                        ResponseHeader[] headers = oauth2AccessTokenResp.getResponseHeaders();
-                        ResponseBuilder respBuilder = Response
-                                .status(response.getResponseStatus());
-
-                        if (headers != null && headers.length > 0) {
-                            for (int i = 0; i < headers.length; i++) {
-                                if (headers[i] != null) {
-                                    respBuilder.header(headers[i].getKey(), headers[i].getValue());
-                                }
-                            }
-                        }
-
-                        return respBuilder.entity(response.getBody()).build();
                     }
+                    // Otherwise send back HTTP 400 Status Code
+                    OAuthResponse response = OAuthASResponse
+                            .errorResponse(HttpServletResponse.SC_BAD_REQUEST)
+                            .setError(oauth2AccessTokenResp.getErrorCode())
+                            .setErrorDescription(oauth2AccessTokenResp.getErrorMsg())
+                            .buildJSONMessage();
+                    return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
                 } else {
                     OAuthTokenResponseBuilder oAuthRespBuilder = OAuthASResponse
                             .tokenResponse(HttpServletResponse.SC_OK)

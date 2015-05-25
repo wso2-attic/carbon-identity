@@ -109,7 +109,6 @@
     String fbClientId = null;
     String fbClientSecret = null;
     String fbScope = null;
-    String fbUserInfoFields = null;
     boolean isFBUserIdInClaims = false;
     
 
@@ -278,11 +277,6 @@
                                              IdentityApplicationConstants.Authenticator.Facebook.SCOPE);
                         if(fbScopeProp != null){
                             fbScope = fbScopeProp.getValue();
-                        }
-                        Property fbUserInfoFieldsProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-                                             IdentityApplicationConstants.Authenticator.Facebook.USER_INFO_FIELDS);
-                        if(fbUserInfoFieldsProp != null){
-                            fbUserInfoFields = fbUserInfoFieldsProp.getValue();
                         }
             		}else if(fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME)){
             			allFedAuthConfigs.remove(fedAuthnConfig.getName());
@@ -897,9 +891,6 @@
         }
         if(fbScope == null){
             fbScope = "email";
-        }
-        if(fbUserInfoFields == null) {
-            fbUserInfoFields = "";
         }
         String fbUserIdInClaims = "";
         if(identityProvider != null){
@@ -3859,17 +3850,6 @@
 
                             <div class="sectionHelp">
                                 <fmt:message key='fbauth.scope.help'/>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="leftCol-med labelField"><fmt:message key='fbauth.user.information.fields'/>:</td>
-                        <td>
-                            <input id="fbUserInfoFields" name="fbUserInfoFields" type="text"
-                                   value="<%=fbUserInfoFields%>"/>
-
-                            <div class="sectionHelp">
-                                <fmt:message key='fbauth.user.information.fields.help'/>
                             </div>
                         </td>
                     </tr>

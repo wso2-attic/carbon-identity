@@ -21,12 +21,12 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>user-mgt</artifactId>
-        <version>4.5.0-SNAPSHOT</version>
+        <version>4.4.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.identity.user.account.association</artifactId>
+    <artifactId>org.wso2.carbon.identity.user.account.connector</artifactId>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon User Account Association</name>
     <description>WSO2 Carbon User Account Association</description>
@@ -70,10 +70,6 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.base</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.application.common</artifactId>
         </dependency>
         <dependency>
@@ -97,7 +93,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Private-Package>
-                            org.wso2.carbon.identity.user.account.association.internal
+                            org.wso2.carbon.identity.user.account.connector.internal
                         </Private-Package>
                         <Import-Package>
                             javax.crypto,
@@ -123,14 +119,10 @@
                             org.wso2.carbon.registry.core.*; version="${carbon.kernel.registry.imp.pkg.version}",
                             org.wso2.carbon.identity.application.common.*;
                             version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.identity.base;
-                            version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.identity.core.persistence;
-                            version="${carbon.identity.package.import.version.range}"
                         </Import-Package>
                         <Export-Package>
-                            !org.wso2.carbon.identity.user.account.association.internal,
-                            org.wso2.carbon.identity.user.account.association.*;
+                            !org.wso2.carbon.identity.user.account.connector.internal,
+                            org.wso2.carbon.identity.user.account.connector.*;
                             version="${carbon.identity.package.export.version}"
                         </Export-Package>
                     </instructions>

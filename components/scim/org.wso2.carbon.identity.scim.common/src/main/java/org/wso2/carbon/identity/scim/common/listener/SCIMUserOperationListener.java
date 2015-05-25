@@ -343,10 +343,6 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                 return true;
             }
 
-            String newUserName = claims.get("urn:scim:schemas:core:1.0:userName");
-            if(newUserName != null && !newUserName.isEmpty()){
-                userName = newUserName;
-            }
 
             //check if it is specified to skip this listner.
             if ((SCIMCommonUtils.getThreadLocalToSkipSetUserClaimsListeners() != null &&

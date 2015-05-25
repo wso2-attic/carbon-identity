@@ -22,8 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
-import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
+import org.wso2.carbon.identity.application.common.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
 import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
@@ -84,7 +83,7 @@ public class ProvisioningManagementDAO {
 
             prepStmt.execute();
             dbConnection.commit();
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while adding Provisioning entity for tenant " + tenantId;
             throw new IdentityApplicationManagementException(msg, e);
@@ -130,7 +129,7 @@ public class ProvisioningManagementDAO {
 
             prepStmt.execute();
             dbConnection.commit();
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while deleting Provisioning entity for tenant " + tenantId;
             throw new IdentityApplicationManagementException(msg, e);
@@ -186,7 +185,7 @@ public class ProvisioningManagementDAO {
                 return null;
             }
 
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while adding Provisioning entity for tenant " + tenantId;
             throw new IdentityApplicationManagementException(msg, e);
@@ -308,7 +307,7 @@ public class ProvisioningManagementDAO {
             }
 
             dbConnection.commit();
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             log.error(e.getMessage(), e);
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg =
@@ -382,8 +381,6 @@ public class ProvisioningManagementDAO {
             if (rs.next()) {
                 return rs.getInt(1);
             }
-        } catch (IdentityException e) {
-            throw new IdentityApplicationManagementException("Error while reading Identity Provider by name.", e);
         } finally {
             IdentityApplicationManagementUtil.closeStatement(prepStmt);
             IdentityApplicationManagementUtil.closeResultSet(rs);
@@ -462,7 +459,8 @@ public class ProvisioningManagementDAO {
 
     private InputStream setBlobValue(String value) throws SQLException {
         if (value != null) {
-            return new ByteArrayInputStream(value.getBytes());
+            InputStream is = new ByteArrayInputStream(value.getBytes());
+            return is;
         }
         return null;
     }
@@ -493,7 +491,7 @@ public class ProvisioningManagementDAO {
             while (rs.next()) {
                 spNames.add(rs.getString(1));
             }
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             String msg = "Error occurred while retrieving SP names of provisioning connectors by IDP name";
             throw new IdentityApplicationManagementException(msg, e);
         } finally {

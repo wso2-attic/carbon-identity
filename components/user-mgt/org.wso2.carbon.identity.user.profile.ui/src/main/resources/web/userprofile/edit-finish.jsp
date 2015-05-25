@@ -27,7 +27,6 @@
 <%@page import="java.util.Iterator"%>
 <%@page import="java.lang.Exception"%>
 <%@page import="java.util.ResourceBundle"%>
-<%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%><script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
@@ -80,7 +79,7 @@
         userprofile.setProfileName(profile);
         userprofile.setFieldValues(fieldDTOs);      
         userprofile.setProfileConifuration(profileConfiguration);
-        client.setUserProfile(Util.decodeHTMLCharacters(username), userprofile);
+        client.setUserProfile(username, userprofile);
         String message = resourceBundle.getString("user.profile.updated.successfully");
         CarbonUIMessage.sendCarbonUIMessage(message,CarbonUIMessage.INFO, request);
         if ("true".equals(fromUserMgt)) {
@@ -96,9 +95,9 @@
 
     } catch (Exception e) {
         String message = MessageFormat.format(resourceBundle.getString(
-                "error.while.updating.user.profile"), Util.decodeHTMLCharacters(username), e.getMessage());
+                "error.while.updating.user.profile"), username, e.getMessage());
     	CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-        forwardTo = "edit.jsp?username=" + URLEncoder.encode(username) + "&profile=" + profile + "&fromUserMgt=true&noOfProfiles=" + noOfProfiles;
+        forwardTo = "edit.jsp?username=" + username + "&profile=" + profile + "&fromUserMgt=true&noOfProfiles=" + noOfProfiles;
     }
 %>
 

@@ -44,11 +44,9 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.user.api.ClaimManager;
-import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserRealm;
-import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -62,7 +60,6 @@ public class DefaultClaimHandler implements ClaimHandler {
 
     private static Log log = LogFactory.getLog(DefaultClaimHandler.class);
     private static volatile DefaultClaimHandler instance;
-    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
 
     public static DefaultClaimHandler getInstance() {
         if (instance == null) {
@@ -395,33 +392,6 @@ public class DefaultClaimHandler implements ClaimHandler {
 
         if (FrameworkConstants.RequestType.CLAIM_TYPE_OPENID.equals(context.getRequestType())) {
             spRequestedClaims = allSPMappedClaims;
-        }
-
-        /*
-        * This is a custom change added to pass 'MultipleAttributeSeparator' attribute value to other components,
-        * since we can't get the logged in user in some situations.
-        *
-        * Following components affected from this change -
-        * org.wso2.carbon.identity.application.authentication.endpoint
-        * org.wso2.carbon.identity.provider
-        * org.wso2.carbon.identity.oauth
-        * org.wso2.carbon.identity.oauth.endpoint
-        * org.wso2.carbon.identity.sso.saml
-        *
-        * TODO: Should use Map<String, List<String>> in future for claim mapping
-        * */
-        if (!spRequestedClaims.isEmpty()) {
-            String domain = authenticatedUser.getUserStoreDomain();
-            if(StringUtils.isBlank(domain)){
-                domain = "PRIMARY";
-            }
-            RealmConfiguration realmConfiguration = ((org.wso2.carbon.user.core.UserStoreManager) userStore)
-                    .getSecondaryUserStoreManager(domain).getRealmConfiguration();
-
-            String claimSeparator = realmConfiguration.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
-            if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
-                spRequestedClaims.put(MULTI_ATTRIBUTE_SEPARATOR, claimSeparator);
-            }
         }
 
         return spRequestedClaims;

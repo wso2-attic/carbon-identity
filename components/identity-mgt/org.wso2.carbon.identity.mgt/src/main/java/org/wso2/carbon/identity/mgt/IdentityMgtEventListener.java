@@ -204,7 +204,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
 
         if (!config.isEnableAuthPolicy()) {
-            return true;
+            return authenticated;
         }
 
         UserIdentityClaimsDO userIdentityDTO = module.load(userName, userStoreManager);

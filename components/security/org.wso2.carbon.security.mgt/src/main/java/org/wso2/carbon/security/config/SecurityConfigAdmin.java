@@ -818,9 +818,8 @@ public class SecurityConfigAdmin {
 
             CallbackHandler handler = null;
             if (callback == null) {
-                // This will break kerberos from management console UI
-                handler = new ServicePasswordCallbackHandler(null, serviceGroupId, service.getName(),
-                                                             registry, realm);
+                handler = new ServicePasswordCallbackHandler(persistenceFactory, serviceGroupId, service.getName(), serviceXPath,
+                        registryServicePath, registry, realm);
             } else {
                 handler = this.callback;
             }

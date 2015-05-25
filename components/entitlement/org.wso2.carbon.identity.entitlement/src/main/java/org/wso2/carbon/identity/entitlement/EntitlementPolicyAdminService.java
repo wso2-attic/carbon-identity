@@ -619,8 +619,8 @@ public class EntitlementPolicyAdminService {
         if (storeManager.isExistPolicy(policyId)) {
             storeManager.addOrUpdatePolicy(policyDTO);
         }
-        publishToPDP(new String[]{policyDTO.getPolicyId()}, null, EntitlementConstants.PolicyPublish.ACTION_ORDER,
-                false, newOrder);
+        publishToPDP(new String[]{policyDTO.getPolicyId()}, EntitlementConstants.PolicyPublish.ACTION_ORDER,
+                null, false, newOrder);
     }
 
     public void enableDisablePolicy(String policyId, boolean enable) throws EntitlementException {
@@ -742,11 +742,11 @@ public class EntitlementPolicyAdminService {
         // publish policy to PDP directly
         if (policyDTO.isPromote()) {
             if (isAdd) {
-                publishToPDP(new String[] {policyDTO.getPolicyId()}, EntitlementConstants.PolicyPublish.ACTION_CREATE,
-                        null, policyDTO.isActive(), policyDTO.getPolicyOrder());
+                publishToPDP(new String[]{policyDTO.getPolicyId()}, null,
+                        EntitlementConstants.PolicyPublish.ACTION_CREATE, policyDTO.isActive(), policyDTO.getPolicyOrder());
             } else {
-                publishToPDP(new String[]{policyDTO.getPolicyId()}, EntitlementConstants.PolicyPublish.ACTION_UPDATE,
-                        null, policyDTO.isActive(), policyDTO.getPolicyOrder());
+                publishToPDP(new String[]{policyDTO.getPolicyId()}, null,
+                        EntitlementConstants.PolicyPublish.ACTION_UPDATE, policyDTO.isActive(), policyDTO.getPolicyOrder());
             }
         }
     }

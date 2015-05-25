@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>notification-mgt</artifactId>
-        <version>4.5.0-SNAPSHOT</version>
+        <version>4.4.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -57,7 +57,7 @@
             <artifactId>httpcore</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.orbit.org.apache.httpcomponents</groupId>
+            <groupId>org.wso2.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
     </dependencies>
@@ -84,7 +84,7 @@
                             org.apache.axiom.om.util; version="${axiom.osgi.version.range}",
                             org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}",
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
-                            org.apache.http.*; version="${httpcomponents-httpclient.imp.pkg.version.range}",
+                            <!--org.apache.http.*; version="${httpcomponents-httpclient.imp.pkg.version.range}",-->
                             org.osgi.framework; version="${osgi.framework.imp.pkg.version.range}",
                             org.osgi.service.component; version="${osgi.service.component.imp.pkg.version.range}",
                             org.wso2.carbon.identity.notification.mgt.*;
@@ -94,6 +94,7 @@
                             !org.wso2.carbon.identity.notification.mgt.json.internal,
                             org.wso2.carbon.identity.notification.mgt.json.*
                         </Export-Package>
+                        <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>

@@ -53,10 +53,6 @@ import java.util.Map;
  * @scr.reference name="realm.service" interface="org.wso2.carbon.user.core.service.RealmService"
  * cardinality="1..1" policy="dynamic" bind="setRealmService"
  * unbind="unsetRealmService"
- * @scr.reference name="provisioning.connector.factory"
- * interface="org.wso2.carbon.identity.provisioning.AbstractProvisioningConnectorFactory"
- * cardinality="1..n" policy="dynamic" bind="setProvisioningConnectorFactory"
- * unbind="unsetProvisioningConnectorFactory"
  */
 public class IdentityProvisionServiceComponent {
 
@@ -130,6 +126,76 @@ public class IdentityProvisionServiceComponent {
                     log.debug("Identity Provider Management Event listener registered successfully");
                 }
 
+                ServiceTracker<AbstractProvisioningConnectorFactory, AbstractProvisioningConnectorFactory> authServiceTracker;
+
+                authServiceTracker = new ServiceTracker<AbstractProvisioningConnectorFactory, AbstractProvisioningConnectorFactory>(
+                        bundleContext,
+                        AbstractProvisioningConnectorFactory.class.getName(),
+                        new ServiceTrackerCustomizer<AbstractProvisioningConnectorFactory, AbstractProvisioningConnectorFactory>() {
+
+                            @Override
+                            public AbstractProvisioningConnectorFactory addingService(
+                                    ServiceReference<AbstractProvisioningConnectorFactory> serviceReference) {
+                                AbstractProvisioningConnectorFactory connectorFactory = serviceReference
+                                        .getBundle().getBundleContext()
+                                        .getService(serviceReference);
+                                connectorFactories.put(connectorFactory.getConnectorType(),
+                                        connectorFactory);
+                                if (log.isDebugEnabled()) {
+                                    log.debug("Added provisioning connector : "
+                                            + connectorFactory.getConnectorType());
+                                }
+
+                                ProvisioningConnectorConfig provisioningConnectorConfig = new ProvisioningConnectorConfig();
+                                provisioningConnectorConfig.setName(connectorFactory
+                                        .getConnectorType());
+                                provisioningConnectorConfig
+                                        .setProvisioningProperties(connectorFactory
+                                                .getConfigurationProperties().toArray(
+                                                        new Property[connectorFactory
+                                                                .getConfigurationProperties()
+                                                                .size()]));
+                                ProvisioningConnectorService.getInstance()
+                                        .addProvisioningConnectorConfigs(
+                                                provisioningConnectorConfig);
+
+                                return connectorFactory;
+                            }
+
+                            @Override
+                            public void modifiedService(
+                                    ServiceReference<AbstractProvisioningConnectorFactory> serviceReference,
+                                    AbstractProvisioningConnectorFactory service) {
+                                if (log.isDebugEnabled()) {
+                                    log.debug("Modified provisioning connector : "
+                                            + service.getConnectorType());
+                                }
+                            }
+
+                            @Override
+                            public void removedService(
+                                    ServiceReference<AbstractProvisioningConnectorFactory> serviceReference,
+                                    AbstractProvisioningConnectorFactory service) {
+                                connectorFactories.remove(service);
+                                serviceReference.getBundle().getBundleContext()
+                                        .ungetService(serviceReference);
+
+                                ProvisioningConnectorConfig provisioningConnectorConfig = ProvisioningConnectorService.getInstance().getProvisioningConnectorByName(service.getConnectorType());
+                                ProvisioningConnectorService.getInstance().removeProvisioningConnectorConfigs(provisioningConnectorConfig);
+
+                                if (log.isDebugEnabled()) {
+                                    log.debug("Removed provisioning connector : "
+                                            + service.getConnectorType());
+                                }
+                            }
+
+                        });
+                authServiceTracker.open();
+
+                if (log.isDebugEnabled()) {
+                    log.debug("IdentityProvisioningConnector service tracker started successfully");
+                }
+
             } catch (IdentityProvisioningException e) {
                 log.error("Error while initiating identity provisioning connector framework", e);
             }
@@ -169,33 +235,5 @@ public class IdentityProvisionServiceComponent {
             log.debug("UnSetting the Realm Service");
         }
         IdentityProvisionServiceComponent.realmService = null;
-    }
-
-
-    protected void setProvisioningConnectorFactory(AbstractProvisioningConnectorFactory connectorFactory) {
-
-        connectorFactories.put(connectorFactory.getConnectorType(), connectorFactory);
-        if (log.isDebugEnabled()) {
-            log.debug("Added provisioning connector : " + connectorFactory.getConnectorType());
-        }
-
-        ProvisioningConnectorConfig provisioningConnectorConfig = new ProvisioningConnectorConfig();
-        provisioningConnectorConfig.setName(connectorFactory.getConnectorType());
-        Property []property = new Property[connectorFactory.getConfigurationProperties().size()];
-        provisioningConnectorConfig.setProvisioningProperties(connectorFactory.getConfigurationProperties().toArray(property));
-        ProvisioningConnectorService.getInstance().addProvisioningConnectorConfigs(provisioningConnectorConfig);
-    }
-
-
-    protected void unsetProvisioningConnectorFactory(AbstractProvisioningConnectorFactory connectorFactory) {
-
-        connectorFactories.remove(connectorFactory);
-        ProvisioningConnectorConfig provisioningConnectorConfig = ProvisioningConnectorService.getInstance().
-                getProvisioningConnectorByName(connectorFactory.getConnectorType());
-        ProvisioningConnectorService.getInstance().removeProvisioningConnectorConfigs(provisioningConnectorConfig);
-
-        if (log.isDebugEnabled()) {
-            log.debug("Removed provisioning connector : " + connectorFactory.getConnectorType());
-        }
     }
 }

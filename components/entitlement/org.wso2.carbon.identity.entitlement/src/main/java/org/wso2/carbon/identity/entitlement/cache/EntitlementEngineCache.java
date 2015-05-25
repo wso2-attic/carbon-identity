@@ -22,18 +22,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.caching.impl.CachingConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.identity.entitlement.PDPConstants;
-import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent;
 import org.wso2.carbon.identity.entitlement.pdp.EntitlementEngine;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.cache.Cache;
-import javax.cache.CacheBuilder;
-import javax.cache.CacheConfiguration;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -44,12 +38,7 @@ public class EntitlementEngineCache {
     public static final String ENTITLEMENT_ENGINE_CACHE =
             CachingConstants.LOCAL_CACHE_PREFIX + "ENTITLEMENT_ENGINE_CACHE";
     private static final EntitlementEngineCache instance = new EntitlementEngineCache();
-    private static CacheBuilder<Integer, EntitlementEngine> cacheBuilder;
     private static Log log = LogFactory.getLog(EntitlementEngineCache.class);
-
-    private EntitlementEngineCache(){
-
-    }
 
     /**
      * Gets a new instance of EntitlementEngineCache.
@@ -66,32 +55,7 @@ public class EntitlementEngineCache {
         CacheManager cacheManager = Caching.getCacheManagerFactory().
                 getCacheManager(ENTITLEMENT_ENGINE_CACHE_MANAGER);
         if (cacheManager != null) {
-            if (cacheBuilder == null){
-                Properties properties = EntitlementServiceComponent.getEntitlementConfig().getEngineProperties();
-                String engineCachingInterval = properties.getProperty(PDPConstants.ENTITLEMENT_ENGINE_CACHING_INTERVAL);
-                long entitlementEngineCachingInterval = 900;
-                if (engineCachingInterval != null){
-                    try{
-                        entitlementEngineCachingInterval = Long.parseLong(engineCachingInterval);
-                    }catch (NumberFormatException e){
-                        //Do nothing. value will remain as original
-                    }
-                } else {
-                    if (log.isDebugEnabled()){
-                        log.debug("Entitlement.Engine.CachingInterval not set. Using default value " +
-                                entitlementEngineCachingInterval);
-                    }
-                }
-                cacheManager.removeCache(ENTITLEMENT_ENGINE_CACHE);
-                cacheBuilder = cacheManager.<Integer, EntitlementEngine>createCacheBuilder(ENTITLEMENT_ENGINE_CACHE).
-                        setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
-                                new CacheConfiguration.Duration(TimeUnit.SECONDS, entitlementEngineCachingInterval)).
-                        setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
-                                new CacheConfiguration.Duration(TimeUnit.SECONDS, entitlementEngineCachingInterval));
-                cache = cacheBuilder.build();
-            } else {
-                cache = cacheManager.getCache(ENTITLEMENT_ENGINE_CACHE);
-            }
+            cache = cacheManager.getCache(ENTITLEMENT_ENGINE_CACHE);
         } else {
             cache = Caching.getCacheManager().getCache(ENTITLEMENT_ENGINE_CACHE);
         }

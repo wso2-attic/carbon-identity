@@ -249,7 +249,7 @@ function validateTextForIllegal(fld,fldName) {
                             <input name="addprofile" type="button" class="button" value="<fmt:message key='add'/>" onclick="validate();"/>
                             <input type="button" class="button"
                                   <%if ("true".equals(fromUserMgt)) {%>
-                                   onclick="javascript:location.href='index.jsp?username=<%=URLEncoder.encode(username)%>&fromUserMgt=true'"
+                                   onclick="javascript:location.href='index.jsp?username=<%=username%>&fromUserMgt=true'"
                                   <%}else{%>
                                    onclick="javascript:location.href='index.jsp?region=region5&item=userprofiles_menu&ordinal=0'"
                                   <%}%>

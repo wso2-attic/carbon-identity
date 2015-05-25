@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>carbon-service-stubs</artifactId>
-        <version>4.5.0-SNAPSHOT</version>
+        <version>4.4.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -93,9 +93,13 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.carbon.identity.sso.saml.stub.*;
-                            version="${carbon.identity.package.export.version}"
+                            org.wso2.carbon.identity.sso.saml.stub.*;version="${carbon.identity.package.export.version}",
                         </Export-Package>
+                        <Import-Package>
+                            !javax.xml.namespace,
+                            javax.xml.namespace; version=0.0.0,
+                            *;resolution:=optional,
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

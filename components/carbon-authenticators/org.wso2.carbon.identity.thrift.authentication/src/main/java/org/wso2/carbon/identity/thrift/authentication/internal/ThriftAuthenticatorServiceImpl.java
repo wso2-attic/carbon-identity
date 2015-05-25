@@ -26,7 +26,6 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.thrift.authentication.ThriftAuthenticatorService;
 import org.wso2.carbon.identity.thrift.authentication.dao.ThriftSessionDAO;
 import org.wso2.carbon.identity.thrift.authentication.internal.generatedCode.AuthenticationException;
-import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ServerConstants;
@@ -48,12 +47,14 @@ public class ThriftAuthenticatorServiceImpl implements ThriftAuthenticatorServic
 
     //session timeout in milli seconds
     private static long thriftSessionTimeOut;
+    private AuthenticationHandler authenticationHandler;
     private RealmService realmService;
     private Map<String, ThriftSession> authenticatedSessions =
             new ConcurrentHashMap<String, ThriftSession>();
     private ThriftSessionDAO thriftSessionDAO;
 
-    public ThriftAuthenticatorServiceImpl(RealmService realmService, ThriftSessionDAO thriftSessionDAO, long thriftSessionTimeOut) {
+    public ThriftAuthenticatorServiceImpl(AuthenticationHandler authenticationHandler, RealmService realmService, ThriftSessionDAO thriftSessionDAO, long thriftSessionTimeOut) {
+        this.authenticationHandler = authenticationHandler;
         this.realmService = realmService;
         ThriftAuthenticatorServiceImpl.thriftSessionTimeOut = thriftSessionTimeOut;
         this.thriftSessionDAO = thriftSessionDAO.getInstance();
@@ -106,24 +107,8 @@ public class ThriftAuthenticatorServiceImpl implements ThriftAuthenticatorServic
         carbonContext.setTenantDomain(tenantDomain);
         carbonContext.setTenantId(tenantId);
 
-        boolean isSuccessful;
-        String tenantLessUsername = MultitenantUtils.getTenantAwareUsername(userName);
-
-        try {
-            UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
-
-            // User not found in the UserStoreManager
-            if (!userRealm.getUserStoreManager().isExistingUser(tenantLessUsername)) {
-                throw new AuthenticationException("Invalid User : " + tenantLessUsername);
-            }
-
-            // Check if the user is authenticated
-            isSuccessful = userRealm.getUserStoreManager().authenticate(tenantLessUsername, password);
-
-            // Let the engine know if the user is authenticated or not
-        } catch (UserStoreException e) {
-            throw new AuthenticationException("User not authenticated for the given username : " + tenantLessUsername);
-        }
+        //check whether the credentials are authenticated.
+        boolean isSuccessful = authenticationHandler.authenticate(userName, password);
 
         if (log.isDebugEnabled()) {
             if (isSuccessful) {

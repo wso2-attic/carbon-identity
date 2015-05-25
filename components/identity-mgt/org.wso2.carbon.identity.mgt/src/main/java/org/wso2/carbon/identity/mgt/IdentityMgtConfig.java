@@ -44,7 +44,6 @@ public class IdentityMgtConfig {
 
     private static final Log log = LogFactory.getLog(IdentityMgtConfig.class);
     private static IdentityMgtConfig identityMgtConfig;
-    private boolean saasEnable;
     private boolean listenerEnable;
     private int noOfUserChallenges;
     private boolean notificationInternallyManaged;
@@ -117,11 +116,6 @@ public class IdentityMgtConfig {
             if (notificationInternallyManaged != null) {
                 this.notificationInternallyManaged = Boolean.
                         parseBoolean(notificationInternallyManaged.trim());
-            }
-
-            String saasEnable = properties.getProperty(IdentityMgtConstants.PropertyConfig.USER_INFO_RECOVERY_SAA_SENABLE);
-            if(saasEnable != null){
-                this.saasEnable = Boolean.parseBoolean(saasEnable.trim());
             }
 
             String listenerEnable = properties.
@@ -386,10 +380,6 @@ public class IdentityMgtConfig {
 
     public int getNoOfUserChallenges() {
         return noOfUserChallenges;
-    }
-
-    public boolean isSaasEnabled() {
-        return saasEnable;
     }
 
     public boolean isNotificationInternallyManaged() {

@@ -112,10 +112,8 @@
                                                 <th>Claim Value</th>
                                             </tr>
                                             <%for (int i = 0; i < claimTags.length; i++) {
-                                                String claimTag = CharacterEncoder.getSafeText(claimTags[i]);
-                                                if("MultiAttributeSeparator".equals(claimTag)) {
-                                                    continue;
-                                                }
+                                                String claimTag = CharacterEncoder.getSafeText
+                                                (claimTags[i]);
                                             %>
                                                 <tr><td><%=claimTag%></td><td><%=CharacterEncoder
                                                 .getSafeText(claimValues[i])%></td></tr>

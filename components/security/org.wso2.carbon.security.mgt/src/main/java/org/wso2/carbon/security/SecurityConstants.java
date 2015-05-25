@@ -102,8 +102,4 @@ public class SecurityConstants {
     public static final String SCENARIO_ID_PARAM_NAME = "ScenarioID";
     public static String ROLE_ADMIN = RegistryResources.SecurityManagement.ADMIN_ROLE;
     public static String ROLE_GENERAL = "General User";
-
-    public static String TRUST_MODULE = "rahas";
-    public static final String ALLOWED_ROLES_PARAM_NAME = "org.wso2.carbon.security.allowedroles";
-
 }

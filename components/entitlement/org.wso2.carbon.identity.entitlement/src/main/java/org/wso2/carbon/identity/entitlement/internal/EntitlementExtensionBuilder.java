@@ -206,7 +206,6 @@ public class EntitlementExtensionBuilder {
         setProperty(properties, pdpProperties, PDPConstants.ENTITLEMENT_ITEMS_PER_PAGE);
         setProperty(properties, pdpProperties, PDPConstants.START_UP_POLICY_ADDING);
         setProperty(properties, pdpProperties, PDP_SCHEMA_VALIDATION);
-        setProperty(properties,pdpProperties, PDPConstants.ENTITLEMENT_ENGINE_CACHING_INTERVAL);
 
         holder.setEngineProperties(pdpProperties);
     }

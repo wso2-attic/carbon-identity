@@ -411,45 +411,13 @@ public class OAuth2Util {
 
         long currentTime;
         long validityPeriodMillis = accessTokenDO.getValidityPeriodInMillis();
-
-        if(validityPeriodMillis < 0){
-            log.debug("Access Token : " + accessTokenDO.getAccessToken() + " has infinite lifetime");
-            return -1;
-        }
-
-        long refreshTokenValidityPeriodMillis = accessTokenDO.getRefreshTokenValidityPeriodInMillis();
         long issuedTime = accessTokenDO.getIssuedTime().getTime();
         currentTime = System.currentTimeMillis();
-        long refreshTokenIssuedTime = accessTokenDO.getRefreshTokenIssuedTime().getTime();
         long accessTokenValidity = issuedTime + validityPeriodMillis - (currentTime + timestampSkew);
-        long refreshTokenValidity = (refreshTokenIssuedTime + refreshTokenValidityPeriodMillis)
-                                    - (currentTime + timestampSkew);
+        long refreshTokenValidity = (issuedTime + OAuthServerConfiguration.getInstance().
+                getRefreshTokenValidityPeriodInSeconds() * 1000) - (currentTime + timestampSkew);
         if(accessTokenValidity > 1000 && refreshTokenValidity > 1000){
             return accessTokenValidity;
-        }
-        return 0;
-    }
-
-    public static long getRefreshTokenExpireTimeMillis(AccessTokenDO accessTokenDO) {
-
-        if (accessTokenDO == null) {
-            throw new IllegalArgumentException("accessTokenDO is " + "\'NULL\'");
-        }
-
-        long currentTime;
-        long refreshTokenValidityPeriodMillis = accessTokenDO.getRefreshTokenValidityPeriodInMillis();
-
-        if (refreshTokenValidityPeriodMillis < 0) {
-            log.debug("Refresh Token : " + accessTokenDO.getRefreshToken() + " has infinite lifetime");
-            return -1;
-        }
-
-        currentTime = System.currentTimeMillis();
-        long refreshTokenIssuedTime = accessTokenDO.getRefreshTokenIssuedTime().getTime();
-        long refreshTokenValidity = (refreshTokenIssuedTime + refreshTokenValidityPeriodMillis)
-                                    - (currentTime + timestampSkew);
-        if(refreshTokenValidity > 1000){
-            return refreshTokenValidity;
         }
         return 0;
     }

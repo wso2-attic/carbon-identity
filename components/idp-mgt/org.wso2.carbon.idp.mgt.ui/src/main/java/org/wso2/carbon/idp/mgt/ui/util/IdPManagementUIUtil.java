@@ -1018,7 +1018,7 @@ public class IdPManagementUIUtil {
             fedIdp.setDefaultAuthenticatorConfig(facebookAuthnConfig);
         }
 
-        Property[] properties = new Property[4];
+        Property[] properties = new Property[3];
         Property property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.Facebook.CLIENT_ID);
         property.setValue(paramMap.get("fbClientId"));
@@ -1034,15 +1034,6 @@ public class IdPManagementUIUtil {
         property.setName(IdentityApplicationConstants.Authenticator.Facebook.SCOPE);
         property.setValue(paramMap.get("fbScope"));
         properties[2] = property;
-
-        property = new Property();
-        property.setName(IdentityApplicationConstants.Authenticator.Facebook.USER_INFO_FIELDS);
-        String fbUserInfoFields = paramMap.get("fbUserInfoFields");
-        if(fbUserInfoFields != null && fbUserInfoFields.endsWith(",")) {
-            fbUserInfoFields = fbUserInfoFields.substring(0, fbUserInfoFields.length() - 1);
-        }
-        property.setValue(fbUserInfoFields);
-        properties[3] = property;
 
         facebookAuthnConfig.setProperties(properties);
 

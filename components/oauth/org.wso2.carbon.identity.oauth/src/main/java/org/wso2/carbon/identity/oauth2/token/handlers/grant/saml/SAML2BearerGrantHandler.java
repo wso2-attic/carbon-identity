@@ -117,9 +117,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
     @Override
     public boolean validateGrant(OAuthTokenReqMessageContext tokReqMsgCtx) throws IdentityOAuth2Exception {
 
-        if(!super.validateGrant(tokReqMsgCtx)){
-            return false;
-        }
+        super.validateGrant(tokReqMsgCtx);
 
         Assertion assertion = null;
         IdentityProvider identityProvider = null;

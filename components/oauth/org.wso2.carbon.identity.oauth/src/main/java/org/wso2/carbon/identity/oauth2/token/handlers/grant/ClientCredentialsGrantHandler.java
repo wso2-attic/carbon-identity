@@ -33,11 +33,7 @@ public class ClientCredentialsGrantHandler extends AbstractAuthorizationGrantHan
     @Override
     public boolean validateGrant(OAuthTokenReqMessageContext tokReqMsgCtx)
             throws IdentityOAuth2Exception {
-
-        if(!super.validateGrant(tokReqMsgCtx)){
-            return false;
-        }
-
+        super.validateGrant(tokReqMsgCtx);
         // By this time, we have already validated client credentials.
         tokReqMsgCtx.setScope(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getScope());
         return true;

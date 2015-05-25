@@ -338,11 +338,8 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
             debugMessage.append(FrameworkConstants.ResponseParams.AUTHENTICATED).append(": ");
             debugMessage.append(String.valueOf(context.isRequestAuthenticated())).append("\n");
             debugMessage.append(FrameworkConstants.ResponseParams.AUTHENTICATED_USER).append(": ");
-            if(context.getSequenceConfig().getAuthenticatedUser()!=null) {
-                debugMessage.append(context.getSequenceConfig().getAuthenticatedUser().getAuthenticatedSubjectIdentifier()).append("\n");
-            }else{
-                debugMessage.append("No Authenticated User").append("\n");
-            }
+            debugMessage.append(context.getSequenceConfig().getAuthenticatedUser().getAuthenticatedSubjectIdentifier())
+                        .append("\n");
             debugMessage.append(FrameworkConstants.ResponseParams.AUTHENTICATED_IDPS).append(": ");
             debugMessage.append(context.getSequenceConfig().getAuthenticatedIdPs()).append("\n");
             debugMessage.append(FrameworkConstants.SESSION_DATA_KEY).append(": ");

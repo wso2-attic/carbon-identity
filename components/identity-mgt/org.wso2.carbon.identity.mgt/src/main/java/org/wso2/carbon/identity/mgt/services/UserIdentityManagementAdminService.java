@@ -29,7 +29,6 @@ import org.wso2.carbon.identity.mgt.dto.*;
 import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
 import org.wso2.carbon.identity.mgt.util.UserIdentityManagementUtil;
 import org.wso2.carbon.identity.mgt.util.Utils;
-import org.wso2.carbon.user.api.AuthorizationManager;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserCoreConstants;
@@ -242,39 +241,11 @@ public class UserIdentityManagementAdminService {
     public UserChallengesDTO[] getChallengeQuestionsOfUser(String userName)
             throws IdentityMgtServiceException {
 
-        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        String loggedInName = CarbonContext.getThreadLocalCarbonContext().getUsername();
-
-        if(userName != null && !userName.equals(loggedInName)){
-            AuthorizationManager authzManager = null;
-            try {
-                authzManager = IdentityMgtServiceComponent.getRealmService().getTenantUserRealm(tenantId).
-                        getAuthorizationManager();
-            } catch (UserStoreException e) {
-                throw new IdentityMgtServiceException("Error occurred while retrieving AuthorizationManager for tenant " +
-                        tenantDomain, e);
-            }
-            boolean isAuthorized = false;
-            try {
-                isAuthorized = authzManager.isUserAuthorized(loggedInName, "/permission/admin/configure/security",
-                        CarbonConstants.UI_PERMISSION_ACTION);
-            } catch (UserStoreException e) {
-                    throw new IdentityMgtServiceException("Error occurred while checking access level for " +
-                            "user " + userName + " in tenant " + tenantDomain, e);
-            }
-            if(!isAuthorized){
-                throw new IdentityMgtServiceException("Unauthorized access!! Possible violation of confidentiality. " +
-                        "User " + loggedInName + " trying to get challenge questions for user " + userName);
-            }
-        } else if (userName == null){
-            userName = loggedInName;
-        }
-
         ChallengeQuestionProcessor processor = IdentityMgtServiceComponent.
                 getRecoveryProcessor().getQuestionProcessor();
 
-        return processor.getChallengeQuestionsOfUser(userName, tenantId, true);
+        return processor.getChallengeQuestionsOfUser(userName,
+                CarbonContext.getThreadLocalCarbonContext().getTenantId(), true);
     }
 
     /**
@@ -377,35 +348,6 @@ public class UserIdentityManagementAdminService {
             throw new IdentityMgtServiceException("no challenges provided by user");
         }
 
-        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        String loggedInName = CarbonContext.getThreadLocalCarbonContext().getUsername();
-
-        if(userName != null && !userName.equals(loggedInName)){
-            AuthorizationManager authzManager = null;
-            try {
-                authzManager = IdentityMgtServiceComponent.getRealmService().getTenantUserRealm(tenantId).
-                        getAuthorizationManager();
-            } catch (UserStoreException e) {
-                throw new IdentityMgtServiceException("Error occurred while retrieving AuthorizationManager for tenant " +
-                        tenantDomain, e);
-            }
-            boolean isAuthorized = false;
-            try {
-                isAuthorized = authzManager.isUserAuthorized(loggedInName, "/permission/admin/configure/security",
-                        CarbonConstants.UI_PERMISSION_ACTION);
-            } catch (UserStoreException e) {
-                throw new IdentityMgtServiceException("Error occurred while checking access level for " +
-                        "user " + userName + " in tenant " + tenantDomain, e);
-            }
-            if(!isAuthorized){
-                throw new IdentityMgtServiceException("Unauthorized access!! Possible elevation of privilege attack. " +
-                        "User " + loggedInName + " trying to change challenge questions for user " + userName);
-            }
-        } else if (userName == null){
-            userName = loggedInName;
-        }
-
         validateSecurityQuestionDuplicate(challengesDTOs);
 
         ChallengeQuestionProcessor processor = IdentityMgtServiceComponent.
@@ -428,7 +370,7 @@ public class UserIdentityManagementAdminService {
                     throw new IdentityMgtServiceException(errMsg);
                 }
             }
-            processor.setChallengesOfUser(userName, tenantId, challengesDTOs);
+            processor.setChallengesOfUser(userName, CarbonContext.getThreadLocalCarbonContext().getTenantId(), challengesDTOs);
         } catch (IdentityException e) {
             String errorMessage = "Error while persisting user challenges for user : " + userName;
             log.error(errorMessage, e);
