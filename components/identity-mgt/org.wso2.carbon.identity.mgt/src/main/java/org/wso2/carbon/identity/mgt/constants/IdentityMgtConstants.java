@@ -171,6 +171,17 @@ public class IdentityMgtConstants {
         public static final String PASSWORD_LENGTH_MAX = "Password.policy.max.length";
 
         public static final String  AUTH_POLICY_ACCOUNT_LOCKING_FAIL_ATTEMPTS_EXPIRE_TIME = "Authentication.Policy.Account.Lock.On.Failure.Attempt.Expire.Time";
+
+        public static final String  AUTH_POLICY_PASSWORD_REUSE = "Authentication.Policy.Check.Password.Reuse";
+
+        public static final String  PASSWORD_REUSE_TIME = "Password.Reuse.Time";
+
+        public static final String  PASSWORD_REUSE_FREQUENCY = "Password.Reuse.Frequency";
+
+        public static final String  ACCOUNT_PASSWORD_REUSE_ENABLE = "Account.Password.Reuse.Enable";
+
+        public static final String ENCRYPTION_ALGO = "Password.Encryption.Algorithm";
+
     }
 
 
