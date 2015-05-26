@@ -4,7 +4,7 @@
     <groupId>org.wso2.carbon</groupId>
     <artifactId>carbon-identity</artifactId>
     <packaging>pom</packaging>
-    <version>4.2.5-SNAPSHOT</version>
+    <version>4.2.6-SNAPSHOT</version>
     <name>WSO2 Carbon - Platform Aggregator Pom</name>
     <url>http://wso2.org</url>
 
@@ -166,8 +166,8 @@
     </dependencyManagement>
 
     <properties>
-        <identity.component.version>4.2.5-SNAPSHOT</identity.component.version>
-	<identity.scim.feature.version>4.2.5-SNAPSHOT</identity.scim.feature.version>
+        <identity.component.version>4.2.6-SNAPSHOT</identity.component.version>
+	<identity.scim.feature.version>4.2.6-SNAPSHOT</identity.scim.feature.version>
 	<carbon.webapp.feature.version>4.2.3-SNAPSHOT</carbon.webapp.feature.version>
         <carbon.kernel.version>4.2.0</carbon.kernel.version>
         <carbon.p2.plugin.version>1.5.3</carbon.p2.plugin.version>
