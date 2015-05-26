@@ -1,0 +1,28 @@
+<component xmlns="http://products.wso2.org/carbon">
+    <menus>
+        <menu>
+            <id>policy_validator_menu</id>
+            <i18n-key>Policy Validator</i18n-key>
+            <i18n-bundle>org.wso2.carbon.identity.tools.xacml.validator.ui.i18n.Resources</i18n-bundle>
+            <parent-menu>my_pep_menu</parent-menu>
+            <link>../policy-validator/index.jsp</link>
+            <!--region>region1</region>
+            <order>50</order-->
+            <region>region5</region>
+            <order>6</order>
+            <style-class>manage</style-class>
+            <icon>../policy-validator/images/policy-validate.png</icon>
+            <require-permission>/permission/protected/manage</require-permission>
+        </menu>
+    </menus>
+<!--    <FileUploadConfig>
+        <Mapping>
+            <Actions>
+                <Action>service</Action>
+            </Actions>
+            <Class>org.wso2.carbon.identity.tools.xacml.validator.ui.client.EntitlementPolicyUploadExecutor</Class>
+        </Mapping>
+    </FileUploadConfig>-->
+</component>
+
+

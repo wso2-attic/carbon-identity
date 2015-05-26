@@ -1,0 +1,118 @@
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * 
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.wso2.carbon.identity.tools.xacml.validator.ui.client;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.CarbonException;
+import org.wso2.carbon.identity.entitlement.dto.xsd.PolicyDTO;
+import org.wso2.carbon.ui.CarbonUIMessage;
+import org.wso2.carbon.ui.transports.fileupload.AbstractFileUploadExecutor;
+import org.wso2.carbon.utils.FileItemData;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * This class is responsible for uploading entitlement policy files.
+ * And this uses the <code>AbstractFileUploadExecutor</code> which has written
+ * to handle the carbon specific file uploading
+ */
+public class EntitlementPolicyUploadExecutor extends AbstractFileUploadExecutor {
+
+    private static Log log = LogFactory.getLog(EntitlementPolicyUploadExecutor.class);
+
+    private static final String[] ALLOWED_FILE_EXTENSIONS = new String[] { ".xml" };
+
+    private String errorRedirectionPage;
+
+    @Override
+    public boolean execute(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+            throws CarbonException,
+                   IOException {
+        log.info("execute hits");
+        String webContext = (String) httpServletRequest.getAttribute(CarbonConstants.WEB_CONTEXT);
+        errorRedirectionPage = getContextRoot(httpServletRequest) + "/" + webContext + "/policy-validator/index.jsp";
+
+        Map<String, ArrayList<FileItemData>> fileItemsMap = getFileItemsMap();
+        if (fileItemsMap == null || fileItemsMap.isEmpty()) {
+            String msg = "File uploading failed. No files are specified";
+            log.error(msg);
+            CarbonUIMessage.sendCarbonUIMessage(msg, CarbonUIMessage.ERROR, httpServletRequest, httpServletResponse,
+                                                errorRedirectionPage);
+            return false;
+        }
+        List<FileItemData> fileItems = fileItemsMap.get("policyFromFileSystem");
+        String msg;
+        BufferedReader br = null;
+        try {
+            for (FileItemData fileItem : fileItems) {
+                String filename = getFileName(fileItem.getFileItem().getName());
+                checkServiceFileExtensionValidity(filename, ALLOWED_FILE_EXTENSIONS);
+
+                if (!filename.endsWith(".xml")) {
+                    throw new CarbonException("File with extension " + getFileName(fileItem.getFileItem().getName()) +
+                                              " is not supported!");
+                } else {
+                    br = new BufferedReader(new InputStreamReader(fileItem.getDataHandler()
+                                                                          .getInputStream()));
+                    String temp;
+                    StringBuilder policyContent = new StringBuilder();
+                    while ((temp = br.readLine()) != null) {
+                        policyContent.append(temp + System.getProperty("line.separator"));
+                    }
+                    PolicyDTO policyDTO = new PolicyDTO();
+                    policyDTO.setPolicy(policyContent.toString());
+                    policyDTO.setPolicyEditor("XML");
+                    HttpSession session = httpServletRequest.getSession();
+                    session.setAttribute("policyDTO", policyDTO);
+                    httpServletResponse.setContentType("text/html; charset=utf-8");
+                    msg = "Policy have been uploaded successfully.";
+                    CarbonUIMessage.sendCarbonUIMessage(msg, CarbonUIMessage.INFO, httpServletRequest,
+                                                        httpServletResponse, getContextRoot(httpServletRequest) + "/" +
+                                                                             webContext +
+                                                                             "/policy-validator/index.jsp");
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            msg = "Policy uploading failed. ";
+            log.error(msg,e);
+            CarbonUIMessage.sendCarbonUIMessage(msg, CarbonUIMessage.ERROR, httpServletRequest, httpServletResponse,
+                                                errorRedirectionPage);
+        } finally {
+            if (br != null) {
+                br.close();
+            }
+        }
+        return false;
+    }
+
+    @Override
+    protected String getErrorRedirectionPage() {
+        return errorRedirectionPage;
+    }
+}
