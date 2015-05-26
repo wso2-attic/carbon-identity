@@ -31,7 +31,7 @@
 
 <%
     String openididentity = (String) session.getAttribute("openId");
-    String xmlToken = request.getParameter("xmlToken");
+    String xmlToken = CharacterEncoder.getSafeText(request.getParameter("xmlToken"));
     String forwardTo = null;
     String BUNDLE = "org.wso2.carbon.identity.provider.openid.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
@@ -89,6 +89,7 @@
 <%@page import="java.util.ResourceBundle"%>
 <%@ page import="org.wso2.carbon.identity.provider.openid.stub.dto.InfoCardDTO" %>
 <%@ page import="org.wso2.carbon.identity.provider.openid.stub.dto.InfoCardSignInDTO" %>
+<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <script type="text/javascript">
     function forward() {
         location.href = "<%=forwardTo%>";
