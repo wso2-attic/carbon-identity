@@ -39,6 +39,8 @@ public class FIDOAuthenticatorConstants {
                 "AND UM_TENANT_ID = ?";
         public static final String GET_DEVICE_REGISTRATION_QUERY = "SELECT * FROM FIDO_DEVICE_STORE WHERE DOMAIN_ID = (SELECT " +
                 "UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_DOMAIN_NAME = ? AND UM_TENANT_ID= ?)  AND TENANT_ID = ? AND USER_NAME = ?";
+        public static final String REMOVE_REGISTRATION_QUERY = "DELETE FROM FIDO_DEVICE_STORE WHERE DOMAIN_ID = (SELECT " +
+                "UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_DOMAIN_NAME = ? AND UM_TENANT_ID= ?)  AND TENANT_ID = ? AND USER_NAME = ?";
     }
 }
 

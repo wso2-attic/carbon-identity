@@ -15,10 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.identity.application.authenticator.fido.util;
 
 import org.apache.commons.logging.Log;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.identity.application.authenticator.fido.exception.FIDOAuthenticatorServerException;
 import org.wso2.carbon.identity.application.authenticator.fido.internal.FIDOAuthenticatorServiceComponent;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -30,11 +32,6 @@ import javax.servlet.http.HttpServletRequest;
  * FIDOUtil class for FIDO authentication component.
  */
 public class FIDOUtil {
-	public static void logTrace(String msg, Log log) {
-		if (log.isTraceEnabled()) {
-			log.trace(msg);
-		}
-	}
 
 	public static String getOrigin(HttpServletRequest request) {
 
@@ -42,12 +39,16 @@ public class FIDOUtil {
 		       request.getServerPort();
 	}
 
-    public static int getTenantID(String tenantDomain) throws UserStoreException {
+    public static int getTenantID(String tenantDomain) throws FIDOAuthenticatorServerException {
 
         RealmService realmService = null;
         int tenantId;
         realmService = FIDOAuthenticatorServiceComponent.getRealmService();
+        try {
             tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
+        } catch (UserStoreException e) {
+            throw new FIDOAuthenticatorServerException(e.getMessage(), e);
+        }
         return tenantId;
     }
 

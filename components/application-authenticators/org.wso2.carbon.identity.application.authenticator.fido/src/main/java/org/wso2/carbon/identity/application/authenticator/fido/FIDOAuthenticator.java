@@ -68,7 +68,6 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator
             AuthenticatedUser user = getUsername(context);
 
             U2FService u2FService = U2FService.getInstance();
-            //TODO enhancement: tenant domain, user store domain
             FIDOUser fidoUser = new FIDOUser(user.getUserName(), user.getTenantDomain(),
                                              user.getUserStoreDomain(), AuthenticateResponse.fromJson(tokenResponse));
             fidoUser.setAppID(appID);
