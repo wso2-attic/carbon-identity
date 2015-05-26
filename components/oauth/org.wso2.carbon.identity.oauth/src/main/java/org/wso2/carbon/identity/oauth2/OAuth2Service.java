@@ -115,12 +115,12 @@ public class OAuth2Service extends AbstractAdmin {
             if(StringUtils.isEmpty(appDO.getGrantTypes()) || StringUtils.isEmpty(appDO.getCallbackUrl())){
                 if(log.isDebugEnabled()) {
                     log.debug("Registered App found for the given Client Id : " + clientId +
-                              " ,App Name : " + appDO.getApplicationName() + ", does not allow the requested " +
+                              " ,App Name : " + appDO.getApplicationName() + ", does not support the requested " +
                               "grant type.");
                 }
                 validationResponseDTO.setValidClient(false);
-                validationResponseDTO.setErrorCode(OAuth2ErrorCodes.INVALID_GRANT);
-                validationResponseDTO.setErrorMsg("Provided Authorization Grant is invalid.");
+                validationResponseDTO.setErrorCode(OAuth2ErrorCodes.UNSUPPORTED_GRANT_TYPE);
+                validationResponseDTO.setErrorMsg("Requested Grant type is not supported.");
                 return validationResponseDTO;
             }
 
