@@ -576,4 +576,19 @@ public class EntitlementUtil {
             }
         }
     }
+
+    /**
+     * get XACML policy schema required for XACML validator tool, this component used by
+     * org.wso2.carbon.identity.tools.xacml.validator component.
+     *
+     * @param policy contains policy content and meta information
+     * @return XACML Schema according to version
+     */
+    public static Schema getSchema(PolicyDTO policy) {
+        // get policy version
+        String policyXMLNS = getPolicyVersion(policy.getPolicy());
+        Map<String, Schema> schemaMap = EntitlementServiceComponent.getEntitlementConfig().getPolicySchemaMap();
+        // load correct schema by version
+        return schemaMap.get(policyXMLNS);
+    }
 }
