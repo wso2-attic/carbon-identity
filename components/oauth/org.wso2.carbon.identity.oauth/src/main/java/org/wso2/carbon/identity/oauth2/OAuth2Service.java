@@ -112,6 +112,18 @@ public class OAuth2Service extends AbstractAdmin {
             OAuthAppDAO oAuthAppDAO = new OAuthAppDAO();
             OAuthAppDO appDO = oAuthAppDAO.getAppInformation(clientId);
 
+            if(StringUtils.isEmpty(appDO.getGrantTypes()) || StringUtils.isEmpty(appDO.getCallbackUrl())){
+                if(log.isDebugEnabled()) {
+                    log.debug("Registered App found for the given Client Id : " + clientId +
+                              " ,App Name : " + appDO.getApplicationName() + ", does not allow the requested " +
+                              "grant type.");
+                }
+                validationResponseDTO.setValidClient(false);
+                validationResponseDTO.setErrorCode(OAuth2ErrorCodes.INVALID_GRANT);
+                validationResponseDTO.setErrorMsg("Provided Authorization Grant is invalid.");
+                return validationResponseDTO;
+            }
+
             OAuth2Util.setClientTenatId(appDO.getTenantId());
 
             // Valid Client, No callback has provided. Use the callback provided during the registration.
