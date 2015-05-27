@@ -1,0 +1,52 @@
+<!--
+ ~ Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ ~
+ ~ WSO2 Inc. licenses this file to you under the Apache License,
+ ~ Version 2.0 (the "License"); you may not use this file except
+ ~ in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~    http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied.  See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
+ -->
+<component xmlns="http://products.wso2.org/carbon">
+    <!-- sample menu configuration -->
+    <menus>
+
+        <menu>
+            <id>tenant_config_menu</id>
+            <i18n-key>add.tenant.config.menu</i18n-key>
+            <i18n-bundle>org.wso2.carbon.identity.mgt.admin.ui.i18n.Resources</i18n-bundle>
+            <parent-menu>identity_menu</parent-menu>
+            <link>#</link>
+            <region>region1</region>
+            <order>3</order>
+            <style-class>manage</style-class>
+            <icon>../identity-tenantmgt/images/multi_tenancy.png</icon>
+            <require-permission>/permission/admin/login</require-permission>
+            <require-not-logged-in>false</require-not-logged-in>
+        </menu>
+        <menu>
+            <id>add_tenant_config_menu</id>
+            <i18n-key>add.tenant.config</i18n-key>
+            <i18n-bundle>org.wso2.carbon.identity.mgt.admin.ui.i18n.Resources</i18n-bundle>
+            <parent-menu>tenant_config_menu</parent-menu>
+            <link>../identity-tenantmgt/add_config.jsp</link>
+            <region>region1</region>
+            <order>1</order>
+            <style-class>manage</style-class>
+            <icon>../identity-tenantmgt/images/add.gif</icon>
+            <require-permission>/permission/admin/login</require-permission>
+            <require-not-logged-in>false</require-not-logged-in>
+        </menu>
+
+    </menus>
+</component>
+
+
