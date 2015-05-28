@@ -107,6 +107,7 @@ public class AccessTokenIssuer {
                     tokenRespDTO = handleError(
                             OAuthConstants.OAuthError.TokenResponse.UNSUPPORTED_CLIENT_AUTHENTICATION_METHOD,
                             "Unsupported Client Authentication Method!", tokenReqDTO);
+                    setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
                     return tokenRespDTO;
                 }
                 authenticatorHandlerIndex = i;
@@ -118,6 +119,7 @@ public class AccessTokenIssuer {
             tokenRespDTO = handleError(
                     OAuthConstants.OAuthError.TokenResponse.UNSUPPORTED_CLIENT_AUTHENTICATION_METHOD,
                     "Unsupported Client Authentication Method!", tokenReqDTO);
+            setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
             return tokenRespDTO;
         }
 
@@ -152,6 +154,7 @@ public class AccessTokenIssuer {
                     "user-name=" + userName + " to application=" + applicationName);
             tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_CLIENT,
                     "Client credentials are invalid.", tokenReqDTO);
+            setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
             return tokenRespDTO;
         }
 
@@ -162,6 +165,7 @@ public class AccessTokenIssuer {
                     "" + "user-name=" + userName + " to application=" + applicationName);
             tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_GRANT,
                     "Provided Authorization Grant is invalid.", tokenReqDTO);
+            setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
             return tokenRespDTO;
         }
 
@@ -172,6 +176,7 @@ public class AccessTokenIssuer {
                     + tokenReqDTO.getClientId() + " " + "user-name=" + userName + " to application=" + applicationName);
             tokenRespDTO = handleError(OAuthError.TokenResponse.UNAUTHORIZED_CLIENT,
                     "Unauthorized Client!", tokenReqDTO);
+            setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
             return tokenRespDTO;
         }
 
@@ -181,6 +186,7 @@ public class AccessTokenIssuer {
             log.debug("Invalid Scope provided. client-id=" + tokenReqDTO.getClientId() + " " +
                     "" + "user-name=" + userName + " to application=" + applicationName);
             tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_SCOPE, "Invalid Scope!", tokenReqDTO);
+            setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
             return tokenRespDTO;
         }
 
@@ -197,9 +203,7 @@ public class AccessTokenIssuer {
             tokenRespDTO.setAuthorizedScopes(scopeString.toString().trim());
         }
 
-        if (tokReqMsgCtx.getProperty("RESPONSE_HEADERS") != null) {
-            tokenRespDTO.setResponseHeaders((ResponseHeader[]) tokReqMsgCtx.getProperty("RESPONSE_HEADERS"));
-        }
+        setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
 
         //Do not change this log format as these logs use by external applications
         if (log.isDebugEnabled()) {
@@ -256,5 +260,12 @@ public class AccessTokenIssuer {
         tokenRespDTO.setErrorCode(errorCode);
         tokenRespDTO.setErrorMsg(errorMsg);
         return tokenRespDTO;
+    }
+
+    private void setResponseHeaders(OAuthTokenReqMessageContext tokReqMsgCtx,
+                                    OAuth2AccessTokenRespDTO tokenRespDTO) {
+        if (tokReqMsgCtx.getProperty("RESPONSE_HEADERS") != null) {
+            tokenRespDTO.setResponseHeaders((ResponseHeader[]) tokReqMsgCtx.getProperty("RESPONSE_HEADERS"));
+        }
     }
 }

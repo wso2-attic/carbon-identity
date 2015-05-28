@@ -24,7 +24,8 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.*;
-import org.wso2.carbon.identity.application.common.persistence.JDBCPersistenceManager;
+import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.application.common.util.CharacterEncoder;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
@@ -155,9 +156,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
             return applicationId;
 
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             try {
-                connection.rollback();
+                if (connection != null) {
+                    connection.rollback();
+                }
             } catch (SQLException sql) {
                 throw new IdentityApplicationManagementException(
                         "Error while Creating Application", sql);
@@ -223,31 +226,17 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             deletePermissionAndRoleConfiguration(applicationId, connection);
             updatePermissionAndRoleConfiguration(serviceProvider.getApplicationID(),
                     serviceProvider.getPermissionAndRoleConfig(), connection);
+            deleteAssignedPermissions(connection,serviceProvider.getApplicationName(),
+                    serviceProvider.getPermissionAndRoleConfig().getPermissions());
 
             if (!connection.getAutoCommit()) {
                 connection.commit();
             }
-        } catch (IdentityApplicationManagementException e) {
+        } catch (IdentityException | SQLException | UserStoreException e) {
             try {
-                connection.rollback();
-            } catch (SQLException e1) {
-                throw new IdentityApplicationManagementException(
-                        "Failed to update service provider " + applicationId, e);
-            }
-            throw new IdentityApplicationManagementException("Failed to update service provider "
-                    + applicationId, e);
-        } catch (SQLException e) {
-            try {
-                connection.rollback();
-            } catch (SQLException e1) {
-                throw new IdentityApplicationManagementException(
-                        "Failed to update service provider " + applicationId, e);
-            }
-            throw new IdentityApplicationManagementException("Failed to update service provider "
-                    + applicationId, e);
-        } catch (UserStoreException e) {
-            try {
-                connection.rollback();
+                if (connection != null) {
+                    connection.rollback();
+                }
             } catch (SQLException e1) {
                 throw new IdentityApplicationManagementException(
                         "Failed to update service provider " + applicationId, e);
@@ -292,12 +281,39 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         }
 
         // only if the application has been renamed
-        if (!applicationName.equalsIgnoreCase(storedAppName)) {
+        if (!applicationName.equals(storedAppName)) {
             // rename the role
             ApplicationMgtUtil.renameRole(storedAppName, applicationName);
             if (debugMode) {
                 log.debug("Renaming application role from " + storedAppName + " to "
                         + applicationName);
+            }
+            PreparedStatement readPermissions = null;
+            ResultSet resultSet = null;
+            try {
+                readPermissions = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS);
+                readPermissions.setString(1, "%" + ApplicationMgtUtil.getApplicationPermissionPath() + "%");
+                resultSet = readPermissions.executeQuery();
+                while (resultSet.next()) {
+                    String UM_ID = resultSet.getString(1);
+                    String permission = resultSet.getString(2);
+                    if (permission.contains(ApplicationMgtUtil.getApplicationPermissionPath() +
+                            ApplicationMgtUtil.PATH_CONSTANT + storedAppName.toLowerCase())) {
+                        permission = permission.replace(storedAppName.toLowerCase(), applicationName.toLowerCase());
+                        PreparedStatement updatePermission = null;
+                        try {
+                            updatePermission = connection.prepareStatement(ApplicationMgtDBQueries.UPDATE_SP_PERMISSIONS);
+                            updatePermission.setString(1, permission);
+                            updatePermission.setString(2, UM_ID);
+                            updatePermission.executeUpdate();
+                        } finally {
+                            IdentityApplicationManagementUtil.closeStatement(updatePermission);
+                        }
+                    }
+                }
+            } finally {
+                IdentityApplicationManagementUtil.closeResultSet(resultSet);
+                IdentityApplicationManagementUtil.closeStatement(readPermissions);
             }
         }
 
@@ -1082,7 +1098,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             serviceProvider.setRequestPathAuthenticatorConfigs(requestPathAuthenticators);
             return serviceProvider;
 
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             throw new IdentityApplicationManagementException("Failed to update service provider "
                     + applicationId, e);
         } finally {
@@ -1255,7 +1271,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 applicationName = appNameResult.getString(1);
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             throw new IdentityApplicationManagementException("Error while reading application");
         } finally {
@@ -1278,7 +1294,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         try {
             connection = IdentityApplicationManagementUtil.getDBConnection();
             return getApplicationName(applicationID, connection);
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             throw new IdentityApplicationManagementException("Failed loading the application with "
                     + applicationID, e);
         } finally {
@@ -1401,16 +1417,18 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
                 InboundAuthenticationRequestConfig inbountAuthRequest = null;
                 String authKey = resultSet.getString(1);
+                String authType = resultSet.getString(2);
+                String mapKey = authType + ":" + authKey;
 
-                if (!authRequestMap.containsKey(authKey)) {
+                if (!authRequestMap.containsKey(mapKey)) {
                     inbountAuthRequest = new InboundAuthenticationRequestConfig();
                     inbountAuthRequest.setInboundAuthKey(authKey);
-                    inbountAuthRequest.setInboundAuthType(resultSet.getString(2));
+                    inbountAuthRequest.setInboundAuthType(authType);
                     inbountAuthRequest.setProperties(new Property[0]);
-                    authRequestMap.put(authKey, inbountAuthRequest);
+                    authRequestMap.put(mapKey, inbountAuthRequest);
                 }
 
-                inbountAuthRequest = authRequestMap.get(authKey);
+                inbountAuthRequest = authRequestMap.get(mapKey);
 
                 String propName = resultSet.getString(3);
 
@@ -1982,7 +2000,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                     }
                 }
             }
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             throw new IdentityApplicationManagementException("Error while Reading all Applications");
         } finally {
             IdentityApplicationManagementUtil.closeStatement(getAppNamesStmt);
@@ -2032,7 +2050,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 connection.commit();
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             throw new IdentityApplicationManagementException("Error deleting application");
         } finally {
@@ -2248,6 +2266,75 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         }
     }
 
+    /***
+     * Delete assigned role permission mappings for deleted permissions
+     * @param connection
+     * @param applicationName
+     * @param permissions
+     * @throws IdentityApplicationManagementException
+     * @throws SQLException
+     */
+    public void deleteAssignedPermissions(Connection connection, String applicationName, ApplicationPermission[] permissions)
+            throws IdentityApplicationManagementException, SQLException {
+        List<ApplicationPermission> loadPermissions = ApplicationMgtUtil.loadPermissions(applicationName);
+        List<ApplicationPermission> removedPermissions = null;
+        if (loadPermissions != null && loadPermissions.size() > 0) {
+            if (permissions == null || permissions.length == 0) {
+                removedPermissions = new ArrayList<ApplicationPermission>(loadPermissions);
+            } else {
+                removedPermissions = new ArrayList<ApplicationPermission>();
+                for (ApplicationPermission storedPermission : loadPermissions) {
+                    boolean isStored = false;
+                    for (ApplicationPermission applicationPermission : permissions) {
+                        if (applicationPermission.getValue().equals(storedPermission.getValue())) {
+                            isStored = true;
+                            break;
+                        }
+                    }
+                    if (!isStored) {
+                        removedPermissions.add(storedPermission);
+                    }
+                }
+            }
+        }
+        if (removedPermissions != null && removedPermissions.size() > 0) {
+            //delete permissions
+            for (ApplicationPermission applicationPermission : removedPermissions) {
+                String permissionValue = ApplicationMgtUtil.PATH_CONSTANT +
+                        ApplicationMgtUtil.getApplicationPermissionPath() +
+                        ApplicationMgtUtil.PATH_CONSTANT +
+                        applicationName + ApplicationMgtUtil.PATH_CONSTANT +
+                        applicationPermission.getValue();
+                PreparedStatement selectQuery = null;
+                ResultSet resultSet = null;
+                try {
+                    selectQuery = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS_W);
+                    selectQuery.setString(1, permissionValue.toLowerCase());
+                    resultSet = selectQuery.executeQuery();
+                    if (resultSet.next()) {
+                        int UM_ID = resultSet.getInt(1);
+                        PreparedStatement deleteRolePermission = null;
+                        PreparedStatement deletePermission = null;
+                        try {
+                            deleteRolePermission = connection.prepareStatement(ApplicationMgtDBQueries.REMOVE_UM_ROLE_PERMISSION);
+                            deleteRolePermission.setInt(1, UM_ID);
+                            deleteRolePermission.executeUpdate();
+                            deletePermission = connection.prepareStatement(ApplicationMgtDBQueries.REMOVE_UM_PERMISSIONS);
+                            deletePermission.setInt(1, UM_ID);
+                            deletePermission.executeUpdate();
+                        } finally {
+                            IdentityApplicationManagementUtil.closeStatement(deleteRolePermission);
+                            IdentityApplicationManagementUtil.closeStatement(deletePermission);
+                        }
+                    }
+                } finally {
+                    IdentityApplicationManagementUtil.closeResultSet(resultSet);
+                    IdentityApplicationManagementUtil.closeStatement(selectQuery);
+                }
+            }
+        }
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -2286,7 +2373,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             if (appNameResult.next()) {
                 applicationName = appNameResult.getString(1);
             }
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             throw new IdentityApplicationManagementException("Error while reading application");
         } finally {
             IdentityApplicationManagementUtil.closeResultSet(appNameResult);
@@ -2345,6 +2432,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 }
             }
 
+        } catch (IdentityException e) {
+            throw new IdentityApplicationManagementException("Error while reading claim mappings.", e);
         } finally {
             IdentityApplicationManagementUtil.closeStatement(getClaimPreStmt);
             IdentityApplicationManagementUtil.closeResultSet(resultSet);
@@ -2415,7 +2504,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                     reqClaimUris.add(resultSet.getString(1));
                 }
             }
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             throw new IdentityApplicationManagementException(
                     "Error while retrieving requested claims", e);
         } finally {

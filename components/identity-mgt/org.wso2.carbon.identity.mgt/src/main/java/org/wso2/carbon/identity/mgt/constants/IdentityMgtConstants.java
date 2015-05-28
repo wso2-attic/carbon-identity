@@ -110,6 +110,8 @@ public class IdentityMgtConstants {
 
         public static final String CONFIG_FILE_NAME = "identity-mgt.properties";
 
+        public static final String USER_INFO_RECOVERY_SAA_SENABLE = "UserInfoRecovery.SaaSEnable";
+
         public static final String NOTIFICATION_SEND_ENABLE = "Notification.Sending.Enable";
 
         public static final String RECOVERY_CLAIM = "Recovery.Claim";

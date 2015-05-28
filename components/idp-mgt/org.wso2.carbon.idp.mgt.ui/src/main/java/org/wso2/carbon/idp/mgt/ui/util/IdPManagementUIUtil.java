@@ -1038,7 +1038,7 @@ public class IdPManagementUIUtil {
         property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.Facebook.USER_INFO_FIELDS);
         String fbUserInfoFields = paramMap.get("fbUserInfoFields");
-        if(fbUserInfoFields.endsWith(",")) {
+        if(fbUserInfoFields != null && fbUserInfoFields.endsWith(",")) {
             fbUserInfoFields = fbUserInfoFields.substring(0, fbUserInfoFields.length() - 1);
         }
         property.setValue(fbUserInfoFields);

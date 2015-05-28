@@ -18,8 +18,8 @@
 package org.wso2.carbon.identity.oauth.endpoint.user.impl;
 
 import org.apache.amber.oauth2.common.error.OAuthError;
-import org.wso2.carbon.identity.oauth.endpoint.user.UserInfoEndpointException;
-import org.wso2.carbon.identity.oauth.endpoint.user.UserInfoRequestValidator;
+import org.wso2.carbon.identity.oauth.user.UserInfoEndpointException;
+import org.wso2.carbon.identity.oauth.user.UserInfoRequestValidator;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;

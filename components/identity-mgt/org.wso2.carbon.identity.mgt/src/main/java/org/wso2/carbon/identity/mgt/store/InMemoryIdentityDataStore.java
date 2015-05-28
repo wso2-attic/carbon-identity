@@ -21,10 +21,12 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.dto.UserIdentityClaimsDO;
 import org.wso2.carbon.user.api.UserStoreManager;
+import org.wso2.carbon.user.core.UserCoreConstants;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
+import java.util.Map;
 
 /**
  *
@@ -47,16 +49,48 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
     @Override
     public void store(UserIdentityClaimsDO userIdentityDTO, UserStoreManager userStoreManager)
             throws IdentityException {
+
         if (userIdentityDTO != null && userIdentityDTO.getUserName() != null) {
-            String key =
+            String userName = userIdentityDTO.getUserName();
+            if (userStoreManager instanceof org.wso2.carbon.user.core.UserStoreManager) {
+                String caseInsensitiveUsername = ((org.wso2.carbon.user.core.UserStoreManager) userStoreManager).
+                        getRealmConfiguration().getUserStoreProperty("CaseInsensitiveUsername");
+                if (caseInsensitiveUsername != null && !caseInsensitiveUsername.isEmpty() &&
+                        caseInsensitiveUsername.trim().equalsIgnoreCase("true")) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Case insensitive user store found. Changing username from : " + userName +
+                                " to : " + userName.toLowerCase());
+                    }
+                    userName = userName.toLowerCase();
+                }
+            }
+            if (userIdentityDTO != null) {
+                if (log.isDebugEnabled()) {
+                    StringBuilder data = new StringBuilder("{");
+                    if (userIdentityDTO.getUserIdentityDataMap() != null) {
+                        for (Map.Entry<String, String> entry : userIdentityDTO.getUserIdentityDataMap().entrySet()) {
+                            data.append("[" + entry.getKey() + " = " + entry.getValue() + "], ");
+                        }
+                    }
+                    if (data.indexOf(",") >= 0) {
+                        data.deleteCharAt(data.lastIndexOf(","));
+                    }
+                    data.append("}");
+                    log.debug("Storing UserIdentityClaimsDO to cache for user: " + userName + " with claims: " + data);
+                }
+            }
+            org.wso2.carbon.user.core.UserStoreManager store = (org.wso2.carbon.user.core.UserStoreManager) userStoreManager;
+            String domainName = store.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+
+            String key = domainName +
                     CarbonContext.getThreadLocalCarbonContext().getTenantId() +
-                            userIdentityDTO.getUserName();
+                    userName;
 //			if (cache.containsKey(key)) {
 //				invalidateCache(userIdentityDTO.getUserName());
 //			}
 
             Cache<String, UserIdentityClaimsDO> cache = getCache();
-            if (cache != null) {
+            if(cache != null) {
                 cache.put(key, userIdentityDTO);
             }
         }
@@ -67,8 +101,42 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
 
         Cache<String, UserIdentityClaimsDO> cache = getCache();
         if (userName != null && cache != null) {
-            return (UserIdentityClaimsDO) cache.get(CarbonContext.getThreadLocalCarbonContext().getTenantId() +
-                    userName);
+            if (userStoreManager instanceof org.wso2.carbon.user.core.UserStoreManager) {
+                String caseInsensitiveUsername = ((org.wso2.carbon.user.core.UserStoreManager) userStoreManager).
+                        getRealmConfiguration().getUserStoreProperty("CaseInsensitiveUsername");
+                if (caseInsensitiveUsername != null && !caseInsensitiveUsername.isEmpty() &&
+                        caseInsensitiveUsername.trim().equalsIgnoreCase("true")) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Case insensitive user store found. Changing username from : " + userName +
+                                " to : " + userName.toLowerCase());
+                    }
+                    userName = userName.toLowerCase();
+                }
+            }
+
+            org.wso2.carbon.user.core.UserStoreManager store = (org.wso2.carbon.user.core.UserStoreManager) userStoreManager;
+
+            String domainName = store.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+
+            UserIdentityClaimsDO userIdentityDTO = (UserIdentityClaimsDO) cache.get(domainName +
+                    CarbonContext.getThreadLocalCarbonContext().getTenantId() + userName);
+
+            if (userIdentityDTO != null) {
+                if (log.isDebugEnabled()) {
+                    StringBuilder data = new StringBuilder("{");
+                    if (userIdentityDTO.getUserIdentityDataMap() != null) {
+                        for (Map.Entry<String, String> entry : userIdentityDTO.getUserIdentityDataMap().entrySet()) {
+                            data.append("[" + entry.getKey() + " = " + entry.getValue() + "], ");
+                        }
+                    }
+                    if (data.indexOf(",") >= 0) {
+                        data.deleteCharAt(data.lastIndexOf(","));
+                    }
+                    data.append("}");
+                    log.debug("Loaded UserIdentityClaimsDO from cache for user :" + userName + " with claims: " + data);
+                }
+            }
+            return userIdentityDTO;
         }
         return null;
     }
@@ -78,8 +146,13 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
         if (userName == null) {
             return;
         }
+        org.wso2.carbon.user.core.UserStoreManager store = (org.wso2.carbon.user.core.UserStoreManager) userStoreManager;
+        String domainName = store.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
 
-        cache.remove(CarbonContext.getThreadLocalCarbonContext().getTenantId() + userName);
+        cache.remove(domainName + CarbonContext.getThreadLocalCarbonContext().getTenantId() + userName);
+
+//		invalidateCache(userName);
+
 
 //		invalidateCache(userName);
     }

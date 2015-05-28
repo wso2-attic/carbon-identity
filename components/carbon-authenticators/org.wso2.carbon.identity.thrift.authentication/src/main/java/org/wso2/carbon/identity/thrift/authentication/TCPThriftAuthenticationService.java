@@ -25,7 +25,6 @@ import org.apache.thrift.transport.TSSLTransportFactory;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TTransportException;
 import org.wso2.carbon.identity.thrift.authentication.dao.InMemoryThriftSessionDAO;
-import org.wso2.carbon.identity.thrift.authentication.internal.AuthenticationHandler;
 import org.wso2.carbon.identity.thrift.authentication.internal.AuthenticatorServiceImpl;
 import org.wso2.carbon.identity.thrift.authentication.internal.ThriftAuthenticatorServiceImpl;
 import org.wso2.carbon.identity.thrift.authentication.internal.generatedCode.AuthenticatorService;
@@ -55,7 +54,7 @@ public class TCPThriftAuthenticationService {
         this.clientTimeout = clientTimeout;
         this.thriftAuthenticatorService = thriftAuthenticatorService;
     }
-    public TCPThriftAuthenticationService(String hostName, int port, AuthenticationHandler authenticationHandler, long thriftSessionTimeOut) throws Exception {
+    public TCPThriftAuthenticationService(String hostName, int port, long thriftSessionTimeOut) throws Exception {
         this.hostName = hostName;
         this.port = port;
         String keyStore = System.getProperty("Security.KeyStore.Location");
@@ -73,7 +72,7 @@ public class TCPThriftAuthenticationService {
         this.keyStorePassword = keyStorePassword;
         this.clientTimeout = 30000;
 
-        this.thriftAuthenticatorService = new ThriftAuthenticatorServiceImpl(authenticationHandler, null, new InMemoryThriftSessionDAO(), thriftSessionTimeOut);
+        this.thriftAuthenticatorService = new ThriftAuthenticatorServiceImpl(null, new InMemoryThriftSessionDAO(), thriftSessionTimeOut);
     }
 
     public void start() throws TTransportException, UnknownHostException {

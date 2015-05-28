@@ -28,7 +28,6 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
-import org.wso2.carbon.identity.application.common.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
@@ -119,15 +118,6 @@ public class IdPManagementServiceComponent {
                 log.debug("Identity Provider Management - UserOperationEventListener registered");
             } else {
                 log.error("Identity Provider Management - UserOperationEventListener could not be registered");
-            }
-
-            JDBCPersistenceManager jdbcPersistenceManager = JDBCPersistenceManager.getInstance();
-            if (System.getProperty("setup") != null) {
-                // initialize the identity application persistence manager
-                jdbcPersistenceManager.initializeDatabase();
-            } else {
-                log.info("Identity Application Management Database initialization not attempted since \'setup\' " +
-                        "variable was not provided during startup");
             }
 
             buildFileBasedIdPList();

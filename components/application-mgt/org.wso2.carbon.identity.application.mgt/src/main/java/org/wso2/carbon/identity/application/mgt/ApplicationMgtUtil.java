@@ -177,6 +177,37 @@ public class ApplicationMgtUtil {
 
     }
 
+    /***
+     * Rename the registry path node name for a deleted Service provider role.
+     * @param oldName
+     * @param newName
+     * @throws IdentityApplicationManagementException
+     */
+    public static void renameAppPermissionPathNode(String oldName, String newName)
+            throws IdentityApplicationManagementException {
+
+        List<ApplicationPermission> loadPermissions = loadPermissions(oldName);
+        String newApplicationNode = ApplicationMgtUtil.getApplicationPermissionPath() + PATH_CONSTANT + oldName;
+        Registry tenantGovReg = CarbonContext.getThreadLocalCarbonContext().getRegistry(
+                RegistryType.USER_GOVERNANCE);
+        //creating new application node
+        try {
+            for (ApplicationPermission applicationPermission : loadPermissions) {
+                tenantGovReg.delete(newApplicationNode + PATH_CONSTANT + applicationPermission.getValue());
+            }
+            tenantGovReg.delete(newApplicationNode);
+            Collection permissionNode = tenantGovReg.newCollection();
+            permissionNode.setProperty("name", newName);
+            newApplicationNode = ApplicationMgtUtil.getApplicationPermissionPath() + PATH_CONSTANT + newName;
+            ApplicationMgtUtil.applicationNode = newApplicationNode;
+            tenantGovReg.put(newApplicationNode, permissionNode);
+            addPermission(loadPermissions.toArray(new ApplicationPermission[loadPermissions.size()]), tenantGovReg);
+        } catch (RegistryException e) {
+            throw new IdentityApplicationManagementException("Error while renaming permission node "
+                    + oldName + "to " + newName, e);
+        }
+    }
+
     /**
      * @param applicationName
      * @param permissionsConfig
@@ -272,7 +303,7 @@ public class ApplicationMgtUtil {
                 tenantGovReg.delete(applicationNode);
             }
 
-            if (permissions == null) {
+            if (permissions == null || permissions.length == 0) {
                 return;
             }
 

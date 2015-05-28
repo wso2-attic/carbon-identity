@@ -20,10 +20,12 @@ package org.wso2.carbon.idp.mgt.dao;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jivesoftware.smackx.packet.DiscoverInfo;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.*;
-import org.wso2.carbon.identity.application.common.persistence.JDBCPersistenceManager;
+import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.application.common.util.CharacterEncoder;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
@@ -105,7 +107,7 @@ public class IdPManagementDAO {
                 }
             }
             return idps;
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while retrieving registered Identity Provider Entity IDs "
@@ -995,7 +997,7 @@ public class IdPManagementDAO {
 
             }
             return federatedIdp;
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while retrieving Identity Provider information for tenant : "
                     + tenantDomain + " and Identity Provider name : " + idPName;
@@ -1144,7 +1146,7 @@ public class IdPManagementDAO {
 
             }
             return federatedIdp;
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while retrieving Identity Provider information for Authenticator Property : "
                     + property + " and value : " + value;
@@ -1188,7 +1190,7 @@ public class IdPManagementDAO {
             IdentityApplicationManagementUtil.closeResultSet(rs);
 
             return getIdPByName(dbConnection, idPName, tenantId, tenantDomain);
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             throw new IdentityApplicationManagementException(
                     "Error while retreiving Identity Provider by realm " + realmId, e);
         } finally {
@@ -1365,7 +1367,7 @@ public class IdPManagementDAO {
             String msg = "An error occurred while processing content stream.";
             log.error(msg, e);
             throw new IdentityApplicationManagementException(msg, e);
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while adding Identity Provider for tenant " + tenantId;
             throw new IdentityApplicationManagementException(msg, e);
@@ -1531,7 +1533,7 @@ public class IdPManagementDAO {
             String msg = "An error occurred while processing content stream.";
             log.error(msg, e);
             throw new IdentityApplicationManagementException(msg, e);
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while updating Identity Provider information  for tenant "
@@ -1572,7 +1574,7 @@ public class IdPManagementDAO {
                     isReffered = rsProvIdp.getInt(1) > 0;
                 }
             }
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             String msg = "Error occurred while searching for IDP references in SP ";
             throw new IdentityApplicationManagementException(msg, e);
@@ -1624,7 +1626,7 @@ public class IdPManagementDAO {
             }
 
             dbConnection.commit();
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while deleting Identity Provider of tenant "
@@ -1675,7 +1677,7 @@ public class IdPManagementDAO {
 
                 return identityProviderDO;
             }
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while retrieving primary Identity Provider for tenant "
@@ -1702,7 +1704,7 @@ public class IdPManagementDAO {
             prepStmt.setString(2, role);
             prepStmt.executeUpdate();
             dbConnection.commit();
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while deleting tenant role " + role + " of tenant "
@@ -1717,7 +1719,7 @@ public class IdPManagementDAO {
                                  String tenantDomain) throws IdentityApplicationManagementException {
 
         Connection dbConnection = null;
-        PreparedStatement prepStmt = null;
+        PreparedStatement prepStmt;
         try {
             dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
             String sqlStmt = IdPManagementConstants.SQLQueries.RENAME_ROLE_LISTENER_SQL;
@@ -1727,7 +1729,7 @@ public class IdPManagementDAO {
             prepStmt.setString(3, CharacterEncoder.getSafeText(oldRoleName));
             prepStmt.executeUpdate();
             dbConnection.commit();
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while renaming tenant role " + oldRoleName + " to "
@@ -1825,7 +1827,7 @@ public class IdPManagementDAO {
             prepStmt.setString(3, CharacterEncoder.getSafeText(oldClaimURI));
             prepStmt.executeUpdate();
             dbConnection.commit();
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             String msg = "Error occurred while renaming tenant role " + oldClaimURI + " to "
                     + newClaimURI + " of tenant " + tenantDomain;
@@ -2355,6 +2357,9 @@ public class IdPManagementDAO {
             if (rs.next()) {
                 return rs.getInt(1);
             }
+        } catch (IdentityException e) {
+            throw new IdentityApplicationManagementException("Error occurred while reading Identity Provider by name" +
+                                                             ".", e);
         } finally {
             IdentityApplicationManagementUtil.closeStatement(prepStmt);
             IdentityApplicationManagementUtil.closeResultSet(rs);
@@ -2454,7 +2459,7 @@ public class IdPManagementDAO {
             if (rs.next()) {
                 isAvailable = rs.getInt(1) > 0;
             }
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             String msg = "Error occurred while searching for similar IdP EntityIds";
             throw new IdentityApplicationManagementException(msg, e);

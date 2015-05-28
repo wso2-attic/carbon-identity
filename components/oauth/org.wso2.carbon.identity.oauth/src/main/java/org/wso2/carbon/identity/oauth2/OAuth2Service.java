@@ -112,6 +112,18 @@ public class OAuth2Service extends AbstractAdmin {
             OAuthAppDAO oAuthAppDAO = new OAuthAppDAO();
             OAuthAppDO appDO = oAuthAppDAO.getAppInformation(clientId);
 
+            if(StringUtils.isEmpty(appDO.getGrantTypes()) || StringUtils.isEmpty(appDO.getCallbackUrl())){
+                if(log.isDebugEnabled()) {
+                    log.debug("Registered App found for the given Client Id : " + clientId +
+                              " ,App Name : " + appDO.getApplicationName() + ", does not support the requested " +
+                              "grant type.");
+                }
+                validationResponseDTO.setValidClient(false);
+                validationResponseDTO.setErrorCode(OAuth2ErrorCodes.UNSUPPORTED_GRANT_TYPE);
+                validationResponseDTO.setErrorMsg("Requested Grant type is not supported.");
+                return validationResponseDTO;
+            }
+
             OAuth2Util.setClientTenatId(appDO.getTenantId());
 
             // Valid Client, No callback has provided. Use the callback provided during the registration.
@@ -280,7 +292,7 @@ public class OAuth2Service extends AbstractAdmin {
                                     OAuth2Util.buildScopeString(refreshTokenDO.getScope()));
                             org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(
                                     revokeRequestDTO.getConsumerKey(), refreshTokenDO.getAuthorizedUser());
-                            org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(revokeRequestDTO.getToken());
+                            org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(refreshTokenDO.getAccessToken());
                             tokenMgtDAO.revokeToken(refreshTokenDO.getAccessToken());
                             addRevokeResponseHeaders(revokeResponseDTO, refreshTokenDO.getAccessToken(),
                                     revokeRequestDTO.getToken(), refreshTokenDO.getAuthorizedUser());
