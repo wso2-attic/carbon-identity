@@ -74,7 +74,7 @@ String extuser = request.getParameter("extuser");
         	if (value == '') {
             	CARBON.showWarningDialog('<fmt:message key="attribute.is.required"/>');
             	return false;
-        	} else if (value.length > 30) {
+        	} else if (value.length > 300) {
         		CARBON.showWarningDialog('<fmt:message key="attr.id.is.too.long"/>');
             	return false;
         	}
