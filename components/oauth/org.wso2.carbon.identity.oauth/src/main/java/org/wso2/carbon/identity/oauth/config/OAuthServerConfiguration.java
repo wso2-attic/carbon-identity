@@ -32,6 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.core.util.IdentityConfigParser;
+import org.wso2.carbon.identity.oauth.common.JWTGrantValidator;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.SAML2GrantValidator;
 import org.wso2.carbon.identity.oauth.tokenprocessor.PlainTextPersistenceProcessor;
@@ -70,6 +71,8 @@ public class OAuthServerConfiguration {
             "org.wso2.carbon.identity.oauth2.token.handlers.grant.saml.SAML2BearerGrantHandler";
     private static final String IWA_NTLM_BEARER_GRANT_HANDLER_CLASS =
             "org.wso2.carbon.identity.oauth2.token.handlers.grant.iwa.ntlm.NTLMAuthenticationGrantHandler";
+    private static final String JWT_BEARER_GRANT_HANDLER_CLASS =
+            "org.wso2.carbon.identity.oauth2.token.handlers.grant.jwt.JWTBearerGrantHandler";
     private static Log log = LogFactory.getLog(OAuthServerConfiguration.class);
     private static OAuthServerConfiguration instance;
     private long authorizationCodeValidityPeriodInSeconds = 300;
@@ -295,6 +298,10 @@ public class OAuthServerConfiguration {
                     supportedGrantTypeValidators.put(
                             org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER
                                     .toString(), SAML2GrantValidator.class);
+                    supportedGrantTypeValidators.put(
+                            org.wso2.carbon.identity.oauth.common.GrantType.JWT
+                                    .toString(), JWTGrantValidator.class);
+
 
                     if (supportedGrantTypeValidatorNames != null) {
                         // Load configured grant type validators
@@ -898,7 +905,7 @@ public class OAuthServerConfiguration {
             log.warn("\'SupportedGrantTypes\' element not configured in identity.xml. " +
                     "Therefore instantiating default grant type handlers");
 
-            Map<String, String> defaultGrantTypes = new Hashtable<String, String>(5);
+            Map<String, String> defaultGrantTypes = new Hashtable<String, String>();
             defaultGrantTypes.put(GrantType.AUTHORIZATION_CODE.toString(), AUTHORIZATION_CODE_GRANT_HANDLER_CLASS);
             defaultGrantTypes.put(GrantType.CLIENT_CREDENTIALS.toString(), CLIENT_CREDENTIALS_GRANT_HANDLER_CLASS);
             defaultGrantTypes.put(GrantType.PASSWORD.toString(), PASSWORD_GRANT_HANDLER_CLASS);
@@ -907,6 +914,8 @@ public class OAuthServerConfiguration {
                     SAML20_BEARER_GRANT_HANDLER_CLASS);
             defaultGrantTypes.put(org.wso2.carbon.identity.oauth.common.GrantType.IWA_NTLM.toString(),
                     IWA_NTLM_BEARER_GRANT_HANDLER_CLASS);
+            defaultGrantTypes.put(org.wso2.carbon.identity.oauth.common.GrantType.JWT.toString(),
+                    JWT_BEARER_GRANT_HANDLER_CLASS);
             supportedGrantTypeClassNames.putAll(defaultGrantTypes);
         }
 

@@ -396,6 +396,10 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                 org.wso2.carbon.identity.oauth.common.GrantType.IWA_NTLM.toString())) {
             authzCallback.setCarbonGrantType(org.wso2.carbon.identity.oauth.common.GrantType.valueOf(
                     OAuthConstants.OAUTH_IWA_NTLM_GRANT_ENUM.toString()));
+        } else if (tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType().equals(
+                org.wso2.carbon.identity.oauth.common.GrantType.JWT.toString())) {
+            authzCallback.setCarbonGrantType(org.wso2.carbon.identity.oauth.common.GrantType.valueOf(
+                    OAuthConstants.OAUTH_JWT_GRANT_ENUM.toString()));
         } else {
             authzCallback.setGrantType(GrantType.valueOf(
                     tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType().toUpperCase()));
@@ -420,6 +424,10 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                 org.wso2.carbon.identity.oauth.common.GrantType.IWA_NTLM.toString())) {
             scopeValidationCallback.setCarbonGrantType(org.wso2.carbon.identity.oauth.common.GrantType.valueOf(
                     OAuthConstants.OAUTH_IWA_NTLM_GRANT_ENUM.toString()));
+        } else if (tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType().equals(
+                org.wso2.carbon.identity.oauth.common.GrantType.JWT.toString())) {
+            scopeValidationCallback.setCarbonGrantType(org.wso2.carbon.identity.oauth.common.GrantType.valueOf(
+                    OAuthConstants.OAUTH_JWT_GRANT_ENUM.toString()));
         } else {
             scopeValidationCallback.setGrantType(GrantType.valueOf(
                     tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType().toUpperCase()));

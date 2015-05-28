@@ -20,7 +20,9 @@ package org.wso2.carbon.identity.oauth.common;
 public enum GrantType {
 
     SAML20_BEARER("urn:ietf:params:oauth:grant-type:saml2-bearer"),
-    IWA_NTLM("iwa:ntlm");
+    IWA_NTLM("iwa:ntlm"),
+    JWT("urn:ietf:params:oauth:grant-type:jwt-bearer");
+
 
     private String grantType;
 
