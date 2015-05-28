@@ -240,11 +240,15 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             }
 
             ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
+            String storedAppName = appDAO.getApplicationName(serviceProvider.getApplicationID());
             appDAO.updateApplication(serviceProvider);
             ApplicationPermission[] permissions =
                     serviceProvider.getPermissionAndRoleConfig()
                             .getPermissions();
-            if (permissions != null && permissions.length > 0) {
+            if(!storedAppName.equals(serviceProvider.getApplicationName())){
+                ApplicationMgtUtil.renameAppPermissionPathNode(storedAppName, serviceProvider.getApplicationName());
+            }
+            if (permissions != null) {
                 ApplicationMgtUtil.updatePermissions(serviceProvider.getApplicationName(),
                         permissions);
             }
