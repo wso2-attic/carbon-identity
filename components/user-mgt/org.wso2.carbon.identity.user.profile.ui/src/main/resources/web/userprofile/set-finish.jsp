@@ -101,7 +101,7 @@
         }
     } catch (Exception e) {
         String message = MessageFormat.format(resourceBundle.getString(
-            "error.while.updating.user.profile"), username, e.getMessage());
+            "error.while.updating.user.profile"), Util.decodeHTMLCharacters(username), e.getMessage());
     	CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
         forwardTo = "edit.jsp?username=" + username + "&profile=" + profile + "&fromUserMgt="+fromUserMgt;
     }
