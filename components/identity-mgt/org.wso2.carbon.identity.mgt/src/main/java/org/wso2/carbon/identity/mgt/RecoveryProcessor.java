@@ -214,7 +214,6 @@ public class RecoveryProcessor {
                 emailNotificationData.setTagData(USER_NAME, userId);
             } else if (IdentityMgtConstants.Notification.ACCOUNT_ID_RECOVERY.equals(notification)) {
                 emailTemplate = config.getProperty(IdentityMgtConstants.Notification.ACCOUNT_ID_RECOVERY);
-                emailNotificationData.setTagData(USER_NAME, userId);
                 persistData = false;
                 emailNotificationData.setTagData(USER_NAME, userId);
             } else if (IdentityMgtConstants.Notification.ASK_PASSWORD.equals(notification)) {
