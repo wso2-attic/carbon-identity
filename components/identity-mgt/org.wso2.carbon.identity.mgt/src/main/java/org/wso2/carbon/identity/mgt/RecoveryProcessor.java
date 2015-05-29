@@ -148,7 +148,6 @@ public class RecoveryProcessor {
 
         notificationAddress = Utils.getEmailAddressForUser(userId, tenantId);
         String firstName = Utils.getClaimFromUserStoreManager(userId, tenantId, "http://wso2.org/claims/givenname");
-
         emailNotificationData.setTagData(FIRST_NAME, firstName);
 
         if ((notificationAddress == null) || (notificationAddress.trim().length() < 0)) {
@@ -476,7 +475,6 @@ public class RecoveryProcessor {
         }
 
         String firstName = Utils.getClaimFromUserStoreManager(userId, tenantId, "http://wso2.org/claims/givenname");
-
         emailNotificationData.setTagData(FIRST_NAME, firstName);
 
         emailNotificationData.setSendTo(notificationAddress);
