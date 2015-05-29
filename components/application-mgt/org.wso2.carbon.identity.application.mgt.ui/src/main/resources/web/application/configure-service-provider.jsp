@@ -84,6 +84,7 @@ location.href = 'list-service-provider.jsp';
     
     if (samlIssuerName != null && "delete".equals(action)){
     	appBean.deleteSAMLIssuer();
+        isNeedToUpdate = true;
     }
     
 	samlIssuerName = appBean.getSAMLIssuer();
