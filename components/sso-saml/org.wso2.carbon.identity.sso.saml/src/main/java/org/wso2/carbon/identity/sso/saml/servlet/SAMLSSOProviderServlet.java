@@ -44,6 +44,7 @@ import org.wso2.carbon.identity.sso.saml.dto.SAMLSSORespDTO;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOSessionDTO;
 import org.wso2.carbon.identity.sso.saml.internal.IdentitySAMLSSOServiceComponent;
 import org.wso2.carbon.identity.sso.saml.logout.LogoutRequestSender;
+import org.wso2.carbon.identity.sso.saml.util.CharacterEncoder;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.ui.CarbonUIUtil;
@@ -141,19 +142,19 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             log.debug("Query string : " + queryString);
         }
         // if an openid authentication or password authentication
-        String authMode = req.getParameter("authMode");
+        String authMode = CharacterEncoder.getSafeText(req.getParameter("authMode"));
         if (!SAMLSSOConstants.AuthnModes.OPENID.equals(authMode)) {
             authMode = SAMLSSOConstants.AuthnModes.USERNAME_PASSWORD;
         }
-        String relayState = req.getParameter(SAMLSSOConstants.RELAY_STATE);
-        String spEntityID = req.getParameter("spEntityID");
-        String samlRequest = req.getParameter("SAMLRequest");
-        String sessionDataKey = req.getParameter("sessionDataKey");
+        String relayState = CharacterEncoder.getSafeText(req.getParameter(SAMLSSOConstants.RELAY_STATE));
+        String spEntityID = CharacterEncoder.getSafeText(req.getParameter("spEntityID"));
+        String samlRequest = CharacterEncoder.getSafeText(req.getParameter("SAMLRequest"));
+        String sessionDataKey = CharacterEncoder.getSafeText(req.getParameter("sessionDataKey"));
 
         boolean isExpFired = false;
         try {
 
-            String tenantDomain = req.getParameter("tenantDomain");
+            String tenantDomain = CharacterEncoder.getSafeText(req.getParameter("tenantDomain"));
             SAMLSSOUtil.setTenantDomainInThreadLocal(tenantDomain);
 
             if (sessionDataKey != null) { //Response from common authentication framework.
@@ -269,7 +270,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                                   String queryString, String authMode, String sessionId)
             throws UserStoreException, IdentityException, IOException, ServletException {
 
-        String rpSessionId = req.getParameter(MultitenantConstants.SSO_AUTH_SESSION_ID);
+        String rpSessionId = CharacterEncoder.getSafeText(req.getParameter(MultitenantConstants.SSO_AUTH_SESSION_ID));
         SAMLSSOService samlSSOService = new SAMLSSOService();
 
         SAMLSSOReqValidationResponseDTO signInRespDTO = samlSSOService.validateIdPInitSSORequest(req, resp,
@@ -311,7 +312,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                                  String samlRequest, String sessionId, boolean isPost)
             throws UserStoreException, IdentityException, IOException, ServletException {
 
-        String rpSessionId = req.getParameter(MultitenantConstants.SSO_AUTH_SESSION_ID);
+        String rpSessionId = CharacterEncoder.getSafeText(req.getParameter(MultitenantConstants.SSO_AUTH_SESSION_ID));
         SAMLSSOService samlSSOService = new SAMLSSOService();
 
         SAMLSSOReqValidationResponseDTO signInRespDTO = samlSSOService.validateSPInitSSORequest(
@@ -616,7 +617,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                                                           String sessionId, SAMLSSOSessionDTO sessionDTO)
             throws UserStoreException, IdentityException, IOException, ServletException {
 
-        String sessionDataKey = req.getParameter("sessionDataKey");
+        String sessionDataKey = CharacterEncoder.getSafeText(req.getParameter("sessionDataKey"));
         AuthenticationResult authResult = getAuthenticationResultFromCache(sessionDataKey);
 
         if (log.isDebugEnabled()) {
@@ -688,7 +689,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                 }
 
                 storeTokenIdCookie(sessionId, req, resp);
-                removeSessionDataFromCache(req.getParameter("sessionDataKey"));
+                removeSessionDataFromCache(CharacterEncoder.getSafeText(req.getParameter("sessionDataKey")));
 
                 sendResponse(req, resp, relayState, authRespDTO.getRespString(),
                         authRespDTO.getAssertionConsumerURL(), authRespDTO.getSubject().getAuthenticatedSubjectIdentifier(),
@@ -712,7 +713,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             // sending LogoutRequests to other session participants
             LogoutRequestSender.getInstance().sendLogoutRequests(validatonResponseDTO.getLogoutRespDTO());
             SAMLSSOUtil.removeSession(sessionDTO.getSessionId(), validatonResponseDTO.getIssuer());
-            removeSessionDataFromCache(request.getParameter("sessionDataKey"));
+            removeSessionDataFromCache(CharacterEncoder.getSafeText(request.getParameter("sessionDataKey")));
             // sending LogoutResponse back to the initiator
             sendResponse(request, response, sessionDTO.getRelayState(), validatonResponseDTO.getLogoutResponse(),
                     validatonResponseDTO.getAssertionConsumerURL(), validatonResponseDTO.getSubject(), null,
