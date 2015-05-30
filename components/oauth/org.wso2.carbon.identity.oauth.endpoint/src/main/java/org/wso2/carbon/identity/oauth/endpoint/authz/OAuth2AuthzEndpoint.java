@@ -82,7 +82,7 @@ public class OAuth2AuthzEndpoint {
         carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
         carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
-        String clientId = request.getParameter(EndpointUtil.getSafeText("client_id"));
+        String clientId = EndpointUtil.getSafeText(request.getParameter("client_id"));
 
         String sessionDataKeyFromLogin = EndpointUtil.getSafeText(request.getParameter(
                 OAuthConstants.SESSION_DATA_KEY));
