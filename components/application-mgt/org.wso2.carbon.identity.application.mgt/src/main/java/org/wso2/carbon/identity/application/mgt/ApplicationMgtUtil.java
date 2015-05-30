@@ -38,8 +38,8 @@ import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,6 +92,9 @@ public class ApplicationMgtUtil {
         String applicationRoleName = UserCoreUtil.addInternalDomainName(applicationName);
 
         try {
+            if(log.isDebugEnabled()) {
+                log.debug("Checking whether user has role : " + applicationRoleName + " by retrieving role list of user : " + user);
+            }
             String[] userRoles = CarbonContext.getThreadLocalCarbonContext().getUserRealm()
                     .getUserStoreManager().getRoleListOfUser(user);
             for (String userRole : userRoles) {
@@ -132,10 +135,13 @@ public class ApplicationMgtUtil {
     public static void createAppRole(String applicationName) throws IdentityApplicationManagementException {
         String roleName = UserCoreUtil.addInternalDomainName(applicationName);
         String qualifiedUsername = CarbonContext.getThreadLocalCarbonContext().getUsername();
-        String[] user = {MultitenantUtils.getTenantAwareUsername(qualifiedUsername)};
+        String[] user = {qualifiedUsername};
 
         try {
             // create a role for the application and assign the user to that role.
+            if(log.isDebugEnabled()) {
+                log.debug("Creating application role : " + roleName + " and assign the user : " + Arrays.toString(user) + " to that role");
+            }
             CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
                     .addRole(roleName, user, null);
         } catch (UserStoreException e) {
@@ -154,6 +160,9 @@ public class ApplicationMgtUtil {
         String roleName = UserCoreUtil.addInternalDomainName(applicationName);
 
         try {
+            if(log.isDebugEnabled()) {
+                log.debug("Deleting application role : " + roleName);
+            }
             CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
                     .deleteRole(roleName);
         } catch (UserStoreException e) {
@@ -168,6 +177,10 @@ public class ApplicationMgtUtil {
      */
     public static void renameRole(String oldName, String newName) throws UserStoreException {
 
+        if(log.isDebugEnabled()) {
+           log.debug("Renaming application role : " + UserCoreUtil.addInternalDomainName(oldName)
+                + " to new role : " + UserCoreUtil.addInternalDomainName(newName));
+        }
         CarbonContext
                 .getThreadLocalCarbonContext()
                 .getUserRealm()
@@ -175,6 +188,37 @@ public class ApplicationMgtUtil {
                 .updateRoleName(UserCoreUtil.addInternalDomainName(oldName),
                         UserCoreUtil.addInternalDomainName(newName));
 
+    }
+
+    /***
+     * Rename the registry path node name for a deleted Service provider role.
+     * @param oldName
+     * @param newName
+     * @throws IdentityApplicationManagementException
+     */
+    public static void renameAppPermissionPathNode(String oldName, String newName)
+            throws IdentityApplicationManagementException {
+
+        List<ApplicationPermission> loadPermissions = loadPermissions(oldName);
+        String newApplicationNode = ApplicationMgtUtil.getApplicationPermissionPath() + PATH_CONSTANT + oldName;
+        Registry tenantGovReg = CarbonContext.getThreadLocalCarbonContext().getRegistry(
+                RegistryType.USER_GOVERNANCE);
+        //creating new application node
+        try {
+            for (ApplicationPermission applicationPermission : loadPermissions) {
+                tenantGovReg.delete(newApplicationNode + PATH_CONSTANT + applicationPermission.getValue());
+            }
+            tenantGovReg.delete(newApplicationNode);
+            Collection permissionNode = tenantGovReg.newCollection();
+            permissionNode.setProperty("name", newName);
+            newApplicationNode = ApplicationMgtUtil.getApplicationPermissionPath() + PATH_CONSTANT + newName;
+            ApplicationMgtUtil.applicationNode = newApplicationNode;
+            tenantGovReg.put(newApplicationNode, permissionNode);
+            addPermission(loadPermissions.toArray(new ApplicationPermission[loadPermissions.size()]), tenantGovReg);
+        } catch (RegistryException e) {
+            throw new IdentityApplicationManagementException("Error while renaming permission node "
+                    + oldName + "to " + newName, e);
+        }
     }
 
     /**
@@ -272,7 +316,7 @@ public class ApplicationMgtUtil {
                 tenantGovReg.delete(applicationNode);
             }
 
-            if (permissions == null) {
+            if (permissions == null || permissions.length == 0) {
                 return;
             }
 
