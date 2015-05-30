@@ -20,7 +20,7 @@ package org.wso2.carbon.identity.workflow.mgt;
 
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowParameter;
+import org.wso2.carbon.identity.workflow.mgt.bean.RequestParameter;
 import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
@@ -57,14 +57,14 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
             return true;
         }
         WorkFlowRequest workFlowRequest = new WorkFlowRequest();
-        List<WorkflowParameter> parameters = new ArrayList<WorkflowParameter>(wfParams.size() + nonWfParams.size());
+        List<RequestParameter> parameters = new ArrayList<RequestParameter>(wfParams.size() + nonWfParams.size());
         for (Map.Entry<String, Object> paramEntry : wfParams.entrySet()) {
             parameters.add(getParameter(paramEntry.getKey(), paramEntry.getValue(), true));
         }
         for (Map.Entry<String, Object> paramEntry : nonWfParams.entrySet()) {
             parameters.add(getParameter(paramEntry.getKey(), paramEntry.getValue(), false));
         }
-        workFlowRequest.setWorkflowParameters(parameters);
+        workFlowRequest.setRequestParameters(parameters);
         workFlowRequest.setTenantId(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         engageWorkflow(workFlowRequest);
         return false;
@@ -100,9 +100,9 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
      * @param required Whether it is required to sent to the workflow executor
      * @return
      */
-    protected WorkflowParameter getParameter(String name, Object value, boolean required)
+    protected RequestParameter getParameter(String name, Object value, boolean required)
             throws RuntimeWorkflowException {
-        WorkflowParameter parameter = new WorkflowParameter();
+        RequestParameter parameter = new RequestParameter();
         parameter.setName(name);
         parameter.setValue(value);
         parameter.setRequiredInWorkflow(required);
@@ -131,7 +131,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
     public void onWorkflowCompletion(String status, WorkFlowRequest originalRequest, Map<String, Object>
             responseParams) throws WorkflowException {
         Map<String, Object> requestParams = new HashMap<String, Object>();
-        for (WorkflowParameter parameter : originalRequest.getWorkflowParameters()) {
+        for (RequestParameter parameter : originalRequest.getRequestParameters()) {
             requestParams.put(parameter.getName(), parameter.getValue());
         }
         if (retryNeedAtCallback()) {

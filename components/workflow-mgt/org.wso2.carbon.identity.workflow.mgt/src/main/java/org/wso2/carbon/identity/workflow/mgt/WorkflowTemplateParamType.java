@@ -16,25 +16,13 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt.bean;
+package org.wso2.carbon.identity.workflow.mgt;
 
-public class WorkflowEventParameter {
-    private String name;
-    private String value;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
+public class WorkflowTemplateParamType {
+    public static final String STRING = "STRING";
+    public static final String BOOLEAN = "BOOLEAN";
+    public static final String PASSWORD = "PASSWORD";
+    public static final String USER_ROLE = "USER_ROLE";
+    public static final String USER_NAME = "USER_NAME";
+    public static final String BPS_PROFILE = "BPS_PROFILE";
 }

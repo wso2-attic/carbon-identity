@@ -22,14 +22,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileBean;
+import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.ServiceAssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateDeploymentDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateImplDTO;
-import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.WSServiceBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventDTO;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventParameter;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowServicesDAO;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
@@ -126,16 +125,15 @@ public class WorkflowAdminService {
             workflowEventBean.setEventFriendlyName(workflowRequestHandler.getFriendlyName());
             workflowEventBean.setEventDescription(workflowRequestHandler.getDescription());
             workflowEventBean.setEventCategory(workflowRequestHandler.getCategory());
-            List<WorkflowEventParameter> parameterBeanList = new ArrayList<>();
+            List<Parameter> parameterBeanList = new ArrayList<>();
             for (Map.Entry<String, String> paramDefEntry : workflowRequestHandler.getParamDefinitions()
                     .entrySet()) {
-                WorkflowEventParameter parameterBean = new WorkflowEventParameter();
-                parameterBean.setName(paramDefEntry.getKey());
-                parameterBean.setValue(paramDefEntry.getValue());
+                Parameter parameterBean = new Parameter();
+                parameterBean.setParamName(paramDefEntry.getKey());
+                parameterBean.setParamValue(paramDefEntry.getValue());
                 parameterBeanList.add(parameterBean);
             }
-            workflowEventBean.setParameters(parameterBeanList.toArray(new
-                    WorkflowEventParameter[parameterBeanList.size()]));
+            workflowEventBean.setParameters(parameterBeanList.toArray(new Parameter[parameterBeanList.size()]));
             eventBeans[handlerIndex] = workflowEventBean;
             handlerIndex++;
         }
@@ -168,7 +166,6 @@ public class WorkflowAdminService {
     }
 
     public TemplateDTO getTemplateDTO(String templateName) {
-//        todo:implement
         return null;
     }
 

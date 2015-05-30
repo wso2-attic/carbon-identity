@@ -16,34 +16,13 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt.bean;
+package org.wso2.carbon.identity.workflow.mgt;
 
-public class WSServiceAssociation {
-    private WSServiceBean service;
-    private int priority;
-    private String condition;
+import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 
-    public WSServiceBean getService() {
-        return service;
-    }
+public interface TemplateInitializer {
 
-    public void setService(WSServiceBean service) {
-        this.service = service;
-    }
+    boolean initNeededAtStartUp();
 
-    public int getPriority() {
-        return priority;
-    }
-
-    public void setPriority(int priority) {
-        this.priority = priority;
-    }
-
-    public String getCondition() {
-        return condition;
-    }
-
-    public void setCondition(String condition) {
-        this.condition = condition;
-    }
+    void initialize(String templateName, Parameter[] initParams);
 }

@@ -25,7 +25,7 @@ public class WorkFlowRequest implements Serializable {
     private String uuid;
     private String eventType;
     private int tenantId;
-    private List<WorkflowParameter> workflowParameters;
+    private List<RequestParameter> requestParameters;
 
     public String getUuid() {
         return uuid;
@@ -43,12 +43,12 @@ public class WorkFlowRequest implements Serializable {
         this.eventType = eventType;
     }
 
-    public List<WorkflowParameter> getWorkflowParameters() {
-        return workflowParameters;
+    public List<RequestParameter> getRequestParameters() {
+        return requestParameters;
     }
 
-    public void setWorkflowParameters(List<WorkflowParameter> workflowParameters) {
-        this.workflowParameters = workflowParameters;
+    public void setRequestParameters(List<RequestParameter> requestParameters) {
+        this.requestParameters = requestParameters;
     }
 
     public int getTenantId() {
@@ -65,7 +65,7 @@ public class WorkFlowRequest implements Serializable {
                 "uuid='" + uuid + "\'\n" +
                 ", eventType='" + eventType + "\'\n" +
                 ", tenantId=" + tenantId + '\n' +
-                ", workflowParameters=" + workflowParameters + '\n' +
+                ", workflowParameters=" + requestParameters + '\n' +
                 '}';
     }
 }

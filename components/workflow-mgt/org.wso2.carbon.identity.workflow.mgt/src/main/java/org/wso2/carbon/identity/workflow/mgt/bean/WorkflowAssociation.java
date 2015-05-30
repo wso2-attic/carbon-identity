@@ -18,32 +18,41 @@
 
 package org.wso2.carbon.identity.workflow.mgt.bean;
 
-public class TemplateParameter {
-    private String paramName;
-    private String paramType;
-    private boolean mandatory;
+public class WorkflowAssociation {
+    private String workflowName;
+    private String templateId;
+    private String implId;
+    private String condition;
 
-    public String getParamName() {
-        return paramName;
+    public String getWorkflowName() {
+        return workflowName;
     }
 
-    public void setParamName(String paramName) {
-        this.paramName = paramName;
+    public void setWorkflowName(String workflowName) {
+        this.workflowName = workflowName;
     }
 
-    public String getParamType() {
-        return paramType;
+    public String getTemplateId() {
+        return templateId;
     }
 
-    public void setParamType(String paramType) {
-        this.paramType = paramType;
+    public void setTemplateId(String templateId) {
+        this.templateId = templateId;
     }
 
-    public boolean isMandatory() {
-        return mandatory;
+    public String getImplId() {
+        return implId;
     }
 
-    public void setMandatory(boolean mandatory) {
-        this.mandatory = mandatory;
+    public void setImplId(String implId) {
+        this.implId = implId;
+    }
+
+    public String getCondition() {
+        return condition;
+    }
+
+    public void setCondition(String condition) {
+        this.condition = condition;
     }
 }

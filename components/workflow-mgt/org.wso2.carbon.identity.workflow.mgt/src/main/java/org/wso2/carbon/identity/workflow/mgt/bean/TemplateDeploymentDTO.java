@@ -23,8 +23,8 @@ public class TemplateDeploymentDTO {
     private String templateName;
     private String templateImplName;
     private String associatedEvent;
-    private TemplateDeploymentParameter[] templateParameters;
-    private TemplateDeploymentParameter[] templateImplParameters;
+    private Parameter[] parameters;
+    private Parameter[] templateImplParameters;
     private String condition;
 
     public String getWorkflowName() {
@@ -51,21 +51,21 @@ public class TemplateDeploymentDTO {
         this.templateImplName = templateImplName;
     }
 
-    public TemplateDeploymentParameter[] getTemplateParameters() {
-        return templateParameters;
+    public Parameter[] getParameters() {
+        return parameters;
     }
 
-    public void setTemplateParameters(
-            TemplateDeploymentParameter[] templateParameters) {
-        this.templateParameters = templateParameters;
+    public void setParameters(
+            Parameter[] parameters) {
+        this.parameters = parameters;
     }
 
-    public TemplateDeploymentParameter[] getTemplateImplParameters() {
+    public Parameter[] getTemplateImplParameters() {
         return templateImplParameters;
     }
 
     public void setTemplateImplParameters(
-            TemplateDeploymentParameter[] templateImplParameters) {
+            Parameter[] templateImplParameters) {
         this.templateImplParameters = templateImplParameters;
     }
 

@@ -21,10 +21,11 @@ package org.wso2.carbon.identity.workflow.mgt;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowParameter;
+import org.wso2.carbon.identity.workflow.mgt.bean.RequestParameter;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestDAO;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowMgtServiceComponent;
+import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,13 +56,13 @@ public class WorkFlowExecutorManager {
                     requestDAO.addWorkflowEntry(workFlowRequest);
 
                     //Drop parameters that should not be sent to the workflow executor (all params are persisted by now)
-                    List<WorkflowParameter> parameterListToSend = new ArrayList<WorkflowParameter>();
-                    for (WorkflowParameter parameter : workFlowRequest.getWorkflowParameters()) {
+                    List<RequestParameter> parameterListToSend = new ArrayList<RequestParameter>();
+                    for (RequestParameter parameter : workFlowRequest.getRequestParameters()) {
                         if (parameter.isRequiredInWorkflow()) {
                             parameterListToSend.add(parameter);
                         }
                     }
-                    workFlowRequest.setWorkflowParameters(parameterListToSend);
+                    workFlowRequest.setRequestParameters(parameterListToSend);
 
                     workFlowExecutor.execute(workFlowRequest);
                     return;
@@ -79,8 +80,7 @@ public class WorkFlowExecutorManager {
             throws WorkflowException {
         if (request != null) {
             String eventId = request.getEventType();
-            WorkflowRequestHandler requestHandler = WorkflowMgtServiceComponent.getWorkflowRequestHandlers().get
-                    (eventId);
+            WorkflowRequestHandler requestHandler = WorkflowServiceDataHolder.getInstance().getRequestHandler(eventId);
             if (requestHandler == null) {
                 throw new WorkflowException("No request handlers registered for the id: " + eventId);
             }

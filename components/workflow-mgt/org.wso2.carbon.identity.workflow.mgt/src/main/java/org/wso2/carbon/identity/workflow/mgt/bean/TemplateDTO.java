@@ -21,8 +21,8 @@ package org.wso2.carbon.identity.workflow.mgt.bean;
 public class TemplateDTO {
     private String name;
     private String description;
-    private TemplateParameter[] parameters;
-    private String[] implementations;
+    private TemplateParameterDef[] parameters;
+    private TemplateImplDTO[] implementations;
 
     public String getName() {
         return name;
@@ -40,19 +40,19 @@ public class TemplateDTO {
         this.description = description;
     }
 
-    public TemplateParameter[] getParameters() {
+    public TemplateParameterDef[] getParameters() {
         return parameters;
     }
 
-    public void setParameters(TemplateParameter[] parameters) {
+    public void setParameters(TemplateParameterDef[] parameters) {
         this.parameters = parameters;
     }
 
-    public String[] getImplementations() {
+    public TemplateImplDTO[] getImplementations() {
         return implementations;
     }
 
-    public void setImplementations(String[] implementations) {
+    public void setImplementations(TemplateImplDTO[] implementations) {
         this.implementations = implementations;
     }
 }

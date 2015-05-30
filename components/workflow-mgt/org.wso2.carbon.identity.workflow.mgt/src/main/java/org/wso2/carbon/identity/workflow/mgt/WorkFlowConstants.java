@@ -28,7 +28,7 @@ public class WorkFlowConstants {
     public static final Set<Class> NUMERIC_CLASSES;
 
     static {
-        NUMERIC_CLASSES = new HashSet<Class>();
+        NUMERIC_CLASSES = new HashSet<>();
         NUMERIC_CLASSES.add(Integer.class);
         NUMERIC_CLASSES.add(Long.class);
         NUMERIC_CLASSES.add(Short.class);
@@ -36,5 +36,17 @@ public class WorkFlowConstants {
         NUMERIC_CLASSES.add(Byte.class);
         NUMERIC_CLASSES.add(Float.class);
         NUMERIC_CLASSES.add(Double.class);
+    }
+
+    static class TemplateConstants{
+
+        public static final String APPROVAL_TEMPLATE_NAME = "Simple Approval";
+
+        public static final String SIMPLE_APPROVAL_ROLE_NAME = "Role Name";
+
+
+        public static final String BPEL_IMPL_BPS_PROFILE = "BPEL Engine profile";
+
+
     }
 }

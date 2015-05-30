@@ -30,13 +30,12 @@ import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jaxen.JaxenException;
-import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.WorkFlowExecutor;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowDataType;
-import org.wso2.carbon.identity.workflow.mgt.bean.WSServiceAssociation;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociation;
 import org.wso2.carbon.identity.workflow.mgt.bean.WSServiceBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowParameter;
+import org.wso2.carbon.identity.workflow.mgt.bean.RequestParameter;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowServicesDAO;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
@@ -59,9 +58,9 @@ public class WSWorkflowExecutor implements WorkFlowExecutor {
         try {
             OMElement requestBody = buildWSRequest(workFlowRequest); //todo:cache for later use?
             WorkflowServicesDAO servicesDAO = new WorkflowServicesDAO();
-            List<WSServiceAssociation> servicesForEvent = servicesDAO.getSubscribedServicesForEvent(workFlowRequest
+            List<WorkflowAssociation> servicesForEvent = servicesDAO.getSubscribedServicesForEvent(workFlowRequest
                     .getEventType());
-            for (WSServiceAssociation association : servicesForEvent) {
+            for (WorkflowAssociation association : servicesForEvent) {
                 try {
                     AXIOMXPath axiomxPath = new AXIOMXPath(association.getCondition());
                     if (axiomxPath.booleanValueOf(requestBody)) {
@@ -90,17 +89,17 @@ public class WSWorkflowExecutor implements WorkFlowExecutor {
     public void execute(WorkFlowRequest workFlowRequest) throws WorkflowException {
         OMElement requestBody = buildWSRequest(workFlowRequest); //todo:cache from canHandle()?
         WorkflowServicesDAO servicesDAO = new WorkflowServicesDAO();
-        List<WSServiceAssociation> servicesForEvent = servicesDAO.getSubscribedServicesForEvent(workFlowRequest
+        List<WorkflowAssociation> servicesForEvent = servicesDAO.getSubscribedServicesForEvent(workFlowRequest
                 .getEventType());
 
-        Collections.sort(servicesForEvent, new Comparator<WSServiceAssociation>() {
+        Collections.sort(servicesForEvent, new Comparator<WorkflowAssociation>() {
             @Override
-            public int compare(WSServiceAssociation o1, WSServiceAssociation o2) {
+            public int compare(WorkflowAssociation o1, WorkflowAssociation o2) {
                 return o1.getPriority() - o2.getPriority();
             }
         });
 
-        for (WSServiceAssociation association : servicesForEvent) {
+        for (WorkflowAssociation association : servicesForEvent) {
             try {
                 AXIOMXPath axiomxPath = new AXIOMXPath(association.getCondition());
                 if (axiomxPath.booleanValueOf(requestBody)) {
@@ -151,7 +150,7 @@ public class WSWorkflowExecutor implements WorkFlowExecutor {
         WorkflowRequestBuilder requestBuilder = new WorkflowRequestBuilder(workFlowRequest.getUuid(),
                 workFlowRequest.getEventType());
 
-        for (WorkflowParameter parameter : workFlowRequest.getWorkflowParameters()) {
+        for (RequestParameter parameter : workFlowRequest.getRequestParameters()) {
             if (parameter.isRequiredInWorkflow()) {
                 switch (parameter.getValueType()) {
                     case WorkflowDataType.BOOLEAN_TYPE:

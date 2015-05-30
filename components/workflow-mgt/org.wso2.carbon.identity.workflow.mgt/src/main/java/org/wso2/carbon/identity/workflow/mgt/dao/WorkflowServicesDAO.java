@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.workflow.mgt.dao;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.workflow.mgt.bean.ServiceAssociationDTO;
-import org.wso2.carbon.identity.workflow.mgt.bean.WSServiceAssociation;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociation;
 import org.wso2.carbon.identity.workflow.mgt.bean.WSServiceBean;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 
@@ -103,11 +103,11 @@ public class WorkflowServicesDAO {
      * @param eventId
      * @return
      */
-    public List<WSServiceAssociation> getSubscribedServicesForEvent(String eventId) throws InternalWorkflowException {
+    public List<WorkflowAssociation> getSubscribedServicesForEvent(String eventId) throws InternalWorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
-        List<WSServiceAssociation> servicesMatched = new ArrayList<>();
+        List<WorkflowAssociation> servicesMatched = new ArrayList<>();
         String query = SQLConstants.GET_WS_SERVICES_FOR_EVENT_QUERY;
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
@@ -131,7 +131,7 @@ public class WorkflowServicesDAO {
                 serviceBean.setServiceEndpoint(serviceEP);
                 serviceBean.setUserName(username);
                 serviceBean.setPassword(password);
-                WSServiceAssociation association = new WSServiceAssociation();
+                WorkflowAssociation association = new WorkflowAssociation();
                 association.setService(serviceBean);
                 association.setCondition(condition);
                 association.setPriority(priority);
@@ -202,4 +202,6 @@ public class WorkflowServicesDAO {
         }
         return associationDTOList;
     }
+
+
 }

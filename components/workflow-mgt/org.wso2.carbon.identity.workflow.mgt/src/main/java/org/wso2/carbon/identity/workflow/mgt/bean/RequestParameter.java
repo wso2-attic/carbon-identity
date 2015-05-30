@@ -20,7 +20,7 @@ package org.wso2.carbon.identity.workflow.mgt.bean;
 
 import java.io.Serializable;
 
-public class WorkflowParameter implements Serializable{
+public class RequestParameter implements Serializable{
 
     private String name;
     private Object value;

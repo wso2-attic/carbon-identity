@@ -76,32 +76,10 @@ public class WorkflowMgtServiceComponent {
         WorkflowMgtServiceComponent.configurationContextService = contextService;
     }
 
-    public static SortedSet<WorkFlowExecutor> getWorkFlowExecutors() {
-        if (workFlowExecutors == null) {
-            Comparator<WorkFlowExecutor> priorityBasedComparator = new Comparator<WorkFlowExecutor>() {
-                @Override
-                public int compare(WorkFlowExecutor o1, WorkFlowExecutor o2) {
-                    return o1.getPriority() - o2.getPriority();
-                }
-            };
-            workFlowExecutors = new TreeSet<WorkFlowExecutor>(priorityBasedComparator);
-        }
-        return workFlowExecutors;
-    }
-
-    public static Map<String, WorkflowRequestHandler> getWorkflowRequestHandlers() {
-        if (workflowRequestHandlers == null) {
-            workflowRequestHandlers = new HashMap<String, WorkflowRequestHandler>();
-        }
-        return workflowRequestHandlers;
-    }
-
     protected void activate(ComponentContext context) {
         bundleContext = context.getBundleContext();
         WorkFlowExecutorManager workFlowExecutorManager = WorkFlowExecutorManager.getInstance();
         bundleContext.registerService(WorkFlowExecutorManager.class, workFlowExecutorManager, null);
-        //adding ws executor
-        getWorkFlowExecutors().add(new WSWorkflowExecutor());
     }
 
     protected void unsetRealmService(RealmService realmService) {
@@ -112,25 +90,11 @@ public class WorkflowMgtServiceComponent {
         WorkflowMgtServiceComponent.configurationContextService = null;
     }
 
-    protected void setWorkflowExecutorService(WorkFlowExecutor workFlowExecutor) {
-        //access through the getter to avoid null
-        getWorkFlowExecutors().add(workFlowExecutor);
-    }
-
-    protected void unsetWorkflowExecutorService(WorkFlowExecutor workFlowExecutor) {
-        //access through the getter to avoid null
-        getWorkFlowExecutors().remove(workFlowExecutor);
-    }
-
     protected void setWorkflowRequestHandlerService(WorkflowRequestHandler workflowRequestHandler) {
-        if (workflowRequestHandler != null) {
-            getWorkflowRequestHandlers().put(workflowRequestHandler.getEventId(), workflowRequestHandler);
-        }
+        WorkflowServiceDataHolder.getInstance().addWorkflowRequestHandler(workflowRequestHandler);
     }
 
     protected void unsetWorkflowRequestHandlerService(WorkflowRequestHandler workflowRequestHandler) {
-        if (workflowRequestHandler != null) {
-            getWorkflowRequestHandlers().remove(workflowRequestHandler.getEventId());
-        }
+        WorkflowServiceDataHolder.getInstance().removeWorkflowRequestHandler(workflowRequestHandler);
     }
 }
