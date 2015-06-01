@@ -372,6 +372,11 @@ public class SCIMUserManager implements UserManager {
         }
     }
 
+    public User patchUser(User newUser, User oldUser){
+        System.out.println("");
+        return null;
+    }
+
     public User updateUser(List<Attribute> attributes) {
         return null;
     }
