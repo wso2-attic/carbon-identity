@@ -17,7 +17,6 @@ package org.wso2.carbon.identity.mgt;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.beans.VerificationBean;
 import org.wso2.carbon.identity.mgt.config.Config;
@@ -40,8 +39,8 @@ import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.user.api.Tenant;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
-import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.tenant.TenantManager;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.HashMap;
 import java.util.List;
@@ -113,14 +112,8 @@ public class RecoveryProcessor {
         String userId = recoveryDTO.getUserId();
         String domainName = recoveryDTO.getTenantDomain();
         int tenantId = recoveryDTO.getTenantId();
-        int index = 0;
-        String userStore = UserStoreConfigConstants.PRIMARY;
-        String userName = userId;
-        if ((index = userId.indexOf(CarbonConstants.DOMAIN_SEPARATOR)) > 0) {
-            userStore = userId.substring(0, index);
-            userName = userId.substring(index + 1);
-        }
-
+        String userStore = UserCoreUtil.extractDomainFromName(userId);
+        String userName = UserCoreUtil.removeDomainFromName(userId);
         TenantManager tenantManager = IdentityMgtServiceComponent.getRealmService().getTenantManager();
         try {
             Tenant tenant = tenantManager.getTenant(tenantId);
@@ -440,13 +433,8 @@ public class RecoveryProcessor {
         String domainName = notificationBean.getTenantDomain();
         int tenantId = notificationBean.getTenantId();
         confirmationKey = notificationBean.getConfirmationCode();
-        int index = 0;
-        String userStore = UserStoreConfigConstants.PRIMARY;
-        String userName = userId;
-        if ((index = userId.indexOf(CarbonConstants.DOMAIN_SEPARATOR)) > 0) {
-            userStore = userId.substring(0, index);
-            userName = userId.substring(index + 1);
-        }
+        String userStore = UserCoreUtil.extractDomainFromName(userId);
+        String userName = UserCoreUtil.removeDomainFromName(userId);
 
         NotificationDataDTO notificationData = new NotificationDataDTO();
 
