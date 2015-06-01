@@ -254,7 +254,7 @@ public class TenantMgtAdminServiceClient {
         return keyManagerType;
     }
 
-    public static void settKeyManagerType(String keyManagerType) {
+    public static void setKeyManagerType(String keyManagerType) {
         TenantMgtAdminServiceClient.keyManagerType = keyManagerType;
     }
 
