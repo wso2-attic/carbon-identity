@@ -199,7 +199,6 @@ public class RecoveryProcessor {
             } else if (IdentityMgtConstants.Notification.ACCOUNT_UNLOCK.equals(notification)) {
                 emailTemplate = config.getProperty(IdentityMgtConstants.Notification.ACCOUNT_UNLOCK);
                 persistData = false;
-                emailNotificationData.setTagData(USER_NAME, userId);
             } else if (IdentityMgtConstants.Notification.ACCOUNT_ID_RECOVERY.equals(notification)) {
                 emailTemplate = config.getProperty(IdentityMgtConstants.Notification.ACCOUNT_ID_RECOVERY);
                 persistData = false;
