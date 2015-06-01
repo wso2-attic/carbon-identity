@@ -225,9 +225,11 @@
         }
 
         if (isEditingSP) {
-            client.removeServiceProvier(serviceProviderDTO.getIssuer());
+            status = client.updateServiceProvider(serviceProviderDTO);
+        }else{
+            status = client.addServiceProvider(serviceProviderDTO);
         }
-        status = client.addServiceProvider(serviceProviderDTO);
+
         attributeConsumingServiceIndex = client.getServiceProvider(serviceProviderDTO.getIssuer()).getAttributeConsumingServiceIndex();
 
         samlSsoServuceProviderConfigBean.clearBean();

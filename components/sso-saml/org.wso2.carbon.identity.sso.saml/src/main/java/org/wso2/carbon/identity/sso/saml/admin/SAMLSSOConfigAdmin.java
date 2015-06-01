@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2007 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.sso.saml.admin;
@@ -52,6 +54,116 @@ public class SAMLSSOConfigAdmin {
      * @throws IdentityException if fails to load the identity persistence manager
      */
     public boolean addRelyingPartyServiceProvider(SAMLSSOServiceProviderDTO serviceProviderDTO) throws IdentityException {
+
+        SAMLSSOServiceProviderDO serviceProviderDO = createSAMLSSOServiceProviderDO(serviceProviderDTO);
+
+        IdentityPersistenceManager persistenceManager = IdentityPersistenceManager
+                .getPersistanceManager();
+        try {
+            return persistenceManager.addServiceProvider(registry, serviceProviderDO);
+        } catch (IdentityException e) {
+            log.error("Error obtaining a registry for adding a new service provider", e);
+            throw new IdentityException("Error obtaining a registry for adding a new service provider", e);
+        }
+    }
+
+    /**
+     * update an existing service provider
+     *
+     * @param serviceProviderDTO
+     * @return
+     * @throws IdentityException
+     */
+    public boolean updateRelyingPartyServiceProvider(SAMLSSOServiceProviderDTO serviceProviderDTO) throws IdentityException {
+
+        SAMLSSOServiceProviderDO serviceProviderDO = createSAMLSSOServiceProviderDO(serviceProviderDTO);
+
+        IdentityPersistenceManager persistenceManager = IdentityPersistenceManager
+                .getPersistanceManager();
+        try {
+            return persistenceManager.updateServiceProvider(registry, serviceProviderDO);
+        } catch (IdentityException e) {
+            log.error("Error obtaining a registry for adding a new service provider", e);
+            throw new IdentityException("Error obtaining a registry for adding a new service provider", e);
+        }
+    }
+
+    /**
+     * upload service provider metadata directly
+     *
+     * @param metadata
+     * @return
+     * @throws IdentityException
+     */
+    public SAMLSSOServiceProviderDTO uploadRelyingPartyServiceProvider(String metadata) throws IdentityException {
+
+        IdentityPersistenceManager persistenceManager = IdentityPersistenceManager
+                .getPersistanceManager();
+
+        try {
+            SAMLSSOServiceProviderDO serviceProviderDO = persistenceManager.uploadServiceProvider(registry, metadata);
+
+            return createSAMLSSOServiceProviderDTO(serviceProviderDO);
+        } catch (IdentityException e) {
+            log.error("Error obtaining a registry for adding a new service provider", e);
+            throw new IdentityException("Error obtaining a registry for adding a new service provider", e);
+        }
+    }
+
+    private SAMLSSOServiceProviderDTO createSAMLSSOServiceProviderDTO(SAMLSSOServiceProviderDO serviceProviderDO) throws IdentityException{
+        SAMLSSOServiceProviderDTO serviceProviderDTO = new SAMLSSOServiceProviderDTO();
+
+        if (serviceProviderDO.getIssuer() == null || serviceProviderDO.getIssuer().equals("")) {
+            String message = "A value for the Issuer is mandatory";
+            log.error(message);
+            throw new IdentityException(message);
+        }
+
+        if (serviceProviderDO.getIssuer().contains("@")) {
+            String message = "\'@\' is a reserved character. Cannot be used for Service Provider Entity ID";
+            log.error(message);
+            throw new IdentityException(message);
+        }
+
+        serviceProviderDTO.setIssuer(serviceProviderDO.getIssuer());
+        serviceProviderDTO.setAssertionConsumerUrl(serviceProviderDO.getAssertionConsumerUrl());
+        serviceProviderDTO.setCertAlias(serviceProviderDO.getCertAlias());
+        serviceProviderDTO.setUseFullyQualifiedUsername(serviceProviderDO.isUseFullyQualifiedUsername());
+        serviceProviderDTO.setDoSingleLogout(serviceProviderDO.isDoSingleLogout());
+        serviceProviderDTO.setLoginPageURL(serviceProviderDO.getLoginPageURL());
+        serviceProviderDTO.setLogoutURL(serviceProviderDO.getLogoutURL());
+        serviceProviderDTO.setDoSignResponse(serviceProviderDO.isDoSignResponse());
+        serviceProviderDTO.setDoSignAssertions(serviceProviderDO.isDoSignAssertions());
+        serviceProviderDTO.setNameIdClaimUri(serviceProviderDO.getNameIdClaimUri());
+        serviceProviderDTO.setEnableAttributesByDefault(serviceProviderDO.isEnableAttributesByDefault());
+
+        if (serviceProviderDO.getNameIDFormat() == null) {
+            serviceProviderDO.setNameIDFormat(NameIdentifier.EMAIL);
+        } else {
+            serviceProviderDO.setNameIDFormat(serviceProviderDO.getNameIDFormat().replace("/",
+                    ":"));
+        }
+
+        serviceProviderDTO.setNameIDFormat(serviceProviderDO.getNameIDFormat());
+
+        if (serviceProviderDO.getAttributeConsumingServiceIndex() != null && !serviceProviderDO.getAttributeConsumingServiceIndex().equals("")){
+            serviceProviderDTO.setAttributeConsumingServiceIndex(serviceProviderDO.getAttributeConsumingServiceIndex());
+        }
+
+        if (serviceProviderDO.getRequestedAudiences() != null && serviceProviderDO.getRequestedAudiences().length != 0) {
+            serviceProviderDTO.setRequestedAudiences(serviceProviderDO.getRequestedAudiences());
+        }
+        if (serviceProviderDO.getRequestedRecipients() != null && serviceProviderDO.getRequestedRecipients().length != 0) {
+            serviceProviderDTO.setRequestedRecipients(serviceProviderDO.getRequestedRecipients());
+        }
+        serviceProviderDTO.setIdPInitSSOEnabled(serviceProviderDO.isIdPInitSSOEnabled());
+        serviceProviderDTO.setDoEnableEncryptedAssertion(serviceProviderDO.isDoEnableEncryptedAssertion());
+        serviceProviderDTO.setDoValidateSignatureInRequests(serviceProviderDO.isDoValidateSignatureInRequests());
+
+        return serviceProviderDTO;
+    }
+
+    private SAMLSSOServiceProviderDO createSAMLSSOServiceProviderDO(SAMLSSOServiceProviderDTO serviceProviderDTO) throws IdentityException {
 
         SAMLSSOServiceProviderDO serviceProviderDO = new SAMLSSOServiceProviderDO();
 
@@ -108,14 +220,8 @@ public class SAMLSSOConfigAdmin {
         serviceProviderDO.setIdPInitSSOEnabled(serviceProviderDTO.isIdPInitSSOEnabled());
         serviceProviderDO.setDoEnableEncryptedAssertion(serviceProviderDTO.isDoEnableEncryptedAssertion());
         serviceProviderDO.setDoValidateSignatureInRequests(serviceProviderDTO.isDoValidateSignatureInRequests());
-        IdentityPersistenceManager persistenceManager = IdentityPersistenceManager
-                .getPersistanceManager();
-        try {
-            return persistenceManager.addServiceProvider(registry, serviceProviderDO);
-        } catch (IdentityException e) {
-            log.error("Error obtaining a registry for adding a new service provider", e);
-            throw new IdentityException("Error obtaining a registry for adding a new service provider", e);
-        }
+
+        return serviceProviderDO;
     }
 
     /**

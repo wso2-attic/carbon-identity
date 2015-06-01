@@ -146,6 +146,28 @@ function doValidation() {
     return true;
 }
 
+function doValidationUrl() {
+    var fld = document.getElementsByName("metadataFromUrl")[0];
+        var value = fld.value;
+        var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
+            if (value.length != 0) {
+                value = value.replace(/^\s+/, "");
+                if (value.length != 0) {
+                    if (!regexp.test(value)) {
+                        CARBON.showWarningDialog(
+                                "<fmt:message key='sp.enter.valid.url'/>",
+                                null, null);
+                        return false;
+                    }
+                }
+            }else{
+                CARBON.showWarningDialog("<fmt:message key='sp.enter.valid.url'/>",null, null);
+                return false;
+            }
+
+            return true;
+}
+
 function edit(issuer) {
     location.href = "manage_service_providers.jsp?region=region1&item=manage_saml_sso&SPAction=editServiceProvider&issuer=" + issuer;
 }
@@ -1176,10 +1198,82 @@ if (isEditSP && show) {
                value="<fmt:message key="saml.sso.cancel"/>"/>
     </td>
 </tr>
+
 </tbody>
 </table>
 <input type="hidden" id="attributeConsumingServiceIndex" name="attributeConsumingServiceIndex" value="<%=attributeConsumingServiceIndex%>"/>
 </form>
+
+
+    <%
+        if (!isEditSP) {
+    %>
+    <form method="POST" action="../../fileupload/service"
+          id="uploadServiceProvider" name="uploadServiceProvider" target="_self" enctype="multipart/form-data"
+          onsubmit="return doValidation();">
+          <br/>
+        <table class="styledLeft" width="100%">
+        <thead>
+            <tr>
+                <th><fmt:message key="saml.sso.upload.service.provider.metadata"/></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><input type="file" id="metadataFromFileSystem" name="metadataFromFileSystem" size="50" /></td>
+            </tr>
+            <tr><td>
+                <input type="button" value="<fmt:message key='saml.sso.upload'/>" class="button" onclick="doSubmit();"/>
+                <input class="button" type="reset" value="<fmt:message key='saml.sso.cancel'/>" onclick="doCancel();"/></td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+    <br/>
+    <form method="POST" action="upload_service_provider_from_url_finish.jsp?SPAction=<%=spAction%>"
+              id="uploadServiceProviderFromUrl" name="uploadServiceProviderFromUrl" target="_self" onsubmit="return doValidationUrl();">
+              <br/>
+            <table class="styledLeft" width="100%">
+            <thead>
+                <tr>
+                    <th><fmt:message key="saml.sso.upload.service.provider.metadata"/></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input type="url" id="metadataFromUrl" name="metadataFromUrl"/></td>
+                </tr>
+                <tr><td>
+                    <input type="submit" class="button" value="<fmt:message key='saml.sso.upload'/>" class="button"/>
+                    <input class="button" type="reset" value="<fmt:message key='saml.sso.cancel'/>" onclick="doCancel();"/></td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    <%
+    }
+    %>
+
+<script type="text/javascript">
+
+                function doSubmit(){
+                    var policy;
+                    policy = document.uploadServiceProvider.metadataFromFileSystem.value;
+
+
+                    if (policy == '') {
+                        CARBON.showWarningDialog("<fmt:message key='sp.enter.valid.issuer'/>");
+                        return;
+                    }
+
+                    document.uploadServiceProvider.submit();
+                }
+
+                function doCancel(){
+                    location.href = 'index.jsp';
+                }
+
+            </script>
 </div>
 </div>
 </fmt:bundle>
