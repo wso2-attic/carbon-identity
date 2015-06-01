@@ -16,7 +16,6 @@ import org.wso2.carbon.user.core.service.RealmService;
  */
 public class CassandraUserStoreManagerServiceComponent {
     private static Log log = LogFactory.getLog(CassandraUserStoreManagerServiceComponent.class);
-    private static RealmService realmService;
 
     protected void activate(ComponentContext ctxt) {
 
@@ -32,11 +31,11 @@ public class CassandraUserStoreManagerServiceComponent {
     }
 
     protected void setRealmService(RealmService rlmService) {
-        realmService = rlmService;
+        CassandraUserStoreManagerServiceDataHolder.getInstance().setRealmService(rlmService);
     }
 
     protected void unsetRealmService(RealmService realmService) {
-        realmService = null;
+        CassandraUserStoreManagerServiceDataHolder.getInstance().setRealmService(null);
     }
 }
 

@@ -1,20 +1,19 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.wso2.carbon.um.ws.api;
 
 import org.wso2.carbon.um.ws.api.stub.*;
@@ -27,6 +26,10 @@ import java.util.*;
  * Utility class used for conversions
  */
 public class WSRealmUtil {
+
+    private WSRealmUtil() {
+
+    }
 
     public static Map<String, String> convertClaimValueToMap(ClaimValue[] values) {
         Map<String, String> map = new HashMap<String, String>();
@@ -41,7 +44,7 @@ public class WSRealmUtil {
 
     public static ClaimValue[] convertMapToClaimValue(Map<String, String> map) {
         if (map == null) {
-            return null;
+            return new ClaimValue[0];
         }
         ClaimValue[] claims = new ClaimValue[map.size()];
         Iterator<Map.Entry<String, String>> ite = map.entrySet().iterator();
@@ -70,7 +73,7 @@ public class WSRealmUtil {
     public static org.wso2.carbon.um.ws.api.stub.ClaimMapping[] convertToADBClaimMappings(
             org.wso2.carbon.user.core.claim.ClaimMapping[] claimMappings) {
         if (claimMappings == null) {
-            return null;
+            return new org.wso2.carbon.um.ws.api.stub.ClaimMapping[0];
         }
         org.wso2.carbon.um.ws.api.stub.ClaimMapping[] cms = new org.wso2.carbon.um.ws.api.stub.ClaimMapping[claimMappings.length];
         int i = 0;
@@ -114,7 +117,7 @@ public class WSRealmUtil {
 
     public static org.wso2.carbon.um.ws.api.stub.Claim[] convertToADBClaims(org.wso2.carbon.user.core.claim.Claim[] claims) {
         if (claims == null) {
-            return null;
+            return new Claim[0];
         }
 
         org.wso2.carbon.um.ws.api.stub.Claim[] claimz = new org.wso2.carbon.um.ws.api.stub.Claim[claims.length];
@@ -171,7 +174,7 @@ public class WSRealmUtil {
 
     public static org.wso2.carbon.user.core.claim.Claim[] convertToClaims(ClaimDTO[] claims) {
         if (claims == null) {
-            return null;
+            return new org.wso2.carbon.user.core.claim.Claim[0];
         }
         org.wso2.carbon.user.core.claim.Claim[] claimz = new org.wso2.carbon.user.core.claim.Claim[claims.length];
         int i = 0;
@@ -182,22 +185,10 @@ public class WSRealmUtil {
         return claimz;
     }
 
-    /*public static org.wso2.carbon.user.core.claim.Claim[] convertToClaims(Claim[] claims) {
-        if (claims == null) {
-            return null;
-        }
-        org.wso2.carbon.user.core.claim.Claim[] claimz = new org.wso2.carbon.user.core.claim.Claim[claims.length];
-        int i = 0;
-        for (Claim claim : claims) {
-            claimz[i] = convertToClaim(claim);
-            i++;
-        }
-        return claimz;
-    }*/
 
     public static ClaimMapping[] convertToClaimMappings(org.wso2.carbon.um.ws.api.stub.ClaimMapping[] claimMappings) {
         if (claimMappings == null) {
-            return null;
+            return new ClaimMapping[0];
         }
         ClaimMapping[] claimz = new ClaimMapping[claimMappings.length];
         int i = 0;
@@ -272,7 +263,7 @@ public class WSRealmUtil {
     public static org.wso2.carbon.user.core.profile.ProfileConfiguration[] convertToProfileConfigurations(
             ProfileConfiguration[] profileConfigs) {
         if (profileConfigs == null) {
-            return null;
+            return new org.wso2.carbon.user.core.profile.ProfileConfiguration[0];
         }
 
         org.wso2.carbon.user.core.profile.ProfileConfiguration[] configz = new org.wso2.carbon.user.core.profile.ProfileConfiguration[profileConfigs.length];

@@ -61,7 +61,6 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
     private static Log log = LogFactory.getLog(CassandraUserStoreManager.class);
     private final StringSerializer stringSerializer = StringSerializer.get();
     protected DataSource jdbcDataSource = null;
-    protected int tenantId;
     protected boolean useOnlyInternalRoles;
     protected Random random = new Random();
     private Cluster cluster;
@@ -401,13 +400,7 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
     protected boolean doCheckExistingUser(String userName) throws UserStoreException {
 
         Boolean isExist = false;
-        //TODO Need to verify from IS team of usage
-        // String isUnique =
-        // realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USERNAME_UNIQUE);
-        // if (TRUE.equals(isUnique) &&
-        // !CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userName)) {
-        // } else {
-        // }
+
         Composite key = new Composite();
         key.addComponent(userName, stringSerializer);
         key.addComponent(tenantIdString, stringSerializer);
@@ -558,7 +551,7 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
      * Maps the role to a user list. Adds the (username, tenantId) -> roleList
      * and (role, tenantId) -> userName
      *
-     * @param userName The username list of the user the role need to be added to.
+     * @param userNames The username list of the user the role need to be added to.
      * @param roleName The role that needs to be mapped against the user list.
      * @param mutator  Passes the mutator and returns it with the insert statements.
      */
@@ -648,6 +641,10 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST));
         } catch (Exception e) {
             givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
+
+            if (log.isDebugEnabled()) {
+                log.debug("Realm configuration maximum not set : Using User Core Constant value instead!", e);
+            }
         }
 
         if (maxItemLimit < 0 || maxItemLimit > givenMax) {
@@ -667,21 +664,25 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
         QueryResult<OrderedRows<String, String, String>> result = rangeSliceQuery.execute();
         if (result != null) {
             OrderedRows<String, String, String> rows = result.get();
-            if (rows.getCount() > 0) {
-                arrayLength = rows.getCount();
+            if (rows.getCount() <= 0) {
+                // reformatted to avoid nesting too many blocks
+                return users.toArray(new String[arrayLength]);
 
-                Iterator<Row<String, String, String>> rowsIterator = rows.iterator();
+            }
+            arrayLength = rows.getCount();
 
-                while (rowsIterator.hasNext()) {
-                    Row<String, String, String> row = rowsIterator.next();
-                    if (row.getColumnSlice().getColumnByName(CFConstants.UM_USER_ID).getValue() != null) {
-                        String name = row.getColumnSlice().getColumnByName(CFConstants.UM_USER_NAME).getValue();
-                        // append the domain if exist
-                        name = UserCoreUtil.addDomainToName(name, domain);
-                        users.add(name);
-                    }
+            Iterator<Row<String, String, String>> rowsIterator = rows.iterator();
+
+            while (rowsIterator.hasNext()) {
+                Row<String, String, String> row = rowsIterator.next();
+                if (row.getColumnSlice().getColumnByName(CFConstants.UM_USER_ID).getValue() != null) {
+                    String name = row.getColumnSlice().getColumnByName(CFConstants.UM_USER_NAME).getValue();
+                    // append the domain if exist
+                    name = UserCoreUtil.addDomainToName(name, domain);
+                    users.add(name);
                 }
             }
+
         }
         return users.toArray(new String[arrayLength]);
 
@@ -705,6 +706,10 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_ROLE_LIST));
         } catch (Exception e) {
             givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
+
+            if (log.isDebugEnabled()) {
+                log.debug("Realm configuration maximum not set : Using User Core Constant value instead!", e);
+            }
         }
 
         if (maxItemLimit < 0 || maxItemLimit > givenMax) {
@@ -723,21 +728,23 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
         QueryResult<OrderedRows<String, String, String>> result = rangeSliceQuery.execute();
         if (result != null) {
             OrderedRows<String, String, String> rows = result.get();
-            if (rows.getCount() > 0) {
-                arrayLength = rows.getCount();
+            if (rows.getCount() <= 0) {
+                return roles.toArray(new String[arrayLength]);
+            }
+            arrayLength = rows.getCount();
 
-                Iterator<Row<String, String, String>> rowsIterator = rows.iterator();
+            Iterator<Row<String, String, String>> rowsIterator = rows.iterator();
 
-                while (rowsIterator.hasNext()) {
-                    Row<String, String, String> row = rowsIterator.next();
-                    if (row.getColumnSlice().getColumnByName(CFConstants.UM_ROLE_NAME).getValue() != null) {
-                        String name = row.getColumnSlice().getColumnByName(CFConstants.UM_ROLE_NAME).getValue();
-                        // append the domain if exist
-                        name = UserCoreUtil.addDomainToName(name, domain);
-                        roles.add(name);
-                    }
+            while (rowsIterator.hasNext()) {
+                Row<String, String, String> row = rowsIterator.next();
+                if (row.getColumnSlice().getColumnByName(CFConstants.UM_ROLE_NAME).getValue() != null) {
+                    String name = row.getColumnSlice().getColumnByName(CFConstants.UM_ROLE_NAME).getValue();
+                    // append the domain if exist
+                    name = UserCoreUtil.addDomainToName(name, domain);
+                    roles.add(name);
                 }
             }
+
         }
         return roles.toArray(new String[arrayLength]);
     }
@@ -919,7 +926,7 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
      * Update the user list mapped to a role.
      */
     @Override
-    public void doUpdateUserListOfRole(String roleName, String deletedUsers[], String[] newUsers)
+    public void doUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers)
             throws UserStoreException {
 
         Mutator<Composite> mutator = HFactory.createMutator(keyspace, CompositeSerializer.get());
@@ -1032,7 +1039,10 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
 
         CassandraRoleContext searchCtx = new CassandraRoleContext();
         String[] roleNameParts = roleName.split(UserCoreConstants.TENANT_DOMAIN_COMBINER);
-        if (roleNameParts.length > 1 && (roleNameParts[1] == null || roleNameParts[1].equals("null"))) {
+
+        String nullString = "null";
+
+        if (roleNameParts.length > 1 && (roleNameParts[1] == null || nullString.equals(roleNameParts[1]))) {
             roleNameParts = new String[]{roleNameParts[0]};
         }
         int tenantId = -1;
@@ -1088,8 +1098,7 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
     protected String[] doGetSharedRoleNames(String tenantDomain, String filter, int maxItemLimit)
             throws UserStoreException {
         //TODO TO-Be Completed
-        String[] roles = new String[0];
-        return roles;
+        return new String[0];
     }
 
     @Override
@@ -1256,27 +1265,44 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
         }
 
         public Integer[] getTenantIds() {
-            return tenantIds;
+
+            if(tenantIds !=null){
+                return tenantIds.clone();
+            }
+            return new Integer[0];
         }
 
         public void setTenantIds(Integer[] tenantIds) {
-            this.tenantIds = tenantIds;
+            if(tenantIds!=null){
+                this.tenantIds = tenantIds.clone();
+
+            }
         }
 
         public String[] getSharedRoles() {
-            return sharedRoles;
+            if(sharedRoles!=null){
+                return sharedRoles.clone();
+            }
+            return new String[0];
         }
 
         public void setSharedRoles(String[] sharedRoles) {
-            this.sharedRoles = sharedRoles;
+            if(sharedRoles!=null){
+                this.sharedRoles = sharedRoles.clone();
+            }
         }
 
         public Integer[] getSharedTenantids() {
-            return sharedTenantids;
+            if(sharedTenantids!=null){
+                return sharedTenantids.clone();
+            }
+            else return new Integer[0];
         }
 
         public void setSharedTenantids(Integer[] sharedTenantids) {
-            this.sharedTenantids = sharedTenantids;
+            if(sharedTenantids!=null){
+                this.sharedTenantids = sharedTenantids.clone();
+            }
         }
 
     }

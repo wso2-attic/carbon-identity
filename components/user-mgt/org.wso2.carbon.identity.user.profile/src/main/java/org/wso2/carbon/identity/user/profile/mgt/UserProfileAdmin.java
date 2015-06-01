@@ -1,20 +1,19 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.wso2.carbon.identity.user.profile.mgt;
 
 import org.apache.axis2.context.MessageContext;
@@ -233,7 +232,7 @@ public class UserProfileAdmin extends AbstractAdmin {
                 String profile = profileNames[i];
                 Map<String, String> valueMap =
                         userStoreManager.getUserClaimValues(username, claimUris, profile);
-                ArrayList<UserFieldDTO> userFields = new ArrayList<UserFieldDTO>();
+                List<UserFieldDTO> userFields = new ArrayList<UserFieldDTO>();
                 for (int j = 0; j < claims.length; j++) {
                     UserFieldDTO data = new UserFieldDTO();
                     Claim claim = claims[j];
@@ -332,7 +331,7 @@ public class UserProfileAdmin extends AbstractAdmin {
         try {
 
             if (username == null || profileName == null) {
-                throw new Exception("Invalid input parameters");
+                throw new UserProfileException("Invalid input parameters");
             }
 
             if (!this.isAuthorized(username)) {
@@ -422,7 +421,7 @@ public class UserProfileAdmin extends AbstractAdmin {
             Map<String, String> valueMap =
                     userStoreManager
                             .getUserClaimValues(username, claimUris, profileName);
-            ArrayList<UserFieldDTO> userFields = new ArrayList<UserFieldDTO>();
+            List<UserFieldDTO> userFields = new ArrayList<UserFieldDTO>();
 
             for (int j = 0; j < claims.length; j++) {
                 UserFieldDTO data = new UserFieldDTO();
@@ -530,15 +529,15 @@ public class UserProfileAdmin extends AbstractAdmin {
     private Claim[] getAllSupportedClaims(UserRealm realm, String dialectUri)
             throws org.wso2.carbon.user.api.UserStoreException {
         ClaimMapping[] claims = null;
-        ArrayList<Claim> reqClaims = null;
+        List<Claim> reqClaims = null;
 
         claims = realm.getClaimManager().getAllSupportClaimMappingsByDefault();
         reqClaims = new ArrayList<Claim>();
         for (int i = 0; i < claims.length; i++) {
-            if (dialectUri.equals(claims[i].getClaim().getDialectURI())) {
-                if (claims[i] != null && claims[i].getClaim().getDisplayTag() != null
-                        && !claims[i].getClaim().getClaimUri().equals(IdentityConstants.CLAIM_PPID))
-                    reqClaims.add((Claim) claims[i].getClaim());
+            if (dialectUri.equals(claims[i].getClaim().getDialectURI()) && (claims[i] != null && claims[i].getClaim().getDisplayTag() != null
+                    && !claims[i].getClaim().getClaimUri().equals(IdentityConstants.CLAIM_PPID))) {
+
+                reqClaims.add((Claim) claims[i].getClaim());
             }
         }
 
@@ -679,7 +678,7 @@ public class UserProfileAdmin extends AbstractAdmin {
             while (resultSet.next()) {
                 associatedIDs.add(new AssociatedAccountDTO(resultSet.getString(1), resultSet.getString(2)));
             }
-            if(associatedIDs.size() > 0) {
+            if(!associatedIDs.isEmpty()) {
                 return associatedIDs.toArray(new AssociatedAccountDTO[associatedIDs.size()]);
             } else {
                 return new AssociatedAccountDTO[0];
@@ -694,14 +693,13 @@ public class UserProfileAdmin extends AbstractAdmin {
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return null;
+        return new AssociatedAccountDTO[0];
     }
 
     public void removeAssociateID(String idpID, String associatedID) throws UserProfileException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
-        ResultSet resultSet;
         String sql = null;
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(CarbonContext.getThreadLocalCarbonContext()

@@ -19,6 +19,11 @@ package org.wso2.carbon.user.cassandra;
  */
 
 public class CFConstants {
+
+    private CFConstants(){
+
+    }
+
     public static final String KEYSPACE = "TN_KS";
     public static final String UM_ROLES = "UM_ROLE";
     public static final String UM_USER = "UM_USER";
@@ -26,7 +31,6 @@ public class CFConstants {
     public static final String PASSWORD_INDEX = "PASSWORD_INDEX";
     public static final String USER_ID = "userId";
     public static final String UM_USER_ROLE = "UM_USER_ROLE";
-    //static final String USERNAME_ROLES_INDEX = "USERNAME_TO_ROLES_INDEX";
     public static final String KEYSPACE_NAME_XML_ATTRIB = "Keyspace";
     public static final String HOST_XML_ATTRIB = "Host";
     public static final String PORT_XML_ATTRIB = "Port";
@@ -50,6 +54,6 @@ public class CFConstants {
     public static final String USERNAME_PROPERTY = "username";
     public static final String PASSWORD_PROPERTY = "password";
     public static final String UM_USER_NAME_INDEX = "UM_USER_NAME_INDEX";
-    public static String AUTH_WITH_ANY_CREDENTIAL = "AuthenticateWithAnyCredential";
+    public static final String AUTH_WITH_ANY_CREDENTIAL = "AuthenticateWithAnyCredential";
 
 }

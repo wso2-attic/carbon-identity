@@ -40,6 +40,8 @@ public class Util {
     private static RealmConfiguration realmConfig;
     private static Serializer<String> stringSerializer = StringSerializer.get();
 
+    private Util(){};
+
     public static RealmConfiguration getRealmConfig() {
         return realmConfig;
     }
