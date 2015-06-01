@@ -385,6 +385,12 @@ public class OAuth2Util {
         }
 		long currentTime;
 		long validityPeriodMillis = accessTokenDO.getValidityPeriodInMillis();
+
+        if(validityPeriodMillis < 0){
+            log.debug("Access Token : " + accessTokenDO.getAccessToken() + " has infinite lifetime");
+            return -1;
+        }
+
 		long issuedTime = accessTokenDO.getIssuedTime().getTime();
 		currentTime = System.currentTimeMillis();
         long accessTokenValidity = issuedTime + validityPeriodMillis - (currentTime + timestampSkew);
@@ -398,7 +404,7 @@ public class OAuth2Util {
 
     public static long getAccessTokenExpireMillis(AccessTokenDO accessTokenDO) {
 
-        if(accessTokenDO == null){
+        if (accessTokenDO == null) {
             throw new IllegalArgumentException("accessTokenDO is " + "\'NULL\'");
         }
         long currentTime;
@@ -408,6 +414,9 @@ public class OAuth2Util {
         long validityMillis = issuedTime + validityPeriodMillis - (currentTime + timestampSkew);
         if (validityMillis > 1000) {
             return validityMillis;
+        } else if (validityMillis < 0) {
+            log.debug("Access Token : " + accessTokenDO.getAccessToken() + " has infinite lifetime");
+            return -1;
         } else {
             return 0;
         }
