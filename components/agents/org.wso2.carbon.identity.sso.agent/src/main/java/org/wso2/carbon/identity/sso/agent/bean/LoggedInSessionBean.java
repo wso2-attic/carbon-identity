@@ -22,11 +22,16 @@ import com.google.gson.Gson;
 import org.openid4java.discovery.DiscoveryInformation;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Response;
+import org.wso2.carbon.identity.sso.agent.SSOAgentException;
+import org.wso2.carbon.identity.sso.agent.util.SSOAgentUtils;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LoggedInSessionBean {
+public class LoggedInSessionBean implements Serializable{
 
     private OpenID openId;
 
@@ -48,7 +53,7 @@ public class LoggedInSessionBean {
         this.openId = openId;
     }
 
-    public static class AccessTokenResponseBean {
+    public static class AccessTokenResponseBean implements Serializable{
 
         private String accessToken;
 
@@ -94,6 +99,11 @@ public class LoggedInSessionBean {
             Gson gson = new Gson();
             return gson.toJson(this);
         }
+
+        public AccessTokenResponseBean deSerialize(String accessTokenResponseBeanString) {
+            Gson gson = new Gson();
+            return gson.fromJson(accessTokenResponseBeanString, AccessTokenResponseBean.class);
+        }
     }
 
     public class OpenID {
@@ -129,7 +139,7 @@ public class LoggedInSessionBean {
         }
     }
 
-    public class SAML2SSO {
+    public class SAML2SSO implements Serializable{
 
         private String subjectId;
 
@@ -146,6 +156,49 @@ public class LoggedInSessionBean {
         private String sessionIndex;
 
         private Map<String, String> subjectAttributes;
+
+        private void writeObject(java.io.ObjectOutputStream stream)
+                throws IOException {
+
+            stream.writeObject(subjectId);
+
+            stream.writeObject(responseString);
+
+            stream.writeObject(assertionString);
+
+            stream.writeObject(sessionIndex);
+            if (accessTokenResponseBean != null) {
+                stream.writeObject(accessTokenResponseBean.toString());
+            } else {
+                stream.writeObject("");
+            }
+            stream.writeObject(subjectAttributes);
+        }
+
+        private void readObject(java.io.ObjectInputStream stream)
+                throws IOException, ClassNotFoundException, SSOAgentException {
+
+            subjectId = (String) stream.readObject();
+
+            responseString = (String) stream.readObject();
+            if (responseString != null && !"".equals(responseString)) {
+                response = (Response) SSOAgentUtils.unmarshall(responseString);
+            }
+
+            assertionString = (String) stream.readObject();
+            if (responseString != null && !"".equals(assertionString)) {
+                assertion = (Assertion) SSOAgentUtils.unmarshall(assertionString);
+            }
+
+            sessionIndex = (String) stream.readObject();
+            String accessTokenResponseBeanString = (String) stream.readObject();
+            if (!"".equals(accessTokenResponseBeanString)) {
+                accessTokenResponseBean = accessTokenResponseBean.deSerialize(accessTokenResponseBeanString);
+            } else {
+                accessTokenResponseBean = null;
+            }
+            subjectAttributes = (Map) stream.readObject();
+        }
 
         public String getSubjectId() {
             return subjectId;

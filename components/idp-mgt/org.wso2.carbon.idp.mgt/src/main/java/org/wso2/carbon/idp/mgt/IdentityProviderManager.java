@@ -105,10 +105,12 @@ public class IdentityProviderManager {
             tenantContext = MultitenantConstants.TENANT_AWARE_URL_PREFIX + "/" + tenantDomain + "/";
         }
 
-        String hostName;
+        String hostName = ServerConfiguration.getInstance().getFirstProperty("HostName");
 
         try {
-            hostName = NetworkUtils.getLocalHostname();
+            if (hostName == null) {
+                hostName = NetworkUtils.getLocalHostname();
+            }
         } catch (SocketException e) {
             throw new IdentityApplicationManagementException("Error while trying to read hostname.", e);
         }
@@ -371,7 +373,7 @@ public class IdentityProviderManager {
         if (!idPEntityIdAvailable) {
             Property property = new Property();
             property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
-            property.setValue("localhost");
+            property.setValue(IdPManagementUtil.getResidentIdPEntityId());
             if (fedAuthnConfig.getProperties().length > 0) {
                 List<Property> properties = Arrays.asList(fedAuthnConfig.getProperties());
                 properties.add(property);

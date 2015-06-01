@@ -17,6 +17,7 @@
   --%>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.TenantDataManager" %>
+<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder" %>
 <%!
     /**
      * Parameter name for tenant list
@@ -25,7 +26,7 @@
 %>
 
 <%
-  String tenantList = request.getParameter(TENANT_LIST);
+  String tenantList = CharacterEncoder.getSafeText(request.getParameter(TENANT_LIST));
 
   if (StringUtils.isNotEmpty(tenantList)) {
     TenantDataManager.setTenantDataList(tenantList);
