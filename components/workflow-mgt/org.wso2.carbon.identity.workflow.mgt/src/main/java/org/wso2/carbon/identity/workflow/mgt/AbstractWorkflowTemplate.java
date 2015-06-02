@@ -22,14 +22,16 @@ import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameterDef;
 import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public abstract class WorkflowTemplate {
+public abstract class AbstractWorkflowTemplate {
 
     private Map<String, AbstractWorkflowTemplateImpl> implementations;
 
-    public WorkflowTemplate() {
+    public AbstractWorkflowTemplate() {
         implementations = new HashMap<>();
     }
 
@@ -48,9 +50,15 @@ public abstract class WorkflowTemplate {
         return implementations.get(id);
     }
 
+    public List<AbstractWorkflowTemplateImpl> getImplementations(){
+        return new ArrayList<>(implementations.values());
+    }
+
     public abstract TemplateParameterDef[] getParamDefinitions();
 
     public abstract String getTemplateId();
 
     public abstract String getFriendlyName();
+
+    public abstract String getDescription();
 }

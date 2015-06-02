@@ -18,15 +18,21 @@
 
 package org.wso2.carbon.identity.workflow.mgt.bean;
 
-public class TemplateDeploymentDTO {
+public class WorkflowBean {
+
+    private String workflowId;
     private String workflowName;
     private String workflowDescription;
     private String templateName;
-    private String templateImplName;
-    private String associatedEvent;
-    private Parameter[] parameters;
-    private Parameter[] templateImplParameters;
-    private String condition;
+    private String implementationName;
+
+    public String getWorkflowId() {
+        return workflowId;
+    }
+
+    public void setWorkflowId(String workflowId) {
+        this.workflowId = workflowId;
+    }
 
     public String getWorkflowName() {
         return workflowName;
@@ -52,45 +58,11 @@ public class TemplateDeploymentDTO {
         this.templateName = templateName;
     }
 
-    public String getTemplateImplName() {
-        return templateImplName;
+    public String getImplementationName() {
+        return implementationName;
     }
 
-    public void setTemplateImplName(String templateImplName) {
-        this.templateImplName = templateImplName;
-    }
-
-    public Parameter[] getParameters() {
-        return parameters;
-    }
-
-    public void setParameters(
-            Parameter[] parameters) {
-        this.parameters = parameters;
-    }
-
-    public Parameter[] getTemplateImplParameters() {
-        return templateImplParameters;
-    }
-
-    public void setTemplateImplParameters(
-            Parameter[] templateImplParameters) {
-        this.templateImplParameters = templateImplParameters;
-    }
-
-    public String getCondition() {
-        return condition;
-    }
-
-    public void setCondition(String condition) {
-        this.condition = condition;
-    }
-
-    public String getAssociatedEvent() {
-        return associatedEvent;
-    }
-
-    public void setAssociatedEvent(String associatedEvent) {
-        this.associatedEvent = associatedEvent;
+    public void setImplementationName(String implementationName) {
+        this.implementationName = implementationName;
     }
 }

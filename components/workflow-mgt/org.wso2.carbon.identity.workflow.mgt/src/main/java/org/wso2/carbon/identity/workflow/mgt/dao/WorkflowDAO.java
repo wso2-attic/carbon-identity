@@ -20,8 +20,8 @@ package org.wso2.carbon.identity.workflow.mgt.dao;
 
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.identity.workflow.mgt.AbstractWorkflowTemplateImpl;
 import org.wso2.carbon.identity.workflow.mgt.bean.ServiceAssociationDTO;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociation;
 import org.wso2.carbon.identity.workflow.mgt.bean.WSServiceBean;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 
@@ -31,8 +31,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-public class WorkflowServicesDAO {
+public class WorkflowDAO {
 
     /**
      * Stores Workflow executor service details
@@ -96,58 +97,6 @@ public class WorkflowServicesDAO {
         }
     }
 
-    /**
-     * Gets a map where the keys are the Services that are configured for the event and the values are the
-     * condition on which they are called.
-     *
-     * @param eventId
-     * @return
-     */
-    public List<WorkflowAssociation> getSubscribedServicesForEvent(String eventId) throws InternalWorkflowException {
-        Connection connection = null;
-        PreparedStatement prepStmt = null;
-        ResultSet rs = null;
-        List<WorkflowAssociation> servicesMatched = new ArrayList<>();
-        String query = SQLConstants.GET_WS_SERVICES_FOR_EVENT_QUERY;
-        try {
-            connection = IdentityDatabaseUtil.getDBConnection();
-            prepStmt = connection.prepareStatement(query);
-            prepStmt.setString(1, eventId);
-            rs = prepStmt.executeQuery();
-            while (rs.next()) {
-                String alias = rs.getString(SQLConstants.ALIAS_COLUMN);
-                String description = rs.getString(SQLConstants.DESCRIPTION_COLUMN);
-                String action = rs.getString(SQLConstants.WS_ACTION_COLUMN);
-                String serviceEP = rs.getString(SQLConstants.SERVICE_ENDPOINT_COLUMN);
-                String username = rs.getString(SQLConstants.USERNAME_COLUMN);
-                String password = rs.getString(SQLConstants.PASSWORD_COLUMN);
-                String condition = rs.getString(SQLConstants.CONDITION_COLUMN);
-                int priority = rs.getInt(SQLConstants.PRIORITY_COLUMN);
-                //todo use priority to sort
-                WSServiceBean serviceBean = new WSServiceBean();
-                serviceBean.setAlias(alias);
-                serviceBean.setDescription(description);
-                serviceBean.setWsAction(action);
-                serviceBean.setServiceEndpoint(serviceEP);
-                serviceBean.setUserName(username);
-                serviceBean.setPassword(password);
-                WorkflowAssociation association = new WorkflowAssociation();
-                association.setService(serviceBean);
-                association.setCondition(condition);
-                association.setPriority(priority);
-                servicesMatched.add(association);
-            }
-
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
-        } catch (SQLException e) {
-            throw new InternalWorkflowException("Error when executing the sql.", e);
-        } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
-        }
-        return servicesMatched;
-    }
-
     public void removeWorkflowAssociation(String alias, String event) throws InternalWorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -203,5 +152,9 @@ public class WorkflowServicesDAO {
         return associationDTOList;
     }
 
+    public Map<AbstractWorkflowTemplateImpl, String> getTemplateImplsForRequest(String eventId) {
+        //todo: implement
+        return null;
+    }
 
 }

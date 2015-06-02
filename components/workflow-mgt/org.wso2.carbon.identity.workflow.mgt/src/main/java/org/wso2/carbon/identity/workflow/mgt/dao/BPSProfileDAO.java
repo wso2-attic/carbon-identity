@@ -16,13 +16,14 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt;
+package org.wso2.carbon.identity.workflow.mgt.dao;
 
 import java.util.Map;
 
-public interface TemplateInitializer {
+public class BPSProfileDAO {
 
-    boolean initNeededAtStartUp();
-
-    void initialize(String templateName, Map<String, Object> initParams);
+    public Map<String,Object> getBPELProfileParams(String profileName){
+        //todo: implement
+        return null;
+    }
 }

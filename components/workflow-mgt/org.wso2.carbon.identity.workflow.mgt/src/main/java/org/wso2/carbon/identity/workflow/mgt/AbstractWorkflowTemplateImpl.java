@@ -18,23 +18,17 @@
 
 package org.wso2.carbon.identity.workflow.mgt;
 
-import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameterDef;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
-import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractWorkflowTemplateImpl {
 
     private TemplateInitializer initializer;
     private WorkFlowExecutor executor;
 
-    public AbstractWorkflowTemplateImpl(TemplateInitializer initializer,
-                                        WorkFlowExecutor executor) {
-        this.initializer = initializer;
-        this.executor = executor;
-    }
 
     public TemplateInitializer getInitializer() {
         return initializer;
@@ -52,26 +46,32 @@ public abstract class AbstractWorkflowTemplateImpl {
         this.executor = executor;
     }
 
-    public void activate(String templateName, Parameter[] initParams) {
-        if(initializer != null && initializer.initNeededAtStartUp()){
+    public void activate(String templateName, Map<String, Object> initParams) {
+        if (initializer != null && initializer.initNeededAtStartUp()) {
             initializer.initialize(templateName, initParams);
         }
     }
 
-    public void initialize(String templateName, Parameter[] initParams) {
+    public void initializeExecutor(Map<String, Object> initParams) {
+        executor.initialize(initParams);
+    }
+
+    public void deploy(String templateName, Map<String, Object> initParams) {
         if (initializer != null) {
             initializer.initialize(templateName, initParams);
         }
     }
 
-    public abstract List<String> getImplementedTemplateIds();
-
-    public abstract TemplateParameterDef[] getImplParamDefinitions();
-
     public void execute(WorkFlowRequest workFlowRequest) throws WorkflowException {
         executor.execute(workFlowRequest);
     }
 
+    public abstract String getTemplateId();
+
+    public abstract TemplateParameterDef[] getImplParamDefinitions();
+
     public abstract String getImplementationId();
+
+    public abstract String getImplementationName();
 
 }

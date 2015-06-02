@@ -23,26 +23,17 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.workflow.mgt.WorkFlowExecutor;
 import org.wso2.carbon.identity.workflow.mgt.WorkFlowExecutorManager;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.ws.WSWorkflowExecutor;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
 /**
  * @scr.component name="identity.workflow" immediate="true"
  * @scr.reference name="user.realmservice.default" interface="org.wso2.carbon.user.core.service.RealmService"
  * cardinality="1..1" policy="dynamic" bind="setRealmService"
  * unbind="unsetRealmService"
- * @scr.reference name="workflow.executor.service"
- * interface="org.wso2.carbon.identity.workflow.mgt.WorkFlowExecutor"
- * cardinality="0..n" policy="dynamic"
- * bind="setWorkflowExecutorService"
- * unbind="unsetWorkflowExecutorService"
  * @scr.reference name="workflow.request.handler.service"
  * interface="org.wso2.carbon.identity.workflow.mgt.WorkflowRequestHandler"
  * cardinality="0..n" policy="dynamic"
@@ -54,40 +45,29 @@ import java.util.TreeSet;
  * unbind="unsetConfigurationContextService"
  */
 public class WorkflowMgtServiceComponent {
-    private static RealmService realmService;
-    private static ConfigurationContextService configurationContextService;
-    private static SortedSet<WorkFlowExecutor> workFlowExecutors;
-    private static Map<String, WorkflowRequestHandler> workflowRequestHandlers;
-    private static BundleContext bundleContext;
-
-    public static RealmService getRealmService() {
-        return realmService;
-    }
 
     protected void setRealmService(RealmService realmService) {
-        WorkflowMgtServiceComponent.realmService = realmService;
-    }
-
-    public static ConfigurationContextService getConfigurationContextService() {
-        return configurationContextService;
+        WorkflowServiceDataHolder.getInstance().setRealmService(realmService);
     }
 
     protected void setConfigurationContextService(ConfigurationContextService contextService) {
-        WorkflowMgtServiceComponent.configurationContextService = contextService;
+        WorkflowServiceDataHolder.getInstance().setConfigurationContextService(contextService);
     }
 
     protected void activate(ComponentContext context) {
-        bundleContext = context.getBundleContext();
+        BundleContext bundleContext = context.getBundleContext();
         WorkFlowExecutorManager workFlowExecutorManager = WorkFlowExecutorManager.getInstance();
         bundleContext.registerService(WorkFlowExecutorManager.class, workFlowExecutorManager, null);
+        WorkflowServiceDataHolder.getInstance().setBundleContext(bundleContext);
+
     }
 
     protected void unsetRealmService(RealmService realmService) {
-        WorkflowMgtServiceComponent.realmService = null;
+        WorkflowServiceDataHolder.getInstance().setRealmService(null);
     }
 
     protected void unsetConfigurationContextService(ConfigurationContextService contextService) {
-        WorkflowMgtServiceComponent.configurationContextService = null;
+        WorkflowServiceDataHolder.getInstance().setConfigurationContextService(null);
     }
 
     protected void setWorkflowRequestHandlerService(WorkflowRequestHandler workflowRequestHandler) {

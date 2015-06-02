@@ -19,19 +19,16 @@
 package org.wso2.carbon.identity.workflow.mgt;
 
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameterDef;
+import org.wso2.carbon.identity.workflow.mgt.dao.BPSProfileDAO;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
-public class BPELTemplateImpl extends AbstractWorkflowTemplateImpl {
+public class BPELApprovalTemplateImpl extends AbstractWorkflowTemplateImpl {
 
-    private static final List<String> TEMPLATES;
+    private static final String TEMPLATE_IMPL_NAME = "BPEL";
     private static final TemplateParameterDef[] PARAMETER_DEFINITIONS;
 
     static {
-        TEMPLATES = new ArrayList<>();
-        TEMPLATES.add(WorkFlowConstants.TemplateConstants.APPROVAL_TEMPLATE_NAME);
-
         TemplateParameterDef bpsProfile = new TemplateParameterDef();
         bpsProfile.setParamName(WorkFlowConstants.TemplateConstants.BPEL_IMPL_BPS_PROFILE);
         bpsProfile.setParamType(WorkflowTemplateParamType.BPS_PROFILE);
@@ -39,17 +36,32 @@ public class BPELTemplateImpl extends AbstractWorkflowTemplateImpl {
     }
 
     @Override
-    public List<String> getImplementedTemplateIds() {
-        return null;
+    public void initializeExecutor(Map<String, Object> initParams) {
+        //read profile and add its params
+        BPSProfileDAO bpsProfileDAO = new BPSProfileDAO();
+        Map<String, Object> bpelProfileParams = bpsProfileDAO.getBPELProfileParams(
+                (String) initParams.get(WorkFlowConstants.TemplateConstants.BPEL_IMPL_BPS_PROFILE));
+        initParams.putAll(bpelProfileParams);
+        super.initializeExecutor(initParams);
+    }
+
+    @Override
+    public String getTemplateId() {
+        return WorkFlowConstants.TemplateConstants.APPROVAL_TEMPLATE_NAME;
     }
 
     @Override
     public TemplateParameterDef[] getImplParamDefinitions() {
-        return new TemplateParameterDef[0];
+        return PARAMETER_DEFINITIONS;
     }
 
     @Override
     public String getImplementationId() {
-        return null;
+        return TEMPLATE_IMPL_NAME;
+    }
+
+    @Override
+    public String getImplementationName() {
+        return TEMPLATE_IMPL_NAME;
     }
 }

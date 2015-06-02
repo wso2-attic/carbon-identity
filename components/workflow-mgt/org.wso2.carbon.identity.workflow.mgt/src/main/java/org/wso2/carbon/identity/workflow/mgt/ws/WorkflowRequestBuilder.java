@@ -24,6 +24,9 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowDataType;
+import org.wso2.carbon.identity.workflow.mgt.bean.RequestParameter;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
@@ -69,6 +72,35 @@ public class WorkflowRequestBuilder {
     private Map<String, Object> singleValuedParams;
     private Map<String, List<Object>> listTypeParams;
     private Map<String, Map<String, Object>> mapTypeParams;
+
+    public static OMElement buildXMLRequest(WorkFlowRequest workFlowRequest) throws RuntimeWorkflowException {
+        WorkflowRequestBuilder requestBuilder = new WorkflowRequestBuilder(workFlowRequest.getUuid(),
+                workFlowRequest.getEventType());
+
+        for (RequestParameter parameter : workFlowRequest.getRequestParameters()) {
+            if (parameter.isRequiredInWorkflow()) {
+                switch (parameter.getValueType()) {
+                    case WorkflowDataType.BOOLEAN_TYPE:
+                    case WorkflowDataType.STRING_TYPE:
+                    case WorkflowDataType.INTEGER_TYPE:
+                    case WorkflowDataType.DOUBLE_TYPE:
+                        requestBuilder.addSingleValuedParam(parameter.getName(), parameter.getValue());
+                        break;
+                    case WorkflowDataType.STRING_LIST_TYPE:
+                    case WorkflowDataType.DOUBLE_LIST_TYPE:
+                    case WorkflowDataType.INTEGER_LIST_TYPE:
+                    case WorkflowDataType.BOOLEAN_LIST_TYPE:
+                        requestBuilder.addListTypeParam(parameter.getName(), (List<Object>) parameter.getValue());
+                        break;
+                    case WorkflowDataType.STRING_STRING_MAP_TYPE:
+                        requestBuilder.addMapTypeParam(parameter.getName(), (Map<String, Object>) parameter.getValue());
+                        break;
+                    //ignoring the other types
+                }
+            }
+        }
+        return requestBuilder.buildRequest();
+    }
 
     /**
      * Initialize the Request builder with uuid and event

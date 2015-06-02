@@ -18,12 +18,11 @@
 
 package org.wso2.carbon.identity.workflow.mgt.bean;
 
-public class TemplateDTO {
+public class EventBean {
     private String id;
-    private String name;
+    private String friendlyName;
     private String description;
-    private TemplateParameterDef[] parameters;
-    private TemplateImplDTO[] implementations;
+    private String category;
 
     public String getId() {
         return id;
@@ -33,12 +32,12 @@ public class TemplateDTO {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getFriendlyName() {
+        return friendlyName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFriendlyName(String friendlyName) {
+        this.friendlyName = friendlyName;
     }
 
     public String getDescription() {
@@ -49,19 +48,11 @@ public class TemplateDTO {
         this.description = description;
     }
 
-    public TemplateParameterDef[] getParameters() {
-        return parameters;
+    public String getCategory() {
+        return category;
     }
 
-    public void setParameters(TemplateParameterDef[] parameters) {
-        this.parameters = parameters;
-    }
-
-    public TemplateImplDTO[] getImplementations() {
-        return implementations;
-    }
-
-    public void setImplementations(TemplateImplDTO[] implementations) {
-        this.implementations = implementations;
+    public void setCategory(String category) {
+        this.category = category;
     }
 }

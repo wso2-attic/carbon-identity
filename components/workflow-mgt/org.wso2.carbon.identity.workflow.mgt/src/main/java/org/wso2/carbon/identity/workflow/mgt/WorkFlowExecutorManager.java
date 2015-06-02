@@ -18,17 +18,18 @@
 
 package org.wso2.carbon.identity.workflow.mgt;
 
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jaxen.JaxenException;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
-import org.wso2.carbon.identity.workflow.mgt.bean.RequestParameter;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestDAO;
+import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowDAO;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
-import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowMgtServiceComponent;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
+import org.wso2.carbon.identity.workflow.mgt.ws.WorkflowRequestBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -46,34 +47,30 @@ public class WorkFlowExecutorManager {
     }
 
     public void executeWorkflow(WorkFlowRequest workFlowRequest) throws WorkflowException {
-
         workFlowRequest.setUuid(UUID.randomUUID().toString());
-        //executors are sorted by priority by the time they are added.
-        for (WorkFlowExecutor workFlowExecutor : WorkflowMgtServiceComponent.getWorkFlowExecutors()) {
-            if (workFlowExecutor.canHandle(workFlowRequest)) {
-                try {
-                    WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
-                    requestDAO.addWorkflowEntry(workFlowRequest);
+        OMElement xmlRequest = WorkflowRequestBuilder.buildXMLRequest(workFlowRequest);
+        WorkflowDAO servicesDAO = new WorkflowDAO();
+        Map<AbstractWorkflowTemplateImpl, String> templateImpls =
+                servicesDAO.getTemplateImplsForRequest(workFlowRequest.getEventType());
 
-                    //Drop parameters that should not be sent to the workflow executor (all params are persisted by now)
-                    List<RequestParameter> parameterListToSend = new ArrayList<RequestParameter>();
-                    for (RequestParameter parameter : workFlowRequest.getRequestParameters()) {
-                        if (parameter.isRequiredInWorkflow()) {
-                            parameterListToSend.add(parameter);
-                        }
-                    }
-                    workFlowRequest.setRequestParameters(parameterListToSend);
+        if(templateImpls==null || templateImpls.isEmpty()){
+            handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null);
+            return;
+        }
 
-                    workFlowExecutor.execute(workFlowRequest);
-                    return;
-                } catch (WorkflowException e) {
-                    log.error("Error executing workflow at " + workFlowExecutor.getName(), e);
+        for (Map.Entry<AbstractWorkflowTemplateImpl, String> templateImplEntry : templateImpls.entrySet()) {
+            try {
+                AXIOMXPath axiomxPath = new AXIOMXPath(templateImplEntry.getValue());
+                if (axiomxPath.booleanValueOf(xmlRequest)) {
+                    templateImplEntry.getKey().execute(workFlowRequest);
                 }
-                return;
+            } catch (JaxenException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error when executing the xpath expression:" + templateImplEntry.getValue() + " , on " +
+                            xmlRequest, e);
+                }
             }
         }
-        //If none of the executors were called
-        handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null);
     }
 
     private void handleCallback(WorkFlowRequest request, String status, Map<String, Object> additionalParams)

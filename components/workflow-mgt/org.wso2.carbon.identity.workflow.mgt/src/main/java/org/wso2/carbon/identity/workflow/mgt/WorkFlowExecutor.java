@@ -21,6 +21,8 @@ package org.wso2.carbon.identity.workflow.mgt;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
+import java.util.Map;
+
 public interface WorkFlowExecutor {
 
     /**
@@ -30,16 +32,10 @@ public interface WorkFlowExecutor {
      * @param workFlowRequest The request that need to be checked
      * @return
      */
-    public abstract boolean canHandle(WorkFlowRequest workFlowRequest);
+    boolean canHandle(WorkFlowRequest workFlowRequest);
 //todo: return a code, detail to decide whether retry?,...
 
-    /**
-     * Returns the priority level that would be the decider for the execution order
-     *
-     * @return
-     */
-    public int getPriority();
-//todo: add workflow request as a parameter
+    void initialize(Map<String,Object> params);
 
     /**
      * Execute the workflow. Once workflow is finish it should call the callback service
@@ -47,7 +43,7 @@ public interface WorkFlowExecutor {
      * @param workFlowRequest
      * @throws WorkflowException
      */
-    public void execute(WorkFlowRequest workFlowRequest) throws WorkflowException;
+    void execute(WorkFlowRequest workFlowRequest) throws WorkflowException;
 //todo: return a code, detail to decide whether retry?,...
 
     /**
@@ -55,6 +51,6 @@ public interface WorkFlowExecutor {
      *
      * @return
      */
-    public String getName();
+    String getName();
 
 }

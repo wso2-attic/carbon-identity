@@ -20,9 +20,11 @@ package org.wso2.carbon.identity.workflow.mgt;
 
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameterDef;
 
-public class SimpleApprovalTemplate extends WorkflowTemplate {
+public class SimpleApprovalTemplate extends AbstractWorkflowTemplate {
 
     private static final TemplateParameterDef[] PARAMETER_DEFINITIONS;
+    private static final String DESCRIPTION = "The operation should be approved by an authorized person with given " +
+            "role, to complete.";
 
 
     static {
@@ -45,5 +47,10 @@ public class SimpleApprovalTemplate extends WorkflowTemplate {
     @Override
     public String getFriendlyName() {
         return WorkFlowConstants.TemplateConstants.APPROVAL_TEMPLATE_NAME;
+    }
+
+    @Override
+    public String getDescription() {
+        return DESCRIPTION;
     }
 }
