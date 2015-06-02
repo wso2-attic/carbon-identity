@@ -57,21 +57,25 @@ public class IdPManagementDAO {
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         List<IdentityProvider> idps = new ArrayList<IdentityProvider>();
+        Connection tmpdbConnection=null;
+
+
         try {
             if (dbConnection == null) {
-                dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
+                tmpdbConnection= JDBCPersistenceManager.getInstance().getDBConnection();
             } else {
                 dbConnInitialized = false;
             }
             String sqlStmt = IdPManagementConstants.SQLQueries.GET_IDPS_SQL;
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt = tmpdbConnection.prepareStatement(sqlStmt);
             prepStmt.setInt(1, tenantId);
             prepStmt.setInt(2, MultitenantConstants.SUPER_TENANT_ID);
             rs = prepStmt.executeQuery();
             while (rs.next()) {
                 IdentityProvider identityProvider = new IdentityProvider();
                 identityProvider.setIdentityProviderName(rs.getString(1));
-                if (rs.getString(2).equals("1")) {
+
+                if (("1").equals(rs.getString(2))) {
                     identityProvider.setPrimary(true);
                 } else {
                     identityProvider.setPrimary(false);
@@ -109,7 +113,7 @@ public class IdPManagementDAO {
             return idps;
         } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
-            IdentityApplicationManagementUtil.rollBack(dbConnection);
+            IdentityApplicationManagementUtil.rollBack(tmpdbConnection);
             String msg = "Error occurred while retrieving registered Identity Provider Entity IDs "
                     + "for tenant " + tenantDomain;
             throw new IdentityApplicationManagementException(msg);
@@ -117,7 +121,7 @@ public class IdPManagementDAO {
             if (dbConnInitialized) {
                 IdentityApplicationManagementUtil.closeStatement(prepStmt);
                 IdentityApplicationManagementUtil.closeResultSet(rs);
-                IdentityApplicationManagementUtil.closeConnection(dbConnection);
+                IdentityApplicationManagementUtil.closeConnection(tmpdbConnection);
             }
         }
     }
@@ -157,7 +161,7 @@ public class IdPManagementDAO {
                 int authnId = rs.getInt(1);
                 authnConfig.setName(rs.getString(2));
 
-                if (rs.getString(3).equals("1")) {
+                if (("1").equals(rs.getString(3))) {
                     authnConfig.setEnabled(true);
                 } else {
                     authnConfig.setEnabled(false);
@@ -415,9 +419,10 @@ public class IdPManagementDAO {
                 claimMapping.setRemoteClaim(remoteClaim);
                 claimMapping.setDefaultValue(rs.getString(2));
 
-                if (rs.getString(3).equals("1")) {
+
+                if (("1").equals(rs.getString(3))) {
                     claimMapping.setRequested(true);
-                } else if (rs.getString(3).equals("1")) {
+                } else if (("1").equals(rs.getString(3))) {
                     claimMapping.setRequested(false);
                 }
 
@@ -499,9 +504,10 @@ public class IdPManagementDAO {
                 claimMapping.setLocalClaim(localClaim);
                 claimMapping.setRemoteClaim(idpClaim);
                 claimMapping.setDefaultValue(rs.getString(3));
-                if (rs.getString(4).equals("1")) {
+
+                if ("1".equals(rs.getString(4))) {
                     claimMapping.setRequested(true);
-                } else if (rs.getString(4).equals("0")) {
+                } else if ("0".equals(rs.getString(4))) {
                     claimMapping.setRequested(false);
                 }
                 claimMappings.add(claimMapping);
@@ -765,13 +771,13 @@ public class IdPManagementDAO {
                     provisioningConnector = new ProvisioningConnectorConfig();
                     provisioningConnector.setName(type);
 
-                    if (rs1.getString(5).equals("1")) {
+                    if ("1".equals(rs1.getString(5))) {
                         provisioningConnector.setEnabled(true);
                     } else {
                         provisioningConnector.setEnabled(false);
                     }
 
-                    if (rs1.getString(6).equals("1")) {
+                    if ("1".equals(rs1.getString(6))) {
                         provisioningConnector.setBlocking(true);
                     } else {
                         provisioningConnector.setBlocking(false);
@@ -856,7 +862,7 @@ public class IdPManagementDAO {
                     try {
                         br.close();
                     } catch (IOException e) {
-                        throw new IdentityApplicationManagementException(e);
+                        log.error("Connection couldn't close properly",e);
                     }
                 }
             }
@@ -907,7 +913,7 @@ public class IdPManagementDAO {
 
                 idpId = rs.getInt(1);
 
-                if (rs.getString(2).equals("1")) {
+                if (("1").equals(rs.getString(2))) {
                     federatedIdp.setPrimary(true);
                 } else {
                     federatedIdp.setPrimary(false);
@@ -918,7 +924,7 @@ public class IdPManagementDAO {
                 federatedIdp.setAlias(rs.getString(5));
 
                 JustInTimeProvisioningConfig jitProConfig = new JustInTimeProvisioningConfig();
-                if (rs.getString(6).equals("1")) {
+                if (("1").equals(rs.getString(6))) {
                     jitProConfig.setProvisioningEnabled(true);
                 } else {
                     jitProConfig.setProvisioningEnabled(false);

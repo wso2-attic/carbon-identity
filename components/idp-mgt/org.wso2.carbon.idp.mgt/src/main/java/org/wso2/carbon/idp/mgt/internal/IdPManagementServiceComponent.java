@@ -125,7 +125,7 @@ public class IdPManagementServiceComponent {
 
             log.debug("Identity Provider Management bundle is activated");
 
-        } catch (Throwable e) {
+        } catch (Exception e) {
 
             log.error("Error while activating Identity Provider Management bundle", e);
 

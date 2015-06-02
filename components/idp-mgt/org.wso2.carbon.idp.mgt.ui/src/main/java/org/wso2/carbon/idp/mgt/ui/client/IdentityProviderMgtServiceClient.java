@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import java.util.*;
 
 public class IdentityProviderMgtServiceClient {
 
-    private static Log log = LogFactory.getLog(IdentityProviderMgtServiceClient.class);
+    private static final Log log = LogFactory.getLog(IdentityProviderMgtServiceClient.class);
 
     private IdentityProviderMgtServiceStub idPMgtStub;
 
@@ -222,11 +222,12 @@ public class IdentityProviderMgtServiceClient {
 
             if (fedAuthConfigs != null && fedAuthConfigs.length > 0) {
                 for (FederatedAuthenticatorConfig config : fedAuthConfigs) {
-                    if (!(config.getDisplayName().equals("facebook")
-                            || config.getDisplayName().equals("openid")
-                            || config.getDisplayName().equals("openidconnect")
-                            || config.getDisplayName().equals("samlsso") || config.getDisplayName()
-                            .equals("passovests")))
+
+                    if (!("facebook").equals(config.getDisplayName())
+                            || ("openid").equals(config.getDisplayName())
+                            || ("openidconnect").equals(config.getDisplayName())
+                            || ("samlsso").equals(config.getDisplayName())|| ("passovests").
+                            equals(config.getDisplayName()))
                         configMap.put(config.getName(), config);
                 }
             }
@@ -251,9 +252,9 @@ public class IdentityProviderMgtServiceClient {
             if (provisioningConnectorConfigs != null && provisioningConnectorConfigs.length > 0
                     && provisioningConnectorConfigs[0] != null) {
                 for (ProvisioningConnectorConfig config : provisioningConnectorConfigs) {
-                    if (!(config.getName().equals("spml") || config.getName().equals("scim")
-                            || config.getName().equals("salesforce") || config.getName().equals(
-                            "googleapps")))
+                    if (!("spml").equals(config.getName()) || ("scim").equals(config.getName())
+                            || ("salesforce").equals(config.getName()) ||
+                            ("googleapps").equals(config.getName()))
                         provisioningConnectors.put(config.getName(), config);
 
                 }

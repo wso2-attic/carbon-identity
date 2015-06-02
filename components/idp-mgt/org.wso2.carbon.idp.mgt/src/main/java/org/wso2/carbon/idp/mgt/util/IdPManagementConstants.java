@@ -20,9 +20,16 @@ package org.wso2.carbon.idp.mgt.util;
 
 public class IdPManagementConstants {
 
+    private IdPManagementConstants(){
+    }
+
     public static final String SHARED_IDP_PREFIX = "SHARED_";
 
     public static class SQLQueries {
+
+
+        private SQLQueries(){
+        }
 
         public static final String GET_IDPS_SQL = "SELECT NAME, IS_PRIMARY, HOME_REALM_ID, DESCRIPTION, " +
                 "IS_FEDERATION_HUB, IS_LOCAL_CLAIM_DIALECT, IS_ENABLED, DISPLAY_NAME FROM IDP WHERE (TENANT_ID = ? OR" +
