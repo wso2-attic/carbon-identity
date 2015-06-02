@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -32,7 +32,7 @@ public class InboundAuthenticationRequestConfig implements Serializable {
 
     private String inboundAuthKey;
     private String inboundAuthType;
-    private Property[] properties = new Property[0];
+    private transient Property[] properties = new Property[0];
 
     /*
      * <InboundAuthenticationRequestConfig> <InboundAuthKey></InboundAuthKey>
@@ -54,13 +54,14 @@ public class InboundAuthenticationRequestConfig implements Serializable {
         while (members.hasNext()) {
             OMElement member = (OMElement) members.next();
 
-            if (member.getLocalName().equalsIgnoreCase("InboundAuthKey")) {
+
+            if ("InboundAuthKey".equalsIgnoreCase(member.getLocalName())) {
                 inboundAuthenticationRequestConfig.setInboundAuthKey(member.getText());
-            } else if (member.getLocalName().equalsIgnoreCase("InboundAuthType")) {
+            } else if ("InboundAuthType".equalsIgnoreCase(member.getLocalName())) {
                 inboundAuthenticationRequestConfig.setInboundAuthType(member.getText());
-            } else if (member.getLocalName().equalsIgnoreCase("Properties")) {
+            } else if ("Properties".equalsIgnoreCase(member.getLocalName())) {
                 Iterator<?> propertiesIter = member.getChildElements();
-                ArrayList<Property> propertiesArrList = new ArrayList<Property>();
+                List<Property> propertiesArrList = new ArrayList<Property>();
 
                 if (propertiesIter != null) {
                     while (propertiesIter.hasNext()) {
@@ -72,7 +73,7 @@ public class InboundAuthenticationRequestConfig implements Serializable {
                     }
                 }
 
-                if (propertiesArrList.size() > 0) {
+                if (propertiesArrList!=null && !propertiesArrList.isEmpty()) {
                     Property[] propertiesArr = propertiesArrList.toArray(new Property[0]);
                     inboundAuthenticationRequestConfig.setProperties(propertiesArr);
                 }

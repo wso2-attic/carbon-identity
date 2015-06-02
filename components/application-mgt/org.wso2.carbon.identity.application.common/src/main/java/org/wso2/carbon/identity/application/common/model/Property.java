@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -62,23 +62,23 @@ public class Property implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (elementName.equals("Name")) {
+            if ("Name".equals(elementName)) {
                 property.setName(element.getText());
-            } else if (elementName.equals("Value")) {
+            } else if ("Value".equals(elementName)) {
                 property.setValue(element.getText());
-            } else if (elementName.equals("IsConfidential")) {
+            } else if ("IsConfidential".equals(elementName)) {
                 if (element.getText() != null && element.getText().trim().length() > 0) {
                     property.setConfidential(Boolean.parseBoolean(element.getText()));
                 }
-            } else if (elementName.equals("defaultValue")) {
+            } else if ("defaultValue".equals(elementName)) {
                 property.setDefaultValue(element.getText());
-            } else if (elementName.equals("DisplayName")) {
+            } else if ("DisplayName".equals(elementName)) {
                 property.setDisplayName(element.getText());
-            } else if (elementName.equals("Required")) {
+            } else if ("Required".equals(elementName)) {
                 if (element.getText() != null && element.getText().trim().length() > 0) {
                     property.setRequired(Boolean.parseBoolean(element.getText()));
                 }
-            } else if (elementName.equals("Description")) {
+            } else if ("Description".equals(elementName)) {
                 property.setDescription(element.getText());
             }
 
@@ -201,13 +201,17 @@ public class Property implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Property)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof Property))
+            return false;
 
         Property property = (Property) o;
 
-        if (name != null ? !name.equals(property.name) : property.name != null) return false;
-        if (value != null ? !value.equals(property.value) : property.value != null) return false;
+        if (name != null ? !name.equals(property.name) : property.name != null)
+            return false;
+        if (value != null ? !value.equals(property.value) : property.value != null)
+            return false;
 
         return true;
     }

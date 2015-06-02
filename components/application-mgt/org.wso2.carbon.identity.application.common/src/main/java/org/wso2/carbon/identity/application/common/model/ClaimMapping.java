@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -30,8 +30,8 @@ public class ClaimMapping implements Serializable {
      */
     private static final long serialVersionUID = -2530192004968748230L;
 
-    private Claim localClaim;
-    private Claim remoteClaim;
+    private transient Claim localClaim;
+    private transient Claim remoteClaim;
     private String defaultValue;
     private boolean requested;
 
@@ -72,25 +72,25 @@ public class ClaimMapping implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (elementName.equals("LocalClaim")) {
+            if ("LocalClaim".equals(elementName)) {
                 Claim claim = Claim.build(element);
                 if (claim != null) {
                     claimMapping.setLocalClaim(claim);
                 }
             }
 
-            if (elementName.equals("RemoteClaim")) {
+            if ("RemoteClaim".equals(elementName)) {
                 Claim claim = Claim.build(element);
                 if (claim != null) {
                     claimMapping.setRemoteClaim(Claim.build(element));
                 }
             }
 
-            if (elementName.equals("DefaultValue")) {
+            if ("DefaultValue".equals(elementName)) {
                 claimMapping.setDefaultValue(element.getText());
             }
 
-            if (elementName.equals("RequestClaim")) {
+            if ("RequestClaim".equals(elementName)) {
                 claimMapping.setRequested(Boolean.parseBoolean(element.getText()));
             }
 

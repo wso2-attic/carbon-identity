@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -19,6 +19,10 @@
 package org.wso2.carbon.identity.application.mgt;
 
 public class ApplicationConstants {
+
+    private ApplicationConstants(){
+
+    }
 
     public static final int LOCAL_IDP_ID = 1;
     public static final int LOCAL_IDP_AUTHENTICATOR_ID = 1;

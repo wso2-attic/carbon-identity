@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -50,11 +50,11 @@ public class JustInTimeProvisioningConfig extends InboundProvisioningConfig impl
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (elementName.equals("UserStoreClaimUri")) {
+            if ("UserStoreClaimUri".equals(elementName)) {
                 justInTimeProvisioningConfig.setUserStoreClaimUri(element.getText());
-            } else if (elementName.equals("ProvisioningUserStore")) {
+            } else if ("ProvisioningUserStore".equals(elementName)) {
                 justInTimeProvisioningConfig.setProvisioningUserStore(element.getText());
-            } else if (elementName.equals("IsProvisioningEnabled")) {
+            } else if ("IsProvisioningEnabled".equals(elementName)) {
                 if (element.getText() != null && element.getText().trim().length() > 0) {
                     justInTimeProvisioningConfig.setProvisioningEnabled(Boolean
                             .parseBoolean(element.getText()));

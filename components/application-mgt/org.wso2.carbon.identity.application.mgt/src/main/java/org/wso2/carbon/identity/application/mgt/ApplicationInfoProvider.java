@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -69,7 +69,7 @@ public class ApplicationInfoProvider {
                 serviceProviderName, tenantDomain);
 
         if (claimMap == null
-                || claimMap.size() == 0
+                || claimMap.isEmpty()
                 && ApplicationManagementServiceComponent.getFileBasedSPs().containsKey(
                 serviceProviderName)) {
             return new FileBasedApplicationDAO().getServiceProviderToLocalIdPClaimMapping(
@@ -95,7 +95,7 @@ public class ApplicationInfoProvider {
                 serviceProviderName, tenantDomain);
 
         if (claimMap == null
-                || claimMap.size() == 0
+                || claimMap.isEmpty()
                 && ApplicationManagementServiceComponent.getFileBasedSPs().containsKey(
                 serviceProviderName)) {
             return new FileBasedApplicationDAO().getLocalIdPToServiceProviderClaimMapping(
@@ -122,7 +122,7 @@ public class ApplicationInfoProvider {
                 tenantDomain);
 
         if (reqClaims == null
-                || reqClaims.size() == 0
+                || reqClaims.isEmpty()
                 && ApplicationManagementServiceComponent.getFileBasedSPs().containsKey(
                 serviceProviderName)) {
             return new FileBasedApplicationDAO().getAllRequestedClaimsByServiceProvider(
@@ -194,15 +194,17 @@ public class ApplicationInfoProvider {
     public ServiceProvider getServiceProviderByClienId(String clientId, String clientType,
                                                        String tenantDomain) throws IdentityApplicationManagementException {
 
+        String clientKey=null;
+
         // client id can contain the @ to identify the tenant domain.
         if (clientId != null && clientId.contains("@")) {
-            clientId = clientId.split("@")[0];
+            clientKey = clientId.split("@")[0];
         }
 
         String serviceProviderName = null;
         ServiceProvider serviceProvider = null;
 
-        serviceProviderName = getServiceProviderNameByClientId(clientId, clientType, tenantDomain);
+        serviceProviderName = getServiceProviderNameByClientId(clientKey, clientType, tenantDomain);
 
         String tenantDomainName = null;
         int tenantId = -1234;

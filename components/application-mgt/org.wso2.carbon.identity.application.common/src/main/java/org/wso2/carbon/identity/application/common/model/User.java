@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -55,13 +55,13 @@ public class User implements Serializable {
         Iterator<?> iter = userOM.getChildElements();
         while (iter.hasNext()) {
             OMElement member = (OMElement) iter.next();
-            if (member.getLocalName().equals("TenantDomain")) {
+            if ("TenantDomain".equals(member.getLocalName())) {
                 if (member.getText() != null) {
                     user.setTenantDomain(member.getText());
                 }
-            } else if (member.getLocalName().equalsIgnoreCase("UserStoreDomain")) {
+            } else if ( "UserStoreDomain".equalsIgnoreCase(member.getLocalName())) {
                 user.setUserStoreDomain(member.getText());
-            } else if (member.getLocalName().equalsIgnoreCase("UserName")) {
+            } else if ("UserName".equalsIgnoreCase(member.getLocalName())) {
                 user.setUserName(member.getText());
             }
         }

@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -23,6 +23,7 @@ import org.apache.axiom.om.OMElement;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class PermissionsAndRoleConfig implements Serializable {
 
@@ -31,8 +32,8 @@ public class PermissionsAndRoleConfig implements Serializable {
      */
     private static final long serialVersionUID = -7994146492198021069L;
 
-    private ApplicationPermission[] permissions = new ApplicationPermission[0];
-    private RoleMapping[] roleMappings = new RoleMapping[0];
+    private transient ApplicationPermission[] permissions = new ApplicationPermission[0];
+    private transient RoleMapping[] roleMappings = new RoleMapping[0];
     private String[] idpRoles = new String[0];
 
     /*
@@ -53,9 +54,9 @@ public class PermissionsAndRoleConfig implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (elementName.equals("Permissions")) {
+            if ("Permissions".equals(elementName)) {
                 Iterator<?> permissionsIter = element.getChildElements();
-                ArrayList<ApplicationPermission> permissionsArrList = new ArrayList<ApplicationPermission>();
+                List<ApplicationPermission> permissionsArrList = new ArrayList<ApplicationPermission>();
 
                 if (permissionsIter != null) {
                     while (permissionsIter.hasNext()) {
@@ -68,14 +69,14 @@ public class PermissionsAndRoleConfig implements Serializable {
                     }
                 }
 
-                if (permissionsArrList.size() > 0) {
+                if (permissionsArrList!=null && !permissionsArrList.isEmpty()) {
                     ApplicationPermission[] permissionsArr = permissionsArrList
                             .toArray(new ApplicationPermission[0]);
                     permissionsAndRoleConfig.setPermissions(permissionsArr);
                 }
             }
 
-            if (elementName.equals("RoleMappings")) {
+            if ("RoleMappings".equals(elementName)) {
                 Iterator<?> roleMappingsIter = element.getChildElements();
                 ArrayList<RoleMapping> roleMappingsArrList = new ArrayList<RoleMapping>();
 
@@ -89,16 +90,16 @@ public class PermissionsAndRoleConfig implements Serializable {
                     }
                 }
 
-                if (roleMappingsArrList.size() > 0) {
+                if (roleMappingsArrList!=null && !roleMappingsArrList.isEmpty()) {
                     RoleMapping[] roleMappingsArr = roleMappingsArrList.toArray(new RoleMapping[0]);
                     permissionsAndRoleConfig.setRoleMappings(roleMappingsArr);
                 }
 
             }
 
-            if (elementName.equals("IdpRoles")) {
+            if ("IdpRoles".equals(elementName)) {
                 Iterator<?> idpRolesIter = element.getChildElements();
-                ArrayList<String> roleMappingsArrList = new ArrayList<String>();
+                List<String> roleMappingsArrList = new ArrayList<String>();
 
                 while (idpRolesIter.hasNext()) {
                     OMElement idpRolesElement = (OMElement) (idpRolesIter.next());

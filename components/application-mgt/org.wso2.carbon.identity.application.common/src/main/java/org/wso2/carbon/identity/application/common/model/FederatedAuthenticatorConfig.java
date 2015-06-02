@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -33,7 +33,7 @@ public class FederatedAuthenticatorConfig implements Serializable {
     protected String name;
     protected String displayName;
     protected boolean enabled;
-    protected Property[] properties = new Property[0];
+    protected transient Property[] properties = new Property[0];
 
     public static FederatedAuthenticatorConfig build(OMElement federatedAuthenticatorConfigOM) {
 
@@ -49,15 +49,15 @@ public class FederatedAuthenticatorConfig implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (elementName.equals("Name")) {
+            if ("Name".equals(elementName)) {
                 federatedAuthenticatorConfig.setName(element.getText());
-            } else if (elementName.equals("DisplayName")) {
+            } else if ("DisplayName".equals(elementName)) {
                 federatedAuthenticatorConfig.setDisplayName(element.getText());
-            } else if (elementName.equals("IsEnabled")) {
+            } else if ("IsEnabled".equals(elementName)) {
                 federatedAuthenticatorConfig.setEnabled(Boolean.parseBoolean(element.getText()));
-            } else if (elementName.equals("Properties")) {
+            } else if ("Properties".equals(elementName)) {
                 Iterator<?> propertiesIter = element.getChildElements();
-                ArrayList<Property> propertiesArrList = new ArrayList<Property>();
+                List<Property> propertiesArrList = new ArrayList<Property>();
 
                 if (propertiesIter != null) {
                     while (propertiesIter.hasNext()) {
@@ -66,7 +66,7 @@ public class FederatedAuthenticatorConfig implements Serializable {
                     }
                 }
 
-                if (propertiesArrList.size() > 0) {
+                if (propertiesArrList!=null && !propertiesArrList.isEmpty()) {
                     Property[] propertiesArr = propertiesArrList.toArray(new Property[0]);
                     federatedAuthenticatorConfig.setProperties(propertiesArr);
                 }
@@ -150,12 +150,15 @@ public class FederatedAuthenticatorConfig implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof FederatedAuthenticatorConfig)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof FederatedAuthenticatorConfig))
+            return false;
 
         FederatedAuthenticatorConfig that = (FederatedAuthenticatorConfig) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null)
+            return false;
 
         return true;
     }

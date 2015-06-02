@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -45,6 +45,7 @@ public class IdentityProviderDAOImpl implements IdentityProviderDAO {
      * @return
      * @throws IdentityApplicationManagementException
      */
+    @Override
     public String getDefaultAuthenticator(String idpName)
             throws IdentityApplicationManagementException {
         IdentityProviderManager idpManager = IdentityProviderManager.getInstance();
@@ -87,7 +88,7 @@ public class IdentityProviderDAOImpl implements IdentityProviderDAO {
                 }
             }
 
-            if (federatedAuthenticators.size() > 0) {
+            if (federatedAuthenticators!=null && !federatedAuthenticators.isEmpty()) {
                 identityProvider.setFederatedAuthenticatorConfigs(federatedAuthenticators
                         .toArray(new FederatedAuthenticatorConfig[federatedAuthenticators.size()]));
             }
@@ -103,7 +104,7 @@ public class IdentityProviderDAOImpl implements IdentityProviderDAO {
                 }
             }
 
-            if (provisioningConnectors.size() > 0) {
+            if (provisioningConnectors!=null && !provisioningConnectors.isEmpty()) {
                 identityProvider.setProvisioningConnectorConfigs(provisioningConnectors
                         .toArray(new ProvisioningConnectorConfig[provisioningConnectors.size()]));
             }
@@ -136,7 +137,7 @@ public class IdentityProviderDAOImpl implements IdentityProviderDAO {
 
         List<IdentityProvider> federatedIdentityProviders = new ArrayList<IdentityProvider>();
 
-        if (idps.size() > 0) {
+        if (idps!=null && !idps.isEmpty()) {
             for (IdentityProvider idp : idps) {
                 federatedIdentityProviders.add(getIdentityProvider(idp.getIdentityProviderName()));
             }

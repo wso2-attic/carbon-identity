@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -50,13 +50,11 @@ public class InboundProvisioningConfig implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (elementName.equals("ProvisioningUserStore")) {
+            if ("ProvisioningUserStore".equals(elementName)) {
                 inboundProvisioningConfig.setProvisioningUserStore(element.getText());
-            } else if (elementName.equals("IsProvisioningEnabled")) {
-                if (element.getText() != null) {
+            } else if ("IsProvisioningEnabled".equals(elementName) && element.getText() != null) {
                     inboundProvisioningConfig.setProvisioningEnabled(Boolean.parseBoolean(element
                             .getText()));
-                }
             }
         }
 

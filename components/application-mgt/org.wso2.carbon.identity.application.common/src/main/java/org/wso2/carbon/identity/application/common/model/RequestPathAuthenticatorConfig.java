@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -22,6 +22,7 @@ import org.apache.axiom.om.OMElement;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class RequestPathAuthenticatorConfig extends LocalAuthenticatorConfig {
 
@@ -42,15 +43,15 @@ public class RequestPathAuthenticatorConfig extends LocalAuthenticatorConfig {
         while (members.hasNext()) {
             OMElement member = (OMElement) members.next();
 
-            if (member.getLocalName().equals("Name")) {
+            if ("Name".equals(member.getLocalName())) {
                 requestPathAuthenticatorConfig.setName(member.getText());
-            } else if (member.getLocalName().equals("DisplayName")) {
+            } else if ("DisplayName".equals(member.getLocalName())) {
                 requestPathAuthenticatorConfig.setDisplayName(member.getText());
-            } else if (member.getLocalName().equals("IsEnabled")) {
+            } else if ("IsEnabled".equals(member.getLocalName())) {
                 requestPathAuthenticatorConfig.setEnabled(Boolean.parseBoolean(member.getText()));
-            } else if (member.getLocalName().equals("Properties")) {
+            } else if ("Properties".equals(member.getLocalName())) {
                 Iterator<?> propertiesIter = member.getChildElements();
-                ArrayList<Property> propertiesArrList = new ArrayList<Property>();
+                List<Property> propertiesArrList = new ArrayList<Property>();
 
                 if (propertiesIter != null) {
                     while (propertiesIter.hasNext()) {
@@ -60,7 +61,7 @@ public class RequestPathAuthenticatorConfig extends LocalAuthenticatorConfig {
                     }
                 }
 
-                if (propertiesArrList.size() > 0) {
+                if (propertiesArrList!=null && !propertiesArrList.isEmpty()) {
                     Property[] propertiesArr = propertiesArrList.toArray(new Property[0]);
                     requestPathAuthenticatorConfig.setProperties(propertiesArr);
                 }
