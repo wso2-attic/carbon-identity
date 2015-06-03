@@ -56,7 +56,7 @@ public class OAuthRequestPathAuthenticatorServiceComponent {
         }
     }
 
-    protected void deactivate() {
+    protected void deactivate(ComponentContext context) {
         if (log.isDebugEnabled()) {
             log.info("OAuthRequestPathAuthenticator bundle is deactivated");
         }

@@ -22,8 +22,6 @@ import org.wso2.carbon.identity.application.authentication.framework.Application
 import org.wso2.carbon.identity.application.authenticator.requestpath.basicauth.BasicAuthRequestPathAuthenticator;
 import org.wso2.carbon.user.core.service.RealmService;
 
-import java.util.Hashtable;
-
 /**
  * @scr.component name="identity.application.authenticator.requestpath.basicauth.component" immediate="true"
  * @scr.reference name="realm.service"
@@ -57,7 +55,7 @@ public class BasicAuthRequestPathAuthenticatorServiceComponent {
         }
     }
 
-    protected void deactivate() {
+    protected void deactivate(ComponentContext context) {
         if (log.isDebugEnabled()) {
             log.info("BasicAuthRequestPathAuthenticator bundle is deactivated");
         }

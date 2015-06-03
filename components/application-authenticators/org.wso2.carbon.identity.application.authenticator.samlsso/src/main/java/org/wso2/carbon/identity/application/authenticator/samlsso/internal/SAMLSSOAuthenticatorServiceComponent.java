@@ -82,7 +82,7 @@ public class SAMLSSOAuthenticatorServiceComponent {
         }
     }
 
-    protected void deactivate() {
+    protected void deactivate(ComponentContext context) {
         if (log.isDebugEnabled()) {
             log.info("SAML2 SSO Authenticator bundle is deactivated");
         }

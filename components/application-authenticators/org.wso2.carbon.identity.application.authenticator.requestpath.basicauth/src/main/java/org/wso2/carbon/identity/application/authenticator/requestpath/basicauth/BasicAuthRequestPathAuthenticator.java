@@ -31,6 +31,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -82,7 +83,7 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
         }
 
         try {
-            String[] cred = new String(Base64.decode(credential)).split(":");
+            String[] cred = new String(Base64.decode(credential), Charset.forName("utf-8")).split(":");
             int tenantId = IdentityUtil.getTenantIdOFUser(cred[0]);
             UserStoreManager userStoreManager = (UserStoreManager) BasicAuthRequestPathAuthenticatorServiceComponent.getRealmService().getTenantUserRealm(tenantId).getUserStoreManager();
             boolean isAuthenticated = userStoreManager.authenticate(MultitenantUtils.getTenantAwareUsername(cred[0]), cred[1]);

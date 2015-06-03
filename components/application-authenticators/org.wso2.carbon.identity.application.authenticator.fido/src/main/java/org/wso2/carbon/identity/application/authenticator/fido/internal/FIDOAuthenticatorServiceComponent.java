@@ -62,7 +62,7 @@ public class FIDOAuthenticatorServiceComponent {
         }
     }
 
-    protected void deactivate() {
+    protected void deactivate(ComponentContext context) {
         if (log.isDebugEnabled()) {
             log.debug("Deactivating FIDOAuthenticator bundle...");
         }
