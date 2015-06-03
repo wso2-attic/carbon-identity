@@ -514,6 +514,11 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
                 keyInfo.getX509Datas().add(data);
                 signature.setKeyInfo(keyInfo);
             } catch (CertificateEncodingException e) {
+
+                if(log.isDebugEnabled()){
+                    log.debug("Certificate Encoding Exception occurred : ", e);
+                }
+
                 throw new EntitlementProxyException("Error getting the certificate.");
             }
 

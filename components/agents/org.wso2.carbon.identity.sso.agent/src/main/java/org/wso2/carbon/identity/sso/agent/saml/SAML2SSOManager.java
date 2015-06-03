@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -14,11 +14,14 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
+ *
  */
 
 package org.wso2.carbon.identity.sso.agent.saml;
 
-import org.apache.xerces.impl.Constants;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.xml.security.signature.XMLSignature;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
@@ -48,6 +51,7 @@ import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 import org.wso2.carbon.identity.sso.agent.SSOAgentConstants;
+import org.wso2.carbon.identity.sso.agent.SSOAgentDataHolder;
 import org.wso2.carbon.identity.sso.agent.SSOAgentException;
 import org.wso2.carbon.identity.sso.agent.bean.LoggedInSessionBean;
 import org.wso2.carbon.identity.sso.agent.bean.SSOAgentConfig;
@@ -78,13 +82,11 @@ import java.util.zip.DeflaterOutputStream;
  */
 public class SAML2SSOManager {
 
-    private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
-            Constants.SECURITY_MANAGER_PROPERTY;
-    private static final int ENTITY_EXPANSION_LIMIT = 0;
-    private static Logger LOGGER = Logger.getLogger(SSOAgentConstants.LOGGER_NAME);
-    private static volatile boolean bootStrapped = false;
+    private static final Log log = LogFactory.getLog(SAML2SSOManager.class);
+
+
+    private static final Logger LOGGER = Logger.getLogger(SSOAgentConstants.LOGGER_NAME);
     private SSOAgentConfig ssoAgentConfig = null;
-    private static Object signatureValidator = null;
 
     public SAML2SSOManager(SSOAgentConfig ssoAgentConfig) throws SSOAgentException {
 
@@ -94,7 +96,7 @@ public class SAML2SSOManager {
         String signerClassName = ssoAgentConfig.getSAML2().getSignatureValidatorImplClass();
         try {
             if (signerClassName != null) {
-                signatureValidator = Class.forName(signerClassName).newInstance();
+                SSOAgentDataHolder.getInstance().setSignatureValidator( Class.forName(signerClassName).newInstance());
             }
         } catch (ClassNotFoundException e) {
             throw new SSOAgentException("Error loading custom signature validator class", e);
@@ -272,11 +274,12 @@ public class SAML2SSOManager {
                 processSSOResponse(request);
             }
             String relayState = request.getParameter(RelayState.DEFAULT_ELEMENT_LOCAL_NAME);
-            if (relayState != null) {
-                if (!relayState.isEmpty() && !"null".equalsIgnoreCase(relayState)) { //additional checks for incompetent IdPs
-                    ssoAgentConfig.getSAML2().setRelayState(relayState);
-                }
+
+            if (relayState != null && !relayState.isEmpty() && !"null".equalsIgnoreCase(relayState)) { //additional
+                // checks for incompetent IdPs
+                ssoAgentConfig.getSAML2().setRelayState(relayState);
             }
+
         } else {
             throw new SSOAgentException("Invalid SAML2 Response. SAML2 Response can not be null.");
         }
@@ -321,6 +324,10 @@ public class SAML2SSOManager {
                     try {
                         session.invalidate();
                     } catch (IllegalStateException ignore) {
+
+                        if (log.isDebugEnabled()) {
+                            log.debug("Ignoring exception : ", ignore);
+                        }
                         //ignore
                         //session is already invalidated
                     }
@@ -347,17 +354,20 @@ public class SAML2SSOManager {
         if (ssoAgentConfig.getSAML2().isAssertionEncrypted()) {
             List<EncryptedAssertion> encryptedAssertions = saml2Response.getEncryptedAssertions();
             EncryptedAssertion encryptedAssertion = null;
-            if (encryptedAssertions != null && encryptedAssertions.size() > 0) {
+            if (encryptedAssertions != null && !encryptedAssertions.isEmpty()) {
                 encryptedAssertion = encryptedAssertions.get(0);
                 try {
                     assertion = getDecryptedAssertion(encryptedAssertion);
                 } catch (Exception e) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Assertion decryption failure : ", e);
+                    }
                     throw new SSOAgentException("Unable to decrypt the SAML2 Assertion");
                 }
             }
         } else {
             List<Assertion> assertions = saml2Response.getAssertions();
-            if (assertions != null && assertions.size() > 0) {
+            if (assertions != null && !assertions.isEmpty()) {
                 assertion = assertions.get(0);
             }
         }
@@ -565,20 +575,20 @@ public class SAML2SSOManager {
 
         Map<String, String> results = new HashMap<String, String>();
 
-        if (assertion != null) {
+        if (assertion != null && assertion.getAttributeStatements() != null) {
 
             List<AttributeStatement> attributeStatementList = assertion.getAttributeStatements();
 
-            if (attributeStatementList != null) {
-                for (AttributeStatement statement : attributeStatementList) {
-                    List<Attribute> attributesList = statement.getAttributes();
-                    for (Attribute attribute : attributesList) {
-                        Element value = attribute.getAttributeValues().get(0).getDOM();
-                        String attributeValue = value.getTextContent();
-                        results.put(attribute.getName(), attributeValue);
-                    }
+
+            for (AttributeStatement statement : attributeStatementList) {
+                List<Attribute> attributesList = statement.getAttributes();
+                for (Attribute attribute : attributesList) {
+                    Element value = attribute.getAttributeValues().get(0).getDOM();
+                    String attributeValue = value.getTextContent();
+                    results.put(attribute.getName(), attributeValue);
                 }
             }
+
         }
         return results;
     }
@@ -598,7 +608,8 @@ public class SAML2SSOManager {
                 if (audienceRestrictions != null && !audienceRestrictions.isEmpty()) {
                     boolean audienceFound = false;
                     for (AudienceRestriction audienceRestriction : audienceRestrictions) {
-                        if (audienceRestriction.getAudiences() != null && audienceRestriction.getAudiences().size() > 0) {
+                        if (audienceRestriction.getAudiences() != null && !audienceRestriction.getAudiences().isEmpty()
+                                ) {
                             for (Audience audience : audienceRestriction.getAudiences()) {
                                 if (ssoAgentConfig.getSAML2().getSPEntityId().equals(audience.getAudienceURI())) {
                                     audienceFound = true;
@@ -631,9 +642,10 @@ public class SAML2SSOManager {
      */
     protected void validateSignature(Response response, Assertion assertion) throws SSOAgentException {
 
-        if (signatureValidator != null) {
+        if (SSOAgentDataHolder.getInstance().getSignatureValidator() != null) {
             //Custom implemetation of signature validation
-            SAMLSignatureValidator signatureValidatorUtility = (SAMLSignatureValidator) signatureValidator;
+            SAMLSignatureValidator signatureValidatorUtility = (SAMLSignatureValidator) SSOAgentDataHolder
+                    .getInstance().getSignatureValidator();
             signatureValidatorUtility.validateSignature(response, assertion, ssoAgentConfig);
         } else {
             //If custom implementation not found, Execute the default implementation
@@ -646,6 +658,9 @@ public class SAML2SSOManager {
                                 new X509CredentialImpl(ssoAgentConfig.getSAML2().getSSOAgentX509Credential()));
                         validator.validate(response.getSignature());
                     } catch (ValidationException e) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Validation exception : ", e);
+                        }
                         throw new SSOAgentException("Signature validation failed for SAML2 Response");
                     }
                 }
@@ -659,6 +674,9 @@ public class SAML2SSOManager {
                                 new X509CredentialImpl(ssoAgentConfig.getSAML2().getSSOAgentX509Credential()));
                         validator.validate(assertion.getSignature());
                     } catch (ValidationException e) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Validation exception : ", e);
+                        }
                         throw new SSOAgentException("Signature validation failed for SAML2 Assertion");
                     }
                 }
@@ -707,19 +725,28 @@ public class SAML2SSOManager {
      * @return
      * @throws Exception
      */
-    protected Assertion getDecryptedAssertion(EncryptedAssertion encryptedAssertion) throws Exception {
+    protected Assertion getDecryptedAssertion(EncryptedAssertion encryptedAssertion) throws SSOAgentException {
 
-        KeyInfoCredentialResolver keyResolver = new StaticKeyInfoCredentialResolver(
-                new X509CredentialImpl(ssoAgentConfig.getSAML2().getSSOAgentX509Credential()));
-        EncryptedKey key = encryptedAssertion.getEncryptedData().
-                getKeyInfo().getEncryptedKeys().get(0);
-        Decrypter decrypter = new Decrypter(null, keyResolver, null);
-        SecretKey dkey = (SecretKey) decrypter.decryptKey(key, encryptedAssertion.getEncryptedData().
-                getEncryptionMethod().getAlgorithm());
-        Credential shared = SecurityHelper.getSimpleCredential(dkey);
-        decrypter = new Decrypter(new StaticKeyInfoCredentialResolver(shared), null, null);
-        decrypter.setRootInNewDocument(true);
-        return decrypter.decrypt(encryptedAssertion);
+        try {
+            KeyInfoCredentialResolver keyResolver = new StaticKeyInfoCredentialResolver(
+                    new X509CredentialImpl(ssoAgentConfig.getSAML2().getSSOAgentX509Credential()));
+
+            EncryptedKey key = encryptedAssertion.getEncryptedData().
+                    getKeyInfo().getEncryptedKeys().get(0);
+            Decrypter decrypter = new Decrypter(null, keyResolver, null);
+            SecretKey dkey = (SecretKey) decrypter.decryptKey(key, encryptedAssertion.getEncryptedData().
+                    getEncryptionMethod().getAlgorithm());
+            Credential shared = SecurityHelper.getSimpleCredential(dkey);
+            decrypter = new Decrypter(new StaticKeyInfoCredentialResolver(shared), null, null);
+            decrypter.setRootInNewDocument(true);
+            return decrypter.decrypt(encryptedAssertion);
+        } catch (Exception e){
+            if(log.isDebugEnabled()){
+                log.debug("Decrypted assertion error : ",e);
+                throw new SSOAgentException(e);
+            }
+        }
+        return null;
     }
 
     protected boolean isNoPassive(Response response) {

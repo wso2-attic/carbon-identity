@@ -27,7 +27,6 @@ import org.wso2.carbon.identity.sso.agent.util.SSOAgentUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -95,6 +94,7 @@ public class LoggedInSessionBean implements Serializable{
             this.expiresIn = expiresIn;
         }
 
+        @Override
         public String toString() {
             Gson gson = new Gson();
             return gson.toJson(this);

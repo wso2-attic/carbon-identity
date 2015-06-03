@@ -18,6 +18,8 @@
  */
 package org.wso2.carbon.identity.entitlement.proxy.thrift;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
@@ -37,6 +39,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceClient {
+
+    private static final Log log = LogFactory.getLog(ThriftEntitlementServiceClient.class);
 
     private String trustStore = System.getProperty(ProxyConstants.TRUST_STORE);
     private String trustStorePass = System.getProperty(ProxyConstants.TRUST_STORE_PASSWORD);
@@ -129,11 +133,20 @@ public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceCl
         try {
             return client.getDecision(xacmlRequest, authenticator.getSessionId(false));
         } catch (TException e) {
+            if(log.isDebugEnabled()){
+                log.debug("Thrift entitlement exception  : ",e);
+            }
             throw new EntitlementProxyException("Error while getting decision from PDP using ThriftEntitlementServiceClient", e);
         } catch (EntitlementException e) {
+            if(log.isDebugEnabled()){
+                log.debug("Exception occurred : ", e);
+            }
             try {
                 return client.getDecision(xacmlRequest, authenticator.getSessionId(true));
             } catch (Exception e1) {
+                if(log.isDebugEnabled()){
+                    log.debug("Exception occurred : ", e1);
+                }
                 throw new EntitlementProxyException("Error while attempting to re-authenticate the Thrift client in ", e1);
             }
         }

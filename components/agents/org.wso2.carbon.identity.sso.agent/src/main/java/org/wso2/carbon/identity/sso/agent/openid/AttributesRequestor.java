@@ -22,12 +22,12 @@ public interface AttributesRequestor {
 
     void init();
 
-    String[] getRequestedAttributes(String claimed_id);
+    String[] getRequestedAttributes(String claimedId);
 
-    boolean isRequired(String claimed_id, String alias);
+    boolean isRequired(String claimedId, String alias);
 
-    String getTypeURI(String claimed_id, String alias);
+    String getTypeURI(String claimedId, String alias);
 
-    int getCount(String claimed_id, String alias);
+    int getCount(String claimedId, String alias);
 
 }

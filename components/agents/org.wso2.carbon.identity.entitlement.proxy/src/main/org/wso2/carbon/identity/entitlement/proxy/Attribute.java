@@ -76,5 +76,21 @@ public class Attribute {
         return result;
     }
 
+    @Override
+    public  boolean equals(Object o){
+
+        if(o instanceof Attribute){
+            Attribute comp = (Attribute)o;
+            boolean t = ((type == null)? false : (type.equals(comp.getType())));
+            boolean i = ((id == null))? false : (type.equals(comp.getId()));
+            boolean v = ((value == null)? false: (type.equals(comp.getValue())));
+            boolean c = ((category == null)? false: (category.equals(comp.getCategory())));
+
+            return (t && i && v && c);
+        }
+
+        return false;
+
+    }
 
 }

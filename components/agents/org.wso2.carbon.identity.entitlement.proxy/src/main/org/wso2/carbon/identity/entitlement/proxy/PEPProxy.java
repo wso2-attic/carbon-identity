@@ -219,7 +219,7 @@ public class PEPProxy {
         int key = 1;
         key = 11 * key + ((attributes == null) ? 0 : Arrays.hashCode(attributes));
         key = 31 * key + ((defaultAppId == null) ? 0 : defaultAppId.hashCode());
-        return (new Integer(key)).toString();
+        return Integer.valueOf (key).toString();
     }
 
     public void clear() {

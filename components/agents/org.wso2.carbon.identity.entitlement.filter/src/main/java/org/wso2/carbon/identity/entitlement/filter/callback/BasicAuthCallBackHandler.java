@@ -26,13 +26,12 @@ import javax.servlet.http.HttpServletRequest;
 
 public class BasicAuthCallBackHandler extends EntitlementFilterCallBackHandler {
 
-    private static final Log log = LogFactory.getLog(BasicAuthCallBackHandler.class);
-
+    private static String authorization = "Authorization";
     public BasicAuthCallBackHandler(HttpServletRequest request) throws EntitlementFilterException {
         String authHeaderEn = null;
-        if (!(request.getHeader("Authorization") == null || request.getHeader("Authorization").equals("null"))) {
-            authHeaderEn = request.getHeader("Authorization");
-            String tempArr[] = authHeaderEn.split(" ");
+        if (!(request.getHeader(authorization) == null || "null".equals(request.getHeader(authorization)))) {
+            authHeaderEn = request.getHeader(authorization);
+            String[] tempArr = authHeaderEn.split(" ");
             if (tempArr.length == 2) {
                 String authHeaderDc = new String(Base64.decodeBase64(tempArr[1].getBytes()));
                 tempArr = authHeaderDc.split(":");
