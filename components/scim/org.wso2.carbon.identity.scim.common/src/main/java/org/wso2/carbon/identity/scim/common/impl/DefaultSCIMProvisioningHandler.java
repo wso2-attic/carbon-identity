@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.wso2.carbon.identity.scim.common.impl;
 
 import org.apache.commons.logging.Log;
@@ -51,15 +67,15 @@ public class DefaultSCIMProvisioningHandler implements ProvisioningHandler {
         additionalProvisioningInformation = additionalInformation;
     }
 
+    @Override
     public void initConfigManager() {
         this.provisioningManager = SCIMProvisioningConfigManager.getInstance();
     }
 
+    @Override
     public void provision() {
 
         //get all the providers to whom the provisioning should be done, for this particular consumer
-        //SCIMConsumer consumer = provisioningManager.getSCIMConfig().getConsumerProcessed(consumerName);
-
         SCIMConsumer consumer = null;
         try {
             consumer = provisioningManager.getSCIMConsumerConfig(consumerName);
@@ -86,22 +102,27 @@ public class DefaultSCIMProvisioningHandler implements ProvisioningHandler {
         }
     }
 
+    @Override
     public void setProperties(Map<String, Object> propertiesMap) {
         additionalProvisioningInformation = propertiesMap;
     }
 
+    @Override
     public void setProvisioningObjectType(int objectType) {
         this.objectType = objectType;
     }
 
+    @Override
     public void setProvisioningObject(Object object) {
         objectToBeProvisioned = (SCIMObject) object;
     }
 
+    @Override
     public void setProvisioningMethod(int provisioningMethod) {
         this.provisioningMethod = provisioningMethod;
     }
 
+    @Override
     public void setProvisioningConsumer(String consumerName) {
         this.consumerName = consumerName;
     }
@@ -117,6 +138,7 @@ public class DefaultSCIMProvisioningHandler implements ProvisioningHandler {
      *
      * @see Thread#run()
      */
+    @Override
     public void run() {
         this.provision();
     }

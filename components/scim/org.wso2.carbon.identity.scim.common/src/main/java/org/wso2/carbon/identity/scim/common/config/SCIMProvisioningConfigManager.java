@@ -1,5 +1,23 @@
+/*
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.wso2.carbon.identity.scim.common.config;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.scim.common.utils.IdentitySCIMException;
@@ -24,6 +42,8 @@ public class SCIMProvisioningConfigManager {
     private static SCIMConfig scimConfig;
     //keep the extracted connector list in an array to avoid perf bottleneck in string manipulation
     private static String[] provisioningConnectorClasses;
+
+    private SCIMProvisioningConfigManager(){}
 
     public static SCIMProvisioningConfigManager getInstance() {
         if (configManager == null) {
@@ -51,7 +71,7 @@ public class SCIMProvisioningConfigManager {
         //From SCIMProviderDAO and check if exists.
         boolean isConsumerExisting = false;
         try {
-            if (scimCache != null && scimCache.size() > 0 && scimCache.containsKey(consumerName)) {
+            if (scimCache != null && !MapUtils.isEmpty(scimCache) && scimCache.containsKey(consumerName)) {
                 isConsumerExisting = scimCache.get(consumerName);
                 return isConsumerExisting;
             }
@@ -60,7 +80,7 @@ public class SCIMProvisioningConfigManager {
             scimCache.put(consumerName, isConsumerExisting);
             return isConsumerExisting;
         } catch (IdentitySCIMException e) {
-            logger.error(e.getMessage());
+            logger.error("Error when checking whether user exists or not.");
             return false;
         }
 
@@ -75,7 +95,7 @@ public class SCIMProvisioningConfigManager {
         SCIMConsumer scimConsumer = new SCIMConsumer();
         Map<String, SCIMProvider> scimProviderMap = new HashMap<String, SCIMProvider>();
 
-        if (scimProviders != null && scimProviders.size() != 0) {
+        if (scimProviders != null && !CollectionUtils.isEmpty(scimProviders)) {
             for (SCIMProviderDTO scimProvider : scimProviders) {
                 SCIMProvider currentProvider = new SCIMProvider();
                 currentProvider.setId(scimProvider.getProviderId());
@@ -104,16 +124,8 @@ public class SCIMProvisioningConfigManager {
 
     public static void removeEnabledFromCache(String consumerId) throws IdentitySCIMException {
         //send cache invalidation messages.
-        if (scimCache != null && scimCache.size() > 0 && scimCache.containsKey(consumerId)) {
+        if (scimCache != null && !MapUtils.isEmpty(scimCache) && scimCache.containsKey(consumerId)) {
             scimCache.remove(consumerId);
-            /*CacheInvalidator cacheInvalidator = SCIMCommonComponent.getCacheInvalidator();
-            try {
-                cacheInvalidator.invalidateCache(STSConstants.KEY_ISSUER_CONFIG, consumerId);
-            } catch (CacheException e) {
-                String msg = "Failed to invalidate token from cache";
-                logger.error(msg, e);
-                throw new IdentitySCIMException(msg, e);
-            }*/
         }
     }
 
