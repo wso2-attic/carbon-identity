@@ -1,20 +1,20 @@
 /*
-*Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*WSO2 Inc. licenses this file to you under the Apache License,
-*Version 2.0 (the "License"); you may not use this file except
-*in compliance with the License.
-*You may obtain a copy of the License at
-*
-*http://www.apache.org/licenses/LICENSE-2.0
-*
-*Unless required by applicable law or agreed to in writing,
-*software distributed under the License is distributed on an
-*"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*KIND, either express or implied.  See the License for the
-*specific language governing permissions and limitations
-*under the License.
-*/
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.oauth.endpoint.token;
 
@@ -56,7 +56,7 @@ import java.util.Enumeration;
 @Path("/token")
 public class OAuth2TokenEndpoint {
 
-    private static Log log = LogFactory.getLog(OAuth2TokenEndpoint.class);
+    private static final Log log = LogFactory.getLog(OAuth2TokenEndpoint.class);
 
     @POST
     @Path("/")
@@ -98,6 +98,7 @@ public class OAuth2TokenEndpoint {
 
                 } catch (OAuthClientException e) {
                     // malformed credential string is considered as an auth failure.
+                    log.error(e.getMessage(), e);
                     return handleBasicAuthFailure();
                 }
             }
@@ -167,12 +168,13 @@ public class OAuth2TokenEndpoint {
                 }
 
             } catch (OAuthProblemException e) {
-                log.debug(e.getError());
+                log.error(e.getError());
                 OAuthResponse res = OAuthASResponse
                         .errorResponse(HttpServletResponse.SC_BAD_REQUEST).error(e)
                         .buildJSONMessage();
                 return Response.status(res.getResponseStatus()).entity(res.getBody()).build();
             } catch (OAuthClientException e) {
+                log.error(e.getMessage(), e);
                 OAuthResponse response = OAuthASResponse
                         .errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
                         .setError(OAuth2ErrorCodes.SERVER_ERROR)
