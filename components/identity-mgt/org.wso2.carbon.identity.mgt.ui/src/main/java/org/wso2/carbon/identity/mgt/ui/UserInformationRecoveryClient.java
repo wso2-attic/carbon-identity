@@ -1,5 +1,5 @@
 /*
-*  Copyright (c)  WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -34,7 +34,7 @@ public class UserInformationRecoveryClient {
     protected static Log log = LogFactory.getLog(UserInformationRecoveryClient.class);
     protected UserInformationRecoveryServiceStub stub;
 
-    public UserInformationRecoveryClient(String url, ConfigurationContext configContext) throws Exception {
+    public UserInformationRecoveryClient(String url, ConfigurationContext configContext) throws AxisFault {
         try {
             stub = new UserInformationRecoveryServiceStub(configContext, url + "UserInformationRecoveryService");
         } catch (java.lang.Exception e) {
@@ -42,7 +42,7 @@ public class UserInformationRecoveryClient {
         }
     }
 
-    public UserInformationRecoveryClient(String cookie, String url, ConfigurationContext configContext) throws Exception {
+    public UserInformationRecoveryClient(String cookie, String url, ConfigurationContext configContext) throws AxisFault {
         try {
             stub = new UserInformationRecoveryServiceStub(configContext, url + "UserInformationRecoveryService");
             ServiceClient client = stub._getServiceClient();
@@ -87,6 +87,6 @@ public class UserInformationRecoveryClient {
             handleException(e.getMessage(), e);
         }
 
-        return null;
+        return new ChallengeQuestionDTO[0];
     }
 }
