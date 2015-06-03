@@ -22,7 +22,6 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.application.authenticator.fido.internal.FIDOAuthenticatorServiceComponent;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -30,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
  * FIDOUtil class for FIDO authentication component.
  */
 public class FIDOUtil {
+	private FIDOUtil(){}
 	public static void logTrace(String msg, Log log) {
 		if (log.isTraceEnabled()) {
 			log.trace(msg);
@@ -52,17 +52,18 @@ public class FIDOUtil {
     }
 
 	public static String getSafeText(String text) {
+		String trimmedText=null;
 		if (text == null) {
 			return text;
 		}
-		text = text.trim();
-		if (text.indexOf('<') > -1) {
-			text = text.replace("<", "&lt;");
+		trimmedText = text.trim();
+		if (trimmedText.indexOf('<') > -1) {
+			trimmedText = trimmedText.replace("<", "&lt;");
 		}
-		if (text.indexOf('>') > -1) {
-			text = text.replace(">", "&gt;");
+		if (trimmedText.indexOf('>') > -1) {
+			trimmedText = trimmedText.replace(">", "&gt;");
 		}
-		return text;
+		return trimmedText;
 	}
 	public static String getUniqueUsername(HttpServletRequest request, String username){
 		return request.getServerName() + "/" + username;
