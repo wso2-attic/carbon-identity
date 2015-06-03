@@ -1,12 +1,12 @@
 /*
- * Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -86,7 +86,7 @@ public class UserInformationRecoveryService {
             throws IdentityMgtServiceException {
 
         UserDTO userDTO;
-        VerificationBean bean = new VerificationBean();
+        VerificationBean bean;
         if (log.isDebugEnabled()) {
             log.debug("User verification request received with username : " + username);
         }
@@ -313,7 +313,7 @@ public class UserInformationRecoveryService {
             try {
                 tenantId = tenantManager.getTenantId(userDTO.getTenantDomain());
             } catch (UserStoreException e) {
-                log.warn("No Tenant id for tenant domain " + userDTO.getTenantDomain());
+                log.warn("No Tenant id for tenant domain " + userDTO.getTenantDomain(), e);
             }
 
             if (recoveryProcessor.verifyConfirmationCode(3, userDTO.getUserId(), confirmationCode).isVerified()) {
@@ -499,9 +499,7 @@ public class UserInformationRecoveryService {
             log.debug("User challenge answer request received with username :" + userName);
         }
 
-        if (questionId != null && answer != null) {
-
-        } else {
+        if (questionId == null || answer == null) {
             String error = "No challenge question id provided for verification";
             bean.setError(error);
             if (log.isDebugEnabled()) {
@@ -614,7 +612,7 @@ public class UserInformationRecoveryService {
             return new UserIdentityClaimDTO[0];
         }
 
-        ArrayList<UserIdentityClaimDTO> claimList = new ArrayList<UserIdentityClaimDTO>();
+        List<UserIdentityClaimDTO> claimList = new ArrayList<UserIdentityClaimDTO>();
 
         for (int i = 0; i < claims.length; i++) {
             if (claims[i].getDisplayTag() != null
@@ -758,6 +756,14 @@ public class UserInformationRecoveryService {
         }
 
         try {
+
+            if(userStoreManager == null){
+                vBean = new VerificationBean();
+                vBean.setVerified(false);
+                vBean.setError(VerificationBean.ERROR_CODE_UN_EXPECTED
+                        + " Error retrieving the user store manager for the tenant");
+                return vBean;
+            }
 
             Map<String, String> claimsMap = new HashMap<String, String>();
             for (UserIdentityClaimDTO userIdentityClaimDTO : claims) {

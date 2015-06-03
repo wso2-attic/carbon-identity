@@ -1,11 +1,11 @@
 /*
- * Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.wso2.carbon.identity.mgt.util;
 
 import org.apache.axiom.om.util.Base64;
@@ -53,32 +54,9 @@ public class Utils {
 
     private static final Log log = LogFactory.getLog(Utils.class);
 
-    /**
-     * Processes user id and tenant domain that contains uin the UserMgtBean
-     *
-     * @param class that contains user and tenant Information
-     * @throws IdentityMgtServiceException if user id doesn't exist
-     */
-//    public static void processUserId(UserIdentityMgtBean userMgtBean) throws IdentityMgtServiceException {
-//
-//        String domainName = null;
-//        String userId = userMgtBean.getUserId();
-//
-//        if(userId == null || userId.trim().length() < 1){
-//            throw new IdentityMgtServiceException("Can not proceed with out a user id");
-//        }
-//
-//        if(userMgtBean.getTenantDomain() == null || userMgtBean.getTenantDomain().trim().length() < 1){
-//            domainName = MultitenantUtils.getTenantDomain(userId);
-//        } else {
-//            domainName = userMgtBean.getTenantDomain(); // TODO
-//        }
-//
-//        userId = MultitenantUtils.getTenantAwareUsername(userId);
-//
-//        userMgtBean.setTenantDomain(domainName);
-//        userMgtBean.setUserId(userId);
-//    }
+    private Utils() {
+    }
+
     public static UserDTO processUserId(String userId) throws IdentityException {
 
 
@@ -109,61 +87,6 @@ public class Utils {
         }
     }
 
-
-    /**
-     * verify the user id
-     *
-     * @param userMgtBean  bean class that contains user and tenant Information
-     * @return verification success or not
-     * @throws IdentityMgtServiceException  if fails or tenant doesn't exist
-     */
-//    public static boolean verifyUserId(UserIdentityMgtBean userMgtBean) throws IdentityMgtServiceException {
-//
-//        boolean verification = false;
-//        String userKey = userMgtBean.getUserKey();
-//
-//        if(userKey == null || userKey.trim().length() < 1){
-//            return false;
-//        }
-//
-//        UserRegistry registry = null;
-//        try{
-//            registry = IdentityMgtServiceComponent.getRegistryService().
-//                    getConfigSystemRegistry(MultitenantConstants.SUPER_TENANT_ID);
-//            registry.beginTransaction();
-//
-//            String identityKeyMgtPath = IdentityMgtConstants.IDENTITY_MANAGEMENT_KEYS +
-//                    RegistryConstants.PATH_SEPARATOR + Utils.getTenantId(userMgtBean.getTenantDomain()) +
-//                    RegistryConstants.PATH_SEPARATOR + userMgtBean.getUserId();
-//
-//            Resource resource;
-//            if (registry.resourceExists(identityKeyMgtPath)) {
-//                resource = registry.get(identityKeyMgtPath);
-//                String actualUserKey = resource.getProperty(IdentityMgtConstants.USER_KEY);
-//                if ((actualUserKey != null) && (actualUserKey.equals(userKey))) {
-//                    verification = true;
-//                    registry.delete(identityKeyMgtPath);
-//                }
-//            }
-//        } catch (RegistryException e) {
-//            log.error("Error while processing userKey", e);
-//        } finally {
-//            if(registry != null){
-//                try{
-//                    if (verification) {
-//                        registry.commitTransaction();
-//                    } else {
-//                        registry.rollbackTransaction();
-//                    }
-//                } catch (RegistryException e) {
-//                    log.error("Error while processing registry transaction", e);
-//                }
-//            }
-//        }
-//
-//        return verification;
-//    }
-
     /**
      * gets no of verified user challenges
      *
@@ -187,7 +110,7 @@ public class Utils {
                 resource = registry.get(identityKeyMgtPath);
                 String property = resource.getProperty(IdentityMgtConstants.VERIFIED_CHALLENGES);
                 if (property != null) {
-                    return Integer.valueOf(property);
+                    return Integer.parseInt(property);
                 }
             }
         } catch (RegistryException e) {
@@ -196,63 +119,6 @@ public class Utils {
 
         return noOfChallenges;
     }
-
-    /**
-     * clear the pointer for verified user challenges
-     * @param userMgtBean   bean class that contains user and tenant Information
-     * @throws IdentityMgtServiceException if fails
-     */
-//    public static void clearVerifiedChallenges(UserIdentityMgtBean userMgtBean) throws IdentityMgtServiceException {
-//
-//        try{
-//            UserRegistry registry = IdentityMgtServiceComponent.getRegistryService().
-//                    getConfigSystemRegistry(MultitenantConstants.SUPER_TENANT_ID);
-//            String identityKeyMgtPath = IdentityMgtConstants.IDENTITY_MANAGEMENT_CHALLENGES +
-//                    RegistryConstants.PATH_SEPARATOR + Utils.getTenantId(userMgtBean.getTenantDomain()) +
-//                    RegistryConstants.PATH_SEPARATOR + userMgtBean.getUserId();
-//            if (registry.resourceExists(identityKeyMgtPath)) {
-//                registry.delete(identityKeyMgtPath);
-//            }
-//        } catch (RegistryException e) {
-//            log.error("Error while clearing meta data in challenge verification process", e);
-//        }
-//    }
-
-    /**
-     * set pointer for verified user challenges 
-     * @param userMgtBean  bean class that contains user and tenant Information
-     * @throws IdentityMgtServiceException  if fails
-     */
-//    public static void setVerifiedChallenges(UserIdentityMgtBean userMgtBean) throws IdentityMgtServiceException {
-//
-//        try{
-//            UserRegistry registry = IdentityMgtServiceComponent.getRegistryService().
-//                    getConfigSystemRegistry(MultitenantConstants.SUPER_TENANT_ID);
-//            String identityKeyMgtPath = IdentityMgtConstants.IDENTITY_MANAGEMENT_CHALLENGES +
-//                    RegistryConstants.PATH_SEPARATOR + Utils.getTenantId(userMgtBean.getTenantDomain()) +
-//                    RegistryConstants.PATH_SEPARATOR + userMgtBean.getUserId();
-//            Resource resource;
-//            if (registry.resourceExists(identityKeyMgtPath)) {
-//                resource = registry.get(identityKeyMgtPath);
-//                String property = resource.getProperty(IdentityMgtConstants.VERIFIED_CHALLENGES);
-//                int noOfChallenges = 0;
-//                if(property != null){
-//                    noOfChallenges = Integer.valueOf(property) + 1;
-//                }
-//                resource.setProperty(IdentityMgtConstants.VERIFIED_CHALLENGES,
-//                                                                Integer.toString(noOfChallenges));
-//                registry.put(identityKeyMgtPath, resource);
-//            } else {
-//                resource = registry.newResource();
-//                resource.addProperty(IdentityMgtConstants.VERIFIED_CHALLENGES, "1");
-//                resource.setVersionableChange(false);
-//                registry.put(identityKeyMgtPath, resource);
-//            }
-//        } catch (RegistryException e) {
-//            log.error("Error while processing userKey", e);
-//        }
-//
-//    }
 
     /**
      * gets the tenant id from the tenant domain
@@ -288,61 +154,6 @@ public class Utils {
         }
         return tenantId;
     }
-
-    /**
-     * Verifies user id with underline user store
-     *
-     * @param userDTO  bean class that contains user and tenant Information
-     * @return true/false whether user is verified or not. If user is a tenant
-     *         user then always return false
-     */
-//    public static boolean verifyUserForRecovery(UserDTO userDTO) {
-//
-//        String userId = userDTO.getUserId();
-//        int tenantId = userDTO.getTenantId();
-//
-//        try {
-//
-//            UserStoreManager userStoreManager = IdentityMgtServiceComponent.getRealmService().
-//                                                getTenantUserRealm(tenantId).getUserStoreManager();
-//            TenantManager tenantManager = IdentityMgtServiceComponent.getRealmService().
-//                                                                                getTenantManager();
-//
-//            if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
-//                if(userStoreManager.isExistingUser(userId)){
-//                    if(IdentityMgtConfig.getInstance().isAuthPolicyAccountLockCheck()){
-//                        String accountLock = null;
-//                        try{
-//                            accountLock = userStoreManager.
-//                                getUserClaimValue(userId, UserIdentityDataStore.ACCOUNT_LOCK, null);
-//                            if(!Boolean.parseBoolean(accountLock)){
-//                                return true;
-//                            }
-//                        } catch (Exception e){
-//                            log.error(e.getMessage());
-//                            // ignore this is not an admin method call
-//                        }
-//                    } else {
-//                        return true;
-//                    }
-//                }
-//            } else if (tenantId > 0) {
-//                if(userStoreManager.isExistingUser(userId)){
-//                    return userId.equals(tenantManager.getTenant(tenantId).getAdminName());
-//                } else {
-//                    // tenant users are not allowed to recover their account.
-//                    log.warn("Tenant user from tenant domain : " + userMgtBean.getTenantDomain()
-//                                                            + " is trying to recover his user account");
-//                    return false;
-//                }
-//            }
-//        } catch (UserStoreException e) {
-//            log.error(e.getMessage(), e);
-//        } catch (IdentityMgtServiceException e) {
-//            log.error(e.getMessage(), e);
-//        }
-//        return false;
-//    }
 
     /**
      * Get the claims from the user store manager
@@ -403,10 +214,8 @@ public class Utils {
 
             Tenant tenant = IdentityMgtServiceComponent.getRealmService().
                     getTenantManager().getTenant(tenantId);
-            if (tenant != null) {
-                if (tenant.getAdminName().equals(userName)) {
-                    email = tenant.getEmail();
-                }
+            if (tenant != null && tenant.getAdminName().equals(userName)) {
+                email = tenant.getEmail();
             }
 
             if (email == null || email.trim().length() < 1) {
@@ -445,9 +254,6 @@ public class Utils {
             userStoreManager.updateCredentialByAdmin(userId, password);
             if (log.isDebugEnabled()) {
                 String msg = "Password is updated for  user: " + userId;
-                if (tenantDomain != null && tenantDomain.trim().length() > 0) {
-                    msg = msg + "@" + tenantDomain;
-                }
                 log.debug(msg);
             }
             return true;

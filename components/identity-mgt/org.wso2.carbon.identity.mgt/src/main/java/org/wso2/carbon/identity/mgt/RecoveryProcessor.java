@@ -1,11 +1,11 @@
 /*
- * Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.wso2.carbon.identity.mgt;
 
 import org.apache.commons.logging.Log;
@@ -71,12 +72,12 @@ public class RecoveryProcessor {
 
     public RecoveryProcessor() {
 
-        List<NotificationSendingModule> modules =
+        List<NotificationSendingModule> notificationSendingModules =
                 IdentityMgtConfig.getInstance().getNotificationSendingModules();
 
-        this.defaultModule = modules.get(0);
+        this.defaultModule = notificationSendingModules.get(0);
 
-        for (NotificationSendingModule module : modules) {
+        for (NotificationSendingModule module : notificationSendingModules) {
             this.modules.put(module.getNotificationType(), module);
         }
 
@@ -95,10 +96,6 @@ public class RecoveryProcessor {
      * @throws IdentityException if fails
      */
     public NotificationDataDTO recoverWithNotification(UserRecoveryDTO recoveryDTO) throws IdentityException {
-
-        if (!IdentityMgtConfig.getInstance().isNotificationSending()) {
-            //return new NotificationDataDTO("Email sending is disabled");
-        }
 
         String notificationAddress;
         String secretKey = null;
@@ -124,7 +121,7 @@ public class RecoveryProcessor {
             }
 
         } catch (UserStoreException e) {
-            log.warn("No Tenant domain for tenant id " + tenantId);
+            log.warn("No Tenant domain for tenant id " + tenantId, e);
         }
         NotificationDataDTO notificationData = new NotificationDataDTO();
         String internalCode = null;
@@ -163,7 +160,7 @@ public class RecoveryProcessor {
         try {
             config = configBuilder.loadConfiguration(ConfigType.EMAIL, StorageType.REGISTRY, tenantId);
         } catch (Exception e1) {
-            throw new IdentityException("Error while loading email templates for user : " + userId);
+            throw new IdentityException("Error while loading email templates for user : " + userId, e1);
         }
 
         if (recoveryDTO.getNotification() != null) {
@@ -176,7 +173,7 @@ public class RecoveryProcessor {
                 try {
                     confirmationKey = getUserExternalCodeStr(internalCode);
                 } catch (Exception e) {
-                    throw new IdentityException(e.getMessage());
+                    throw new IdentityException("Error while getting user's external code string.",e);
                 }
                 secretKey = UUIDGenerator.generateUUID();
                 emailNotificationData.setTagData("confirmation-code", confirmationKey);
@@ -217,7 +214,7 @@ public class RecoveryProcessor {
                 try {
                     confirmationKey = getUserExternalCodeStr(internalCode);
                 } catch (Exception e) {
-                    throw new IdentityException(e.getMessage());
+                    throw new IdentityException("Error while with recovering with password.", e);
                 }
                 secretKey = UUIDGenerator.generateUUID();
                 emailNotificationData.setTagData("confirmation-code", confirmationKey);
@@ -234,7 +231,7 @@ public class RecoveryProcessor {
         try {
             emailNotification = NotificationBuilder.createNotification("EMAIL", emailTemplate, emailNotificationData);
         } catch (Exception e) {
-            throw new IdentityException("Error when creating notification for user : "+ userId);
+            throw new IdentityException("Error when creating notification for user : "+ userId, e);
         }
 
         notificationData.setNotificationAddress(notificationAddress);
@@ -277,7 +274,7 @@ public class RecoveryProcessor {
         try {
             dataDO = dataStore.load(confirmationKey);
         } catch (IdentityException e) {
-            log.error("Invalid User for confirmation code");
+            log.error("Invalid User for confirmation code", e);
             return new VerificationBean(VerificationBean.ERROR_CODE_INVALID_USER);
         }
 
@@ -427,10 +424,6 @@ public class RecoveryProcessor {
      */
     public NotificationDataDTO notifyWithEmail(UserRecoveryDTO notificationBean) throws IdentityException {
 
-        if (!IdentityMgtConfig.getInstance().isNotificationSending()) {
-//          return new NotificationDataDTO("Email sending is disabled");
-        }
-
         String notificationAddress;
 
         String confirmationKey = null;
@@ -524,7 +517,7 @@ public class RecoveryProcessor {
         } catch (Exception e) {
             throw new IdentityException(
                     "Error occurred while creating notification from email template : "
-                            + emailTemplate);
+                            + emailTemplate, e);
         }
 
         notificationData.setNotificationAddress(notificationAddress);
@@ -604,7 +597,7 @@ public class RecoveryProcessor {
      * @param internalCode - code with the format "sequence_username_usercode".
      * @return
      */
-    private String getUserExternalCodeStr(String internalCode) throws Exception {
+    private String getUserExternalCodeStr(String internalCode) throws IdentityMgtServiceException {
 
         String userCode = null;
 
@@ -614,10 +607,10 @@ public class RecoveryProcessor {
             if (codeParts.length == 3) {
                 userCode = codeParts[2];
             } else {
-                throw new Exception("Invalid code");
+                throw new IdentityMgtServiceException("Invalid code");
             }
         } else {
-            throw new Exception("Code not found");
+            throw new IdentityMgtServiceException("Code not found");
         }
 
         return userCode;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,11 +43,10 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
 
     private static Log log = LogFactory.getLog(UserStoreBasedIdentityDataStore.class);
     private static ThreadLocal<String> userStoreInvoked = new ThreadLocal<String>() {
+        @Override
         protected String initialValue() {
             return "FALSE";
         }
-
-        ;
     };
 
     /**
@@ -92,7 +91,7 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
         }
         // check for thread local variable to avoid infinite recursive on this method ( load() )
         // which happen calling getUserClaimValues()
-        if (userStoreInvoked.get().equals("TRUE")) {
+        if ("TRUE".equals(userStoreInvoked.get())) {
             if (log.isDebugEnabled()) {
                 log.debug("UserStoreBasedIdentityDataStore.load() already been called in the stack." +
                         "Hence returning without processing load() again.");

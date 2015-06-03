@@ -1,22 +1,22 @@
 /*
- *  Copyright (c)  WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package org.wso2.carbon.identity.mgt.mail;
+
+import org.wso2.carbon.identity.mgt.IdentityMgtServiceException;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -24,7 +24,11 @@ import java.util.Map;
 
 public class NotificationBuilder {
 
-    public static Notification createNotification(String notificationType, String template, NotificationData data) throws Exception {
+    private NotificationBuilder() {
+    }
+
+    public static Notification createNotification(String notificationType, String template, NotificationData data)
+            throws IdentityMgtServiceException, UnsupportedEncodingException {
 
         String subject = null;
         String body = null;
@@ -35,7 +39,7 @@ public class NotificationBuilder {
             String[] contents = template.split("\\|");
 
             if (contents.length > 3) {
-                throw new Exception("Contents must be 3 or less");
+                throw new IdentityMgtServiceException("Contents must be 3 or less");
             }
 
             subject = contents[0];
@@ -61,9 +65,10 @@ public class NotificationBuilder {
 
     private static String replaceTags(Map<String, String> tagsData, String content)
             throws UnsupportedEncodingException {
-        for (String key : tagsData.keySet()) {
+        for (Map.Entry<String, String> entry : tagsData.entrySet()) {
 
-            String data = tagsData.get(key);
+            String data = entry.getValue();
+            String key = entry.getKey();
             if (data != null) {
                 content = content.replaceAll("\\{url:" + key + "\\}",
                         URLEncoder.encode(tagsData.get(key), "UTF-8"));
