@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,28 +16,19 @@
  * under the License.
  */
 
-package org.wso2.carbon.claim.mgt.dto;
+package org.wso2.carbon.claim.mgt;
 
-public class ClaimAttributeDTO {
+public class ClaimManagementException extends Exception {
 
-    private String domainName;
-
-    private String attributeName;
-
-    public String getDomainName() {
-        return domainName;
+    public ClaimManagementException() {
+        super();
     }
 
-    public void setDomainName(String domainName) {
-        this.domainName = domainName;
+    public ClaimManagementException(String message) {
+        super(message);
     }
 
-    public String getAttributeName() {
-        return attributeName;
+    public ClaimManagementException(String message, Throwable cause) {
+        super(message, cause);
     }
-
-    public void setAttributeName(String attributeName) {
-        this.attributeName = attributeName;
-    }
-
 }
