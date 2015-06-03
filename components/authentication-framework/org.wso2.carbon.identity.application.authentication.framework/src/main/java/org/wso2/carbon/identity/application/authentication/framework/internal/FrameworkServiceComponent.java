@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.application.authentication.framework.internal;
@@ -22,8 +24,13 @@ import org.eclipse.equinox.http.helper.ContextPathServletAdaptor;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpService;
-import org.wso2.carbon.identity.application.authentication.framework.*;
+import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticationService;
+import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
+import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
+import org.wso2.carbon.identity.application.authentication.framework.LocalApplicationAuthenticator;
+import org.wso2.carbon.identity.application.authentication.framework.RequestPathApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
+import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
 import org.wso2.carbon.identity.application.authentication.framework.listener.AuthenticationEndpointTenantActivityListener;
 import org.wso2.carbon.identity.application.authentication.framework.servlet.CommonAuthenticationServlet;
 import org.wso2.carbon.identity.application.common.ApplicationAuthenticatorService;
@@ -62,41 +69,38 @@ import java.util.List;
 public class FrameworkServiceComponent {
 
     public static final String COMMON_SERVLET_URL = "/commonauth";
-    public static List<ApplicationAuthenticator> authenticators = new ArrayList<ApplicationAuthenticator>();
-    private static Log log = LogFactory
-            .getLog(FrameworkServiceComponent.class);
-    private static BundleContext bundleContext;
-    private static RealmService realmService;
-    private static RegistryService registryService;
+    private static final Log log = LogFactory.getLog(FrameworkServiceComponent.class);
+    public static List<ApplicationAuthenticator> authenticators = new ArrayList<>();
     private HttpService httpService;
 
     public static RealmService getRealmService() {
-        return FrameworkServiceComponent.realmService;
+        return FrameworkServiceDataHolder.getInstance().getRealmService();
     }
 
     protected void setRealmService(RealmService realmService) {
         if (log.isDebugEnabled()) {
             log.debug("RealmService is set in the Application Authentication Framework bundle");
         }
-        FrameworkServiceComponent.realmService = realmService;
+        FrameworkServiceDataHolder.getInstance().setRealmService(realmService);
     }
 
     public static RegistryService getRegistryService() {
-        return FrameworkServiceComponent.registryService;
+        return FrameworkServiceDataHolder.getInstance().getRegistryService();
     }
 
     protected void setRegistryService(RegistryService registryService) {
         if (log.isDebugEnabled()) {
             log.debug("RegistryService is set in the Application Authentication Framework bundle");
         }
-        FrameworkServiceComponent.registryService = registryService;
+        FrameworkServiceDataHolder.getInstance().setRegistryService(registryService);
     }
 
-    public static BundleContext getBundleContext() throws Exception {
+    public static BundleContext getBundleContext() throws FrameworkException {
+        BundleContext bundleContext = FrameworkServiceDataHolder.getInstance().getBundleContext();
         if (bundleContext == null) {
             String msg = "System has not been started properly. Bundle Context is null.";
             log.error(msg);
-            throw new Exception(msg);
+            throw new FrameworkException(msg);
         }
 
         return bundleContext;
@@ -104,7 +108,7 @@ public class FrameworkServiceComponent {
 
     @SuppressWarnings("unchecked")
     protected void activate(ComponentContext ctxt) {
-        bundleContext = ctxt.getBundleContext();
+        BundleContext bundleContext = ctxt.getBundleContext();
         bundleContext.registerService(ApplicationAuthenticationService.class.getName(), new ApplicationAuthenticationService(), null);
 
         boolean tenantDropdownEnabled = ConfigurationFacade.getInstance().getTenantDropdownEnabled();
@@ -112,11 +116,11 @@ public class FrameworkServiceComponent {
         if (tenantDropdownEnabled) {
             // Register the tenant management listener for tracking changes to tenants
             bundleContext.registerService(TenantMgtListener.class.getName(),
-                    new AuthenticationEndpointTenantActivityListener(), null);
+                                          new AuthenticationEndpointTenantActivityListener(), null);
 
             if (log.isDebugEnabled()) {
                 log.debug("AuthenticationEndpointTenantActivityListener is registered. Tenant Domains Dropdown is " +
-                        "enabled.");
+                          "enabled.");
             }
         }
 
@@ -126,12 +130,14 @@ public class FrameworkServiceComponent {
                 COMMON_SERVLET_URL);
         try {
             httpService.registerServlet(COMMON_SERVLET_URL, commonServlet,
-                    null, null);
+                                        null, null);
         } catch (Exception e) {
             String errMsg = "Error when registering Common Servlet via the HttpService.";
             log.error(errMsg, e);
             throw new RuntimeException(errMsg, e);
         }
+
+        FrameworkServiceDataHolder.getInstance().setBundleContext(bundleContext);
 
         if (log.isDebugEnabled()) {
             log.info("Application Authentication Framework bundle is activated");
@@ -143,7 +149,7 @@ public class FrameworkServiceComponent {
             log.info("Application Authentication Framework bundle is deactivated");
         }
 
-        bundleContext = null;
+        FrameworkServiceDataHolder.getInstance().setBundleContext(null);
     }
 
     protected void setHttpService(HttpService httpService) {
@@ -166,23 +172,15 @@ public class FrameworkServiceComponent {
         if (log.isDebugEnabled()) {
             log.debug("RealmService is unset in the Application Authentication Framework bundle");
         }
-        FrameworkServiceComponent.realmService = null;
-    }
-
-    protected void setApplicationAuthenticatorService(ApplicationAuthenticatorService service) {
-    }
-
-    protected void unsetApplicationAuthenticatorService(ApplicationAuthenticatorService service) {
+        FrameworkServiceDataHolder.getInstance().setRealmService(null);
     }
 
     protected void unsetRegistryService(RegistryService registryService) {
         if (log.isDebugEnabled()) {
             log.debug("RegistryService is unset in the Application Authentication Framework bundle");
         }
-        FrameworkServiceComponent.registryService = null;
+        FrameworkServiceDataHolder.getInstance().setRegistryService(null);
     }
-
-
 
     protected void setAuthenticator(ApplicationAuthenticator authenticator) {
 
@@ -191,7 +189,7 @@ public class FrameworkServiceComponent {
         Property[] configProperties = null;
 
         if (authenticator.getConfigurationProperties() != null
-                && authenticator.getConfigurationProperties().size() > 0) {
+            && !authenticator.getConfigurationProperties().isEmpty()) {
             configProperties = authenticator.getConfigurationProperties().toArray(new Property[0]);
         }
 

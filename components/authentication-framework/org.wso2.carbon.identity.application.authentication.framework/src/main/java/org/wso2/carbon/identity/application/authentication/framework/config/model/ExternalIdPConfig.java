@@ -1,22 +1,30 @@
 /*
  * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.application.authentication.framework.config.model;
 
-import org.wso2.carbon.identity.application.common.model.*;
+import org.wso2.carbon.identity.application.common.model.Claim;
+import org.wso2.carbon.identity.application.common.model.ClaimConfig;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.JustInTimeProvisioningConfig;
+import org.wso2.carbon.identity.application.common.model.PermissionsAndRoleConfig;
+import org.wso2.carbon.identity.application.common.model.RoleMapping;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -47,10 +55,10 @@ public class ExternalIdPConfig implements Serializable {
         roleConfiguration = identityProvider.getPermissionAndRoleConfig();
         justInTimeProConfig = identityProvider.getJustInTimeProvisioningConfig();
 
-        RoleMapping[] roleMappings = roleConfiguration.getRoleMappings();
+        RoleMapping[] mappings = roleConfiguration.getRoleMappings();
 
-        if (roleMappings != null && roleMappings.length > 0) {
-            for (RoleMapping roleMapping : roleMappings) {
+        if (mappings != null && mappings.length > 0) {
+            for (RoleMapping roleMapping : mappings) {
                 this.roleMappings.put(roleMapping.getRemoteRole(), roleMapping.getLocalRole()
                         .getLocalRoleName());
             }
@@ -120,7 +128,7 @@ public class ExternalIdPConfig implements Serializable {
         if (claimConfiguration != null) {
             return claimConfiguration.getClaimMappings();
         }
-        return null;
+        return new ClaimMapping[0];
     }
 
     /**
@@ -130,7 +138,7 @@ public class ExternalIdPConfig implements Serializable {
         if (roleConfiguration != null) {
             return roleConfiguration.getIdpRoles();
         }
-        return null;
+        return new String[0];
     }
 
     /**
@@ -147,7 +155,7 @@ public class ExternalIdPConfig implements Serializable {
         if (claimConfiguration != null) {
             return claimConfiguration.getIdpClaims();
         }
-        return null;
+        return new Claim[0];
     }
 
     /**
