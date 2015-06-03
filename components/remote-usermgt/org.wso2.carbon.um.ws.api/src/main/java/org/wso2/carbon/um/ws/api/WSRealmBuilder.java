@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2007, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2007, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,13 +26,14 @@ import org.wso2.carbon.user.core.config.RealmConfiguration;
 
 public class WSRealmBuilder {
 
+
+    private static final Log logger = LogFactory.getLog(WSRealmBuilder.class);
+
     private WSRealmBuilder() {
     }
 
-    private static Log logger = LogFactory.getLog(WSRealmBuilder.class);
-
     /**
-     * @param realmProperties
+     * @param realmConfig
      * @return
      */
     public static UserRealm createWSRealm(RealmConfiguration realmConfig)

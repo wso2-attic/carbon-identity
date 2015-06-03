@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,22 +20,18 @@ public class UserProfileException extends Exception {
 
     public UserProfileException() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
     public UserProfileException(String message, Throwable cause) {
         super(message, cause);
-        // TODO Auto-generated constructor stub
     }
 
     public UserProfileException(String message) {
         super(message);
-        // TODO Auto-generated constructor stub
     }
 
     public UserProfileException(Throwable cause) {
         super(cause);
-        // TODO Auto-generated constructor stub
     }
 
 

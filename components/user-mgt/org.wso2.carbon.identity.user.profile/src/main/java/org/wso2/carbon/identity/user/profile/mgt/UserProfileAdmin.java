@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,8 +54,11 @@ import java.util.Map;
 
 public class UserProfileAdmin extends AbstractAdmin {
 
-    private static Log log = LogFactory.getLog(UserProfileAdmin.class);
+    private static final Log log = LogFactory.getLog(UserProfileAdmin.class);
     private static UserProfileAdmin userProfileAdmin = new UserProfileAdmin();
+    private String authorizationFailureMessage = "You are not authorized to perform this action.";
+    String persistenceErrorMsg = "Error when getting an Identity Persistence Store instance.";
+    private String SQLErrorMsg="Error when executing the SQL : ";
 
     public static UserProfileAdmin getInstance() {
         return userProfileAdmin;
@@ -80,7 +83,7 @@ public class UserProfileAdmin extends AbstractAdmin {
         try {
 
             if (!this.isAuthorized(username)) {
-                throw new UserProfileException("You are not authorized to perform this action.");
+                throw new UserProfileException(authorizationFailureMessage);
             }
 
             int indexOne;
@@ -142,7 +145,7 @@ public class UserProfileAdmin extends AbstractAdmin {
         UserRealm realm = null;
         try {
             if (!this.isAuthorized(username)) {
-                throw new UserProfileException("You are not authorized to perform this action.");
+                throw new UserProfileException(authorizationFailureMessage);
             }
 
             if (UserCoreConstants.DEFAULT_PROFILE.equals(profileName)) {
@@ -175,7 +178,7 @@ public class UserProfileAdmin extends AbstractAdmin {
         String profileConfig = null;
         try {
             if (!this.isAuthorized(username)) {
-                throw new UserProfileException("You are not authorized to perform this action.");
+                throw new UserProfileException(authorizationFailureMessage);
             }
 
             UserRealm realm = getUserRealm();
@@ -335,7 +338,7 @@ public class UserProfileAdmin extends AbstractAdmin {
             }
 
             if (!this.isAuthorized(username)) {
-                throw new UserProfileException("You are not authorized to perform this action.");
+                throw new UserProfileException(authorizationFailureMessage);
             }
 
             UserRealm realm = getUserRealm();
@@ -594,11 +597,11 @@ public class UserProfileAdmin extends AbstractAdmin {
             prepStmt.execute();
             connection.commit();
         } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance.";
-            log.error(errorMsg, e);
-            throw new UserProfileException(errorMsg, e);
+
+            log.error(persistenceErrorMsg, e);
+            throw new UserProfileException(persistenceErrorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + sql);
+            log.error(SQLErrorMsg + sql);
             log.error(e.getMessage(), e);
             throw new UserProfileException("Error occurred while persisting the federated user ID");
         } finally {
@@ -639,11 +642,10 @@ public class UserProfileAdmin extends AbstractAdmin {
             }
 
         } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance.";
-            log.error(errorMsg, e);
-            throw new UserProfileException(errorMsg, e);
+            log.error(persistenceErrorMsg, e);
+            throw new UserProfileException(persistenceErrorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + sql);
+            log.error(SQLErrorMsg + sql);
             log.error(e.getMessage(), e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
@@ -684,11 +686,10 @@ public class UserProfileAdmin extends AbstractAdmin {
                 return new AssociatedAccountDTO[0];
             }
         } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance.";
-            log.error(errorMsg, e);
-            throw new UserProfileException(errorMsg, e);
+            log.error(persistenceErrorMsg, e);
+            throw new UserProfileException(persistenceErrorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + sql);
+            log.error(SQLErrorMsg + sql);
             log.error(e.getMessage(), e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
@@ -725,11 +726,10 @@ public class UserProfileAdmin extends AbstractAdmin {
             prepStmt.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance.";
-            log.error(errorMsg, e);
-            throw new UserProfileException(errorMsg, e);
+            log.error(persistenceErrorMsg, e);
+            throw new UserProfileException(persistenceErrorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + sql);
+            log.error(SQLErrorMsg + sql);
             log.error(e.getMessage(), e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);

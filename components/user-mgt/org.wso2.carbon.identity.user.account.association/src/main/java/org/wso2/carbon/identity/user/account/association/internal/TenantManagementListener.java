@@ -16,8 +16,7 @@
 
 package org.wso2.carbon.identity.user.account.association.internal;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.wso2.carbon.identity.user.account.association.dao.UserAccountAssociationDAO;
 import org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException;
 import org.wso2.carbon.identity.user.account.association.util.UserAccountAssociationConstants;

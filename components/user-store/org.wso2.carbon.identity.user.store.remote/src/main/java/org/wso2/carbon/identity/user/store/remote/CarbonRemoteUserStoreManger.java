@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
     private String domainName;
     private UserStoreManager secondaryUserStoreManager;
     private Map<String, WSUserStoreManager> remoteServers = new HashMap<String, WSUserStoreManager>();
+    private String remoteErrorMsg="Error occured while getting remote store value: ignoring the error";
 
     public CarbonRemoteUserStoreManger() {
 
@@ -158,7 +159,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug("Error occured while getting remote store value: ignoring the error",ex);
+                                log.debug(remoteErrorMsg,ex);
 
                             }
 
@@ -233,7 +234,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug("Error occured while getting remote store value: ignoring the error",ex);
+                                log.debug(remoteErrorMsg,ex);
 
                             }
 
@@ -308,7 +309,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug("Error occured while getting remote store value: ignoring the error",ex);
+                                log.debug(remoteErrorMsg,ex);
 
                             }
 
@@ -354,7 +355,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug("Error occured while getting remote store value: ignoring the error",ex);
+                                log.debug(remoteErrorMsg,ex);
 
                             }
 
@@ -391,7 +392,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug("Error occured while getting remote store value: ignoring the error",ex);
+                                log.debug(remoteErrorMsg,ex);
 
                             }
 
@@ -430,7 +431,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug("Error occured while getting remote store value: ignoring the error",ex);
+                                log.debug(remoteErrorMsg,ex);
 
                             }
 
@@ -477,7 +478,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug("Error occured while getting remote store value: ignoring the error",ex);
+                                log.debug(remoteErrorMsg,ex);
 
                             }
                             throw e;
@@ -523,7 +524,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug("Error occured while getting remote store value: ignoring the error",ex);
+                                log.debug(remoteErrorMsg,ex);
 
                             }
 
@@ -561,7 +562,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug("Error occured while getting remote store value: ignoring the error",ex);
+                                log.debug(remoteErrorMsg,ex);
 
                             }
 
@@ -606,7 +607,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug("Error occured while getting remote store value: ignoring the error",ex);
+                                log.debug(remoteErrorMsg,ex);
 
                             }
 
@@ -654,7 +655,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug("Error occured while getting remote store value: ignoring the error",ex);
+                                log.debug(remoteErrorMsg,ex);
 
                             }
 
@@ -694,7 +695,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug("Error occured while getting remote store value: ignoring the error",ex);
+                                log.debug(remoteErrorMsg,ex);
 
                             }
 
@@ -735,7 +736,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug("Error occured while getting remote store value: ignoring the error",ex);
+                                log.debug(remoteErrorMsg,ex);
 
                             }
 
@@ -775,7 +776,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug("Error occured while getting remote store value: ignoring the error",ex);
+                                log.debug(remoteErrorMsg,ex);
 
                             }
 
@@ -812,7 +813,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug("Error occured while getting remote store value: ignoring the error",ex);
+                                log.debug(remoteErrorMsg,ex);
 
                             }
 
@@ -1062,7 +1063,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug("Error occured while getting remote store value: ignoring the error",ex);
+                                log.debug(remoteErrorMsg,ex);
 
                             }
 
@@ -1108,7 +1109,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug("Error occured while getting remote store value: ignoring the error",ex);
+                                log.debug(remoteErrorMsg,ex);
 
                             }
 
@@ -1152,7 +1153,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug("Error occured while getting remote store value: ignoring the error",ex);
+                                log.debug(remoteErrorMsg,ex);
 
                             }
 
@@ -1189,7 +1190,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug("Error occured while getting remote store value: ignoring the error",ex);
+                                log.debug(remoteErrorMsg,ex);
 
                             }
 
@@ -1226,7 +1227,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug("Error occured while getting remote store value: ignoring the error",ex);
+                                log.debug(remoteErrorMsg,ex);
 
                             }
 
@@ -1263,7 +1264,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug("Error occured while getting remote store value: ignoring the error",ex);
+                                log.debug(remoteErrorMsg,ex);
 
                             }
 
@@ -1300,7 +1301,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug("Error occured while getting remote store value: ignoring the error",ex);
+                                log.debug(remoteErrorMsg,ex);
 
                             }
 
@@ -1359,7 +1360,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug("Error occured while getting remote store value: ignoring the error",ex);
+                                log.debug(remoteErrorMsg,ex);
 
                             }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,9 @@ import org.wso2.carbon.user.core.UserStoreException;
 public class UserProfileUtil {
 
 
-    private UserProfileUtil(){}
+    private UserProfileUtil(){
+
+    }
 
     public static boolean isUserAuthorizedToConfigureProfile(UserRealm realm, String currentUserName, String targetUser)
             throws UserStoreException {

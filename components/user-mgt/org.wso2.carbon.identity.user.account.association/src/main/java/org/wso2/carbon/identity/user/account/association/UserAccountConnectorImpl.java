@@ -52,8 +52,8 @@ import java.util.List;
 
 public class UserAccountConnectorImpl implements UserAccountConnector {
 
-    private static Log log = LogFactory.getLog(UserAccountConnectorImpl.class);
-    private static Log audit = CarbonConstants.AUDIT_LOG;
+    private static final Log log = LogFactory.getLog(UserAccountConnectorImpl.class);
+    private static final Log audit = CarbonConstants.AUDIT_LOG;
 
     private UserAccountConnectorImpl() {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -203,6 +203,29 @@ public class WSRealmUtil {
         if (claim == null) {
             return null;
         }
+
+        return convertToClaim(claim,null);
+
+    }
+
+    private static org.wso2.carbon.user.core.claim.Claim convertToClaim(ClaimDTO claimDTO, org.wso2.carbon.um.ws.api
+            .stub
+            .Claim claim){
+
+        if(claim==null){
+            org.wso2.carbon.user.core.claim.Claim claimz = new org.wso2.carbon.user.core.claim.Claim();
+            claimz.setClaimUri(claimDTO.getClaimUri());
+            claimz.setDescription(claimDTO.getDescription());
+            claimz.setDialectURI(claimDTO.getDialectURI());
+            claimz.setDisplayOrder(claimDTO.getDisplayOrder());
+            claimz.setDisplayTag(claimDTO.getDisplayTag());
+            claimz.setRegEx(claimDTO.getRegEx());
+            claimz.setRequired(claimDTO.getRequired());
+            claimz.setSupportedByDefault(claimDTO.getSupportedByDefault());
+            claimz.setValue(claimDTO.getValue());
+            return claimz;
+                   }
+
         org.wso2.carbon.user.core.claim.Claim claimz = new org.wso2.carbon.user.core.claim.Claim();
         claimz.setClaimUri(claim.getClaimUri());
         claimz.setDescription(claim.getDescription());
@@ -214,23 +237,16 @@ public class WSRealmUtil {
         claimz.setSupportedByDefault(claim.getSupportedByDefault());
         claimz.setValue(claim.getValue());
         return claimz;
+
     }
 
     public static org.wso2.carbon.user.core.claim.Claim convertToClaim(org.wso2.carbon.um.ws.api.stub.Claim claim) {
         if (claim == null) {
             return null;
         }
-        org.wso2.carbon.user.core.claim.Claim claimz = new org.wso2.carbon.user.core.claim.Claim();
-        claimz.setClaimUri(claim.getClaimUri());
-        claimz.setDescription(claim.getDescription());
-        claimz.setDialectURI(claim.getDialectURI());
-        claimz.setDisplayOrder(claim.getDisplayOrder());
-        claimz.setDisplayTag(claim.getDisplayTag());
-        claimz.setRegEx(claim.getRegEx());
-        claimz.setRequired(claim.getRequired());
-        claimz.setSupportedByDefault(claim.getSupportedByDefault());
-        claimz.setValue(claim.getValue());
-        return claimz;
+
+        return convertToClaim(null, claim);
+
     }
 
 

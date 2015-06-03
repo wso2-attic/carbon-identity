@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,16 @@ import javax.servlet.http.HttpServletRequest;
 public class ServiceHodler {
 
 
-    private ServiceHodler(){}
 
-    private static Log log = LogFactory.getLog(ServiceHodler.class);
+
+    private static final Log log = LogFactory.getLog(ServiceHodler.class);
 
     private static UserRealm internalUserStore;
+
+
+    private ServiceHodler(){
+
+    }
 
     public static void setInternalUserStore(UserRealm internalUserStore) {
         ServiceHodler.internalUserStore = internalUserStore;

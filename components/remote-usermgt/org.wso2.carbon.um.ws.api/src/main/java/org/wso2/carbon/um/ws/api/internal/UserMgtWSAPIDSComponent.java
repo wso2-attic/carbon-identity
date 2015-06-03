@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  */
 public class UserMgtWSAPIDSComponent {
 
-    private static Log log = LogFactory.getLog(UserMgtWSAPIDSComponent.class);
+    private static final Log log = LogFactory.getLog(UserMgtWSAPIDSComponent.class);
     private static ConfigurationContextService ccServiceInstance = null;
 
     public static ConfigurationContextService getCcServiceInstance() {

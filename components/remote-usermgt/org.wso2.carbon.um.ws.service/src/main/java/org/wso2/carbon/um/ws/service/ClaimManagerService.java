@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,7 +95,7 @@ public class ClaimManagerService extends AbstractAdmin {
 
     public Claim getClaim(String claimURI) throws UserStoreException {
         try {
-            return (Claim) getClaimManager().getClaim(claimURI);
+            return  getClaimManager().getClaim(claimURI);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException(e);
         }

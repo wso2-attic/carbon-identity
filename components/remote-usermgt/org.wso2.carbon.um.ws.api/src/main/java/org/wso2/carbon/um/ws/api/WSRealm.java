@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2007, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2007, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ import java.util.Map;
 
 public class WSRealm implements UserRealm {
 
-    private static Log log = LogFactory.getLog(WSRealm.class);
+    private static final Log log = LogFactory.getLog(WSRealm.class);
     private RealmConfiguration realmConfig = null;
     private WSUserStoreManager userStoreMan = null;
     private WSAuthorizationManager authzMan = null;
@@ -63,7 +63,7 @@ public class WSRealm implements UserRealm {
     public void init(RealmConfiguration configBean, Map<String, Object> properties, int tenantId)
             throws UserStoreException {
         ConfigurationContext configCtxt =
-                (ConfigurationContext) UserMgtWSAPIDSComponent.
+                UserMgtWSAPIDSComponent.
                         getCcServiceInstance().
                         getClientConfigContext();
         init(configBean, configCtxt);
@@ -79,7 +79,7 @@ public class WSRealm implements UserRealm {
                      Map<String, ProfileConfiguration> profileConfigs, int tenantId)
             throws UserStoreException {
         ConfigurationContext configCtxt =
-                (ConfigurationContext) UserMgtWSAPIDSComponent.
+                UserMgtWSAPIDSComponent.
                         getCcServiceInstance().
                         getClientConfigContext();
         init(configBean, configCtxt);
@@ -160,8 +160,8 @@ public class WSRealm implements UserRealm {
     @Override
     public RealmConfiguration getRealmConfiguration() throws UserStoreException {
         try {
-            RealmConfigurationDTO realmConfig = stub.getRealmConfiguration();
-            return WSRealmUtil.convertToRealmConfiguration(realmConfig);
+            RealmConfigurationDTO realmConfigurationDTO = stub.getRealmConfiguration();
+            return WSRealmUtil.convertToRealmConfiguration(realmConfigurationDTO);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new UserStoreException("Error getting realm config", e);
@@ -177,12 +177,12 @@ public class WSRealm implements UserRealm {
         String userName = realmConfig.getRealmProperty(WSRemoteUserMgtConstants.USER_NAME);
         String password = realmConfig.getRealmProperty(WSRemoteUserMgtConstants.PASSWORD);
         try {
-            ConfigurationContext configContext = (ConfigurationContext) UserMgtWSAPIDSComponent
+            ConfigurationContext configContext = UserMgtWSAPIDSComponent
                     .getCcServiceInstance().getClientConfigContext();
             AuthenticationAdminClient client = new AuthenticationAdminClient(configContext,
                     realmConfig.getRealmProperty(WSRemoteUserMgtConstants.SERVER_URL),
                     UserMgtWSAPIDataHolder.getInstance().getSessionCookie(), null, false);
-            boolean isLogin = client.login(userName, password, "127.0.0.1"); // TODO
+            boolean isLogin = client.login(userName, password, "127.0.0.1"); // TODO make this configurable
             if (isLogin) {
                 UserMgtWSAPIDataHolder.getInstance().setSessionCookie(client.getAdminCookie());
             }

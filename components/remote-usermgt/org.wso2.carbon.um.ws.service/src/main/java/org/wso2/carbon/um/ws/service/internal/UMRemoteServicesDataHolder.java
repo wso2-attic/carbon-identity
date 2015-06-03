@@ -23,16 +23,13 @@ public class UMRemoteServicesDataHolder {
 
 
     private RealmService realmService;
+    private static UMRemoteServicesDataHolder instance = new UMRemoteServicesDataHolder();
 
 
     private RegistryService registryService;
 
     private UMRemoteServicesDataHolder() {
     }
-
-    ;
-
-    private static UMRemoteServicesDataHolder instance = new UMRemoteServicesDataHolder();
 
     public static UMRemoteServicesDataHolder getInstance() {
         return instance;

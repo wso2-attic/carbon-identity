@@ -17,7 +17,6 @@
 package org.wso2.carbon.identity.user.account.association.dao;
 
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
@@ -40,7 +39,6 @@ import java.util.List;
 public class UserAccountAssociationDAO {
 
     private UserAccountAssociationDAO() {
-
     }
 
     private static class LazyHolder {

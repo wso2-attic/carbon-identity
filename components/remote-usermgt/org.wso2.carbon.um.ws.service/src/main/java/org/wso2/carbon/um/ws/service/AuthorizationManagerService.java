@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import org.wso2.carbon.user.core.UserStoreException;
 
 public class AuthorizationManagerService extends AbstractAdmin {
 
-    private static Log log = LogFactory.getLog(AuthorizationManagerService.class.getClass());
+    private static final Log log = LogFactory.getLog(AuthorizationManagerService.class.getClass());
 
     public void authorizeRole(String roleName, String resourceId, String action)
             throws UserStoreException {

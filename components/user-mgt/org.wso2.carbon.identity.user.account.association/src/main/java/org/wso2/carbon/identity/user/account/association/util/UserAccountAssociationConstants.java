@@ -18,10 +18,13 @@ package org.wso2.carbon.identity.user.account.association.util;
 
 public class UserAccountAssociationConstants {
 
-    private UserAccountAssociationConstants(){}
 
     public static final String PRIMARY_USER_DOMAIN = "PRIMARY";
     public static final String LOGIN_PERMISSION = "/permission/admin/login";
+
+    private UserAccountAssociationConstants(){
+
+    }
 
     public enum ErrorMessages {
 

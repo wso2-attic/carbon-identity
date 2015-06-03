@@ -27,7 +27,7 @@ import org.wso2.carbon.identity.user.account.association.util.UserAccountAssocia
 
 public class UserAccountAssociationService extends AbstractAdmin {
 
-    private static Log log = LogFactory.getLog(UserAccountAssociationService.class);
+    private static final Log log = LogFactory.getLog(UserAccountAssociationService.class);
 
     /**
      * Create new user account association

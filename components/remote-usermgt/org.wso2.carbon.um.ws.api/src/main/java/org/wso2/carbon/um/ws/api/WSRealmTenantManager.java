@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import java.util.TimerTask;
  */
 public class WSRealmTenantManager implements TenantManager {
 
-    private static Log log = LogFactory.getLog(AnonymousSessionUtil.class);
+    private static final Log log = LogFactory.getLog(AnonymousSessionUtil.class);
 
     private RemoteTenantManagerServiceStub stub;
     private String userName = null;
@@ -260,6 +260,9 @@ public class WSRealmTenantManager implements TenantManager {
 
     private class LoginSender extends TimerTask {
 
+
+        private static final String errorMessage = "Error login in tenant manager";
+
         @Override
         public void run() {
             try {
@@ -272,7 +275,7 @@ public class WSRealmTenantManager implements TenantManager {
                             sessionCookie);
                 }
             } catch (UserStoreException e) {
-                log.error("Error login in tenant manager", e);
+                log.error(errorMessage, e);
             }
         }
 
@@ -286,12 +289,12 @@ public class WSRealmTenantManager implements TenantManager {
                     if (isLogin) {
                         return client.getAdminCookie();
                     } else {
-                        log.error("Error login in tenant manager");
-                        throw new UserStoreException("Error login in tenant manager");
+                        log.error(errorMessage);
+                        throw new UserStoreException(errorMessage);
                     }
                 }
             } catch (Exception e) {
-                log.error("Error login in tenant manager", e);
+                log.error(errorMessage, e);
                 throw new UserStoreException("Error" + e.getMessage(), e);
             }
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,8 +41,9 @@ import java.util.TreeMap;
 
 public class WSUserStoreManager implements UserStoreManager {
 
-    private static Log log = LogFactory.getLog(WSUserStoreManager.class);
+    private static final Log log = LogFactory.getLog(WSUserStoreManager.class);
     private RemoteUserStoreManagerServiceStub stub = null;
+    private String unsupportedPasswordMessage="Unsupported type of password";
 
     public WSUserStoreManager(String serverUrl, String cookie, ConfigurationContext configCtxt)
             throws UserStoreException {
@@ -90,7 +91,7 @@ public class WSUserStoreManager implements UserStoreManager {
             throws UserStoreException {
         try {
             if (!(credential instanceof String)) {
-                throw new UserStoreException("Unsupported type of password");
+                throw new UserStoreException(unsupportedPasswordMessage);
             }
             String password = (String) credential;
             ClaimValue[] claimValues = WSRealmUtil.convertMapToClaimValue(claims);
@@ -115,7 +116,7 @@ public class WSUserStoreManager implements UserStoreManager {
     public void addUser(String userName, Object credential, String[] roleList,
                         Map<String, String> claims, String profileName) throws UserStoreException {
         if (!(credential instanceof String)) {
-            throw new UserStoreException("Unsupported type of password");
+            throw new UserStoreException(unsupportedPasswordMessage);
         }
         try {
             stub.addUser(userName, (String) credential, roleList,
@@ -129,7 +130,7 @@ public class WSUserStoreManager implements UserStoreManager {
     @Override
     public boolean authenticate(String userName, Object credential) throws UserStoreException {
         if (!(credential instanceof String)) {
-            throw new UserStoreException("Unsupported type of password");
+            throw new UserStoreException(unsupportedPasswordMessage);
         }
         try {
             return stub.authenticate(userName, (String) credential);
@@ -418,7 +419,7 @@ public class WSUserStoreManager implements UserStoreManager {
     public void updateCredential(String userName, Object newCredential, Object oldCredential)
             throws UserStoreException {
         if (!(newCredential instanceof String) || !(oldCredential instanceof String)) {
-            throw new UserStoreException("Unsupported type of password");
+            throw new UserStoreException(unsupportedPasswordMessage);
         }
         try {
             stub.updateCredential(userName, (String) newCredential, (String) oldCredential);
@@ -431,7 +432,7 @@ public class WSUserStoreManager implements UserStoreManager {
     public void updateCredentialByAdmin(String userName, Object newCredential)
             throws UserStoreException {
         if (!(newCredential instanceof String)) {
-            throw new UserStoreException("Unsupported type of password");
+            throw new UserStoreException(unsupportedPasswordMessage);
         }
 
         try {

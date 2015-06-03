@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import java.util.*;
 
 public class UserStoreManagerService extends AbstractAdmin {
 
-    private static Log log = LogFactory.getLog(UserStoreManagerService.class.getClass());
+    private static final Log log = LogFactory.getLog(UserStoreManagerService.class.getClass());
 
     public void addUser(String userName, String credential, String[] roleList, ClaimValue[] claims,
                         String profileName, boolean requirePasswordChange) throws UserStoreException {

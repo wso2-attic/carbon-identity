@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import java.util.Comparator;
 
 public class UserProfileCient {
 
-    private static Log log = LogFactory.getLog(UserProfileCient.class);
+    private static final Log log = LogFactory.getLog(UserProfileCient.class);
     private UserProfileMgtServiceStub stub = null;
     private String serviceEndPoint = null;
 
@@ -56,7 +56,7 @@ public class UserProfileCient {
     public static String extractDomainFromName(String nameWithDomain) {
         if (nameWithDomain.indexOf("/") > 0) {
             // extract the domain name if exist
-            String names[] = nameWithDomain.split("/");
+            String[] names = nameWithDomain.split("/");
             return names[0];
         }
         return null;

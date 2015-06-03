@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 package org.wso2.carbon.user.cassandra.internal;
 
 

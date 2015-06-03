@@ -32,7 +32,7 @@ import java.util.Map;
 
 public class UserOptEventListener implements UserOperationEventListener {
 
-    private static Log log = LogFactory.getLog(UserOptEventListener.class);
+    private static final Log log = LogFactory.getLog(UserOptEventListener.class);
 
     private static final int EXEC_ORDER = 22;
 

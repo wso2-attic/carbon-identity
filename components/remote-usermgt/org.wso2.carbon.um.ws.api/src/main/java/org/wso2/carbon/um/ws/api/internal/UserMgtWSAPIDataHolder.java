@@ -21,6 +21,13 @@ import org.wso2.carbon.utils.ConfigurationContextService;
 public class UserMgtWSAPIDataHolder {
 
     private static UserMgtWSAPIDataHolder instance = new UserMgtWSAPIDataHolder();
+    private ConfigurationContextService ccServiceInstance;
+    private String sessionCookie;
+
+    private UserMgtWSAPIDataHolder() {
+
+    }
+
 
     public ConfigurationContextService getCcServiceInstance() {
         return ccServiceInstance;
@@ -28,14 +35,6 @@ public class UserMgtWSAPIDataHolder {
 
     public void setCcServiceInstance(ConfigurationContextService ccServiceInstance) {
         this.ccServiceInstance = ccServiceInstance;
-    }
-
-    private ConfigurationContextService ccServiceInstance;
-    private String sessionCookie;
-
-
-    private UserMgtWSAPIDataHolder() {
-
     }
 
     public static UserMgtWSAPIDataHolder getInstance() {

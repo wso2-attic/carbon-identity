@@ -17,7 +17,6 @@
 package org.wso2.carbon.identity.user.account.association.internal;
 
 import org.osgi.framework.BundleContext;
-import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.listener.UserStoreManagerListener;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -37,7 +36,9 @@ public class IdentityAccountAssociationServiceDataHolder {
 
     private static IdentityAccountAssociationServiceDataHolder instance = new IdentityAccountAssociationServiceDataHolder();
 
-    private  IdentityAccountAssociationServiceDataHolder(){}
+    private  IdentityAccountAssociationServiceDataHolder(){
+
+    }
 
     public static IdentityAccountAssociationServiceDataHolder getInstance(){
         return instance;

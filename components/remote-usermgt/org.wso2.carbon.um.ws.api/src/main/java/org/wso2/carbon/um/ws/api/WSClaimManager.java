@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import java.rmi.RemoteException;
 
 public class WSClaimManager implements ClaimManager {
 
-    private static Log log = LogFactory.getLog(WSClaimManager.class);
+    private static final Log log = LogFactory.getLog(WSClaimManager.class);
     private RemoteClaimManagerServiceStub stub = null;
 
     public WSClaimManager(String serverUrl, String cookie, ConfigurationContext configCtxt)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2007, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2007, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,7 @@ package org.wso2.carbon.um.ws.api;
 
 public class WSRemoteUserMgtConstants {
 
-    private WSRemoteUserMgtConstants() {
-    }
+
 
     public static final String SERVER_URL = "WSRealmServerUrl";
     public static final String COOKIE_STRING = "WSRealmCookieString";
@@ -28,4 +27,7 @@ public class WSRemoteUserMgtConstants {
     public static final String USER_NAME = "WSRealmUserName";
     public static final String PASSWORD = "WSRealmPassword";
     public static final String SINGLE_USER_AUTHENTICATION = "WSRealmSingleUserLogin";
+
+    private WSRemoteUserMgtConstants() {
+    }
 }
