@@ -1,5 +1,23 @@
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.wso2.carbon.identity.provisioning.connector.scim;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.model.Property;
@@ -28,9 +46,10 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
     public static final String DEFAULT_SCIM_DIALECT = "urn:scim:schemas:core:1.0";
     private static final long serialVersionUID = -2800777564581005554L;
     private static Log log = LogFactory.getLog(SCIMProvisioningConnector.class);
-    private SCIMProvider scimProvider;
+    private transient SCIMProvider scimProvider;
     private String userStoreDomainName;
 
+    @Override
     /**
      *
      */
@@ -55,16 +74,14 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
                 }
 
                 if (IdentityProvisioningConstants.JIT_PROVISIONING_ENABLED.equals(property
-                        .getName())) {
-                    if ("1".equals(property.getValue())) {
-                        jitProvisioningEnabled = true;
-                    }
+                        .getName()) && "1".equals(property.getValue())) {
+                    jitProvisioningEnabled = true;
                 }
             }
         }
-
     }
 
+    @Override
     /**
      *
      */
@@ -119,7 +136,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
             List<String> userNames = getUserNames(userEntity.getAttributes());
             String userName = null;
 
-            if (userNames != null && userNames.size() > 0 && userNames.get(0) != null) {
+            if (userNames != null && !CollectionUtils.isEmpty(userNames) && userNames.get(0) != null) {
                 userName = userNames.get(0);
             }
 
@@ -130,7 +147,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
             Map<String, String> singleValued = getSingleValuedClaims(userEntity.getAttributes());
 
             // if user created through management console, claim values are not present.
-            if (singleValued != null && singleValued.size() != 0) {
+            if (singleValued != null && !MapUtils.isEmpty(singleValued)) {
                 user = (User) AttributeMapper.constructSCIMObjectFromAttributes(singleValued,
                         SCIMConstants.USER_INT);
             } else {
@@ -160,7 +177,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
             List<String> userNames = getUserNames(userEntity.getAttributes());
             String userName = null;
 
-            if (userNames != null && userNames.size() > 0 && userNames.get(0) != null) {
+            if (userNames != null && !CollectionUtils.isEmpty(userNames) && userNames.get(0) != null) {
                 userName = userNames.get(0);
             }
 
@@ -196,7 +213,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
             List<String> userNames = getUserNames(userEntity.getAttributes());
             String userName = null;
 
-            if (userNames != null && userNames.size() > 0 && userNames.get(0) != null) {
+            if (userNames != null && !CollectionUtils.isEmpty(userNames) && userNames.get(0) != null) {
                 userName = userNames.get(0);
             }
 
@@ -214,10 +231,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
     }
 
     /**
-     * @param roleName
-     * @param userList
-     * @param permissions
-     * @param userStoreManager
+     * @param groupEntity
      * @return
      * @throws IdentityProvisioningException
      */
@@ -226,7 +240,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
             List<String> groupNames = getGroupNames(groupEntity.getAttributes());
             String groupName = null;
 
-            if (groupNames != null && groupNames.size() > 0 && groupNames.get(0) != null) {
+            if (groupNames != null && !CollectionUtils.isEmpty(groupNames) && groupNames.get(0) != null) {
                 groupName = groupNames.get(0);
             }
 
@@ -237,7 +251,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
 
             List<String> userList = getUserNames(groupEntity.getAttributes());
 
-            if (userList != null && userList.size() > 0) {
+            if (userList != null && !CollectionUtils.isEmpty(userList)) {
                 for (Iterator<String> iterator = userList.iterator(); iterator.hasNext(); ) {
                     String userName = iterator.next();
                     Map<String, Object> members = new HashMap<String, Object>();
@@ -266,7 +280,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
             List<String> groupNames = getGroupNames(groupEntity.getAttributes());
             String groupName = null;
 
-            if (groupNames != null && groupNames.size() > 0 && groupNames.get(0) != null) {
+            if (groupNames != null && !CollectionUtils.isEmpty(groupNames) && groupNames.get(0) != null) {
                 groupName = groupNames.get(0);
             }
 
@@ -295,7 +309,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
             List<String> groupNames = getGroupNames(groupEntity.getAttributes());
             String groupName = null;
 
-            if (groupNames != null && groupNames.size() > 0 && groupNames.get(0) != null) {
+            if (groupNames != null && !CollectionUtils.isEmpty(groupNames) && groupNames.get(0) != null) {
                 groupName = groupNames.get(0);
             }
 
@@ -305,7 +319,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
 
             List<String> userList = getUserNames(groupEntity.getAttributes());
 
-            if (userList != null && userList.size() > 0) {
+            if (userList != null && !CollectionUtils.isEmpty(userList)) {
                 for (Iterator<String> iterator = userList.iterator(); iterator.hasNext(); ) {
                     String userName = iterator.next();
                     Map<String, Object> members = new HashMap<String, Object>();
@@ -323,6 +337,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
         }
     }
 
+    @Override
     /**
      *
      */

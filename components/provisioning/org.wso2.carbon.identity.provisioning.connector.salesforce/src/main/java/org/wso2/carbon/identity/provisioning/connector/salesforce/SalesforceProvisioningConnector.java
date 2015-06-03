@@ -57,10 +57,8 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
             for (Property property : provisioningProperties) {
                 configs.put(property.getName(), property.getValue());
                 if (IdentityProvisioningConstants.JIT_PROVISIONING_ENABLED.equals(property
-                        .getName())) {
-                    if ("1".equals(property.getValue())) {
-                        jitProvisioningEnabled = true;
-                    }
+                        .getName()) && "1".equals(property.getValue())) {
+                    jitProvisioningEnabled = true;
                 }
             }
         }
@@ -268,7 +266,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
         InputStream is = post.getResponseBodyAsStream();
         BufferedReader rd = new BufferedReader(new InputStreamReader(is));
         String line;
-        StringBuffer response = new StringBuffer();
+        StringBuilder response = new StringBuilder();
         while ((line = rd.readLine()) != null) {
             response.append(line);
             response.append('\r');
@@ -363,7 +361,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
         boolean isDebugEnabled = log.isDebugEnabled();
 
         String accessToken = authenticate();
-        if (accessToken != null && !accessToken.isEmpty()) {
+        if (accessToken != null && !StringUtils.isEmpty(accessToken)) {
             httpMethod.setRequestHeader(SalesforceConnectorConstants.AUTHORIZATION_HEADER_NAME,
                     SalesforceConnectorConstants.AUTHORIZATION_HEADER_OAUTH + " " + accessToken);
 
@@ -391,7 +389,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
 
         String url = configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.OAUTH2_TOKEN_ENDPOINT);
 
-        PostMethod post = new PostMethod(url != null && !url.isEmpty() ?
+        PostMethod post = new PostMethod(url != null && !StringUtils.isEmpty(url) ?
                 url : IdentityApplicationConstants.SF_OAUTH2_TOKEN_ENDPOINT);
 
         post.addParameter(SalesforceConnectorConstants.CLIENT_ID,
@@ -502,9 +500,8 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
         }
         boolean isDebugEnabled = log.isDebugEnabled();
 
-        if (query == null || query.isEmpty()) {
+        if (query == null || StringUtils.isEmpty(query)) {
             query = SalesforceProvisioningConnectorConfig.SALESFORCE_LIST_USER_SIMPLE_QUERY;
-            // SalesforceProvisioningConnectorConfig.SALESFORCE_LIST_USER_FULL_QUERY;
         }
 
         HttpClient httpclient = new HttpClient();

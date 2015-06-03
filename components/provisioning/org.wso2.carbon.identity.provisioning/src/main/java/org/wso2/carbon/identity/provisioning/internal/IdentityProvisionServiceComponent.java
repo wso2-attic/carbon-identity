@@ -1,21 +1,19 @@
 /*
- *  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package org.wso2.carbon.identity.provisioning.internal;
 
 import org.apache.commons.logging.Log;
@@ -116,31 +114,27 @@ public class IdentityProvisionServiceComponent {
         try {
             bundleContext = context.getBundleContext();
 
-            try {
-                bundleContext.registerService(UserOperationEventListener.class.getName(), new DefaultInboundUserProvisioningListener(), null);
-                if (log.isDebugEnabled()) {
-                    log.debug("Identity Provision Event listener registered successfully");
-                }
-                bundleContext.registerService(ApplicationMgtListener.class.getName(), new ApplicationMgtProvisioningListener(), null);
-                if (log.isDebugEnabled()) {
-                    log.debug("Application Management Event listener registered successfully");
-                }
-                bundleContext.registerService(IdentityProviderMgtLister.class.getName(), new IdentityProviderMgtProvisioningListener(), null);
-                if (log.isDebugEnabled()) {
-                    log.debug("Identity Provider Management Event listener registered successfully");
-                }
-
-            } catch (IdentityProvisioningException e) {
-                log.error("Error while initiating identity provisioning connector framework", e);
+            bundleContext.registerService(UserOperationEventListener.class.getName(), new DefaultInboundUserProvisioningListener(), null);
+            if (log.isDebugEnabled()) {
+                log.debug("Identity Provision Event listener registered successfully");
             }
-
+            bundleContext.registerService(ApplicationMgtListener.class.getName(), new ApplicationMgtProvisioningListener(), null);
+            if (log.isDebugEnabled()) {
+                log.debug("Application Management Event listener registered successfully");
+            }
+            bundleContext.registerService(IdentityProviderMgtLister.class.getName(), new IdentityProviderMgtProvisioningListener(), null);
+            if (log.isDebugEnabled()) {
+                log.debug("Identity Provider Management Event listener registered successfully");
+            }
             if (log.isDebugEnabled()) {
                 log.debug("Identity Provisioning framework bundle is activated");
             }
-        } catch (Exception e) {
+        } catch (IdentityProvisioningException e) {
+            log.error("Error while initiating identity provisioning connector framework", e);
             log.error("Error while activating Identity Provision bundle", e);
         }
     }
+
 
     /**
      * @param context
@@ -181,7 +175,7 @@ public class IdentityProvisionServiceComponent {
 
         ProvisioningConnectorConfig provisioningConnectorConfig = new ProvisioningConnectorConfig();
         provisioningConnectorConfig.setName(connectorFactory.getConnectorType());
-        Property []property = new Property[connectorFactory.getConfigurationProperties().size()];
+        Property[] property = new Property[connectorFactory.getConfigurationProperties().size()];
         provisioningConnectorConfig.setProvisioningProperties(connectorFactory.getConfigurationProperties().toArray(property));
         ProvisioningConnectorService.getInstance().addProvisioningConnectorConfigs(provisioningConnectorConfig);
     }

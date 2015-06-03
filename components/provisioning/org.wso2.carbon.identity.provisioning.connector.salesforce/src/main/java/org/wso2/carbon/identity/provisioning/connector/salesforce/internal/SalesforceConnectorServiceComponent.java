@@ -48,7 +48,7 @@ public class SalesforceConnectorServiceComponent {
             if (log.isDebugEnabled()) {
                 log.debug("Salesforce Identity Provisioning Connector bundle is activated");
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             log.fatal(" Error while activating Salesforce Identity Provisioning Connector ", e);
         }
     }
