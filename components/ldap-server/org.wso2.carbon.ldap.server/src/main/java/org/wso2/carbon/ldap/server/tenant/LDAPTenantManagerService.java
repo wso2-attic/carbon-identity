@@ -1,20 +1,21 @@
 /*
-*  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 
 package org.wso2.carbon.ldap.server.tenant;
@@ -63,6 +64,8 @@ public class LDAPTenantManagerService implements LDAPTenantManager {
      * @return tenant id
      * @throws UserStoreException
      */
+
+    @Override
     public int addTenant(Tenant tenant) throws UserStoreException {
 
         try {
@@ -87,19 +90,12 @@ public class LDAPTenantManagerService implements LDAPTenantManager {
         return tenant.getId();
     }
 
+    @Override
     public void updateTenant(Tenant tenant) throws UserStoreException {
-
-        /*try {
-            this.ldapPartitionManager.updatePartition(String.valueOf(tenant.getId()), tenant.getAdminName(),
-                                                      getTenantSuffix(tenant.getDomain()), getAdminInfo(tenant));
-
-        } catch (DirectoryServerException e) {
-            throw new UserStoreException(
-                "Can not update the LDAP partition for tenant id  - " + tenant.getId() + " tenant domain " +
-                    tenant.getDomain(), e);
-        }*/
+        //Override method in parent interface, no body needed at the moment
     }
 
+    @Override
     public void deleteTenant(int i) throws UserStoreException {
 
         try {
@@ -116,6 +112,7 @@ public class LDAPTenantManagerService implements LDAPTenantManager {
      * @param tenant object
      * @throws UserStoreException
      */
+    @Override
     public void addPartitionToTenant(Tenant tenant) throws UserStoreException {
         try {
             ldapPartitionManager.initializeExistingPartition(getPartitionInfo(tenant));
@@ -134,7 +131,7 @@ public class LDAPTenantManagerService implements LDAPTenantManager {
     private String getTenantSuffix(String domain) {
         // here we use a simple algorithm by splitting the domain with .
         String[] domainParts = domain.split("\\.");
-        StringBuffer suffixName = new StringBuffer();
+        StringBuilder suffixName = new StringBuilder();
         for (String domainPart : domainParts) {
             suffixName.append(",dc=").append(domainPart);
         }
@@ -192,7 +189,6 @@ public class LDAPTenantManagerService implements LDAPTenantManager {
     private PartitionInfo getPartitionInfo(Tenant tenant) throws EmbeddingLDAPException {
 
         String partitionID = String.valueOf(tenant.getId());
-        //String partitionID = tenant.getDomain();
         String realm = tenant.getDomain();
         String rootDN = getTenantSuffix(tenant.getDomain());
         AdminInfo tenantAdminInfo = getAdminInfo(tenant);
