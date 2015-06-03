@@ -34,7 +34,7 @@ public class FIDOAdminService {
     /**
      * Initiate FIDO registration.
      *
-     * @param appID    Application ID.
+     * @param appID Application ID.
      * @return RegisterRequestData.
      * @throws IdentityException when U2F can not generate challenge.
      */

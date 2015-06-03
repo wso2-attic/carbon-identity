@@ -54,7 +54,7 @@ public class DeviceStoreDAO {
         FIDOUtil.logTrace("Executing {addDeviceRegistration} method", log);
         if (log.isDebugEnabled()) {
             log.debug("addDeviceRegistration inputs {username: " + username + ", registration :" +
-                      registration.toJsonWithAttestationCert() + "}");
+                    registration.toJsonWithAttestationCert() + "}");
         }
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -78,7 +78,7 @@ public class DeviceStoreDAO {
                 log.error("Error rolling back the transaction to FIDO registration", e1);
             }
             throw new IdentityException("Error when executing FIDO registration SQL : " +
-                                        FIDOAuthenticatorConstants.SQLQueries.ADD_DEVICE_REGISTRATION_QUERY, e);
+                    FIDOAuthenticatorConstants.SQLQueries.ADD_DEVICE_REGISTRATION_QUERY, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, preparedStatement);
         }
@@ -124,7 +124,7 @@ public class DeviceStoreDAO {
         } catch (SQLException e) {
             throw new IdentityException(
                     "Error executing get device registration SQL : " +
-                    FIDOAuthenticatorConstants.SQLQueries.GET_DEVICE_REGISTRATION_QUERY, e);
+                            FIDOAuthenticatorConstants.SQLQueries.GET_DEVICE_REGISTRATION_QUERY, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, resultSet, preparedStatement);
         }

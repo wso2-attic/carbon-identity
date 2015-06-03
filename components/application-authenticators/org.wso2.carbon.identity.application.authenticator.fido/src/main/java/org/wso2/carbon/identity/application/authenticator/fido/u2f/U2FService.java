@@ -29,8 +29,11 @@ import org.wso2.carbon.identity.application.authenticator.fido.dto.FIDOUser;
 import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.user.api.UserStoreException;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collection;
 
 public class U2FService {
 
@@ -111,7 +114,7 @@ public class U2FService {
                     .fromJson(requestStorage.remove(user.getAuthenticateResponse().getRequestId()));
 
             u2f.finishAuthentication(authenticateRequest, user.getAuthenticateResponse(),
-                                     getRegistrations(user));
+                    getRegistrations(user));
 
         } catch (Exception e) {
             throw new AuthenticationFailedException("Could not complete FIDO authentication", e);

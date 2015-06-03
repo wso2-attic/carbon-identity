@@ -68,7 +68,7 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator
             U2FService u2FService = U2FService.getInstance();
             //TODO enhancement: tenant domain, user store domain
             FIDOUser fidoUser = new FIDOUser(user.getUserName(), user.getTenantDomain(),
-                                             user.getUserStoreDomain(), AuthenticateResponse.fromJson(tokenResponse));
+                    user.getUserStoreDomain(), AuthenticateResponse.fromJson(tokenResponse));
             fidoUser.setAppID(appID);
             u2FService.finishAuthentication(fidoUser);
         } else {
@@ -114,7 +114,7 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator
         try {
             //authentication page's URL.
             String loginPage = ConfigurationFacade.getInstance().getAuthenticationEndpointURL();
-            loginPage= loginPage.replace("login.do", "authentication.jsp");
+            loginPage = loginPage.replace("login.do", "authentication.jsp");
             //username from basic authenticator.
             AuthenticatedUser user = getUsername(context);
             //origin as appID eg.: http://example.com:8080
@@ -127,14 +127,14 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator
 
 
                 response.sendRedirect(response.encodeRedirectURL(loginPage + ("?"))
-                                      + "&authenticators=" + getName() + ":" + "LOCAL" + "&type=fido&sessionDataKey=" +
-                                      request.getParameter("sessionDataKey") +
-                                      "&data=" + data.toJson());
+                        + "&authenticators=" + getName() + ":" + "LOCAL" + "&type=fido&sessionDataKey=" +
+                        request.getParameter("sessionDataKey") +
+                        "&data=" + data.toJson());
             } else {
                 String redirectURL = loginPage.replace("login.do", "retry.do");
                 redirectURL = response.encodeRedirectURL(redirectURL + ("?")) + "&failedUsername=" + URLEncoder.encode(user.getUserName(), FIDOAuthenticatorConstants.UTF_8) +
-                              "&statusMsg=" + URLEncoder.encode(FIDOAuthenticatorConstants.AUTHENTICATION_ERROR_MESSAGE, FIDOAuthenticatorConstants.UTF_8) +
-                              "&status=" + URLEncoder.encode(FIDOAuthenticatorConstants.AUTHENTICATION_STATUS, FIDOAuthenticatorConstants.UTF_8);
+                        "&statusMsg=" + URLEncoder.encode(FIDOAuthenticatorConstants.AUTHENTICATION_ERROR_MESSAGE, FIDOAuthenticatorConstants.UTF_8) +
+                        "&status=" + URLEncoder.encode(FIDOAuthenticatorConstants.AUTHENTICATION_STATUS, FIDOAuthenticatorConstants.UTF_8);
                 response.sendRedirect(redirectURL);
             }
 
@@ -156,8 +156,8 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator
         AuthenticatedUser authenticatedUser = null;
         for (int i = 1; i <= context.getSequenceConfig().getStepMap().size(); i++) {
             if (context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser() != null &&
-                context.getSequenceConfig().getStepMap().get(i).getAuthenticatedAutenticator()
-                        .getApplicationAuthenticator() instanceof LocalApplicationAuthenticator) {
+                    context.getSequenceConfig().getStepMap().get(i).getAuthenticatedAutenticator()
+                            .getApplicationAuthenticator() instanceof LocalApplicationAuthenticator) {
                 authenticatedUser = context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser();
                 if (authenticatedUser.getUserStoreDomain() == null) {
                     authenticatedUser.setUserStoreDomain(FIDOAuthenticatorConstants.PRIMARY_USER_DOMAIN);
