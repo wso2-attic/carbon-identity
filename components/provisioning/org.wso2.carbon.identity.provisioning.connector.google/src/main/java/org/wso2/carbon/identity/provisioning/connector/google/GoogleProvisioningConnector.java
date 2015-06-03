@@ -1,21 +1,19 @@
 /*
- *  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package org.wso2.carbon.identity.provisioning.connector.google;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
@@ -29,6 +27,8 @@ import com.google.api.services.admin.directory.model.User;
 import com.google.api.services.admin.directory.model.UserName;
 import com.google.api.services.admin.directory.model.Users;
 import org.apache.axiom.util.base64.Base64Utils;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -62,7 +62,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         if (provisioningProperties != null && provisioningProperties.length > 0) {
             for (Property property : provisioningProperties) {
 
-                if (property.getName().equals("google_prov_private_key")) {
+                if (GoogleConnectorConstants.PropertyConfig.PRIVATE_KEY.equals(property.getName())) {
                     try {
                         byte[] decodedBytes = Base64Utils.decode(property.getValue());
                         googlePrvKey = new File("googlePrvKey");
@@ -76,10 +76,8 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
                 }
                 configs.put(property.getName(), property.getValue());
                 if (IdentityProvisioningConstants.JIT_PROVISIONING_ENABLED.equals(property
-                        .getName())) {
-                    if ("1".equals(property.getValue())) {
-                        jitProvisioningEnabled = true;
-                    }
+                        .getName()) && "1".equals(property.getValue())) {
+                    jitProvisioningEnabled = true;
                 }
             }
         }
@@ -200,7 +198,6 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
                 log.debug("New google user to be created : " + newUser.toPrettyString());
             }
 
-            // listUsers("");
             Directory.Users.Insert request = getDirectoryService().users().insert(newUser);
             createdUser = request.execute();
 
@@ -272,7 +269,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
      * @return
      * @throws IdentityProvisioningException
      */
-    protected String listUsers(String query) throws IdentityProvisioningException {
+    protected String listUsers() throws IdentityProvisioningException {
         boolean isDebugEnabled = log.isDebugEnabled();
         if (isDebugEnabled) {
             log.debug("Starting listUsers() of " + GoogleProvisioningConnector.class);
@@ -317,7 +314,6 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
      * Build and returns a Directory service object authorized with the service accounts that act on
      * behalf of the given user.
      *
-     * @param userEmail The email of the user.
      * @return Directory service object that is ready to make requests.
      * @throws IdentityProvisioningException
      */
@@ -336,8 +332,6 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         String serviceAccountId = this.configHolder.getValue(serviceAccountEmailKey);
         /** Admin email */
         String serviceAccountUser = this.configHolder.getValue(adminEmailKey);
-        /** Path to the Service Account's Private Key file */
-        String serviceAccountPrivateKeyString = this.configHolder.getValue(privateKeyKey);
         /** Application name */
         String applicationName = this.configHolder.getValue(applicationNameKey);
 
@@ -391,12 +385,11 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         List<String> wso2IsUsernames = getUserNames(provisioningEntity.getAttributes());
         String wso2IsUsername = null;
 
-        if (wso2IsUsernames != null && wso2IsUsernames.size() > 0) {
+        if (wso2IsUsernames != null && !CollectionUtils.isEmpty(wso2IsUsernames)) {
             // first element must be the user name.
             wso2IsUsername = wso2IsUsernames.get(0);
         }
 
-        String primaryEmailClaimKey = "google_prov_email_claim_dropdown";
         String domainNameKey = "google_prov_domain_name";
 
         String defaultFamilyNameKey = "google_prov_familyname";
@@ -406,7 +399,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         String givenNameClaimKey = "google_prov_givenname_claim_dropdown";
         String provisioningPatternKey = "google_prov_pattern";
         String provisioningSeparatorKey = "google_prov_separator";
-        String idpName_key = "identityProviderName";
+        String idpNameKey = "identityProviderName";
         String userIdClaimUriKey = "userIdClaimUri";
 
         Map<String, String> requiredAttributes = getSingleValuedClaims(provisioningEntity
@@ -415,7 +408,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         /** Provisioning Pattern */
         String provisioningPattern = this.configHolder.getValue(provisioningPatternKey);
         String provisioningSeparator = this.configHolder.getValue(provisioningSeparatorKey);
-        String idpName = this.configHolder.getValue(idpName_key);
+        String idpName = this.configHolder.getValue(idpNameKey);
         String userIdClaimURL = this.configHolder.getValue(userIdClaimUriKey);
         String provisioningDomain = this.configHolder.getValue(domainNameKey);
 
@@ -506,7 +499,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         Map<String, String> requiredAttributes = getSingleValuedClaims(provisioningEntity
                 .getAttributes());
 
-        if (requiredAttributes.size() == 0) {
+        if (MapUtils.isEmpty(requiredAttributes)) {
             return null;
         }
 
@@ -546,9 +539,6 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
 
     /**
      * Generates (random) password for user to be provisioned
-     *
-     * @param username
-     * @return
      */
     protected String generatePassword() {
         return new BigInteger(130, random).toString(32);
