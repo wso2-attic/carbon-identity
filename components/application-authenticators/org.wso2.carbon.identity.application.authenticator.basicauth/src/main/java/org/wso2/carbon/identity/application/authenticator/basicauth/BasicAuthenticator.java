@@ -17,8 +17,6 @@ package org.wso2.carbon.identity.application.authenticator.basicauth;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
 import org.wso2.carbon.identity.application.authentication.framework.LocalApplicationAuthenticator;
@@ -39,7 +37,6 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -109,7 +106,7 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
             IdentityErrorMsgContext errorContext = IdentityUtil.getIdentityErrorMsg();
             IdentityUtil.clearIdentityErrorMsg();
 
-            if (showAuthFailureReason != null && showAuthFailureReason.equals("true")) {
+            if (showAuthFailureReason != null && "true".equals(showAuthFailureReason)) {
                 if (errorContext != null) {
                     if (log.isDebugEnabled()) {
                         log.debug("Identity error message context is not null");
@@ -120,50 +117,50 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
 
                     if (log.isDebugEnabled()) {
                         log.debug("errorCode : " + errorCode);
-                        log.debug("username : " + request.getParameter("username"));
+                        log.debug("username : " + request.getParameter(BasicAuthenticatorConstants.USER_NAME));
                         log.debug("remainingAttempts : " + remainingAttempts);
                     }
 
                     if (errorCode.equals(UserCoreConstants.ErrorCode.INVALID_CREDENTIAL)) {
-                        retryParam = retryParam + "&errorCode=" + errorCode
-                                + "&failedUsername=" + URLEncoder.encode(request.getParameter("username"), "UTF-8")
+                        retryParam = retryParam + BasicAuthenticatorConstants.ERROR_CODE + errorCode
+                                + BasicAuthenticatorConstants.FAILED_USERNAME + URLEncoder.encode(request.getParameter(BasicAuthenticatorConstants.USER_NAME), BasicAuthenticatorConstants.UTF_8)
                                 + "&remainingAttempts=" + remainingAttempts;
                         response.sendRedirect(response.encodeRedirectURL(loginPage + ("?" + queryParams))
-                                + "&authenticators=" + getName() + ":" + "LOCAL" + retryParam);
+                                + BasicAuthenticatorConstants.AUTHENTICATORS + getName() + ":" + BasicAuthenticatorConstants.LOCAL + retryParam);
                     } else if (errorCode.equals(UserCoreConstants.ErrorCode.USER_IS_LOCKED)) {
                         String redirectURL = loginPage.replace("login.do", "retry.do");
                         if (remainingAttempts == 0) {
                             redirectURL = response.encodeRedirectURL(redirectURL + ("?" + queryParams)) +
-                                    "&errorCode=" + errorCode + "&failedUsername=" +
-                                    URLEncoder.encode(request.getParameter("username"), "UTF-8") +
+                                    BasicAuthenticatorConstants.ERROR_CODE + errorCode + BasicAuthenticatorConstants.FAILED_USERNAME +
+                                    URLEncoder.encode(request.getParameter(BasicAuthenticatorConstants.USER_NAME), BasicAuthenticatorConstants.UTF_8) +
                                     "&remainingAttempts=0";
                         } else {
-                            redirectURL =  response.encodeRedirectURL( redirectURL + ("?" + queryParams))  +
-                                    "&errorCode=" + errorCode + "&failedUsername=" +
-                                    URLEncoder.encode(request.getParameter("username"), "UTF-8");
+                            redirectURL = response.encodeRedirectURL(redirectURL + ("?" + queryParams)) +
+                                    BasicAuthenticatorConstants.ERROR_CODE + errorCode + BasicAuthenticatorConstants.FAILED_USERNAME +
+                                    URLEncoder.encode(request.getParameter(BasicAuthenticatorConstants.USER_NAME), BasicAuthenticatorConstants.UTF_8);
                         }
                         response.sendRedirect(redirectURL);
 
                     } else if (errorCode.equals(UserCoreConstants.ErrorCode.USER_DOES_NOT_EXIST)) {
-                        retryParam = retryParam + "&errorCode=" + errorCode
-                                + "&failedUsername=" + URLEncoder.encode(request.getParameter("username"), "UTF-8");
+                        retryParam = retryParam + BasicAuthenticatorConstants.ERROR_CODE + errorCode
+                                + BasicAuthenticatorConstants.FAILED_USERNAME + URLEncoder.encode(request.getParameter(BasicAuthenticatorConstants.USER_NAME), BasicAuthenticatorConstants.UTF_8);
                         response.sendRedirect(response.encodeRedirectURL(loginPage + ("?" + queryParams))
-                                + "&authenticators=" + getName() + ":" + "LOCAL" + retryParam);
+                                + BasicAuthenticatorConstants.AUTHENTICATORS + getName() + ":" + BasicAuthenticatorConstants.LOCAL + retryParam);
                     }
                 } else {
                     response.sendRedirect(response.encodeRedirectURL(loginPage + ("?" + queryParams))
-                            + "&authenticators=" + getName() + ":" + "LOCAL" + retryParam);
+                            + BasicAuthenticatorConstants.AUTHENTICATORS + getName() + ":" + BasicAuthenticatorConstants.LOCAL + retryParam);
                 }
             } else {
                 String errorCode = errorContext != null ? errorContext.getErrorCode() : null;
                 if (errorCode != null && errorCode.equals(UserCoreConstants.ErrorCode.USER_IS_LOCKED)) {
                     String redirectURL = loginPage.replace("login.do", "retry.do");
-                    redirectURL = response.encodeRedirectURL(redirectURL + ("?" + queryParams)) + "&failedUsername=" + URLEncoder.encode(request.getParameter("username"), "UTF-8");
+                    redirectURL = response.encodeRedirectURL(redirectURL + ("?" + queryParams)) + BasicAuthenticatorConstants.FAILED_USERNAME + URLEncoder.encode(request.getParameter(BasicAuthenticatorConstants.USER_NAME), BasicAuthenticatorConstants.UTF_8);
                     response.sendRedirect(redirectURL);
 
                 } else {
                     response.sendRedirect(response.encodeRedirectURL(loginPage + ("?" + queryParams))
-                            + "&authenticators=" + getName() + ":" + "LOCAL" + retryParam);
+                            + BasicAuthenticatorConstants.AUTHENTICATORS + getName() + ":" + BasicAuthenticatorConstants.LOCAL + retryParam);
                 }
             }
 
@@ -179,10 +176,10 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
                                                  HttpServletResponse response, AuthenticationContext context)
             throws AuthenticationFailedException {
 
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
+        String username = request.getParameter(BasicAuthenticatorConstants.USER_NAME);
+        String password = request.getParameter(BasicAuthenticatorConstants.PASSWORD);
 
-        boolean isAuthenticated = false;
+        boolean isAuthenticated;
         UserStoreManager userStoreManager;
         // Check the authentication
         try {
