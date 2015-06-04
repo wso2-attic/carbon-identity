@@ -46,6 +46,7 @@ public class Util {
         UNRESERVED_CHARACTERS.add(Character.valueOf('.'));
         UNRESERVED_CHARACTERS.add(Character.valueOf('_'));
         UNRESERVED_CHARACTERS.add(Character.valueOf('~'));
+        System.out.println();
     }
     private static int singleLogoutRetryCount = 5;
     private static long singleLogoutRetryInterval = 60000;
