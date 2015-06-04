@@ -226,7 +226,7 @@ public class IdentityProviderMgtServiceClient {
                     if (!("facebook").equals(config.getDisplayName())
                             || ("openid").equals(config.getDisplayName())
                             || ("openidconnect").equals(config.getDisplayName())
-                            || ("samlsso").equals(config.getDisplayName())|| ("passovests").
+                            || ("samlsso").equals(config.getDisplayName()) || ("passivests").
                             equals(config.getDisplayName()))
                         configMap.put(config.getName(), config);
                 }

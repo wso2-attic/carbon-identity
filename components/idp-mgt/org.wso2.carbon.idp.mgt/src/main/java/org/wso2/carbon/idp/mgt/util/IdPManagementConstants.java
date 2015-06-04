@@ -20,7 +20,7 @@ package org.wso2.carbon.idp.mgt.util;
 
 public class IdPManagementConstants {
 
-    private IdPManagementConstants(){
+    private IdPManagementConstants() {
     }
 
     public static final String SHARED_IDP_PREFIX = "SHARED_";
@@ -28,7 +28,7 @@ public class IdPManagementConstants {
     public static class SQLQueries {
 
 
-        private SQLQueries(){
+        private SQLQueries() {
         }
 
         public static final String GET_IDPS_SQL = "SELECT NAME, IS_PRIMARY, HOME_REALM_ID, DESCRIPTION, " +

@@ -22,6 +22,7 @@ import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.servlet.ServletRequestContext;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
@@ -48,7 +49,7 @@ public class IdPManagementUIUtil {
 
         if (uriString != null) {
             try {
-                URL url=new URL(uriString);
+                URL url = new URL(uriString);
             } catch (MalformedURLException e) {
                 log.debug(e.getMessage(), e);
                 return false;
@@ -793,8 +794,7 @@ public class IdPManagementUIUtil {
                     mapping.setLocalClaim(localClaim);
 
                     if (advancedMapping.get(idPClaimURI) != null) {
-
-                        if (!("").equals(advancedMapping.get(idPClaimURI))) {
+                        if (StringUtils.isNotEmpty(advancedMapping.get(idPClaimURI))) {
                             mapping.setDefaultValue(advancedMapping.get(idPClaimURI));
                         }
                         mapping.setRequested(true);
@@ -1040,7 +1040,7 @@ public class IdPManagementUIUtil {
         property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.Facebook.USER_INFO_FIELDS);
         String fbUserInfoFields = paramMap.get("fbUserInfoFields");
-        if(fbUserInfoFields != null && fbUserInfoFields.endsWith(",")) {
+        if (fbUserInfoFields != null && fbUserInfoFields.endsWith(",")) {
             fbUserInfoFields = fbUserInfoFields.substring(0, fbUserInfoFields.length() - 1);
         }
         property.setValue(fbUserInfoFields);

@@ -50,14 +50,15 @@ public class IdPManagementUtil {
     }
 
     /**
-     +     * Get the resident entity id configured in identity.xml.
-     +     *
-     +     */
+     * +     * Get the resident entity id configured in identity.xml.
+     * +     *
+     * +
+     */
     public static String getResidentIdPEntityId() {
         String localEntityId = IdentityUtil.getProperty("SSOService.EntityId");
-            if (localEntityId == null || localEntityId.trim().isEmpty()) {
-                localEntityId = "localhost";
-            }
+        if (localEntityId == null || localEntityId.trim().isEmpty()) {
+            localEntityId = "localhost";
+        }
         return localEntityId;
     }
 }

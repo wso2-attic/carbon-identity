@@ -20,6 +20,8 @@ package org.wso2.carbon.idp.mgt;
 
 import org.apache.axiom.om.util.Base64;
 import org.apache.axis2.engine.AxisConfiguration;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -129,8 +131,8 @@ public class IdentityProviderManager {
         }
         // If ProxyContextPath is defined then append it
         String proxyContextPath = ServerConfiguration.getInstance().getFirstProperty("ProxyContextPath");
-        if (proxyContextPath != null && !proxyContextPath.trim().isEmpty()){
-            if (proxyContextPath.charAt(0) == '/'){
+        if (proxyContextPath != null && !proxyContextPath.trim().isEmpty()) {
+            if (proxyContextPath.charAt(0) == '/') {
                 serverUrl += proxyContextPath;
             } else {
                 serverUrl += "/" + proxyContextPath;
@@ -345,7 +347,7 @@ public class IdentityProviderManager {
             throws IdentityApplicationManagementException {
 
         if (identityProvider.getHomeRealmId() == null
-                || ("").equals(identityProvider.getHomeRealmId())) {
+                || StringUtils.isEmpty(identityProvider.getHomeRealmId())) {
             String msg = "Invalid argument: Resident Identity Provider Home Realm Identifier value is empty";
             log.error(msg);
             throw new IdentityApplicationManagementException(msg);
@@ -400,8 +402,9 @@ public class IdentityProviderManager {
     public void updateResidentIdP(IdentityProvider identityProvider, String tenantDomain)
             throws IdentityApplicationManagementException {
 
+
         if (identityProvider.getHomeRealmId() == null
-                ||("").equals(identityProvider.getHomeRealmId())) {
+                || StringUtils.isEmpty(identityProvider.getHomeRealmId())) {
             String msg = "Invalid argument: Resident Identity Provider Home Realm Identifier value is empty";
             log.error(msg);
             throw new IdentityApplicationManagementException(msg);
@@ -469,7 +472,7 @@ public class IdentityProviderManager {
                                          boolean ignoreFileBasedIdps) throws IdentityApplicationManagementException {
 
         int tenantId = getTenantIdOfDomain(tenantDomain);
-        if (idPName == null || ("").equals(idPName)) {
+        if (idPName == null || StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
             throw new IdentityApplicationManagementException(msg);
@@ -536,7 +539,7 @@ public class IdentityProviderManager {
             throws IdentityApplicationManagementException {
 
         int tenantId = getTenantIdOfDomain(tenantDomain);
-        if (property == null || ("").equals(property) || value == null || ("").equals(value)) {
+        if (property == null || StringUtils.isEmpty(property) || value == null || StringUtils.isEmpty(value)) {
             String msg = "Invalid argument: Authenticator property or property value is empty";
             log.error(msg);
             throw new IdentityApplicationManagementException(msg);
@@ -585,7 +588,7 @@ public class IdentityProviderManager {
             throws IdentityApplicationManagementException {
 
         int tenantId = getTenantIdOfDomain(tenantDomain);
-        if (realmId == null || ("").equals(realmId)) {
+        if (realmId == null || StringUtils.isEmpty(realmId)) {
             String msg = "Invalid argument: Identity Provider Home Realm Identifier value is empty";
             log.error(msg);
             throw new IdentityApplicationManagementException(msg);
@@ -630,7 +633,7 @@ public class IdentityProviderManager {
                                                   List<String> idPClaimURIs) throws IdentityApplicationManagementException {
 
         int tenantId = getTenantIdOfDomain(tenantDomain);
-        if (idPName == null || ("").equals(idPName)) {
+        if (idPName == null || StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
             throw new IdentityApplicationManagementException(msg);
@@ -702,7 +705,7 @@ public class IdentityProviderManager {
                                                 List<String> localClaimURIs) throws IdentityApplicationManagementException {
 
         int tenantId = getTenantIdOfDomain(tenantDomain);
-        if (idPName == null || ("").equals(idPName)) {
+        if (idPName == null || StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
             throw new IdentityApplicationManagementException(msg);
@@ -774,7 +777,7 @@ public class IdentityProviderManager {
 
         int tenantId = getTenantIdOfDomain(tenantDomain);
 
-        if (idPName == null || ("").equals(idPName)) {
+        if (idPName == null || StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             throw new IdentityApplicationManagementException(msg);
         }
@@ -842,7 +845,7 @@ public class IdentityProviderManager {
                                               LocalRole[] localRoles) throws IdentityApplicationManagementException {
 
         int tenantId = getTenantIdOfDomain(tenantDomain);
-        if (idPName == null || ("").equals(idPName)) {
+        if (idPName == null || StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
             throw new IdentityApplicationManagementException(msg);
@@ -934,7 +937,7 @@ public class IdentityProviderManager {
 
 
         if (identityProvider.getIdentityProviderName() == null
-                || ("").equals(identityProvider.getIdentityProviderName())) {
+                || StringUtils.isEmpty(identityProvider.getIdentityProviderName())) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
             throw new IdentityApplicationManagementException(msg);
@@ -1002,7 +1005,7 @@ public class IdentityProviderManager {
             throws IdentityApplicationManagementException {
 
         int tenantId = getTenantIdOfDomain(tenantDomain);
-        if (idPName == null || ("").equals(idPName)) {
+        if (idPName == null ||StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
             throw new IdentityApplicationManagementException(msg);
@@ -1091,8 +1094,8 @@ public class IdentityProviderManager {
                 } catch (UserStoreException e) {
                     String msg = "Error occurred while retrieving UserStoreManager for tenant "
                             + tenantDomain;
-                    log.error(msg,e);
-                    throw new IdentityApplicationManagementException(msg,e);
+                    log.error(msg, e);
+                    throw new IdentityApplicationManagementException(msg, e);
                 }
             }
         }
@@ -1115,7 +1118,7 @@ public class IdentityProviderManager {
             throws IdentityApplicationManagementException {
         List<FederatedAuthenticatorConfig> appConfig = ApplicationAuthenticatorService
                 .getInstance().getFederatedAuthenticators();
-        if (appConfig != null && !appConfig.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(appConfig)) {
             return appConfig.toArray(new FederatedAuthenticatorConfig[appConfig.size()]);
         }
         return new FederatedAuthenticatorConfig[0];

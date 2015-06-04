@@ -46,15 +46,27 @@ public class IdPAuthPropertyCacheKey extends CacheKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         IdPAuthPropertyCacheKey that = (IdPAuthPropertyCacheKey) o;
 
-        if (!name.equals(that.name)) return false;
-        if (!tenantDomain.equals(that.tenantDomain)) return false;
-        if (!value.equals(that.value)) return false;
+        if (!name.equals(that.name)) {
+            return false;
+        }
+        if (!tenantDomain.equals(that.tenantDomain)) {
+            return false;
+        }
+        if (!value.equals(that.value)) {
+            return false;
+        }
 
         return true;
     }

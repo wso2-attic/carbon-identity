@@ -40,7 +40,8 @@ public class IdentityProviderManagementService extends AbstractAdmin {
     private static final Log log = LogFactory.getLog(IdentityProviderManager.class);
     private static String LOCAL_DEFAULT_CLAIM_DIALECT = "http://wso2.org/claims";
 
-    /**f
+    /**
+     * f
      * Retrieves resident Identity provider for the logged-in tenant
      *
      * @return <code>IdentityProvider</code>
@@ -66,7 +67,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
             throw new IllegalArgumentException("Identity provider is null");
         }
         // invoking the listeners
-        List<IdentityProviderMgtLister> listeners = IdpMgtListenerServiceComponent.getListners();
+        List<IdentityProviderMgtLister> listeners = IdpMgtListenerServiceComponent.getInstance().getListners();
         for (IdentityProviderMgtLister listener : listeners) {
             listener.updateResidentIdP(identityProvider);
         }
@@ -145,7 +146,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
         }
 
         // invoking the listeners
-        List<IdentityProviderMgtLister> listeners = IdpMgtListenerServiceComponent.getListners();
+        List<IdentityProviderMgtLister> listeners = IdpMgtListenerServiceComponent.getInstance().getListners();
         for (IdentityProviderMgtLister listener : listeners) {
             listener.addIdP(identityProvider);
         }
@@ -168,7 +169,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
         IdentityProviderManager.getInstance().deleteIdP(idPName, tenantDomain);
 
         // invoking the listeners
-        List<IdentityProviderMgtLister> listeners = IdpMgtListenerServiceComponent.getListners();
+        List<IdentityProviderMgtLister> listeners = IdpMgtListenerServiceComponent.getInstance().getListners();
         for (IdentityProviderMgtLister listener : listeners) {
             listener.deleteIdP(idPName);
         }
@@ -190,7 +191,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
             }
             return claimUris.toArray(new String[claimUris.size()]);
         } catch (Exception e) {
-            log.error("Error while reading the system claims",e);
+            log.error("Error while reading the system claims", e);
             String message = "Error while reading system claims";
             throw new IdentityApplicationManagementException(message);
         }
@@ -220,7 +221,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
                     "New name: " + identityProvider.getIdentityProviderName() + ")");
         }
         // invoking the listeners
-        List<IdentityProviderMgtLister> listeners = IdpMgtListenerServiceComponent.getListners();
+        List<IdentityProviderMgtLister> listeners = IdpMgtListenerServiceComponent.getInstance().getListners();
         for (IdentityProviderMgtLister listener : listeners) {
             listener.updateIdP(oldIdPName, identityProvider);
         }
