@@ -1,19 +1,17 @@
 /*
- *  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.wso2.carbon.identity.application.authenticator.samlsso.internal;
@@ -29,7 +27,6 @@ import org.wso2.carbon.utils.CarbonUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.Hashtable;
 import java.util.Scanner;
 
 /**
@@ -64,9 +61,7 @@ public class SAMLSSOAuthenticatorServiceComponent {
     protected void activate(ComponentContext ctxt) {
 
         SAMLSSOAuthenticator samlSSOAuthenticator = new SAMLSSOAuthenticator();
-        Hashtable<String, String> props = new Hashtable<String, String>();
-
-        ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(), samlSSOAuthenticator, props);
+        ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(), samlSSOAuthenticator, null);
 
         try {
             String postPagePath = CarbonUtils.getCarbonHome() + File.separator + "repository"
@@ -76,7 +71,7 @@ public class SAMLSSOAuthenticatorServiceComponent {
             postPage = new Scanner(fis, "UTF-8").useDelimiter("\\A").next();
         } catch (FileNotFoundException e) {
             if (log.isDebugEnabled()) {
-                log.debug("Failed to find SAMLSSO POST page for federation");
+                log.debug("Failed to find SAMLSSO POST page for federation" + e);
             }
         }
 
@@ -85,7 +80,7 @@ public class SAMLSSOAuthenticatorServiceComponent {
         }
     }
 
-    protected void deactivate(ComponentContext ctxt) {
+    protected void deactivate(ComponentContext context) {
         if (log.isDebugEnabled()) {
             log.info("SAML2 SSO Authenticator bundle is deactivated");
         }

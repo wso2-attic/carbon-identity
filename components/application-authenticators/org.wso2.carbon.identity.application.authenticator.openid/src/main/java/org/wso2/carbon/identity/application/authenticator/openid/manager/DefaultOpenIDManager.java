@@ -1,19 +1,17 @@
 /*
- *Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.wso2.carbon.identity.application.authenticator.openid.manager;
 
@@ -56,6 +54,7 @@ public class DefaultOpenIDManager implements OpenIDManager {
 
     private static Log log = LogFactory.getLog(DefaultOpenIDManager.class);
 
+    @Override
     public String doOpenIDLogin(HttpServletRequest request, HttpServletResponse response, AuthenticationContext context) throws OpenIDException {
 
         String claimed_id = request.getParameter("claimed_id");
@@ -76,7 +75,6 @@ public class DefaultOpenIDManager implements OpenIDManager {
             // Keeping necessary parameters to verify the AuthResponse
             request.getSession().setAttribute("openid-disc", discovered);
 
-            //consumerManager.setImmediateAuth(true);
 
             String returnToURL = CarbonUIUtil.getAdminConsoleURL(request);
             String realm = returnToURL.replace("commonauth/carbon/", "commonauth");
@@ -121,6 +119,7 @@ public class DefaultOpenIDManager implements OpenIDManager {
         }
     }
 
+    @Override
     public void processOpenIDLoginResponse(HttpServletRequest request, HttpServletResponse response, AuthenticationContext context) throws OpenIDException {
 
         String contextIdentifier = context.getContextIdentifier();
@@ -228,17 +227,18 @@ public class DefaultOpenIDManager implements OpenIDManager {
         } else {
             attribRequestor = new SampleAttributesRequestor();
         }
-
-        attribRequestor.init();
+        if(attribRequestor!=null) {
+            attribRequestor.init();
+        }
 
         return attribRequestor;
     }
 
     private String getCommaSeperatedValue(List<String> values) {
-        StringBuffer returnValue = null;
+        StringBuilder returnValue = null;
         for (String value : values) {
             if (returnValue == null) {
-                returnValue = new StringBuffer(value);
+                returnValue = new StringBuilder(value);
             } else {
                 returnValue.append("," + value);
             }

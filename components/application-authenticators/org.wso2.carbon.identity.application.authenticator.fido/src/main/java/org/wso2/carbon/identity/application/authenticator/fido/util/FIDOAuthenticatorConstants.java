@@ -22,18 +22,24 @@ package org.wso2.carbon.identity.application.authenticator.fido.util;
  * Utils class for FIDO Authenticator Constants.
  */
 public class FIDOAuthenticatorConstants {
+    private FIDOAuthenticatorConstants() {
+    }
 
-	public static final String AUTHENTICATOR_NAME = "FIDOAuthenticator";
-	public static final String AUTHENTICATOR_FRIENDLY_NAME = "fido";
-	public static final String UNUSED = "unused";
+    public static final String AUTHENTICATOR_NAME = "FIDOAuthenticator";
+    public static final String AUTHENTICATOR_FRIENDLY_NAME = "fido";
+    public static final String UNUSED = "unused";
     public static final String AUTHENTICATION_STATUS = "Authentication Failed !";
     public static final String AUTHENTICATION_ERROR_MESSAGE = "No registered device found, Please register your device before sign in.";
     public static final String PRIMARY_USER_DOMAIN = "PRIMARY";
 
     public static final String U2F_KEY_HANDLE = "KEY_HANDLE";
     public static final String U2F_DEVICE_DATA = "DEVICE_DATA";
+    public static final String UTF_8 = "UTF-8";
 
     public static class SQLQueries {
+        private SQLQueries() {
+        }
+
         public static final String ADD_DEVICE_REGISTRATION_QUERY = "INSERT INTO FIDO_DEVICE_STORE (TENANT_ID, DOMAIN_ID," +
                 " USER_NAME, KEY_HANDLE, DEVICE_DATA ) SELECT ?, UM_DOMAIN_ID, ?,?,? FROM UM_DOMAIN WHERE UM_DOMAIN_NAME = ? " +
                 "AND UM_TENANT_ID = ?";

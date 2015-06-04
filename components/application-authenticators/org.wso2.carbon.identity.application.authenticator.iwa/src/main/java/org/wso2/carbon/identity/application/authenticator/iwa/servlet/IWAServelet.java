@@ -1,19 +1,17 @@
 /*
- * Copyright (c) 2014 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.wso2.carbon.identity.application.authenticator.iwa.servlet;
@@ -24,7 +22,6 @@ import org.wso2.carbon.identity.application.authenticator.iwa.IWAAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.iwa.IWAConstants;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import waffle.servlet.AutoDisposableWindowsPrincipal;
-import waffle.servlet.NegotiateRequestWrapper;
 import waffle.servlet.NegotiateSecurityFilter;
 import waffle.servlet.WindowsPrincipal;
 import waffle.servlet.spi.SecurityFilterProvider;
@@ -61,7 +58,7 @@ public class IWAServelet extends HttpServlet {
     private PrincipalFormat principalFormat = PrincipalFormat.fqn;
     private PrincipalFormat roleFormat = PrincipalFormat.fqn;
     private SecurityFilterProviderCollection providers = null;
-    private IWindowsAuthProvider auth;
+    private IWindowsAuthProvider auth = null;
     private boolean allowGuestLogin = true;
     private boolean impersonate = false;
 
@@ -205,7 +202,6 @@ public class IWAServelet extends HttpServlet {
                 return false;
             }
 
-            NegotiateRequestWrapper requestWrapper = new NegotiateRequestWrapper(request, windowsPrincipal);
 
             IWindowsImpersonationContext ctx = null;
             if (impersonate) {
@@ -245,7 +241,7 @@ public class IWAServelet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             response.flushBuffer();
         } catch (IOException e) {
-            log.error("Error when sending unauthorized response.");
+            log.error("Error when sending unauthorized response." + e);
         }
     }
 
@@ -261,7 +257,6 @@ public class IWAServelet extends HttpServlet {
                 String parameterValue = config
 
                         .getInitParameter(parameterName);
-//                _log.debug(parameterName + "=" + parameterValue);
                 if (parameterName.equals(IWAConstants.PRINCIPAL_FORMAT)) {
                     principalFormat = PrincipalFormat.valueOf(parameterValue);
                 } else if (parameterName.equals(IWAConstants.ROLE_FORMAT)) {
