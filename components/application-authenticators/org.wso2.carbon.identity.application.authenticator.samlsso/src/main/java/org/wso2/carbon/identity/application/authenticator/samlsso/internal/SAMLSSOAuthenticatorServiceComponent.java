@@ -71,7 +71,7 @@ public class SAMLSSOAuthenticatorServiceComponent {
             postPage = new Scanner(fis, "UTF-8").useDelimiter("\\A").next();
         } catch (FileNotFoundException e) {
             if (log.isDebugEnabled()) {
-                log.debug("Failed to find SAMLSSO POST page for federation"+e);
+                log.debug("Failed to find SAMLSSO POST page for federation" + e);
             }
         }
 

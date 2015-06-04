@@ -103,7 +103,7 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
                 saml2SSOManager.init(context.getTenantDomain(), context.getAuthenticatorProperties(),
                         context.getExternalIdP().getIdentityProvider());
                 ssoUrl = saml2SSOManager.buildRequest(request, false, false, idpURL, context);
-                generateAuthenticationRequest(request,response,ssoUrl,authenticatorProperties);
+                generateAuthenticationRequest(request, response, ssoUrl, authenticatorProperties);
 
             }
         } catch (SAMLSSOException e) {

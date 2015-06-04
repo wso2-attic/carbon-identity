@@ -129,9 +129,9 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
                 String[] params = queryParam.split("&");
                 for (String param : params) {
                     String[] values = param.split("=");
-                    if (values.length == 2 &&SSOConstants.HTTP_POST_PARAM_SAML2_AUTH_REQ.equals(values[0])) {
-                            request.setAttribute(SSOConstants.HTTP_POST_PARAM_SAML2_AUTH_REQ, values[1]);
-                            break;
+                    if (values.length == 2 && SSOConstants.HTTP_POST_PARAM_SAML2_AUTH_REQ.equals(values[0])) {
+                        request.setAttribute(SSOConstants.HTTP_POST_PARAM_SAML2_AUTH_REQ, values[1]);
+                        break;
                     }
                 }
             }
@@ -275,7 +275,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
             samlObject = unmarshall(new String(Base64.decode(request.getParameter(
                     SSOConstants.HTTP_POST_PARAM_SAML2_RESP))));
         }
-         if (samlObject instanceof LogoutResponse) {
+        if (samlObject instanceof LogoutResponse) {
             request.getSession().invalidate();
         } else {
             throw new SAMLSSOException("Invalid Single Logout SAML Request");

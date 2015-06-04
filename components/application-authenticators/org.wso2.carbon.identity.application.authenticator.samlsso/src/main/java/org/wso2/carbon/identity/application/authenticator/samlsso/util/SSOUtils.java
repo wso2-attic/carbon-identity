@@ -56,7 +56,7 @@ import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
 public class SSOUtils {
-    private SSOUtils(){
+    private SSOUtils() {
 
     }
 

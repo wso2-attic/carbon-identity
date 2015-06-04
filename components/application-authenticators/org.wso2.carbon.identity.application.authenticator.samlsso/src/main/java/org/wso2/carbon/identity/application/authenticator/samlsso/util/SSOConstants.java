@@ -30,17 +30,19 @@ public class SSOConstants {
     public static final String HTTP_POST = "POST";
 
     public class StatusCodes {
-        private StatusCodes(){
+        private StatusCodes() {
 
         }
+
         public static final String IDENTITY_PROVIDER_ERROR = "urn:oasis:names:tc:SAML:2.0:status:Responder";
         public static final String NO_PASSIVE = "urn:oasis:names:tc:SAML:2.0:status:NoPassive";
     }
 
     public class ServerConfig {
-        private ServerConfig(){
+        private ServerConfig() {
 
         }
+
         public static final String KEY_ALIAS = "Security.KeyStore.KeyAlias";
         public static final String KEY_PASSWORD = "Security.KeyStore.KeyPassword";
         public static final String SAML2_SSO_MANAGER = "SAML2SSOManager";
