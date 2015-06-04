@@ -1,0 +1,4 @@
+language: java
+
+before_install: .travis/before_install.sh
+install: mvn clean install
