@@ -45,12 +45,8 @@ public class OAuthRequestPathAuthenticatorServiceComponent {
     }
 
     protected void activate(ComponentContext ctxt) {
-
         OAuthRequestPathAuthenticator auth = new OAuthRequestPathAuthenticator();
-
-
         ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(), auth, null);
-
         if (log.isDebugEnabled()) {
             log.info("OAuthRequestPathAuthenticator bundle is activated");
         }

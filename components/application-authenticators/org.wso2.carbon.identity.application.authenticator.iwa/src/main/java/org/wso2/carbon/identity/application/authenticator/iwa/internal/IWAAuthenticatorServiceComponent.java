@@ -42,16 +42,13 @@ public class IWAAuthenticatorServiceComponent {
     private static HttpService httpService;
 
     protected void activate(ComponentContext ctxt) {
-
         IWAAuthenticator iwaAuth = new IWAAuthenticator();
-
-
         // Register iwa servlet
         Servlet iwaServlet = new ContextPathServletAdaptor(new IWAServelet(), IWAConstants.IWA_URL);
         try {
             httpService.registerServlet(IWAConstants.IWA_URL, iwaServlet, null, null);
         } catch (NamespaceException e) {
-            log.error("Error when registering the IWA servlet, '" + IWAConstants.IWA_URL + "' may be already in use."+e);
+            log.error("Error when registering the IWA servlet, '" + IWAConstants.IWA_URL + "' may be already in use." + e);
         } catch (ServletException e) {
             log.error("Error when registering the IWA servlet.", e);
         }
@@ -61,7 +58,7 @@ public class IWAAuthenticatorServiceComponent {
         }
     }
 
-    protected void deactivate() {
+    protected void deactivate(ComponentContext ctxt) {
         if (log.isDebugEnabled()) {
             log.debug("IWAAuthenticator bundle is deactivated");
         }
@@ -74,7 +71,7 @@ public class IWAAuthenticatorServiceComponent {
         this.httpService = httpService;
     }
 
-    protected void unsetHttpService() {
+    protected void unsetHttpService(HttpService httpService) {
         if (log.isDebugEnabled()) {
             log.debug("HTTP Service is unset in the IWA SSO bundle");
         }

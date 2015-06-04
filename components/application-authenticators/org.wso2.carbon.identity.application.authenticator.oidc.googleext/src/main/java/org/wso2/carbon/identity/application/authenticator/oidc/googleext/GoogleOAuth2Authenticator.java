@@ -314,10 +314,10 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             // create OAuth client that uses custom http client under the hood
             OAuthClient oAuthClient = new OAuthClient(new URLConnectionClient());
             OAuthClientResponse oAuthResponse = null;
-            getOAuthResponse(accessRequest, oAuthClient, oAuthResponse);
+            oAuthResponse=  getOAuthResponse(accessRequest, oAuthClient, oAuthResponse);
             // TODO : return access token and id token to framework
             String accessToken = "";
-            String idToken = "";
+            String idToken = null;
             if (oAuthResponse != null) {
                 accessToken = oAuthResponse.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN);
                 idToken = oAuthResponse.getParam(OIDCAuthenticatorConstants.ID_TOKEN);
@@ -371,9 +371,10 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         }
     }
 
-    private void getOAuthResponse(OAuthClientRequest accessRequest, OAuthClient oAuthClient, OAuthClientResponse oAuthResponse) throws AuthenticationFailedException {
+    private OAuthClientResponse getOAuthResponse(OAuthClientRequest accessRequest, OAuthClient oAuthClient, OAuthClientResponse oAuthResponse) throws AuthenticationFailedException {
+        OAuthClientResponse oAuthClientResponse=oAuthResponse;
         try {
-            oAuthResponse = oAuthClient.accessToken(accessRequest);
+            oAuthClientResponse = oAuthClient.accessToken(accessRequest);
         } catch (OAuthSystemException e) {
             if (log.isDebugEnabled()) {
                 log.debug("Exception while requesting access token", e);
@@ -384,22 +385,21 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
                 log.debug("Exception while requesting access token", e);
             }
         }
+        return oAuthClientResponse;
     }
 
     private OAuthClientRequest getAccessRequest(OAuthClientRequest accessRequest, String tokenEndPoint, String clientId, String clientSecret
             , String callBackUrl, String code)
             throws AuthenticationFailedException {
-        OAuthClientRequest oAuthClientRequest = null;
+        OAuthClientRequest oAuthClientRequest = accessRequest;
         try {
-            oAuthClientRequest = accessRequest;
             oAuthClientRequest = OAuthClientRequest.tokenLocation(tokenEndPoint)
                     .setGrantType(GrantType.AUTHORIZATION_CODE).setClientId(clientId).setClientSecret(clientSecret)
                     .setRedirectURI(callBackUrl).setCode(code).buildBodyMessage();
         } catch (OAuthSystemException e) {
             throw new AuthenticationFailedException("Exception while building request for request access token", e);
-        } finally {
-            return oAuthClientRequest;
         }
+        return oAuthClientRequest;
     }
 
     /**

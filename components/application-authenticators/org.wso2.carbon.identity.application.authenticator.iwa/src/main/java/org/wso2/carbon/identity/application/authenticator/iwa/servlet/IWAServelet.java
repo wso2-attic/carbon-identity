@@ -22,7 +22,6 @@ import org.wso2.carbon.identity.application.authenticator.iwa.IWAAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.iwa.IWAConstants;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import waffle.servlet.AutoDisposableWindowsPrincipal;
-import waffle.servlet.NegotiateRequestWrapper;
 import waffle.servlet.NegotiateSecurityFilter;
 import waffle.servlet.WindowsPrincipal;
 import waffle.servlet.spi.SecurityFilterProvider;
@@ -59,7 +58,7 @@ public class IWAServelet extends HttpServlet {
     private PrincipalFormat principalFormat = PrincipalFormat.fqn;
     private PrincipalFormat roleFormat = PrincipalFormat.fqn;
     private SecurityFilterProviderCollection providers = null;
-    private IWindowsAuthProvider auth;
+    private IWindowsAuthProvider auth = null;
     private boolean allowGuestLogin = true;
     private boolean impersonate = false;
 
@@ -204,7 +203,6 @@ public class IWAServelet extends HttpServlet {
             }
 
 
-
             IWindowsImpersonationContext ctx = null;
             if (impersonate) {
                 if (log.isDebugEnabled()) {
@@ -243,7 +241,7 @@ public class IWAServelet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             response.flushBuffer();
         } catch (IOException e) {
-            log.error("Error when sending unauthorized response."+e);
+            log.error("Error when sending unauthorized response." + e);
         }
     }
 
