@@ -16,7 +16,8 @@
 package org.wso2.carbon.identity.application.authenticator.oidc.googleext;
 
 public class GoogleOAuth2AuthenticationConstant {
-    private GoogleOAuth2AuthenticationConstant(){}
+    private GoogleOAuth2AuthenticationConstant() {
+    }
 
     public static final String GOOGLE_OAUTH_ENDPOINT = "https://accounts.google.com/o/oauth2/auth";
     public static final String GOOGLE_TOKEN_ENDPOINT = "https://accounts.google.com/o/oauth2/token";

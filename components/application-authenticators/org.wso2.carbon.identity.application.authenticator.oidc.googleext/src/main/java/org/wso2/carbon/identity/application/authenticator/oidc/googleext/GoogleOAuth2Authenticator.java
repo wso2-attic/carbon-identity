@@ -315,10 +315,10 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             // create OAuth client that uses custom http client under the hood
             OAuthClient oAuthClient = new OAuthClient(new URLConnectionClient());
             OAuthClientResponse oAuthResponse = null;
-            oAuthResponse=  getOAuthResponse(accessRequest, oAuthClient, oAuthResponse);
+            oAuthResponse = getOAuthResponse(oAuthClient, oAuthResponse);
             // TODO : return access token and id token to framework
             String accessToken = "";
-            String idToken = null;
+            String idToken = "";
             if (oAuthResponse != null) {
                 accessToken = oAuthResponse.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN);
                 idToken = oAuthResponse.getParam(OIDCAuthenticatorConstants.ID_TOKEN);
@@ -372,8 +372,9 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         }
     }
 
-    private OAuthClientResponse getOAuthResponse(OAuthClientRequest accessRequest, OAuthClient oAuthClient, OAuthClientResponse oAuthResponse) throws AuthenticationFailedException {
-        OAuthClientResponse oAuthClientResponse=oAuthResponse;
+    private OAuthClientResponse getOAuthResponse(OAuthClient oAuthClient, OAuthClientResponse oAuthResponse) throws AuthenticationFailedException {
+        OAuthClientResponse oAuthClientResponse = oAuthResponse;
+        OAuthClientRequest accessRequest = null;
         try {
             oAuthClientResponse = oAuthClient.accessToken(accessRequest);
         } catch (OAuthSystemException e) {
