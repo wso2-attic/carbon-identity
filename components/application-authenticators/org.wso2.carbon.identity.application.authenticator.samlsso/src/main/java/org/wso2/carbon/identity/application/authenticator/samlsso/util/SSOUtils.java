@@ -48,6 +48,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.security.cert.CertificateEncodingException;
 import java.util.*;
 import java.util.zip.DataFormatException;
@@ -55,6 +56,9 @@ import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
 public class SSOUtils {
+    private SSOUtils(){
+
+    }
 
     private static Log log = LogFactory.getLog(SSOUtils.class);
 
@@ -281,7 +285,7 @@ public class SSOUtils {
                     count = iis.read(buf);
                 }
                 iis.close();
-                String decodedStr = new String(baos.toByteArray());
+                String decodedStr = new String(baos.toByteArray(), Charset.forName("UTF-8"));
                 if (log.isDebugEnabled()) {
                     log.debug("Request message " + decodedStr);
                 }

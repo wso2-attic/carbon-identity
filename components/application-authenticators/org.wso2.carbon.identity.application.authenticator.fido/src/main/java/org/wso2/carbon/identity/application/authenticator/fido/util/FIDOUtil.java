@@ -29,45 +29,48 @@ import javax.servlet.http.HttpServletRequest;
  * FIDOUtil class for FIDO authentication component.
  */
 public class FIDOUtil {
-	private FIDOUtil(){}
-	public static void logTrace(String msg, Log log) {
-		if (log.isTraceEnabled()) {
-			log.trace(msg);
-		}
-	}
+    private FIDOUtil() {
+    }
 
-	public static String getOrigin(HttpServletRequest request) {
+    public static void logTrace(String msg, Log log) {
+        if (log.isTraceEnabled()) {
+            log.trace(msg);
+        }
+    }
 
-		return request.getScheme() + "://" + request.getServerName() + ":" +
-		       request.getServerPort();
-	}
+    public static String getOrigin(HttpServletRequest request) {
+
+        return request.getScheme() + "://" + request.getServerName() + ":" +
+                request.getServerPort();
+    }
 
     public static int getTenantID(String tenantDomain) throws UserStoreException {
 
         RealmService realmService = null;
         int tenantId;
         realmService = FIDOAuthenticatorServiceComponent.getRealmService();
-            tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
+        tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
         return tenantId;
     }
 
-	public static String getSafeText(String text) {
-		String trimmedText=null;
-		if (text == null) {
-			return text;
-		}
-		trimmedText = text.trim();
-		if (trimmedText.indexOf('<') > -1) {
-			trimmedText = trimmedText.replace("<", "&lt;");
-		}
-		if (trimmedText.indexOf('>') > -1) {
-			trimmedText = trimmedText.replace(">", "&gt;");
-		}
-		return trimmedText;
-	}
-	public static String getUniqueUsername(HttpServletRequest request, String username){
-		return request.getServerName() + "/" + username;
-	}
+    public static String getSafeText(String text) {
+        String trimmedText = null;
+        if (text == null) {
+            return text;
+        }
+        trimmedText = text.trim();
+        if (trimmedText.indexOf('<') > -1) {
+            trimmedText = trimmedText.replace("<", "&lt;");
+        }
+        if (trimmedText.indexOf('>') > -1) {
+            trimmedText = trimmedText.replace(">", "&gt;");
+        }
+        return trimmedText;
+    }
+
+    public static String getUniqueUsername(HttpServletRequest request, String username) {
+        return request.getServerName() + "/" + username;
+    }
 
     public static String getDomainName(String username) {
         int index = username.indexOf(CarbonConstants.DOMAIN_SEPARATOR);

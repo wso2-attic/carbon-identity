@@ -61,8 +61,6 @@ public class SAMLSSOAuthenticatorServiceComponent {
     protected void activate(ComponentContext ctxt) {
 
         SAMLSSOAuthenticator samlSSOAuthenticator = new SAMLSSOAuthenticator();
-
-
         ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(), samlSSOAuthenticator, null);
 
         try {
