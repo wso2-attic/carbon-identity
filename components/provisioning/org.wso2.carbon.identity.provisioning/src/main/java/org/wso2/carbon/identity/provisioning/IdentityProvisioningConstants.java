@@ -1,21 +1,21 @@
 /*
- *  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package org.wso2.carbon.identity.provisioning;
 
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
@@ -25,6 +25,7 @@ import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
  */
 public class IdentityProvisioningConstants {
 
+    public static final String WSO2_CARBON_DIALECT = "http://wso2.org/claims";
     public static final String USERNAME_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:username";
     public static final String USER_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:user";
     public static final String NEW_USER_CLAIM_URI = "org:wso2:carbon:identity:provisioning:new:claim:user";
@@ -37,6 +38,8 @@ public class IdentityProvisioningConstants {
     public static final String JIT_PROVISIONING_ENABLED = "jitProvisioningEnabled";
 
     public static class SQLQueries {
+
+        private SQLQueries(){}
 
         public static final String ADD_PROVISIONING_ENTITY_SQL = "INSERT INTO IDP_PROVISIONING_ENTITY (PROVISIONING_CONFIG_ID, ENTITY_TYPE, "
                 + "ENTITY_LOCAL_USERSTORE, ENTITY_NAME, ENTITY_VALUE, TENANT_ID) VALUES (?, ?, ?, ?, ?, ?)";
@@ -60,10 +63,16 @@ public class IdentityProvisioningConstants {
     }
 
     public class PropertyConfig {
+
+        private PropertyConfig(){}
+
         public static final String CONFIG_FILE_NAME = "identity-provision.properties";
 
         public static final String IDENTITY_PROVISIONING_REGISTORED_CONNECTORS = "Identity.Provisioning.Registored.Connectors";
         public static final String IDENTITY_PROVISIONING_CONNECTOR_NAME = "Identity.Provisioning.Connector.Name";
+        public static final String IDENTITY_PROVISIONING_CONNECTOR_CACHE_NAME = "ProvisioningConnectorCache";
+        public static final String IDENTITY_PROVISIONING_ENTITY_CACHE_NAME = "ProvisioningEntityCache";
+        public static final String IDENTITY_PROVISIONING_SP_CONNECTOR_CACHE_NAME = "ServiceProviderProvisioningConnectorCache";
 
         public static final String PREFIX_IDENTITY_PROVISIONING_CONNECTOR = "Identity.Provisioning.Connector.";
         public static final String PREFIX_IDENTITY_PROVISIONING_CONNECTOR_ENABLE = "Identity.Provisioning.Connector.Enable.";

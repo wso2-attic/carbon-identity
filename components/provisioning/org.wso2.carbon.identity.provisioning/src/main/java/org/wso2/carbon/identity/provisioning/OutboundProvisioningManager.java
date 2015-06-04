@@ -1,23 +1,25 @@
 /*
- *  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package org.wso2.carbon.identity.provisioning;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonException;
@@ -333,7 +335,7 @@ public class OutboundProvisioningManager {
                     userIdClaimURL.setValue("");
                 }
 
-                ArrayList<Property> provisioningPropertiesList = new ArrayList<Property>(Arrays.asList(provisioningProperties));
+                List<Property> provisioningPropertiesList = new ArrayList<Property>(Arrays.asList(provisioningProperties));
 
                 provisioningPropertiesList.add(userIdClaimURL);
 
@@ -392,7 +394,7 @@ public class OutboundProvisioningManager {
 
             ExecutorService executors = null;
 
-            if (connectors.size() > 0) {
+            if (!MapUtils.isEmpty(connectors)) {
                 executors = Executors.newFixedThreadPool(connectors.size());
             }
 
@@ -423,7 +425,7 @@ public class OutboundProvisioningManager {
                 if (outboundClaimDialect == null
                         && (provisioningIdp.getClaimConfig() == null || provisioningIdp
                         .getClaimConfig().isLocalClaimDialect())) {
-                    outboundClaimDialect = DefaultInboundUserProvisioningListener.WSO2_CARBON_DIALECT;
+                    outboundClaimDialect = IdentityProvisioningConstants.WSO2_CARBON_DIALECT;
                 }
 
                 ClaimMapping[] idpClaimMappings = null;
@@ -590,6 +592,9 @@ public class OutboundProvisioningManager {
                 if (executors != null) {
                     executors.shutdown();
                 }
+                if(log.isDebugEnabled()){
+                    log.debug("Error in executing Outbound Provisioning", e);
+                }
                 throw new IdentityProvisioningException
                         (generateMessageOnFailureProvisioningOperation(idPName,
                                 connectorType, provisioningEntity));
@@ -605,7 +610,7 @@ public class OutboundProvisioningManager {
 
         if (userName != null) {
             outboundAttributes.put(ClaimMapping.build(
-                            IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false),
+                    IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false),
                     Arrays.asList(new String[]{userName}));
         }
         List<String> roleListOfUser = getUserRoles(userName, tenantDomain);
@@ -661,7 +666,7 @@ public class OutboundProvisioningManager {
 
         List<String> userGroups = getGroupNames(provisioningEntity.getAttributes());
 
-        if (userGroups == null || userGroups.size() == 0) {
+        if (userGroups == null || CollectionUtils.isEmpty(userGroups)) {
             return;
         }
 
@@ -762,7 +767,7 @@ public class OutboundProvisioningManager {
         List<String> userList = ProvisioningUtil.getClaimValues(attributeMap,
                 IdentityProvisioningConstants.USERNAME_CLAIM_URI, null);
 
-        if (userList != null && userList.size() > 0) {
+        if (userList != null && !CollectionUtils.isEmpty(userList)) {
             return userList.get(0);
         }
 

@@ -1,21 +1,21 @@
 /*
  *  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package org.wso2.carbon.identity.provisioning.connector.salesforce;
 
 import org.apache.commons.httpclient.*;
@@ -57,10 +57,8 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
             for (Property property : provisioningProperties) {
                 configs.put(property.getName(), property.getValue());
                 if (IdentityProvisioningConstants.JIT_PROVISIONING_ENABLED.equals(property
-                        .getName())) {
-                    if ("1".equals(property.getValue())) {
-                        jitProvisioningEnabled = true;
-                    }
+                        .getName()) && "1".equals(property.getValue())) {
+                    jitProvisioningEnabled = true;
                 }
             }
         }
@@ -268,7 +266,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
         InputStream is = post.getResponseBodyAsStream();
         BufferedReader rd = new BufferedReader(new InputStreamReader(is));
         String line;
-        StringBuffer response = new StringBuffer();
+        StringBuilder response = new StringBuilder();
         while ((line = rd.readLine()) != null) {
             response.append(line);
             response.append('\r');
@@ -363,7 +361,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
         boolean isDebugEnabled = log.isDebugEnabled();
 
         String accessToken = authenticate();
-        if (accessToken != null && !accessToken.isEmpty()) {
+        if (accessToken != null && !StringUtils.isEmpty(accessToken)) {
             httpMethod.setRequestHeader(SalesforceConnectorConstants.AUTHORIZATION_HEADER_NAME,
                     SalesforceConnectorConstants.AUTHORIZATION_HEADER_OAUTH + " " + accessToken);
 
@@ -391,7 +389,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
 
         String url = configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.OAUTH2_TOKEN_ENDPOINT);
 
-        PostMethod post = new PostMethod(url != null && !url.isEmpty() ?
+        PostMethod post = new PostMethod(url != null && !StringUtils.isEmpty(url) ?
                 url : IdentityApplicationConstants.SF_OAUTH2_TOKEN_ENDPOINT);
 
         post.addParameter(SalesforceConnectorConstants.CLIENT_ID,
@@ -502,9 +500,8 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
         }
         boolean isDebugEnabled = log.isDebugEnabled();
 
-        if (query == null || query.isEmpty()) {
-            query = SalesforceProvisioningConnectorConfig.SALESFORCE_LIST_USER_SIMPLE_QUERY;
-            // SalesforceProvisioningConnectorConfig.SALESFORCE_LIST_USER_FULL_QUERY;
+        if (query == null || StringUtils.isEmpty(query)) {
+            query = SalesforceConnectorDBQueries.SALESFORCE_LIST_USER_SIMPLE_QUERY;
         }
 
         HttpClient httpclient = new HttpClient();
@@ -538,29 +535,6 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
                             + results.getJSONObject(i).getString("LastName") + ", "
                             + results.getJSONObject(i).getString("Name") + ", "
                             + results.getJSONObject(i).getString("ProfileId") + ", "
-
-                            // +
-                            // results.getJSONObject(i).getString("EmailEncodingKey")
-                            // + ", "
-                            // +
-                            // results.getJSONObject(i).getString("LanguageLocaleKey")
-                            // + ", "
-                            // +
-                            // results.getJSONObject(i).getString("LocaleSidKey")
-                            // + ", "
-                            // +
-                            // results.getJSONObject(i).getString("TimeZoneSidKey")
-                            // + ", "
-                            // +
-                            // results.getJSONObject(i).getString("UserPermissionsCallCenterAutoLogin")
-                            // + ", "
-                            // +
-                            // results.getJSONObject(i).getString("UserPermissionsMarketingUser")
-                            // + ", "
-                            // +
-                            // results.getJSONObject(i).getString("UserPermissionsOfflineUser")
-                            // + ", "
-
                             + results.getJSONObject(i).getString("Username") + "\n");
                 }
                 sb.append("\n");
