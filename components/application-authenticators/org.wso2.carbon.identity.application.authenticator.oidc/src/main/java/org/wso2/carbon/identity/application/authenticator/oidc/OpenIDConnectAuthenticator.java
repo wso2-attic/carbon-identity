@@ -279,12 +279,12 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
             String code = authzResponse.getCode();
 
             OAuthClientRequest accessRequest=null;
-           getaccessRequest(accessRequest, tokenEndPoint, clientId, code, clientSecret, callbackurl);
+            accessRequest= getaccessRequest(tokenEndPoint, clientId, code, clientSecret, callbackurl);
 
             // create OAuth client that uses custom http client under the hood
             OAuthClient oAuthClient = new OAuthClient(new URLConnectionClient());
             OAuthClientResponse oAuthResponse=null;
-            getOauthResponse(oAuthResponse,oAuthClient,accessRequest);
+            oAuthResponse=  getOauthResponse(oAuthClient,accessRequest);
 
             // TODO : return access token and id token to framework
             String accessToken = oAuthResponse.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN);
@@ -365,7 +365,8 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
             throw new AuthenticationFailedException(e.getMessage(), e);
         }
     }
-    private void getaccessRequest(OAuthClientRequest accessRequest, String tokenEndPoint, String clientId, String code, String clientSecret, String callbackurl) throws AuthenticationFailedException{
+    private OAuthClientRequest getaccessRequest(String tokenEndPoint, String clientId, String code, String clientSecret, String callbackurl) throws AuthenticationFailedException{
+        OAuthClientRequest accessRequest=null;
         try {
             accessRequest = OAuthClientRequest.tokenLocation(tokenEndPoint)
                     .setGrantType(GrantType.AUTHORIZATION_CODE).setClientId(clientId)
@@ -378,8 +379,10 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
             }
             throw new AuthenticationFailedException(e.getMessage(), e);
         }
+        return accessRequest;
     }
-    private void getOauthResponse(OAuthClientResponse oAuthResponse,OAuthClient oAuthClient,OAuthClientRequest accessRequest) throws AuthenticationFailedException {
+    private OAuthClientResponse getOauthResponse(OAuthClient oAuthClient,OAuthClientRequest accessRequest) throws AuthenticationFailedException {
+        OAuthClientResponse oAuthResponse=null;
         try {
             oAuthResponse = oAuthClient.accessToken(accessRequest);
         } catch (OAuthSystemException e) {
@@ -393,6 +396,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                 log.debug("Exception while requesting access token", e);
             }
         }
+        return oAuthResponse;
     }
     @Override
     public String getContextIdentifier(HttpServletRequest request) {

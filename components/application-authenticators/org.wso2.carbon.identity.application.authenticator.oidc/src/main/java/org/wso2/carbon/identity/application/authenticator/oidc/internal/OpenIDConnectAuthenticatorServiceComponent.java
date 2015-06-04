@@ -42,7 +42,7 @@ public class OpenIDConnectAuthenticatorServiceComponent {
         }
     }
 
-    protected void deactivate() {
+    protected void deactivate(ComponentContext ctxt) {
         if (log.isDebugEnabled()) {
             log.debug("OpenID Connect Authenticator bundle is deactivated");
         }

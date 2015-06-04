@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -309,7 +310,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             String code = authzResponse.getCode();
 
             OAuthClientRequest accessRequest = null;
-            accessRequest = getAccessRequest(accessRequest, tokenEndPoint, clientId, clientSecret, callBackUrl, code);
+            accessRequest = getAccessRequest(tokenEndPoint, clientId, clientSecret, callBackUrl, code);
 
             // create OAuth client that uses custom http client under the hood
             OAuthClient oAuthClient = new OAuthClient(new URLConnectionClient());
@@ -332,7 +333,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
                     String base64Body = idToken.split("\\.")[1];
                     byte[] decoded = Base64.decodeBase64(base64Body.getBytes());
-                    String json = new String(decoded);
+                    String json = new String(decoded, Charset.forName("utf-8"));
 
                     if (log.isDebugEnabled()) {
                         log.debug("Id token json string : " + json);
@@ -388,10 +389,10 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         return oAuthClientResponse;
     }
 
-    private OAuthClientRequest getAccessRequest(OAuthClientRequest accessRequest, String tokenEndPoint, String clientId, String clientSecret
+    private OAuthClientRequest getAccessRequest(String tokenEndPoint, String clientId, String clientSecret
             , String callBackUrl, String code)
             throws AuthenticationFailedException {
-        OAuthClientRequest oAuthClientRequest = accessRequest;
+        OAuthClientRequest oAuthClientRequest = null;
         try {
             oAuthClientRequest = OAuthClientRequest.tokenLocation(tokenEndPoint)
                     .setGrantType(GrantType.AUTHORIZATION_CODE).setClientId(clientId).setClientSecret(clientSecret)
