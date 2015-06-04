@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.oauth2.token;
 
+import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
 
 import java.util.Properties;
@@ -32,7 +33,7 @@ public class OAuthTokenReqMessageContext {
 
     private int tenantID;
 
-    private long validityPeriod;
+    private long validityPeriod = OAuthConstants.UNASSIGNED_VALIDITY_PERIOD;
     
     private Properties properties = new Properties();
 
