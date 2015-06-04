@@ -43,6 +43,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -139,7 +140,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
                     }
                 } else {
                     if (!Arrays.asList(userInfoFields.split(",")).contains(FacebookAuthenticatorConstants
-                                                                                   .DEFAULT_USER_IDENTIFIER)) {
+                            .DEFAULT_USER_IDENTIFIER)) {
                         userInfoFields += ("," + FacebookAuthenticatorConstants.DEFAULT_USER_IDENTIFIER);
                     }
                 }
@@ -166,19 +167,15 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
     private String getToken(String tokenEndPoint, String clientId, String clientSecret,
                             String callbackurl, String code) throws ApplicationAuthenticatorException {
         OAuthClientRequest tokenRequest = null;
-
         String token = null;
-
         try {
             tokenRequest =
                     buidTokenRequest(tokenEndPoint, clientId, clientSecret, callbackurl,
                             code);
-
             token = sendRequest(tokenRequest.getLocationUri());
             if (token.startsWith("{")) {
                 if (log.isDebugEnabled()) {
                     log.debug("Received token: " + token + " for code: " + code);
-
                 }
                 throw new ApplicationAuthenticatorException("Received access token is invalid.");
             }
@@ -189,7 +186,6 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
             throw new ApplicationAuthenticatorException(
                     "MalformedURLException while sending access token request.",
                     e);
-
         } catch (IOException e) {
             throw new ApplicationAuthenticatorException("IOException while sending access token request.", e);
         }
@@ -199,7 +195,6 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
     private OAuthClientRequest buidTokenRequest(
             String tokenEndPoint, String clientId, String clientSecret, String callbackurl, String code)
             throws ApplicationAuthenticatorException {
-
         OAuthClientRequest tokenRequest = null;
         try {
             tokenRequest =
@@ -215,7 +210,6 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
 
     private String getUserInfoString(String fbAuthUserInfoUrl, String userInfoFields, String token)
             throws ApplicationAuthenticatorException {
-
         String userInfoString;
         try {
             if (StringUtils.isBlank(userInfoFields)) {
@@ -315,7 +309,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
         URLConnection urlConnection = new URL(url).openConnection();
         BufferedReader in =
                 new BufferedReader(
-                        new InputStreamReader(urlConnection.getInputStream()));
+                        new InputStreamReader(urlConnection.getInputStream(), Charset.forName("utf-8")));
         StringBuilder b = new StringBuilder();
         String inputLine = in.readLine();
         while (inputLine != null) {

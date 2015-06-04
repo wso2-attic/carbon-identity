@@ -22,33 +22,30 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.facebook.FacebookAuthenticator;
 
-
 /**
  * @scr.component name="identity.application.authenticator.facebook.component"
  * immediate="true"
  */
 public class FacebookAuthenticatorServiceComponent {
 
-    private static final Log LOGGER = LogFactory.getLog(FacebookAuthenticatorServiceComponent.class);
+    private static final Log log = LogFactory.getLog(FacebookAuthenticatorServiceComponent.class);
 
     protected void activate(ComponentContext ctxt) {
         try {
             FacebookAuthenticator facebookAuthenticator = new FacebookAuthenticator();
-
-
             ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(),
                     facebookAuthenticator, null);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Facebook Authenticator bundle is activated");
+            if (log.isDebugEnabled()) {
+                log.debug("Facebook Authenticator bundle is activated");
             }
         } catch (Exception e) {
-            LOGGER.fatal(" Error while activating Facebook authenticator ", e);
+            log.fatal(" Error while activating Facebook authenticator ", e);
         }
     }
 
-    protected void deactivate() {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Facebook Authenticator bundle is deactivated");
+    protected void deactivate(ComponentContext ctxt) {
+        if (log.isDebugEnabled()) {
+            log.debug("Facebook Authenticator bundle is deactivated");
         }
     }
 }
