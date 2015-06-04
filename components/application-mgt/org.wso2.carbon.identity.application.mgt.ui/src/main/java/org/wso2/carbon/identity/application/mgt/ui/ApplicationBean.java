@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -66,7 +66,6 @@ public class ApplicationBean {
         roleMap = null;
         claimMap = null;
         requestedClaims = new HashMap<String, String>();
-        ;
         samlIssuer = null;
         oauthAppName = null;
         wstrustEp = null;
@@ -518,7 +517,7 @@ public class ApplicationBean {
                 }
                 tempAuthRequest.add(authRequest[i]);
             }
-            if (tempAuthRequest.size() > 0) {
+            if (tempAuthRequest!=null && !tempAuthRequest.isEmpty()) {
                 serviceProvider
                         .getInboundAuthenticationConfig()
                         .setInboundAuthenticationRequestConfigs(
@@ -553,7 +552,7 @@ public class ApplicationBean {
                 }
                 tempAuthRequest.add(authRequest[i]);
             }
-            if (tempAuthRequest.size() > 0) {
+            if (tempAuthRequest!=null && !tempAuthRequest.isEmpty()) {
                 serviceProvider
                         .getInboundAuthenticationConfig()
                         .setInboundAuthenticationRequestConfigs(
@@ -580,7 +579,7 @@ public class ApplicationBean {
                 }
                 tempAuthRequest.add(authRequest[i]);
             }
-            if (tempAuthRequest.size() > 0) {
+            if (tempAuthRequest!=null && !tempAuthRequest.isEmpty()) {
                 serviceProvider
                         .getInboundAuthenticationConfig()
                         .setInboundAuthenticationRequestConfigs(
@@ -748,12 +747,12 @@ public class ApplicationBean {
                 authStep.setStepOrder(Integer.parseInt(authstep));
 
                 boolean isSubjectStep = request.getParameter("subject_step_" + authstep) != null
-                        && request.getParameter("subject_step_" + authstep).equals("on") ? true
+                        && "on".equals(request.getParameter("subject_step_" + authstep)) ? true
                         : false;
                 authStep.setSubjectStep(isSubjectStep);
 
                 boolean isAttributeStep = request.getParameter("attribute_step_" + authstep) != null
-                        && request.getParameter("attribute_step_" + authstep).equals("on") ? true
+                        && "on".equals(request.getParameter("attribute_step_" + authstep))? true
                         : false;
                 authStep.setAttributeStep(isAttributeStep);
 
@@ -778,7 +777,7 @@ public class ApplicationBean {
                         }
                     }
 
-                    if (localAuthList.size() > 0) {
+                    if (localAuthList!=null && !localAuthList.isEmpty()) {
                         authStep.setLocalAuthenticatorConfigs(localAuthList
                                 .toArray(new LocalAuthenticatorConfig[localAuthList.size()]));
                     }
@@ -805,7 +804,7 @@ public class ApplicationBean {
                         }
                     }
 
-                    if (fedIdpList.size() > 0) {
+                    if (fedIdpList!=null && !fedIdpList.isEmpty()) {
                         authStep.setFederatedIdentityProviders(fedIdpList
                                 .toArray(new IdentityProvider[fedIdpList.size()]));
                     }
@@ -825,7 +824,7 @@ public class ApplicationBean {
                         .setLocalAndOutBoundAuthenticationConfig(new LocalAndOutboundAuthenticationConfig());
             }
 
-            if (authStepList != null && authStepList.size() > 0) {
+            if (authStepList != null && !authStepList.isEmpty()) {
                 serviceProvider.getLocalAndOutBoundAuthenticationConfig().setAuthenticationSteps(
                         authStepList.toArray(new AuthenticationStep[authStepList.size()]));
             }
@@ -896,7 +895,7 @@ public class ApplicationBean {
                 }
             }
 
-            if (provisioningIdps.size() > 0) {
+            if (provisioningIdps!=null && !provisioningIdps.isEmpty()) {
                 OutboundProvisioningConfig outboundProConfig = new OutboundProvisioningConfig();
                 outboundProConfig.setProvisioningIdentityProviders(provisioningIdps
                         .toArray(new IdentityProvider[provisioningIdps.size()]));
@@ -920,7 +919,7 @@ public class ApplicationBean {
                 }
             }
 
-            if (reqAuthList.size() > 0) {
+            if (reqAuthList!=null && !reqAuthList.isEmpty()) {
                 serviceProvider.setRequestPathAuthenticatorConfigs(reqAuthList
                         .toArray(new RequestPathAuthenticatorConfig[reqAuthList.size()]));
             } else {
@@ -999,7 +998,7 @@ public class ApplicationBean {
             serviceProvider.setInboundAuthenticationConfig(new InboundAuthenticationConfig());
         }
 
-        if (authRequestList.size() > 0) {
+        if (authRequestList!=null && !authRequestList.isEmpty()) {
             serviceProvider.getInboundAuthenticationConfig()
                     .setInboundAuthenticationRequestConfigs(
                             authRequestList
@@ -1065,7 +1064,7 @@ public class ApplicationBean {
             }
         }
 
-        if (appPermList.size() > 0) {
+        if (appPermList!=null&& !appPermList.isEmpty()) {
             permAndRoleConfig.setPermissions(appPermList
                     .toArray(new ApplicationPermission[appPermList.size()]));
         }
@@ -1094,7 +1093,7 @@ public class ApplicationBean {
         }
 
         if (request.getParameter("claim_dialect") != null
-                && request.getParameter("claim_dialect").equals("custom")) {
+                && "custom".equals(request.getParameter("claim_dialect"))) {
             serviceProvider.getClaimConfig().setLocalClaimDialect(false);
         } else {
             serviceProvider.getClaimConfig().setLocalClaimDialect(true);
@@ -1232,7 +1231,7 @@ public class ApplicationBean {
                 }
             }
 
-            if (provisioningIdps.size() > 0) {
+            if (provisioningIdps!=null && !provisioningIdps.isEmpty()) {
                 OutboundProvisioningConfig outboundProConfig = new OutboundProvisioningConfig();
                 outboundProConfig.setProvisioningIdentityProviders(provisioningIdps
                         .toArray(new IdentityProvider[provisioningIdps.size()]));

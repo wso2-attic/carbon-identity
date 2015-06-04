@@ -27,6 +27,10 @@ public class ApplicationManagementServiceComponentHolder {
     private static RealmService realmService;
     private static ConfigurationContextService configContextService;
 
+    private ApplicationManagementServiceComponentHolder(){
+
+    }
+
     public static RegistryService getRegistryService() {
         return registryService;
     }

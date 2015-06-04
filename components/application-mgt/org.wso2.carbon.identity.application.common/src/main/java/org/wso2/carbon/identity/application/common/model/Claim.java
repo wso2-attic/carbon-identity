@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -50,7 +50,7 @@ public class Claim implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (elementName.equals("ClaimUri")) {
+            if ("ClaimUri".equals(elementName)) {
                 claim.setClaimUri(element.getText());
             }
 
@@ -89,13 +89,17 @@ public class Claim implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         Claim claim = (Claim) o;
 
-        if (claimId != claim.claimId) return false;
-        if (claimUri != null ? !claimUri.equals(claim.claimUri) : claim.claimUri != null) return false;
+        if (claimId != claim.claimId)
+            return false;
+        if (claimUri != null ? !claimUri.equals(claim.claimUri) : claim.claimUri != null)
+            return false;
 
         return true;
     }

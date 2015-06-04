@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -30,7 +30,7 @@ public class OutboundProvisioningConfig implements Serializable {
      */
     private static final long serialVersionUID = 1653270395614833536L;
 
-    private IdentityProvider[] provisioningIdentityProviders = new IdentityProvider[0];
+    private transient IdentityProvider[] provisioningIdentityProviders = new IdentityProvider[0];
     private String[] provisionByRoleList;
 
     /*
@@ -46,10 +46,10 @@ public class OutboundProvisioningConfig implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (elementName.equals("ProvisioningIdentityProviders")) {
+            if ("ProvisioningIdentityProviders".equals(elementName)) {
 
                 Iterator<?> provisioningIdentityProvidersIter = element.getChildElements();
-                ArrayList<IdentityProvider> provisioningIdentityProvidersArrList = new ArrayList<IdentityProvider>();
+                List<IdentityProvider> provisioningIdentityProvidersArrList = new ArrayList<IdentityProvider>();
 
                 if (provisioningIdentityProvidersIter != null) {
                     while (provisioningIdentityProvidersIter.hasNext()) {
@@ -69,10 +69,10 @@ public class OutboundProvisioningConfig implements Serializable {
                     outboundProvisioningConfig
                             .setProvisioningIdentityProviders(provisioningIdentityProvidersArr);
                 }
-            } else if (elementName.equals("ProvisionByRoleList")) {
+            } else if ("ProvisionByRoleList".equals(elementName)) {
 
                 Iterator<?> provisionByRoleListIter = element.getChildElements();
-                ArrayList<String> provisionByRoleListArrList = new ArrayList<String>();
+                List<String> provisionByRoleListArrList = new ArrayList<String>();
 
                 if (provisionByRoleListIter != null) {
                     while (provisionByRoleListIter.hasNext()) {
@@ -84,7 +84,7 @@ public class OutboundProvisioningConfig implements Serializable {
                     }
                 }
 
-                if (provisionByRoleListArrList.size() > 0) {
+                if (provisionByRoleListArrList!=null && !provisionByRoleListArrList.isEmpty()) {
                     String[] provisionByRoleListArr = provisionByRoleListArrList
                             .toArray(new String[0]);
                     outboundProvisioningConfig.setProvisionByRoleList(provisionByRoleListArr);

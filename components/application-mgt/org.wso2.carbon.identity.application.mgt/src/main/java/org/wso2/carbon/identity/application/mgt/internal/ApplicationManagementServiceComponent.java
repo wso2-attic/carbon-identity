@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -66,16 +66,6 @@ public class ApplicationManagementServiceComponent {
 
     protected void activate(ComponentContext context) {
         try {
-//            if (System.getProperty("setup") != null) {
-                // initialize the identity application persistence manager
-//                JDBCPersistenceManager jdbcPersistenceManager = JDBCPersistenceManager.getInstance();
-//                jdbcPersistenceManager.initializeDatabase();
-//            } else {
-//                if (log.isDebugEnabled()) {
-//                    log.debug("Identity Application Management Database initialization not attempted since \'setup\' " +
-//                            "variable was not provided during startup");
-//                }
-//            }
             // Registering Application management service as a OSGIService
             bundleContext = context.getBundleContext();
             bundleContext.registerService(ApplicationManagementService.class.getName(),

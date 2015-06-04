@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.mgt;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -47,10 +48,13 @@ public class ApplicationMgtUtil {
 
     public static final String APPLICATION_ROOT_PERMISSION = "applications";
     public static final String PATH_CONSTANT = RegistryConstants.PATH_SEPARATOR;
-    private static final ArrayList<String> paths = new ArrayList<String>();
+    private static final List<String> paths = new ArrayList<String>();
     private static String applicationNode;
 
     private static Log log = LogFactory.getLog(ApplicationMgtUtil.class);
+
+    private ApplicationMgtUtil(){
+    }
 
     public static org.wso2.carbon.user.api.Permission[] buildPermissions(String applicationName,
                                                                          String[] permissions) {
@@ -342,7 +346,8 @@ public class ApplicationMgtUtil {
     private static void addPermission(ApplicationPermission[] permissions, Registry tenantGovReg) throws RegistryException {
         for (ApplicationPermission permission : permissions) {
             String permissionValue = permission.getValue();
-            if (permissionValue.substring(0, 1).equals("/")) {         //if permissions are starts with slash remove that
+
+            if ("/".equals(permissionValue.substring(0,1))) {         //if permissions are starts with slash remove that
                 permissionValue = permissionValue.substring(1);
             }
             String[] splitedPermission = permissionValue.split("/");
@@ -375,11 +380,10 @@ public class ApplicationMgtUtil {
             boolean exist = tenantGovReg.resourceExists(applicationNode);
 
             if (!exist) {
-                return null;
+                return Collections.emptyList();
             }
 
             paths.clear();             //clear current paths
-            Collection appCollection = (Collection) tenantGovReg.get(applicationNode);
             List<ApplicationPermission> permissions = new ArrayList<ApplicationPermission>();
 
 

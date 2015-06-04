@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -72,6 +72,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
      * @param serviceProvider
      * @throws IdentityApplicationManagementException
      */
+    @Override
     public int createApplication(ServiceProvider serviceProvider, String tenantDomain)
             throws IdentityApplicationManagementException {
 
@@ -83,6 +84,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 tenantID = ApplicationManagementServiceComponentHolder.getRealmService()
                         .getTenantManager().getTenantId(tenantDomain);
             } catch (UserStoreException e1) {
+                log.error("Error in reading application",e1);
                 throw new IdentityApplicationManagementException("Error while reading application");
             }
         }
@@ -176,6 +178,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     /**
      *
      */
+
+    @Override
     public void updateApplication(ServiceProvider serviceProvider)
             throws IdentityApplicationManagementException {
 
@@ -238,6 +242,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                     connection.rollback();
                 }
             } catch (SQLException e1) {
+                log.error("Failed on updating service provider",e1);
                 throw new IdentityApplicationManagementException(
                         "Failed to update service provider " + applicationId, e);
             }
@@ -257,6 +262,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
      * @throws UserStoreException
      * @throws IdentityApplicationManagementException
      */
+
     private void updateBasicApplicationData(int applicationId, String applicationName,
                                             String description, boolean isSaasApp, Connection connection) throws SQLException, UserStoreException,
             IdentityApplicationManagementException {
@@ -937,7 +943,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
         List<ClaimMapping> claimMappings = Arrays.asList(claimConfiguration.getClaimMappings());
 
-        if (claimConfiguration == null || claimMappings.size() < 1) {
+        if (claimConfiguration == null || claimMappings.isEmpty()) {
             log.debug("No claim mapping found, Skipping ..");
             return;
         }
@@ -1032,6 +1038,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     /**
      *
      */
+
+    @Override
     public ServiceProvider getApplication(String applicationName, String tenantDomain)
             throws IdentityApplicationManagementException {
 
@@ -1042,7 +1050,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 tenantID = ApplicationManagementServiceComponentHolder.getRealmService()
                         .getTenantManager().getTenantId(tenantDomain);
             } catch (UserStoreException e1) {
-                throw new IdentityApplicationManagementException("Error while reading application");
+                log.error("Error in reading application",e1);
+                throw new IdentityApplicationManagementException("Error while reading application",e1);
             }
         }
 
@@ -1249,7 +1258,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             tenantID = ApplicationManagementServiceComponentHolder.getRealmService()
                     .getTenantManager().getTenantId(tenantDomain);
         } catch (UserStoreException e1) {
-            throw new IdentityApplicationManagementException("Error while reading application");
+            log.error("Error while reading application",e1);
+            throw new IdentityApplicationManagementException("Error while reading application",e1);
         }
 
         String applicationName = null;
@@ -1288,6 +1298,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
      * @return
      * @throws IdentityApplicationManagementException
      */
+    @Override
     public String getApplicationName(int applicationID)
             throws IdentityApplicationManagementException {
         Connection connection = null;
@@ -1377,7 +1388,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
         } catch (SQLException e) {
             IdentityApplicationManagementUtil.closeConnection(connection);
-            throw new IdentityApplicationManagementException("Error while storing application");
+            log.error("Error in storing the application",e);
+            throw new IdentityApplicationManagementException("Error while storing application",e);
         } finally {
             IdentityApplicationManagementUtil.closeResultSet(appidResult);
             IdentityApplicationManagementUtil.closeStatement(getAppIDPrepStmt);

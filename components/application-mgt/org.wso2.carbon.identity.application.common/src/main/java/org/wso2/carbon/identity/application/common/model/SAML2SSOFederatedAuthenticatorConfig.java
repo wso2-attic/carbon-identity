@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -74,21 +74,6 @@ public class SAML2SSOFederatedAuthenticatorConfig extends FederatedAuthenticator
     private boolean isAuthnResponseEncrypted;
 
     /**
-     * If Single Logout is enabled
-     */
-    private boolean logoutEnabled;
-
-    /**
-     * If the LogoutRequest has to be signed
-     */
-    private boolean logoutRequestSigned;
-
-    /**
-     * If SAMLResponse is signed
-     */
-    private boolean authnResponseSigned;
-
-    /**
      * If User ID is found among claims
      */
     private boolean isUserIdInClaims;
@@ -115,9 +100,6 @@ public class SAML2SSOFederatedAuthenticatorConfig extends FederatedAuthenticator
             } else if (IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_RESP_SIGNED.equals(
                     property.getName())) {
                 isAuthnResponseSigned = Boolean.parseBoolean(property.getValue());
-            } else if (IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_RESP_SIGNED.equals(
-                    property.getName())) {
-                isAuthnResponseEncrypted = Boolean.parseBoolean(property.getValue());
             } else if (IdentityApplicationConstants.Authenticator.SAML2SSO.IS_ENABLE_ASSERTION_ENCRYPTION.equals(
                     property.getName())) {
                 isAuthnResponseEncrypted = Boolean.parseBoolean(property.getValue());

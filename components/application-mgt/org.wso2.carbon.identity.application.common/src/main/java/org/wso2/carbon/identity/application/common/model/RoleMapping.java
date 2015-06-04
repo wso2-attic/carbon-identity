@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -30,7 +30,7 @@ public class RoleMapping implements Serializable {
      */
     private static final long serialVersionUID = -2116444950898503844L;
 
-    private LocalRole localRole = null;
+    private transient LocalRole localRole = null;
     private String remoteRole = null;
 
     public RoleMapping() {
@@ -58,10 +58,10 @@ public class RoleMapping implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (elementName.equals("localRole")) {
+            if ("localRole".equals(elementName)) {
                 roleMapping.setLocalRole(LocalRole.build(element));
             }
-            if (elementName.equals("remoteRole")) {
+            if ("remoteRole".equals(elementName)) {
                 roleMapping.setRemoteRole(element.getText());
             }
         }

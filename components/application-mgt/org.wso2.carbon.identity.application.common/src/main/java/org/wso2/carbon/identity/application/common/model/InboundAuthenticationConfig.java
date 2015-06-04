@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -23,6 +23,7 @@ import org.apache.axiom.om.OMElement;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class InboundAuthenticationConfig implements Serializable {
 
@@ -31,7 +32,7 @@ public class InboundAuthenticationConfig implements Serializable {
      */
     private static final long serialVersionUID = 8966626233502458748L;
 
-    private InboundAuthenticationRequestConfig[] inboundAuthenticationRequestConfigs = new InboundAuthenticationRequestConfig[0];
+    private transient InboundAuthenticationRequestConfig[] inboundAuthenticationRequestConfigs = new InboundAuthenticationRequestConfig[0];
 
     /*
      * <InboundAuthenticationConfig>
@@ -53,11 +54,11 @@ public class InboundAuthenticationConfig implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (elementName.equals("InboundAuthenticationRequestConfigs")) {
+            if ("InboundAuthenticationRequestConfigs".equals(elementName)) {
 
                 Iterator<?> inboundAuthenticationRequestConfigsIter = element.getChildElements();
 
-                ArrayList<InboundAuthenticationRequestConfig> inboundAuthenticationRequestConfigsArrList;
+                List<InboundAuthenticationRequestConfig> inboundAuthenticationRequestConfigsArrList;
                 inboundAuthenticationRequestConfigsArrList = new ArrayList<InboundAuthenticationRequestConfig>();
 
                 if (inboundAuthenticationRequestConfigsIter != null) {
@@ -75,8 +76,10 @@ public class InboundAuthenticationConfig implements Serializable {
                     }
                 }
 
-                if (inboundAuthenticationRequestConfigsArrList.size() > 0) {
-                    InboundAuthenticationRequestConfig[] inboundAuthenticationRequestConfigsArr = inboundAuthenticationRequestConfigsArrList
+                if (inboundAuthenticationRequestConfigsArrList!=null&&
+                        !inboundAuthenticationRequestConfigsArrList.isEmpty()) {
+                    InboundAuthenticationRequestConfig[] inboundAuthenticationRequestConfigsArr
+                            = inboundAuthenticationRequestConfigsArrList
                             .toArray(new InboundAuthenticationRequestConfig[0]);
                     inboundAuthenticationConfig
                             .setInboundAuthenticationRequestConfigs(inboundAuthenticationRequestConfigsArr);

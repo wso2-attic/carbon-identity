@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -64,9 +64,9 @@ public class LocalRole implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (elementName.equals("LocalRoleName")) {
+            if ("LocalRoleName".equals(elementName)) {
                 localRole.setLocalRoleName(element.getText());
-            } else if (elementName.equals("UserStoreId")) {
+            } else if ("UserStoreId".equals(elementName)) {
                 localRole.setUserStoreId(element.getText());
             }
 

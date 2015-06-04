@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -80,8 +80,7 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
             CacheManager cacheManager = Caching.getCacheManagerFactory()
                     .getCacheManager(APP_AUTH_FRAMEWORK_CACHE_MANAGER);
 
-            if (cacheTimeout > 0) {
-                if (stringCacheBuilder == null) {
+            if (cacheTimeout > 0 && stringCacheBuilder==null) {
                     synchronized (cacheName.intern()) {
                         if (stringCacheBuilder == null) {
                             cacheManager.removeCache(cacheName);
@@ -101,9 +100,6 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
                             cache = cacheManager.getCache(cacheName);
                         }
                     }
-                } else {
-                    cache = cacheManager.getCache(cacheName);
-                }
             } else {
                 cache = cacheManager.getCache(cacheName);
 
@@ -129,30 +125,27 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
             CacheManager cacheManager = Caching.getCacheManagerFactory()
                     .getCacheManager(APP_AUTH_FRAMEWORK_CACHE_MANAGER);
 
-            if (cacheTimeout > 0) {
-                if (cacheBuilder == null) {
-                    synchronized (cacheName.intern()) {
-                        if (cacheBuilder == null) {
-                            cacheManager.removeCache(cacheName);
-                            cacheBuilder = cacheManager.<K, V>createCacheBuilder(cacheName).
-                                    setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
-                                            new CacheConfiguration
-                                                    .Duration(TimeUnit.SECONDS, cacheTimeout)).
-                                    setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
-                                            new CacheConfiguration
-                                                    .Duration(TimeUnit.SECONDS, cacheTimeout)).
-                                    setStoreByValue(false);
-                            cache = cacheBuilder.build();
-                            if (capacity != 0) {
-                                ((CacheImpl) cache).setCapacity(capacity);
-                            }
-                        } else {
-                            cache = cacheManager.getCache(cacheName);
+            if (cacheTimeout > 0 && cacheBuilder == null) {
+                synchronized (cacheName.intern()) {
+                    if (cacheBuilder == null) {
+                        cacheManager.removeCache(cacheName);
+                        cacheBuilder = cacheManager.<K, V>createCacheBuilder(cacheName).
+                                setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
+                                        new CacheConfiguration
+                                                .Duration(TimeUnit.SECONDS, cacheTimeout)).
+                                setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
+                                        new CacheConfiguration
+                                                .Duration(TimeUnit.SECONDS, cacheTimeout)).
+                                setStoreByValue(false);
+                        cache = cacheBuilder.build();
+                        if (capacity != 0) {
+                            ((CacheImpl) cache).setCapacity(capacity);
                         }
+                    } else {
+                        cache = cacheManager.getCache(cacheName);
                     }
-                } else {
-                    cache = cacheManager.getCache(cacheName);
                 }
+
             } else {
                 cache = cacheManager.getCache(cacheName);
 
@@ -178,7 +171,6 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             // Element already in the cache. Remove it first
-            //clearCacheEntry(key);
             Cache<K, V> cache = getBaseCache();
             if (cache != null) {
                 cache.put(key, entry);
@@ -196,7 +188,6 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             // Element already in the cache. Remove it first
-            //clearCacheEntry(key);
             Cache<String, V> cache = getBaseCacheWithStringKey();
             if (cache != null) {
                 cache.put(key, entry);

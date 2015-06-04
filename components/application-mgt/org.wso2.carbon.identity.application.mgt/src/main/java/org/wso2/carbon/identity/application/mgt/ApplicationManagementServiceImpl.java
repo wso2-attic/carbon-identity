@@ -96,6 +96,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * @return applicationId
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
+
+    @Override
     public int createApplication(ServiceProvider serviceProvider)
             throws IdentityApplicationManagementException {
         try {
@@ -133,6 +135,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * @return Service provider
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
+
+    @Override
     public ServiceProvider getApplication(String applicationName)
             throws IdentityApplicationManagementException {
 
@@ -167,6 +171,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * @return Application basic information array
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
+    @Override
     public ApplicationBasicInfo[] getAllApplicationBasicInfo()
             throws IdentityApplicationManagementException {
         try {
@@ -185,6 +190,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * @param serviceProvider Service providers
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
+
+    @Override
     public void updateApplication(ServiceProvider serviceProvider)
             throws IdentityApplicationManagementException {
         try {
@@ -265,6 +272,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * @param applicationName Application name
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
+    @Override
     public void deleteApplication(String applicationName)
             throws IdentityApplicationManagementException {
         try {
@@ -365,6 +373,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * @return Identity provider
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
+
+    @Override
     public IdentityProvider getIdentityProvider(String federatedIdPName)
             throws IdentityApplicationManagementException {
         try {
@@ -385,6 +395,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * @return identity providers array
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
+
+    @Override
     public IdentityProvider[] getAllIdentityProviders()
             throws IdentityApplicationManagementException {
         try {
@@ -395,7 +407,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             if (fedIdpList != null) {
                 return fedIdpList.toArray(new IdentityProvider[fedIdpList.size()]);
             }
-            return null;
+            return new IdentityProvider[0];
         } catch (Exception e) {
             String error = "Error occurred while retrieving all Identity Providers";
             log.error(error, e);
@@ -409,6 +421,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * @return local authenticator config array
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
+    @Override
     public LocalAuthenticatorConfig[] getAllLocalAuthenticators()
             throws IdentityApplicationManagementException {
         try {
@@ -419,7 +432,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             if (localAuthenticators != null) {
                 return localAuthenticators.toArray(new LocalAuthenticatorConfig[localAuthenticators.size()]);
             }
-            return null;
+            return new LocalAuthenticatorConfig[0];
         } catch (Exception e) {
             String error = "Error occurred while retrieving all Local Authenticators";
             log.error(error, e);
@@ -433,6 +446,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * @return request path authenticator config array
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
+
+    @Override
     public RequestPathAuthenticatorConfig[] getAllRequestPathAuthenticators()
             throws IdentityApplicationManagementException {
         try {
@@ -444,7 +459,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             if (reqPathAuthenticators != null) {
                 return reqPathAuthenticators.toArray(new RequestPathAuthenticatorConfig[reqPathAuthenticators.size()]);
             }
-            return null;
+            return new RequestPathAuthenticatorConfig[0];
         } catch (Exception e) {
             String error = "Error occurred while retrieving all Request Path Authenticators";
             log.error(error, e);
@@ -458,6 +473,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * @return Claim uri array
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
+    @Override
     public String[] getAllLocalClaimUris() throws IdentityApplicationManagementException {
         try {
 
@@ -486,6 +502,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * @return ServiceProvider
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
+
+    @Override
     public String getServiceProviderNameByClientId(String clientId, String type)
             throws IdentityApplicationManagementException {
 

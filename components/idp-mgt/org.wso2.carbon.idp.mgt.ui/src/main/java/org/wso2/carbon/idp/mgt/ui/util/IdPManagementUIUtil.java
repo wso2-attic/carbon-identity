@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.servlet.ServletRequestContext;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
@@ -36,7 +37,7 @@ import java.util.*;
 
 public class IdPManagementUIUtil {
 
-    private static Log log = LogFactory.getLog(IdPManagementUIUtil.class);
+    private static final Log log = LogFactory.getLog(IdPManagementUIUtil.class);
 
     /**
      * Validates an URI.
@@ -48,7 +49,7 @@ public class IdPManagementUIUtil {
 
         if (uriString != null) {
             try {
-                new URL(uriString);
+                URL url = new URL(uriString);
             } catch (MalformedURLException e) {
                 log.debug(e.getMessage(), e);
                 return false;
@@ -209,11 +210,12 @@ public class IdPManagementUIUtil {
                 ProvisioningConnectorConfig[] provisioningConnectorConfig = oldIdentityProvider
                         .getProvisioningConnectorConfigs();
                 for (ProvisioningConnectorConfig provisioningConnector : provisioningConnectorConfig) {
-                    if (provisioningConnector.getName().equals("googleapps")) {
+
+                    if (("googleapps").equals(provisioningConnector.getName())) {
                         Property[] googleProperties = provisioningConnector
                                 .getProvisioningProperties();
                         for (Property property : googleProperties) {
-                            if (property.getName().equals("google_prov_private_key")) {
+                            if (("google_prov_private_key").equals(property.getName())) {
                                 paramMap.put("old_google_prov_private_key", property.getValue());
                             }
                         }
@@ -705,7 +707,7 @@ public class IdPManagementUIUtil {
 
         ClaimConfig claimConfiguration = new ClaimConfig();
 
-        if (idpClaims != null && idpClaims.size() > 0) {
+        if (idpClaims != null && !idpClaims.isEmpty()) {
             List<Claim> idPClaimList = new ArrayList<Claim>();
             for (Iterator<String> iterator = idpClaims.iterator(); iterator.hasNext(); ) {
                 String claimUri = iterator.next();
@@ -727,7 +729,7 @@ public class IdPManagementUIUtil {
     private static ClaimConfig claimMappingFromUI(ClaimConfig claimConfiguration,
                                                   Map<String, String> paramMap) {
         Set<ClaimMapping> claimMappingList = new HashSet<ClaimMapping>();
-        HashMap<String, String> advancedMapping = new HashMap<String, String>();
+        Map<String, String> advancedMapping = new HashMap<String, String>();
 
         int mappedClaimCount = 0;
         int advancedClaimCount = 0;
@@ -751,8 +753,7 @@ public class IdPManagementUIUtil {
         if (paramMap.get("claimrow_name_count") != null) {
             mappedClaimCount = Integer.parseInt(paramMap.get("claimrow_name_count"));
         }
-
-        if (paramMap.get("choose_dialet_type_group").equals("choose_dialet_type1")) {
+        if (("choose_dialet_type1").equals(paramMap.get("choose_dialet_type_group"))) {
             claimConfiguration.setLocalClaimDialect(true);
             for (int i = 0; i < advancedClaimCount; i++) {
                 String idPClaimURI = paramMap.get("advancnedIdpClaim_" + i);
@@ -774,7 +775,7 @@ public class IdPManagementUIUtil {
                 claimMappingList.add(mapping);
             }
 
-        } else if (paramMap.get("choose_dialet_type_group").equals("choose_dialet_type2")) {
+        } else if (("choose_dialet_type2").equals(paramMap.get("choose_dialet_type_group"))) {
             claimConfiguration.setLocalClaimDialect(false);
             for (int i = 0; i < mappedClaimCount; i++) {
                 String idPClaimURI = paramMap.get("claimrowname_" + i);
@@ -793,7 +794,7 @@ public class IdPManagementUIUtil {
                     mapping.setLocalClaim(localClaim);
 
                     if (advancedMapping.get(idPClaimURI) != null) {
-                        if (!advancedMapping.get(idPClaimURI).equals("")) {
+                        if (StringUtils.isNotEmpty(advancedMapping.get(idPClaimURI))) {
                             mapping.setDefaultValue(advancedMapping.get(idPClaimURI));
                         }
                         mapping.setRequested(true);
@@ -863,7 +864,8 @@ public class IdPManagementUIUtil {
         // set identity provider display name.
         fedIdp.setDisplayName(paramMap.get("idpDisplayName"));
 
-        if (paramMap.get("enable") != null && paramMap.get("enable").equals("1")) {
+
+        if (paramMap.get("enable") != null && ("1").equals(paramMap.get("enable"))) {
             fedIdp.setEnable(true);
         } else {
             fedIdp.setEnable(false);
@@ -901,7 +903,7 @@ public class IdPManagementUIUtil {
 
         // if there is no new certificate and not a delete - use the old one.
         if (oldCertFile != null && certFile == null
-                && (deletePublicCert == null || deletePublicCert.equals("false"))) {
+                && (deletePublicCert == null || ("false").equals(deletePublicCert))) {
             certFile = oldCertFile;
         }
 
@@ -1038,7 +1040,7 @@ public class IdPManagementUIUtil {
         property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.Facebook.USER_INFO_FIELDS);
         String fbUserInfoFields = paramMap.get("fbUserInfoFields");
-        if(fbUserInfoFields != null && fbUserInfoFields.endsWith(",")) {
+        if (fbUserInfoFields != null && fbUserInfoFields.endsWith(",")) {
             fbUserInfoFields = fbUserInfoFields.substring(0, fbUserInfoFields.length() - 1);
         }
         property.setValue(fbUserInfoFields);
@@ -1208,7 +1210,7 @@ public class IdPManagementUIUtil {
                                                              List<String> proConnectorNames, Map<String, List<Property>> customProProperties,
                                                              Map<String, String> paramMap) throws IdentityApplicationManagementException {
 
-        if (proConnectorNames != null && proConnectorNames.size() > 0) {
+        if (proConnectorNames != null && !proConnectorNames.isEmpty()) {
 
             ProvisioningConnectorConfig[] proConfigConnList = new ProvisioningConnectorConfig[proConnectorNames
                     .size()];
@@ -1227,7 +1229,7 @@ public class IdPManagementUIUtil {
 
                 List<Property> customProps = customProProperties.get(conName);
 
-                if (customProps != null && customProps.size() > 0) {
+                if (customProps != null && !customProps.isEmpty()) {
                     customConfig.setProvisioningProperties(customProps
                             .toArray(new Property[customProps.size()]));
                 }
@@ -1257,7 +1259,7 @@ public class IdPManagementUIUtil {
                                                                Map<String, List<Property>> customAuthenticatorProperties, Map<String, String> paramMap)
             throws IdentityApplicationManagementException {
 
-        if (authenticatorNames != null && authenticatorNames.size() > 0) {
+        if (authenticatorNames != null && !authenticatorNames.isEmpty()) {
 
             FederatedAuthenticatorConfig[] fedAuthConfigList = new FederatedAuthenticatorConfig[authenticatorNames
                     .size()];
@@ -1278,7 +1280,7 @@ public class IdPManagementUIUtil {
 
                 List<Property> customProps = customAuthenticatorProperties.get(authName);
 
-                if (customProps != null && customProps.size() > 0) {
+                if (customProps != null && !customProps.isEmpty()) {
                     customConfig
                             .setProperties(customProps.toArray(new Property[customProps.size()]));
                 }

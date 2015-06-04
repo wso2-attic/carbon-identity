@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -23,6 +23,7 @@ import org.apache.axiom.om.OMElement;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class LocalAndOutboundAuthenticationConfig implements Serializable {
 
@@ -31,10 +32,10 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
      */
     private static final long serialVersionUID = -932772940989929376L;
 
-    private AuthenticationStep[] authenticationSteps = new AuthenticationStep[0];
+    private transient AuthenticationStep[] authenticationSteps = new AuthenticationStep[0];
     private String authenticationType;
-    private AuthenticationStep authenticationStepForSubject;
-    private AuthenticationStep authenticationStepForAttributes;
+    private transient AuthenticationStep authenticationStepForSubject;
+    private transient AuthenticationStep authenticationStepForAttributes;
     private boolean alwaysSendBackAuthenticatedListOfIdPs;
     private String subjectClaimUri;
 
@@ -59,10 +60,10 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
         while (iter.hasNext()) {
             OMElement member = (OMElement) iter.next();
 
-            if (member.getLocalName().equals("AuthenticationSteps")) {
+            if ("AuthenticationSteps".equals(member.getLocalName())) {
 
                 Iterator<?> authenticationStepsIter = member.getChildElements();
-                ArrayList<AuthenticationStep> authenticationStepsArrList = new ArrayList<AuthenticationStep>();
+                List<AuthenticationStep> authenticationStepsArrList = new ArrayList<AuthenticationStep>();
 
                 if (authenticationStepsIter != null) {
                     while (authenticationStepsIter.hasNext()) {
@@ -76,31 +77,32 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
                     }
                 }
 
-                if (authenticationStepsArrList.size() > 0) {
+                if (authenticationStepsArrList!=null&&!authenticationStepsArrList.isEmpty()) {
                     AuthenticationStep[] authenticationStepsArr = authenticationStepsArrList
                             .toArray(new AuthenticationStep[0]);
                     localAndOutboundAuthenticationConfig
                             .setAuthenticationSteps(authenticationStepsArr);
                 }
 
-            } else if (member.getLocalName().equals("AuthenticationType")) {
+
+            } else if ("AuthenticationType".equals(member.getLocalName())) {
                 localAndOutboundAuthenticationConfig.setAuthenticationType(member.getText());
-            } else if (member.getLocalName().equals("AuthenticationStepForSubject")) {
+            } else if ("AuthenticationStepForSubject".equals(member.getLocalName())) {
                 AuthenticationStep authStep = AuthenticationStep.build(member);
                 if (authStep != null) {
                     localAndOutboundAuthenticationConfig.setAuthenticationStepForSubject(authStep);
                 }
-            } else if (member.getLocalName().equals("AuthenticationStepForAttributes")) {
+            } else if ("AuthenticationStepForAttributes".equals(member.getLocalName())) {
                 AuthenticationStep authStep = AuthenticationStep.build(member);
                 if (authStep != null) {
                     localAndOutboundAuthenticationConfig
                             .setAuthenticationStepForAttributes(authStep);
                 }
-            } else if (member.getLocalName().equals("alwaysSendBackAuthenticatedListOfIdPs")) {
+            }else if ("alwaysSendBackAuthenticatedListOfIdPs".equals(member.getLocalName())) {
                 if (member.getText() != null && "true".equals(member.getText())) {
                     localAndOutboundAuthenticationConfig.setAlwaysSendBackAuthenticatedListOfIdPs(true);
                 }
-            } else if (member.getLocalName().equals("subjectClaimUri")) {
+            } else if ("subjectClaimUri".equals(member.getLocalName())) {
                 localAndOutboundAuthenticationConfig.setSubjectClaimUri(member.getText());
             }
         }

@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -34,7 +34,7 @@ import java.util.*;
 
 public class IdentityApplicationConfig {
 
-    private static Log log = LogFactory.getLog(IdentityApplicationConfig.class);
+    private static final Log log = LogFactory.getLog(IdentityApplicationConfig.class);
 
     private static String configFilePath;
     private static OMElement rootElement;
@@ -109,7 +109,10 @@ public class IdentityApplicationConfig {
             builder = new StAXOMBuilder(inStream);
             rootElement = builder.getDocumentElement();
             Stack<String> nameStack = new Stack<String>();
+
+
             readChildElements(rootElement, nameStack);
+
         } finally {
             try {
                 if (inStream != null) {
@@ -134,13 +137,13 @@ public class IdentityApplicationConfig {
                 if (currentObject == null) {
                     configuration.put(key, value);
                 } else if (currentObject instanceof ArrayList) {
-                    ArrayList list = (ArrayList) currentObject;
+                    List list=(ArrayList) currentObject;
                     if (!list.contains(value)) {
                         list.add(value);
                     }
                 } else {
                     if (!value.equals(currentObject)) {
-                        ArrayList arrayList = new ArrayList(2);
+                        List arrayList = new ArrayList(2);
                         arrayList.add(currentObject);
                         arrayList.add(value);
                         configuration.put(key, arrayList);
@@ -154,7 +157,7 @@ public class IdentityApplicationConfig {
 
     private String getKey(Stack<String> nameStack) {
 
-        StringBuffer key = new StringBuffer();
+        StringBuilder key = new StringBuilder();
         for (int i = 0; i < nameStack.size(); i++) {
             String name = nameStack.elementAt(i);
             key.append(name).append(".");
@@ -173,6 +176,7 @@ public class IdentityApplicationConfig {
 
         int indexOfStartingChars = -1;
         int indexOfClosingBrace;
+        String tmpText=null;
         // The following condition deals with properties.
         // Properties are specified as ${system.property},
         // and are assumed to be System properties
@@ -182,15 +186,14 @@ public class IdentityApplicationConfig {
             String sysProp = text.substring(indexOfStartingChars + 2, indexOfClosingBrace);
             String propValue = System.getProperty(sysProp);
             if (propValue != null) {
-                text = text.substring(0, indexOfStartingChars) + propValue
+                tmpText= text.substring(0, indexOfStartingChars) + propValue
                         + text.substring(indexOfClosingBrace + 1);
             }
-            if (sysProp.equals(ServerConstants.CARBON_HOME)) {
-                if (System.getProperty(ServerConstants.CARBON_HOME).equals(".")) {
-                    text = new File(".").getAbsolutePath() + File.separator + text;
-                }
+            if (sysProp.equals(ServerConstants.CARBON_HOME)&& System.getProperty(ServerConstants.CARBON_HOME).equals(".")) {
+                tmpText = new File(".").getAbsolutePath() + File.separator + text;
+
             }
         }
-        return text;
+        return tmpText;
     }
 }

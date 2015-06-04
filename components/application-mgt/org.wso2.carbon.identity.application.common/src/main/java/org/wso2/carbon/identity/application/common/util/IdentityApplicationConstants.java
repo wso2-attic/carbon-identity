@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -20,6 +20,10 @@ package org.wso2.carbon.identity.application.common.util;
 
 public class IdentityApplicationConstants {
 
+
+    private IdentityApplicationConstants(){
+    }
+
     public static final String APPLICATION_AUTHENTICATION_CONGIG = "application-authentication.xml";
     public static final String APPLICATION_AUTHENTICATION_DEFAULT_NAMESPACE =
             "http://wso2.org/projects/carbon/application-authentication.xml";
@@ -38,6 +42,10 @@ public class IdentityApplicationConstants {
         public static final String ATTR_ENABLED = "enabled";
         public static final String PROPERTY_TYPE_STRING = "STRING";
         public static final String PROPERTY_TYPE_BLOB = "BLOB";
+
+        private ConfigElements(){
+        }
+
     }
 
     public static class Authenticator {
@@ -48,7 +56,11 @@ public class IdentityApplicationConstants {
             public static final String REALM_ID = "RealmId";
             public static final String OPEN_ID_URL = "OpenIdUrl";
             public static final String IS_USER_ID_IN_CLAIMS = "IsUserIdInClaims";
+
+            private OpenID(){
+            }
         }
+
 
         public static class SAML2SSO {
 
@@ -66,6 +78,10 @@ public class IdentityApplicationConstants {
             public static final String IS_AUTHN_RESP_SIGNED = "IsAuthnRespSigned";
             public static final String IS_USER_ID_IN_CLAIMS = "IsUserIdInClaims";
             public static final String REQUEST_METHOD = "RequestMethod";
+
+            private SAML2SSO(){
+            }
+
         }
 
         public static class OIDC extends OAuth2 {
@@ -81,6 +97,9 @@ public class IdentityApplicationConstants {
             public static final String REALM_ID = "RealmId";
             public static final String PASSIVE_STS_URL = "PassiveSTSUrl";
             public static final String IS_USER_ID_IN_CLAIMS = "IsUserIdInClaims";
+
+            private PassiveSTS(){
+            }
         }
 
         public static class Facebook {
@@ -90,10 +109,16 @@ public class IdentityApplicationConstants {
             public static final String CLIENT_SECRET = "ClientSecret";
             public static final String SCOPE = "Scope";
             public static final String USER_INFO_FIELDS = "UserInfoFields";
+
+            private Facebook(){
+            }
         }
 
         public static class WSTrust {
             public static final String NAME = "wstrust";
+
+            private WSTrust(){
+            }
         }
 
     }
@@ -105,6 +130,9 @@ public class IdentityApplicationConstants {
         public static final String OAUTH10A_REQ_URL = "OAuth10AReqTokenUrl";
         public static final String OAUTH10A_AUTHZ_URL = "OAuth10AAuthzTokenUrl";
         public static final String OAUTH10A_ACCESS_URL = "OAuth10AAccessTokenUrl";
+
+        private OAuth10A(){
+        }
     }
 
     public static class OAuth2 {
@@ -114,6 +142,9 @@ public class IdentityApplicationConstants {
         public static final String CLIENT_SECRET = "ClientSecret";
         public static final String OAUTH2_AUTHZ_URL = "OAuth2AuthzUrl";
         public static final String OAUTH2_TOKEN_URL = "OAUTH2TokenUrl";
+
+        private OAuth2(){
+        }
     }
 
 }

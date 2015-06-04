@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -22,18 +22,24 @@ package org.wso2.carbon.identity.application.common.util;
  */
 public class CharacterEncoder {
 
+    private CharacterEncoder(){
+    }
+
     public static String getSafeText(String text) {
-        if (text == null) {
+
+        String tmptext1=null;
+        String tmptext2=null;
+        if (text== null) {
             return text;
         }
-        text = text.trim();
-        if (text.indexOf('<') > -1) {
-            text = text.replace("<", "&lt;");
+        tmptext1 = text.trim();
+        if (tmptext1.indexOf('<') > -1) {
+            tmptext2 = tmptext1.replace("<", "&lt;");
         }
-        if (text.indexOf('>') > -1) {
-            text = text.replace(">", "&gt;");
+        if (tmptext1.indexOf('>') > -1) {
+            tmptext2 = tmptext1.replace(">", "&gt;");
         }
-        return text;
+        return tmptext2;
     }
 
 }

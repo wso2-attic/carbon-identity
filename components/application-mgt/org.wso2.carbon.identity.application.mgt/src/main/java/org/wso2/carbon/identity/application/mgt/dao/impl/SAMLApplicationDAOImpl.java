@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -32,8 +32,7 @@ public class SAMLApplicationDAOImpl implements SAMLApplicationDAO {
 
     Log log = LogFactory.getLog(SAMLApplicationDAOImpl.class);
 
-    /*SAMLSSOConfigService samlService = new SAMLSSOConfigService();*/
-
+    @Override
     public void removeServiceProviderConfiguration(String issuer) throws IdentityApplicationManagementException {
         try {
             IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
@@ -41,6 +40,7 @@ public class SAMLApplicationDAOImpl implements SAMLApplicationDAO {
                     getRegistry(RegistryType.SYSTEM_CONFIGURATION);
             persistenceManager.removeServiceProvider(configSystemRegistry, issuer);
         } catch (IdentityException e) {
+            log.error("Erro while deleting the issuer",e);
             throw new IdentityApplicationManagementException("Error while deleting SAML issuer " + e.getMessage());
         }
     }

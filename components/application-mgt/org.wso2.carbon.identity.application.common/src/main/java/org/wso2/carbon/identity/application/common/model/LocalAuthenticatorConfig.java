@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -33,7 +33,7 @@ public class LocalAuthenticatorConfig implements Serializable {
     protected String name;
     protected String displayName;
     protected boolean enabled;
-    protected Property[] properties = new Property[0];
+    protected transient Property[] properties = new Property[0];
 
     /*
      * <LocalAuthenticatorConfig> <Name></Name> <DisplayName></DisplayName> <IsEnabled></IsEnabled>
@@ -52,15 +52,16 @@ public class LocalAuthenticatorConfig implements Serializable {
 
             OMElement member = (OMElement) members.next();
 
-            if (member.getLocalName().equals("Name")) {
+
+            if ("Name".equals(member.getLocalName())) {
                 localAuthenticatorConfig.setName(member.getText());
-            } else if (member.getLocalName().equals("DisplayName")) {
+            } else if ("DisplayName".equals(member.getLocalName())) {
                 localAuthenticatorConfig.setDisplayName(member.getText());
-            } else if (member.getLocalName().equals("IsEnabled")) {
+            } else if ("IsEnabled".equals(member.getLocalName())) {
                 if (member.getText() != null && member.getText().trim().length() > 0) {
                     localAuthenticatorConfig.setEnabled(Boolean.parseBoolean(member.getText()));
                 }
-            } else if (member.getLocalName().equals("Properties")) {
+            } else if ("Properties".equals(member.getLocalName())) {
 
                 Iterator<?> propertiesIter = member.getChildElements();
                 ArrayList<Property> propertiesArrList = new ArrayList<Property>();
@@ -75,7 +76,7 @@ public class LocalAuthenticatorConfig implements Serializable {
                     }
                 }
 
-                if (propertiesArrList.size() > 0) {
+                if (propertiesArrList!=null && !propertiesArrList.isEmpty()) {
                     Property[] propertiesArr = propertiesArrList.toArray(new Property[0]);
                     localAuthenticatorConfig.setProperties(propertiesArr);
                 }
@@ -153,12 +154,15 @@ public class LocalAuthenticatorConfig implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof LocalAuthenticatorConfig)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof LocalAuthenticatorConfig))
+            return false;
 
         LocalAuthenticatorConfig that = (LocalAuthenticatorConfig) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null)
+            return false;
 
         return true;
     }

@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -50,6 +50,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ *
+ *
  * This class is already deprecated and can use ApplicationManagementServiceImpl for same purpose as osgi service
  */
 
@@ -286,8 +288,6 @@ public class ApplicationManagementOSGIService {
                     } else if ("wstrust".equalsIgnoreCase(config.getInboundAuthType())
                             && config.getInboundAuthKey() != null) {
                         try {
-                           /* AxisService stsService = getAxisConfig().getService(
-                                    ServerConstants.STS_NAME);*/
                             AxisService stsService = ApplicationManagementServiceComponentHolder.getConfigContextService().getServerConfigContext().getAxisConfiguration().getService(
                                     ServerConstants.STS_NAME);
                             Parameter origParam = stsService
@@ -355,7 +355,7 @@ public class ApplicationManagementOSGIService {
             if (fedIdpList != null) {
                 return fedIdpList.toArray(new IdentityProvider[fedIdpList.size()]);
             }
-            return null;
+            return new IdentityProvider[0];
         } catch (Exception e) {
             log.error("Error occurred while deleting the application", e);
             throw new IdentityApplicationManagementException(
@@ -377,7 +377,7 @@ public class ApplicationManagementOSGIService {
                 return localAuthenticators.toArray(new LocalAuthenticatorConfig[localAuthenticators
                         .size()]);
             }
-            return null;
+            return new LocalAuthenticatorConfig[0];
         } catch (Exception e) {
             log.error("Error occurred while deleting the application", e);
             throw new IdentityApplicationManagementException(
@@ -400,7 +400,7 @@ public class ApplicationManagementOSGIService {
                 return reqPathAuthenticators
                         .toArray(new RequestPathAuthenticatorConfig[reqPathAuthenticators.size()]);
             }
-            return null;
+            return new RequestPathAuthenticatorConfig[0];
         } catch (Exception e) {
             log.error("Error occurred while deleting the application", e);
             throw new IdentityApplicationManagementException(
@@ -449,7 +449,6 @@ public class ApplicationManagementOSGIService {
         try {
             resourcePath = RegistryResources.SERVICE_GROUPS + groupName
                     + RegistryResources.SERVICES + serviceName + "/trustedServices";
-            //registry = getConfigSystemRegistry();
             registry = (Registry) ApplicationManagementServiceComponentHolder.getRegistryService().getConfigSystemRegistry(getTenantId());
             if (registry != null) {
                 if (registry.resourceExists(resourcePath)) {

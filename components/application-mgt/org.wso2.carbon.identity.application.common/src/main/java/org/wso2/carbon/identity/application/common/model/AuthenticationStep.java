@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -31,8 +31,8 @@ public class AuthenticationStep implements Serializable {
     private static final long serialVersionUID = -4001996659290645507L;
 
     private int stepOrder = 1;
-    private LocalAuthenticatorConfig[] localAuthenticatorConfigs = new LocalAuthenticatorConfig[0];
-    private IdentityProvider[] federatedIdentityProviders = new IdentityProvider[0];
+    private transient LocalAuthenticatorConfig[] localAuthenticatorConfigs = new LocalAuthenticatorConfig[0];
+    private transient IdentityProvider[] federatedIdentityProviders = new IdentityProvider[0];
     private boolean subjectStep;
     private boolean attributeStep;
 
@@ -46,22 +46,24 @@ public class AuthenticationStep implements Serializable {
         AuthenticationStep authenticationStep = new AuthenticationStep();
 
         Iterator<?> iter = authenticationStepOM.getChildElements();
+
+
         while (iter.hasNext()) {
             OMElement member = (OMElement) iter.next();
-            if (member.getLocalName().equals("StepOrder")) {
+            if ("StepOrder".equals(member.getLocalName())) {
                 authenticationStep.setStepOrder(Integer.parseInt(member.getText()));
-            } else if (member.getLocalName().equals("SubjectStep")) {
+            } else if ("SubjectStep".equals(member.getLocalName())) {
                 if (member.getText() != null && member.getText().trim().length() > 0) {
                     authenticationStep.setSubjectStep(Boolean.parseBoolean(member.getText()));
                 }
-            } else if (member.getLocalName().equals("AttributeStep")) {
+            } else if ( "AttributeStep".equals(member.getLocalName())) {
                 if (member.getText() != null && member.getText().trim().length() > 0) {
                     authenticationStep.setAttributeStep(Boolean.parseBoolean(member.getText()));
                 }
-            } else if (member.getLocalName().equals("FederatedIdentityProviders")) {
+            } else if ("FederatedIdentityProviders".equals(member.getLocalName())) {
 
                 Iterator<?> federatedIdentityProvidersIter = member.getChildElements();
-                ArrayList<IdentityProvider> federatedIdentityProvidersArrList = new ArrayList<IdentityProvider>();
+                List<IdentityProvider> federatedIdentityProvidersArrList = new ArrayList<IdentityProvider>();
 
                 if (federatedIdentityProvidersIter != null) {
                     while (federatedIdentityProvidersIter.hasNext()) {
@@ -75,17 +77,16 @@ public class AuthenticationStep implements Serializable {
                     }
                 }
 
-                if (federatedIdentityProvidersArrList.size() > 0) {
+                if (!federatedIdentityProvidersArrList.isEmpty()) {
                     IdentityProvider[] federatedAuthenticatorConfigsArr = federatedIdentityProvidersArrList
                             .toArray(new IdentityProvider[0]);
                     authenticationStep
                             .setFederatedIdentityProviders(federatedAuthenticatorConfigsArr);
                 }
-
-            } else if (member.getLocalName().equals("LocalAuthenticatorConfigs")) {
+            } else if ("LocalAuthenticatorConfigs".equals(member.getLocalName())) {
 
                 Iterator<?> localAuthenticatorConfigsIter = member.getChildElements();
-                ArrayList<LocalAuthenticatorConfig> localAuthenticatorConfigsArrList = new ArrayList<LocalAuthenticatorConfig>();
+                List<LocalAuthenticatorConfig> localAuthenticatorConfigsArrList = new ArrayList<LocalAuthenticatorConfig>();
 
                 if (localAuthenticatorConfigsIter != null) {
                     while (localAuthenticatorConfigsIter.hasNext()) {
@@ -99,7 +100,7 @@ public class AuthenticationStep implements Serializable {
                     }
                 }
 
-                if (localAuthenticatorConfigsArrList.size() > 0) {
+                if (localAuthenticatorConfigsArrList!=null&&!localAuthenticatorConfigsArrList.isEmpty()) {
                     LocalAuthenticatorConfig[] localAuthenticatorConfigsArr = localAuthenticatorConfigsArrList
                             .toArray(new LocalAuthenticatorConfig[0]);
                     authenticationStep.setLocalAuthenticatorConfigs(localAuthenticatorConfigsArr);

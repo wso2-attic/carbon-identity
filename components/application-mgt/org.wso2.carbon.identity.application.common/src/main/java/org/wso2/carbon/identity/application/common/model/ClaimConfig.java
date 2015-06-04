@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -23,6 +23,7 @@ import org.apache.axiom.om.OMElement;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class ClaimConfig implements Serializable {
 
@@ -34,8 +35,8 @@ public class ClaimConfig implements Serializable {
     private String roleClaimURI;
     private String userClaimURI;
     private boolean localClaimDialect;
-    private Claim[] idpClaims = new Claim[0];
-    private ClaimMapping[] claimMappings = new ClaimMapping[0];
+    private transient Claim[] idpClaims = new Claim[0];
+    private transient ClaimMapping[] claimMappings = new ClaimMapping[0];
     private boolean alwaysSendMappedLocalSubjectId;
 
     /*
@@ -53,21 +54,22 @@ public class ClaimConfig implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (elementName.equals("RoleClaimURI")) {
+
+            if ("RoleClaimURI".equals(elementName)) {
                 claimConfig.setRoleClaimURI(element.getText());
-            } else if (elementName.equals("LocalClaimDialect")) {
+            } else if ("LocalClaimDialect".equals(elementName)) {
                 if (element.getText() != null) {
                     claimConfig.setLocalClaimDialect(Boolean.parseBoolean(element.getText()));
                 }
-            } else if (elementName.equals("UserClaimURI")) {
+            } else if ("UserClaimURI".equals(elementName)) {
                 claimConfig.setUserClaimURI(element.getText());
-            } else if (elementName.equals("AlwaysSendMappedLocalSubjectId")) {
+            } else if ("AlwaysSendMappedLocalSubjectId".equals(elementName)) {
                 if (element.getText() != null && "true".equals(element.getText())) {
                     claimConfig.setAlwaysSendMappedLocalSubjectId(true);
                 }
-            } else if (elementName.equals("IdpClaims")) {
+            } else if ("IdpClaims".equals(elementName)) {
                 Iterator<?> idpClaimsIter = element.getChildElements();
-                ArrayList<Claim> idpClaimsArrList = new ArrayList<Claim>();
+                List<Claim> idpClaimsArrList = new ArrayList<Claim>();
 
                 if (idpClaimsIter != null) {
                     while (idpClaimsIter.hasNext()) {
@@ -79,14 +81,14 @@ public class ClaimConfig implements Serializable {
                     }
                 }
 
-                if (idpClaimsArrList.size() > 0) {
+                if (idpClaimsArrList!=null && !idpClaimsArrList.isEmpty()) {
                     Claim[] idpClaimsArr = idpClaimsArrList.toArray(new Claim[0]);
                     claimConfig.setIdpClaims(idpClaimsArr);
                 }
-            } else if (elementName.equals("ClaimMappings")) {
+            } else if ("ClaimMappings".equals(elementName)) {
 
                 Iterator<?> claimMappingsIter = element.getChildElements();
-                ArrayList<ClaimMapping> claimMappingsArrList = new ArrayList<ClaimMapping>();
+                List<ClaimMapping> claimMappingsArrList = new ArrayList<ClaimMapping>();
 
                 if (claimMappingsIter != null) {
                     while (claimMappingsIter.hasNext()) {
@@ -98,7 +100,7 @@ public class ClaimConfig implements Serializable {
                     }
                 }
 
-                if (claimMappingsArrList.size() > 0) {
+                if (claimMappingsArrList!=null && !claimMappingsArrList.isEmpty()) {
                     ClaimMapping[] claimMappingsArr = claimMappingsArrList
                             .toArray(new ClaimMapping[0]);
                     claimConfig.setClaimMappings(claimMappingsArr);
