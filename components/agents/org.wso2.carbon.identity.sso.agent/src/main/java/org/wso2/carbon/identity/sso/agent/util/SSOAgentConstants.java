@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -28,7 +28,7 @@ public class SSOAgentConstants {
 
     public static final String OPENID_MODE = "openid.mode";
 
-    public SSOAgentConstants() {
+    private SSOAgentConstants() {
     }
 
     public class StatusCodes {

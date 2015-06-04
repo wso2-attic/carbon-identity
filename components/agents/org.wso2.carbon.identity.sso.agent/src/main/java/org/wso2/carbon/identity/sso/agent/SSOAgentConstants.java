@@ -24,8 +24,7 @@ public class SSOAgentConstants {
 
     public static final String LOGGER_NAME = "org.wso2.carbon.identity.sso.agent";
 
-    private SSOAgentConstants() {
-    }
+
 
     public static final String SESSION_BEAN_NAME =
 
@@ -56,6 +55,9 @@ public class SSOAgentConstants {
 
         private OAuth2() {
         }
+    }
+
+    private SSOAgentConstants() {
     }
 
     public static class SSOAgentConfig {

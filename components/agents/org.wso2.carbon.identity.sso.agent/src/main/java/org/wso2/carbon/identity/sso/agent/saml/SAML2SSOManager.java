@@ -67,6 +67,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -265,7 +266,7 @@ public class SAML2SSOManager {
         String saml2SSOResponse = request.getParameter(SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP);
 
         if (saml2SSOResponse != null) {
-            String decodedResponse = new String(Base64.decode(saml2SSOResponse));
+            String decodedResponse = new String(Base64.decode(saml2SSOResponse), Charset.forName("UTF-8"));
             XMLObject samlObject = SSOAgentUtils.unmarshall(decodedResponse);
             if (samlObject instanceof LogoutResponse) {
                 //This is a SAML response for a single logout request from the SP
@@ -298,11 +299,11 @@ public class SAML2SSOManager {
         XMLObject saml2Object = null;
         if (request.getParameter(SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_AUTH_REQ) != null) {
             saml2Object = SSOAgentUtils.unmarshall(new String(Base64.decode(request.getParameter(
-                    SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_AUTH_REQ))));
+                    SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_AUTH_REQ)),Charset.forName("UTF-8")));
         }
         if (saml2Object == null) {
             saml2Object = SSOAgentUtils.unmarshall(new String(Base64.decode(request.getParameter(
-                    SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP))));
+                    SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP)),Charset.forName("UTF-8")));
         }
         if (saml2Object instanceof LogoutRequest) {
             LogoutRequest logoutRequest = (LogoutRequest) saml2Object;
@@ -345,7 +346,7 @@ public class SAML2SSOManager {
 
         String saml2ResponseString =
                 new String(Base64.decode(request.getParameter(
-                        SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP)));
+                        SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP)),Charset.forName("UTF-8"));
         Response saml2Response = (Response) SSOAgentUtils.unmarshall(saml2ResponseString);
         sessionBean.getSAML2SSO().setResponseString(saml2ResponseString);
         sessionBean.getSAML2SSO().setSAMLResponse(saml2Response);
@@ -538,7 +539,7 @@ public class SAML2SSOManager {
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                 DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream
                         (byteArrayOutputStream, deflater);
-                deflaterOutputStream.write(rspWrt.toString().getBytes());
+                deflaterOutputStream.write(rspWrt.toString().getBytes(Charset.forName("UTF-8")));
                 deflaterOutputStream.close();
                 String encodedRequestMessage = Base64.encodeBytes(byteArrayOutputStream
                         .toByteArray(), Base64.DONT_BREAK_LINES);
@@ -561,12 +562,6 @@ public class SAML2SSOManager {
         }
     }
 
-    private String decodeHTMLCharacters(String encodedStr) {
-
-        return encodedStr.replaceAll("&amp;", "&").replaceAll("&lt;", "<").replaceAll("&gt;", ">")
-                .replaceAll("&quot;", "\"").replaceAll("&apos;", "'");
-
-    }
 
     /*
      * Process the response and returns the results
@@ -706,7 +701,7 @@ public class SAML2SSOManager {
             LSOutput output = impl.createLSOutput();
             output.setByteStream(byteArrayOutputStrm);
             writer.write(element, output);
-            return byteArrayOutputStrm.toString();
+            return new String(byteArrayOutputStrm.toByteArray(), Charset.forName("UTF-8"));
         } catch (ClassNotFoundException e) {
             throw new SSOAgentException("Error in marshalling SAML2 Assertion", e);
         } catch (InstantiationException e) {

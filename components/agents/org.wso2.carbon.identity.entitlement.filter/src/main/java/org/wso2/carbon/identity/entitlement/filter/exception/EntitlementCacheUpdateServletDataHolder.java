@@ -49,8 +49,8 @@ public class EntitlementCacheUpdateServletDataHolder {
         return authenticationPageURL;
     }
 
-    public  void setAuthenticationPageURL(String authenticationPageURL) {
-        authenticationPageURL = authenticationPageURL;
+    public  void setAuthenticationPageURL(String authPageURL) {
+        authenticationPageURL = authPageURL;
     }
 
 
@@ -59,24 +59,24 @@ public class EntitlementCacheUpdateServletDataHolder {
         return authentication;
     }
 
-    public  void setAuthentication(String authentication) {
-        authentication = authentication;
+    public  void setAuthentication(String auth) {
+        authentication = auth;
     }
 
     public  ServletConfig getServletConfig() {
         return servletConfig;
     }
 
-    public  void setServletConfig(ServletConfig servletConfig) {
-        servletConfig = servletConfig;
+    public  void setServletConfig(ServletConfig servletConfiguration) {
+        servletConfig = servletConfiguration;
     }
 
     public  String getAuthCookie() {
         return authCookie;
     }
 
-    public  void setAuthCookie(String authCookie) {
-        authCookie = authCookie;
+    public  void setAuthCookie(String authenticationCookie) {
+        authCookie = authenticationCookie;
     }
 
 
@@ -84,8 +84,8 @@ public class EntitlementCacheUpdateServletDataHolder {
         return remoteServiceUrl;
     }
 
-    public  void setRemoteServiceUrl(String remoteServiceUrl) {
-        remoteServiceUrl = remoteServiceUrl;
+    public  void setRemoteServiceUrl(String remoteServiceURL) {
+        remoteServiceUrl = remoteServiceURL;
     }
 
 
@@ -93,24 +93,24 @@ public class EntitlementCacheUpdateServletDataHolder {
         return remoteServicePassword;
     }
 
-    public  void setRemoteServicePassword(String remoteServicePassword) {
-        remoteServicePassword = remoteServicePassword;
+    public  void setRemoteServicePassword(String remoteServicePswd) {
+        remoteServicePassword = remoteServicePswd;
     }
 
     public  String getRemoteServiceUserName() {
         return remoteServiceUserName;
     }
 
-    public  void setRemoteServiceUserName(String remoteServiceUserName) {
-        remoteServiceUserName = remoteServiceUserName;
+    public  void setRemoteServiceUserName(String rmtServiceUserName) {
+        remoteServiceUserName = rmtServiceUserName;
     }
 
     public  String getAuthenticationPage() {
         return authenticationPage;
     }
 
-    public  void setAuthenticationPage(String authenticationPage) {
-        authenticationPage = authenticationPage;
+    public  void setAuthenticationPage(String authPage) {
+        authenticationPage = authPage;
     }
 
 
@@ -118,8 +118,8 @@ public class EntitlementCacheUpdateServletDataHolder {
         return httpsPort;
     }
 
-    public  void setHttpsPort(String httpsPort) {
-        httpsPort = httpsPort;
+    public  void setHttpsPort(String httpsPortStr) {
+        httpsPort = httpsPortStr;
     }
 
 
@@ -127,8 +127,8 @@ public class EntitlementCacheUpdateServletDataHolder {
         return configCtx;
     }
 
-    public  void setConfigCtx(ConfigurationContext configCtx) {
-        configCtx = configCtx;
+    public  void setConfigCtx(ConfigurationContext configContext) {
+        configCtx = configContext;
     }
 
 }

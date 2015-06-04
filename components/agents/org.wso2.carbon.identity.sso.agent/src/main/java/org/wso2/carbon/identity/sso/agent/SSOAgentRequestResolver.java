@@ -32,13 +32,11 @@ public class SSOAgentRequestResolver {
 
     SSOAgentConfig ssoAgentConfig = null;
     HttpServletRequest request = null;
-    HttpServletResponse response = null;
 
     public SSOAgentRequestResolver(HttpServletRequest request, HttpServletResponse response,
                                    SSOAgentConfig ssoAgentConfig) {
 
         this.request = request;
-        this.response = response;
         this.ssoAgentConfig = ssoAgentConfig;
     }
 

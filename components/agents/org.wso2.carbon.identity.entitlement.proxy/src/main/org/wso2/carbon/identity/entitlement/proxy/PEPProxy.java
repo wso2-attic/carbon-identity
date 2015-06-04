@@ -1,20 +1,21 @@
 /*
- *  Licensed to the Apache Software Foundation (ASF) under one
- *  or more contributor license agreements.  See the NOTICE file
- *  distributed with this work for additional information
- *  regarding copyright ownership.  The ASF licenses this file
- *  to you under the Apache License, Version 2.0 (the
- *  "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *   * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ *
  */
 package org.wso2.carbon.identity.entitlement.proxy;
 
@@ -37,7 +38,8 @@ public class PEPProxy {
      */
     public PEPProxy(PEPProxyConfig config) throws EntitlementProxyException {
         defaultAppId = config.getDefaultAppId();
-        if (config.getCacheType() != null && (config.getCacheType().equals("simple") || config.getCacheType().equals("carbon"))) {
+
+        if (config.getCacheType() != null && ("simple".equals(config.getCacheType()) || "carbon".equals(config.getCacheType()))) {
             cache = new PEPProxyCache(config.getCacheType(), config.getInvalidationInterval(), config.getMaxCacheEntries());
         }
         appToPDPClientMap = PEPProxyFactory.getAppToPDPClientMap(config.getAppToPDPClientConfigMap());
@@ -219,7 +221,7 @@ public class PEPProxy {
         int key = 1;
         key = 11 * key + ((attributes == null) ? 0 : Arrays.hashCode(attributes));
         key = 31 * key + ((defaultAppId == null) ? 0 : defaultAppId.hashCode());
-        return Integer.valueOf (key).toString();
+        return Integer.toString(key);
     }
 
     public void clear() {

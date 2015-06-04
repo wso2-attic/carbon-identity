@@ -31,7 +31,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.authenticator.stub.AuthenticationAdminStub;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
-import org.wso2.carbon.caching.impl.DataHolder;
 import org.wso2.carbon.identity.entitlement.filter.exception.EntitlementCacheUpdateServletDataHolder;
 import org.wso2.carbon.identity.entitlement.filter.exception.EntitlementCacheUpdateServletException;
 
@@ -42,6 +41,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
@@ -51,8 +51,8 @@ public class EntitlementCacheUpdateServlet extends HttpServlet {
 
 
 
-    private  static String username = "username";
-    private static String password = "password";
+    private  static String usernameString = "username";
+    private static String pswdString = "password";
 
     @Override
     public void init(ServletConfig config) throws EntitlementCacheUpdateServletException {
@@ -88,23 +88,23 @@ public class EntitlementCacheUpdateServlet extends HttpServlet {
 
         if (!req.isSecure()) {
             redirectToHTTPS(req, resp);
-        } else if (req.getParameter(username) != null && req.getParameter(password) != null
-                && !"null".equals(req.getParameter(username)) && !"null".equals(req.getParameter(password))) {
+        } else if (req.getParameter(usernameString) != null && req.getParameter(pswdString) != null
+                && !"null".equals(req.getParameter(usernameString)) && !"null".equals(req.getParameter(pswdString))) {
             doAuthentication(req, resp);
         } else {
-            if (req.getParameter(username) == null) {
+            if (req.getParameter(usernameString) == null) {
                 log.info("\'username\' parameter not available in request. Redirecting to " +
                         EntitlementCacheUpdateServletDataHolder.getInstance().getAuthenticationPageURL());
             }
-            if (req.getParameter(password) == null) {
+            if (req.getParameter(pswdString) == null) {
                 log.info("\'password\' parameter not available in request. Redirecting to " +
                         EntitlementCacheUpdateServletDataHolder.getInstance().getAuthenticationPageURL());
             }
-            if (req.getParameter(username) != null && "null".equals(req.getParameter(username))) {
+            if (req.getParameter(usernameString) != null && "null".equals(req.getParameter(usernameString))) {
                 log.info("\'username\' is empty in request. Redirecting to " +EntitlementCacheUpdateServletDataHolder
                         .getInstance().getAuthenticationPageURL());
             }
-            if (req.getParameter(password) != null && "null".equals(req.getParameter(password))) {
+            if (req.getParameter(pswdString) != null && "null".equals(req.getParameter(pswdString))) {
                 log.info("\'password\' is empty in request. Redirecting to " +
                         EntitlementCacheUpdateServletDataHolder.getInstance().getAuthenticationPageURL());
             }
@@ -216,7 +216,7 @@ public class EntitlementCacheUpdateServlet extends HttpServlet {
 
             } else {
 
-                resp.setHeader("Authorization", Base64Utils.encode((username + ":" + password).getBytes()));
+                resp.setHeader("Authorization", Base64Utils.encode((username + ":" + password).getBytes(Charset.forName("UTF-8"))));
             }
 
             try {

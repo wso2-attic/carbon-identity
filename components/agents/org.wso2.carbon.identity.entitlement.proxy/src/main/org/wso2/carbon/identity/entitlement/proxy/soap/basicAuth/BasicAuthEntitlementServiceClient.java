@@ -1,20 +1,21 @@
 /*
- *  Licensed to the Apache Software Foundation (ASF) under one
- *  or more contributor license agreements.  See the NOTICE file
- *  distributed with this work for additional information
- *  regarding copyright ownership.  The ASF licenses this file
- *  to you under the Apache License, Version 2.0 (the
- *  "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *   * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ *
  */
 package org.wso2.carbon.identity.entitlement.proxy.soap.basicAuth;
 
@@ -45,7 +46,6 @@ import org.wso2.carbon.identity.entitlement.stub.dto.EntitledResultSetDTO;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -99,7 +99,7 @@ public class BasicAuthEntitlementServiceClient extends AbstractEntitlementServic
         configurationContext.setProperty(HTTPConstants.CACHED_HTTP_CLIENT, httpClient);
         configurationContext.setProperty(HTTPConstants.REUSE_HTTP_CLIENT, Constants.VALUE_TRUE);
 
-        HashMap<String, TransportOutDescription> transportsOut =
+        Map<String, TransportOutDescription> transportsOut =
                 configurationContext.getAxisConfiguration().getTransportsOut();
 
         for (TransportOutDescription transportOutDescription : transportsOut.values()) {
@@ -139,7 +139,7 @@ public class BasicAuthEntitlementServiceClient extends AbstractEntitlementServic
         try {
             stub = getEntitlementStub(serverUrl);
             String result = getDecision(xacmlRequest, stub);
-            return (result.contains(XACML_DECISION_PERMIT));
+            return result.contains(XACML_DECISION_PERMIT);
         } finally {
             if (stub != null) {
                 stub._getServiceClient().cleanupTransport();
@@ -167,7 +167,7 @@ public class BasicAuthEntitlementServiceClient extends AbstractEntitlementServic
         try {
             stub = getEntitlementStub(serverUrl);
             String result = getDecision(xacmlRequest, stub);
-            return (result.contains(XACML_DECISION_PERMIT));
+            return result.contains(XACML_DECISION_PERMIT);
         } finally {
             if (stub != null) {
                 stub._getServiceClient().cleanupTransport();
@@ -250,28 +250,7 @@ public class BasicAuthEntitlementServiceClient extends AbstractEntitlementServic
         return (EntitlementServiceStub) serviceStubPool.borrowObject();
     }
 
-    private EntitlementPolicyAdminServiceStub getEntitlementAdminStub(String serverUrl)
-            throws Exception {
 
-        if (policyAdminStub.containsKey(serverUrl)) {
-            return policyAdminStub.get(serverUrl);
-        }
-        EntitlementPolicyAdminServiceStub stub;
-        ConfigurationContext configurationContext = ConfigurationContextFactory.createDefaultConfigurationContext();
-        HashMap<String, TransportOutDescription> transportsOut = configurationContext
-                .getAxisConfiguration().getTransportsOut();
-        for (TransportOutDescription transportOutDescription : transportsOut.values()) {
-            transportOutDescription.getSender().init(configurationContext, transportOutDescription);
-        }
-        stub = new EntitlementPolicyAdminServiceStub(configurationContext, serverUrl
-                + "EntitlementPolicyAdminService");
-        ServiceClient client = stub._getServiceClient();
-        Options option = client.getOptions();
-        option.setManageSession(true);
-        option.setProperty(org.apache.axis2.transport.http.HTTPConstants.AUTHENTICATE, authenticator);
-        policyAdminStub.put(serverUrl, stub);
-        return stub;
-    }
 
     private String getDecision(String request, EntitlementServiceStub stub) throws Exception {
         return stub.getDecision(request);

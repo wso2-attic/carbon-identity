@@ -29,6 +29,9 @@ public class SSOAgentDataHolder {
     private  ConsumerManager consumerManager;
     private  static SSOAgentDataHolder instance = new SSOAgentDataHolder();
 
+    private SSOAgentDataHolder() {
+    }
+
     public Object getSignatureValidator() {
         return signatureValidator;
     }
@@ -45,10 +48,11 @@ public class SSOAgentDataHolder {
     public static SSOAgentDataHolder getInstance(){
         return instance;
     }
+
+
     public void setConsumerManager(ConsumerManager consumerManager) {
         this.consumerManager = consumerManager;
     }
 
-    private SSOAgentDataHolder() {
-    }
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -52,6 +52,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -119,25 +120,8 @@ public class SSOAgentUtils {
                                         X509Credential cred) throws SSOAgentException {
         doBootstrap();
         try {
-            Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
-            signature.setSigningCredential(cred);
-            signature.setSignatureAlgorithm(signatureAlgorithm);
-            signature.setCanonicalizationAlgorithm(Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
+            Signature signature = setSignatureRaw(signatureAlgorithm,cred);
 
-            try {
-                KeyInfo keyInfo = (KeyInfo) buildXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
-                X509Data data = (X509Data) buildXMLObject(X509Data.DEFAULT_ELEMENT_NAME);
-                org.opensaml.xml.signature.X509Certificate cert =
-                        (org.opensaml.xml.signature.X509Certificate) buildXMLObject(org.opensaml.xml.signature.X509Certificate.DEFAULT_ELEMENT_NAME);
-                String value =
-                        org.apache.xml.security.utils.Base64.encode(cred.getEntityCertificate().getEncoded());
-                cert.setValue(value);
-                data.getX509Certificates().add(cert);
-                keyInfo.getX509Datas().add(data);
-                signature.setKeyInfo(keyInfo);
-            } catch (CertificateEncodingException e) {
-                throw new SSOAgentException("Error getting certificate", e);
-            }
 
             authnRequest.setSignature(signature);
 
@@ -160,6 +144,30 @@ public class SSOAgentUtils {
         }
     }
 
+    private static Signature setSignatureRaw(String signatureAlgorithm, X509Credential cred) throws SSOAgentException {
+        Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
+        signature.setSigningCredential(cred);
+        signature.setSignatureAlgorithm(signatureAlgorithm);
+        signature.setCanonicalizationAlgorithm(Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
+
+        try {
+            KeyInfo keyInfo = (KeyInfo) buildXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
+            X509Data data = (X509Data) buildXMLObject(X509Data.DEFAULT_ELEMENT_NAME);
+            org.opensaml.xml.signature.X509Certificate cert =
+                    (org.opensaml.xml.signature.X509Certificate) buildXMLObject(org.opensaml.xml.signature.X509Certificate.DEFAULT_ELEMENT_NAME);
+            String value =
+                    org.apache.xml.security.utils.Base64.encode(cred.getEntityCertificate().getEncoded());
+            cert.setValue(value);
+            data.getX509Certificates().add(cert);
+            keyInfo.getX509Datas().add(data);
+            signature.setKeyInfo(keyInfo);
+            return signature;
+
+        } catch (CertificateEncodingException e) {
+            throw new SSOAgentException("Error getting certificate", e);
+        }
+    }
+
     /**
      * Sign the SAML AuthnRequest message
      *
@@ -172,25 +180,7 @@ public class SSOAgentUtils {
     public static LogoutRequest setSignature(LogoutRequest logoutRequest, String signatureAlgorithm,
                                              X509Credential cred) throws SSOAgentException {
         try {
-            Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
-            signature.setSigningCredential(cred);
-            signature.setSignatureAlgorithm(signatureAlgorithm);
-            signature.setCanonicalizationAlgorithm(Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
-
-            try {
-                KeyInfo keyInfo = (KeyInfo) buildXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
-                X509Data data = (X509Data) buildXMLObject(X509Data.DEFAULT_ELEMENT_NAME);
-                org.opensaml.xml.signature.X509Certificate cert =
-                        (org.opensaml.xml.signature.X509Certificate) buildXMLObject(org.opensaml.xml.signature.X509Certificate.DEFAULT_ELEMENT_NAME);
-                String value =
-                        org.apache.xml.security.utils.Base64.encode(cred.getEntityCertificate().getEncoded());
-                cert.setValue(value);
-                data.getX509Certificates().add(cert);
-                keyInfo.getX509Datas().add(data);
-                signature.setKeyInfo(keyInfo);
-            } catch (CertificateEncodingException e) {
-                throw new SSOAgentException("Error getting certificate", e);
-            }
+            Signature signature = setSignatureRaw(signatureAlgorithm,cred);
 
             logoutRequest.setSignature(signature);
 
@@ -222,7 +212,7 @@ public class SSOAgentUtils {
 
             java.security.Signature signature = java.security.Signature.getInstance("SHA1withRSA");
             signature.initSign(cred.getPrivateKey());
-            signature.update(httpQueryString.toString().getBytes());
+            signature.update(httpQueryString.toString().getBytes(Charset.forName("UTF-8")));
             byte[] signatureByteArray = signature.sign();
 
             String signatureBase64encodedString = Base64.encodeBytes(signatureByteArray,
@@ -285,7 +275,7 @@ public class SSOAgentUtils {
         try {
             DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
             docBuilder.setEntityResolver(new CarbonEntityResolver());
-            ByteArrayInputStream is = new ByteArrayInputStream(saml2SSOString.getBytes());
+            ByteArrayInputStream is = new ByteArrayInputStream(saml2SSOString.getBytes(Charset.forName("UTF-8")));
             Document document = docBuilder.parse(is);
             Element element = document.getDocumentElement();
             UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();

@@ -42,7 +42,6 @@ public class EntitlementFilter implements Filter {
 
     private static final Log log = LogFactory.getLog(EntitlementFilter.class);
 
-    private FilterConfig filterConfig = null;
     private PEPProxy pepProxy;
     private String client;
     private String remoteServiceUrl;
@@ -65,7 +64,6 @@ public class EntitlementFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws EntitlementFilterException {
 
-        this.filterConfig = filterConfig;
 
         //This Attributes are mandatory So have to be specified in the web.xml
         authRedirectURL = filterConfig.getInitParameter(EntitlementConstants.AUTH_REDIRECT_URL);
@@ -118,32 +116,36 @@ public class EntitlementFilter implements Filter {
         Map<String, Map<String, String>> appToPDPClientConfigMap = new HashMap<String, Map<String, String>>();
         Map<String, String> clientConfigMap = new HashMap<String, String>();
 
-        if (client != null && client.equals(EntitlementConstants.SOAP)) {
-            clientConfigMap.put(EntitlementConstants.CLIENT, client);
+
+        if(client!=null){
+            if(client.equals(EntitlementConstants.SOAP)){
+                clientConfigMap.put(EntitlementConstants.CLIENT, client);
+                clientConfigMap.put(EntitlementConstants.SERVER_URL, remoteServiceUrl);
+                clientConfigMap.put(EntitlementConstants.USERNAME, remoteServiceUserName);
+                clientConfigMap.put(EntitlementConstants.PASSWORD, remoteServicePassword);
+                clientConfigMap.put(EntitlementConstants.REUSE_SESSION, reuseSession);
+            } else if (client.equals(EntitlementConstants.BASIC_AUTH)) {
+                clientConfigMap.put(EntitlementConstants.CLIENT, client);
+                clientConfigMap.put(EntitlementConstants.SERVER_URL, remoteServiceUrl);
+                clientConfigMap.put(EntitlementConstants.USERNAME, remoteServiceUserName);
+                clientConfigMap.put(EntitlementConstants.PASSWORD, remoteServicePassword);
+            }else if (client.equals(EntitlementConstants.THRIFT)) {
+                clientConfigMap.put(EntitlementConstants.CLIENT, client);
+                clientConfigMap.put(EntitlementConstants.SERVER_URL, remoteServiceUrl);
+                clientConfigMap.put(EntitlementConstants.USERNAME, remoteServiceUserName);
+                clientConfigMap.put(EntitlementConstants.PASSWORD, remoteServicePassword);
+                clientConfigMap.put(EntitlementConstants.REUSE_SESSION, reuseSession);
+                clientConfigMap.put(EntitlementConstants.THRIFT_HOST, thriftHost);
+                clientConfigMap.put(EntitlementConstants.THRIFT_PORT, thriftPort);
+            }else {
+                log.error("EntitlementMediator initialization error: Unsupported client");
+                throw new EntitlementFilterException("EntitlementMediator initialization error: Unsupported client");
+            }
+
+        }else {
             clientConfigMap.put(EntitlementConstants.SERVER_URL, remoteServiceUrl);
             clientConfigMap.put(EntitlementConstants.USERNAME, remoteServiceUserName);
             clientConfigMap.put(EntitlementConstants.PASSWORD, remoteServicePassword);
-            clientConfigMap.put(EntitlementConstants.REUSE_SESSION, reuseSession);
-        } else if (client != null && client.equals(EntitlementConstants.BASIC_AUTH)) {
-            clientConfigMap.put(EntitlementConstants.CLIENT, client);
-            clientConfigMap.put(EntitlementConstants.SERVER_URL, remoteServiceUrl);
-            clientConfigMap.put(EntitlementConstants.USERNAME, remoteServiceUserName);
-            clientConfigMap.put(EntitlementConstants.PASSWORD, remoteServicePassword);
-        } else if (client != null && client.equals(EntitlementConstants.THRIFT)) {
-            clientConfigMap.put(EntitlementConstants.CLIENT, client);
-            clientConfigMap.put(EntitlementConstants.SERVER_URL, remoteServiceUrl);
-            clientConfigMap.put(EntitlementConstants.USERNAME, remoteServiceUserName);
-            clientConfigMap.put(EntitlementConstants.PASSWORD, remoteServicePassword);
-            clientConfigMap.put(EntitlementConstants.REUSE_SESSION, reuseSession);
-            clientConfigMap.put(EntitlementConstants.THRIFT_HOST, thriftHost);
-            clientConfigMap.put(EntitlementConstants.THRIFT_PORT, thriftPort);
-        } else if (client == null) {
-            clientConfigMap.put(EntitlementConstants.SERVER_URL, remoteServiceUrl);
-            clientConfigMap.put(EntitlementConstants.USERNAME, remoteServiceUserName);
-            clientConfigMap.put(EntitlementConstants.PASSWORD, remoteServicePassword);
-        } else {
-            log.error("EntitlementMediator initialization error: Unsupported client");
-            throw new EntitlementFilterException("EntitlementMediator initialization error: Unsupported client");
         }
 
         appToPDPClientConfigMap.put("EntitlementMediator", clientConfigMap);
@@ -201,7 +203,6 @@ public class EntitlementFilter implements Filter {
     @Override
     public void destroy() {
 
-        filterConfig = null;
         pepProxy = null;
         client = null;
         remoteServiceUrl = null;

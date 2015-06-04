@@ -21,9 +21,6 @@ package org.wso2.carbon.identity.entitlement.filter;
 
 public class EntitlementConstants {
 
-    private EntitlementConstants(){
-
-    }
 
     public static final String CLIENT = "client";
 
@@ -98,5 +95,10 @@ public class EntitlementConstants {
     public static final String defaultThriftHost = "localhost";
 
     public static final String defaultThriftPort = "10500";
+
+
+    private EntitlementConstants(){
+
+    }
 
 }

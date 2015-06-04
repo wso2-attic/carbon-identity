@@ -62,7 +62,7 @@ public class CarbonSSOAgentFilter extends SSOAgentFilter {
         config.getSAML2().setSSOAgentX509Credential(
                 new SSOAgentCarbonX509Credential(tenantId, tenantDomain));
 
-        String htmlPayload = null;
+        String htmlPayload = "";
         String htmlFilePath = (String) request.getAttribute(
                 SSOAgentConstants.SSOAgentConfig.SAML2.POST_BINDING_REQUEST_HTML_FILE_PATH);
         if (htmlFilePath != null && !htmlFilePath.isEmpty()) {

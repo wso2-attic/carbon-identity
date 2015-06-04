@@ -36,6 +36,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 
 public class SAML2GrantAccessTokenRequestor {
 
@@ -55,10 +56,15 @@ public class SAML2GrantAccessTokenRequestor {
             String consumerKey = SSOAgentConfigs.getOAuth2ClientId();
             String consumerSecret = SSOAgentConfigs.getOAuth2ClientSecret();
             String tokenEndpoint = SSOAgentConfigs.getTokenEndpoint();
+            String keySecret = consumerKey+":"+consumerSecret;
 
             String accessTokenResponse = executePost(tokenEndpoint,
-                    "grant_type=urn:ietf:params:oauth:grant-type:saml2-bearer&assertion=" + URLEncoder.encode(Base64.encodeBytes(samlAssertionString.getBytes()).replaceAll("\n", "")),
-                    Base64.encodeBytes(new String(consumerKey + ":" + consumerSecret).getBytes()).replace("\n", ""));
+                    "grant_type=urn:ietf:params:oauth:grant-type:saml2-bearer&assertion=" + URLEncoder.encode(Base64
+                            .encodeBytes(samlAssertionString.getBytes(Charset.forName("UTF-8"))).replaceAll("\n", "")),
+                    Base64.encodeBytes(keySecret.getBytes(Charset.forName
+                            ("UTF-8")))
+                    .replace("\n",
+                            ""));
 
             Gson gson = new Gson();
             SSOAgentSessionBean.AccessTokenResponseBean accessTokenResp =
@@ -87,7 +93,7 @@ public class SAML2GrantAccessTokenRequestor {
             connection.setRequestProperty("Authorization", "Basic " + clientCredentials);
 
             connection.setRequestProperty("Content-Length", "" +
-                    Integer.toString(urlParameters.getBytes().length));
+                    Integer.toString(urlParameters.getBytes(Charset.forName("UTF-8")).length));
 
             connection.setUseCaches(false);
             connection.setDoInput(true);

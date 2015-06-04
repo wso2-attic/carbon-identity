@@ -38,7 +38,7 @@ import java.util.logging.Logger;
  */
 public class SSOAgentFilter implements Filter {
 
-    private static Logger LOGGER = Logger.getLogger(SSOAgentConstants.LOGGER_NAME);
+    private static final Logger LOGGER = Logger.getLogger(SSOAgentConstants.LOGGER_NAME);
 
     /**
      * @see Filter#init(FilterConfig)

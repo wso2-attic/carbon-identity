@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -33,6 +33,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 
 public class SAML2GrantManager {
 
@@ -50,12 +51,14 @@ public class SAML2GrantManager {
                 getAttribute(SSOAgentConstants.SESSION_BEAN_NAME)).getSAML2SSO().
                 getAssertionString();
 
+        String clientLogin = ssoAgentConfig.getOAuth2().getClientId() + ":" +
+                ssoAgentConfig.getOAuth2().getClientSecret();
+
         String accessTokenResponse = executePost(
                 "grant_type=" + SSOAgentConstants.OAuth2.SAML2_BEARER_GRANT_TYPE + "&assertion=" +
                         URLEncoder.encode(Base64.encodeBytes(
-                                samlAssertionString.getBytes()).replaceAll("\n", "")),
-                Base64.encodeBytes(new String(ssoAgentConfig.getOAuth2().getClientId() + ":" +
-                        ssoAgentConfig.getOAuth2().getClientSecret()).getBytes()).replace("\n", ""));
+                                samlAssertionString.getBytes(Charset.forName("UTF-8"))).replaceAll("\n", "")),
+                Base64.encodeBytes(clientLogin.getBytes(Charset.forName("UTF-8"))).replace("\n", ""));
 
         Gson gson = new Gson();
         LoggedInSessionBean.AccessTokenResponseBean accessTokenResp =
@@ -81,7 +84,7 @@ public class SAML2GrantManager {
             connection.setRequestProperty("Authorization", "Basic " + basicAuthHeader);
 
             connection.setRequestProperty("Content-Length", "" +
-                    Integer.toString(urlParameters.getBytes().length));
+                    Integer.toString(urlParameters.getBytes(Charset.forName("UTF-8")).length));
 
             connection.setUseCaches(false);
             connection.setDoInput(true);
