@@ -1,24 +1,23 @@
 /*
- *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.application.mgt;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -43,6 +42,7 @@ import org.wso2.carbon.user.mgt.UserMgtConstants;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 
 public class ApplicationMgtUtil {
 
@@ -53,7 +53,7 @@ public class ApplicationMgtUtil {
 
     private static Log log = LogFactory.getLog(ApplicationMgtUtil.class);
 
-    private ApplicationMgtUtil(){
+    private ApplicationMgtUtil() {
     }
 
     public static org.wso2.carbon.user.api.Permission[] buildPermissions(String applicationName,
@@ -96,7 +96,7 @@ public class ApplicationMgtUtil {
         String applicationRoleName = UserCoreUtil.addInternalDomainName(applicationName);
 
         try {
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("Checking whether user has role : " + applicationRoleName + " by retrieving role list of user : " + user);
             }
             String[] userRoles = CarbonContext.getThreadLocalCarbonContext().getUserRealm()
@@ -143,7 +143,7 @@ public class ApplicationMgtUtil {
 
         try {
             // create a role for the application and assign the user to that role.
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("Creating application role : " + roleName + " and assign the user : " + Arrays.toString(user) + " to that role");
             }
             CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
@@ -164,7 +164,7 @@ public class ApplicationMgtUtil {
         String roleName = UserCoreUtil.addInternalDomainName(applicationName);
 
         try {
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("Deleting application role : " + roleName);
             }
             CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
@@ -181,9 +181,9 @@ public class ApplicationMgtUtil {
      */
     public static void renameRole(String oldName, String newName) throws UserStoreException {
 
-        if(log.isDebugEnabled()) {
-           log.debug("Renaming application role : " + UserCoreUtil.addInternalDomainName(oldName)
-                + " to new role : " + UserCoreUtil.addInternalDomainName(newName));
+        if (log.isDebugEnabled()) {
+            log.debug("Renaming application role : " + UserCoreUtil.addInternalDomainName(oldName)
+                    + " to new role : " + UserCoreUtil.addInternalDomainName(newName));
         }
         CarbonContext
                 .getThreadLocalCarbonContext()
@@ -194,8 +194,9 @@ public class ApplicationMgtUtil {
 
     }
 
-    /***
+    /**
      * Rename the registry path node name for a deleted Service provider role.
+     *
      * @param oldName
      * @param newName
      * @throws IdentityApplicationManagementException
@@ -347,7 +348,7 @@ public class ApplicationMgtUtil {
         for (ApplicationPermission permission : permissions) {
             String permissionValue = permission.getValue();
 
-            if ("/".equals(permissionValue.substring(0,1))) {         //if permissions are starts with slash remove that
+            if ("/".equals(permissionValue.substring(0, 1))) {         //if permissions are starts with slash remove that
                 permissionValue = permissionValue.substring(1);
             }
             String[] splitedPermission = permissionValue.split("/");

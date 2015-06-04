@@ -1,24 +1,24 @@
 /*
- *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-
 package org.wso2.carbon.identity.application.common.model;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -38,14 +38,14 @@ public class ServiceProvider implements Serializable {
     private int applicationID = 0;
     private String applicationName;
     private String description;
-    private transient User owner;
-    private transient InboundAuthenticationConfig inboundAuthenticationConfig;
-    private transient LocalAndOutboundAuthenticationConfig localAndOutBoundAuthenticationConfig;
-    private transient RequestPathAuthenticatorConfig[] requestPathAuthenticatorConfigs;
-    private transient InboundProvisioningConfig inboundProvisioningConfig;
-    private transient OutboundProvisioningConfig outboundProvisioningConfig;
-    private transient ClaimConfig claimConfig;
-    private transient PermissionsAndRoleConfig permissionAndRoleConfig;
+    private User owner;
+    private InboundAuthenticationConfig inboundAuthenticationConfig;
+    private LocalAndOutboundAuthenticationConfig localAndOutBoundAuthenticationConfig;
+    private RequestPathAuthenticatorConfig[] requestPathAuthenticatorConfigs;
+    private InboundProvisioningConfig inboundProvisioningConfig;
+    private OutboundProvisioningConfig outboundProvisioningConfig;
+    private ClaimConfig claimConfig;
+    private PermissionsAndRoleConfig permissionAndRoleConfig;
     private boolean saasApp;
 
     /*
@@ -127,7 +127,7 @@ public class ServiceProvider implements Serializable {
                     }
                 }
 
-                if (requestPathAuthenticatorConfigsArrList!=null && !requestPathAuthenticatorConfigsArrList.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(requestPathAuthenticatorConfigsArrList)) {
                     // add to the service provider, only if we have any.
                     RequestPathAuthenticatorConfig[] requestPathAuthenticatorConfigsArr;
                     requestPathAuthenticatorConfigsArr = requestPathAuthenticatorConfigsArrList

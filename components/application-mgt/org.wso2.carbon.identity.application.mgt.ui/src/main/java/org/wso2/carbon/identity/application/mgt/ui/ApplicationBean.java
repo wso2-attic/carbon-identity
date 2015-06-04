@@ -1,22 +1,23 @@
 /*
- *Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.carbon.identity.application.mgt.ui;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.wso2.carbon.identity.application.common.model.xsd.*;
 import org.wso2.carbon.ui.util.CharacterEncoder;
 
@@ -517,7 +518,7 @@ public class ApplicationBean {
                 }
                 tempAuthRequest.add(authRequest[i]);
             }
-            if (tempAuthRequest!=null && !tempAuthRequest.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(tempAuthRequest)) {
                 serviceProvider
                         .getInboundAuthenticationConfig()
                         .setInboundAuthenticationRequestConfigs(
@@ -552,7 +553,7 @@ public class ApplicationBean {
                 }
                 tempAuthRequest.add(authRequest[i]);
             }
-            if (tempAuthRequest!=null && !tempAuthRequest.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(tempAuthRequest)) {
                 serviceProvider
                         .getInboundAuthenticationConfig()
                         .setInboundAuthenticationRequestConfigs(
@@ -579,7 +580,7 @@ public class ApplicationBean {
                 }
                 tempAuthRequest.add(authRequest[i]);
             }
-            if (tempAuthRequest!=null && !tempAuthRequest.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(tempAuthRequest)) {
                 serviceProvider
                         .getInboundAuthenticationConfig()
                         .setInboundAuthenticationRequestConfigs(
@@ -686,7 +687,6 @@ public class ApplicationBean {
     }
 
     /**
-     *
      * @return
      */
     public String getPassiveSTSWReply() {
@@ -706,7 +706,7 @@ public class ApplicationBean {
                     Property[] properties = authRequest[i].getProperties();
                     if (properties != null) {
                         for (int j = 0; j < properties.length; j++) {
-                            if("passiveSTSWReply".equalsIgnoreCase(properties[j].getName())) {
+                            if ("passiveSTSWReply".equalsIgnoreCase(properties[j].getName())) {
                                 passiveSTSWReply = properties[j].getValue();
                                 break;
                             }
@@ -752,7 +752,7 @@ public class ApplicationBean {
                 authStep.setSubjectStep(isSubjectStep);
 
                 boolean isAttributeStep = request.getParameter("attribute_step_" + authstep) != null
-                        && "on".equals(request.getParameter("attribute_step_" + authstep))? true
+                        && "on".equals(request.getParameter("attribute_step_" + authstep)) ? true
                         : false;
                 authStep.setAttributeStep(isAttributeStep);
 
@@ -777,7 +777,7 @@ public class ApplicationBean {
                         }
                     }
 
-                    if (localAuthList!=null && !localAuthList.isEmpty()) {
+                    if (localAuthList != null && !localAuthList.isEmpty()) {
                         authStep.setLocalAuthenticatorConfigs(localAuthList
                                 .toArray(new LocalAuthenticatorConfig[localAuthList.size()]));
                     }
@@ -804,7 +804,7 @@ public class ApplicationBean {
                         }
                     }
 
-                    if (fedIdpList!=null && !fedIdpList.isEmpty()) {
+                    if (fedIdpList != null && !fedIdpList.isEmpty()) {
                         authStep.setFederatedIdentityProviders(fedIdpList
                                 .toArray(new IdentityProvider[fedIdpList.size()]));
                     }
@@ -824,7 +824,7 @@ public class ApplicationBean {
                         .setLocalAndOutBoundAuthenticationConfig(new LocalAndOutboundAuthenticationConfig());
             }
 
-            if (authStepList != null && !authStepList.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(authStepList)) {
                 serviceProvider.getLocalAndOutBoundAuthenticationConfig().setAuthenticationSteps(
                         authStepList.toArray(new AuthenticationStep[authStepList.size()]));
             }
@@ -895,7 +895,7 @@ public class ApplicationBean {
                 }
             }
 
-            if (provisioningIdps!=null && !provisioningIdps.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(provisioningIdps)) {
                 OutboundProvisioningConfig outboundProConfig = new OutboundProvisioningConfig();
                 outboundProConfig.setProvisioningIdentityProviders(provisioningIdps
                         .toArray(new IdentityProvider[provisioningIdps.size()]));
@@ -919,7 +919,7 @@ public class ApplicationBean {
                 }
             }
 
-            if (reqAuthList!=null && !reqAuthList.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(reqAuthList)) {
                 serviceProvider.setRequestPathAuthenticatorConfigs(reqAuthList
                         .toArray(new RequestPathAuthenticatorConfig[reqAuthList.size()]));
             } else {
@@ -979,7 +979,7 @@ public class ApplicationBean {
                 Property property = new Property();
                 property.setName("passiveSTSWReply");
                 property.setValue(passiveSTSWReply);
-                Property[] properties = { property };
+                Property[] properties = {property};
                 opicAuthenticationRequest.setProperties(properties);
             }
             authRequestList.add(opicAuthenticationRequest);
@@ -998,7 +998,7 @@ public class ApplicationBean {
             serviceProvider.setInboundAuthenticationConfig(new InboundAuthenticationConfig());
         }
 
-        if (authRequestList!=null && !authRequestList.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(authRequestList)) {
             serviceProvider.getInboundAuthenticationConfig()
                     .setInboundAuthenticationRequestConfigs(
                             authRequestList
@@ -1064,7 +1064,7 @@ public class ApplicationBean {
             }
         }
 
-        if (appPermList!=null&& !appPermList.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(appPermList)) {
             permAndRoleConfig.setPermissions(appPermList
                     .toArray(new ApplicationPermission[appPermList.size()]));
         }
@@ -1168,7 +1168,6 @@ public class ApplicationBean {
     }
 
     /**
-     *
      * @param passiveSTSWReply
      */
     public void setPassiveSTSWReply(String passiveSTSWReply) {
@@ -1231,7 +1230,7 @@ public class ApplicationBean {
                 }
             }
 
-            if (provisioningIdps!=null && !provisioningIdps.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(provisioningIdps)) {
                 OutboundProvisioningConfig outboundProConfig = new OutboundProvisioningConfig();
                 outboundProConfig.setProvisioningIdentityProviders(provisioningIdps
                         .toArray(new IdentityProvider[provisioningIdps.size()]));

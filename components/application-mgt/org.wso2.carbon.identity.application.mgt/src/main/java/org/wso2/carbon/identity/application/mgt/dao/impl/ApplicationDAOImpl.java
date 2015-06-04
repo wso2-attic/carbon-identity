@@ -1,19 +1,19 @@
 /*
- *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.application.mgt.dao.impl;
@@ -81,10 +81,9 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
         if (tenantDomain != null) {
             try {
-                tenantID = ApplicationManagementServiceComponentHolder.getRealmService()
+                tenantID = ApplicationManagementServiceComponentHolder.getInstance().getRealmService()
                         .getTenantManager().getTenantId(tenantDomain);
             } catch (UserStoreException e1) {
-                log.error("Error in reading application",e1);
                 throw new IdentityApplicationManagementException("Error while reading application");
             }
         }
@@ -230,7 +229,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             deletePermissionAndRoleConfiguration(applicationId, connection);
             updatePermissionAndRoleConfiguration(serviceProvider.getApplicationID(),
                     serviceProvider.getPermissionAndRoleConfig(), connection);
-            deleteAssignedPermissions(connection,serviceProvider.getApplicationName(),
+            deleteAssignedPermissions(connection, serviceProvider.getApplicationName(),
                     serviceProvider.getPermissionAndRoleConfig().getPermissions());
 
             if (!connection.getAutoCommit()) {
@@ -242,7 +241,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                     connection.rollback();
                 }
             } catch (SQLException e1) {
-                log.error("Failed on updating service provider",e1);
                 throw new IdentityApplicationManagementException(
                         "Failed to update service provider " + applicationId, e);
             }
@@ -1047,11 +1045,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         int tenantID = MultitenantConstants.SUPER_TENANT_ID;
         if (tenantDomain != null) {
             try {
-                tenantID = ApplicationManagementServiceComponentHolder.getRealmService()
+                tenantID = ApplicationManagementServiceComponentHolder.getInstance().getRealmService()
                         .getTenantManager().getTenantId(tenantDomain);
             } catch (UserStoreException e1) {
-                log.error("Error in reading application",e1);
-                throw new IdentityApplicationManagementException("Error while reading application",e1);
+                log.error("Error in reading application", e1);
+                throw new IdentityApplicationManagementException("Error while reading application", e1);
             }
         }
 
@@ -1152,15 +1150,15 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
                 String tenantDomain;
                 try {
-                    tenantDomain = ApplicationManagementServiceComponentHolder.getRealmService()
-                                                                              .getTenantManager()
-                                                                              .getDomain(
-                                                                                      basicAppDataResultSet.getInt(2));
+                    tenantDomain = ApplicationManagementServiceComponentHolder.getInstance().getRealmService()
+                            .getTenantManager()
+                            .getDomain(
+                                    basicAppDataResultSet.getInt(2));
                 } catch (UserStoreException e) {
                     log.error("Error while reading tenantDomain", e);
                     throw new IdentityApplicationManagementException("Error while reading tenant " +
-                                                                     "domain for application " +
-                                                                     applicationName);
+                            "domain for application " +
+                            applicationName);
                 }
 
                 User owner = new User();
@@ -1255,11 +1253,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         int tenantID = -123;
 
         try {
-            tenantID = ApplicationManagementServiceComponentHolder.getRealmService()
+            tenantID = ApplicationManagementServiceComponentHolder.getInstance().getRealmService()
                     .getTenantManager().getTenantId(tenantDomain);
         } catch (UserStoreException e1) {
-            log.error("Error while reading application",e1);
-            throw new IdentityApplicationManagementException("Error while reading application",e1);
+            log.error("Error while reading application", e1);
+            throw new IdentityApplicationManagementException("Error while reading application", e1);
         }
 
         String applicationName = null;
@@ -1388,8 +1386,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
         } catch (SQLException e) {
             IdentityApplicationManagementUtil.closeConnection(connection);
-            log.error("Error in storing the application",e);
-            throw new IdentityApplicationManagementException("Error while storing application",e);
+            log.error("Error in storing the application", e);
+            throw new IdentityApplicationManagementException("Error while storing application", e);
         } finally {
             IdentityApplicationManagementUtil.closeResultSet(appidResult);
             IdentityApplicationManagementUtil.closeStatement(getAppIDPrepStmt);
@@ -2278,8 +2276,9 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         }
     }
 
-    /***
+    /**
      * Delete assigned role permission mappings for deleted permissions
+     *
      * @param connection
      * @param applicationName
      * @param permissions
@@ -2360,7 +2359,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
         if (tenantDomain != null) {
             try {
-                tenantID = ApplicationManagementServiceComponentHolder.getRealmService()
+                tenantID = ApplicationManagementServiceComponentHolder.getInstance().getRealmService()
                         .getTenantManager().getTenantId(tenantDomain);
             } catch (UserStoreException e1) {
                 throw new IdentityApplicationManagementException("Error while reading application");
@@ -2411,7 +2410,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
         if (tenantDomain != null) {
             try {
-                tenantID = ApplicationManagementServiceComponentHolder.getRealmService()
+                tenantID = ApplicationManagementServiceComponentHolder.getInstance().getRealmService()
                         .getTenantManager().getTenantId(tenantDomain);
             } catch (UserStoreException e1) {
                 throw new IdentityApplicationManagementException("Error while reading application");
@@ -2484,7 +2483,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
         if (tenantDomain != null) {
             try {
-                tenantID = ApplicationManagementServiceComponentHolder.getRealmService()
+                tenantID = ApplicationManagementServiceComponentHolder.getInstance().getRealmService()
                         .getTenantManager().getTenantId(tenantDomain);
             } catch (UserStoreException e1) {
                 throw new IdentityApplicationManagementException("Error while reading application");

@@ -1,24 +1,24 @@
 /*
- *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-
 package org.wso2.carbon.identity.application.common.model;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -54,7 +54,6 @@ public class ClaimConfig implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-
             if ("RoleClaimURI".equals(elementName)) {
                 claimConfig.setRoleClaimURI(element.getText());
             } else if ("LocalClaimDialect".equals(elementName)) {
@@ -64,7 +63,7 @@ public class ClaimConfig implements Serializable {
             } else if ("UserClaimURI".equals(elementName)) {
                 claimConfig.setUserClaimURI(element.getText());
             } else if ("AlwaysSendMappedLocalSubjectId".equals(elementName)) {
-                if (element.getText() != null && "true".equals(element.getText())) {
+                if ("true".equals(element.getText())) {
                     claimConfig.setAlwaysSendMappedLocalSubjectId(true);
                 }
             } else if ("IdpClaims".equals(elementName)) {
@@ -76,12 +75,11 @@ public class ClaimConfig implements Serializable {
                         OMElement idpClaimsElement = (OMElement) (idpClaimsIter.next());
                         Claim claim = Claim.build(idpClaimsElement);
                         if (claim != null) {
-                            idpClaimsArrList.add(claim);
                         }
                     }
                 }
 
-                if (idpClaimsArrList!=null && !idpClaimsArrList.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(idpClaimsArrList)) {
                     Claim[] idpClaimsArr = idpClaimsArrList.toArray(new Claim[0]);
                     claimConfig.setIdpClaims(idpClaimsArr);
                 }
@@ -100,7 +98,7 @@ public class ClaimConfig implements Serializable {
                     }
                 }
 
-                if (claimMappingsArrList!=null && !claimMappingsArrList.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(claimMappingsArrList)) {
                     ClaimMapping[] claimMappingsArr = claimMappingsArrList
                             .toArray(new ClaimMapping[0]);
                     claimConfig.setClaimMappings(claimMappingsArr);

@@ -1,19 +1,19 @@
 /*
- *Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.application.mgt.ui.client;
@@ -83,10 +83,10 @@ public class ApplicationManagementServiceClient {
             }
             stub.createApplication(serviceProvider);
         } catch (RemoteException e) {
-            log.error(e.getMessage(), e);
+            log.error("Error in registering the service provider"+ " " +serviceProvider.getApplicationName(), e);
             throw new Exception(e.getMessage());
         } catch (IdentityApplicationManagementServiceIdentityApplicationManagementException e) {
-            log.error(e.getMessage(), e);
+            log.error("Error in creating the application in service provider"+ " " +serviceProvider.getApplicationName(), e);
             throw new Exception(e.getMessage());
         }
 
@@ -104,7 +104,7 @@ public class ApplicationManagementServiceClient {
             }
             return stub.getApplication(applicationName);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Error occurred while in loading the application"+ " " +applicationName, e);
             throw new Exception(e.getMessage());
         }
 
@@ -118,10 +118,10 @@ public class ApplicationManagementServiceClient {
         try {
             return stub.getAllApplicationBasicInfo();
         } catch (RemoteException e) {
-            log.error(e.getMessage(), e);
+            log.error("Error occurred while registering the service provider", e);
             throw new Exception(e.getMessage());
         } catch (IdentityApplicationManagementServiceIdentityApplicationManagementException e) {
-            log.error(e.getMessage(), e);
+            log.error("Error occurred while retrieving the information of application", e);
             throw new Exception(e.getMessage());
         }
     }
@@ -134,10 +134,10 @@ public class ApplicationManagementServiceClient {
         try {
             stub.updateApplication(serviceProvider);
         } catch (RemoteException e) {
-            log.error(e.getMessage(), e);
+            log.error("Error occurred while registering the service provider", e);
             throw new Exception(e.getMessage());
         } catch (IdentityApplicationManagementServiceIdentityApplicationManagementException e) {
-            log.error(e.getMessage(), e);
+            log.error("Error occurred while updating the information of application", e);
             throw new Exception(e.getMessage());
         }
     }
@@ -150,10 +150,10 @@ public class ApplicationManagementServiceClient {
         try {
             stub.deleteApplication(applicationID);
         } catch (RemoteException e) {
-            log.error(e.getMessage(), e);
+            log.error("Error occurred while registering the service provider", e);
             throw new Exception(e.getMessage());
         } catch (IdentityApplicationManagementServiceIdentityApplicationManagementException e) {
-            log.error(e.getMessage(), e);
+            log.error("Error occurred while deleting the application in the service provider", e);
             throw new Exception(e.getMessage());
         }
 
@@ -194,7 +194,7 @@ public class ApplicationManagementServiceClient {
         try {
             idps = stub.getAllIdentityProviders();
         } catch (Exception e) {
-            log.error(e.getMessage(),e);
+            log.error("Error occurred while retrieving the Identity Providers", e);
         }
         return idps;
     }
@@ -225,7 +225,7 @@ public class ApplicationManagementServiceClient {
             }
             return readWriteDomainNames.toArray(new String[readWriteDomainNames.size()]);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Error occurred while retrieving User Store Domains ", e);
             throw new Exception(
                     "Error occurred while retrieving Read-Write User Store Domain IDs for logged-in user's tenant realm");
         }

@@ -252,7 +252,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             ApplicationPermission[] permissions =
                     serviceProvider.getPermissionAndRoleConfig()
                             .getPermissions();
-            if(!storedAppName.equals(serviceProvider.getApplicationName())){
+            if (!storedAppName.equals(serviceProvider.getApplicationName())) {
                 ApplicationMgtUtil.renameAppPermissionPathNode(storedAppName, serviceProvider.getApplicationName());
             }
             if (permissions != null) {
@@ -498,7 +498,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * Get application data for given client Id and type
      *
      * @param clientId Client ID
-     * @param type  Type
+     * @param type     Type
      * @return ServiceProvider
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
@@ -575,7 +575,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * @return axis configuration
      */
     private AxisConfiguration getAxisConfig() {
-        return ApplicationManagementServiceComponentHolder.getConfigContextService()
+        return ApplicationManagementServiceComponentHolder.getInstance().getConfigContextService()
                 .getServerConfigContext()
                 .getAxisConfiguration();
     }
@@ -587,7 +587,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * @throws org.wso2.carbon.registry.api.RegistryException
      */
     private Registry getConfigSystemRegistry() throws RegistryException {
-        return (Registry) ApplicationManagementServiceComponentHolder.getRegistryService()
+        return (Registry) ApplicationManagementServiceComponentHolder.getInstance().getRegistryService()
                 .getConfigSystemRegistry();
     }
 
