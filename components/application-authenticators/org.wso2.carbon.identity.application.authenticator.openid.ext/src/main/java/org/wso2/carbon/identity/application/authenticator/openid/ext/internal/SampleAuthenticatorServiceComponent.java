@@ -22,7 +22,6 @@ import org.wso2.carbon.identity.application.authentication.framework.Application
 import org.wso2.carbon.identity.application.authenticator.openid.ext.GoogleOpenIDAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.openid.ext.YahooOpenIDAuthenticator;
 
-import java.util.Hashtable;
 
 /**
  * @scr.component name="identity.application.authenticator.openid.ext.component" immediate="true"
@@ -48,7 +47,7 @@ public class SampleAuthenticatorServiceComponent {
         }
     }
 
-    protected void deactivate() {
+    protected void deactivate(ComponentContext ctxt) {
         if (log.isDebugEnabled()) {
             log.info("Sample Authenticator bundle is deactivated");
         }
