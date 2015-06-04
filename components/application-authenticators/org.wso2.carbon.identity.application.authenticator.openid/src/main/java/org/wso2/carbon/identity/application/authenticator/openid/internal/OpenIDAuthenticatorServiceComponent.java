@@ -39,7 +39,7 @@ public class OpenIDAuthenticatorServiceComponent {
         }
     }
 
-    protected void deactivate() {
+    protected void deactivate(ComponentContext ctxt) {
         if (log.isDebugEnabled()) {
             log.info("OpenID Authenticator bundle is deactivated");
         }
