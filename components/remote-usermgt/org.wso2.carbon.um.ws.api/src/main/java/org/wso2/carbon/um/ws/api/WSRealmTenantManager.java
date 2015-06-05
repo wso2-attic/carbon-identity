@@ -1,22 +1,22 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.wso2.carbon.um.ws.api;
 
+import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.commons.logging.Log;
@@ -37,7 +37,7 @@ import java.util.TimerTask;
  */
 public class WSRealmTenantManager implements TenantManager {
 
-    private static Log log = LogFactory.getLog(AnonymousSessionUtil.class);
+    private static final Log log = LogFactory.getLog(AnonymousSessionUtil.class);
 
     private RemoteTenantManagerServiceStub stub;
     private String userName = null;
@@ -52,6 +52,7 @@ public class WSRealmTenantManager implements TenantManager {
         stub = this.getStub();
     }
 
+    @Override
     public void activateTenant(int tenantId) throws UserStoreException {
         try {
             getStub().activateTenant(tenantId);
@@ -69,6 +70,7 @@ public class WSRealmTenantManager implements TenantManager {
         return -1;
     }
 
+    @Override
     public void deactivateTenant(int tenantId) throws UserStoreException {
         try {
             getStub().deactivateTenant(tenantId);
@@ -77,6 +79,7 @@ public class WSRealmTenantManager implements TenantManager {
         }
     }
 
+    @Override
     public void deleteTenant(int tenantId) throws UserStoreException {
 
         try {
@@ -86,11 +89,14 @@ public class WSRealmTenantManager implements TenantManager {
         }
     }
 
+    @Override
     public void deleteTenant(int tenantId, boolean removeFromPersistentStorage) throws UserStoreException {
         //TODO Implement tenant deletion
+        return;
     }
 
 
+    @Override
     public Tenant[] getAllTenants() throws UserStoreException {
         try {
             org.wso2.carbon.um.ws.api.stub.Tenant[] tenats = stub.getAllTenants();
@@ -108,11 +114,13 @@ public class WSRealmTenantManager implements TenantManager {
     }
 
     //TODO:implement methods
+    @Override
     public org.wso2.carbon.user.api.Tenant[] getAllTenantsForTenantDomainStr(String s)
             throws org.wso2.carbon.user.api.UserStoreException {
         return new org.wso2.carbon.user.api.Tenant[0];
     }
 
+    @Override
     public String getDomain(int tenantId) throws UserStoreException {
         try {
             return getStub().getDomain(tenantId);
@@ -122,6 +130,7 @@ public class WSRealmTenantManager implements TenantManager {
         return null;
     }
 
+    @Override
     public String getSuperTenantDomain() throws UserStoreException {
         try {
             return getStub().getSuperTenantDomain();
@@ -131,16 +140,19 @@ public class WSRealmTenantManager implements TenantManager {
         return null;
     }
 
+    @Override
     public int addTenant(org.wso2.carbon.user.api.Tenant tenant)
             throws org.wso2.carbon.user.api.UserStoreException {
         return addTenant((Tenant) tenant);
     }
 
+    @Override
     public void updateTenant(org.wso2.carbon.user.api.Tenant tenant)
             throws org.wso2.carbon.user.api.UserStoreException {
         updateTenant((Tenant) tenant);
     }
 
+    @Override
     public Tenant getTenant(int tenantId) throws UserStoreException {
         try {
             return this.ADBTenantToTenant(getStub().getTenant(tenantId));
@@ -150,6 +162,7 @@ public class WSRealmTenantManager implements TenantManager {
         return null;
     }
 
+    @Override
     public int getTenantId(String domain) throws UserStoreException {
         try {
             return getStub().getTenantId(domain);
@@ -159,6 +172,7 @@ public class WSRealmTenantManager implements TenantManager {
         return 0;
     }
 
+    @Override
     public boolean isTenantActive(int tenantId) throws UserStoreException {
         try {
             return getStub().isTenantActive(tenantId);
@@ -168,7 +182,9 @@ public class WSRealmTenantManager implements TenantManager {
         return false;
     }
 
+    @Override
     public void setBundleContext(BundleContext bundleContext) {
+        return;
     }
 
     public void updateTenant(Tenant tenant) throws UserStoreException {
@@ -206,11 +222,17 @@ public class WSRealmTenantManager implements TenantManager {
         return stubTenant;
     }
 
-    private RemoteTenantManagerServiceStub getStub() throws Exception {
+    private RemoteTenantManagerServiceStub getStub() throws UserStoreException {
         if (stub == null) {
-            stub = new RemoteTenantManagerServiceStub(UserMgtWSAPIDSComponent
-                    .getCcServiceInstance().getClientConfigContext(), url
-                    + "RemoteTenantManagerService");
+            try {
+                stub = new RemoteTenantManagerServiceStub(UserMgtWSAPIDSComponent
+                        .getCcServiceInstance().getClientConfigContext(), url
+                        + "RemoteTenantManagerService");
+            } catch (AxisFault axisFault) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Axis fault occured : ", axisFault);
+                }
+            }
             ServiceClient client = stub._getServiceClient();
             Options option = client.getOptions();
             option.setManageSession(true);
@@ -218,12 +240,11 @@ public class WSRealmTenantManager implements TenantManager {
             String sessionCookie = sender.login();
             if (sessionCookie == null) {
                 log.error("WSRealmTenantManager cannot login to server");
-                throw new Exception("WSRealmTenantManager cannot login to server");
+                throw new UserStoreException("WSRealmTenantManager cannot login to server");
             }
             option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING,
                     sessionCookie);
-            //Timer timer = new Timer();
-            // timer.scheduleAtFixedRate(sender, 10000, 10000);
+
         }
         return stub;
     }
@@ -232,12 +253,17 @@ public class WSRealmTenantManager implements TenantManager {
      * This method was added to TenantManager interface to support tenant management with LDAP.
      * Hence no implementation currently in this context.
      */
+    @Override
     public void initializeExistingPartitions() {
-
+        return;
     }
 
     private class LoginSender extends TimerTask {
 
+
+        private static final String errorMessage = "Error login in tenant manager";
+
+        @Override
         public void run() {
             try {
                 synchronized (stub) {
@@ -249,7 +275,7 @@ public class WSRealmTenantManager implements TenantManager {
                             sessionCookie);
                 }
             } catch (UserStoreException e) {
-                log.error("Error login in tenant manager", e);
+                log.error(errorMessage, e);
             }
         }
 
@@ -263,12 +289,12 @@ public class WSRealmTenantManager implements TenantManager {
                     if (isLogin) {
                         return client.getAdminCookie();
                     } else {
-                        log.error("Error login in tenant manager");
-                        throw new UserStoreException("Error login in tenant manager");
+                        log.error(errorMessage);
+                        throw new UserStoreException(errorMessage);
                     }
                 }
             } catch (Exception e) {
-                log.error("Error login in tenant manager", e);
+                log.error(errorMessage, e);
                 throw new UserStoreException("Error" + e.getMessage(), e);
             }
         }
