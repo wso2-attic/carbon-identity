@@ -1,23 +1,26 @@
 /*
- *  Licensed to the Apache Software Foundation (ASF) under one
- *  or more contributor license agreements.  See the NOTICE file
- *  distributed with this work for additional information
- *  regarding copyright ownership.  The ASF licenses this file
- *  to you under the Apache License, Version 2.0 (the
- *  "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *   * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ *
  */
 package org.wso2.carbon.identity.entitlement.proxy.thrift;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
@@ -31,12 +34,15 @@ import org.wso2.carbon.identity.entitlement.proxy.exception.EntitlementProxyExce
 import org.wso2.carbon.identity.entitlement.proxy.generatedCode.EntitlementException;
 import org.wso2.carbon.identity.entitlement.proxy.generatedCode.EntitlementThriftClient;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 
 public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceClient {
+
+    private static final Log log = LogFactory.getLog(ThriftEntitlementServiceClient.class);
 
     private String trustStore = System.getProperty(ProxyConstants.TRUST_STORE);
     private String trustStorePass = System.getProperty(ProxyConstants.TRUST_STORE_PASSWORD);
@@ -101,27 +107,23 @@ public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceCl
 
     @Override
     public List<String> getResourcesForAlias(String alias, String appId) {
-        // TODO Auto-generated method stub
-        return null;
+        return new ArrayList<String>();
     }
 
     @Override
     public List<String> getActionableResourcesForAlias(String alias, String appId) {
-        // TODO Auto-generated method stub
-        return null;
+        return new ArrayList<String>();
     }
 
     @Override
     public List<String> getActionsForResource(String alias, String resources, String appId) {
-        // TODO Auto-generated method stub
-        return null;
+        return new ArrayList<String>();
     }
 
     @Override
     public List<String> getActionableChildResourcesForAlias(String alias, String parentResource,
                                                             String action, String appId) throws Exception {
-        // TODO Auto-generated method stub
-        return null;
+        return new ArrayList<String>();
     }
 
     private String getDecision(String xacmlRequest, EntitlementThriftClient.Client client, Authenticator authenticator)
@@ -129,11 +131,20 @@ public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceCl
         try {
             return client.getDecision(xacmlRequest, authenticator.getSessionId(false));
         } catch (TException e) {
+            if(log.isDebugEnabled()){
+                log.debug("Thrift entitlement exception  : ",e);
+            }
             throw new EntitlementProxyException("Error while getting decision from PDP using ThriftEntitlementServiceClient", e);
         } catch (EntitlementException e) {
+            if(log.isDebugEnabled()){
+                log.debug("Exception occurred : ", e);
+            }
             try {
                 return client.getDecision(xacmlRequest, authenticator.getSessionId(true));
             } catch (Exception e1) {
+                if(log.isDebugEnabled()){
+                    log.debug("Exception occurred : ", e1);
+                }
                 throw new EntitlementProxyException("Error while attempting to re-authenticate the Thrift client in ", e1);
             }
         }
@@ -141,11 +152,10 @@ public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceCl
 
     private Authenticator getAuthenticator(String serverUrl, String userName, String password)
             throws Exception {
-        if (reuseSession) {
-            if (authenticators.containsKey(serverUrl)) {
+            if (reuseSession && authenticators.containsKey(serverUrl)) {
                 return authenticators.get(serverUrl);
             }
-        }
+
         Authenticator authenticator = new Authenticator(userName, password, serverUrl + "thriftAuthenticator");
         authenticators.put(serverUrl, authenticator);
         return authenticator;
@@ -158,7 +168,6 @@ public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceCl
         TTransport transport;
         transport = TSSLTransportFactory.getClientSocket(thriftHost, thriftPort, ProxyConstants.THRIFT_TIME_OUT, param);
         TProtocol protocol = new TBinaryProtocol(transport);
-        EntitlementThriftClient.Client client = new EntitlementThriftClient.Client(protocol);
-        return client;
+        return new EntitlementThriftClient.Client(protocol);
     }
 }

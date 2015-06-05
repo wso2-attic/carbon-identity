@@ -1,12 +1,12 @@
 /*
- *  Copyright (c)  WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -14,6 +14,8 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
+ *
  */
 package org.wso2.carbon.identity.entitlement.filter;
 
@@ -40,7 +42,6 @@ public class EntitlementFilter implements Filter {
 
     private static final Log log = LogFactory.getLog(EntitlementFilter.class);
 
-    private FilterConfig filterConfig = null;
     private PEPProxy pepProxy;
     private String client;
     private String remoteServiceUrl;
@@ -63,7 +64,6 @@ public class EntitlementFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws EntitlementFilterException {
 
-        this.filterConfig = filterConfig;
 
         //This Attributes are mandatory So have to be specified in the web.xml
         authRedirectURL = filterConfig.getInitParameter(EntitlementConstants.AUTH_REDIRECT_URL);
@@ -111,40 +111,41 @@ public class EntitlementFilter implements Filter {
             thriftPort = EntitlementConstants.defaultThriftPort;
         }
 
-        //Initializing the PDP Proxy
-        //If you are not using a WSO2 product please uncomment these lines to use provided keystore
-        //System.setProperty("javax.net.ssl.trustStore","wso2carbon.jks");
-        //System.setProperty("javax.net.ssl.trustStorePassword", "wso2carbon");
+
 
         Map<String, Map<String, String>> appToPDPClientConfigMap = new HashMap<String, Map<String, String>>();
         Map<String, String> clientConfigMap = new HashMap<String, String>();
 
-        if (client != null && client.equals(EntitlementConstants.SOAP)) {
-            clientConfigMap.put(EntitlementConstants.CLIENT, client);
+
+        if(client!=null){
+            if(client.equals(EntitlementConstants.SOAP)){
+                clientConfigMap.put(EntitlementConstants.CLIENT, client);
+                clientConfigMap.put(EntitlementConstants.SERVER_URL, remoteServiceUrl);
+                clientConfigMap.put(EntitlementConstants.USERNAME, remoteServiceUserName);
+                clientConfigMap.put(EntitlementConstants.PASSWORD, remoteServicePassword);
+                clientConfigMap.put(EntitlementConstants.REUSE_SESSION, reuseSession);
+            } else if (client.equals(EntitlementConstants.BASIC_AUTH)) {
+                clientConfigMap.put(EntitlementConstants.CLIENT, client);
+                clientConfigMap.put(EntitlementConstants.SERVER_URL, remoteServiceUrl);
+                clientConfigMap.put(EntitlementConstants.USERNAME, remoteServiceUserName);
+                clientConfigMap.put(EntitlementConstants.PASSWORD, remoteServicePassword);
+            }else if (client.equals(EntitlementConstants.THRIFT)) {
+                clientConfigMap.put(EntitlementConstants.CLIENT, client);
+                clientConfigMap.put(EntitlementConstants.SERVER_URL, remoteServiceUrl);
+                clientConfigMap.put(EntitlementConstants.USERNAME, remoteServiceUserName);
+                clientConfigMap.put(EntitlementConstants.PASSWORD, remoteServicePassword);
+                clientConfigMap.put(EntitlementConstants.REUSE_SESSION, reuseSession);
+                clientConfigMap.put(EntitlementConstants.THRIFT_HOST, thriftHost);
+                clientConfigMap.put(EntitlementConstants.THRIFT_PORT, thriftPort);
+            }else {
+                log.error("EntitlementMediator initialization error: Unsupported client");
+                throw new EntitlementFilterException("EntitlementMediator initialization error: Unsupported client");
+            }
+
+        }else {
             clientConfigMap.put(EntitlementConstants.SERVER_URL, remoteServiceUrl);
             clientConfigMap.put(EntitlementConstants.USERNAME, remoteServiceUserName);
             clientConfigMap.put(EntitlementConstants.PASSWORD, remoteServicePassword);
-            clientConfigMap.put(EntitlementConstants.REUSE_SESSION, reuseSession);
-        } else if (client != null && client.equals(EntitlementConstants.BASIC_AUTH)) {
-            clientConfigMap.put(EntitlementConstants.CLIENT, client);
-            clientConfigMap.put(EntitlementConstants.SERVER_URL, remoteServiceUrl);
-            clientConfigMap.put(EntitlementConstants.USERNAME, remoteServiceUserName);
-            clientConfigMap.put(EntitlementConstants.PASSWORD, remoteServicePassword);
-        } else if (client != null && client.equals(EntitlementConstants.THRIFT)) {
-            clientConfigMap.put(EntitlementConstants.CLIENT, client);
-            clientConfigMap.put(EntitlementConstants.SERVER_URL, remoteServiceUrl);
-            clientConfigMap.put(EntitlementConstants.USERNAME, remoteServiceUserName);
-            clientConfigMap.put(EntitlementConstants.PASSWORD, remoteServicePassword);
-            clientConfigMap.put(EntitlementConstants.REUSE_SESSION, reuseSession);
-            clientConfigMap.put(EntitlementConstants.THRIFT_HOST, thriftHost);
-            clientConfigMap.put(EntitlementConstants.THRIFT_PORT, thriftPort);
-        } else if (client == null) {
-            clientConfigMap.put(EntitlementConstants.SERVER_URL, remoteServiceUrl);
-            clientConfigMap.put(EntitlementConstants.USERNAME, remoteServiceUserName);
-            clientConfigMap.put(EntitlementConstants.PASSWORD, remoteServicePassword);
-        } else {
-            log.error("EntitlementMediator initialization error: Unsupported client");
-            throw new EntitlementFilterException("EntitlementMediator initialization error: Unsupported client");
         }
 
         appToPDPClientConfigMap.put("EntitlementMediator", clientConfigMap);
@@ -190,17 +191,18 @@ public class EntitlementFilter implements Filter {
                 simpleDecision = decisionElement.getFirstChildWithName(new QName(namespace, "Result")).
                         getFirstChildWithName(new QName(namespace, "Decision")).getText();
             } catch (Exception e) {
-                e.printStackTrace();
+                if(log.isDebugEnabled()){
+                    log.debug(" Exception while making the decision : ", e);
+                }
                 throw new EntitlementFilterException("Exception while making the decision : " + e);
             }
         }
-        completeAuthorization(simpleDecision, servletRequest, servletResponse, filterConfig, filterChain);
+        completeAuthorization(simpleDecision, servletRequest, servletResponse, filterChain);
     }
 
     @Override
     public void destroy() {
 
-        filterConfig = null;
         pepProxy = null;
         client = null;
         remoteServiceUrl = null;
@@ -240,7 +242,7 @@ public class EntitlementFilter implements Filter {
                     + " \'" + EntitlementConstants.REQUEST_PARAM + "\', " + EntitlementConstants.REQUEST_ATTIBUTE + "\' and \'"
                     + EntitlementConstants.SESSION + "\'");
         }
-        if (subject == null || subject.equals("null")) {
+        if (subject == null || "null".equals(subject)) {
             log.error("Username not provided in " + subjectScope);
             throw new EntitlementFilterException("Username not provided in " + subjectScope);
         }
@@ -256,7 +258,7 @@ public class EntitlementFilter implements Filter {
     }
 
     private void completeAuthorization(String decision, ServletRequest servletRequest,
-                                       ServletResponse servletResponse, FilterConfig filterConfig,
+                                       ServletResponse servletResponse,
                                        FilterChain filterChain)
             throws EntitlementFilterException {
         try {
