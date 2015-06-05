@@ -42,25 +42,22 @@ public class DefaultBPELExecutor implements WorkFlowExecutor {
 
     private static final String EXECUTOR_NAME = "DefaultBPELExecutor";
     private static final Set<String> REQUIRED_PARAMS;
-    private static final String ENDPOINT = "EPR";
+    private static final String HOST = "Host";
+    private static final String SERVICE_NAME = "ServiceName";
     private static final String SERVICE_ACTION = "ServiceAction";
     private static final String AUTH_USER = "User";
     private static final String AUTH_USER_PASSWORD = "UserPassword";
 
     static {
         REQUIRED_PARAMS = new HashSet<>();
-        REQUIRED_PARAMS.add(ENDPOINT);
+        REQUIRED_PARAMS.add(HOST);
+        REQUIRED_PARAMS.add(SERVICE_NAME);
         REQUIRED_PARAMS.add(SERVICE_ACTION);
         REQUIRED_PARAMS.add(AUTH_USER);
         REQUIRED_PARAMS.add(AUTH_USER_PASSWORD);
     }
 
-
     private Map<String, Object> initParams;
-
-    public DefaultBPELExecutor(Map<String, Object> initParams) {
-        this.initParams = initParams;
-    }
 
     @Override
     public boolean canHandle(WorkFlowRequest workFlowRequest) {
@@ -98,7 +95,7 @@ public class DefaultBPELExecutor implements WorkFlowExecutor {
             throw new InternalWorkflowException("Init params for the DefaultBPELExecutor is null.");
         }
         for (String requiredParam : REQUIRED_PARAMS) {
-            if (!initParams.containsKey(requiredParam)) {
+            if (!initParams.containsKey(requiredParam) || initParams.get(requiredParam) == null) {
                 throw new InternalWorkflowException("Init params doesn't contain the required parameter " +
                         ":" + requiredParam);
             }
@@ -110,7 +107,16 @@ public class DefaultBPELExecutor implements WorkFlowExecutor {
                 .getConfigurationContextService().getClientConfigContext(), null);
         Options options = new Options();
         options.setAction((String) initParams.get(SERVICE_ACTION));
-        options.setTo(new EndpointReference((String) initParams.get(ENDPOINT)));
+        String endpoint;
+        String host = (String) initParams.get(HOST);
+        String serviceName = (String) initParams.get(SERVICE_NAME);
+        if (host.endsWith("/")) {
+            endpoint = host + "services/" + serviceName;
+        } else {
+            endpoint = host + "/services/" + serviceName;
+        }
+
+        options.setTo(new EndpointReference(endpoint));
         options.setProperty(Constants.Configuration.MESSAGE_TYPE, HTTPConstants.MEDIA_TYPE_APPLICATION_XML);
 
         HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();

@@ -29,6 +29,8 @@ import org.wso2.carbon.identity.workflow.mgt.bean.TemplateDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateImplDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameterDef;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowBean;
+import org.wso2.carbon.identity.workflow.mgt.dao.BPSProfileDAO;
+import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowDAO;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
@@ -37,10 +39,15 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class WorkflowService {
     private static Log log = LogFactory.getLog(WorkflowService.class);
+
+    WorkflowDAO workflowDAO = new WorkflowDAO();
+    BPSProfileDAO bpsProfileDAO = new BPSProfileDAO();
 
     public List<EventBean> listWorkflowEvents() {
         List<WorkflowRequestHandler> workflowRequestHandlers =
@@ -112,22 +119,34 @@ public class WorkflowService {
         return null;
     }
 
-    public void addBPSProfile(String profileName, String host, String user, char[] password) {
-//        todo:implement
+    public void addBPSProfile(String profileName, String host, String user, char[] password)
+            throws InternalWorkflowException {
+        bpsProfileDAO.addProfile(profileName, host, user, password);
     }
 
-    public List<BPSProfileBean> listBPSProfiles() {
-//        todo: implement
-        return null;
+    public List<BPSProfileBean> listBPSProfiles() throws WorkflowException {
+        return bpsProfileDAO.listBPSProfiles();
     }
 
-    public void removeBPSProfile(String profileName) {
-//        todo: implement
+    public void removeBPSProfile(String profileName) throws WorkflowException {
+        bpsProfileDAO.removeBPSProfile(profileName);
     }
 
     public void addWorkflow(String id, String name, String description, String templateId, String templateImpl,
-                            Parameter[] templateParams, Parameter[] implParams) {
-
+                            Parameter[] templateParams, Parameter[] implParams) throws WorkflowException {
+        workflowDAO.addWorkflow(id, name, description, templateId, templateImpl);
+        Map<String, String> paramMap = new HashMap<>();
+        if (templateParams != null) {
+            for (Parameter param : templateParams) {
+                paramMap.put(param.getParamName(), param.getParamValue());
+            }
+        }
+        if (implParams != null) {
+            for (Parameter param : implParams) {
+                paramMap.put(param.getParamName(), param.getParamValue());
+            }
+        }
+        workflowDAO.addWorkflowParams(id, paramMap);
     }
 
     public void addAssociation(String workflowId, String eventId, String condition) throws WorkflowException {
@@ -151,22 +170,26 @@ public class WorkflowService {
         XPath xpath = factory.newXPath();
         try {
             xpath.compile(condition);
-            //todo:associate
+            workflowDAO.addAssociation(workflowId, eventId, condition);
         } catch (XPathExpressionException e) {
             log.error("The condition:" + condition + " is not an valid xpath expression.", e);
             throw new WorkflowException("The condition:" + condition + " is not an valid xpath expression.");
         }
     }
 
-    public List<WorkflowBean> listWorkflows() {
-        return null;
+    public List<WorkflowBean> listWorkflows() throws WorkflowException {
+        return workflowDAO.listWorkflows();
     }
 
-    public void removeWorkflow(String id) {
-
+    public void removeWorkflow(String id) throws WorkflowException {
+        workflowDAO.removeWorkflow(id);
     }
 
-    public void removeAssociation(String associationId) {
+    public void removeAssociation(int associationId) throws WorkflowException {
+        workflowDAO.removeAssociation(associationId);
+    }
 
+    public Map<String, Object> getBPSProfileParams(String profileName) throws WorkflowException {
+        return bpsProfileDAO.getBPELProfileParams(profileName);
     }
 }

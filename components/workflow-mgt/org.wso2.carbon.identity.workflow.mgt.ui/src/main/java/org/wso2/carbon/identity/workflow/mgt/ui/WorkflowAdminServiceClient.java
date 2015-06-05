@@ -27,12 +27,11 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceStub;
 import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileBean;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.ServiceAssociationDTO;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.EventBean;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateBean;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDeploymentDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateImplDTO;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.WSServiceBean;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventDTO;
 
 import java.rmi.RemoteException;
 
@@ -58,36 +57,11 @@ public class WorkflowAdminServiceClient {
         option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
     }
 
-    public void addExistingService(String alias, String serviceEP, String wsAction, String username, String password)
-            throws RemoteException, WorkflowAdminServiceWorkflowException {
-        WSServiceBean serviceBean = new WSServiceBean();
-        serviceBean.setAlias(alias);
-        serviceBean.setServiceEndpoint(serviceEP);
-        serviceBean.setWsAction(wsAction);
-        serviceBean.setUserName(username);
-        serviceBean.setPassword(password);
-        stub.addWSService(serviceBean);
-    }
-
-    public void associateServiceToEvent(String serviceAlias, String eventType, String condition, int priority)
-            throws RemoteException, WorkflowAdminServiceWorkflowException {
-        stub.associateWSServiceToEvent(serviceAlias, eventType, condition, priority);
-    }
-
-    public WorkflowEventDTO[] listWorkflowEvents() throws RemoteException {
+    public EventBean[] listWorkflowEvents() throws RemoteException {
         return stub.listWorkflowEvents();
     }
 
-    public ServiceAssociationDTO[] listServices() throws RemoteException, WorkflowAdminServiceWorkflowException {
-        return stub.listWSServices();
-    }
-
-    public void removeService(String alias, String event) throws RemoteException,
-            WorkflowAdminServiceWorkflowException {
-        stub.removeWSService(alias, event);
-    }
-
-    public String[] listTemplates() throws RemoteException {
+    public TemplateBean[] listTemplates() throws RemoteException {
         return stub.listWorkflowTemplates();
     }
 
@@ -99,20 +73,22 @@ public class WorkflowAdminServiceClient {
         return stub.getTemplateImplDTO(template, implName);
     }
 
-    public void deployTemplate(TemplateDeploymentDTO deploymentDTO) throws RemoteException {
+    public void deployTemplate(TemplateDeploymentDTO deploymentDTO)
+            throws RemoteException, WorkflowAdminServiceWorkflowException {
         stub.deployTemplate(deploymentDTO);
     }
 
-    public void addBPSProfile(String profileName, String host, String user, String password) throws RemoteException {
+    public void addBPSProfile(String profileName, String host, String user, String password)
+            throws RemoteException, WorkflowAdminServiceWorkflowException {
         String[] splittedPw = password.split("(?!^)");
         stub.addBPSProfile(profileName, host, user, splittedPw);
     }
 
-    public BPSProfileBean[] listBPSProfiles() throws RemoteException {
-        return stub.getBPSProfiles();
+    public BPSProfileBean[] listBPSProfiles() throws RemoteException, WorkflowAdminServiceWorkflowException {
+        return stub.listBPSProfiles();
     }
 
-    public void deleteBPSProfile(String profileName) throws RemoteException {
-        stub.deleteBPSProfile(profileName);
+    public void deleteBPSProfile(String profileName) throws RemoteException, WorkflowAdminServiceWorkflowException {
+        stub.removeBPSProfile(profileName);
     }
 }

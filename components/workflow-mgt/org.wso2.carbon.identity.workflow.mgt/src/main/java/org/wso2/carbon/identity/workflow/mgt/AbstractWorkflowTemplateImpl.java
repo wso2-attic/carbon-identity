@@ -52,7 +52,7 @@ public abstract class AbstractWorkflowTemplateImpl {
         }
     }
 
-    public void initializeExecutor(Map<String, Object> initParams) {
+    public void initializeExecutor(Map<String, Object> initParams) throws WorkflowException {
         executor.initialize(initParams);
     }
 

@@ -38,10 +38,15 @@ public class WorkFlowConstants {
         NUMERIC_CLASSES.add(Double.class);
     }
 
-    static class TemplateConstants {
-
+    public static class TemplateConstants {
         public static final String APPROVAL_TEMPLATE_NAME = "Simple Approval";
         public static final String SIMPLE_APPROVAL_ROLE_NAME = "Role Name";
         public static final String BPEL_IMPL_BPS_PROFILE = "BPEL Engine profile";
+        public static final String BPEL_IMPL_PROCESS_NAME = "BPEL process";
+
+        public static final String HOST = "Host";
+        public static final String SERVICE_NAME = "ServiceName";
+        public static final String AUTH_USER = "User";
+        public static final String AUTH_USER_PASSWORD = "UserPassword";
     }
 }

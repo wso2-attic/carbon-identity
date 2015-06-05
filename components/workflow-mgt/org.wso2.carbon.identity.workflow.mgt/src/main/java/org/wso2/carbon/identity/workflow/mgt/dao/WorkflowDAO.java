@@ -18,18 +18,22 @@
 
 package org.wso2.carbon.identity.workflow.mgt.dao;
 
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.identity.workflow.mgt.AbstractWorkflowTemplate;
 import org.wso2.carbon.identity.workflow.mgt.AbstractWorkflowTemplateImpl;
-import org.wso2.carbon.identity.workflow.mgt.bean.ServiceAssociationDTO;
-import org.wso2.carbon.identity.workflow.mgt.bean.WSServiceBean;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociation;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowBean;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,55 +41,21 @@ public class WorkflowDAO {
 
     /**
      * Stores Workflow executor service details
-     *
-     * @param workflowService The service to be stored
-     * @throws InternalWorkflowException
      */
-    public void addWorkflowService(WSServiceBean workflowService) throws InternalWorkflowException {
-        Connection connection = null;
-        PreparedStatement prepStmt = null;
-
-        String query = SQLConstants.ADD_WS_SERVICE_QUERY;
-        try {
-            connection = IdentityDatabaseUtil.getDBConnection();
-            prepStmt = connection.prepareStatement(query);
-            prepStmt.setString(1, workflowService.getAlias());
-            prepStmt.setString(2, workflowService.getDescription());
-            prepStmt.setString(3, workflowService.getWsAction());
-            prepStmt.setString(4, workflowService.getServiceEndpoint());
-            prepStmt.setString(5, workflowService.getUserName());
-            prepStmt.setString(6, workflowService.getPassword());   //todo: encrypt pw?
-            prepStmt.executeUpdate();
-            connection.commit();
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
-        } catch (SQLException e) {
-            throw new InternalWorkflowException("Error when executing the sql query", e);
-        } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
-        }
-    }
-
-    /**
-     * Stores the association of workflow executor service to a event type with the condition.
-     *
-     * @param serviceAlias The service alias
-     * @param eventId      The event to be subscribed
-     * @param condition    The condition to be match as a XPath Expression.
-     */
-    public void associateServiceWithEvent(String serviceAlias, String eventId, String condition, int priority)
+    public void addWorkflow(String id, String name, String description, String templateId, String templateImpl)
             throws InternalWorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
 
-        String query = SQLConstants.ASSOCIATE_SERVICE_TO_ACTION;
+        String query = SQLConstants.ADD_WORKFLOW_QUERY;
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
-            prepStmt.setString(1, serviceAlias);
-            prepStmt.setString(2, eventId);
-            prepStmt.setString(3, condition);
-            prepStmt.setInt(4, priority);
+            prepStmt.setString(1, id);
+            prepStmt.setString(2, name);
+            prepStmt.setString(3, description);
+            prepStmt.setString(4, templateId);
+            prepStmt.setString(5, templateImpl);
             prepStmt.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {
@@ -97,50 +67,47 @@ public class WorkflowDAO {
         }
     }
 
-    public void removeWorkflowAssociation(String alias, String event) throws InternalWorkflowException {
+    public void addWorkflowParams(String workflowId, Map<String, String> values) throws InternalWorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
-        String query = SQLConstants.DELETE_ASSOCIATION_QUERY;
+
+        String query = SQLConstants.ADD_WORKFLOW_PARAMS_QUERY;
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
-            prepStmt = connection.prepareStatement(query);
-            prepStmt.setString(1, alias);
-            prepStmt.setString(2, event);
-            prepStmt.executeUpdate();
+            for (Map.Entry<String, String> entry : values.entrySet()) {
+                prepStmt = connection.prepareStatement(query);
+                prepStmt.setString(1, workflowId);
+                prepStmt.setString(2, entry.getKey());
+                prepStmt.setString(3, entry.getValue());
+                prepStmt.executeUpdate();
+            }
             connection.commit();
         } catch (IdentityException e) {
             throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
-            throw new InternalWorkflowException("Error when executing the sql.", e);
+            throw new InternalWorkflowException("Error when executing the sql query", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
     }
 
-    public void updateWorkflowService(String alias, WSServiceBean newService) {
-//        todo:implement
-    }
-
-    public List<ServiceAssociationDTO> listServiceAssociations() throws InternalWorkflowException {
+    public Map<String, Object> getWorkflowParams(String workflowId) throws InternalWorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
-        List<ServiceAssociationDTO> associationDTOList = new ArrayList<>();
-        String query = SQLConstants.GET_SERVICE_ASSOCIATIONS_QUERY;
+        Map<String, Object> worlflowParams = new HashMap<>();
+        String query = SQLConstants.GET_WORKFLOW_PARAMS;
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, workflowId);
             rs = prepStmt.executeQuery();
             while (rs.next()) {
-                String alias = rs.getString(SQLConstants.SERVICE_ALIAS_COLUMN);
-                String event = rs.getString(SQLConstants.EVENT_COLUMN);
-                int priority = rs.getInt(SQLConstants.PRIORITY_COLUMN);
-                //todo use priority to sort
-                ServiceAssociationDTO associationDTO = new ServiceAssociationDTO();
-                associationDTO.setServiceAlias(alias);
-                associationDTO.setEvent(event);
-                associationDTO.setPriority(priority);
-                associationDTOList.add(associationDTO);
+                String paramName = rs.getString(SQLConstants.PARAM_NAME_COLUMN);
+                String paramValue = rs.getString(SQLConstants.PARAM_VALUE_COLUMN);
+                if (StringUtils.isNotBlank(paramName)) {
+                    worlflowParams.put(paramName, paramValue);
+                }
             }
         } catch (IdentityException e) {
             throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
@@ -149,12 +116,149 @@ public class WorkflowDAO {
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return associationDTOList;
+        return worlflowParams;
     }
 
-    public Map<AbstractWorkflowTemplateImpl, String> getTemplateImplsForRequest(String eventId) {
-        //todo: implement
-        return null;
+    /**
+     * Stores the association of workflow executor service to a event type with the condition.
+     */
+    public void addAssociation(String workflowId, String eventId, String condition)
+            throws InternalWorkflowException {
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+
+        String query = SQLConstants.ASSOCIATE_WF_TO_EVENT;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, eventId);
+            prepStmt.setString(2, condition);
+            prepStmt.setString(3, workflowId);
+            prepStmt.executeUpdate();
+            connection.commit();
+        } catch (IdentityException e) {
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql query", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+    }
+
+    public void removeAssociation(int id) throws InternalWorkflowException {
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        String query = SQLConstants.DELETE_ASSOCIATION_QUERY;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setInt(1, id);
+            prepStmt.executeUpdate();
+            connection.commit();
+        } catch (IdentityException e) {
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql.", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+    }
+
+    public void removeWorkflow(String id) throws InternalWorkflowException {
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        String query = SQLConstants.DELETE_WORKFLOW_QUERY;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, id);
+            prepStmt.executeUpdate();
+            connection.commit();
+        } catch (IdentityException e) {
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql.", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+    }
+
+//todo: updateWorkflow()
+
+    public List<WorkflowBean> listWorkflows() throws InternalWorkflowException {
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        List<WorkflowBean> workflowList = new ArrayList<>();
+        String query = SQLConstants.LIST_WORKFLOWS_QUERY;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            rs = prepStmt.executeQuery();
+            while (rs.next()) {
+                String id = rs.getString(SQLConstants.ID_COLUMN);
+                String name = rs.getString(SQLConstants.NAME_COLUMN);
+                String description = rs.getString(SQLConstants.DESCRIPTION_COLUMN);
+                String templateId = rs.getString(SQLConstants.TEMPLATE_ID_COLUMN);
+                String templateImplId = rs.getString(SQLConstants.TEMPLATE_IMPL_ID_COLUMN);
+                WorkflowBean workflowBean = new WorkflowBean();
+                workflowBean.setWorkflowId(id);
+                workflowBean.setWorkflowName(name);
+                workflowBean.setWorkflowDescription(description);
+                AbstractWorkflowTemplate template = WorkflowServiceDataHolder.getInstance().getTemplate(templateId);
+                AbstractWorkflowTemplateImpl templateImplementation = WorkflowServiceDataHolder.getInstance()
+                        .getTemplateImplementation(templateId, templateImplId);
+                if (template != null && templateImplementation != null) {
+                    workflowBean.setTemplateName(template.getFriendlyName());
+                    workflowBean.setImplementationName(templateImplementation.getImplementationName());
+                } else {
+                    workflowBean.setTemplateName("");
+                    workflowBean.setImplementationName("");
+                }
+                workflowList.add(workflowBean);
+            }
+        } catch (IdentityException e) {
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql.", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+        return workflowList;
+    }
+
+    public List<WorkflowAssociation> getWorkflowsForRequest(String eventId)
+            throws InternalWorkflowException {
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs;
+        List<WorkflowAssociation> associations = new ArrayList<>();
+        String query = SQLConstants.GET_WORKFLOWS_FOR_EVENT_QUERY;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, eventId);
+            rs = prepStmt.executeQuery();
+            while (rs.next()) {
+                String condition = rs.getString(SQLConstants.CONDITION_COLUMN);
+                String workflowId = rs.getString(SQLConstants.WORKFLOW_ID_COLUMN);
+                String templateId = rs.getString(SQLConstants.TEMPLATE_ID_COLUMN);
+                String templateImplId = rs.getString(SQLConstants.TEMPLATE_IMPL_ID_COLUMN);
+                WorkflowAssociation association = new WorkflowAssociation();
+                association.setWorkflowId(workflowId);
+                association.setCondition(condition);
+                association.setTemplateId(templateId);
+                association.setImplId(templateImplId);
+                associations.add(association);
+            }
+        } catch (IdentityException e) {
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql.", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+        return associations;
     }
 
 }

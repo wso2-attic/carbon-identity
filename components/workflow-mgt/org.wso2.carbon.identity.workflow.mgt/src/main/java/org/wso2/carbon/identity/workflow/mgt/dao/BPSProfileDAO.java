@@ -18,12 +18,123 @@
 
 package org.wso2.carbon.identity.workflow.mgt.dao;
 
+import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.identity.workflow.mgt.WorkFlowConstants;
+import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileBean;
+import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class BPSProfileDAO {
 
-    public Map<String,Object> getBPELProfileParams(String profileName){
-        //todo: implement
-        return null;
+    public void addProfile(String profileName, String host, String user, char[] password)
+            throws InternalWorkflowException {
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        String query = SQLConstants.ADD_BPS_PROFILE_QUERY;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, profileName);
+            prepStmt.setString(2, host);
+            prepStmt.setString(3, user);
+            prepStmt.setString(4, new String(password));
+            prepStmt.executeUpdate();
+            connection.commit();
+        } catch (IdentityException e) {
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql query", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+    }
+
+    public Map<String, Object> getBPELProfileParams(String profileName) throws InternalWorkflowException {
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs;
+        Map<String, Object> profileParams = new HashMap<>();
+        String query = SQLConstants.GET_BPS_PROFILE_QUERY;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, profileName);
+            rs = prepStmt.executeQuery();
+            if (rs.next()) {
+                String name = rs.getString(SQLConstants.NAME_COLUMN);
+                String hostName = rs.getString(SQLConstants.HOST_URL_COLUMN);
+                String user = rs.getString(SQLConstants.USERNAME_COLUMN);
+                char[] password = rs.getString(SQLConstants.PASSWORD_COLUMN).toCharArray();
+                profileParams.put(WorkFlowConstants.TemplateConstants.SERVICE_NAME, name);
+                profileParams.put(WorkFlowConstants.TemplateConstants.HOST, hostName);
+                profileParams.put(WorkFlowConstants.TemplateConstants.AUTH_USER, user);
+                profileParams.put(WorkFlowConstants.TemplateConstants.AUTH_USER_PASSWORD, password);
+            }
+        } catch (IdentityException e) {
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql.", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+        return profileParams;
+    }
+
+    public List<BPSProfileBean> listBPSProfiles() throws InternalWorkflowException {
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs;
+        List<BPSProfileBean> profiles = new ArrayList<>();
+        String query = SQLConstants.LIST_BPS_PROFILES_QUERY;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            rs = prepStmt.executeQuery();
+            if (rs.next()) {
+                String name = rs.getString(SQLConstants.NAME_COLUMN);
+                String hostName = rs.getString(SQLConstants.HOST_URL_COLUMN);
+                String user = rs.getString(SQLConstants.USERNAME_COLUMN);
+                BPSProfileBean profileBean = new BPSProfileBean();
+                profileBean.setHost(hostName);
+                profileBean.setProfileName(name);
+                profileBean.setUsername(user);
+                profiles.add(profileBean);
+            }
+        } catch (IdentityException e) {
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql.", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+        return profiles;
+    }
+
+    public void removeBPSProfile(String profileName) throws InternalWorkflowException {
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        String query = SQLConstants.DELETE_BPS_PROFILES_QUERY;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, profileName);
+            prepStmt.executeUpdate();
+            connection.commit();
+        } catch (IdentityException e) {
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql.", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
     }
 }

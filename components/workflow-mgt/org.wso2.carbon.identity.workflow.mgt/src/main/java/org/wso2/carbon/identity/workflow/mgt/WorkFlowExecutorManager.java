@@ -20,16 +20,19 @@ package org.wso2.carbon.identity.workflow.mgt;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.xpath.AXIOMXPath;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jaxen.JaxenException;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
-import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestDAO;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociation;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowDAO;
+import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestDAO;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.ws.WorkflowRequestBuilder;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -49,24 +52,27 @@ public class WorkFlowExecutorManager {
     public void executeWorkflow(WorkFlowRequest workFlowRequest) throws WorkflowException {
         workFlowRequest.setUuid(UUID.randomUUID().toString());
         OMElement xmlRequest = WorkflowRequestBuilder.buildXMLRequest(workFlowRequest);
-        WorkflowDAO servicesDAO = new WorkflowDAO();
-        Map<AbstractWorkflowTemplateImpl, String> templateImpls =
-                servicesDAO.getTemplateImplsForRequest(workFlowRequest.getEventType());
-
-        if(templateImpls==null || templateImpls.isEmpty()){
+        WorkflowDAO workflowDAO = new WorkflowDAO();
+        List<WorkflowAssociation> associations =
+                workflowDAO.getWorkflowsForRequest(workFlowRequest.getEventType());
+        if (CollectionUtils.isEmpty(associations)) {
             handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null);
             return;
         }
 
-        for (Map.Entry<AbstractWorkflowTemplateImpl, String> templateImplEntry : templateImpls.entrySet()) {
+        for (WorkflowAssociation association : associations) {
             try {
-                AXIOMXPath axiomxPath = new AXIOMXPath(templateImplEntry.getValue());
+                AXIOMXPath axiomxPath = new AXIOMXPath(association.getCondition());
                 if (axiomxPath.booleanValueOf(xmlRequest)) {
-                    templateImplEntry.getKey().execute(workFlowRequest);
+                    AbstractWorkflowTemplateImpl templateImplementation = WorkflowServiceDataHolder.getInstance()
+                            .getTemplateImplementation(association.getTemplateId(), association.getImplId());
+                    Map<String, Object> workflowParams = workflowDAO.getWorkflowParams(association.getWorkflowId());
+                    templateImplementation.initializeExecutor(workflowParams);
+                    templateImplementation.execute(workFlowRequest);
                 }
             } catch (JaxenException e) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Error when executing the xpath expression:" + templateImplEntry.getValue() + " , on " +
+                    log.debug("Error when executing the xpath expression:" + association.getCondition() + " , on " +
                             xmlRequest, e);
                 }
             }

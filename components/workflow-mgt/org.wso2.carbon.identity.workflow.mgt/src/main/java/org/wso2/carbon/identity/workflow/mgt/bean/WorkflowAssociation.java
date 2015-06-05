@@ -19,17 +19,17 @@
 package org.wso2.carbon.identity.workflow.mgt.bean;
 
 public class WorkflowAssociation {
-    private String workflowName;
+    private String workflowId;
     private String templateId;
     private String implId;
     private String condition;
 
-    public String getWorkflowName() {
-        return workflowName;
+    public String getWorkflowId() {
+        return workflowId;
     }
 
-    public void setWorkflowName(String workflowName) {
-        this.workflowName = workflowName;
+    public void setWorkflowId(String workflowId) {
+        this.workflowId = workflowId;
     }
 
     public String getTemplateId() {

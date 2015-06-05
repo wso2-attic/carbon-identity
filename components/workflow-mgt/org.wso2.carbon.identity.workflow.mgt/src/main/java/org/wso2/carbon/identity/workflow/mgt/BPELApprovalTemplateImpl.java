@@ -19,7 +19,7 @@
 package org.wso2.carbon.identity.workflow.mgt;
 
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameterDef;
-import org.wso2.carbon.identity.workflow.mgt.dao.BPSProfileDAO;
+import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
 import java.util.Map;
 
@@ -32,14 +32,17 @@ public class BPELApprovalTemplateImpl extends AbstractWorkflowTemplateImpl {
         TemplateParameterDef bpsProfile = new TemplateParameterDef();
         bpsProfile.setParamName(WorkFlowConstants.TemplateConstants.BPEL_IMPL_BPS_PROFILE);
         bpsProfile.setParamType(WorkflowTemplateParamType.BPS_PROFILE);
-        PARAMETER_DEFINITIONS = new TemplateParameterDef[]{bpsProfile};
+        TemplateParameterDef bpelName = new TemplateParameterDef();
+        bpelName.setParamName(WorkFlowConstants.TemplateConstants.BPEL_IMPL_PROCESS_NAME);
+        bpelName.setParamType(WorkflowTemplateParamType.STRING);
+        PARAMETER_DEFINITIONS = new TemplateParameterDef[]{bpsProfile, bpelName};
     }
 
     @Override
-    public void initializeExecutor(Map<String, Object> initParams) {
+    public void initializeExecutor(Map<String, Object> initParams) throws WorkflowException {
         //read profile and add its params
-        BPSProfileDAO bpsProfileDAO = new BPSProfileDAO();
-        Map<String, Object> bpelProfileParams = bpsProfileDAO.getBPELProfileParams(
+        WorkflowService workflowService = new WorkflowService();
+        Map<String, Object> bpelProfileParams = workflowService.getBPSProfileParams(
                 (String) initParams.get(WorkFlowConstants.TemplateConstants.BPEL_IMPL_BPS_PROFILE));
         initParams.putAll(bpelProfileParams);
         super.initializeExecutor(initParams);
