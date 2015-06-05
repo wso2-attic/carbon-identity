@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.mgt.services;
@@ -193,7 +195,7 @@ public class UserInformationRecoveryService {
 
 
         } catch (IdentityException e) {
-            bean = handleError(VerificationBean.ERROR_CODE_UN_EXPECTED
+            bean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
                     + " Error when sending recovery message for user: " + username, e);
             return bean;
         } finally {
@@ -330,7 +332,7 @@ public class UserInformationRecoveryService {
             }
 
         } catch (Exception e) {
-            bean = handleError(VerificationBean.ERROR_CODE_UN_EXPECTED
+            bean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
                     + " Error while updating credential for user: " + username, e);
             return bean;
         } finally {
@@ -393,7 +395,7 @@ public class UserInformationRecoveryService {
             } else {
                 String msg = "Verification failed for user. Error : " + bean.getError();
                 log.error(msg);
-                idsDTO.setError(VerificationBean.ERROR_CODE_UN_EXPECTED + " " + msg);
+                idsDTO.setError(VerificationBean.ERROR_CODE_UNEXPECTED + " " + msg);
                 idsDTO.setKey("");
             }
         }finally {
@@ -750,7 +752,7 @@ public class UserInformationRecoveryService {
             }
 
         } catch (Exception e) {
-            vBean = handleError(VerificationBean.ERROR_CODE_UN_EXPECTED
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
                     + " Error retrieving the user store manager for the tenant", e);
             return vBean;
         }
@@ -760,7 +762,7 @@ public class UserInformationRecoveryService {
             if(userStoreManager == null){
                 vBean = new VerificationBean();
                 vBean.setVerified(false);
-                vBean.setError(VerificationBean.ERROR_CODE_UN_EXPECTED
+                vBean.setError(VerificationBean.ERROR_CODE_UNEXPECTED
                         + " Error retrieving the user store manager for the tenant");
                 return vBean;
             }
@@ -788,12 +790,12 @@ public class UserInformationRecoveryService {
                 }
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
                 userStoreManager.deleteUser(userName);
-                vBean = handleError(VerificationBean.ERROR_CODE_UN_EXPECTED
+                vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
                         + " Error occurred while adding user : " + userName, e);
                 return vBean;
             }
         } catch (UserStoreException e) {
-            vBean = handleError(VerificationBean.ERROR_CODE_UN_EXPECTED
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
                     + " Error occurred while adding user : " + userName, e);
             return vBean;
         }
@@ -822,7 +824,7 @@ public class UserInformationRecoveryService {
                 }
 
             } catch (IdentityException e) {
-                vBean = handleError(VerificationBean.ERROR_CODE_UN_EXPECTED
+                vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
                         + " Error occurred while registering user : " + userName, e);
                 return vBean;
             }

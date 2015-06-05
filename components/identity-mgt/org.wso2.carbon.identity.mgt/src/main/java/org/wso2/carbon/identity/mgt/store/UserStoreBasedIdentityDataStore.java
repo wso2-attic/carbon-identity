@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.mgt.store;
@@ -42,13 +44,14 @@ import java.util.Map;
 public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
 
     private static Log log = LogFactory.getLog(UserStoreBasedIdentityDataStore.class);
+    private static final String TRUE_STRING = "TRUE";
+    private static final String FALSE_STRING = "FALSE";
     private static ThreadLocal<String> userStoreInvoked = new ThreadLocal<String>() {
         @Override
         protected String initialValue() {
-            return "FALSE";
+            return FALSE_STRING;
         }
     };
-
     /**
      * This method stores data in the read write user stores.
      */
@@ -91,7 +94,7 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
         }
         // check for thread local variable to avoid infinite recursive on this method ( load() )
         // which happen calling getUserClaimValues()
-        if ("TRUE".equals(userStoreInvoked.get())) {
+        if (TRUE_STRING.equals(userStoreInvoked.get())) {
             if (log.isDebugEnabled()) {
                 log.debug("UserStoreBasedIdentityDataStore.load() already been called in the stack." +
                         "Hence returning without processing load() again.");
@@ -101,7 +104,7 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
             if (log.isDebugEnabled()) {
                 log.debug("Set flag to indicate method UserStoreBasedIdentityDataStore.load() been called");
             }
-            userStoreInvoked.set("TRUE");
+            userStoreInvoked.set(TRUE_STRING);
         }
 
         Map<String, String> userDataMap = new HashMap<String, String>();
@@ -134,7 +137,7 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
             if (log.isDebugEnabled()) {
                 log.debug("Reset flag to indicate method UserStoreBasedIdentityDataStore.load() being completing");
             }
-            userStoreInvoked.set("FALSE");
+            userStoreInvoked.set(FALSE_STRING);
         }
 
         userIdentityDTO = new UserIdentityClaimsDO(userName, userDataMap);

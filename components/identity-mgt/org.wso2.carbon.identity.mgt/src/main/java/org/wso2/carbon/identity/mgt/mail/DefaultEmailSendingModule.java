@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.mgt.mail;
@@ -117,22 +119,24 @@ public class DefaultEmailSendingModule extends AbstractEmailSendingModule {
 
     public String getRequestMessage(EmailConfig emailConfig) {
 
-        String msg;
+        StringBuilder msg;
         String targetEpr = emailConfig.getTargetEpr();
         if (emailConfig.getEmailBody().length() == 0) {
-            msg = EmailConfig.DEFAULT_VALUE_MESSAGE + "\n";
+            msg = new StringBuilder(EmailConfig.DEFAULT_VALUE_MESSAGE);
+            msg.append("\n");
             if (notificationData.getNotificationCode() != null) {
-                msg =
-                        msg + targetEpr + "?" + CONF_STRING + "=" + notificationData.getNotificationCode() +
-                                "\n";
+
+                msg.append(targetEpr).append("?").append(CONF_STRING).append(notificationData
+                        .getNotificationCode()).append("\n");
             }
         } else {
-            msg = emailConfig.getEmailBody() + "\n";
+            msg = new StringBuilder(emailConfig.getEmailBody());
+            msg.append("\n");
         }
         if (emailConfig.getEmailFooter() != null) {
-            msg = msg + "\n" + emailConfig.getEmailFooter();
+            msg.append("\n").append(emailConfig.getEmailFooter());
         }
-        return msg;
+        return msg.toString();
     }
 
     @Override

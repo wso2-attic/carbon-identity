@@ -1,23 +1,26 @@
 /*
  * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.mgt.services;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.captcha.mgt.beans.CaptchaInfoBean;
 import org.wso2.carbon.captcha.mgt.util.CaptchaUtil;
 import org.wso2.carbon.identity.base.IdentityException;
@@ -268,7 +271,7 @@ public class UserIdentityManagementService {
      */
     public String[] getPrimarySecurityQuestions() throws IdentityMgtServiceException {
         try {
-            return UserIdentityManagementUtil.getPrimaryQuestions(-1234);
+            return UserIdentityManagementUtil.getPrimaryQuestions(MultitenantConstants.SUPER_TENANT_ID);
         } catch (IdentityException e) {
             throw new IdentityMgtServiceException("Error while reading security questions", e);
         }
@@ -320,7 +323,7 @@ public class UserIdentityManagementService {
         try {
             dataDTO = processor.recoverWithNotification(dto);
         } catch (IdentityException e) {
-            throw new IdentityMgtServiceException("Error while password recovery", e);
+            throw new IdentityMgtServiceException("Error while password recovery.", e);
         }
         return dataDTO.isNotificationSent();
     }
@@ -339,7 +342,7 @@ public class UserIdentityManagementService {
         try {
             userDTO = Utils.processUserId(userName);
         } catch (IdentityException e) {
-            throw new IdentityMgtServiceException("invalid user name", e);
+            throw new IdentityMgtServiceException("Invalid user name.", e);
         }
 
         RecoveryProcessor processor = IdentityMgtServiceComponent.getRecoveryProcessor();
@@ -374,8 +377,8 @@ public class UserIdentityManagementService {
         RecoveryProcessor recoveryProcessor = IdentityMgtServiceComponent.getRecoveryProcessor();
 
         if (userChallengesDTOs == null || userChallengesDTOs.length < 1) {
-            log.error("no challenges provided by user for verifications");
-            bean.setError("no challenges provided by user for verifications");
+            log.error("no challenges provided by user for verifications.");
+            bean.setError("no challenges provided by user for verifications.");
             return bean;
         }
 
@@ -383,12 +386,12 @@ public class UserIdentityManagementService {
         try {
             userDTO = Utils.processUserId(userName);
         } catch (IdentityException e) {
-            throw new IdentityMgtServiceException("invalid user name", e);
+            throw new IdentityMgtServiceException("Invalid user name.", e);
         }
 
         if (recoveryProcessor.verifyConfirmationKey(confirmation).isVerified()) {
-            log.warn("Invalid user is trying to verify user challenges");
-            bean.setError("Invalid user is trying to verify user challenges");
+            log.warn("Invalid user is trying to verify user challenges.");
+            bean.setError("Invalid user is trying to verify user challenges.");
             return bean;
         }
 
@@ -444,7 +447,7 @@ public class UserIdentityManagementService {
         } catch (Exception e) {
             log.error("Error while updating credential for user : " + userName, e);
         }
-        return new VerificationBean(VerificationBean.ERROR_CODE_UN_EXPECTED);
+        return new VerificationBean(VerificationBean.ERROR_CODE_UNEXPECTED);
     }
 
 }
