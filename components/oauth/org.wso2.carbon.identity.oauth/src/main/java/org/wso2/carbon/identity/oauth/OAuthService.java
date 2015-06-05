@@ -1,20 +1,20 @@
 /*
-*Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*WSO2 Inc. licenses this file to you under the Apache License,
-*Version 2.0 (the "License"); you may not use this file except
-*in compliance with the License.
-*You may obtain a copy of the License at
-*
-*http://www.apache.org/licenses/LICENSE-2.0
-*
-*Unless required by applicable law or agreed to in writing,
-*software distributed under the License is distributed on an
-*"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*KIND, either express or implied.  See the License for the
-*specific language governing permissions and limitations
-*under the License.
-*/
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.oauth;
 
@@ -30,9 +30,11 @@ import org.wso2.carbon.core.common.AuthenticationException;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
 import org.wso2.carbon.identity.oauth.dao.OAuthAppDAO;
 import org.wso2.carbon.identity.oauth.dao.OAuthConsumerDAO;
 import org.wso2.carbon.identity.oauth.dto.OAuthConsumerDTO;
+import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -55,20 +57,16 @@ public class OAuthService {
      * @return
      * @throws Exception
      */
-    public boolean isOAuthConsumerValid(OAuthConsumerDTO oauthConsumer) throws IdentityException {
+    public boolean isOAuthConsumerValid(OAuthConsumerDTO oauthConsumer) throws IdentityOAuthAdminException {
 
         String oAuthSecretKey = getOAuthSecretKey(oauthConsumer.getOauthConsumerKey());
 
         if (oAuthSecretKey == null) {
             log.debug("Invalid Consumer Key.");
-            throw new IdentityException("Invalid Consumer Key");
+            throw new IdentityOAuthAdminException("Invalid Consumer Key");
         }
-        try {
-            return validateOauthSignature(oauthConsumer,
-                    oAuthSecretKey);
-        } catch (AuthenticationException e) {
-            throw new IdentityException(e.getMessage(), e);
-        }
+        return validateOauthSignature(oauthConsumer, oAuthSecretKey);
+
     }
 
     /**
@@ -108,7 +106,7 @@ public class OAuthService {
      * @return oauth_token, oauth_token_secret, oauth_callback_confirmed
      * @throws Exception
      */
-    public Parameters getOauthRequestToken(Parameters params) throws AuthenticationException, IdentityOAuthAdminException {
+    public Parameters getOauthRequestToken(Parameters params) throws IdentityOAuthAdminException {
 
         boolean isValidSignature = false;
         String secretkey = null;
@@ -120,13 +118,13 @@ public class OAuthService {
 
         if (secretkey == null) {
             log.debug("Invalid Credentials.");
-            throw new AuthenticationException("Invalid Credentials.");
+            throw new IdentityOAuthAdminException("Invalid Credentials.");
         }
 
         isValidSignature = validateOauthSignature(params, secretkey, null);
 
         if (!isValidSignature) {
-            throw new AuthenticationException("Invalid Signature");
+            throw new IdentityOAuthAdminException("Invalid Signature");
         }
 
         return generateOauthToken(params);
@@ -145,7 +143,7 @@ public class OAuthService {
      * @return oauth_token, oauth_verifier
      * @throws Exception
      */
-    public Parameters authorizeOauthRequestToken(Parameters params) throws IdentityException, AuthenticationException {
+    public Parameters authorizeOauthRequestToken(Parameters params) throws IdentityOAuthAdminException {
         String tenantUser = MultitenantUtils.getTenantAwareUsername(params.getAuthorizedbyUserName());
         String domainName = MultitenantUtils.getTenantDomain(params.getAuthorizedbyUserName());
         boolean isAuthenticated = false;
@@ -153,20 +151,26 @@ public class OAuthService {
             isAuthenticated = IdentityTenantUtil
                     .getRealm(domainName, params.getAuthorizedbyUserName()).getUserStoreManager()
                     .authenticate(tenantUser, params.getAuthorizedbyUserPassword());
-        } catch (UserStoreException e) {
+        } catch (UserStoreException | IdentityException e) {
             log.error(e);
-            throw new IdentityException(e.getMessage(), e);
+            throw new IdentityOAuthAdminException(e.getMessage(), e);
         }
         if (isAuthenticated) {
             OAuthConsumerDAO dao = new OAuthConsumerDAO();
             String oauthVerifier = org.wso2.carbon.identity.oauth.OAuthUtil.getRandomNumber();
-            Parameters token = dao.authorizeOAuthToken(params.getOauthToken(), tenantUser,
-                    oauthVerifier);
-            token.setOauthToken(params.getOauthToken());
-            token.setOauthTokenVerifier(oauthVerifier);
-            return token;
+            Parameters token = null;
+            try {
+                token = dao.authorizeOAuthToken(params.getOauthToken(), tenantUser,
+                        oauthVerifier);
+                token.setOauthToken(params.getOauthToken());
+                token.setOauthTokenVerifier(oauthVerifier);
+                return token;
+            } catch (IdentityException e) {
+                throw new IdentityOAuthAdminException("OAuth token authorization failed Failed", e);
+            }
+
         } else {
-            throw new AuthenticationException("User Authentication Failed");
+            throw new IdentityOAuthAdminException("User Authentication Failed");
         }
     }
 
@@ -201,7 +205,7 @@ public class OAuthService {
      * @return oauth_token, oauth_token_secret
      * @throws Exception
      */
-    public Parameters getAccessToken(Parameters params) throws IdentityOAuthAdminException, AuthenticationException {
+    public Parameters getAccessToken(Parameters params) throws IdentityOAuthAdminException {
 
         boolean isValidSignature = false;
         String secretKey = null;
@@ -211,7 +215,7 @@ public class OAuthService {
 
         if (secretKey == null) {
             log.debug("Invalid Credentials.");
-            throw new AuthenticationException("Invalid Credentials.");
+            throw new IdentityOAuthAdminException("Invalid Credentials.");
         }
 
         String tokenSecret = dao.getOAuthTokenSecret(params.getOauthToken(), false);
@@ -219,7 +223,7 @@ public class OAuthService {
         isValidSignature = validateOauthSignature(params, secretKey, tokenSecret);
 
         if (!isValidSignature) {
-            throw new AuthenticationException("Invalid Signature");
+            throw new IdentityOAuthAdminException("Invalid Signature");
         }
 
         // The request signature has been successfully verified
@@ -229,7 +233,7 @@ public class OAuthService {
         if (resp.getOauthTokenVerifier() == null
                 || !resp.getOauthTokenVerifier().equals(params.getOauthTokenVerifier())
                 || resp.getAuthorizedbyUserName() == null) {
-            throw new AuthenticationException("Invalid request for OAuth access token");
+            throw new IdentityOAuthAdminException("Invalid request for OAuth access token");
         }
 
         // The Request Token has never been exchanged for an Access Token resp.isAccessTokenIssued()
@@ -255,18 +259,22 @@ public class OAuthService {
      * @return
      * @throws Exception
      */
-    public Parameters getScopeAndAppName(String oauthToken) throws Exception {
+    public Parameters getScopeAndAppName(String oauthToken) throws IdentityOAuthAdminException {
         OAuthConsumerDAO consumerDAO = new OAuthConsumerDAO();
         Parameters params = consumerDAO.getRequestToken(oauthToken);
 
         OAuthAppDAO appDAO = new OAuthAppDAO();
-        OAuthAppDO oauthAppDO = appDAO.getAppInformation(params.getOauthConsumerKey());
+        try {
+            OAuthAppDO oauthAppDO = appDAO.getAppInformation(params.getOauthConsumerKey());
 
-        Parameters resp = new Parameters();
-        resp.setScope(params.getScope());
-        resp.setAppName(oauthAppDO.getApplicationName());
+            Parameters resp = new Parameters();
+            resp.setScope(params.getScope());
+            resp.setAppName(oauthAppDO.getApplicationName());
 
-        return resp;
+            return resp;
+        } catch (IdentityOAuth2Exception | InvalidOAuthClientException e) {
+            throw new IdentityOAuthAdminException(e.getMessage(), e);
+        }
     }
 
     /**
@@ -297,18 +305,19 @@ public class OAuthService {
      * @return Parameters : scope : the authorized scope
      * @throws Exception Error when validating the access token request.
      */
-    public Parameters validateAuthenticationRequest(Parameters params) throws AuthenticationException, IdentityException {
+    public Parameters validateAuthenticationRequest(Parameters params) throws IdentityOAuthAdminException {
 
         boolean isAuthenticated = false;
         String secretKey = null;
 
         validateTimestampAndNonce(params.getOauthTimeStamp(), params.getOauthNonce());
 
+
         OAuthConsumerDAO dao = new OAuthConsumerDAO();
         secretKey = dao.getOAuthConsumerSecret(params.getOauthConsumerKey());
         if (secretKey == null) {
             log.debug("Invalid Credentials.");
-            throw new AuthenticationException("Invalid Credentials.");
+            throw new IdentityOAuthAdminException("Invalid Credentials.");
         }
 
         String tokenSecret = dao.getOAuthTokenSecret(params.getOauthToken(), true);
@@ -317,14 +326,20 @@ public class OAuthService {
 
         if (isAuthenticated) {
             // Signature is verified - so this is a valid OAuth consumer.
-            String subject = dao.validateAccessToken(params.getOauthConsumerKey(),
-                    params.getOauthToken(), params.getScope());
-            Parameters returnParams = new Parameters();
-            returnParams.setAuthorizedbyUserName(subject);
-            returnParams.setScope(params.getScope());
-            return returnParams;
+            String subject = null;
+            try {
+                subject = dao.validateAccessToken(params.getOauthConsumerKey(), params.getOauthToken(), params
+                        .getScope());
+                Parameters returnParams = new Parameters();
+                returnParams.setAuthorizedbyUserName(subject);
+                returnParams.setScope(params.getScope());
+                return returnParams;
+            } catch (IdentityException e) {
+                throw new IdentityOAuthAdminException(e.getMessage(), e);
+            }
+
         } else {
-            throw new AuthenticationException("Invalid Signature.");
+            throw new IdentityOAuthAdminException("Invalid Signature.");
         }
     }
 
@@ -359,7 +374,7 @@ public class OAuthService {
      * @throws Exception
      */
     private boolean validateOauthSignature(OAuthConsumerDTO oauthParams, String secretKey)
-            throws AuthenticationException {
+            throws IdentityOAuthAdminException {
 
         GoogleOAuthParameters oauthParameters = new GoogleOAuthParameters();
         oauthParameters.setOAuthConsumerKey(oauthParams.getOauthConsumerKey());
@@ -377,7 +392,7 @@ public class OAuthService {
                     oauthParams.getHttpMethod(), oauthParameters.getBaseParameters());
             signature = signer.getSignature(baseString, oauthParameters);
         } catch (OAuthException e) {
-            throw new AuthenticationException(e.getMessage(), e);
+            throw new IdentityOAuthAdminException(e.getMessage(), e);
         }
 
         if (signature != null
@@ -396,7 +411,7 @@ public class OAuthService {
      * @throws Exception
      */
     private boolean validateOauthSignature(Parameters oauthParams, String secretKey, String tokenSecret)
-            throws AuthenticationException {
+            throws IdentityOAuthAdminException {
 
         GoogleOAuthParameters oauthParameters = new GoogleOAuthParameters();
         oauthParameters.setOAuthConsumerKey(oauthParams.getOauthConsumerKey());
@@ -410,7 +425,7 @@ public class OAuthService {
         }
 
         if (oauthParams.getOauthTokenVerifier() != null) {
-            oauthParameters.setOAuthVerifier((oauthParams.getOauthTokenVerifier()));
+            oauthParameters.setOAuthVerifier(oauthParams.getOauthTokenVerifier());
         }
 
         if (tokenSecret != null) {
@@ -424,7 +439,7 @@ public class OAuthService {
                     oauthParams.getHttpMethod(), oauthParameters.getBaseParameters());
             signature = signer.getSignature(baseString, oauthParameters);
         } catch (OAuthException e) {
-            throw new AuthenticationException("Error while validating signature");
+            throw new IdentityOAuthAdminException("Error while validating signature", e);
         }
 
         if (signature != null
@@ -449,10 +464,10 @@ public class OAuthService {
      * @param nonce
      * @throws Exception
      */
-    private void validateTimestampAndNonce(String timestamp, String nonce) throws AuthenticationException {
+    private void validateTimestampAndNonce(String timestamp, String nonce) throws IdentityOAuthAdminException {
         if (timestamp == null || nonce == null || nonce.trim().length() == 0) {
             // We are not going to give out the exact error why the request failed.
-            throw new AuthenticationException("Invalid request for OAuth access token");
+            throw new IdentityOAuthAdminException("Invalid request for OAuth access token");
         }
 
         long time = Long.parseLong(timestamp);
@@ -469,7 +484,7 @@ public class OAuthService {
             if (time < 0 || time < latestTimeStamp) {
                 // The time-stamp value MUST be a positive integer and MUST be equal or greater than
                 // the time-stamp used in previous requests
-                throw new AuthenticationException("Invalid timestamp");
+                throw new IdentityOAuthAdminException("Invalid timestamp");
             }
             context.setProperty(OAUTH_LATEST_TIMESTAMP, String.valueOf(time));
 
@@ -478,7 +493,7 @@ public class OAuthService {
             if ((nonceStore = (List<String>) context.getProperty(OAUTH_NONCE_STORE)) != null) {
                 if (nonceStore.contains(nonce)) {
                     // We are not going to give out the exact error why the request failed.
-                    throw new AuthenticationException("Invalid request for OAuth access token");
+                    throw new IdentityOAuthAdminException("Invalid request for OAuth access token");
                 } else {
                     nonceStore.add(nonce);
                 }

@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -75,7 +75,7 @@ public class OAuthServerConfiguration {
     private long authorizationCodeValidityPeriodInSeconds = 300;
     private long userAccessTokenValidityPeriodInSeconds = 3600;
     private long applicationAccessTokenValidityPeriodInSeconds = 3600;
-    private long refreshTokenValidityPeriodInSeconds = 24 * 3600;
+    private long refreshTokenValidityPeriodInSeconds = 24L * 3600;
     private long timeStampSkewInSeconds = 300;
     private String tokenPersistenceProcessorClassName = "org.wso2.carbon.identity.oauth.tokenprocessor.PlainTextPersistenceProcessor";
     private boolean cacheEnabled = true;
@@ -84,19 +84,19 @@ public class OAuthServerConfiguration {
     private boolean accessTokenPartitioningEnabled = false;
     private String accessTokenPartitioningDomains = null;
     private TokenPersistenceProcessor persistenceProcessor = null;
-    private Set<OAuthCallbackHandlerMetaData> callbackHandlerMetaData = new HashSet<OAuthCallbackHandlerMetaData>();
-    private Map<String, String> supportedGrantTypeClassNames = new Hashtable<String, String>();
+    private Set<OAuthCallbackHandlerMetaData> callbackHandlerMetaData = new HashSet<>();
+    private Map<String, String> supportedGrantTypeClassNames = new HashMap<>();
     private Map<String, AuthorizationGrantHandler> supportedGrantTypes;
-    private Map<String, String> supportedGrantTypeValidatorNames = new Hashtable<String, String>();
+    private Map<String, String> supportedGrantTypeValidatorNames = new HashMap<>();
     private Map<String, Class<? extends OAuthValidator<HttpServletRequest>>> supportedGrantTypeValidators;
-    private Map<String, String> supportedResponseTypeClassNames = new Hashtable<String, String>();
+    private Map<String, String> supportedResponseTypeClassNames = new HashMap<>();
     private Map<String, ResponseTypeHandler> supportedResponseTypes;
     private String[] supportedClaims = null;
-    private Map<String, Properties> supportedClientAuthHandlerData = new Hashtable<String, Properties>();
+    private Map<String, Properties> supportedClientAuthHandlerData = new HashMap<>();
     private List<ClientAuthenticationHandler> supportedClientAuthHandlers;
     private String saml2TokenCallbackHandlerName = null;
     private SAML2TokenCallbackHandler saml2TokenCallbackHandler = null;
-    private Map<String, String> tokenValidatorClassNames = new HashMap<String, String>();
+    private Map<String, String> tokenValidatorClassNames = new HashMap();
     private boolean isAuthContextTokGenEnabled = false;
     private String tokenGeneratorImplClass = "org.wso2.carbon.identity.oauth2.token.JWTTokenGenerator";
     private String claimsRetrieverImplClass = "org.wso2.carbon.identity.oauth2.token.DefaultClaimsRetriever";
@@ -250,13 +250,13 @@ public class OAuthServerConfiguration {
                             authzGrantHandler = (AuthorizationGrantHandler) Class.forName(entry.getValue()).newInstance();
                             authzGrantHandler.init();
                         } catch (InstantiationException e) {
-                            log.error("Error instantiating " + entry.getValue());
+                            log.error("Error instantiating " + entry.getValue(), e);
                         } catch (IllegalAccessException e) {
-                            log.error("Illegal access to " + entry.getValue());
+                            log.error("Illegal access to " + entry.getValue(), e);
                         } catch (ClassNotFoundException e) {
-                            log.error("Cannot find class: " + entry.getValue());
+                            log.error("Cannot find class: " + entry.getValue(), e);
                         } catch (IdentityOAuth2Exception e) {
-                            log.error("Error while initializing " + entry.getValue());
+                            log.error("Error while initializing " + entry.getValue(), e);
                         }
                         supportedGrantTypes.put(entry.getKey(), authzGrantHandler);
                     }
@@ -333,13 +333,13 @@ public class OAuthServerConfiguration {
                             responseTypeHandler = (ResponseTypeHandler) Class.forName(entry.getValue()).newInstance();
                             responseTypeHandler.init();
                         } catch (InstantiationException e) {
-                            log.error("Error instantiating " + entry.getValue());
+                            log.error("Error instantiating " + entry.getValue(), e);
                         } catch (IllegalAccessException e) {
-                            log.error("Illegal access to " + entry.getValue());
+                            log.error("Illegal access to " + entry.getValue(), e);
                         } catch (ClassNotFoundException e) {
-                            log.error("Cannot find class: " + entry.getValue());
+                            log.error("Cannot find class: " + entry.getValue(), e);
                         } catch (IdentityOAuth2Exception e) {
-                            log.error("Error while initializing " + entry.getValue());
+                            log.error("Error while initializing " + entry.getValue(), e);
                         }
                         supportedResponseTypes.put(entry.getKey(), responseTypeHandler);
                     }
@@ -370,13 +370,13 @@ public class OAuthServerConfiguration {
                             //Exceptions necessarily don't have to break the flow since there are cases
                             //runnable without client auth handlers
                             } catch (InstantiationException e) {
-                                log.error("Error instantiating " + entry);
+                                log.error("Error instantiating " + entry, e);
                             } catch (IllegalAccessException e) {
-                                log.error("Illegal access to " + entry);
+                                log.error("Illegal access to " + entry, e);
                             } catch (ClassNotFoundException e) {
-                                log.error("Cannot find class: " + entry);
+                                log.error("Cannot find class: " + entry, e);
                             } catch (IdentityOAuth2Exception e) {
-                                log.error("Error while initializing " + entry);
+                                log.error("Error while initializing " + entry, e);
                             }
                     }
                 }
@@ -387,7 +387,7 @@ public class OAuthServerConfiguration {
 
     public SAML2TokenCallbackHandler getSAML2TokenCallbackHandler() {
 
-        if (saml2TokenCallbackHandlerName == null || saml2TokenCallbackHandlerName.equals("")) {
+        if (saml2TokenCallbackHandlerName == null || "".equals(saml2TokenCallbackHandlerName)) {
             return null;
         }
         if (saml2TokenCallbackHandler == null) {
@@ -621,7 +621,7 @@ public class OAuthServerConfiguration {
         Iterator validators = tokenValidators.getChildrenWithLocalName(ConfigElements.TOKEN_VALIDATOR);
         if (validators != null) {
             for (; validators.hasNext(); ) {
-                OMElement validator = ((OMElement) validators.next());
+                OMElement validator = (OMElement) validators.next();
                 if (validator != null) {
                     String clazzName = validator.getAttributeValue(new QName(ConfigElements.TOKEN_CLASS_ATTR));
                     String type = validator.getAttributeValue(new QName(ConfigElements.TOKEN_TYPE_ATTR));
@@ -843,7 +843,7 @@ public class OAuthServerConfiguration {
 
         OMElement persistenceprocessorConfigElem =
                 oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.TOKEN_PERSISTENCE_PROCESSOR));
-        if (persistenceprocessorConfigElem != null && !persistenceprocessorConfigElem.getText().trim().equals("")) {
+        if (persistenceprocessorConfigElem != null && !"".equals(persistenceprocessorConfigElem.getText().trim())) {
             tokenPersistenceProcessorClassName = persistenceprocessorConfigElem.getText().trim();
         }
 
@@ -898,7 +898,7 @@ public class OAuthServerConfiguration {
             log.warn("\'SupportedGrantTypes\' element not configured in identity.xml. " +
                     "Therefore instantiating default grant type handlers");
 
-            Map<String, String> defaultGrantTypes = new Hashtable<String, String>(5);
+            Map<String, String> defaultGrantTypes = new HashMap<>(5);
             defaultGrantTypes.put(GrantType.AUTHORIZATION_CODE.toString(), AUTHORIZATION_CODE_GRANT_HANDLER_CLASS);
             defaultGrantTypes.put(GrantType.CLIENT_CREDENTIALS.toString(), CLIENT_CREDENTIALS_GRANT_HANDLER_CLASS);
             defaultGrantTypes.put(GrantType.PASSWORD.toString(), PASSWORD_GRANT_HANDLER_CLASS);
@@ -941,8 +941,8 @@ public class OAuthServerConfiguration {
                 if (responseTypeHandlerImplClassElement != null) {
                     responseTypeHandlerImplClass = responseTypeHandlerImplClassElement.getText();
                 }
-                if (responseTypeName != null && !responseTypeName.equals("") &&
-                        responseTypeHandlerImplClass != null && !responseTypeHandlerImplClass.equals("")) {
+                if (responseTypeName != null && !"".equals(responseTypeName) &&
+                        responseTypeHandlerImplClass != null && !"".equals(responseTypeHandlerImplClass)) {
                     supportedResponseTypeClassNames.put(responseTypeName, responseTypeHandlerImplClass);
                 }
             }
@@ -951,7 +951,7 @@ public class OAuthServerConfiguration {
             log.warn("\'SupportedResponseTypes\' element not configured in identity.xml. " +
                     "Therefore instantiating default response type handlers");
 
-            Map<String, String> defaultResponseTypes = new Hashtable<String, String>(2);
+            Map<String, String> defaultResponseTypes = new HashMap<>(2);
             defaultResponseTypes.put(ResponseType.CODE.toString(), "org.wso2.carbon.identity.oauth2.authz.handlers.CodeResponseTypeHandler");
             defaultResponseTypes.put(ResponseType.TOKEN.toString(), "org.wso2.carbon.identity.oauth2.authz.handlers.TokenResponseTypeHandler");
             supportedResponseTypeClassNames.putAll(defaultResponseTypes);
@@ -1008,7 +1008,7 @@ public class OAuthServerConfiguration {
             log.warn("\'SupportedClientAuthMethods\' element not configured in identity.xml. " +
                     "Therefore instantiating default client authentication handlers");
 
-            Map<String, Properties> defaultClientAuthHandlers = new Hashtable<String, Properties>(1);
+            Map<String, Properties> defaultClientAuthHandlers = new HashMap<>(1);
             defaultClientAuthHandlers.put(
                     ConfigElements.DEFAULT_CLIENT_AUTHENTICATOR, new Properties());
             supportedClientAuthHandlerData.putAll(defaultClientAuthHandlers);
@@ -1028,7 +1028,7 @@ public class OAuthServerConfiguration {
         if (saml2GrantElement != null) {
             saml2TokenHandlerElement = saml2GrantElement.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.SAML2_TOKEN_HANDLER));
         }
-        if (saml2TokenHandlerElement != null && !saml2TokenHandlerElement.getText().trim().equals("")) {
+        if (saml2TokenHandlerElement != null && !"".equals(saml2TokenHandlerElement.getText().trim())) {
             saml2TokenCallbackHandlerName = saml2TokenHandlerElement.getText().trim();
         }
     }
@@ -1148,7 +1148,7 @@ public class OAuthServerConfiguration {
                 if (log.isDebugEnabled()) {
                     log.debug("Supported Claims : " + supportedClaimStr);
                 }
-                if (supportedClaimStr != null && !supportedClaimStr.equals("")) {
+                if (StringUtils.isNotEmpty(supportedClaimStr)) {
                     supportedClaims = supportedClaimStr.split(",");
                 }
             }

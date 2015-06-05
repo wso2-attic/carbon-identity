@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -19,6 +19,9 @@
 package org.wso2.carbon.identity.oauth2.token.handlers.grant.saml;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.Charsets;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.impl.Constants;
@@ -79,6 +82,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
     private static Log log = LogFactory.getLog(SAML2BearerGrantHandler.class);
     SAMLSignatureProfileValidator profileValidator = null;
 
+    @Override
     public void init() throws IdentityOAuth2Exception {
 
         super.init();
@@ -90,7 +94,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
         try {
             DefaultBootstrap.bootstrap();
         } catch (ConfigurationException e) {
-            log.error(e.getMessage(), e);
+            log.error(e);
             throw new IdentityOAuth2Exception("Error in bootstrapping the OpenSAML2 library");
         } finally {
             thread.setContextClassLoader(loader);
@@ -143,7 +147,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             assertion = (Assertion) samlObject;
         } catch (IdentityOAuth2Exception e) {
             // fault in the saml token
-            log.error(e.getMessage(), e);
+            log.error(e);
             return false;
         }
 
@@ -162,8 +166,10 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
          */
         if (assertion.getSubject() != null) {
             String resourceOwnerUserName = assertion.getSubject().getNameID().getValue();
-            if (resourceOwnerUserName == null || resourceOwnerUserName.equals("")) {
-                log.debug("NameID in Assertion cannot be empty");
+            if (StringUtils.isBlank(resourceOwnerUserName)) {
+                if (log.isDebugEnabled()){
+                    log.debug("NameID in Assertion cannot be empty");
+                }
                 return false;
             }
             tokReqMsgCtx.setAuthorizedUser(resourceOwnerUserName);
@@ -172,7 +178,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             return false;
         }
 
-        if (assertion.getIssuer() == null || assertion.getIssuer().getValue().equals("")) {
+        if (assertion.getIssuer() == null || "".equals(assertion.getIssuer().getValue())) {
             log.debug("Issuer is empty in the SAML assertion");
             return false;
         } else {
@@ -229,7 +235,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                     return false;
                 }
             } catch (IdentityApplicationManagementException e) {
-                log.debug("Error while getting Federated Identity Provider ");
+                log.error("Error while getting Federated Identity Provider ", e);
             }
         }
 
@@ -241,10 +247,12 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
          * server MUST verify that it is an intended audience for the Assertion.
          */
 
-        if (tokenEndpointAlias == null || tokenEndpointAlias.equals("")) {
-            String errorMsg = "Token Endpoint alias of the local Identity Provider has not been " +
-                    "configured for " + identityProvider.getIdentityProviderName();
-            log.debug(errorMsg);
+        if (StringUtils.isBlank(tokenEndpointAlias)) {
+            if (log.isDebugEnabled()){
+                String errorMsg = "Token Endpoint alias of the local Identity Provider has not been configured for "
+                        + identityProvider.getIdentityProviderName();
+                log.debug(errorMsg);
+            }
             return false;
         }
 
@@ -254,7 +262,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             if (audienceRestrictions != null && !audienceRestrictions.isEmpty()) {
                 boolean audienceFound = false;
                 for (AudienceRestriction audienceRestriction : audienceRestrictions) {
-                    if (audienceRestriction.getAudiences() != null && audienceRestriction.getAudiences().size() > 0) {
+                    if (CollectionUtils.isNotEmpty(audienceRestriction.getAudiences())) {
                         for (Audience audience : audienceRestriction.getAudiences()) {
                             if (audience.getAudienceURI().equals(tokenEndpointAlias)) {
                                 audienceFound = true;
@@ -314,7 +322,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
         DateTime notOnOrAfterFromConditions = null;
         Set<DateTime> notOnOrAfterFromSubjectConfirmations = new HashSet<DateTime>();
         boolean bearerFound = false;
-        ArrayList<String> recipientURLS = new ArrayList<String>();
+        List<String> recipientURLS = new ArrayList<>();
 
         if (assertion.getConditions() != null && assertion.getConditions().getNotOnOrAfter() != null) {
             notOnOrAfterFromConditions = assertion.getConditions().getNotOnOrAfter();
@@ -328,7 +336,9 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                         bearerFound = true;
                     }
                 } else {
-                    log.debug("Cannot find Method attribute in SubjectConfirmation " + s.toString());
+                    if (log.isDebugEnabled()){
+                        log.debug("Cannot find Method attribute in SubjectConfirmation " + s.toString());
+                    }
                     return false;
                 }
 
@@ -339,32 +349,40 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                     if (s.getSubjectConfirmationData().getNotOnOrAfter() != null) {
                         notOnOrAfterFromSubjectConfirmations.add(s.getSubjectConfirmationData().getNotOnOrAfter());
                     } else {
-                        log.debug("Cannot find NotOnOrAfter attribute in SubjectConfirmationData " +
-                                s.getSubjectConfirmationData().toString());
+                        if (log.isDebugEnabled()){
+                            log.debug("Cannot find NotOnOrAfter attribute in SubjectConfirmationData " +
+                                    s.getSubjectConfirmationData().toString());
+                        }
                         return false;
                     }
                 } else if (s.getSubjectConfirmationData() == null && notOnOrAfterFromConditions == null) {
-                    log.debug("Neither can find NotOnOrAfter attribute in Conditions nor SubjectConfirmationData" +
-                            "in SubjectConfirmation " + s.toString());
+                    if (log.isDebugEnabled()){
+                        log.debug("Neither can find NotOnOrAfter attribute in Conditions nor SubjectConfirmationData" +
+                                "in SubjectConfirmation " + s.toString());
+                    }
                     return false;
                 }
             }
         } else {
-            log.debug("No SubjectConfirmation exist in Assertion");
+            if (log.isDebugEnabled()){
+                log.debug("No SubjectConfirmation exist in Assertion");
+            }
             return false;
         }
 
         if (!bearerFound) {
-            log.debug("Failed to find a SubjectConfirmation with a Method attribute having : " +
-                    OAuthConstants.OAUTH_SAML2_BEARER_METHOD);
+            if (log.isDebugEnabled()){
+                log.debug("Failed to find a SubjectConfirmation with a Method attribute having : " +
+                        OAuthConstants.OAUTH_SAML2_BEARER_METHOD);
+            }
             return false;
         }
 
-        if (recipientURLS.size() > 0) {
-            if (!recipientURLS.contains(tokenEndpointAlias)) {
+        if (CollectionUtils.isNotEmpty(recipientURLS) && !recipientURLS.contains(tokenEndpointAlias)) {
+            if (log.isDebugEnabled()){
                 log.debug("None of the recipient URLs match the token endpoint or an acceptable alias");
-                return false;
             }
+            return false;
         }
 
         /**
@@ -378,7 +396,9 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
          */
         if (notOnOrAfterFromConditions != null && notOnOrAfterFromConditions.compareTo(new DateTime()) < 1) {
             // notOnOrAfter is an expired timestamp
-            log.debug("NotOnOrAfter is having an expired timestamp in Conditions element");
+            if (log.isDebugEnabled()){
+                log.debug("NotOnOrAfter is having an expired timestamp in Conditions element");
+            }
             return false;
         }
         boolean validSubjectConfirmationDataExists = false;
@@ -390,7 +410,9 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             }
         }
         if (notOnOrAfterFromConditions == null && !validSubjectConfirmationDataExists) {
-            log.debug("No valid NotOnOrAfter element found in SubjectConfirmations");
+            if (log.isDebugEnabled()){
+                log.debug("No valid NotOnOrAfter element found in SubjectConfirmations");
+            }
             return false;
         }
 
@@ -403,7 +425,8 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             profileValidator.validate(assertion.getSignature());
         } catch (ValidationException e) {
             // Indicates signature did not conform to SAML Signature profile
-            log.debug(e.getMessage());
+            log.error(e);
+
             return false;
         }
 
@@ -412,7 +435,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             x509Certificate = (X509Certificate) IdentityApplicationManagementUtil
                     .decodeCertificate(identityProvider.getCertificate());
         } catch (CertificateException e) {
-            log.error(e.getMessage(), e);
+            log.error(e);
             throw new IdentityOAuth2Exception("Error occurred while decoding public certificate of Identity Provider "
                     + identityProvider.getIdentityProviderName() + " for tenant domain " + tenantDomain);
         }
@@ -421,9 +444,11 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             X509Credential x509Credential = new X509CredentialImpl(x509Certificate);
             SignatureValidator signatureValidator = new SignatureValidator(x509Credential);
             signatureValidator.validate(assertion.getSignature());
-            log.debug("Signature validation successful");
+            if (log.isDebugEnabled()){
+                log.debug("Signature validation successful");
+            }
         } catch (ValidationException e) {
-            log.debug(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             return false;
         }
 
@@ -448,7 +473,9 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                 OAuthServerConfiguration.getInstance()
                         .getSAML2TokenCallbackHandler();
         if (callback != null) {
-            log.debug("Invoking the SAML2 Token callback handler ");
+            if (log.isDebugEnabled()){
+                log.debug("Invoking the SAML2 Token callback handler ");
+            }
             callback.handleSAML2Token(tokReqMsgCtx);
         }
 
@@ -476,7 +503,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
 
             DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
             docBuilder.setEntityResolver(new CarbonEntityResolver());
-            Document document = docBuilder.parse(new ByteArrayInputStream(xmlString.trim().getBytes()));
+            Document document = docBuilder.parse(new ByteArrayInputStream(xmlString.trim().getBytes(Charsets.UTF_8)));
             Element element = document.getDocumentElement();
             UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
             Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(element);
@@ -486,26 +513,4 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             throw new IdentityOAuth2Exception("Error in constructing XML Object from the encoded String", e);
         }
     }
-
-    /**
-     * Helper method to get tenantId from userName
-     *
-     * @param tenantDomain
-     * @return tenantId
-     * @throws org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception
-     */
-    private int getTenantId(String tenantDomain) throws IdentityOAuth2Exception {
-
-        //get tenant domain from user name
-        RealmService realmService = OAuthComponentServiceHolder.getRealmService();
-        try {
-            int tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
-            return tenantId;
-        } catch (UserStoreException e) {
-            String error = "Error in obtaining tenantId from Domain";
-            //do not log
-            throw new IdentityOAuth2Exception(error);
-        }
-    }
-
 }
