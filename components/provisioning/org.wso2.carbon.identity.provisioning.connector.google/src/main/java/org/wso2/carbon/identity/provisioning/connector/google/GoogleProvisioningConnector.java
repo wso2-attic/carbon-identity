@@ -97,9 +97,6 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
     }
 
     @Override
-    /**
-     *
-     */
     public ProvisionedIdentifier provision(ProvisioningEntity provisioningEntity)
             throws IdentityProvisioningException {
 
@@ -163,10 +160,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
                         provisionedIdentifier.getIdentifier(), updateUser);
                 request.execute();
 
-            } catch (GoogleJsonResponseException e) {
-                throw new IdentityProvisioningException("Error while updating Google user : "
-                        + provisioningEntity.getEntityName(), e);
-            } catch (IOException e) {
+            } catch (GoogleJsonResponseException | IOException e) {
                 throw new IdentityProvisioningException("Error while updating Google user : "
                         + provisioningEntity.getEntityName(), e);
             }
@@ -205,10 +199,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
             Directory.Users.Insert request = getDirectoryService().users().insert(newUser);
             createdUser = request.execute();
 
-        } catch (GoogleJsonResponseException e) {
-            throw new IdentityProvisioningException("Error while creating user : "
-                    + provisioningEntity.getEntityName(), e);
-        } catch (IOException e) {
+        } catch (GoogleJsonResponseException | IOException e) {
             throw new IdentityProvisioningException("Error while creating user : "
                     + provisioningEntity.getEntityName(), e);
         }
@@ -247,10 +238,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
                         provisionedIdentifier.getIdentifier());
                 request.execute();
 
-            } catch (GoogleJsonResponseException e) {
-                throw new IdentityProvisioningException("Error while deleting Google user : "
-                        + provisioningEntity.getEntityName(), e);
-            } catch (IOException e) {
+            } catch (GoogleJsonResponseException | IOException e) {
                 throw new IdentityProvisioningException("Error while deleting Google user : "
                         + provisioningEntity.getEntityName(), e);
             }
@@ -280,7 +268,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         }
 
         StringBuilder sb = new StringBuilder();
-        List<User> allUsers = new ArrayList<User>();
+        List<User> allUsers = new ArrayList<>();
         Directory.Users.List request;
         try {
             request = getDirectoryService().users().list().setCustomer("my_customer");
@@ -364,10 +352,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
                     .setHttpRequestInitializer(credential).setApplicationName(applicationName)
                     .build();
 
-        } catch (GeneralSecurityException e) {
-            throw new IdentityProvisioningException("Error while obtaining connection from google",
-                    e);
-        } catch (IOException e) {
+        } catch (GeneralSecurityException | IOException e) {
             throw new IdentityProvisioningException("Error while obtaining connection from google",
                     e);
         }
@@ -391,7 +376,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         List<String> wso2IsUsernames = getUserNames(provisioningEntity.getAttributes());
         String wso2IsUsername = null;
 
-        if (wso2IsUsernames != null && !CollectionUtils.isEmpty(wso2IsUsernames)) {
+        if (wso2IsUsernames != null && CollectionUtils.isNotEmpty(wso2IsUsernames)) {
             // first element must be the user name.
             wso2IsUsername = wso2IsUsernames.get(0);
         }
@@ -422,7 +407,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
 
         String userId = provisioningEntity.getEntityName();
 
-        if (userIdClaimURL != null && !StringUtils.isEmpty(requiredAttributes.get(userIdClaimURL))) {
+        if (userIdClaimURL != null && StringUtils.isNotBlank(requiredAttributes.get(userIdClaimURL))) {
             userId = requiredAttributes.get(userIdClaimURL);
         }
 
@@ -433,20 +418,20 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
                     provisioningSeparator, idpName);
         }
 
-        if (!StringUtils.isEmpty(userIdFromPattern)) {
+        if (StringUtils.isNotBlank(userIdFromPattern)) {
             userId = userIdFromPattern;
         }
 
-        if (!StringUtils.isEmpty(provisioningDomain) && !userId.endsWith(provisioningDomain)) {
+        if (StringUtils.isNotBlank(provisioningDomain) && !userId.endsWith(provisioningDomain)) {
             userId = userId.replaceAll("@", ".").concat("@").concat(provisioningDomain);
         }
 
         // Set given name
         String givenNameClaim = this.configHolder.getValue(givenNameClaimKey);
         String givenNameValue = requiredAttributes.get(givenNameClaim);
-        if (givenNameValue == null || givenNameValue.isEmpty()) {
+        if (givenNameValue == null || StringUtils.isBlank(givenNameValue)) {
             String defaultGivenNameValue = this.configHolder.getValue(defaultGivenNameKey);
-            if (defaultGivenNameValue != null && !defaultGivenNameValue.isEmpty()) {
+            if (defaultGivenNameValue != null && StringUtils.isNotBlank(defaultGivenNameValue)) {
                 givenNameValue = defaultGivenNameValue;
             } else {
                 givenNameValue = wso2IsUsername;
@@ -460,9 +445,9 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         // Set family name
         String familyNameClaim = this.configHolder.getValue(familyNameClaimKey);
         String familyNameValue = requiredAttributes.get(familyNameClaim);
-        if (familyNameValue == null || familyNameValue.isEmpty()) {
+        if (familyNameValue == null || StringUtils.isBlank(familyNameValue)) {
             String defaultFamilyNameValue = this.configHolder.getValue(defaultFamilyNameKey);
-            if (defaultFamilyNameValue != null && !defaultFamilyNameValue.isEmpty()) {
+            if (defaultFamilyNameValue != null && StringUtils.isNotBlank(defaultFamilyNameValue)) {
                 familyNameValue = defaultFamilyNameValue;
             } else {
                 familyNameValue = wso2IsUsername;
@@ -513,9 +498,9 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         // Set given name
         String givenNameClaim = this.configHolder.getValue(givenNameClaimKey);
         String givenNameValue = requiredAttributes.get(givenNameClaim);
-        if (givenNameValue == null || StringUtils.isEmpty(givenNameValue)) {
+        if (givenNameValue == null || StringUtils.isBlank(givenNameValue)) {
             String defaultGivenNameValue = this.configHolder.getValue(defaultGivenNameKey);
-            if (defaultGivenNameValue != null && !StringUtils.isEmpty(defaultGivenNameValue)) {
+            if (defaultGivenNameValue != null && StringUtils.isNotBlank(defaultGivenNameValue)) {
                 givenNameValue = defaultGivenNameValue;
             }
         }
@@ -527,9 +512,9 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         // Set family name
         String familyNameClaim = this.configHolder.getValue(familyNameClaimKey);
         String familyNameValue = requiredAttributes.get(familyNameClaim);
-        if (familyNameValue == null || StringUtils.isEmpty(familyNameValue)) {
+        if (familyNameValue == null || StringUtils.isBlank(familyNameValue)) {
             String defaultFamilyNameValue = this.configHolder.getValue(defaultFamilyNameKey);
-            if (defaultFamilyNameValue != null && !StringUtils.isEmpty(defaultFamilyNameValue)) {
+            if (defaultFamilyNameValue != null && StringUtils.isNotBlank(defaultFamilyNameValue)) {
                 familyNameValue = defaultFamilyNameValue;
             }
         }

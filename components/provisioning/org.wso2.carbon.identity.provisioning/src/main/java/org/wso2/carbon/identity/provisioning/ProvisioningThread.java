@@ -83,12 +83,10 @@ public class ProvisioningThread implements Callable<Boolean> {
             }
 
             success = true;
-        } catch (IdentityApplicationManagementException e) {
+        } catch (Exception e) {
             String errMsg = " Provisioning for Entity " + provisioningEntity.getEntityName() +
                     " For operation = " + provisioningEntity.getOperation();
             throw new IdentityProvisioningException(errMsg, e);
-        } catch (Exception e) {
-            throw new IdentityProvisioningException(e.getMessage(), e);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
 

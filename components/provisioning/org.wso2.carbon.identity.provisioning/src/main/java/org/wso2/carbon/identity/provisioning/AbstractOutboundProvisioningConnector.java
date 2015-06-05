@@ -99,7 +99,7 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
         List<String> claimValue = ProvisioningUtil.getClaimValues(attributeMap,
                 IdentityProvisioningConstants.PASSWORD_CLAIM_URI, getUserStoreDomainName());
 
-        if (claimValue != null && !CollectionUtils.isEmpty(claimValue) && claimValue.get(0) != null) {
+        if (claimValue != null && CollectionUtils.isNotEmpty(claimValue) && claimValue.get(0) != null) {
             return claimValue.get(0);
         }
 
@@ -113,7 +113,7 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
      */
     protected Map<String, String> getSingleValuedClaims(Map<ClaimMapping, List<String>> attributeMap) {
 
-        Map<String, String> claimValues = new HashMap<String, String>();
+        Map<String, String> claimValues = new HashMap<>();
 
         for (Map.Entry<ClaimMapping, List<String>> entry : attributeMap.entrySet()) {
             ClaimMapping mapping = entry.getKey();
@@ -147,7 +147,7 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
     protected String buildUserId(ProvisioningEntity provisioningEntity, String provisioningPattern,
                                  String separator, String idpName) throws IdentityProvisioningException {
 
-        Map<String, String> provValues = new HashMap<String, String>();
+        Map<String, String> provValues = new HashMap<>();
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String username = provisioningEntity.getEntityName();
         String userStoreDomain = getDomainFromUserName(username);
@@ -171,8 +171,8 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
         String[] provisioningEntries = buildProvisioningEntries(provisioningPattern);
 
         for (int i = 0; i < provisioningEntries.length; i++) {
-            if (!StringUtils.isEmpty(provisioningEntries[i])) {
-                if (StringUtils.isEmpty(provIdentifier)) {
+            if (StringUtils.isNotBlank(provisioningEntries[i])) {
+                if (StringUtils.isBlank(provIdentifier)) {
                     provIdentifier = provValues.get(provisioningEntries[i].trim());
                 } else {
                     provIdentifier = provIdentifier.concat(separator).concat(provValues.get(provisioningEntries[i].trim()));

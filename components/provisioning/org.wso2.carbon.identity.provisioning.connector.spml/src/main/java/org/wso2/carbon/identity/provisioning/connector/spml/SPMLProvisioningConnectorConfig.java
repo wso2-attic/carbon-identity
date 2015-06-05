@@ -58,7 +58,7 @@ public class SPMLProvisioningConnectorConfig implements Serializable {
             log.debug("Starting extract Attributes  " + SPMLProvisioningConnectorConfig.class);
         }
 
-        List<String> attributeList = new ArrayList<String>();
+        List<String> attributeList = new ArrayList<>();
         Set<Object> keySet = configs.keySet();
         for (Object key : keySet) {
             if (key.toString().startsWith("spml-atribute-name_")) {

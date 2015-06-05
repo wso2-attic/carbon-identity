@@ -84,7 +84,7 @@ public abstract class AbstractProvisioningConnectorFactory {
             idpName.setName("identityProviderName");
             idpName.setValue(identityProviderName);
 
-            List<Property> provisioningPropertiesList = new ArrayList<Property>(Arrays.asList(provisoningProperties));
+            List<Property> provisioningPropertiesList = new ArrayList<>(Arrays.asList(provisoningProperties));
 
             provisioningPropertiesList.add(idpName);
 
@@ -174,7 +174,7 @@ public abstract class AbstractProvisioningConnectorFactory {
      * @return
      */
     public List<Property> getConfigurationProperties() {
-        return new ArrayList<Property>();
+        return new ArrayList<>();
     }
 
 

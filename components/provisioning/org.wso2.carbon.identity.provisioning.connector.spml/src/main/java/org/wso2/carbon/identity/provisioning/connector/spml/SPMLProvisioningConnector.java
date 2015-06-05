@@ -165,7 +165,7 @@ public class SPMLProvisioningConnector extends AbstractOutboundProvisioningConne
         List<String> userNames = getUserNames(provisioningEntity.getAttributes());
         String userName = null;
 
-        if (userNames != null && !CollectionUtils.isEmpty(userNames)) {
+        if (userNames != null && CollectionUtils.isNotEmpty(userNames)) {
             // first element must be the user name.
             userName = userNames.get(0);
         }

@@ -42,9 +42,9 @@ public class GoogleProvisioningConnectorConfig implements Serializable {
     }
 
     List<String> getRequiredAttributeNames() {
-        List<String> requiredAttributeList = new ArrayList<String>();
+        List<String> requiredAttributeList = new ArrayList<>();
         String requiredAttributes = this.configs.getProperty(GoogleConnectorConstants.PropertyConfig.REQUIRED_FIELDS);
-        if (requiredAttributes != null && !StringUtils.isEmpty(requiredAttributes)) {
+        if (requiredAttributes != null && StringUtils.isNotBlank(requiredAttributes)) {
             requiredAttributeList = Arrays.asList(requiredAttributes.split(IdentityProvisioningConstants.PropertyConfig.DELIMATOR));
         }
         return requiredAttributeList;
@@ -52,12 +52,12 @@ public class GoogleProvisioningConnectorConfig implements Serializable {
 
     String getUserIdClaim() throws IdentityProvisioningException {
         String userIDClaim = this.configs.getProperty(GoogleConnectorConstants.PropertyConfig.USER_ID_CLAIM);
-        if (userIDClaim == null || StringUtils.isEmpty(userIDClaim)) {
+        if (userIDClaim == null || StringUtils.isBlank(userIDClaim)) {
             log.warn("Claim for user id is not defined in config. Using " + GoogleConnectorConstants.ATTRIBUTE_PRIMARYEMAIL + "'s claim instead");
 
             userIDClaim = this.configs.getProperty(GoogleConnectorConstants.ATTRIBUTE_PRIMARYEMAIL);
         }
-        if (userIDClaim == null || StringUtils.isEmpty(userIDClaim)) {
+        if (userIDClaim == null || StringUtils.isBlank(userIDClaim)) {
             log.warn("Claim for user id is set to default value : " + "http://wso2.org/claims/streetaddress");
 
             //TODO make userIDClaim read from UI\DB
@@ -65,7 +65,7 @@ public class GoogleProvisioningConnectorConfig implements Serializable {
         }
 
 
-        if (userIDClaim == null || StringUtils.isEmpty(userIDClaim)) {
+        if (userIDClaim == null || StringUtils.isBlank(userIDClaim)) {
             log.error("UserId cannot mapped to a claim");
             throw new IdentityProvisioningException("UserId cannot mapped to a claim");
         }

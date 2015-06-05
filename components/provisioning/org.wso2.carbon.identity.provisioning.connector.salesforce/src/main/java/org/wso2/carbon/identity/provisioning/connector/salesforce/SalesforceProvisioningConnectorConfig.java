@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.provisioning.connector.salesforce;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
@@ -47,10 +48,10 @@ public class SalesforceProvisioningConnectorConfig implements Serializable {
      */
     @SuppressWarnings("unchecked")
     public List<String> getRequiredAttributeNames() {
-        List<String> requiredAttributeList = new ArrayList<String>();
+        List<String> requiredAttributeList = new ArrayList<>();
         String requiredAttributes = this.configs
                 .getProperty(SalesforceConnectorConstants.PropertyConfig.REQUIRED_FIELDS);
-        if (requiredAttributes != null && !requiredAttributes.isEmpty()) {
+        if (requiredAttributes != null && !StringUtils.isBlank(requiredAttributes)) {
             requiredAttributeList = Arrays.asList(requiredAttributes
                     .split(IdentityProvisioningConstants.PropertyConfig.DELIMATOR));
         }
@@ -64,7 +65,7 @@ public class SalesforceProvisioningConnectorConfig implements Serializable {
     public String getUserIdClaim() throws IdentityProvisioningException {
         String userIDClaim = this.configs
                 .getProperty(SalesforceConnectorConstants.PropertyConfig.USER_ID_CLAIM);
-        if (userIDClaim == null || userIDClaim.isEmpty()) {
+        if (userIDClaim == null || StringUtils.isBlank(userIDClaim)) {
             log.error("Required claim for user id is not defined in config");
             throw new IdentityProvisioningException(
                     "Required claim for user id is not defined in config");

@@ -20,6 +20,8 @@ package org.wso2.carbon.identity.provisioning.connector.scim;
 
 public class SCIMProvisioningConnectorConstants {
 
+    private SCIMProvisioningConnectorConstants(){}
+
     public static final String SCIM_USER_EP = "scim-user-ep";
     public static final String SCIM_GROUP_EP = "scim-group-ep";
     public static final String SCIM_USERNAME = "scim-username";

@@ -109,7 +109,7 @@ public class OutboundProvisioningManager {
     private Map<String, RuntimeProvisioningConfig> getOutboundProvisioningConnectors(
             ServiceProvider serviceProvider, String tenantDomainName) throws IdentityProvisioningException {
 
-        Map<String, RuntimeProvisioningConfig> connectors = new HashMap<String, RuntimeProvisioningConfig>();
+        Map<String, RuntimeProvisioningConfig> connectors = new HashMap<>();
 
         // maintain the provisioning connector cache in the super tenant.
         // at the time of provisioning there may not be an authenticated user in the system -
@@ -218,7 +218,7 @@ public class OutboundProvisioningManager {
                         if (connector != null) {
                             RuntimeProvisioningConfig proConfig = new RuntimeProvisioningConfig();
                             proConfig
-                                    .setProvisioningConnectorEntry(new SimpleEntry<String, AbstractOutboundProvisioningConnector>(
+                                    .setProvisioningConnectorEntry(new SimpleEntry<>(
                                             connectorType, connector));
                             proConfig.setBlocking(defaultConnector.isBlocking());
                             connectors.put(fIdP.getIdentityProviderName(), proConfig);
@@ -335,7 +335,7 @@ public class OutboundProvisioningManager {
                     userIdClaimURL.setValue("");
                 }
 
-                List<Property> provisioningPropertiesList = new ArrayList<Property>(Arrays.asList(provisioningProperties));
+                List<Property> provisioningPropertiesList = new ArrayList<>(Arrays.asList(provisioningProperties));
 
                 provisioningPropertiesList.add(userIdClaimURL);
 
@@ -394,7 +394,7 @@ public class OutboundProvisioningManager {
 
             ExecutorService executors = null;
 
-            if (!MapUtils.isEmpty(connectors)) {
+            if (MapUtils.isNotEmpty(connectors)) {
                 executors = Executors.newFixedThreadPool(connectors.size());
             }
 
@@ -559,16 +559,10 @@ public class OutboundProvisioningManager {
                 executors.shutdown();
             }
 
-        } catch (CarbonException e) {
+        } catch (CarbonException | IdentityApplicationManagementException | UserStoreException e) {
             throw new IdentityProvisioningException("Error occurred while checking for user " +
                     "provisioning", e);
-        } catch (IdentityApplicationManagementException e) {
-            throw new IdentityProvisioningException("Error occured while checking for provision " +
-                    "entity identifier provisioning", e);
-        } catch (UserStoreException e) {
-            throw new IdentityProvisioningException(e.getMessage(), e);
         }
-
     }
 
     private void executeOutboundProvisioning(ProvisioningEntity provisioningEntity, ExecutorService executors, String connectorType,
@@ -592,7 +586,7 @@ public class OutboundProvisioningManager {
                 if (executors != null) {
                     executors.shutdown();
                 }
-                if(log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     log.debug("Error in executing Outbound Provisioning", e);
                 }
                 throw new IdentityProvisioningException
@@ -606,7 +600,7 @@ public class OutboundProvisioningManager {
                                                             String tenantDomain, ProvisioningOperation operation,
                                                             String userName) throws CarbonException,
             UserStoreException {
-        Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<ClaimMapping, List<String>>();
+        Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<>();
 
         if (userName != null) {
             outboundAttributes.put(ClaimMapping.build(
@@ -670,13 +664,13 @@ public class OutboundProvisioningManager {
             return;
         }
 
-        Map<String, String> mappedRoles = new HashMap<String, String>();
+        Map<String, String> mappedRoles = new HashMap<>();
 
         for (RoleMapping mapping : idPRoleMapping) {
             mappedRoles.put(mapping.getLocalRole().getLocalRoleName(), mapping.getRemoteRole());
         }
 
-        List<String> mappedUserGroups = new ArrayList<String>();
+        List<String> mappedUserGroups = new ArrayList<>();
 
         for (Iterator<String> iterator = userGroups.iterator(); iterator.hasNext(); ) {
             String userGroup = iterator.next();
@@ -767,7 +761,7 @@ public class OutboundProvisioningManager {
         List<String> userList = ProvisioningUtil.getClaimValues(attributeMap,
                 IdentityProvisioningConstants.USERNAME_CLAIM_URI, null);
 
-        if (userList != null && !CollectionUtils.isEmpty(userList)) {
+        if (userList != null && CollectionUtils.isNotEmpty(userList)) {
             return userList.get(0);
         }
 
@@ -856,7 +850,7 @@ public class OutboundProvisioningManager {
     private Map<String, String> getUserClaims(String userName, String tenantDomain) throws CarbonException,
             UserStoreException {
 
-        Map<String, String> inboundAttributes = new HashMap<String, String>();
+        Map<String, String> inboundAttributes = new HashMap<>();
 
         RegistryService registryService = IdentityProvisionServiceComponent.getRegistryService();
         RealmService realmService = IdentityProvisionServiceComponent.getRealmService();

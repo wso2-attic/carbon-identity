@@ -35,7 +35,7 @@ public class ProvisioningUtil {
     public static List<String> getClaimValues(Map<ClaimMapping, List<String>> attributeMap,
                                               String claimUri, String userStoreDomainName) {
 
-        List<String> claimValues = new ArrayList<String>();
+        List<String> claimValues = new ArrayList<>();
         for (Map.Entry<ClaimMapping, List<String>> entry : attributeMap.entrySet()) {
             ClaimMapping mapping = entry.getKey();
             if (mapping.getLocalClaim() != null
@@ -47,11 +47,11 @@ public class ProvisioningUtil {
 
         if (userStoreDomainName != null) {
 
-            List<String> modifiedClaimValues = new ArrayList<String>();
+            List<String> modifiedClaimValues = new ArrayList<>();
 
             for (Iterator<String> iterator = claimValues.iterator(); iterator.hasNext(); ) {
                 String claimValue = iterator.next();
-                if (claimValue != null && claimValue.indexOf("/") > 0) {
+                if (claimValue != null && claimValue.contains("/")) {
                     claimValue = claimValue.substring(claimValue.indexOf("/") + 1);
                 }
 

@@ -32,9 +32,6 @@ public class GoogleProvisioningConnectorFactory extends AbstractProvisioningConn
     private static final String GOOGLE = "googleapps";
 
     @Override
-    /**
-     *
-     */
     protected AbstractOutboundProvisioningConnector buildConnector(
             Property[] provisioningProperties) throws IdentityProvisioningException {
         GoogleProvisioningConnector googleConnector = new GoogleProvisioningConnector();
@@ -49,9 +46,6 @@ public class GoogleProvisioningConnectorFactory extends AbstractProvisioningConn
 
 
     @Override
-    /**
-     *
-     */
     public String getConnectorType() {
         return GOOGLE;
     }

@@ -63,7 +63,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
             throws UserStoreException {
 
         try {
-            Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<ClaimMapping, List<String>>();
+            Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<>();
 
             if (credential != null) {
                 outboundAttributes.put(ClaimMapping.build(
@@ -150,7 +150,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
                                            String profileName, UserStoreManager userStoreManager) throws UserStoreException {
 
         try {
-            Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<ClaimMapping, List<String>>();
+            Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<>();
 
             if (userName != null) {
                 outboundAttributes.put(ClaimMapping.build(
@@ -218,7 +218,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
             throws UserStoreException {
 
         try {
-            Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<ClaimMapping, List<String>>();
+            Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<>();
 
             outboundAttributes.put(ClaimMapping.build(
                     IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false), Arrays
@@ -281,7 +281,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
         try {
             String[] userList = userStoreManager.getUserListOfRole(roleName);
 
-            Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<ClaimMapping, List<String>>();
+            Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<>();
 
             outboundAttributes.put(ClaimMapping.build(
                     IdentityProvisioningConstants.GROUP_CLAIM_URI, null, null, false), Arrays
@@ -355,9 +355,9 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
 
         try {
             String[] roleList = userStoreManager.getRoleListOfUser(userName);
-            Map<String, String> inboundAttributes = new HashMap<String, String>();
+            Map<String, String> inboundAttributes = new HashMap<>();
 
-            Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<ClaimMapping, List<String>>();
+            Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<>();
 
             if (userName != null) {
                 outboundAttributes.put(ClaimMapping.build(
@@ -448,7 +448,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
                                 UserStoreManager userStoreManager) throws UserStoreException {
 
         try {
-            Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<ClaimMapping, List<String>>();
+            Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<>();
 
             if (roleName != null) {
                 outboundAttributes.put(ClaimMapping.build(
@@ -519,7 +519,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
 
         try {
 
-            Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<ClaimMapping, List<String>>();
+            Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<>();
 
             if (roleName != null) {
                 outboundAttributes.put(ClaimMapping.build(

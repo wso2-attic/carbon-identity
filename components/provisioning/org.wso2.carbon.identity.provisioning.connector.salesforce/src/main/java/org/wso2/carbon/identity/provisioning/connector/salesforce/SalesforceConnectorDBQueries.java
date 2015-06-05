@@ -20,6 +20,8 @@ package org.wso2.carbon.identity.provisioning.connector.salesforce;
 
 public class SalesforceConnectorDBQueries {
 
+    private SalesforceConnectorDBQueries(){}
+
     public static final String SALESFORCE_LIST_USER_SIMPLE_QUERY = "SELECT Id, Alias, Email, LastName, Name, ProfileId, Username from User";
     public static final String SALESFORCE_LIST_USER_FULL_QUERY = "SELECT Id, Username, Name, Alias, Email, EmailEncodingKey, LanguageLocaleKey, LastName, LocaleSidKey, ProfileId, TimeZoneSidKey, UserPermissionsCallCenterAutoLogin, UserPermissionsMarketingUser, UserPermissionsOfflineUser from User";
 }
