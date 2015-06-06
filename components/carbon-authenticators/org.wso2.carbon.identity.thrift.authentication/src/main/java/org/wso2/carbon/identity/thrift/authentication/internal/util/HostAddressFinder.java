@@ -24,8 +24,12 @@ import java.net.SocketException;
 import java.util.Enumeration;
 
 public class HostAddressFinder {
+
+    private HostAddressFinder(){
+
+    }
     public static String findAddress(String hostname) throws SocketException {
-        if (hostname.trim().equals("localhost") || hostname.trim().equals("127.0.0.1") || hostname.trim().equals("::1")) {
+           if("localhost".equals(hostname.trim())||ThriftAuthenticationConstants.IP_ADDRESS.equals(hostname.trim())||"::1".equals(hostname.trim())){
             Enumeration<NetworkInterface> ifaces =
                     NetworkInterface.getNetworkInterfaces();
             while (ifaces.hasMoreElements()) {
@@ -39,7 +43,7 @@ public class HostAddressFinder {
                     }
                 }
             }
-            return "127.0.0.1";
+            return ThriftAuthenticationConstants.IP_ADDRESS;
         } else {
             return hostname;
         }

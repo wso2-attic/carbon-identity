@@ -39,12 +39,12 @@ public class GoogleAuthenticatorServiceComponent {
             if (log.isDebugEnabled()) {
                 log.debug("Google OAuth2/openID is activated");
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.fatal("Google OAuth2/openID authenticator ", e);
         }
     }
 
-    protected void deactivate() {
+    protected void deactivate(ComponentContext context) {
         if (log.isDebugEnabled()) {
             log.debug("Google OAuth2/openID is deactivated");
         }

@@ -47,7 +47,7 @@ public class FIDOAuthenticatorServiceComponent {
             if (log.isDebugEnabled()) {
                 log.debug("FIDOAuthenticator service is registered");
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.fatal("Error registering FIDOAuthenticator service", e);
         }
 

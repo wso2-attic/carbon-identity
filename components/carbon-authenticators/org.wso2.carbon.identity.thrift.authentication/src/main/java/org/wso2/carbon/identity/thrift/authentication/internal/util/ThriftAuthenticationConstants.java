@@ -21,6 +21,9 @@ package org.wso2.carbon.identity.thrift.authentication.internal.util;
  * This class holds the constants and SQLQueries related to thrift based authentication
  */
 public class ThriftAuthenticationConstants {
+    private ThriftAuthenticationConstants(){
+
+    }
 
     public static final String CARBON_CONFIG_PORT_OFFSET_NODE = "Ports.Offset";
     public static final String CLIENT_TIMEOUT = "ClientTimeout";
@@ -44,4 +47,5 @@ public class ThriftAuthenticationConstants {
 
     public static final String GET_THRIFT_SESSION_SQL =
             "SELECT SESSION_ID, USER_NAME, CREATED_TIME, LAST_MODIFIED_TIME FROM IDN_THRIFT_SESSION WHERE SESSION_ID=?";
+    public static final String IP_ADDRESS = "127.0.0.1";
 }

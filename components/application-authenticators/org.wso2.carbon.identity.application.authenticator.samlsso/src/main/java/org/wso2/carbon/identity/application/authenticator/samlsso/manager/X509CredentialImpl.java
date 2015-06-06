@@ -35,7 +35,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
-import java.util.Collections;
+
 
 /**
  * X509Credential implementation for signing and verification.
@@ -157,7 +157,7 @@ public class X509CredentialImpl implements X509Credential {
     @Override
     public Collection<X509Certificate> getEntityCertificateChain() {
         // TODO Auto-generated method stub
-        return Collections.emptySet();
+        return CollectionUtils.EMPTY_COLLECTION;
     }
 
     @Override
@@ -181,7 +181,7 @@ public class X509CredentialImpl implements X509Credential {
     @Override
     public Collection<String> getKeyNames() {
         // TODO Auto-generated method stub
-        return Collections.emptySet();
+        return CollectionUtils.EMPTY_COLLECTION;
     }
 
     @Override

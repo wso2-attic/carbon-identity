@@ -190,7 +190,7 @@ public class U2FService {
         }
     }
 
-    public U2FService() {
+    private U2FService() {
 
     }
 }

@@ -51,6 +51,9 @@ import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 
 public class Util {
+    private Util(){
+
+    }
 
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
             Constants.SECURITY_MANAGER_PROPERTY;
@@ -95,17 +98,17 @@ public class Util {
             }
             return response;
         } catch (ParserConfigurationException e) {
-            log.error(e.getMessage());
-            throw new SAML2SSOAuthenticatorException("Error occured while processing saml2 response");
+            log.error("Error occured while processing saml2 response");
+            throw new SAML2SSOAuthenticatorException("Error occured while processing saml2 response"+e);
         } catch (SAXException e) {
-            log.error(e.getMessage());
-            throw new SAML2SSOAuthenticatorException("Error occured while processing saml2 response");
+            log.error("Error occured while processing saml2 response");
+            throw new SAML2SSOAuthenticatorException("Error occured while processing saml2 response"+e);
         } catch (IOException e) {
-            log.error(e.getMessage());
-            throw new SAML2SSOAuthenticatorException("Error occured while processing saml2 response");
+            log.error("Error occured while processing saml2 response");
+            throw new SAML2SSOAuthenticatorException("Error occured while processing saml2 response"+e);
         } catch (UnmarshallingException e) {
-            log.error(e.getMessage());
-            throw new SAML2SSOAuthenticatorException("Error occured while processing saml2 response");
+            log.error("Error occured while processing saml2 response");
+            throw new SAML2SSOAuthenticatorException("Error occured while processing saml2 response"+e);
         }
 
     }
@@ -137,7 +140,6 @@ public class Util {
             throws SAML2SSOAuthenticatorException {
 
         int tenantID = MultitenantConstants.SUPER_TENANT_ID;
-        RegistryService registryService = SAML2SSOAuthBEDataHolder.getInstance().getRegistryService();
         RealmService realmService = SAML2SSOAuthBEDataHolder.getInstance().getRealmService();
 
         // get the tenantID

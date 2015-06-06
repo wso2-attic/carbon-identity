@@ -36,7 +36,7 @@ public class WindowsLiceAuthenticatorServiceComponent {
             if (log.isDebugEnabled()) {
                 log.debug("Windows Live Authenticator bundle is activated");
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.fatal(" Error while activating windows live authenticator ", e);
         }
     }

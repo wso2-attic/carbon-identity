@@ -34,12 +34,13 @@ public class FIDOAdminService {
     /**
      * Initiate FIDO registration.
      *
+     *  @param username username.
      * @param appID Application ID.
      * @return RegisterRequestData.
      * @throws IdentityException when U2F can not generate challenge.
      */
     @SuppressWarnings(FIDOAuthenticatorConstants.UNUSED)
-    public String startRegistration(String appID) throws IdentityException {
+    public String startRegistration(String username,String appID) throws IdentityException {
 
         FIDOUser user = getUser();
         user.setAppID(appID);
@@ -50,11 +51,12 @@ public class FIDOAdminService {
     /**
      * Complete FIDO registration.
      *
+     * @param username username associated with initiate request.
      * @param response response from client.
      * @throws IdentityException when U2F validation fails.
      */
     @SuppressWarnings(FIDOAuthenticatorConstants.UNUSED)
-    public void finishRegistration(String response) throws IdentityException {
+    public void finishRegistration(String response,String username) throws IdentityException {
 
         FIDOUser user = getUser();
         user.setRegisterResponse(RegisterResponse.fromJson(response));

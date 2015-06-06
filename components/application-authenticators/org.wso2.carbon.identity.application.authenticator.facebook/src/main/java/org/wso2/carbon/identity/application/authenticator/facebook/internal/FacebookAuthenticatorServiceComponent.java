@@ -38,7 +38,7 @@ public class FacebookAuthenticatorServiceComponent {
             if (log.isDebugEnabled()) {
                 log.debug("Facebook Authenticator bundle is activated");
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.fatal(" Error while activating Facebook authenticator ", e);
         }
     }

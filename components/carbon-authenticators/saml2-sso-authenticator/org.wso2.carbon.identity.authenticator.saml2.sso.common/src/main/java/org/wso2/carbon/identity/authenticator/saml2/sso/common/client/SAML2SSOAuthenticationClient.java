@@ -33,6 +33,9 @@ import javax.servlet.http.HttpSession;
 import java.rmi.RemoteException;
 
 public class SAML2SSOAuthenticationClient {
+    private  SAML2SSOAuthenticationClient(){
+
+    }
 
     private static final Log log = LogFactory.getLog(SAML2SSOAuthenticationClient.class);
     private SAML2SSOAuthenticationServiceStub stub;

@@ -37,7 +37,7 @@ public class OpenIDConnectAuthenticatorServiceComponent {
             if (log.isDebugEnabled()) {
                 log.debug("OpenID Connect Authenticator bundle is activated");
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.fatal(" Error while activating oidc authenticator ", e);
         }
     }
