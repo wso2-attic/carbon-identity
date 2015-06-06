@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.application.common.model;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -27,9 +28,6 @@ import java.util.List;
 
 public class LocalAndOutboundAuthenticationConfig implements Serializable {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -932772940989929376L;
 
     private AuthenticationStep[] authenticationSteps = new AuthenticationStep[0];
@@ -49,7 +47,8 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
     public static LocalAndOutboundAuthenticationConfig build(
             OMElement localAndOutboundAuthenticationConfigOM) {
 
-        LocalAndOutboundAuthenticationConfig localAndOutboundAuthenticationConfig = new LocalAndOutboundAuthenticationConfig();
+        LocalAndOutboundAuthenticationConfig localAndOutboundAuthenticationConfig = new
+                LocalAndOutboundAuthenticationConfig();
 
         if (localAndOutboundAuthenticationConfigOM == null) {
             return localAndOutboundAuthenticationConfig;
@@ -77,7 +76,7 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
                     }
                 }
 
-                if (authenticationStepsArrList != null && !authenticationStepsArrList.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(authenticationStepsArrList)) {
                     AuthenticationStep[] authenticationStepsArr = authenticationStepsArrList
                             .toArray(new AuthenticationStep[0]);
                     localAndOutboundAuthenticationConfig

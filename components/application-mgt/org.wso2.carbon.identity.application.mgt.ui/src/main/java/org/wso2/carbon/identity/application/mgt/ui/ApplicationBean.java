@@ -795,8 +795,8 @@ public class ApplicationBean {
                             idp.setIdentityProviderName(name);
 
                             FederatedAuthenticatorConfig authenticator = new FederatedAuthenticatorConfig();
-                            authenticator.setName(CharacterEncoder.getSafeText(request.getParameter("step_" + authstep + "_idp_"
-                                    + name + "_fed_authenticator")));
+                            authenticator.setName(CharacterEncoder.getSafeText(request.getParameter("step_" +
+                                    authstep + "_idp_" + name + "_fed_authenticator")));
                             idp.setDefaultAuthenticatorConfig(authenticator);
                             idp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[]{authenticator});
 
@@ -868,8 +868,10 @@ public class ApplicationBean {
             List<IdentityProvider> provisioningIdps = new ArrayList<IdentityProvider>();
 
             for (String proProvider : provisioningProviders) {
-                String connector = CharacterEncoder.getSafeText(request.getParameter("provisioning_con_idp_" + proProvider));
-                String jitEnabled = CharacterEncoder.getSafeText(request.getParameter("provisioning_jit_" + proProvider));
+                String connector = CharacterEncoder.getSafeText(request.getParameter("provisioning_con_idp_"
+                        + proProvider));
+                String jitEnabled = CharacterEncoder.getSafeText(request.getParameter("provisioning_jit_"
+                        + proProvider));
                 String blocking = CharacterEncoder.getSafeText(request.getParameter("blocking_prov_" + proProvider));
                 if (connector != null) {
                     IdentityProvider proIdp = new IdentityProvider();
@@ -1039,7 +1041,8 @@ public class ApplicationBean {
             // already updated.
         }
 
-        String alwaysSendAuthListOfIdPs = CharacterEncoder.getSafeText(request.getParameter("always_send_auth_list_of_idps"));
+        String alwaysSendAuthListOfIdPs = CharacterEncoder.getSafeText(
+                request.getParameter("always_send_auth_list_of_idps"));
         serviceProvider.getLocalAndOutBoundAuthenticationConfig()
                 .setAlwaysSendBackAuthenticatedListOfIdPs(alwaysSendAuthListOfIdPs != null &&
                         "on".equals(alwaysSendAuthListOfIdPs) ? true : false);
@@ -1136,7 +1139,8 @@ public class ApplicationBean {
         serviceProvider.getClaimConfig().setClaimMappings(
                 claimMappingList.toArray(new ClaimMapping[claimMappingList.size()]));
 
-        serviceProvider.getClaimConfig().setRoleClaimURI(CharacterEncoder.getSafeText(request.getParameter("roleClaim")));
+        serviceProvider.getClaimConfig().setRoleClaimURI(CharacterEncoder.getSafeText(
+                request.getParameter("roleClaim")));
 
         String alwaysSendMappedLocalSubjectId = CharacterEncoder.getSafeText(request
                 .getParameter("always_send_local_subject_id"));
@@ -1205,8 +1209,10 @@ public class ApplicationBean {
 
         if (provisioningProviders != null && provisioningProviders.length > 0) {
             for (String proProvider : provisioningProviders) {
-                String connector = CharacterEncoder.getSafeText(request.getParameter("provisioning_con_idp_" + proProvider));
-                String jitEnabled = CharacterEncoder.getSafeText(request.getParameter("provisioning_jit_" + proProvider));
+                String connector = CharacterEncoder.getSafeText(request.getParameter(
+                        "provisioning_con_idp_" + proProvider));
+                String jitEnabled = CharacterEncoder.getSafeText(request.getParameter(
+                        "provisioning_jit_" + proProvider));
                 String blocking = CharacterEncoder.getSafeText(request.getParameter("blocking_prov_" + proProvider));
 
                 JustInTimeProvisioningConfig jitpro = new JustInTimeProvisioningConfig();

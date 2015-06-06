@@ -97,7 +97,9 @@ public class ApplicationMgtUtil {
 
         try {
             if (log.isDebugEnabled()) {
-                log.debug("Checking whether user has role : " + applicationRoleName + " by retrieving role list of user : " + user);
+                log.debug("Checking whether user has role : " + applicationRoleName + " by retrieving role list of " +
+                        "user " +
+                        ": " + user);
             }
             String[] userRoles = CarbonContext.getThreadLocalCarbonContext().getUserRealm()
                     .getUserStoreManager().getRoleListOfUser(user);
@@ -344,7 +346,8 @@ public class ApplicationMgtUtil {
 
     }
 
-    private static void addPermission(ApplicationPermission[] permissions, Registry tenantGovReg) throws RegistryException {
+    private static void addPermission(ApplicationPermission[] permissions, Registry tenantGovReg) throws
+            RegistryException {
         for (ApplicationPermission permission : permissions) {
             String permissionValue = permission.getValue();
 

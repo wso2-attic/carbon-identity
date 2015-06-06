@@ -31,8 +31,8 @@ public class ClaimMapping implements Serializable {
      */
     private static final long serialVersionUID = -2530192004968748230L;
 
-    private transient Claim localClaim;
-    private transient Claim remoteClaim;
+    private Claim localClaim;
+    private Claim remoteClaim;
     private String defaultValue;
     private boolean requested;
 

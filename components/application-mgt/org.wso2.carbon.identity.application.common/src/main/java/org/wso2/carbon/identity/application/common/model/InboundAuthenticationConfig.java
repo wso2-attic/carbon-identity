@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.application.common.model;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -32,7 +33,8 @@ public class InboundAuthenticationConfig implements Serializable {
      */
     private static final long serialVersionUID = 8966626233502458748L;
 
-    private transient InboundAuthenticationRequestConfig[] inboundAuthenticationRequestConfigs = new InboundAuthenticationRequestConfig[0];
+    private transient InboundAuthenticationRequestConfig[] inboundAuthenticationRequestConfigs = new
+            InboundAuthenticationRequestConfig[0];
 
     /*
      * <InboundAuthenticationConfig>
@@ -76,8 +78,7 @@ public class InboundAuthenticationConfig implements Serializable {
                     }
                 }
 
-                if (inboundAuthenticationRequestConfigsArrList != null &&
-                        !inboundAuthenticationRequestConfigsArrList.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(inboundAuthenticationRequestConfigsArrList)) {
                     InboundAuthenticationRequestConfig[] inboundAuthenticationRequestConfigsArr
                             = inboundAuthenticationRequestConfigsArrList
                             .toArray(new InboundAuthenticationRequestConfig[0]);

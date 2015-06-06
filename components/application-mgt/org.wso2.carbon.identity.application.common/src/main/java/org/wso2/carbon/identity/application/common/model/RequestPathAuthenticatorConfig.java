@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.application.common.model;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -61,7 +62,7 @@ public class RequestPathAuthenticatorConfig extends LocalAuthenticatorConfig {
                     }
                 }
 
-                if (propertiesArrList != null && !propertiesArrList.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(propertiesArrList)) {
                     Property[] propertiesArr = propertiesArrList.toArray(new Property[0]);
                     requestPathAuthenticatorConfig.setProperties(propertiesArr);
                 }

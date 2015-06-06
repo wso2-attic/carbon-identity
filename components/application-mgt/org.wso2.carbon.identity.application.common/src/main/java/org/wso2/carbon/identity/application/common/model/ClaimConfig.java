@@ -35,8 +35,8 @@ public class ClaimConfig implements Serializable {
     private String roleClaimURI;
     private String userClaimURI;
     private boolean localClaimDialect;
-    private transient Claim[] idpClaims = new Claim[0];
-    private transient ClaimMapping[] claimMappings = new ClaimMapping[0];
+    private Claim[] idpClaims = new Claim[0];
+    private ClaimMapping[] claimMappings = new ClaimMapping[0];
     private boolean alwaysSendMappedLocalSubjectId;
 
     /*

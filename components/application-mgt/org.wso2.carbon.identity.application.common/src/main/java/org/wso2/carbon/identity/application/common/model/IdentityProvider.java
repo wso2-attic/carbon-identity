@@ -24,7 +24,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 public class IdentityProvider implements Serializable {
 
@@ -66,7 +71,8 @@ public class IdentityProvider implements Serializable {
                 if (element.getText() != null) {
                     identityProvider.setIdentityProviderName(element.getText());
                 } else {
-                    log.error("Identity provider not loaded from the file system. Identity provider name must be not null.");
+                    log.error("Identity provider not loaded from the file system. Identity provider name must be " +
+                            "not null.");
                     return null;
                 }
             } else if ("IdentityProviderDescription".equals(elementName)) {
@@ -452,7 +458,8 @@ public class IdentityProvider implements Serializable {
 
         IdentityProvider that = (IdentityProvider) o;
 
-        if (identityProviderName != null ? !identityProviderName.equals(that.identityProviderName) : that.identityProviderName != null)
+        if (identityProviderName != null ? !identityProviderName.equals(that.identityProviderName) :
+                that.identityProviderName != null)
             return false;
 
         return true;

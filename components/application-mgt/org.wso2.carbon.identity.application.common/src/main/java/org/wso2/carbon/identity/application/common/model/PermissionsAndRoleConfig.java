@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.application.common.model;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -32,8 +33,8 @@ public class PermissionsAndRoleConfig implements Serializable {
      */
     private static final long serialVersionUID = -7994146492198021069L;
 
-    private transient ApplicationPermission[] permissions = new ApplicationPermission[0];
-    private transient RoleMapping[] roleMappings = new RoleMapping[0];
+    private ApplicationPermission[] permissions = new ApplicationPermission[0];
+    private RoleMapping[] roleMappings = new RoleMapping[0];
     private String[] idpRoles = new String[0];
 
     /*
@@ -69,7 +70,7 @@ public class PermissionsAndRoleConfig implements Serializable {
                     }
                 }
 
-                if (permissionsArrList != null && !permissionsArrList.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(permissionsArrList)) {
                     ApplicationPermission[] permissionsArr = permissionsArrList
                             .toArray(new ApplicationPermission[0]);
                     permissionsAndRoleConfig.setPermissions(permissionsArr);
@@ -90,7 +91,7 @@ public class PermissionsAndRoleConfig implements Serializable {
                     }
                 }
 
-                if (roleMappingsArrList != null && !roleMappingsArrList.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(roleMappingsArrList)) {
                     RoleMapping[] roleMappingsArr = roleMappingsArrList.toArray(new RoleMapping[0]);
                     permissionsAndRoleConfig.setRoleMappings(roleMappingsArr);
                 }
@@ -108,7 +109,7 @@ public class PermissionsAndRoleConfig implements Serializable {
                     }
                 }
 
-                if (roleMappingsArrList != null) {
+                if (CollectionUtils.isNotEmpty(roleMappingsArrList)) {
                     String[] idpRolesArr = roleMappingsArrList.toArray(new String[0]);
                     permissionsAndRoleConfig.setIdpRoles(idpRolesArr);
                 }

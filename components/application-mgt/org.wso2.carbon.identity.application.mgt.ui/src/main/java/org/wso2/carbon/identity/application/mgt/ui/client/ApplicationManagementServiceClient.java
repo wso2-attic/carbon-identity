@@ -24,7 +24,11 @@ import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.application.common.model.xsd.*;
+import org.wso2.carbon.identity.application.common.model.xsd.ApplicationBasicInfo;
+import org.wso2.carbon.identity.application.common.model.xsd.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.xsd.LocalAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.xsd.RequestPathAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.xsd.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.stub.IdentityApplicationManagementServiceIdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.mgt.stub.IdentityApplicationManagementServiceStub;
 import org.wso2.carbon.user.mgt.stub.UserAdminStub;
@@ -86,7 +90,8 @@ public class ApplicationManagementServiceClient {
             log.error("Error in registering the service provider"+ " " +serviceProvider.getApplicationName(), e);
             throw new Exception(e.getMessage());
         } catch (IdentityApplicationManagementServiceIdentityApplicationManagementException e) {
-            log.error("Error in creating the application in service provider"+ " " +serviceProvider.getApplicationName(), e);
+            log.error("Error in creating the application in service provider"+ " " +serviceProvider.
+                    getApplicationName(), e);
             throw new Exception(e.getMessage());
         }
 
@@ -227,7 +232,8 @@ public class ApplicationManagementServiceClient {
         } catch (Exception e) {
             log.error("Error occurred while retrieving User Store Domains ", e);
             throw new Exception(
-                    "Error occurred while retrieving Read-Write User Store Domain IDs for logged-in user's tenant realm");
+                    "Error occurred while retrieving Read-Write User Store Domain IDs for logged-in user's tenant " +
+                            "realm");
         }
     }
 

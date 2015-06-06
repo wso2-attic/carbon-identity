@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.application.common.model;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 
@@ -35,7 +36,7 @@ public class ProvisioningConnectorConfig implements Serializable {
      */
     private static final long serialVersionUID = 8270617885506096420L;
 
-    protected transient Property[] provisioningProperties = new Property[0];
+    protected Property[] provisioningProperties = new Property[0];
     protected String name;
     protected boolean enabled;
     protected boolean blocking;
@@ -64,7 +65,7 @@ public class ProvisioningConnectorConfig implements Serializable {
                     }
                 }
 
-                if (propertiesArrList != null && !propertiesArrList.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(propertiesArrList)) {
                     Property[] propertiesArr = propertiesArrList.toArray(new Property[0]);
                     provisioningConnectorConfig.setProvisioningProperties(propertiesArr);
                 }
@@ -150,11 +151,12 @@ public class ProvisioningConnectorConfig implements Serializable {
 
         ProvisioningConnectorConfig that = (ProvisioningConnectorConfig) o;
 
-        if (!StringUtils.equals(name, that.name))
+        if (!StringUtils.equals(name, that.name)) {
             return false;
-        if (!Arrays.equals(provisioningProperties, that.provisioningProperties))
+        }
+        if (!Arrays.equals(provisioningProperties, that.provisioningProperties)) {
             return false;
-
+        }
         return true;
     }
 

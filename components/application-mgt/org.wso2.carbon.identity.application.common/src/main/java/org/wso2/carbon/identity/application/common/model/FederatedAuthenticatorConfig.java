@@ -22,7 +22,12 @@ import org.apache.axiom.om.OMElement;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 public class FederatedAuthenticatorConfig implements Serializable {
 
@@ -34,7 +39,7 @@ public class FederatedAuthenticatorConfig implements Serializable {
     protected String name;
     protected String displayName;
     protected boolean enabled;
-    protected transient Property[] properties = new Property[0];
+    protected Property[] properties = new Property[0];
 
     public static FederatedAuthenticatorConfig build(OMElement federatedAuthenticatorConfigOM) {
 
@@ -151,15 +156,18 @@ public class FederatedAuthenticatorConfig implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof FederatedAuthenticatorConfig))
+        }
+        if (!(o instanceof FederatedAuthenticatorConfig)) {
             return false;
+        }
 
         FederatedAuthenticatorConfig that = (FederatedAuthenticatorConfig) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null)
+        if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
+        }
 
         return true;
     }

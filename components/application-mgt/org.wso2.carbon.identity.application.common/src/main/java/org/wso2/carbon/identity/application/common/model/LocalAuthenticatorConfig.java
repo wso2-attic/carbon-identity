@@ -19,9 +19,14 @@
 package org.wso2.carbon.identity.application.common.model;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 public class LocalAuthenticatorConfig implements Serializable {
 
@@ -76,7 +81,7 @@ public class LocalAuthenticatorConfig implements Serializable {
                     }
                 }
 
-                if (propertiesArrList != null && !propertiesArrList.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(propertiesArrList)) {
                     Property[] propertiesArr = propertiesArrList.toArray(new Property[0]);
                     localAuthenticatorConfig.setProperties(propertiesArr);
                 }
@@ -154,11 +159,12 @@ public class LocalAuthenticatorConfig implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof LocalAuthenticatorConfig))
+        }
+        if (!(o instanceof LocalAuthenticatorConfig)) {
             return false;
-
+        }
         LocalAuthenticatorConfig that = (LocalAuthenticatorConfig) o;
 
         if (name != null ? !name.equals(that.name) : that.name != null)

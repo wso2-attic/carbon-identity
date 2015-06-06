@@ -19,9 +19,15 @@
 package org.wso2.carbon.identity.application.common.model;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 public class OutboundProvisioningConfig implements Serializable {
 
@@ -30,7 +36,7 @@ public class OutboundProvisioningConfig implements Serializable {
      */
     private static final long serialVersionUID = 1653270395614833536L;
 
-    private transient IdentityProvider[] provisioningIdentityProviders = new IdentityProvider[0];
+    private IdentityProvider[] provisioningIdentityProviders = new IdentityProvider[0];
     private String[] provisionByRoleList;
 
     /*
@@ -63,7 +69,7 @@ public class OutboundProvisioningConfig implements Serializable {
                     }
                 }
 
-                if (provisioningIdentityProvidersArrList != null) {
+                if (CollectionUtils.isNotEmpty(provisioningIdentityProvidersArrList)) {
                     IdentityProvider[] provisioningIdentityProvidersArr = provisioningIdentityProvidersArrList
                             .toArray(new IdentityProvider[0]);
                     outboundProvisioningConfig
@@ -84,7 +90,7 @@ public class OutboundProvisioningConfig implements Serializable {
                     }
                 }
 
-                if (provisionByRoleListArrList != null && !provisionByRoleListArrList.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(provisionByRoleListArrList)) {
                     String[] provisionByRoleListArr = provisionByRoleListArrList
                             .toArray(new String[0]);
                     outboundProvisioningConfig.setProvisionByRoleList(provisionByRoleListArr);

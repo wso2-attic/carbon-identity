@@ -201,17 +201,21 @@ public class Property implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof Property))
+        }
+        if (!(o instanceof Property)) {
             return false;
+        }
 
         Property property = (Property) o;
 
-        if (name != null ? !name.equals(property.name) : property.name != null)
+        if (name != null ? !name.equals(property.name) : property.name != null) {
             return false;
-        if (value != null ? !value.equals(property.value) : property.value != null)
+        }
+        if (value != null ? !value.equals(property.value) : property.value != null) {
             return false;
+        }
 
         return true;
     }

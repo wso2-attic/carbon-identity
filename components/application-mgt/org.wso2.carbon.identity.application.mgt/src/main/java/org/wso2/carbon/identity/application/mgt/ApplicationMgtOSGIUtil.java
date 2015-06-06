@@ -195,7 +195,8 @@ public class ApplicationMgtOSGIUtil {
         try {
             String userName = CarbonContext.getThreadLocalCarbonContext().getUsername();
             int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-            Registry tenantGovReg = ApplicationManagementServiceComponentHolder.getInstance().getRegistryService().getGovernanceUserRegistry(userName, tenantId);
+            Registry tenantGovReg = ApplicationManagementServiceComponentHolder.getInstance().
+                    getRegistryService().getGovernanceUserRegistry(userName, tenantId);
             if (tenantGovReg == null) {
                 throw new IdentityApplicationManagementException(" Registry can't be null ");
             }
@@ -293,7 +294,8 @@ public class ApplicationMgtOSGIUtil {
 
     }
 
-    private static void addPermission(ApplicationPermission[] permissions, Registry tenantGovReg) throws RegistryException {
+    private static void addPermission(ApplicationPermission[] permissions, Registry tenantGovReg) throws
+            RegistryException {
         for (ApplicationPermission permission : permissions) {
             String permissionValue = permission.getValue();
 

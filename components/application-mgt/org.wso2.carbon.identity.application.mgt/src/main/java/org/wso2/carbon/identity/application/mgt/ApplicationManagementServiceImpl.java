@@ -30,7 +30,14 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
-import org.wso2.carbon.identity.application.common.model.*;
+import org.wso2.carbon.identity.application.common.model.ApplicationBasicInfo;
+import org.wso2.carbon.identity.application.common.model.ApplicationPermission;
+import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.InboundAuthenticationRequestConfig;
+import org.wso2.carbon.identity.application.common.model.LocalAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.PermissionsAndRoleConfig;
+import org.wso2.carbon.identity.application.common.model.RequestPathAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.mgt.cache.IdentityServiceProviderCache;
 import org.wso2.carbon.identity.application.mgt.cache.IdentityServiceProviderCacheKey;
@@ -154,7 +161,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                 } else {
                     permissionAndRoleConfig = serviceProvider.getPermissionAndRoleConfig();
                 }
-                permissionAndRoleConfig.setPermissions(permissionList.toArray(new ApplicationPermission[permissionList.size()]));
+                permissionAndRoleConfig.setPermissions(permissionList.toArray(
+                        new ApplicationPermission[permissionList.size()]));
                 serviceProvider.setPermissionAndRoleConfig(permissionAndRoleConfig);
             }
             return serviceProvider;
@@ -312,8 +320,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
 
                 for (InboundAuthenticationRequestConfig config : configs) {
 
-                    if (IdentityApplicationConstants.Authenticator.SAML2SSO.NAME.equalsIgnoreCase(config.getInboundAuthType()) &&
-                            config.getInboundAuthKey() != null) {
+                    if (IdentityApplicationConstants.Authenticator.SAML2SSO.NAME.
+                            equalsIgnoreCase(config.getInboundAuthType()) && config.getInboundAuthKey() != null) {
                         SAMLApplicationDAO samlDAO =
                                 ApplicationMgtSystemConfig.getInstance()
                                         .getSAMLClientDAO();
@@ -326,8 +334,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                                         .getOAuthOIDCClientDAO();
                         oathDAO.removeOAuthApplication(config.getInboundAuthKey());
 
-                    } else if (IdentityApplicationConstants.Authenticator.WSTrust.NAME.equalsIgnoreCase(config.getInboundAuthType()) &&
-                            config.getInboundAuthKey() != null) {
+                    } else if (IdentityApplicationConstants.Authenticator.WSTrust.NAME.equalsIgnoreCase(
+                            config.getInboundAuthType()) && config.getInboundAuthKey() != null) {
                         try {
                             AxisService stsService =
                                     getAxisConfig().getService(ServerConstants.STS_NAME);
@@ -531,7 +539,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      */
     private void setSTSParameter(SAMLTokenIssuerConfig samlConfig) throws AxisFault,
             RegistryException {
-        new SecurityServiceAdmin(getAxisConfig(), getConfigSystemRegistry()).setServiceParameterElement(ServerConstants.STS_NAME,
+        new SecurityServiceAdmin(getAxisConfig(), getConfigSystemRegistry()).
+                setServiceParameterElement(ServerConstants.STS_NAME,
                 samlConfig.getParameter());
     }
 

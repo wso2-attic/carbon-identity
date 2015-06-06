@@ -30,7 +30,7 @@ public class RoleMapping implements Serializable {
      */
     private static final long serialVersionUID = -2116444950898503844L;
 
-    private transient LocalRole localRole = null;
+    private LocalRole localRole = null;
     private String remoteRole = null;
 
     public RoleMapping() {

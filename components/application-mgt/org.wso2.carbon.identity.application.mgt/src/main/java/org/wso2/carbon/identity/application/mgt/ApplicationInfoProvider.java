@@ -62,7 +62,8 @@ public class ApplicationInfoProvider {
      * @throws IdentityApplicationManagementException
      */
     public Map<String, String> getServiceProviderToLocalIdPClaimMapping(String serviceProviderName,
-                                                                        String tenantDomain) throws IdentityApplicationManagementException {
+                                                                        String tenantDomain)
+            throws IdentityApplicationManagementException {
 
         ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
         Map<String, String> claimMap = appDAO.getServiceProviderToLocalIdPClaimMapping(
@@ -88,7 +89,8 @@ public class ApplicationInfoProvider {
      * @throws IdentityApplicationManagementException
      */
     public Map<String, String> getLocalIdPToServiceProviderClaimMapping(String serviceProviderName,
-                                                                        String tenantDomain) throws IdentityApplicationManagementException {
+                                                                        String tenantDomain)
+            throws IdentityApplicationManagementException {
 
         ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
         Map<String, String> claimMap = appDAO.getLocalIdPToServiceProviderClaimMapping(
@@ -115,7 +117,8 @@ public class ApplicationInfoProvider {
      * @throws IdentityApplicationManagementException
      */
     public List<String> getAllRequestedClaimsByServiceProvider(String serviceProviderName,
-                                                               String tenantDomain) throws IdentityApplicationManagementException {
+                                                               String tenantDomain)
+            throws IdentityApplicationManagementException {
 
         ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
         List<String> reqClaims = appDAO.getAllRequestedClaimsByServiceProvider(serviceProviderName,
@@ -192,7 +195,8 @@ public class ApplicationInfoProvider {
      * @throws IdentityApplicationManagementException
      */
     public ServiceProvider getServiceProviderByClienId(String clientId, String clientType,
-                                                       String tenantDomain) throws IdentityApplicationManagementException {
+                                                       String tenantDomain) throws IdentityApplicationManagementException
+    {
 
         String clientKey = null;
 

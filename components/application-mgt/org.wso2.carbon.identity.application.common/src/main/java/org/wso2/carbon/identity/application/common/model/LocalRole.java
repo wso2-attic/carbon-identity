@@ -93,11 +93,12 @@ public class LocalRole implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
-
+        }
         LocalRole localRole1 = (LocalRole) o;
 
         if (!localRoleName.equals(localRole1.localRoleName))
