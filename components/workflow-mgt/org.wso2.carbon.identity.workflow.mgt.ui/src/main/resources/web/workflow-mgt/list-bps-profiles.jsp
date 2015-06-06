@@ -8,7 +8,6 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.rmi.RemoteException" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%--
   ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
@@ -48,8 +47,6 @@
         if (bpsProfiles == null) {
             bpsProfiles = new BPSProfileBean[0];
         }
-
-        String forwardTo = null;
         String serviceAlias = null;
         paginationValue = "region=region1&item=workflow_services_list_menu";
 
@@ -71,12 +68,29 @@
         for (int i = startIndex, j = 0; i < endIndex && i < bpsProfiles.length; i++, j++) {
             profilesToDisplay[j] = bpsProfiles[i];
         }
-    } catch (RemoteException e) {
+    } catch (Exception e) {
         String message = resourceBundle.getString("workflow.error.when.listing.services");
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
         forwardTo = "../admin/error.jsp";
     }
 
+%>
+
+<%
+    if (forwardTo != null) {
+%>
+<script type="text/javascript">
+    function forward() {
+        location.href = "<%=forwardTo%>";
+    }
+</script>
+
+<script type="text/javascript">
+    forward();
+</script>
+<%
+        return;
+    }
 %>
 
 <fmt:bundle basename="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources">

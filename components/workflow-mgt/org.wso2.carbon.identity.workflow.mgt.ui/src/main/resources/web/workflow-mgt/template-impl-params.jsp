@@ -22,7 +22,7 @@
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateImplDTO" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateParameter" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateParameterDef" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
@@ -123,19 +123,22 @@
                         <td class="formRow">
                             <table class="normal">
                                 <%
-                                    for (TemplateParameter parameter : templateImplDTO.getImplementationParams()) {
+                                    for (TemplateParameterDef parameter : templateImplDTO.getImplementationParams()) {
                                         String type = "text";
                                         if (WorkflowUIConstants.ParamTypes.BOOLEAN.equals(parameter.getParamType())) {
                                             type = "checkbox";
-                                        } else if (WorkflowUIConstants.ParamTypes.INTEGER.equals(parameter.getParamType())) {
+                                        } else if (WorkflowUIConstants.ParamTypes.INTEGER
+                                                .equals(parameter.getParamType())) {
                                             type = "number";
-                                        } else if (WorkflowUIConstants.ParamTypes.PASSWORD.equals(parameter.getParamType())) {
+                                        } else if (WorkflowUIConstants.ParamTypes.PASSWORD
+                                                .equals(parameter.getParamType())) {
                                             type = "password";
                                         }
 //                            todo:handle 'required' value
                                 %>
                                 <tr>
-                                    <td><%=parameter.getParamName()%></td>
+                                    <td><%=parameter.getParamName()%>
+                                    </td>
                                         <%--Appending 'imp-' to differentiate dynamic params--%>
                                     <td><input name="imp-<%=parameter.getParamName()%>" type="<%=type%>"></td>
                                 </tr>

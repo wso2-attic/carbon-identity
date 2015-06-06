@@ -1,4 +1,3 @@
-
 <%--
   ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
@@ -20,76 +19,10 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
-<%@ page import="org.apache.axis2.AxisFault" %>
-<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
-<%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventDTO" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="java.util.HashMap" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.Map" %>
-<%@ page import="java.util.ResourceBundle" %>
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
-
-<%
-
-    String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
-    ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
-    String forwardTo = null;
-    WorkflowAdminServiceClient client;
-    WorkflowEventDTO[] workflowEvents;
-    Map<String, List<WorkflowEventDTO>> events = new HashMap<String, List<WorkflowEventDTO>>();
-    String[] templateList = null;
-    try {
-        String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
-        String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
-        ConfigurationContext configContext =
-                (ConfigurationContext) config.getServletContext()
-                        .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-        client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
-        workflowEvents = client.listWorkflowEvents();
-        for (WorkflowEventDTO event : workflowEvents) {
-            String category = event.getEventCategory();
-            if (events.containsKey(category)) {
-                events.get(category).add(event);
-            } else {
-                events.put(category, new ArrayList<WorkflowEventDTO>());
-            }
-        }
-        templateList = client.listTemplates();
-        if(templateList == null){
-            templateList = new String[0];
-        }
-    } catch (AxisFault e) {
-        String message = resourceBundle.getString("workflow.error.when.initiating.service.client");
-        CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-        forwardTo = "../admin/error.jsp";
-    }
-%>
-
-<%
-    if (forwardTo != null) {
-%>
-<script type="text/javascript">
-    function forward() {
-        location.href = "<%=forwardTo%>";
-    }
-</script>
-
-<script type="text/javascript">
-    forward();
-</script>
-<%
-        return;
-    }
-%>
 
 <fmt:bundle basename="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources">
     <carbon:breadcrumb
@@ -132,7 +65,8 @@
                                 </tr>
                                 <tr>
                                     <td><fmt:message key='workflow.bps.profile.auth.password'/></td>
-                                    <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>"/></td>
+                                    <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>"/>
+                                    </td>
                                 </tr>
                             </table>
                         </td>

@@ -18,13 +18,19 @@
 
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.util.ResourceBundle" %>
 
 <%
+    String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
+    ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
+
     String profileName = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_BPS_PROFILE_NAME));
     String host = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_BPS_HOST));
     String username = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_USER));
@@ -38,7 +44,13 @@
             (ConfigurationContext) config.getServletContext()
                     .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
     WorkflowAdminServiceClient client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
-    client.addBPSProfile(profileName, host, username, password);
+    try {
+        client.addBPSProfile(profileName, host, username, password);
+    } catch (WorkflowAdminServiceWorkflowException e) {
+        String message = resourceBundle.getString("workflow.error.bps.profile.add");
+        CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+        forwardTo = "../admin/error.jsp";
+    }
 %>
 <script type="text/javascript">
     function forward() {

@@ -32,10 +32,12 @@ import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateBean;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDeploymentDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateImplDTO;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowBean;
 
 import java.rmi.RemoteException;
 
 public class WorkflowAdminServiceClient {
+
     private WorkflowAdminServiceStub stub;
     private static final Log log = LogFactory.getLog(WorkflowAdminServiceClient.class);
 
@@ -58,37 +60,50 @@ public class WorkflowAdminServiceClient {
     }
 
     public EventBean[] listWorkflowEvents() throws RemoteException {
+
         return stub.listWorkflowEvents();
     }
 
     public TemplateBean[] listTemplates() throws RemoteException {
+
         return stub.listWorkflowTemplates();
     }
 
     public TemplateDTO getTemplate(String templateName) throws RemoteException {
+
         return stub.getTemplateDTO(templateName);
     }
 
     public TemplateImplDTO getTemplateImpDTO(String template, String implName) throws RemoteException {
+
         return stub.getTemplateImplDTO(template, implName);
     }
 
     public void deployTemplate(TemplateDeploymentDTO deploymentDTO)
             throws RemoteException, WorkflowAdminServiceWorkflowException {
+
         stub.deployTemplate(deploymentDTO);
     }
 
     public void addBPSProfile(String profileName, String host, String user, String password)
             throws RemoteException, WorkflowAdminServiceWorkflowException {
+
         String[] splittedPw = password.split("(?!^)");
         stub.addBPSProfile(profileName, host, user, splittedPw);
     }
 
     public BPSProfileBean[] listBPSProfiles() throws RemoteException, WorkflowAdminServiceWorkflowException {
+
         return stub.listBPSProfiles();
     }
 
     public void deleteBPSProfile(String profileName) throws RemoteException, WorkflowAdminServiceWorkflowException {
+
         stub.removeBPSProfile(profileName);
+    }
+
+    public WorkflowBean[] listWorkflows() throws RemoteException, WorkflowAdminServiceWorkflowException {
+
+        return stub.listWorkflows();
     }
 }

@@ -18,18 +18,23 @@
 
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.Parameter" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDeploymentDTO" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDeploymentParameter" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
+<%@ page import="java.util.ResourceBundle" %>
 
 <%
+    String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
+    ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
 
     String workflowName = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
     String action = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ACTION));
@@ -52,19 +57,19 @@
         String condition =
                 CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_CONDITION));
         Map<String, String[]> parameterMap = request.getParameterMap();
-        List<TemplateDeploymentParameter> templateParams = new ArrayList<TemplateDeploymentParameter>();
-        List<TemplateDeploymentParameter> templateImplParams = new ArrayList<TemplateDeploymentParameter>();
+        List<Parameter> templateParams = new ArrayList<Parameter>();
+        List<Parameter> templateImplParams = new ArrayList<Parameter>();
         for (Map.Entry<String, String[]> paramEntry : parameterMap.entrySet()) {
 
             if (paramEntry.getKey() != null && paramEntry.getValue().length > 0) {
                 if (paramEntry.getKey().startsWith("p-")) {
-                    TemplateDeploymentParameter parameter = new TemplateDeploymentParameter();
+                    Parameter parameter = new Parameter();
                     parameter.setParamName(paramEntry.getKey().substring(2));   //length of "p-"
                     parameter.setParamValue(paramEntry.getValue()[0]);
                     templateParams.add(parameter);
                 }
                 if (paramEntry.getKey().startsWith("imp-")) {
-                    TemplateDeploymentParameter parameter = new TemplateDeploymentParameter();
+                    Parameter parameter = new Parameter();
                     parameter.setParamName(paramEntry.getKey().substring(4));   //length of "imp-"
                     parameter.setParamValue(paramEntry.getValue()[0]);
                     templateImplParams.add(parameter);
@@ -75,13 +80,19 @@
         deploymentDTO.setWorkflowName(workflowName);
         deploymentDTO.setTemplateName(templateName);
         deploymentDTO.setTemplateImplName(templateImplName);
-        deploymentDTO.setTemplateParameters(
-                templateParams.toArray(new TemplateDeploymentParameter[templateParams.size()]));
+        deploymentDTO.setParameters(
+                templateParams.toArray(new Parameter[templateParams.size()]));
         deploymentDTO.setTemplateImplParameters(templateImplParams.toArray(new
-                TemplateDeploymentParameter[templateImplParams.size()]));
+                Parameter[templateImplParams.size()]));
         deploymentDTO.setCondition(condition);
         deploymentDTO.setAssociatedEvent(operation);
-        client.deployTemplate(deploymentDTO);
+        try {
+            client.deployTemplate(deploymentDTO);
+        } catch (WorkflowAdminServiceWorkflowException e) {
+            String message = resourceBundle.getString("workflow.error.when.adding.workflow");
+            CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+            forwardTo = "../admin/error.jsp";
+        }
 
     }
 %>

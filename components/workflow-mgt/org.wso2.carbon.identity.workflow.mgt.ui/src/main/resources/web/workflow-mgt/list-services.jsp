@@ -31,6 +31,7 @@
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowBean" %>
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
@@ -43,7 +44,7 @@
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     WorkflowAdminServiceClient client;
     String forwardTo = null;
-    ServiceAssociationDTO[] servicesToDisplay = new ServiceAssociationDTO[0];
+    WorkflowBean[] workflowsToDisplay = new WorkflowBean[0];
     String paginationValue = "region=region1&item=workflow_services_list_menu";
 
     String pageNumber = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER));
@@ -62,16 +63,16 @@
                         .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
 
-        ServiceAssociationDTO[] services = client.listServices();
+        WorkflowBean[] workflows = client.listWorkflows();
 
-        numberOfPages = (int) Math.ceil((double) services.length / WorkflowUIConstants.RESULTS_PER_PAGE);
+        numberOfPages = (int) Math.ceil((double) workflows.length / WorkflowUIConstants.RESULTS_PER_PAGE);
 
         int startIndex = pageNumberInt * WorkflowUIConstants.RESULTS_PER_PAGE;
         int endIndex = (pageNumberInt + 1) * WorkflowUIConstants.RESULTS_PER_PAGE;
-        servicesToDisplay = new ServiceAssociationDTO[WorkflowUIConstants.RESULTS_PER_PAGE];
+        workflowsToDisplay = new WorkflowBean[WorkflowUIConstants.RESULTS_PER_PAGE];
 
-        for (int i = startIndex, j = 0; i < endIndex && i < services.length; i++, j++) {
-            servicesToDisplay[j] = services[i];
+        for (int i = startIndex, j = 0; i < endIndex && i < workflows.length; i++, j++) {
+            workflowsToDisplay[j] = workflows[i];
         }
     } catch (WorkflowAdminServiceWorkflowException e) {
         String message = resourceBundle.getString("workflow.error.when.listing.services");
@@ -129,28 +130,28 @@
             <table class="styledLeft" id="servicesTable">
                 <thead>
                 <tr>
-                    <th width="30%"><fmt:message key="service.alias"/></th>
-                    <th width="30%"><fmt:message key="workflow.service.associate.event"/></th>
-                    <th width="15%"><fmt:message key="workflow.service.associate.priority"/></th>
+                    <th width="30%"><fmt:message key="workflow.name"/></th>
+                    <th width="30%"><fmt:message key="workflow.description"/></th>
+                    <th width="15%"><fmt:message key="workflow.template"/></th>
                     <th><fmt:message key="service.actions"/></th>
                 </tr>
                 </thead>
                 <tbody>
                 <%
-                    for (ServiceAssociationDTO service : servicesToDisplay) {
-                        if (service != null) {
+                    for (WorkflowBean workflow : workflowsToDisplay) {
+                        if (workflow != null) {
 
                 %>
                 <tr>
-                    <td><%=service.getServiceAlias()%>
+                    <td><%=workflow.getWorkflowName()%>
                     </td>
-                    <td><%=service.getEvent()%>
+                    <td><%=workflow.getWorkflowDescription()%>
                     </td>
-                    <td><%=service.getPriority()%>
+                    <td><%=workflow.getTemplateName()%>
                     </td>
                     <td>
                         <a title="<fmt:message key='workflow.service.association.delete.title'/>"
-                           onclick="removeAssociation('<%=service.getServiceAlias()%>','<%=service.getEvent()%>');return false;"
+                           onclick="removeAssociation('<%=workflow.getServiceAlias()%>','<%=workflow.getEvent()%>');return false;"
                            href="#" style="background-image: url(images/delete.gif);"
                            class="icon-link"><fmt:message key='delete'/></a>
                     </td>

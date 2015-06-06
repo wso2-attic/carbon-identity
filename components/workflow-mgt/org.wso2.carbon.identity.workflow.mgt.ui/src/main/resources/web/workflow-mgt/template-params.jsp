@@ -3,7 +3,8 @@
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDTO" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateParameter" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateImplDTO" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateParameterDef" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
@@ -103,7 +104,7 @@
                         <td class="formRow">
                             <table class="normal">
                                 <%
-                                    for (TemplateParameter parameter : templateDTO.getParameters()) {
+                                    for (TemplateParameterDef parameter : templateDTO.getParameters()) {
                                         String type = "text";
                                         if (WorkflowUIConstants.ParamTypes.BOOLEAN.equals(parameter.getParamType())) {
                                             type = "checkbox";
@@ -145,9 +146,10 @@
                                     <td>
                                         <select name="<%=WorkflowUIConstants.PARAM_TEMPLATE_IMPL%>">
                                             <%
-                                                for (String impl : templateDTO.getImplementations()) {
+                                                for (TemplateImplDTO impl : templateDTO.getImplementations()) {
                                             %>
-                                            <option value="<%=impl%>"><%=impl%>
+                                            <option value="<%=impl.getImplementationId()%>"><%=impl
+                                                    .getImplementationName()%>
                                             </option>
                                             <%
                                                 }
@@ -160,7 +162,7 @@
                     </tr>
                     <tr>
                         <td class="buttonRow">
-                            <%--todo : implement back--%>
+                                <%--todo : implement back--%>
                             <input class="button" value="<fmt:message key="back"/>" type="button">
                             <input class="button" value="<fmt:message key="next"/>" type="submit"/>
                             <input class="button" value="<fmt:message key="cancel"/>" type="button"

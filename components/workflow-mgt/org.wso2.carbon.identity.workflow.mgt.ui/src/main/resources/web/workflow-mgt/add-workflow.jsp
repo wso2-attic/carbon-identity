@@ -22,7 +22,8 @@
 <%@ page import="org.apache.axis2.AxisFault" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventDTO" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.EventBean" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateBean" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
@@ -44,9 +45,9 @@
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     String forwardTo = null;
     WorkflowAdminServiceClient client;
-    WorkflowEventDTO[] workflowEvents;
-    Map<String, List<WorkflowEventDTO>> events = new HashMap<String, List<WorkflowEventDTO>>();
-    String[] templateList = null;
+    EventBean[] workflowEvents;
+    Map<String, List<EventBean>> events = new HashMap<String, List<EventBean>>();
+    TemplateBean[] templateList = null;
     try {
         String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
         String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
@@ -55,17 +56,17 @@
                         .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
         workflowEvents = client.listWorkflowEvents();
-        for (WorkflowEventDTO event : workflowEvents) {
-            String category = event.getEventCategory();
+        for (EventBean event : workflowEvents) {
+            String category = event.getCategory();
             if (events.containsKey(category)) {
                 events.get(category).add(event);
             } else {
-                events.put(category, new ArrayList<WorkflowEventDTO>());
+                events.put(category, new ArrayList<EventBean>());
             }
         }
         templateList = client.listTemplates();
-        if(templateList == null){
-            templateList = new String[0];
+        if (templateList == null) {
+            templateList = new TemplateBean[0];
         }
     } catch (AxisFault e) {
         String message = resourceBundle.getString("workflow.error.when.initiating.service.client");
@@ -104,15 +105,15 @@
     <script type="text/javascript">
         eventsObj = {};
         <%
-            for (Map.Entry<String,List<WorkflowEventDTO>> eventCategory : events.entrySet()) {
+            for (Map.Entry<String,List<EventBean>> eventCategory : events.entrySet()) {
             %>
         eventsObj["<%=eventCategory.getKey()%>"] = [];
         <%
-            for (WorkflowEventDTO event : eventCategory.getValue()) {
+            for (EventBean event : eventCategory.getValue()) {
                 %>
         var eventObj = {};
-        eventObj.displayName = "<%=event.getEventFriendlyName()%>";
-        eventObj.value = "<%=event.getEventId()%>";
+        eventObj.displayName = "<%=event.getFriendlyName()%>";
+        eventObj.value = "<%=event.getId()%>";
         eventsObj["<%=eventCategory.getKey()%>"].push(eventObj);
         <%
                     }
@@ -156,9 +157,9 @@
                                     <td>
                                         <select name="<%=WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE%>">
                                             <%
-                                                for (String template : templateList) {
+                                                for (TemplateBean template : templateList) {
                                             %>
-                                            <option value="<%=template%>"><%=template%>
+                                            <option value="<%=template.getId()%>"><%=template.getName()%>
                                             </option>
                                             <%
                                                 }

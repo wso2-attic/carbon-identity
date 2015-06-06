@@ -19,63 +19,19 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
-<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
-<%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventDTO" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
-<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.Map" %>
-<%@ page import="java.util.ResourceBundle" %>
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
-    //    String username = CharacterEncoder.getSafeText(request.getParameter("username"));
-
-    String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
-    ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
-    WorkflowAdminServiceClient client;
-    String forwardTo = null;
-    WorkflowEventDTO[] workflowEvents = new WorkflowEventDTO[0];
     String action = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ACTION));
-
-    String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
-    String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
-    ConfigurationContext configContext =
-            (ConfigurationContext) config.getServletContext()
-                    .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-    client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
-
-
     String workflowName = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
     String event =
             CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION));
-    String condition = null;
 %>
-
-<%
-    if (forwardTo != null) {
-%>
-<script type="text/javascript">
-    function forward() {
-        location.href = "<%=forwardTo%>";
-    }
-</script>
-
-<script type="text/javascript">
-    forward();
-</script>
-<%
-        return;
-    }
-%>
-
 
 <fmt:bundle basename="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources">
     <carbon:breadcrumb
@@ -120,9 +76,9 @@
                 <%
                     if (WorkflowUIConstants.ACTION_VALUE_ADD.equals(action)) {
                         String template = CharacterEncoder
-                                        .getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE));
+                                .getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE));
                         String templateImpl = CharacterEncoder
-                                        .getSafeText(request.getParameter(WorkflowUIConstants.PARAM_TEMPLATE_IMPL));
+                                .getSafeText(request.getParameter(WorkflowUIConstants.PARAM_TEMPLATE_IMPL));
                 %>
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE%>" value="<%=template%>">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_TEMPLATE_IMPL%>" value="<%=templateImpl%>">

@@ -24,7 +24,6 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.rmi.RemoteException" %>
 <%@ page import="java.util.ResourceBundle" %>
 
 <%
@@ -49,12 +48,11 @@
             client.deleteBPSProfile(profileName);
             forwardTo = "list-bps-profiles.jsp";
         }
-    } catch (RemoteException e) {
+    } catch (Exception e) {
         String message = resourceBundle.getString("workflow.error.bps.profile.delete");
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
         forwardTo = "../admin/error.jsp";
     }
-
 %>
 <%
     if (forwardTo != null) {

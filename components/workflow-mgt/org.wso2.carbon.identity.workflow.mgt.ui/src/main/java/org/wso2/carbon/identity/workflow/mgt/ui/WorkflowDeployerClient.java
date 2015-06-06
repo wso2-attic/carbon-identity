@@ -46,7 +46,7 @@ public class WorkflowDeployerClient {
         auth.setUsername(username);
         auth.setPassword(new String(password));
         auth.setPreemptiveAuthentication(true);
-        List<String> authSchemes = new ArrayList<String>();
+        List<String> authSchemes = new ArrayList<>();
         authSchemes.add(HttpTransportProperties.Authenticator.BASIC);
         auth.setAuthSchemes(authSchemes);
         options.setProperty(org.apache.axis2.transport.http.HTTPConstants.AUTHENTICATE, auth);
