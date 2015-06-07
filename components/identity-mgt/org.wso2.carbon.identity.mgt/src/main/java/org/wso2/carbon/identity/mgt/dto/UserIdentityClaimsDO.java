@@ -24,6 +24,7 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * This encapsulates the user's data that is related user's login information
@@ -50,6 +51,12 @@ public class UserIdentityClaimsDO implements Serializable {
     private Map<String, String> userIdentityDataMap = new HashMap<String, String>();
     private char[] temporaryPassword = null;
     private String confirmationCode = null;
+
+    // key: timestamp
+    // value: encrypted password
+    private Map<Long, Object> usedPasswordMap = new TreeMap<Long, Object>();
+    private String saltValue;
+    private int passwordUseFrequency;
 
     public UserIdentityClaimsDO(String userName) {
         this.userName = userName;
@@ -264,6 +271,40 @@ public class UserIdentityClaimsDO implements Serializable {
 
     public void setConfirmationCode(String confirmationCode) {
         this.confirmationCode = confirmationCode;
+    }
+
+    public void setUsedPasswordMap(Map<Long, Object> usedPasswordMap) {
+        this.usedPasswordMap = usedPasswordMap;
+    }
+
+    public Map<Long, Object> getUsedPasswordMap() {
+        return usedPasswordMap;
+    }
+
+    public void setSaltValue(String saltValue) {
+        this.saltValue = saltValue;
+    }
+
+    public String getSaltValue() {
+        return saltValue;
+    }
+
+    public int getPasswordUseFrequency() {
+        return passwordUseFrequency;
+    }
+
+    public UserIdentityClaimsDO setPasswordUseFrequency() {
+        this.passwordUseFrequency++;
+        this.userIdentityDataMap.put(UserIdentityDataStore.PASSWORD_USE_FREQUENCY,
+                Long.toString(passwordUseFrequency));
+        return this;
+    }
+
+    public UserIdentityClaimsDO setPasswordUseFrequency(int passwordChangeFrequency) {
+        this.passwordUseFrequency = passwordChangeFrequency;
+        this.userIdentityDataMap.put(UserIdentityDataStore.PASSWORD_USE_FREQUENCY,
+                Long.toString(passwordChangeFrequency));
+        return this;
     }
 
     /**

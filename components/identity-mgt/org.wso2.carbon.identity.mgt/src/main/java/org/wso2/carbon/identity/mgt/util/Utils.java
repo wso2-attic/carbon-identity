@@ -570,4 +570,23 @@ public class Utils {
         return PolicyEngine.getPolicy(new ByteArrayInputStream(policyString.getBytes()));
 
     }
+
+    public static String encryptPassword(String password, String saltValue, IdentityMgtConfig config) throws UserStoreException {
+
+        try {
+            String digestInput = password;
+            if (saltValue != null) {
+                digestInput = password + saltValue;
+            }
+            String digestFunction = config.getEncryptionAlgo();
+
+            MessageDigest dgst = MessageDigest.getInstance(digestFunction);
+            byte[] byteValue = dgst.digest(digestInput.getBytes());
+            password = Base64.encode(byteValue);
+
+            return password;
+        } catch (NoSuchAlgorithmException e) {
+            throw new UserStoreException(e.getMessage(), e);
+        }
+    }
 }

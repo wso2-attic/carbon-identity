@@ -85,6 +85,21 @@ public class IdentityMgtConfig {
      */
     private Pattern propertyPattern = Pattern.compile("(\\.\\d\\.)");
 
+    private int authPolicyLoginAttemptsExpireTime;
+
+    private boolean authPolicyReusePasswordCheck;
+
+    private int passwordReuseFrequency;
+    private int passwordReuseTime;
+
+    private boolean accountPasswordReuseEnable;
+    private String encryptionAlgo;
+
+    private int passwordExpireFrequency;
+    private int passwordExpireTime;
+
+    private boolean accountPasswordExpireEnable;
+
     public IdentityMgtConfig(RealmConfiguration configuration) {
 
         Properties properties = new Properties();
@@ -308,6 +323,93 @@ public class IdentityMgtConfig {
                 }
             }
 
+            String failAttemptsExpireTime = properties.
+                    getProperty(IdentityMgtConstants.PropertyConfig.AUTH_POLICY_ACCOUNT_LOCKING_FAIL_ATTEMPTS_EXPIRE_TIME);
+            if (failAttemptsExpireTime != null) {
+                this.authPolicyLoginAttemptsExpireTime = Integer.valueOf(failAttemptsExpireTime.trim());
+            }
+
+            if (this.authPolicyLoginAttemptsExpireTime == 0) {
+                // default value is set
+                this.authPolicyLoginAttemptsExpireTime = 10;
+            }
+
+            String reusePasswordCheck = properties.
+                    getProperty(IdentityMgtConstants.PropertyConfig.AUTH_POLICY_PASSWORD_REUSE);
+            if (reusePasswordCheck != null) {
+                this.authPolicyReusePasswordCheck = Boolean.parseBoolean(reusePasswordCheck.trim());
+            }
+
+
+            String passwordReuseTime = properties.
+                    getProperty(IdentityMgtConstants.PropertyConfig.PASSWORD_REUSE_TIME);
+            if (passwordReuseTime != null) {
+                this.passwordReuseTime = Integer.valueOf(passwordReuseTime.trim());
+            }
+
+            if (this.passwordReuseTime == 0) {
+                // default value is set
+                this.passwordReuseTime = 30;
+            }
+
+
+            String passwordReuseFrequency = properties.
+                    getProperty(IdentityMgtConstants.PropertyConfig.PASSWORD_REUSE_FREQUENCY);
+            if (passwordReuseFrequency != null) {
+                this.passwordReuseFrequency = Integer.valueOf(passwordReuseFrequency.trim());
+            }
+
+            if (this.passwordReuseFrequency == 0) {
+                // default value is set
+                this.passwordReuseFrequency = 10;
+            }
+
+            String accountPasswordReuseEnable = properties.
+                    getProperty(IdentityMgtConstants.PropertyConfig.ACCOUNT_PASSWORD_REUSE_ENABLE);
+            if (accountPasswordReuseEnable != null) {
+                this.accountPasswordReuseEnable = Boolean.parseBoolean(accountPasswordReuseEnable.trim());
+            }
+
+            String encryptionAlgo = properties.
+                    getProperty(IdentityMgtConstants.PropertyConfig.ENCRYPTION_ALGO);
+            if (encryptionAlgo != null) {
+                this.encryptionAlgo = encryptionAlgo.trim();
+            }
+            else{
+                // default value is set
+                this.encryptionAlgo = "SHA-256";
+            }
+
+            String accountPasswordExpireEnable = properties.
+                    getProperty(IdentityMgtConstants.PropertyConfig.ACCOUNT_PASSWORD_EXPIRE_ENABLE);
+            if (accountPasswordExpireEnable != null) {
+                this.accountPasswordExpireEnable = Boolean.parseBoolean(accountPasswordExpireEnable.trim());
+            }
+
+            String passwordExpireTime = properties.
+                    getProperty(IdentityMgtConstants.PropertyConfig.PASSWORD_EXPIRE_TIME);
+            if (passwordExpireTime != null) {
+                this.passwordExpireTime = Integer.valueOf(passwordExpireTime.trim());
+            }
+
+            if (this.passwordExpireTime == 0) {
+                // default value is set
+                this.passwordExpireTime = 30;
+            }
+
+
+            String passwordExpireFrequency = properties.
+                    getProperty(IdentityMgtConstants.PropertyConfig.PASSWORD_EXPIRE_FREQUENCY);
+            if (passwordExpireFrequency != null) {
+                this.passwordExpireFrequency = Integer.valueOf(passwordExpireFrequency.trim());
+            }
+
+            if (this.passwordExpireFrequency == 0) {
+                // default value is set
+                this.passwordExpireFrequency = 10;
+            }
+
+
             int i = 1;
             while (true) {
                 String module = properties.
@@ -515,6 +617,46 @@ public class IdentityMgtConfig {
 
     public PolicyRegistry getPolicyRegistry() {
         return policyRegistry;
+    }
+
+    public int getAuthPolicyLoginAttemptsExpireTime() {
+        return authPolicyLoginAttemptsExpireTime;
+    }
+
+    public boolean isAuthPolicyReusePasswordCheck() {
+        return authPolicyReusePasswordCheck;
+    }
+
+    public int getPasswordReuseTime() {
+        return passwordReuseTime;
+    }
+
+    public int getPasswordReuseFrequency() {
+        return passwordReuseFrequency;
+    }
+
+    public boolean isAccountPasswordReuseEnable() {
+        return accountPasswordReuseEnable;
+    }
+
+    public String getEncryptionAlgo() {
+        return encryptionAlgo;
+    }
+
+    public void setEncryptionAlgo(String encryptionAlgo) {
+        this.encryptionAlgo = encryptionAlgo;
+    }
+
+    public boolean isAccountPasswordExpireEnable() {
+        return accountPasswordExpireEnable;
+    }
+
+    public int getPasswordExpireTime() {
+        return passwordExpireTime;
+    }
+
+    public int getPasswordExpireFrequency() {
+        return passwordExpireFrequency;
     }
 
     /**
