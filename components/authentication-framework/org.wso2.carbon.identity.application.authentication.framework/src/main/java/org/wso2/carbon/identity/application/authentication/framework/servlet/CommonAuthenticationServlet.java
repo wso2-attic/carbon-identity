@@ -46,7 +46,7 @@ public class CommonAuthenticationServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+        // TODO why and who set this max inactive interval
         if (FrameworkUtils.getMaxInactiveInterval() == 0) {
             FrameworkUtils.setMaxInactiveInterval(request.getSession().getMaxInactiveInterval());
         }
