@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.oauth.callback;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 
 import javax.security.auth.callback.Callback;
@@ -34,7 +35,7 @@ public class DefaultCallbackHandler extends AbstractOAuthCallbackHandler {
 
     @Override
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-        if (callbacks != null && callbacks.length > 0) {
+        if (ArrayUtils.isNotEmpty(callbacks)) {
             OAuthCallback oauthCallback = (OAuthCallback) callbacks[0];
             // TODO : This needs to be implemented in XACML.
             // TODO : For the moment, let's approve everything.

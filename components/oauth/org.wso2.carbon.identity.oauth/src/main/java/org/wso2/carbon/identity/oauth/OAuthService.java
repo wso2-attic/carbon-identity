@@ -153,7 +153,7 @@ public class OAuthService {
                     .authenticate(tenantUser, params.getAuthorizedbyUserPassword());
         } catch (UserStoreException | IdentityException e) {
             log.error(e);
-            throw new IdentityOAuthAdminException(e.getMessage(), e);
+            throw new IdentityOAuthAdminException("Error while authentication", e);
         }
         if (isAuthenticated) {
             OAuthConsumerDAO dao = new OAuthConsumerDAO();
@@ -273,7 +273,7 @@ public class OAuthService {
 
             return resp;
         } catch (IdentityOAuth2Exception | InvalidOAuthClientException e) {
-            throw new IdentityOAuthAdminException(e.getMessage(), e);
+            throw new IdentityOAuthAdminException("Error while retrieving app information", e);
         }
     }
 
@@ -335,7 +335,7 @@ public class OAuthService {
                 returnParams.setScope(params.getScope());
                 return returnParams;
             } catch (IdentityException e) {
-                throw new IdentityOAuthAdminException(e.getMessage(), e);
+                throw new IdentityOAuthAdminException("Error while validating access token", e);
             }
 
         } else {
@@ -392,7 +392,7 @@ public class OAuthService {
                     oauthParams.getHttpMethod(), oauthParameters.getBaseParameters());
             signature = signer.getSignature(baseString, oauthParameters);
         } catch (OAuthException e) {
-            throw new IdentityOAuthAdminException(e.getMessage(), e);
+            throw new IdentityOAuthAdminException("Error while retrieving signature base string", e);
         }
 
         if (signature != null

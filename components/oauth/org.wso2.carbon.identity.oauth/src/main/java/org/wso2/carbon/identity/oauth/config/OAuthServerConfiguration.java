@@ -387,7 +387,7 @@ public class OAuthServerConfiguration {
 
     public SAML2TokenCallbackHandler getSAML2TokenCallbackHandler() {
 
-        if (saml2TokenCallbackHandlerName == null || "".equals(saml2TokenCallbackHandlerName)) {
+        if (StringUtils.isBlank(saml2TokenCallbackHandlerName)) {
             return null;
         }
         if (saml2TokenCallbackHandler == null) {

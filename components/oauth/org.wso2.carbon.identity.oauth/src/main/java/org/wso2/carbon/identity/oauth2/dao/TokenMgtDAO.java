@@ -54,11 +54,9 @@ public class TokenMgtDAO {
 
     private boolean enablePersist = true;
 
-    private static BlockingDeque<AccessContextTokenDO> accessContextTokenQueue
-            = new LinkedBlockingDeque<AccessContextTokenDO>();
+    private static BlockingDeque<AccessContextTokenDO> accessContextTokenQueue = new LinkedBlockingDeque<>();
 
-    private static BlockingDeque<AuthContextTokenDO> authContextTokenQueue
-            = new LinkedBlockingDeque<AuthContextTokenDO>();
+    private static BlockingDeque<AuthContextTokenDO> authContextTokenQueue = new LinkedBlockingDeque<>();
 
     private static final Log log = LogFactory.getLog(TokenMgtDAO.class);
 

@@ -27,7 +27,11 @@ import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.security.auth.callback.Callback;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This is used to maintain the list of OAuthCallback Handlers registered in the system. It handles
@@ -72,9 +76,10 @@ public class OAuthCallbackHandlerRegistry {
         if (!initAuthzHandlers) {
             synchronized (this) {
                 if (!initAuthzHandlers) {
-                    log.debug("initializing the OAuth Authorization Callback Handlers.");
-                    List<OAuthCallbackHandler> oauthAuthzHandlers =
-                            new ArrayList<OAuthCallbackHandler>();
+                    if (log.isDebugEnabled()) {
+                        log.debug("initializing the OAuth Authorization Callback Handlers.");
+                    }
+                    List<OAuthCallbackHandler> oauthAuthzHandlers = new ArrayList<>();
                     Set<OAuthCallbackHandlerMetaData> callbackHandlerMetaData =
                             OAuthServerConfiguration.getInstance().getCallbackHandlerMetaData();
                     // create an object of each OAuthCallbackHandler registered.
@@ -85,39 +90,29 @@ public class OAuthCallbackHandlerRegistry {
                         OAuthCallbackHandler callbackHandler;
 
                         try {
-                            clazz = Thread.currentThread().getContextClassLoader().loadClass(
-                                    metaData.getClassName());
+                            clazz = Thread.currentThread().getContextClassLoader().loadClass(metaData.getClassName());
                             callbackHandler = (OAuthCallbackHandler) clazz.newInstance();
                             callbackHandler.setPriority(metaData.getPriority());
                             callbackHandler.setProperties(metaData.getProperties());
                             oauthAuthzHandlers.add(callbackHandler);
 
                             if (log.isDebugEnabled()) {
-                                log.debug("Instantiated an OAuth Authorization Callback Handler." +
-                                        " Class : " + clazz.getName());
+                                log.debug("Instantiated an OAuth Authorization Callback Handler. Class : " + clazz
+                                        .getName());
                             }
 
                         } catch (ClassNotFoundException e) {
-                            String errorMsg = "Error when loading the OAuthCallbackHandler : "
-                                    + className;
-                            log.error(errorMsg, e);
-                            throw new IdentityOAuth2Exception(errorMsg, e);
-                        } catch (InstantiationException e) {
-                            String errorMsg = "Error when instantiating the OAuthCallbackHandler : "
-                                    + className;
-                            log.error(errorMsg, e);
-                            throw new IdentityOAuth2Exception(errorMsg, e);
-                        } catch (IllegalAccessException e) {
-                            String errorMsg = "Error when instantiating the OAuthCallbackHandler : "
-                                    + className;
-                            log.error(errorMsg, e);
-                            throw new IdentityOAuth2Exception(errorMsg, e);
+                            throw new IdentityOAuth2Exception("Error when loading the OAuthCallbackHandler : " +
+                                    className, e);
+                        } catch (InstantiationException | IllegalAccessException e) {
+                            throw new IdentityOAuth2Exception("Error when instantiating the OAuthCallbackHandler : "
+                                    + className, e);
                         }
                     }
 
                     if (log.isDebugEnabled()) {
-                        log.debug("Finished initializing OAuth Authorization Callback Handlers. " +
-                                "No. of Authz Handlers registered : " + oauthAuthzHandlers.size());
+                        log.debug("Finished initializing OAuth Authorization Callback Handlers. No. of Authz Handlers" +
+                                " registered : " + oauthAuthzHandlers.size());
                     }
 
                     authzCallbackHandlers = oauthAuthzHandlers.toArray(
@@ -145,21 +140,19 @@ public class OAuthCallbackHandlerRegistry {
         for (OAuthCallbackHandler oauthAuthzCbHandler : authzCallbackHandlers) {
             if (oauthAuthzCbHandler.canHandle(new Callback[]{authzCallback})) {
                 if (log.isDebugEnabled()) {
-                    log.debug("OAuthCallbackHandler was found for the callback." +
-                            " Class Name : " + oauthAuthzCbHandler.getClass().getName() +
-                            " Resource Owner : " + authzCallback.getResourceOwner() +
-                            " Client Id : " + authzCallback.getClient() +
-                            " Scope : " + OAuth2Util.buildScopeString(authzCallback.getRequestedScope()));
+                    log.debug("OAuthCallbackHandler was found for the callback. Class Name : " + oauthAuthzCbHandler
+                            .getClass().getName() + " Resource Owner : " + authzCallback.getResourceOwner() + " " +
+                            "Client Id : " + authzCallback.getClient() + " Scope : " + OAuth2Util.buildScopeString
+                            (authzCallback.getRequestedScope()));
                 }
                 return oauthAuthzCbHandler;
             }
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("No OAuthAuthorizationCallbackHandlers were found for the callback." +
-                    " Resource Owner : " + authzCallback.getResourceOwner() +
-                    " Client Id : " + authzCallback.getClient() +
-                    " Scope : " + OAuth2Util.buildScopeString(authzCallback.getRequestedScope()));
+            log.debug("No OAuthAuthorizationCallbackHandlers were found for the callback. Resource Owner : " +
+                    authzCallback.getResourceOwner() + " Client Id : " + authzCallback.getClient() + " Scope : " +
+                    OAuth2Util.buildScopeString(authzCallback.getRequestedScope()));
         }
         return null;
     }
@@ -167,12 +160,10 @@ public class OAuthCallbackHandlerRegistry {
     /**
      * Comparator for OAuthCallbackHandler based on their priority.
      */
-    private class OAuthAuthzCbHandlerComparator
-            implements Comparator<OAuthCallbackHandler> {
+    private class OAuthAuthzCbHandlerComparator implements Comparator<OAuthCallbackHandler> {
 
         @Override
-        public int compare(OAuthCallbackHandler o1,
-                           OAuthCallbackHandler o2) {
+        public int compare(OAuthCallbackHandler o1, OAuthCallbackHandler o2) {
             return o1.getPriority() - o2.getPriority();
         }
     }
