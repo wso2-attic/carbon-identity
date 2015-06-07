@@ -53,7 +53,11 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -225,7 +229,7 @@ public class OAuth2AuthzEndpoint {
                                     , "UTF-8");
                         } catch (UnsupportedEncodingException e) {
                             //this exception should not occur
-                            log.error(e.getMessage(), e);
+                            log.error("Error while encoding the url", e);
                         }
                     }
 
@@ -268,7 +272,7 @@ public class OAuth2AuthzEndpoint {
                 redirectUri = sessionDataCacheEntry.getoAuth2Parameters().getRedirectURI();
             }
             if (log.isDebugEnabled()) {
-                log.debug(e.getMessage(), e);
+                log.debug(e);
             }
             if (StringUtils.isNotEmpty(redirectUri)) {
                 return Response.status(HttpServletResponse.SC_FOUND).location(new URI(EndpointUtil.getErrorPageURL
@@ -542,7 +546,7 @@ public class OAuth2AuthzEndpoint {
                     checkAuthentication, oauthRequest.getScopes(), req.getParameterMap());
         } catch (UnsupportedEncodingException e) {
             if (log.isDebugEnabled()) {
-                log.debug(e.getMessage(), e);
+                log.debug("Error while retrieving the login page url.", e);
             }
             throw new OAuthSystemException("Error when encoding login page URL");
         }

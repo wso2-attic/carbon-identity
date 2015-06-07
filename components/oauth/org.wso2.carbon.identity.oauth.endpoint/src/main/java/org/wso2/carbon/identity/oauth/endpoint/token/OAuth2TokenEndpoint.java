@@ -98,7 +98,7 @@ public class OAuth2TokenEndpoint {
 
                 } catch (OAuthClientException e) {
                     // malformed credential string is considered as an auth failure.
-                    log.error(e.getMessage(), e);
+                    log.error("Error while extracting credentials from authorization header", e);
                     return handleBasicAuthFailure();
                 }
             }
@@ -173,14 +173,6 @@ public class OAuth2TokenEndpoint {
                         .errorResponse(HttpServletResponse.SC_BAD_REQUEST).error(e)
                         .buildJSONMessage();
                 return Response.status(res.getResponseStatus()).entity(res.getBody()).build();
-            } catch (OAuthClientException e) {
-                log.error(e.getMessage(), e);
-                OAuthResponse response = OAuthASResponse
-                        .errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
-                        .setError(OAuth2ErrorCodes.SERVER_ERROR)
-                        .setErrorDescription(e.getMessage()).buildJSONMessage();
-                return Response.status(response.getResponseStatus()).entity(response.getBody())
-                        .build();
             }
 
         } finally {
@@ -199,27 +191,30 @@ public class OAuth2TokenEndpoint {
     }
 
     private void logAccessTokenRequest(HttpServletRequest request) {
-        log.debug("Received a request : " + request.getRequestURI());
-        // log the headers.
-        log.debug("----------logging request headers.----------");
-        Enumeration headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String headerName = (String) headerNames.nextElement();
-            Enumeration headers = request.getHeaders(headerName);
-            while (headers.hasMoreElements()) {
-                log.debug(headerName + " : " + headers.nextElement());
+
+        if (log.isDebugEnabled()){
+            log.debug("Received a request : " + request.getRequestURI());
+            // log the headers.
+            log.debug("----------logging request headers.----------");
+
+            Enumeration headerNames = request.getHeaderNames();
+            while (headerNames.hasMoreElements()) {
+                String headerName = (String) headerNames.nextElement();
+                Enumeration headers = request.getHeaders(headerName);
+                while (headers.hasMoreElements()) {
+                    log.debug(headerName + " : " + headers.nextElement());
+                }
             }
+            // log the parameters.
+            log.debug("----------logging request parameters.----------");
+            log.debug(OAuth.OAUTH_GRANT_TYPE + " - " + request.getParameter(OAuth.OAUTH_GRANT_TYPE));
+            log.debug(OAuth.OAUTH_CLIENT_ID + " - " + request.getParameter(OAuth.OAUTH_CLIENT_ID));
+            log.debug(OAuth.OAUTH_CODE + " - " + request.getParameter(OAuth.OAUTH_CODE));
+            log.debug(OAuth.OAUTH_REDIRECT_URI + " - " + request.getParameter(OAuth.OAUTH_REDIRECT_URI));
         }
-        // log the parameters.
-        log.debug("----------logging request parameters.----------");
-        log.debug(OAuth.OAUTH_GRANT_TYPE + " - " + request.getParameter(OAuth.OAUTH_GRANT_TYPE));
-        log.debug(OAuth.OAUTH_CLIENT_ID + " - " + request.getParameter(OAuth.OAUTH_CLIENT_ID));
-        log.debug(OAuth.OAUTH_CODE + " - " + request.getParameter(OAuth.OAUTH_CODE));
-        log.debug(OAuth.OAUTH_REDIRECT_URI + " - " + request.getParameter(OAuth.OAUTH_REDIRECT_URI));
     }
 
-    private OAuth2AccessTokenRespDTO getAccessToken(CarbonOAuthTokenRequest oauthRequest)
-            throws OAuthClientException {
+    private OAuth2AccessTokenRespDTO getAccessToken(CarbonOAuthTokenRequest oauthRequest) {
 
         OAuth2AccessTokenReqDTO tokenReqDTO = new OAuth2AccessTokenReqDTO();
         String grantType = oauthRequest.getGrantType();

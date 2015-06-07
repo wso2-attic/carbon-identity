@@ -105,7 +105,7 @@ public class OAuthRevocationEndpoint {
                     }
                 } catch (OAuthClientException e) {
                     // malformed credential string is considered as an auth failure.
-                    log.error(e.getMessage(), e);
+                    log.error("Error while extracting credentials from authorization header", e);
                     return handleBasicAuthFailure(callback);
                 }
             }

@@ -49,7 +49,7 @@ public class EndpointUtil {
 
     private static final Log log = LogFactory.getLog(EndpointUtil.class);
 
-    private EndpointUtil(){
+    private EndpointUtil() {
 
     }
 
@@ -167,18 +167,17 @@ public class EndpointUtil {
             errorPageUrl = CarbonUIUtil.getAdminConsoleURL("/") + "../authenticationendpoint/oauth2_error.do";
         }
         try {
-            errorPageUrl += "?" + OAuthConstants.OAUTH_ERROR_CODE + "="
-                    + URLEncoder.encode(errorCode, "UTF-8") + "&" + OAuthConstants.OAUTH_ERROR_MESSAGE + "="
-                    + URLEncoder.encode(errorMessage, "UTF-8");
+            errorPageUrl += "?" + OAuthConstants.OAUTH_ERROR_CODE + "=" + URLEncoder.encode(errorCode, "UTF-8") + "&"
+                    + OAuthConstants.OAUTH_ERROR_MESSAGE + "=" + URLEncoder.encode(errorMessage, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            log.error(e.getMessage(), e);
+            log.error("Error while encoding the error page url", e);
         }
 
         if (appName != null) {
             try {
                 errorPageUrl += "application" + "=" + URLEncoder.encode(appName, "UTF-8");
             } catch (UnsupportedEncodingException e) {
-                log.error(e.getMessage(), e);
+                log.error("Error while encoding the error page url", e);
             }
         }
 
