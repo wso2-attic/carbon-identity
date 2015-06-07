@@ -1,20 +1,20 @@
 /*
-*Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*WSO2 Inc. licenses this file to you under the Apache License,
-*Version 2.0 (the "License"); you may not use this file except
-*in compliance with the License.
-*You may obtain a copy of the License at
-*
-*http://www.apache.org/licenses/LICENSE-2.0
-*
-*Unless required by applicable law or agreed to in writing,
-*software distributed under the License is distributed on an
-*"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*KIND, either express or implied.  See the License for the
-*specific language governing permissions and limitations
-*under the License.
-*/
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.oauth2;
 
@@ -42,7 +42,7 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -80,8 +80,8 @@ public class OAuth2Service extends AbstractAdmin {
                     AuthorizationHandlerManager.getInstance();
             return authzHandlerManager.handleAuthorization(oAuth2AuthorizeReqDTO);
         } catch (Exception e) {
-            log.error("Error occurred when processing the authorization request. " +
-                    "Returning an error back to client.", e);
+            log.error("Error occurred when processing the authorization request. Returning an error back to client.",
+                    e);
             OAuth2AuthorizeRespDTO authorizeRespDTO = new OAuth2AuthorizeRespDTO();
             authorizeRespDTO.setErrorCode(OAuth2ErrorCodes.SERVER_ERROR);
             authorizeRespDTO.setErrorMsg("Error occurred when processing the authorization " +
@@ -104,8 +104,8 @@ public class OAuth2Service extends AbstractAdmin {
                 new OAuth2ClientValidationResponseDTO();
 
         if (log.isDebugEnabled()) {
-            log.debug("Validate Client information request for client_id : " + clientId +
-                    " and callback_uri " + callbackURI);
+            log.debug("Validate Client information request for client_id : " + clientId + " and callback_uri " +
+                    callbackURI);
         }
 
         try {
@@ -114,9 +114,8 @@ public class OAuth2Service extends AbstractAdmin {
 
             if(StringUtils.isEmpty(appDO.getGrantTypes()) || StringUtils.isEmpty(appDO.getCallbackUrl())){
                 if(log.isDebugEnabled()) {
-                    log.debug("Registered App found for the given Client Id : " + clientId +
-                              " ,App Name : " + appDO.getApplicationName() + ", does not support the requested " +
-                              "grant type.");
+                    log.debug("Registered App found for the given Client Id : " + clientId + " ,App Name : " + appDO
+                            .getApplicationName() + ", does not support the requested grant type.");
                 }
                 validationResponseDTO.setValidClient(false);
                 validationResponseDTO.setErrorCode(OAuth2ErrorCodes.UNSUPPORTED_GRANT_TYPE);
@@ -135,9 +134,8 @@ public class OAuth2Service extends AbstractAdmin {
             }
 
             if (log.isDebugEnabled()) {
-                log.debug("Registered App found for the given Client Id : " + clientId +
-                        " ,App Name : " + appDO.getApplicationName() +
-                        ", Callback URL : " + appDO.getCallbackUrl());
+                log.debug("Registered App found for the given Client Id : " + clientId + " ,App Name : " + appDO
+                        .getApplicationName() + ", Callback URL : " + appDO.getCallbackUrl());
             }
 
             // Valid Client with a callback url in the request. Check whether they are equal.
@@ -155,7 +153,7 @@ public class OAuth2Service extends AbstractAdmin {
             }
         } catch (InvalidOAuthClientException e) {
             // There is no such Client ID being registered. So it is a request from an invalid client.
-            log.debug(e.getMessage());
+            log.error(e);
             validationResponseDTO.setValidClient(false);
             validationResponseDTO.setErrorCode(OAuth2ErrorCodes.INVALID_CLIENT);
             validationResponseDTO.setErrorMsg(e.getMessage());
@@ -180,7 +178,7 @@ public class OAuth2Service extends AbstractAdmin {
         if (log.isDebugEnabled()) {
             log.debug("Access Token request received for Client ID " +
                     tokenReqDTO.getClientId() + ", User ID " + tokenReqDTO.getResourceOwnerUsername() +
-                    ", Scope : " + tokenReqDTO.getScope() + " and Grant Type : " + tokenReqDTO.getGrantType());
+                    ", Scope : " + Arrays.toString(tokenReqDTO.getScope()) + " and Grant Type : " + tokenReqDTO.getGrantType());
         }
 
         try {
@@ -190,7 +188,7 @@ public class OAuth2Service extends AbstractAdmin {
             if (log.isDebugEnabled()) {
                 log.debug("Error occurred while issuing access token for Client ID : " +
                         tokenReqDTO.getClientId() + ", User ID: " + tokenReqDTO.getResourceOwnerUsername() +
-                        ", Scope : " + tokenReqDTO.getScope() + " and Grant Type : " + tokenReqDTO.getGrantType(), e);
+                        ", Scope : " + Arrays.toString(tokenReqDTO.getScope()) + " and Grant Type : " + tokenReqDTO.getGrantType(), e);
             }
             OAuth2AccessTokenRespDTO tokenRespDTO = new OAuth2AccessTokenRespDTO();
             tokenRespDTO.setError(true);
@@ -200,7 +198,7 @@ public class OAuth2Service extends AbstractAdmin {
         } catch (Exception e) { // in case of an error, consider it as a system error
             log.error("Error occurred while issuing the access token for Client ID : " +
                     tokenReqDTO.getClientId() + ", User ID " + tokenReqDTO.getResourceOwnerUsername() +
-                    ", Scope : " + tokenReqDTO.getScope() + " and Grant Type : " + tokenReqDTO.getGrantType(), e);
+                    ", Scope : " + Arrays.toString(tokenReqDTO.getScope()) + " and Grant Type : " + tokenReqDTO.getGrantType(), e);
             OAuth2AccessTokenRespDTO tokenRespDTO = new OAuth2AccessTokenRespDTO();
             tokenRespDTO.setError(true);
             tokenRespDTO.setErrorCode(OAuth2ErrorCodes.SERVER_ERROR);
@@ -217,7 +215,6 @@ public class OAuth2Service extends AbstractAdmin {
      */
     public OAuthRevocationResponseDTO revokeTokenByOAuthClient(OAuthRevocationRequestDTO revokeRequestDTO) {
         //fix here remove associated cache entry
-        //  CacheKey cacheKey = new OAuthCacheKey(revokeRequestDTO.getConsumerKey() + ":" + revokeRequestDTO.getAuthzUser().toLowerCase() + ":" + revokeRequestDTO.getToken_type());
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
         OAuthRevocationResponseDTO revokeResponseDTO = new OAuthRevocationResponseDTO();
         try {
@@ -231,7 +228,7 @@ public class OAuth2Service extends AbstractAdmin {
                     return revokeRespDTO;
                 }
                 boolean refreshTokenFirst = false;
-                if (revokeRequestDTO.getToken_type() != null && revokeRequestDTO.equals("refresh_token")) {
+                if (revokeRequestDTO.getToken_type() != null && "refresh_token".equals(revokeRequestDTO.getToken_type())) {
                     refreshTokenFirst = true;
                 }
                 if (refreshTokenFirst) {
@@ -308,13 +305,14 @@ public class OAuth2Service extends AbstractAdmin {
             }
 
         } catch (IdentityException e) {
-            log.error(e.getMessage(), e);
+            log.error(e);
             OAuthRevocationResponseDTO revokeRespDTO = new OAuthRevocationResponseDTO();
             revokeRespDTO.setError(true);
             revokeRespDTO.setErrorCode(OAuth2ErrorCodes.SERVER_ERROR);
             revokeRespDTO.setErrorMsg("Error occurred while revoking authorization grant for applications");
             return revokeRespDTO;
         } catch (InvalidOAuthClientException e) {
+            log.error(e);
             OAuthRevocationResponseDTO revokeRespDTO = new OAuthRevocationResponseDTO();
             revokeRespDTO.setError(true);
             revokeRespDTO.setErrorCode(OAuth2ErrorCodes.UNAUTHORIZED_CLIENT);
@@ -347,7 +345,7 @@ public class OAuth2Service extends AbstractAdmin {
         String username = respDTO.getAuthorizedUser();
         if (username == null) { // invalid token
             log.debug(respDTO.getErrorMsg());
-            return null;
+            return new Claim[0];
         }
         String[] scope = respDTO.getScope();
         boolean isOICScope = false;
@@ -358,7 +356,7 @@ public class OAuth2Service extends AbstractAdmin {
         }
         if (!isOICScope) {
             log.error("AccessToken does not have the openid scope");
-            return null;
+            return new Claim[0];
         }
 
         // TODO : this code is ugly
@@ -385,13 +383,10 @@ public class OAuth2Service extends AbstractAdmin {
                 Map<String, String> extClaimsMap =
                         userStore.getUserClaimValues(username, claims,
                                 profileName);
-                Iterator ite = extClaimsMap.keySet().iterator();
-                int i = 0;
-                while (ite.hasNext()) {
-                    String claimUri = (String) ite.next();
+                for (Map.Entry<String, String> entry : extClaimsMap.entrySet()){
                     Claim curClaim = new Claim();
-                    curClaim.setClaimUri(claimUri);
-                    curClaim.setValue(extClaimsMap.get(curClaim));
+                    curClaim.setClaimUri(entry.getKey());
+                    curClaim.setValue(entry.getValue());
                     claimsList.add(curClaim);
                 }
             }
@@ -452,7 +447,7 @@ public class OAuth2Service extends AbstractAdmin {
 
     private void addRevokeResponseHeaders(OAuthRevocationResponseDTO revokeResponseDTP, String accessToken, String refreshToken, String authorizedUser) {
 
-        ArrayList<ResponseHeader> respHeaders = new ArrayList<ResponseHeader>();
+        List<ResponseHeader> respHeaders = new ArrayList<>();
         ResponseHeader header = new ResponseHeader();
         header.setKey("RevokedAccessToken");
         header.setValue(accessToken);

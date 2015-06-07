@@ -1,26 +1,27 @@
 /*
-*Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*WSO2 Inc. licenses this file to you under the Apache License,
-*Version 2.0 (the "License"); you may not use this file except
-*in compliance with the License.
-*You may obtain a copy of the License at
-*
-*http://www.apache.org/licenses/LICENSE-2.0
-*
-*Unless required by applicable law or agreed to in writing,
-*software distributed under the License is distributed on an
-*"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*KIND, either express or implied.  See the License for the
-*specific language governing permissions and limitations
-*under the License.
-*/
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.oauth2.token.handlers.grant;
 
 import org.apache.amber.oauth2.common.error.OAuthError;
 import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.axiom.util.base64.Base64Utils;
+import org.apache.commons.io.Charsets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.oauth.cache.CacheKey;
@@ -98,11 +99,15 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
                 validationDataDO.getAuthorizedUser(),
                 userStoreDomain, OAuth2Util.buildScopeString(validationDataDO.getScope()), true);
 
-        if(accessTokenDO == null || !refreshToken.equals(accessTokenDO.getRefreshToken())){
-            String message = "Refresh token : " + refreshToken + " is not the latest. Latest refresh token is : " +
-                    accessTokenDO.getRefreshToken();
+        if (accessTokenDO == null){
             if(log.isDebugEnabled()){
-                log.debug(message);
+                log.debug("Error while retrieving the latest refresh token");
+            }
+            return false;
+        }else if(!refreshToken.equals(accessTokenDO.getRefreshToken())){
+            if(log.isDebugEnabled()){
+                log.debug("Refresh token : " + refreshToken + " is not the latest. Latest refresh token is : " +
+                        accessTokenDO.getRefreshToken());
             }
             return false;
         }
@@ -173,10 +178,10 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
             String userName = tokReqMsgCtx.getAuthorizedUser();
             //use ':' for token & userStoreDomain separation
             String accessTokenStrToEncode = accessToken + ":" + userName;
-            accessToken = Base64Utils.encode(accessTokenStrToEncode.getBytes());
+            accessToken = Base64Utils.encode(accessTokenStrToEncode.getBytes(Charsets.UTF_8));
 
             String refreshTokenStrToEncode = refreshToken + ":" + userName;
-            refreshToken = Base64Utils.encode(refreshTokenStrToEncode.getBytes());
+            refreshToken = Base64Utils.encode(refreshTokenStrToEncode.getBytes(Charsets.UTF_8));
 
             //logic to store access token into different tables when multiple user stores are configured.
             if (OAuth2Util.checkAccessTokenPartitioningEnabled()) {
