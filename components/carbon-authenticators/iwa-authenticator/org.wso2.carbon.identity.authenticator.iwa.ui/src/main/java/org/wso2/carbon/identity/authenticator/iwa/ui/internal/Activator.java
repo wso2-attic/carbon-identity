@@ -27,6 +27,7 @@ import org.wso2.carbon.ui.CarbonUIAuthenticator;
 
 import java.util.Hashtable;
 
+
 /**
  * This is one of the first bundles that start in Carbon.
  * <p/>
@@ -37,6 +38,7 @@ public class Activator implements BundleActivator {
 
     private static final Log log = LogFactory.getLog(Activator.class);
 
+    @Override
     public void start(BundleContext bc) throws Exception {
         IWAUIAuthenticator authenticator = new IWAUIAuthenticator();
         Hashtable<String, String> props = new Hashtable<String, String>();
@@ -45,7 +47,9 @@ public class Activator implements BundleActivator {
         log.info("Integrated Windows Authenticator enabled in the system");
     }
 
+    @Override
     public void stop(BundleContext bc) throws Exception {
+        throw new UnsupportedOperationException();
     }
 
 }

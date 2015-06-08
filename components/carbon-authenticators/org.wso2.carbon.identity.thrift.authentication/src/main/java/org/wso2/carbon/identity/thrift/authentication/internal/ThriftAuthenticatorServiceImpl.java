@@ -1,22 +1,21 @@
 /*
-*  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.wso2.carbon.identity.thrift.authentication.internal;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
@@ -45,7 +44,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ThriftAuthenticatorServiceImpl implements ThriftAuthenticatorService {
 
     private static final Log log = LogFactory.getLog(ThriftAuthenticatorServiceImpl.class);
-
     //session timeout in milli seconds
     private static long thriftSessionTimeOut;
     private RealmService realmService;
@@ -55,7 +53,7 @@ public class ThriftAuthenticatorServiceImpl implements ThriftAuthenticatorServic
 
     public ThriftAuthenticatorServiceImpl(RealmService realmService, ThriftSessionDAO thriftSessionDAO, long thriftSessionTimeOut) {
         this.realmService = realmService;
-        ThriftAuthenticatorServiceImpl.thriftSessionTimeOut = thriftSessionTimeOut;
+        setThriftSessionTimeOut(thriftSessionTimeOut);
         this.thriftSessionDAO = thriftSessionDAO.getInstance();
     }
 
@@ -63,17 +61,16 @@ public class ThriftAuthenticatorServiceImpl implements ThriftAuthenticatorServic
         //add to cache
         authenticatedSessions.put(thriftSession.getSessionId(), thriftSession);
         //add to database
-        ThriftSessionDAO thriftSessionDAO = this.thriftSessionDAO.getInstance();
-        thriftSessionDAO.addSession(thriftSession);
+        ThriftSessionDAO sessionDAO = this.thriftSessionDAO.getInstance();
+        sessionDAO.addSession(thriftSession);
     }
 
     private void removeThriftSession(String thriftSessionId) throws IdentityException {
         //remove from cache
-        //thriftSessionCache.remove(thriftSessionId);
         authenticatedSessions.remove(thriftSessionId);
         //remove from db
-        ThriftSessionDAO thriftSessionDAO = this.thriftSessionDAO.getInstance();
-        thriftSessionDAO.removeSession(thriftSessionId);
+        ThriftSessionDAO sessionDAO = this.thriftSessionDAO.getInstance();
+        sessionDAO.removeSession(thriftSessionId);
     }
 
     public String authenticate(String userName, String password) throws AuthenticationException {
@@ -84,7 +81,7 @@ public class ThriftAuthenticatorServiceImpl implements ThriftAuthenticatorServic
 
         if (userName.indexOf("@") > 0) {
             String domainName = userName.substring(userName.indexOf("@") + 1);
-            if (domainName == null || domainName.trim().equals("")) {
+            if (domainName == null || ("").equals(domainName.trim())) {
                 logAndAuthenticationException("Authentication request was missing the domain name of" +
                         " the user");
             }
@@ -99,7 +96,7 @@ public class ThriftAuthenticatorServiceImpl implements ThriftAuthenticatorServic
         try {
             tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
         } catch (UserStoreException e) {
-            logAndAuthenticationException("Tenant domain tenantDomain does not exist");
+            logAndAuthenticationException("Tenant domain tenantDomain does not exist"+e);
         }
         //every thread should has its own populated CC. During the deployment time we assume super tenant
         PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
@@ -122,7 +119,7 @@ public class ThriftAuthenticatorServiceImpl implements ThriftAuthenticatorServic
 
             // Let the engine know if the user is authenticated or not
         } catch (UserStoreException e) {
-            throw new AuthenticationException("User not authenticated for the given username : " + tenantLessUsername);
+            throw new AuthenticationException("User not authenticated for the given username : " + tenantLessUsername+" "+e);
         }
 
         if (log.isDebugEnabled()) {
@@ -182,7 +179,7 @@ public class ThriftAuthenticatorServiceImpl implements ThriftAuthenticatorServic
         }
         //if cache not empty, check if session id existing and valid, if so, update last access time and return it.
         if (!authenticatedSessions.isEmpty()) {
-            ThriftSessionDAO thriftSessionDAO = this.thriftSessionDAO.getInstance();
+            ThriftSessionDAO sessionDAO = this.thriftSessionDAO.getInstance();
             if (authenticatedSessions.containsKey(sessionId)) {
                 ThriftSession thriftSessionInCache = authenticatedSessions.get(sessionId);
                 if (isSessionValid(thriftSessionInCache)) {
@@ -194,7 +191,7 @@ public class ThriftAuthenticatorServiceImpl implements ThriftAuthenticatorServic
                         onSuccessLogin(thriftSessionInCache);
                         //put the thrift session filled with carbon context info
                         authenticatedSessions.put(sessionId, thriftSessionInCache);
-                        thriftSessionDAO.updateLastAccessTime(sessionId, lastAccessTime);
+                        sessionDAO.updateLastAccessTime(sessionId, lastAccessTime);
                     } catch (IdentityException e) {
                         String error = "Error while updating last access time in DB";
                         log.error(error, e);
@@ -206,13 +203,13 @@ public class ThriftAuthenticatorServiceImpl implements ThriftAuthenticatorServic
                 } else {
                     //if not valid in cache, check if valid in db
                     try {
-                        ThriftSession thriftSession = thriftSessionDAO.getSession(sessionId);
+                        ThriftSession thriftSession = sessionDAO.getSession(sessionId);
                         if (isSessionValid(thriftSession)) {
                             //update cache and return true
                             thriftSession.setLastAccess(System.currentTimeMillis());
                             onSuccessLogin(thriftSession);
                             authenticatedSessions.put(thriftSession.getSessionId(), thriftSession);
-                            thriftSessionDAO.updateLastAccessTime(sessionId, thriftSession.getLastAccess());
+                            sessionDAO.updateLastAccessTime(sessionId, thriftSession.getLastAccess());
                             return true;
                         } else {
                             //remove from cache and db and return false
@@ -230,16 +227,16 @@ public class ThriftAuthenticatorServiceImpl implements ThriftAuthenticatorServic
             } else {
                 //if session id not found, check in db as well, if exist in db, populate cache
                 try {
-                    if (thriftSessionDAO.isSessionExisting(sessionId)) {
-                        ThriftSession thriftSession = thriftSessionDAO.getSession(sessionId);
+                    if (sessionDAO.isSessionExisting(sessionId)) {
+                        ThriftSession thriftSession = sessionDAO.getSession(sessionId);
                         if (isSessionValid(thriftSession)) {
                             thriftSession.setLastAccess(System.currentTimeMillis());
                             onSuccessLogin(thriftSession);
                             authenticatedSessions.put(thriftSession.getSessionId(), thriftSession);
-                            thriftSessionDAO.updateLastAccessTime(sessionId, thriftSession.getLastAccess());
+                            sessionDAO.updateLastAccessTime(sessionId, thriftSession.getLastAccess());
                             return true;
                         } else {
-                            thriftSessionDAO.removeSession(sessionId);
+                            sessionDAO.removeSession(sessionId);
                             return false;
                         }
                     }
@@ -265,31 +262,9 @@ public class ThriftAuthenticatorServiceImpl implements ThriftAuthenticatorServic
         throw new AuthenticationException(msg);
     }
 
-    /**
-     * Perform session invalidation to avoid replay attacks.
-     */
-    /*public class SessionInvalidator implements Runnable {
-
-        public void run() {
-            while (true) {
-                try {
-                    for (ThriftSession thriftSession : authenticatedSessions.values()) {
-                        long currentTime = System.currentTimeMillis();
-                        long createdTime = thriftSession.getCreatedAt();
-                        if ((currentTime - createdTime) > 50000) {
-                            authenticatedSessions.remove(thriftSession.getSessionId());
-                        }
-                    }
-                    Thread.sleep(50000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }*/
     private boolean isSessionValid(ThriftSession thriftSession) {
         //check whether the session is expired.
-        return ((System.currentTimeMillis() - thriftSession.getLastAccess()) < thriftSessionTimeOut);
+        return (System.currentTimeMillis() - thriftSession.getLastAccess()) < getThriftSessionTimeOut();
     }
 
     private void populateSessionsFromDB() throws Exception {
@@ -298,22 +273,15 @@ public class ThriftAuthenticatorServiceImpl implements ThriftAuthenticatorServic
             authenticatedSessions.clear();
         }
         //get all sessions from db
-        ThriftSessionDAO thriftSessionDAO = this.thriftSessionDAO.getInstance();
-        List<ThriftSession> thriftSessions = thriftSessionDAO.getAllSessions();
+        ThriftSessionDAO sessionDAO = this.thriftSessionDAO.getInstance();
+        List<ThriftSession> thriftSessions = sessionDAO.getAllSessions();
         //add to cache
-        if (thriftSessions != null && thriftSessions.size() != 0) {
+        if (CollectionUtils.isNotEmpty(thriftSessions)) {
             for (ThriftSession thriftSession : thriftSessions) {
-                //onSuccessLogin(thriftSession);
                 authenticatedSessions.put(thriftSession.getSessionId(), thriftSession);
             }
         }
     }
-
-//
-//    private boolean isSessionExistInDB(String sessionId) throws IdentityException {
-//        ThriftSessionDAO thriftSessionDAO = this.thriftSessionDAO.getInstance();
-//        return thriftSessionDAO.isSessionExisting(sessionId);
-//    }
 
     private void callOnSuccessAdminLogin(ThriftSession session) throws Exception {
         if (realmService != null) {
@@ -338,5 +306,12 @@ public class ThriftAuthenticatorServiceImpl implements ThriftAuthenticatorServic
         }
     }
 
+    public static long getThriftSessionTimeOut() {
+        return thriftSessionTimeOut;
+    }
+
+    public static void setThriftSessionTimeOut(long thriftSessionTimeOut) {
+        ThriftAuthenticatorServiceImpl.thriftSessionTimeOut = thriftSessionTimeOut;
+    }
 
 }
