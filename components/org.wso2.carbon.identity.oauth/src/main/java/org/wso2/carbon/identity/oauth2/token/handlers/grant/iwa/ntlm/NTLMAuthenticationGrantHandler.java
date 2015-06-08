@@ -45,7 +45,7 @@ public class NTLMAuthenticationGrantHandler extends AbstractAuthorizationGrantHa
 
     @Override
     public boolean validateGrant(OAuthTokenReqMessageContext tokReqMsgCtx) throws IdentityOAuth2Exception {
-        super.validateGrant(tokReqMsgCtx);
+        boolean validGrant = super.validateGrant(tokReqMsgCtx);
 
         NegotiateSecurityFilter filter;
 
@@ -127,7 +127,7 @@ public class NTLMAuthenticationGrantHandler extends AbstractAuthorizationGrantHa
             }
             throw new IdentityOAuth2Exception("NTLM token is null");
         }
-        return authenticated;
+        return validGrant && authenticated;
 
     }
 

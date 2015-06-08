@@ -46,7 +46,7 @@ public class PasswordGrantHandler extends AbstractAuthorizationGrantHandler {
     @Override
     public boolean validateGrant(OAuthTokenReqMessageContext tokReqMsgCtx)
             throws IdentityOAuth2Exception {
-        super.validateGrant(tokReqMsgCtx);
+        boolean validGrant = super.validateGrant(tokReqMsgCtx);
 
         OAuth2AccessTokenReqDTO oAuth2AccessTokenReqDTO = tokReqMsgCtx.getOauth2AccessTokenReqDTO();
         String username = oAuth2AccessTokenReqDTO.getResourceOwnerUsername();
@@ -102,6 +102,6 @@ public class PasswordGrantHandler extends AbstractAuthorizationGrantHandler {
             tokReqMsgCtx.setScope(oAuth2AccessTokenReqDTO.getScope());
         }
 
-        return authStatus;
+        return validGrant && authStatus;
     }
 }
