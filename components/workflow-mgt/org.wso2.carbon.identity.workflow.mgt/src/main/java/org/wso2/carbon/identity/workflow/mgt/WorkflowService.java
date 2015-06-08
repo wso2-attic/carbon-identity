@@ -99,6 +99,7 @@ public class WorkflowService {
             implDTO.setImplementationParams(new TemplateParameterDef[0]);
             templateImplDTOs[i] = implDTO;
         }
+        templateDTO.setParameters(template.getParamDefinitions());
         templateDTO.setImplementations(templateImplDTOs);
         return templateDTO;
     }

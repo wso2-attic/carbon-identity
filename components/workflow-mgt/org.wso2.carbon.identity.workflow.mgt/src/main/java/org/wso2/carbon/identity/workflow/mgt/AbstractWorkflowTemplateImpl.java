@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.workflow.mgt;
 
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameterDef;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
@@ -74,4 +75,26 @@ public abstract class AbstractWorkflowTemplateImpl {
 
     public abstract String getImplementationName();
 
+    @Override
+    public boolean equals(Object o) {
+
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        AbstractWorkflowTemplateImpl that = (AbstractWorkflowTemplateImpl) o;
+        return StringUtils.equals(getTemplateId(),that.getTemplateId()) && StringUtils.equals(getImplementationId(),that
+                .getImplementationId());
+
+    }
+
+    @Override
+    public int hashCode() {
+
+        int result = getTemplateId() != null ? getTemplateId().hashCode() : 0;
+        result = 31 * result + (getImplementationId() != null ? getImplementationId().hashCode() : 0);
+        return result;
+    }
 }

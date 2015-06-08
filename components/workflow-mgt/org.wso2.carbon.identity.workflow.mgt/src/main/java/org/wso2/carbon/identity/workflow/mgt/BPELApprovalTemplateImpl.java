@@ -40,6 +40,7 @@ public class BPELApprovalTemplateImpl extends AbstractWorkflowTemplateImpl {
 
     @Override
     public void initializeExecutor(Map<String, Object> initParams) throws WorkflowException {
+        setExecutor(new DefaultBPELExecutor());
         //read profile and add its params
         WorkflowService workflowService = new WorkflowService();
         Map<String, Object> bpelProfileParams = workflowService.getBPSProfileParams(

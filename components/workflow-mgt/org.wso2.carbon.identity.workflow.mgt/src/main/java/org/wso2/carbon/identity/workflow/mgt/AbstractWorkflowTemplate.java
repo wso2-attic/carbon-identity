@@ -35,7 +35,7 @@ public abstract class AbstractWorkflowTemplate {
         implementations = new HashMap<>();
     }
 
-    public void addImplementation(AbstractWorkflowTemplateImpl impl) throws WorkflowException {
+    public void addImplementation(AbstractWorkflowTemplateImpl impl) throws RuntimeWorkflowException {
         //todo: check impl's template
         if (impl != null) {
             if (implementations.containsKey(impl.getImplementationId())) {
@@ -52,6 +52,12 @@ public abstract class AbstractWorkflowTemplate {
 
     public List<AbstractWorkflowTemplateImpl> getImplementations(){
         return new ArrayList<>(implementations.values());
+    }
+
+    public void removeImpl(String implId){
+        if(implementations.containsKey(implId)){
+            implementations.remove(implId);
+        }
     }
 
     public abstract TemplateParameterDef[] getParamDefinitions();

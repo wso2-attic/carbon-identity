@@ -105,16 +105,18 @@
                             <table class="normal">
                                 <%
                                     for (TemplateParameterDef parameter : templateDTO.getParameters()) {
-                                        String type = "text";
-                                        if (WorkflowUIConstants.ParamTypes.BOOLEAN.equals(parameter.getParamType())) {
-                                            type = "checkbox";
-                                        } else if (WorkflowUIConstants.ParamTypes.INTEGER
-                                                .equals(parameter.getParamType())) {
-                                            type = "number";
-                                        } else if (WorkflowUIConstants.ParamTypes.PASSWORD
-                                                .equals(parameter.getParamType())) {
-                                            type = "password";
-                                        }
+                                        if (parameter != null) {
+                                            String type = "text";
+                                            if (WorkflowUIConstants.ParamTypes.BOOLEAN
+                                                    .equals(parameter.getParamType())) {
+                                                type = "checkbox";
+                                            } else if (WorkflowUIConstants.ParamTypes.INTEGER
+                                                    .equals(parameter.getParamType())) {
+                                                type = "number";
+                                            } else if (WorkflowUIConstants.ParamTypes.PASSWORD
+                                                    .equals(parameter.getParamType())) {
+                                                type = "password";
+                                            }
 //                            todo:handle 'required' value
                                 %>
                                 <tr>
@@ -124,6 +126,7 @@
                                     <td><input name="p-<%=parameter.getParamName()%>" type="<%=type%>"></td>
                                 </tr>
                                 <%
+                                        }
                                     }
 
                                 %>

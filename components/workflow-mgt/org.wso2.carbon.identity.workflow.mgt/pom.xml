@@ -84,6 +84,7 @@
                             org.apache.axis2.transport.http,
                             org.apache.commons.lang,
                             org.apache.commons.logging,
+                            org.apache.commons.collections,
                             org.jaxen,
                             org.osgi.framework,
                             org.osgi.service.component,

@@ -25,14 +25,17 @@ import org.osgi.framework.BundleContext;
 import org.wso2.carbon.identity.workflow.mgt.AbstractWorkflowTemplate;
 import org.wso2.carbon.identity.workflow.mgt.AbstractWorkflowTemplateImpl;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class WorkflowServiceDataHolder {
 
@@ -45,71 +48,127 @@ public class WorkflowServiceDataHolder {
 
     private Map<String, WorkflowRequestHandler> workflowRequestHandlers;
     private Map<String, AbstractWorkflowTemplate> templates;
+    private Set<AbstractWorkflowTemplateImpl> unresolvedImpls;
 
     private WorkflowServiceDataHolder() {
+
         workflowRequestHandlers = new HashMap<>();
         templates = new HashMap<>();
+        unresolvedImpls = new HashSet<>();
     }
 
     public ConfigurationContextService getConfigurationContextService() {
+
         return configurationContextService;
     }
 
     public void setConfigurationContextService(
             ConfigurationContextService configurationContextService) {
+
         this.configurationContextService = configurationContextService;
     }
 
     public BundleContext getBundleContext() {
+
         return bundleContext;
     }
 
     public void setBundleContext(BundleContext bundleContext) {
+
         this.bundleContext = bundleContext;
     }
 
     public RealmService getRealmService() {
+
         return realmService;
     }
 
     public void setRealmService(RealmService realmService) {
+
         this.realmService = realmService;
     }
 
     public static WorkflowServiceDataHolder getInstance() {
+
         return instance;
     }
 
     public void addTemplate(AbstractWorkflowTemplate template) {
+
         if (template != null) {
+            for (Iterator<AbstractWorkflowTemplateImpl> iterator = unresolvedImpls.iterator(); iterator.hasNext(); ) {
+                AbstractWorkflowTemplateImpl unresolvedImpl = iterator.next();
+                if (StringUtils.equals(unresolvedImpl.getTemplateId(), template.getTemplateId())) {
+                    try {
+                        template.addImplementation(unresolvedImpl);
+                    } catch (RuntimeWorkflowException e) {
+                        log.error("The workflow template implementation with id:" +
+                                unresolvedImpl.getImplementationId() + " is already registered.");
+                    }
+                    iterator.remove();
+                }
+            }
             templates.put(template.getTemplateId(), template);
         }
     }
 
+    public void removeTemplate(AbstractWorkflowTemplate template) {
+
+        if (template != null && template.getTemplateId() != null && templates.containsKey(template.getTemplateId())) {
+            templates.remove(template.getTemplateId());
+        }
+    }
+
     public void addTemplateImpl(AbstractWorkflowTemplateImpl impl) {
+
         if (impl != null) {
-            String templateId = impl.getImplementationId();
+            String templateId = impl.getTemplateId();
             if (StringUtils.isNotBlank(templateId)) {
                 try {
                     AbstractWorkflowTemplate template = getTemplate(templateId);
                     if (template == null) {
-                        log.error("No such template with id:" + templateId);
+                        unresolvedImpls.add(impl);
+                        log.warn("No such workflow template with id:" + templateId + ". The implementation " + impl
+                                .getImplementationId() + " might not be usable.");
                         return;
                     }
                     template.addImplementation(impl);
-                } catch (WorkflowException e) {
-                    log.error("Error when adding implementation '" + impl.getImplementationId() + "' for " +
-                            "templateId '" + templateId + "'", e);
+                } catch (RuntimeWorkflowException e) {
+                    log.error("The workflow template implementation with id:" + impl.getImplementationId() +
+                            " is already" +
+                            " registered.");
+                }
+            }
+        }
+    }
+
+    public void removeTemplateImpl(AbstractWorkflowTemplateImpl impl) {
+
+        if (impl != null && impl.getTemplateId() != null) {
+            if (templates.containsKey(impl.getTemplateId())) {
+                AbstractWorkflowTemplate workflowTemplate = templates.get(impl.getTemplateId());
+                if (workflowTemplate != null) {
+                    workflowTemplate.removeImpl(impl.getImplementationId());
+                }
+            } else {
+                for (Iterator<AbstractWorkflowTemplateImpl> iterator = unresolvedImpls.iterator();
+                     iterator.hasNext(); ) {
+                    AbstractWorkflowTemplateImpl unresolvedImpl = iterator.next();
+                    if (impl.equals(unresolvedImpl)) {
+                        iterator.remove();
+                    }
                 }
             }
         }
     }
 
     public AbstractWorkflowTemplate getTemplate(String id) {
+
         return templates.get(id);
     }
 
     public AbstractWorkflowTemplateImpl getTemplateImplementation(String templateId, String implId) {
+
         AbstractWorkflowTemplate template = getTemplate(templateId);
         if (template != null) {
             return template.getImplementation(implId);
@@ -118,26 +177,31 @@ public class WorkflowServiceDataHolder {
     }
 
     public void addWorkflowRequestHandler(WorkflowRequestHandler requestHandler) {
+
         if (requestHandler != null) {
             workflowRequestHandlers.put(requestHandler.getEventId(), requestHandler);
         }
     }
 
     public void removeWorkflowRequestHandler(WorkflowRequestHandler requestHandler) {
+
         if (requestHandler != null) {
             workflowRequestHandlers.remove(requestHandler.getEventId());
         }
     }
 
     public WorkflowRequestHandler getRequestHandler(String handlerId) {
+
         return workflowRequestHandlers.get(handlerId);
     }
 
     public List<WorkflowRequestHandler> listRequestHandlers() {
+
         return new ArrayList<>(workflowRequestHandlers.values());
     }
 
-    public List<AbstractWorkflowTemplate> listTemplates(){
+    public List<AbstractWorkflowTemplate> listTemplates() {
+
         return new ArrayList<>(templates.values());
     }
 }
