@@ -44,6 +44,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -252,7 +253,7 @@ public class MutualSSLAuthenticator implements CarbonServerAuthenticator {
                         SOAPHeader header = envelope.getHeader();
 
                         if (header != null) {
-                            ArrayList<SOAPHeaderBlock> headers = header.getHeaderBlocksWithNSURI(MUTUAL_SSL_URL);
+                            List<SOAPHeaderBlock> headers = header.getHeaderBlocksWithNSURI(MUTUAL_SSL_URL);
 
                             if (headers != null) {
                                 for (SOAPHeaderBlock soapHeaderBlock : headers) {
@@ -344,7 +345,7 @@ public class MutualSSLAuthenticator implements CarbonServerAuthenticator {
                     boolean validHeader = false;
 
                     if (header != null) {
-                        ArrayList<SOAPHeaderBlock> headers = header.getHeaderBlocksWithNSURI(MUTUAL_SSL_URL);
+                        List<SOAPHeaderBlock> headers = header.getHeaderBlocksWithNSURI(MUTUAL_SSL_URL);
                         if (headers != null) {
                             for (SOAPHeaderBlock soapHeaderBlock : headers) {
                                 if (usernameHeaderName.equals(soapHeaderBlock.getLocalName())) {

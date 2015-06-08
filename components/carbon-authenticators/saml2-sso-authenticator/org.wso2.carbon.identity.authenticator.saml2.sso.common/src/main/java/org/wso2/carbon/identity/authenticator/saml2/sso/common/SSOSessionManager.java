@@ -26,6 +26,9 @@ import java.util.Map;
  * This class is used to hold the list of authentication requests sent for authentication.
  */
 public class SSOSessionManager {
+    private  SSOSessionManager(){
+
+    }
     private static List<String> relayStateList = new ArrayList<String>();
     private static Map<String, FederatedSSOToken> federatedTokenHolder = new HashMap<String, FederatedSSOToken>();
 

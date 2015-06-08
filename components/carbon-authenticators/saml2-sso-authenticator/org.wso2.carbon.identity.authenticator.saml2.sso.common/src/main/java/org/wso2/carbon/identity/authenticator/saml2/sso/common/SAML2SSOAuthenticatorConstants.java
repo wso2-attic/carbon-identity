@@ -18,6 +18,9 @@
 package org.wso2.carbon.identity.authenticator.saml2.sso.common;
 
 public final class SAML2SSOAuthenticatorConstants {
+    private SAML2SSOAuthenticatorConstants(){
+
+    }
     public static final String AUTHENTICATOR_NAME = "SAML2SSOAuthenticator";
 
     public static final String SAML2_NAME_ID_POLICY_TRANSIENT = "urn:oasis:names:tc:SAML:2.0:nameid-format:transient";
@@ -63,6 +66,9 @@ public final class SAML2SSOAuthenticatorConstants {
     public static final String AUDIT_FAILED = "Failed";
 
     public static final class ErrorMessageConstants {
+        private ErrorMessageConstants(){
+
+        }
         public static final String RESPONSE_NOT_PRESENT = "response.not.present";
         public static final String RESPONSE_INVALID = "response.invalid";
         public static final String RESPONSE_MALFORMED = "response.malformed";

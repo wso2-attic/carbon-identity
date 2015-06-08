@@ -24,5 +24,9 @@ public class PassiveSTSConstants {
     public static final String HTTP_PARAM_PASSIVE_STS_RESULT = "wresult";
     public static final String PASSIVE_STS_URL = "PassiveSTSUrl";
     public static final String REALM_ID = "RealmId";
+    public static final String ERROR_WHILE_INSTANTIATING_SSOAGENT_CREDENTIAL_IMPL_CLASS = "Error while instantiating SSOAgentCredentialImplClass: ";
+    public static final String ERROR_IN_UNMARSHALLING_SAML_REQUEST_FROM_THE_ENCODED_STRING = "Error in unmarshalling SAML Request from the encoded String";
 
+    private PassiveSTSConstants() {
+    }
 }

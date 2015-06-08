@@ -60,7 +60,7 @@ public class IWAAuthenticator extends AbstractAuthenticator {
             RealmService realmService = IWABEDataHolder.getInstance().getRealmService();
 
             String tenantDomain = MultitenantUtils.getTenantDomain(windowsLoggedInUser);
-            windowsLoggedInUser = MultitenantUtils.getTenantAwareUsername(windowsLoggedInUser);
+          String  LoggedInUser = MultitenantUtils.getTenantAwareUsername(windowsLoggedInUser);
 
             tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
 
@@ -68,30 +68,30 @@ public class IWAAuthenticator extends AbstractAuthenticator {
                     realmService, tenantDomain);
 
             try {
-                doAuthentication(windowsLoggedInUser, tenantId,
+                doAuthentication(LoggedInUser, tenantId,
                         MessageContext.getCurrentMessageContext());
 
             } catch (AuthenticationFailureException e) {
-                CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, windowsLoggedInUser,
+                CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, LoggedInUser,
                         tenantId, remoteAddress, "Data");
                 log.error(e.getMessage(), e);
                 return false;
             }
 
             boolean isAuthorized = realm.getAuthorizationManager().isUserAuthorized(
-                    windowsLoggedInUser, "/permission/admin/login",
+                    LoggedInUser, "/permission/admin/login",
                     CarbonConstants.UI_PERMISSION_ACTION);
 
             if (isAuthorized) {
-                CarbonAuthenticationUtil.onSuccessAdminLogin(httpSession, windowsLoggedInUser,
+                CarbonAuthenticationUtil.onSuccessAdminLogin(httpSession, LoggedInUser,
                         tenantId, tenantDomain, remoteAddress);
                 if (log.isDebugEnabled()) {
-                    log.debug(windowsLoggedInUser + " logged in from IP address " + remoteAddress);
+                    log.debug(LoggedInUser + " logged in from IP address " + remoteAddress);
                 }
                 return true;
             } else {
                 CarbonAuthenticationUtil
-                        .onFailedAdminLogin(httpSession, windowsLoggedInUser, tenantId,
+                        .onFailedAdminLogin(httpSession, LoggedInUser, tenantId,
                                 remoteAddress, "User is not authorized to login using delegation");
                 return false;
             }

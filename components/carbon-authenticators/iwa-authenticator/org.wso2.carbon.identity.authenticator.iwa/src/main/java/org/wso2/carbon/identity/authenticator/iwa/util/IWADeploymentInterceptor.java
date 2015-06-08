@@ -39,8 +39,7 @@ public class IWADeploymentInterceptor implements AxisObserver {
             log.error(msg);
         }
 
-        // Create a Rampart Config with default crypto information
-        //Policy rampartConfig = IdentityBaseUtil.getDefaultRampartConfig();
+        // Create a Rampart Config with default crypto information;
         Policy rampartConfig = IdentityBaseUtil.getDefaultRampartConfig();
         // Add the RampartConfig to service policy
         service.getPolicySubject().attachPolicy(rampartConfig);
@@ -50,6 +49,7 @@ public class IWADeploymentInterceptor implements AxisObserver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void serviceUpdate(AxisEvent event, AxisService service) {
         if (event.getEventType() == AxisEvent.SERVICE_DEPLOY
                 && IWA_SERVICE_NAME.equals(service.getName())) {
@@ -66,36 +66,42 @@ public class IWADeploymentInterceptor implements AxisObserver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void init(AxisConfiguration arg0) {
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void moduleUpdate(AxisEvent arg0, AxisModule arg1) {
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void serviceGroupUpdate(AxisEvent event, AxisServiceGroup group) {
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void addParameter(Parameter arg0) throws AxisFault {
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void deserializeParameters(OMElement arg0) throws AxisFault {
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public Parameter getParameter(String arg0) {
         return null;
     }
@@ -117,6 +123,7 @@ public class IWADeploymentInterceptor implements AxisObserver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void removeParameter(Parameter arg0) throws AxisFault {
 
     }

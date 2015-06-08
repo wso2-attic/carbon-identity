@@ -29,6 +29,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class ThriftAuthenticationDatabaseUtil {
+    private ThriftAuthenticationDatabaseUtil(){
+
+    }
 
     private static final Log log = LogFactory.getLog(ThriftAuthenticationDatabaseUtil.class);
 

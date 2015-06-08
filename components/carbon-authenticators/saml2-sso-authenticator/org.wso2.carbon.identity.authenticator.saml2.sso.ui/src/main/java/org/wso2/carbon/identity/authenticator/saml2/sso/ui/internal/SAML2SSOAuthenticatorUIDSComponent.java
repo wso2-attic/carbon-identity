@@ -39,6 +39,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * @scr.component name="saml2.sso.authenticator.ui.dscomponent" immediate="true"
@@ -77,6 +78,7 @@ public class SAML2SSOAuthenticatorUIDSComponent {
                     @Override
                     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
                             throws ServletException, IOException {
+                        throw new UnsupportedOperationException();
 
                     }
                 };
@@ -91,14 +93,6 @@ public class SAML2SSOAuthenticatorUIDSComponent {
                 redirectorParams.put("servlet-attributes", loginPageFilterProps);
                 ctxt.getBundleContext().registerService(Servlet.class.getName(),
                         loginServlet, redirectorParams);
-
-                //Register the SSO Assertion Consumer Service Servlet
-//                HttpServlet acsServlet = new SSOAssertionConsumerService();
-//                Dictionary acsParams = new Hashtable(2);
-//                acsParams.put("url-pattern","/acs");
-//                acsParams.put("display-name", "SAML SSO Assertion Consumer Service");
-//                ctxt.getBundleContext().registerService(Servlet.class.getName(), acsServlet, acsParams);
-
                 // register the UI authenticator
                 SAML2SSOUIAuthenticator authenticator = new SAML2SSOUIAuthenticator();
                 Hashtable<String, String> props = new Hashtable<String, String>();

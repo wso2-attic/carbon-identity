@@ -152,10 +152,8 @@ public class SignedJWTAuthenticator implements CarbonServerAuthenticator {
         HttpServletRequest request =
                 (HttpServletRequest) msgCxt.getProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST);
         String authorizationHeader = request.getHeader(HTTPConstants.HEADER_AUTHORIZATION);
-        if (log.isDebugEnabled()) {
-            if (authorizationHeader != null) {
+        if (log.isDebugEnabled() && (authorizationHeader != null)) {
                 log.debug("Authorization header found in the request");
-            }
         }
         if (authorizationHeader != null) {
             String authType = getAuthType(authorizationHeader);

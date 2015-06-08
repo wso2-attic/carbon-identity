@@ -71,10 +71,37 @@ public class ThriftAuthenticationServiceComponent {
                 getPortFromServerConfig(ThriftAuthenticationConstants.CARBON_CONFIG_PORT_OFFSET_NODE) + 1;
     }
 
-    protected void activate(ComponentContext compCtx) {
-
+    private ThriftSessionDAO loadThriftSessionDAO() {
+        //configure ThriftSessionDAO
+        ThriftSessionDAO thriftSessionDAO;
         try {
+            OMElement thriftSessionDAOElement = ThriftAuthenticationConfigParser.getInstance()
+                    .getConfigElement("ThriftSessionDAO");
+            thriftSessionDAO = ((ThriftSessionDAO) Class.forName(thriftSessionDAOElement.getText()).newInstance()).getInstance();
+        } catch (Throwable throwable) {
+            log.error("Error in loading ThriftSessionDAO hence using default org.wso2.carbon.identity.thrift.authentication.dao.DBThriftSessionDAO, ", throwable);
+            thriftSessionDAO = new DBThriftSessionDAO();
+        }
+        return thriftSessionDAO;
+    }
 
+    private long loadThriftSessionTimeout() {
+        //configure thriftSessionTimeout in ms
+        long thriftSessionTimeout;
+        try {
+            OMElement thriftSessionTimeoutElement = ThriftAuthenticationConfigParser.getInstance()
+                    .getConfigElement("ThriftSessionTimeout");
+            thriftSessionTimeout = Long.parseLong(thriftSessionTimeoutElement.getText());
+        } catch (Throwable throwable) {
+            log.error("Error in loading ThriftSessionTimeout hence using the default: 30min, ", throwable);
+            thriftSessionTimeout = 60000L * 30;
+        }
+        return thriftSessionTimeout;
+    }
+
+
+    protected void activate(ComponentContext compCtx) {
+        try {
             //configure ThriftSessionDAO
             ThriftSessionDAO thriftSessionDAO;
             try {
@@ -84,40 +111,42 @@ public class ThriftAuthenticationServiceComponent {
             } catch (Throwable throwable) {
                 log.error("Error in loading ThriftSessionDAO hence using default org.wso2.carbon.identity.thrift.authentication.dao.DBThriftSessionDAO, ", throwable);
                 thriftSessionDAO = new DBThriftSessionDAO();
-//            thriftSessionDAO = new InMemoryThriftSessionDAO();
             }
-
             //configure thriftSessionTimeout in ms
             long thriftSessionTimeout;
             try {
                 OMElement thriftSessionTimeoutElement = ThriftAuthenticationConfigParser.getInstance()
+
                         .getConfigElement("ThriftSessionTimeout");
+
                 thriftSessionTimeout = Long.parseLong(thriftSessionTimeoutElement.getText());
+
             } catch (Throwable throwable) {
+
                 log.error("Error in loading ThriftSessionTimeout hence using the default: 30min, ", throwable);
+
                 thriftSessionTimeout = 60000 * 30;
+
             }
-
             //get an instance of this to register as an osgi service
+
             ThriftAuthenticatorServiceImpl thriftAuthenticatorServiceImpl =
+
                     new ThriftAuthenticatorServiceImpl(realmServiceInstance, thriftSessionDAO, thriftSessionTimeout);
-
             //register as an osgi service
+
             thriftAuthenticationService = compCtx.getBundleContext().registerService(
+
                     ThriftAuthenticatorService.class.getName(), thriftAuthenticatorServiceImpl, null);
-
             //register AuthenticatorServiceImpl as a thrift service.
-            startThriftServices(thriftAuthenticatorServiceImpl);
 
+            startThriftServices(thriftAuthenticatorServiceImpl);
         } catch (RuntimeException e) {
             log.error("Error in starting Thrift Authentication Service ", e);
         } catch (Throwable e) {
             log.error("Error in starting Thrift Authentication Service ", e);
         }
-
-
         //populate thrift sessions from db, if there is any in the db
-
     }
 
     protected void deactivate(ComponentContext compCtx) {
@@ -178,9 +207,9 @@ public class ThriftAuthenticationServiceComponent {
                     new Hashtable(),
                     httpServiceInstance.createDefaultHttpContext());
         } catch (ServletException e) {
-            log.error("Unable to start Thrift Authenticator Service.");
+            log.error("Unable to start Thrift Authenticator Service." + e);
         } catch (NamespaceException e) {
-            log.error("Unable to start Thrift Authenticator Service");
+            log.error("Unable to start Thrift Authenticator Service" + e);
         }
     }
 
@@ -239,7 +268,7 @@ public class ThriftAuthenticationServiceComponent {
                 clientTimeout = Integer.parseInt(clientTimeoutElement.getText());
             } catch (Throwable e) {
                 String msg = "Error, in Thrift Auth Client Timeout, hence using the default timeout: " + ThriftAuthenticationConstants.DEFAULT_CLIENT_TIMEOUT + "ms";
-                log.error(msg);
+                log.error(msg + e);
                 clientTimeout = ThriftAuthenticationConstants.DEFAULT_CLIENT_TIMEOUT;
             }
         } else {

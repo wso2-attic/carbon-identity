@@ -29,6 +29,7 @@ import org.wso2.carbon.identity.authenticator.signedjwt.SignedJWTAuthenticator;
 import org.wso2.carbon.user.core.service.RealmService;
 
 import java.util.Hashtable;
+import java.util.Map;
 
 
 /**

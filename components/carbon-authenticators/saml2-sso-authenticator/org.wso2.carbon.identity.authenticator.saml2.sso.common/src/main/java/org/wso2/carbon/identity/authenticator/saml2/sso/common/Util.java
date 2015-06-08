@@ -61,6 +61,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * This class contains all the utility methods required by SAML2 SSO Authenticator module.
  */
 public class Util {
+    private  Util(){
+
+    }
 
     private static final char[] charMapping = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
             'k', 'l', 'm', 'n', 'o', 'p'};
@@ -223,7 +226,7 @@ public class Util {
                 keyInfo.getX509Datas().add(data);
                 signature.setKeyInfo(keyInfo);
             } catch (CertificateEncodingException e) {
-                throw new SAML2SSOUIAuthenticatorException("errorGettingCert");
+                throw new SAML2SSOUIAuthenticatorException("errorGettingCert "+e);
             }
 
             authnRequest.setSignature(signature);
@@ -271,7 +274,7 @@ public class Util {
                 keyInfo.getX509Datas().add(data);
                 signature.setKeyInfo(keyInfo);
             } catch (CertificateEncodingException e) {
-                throw new Exception("errorGettingCert");
+                throw new Exception("errorGettingCert "+e);
             }
 
             logoutReq.setSignature(signature);

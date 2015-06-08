@@ -140,13 +140,13 @@ public class ThriftAuthenticationConfigParser {
                 if (currentObject == null) {
                     configuration.put(key, value);
                 } else if (currentObject instanceof ArrayList) {
-                    ArrayList list = (ArrayList) currentObject;
+                    List list = (ArrayList) currentObject;
                     if (!list.contains(value)) {
                         list.add(value);
                     }
                 } else {
                     if (!value.equals(currentObject)) {
-                        ArrayList arrayList = new ArrayList(2);
+                        List arrayList = new ArrayList(2);
                         arrayList.add(currentObject);
                         arrayList.add(value);
                         configuration.put(key, arrayList);
@@ -159,7 +159,7 @@ public class ThriftAuthenticationConfigParser {
     }
 
     private String getKey(Stack<String> nameStack) {
-        StringBuffer key = new StringBuffer();
+        StringBuilder key = new StringBuilder();
         for (int i = 0; i < nameStack.size(); i++) {
             String name = nameStack.elementAt(i);
             key.append(name).append(".");
@@ -190,10 +190,8 @@ public class ThriftAuthenticationConfigParser {
                 text = text.substring(0, indexOfStartingChars) + propValue
                         + text.substring(indexOfClosingBrace + 1);
             }
-            if (sysProp.equals(ServerConstants.CARBON_HOME)) {
-                if (System.getProperty(ServerConstants.CARBON_HOME).equals(".")) {
-                    text = new File(".").getAbsolutePath() + File.separator + text;
-                }
+            if (sysProp.equals(ServerConstants.CARBON_HOME) &&  ".".equals(System.getProperty(ServerConstants.CARBON_HOME)) ) {
+                text = new File(".").getAbsolutePath() + File.separator + text;
             }
         }
         return text;

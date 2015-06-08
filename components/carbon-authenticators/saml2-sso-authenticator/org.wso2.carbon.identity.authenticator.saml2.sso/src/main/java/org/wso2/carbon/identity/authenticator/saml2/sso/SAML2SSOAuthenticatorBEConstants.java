@@ -27,6 +27,9 @@ public class SAML2SSOAuthenticatorBEConstants {
 
 
     public class PropertyConfig {
+        private PropertyConfig(){
+
+        }
         public static final String AUTH_CONFIG_PARAM_IDP_CERT_ALIAS = "IdPCertAlias";
         public static final String RESPONSE_SIGNATURE_VALIDATION_ENABLED = "ResponseSignatureValidationEnabled";
         public static final String VALIDATE_SIGNATURE_WITH_USER_DOMAIN = "VerifySignatureWithUserDomain";
