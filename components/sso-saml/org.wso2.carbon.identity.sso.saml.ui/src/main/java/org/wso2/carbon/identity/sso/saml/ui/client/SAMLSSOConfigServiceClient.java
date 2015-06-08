@@ -102,7 +102,7 @@ public class SAMLSSOConfigServiceClient {
 
     public boolean updateServiceProvider(SAMLSSOServiceProviderDTO serviceProviderDTO) throws
             SAMLSSOConfigServiceClientException {
-        
+
         boolean status;
         try {
             status = stub.updateRPServiceProvider(serviceProviderDTO);
