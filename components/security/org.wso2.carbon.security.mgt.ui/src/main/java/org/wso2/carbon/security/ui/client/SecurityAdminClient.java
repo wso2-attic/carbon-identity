@@ -43,7 +43,7 @@ public class SecurityAdminClient {
             option.setManageSession(true);
             option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in creating SecurityAdminClient", e);
             throw e;
         }
     }
@@ -56,7 +56,7 @@ public class SecurityAdminClient {
             request.setUserGroups(userGroups);
             stub.activateUsernameTokenAuthentication(request);
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in activating username token authentication.", e);
             throw e;
         }
     }
@@ -67,7 +67,7 @@ public class SecurityAdminClient {
             request.setServiceName(serviceName);
             stub.disableSecurityOnService(request);
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in disabling security on service", e);
             throw e;
         }
     }
@@ -83,7 +83,7 @@ public class SecurityAdminClient {
 
             stub.applyKerberosSecurityPolicy(request);
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in applying kerberos security.", e);
             throw e;
         }
     }
@@ -101,7 +101,7 @@ public class SecurityAdminClient {
             request.setUserGroupNames(userGroups);
             stub.applySecurity(request);
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in applying security.", e);
             throw e;
         }
     }
@@ -113,7 +113,7 @@ public class SecurityAdminClient {
             GetScenariosResponse response = stub.getScenarios(request);
             return response.get_return();
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in getting scenarios", e);
             throw e;
         }
     }
@@ -125,7 +125,7 @@ public class SecurityAdminClient {
             GetSecurityScenarioResponse response = stub.getSecurityScenario(request);
             return response.get_return();
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in getting security scenarios", e);
             throw e;
         }
     }
@@ -140,7 +140,7 @@ public class SecurityAdminClient {
             GetSecurityConfigDataResponse response = stub.getSecurityConfigData(request);
             return response.get_return();
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in getting security config data", e);
             throw e;
         }
     }

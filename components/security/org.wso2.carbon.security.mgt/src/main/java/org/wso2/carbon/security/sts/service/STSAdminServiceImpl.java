@@ -1,20 +1,21 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.security.sts.service;
 
 import org.apache.axiom.om.OMElement;
@@ -39,6 +40,7 @@ import org.wso2.carbon.security.sts.service.util.TrustedServiceData;
 import org.wso2.carbon.utils.ServerConstants;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -47,6 +49,7 @@ public class STSAdminServiceImpl extends AbstractAdmin implements STSAdminServic
 
     private static Log log = LogFactory.getLog(STSAdminServiceImpl.class);
 
+    @Override
     public void addTrustedService(String serviceAddress, String certAlias)
             throws SecurityConfigException {
         try {
@@ -74,6 +77,7 @@ public class STSAdminServiceImpl extends AbstractAdmin implements STSAdminServic
         }
     }
 
+    @Override
     public void removeTrustedService(String serviceAddress) throws SecurityConfigException {
         try {
             AxisService stsService = getAxisConfig().getService(ServerConstants.STS_NAME);
@@ -98,6 +102,7 @@ public class STSAdminServiceImpl extends AbstractAdmin implements STSAdminServic
         }
     }
 
+    @Override
     public TrustedServiceData[] getTrustedServices() throws SecurityConfigException {
         try {
             AxisService service = getAxisConfig().getService(ServerConstants.STS_NAME);
@@ -110,7 +115,7 @@ public class STSAdminServiceImpl extends AbstractAdmin implements STSAdminServic
                 Map trustedServicesMap = samlConfig.getTrustedServices();
                 Set addresses = trustedServicesMap.keySet();
 
-                ArrayList serviceBag = new ArrayList();
+                List serviceBag = new ArrayList();
                 for (Iterator iterator = addresses.iterator(); iterator.hasNext(); ) {
                     String address = (String) iterator.next();
                     String alias = (String) trustedServicesMap.get(address);
@@ -129,6 +134,7 @@ public class STSAdminServiceImpl extends AbstractAdmin implements STSAdminServic
         }
     }
 
+    @Override
     public String getProofKeyType() throws SecurityConfigException {
         try {
             AxisService service = getAxisConfig().getService(ServerConstants.STS_NAME);
@@ -149,6 +155,7 @@ public class STSAdminServiceImpl extends AbstractAdmin implements STSAdminServic
         }
     }
 
+    @Override
     public void setProofKeyType(String keyType) throws SecurityConfigException {
         try {
             AxisService service = getAxisConfig().getService(ServerConstants.STS_NAME);
@@ -171,6 +178,7 @@ public class STSAdminServiceImpl extends AbstractAdmin implements STSAdminServic
         }
     }
 
+    @Override
     public String[] getCertAliasOfPrimaryKeyStore() throws SecurityConfigException {
 
         KeyStoreData[] keyStores = getKeyStores();
@@ -255,14 +263,12 @@ public class STSAdminServiceImpl extends AbstractAdmin implements STSAdminServic
             resourcePath = RegistryResources.SERVICE_GROUPS + groupName
                     + RegistryResources.SERVICES + serviceName + "/trustedServices";
             registry = getConfigSystemRegistry(); //TODO: Multitenancy
-            if (registry != null) {
-                if (registry.resourceExists(resourcePath)) {
-                    resource = registry.get(resourcePath);
-                    if (resource.getProperty(trustedService) != null) {
-                        resource.removeProperty(trustedService);
-                    }
-                    registry.put(resourcePath, resource);
+            if (registry != null && registry.resourceExists(resourcePath)) {
+                resource = registry.get(resourcePath);
+                if (resource.getProperty(trustedService) != null) {
+                    resource.removeProperty(trustedService);
                 }
+                registry.put(resourcePath, resource);
             }
         } catch (Exception e) {
             log.error("Error occured while removing trusted service for STS", e);
