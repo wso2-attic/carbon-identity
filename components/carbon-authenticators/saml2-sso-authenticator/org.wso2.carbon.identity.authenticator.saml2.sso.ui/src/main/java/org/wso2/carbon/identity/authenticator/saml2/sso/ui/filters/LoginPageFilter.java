@@ -72,7 +72,7 @@ public class LoginPageFilter implements Filter {
     public void destroy() {
         // This method is not required at the moment
     }
-
+@Override
     public void init(FilterConfig filterConfig) throws ServletException {
         // This method is not required at the moment
     }

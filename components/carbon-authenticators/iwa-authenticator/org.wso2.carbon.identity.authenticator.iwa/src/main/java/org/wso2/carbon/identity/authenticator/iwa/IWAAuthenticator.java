@@ -1,19 +1,17 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.wso2.carbon.identity.authenticator.iwa;
 
@@ -60,7 +58,7 @@ public class IWAAuthenticator extends AbstractAuthenticator {
             RealmService realmService = IWABEDataHolder.getInstance().getRealmService();
 
             String tenantDomain = MultitenantUtils.getTenantDomain(windowsLoggedInUser);
-            windowsLoggedInUser = MultitenantUtils.getTenantAwareUsername(windowsLoggedInUser);
+            String LoggedInUser = MultitenantUtils.getTenantAwareUsername(windowsLoggedInUser);
 
             tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
 
@@ -68,30 +66,30 @@ public class IWAAuthenticator extends AbstractAuthenticator {
                     realmService, tenantDomain);
 
             try {
-                doAuthentication(windowsLoggedInUser, tenantId,
+                doAuthentication(LoggedInUser, tenantId,
                         MessageContext.getCurrentMessageContext());
 
             } catch (AuthenticationFailureException e) {
-                CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, windowsLoggedInUser,
+                CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, LoggedInUser,
                         tenantId, remoteAddress, "Data");
                 log.error(e.getMessage(), e);
                 return false;
             }
 
             boolean isAuthorized = realm.getAuthorizationManager().isUserAuthorized(
-                    windowsLoggedInUser, "/permission/admin/login",
+                    LoggedInUser, "/permission/admin/login",
                     CarbonConstants.UI_PERMISSION_ACTION);
 
             if (isAuthorized) {
-                CarbonAuthenticationUtil.onSuccessAdminLogin(httpSession, windowsLoggedInUser,
+                CarbonAuthenticationUtil.onSuccessAdminLogin(httpSession, LoggedInUser,
                         tenantId, tenantDomain, remoteAddress);
                 if (log.isDebugEnabled()) {
-                    log.debug(windowsLoggedInUser + " logged in from IP address " + remoteAddress);
+                    log.debug(LoggedInUser + " logged in from IP address " + remoteAddress);
                 }
                 return true;
             } else {
                 CarbonAuthenticationUtil
-                        .onFailedAdminLogin(httpSession, windowsLoggedInUser, tenantId,
+                        .onFailedAdminLogin(httpSession, LoggedInUser, tenantId,
                                 remoteAddress, "User is not authorized to login using delegation");
                 return false;
             }

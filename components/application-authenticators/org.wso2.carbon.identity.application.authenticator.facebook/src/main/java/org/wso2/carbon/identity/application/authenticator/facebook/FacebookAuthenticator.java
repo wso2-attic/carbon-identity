@@ -1,19 +1,17 @@
 /*
- * Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.wso2.carbon.identity.application.authenticator.facebook;
@@ -45,6 +43,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -107,10 +106,6 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
         return;
     }
 
-    private String getClientID(Map<String, String> authenticatorProperties, String clientId) {
-        return authenticatorProperties.get(clientId);
-    }
-
     @Override
     protected void processAuthenticationResponse(HttpServletRequest request,
                                                  HttpServletResponse response,
@@ -145,7 +140,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
                     }
                 } else {
                     if (!Arrays.asList(userInfoFields.split(",")).contains(FacebookAuthenticatorConstants
-                                                                                   .DEFAULT_USER_IDENTIFIER)) {
+                            .DEFAULT_USER_IDENTIFIER)) {
                         userInfoFields += ("," + FacebookAuthenticatorConstants.DEFAULT_USER_IDENTIFIER);
                     }
                 }
@@ -172,19 +167,15 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
     private String getToken(String tokenEndPoint, String clientId, String clientSecret,
                             String callbackurl, String code) throws ApplicationAuthenticatorException {
         OAuthClientRequest tokenRequest = null;
-
         String token = null;
-
         try {
             tokenRequest =
                     buidTokenRequest(tokenEndPoint, clientId, clientSecret, callbackurl,
                             code);
-
             token = sendRequest(tokenRequest.getLocationUri());
             if (token.startsWith("{")) {
                 if (log.isDebugEnabled()) {
                     log.debug("Received token: " + token + " for code: " + code);
-
                 }
                 throw new ApplicationAuthenticatorException("Received access token is invalid.");
             }
@@ -195,7 +186,6 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
             throw new ApplicationAuthenticatorException(
                     "MalformedURLException while sending access token request.",
                     e);
-
         } catch (IOException e) {
             throw new ApplicationAuthenticatorException("IOException while sending access token request.", e);
         }
@@ -205,7 +195,6 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
     private OAuthClientRequest buidTokenRequest(
             String tokenEndPoint, String clientId, String clientSecret, String callbackurl, String code)
             throws ApplicationAuthenticatorException {
-
         OAuthClientRequest tokenRequest = null;
         try {
             tokenRequest =
@@ -221,7 +210,6 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
 
     private String getUserInfoString(String fbAuthUserInfoUrl, String userInfoFields, String token)
             throws ApplicationAuthenticatorException {
-
         String userInfoString;
         try {
             if (StringUtils.isBlank(userInfoFields)) {
@@ -321,7 +309,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
         URLConnection urlConnection = new URL(url).openConnection();
         BufferedReader in =
                 new BufferedReader(
-                        new InputStreamReader(urlConnection.getInputStream()));
+                        new InputStreamReader(urlConnection.getInputStream(), Charset.forName("utf-8")));
         StringBuilder b = new StringBuilder();
         String inputLine = in.readLine();
         while (inputLine != null) {

@@ -1,20 +1,18 @@
 /*
-*  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.wso2.carbon.identity.thrift.authentication;
 
 import org.apache.commons.logging.Log;
@@ -54,22 +52,23 @@ public class TCPThriftAuthenticationService {
         this.clientTimeout = clientTimeout;
         this.thriftAuthenticatorService = thriftAuthenticatorService;
     }
+
     public TCPThriftAuthenticationService(String hostName, int port, long thriftSessionTimeOut) throws Exception {
         this.hostName = hostName;
         this.port = port;
-        String keyStore = System.getProperty("Security.KeyStore.Location");
-        if (keyStore == null) {
+        String SecurityKeyStore = System.getProperty("Security.KeyStore.Location");
+        if (SecurityKeyStore == null) {
             throw new Exception("Cannot start agent server, not valid Security.KeyStore.Location is null");
         }
 
-        String keyStorePassword
+        String SecurityKeyStorePassword
                 = System.getProperty("Security.KeyStore.Password");
-        if (keyStorePassword == null) {
+        if (SecurityKeyStorePassword == null) {
             throw new Exception("Cannot start agent server, not valid Security.KeyStore.Password is null ");
         }
 
-        this.keyStore = keyStore;
-        this.keyStorePassword = keyStorePassword;
+        this.keyStore = SecurityKeyStore;
+        this.keyStorePassword = SecurityKeyStorePassword;
         this.clientTimeout = 30000;
 
         this.thriftAuthenticatorService = new ThriftAuthenticatorServiceImpl(null, new InMemoryThriftSessionDAO(), thriftSessionTimeOut);
@@ -93,7 +92,6 @@ public class TCPThriftAuthenticationService {
         authenticationServer = new TThreadPoolServer(
                 new TThreadPoolServer.Args(serverTransport).processor(processor));
         Thread thread = new Thread(new ServerRunnable(authenticationServer));
-//        log.info("Thrift SSL port : " + port);
         log.info("Thrift Authentication Service started at ssl://" + hostName + ":" + port);
         thread.start();
     }
@@ -120,6 +118,7 @@ public class TCPThriftAuthenticationService {
             this.server = server;
         }
 
+        @Override
         public void run() {
             server.serve();
         }

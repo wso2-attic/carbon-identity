@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.wso2.carbon.identity.authenticator.iwa.util;
 
 import org.apache.axiom.om.OMElement;
@@ -39,17 +54,18 @@ public class IWADeploymentInterceptor implements AxisObserver {
             log.error(msg);
         }
 
-        // Create a Rampart Config with default crypto information
-        //Policy rampartConfig = IdentityBaseUtil.getDefaultRampartConfig();
         Policy rampartConfig = IdentityBaseUtil.getDefaultRampartConfig();
         // Add the RampartConfig to service policy
-        service.getPolicySubject().attachPolicy(rampartConfig);
+        if (service != null) {
+            service.getPolicySubject().attachPolicy(rampartConfig);
+        }
 
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void serviceUpdate(AxisEvent event, AxisService service) {
         if (event.getEventType() == AxisEvent.SERVICE_DEPLOY
                 && IWA_SERVICE_NAME.equals(service.getName())) {
@@ -66,36 +82,42 @@ public class IWADeploymentInterceptor implements AxisObserver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void init(AxisConfiguration arg0) {
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void moduleUpdate(AxisEvent arg0, AxisModule arg1) {
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void serviceGroupUpdate(AxisEvent event, AxisServiceGroup group) {
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void addParameter(Parameter arg0) throws AxisFault {
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void deserializeParameters(OMElement arg0) throws AxisFault {
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public Parameter getParameter(String arg0) {
         return null;
     }
@@ -104,7 +126,8 @@ public class IWADeploymentInterceptor implements AxisObserver {
      * {@inheritDoc}
      */
     public ArrayList getParameters() {
-        return null;
+        ArrayList tempList = null;
+        return tempList;
     }
 
     /**
@@ -117,6 +140,7 @@ public class IWADeploymentInterceptor implements AxisObserver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void removeParameter(Parameter arg0) throws AxisFault {
 
     }
