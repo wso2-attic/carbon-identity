@@ -170,14 +170,20 @@ public class EndpointUtil {
             errorPageUrl += "?" + OAuthConstants.OAUTH_ERROR_CODE + "=" + URLEncoder.encode(errorCode, "UTF-8") + "&"
                     + OAuthConstants.OAUTH_ERROR_MESSAGE + "=" + URLEncoder.encode(errorMessage, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            log.error("Error while encoding the error page url", e);
+            //ignore
+            if (log.isDebugEnabled()){
+                log.debug("Error while encoding the error page url", e);
+            }
         }
 
         if (appName != null) {
             try {
                 errorPageUrl += "application" + "=" + URLEncoder.encode(appName, "UTF-8");
             } catch (UnsupportedEncodingException e) {
-                log.error("Error while encoding the error page url", e);
+                //ignore
+                if (log.isDebugEnabled()){
+                    log.debug("Error while encoding the error page url", e);
+                }
             }
         }
 
@@ -313,7 +319,7 @@ public class EndpointUtil {
                 throw new OAuthSystemException("Error while retrieving the application name");
             }
         } catch (UnsupportedEncodingException e) {
-            throw new OAuthSystemException(e.getMessage(), e);
+            throw new OAuthSystemException("Error while encoding the url", e);
         }
 
         return consentPage;

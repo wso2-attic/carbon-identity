@@ -57,6 +57,7 @@ import java.util.Enumeration;
 public class OAuth2TokenEndpoint {
 
     private static final Log log = LogFactory.getLog(OAuth2TokenEndpoint.class);
+    public static final String BEARER = "Bearer";
 
     @POST
     @Path("/")
@@ -140,7 +141,7 @@ public class OAuth2TokenEndpoint {
                             .setAccessToken(oauth2AccessTokenResp.getAccessToken())
                             .setRefreshToken(oauth2AccessTokenResp.getRefreshToken())
                             .setExpiresIn(Long.toString(oauth2AccessTokenResp.getExpiresIn()))
-                            .setTokenType("Bearer");
+                            .setTokenType(BEARER);
                     oAuthRespBuilder.setScope(oauth2AccessTokenResp.getAuthorizedScopes());
 
                     // OpenID Connect ID token
@@ -168,7 +169,7 @@ public class OAuth2TokenEndpoint {
                 }
 
             } catch (OAuthProblemException e) {
-                log.error(e.getError());
+                log.error("Error while creating the Carbon OAuth token request", e);
                 OAuthResponse res = OAuthASResponse
                         .errorResponse(HttpServletResponse.SC_BAD_REQUEST).error(e)
                         .buildJSONMessage();

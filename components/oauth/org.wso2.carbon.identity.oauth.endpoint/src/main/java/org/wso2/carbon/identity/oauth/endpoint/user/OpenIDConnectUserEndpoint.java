@@ -97,7 +97,7 @@ public class OpenIDConnectUserEndpoint {
                             .setError(e.getErrorCode()).setErrorDescription(e.getErrorMessage())
                             .buildJSONMessage();
         } catch (OAuthSystemException e1) {
-            log.error(e1.getMessage(), e1);
+            log.error("Error while building the JSON message", e1);
             OAuthResponse response =
                     OAuthASResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
                             .setError(OAuth2ErrorCodes.SERVER_ERROR)

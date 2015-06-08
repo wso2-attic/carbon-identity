@@ -272,7 +272,7 @@ public class OAuth2AuthzEndpoint {
                 redirectUri = sessionDataCacheEntry.getoAuth2Parameters().getRedirectURI();
             }
             if (log.isDebugEnabled()) {
-                log.debug(e);
+                log.debug("Server error occurred while performing authorization", e);
             }
             if (StringUtils.isNotEmpty(redirectUri)) {
                 return Response.status(HttpServletResponse.SC_FOUND).location(new URI(EndpointUtil.getErrorPageURL
