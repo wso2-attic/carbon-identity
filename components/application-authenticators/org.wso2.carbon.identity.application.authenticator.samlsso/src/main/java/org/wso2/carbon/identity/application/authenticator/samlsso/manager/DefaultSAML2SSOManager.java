@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.application.authenticator.samlsso.manager;
@@ -34,7 +36,6 @@ import org.opensaml.saml2.core.impl.*;
 import org.opensaml.saml2.encryption.Decrypter;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;
-import org.opensaml.xml.encryption.DecryptionException;
 import org.opensaml.xml.encryption.EncryptedKey;
 import org.opensaml.xml.io.*;
 import org.opensaml.xml.security.SecurityHelper;
@@ -130,9 +131,9 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
                 for (String param : params) {
                     String[] values = param.split("=");
                     if (values.length == 2 && SSOConstants.HTTP_POST_PARAM_SAML2_AUTH_REQ.equals(values[0])) {
-                        request.setAttribute(SSOConstants.HTTP_POST_PARAM_SAML2_AUTH_REQ, values[1]);
-                        break;
-                    }
+                            request.setAttribute(SSOConstants.HTTP_POST_PARAM_SAML2_AUTH_REQ, values[1]);
+                            break;
+                        }
                 }
             }
         }
@@ -275,7 +276,10 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
             samlObject = unmarshall(new String(Base64.decode(request.getParameter(
                     SSOConstants.HTTP_POST_PARAM_SAML2_RESP))));
         }
-        if (samlObject instanceof LogoutResponse) {
+        if (samlObject instanceof LogoutRequest) {
+            LogoutRequest logoutRequest = (LogoutRequest) samlObject;
+            String sessionIndex = logoutRequest.getSessionIndexes().get(0).getSessionIndex();
+        } else if (samlObject instanceof LogoutResponse) {
             request.getSession().invalidate();
         } else {
             throw new SAMLSSOException("Invalid Single Logout SAML Request");
@@ -656,7 +660,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
      * @return
      * @throws Exception
      */
-    private Assertion getDecryptedAssertion(EncryptedAssertion encryptedAssertion) throws DecryptionException {
+    private Assertion getDecryptedAssertion(EncryptedAssertion encryptedAssertion) throws Exception {
 
         X509Credential credential = new X509CredentialImpl(tenantDomain, null);
         KeyInfoCredentialResolver keyResolver = new StaticKeyInfoCredentialResolver(credential);

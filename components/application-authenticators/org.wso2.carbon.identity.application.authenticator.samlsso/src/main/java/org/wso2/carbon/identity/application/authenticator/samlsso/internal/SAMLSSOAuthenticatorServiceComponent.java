@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.application.authenticator.samlsso.internal;
@@ -59,25 +61,28 @@ public class SAMLSSOAuthenticatorServiceComponent {
     }
 
     protected void activate(ComponentContext ctxt) {
-
-        SAMLSSOAuthenticator samlSSOAuthenticator = new SAMLSSOAuthenticator();
-        ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(), samlSSOAuthenticator, null);
-
         try {
+            SAMLSSOAuthenticator samlSSOAuthenticator = new SAMLSSOAuthenticator();
+            ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(), samlSSOAuthenticator, null);
             String postPagePath = CarbonUtils.getCarbonHome() + File.separator + "repository"
                     + File.separator + "resources" + File.separator + "security" + File.separator
                     + "samlsso_federate.html";
             FileInputStream fis = new FileInputStream(new File(postPagePath));
             postPage = new Scanner(fis, "UTF-8").useDelimiter("\\A").next();
+            if (log.isDebugEnabled()) {
+                log.info("SAML2 SSO Authenticator bundle is activated");
+            }
         } catch (FileNotFoundException e) {
             if (log.isDebugEnabled()) {
                 log.debug("Failed to find SAMLSSO POST page for federation" + e);
             }
+        } catch (Throwable e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Failed SAMLSSO authentication" + e);
+            }
         }
 
-        if (log.isDebugEnabled()) {
-            log.info("SAML2 SSO Authenticator bundle is activated");
-        }
+
     }
 
     protected void deactivate(ComponentContext context) {
