@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.um.ws.service;
@@ -32,9 +34,15 @@ import org.wso2.carbon.user.mgt.common.ClaimValue;
 
 import java.util.*;
 
+
 public class UserStoreManagerService extends AbstractAdmin {
 
     private static final Log log = LogFactory.getLog(UserStoreManagerService.class.getClass());
+    private static final String AUTH_FAIL = "Unauthorized attempt to execute super tenant operation by tenant domain " +
+            "- ";
+    private static final String NULL_REALM_MESSAGE = "UserRealm is null";
+    private static final String EMPTY = "";
+
 
     public void addUser(String userName, String credential, String[] roleList, ClaimValue[] claims,
                         String profileName, boolean requirePasswordChange) throws UserStoreException {
@@ -170,7 +178,7 @@ public class UserStoreManagerService extends AbstractAdmin {
             return getUserStoreManager().getTenantId(username);
         } else {
             StringBuilder stringBuilder
-                    = new StringBuilder("Unauthorized attempt to execute super tenant operation by tenant domain - ");
+                    = new StringBuilder(AUTH_FAIL);
             stringBuilder.append(CarbonContext.getThreadLocalCarbonContext().getTenantDomain()).append(" tenant id - ")
                     .append(CarbonContext.getThreadLocalCarbonContext().getTenantId()).append(" user - ")
                     .append(CarbonContext.getThreadLocalCarbonContext().getUsername());
@@ -216,14 +224,15 @@ public class UserStoreManagerService extends AbstractAdmin {
 
     }
 
+
     public void addUserClaimValue(String userName, String claimURI, String claimValue, String profileName)
             throws UserStoreException {
 
         String existingClaimValue = getUserStoreManager().getUserClaimValue(userName, claimURI, profileName);
         if (existingClaimValue == null) {
-            existingClaimValue = "";
+            existingClaimValue = EMPTY;
         }
-        if (claimValue != null && !"".equals(claimValue) && !"".equals(existingClaimValue)) {
+        if (claimValue != null && !EMPTY.equals(claimValue) && !EMPTY.equals(existingClaimValue)) {
             claimValue = existingClaimValue + "," + claimValue;
 
         }
@@ -240,6 +249,7 @@ public class UserStoreManagerService extends AbstractAdmin {
         getUserStoreManager().updateRoleName(roleName, newRoleName);
     }
 
+
     public void updateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers)
             throws UserStoreException {
         getUserStoreManager().updateUserListOfRole(roleName, deletedUsers, newUsers);
@@ -249,7 +259,7 @@ public class UserStoreManagerService extends AbstractAdmin {
         try {
             UserRealm realm = super.getUserRealm();
             if (realm == null) {
-                throw new UserStoreException("UserRealm is null");
+                throw new UserStoreException(NULL_REALM_MESSAGE);
             }
             return realm.getUserStoreManager();
         } catch (Exception e) {
@@ -258,7 +268,7 @@ public class UserStoreManagerService extends AbstractAdmin {
     }
 
     private Map<String, String> convertClaimValueToMap(ClaimValue[] values) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         for (ClaimValue claimValue : values) {
             map.put(claimValue.getClaimURI(), claimValue.getValue());
         }
@@ -314,7 +324,7 @@ public class UserStoreManagerService extends AbstractAdmin {
 
         if (!Util.isSuperTenant()) {
             StringBuilder stringBuilder
-                    = new StringBuilder("Unauthorized attempt to execute super tenant operation by tenant domain - ");
+                    = new StringBuilder(AUTH_FAIL);
             stringBuilder.append(CarbonContext.getThreadLocalCarbonContext().getTenantDomain()).append(" tenant id - ")
                     .append(CarbonContext.getThreadLocalCarbonContext().getTenantId()).append(" user - ")
                     .append(CarbonContext.getThreadLocalCarbonContext().getUsername());

@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2007, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.um.ws.api;
@@ -50,9 +52,14 @@ public class WSRealm implements UserRealm {
     private int tenantId = -1;
     private RemoteUserRealmServiceStub stub = null;
 
-    public WSRealm() {
+    private static final String REALM_SERVICE_NAME = "RemoteUserRealmService";
+    private static final String CONNECTION_ERROR_MESSAGE = "Error while establishing web service connection ";
+    private static final String REALM_CREATION_ERROR_MESSAGE = "Cannot create session for WSRealm";
+    private static final String CONFIG_RETREIVAL_ERROR_MESSAGE = "Error getting realm config";
+    private static final String DEFAULT_LOCAL_IP = "127.0.0.1";
+    private static final String LOGIN_ERROR_MESSAGE = "Error logging in ";
+    private static final String UNSUPPORTED_MESSAGE = "Not implemented";
 
-    }
 
     /**
      * Initialize WSRealm by Carbon
@@ -102,7 +109,7 @@ public class WSRealm implements UserRealm {
         }
 
         if (UserMgtWSAPIDataHolder.getInstance().getSessionCookie() == null) {
-            throw new UserStoreException("Cannot create session for WSRealm");
+            throw new UserStoreException(REALM_CREATION_ERROR_MESSAGE);
         }
 
         init((String) realmConfig.getRealmProperty(WSRemoteUserMgtConstants.SERVER_URL),
@@ -116,7 +123,7 @@ public class WSRealm implements UserRealm {
             throws UserStoreException {
         try {
 
-            stub = new RemoteUserRealmServiceStub(configCtxt, url + "RemoteUserRealmService");
+            stub = new RemoteUserRealmServiceStub(configCtxt, url + REALM_SERVICE_NAME);
 
             ServiceClient client = stub._getServiceClient();
             Options option = client.getOptions();
@@ -126,7 +133,7 @@ public class WSRealm implements UserRealm {
                             .getSessionCookie());
         } catch (AxisFault e) {
             if (log.isDebugEnabled()) {
-                log.debug("Error while establishing web service connection : ", e);
+                log.debug(CONNECTION_ERROR_MESSAGE, e);
             }
             throw new UserStoreException();
         }
@@ -164,13 +171,13 @@ public class WSRealm implements UserRealm {
             return WSRealmUtil.convertToRealmConfiguration(realmConfigurationDTO);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            throw new UserStoreException("Error getting realm config", e);
+            throw new UserStoreException(CONFIG_RETREIVAL_ERROR_MESSAGE, e);
         }
     }
 
     @Override
     public void cleanUp() throws UserStoreException {
-        throw new UserStoreException(new UnsupportedOperationException("Not implemented"));
+        throw new UserStoreException(new UnsupportedOperationException(UNSUPPORTED_MESSAGE));
     }
 
     public void login() throws UserStoreException {
@@ -182,12 +189,12 @@ public class WSRealm implements UserRealm {
             AuthenticationAdminClient client = new AuthenticationAdminClient(configContext,
                     realmConfig.getRealmProperty(WSRemoteUserMgtConstants.SERVER_URL),
                     UserMgtWSAPIDataHolder.getInstance().getSessionCookie(), null, false);
-            boolean isLogin = client.login(userName, password, "127.0.0.1"); // TODO make this configurable
+            boolean isLogin = client.login(userName, password, DEFAULT_LOCAL_IP);
             if (isLogin) {
                 UserMgtWSAPIDataHolder.getInstance().setSessionCookie(client.getAdminCookie());
             }
         } catch (Exception e) {
-            throw new UserStoreException("Error" + e.getMessage(), e);
+            throw new UserStoreException(LOGIN_ERROR_MESSAGE + e.getMessage(), e);
         }
     }
 

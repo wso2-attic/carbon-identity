@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.um.ws.api;
@@ -36,6 +38,7 @@ import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.tenant.Tenant;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -43,13 +46,15 @@ public class WSUserStoreManager implements UserStoreManager {
 
     private static final Log log = LogFactory.getLog(WSUserStoreManager.class);
     private RemoteUserStoreManagerServiceStub stub = null;
-    private String unsupportedPasswordMessage="Unsupported type of password";
+
+    private static final String UNSUPPORTED_PASSWORD_MESSAGE = "Unsupported type of password";
+    private static final String SERVICE_NAME = "RemoteUserStoreManagerService";
 
     public WSUserStoreManager(String serverUrl, String cookie, ConfigurationContext configCtxt)
             throws UserStoreException {
         try {
             stub = new RemoteUserStoreManagerServiceStub(configCtxt, serverUrl
-                    + "RemoteUserStoreManagerService");
+                    + SERVICE_NAME);
             ServiceClient client = stub._getServiceClient();
             Options option = client.getOptions();
             option.setManageSession(true);
@@ -68,7 +73,7 @@ public class WSUserStoreManager implements UserStoreManager {
             }
 
             stub = new RemoteUserStoreManagerServiceStub(configCtxt, serverUrl
-                    + "RemoteUserStoreManagerService");
+                    + SERVICE_NAME);
 
             HttpTransportProperties.Authenticator authenticator = new HttpTransportProperties.Authenticator();
             authenticator.setUsername(userName);
@@ -91,7 +96,7 @@ public class WSUserStoreManager implements UserStoreManager {
             throws UserStoreException {
         try {
             if (!(credential instanceof String)) {
-                throw new UserStoreException(unsupportedPasswordMessage);
+                throw new UserStoreException(UNSUPPORTED_PASSWORD_MESSAGE);
             }
             String password = (String) credential;
             ClaimValue[] claimValues = WSRealmUtil.convertMapToClaimValue(claims);
@@ -116,7 +121,7 @@ public class WSUserStoreManager implements UserStoreManager {
     public void addUser(String userName, Object credential, String[] roleList,
                         Map<String, String> claims, String profileName) throws UserStoreException {
         if (!(credential instanceof String)) {
-            throw new UserStoreException(unsupportedPasswordMessage);
+            throw new UserStoreException(UNSUPPORTED_PASSWORD_MESSAGE);
         }
         try {
             stub.addUser(userName, (String) credential, roleList,
@@ -130,7 +135,7 @@ public class WSUserStoreManager implements UserStoreManager {
     @Override
     public boolean authenticate(String userName, Object credential) throws UserStoreException {
         if (!(credential instanceof String)) {
-            throw new UserStoreException(unsupportedPasswordMessage);
+            throw new UserStoreException(UNSUPPORTED_PASSWORD_MESSAGE);
         }
         try {
             return stub.authenticate(userName, (String) credential);
@@ -419,7 +424,7 @@ public class WSUserStoreManager implements UserStoreManager {
     public void updateCredential(String userName, Object newCredential, Object oldCredential)
             throws UserStoreException {
         if (!(newCredential instanceof String) || !(oldCredential instanceof String)) {
-            throw new UserStoreException(unsupportedPasswordMessage);
+            throw new UserStoreException(UNSUPPORTED_PASSWORD_MESSAGE);
         }
         try {
             stub.updateCredential(userName, (String) newCredential, (String) oldCredential);
@@ -432,7 +437,7 @@ public class WSUserStoreManager implements UserStoreManager {
     public void updateCredentialByAdmin(String userName, Object newCredential)
             throws UserStoreException {
         if (!(newCredential instanceof String)) {
-            throw new UserStoreException(unsupportedPasswordMessage);
+            throw new UserStoreException(UNSUPPORTED_PASSWORD_MESSAGE);
         }
 
         try {
@@ -505,8 +510,7 @@ public class WSUserStoreManager implements UserStoreManager {
 
     @Override
     public Map<String, String> getProperties(Tenant tenant) throws UserStoreException {
-        // TODO Auto-generated method stub
-        return null;
+        return new HashMap<>();
     }
 
     @Override
@@ -539,14 +543,12 @@ public class WSUserStoreManager implements UserStoreManager {
     @Override
     public void addRememberMe(String userName, String token)
             throws org.wso2.carbon.user.api.UserStoreException {
-        // TODO Auto-generated method stub
-
+        return;
     }
 
     @Override
     public boolean isValidRememberMeToken(String userName, String token)
             throws org.wso2.carbon.user.api.UserStoreException {
-        // TODO Auto-generated method stub
         return false;
     }
 
@@ -562,7 +564,6 @@ public class WSUserStoreManager implements UserStoreManager {
 
     @Override
     public boolean isBulkImportSupported() throws UserStoreException {
-        // TODO Auto-generated method stub
         return false;
     }
 

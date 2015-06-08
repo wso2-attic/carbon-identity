@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.um.ws.api;
@@ -38,6 +40,9 @@ import java.util.TimerTask;
 public class WSRealmTenantManager implements TenantManager {
 
     private static final Log log = LogFactory.getLog(AnonymousSessionUtil.class);
+    private static final String SERVICE_NAME = "RemoteTenantManagerService";
+    private static final String AXIS_FAULT_MESSAGE = "Axis fault occured  ";
+    private static final String SERVER_LOGIN_ERROR = "WSRealmTenantManager cannot login to server";
 
     private RemoteTenantManagerServiceStub stub;
     private String userName = null;
@@ -227,23 +232,23 @@ public class WSRealmTenantManager implements TenantManager {
             try {
                 stub = new RemoteTenantManagerServiceStub(UserMgtWSAPIDSComponent
                         .getCcServiceInstance().getClientConfigContext(), url
-                        + "RemoteTenantManagerService");
+                        + SERVICE_NAME);
+                ServiceClient client = stub._getServiceClient();
+                Options option = client.getOptions();
+                option.setManageSession(true);
+                LoginSender sender = new LoginSender();
+                String sessionCookie = sender.login();
+                if (sessionCookie == null) {
+                    throw new UserStoreException(SERVER_LOGIN_ERROR);
+                }
+                option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING,
+                        sessionCookie);
             } catch (AxisFault axisFault) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Axis fault occured : ", axisFault);
+                    log.debug(AXIS_FAULT_MESSAGE, axisFault);
                 }
             }
-            ServiceClient client = stub._getServiceClient();
-            Options option = client.getOptions();
-            option.setManageSession(true);
-            LoginSender sender = new LoginSender();
-            String sessionCookie = sender.login();
-            if (sessionCookie == null) {
-                log.error("WSRealmTenantManager cannot login to server");
-                throw new UserStoreException("WSRealmTenantManager cannot login to server");
-            }
-            option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING,
-                    sessionCookie);
+
 
         }
         return stub;
@@ -261,7 +266,8 @@ public class WSRealmTenantManager implements TenantManager {
     private class LoginSender extends TimerTask {
 
 
-        private static final String errorMessage = "Error login in tenant manager";
+        private static final String ERROR_MESSAGE = "Logging in to Tenant Manager";
+        private static final String DEFAULT_LOCALHOST = "127.0.0.1";
 
         @Override
         public void run() {
@@ -275,7 +281,7 @@ public class WSRealmTenantManager implements TenantManager {
                             sessionCookie);
                 }
             } catch (UserStoreException e) {
-                log.error(errorMessage, e);
+                log.error(ERROR_MESSAGE, e);
             }
         }
 
@@ -285,17 +291,15 @@ public class WSRealmTenantManager implements TenantManager {
                     AuthenticationAdminClient client = new AuthenticationAdminClient(
                             UserMgtWSAPIDSComponent.getCcServiceInstance().getClientConfigContext(),
                             url, null, null, false);
-                    boolean isLogin = client.login(userName, password, "127.0.0.1");
+                    boolean isLogin = client.login(userName, password, DEFAULT_LOCALHOST);
                     if (isLogin) {
                         return client.getAdminCookie();
                     } else {
-                        log.error(errorMessage);
-                        throw new UserStoreException(errorMessage);
+                        throw new UserStoreException(ERROR_MESSAGE);
                     }
                 }
             } catch (Exception e) {
-                log.error(errorMessage, e);
-                throw new UserStoreException("Error" + e.getMessage(), e);
+                throw new UserStoreException(ERROR_MESSAGE, e);
             }
         }
 

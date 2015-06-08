@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.um.ws.api;
@@ -36,12 +38,15 @@ public class WSClaimManager implements ClaimManager {
     private static final Log log = LogFactory.getLog(WSClaimManager.class);
     private RemoteClaimManagerServiceStub stub = null;
 
+    private static final String SERVICE_NAME = "RemoteClaimManagerService";
+    private static final String CONNECTION_ERROR_MESSAGE = "Error while establishing web service connection ";
+
     public WSClaimManager(String serverUrl, String cookie, ConfigurationContext configCtxt)
             throws UserStoreException {
         try {
             stub =
                     new RemoteClaimManagerServiceStub(configCtxt, serverUrl +
-                            "RemoteClaimManagerService");
+                            SERVICE_NAME);
 
             ServiceClient client = stub._getServiceClient();
             Options option = client.getOptions();
@@ -50,7 +55,7 @@ public class WSClaimManager implements ClaimManager {
         } catch (AxisFault e) {
 
             if (log.isDebugEnabled()) {
-                log.debug("Error while establishing web service connection : ", e);
+                log.debug(CONNECTION_ERROR_MESSAGE, e);
             }
 
             throw new UserStoreException();
