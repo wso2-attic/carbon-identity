@@ -40,7 +40,7 @@ public class ApplicationAuthenticationService {
 
         ApplicationAuthenticator appAuthenticator = null;
 
-        for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.authenticators) {
+        for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.getAuthenticators()) {
 
             if (authenticator.getName().equals(name)) {
                 appAuthenticator = authenticator;
@@ -51,14 +51,14 @@ public class ApplicationAuthenticationService {
     }
 
     public List<ApplicationAuthenticator> getAllAuthenticators() throws ApplicationAuthenticationException {
-        return FrameworkServiceComponent.authenticators;
+        return FrameworkServiceComponent.getAuthenticators();
     }
 
     public List<ApplicationAuthenticator> getLocalAuthenticators() throws ApplicationAuthenticationException {
 
         List<ApplicationAuthenticator> localAuthenticators = new ArrayList<ApplicationAuthenticator>();
 
-        for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.authenticators) {
+        for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.getAuthenticators()) {
 
             if (authenticator instanceof LocalApplicationAuthenticator) {
                 localAuthenticators.add(authenticator);
@@ -72,7 +72,7 @@ public class ApplicationAuthenticationService {
 
         List<ApplicationAuthenticator> federatedAuthenticators = new ArrayList<ApplicationAuthenticator>();
 
-        for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.authenticators) {
+        for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.getAuthenticators()) {
 
             if (authenticator instanceof FederatedApplicationAuthenticator) {
                 federatedAuthenticators.add(authenticator);
@@ -86,7 +86,7 @@ public class ApplicationAuthenticationService {
 
         List<ApplicationAuthenticator> reqPathAuthenticators = new ArrayList<ApplicationAuthenticator>();
 
-        for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.authenticators) {
+        for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.getAuthenticators()) {
 
             if (authenticator instanceof RequestPathApplicationAuthenticator) {
                 reqPathAuthenticators.add(authenticator);

@@ -43,7 +43,6 @@ import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.user.core.service.RealmService;
 
 import javax.servlet.Servlet;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -70,7 +69,7 @@ public class FrameworkServiceComponent {
 
     public static final String COMMON_SERVLET_URL = "/commonauth";
     private static final Log log = LogFactory.getLog(FrameworkServiceComponent.class);
-    public static List<ApplicationAuthenticator> authenticators = new ArrayList<>();
+
     private HttpService httpService;
 
     public static RealmService getRealmService() {
@@ -106,11 +105,16 @@ public class FrameworkServiceComponent {
         return bundleContext;
     }
 
+    public static List<ApplicationAuthenticator> getAuthenticators() {
+        return FrameworkServiceDataHolder.getInstance().getAuthenticators();
+    }
+
     @SuppressWarnings("unchecked")
     protected void activate(ComponentContext ctxt) {
         BundleContext bundleContext = ctxt.getBundleContext();
-        bundleContext.registerService(ApplicationAuthenticationService.class.getName(), new ApplicationAuthenticationService(), null);
-
+        bundleContext.registerService(ApplicationAuthenticationService.class.getName(), new
+                ApplicationAuthenticationService(), null);
+        ;
         boolean tenantDropdownEnabled = ConfigurationFacade.getInstance().getTenantDropdownEnabled();
 
         if (tenantDropdownEnabled) {
@@ -184,7 +188,7 @@ public class FrameworkServiceComponent {
 
     protected void setAuthenticator(ApplicationAuthenticator authenticator) {
 
-        authenticators.add(authenticator);
+        FrameworkServiceDataHolder.getInstance().getAuthenticators().add(authenticator);
 
         Property[] configProperties = null;
 
@@ -220,18 +224,21 @@ public class FrameworkServiceComponent {
 
     protected void unsetAuthenticator(ApplicationAuthenticator authenticator) {
 
-        authenticators.remove(authenticator);
+        FrameworkServiceDataHolder.getInstance().getAuthenticators().remove(authenticator);
         String authenticatorName = authenticator.getName();
         ApplicationAuthenticatorService appAuthenticatorService = ApplicationAuthenticatorService.getInstance();
 
         if (authenticator instanceof LocalApplicationAuthenticator) {
-            LocalAuthenticatorConfig localAuthenticatorConfig = appAuthenticatorService.getLocalAuthenticatorByName(authenticatorName);
+            LocalAuthenticatorConfig localAuthenticatorConfig = appAuthenticatorService.getLocalAuthenticatorByName
+                    (authenticatorName);
             appAuthenticatorService.removeLocalAuthenticator(localAuthenticatorConfig);
         } else if (authenticator instanceof FederatedApplicationAuthenticator) {
-            FederatedAuthenticatorConfig federatedAuthenticatorConfig = appAuthenticatorService.getFederatedAuthenticatorByName(authenticatorName);
+            FederatedAuthenticatorConfig federatedAuthenticatorConfig = appAuthenticatorService
+                    .getFederatedAuthenticatorByName(authenticatorName);
             appAuthenticatorService.removeFederatedAuthenticator(federatedAuthenticatorConfig);
         } else if (authenticator instanceof RequestPathApplicationAuthenticator) {
-            RequestPathAuthenticatorConfig reqPathAuthenticatorConfig = appAuthenticatorService.getRequestPathAuthenticatorByName(authenticatorName);
+            RequestPathAuthenticatorConfig reqPathAuthenticatorConfig = appAuthenticatorService
+                    .getRequestPathAuthenticatorByName(authenticatorName);
             appAuthenticatorService.removeRequestPathAuthenticator(reqPathAuthenticatorConfig);
         }
 

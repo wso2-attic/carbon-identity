@@ -239,7 +239,7 @@ public class FrameworkUtils {
      */
     public static ApplicationAuthenticator getAppAuthenticatorByName(String name) {
 
-        for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.authenticators) {
+        for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.getAuthenticators()) {
 
             if (name.equals(authenticator.getName())) {
                 return authenticator;
@@ -257,7 +257,7 @@ public class FrameworkUtils {
 
         AuthenticationContext context = null;
 
-        for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.authenticators) {
+        for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.getAuthenticators()) {
             try {
                 String contextIdentifier = authenticator.getContextIdentifier(request);
 

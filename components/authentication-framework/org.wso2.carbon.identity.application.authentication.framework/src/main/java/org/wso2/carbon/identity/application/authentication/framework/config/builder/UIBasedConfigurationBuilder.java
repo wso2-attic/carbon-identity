@@ -141,7 +141,7 @@ public class UIBasedConfigurationBuilder {
                 authConfig.setEnabled(true);
 
                 // iterate through each system authentication config
-                for (ApplicationAuthenticator appAuthenticator : FrameworkServiceComponent.authenticators) {
+                for (ApplicationAuthenticator appAuthenticator : FrameworkServiceComponent.getAuthenticators()) {
 
                     if (authenticatorName.equalsIgnoreCase(appAuthenticator.getName())) {
                         authConfig.setApplicationAuthenticator(appAuthenticator);
@@ -205,7 +205,7 @@ public class UIBasedConfigurationBuilder {
             authenticatorConfig = new AuthenticatorConfig();
             authenticatorConfig.setName(authenticatorName);
 
-            for (ApplicationAuthenticator appAuthenticator : FrameworkServiceComponent.authenticators) {
+            for (ApplicationAuthenticator appAuthenticator : FrameworkServiceComponent.getAuthenticators()) {
 
                 if (authenticatorName.equalsIgnoreCase(appAuthenticator.getName())) {
                     authenticatorConfig.setApplicationAuthenticator(appAuthenticator);
