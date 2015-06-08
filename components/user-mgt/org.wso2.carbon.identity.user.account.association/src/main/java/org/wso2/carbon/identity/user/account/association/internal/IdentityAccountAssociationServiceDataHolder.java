@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.user.account.association.internal;
@@ -34,35 +36,36 @@ public class IdentityAccountAssociationServiceDataHolder {
     private Map<Integer, UserOperationEventListener> userOperationEventListeners;
 
 
-    private static IdentityAccountAssociationServiceDataHolder instance = new IdentityAccountAssociationServiceDataHolder();
+    private static IdentityAccountAssociationServiceDataHolder instance = new
+            IdentityAccountAssociationServiceDataHolder();
 
-    private  IdentityAccountAssociationServiceDataHolder(){
+    private IdentityAccountAssociationServiceDataHolder() {
 
     }
 
-    public static IdentityAccountAssociationServiceDataHolder getInstance(){
+    public static IdentityAccountAssociationServiceDataHolder getInstance() {
         return instance;
     }
 
 
-    public void setBundleContext(BundleContext bundleContext){
+    public void setBundleContext(BundleContext bundleContext) {
 
         this.bundleContext = bundleContext;
 
     }
 
-    public BundleContext getBundleContext(){
+    public BundleContext getBundleContext() {
 
         return this.bundleContext;
 
     }
 
-    public void setRealmService(RealmService service){
+    public void setRealmService(RealmService service) {
 
         this.realmService = service;
     }
 
-    public RealmService getRealmService(){
+    public RealmService getRealmService() {
 
         return this.realmService;
     }
@@ -72,8 +75,8 @@ public class IdentityAccountAssociationServiceDataHolder {
     }
 
 
-
-    public void setUserStoreManagerListenerCollection(Collection<UserStoreManagerListener> userStoreManagerListenerCollection) {
+    public void setUserStoreManagerListenerCollection(Collection<UserStoreManagerListener>
+                                                               userStoreManagerListenerCollection) {
         this.userStoreManagerListenerCollection = userStoreManagerListenerCollection;
     }
 
@@ -82,30 +85,31 @@ public class IdentityAccountAssociationServiceDataHolder {
         return userOperationEventListenerCollection;
     }
 
-    public void putUserOperationEventListener(Integer id, UserOperationEventListener userOperationEventListener){
+    public void putUserOperationEventListener(Integer id, UserOperationEventListener userOperationEventListener) {
 
-        this.userOperationEventListeners.put(id,userOperationEventListener);
+        this.userOperationEventListeners.put(id, userOperationEventListener);
 
     }
 
-    public UserOperationEventListener removeUserOperationEventListener(Integer id){
+    public UserOperationEventListener removeUserOperationEventListener(Integer id) {
 
         return this.userOperationEventListeners.remove(id);
 
     }
 
-    public void setUserOperationEventListenerCollection(Collection<UserOperationEventListener> userOperationEventListenerCollection) {
+    public void setUserOperationEventListenerCollection(Collection<UserOperationEventListener>
+                                                                 userOperationEventListenerCollection) {
         this.userOperationEventListenerCollection = userOperationEventListenerCollection;
     }
 
 
-    public void putUserStoreManagerListener(Integer id, UserStoreManagerListener listener){
+    public void putUserStoreManagerListener(Integer id, UserStoreManagerListener listener) {
 
         this.userStoreManagerListeners.put(id, listener);
 
     }
 
-    public void removeUserStoreManagerListener(Integer id){
+    public void removeUserStoreManagerListener(Integer id) {
 
         this.userStoreManagerListeners.remove(id);
     }

@@ -125,6 +125,7 @@
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.core.persistence;
                             version="${carbon.identity.package.import.version.range}"
+
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.user.account.association.internal,
