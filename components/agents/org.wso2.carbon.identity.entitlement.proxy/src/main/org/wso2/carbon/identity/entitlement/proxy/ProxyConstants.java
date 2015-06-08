@@ -17,6 +17,7 @@
  *
  *
  */
+
 package org.wso2.carbon.identity.entitlement.proxy;
 
 public final class ProxyConstants {

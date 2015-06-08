@@ -17,6 +17,7 @@
  *
  *
  */
+
 package org.wso2.carbon.identity.entitlement.proxy.exception;
 
 public class EntitlementProxyException extends Exception {

@@ -17,6 +17,7 @@
  *
  *
  */
+
 package org.wso2.carbon.identity.entitlement.proxy.soap.authenticationAdmin;
 
 import org.apache.axis2.context.ConfigurationContext;
@@ -26,7 +27,6 @@ import org.apache.axis2.transport.http.HTTPConstants;
 import org.wso2.carbon.authenticator.stub.AuthenticationAdminStub;
 import org.wso2.carbon.identity.entitlement.proxy.exception.EntitlementProxyException;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class Authenticator {

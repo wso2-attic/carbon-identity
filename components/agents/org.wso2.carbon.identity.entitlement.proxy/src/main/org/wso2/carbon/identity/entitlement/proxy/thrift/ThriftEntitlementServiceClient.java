@@ -17,6 +17,7 @@
  *
  *
  */
+
 package org.wso2.carbon.identity.entitlement.proxy.thrift;
 
 import org.apache.commons.logging.Log;
@@ -43,6 +44,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceClient {
 
     private static final Log log = LogFactory.getLog(ThriftEntitlementServiceClient.class);
+    public static final String URN_OASIS_NAMES_TC_XACML_1_0_SUBJECT_CATEGORY_ACCESS_SUBJECT = "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject";
+    public static final String URN_OASIS_NAMES_TC_XACML_3_0_ATTRIBUTE_CATEGORY_ACTION = "urn:oasis:names:tc:xacml:3.0:attribute-category:action";
+    public static final String URN_OASIS_NAMES_TC_XACML_1_0_ACTION_ACTION_ID = "urn:oasis:names:tc:xacml:1.0:action:action-id";
+    public static final String URN_OASIS_NAMES_TC_XACML_3_0_ATTRIBUTE_CATEGORY_RESOURCE = "urn:oasis:names:tc:xacml:3.0:attribute-category:resource";
+    public static final String URN_OASIS_NAMES_TC_XACML_1_0_RESOURCE_RESOURCE_ID = "urn:oasis:names:tc:xacml:1.0:resource:resource-id";
+    public static final String URN_OASIS_NAMES_TC_XACML_3_0_ATTRIBUTE_CATEGORY_ENVIRONMENT = "urn:oasis:names:tc:xacml:3.0:attribute-category:environment";
+    public static final String URN_OASIS_NAMES_TC_XACML_1_0_ENVIRONMENT_ENVIRONMENT_ID = "urn:oasis:names:tc:xacml:1.0:environment:environment-id";
 
     private String trustStore = System.getProperty(ProxyConstants.TRUST_STORE);
     private String trustStorePass = System.getProperty(ProxyConstants.TRUST_STORE_PASSWORD);
@@ -53,7 +61,7 @@ public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceCl
     private int thriftPort;
     private boolean reuseSession = true;
 
-    private Map<String, Authenticator> authenticators = new ConcurrentHashMap<String, Authenticator>();
+    private Map<String, Authenticator> authenticators = new ConcurrentHashMap<>();
 
     public ThriftEntitlementServiceClient(String serverUrl, String username, String password, String thriftHost, int thriftPort, boolean reuseSession) {
         this.serverUrl = serverUrl;
@@ -67,7 +75,7 @@ public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceCl
     @Override
     public String getDecision(Attribute[] attributes, String appId) throws Exception {
         String xacmlRequest = XACMLRequetBuilder.buildXACML3Request(attributes);
-        EntitlementThriftClient.Client client = getThriftClient(appId);
+        EntitlementThriftClient.Client client = getThriftClient();
         Authenticator authenticator = getAuthenticator(serverUrl, userName,
                 password);
         return getDecision(xacmlRequest, client, authenticator);
@@ -76,13 +84,14 @@ public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceCl
     @Override
     public boolean subjectCanActOnResource(String subjectType, String alias, String actionId,
                                            String resourceId, String domainId, String appId) throws Exception {
-        Attribute subjectAttribute = new Attribute("urn:oasis:names:tc:xacml:1.0:subject-category:access-subject", subjectType, ProxyConstants.DEFAULT_DATA_TYPE, alias);
-        Attribute actionAttribute = new Attribute("urn:oasis:names:tc:xacml:3.0:attribute-category:action", "urn:oasis:names:tc:xacml:1.0:action:action-id", ProxyConstants.DEFAULT_DATA_TYPE, actionId);
-        Attribute resourceAttribute = new Attribute("urn:oasis:names:tc:xacml:3.0:attribute-category:resource", "urn:oasis:names:tc:xacml:1.0:resource:resource-id", ProxyConstants.DEFAULT_DATA_TYPE, resourceId);
-        Attribute environmentAttribute = new Attribute("urn:oasis:names:tc:xacml:3.0:attribute-category:environment", "urn:oasis:names:tc:xacml:1.0:environment:environment-id", ProxyConstants.DEFAULT_DATA_TYPE, domainId);
+        Attribute subjectAttribute = new Attribute(URN_OASIS_NAMES_TC_XACML_1_0_SUBJECT_CATEGORY_ACCESS_SUBJECT, subjectType, ProxyConstants.DEFAULT_DATA_TYPE, alias);
+        Attribute actionAttribute = new Attribute(URN_OASIS_NAMES_TC_XACML_3_0_ATTRIBUTE_CATEGORY_ACTION, URN_OASIS_NAMES_TC_XACML_1_0_ACTION_ACTION_ID, ProxyConstants.DEFAULT_DATA_TYPE, actionId);
+        Attribute resourceAttribute = new Attribute(URN_OASIS_NAMES_TC_XACML_3_0_ATTRIBUTE_CATEGORY_RESOURCE,
+                URN_OASIS_NAMES_TC_XACML_1_0_RESOURCE_RESOURCE_ID, ProxyConstants.DEFAULT_DATA_TYPE, resourceId);
+        Attribute environmentAttribute = new Attribute(URN_OASIS_NAMES_TC_XACML_3_0_ATTRIBUTE_CATEGORY_ENVIRONMENT, URN_OASIS_NAMES_TC_XACML_1_0_ENVIRONMENT_ENVIRONMENT_ID, ProxyConstants.DEFAULT_DATA_TYPE, domainId);
         Attribute[] tempArr = {subjectAttribute, actionAttribute, resourceAttribute, environmentAttribute};
         String xacmlRequest = XACMLRequetBuilder.buildXACML3Request(tempArr);
-        EntitlementThriftClient.Client client = getThriftClient(appId);
+        EntitlementThriftClient.Client client = getThriftClient();
         Authenticator authenticator = getAuthenticator(serverUrl, userName, password);
         return (getDecision(xacmlRequest, client, authenticator)).contains("Permit");
     }
@@ -91,58 +100,58 @@ public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceCl
     public boolean subjectCanActOnResource(String subjectType, String alias, String actionId,
                                            String resourceId, Attribute[] attributes, String domainId, String appId) throws Exception {
         Attribute[] attrs = new Attribute[attributes.length + 4];
-        attrs[0] = new Attribute("urn:oasis:names:tc:xacml:1.0:subject-category:access-subject", subjectType, ProxyConstants.DEFAULT_DATA_TYPE, alias);
+        attrs[0] = new Attribute(URN_OASIS_NAMES_TC_XACML_1_0_SUBJECT_CATEGORY_ACCESS_SUBJECT, subjectType, ProxyConstants.DEFAULT_DATA_TYPE, alias);
         for (int i = 0; i < attributes.length; i++) {
-            attrs[i + 1] = new Attribute("urn:oasis:names:tc:xacml:1.0:subject-category:access-subject", attributes[i].getType(),
+            attrs[i + 1] = new Attribute(URN_OASIS_NAMES_TC_XACML_1_0_SUBJECT_CATEGORY_ACCESS_SUBJECT, attributes[i].getType(),
                     attributes[i].getId(), attributes[i].getValue());
         }
-        attrs[attrs.length - 3] = new Attribute("urn:oasis:names:tc:xacml:3.0:attribute-category:action", "urn:oasis:names:tc:xacml:1.0:action:action-id", ProxyConstants.DEFAULT_DATA_TYPE, actionId);
-        attrs[attrs.length - 2] = new Attribute("urn:oasis:names:tc:xacml:3.0:attribute-category:resource", "urn:oasis:names:tc:xacml:1.0:resource:resource-id", ProxyConstants.DEFAULT_DATA_TYPE, resourceId);
-        attrs[attrs.length - 1] = new Attribute("urn:oasis:names:tc:xacml:3.0:attribute-category:environment", "urn:oasis:names:tc:xacml:1.0:environment:environment-id", ProxyConstants.DEFAULT_DATA_TYPE, domainId);
+        attrs[attrs.length - 3] = new Attribute(URN_OASIS_NAMES_TC_XACML_3_0_ATTRIBUTE_CATEGORY_ACTION, URN_OASIS_NAMES_TC_XACML_1_0_ACTION_ACTION_ID, ProxyConstants.DEFAULT_DATA_TYPE, actionId);
+        attrs[attrs.length - 2] = new Attribute(URN_OASIS_NAMES_TC_XACML_3_0_ATTRIBUTE_CATEGORY_RESOURCE, URN_OASIS_NAMES_TC_XACML_1_0_RESOURCE_RESOURCE_ID, ProxyConstants.DEFAULT_DATA_TYPE, resourceId);
+        attrs[attrs.length - 1] = new Attribute(URN_OASIS_NAMES_TC_XACML_3_0_ATTRIBUTE_CATEGORY_ENVIRONMENT, URN_OASIS_NAMES_TC_XACML_1_0_ENVIRONMENT_ENVIRONMENT_ID, ProxyConstants.DEFAULT_DATA_TYPE, domainId);
         String xacmlRequest = XACMLRequetBuilder.buildXACML3Request(attrs);
-        EntitlementThriftClient.Client client = getThriftClient(appId);
+        EntitlementThriftClient.Client client = getThriftClient();
         Authenticator authenticator = getAuthenticator(serverUrl, userName, password);
         return (getDecision(xacmlRequest, client, authenticator)).contains("Permit");
     }
 
     @Override
     public List<String> getResourcesForAlias(String alias, String appId) {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     @Override
     public List<String> getActionableResourcesForAlias(String alias, String appId) {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     @Override
     public List<String> getActionsForResource(String alias, String resources, String appId) {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     @Override
     public List<String> getActionableChildResourcesForAlias(String alias, String parentResource,
                                                             String action, String appId) throws Exception {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     private String getDecision(String xacmlRequest, EntitlementThriftClient.Client client, Authenticator authenticator)
-                                                                                                    throws Exception {
+            throws Exception {
         try {
             return client.getDecision(xacmlRequest, authenticator.getSessionId(false));
         } catch (TException e) {
-            if(log.isDebugEnabled()){
-                log.debug("Thrift entitlement exception  : ",e);
+            if (log.isDebugEnabled()) {
+                log.debug("Thrift entitlement exception  : ", e);
             }
             throw new EntitlementProxyException("Error while getting decision from PDP using ThriftEntitlementServiceClient", e);
         } catch (EntitlementException e) {
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 log.debug("Exception occurred : ", e);
             }
             try {
                 return client.getDecision(xacmlRequest, authenticator.getSessionId(true));
             } catch (Exception e1) {
-                if(log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     log.debug("Exception occurred : ", e1);
                 }
                 throw new EntitlementProxyException("Error while attempting to re-authenticate the Thrift client in ", e1);
@@ -152,16 +161,16 @@ public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceCl
 
     private Authenticator getAuthenticator(String serverUrl, String userName, String password)
             throws Exception {
-            if (reuseSession && authenticators.containsKey(serverUrl)) {
-                return authenticators.get(serverUrl);
-            }
+        if (reuseSession && authenticators.containsKey(serverUrl)) {
+            return authenticators.get(serverUrl);
+        }
 
         Authenticator authenticator = new Authenticator(userName, password, serverUrl + "thriftAuthenticator");
         authenticators.put(serverUrl, authenticator);
         return authenticator;
     }
 
-    private EntitlementThriftClient.Client getThriftClient(String appId) throws Exception {
+    private EntitlementThriftClient.Client getThriftClient() throws Exception {
 
         TSSLTransportFactory.TSSLTransportParameters param = new TSSLTransportFactory.TSSLTransportParameters();
         param.setTrustStore(trustStore, trustStorePass);

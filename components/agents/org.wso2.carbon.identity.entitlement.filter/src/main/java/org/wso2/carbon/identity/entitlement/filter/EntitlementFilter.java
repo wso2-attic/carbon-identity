@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  *
- *
  */
+
 package org.wso2.carbon.identity.entitlement.filter;
 
 
@@ -138,7 +138,6 @@ public class EntitlementFilter implements Filter {
                 clientConfigMap.put(EntitlementConstants.THRIFT_HOST, thriftHost);
                 clientConfigMap.put(EntitlementConstants.THRIFT_PORT, thriftPort);
             }else {
-                log.error("EntitlementMediator initialization error: Unsupported client");
                 throw new EntitlementFilterException("EntitlementMediator initialization error: Unsupported client");
             }
 
@@ -154,8 +153,7 @@ public class EntitlementFilter implements Filter {
         try {
             pepProxy = new PEPProxy(config);
         } catch (EntitlementProxyException e) {
-            log.error("Error while initializing the PEP Proxy" + e);
-            throw new EntitlementFilterException("Error while initializing the Entitlement PEP Proxy");
+            throw new EntitlementFilterException("Error while initializing the Entitlement PEP Proxy",e);
         }
     }
 
@@ -191,10 +189,8 @@ public class EntitlementFilter implements Filter {
                 simpleDecision = decisionElement.getFirstChildWithName(new QName(namespace, "Result")).
                         getFirstChildWithName(new QName(namespace, "Decision")).getText();
             } catch (Exception e) {
-                if(log.isDebugEnabled()){
-                    log.debug(" Exception while making the decision : ", e);
-                }
-                throw new EntitlementFilterException("Exception while making the decision : " + e);
+
+                throw new EntitlementFilterException("Exception while making the decision " , e);
             }
         }
         completeAuthorization(simpleDecision, servletRequest, servletResponse, filterChain);

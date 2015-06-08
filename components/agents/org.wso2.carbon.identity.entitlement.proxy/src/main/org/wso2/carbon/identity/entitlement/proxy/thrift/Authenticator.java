@@ -17,9 +17,9 @@
  *
  *
  */
+
 package org.wso2.carbon.identity.entitlement.proxy.thrift;
 
-import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.THttpClient;

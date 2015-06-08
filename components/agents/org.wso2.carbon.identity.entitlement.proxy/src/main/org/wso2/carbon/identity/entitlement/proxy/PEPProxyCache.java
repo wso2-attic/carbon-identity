@@ -17,6 +17,7 @@
  *
  *
  */
+
 package org.wso2.carbon.identity.entitlement.proxy;
 
 
@@ -96,7 +97,7 @@ class PEPProxyCache {
 
     void clear() {
         if (simpleCache != null) {
-            simpleCache = new SimpleCache<String, EntitlementDecision>(simpleCache.maxEntries);
+            simpleCache = new SimpleCache<>(simpleCache.maxEntries);
         } else if (isCarbonCache) {
             Cache<IdentityCacheKey, IdentityCacheEntry> carbonCache = getCommonCache();
             if (carbonCache != null) {

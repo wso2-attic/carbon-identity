@@ -143,6 +143,7 @@ public class LoggedInSessionBean implements Serializable{
 
     public class SAML2SSO implements Serializable{
 
+        public static final String EMPTY_STRING = "";
         private String subjectId;
 
         private Response response;
@@ -172,7 +173,7 @@ public class LoggedInSessionBean implements Serializable{
             if (accessTokenResponseBean != null) {
                 stream.writeObject(accessTokenResponseBean.toString());
             } else {
-                stream.writeObject("");
+                stream.writeObject(EMPTY_STRING);
             }
             stream.writeObject(subjectAttributes);
         }
@@ -183,18 +184,18 @@ public class LoggedInSessionBean implements Serializable{
             subjectId = (String) stream.readObject();
 
             responseString = (String) stream.readObject();
-            if (responseString != null && !"".equals(responseString)) {
+            if (responseString != null && !EMPTY_STRING.equals(responseString)) {
                 response = (Response) SSOAgentUtils.unmarshall(responseString);
             }
 
             assertionString = (String) stream.readObject();
-            if (responseString != null && !"".equals(assertionString)) {
+            if (responseString != null && !EMPTY_STRING.equals(assertionString)) {
                 assertion = (Assertion) SSOAgentUtils.unmarshall(assertionString);
             }
 
             sessionIndex = (String) stream.readObject();
             String accessTokenResponseBeanString = (String) stream.readObject();
-            if (!"".equals(accessTokenResponseBeanString)) {
+            if (!EMPTY_STRING.equals(accessTokenResponseBeanString)) {
                 accessTokenResponseBean = accessTokenResponseBean.deSerialize(accessTokenResponseBeanString);
             } else {
                 accessTokenResponseBean = null;

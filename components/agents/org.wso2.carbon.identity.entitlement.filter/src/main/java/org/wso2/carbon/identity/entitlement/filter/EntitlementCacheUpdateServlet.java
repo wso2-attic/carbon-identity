@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  *
- *
  */
 
 package org.wso2.carbon.identity.entitlement.filter;
@@ -50,9 +49,13 @@ public class EntitlementCacheUpdateServlet extends HttpServlet {
     private static final Log log = LogFactory.getLog(EntitlementCacheUpdateServlet.class);
 
 
-
-    private  static String usernameString = "username";
-    private static String pswdString = "password";
+    private static final String USERNAME_STRING = "username";
+    private static final String PSWD_STRING = "password";
+    private static final String NULL_STRING = "null";
+    private static final String ADMIN = "AuthenticationAdmin";
+    private static final String UPDATE_CACHE = "/updateCacheAuth.do";
+    private static final String SUBJECT_SCOPE = "subjectScope";
+    private static final String UPDATE_CACHE_HTML = "/updateCache.html";
 
     @Override
     public void init(ServletConfig config) throws EntitlementCacheUpdateServletException {
@@ -88,23 +91,24 @@ public class EntitlementCacheUpdateServlet extends HttpServlet {
 
         if (!req.isSecure()) {
             redirectToHTTPS(req, resp);
-        } else if (req.getParameter(usernameString) != null && req.getParameter(pswdString) != null
-                && !"null".equals(req.getParameter(usernameString)) && !"null".equals(req.getParameter(pswdString))) {
+        } else if (req.getParameter(USERNAME_STRING) != null && req.getParameter(PSWD_STRING) != null
+                && !NULL_STRING.equals(req.getParameter(USERNAME_STRING)) && !NULL_STRING.equals(req.getParameter(PSWD_STRING)
+        )) {
             doAuthentication(req, resp);
         } else {
-            if (req.getParameter(usernameString) == null) {
+            if (req.getParameter(USERNAME_STRING) == null) {
                 log.info("\'username\' parameter not available in request. Redirecting to " +
                         EntitlementCacheUpdateServletDataHolder.getInstance().getAuthenticationPageURL());
             }
-            if (req.getParameter(pswdString) == null) {
+            if (req.getParameter(PSWD_STRING) == null) {
                 log.info("\'password\' parameter not available in request. Redirecting to " +
                         EntitlementCacheUpdateServletDataHolder.getInstance().getAuthenticationPageURL());
             }
-            if (req.getParameter(usernameString) != null && "null".equals(req.getParameter(usernameString))) {
-                log.info("\'username\' is empty in request. Redirecting to " +EntitlementCacheUpdateServletDataHolder
+            if (req.getParameter(USERNAME_STRING) != null && NULL_STRING.equals(req.getParameter(USERNAME_STRING))) {
+                log.info("\'username\' is empty in request. Redirecting to " + EntitlementCacheUpdateServletDataHolder
                         .getInstance().getAuthenticationPageURL());
             }
-            if (req.getParameter(pswdString) != null && "null".equals(req.getParameter(pswdString))) {
+            if (req.getParameter(PSWD_STRING) != null && NULL_STRING.equals(req.getParameter(PSWD_STRING))) {
                 log.info("\'password\' is empty in request. Redirecting to " +
                         EntitlementCacheUpdateServletDataHolder.getInstance().getAuthenticationPageURL());
             }
@@ -126,7 +130,7 @@ public class EntitlementCacheUpdateServlet extends HttpServlet {
         if (authentication.equals(EntitlementConstants.WSO2_IS)) {
 
             AuthenticationAdminStub authStub;
-            String authenticationAdminServiceURL = remoteServiceUrl + "AuthenticationAdmin";
+            String authenticationAdminServiceURL = remoteServiceUrl + ADMIN;
             try {
                 authStub = new AuthenticationAdminStub(configCtx, authenticationAdminServiceURL);
                 ServiceClient client = authStub._getServiceClient();
@@ -134,13 +138,13 @@ public class EntitlementCacheUpdateServlet extends HttpServlet {
                 options.setManageSession(true);
                 options.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, authCookie);
                 isAuthenticated = authStub.login(userName, password, remoteIp);
-                EntitlementCacheUpdateServletDataHolder.getInstance().setAuthCookie( (String) authStub._getServiceClient()
+                EntitlementCacheUpdateServletDataHolder.getInstance().setAuthCookie((String) authStub._getServiceClient()
                         .getServiceContext()
                         .getProperty(HTTPConstants.COOKIE_STRING));
             } catch (LoginAuthenticationExceptionException e) {
                 log.info(userName + " not authenticated to perform entitlement query to perform cache update");
                 if (log.isDebugEnabled()) {
-                    log.debug("Login Authentication Exception Occurred : ", e);
+                    log.debug("Login Authentication Exception Occurred  ", e);
                 }
             } catch (Exception e) {
                 throw new EntitlementCacheUpdateServletException("Error while trying to authenticate" +
@@ -190,21 +194,21 @@ public class EntitlementCacheUpdateServlet extends HttpServlet {
     }
 
     private void doAuthentication(HttpServletRequest req, HttpServletResponse resp) throws EntitlementCacheUpdateServletException {
-        String username = req.getParameter("username");
-        String password = req.getParameter("password");
+        String username = req.getParameter(USERNAME_STRING);
+        String password = req.getParameter(PSWD_STRING);
         String remoteIp = req.getServerName();
 
         if (authenticate(username, password, remoteIp)) {
 
-            RequestDispatcher requestDispatcher = req.getRequestDispatcher("/updateCacheAuth.do");
+            RequestDispatcher requestDispatcher = req.getRequestDispatcher(UPDATE_CACHE);
             String subjectScope = EntitlementCacheUpdateServletDataHolder.getInstance().getServletConfig().getServletContext()
-                    .getInitParameter("subjectScope");
+                    .getInitParameter(SUBJECT_SCOPE);
             String subjectAttributeName = EntitlementCacheUpdateServletDataHolder.getInstance().getServletConfig().getServletContext()
                     .getInitParameter("subjectAttributeName");
 
             if (subjectScope.equals(EntitlementConstants.REQUEST_PARAM)) {
 
-                requestDispatcher = req.getRequestDispatcher("/updateCacheAuth.do?" + subjectAttributeName + "=" + username);
+                requestDispatcher = req.getRequestDispatcher(UPDATE_CACHE + "?" + subjectAttributeName + "=" + username);
 
             } else if (subjectScope.equals(EntitlementConstants.REQUEST_ATTIBUTE)) {
 
@@ -234,7 +238,7 @@ public class EntitlementCacheUpdateServlet extends HttpServlet {
     private void showAuthPage(HttpServletRequest req, HttpServletResponse resp) throws EntitlementCacheUpdateServletException {
         if ("default".equals(EntitlementCacheUpdateServletDataHolder.getInstance().getAuthenticationPage())) {
 
-            InputStream is = getClass().getResourceAsStream("/updateCache.html");
+            InputStream is = getClass().getResourceAsStream(UPDATE_CACHE_HTML);
             String updateCache = convertStreamToString(is);
             try {
                 resp.getWriter().print(updateCache);

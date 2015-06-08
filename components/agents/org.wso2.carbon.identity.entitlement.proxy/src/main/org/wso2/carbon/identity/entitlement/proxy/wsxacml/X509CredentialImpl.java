@@ -88,12 +88,12 @@ public class X509CredentialImpl implements X509Credential {
 
     @Override
     public Collection<X509CRL> getCRLs() {
-        return new ArrayList<X509CRL>();
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<X509Certificate> getEntityCertificateChain() {
-        return new ArrayList<X509Certificate>();
+        return new ArrayList<>();
     }
 
     @Override
@@ -113,7 +113,7 @@ public class X509CredentialImpl implements X509Credential {
 
     @Override
     public Collection<String> getKeyNames() {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     @Override

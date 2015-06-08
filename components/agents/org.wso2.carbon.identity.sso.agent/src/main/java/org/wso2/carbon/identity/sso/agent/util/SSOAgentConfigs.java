@@ -96,16 +96,14 @@ public class SSOAgentConfigs {
                 LOGGER.warning("\'SSOAgentPropertiesFilePath\' not configured");
             }
         } catch (FileNotFoundException e) {
-            if(log.isDebugEnabled()){
-                log.debug("File not found : ", e);
+            if (log.isDebugEnabled()) {
+                log.debug("File not found  ", e);
             }
             throw new SSOAgentException("Agent properties file not found");
 
         } catch (IOException e) {
-            if(log.isDebugEnabled()){
-                log.debug("IO Exception : ", e);
-            }
-            throw new SSOAgentException("Error occurred while reading Agent properties file");
+
+            throw new SSOAgentException("Error occurred while reading Agent properties file", e);
         }
 
     }
@@ -116,15 +114,11 @@ public class SSOAgentConfigs {
             properties.load(new FileInputStream(propertiesFilePath));
             initConfig(properties);
         } catch (FileNotFoundException e) {
-            if(log.isDebugEnabled()){
-                log.debug("File not found : ", e);
-            }
-            throw new SSOAgentException("Agent properties file not found at " + propertiesFilePath);
+
+            throw new SSOAgentException("Agent properties file not found at " + propertiesFilePath, e);
         } catch (IOException e) {
-            if(log.isDebugEnabled()){
-                log.debug("IO Exception : ", e);
-            }
-            throw new SSOAgentException("Error reading Agent properties file at " + propertiesFilePath);
+
+            throw new SSOAgentException("Error reading Agent properties file at " + propertiesFilePath, e);
         }
     }
 
@@ -217,10 +211,8 @@ public class SSOAgentConfigs {
             try {
                 keyStoreStream = new FileInputStream(properties.getProperty("KeyStore"));
             } catch (FileNotFoundException e) {
-                if(log.isDebugEnabled()){
-                    log.debug("File not found : ", e);
-                }
-                throw new SSOAgentException("Cannot find file " + properties.getProperty("KeyStore"));
+
+                throw new SSOAgentException("Cannot find file " + properties.getProperty("KeyStore"), e);
             }
         }
         keyStorePassword = properties.getProperty("KeyStorePassword");
@@ -641,7 +633,7 @@ public class SSOAgentConfigs {
         try {
             SSOAgentConfigs.keyStoreStream = new FileInputStream(keyStore);
         } catch (FileNotFoundException e) {
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 log.debug("File not found : ", e);
             }
 
@@ -680,19 +672,15 @@ public class SSOAgentConfigs {
             keyStore.load(is, storePassword.toCharArray());
             return keyStore;
         } catch (Exception e) {
-            if(log.isDebugEnabled()){
-                log.debug("Error while loading key store file : ", e);
-            }
+
             throw new SSOAgentException("Error while loading key store file", e);
         } finally {
             if (is != null) {
                 try {
                     is.close();
                 } catch (IOException ignored) {
-                    if(log.isDebugEnabled()){
-                        log.debug("IO Exception : ", ignored);
-                    }
-                    throw new SSOAgentException("Error while closing input stream of key store");
+
+                    throw new SSOAgentException("Error while closing input stream of key store", ignored);
                 }
             }
         }

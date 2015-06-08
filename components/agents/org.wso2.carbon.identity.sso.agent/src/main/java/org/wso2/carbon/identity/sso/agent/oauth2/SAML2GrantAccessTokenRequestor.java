@@ -41,6 +41,7 @@ import java.nio.charset.Charset;
 public class SAML2GrantAccessTokenRequestor {
 
     private static final Log log = LogFactory.getLog(SAML2GrantAccessTokenRequestor.class);
+    public static final String SAML2_BEARER_ASSERTION = "grant_type=urn:ietf:params:oauth:grant-type:saml2-bearer&assertion=";
 
     private SAML2GrantAccessTokenRequestor() {
     }
@@ -59,7 +60,7 @@ public class SAML2GrantAccessTokenRequestor {
             String keySecret = consumerKey+":"+consumerSecret;
 
             String accessTokenResponse = executePost(tokenEndpoint,
-                    "grant_type=urn:ietf:params:oauth:grant-type:saml2-bearer&assertion=" + URLEncoder.encode(Base64
+                    SAML2_BEARER_ASSERTION + URLEncoder.encode(Base64
                             .encodeBytes(samlAssertionString.getBytes(Charset.forName("UTF-8"))).replaceAll("\n", "")),
                     Base64.encodeBytes(keySecret.getBytes(Charset.forName
                             ("UTF-8")))

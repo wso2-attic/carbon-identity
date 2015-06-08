@@ -71,49 +71,41 @@ public class X509CredentialImpl implements X509Credential {
 
     @Override
     public Collection<X509CRL> getCRLs() {
-        // TODO Auto-generated method stub
         return new ArrayList<X509CRL>();
     }
 
     @Override
     public Collection<X509Certificate> getEntityCertificateChain() {
-        // TODO Auto-generated method stub
         return new ArrayList<X509Certificate>();
     }
 
     @Override
     public CredentialContextSet getCredentalContextSet() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public Class<? extends Credential> getCredentialType() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public String getEntityId() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public Collection<String> getKeyNames() {
-        // TODO Auto-generated method stub
         return new ArrayList<String>();
     }
 
     @Override
     public SecretKey getSecretKey() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public UsageType getUsageType() {
-        // TODO Auto-generated method stub
         return null;
     }
 }

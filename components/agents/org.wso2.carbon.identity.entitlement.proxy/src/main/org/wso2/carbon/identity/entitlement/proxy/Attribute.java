@@ -17,6 +17,7 @@
  *
  *
  */
+
 package org.wso2.carbon.identity.entitlement.proxy;
 
 public class Attribute {
@@ -78,20 +79,8 @@ public class Attribute {
     }
 
     @Override
-    public  boolean equals(Object o){
-
-        if(o instanceof Attribute){
-            Attribute comp = (Attribute)o;
-            boolean t = (type == null)? false : type.equals(comp.getType());
-            boolean i = (id == null)? false : id.equals(comp.getId());
-            boolean v = (value == null)? false: value.equals(comp.getValue());
-            boolean c = (category == null)? false: category.equals(comp.getCategory());
-
-            return t && i && v && c;
-        }
-
-        return false;
-
+    public boolean equals(Object obj) {
+        return super.equals(obj);
     }
 
 }

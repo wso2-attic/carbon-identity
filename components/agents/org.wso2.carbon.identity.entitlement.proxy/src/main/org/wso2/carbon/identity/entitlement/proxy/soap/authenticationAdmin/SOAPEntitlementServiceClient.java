@@ -17,6 +17,7 @@
  *
  *
  */
+
 package org.wso2.carbon.identity.entitlement.proxy.soap.authenticationAdmin;
 
 import org.apache.axis2.AxisFault;
@@ -36,13 +37,19 @@ import org.wso2.carbon.identity.entitlement.stub.dto.EntitledAttributesDTO;
 import org.wso2.carbon.identity.entitlement.stub.dto.EntitledResultSetDTO;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SOAPEntitlementServiceClient extends AbstractEntitlementServiceClient {
 
+    public static final String ACCESS_SUBJECT = "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject";
+    public static final String ACTION = "urn:oasis:names:tc:xacml:3.0:attribute-category:action";
+    public static final String ACTION_ID = "urn:oasis:names:tc:xacml:1.0:action:action-id";
+    public static final String RESOURCE = "urn:oasis:names:tc:xacml:3.0:attribute-category:resource";
+    public static final String RESOURCE_ID = "urn:oasis:names:tc:xacml:1.0:resource:resource-id";
+    public static final String CATEGORY_ENVIRONMENT = "urn:oasis:names:tc:xacml:3.0:attribute-category:environment";
+    public static final String ENVIRONMENT_ID = "urn:oasis:names:tc:xacml:1.0:environment:environment-id";
     private Map<String, EntitlementServiceStub> entitlementStub = new ConcurrentHashMap<String, EntitlementServiceStub>();
     private Map<String, EntitlementPolicyAdminServiceStub> policyAdminStub = new ConcurrentHashMap<String, EntitlementPolicyAdminServiceStub>();
     private Map<String, Authenticator> authenticators = new ConcurrentHashMap<String, Authenticator>();
@@ -72,10 +79,11 @@ public class SOAPEntitlementServiceClient extends AbstractEntitlementServiceClie
     public boolean subjectCanActOnResource(String subjectType, String alias, String actionId,
                                            String resourceId, String domainId, String appId) throws Exception {
 
-        Attribute subjectAttribute = new Attribute("urn:oasis:names:tc:xacml:1.0:subject-category:access-subject", subjectType, ProxyConstants.DEFAULT_DATA_TYPE, alias);
-        Attribute actionAttribute = new Attribute("urn:oasis:names:tc:xacml:3.0:attribute-category:action", "urn:oasis:names:tc:xacml:1.0:action:action-id", ProxyConstants.DEFAULT_DATA_TYPE, actionId);
-        Attribute resourceAttribute = new Attribute("urn:oasis:names:tc:xacml:3.0:attribute-category:resource", "urn:oasis:names:tc:xacml:1.0:resource:resource-id", ProxyConstants.DEFAULT_DATA_TYPE, resourceId);
-        Attribute environmentAttribute = new Attribute("urn:oasis:names:tc:xacml:3.0:attribute-category:environment", "urn:oasis:names:tc:xacml:1.0:environment:environment-id", ProxyConstants.DEFAULT_DATA_TYPE, domainId);
+        Attribute subjectAttribute = new Attribute(ACCESS_SUBJECT, subjectType, ProxyConstants.DEFAULT_DATA_TYPE, alias);
+        Attribute actionAttribute = new Attribute(ACTION, ACTION_ID, ProxyConstants.DEFAULT_DATA_TYPE, actionId);
+        Attribute resourceAttribute = new Attribute(RESOURCE, RESOURCE_ID, ProxyConstants.DEFAULT_DATA_TYPE, resourceId);
+        Attribute environmentAttribute = new Attribute(CATEGORY_ENVIRONMENT, ENVIRONMENT_ID, ProxyConstants
+                .DEFAULT_DATA_TYPE, domainId);
         Attribute[] tempArr = {subjectAttribute, actionAttribute, resourceAttribute, environmentAttribute};
         String xacmlRequest = XACMLRequetBuilder.buildXACML3Request(tempArr);
         EntitlementServiceStub stub = getEntitlementStub(serverUrl);
@@ -91,14 +99,16 @@ public class SOAPEntitlementServiceClient extends AbstractEntitlementServiceClie
             throws Exception {
 
         Attribute[] attrs = new Attribute[attributes.length + 4];
-        attrs[0] = new Attribute("urn:oasis:names:tc:xacml:1.0:subject-category:access-subject", subjectType, ProxyConstants.DEFAULT_DATA_TYPE, alias);
+        attrs[0] = new Attribute(ACCESS_SUBJECT, subjectType, ProxyConstants.DEFAULT_DATA_TYPE, alias);
         for (int i = 0; i < attributes.length; i++) {
-            attrs[i + 1] = new Attribute("urn:oasis:names:tc:xacml:1.0:subject-category:access-subject", attributes[i].getType(),
+            attrs[i + 1] = new Attribute(ACCESS_SUBJECT, attributes[i].getType(),
                     attributes[i].getId(), attributes[i].getValue());
         }
-        attrs[attrs.length - 3] = new Attribute("urn:oasis:names:tc:xacml:3.0:attribute-category:action", "urn:oasis:names:tc:xacml:1.0:action:action-id", ProxyConstants.DEFAULT_DATA_TYPE, actionId);
-        attrs[attrs.length - 2] = new Attribute("urn:oasis:names:tc:xacml:3.0:attribute-category:resource", "urn:oasis:names:tc:xacml:1.0:resource:resource-id", ProxyConstants.DEFAULT_DATA_TYPE, resourceId);
-        attrs[attrs.length - 1] = new Attribute("urn:oasis:names:tc:xacml:3.0:attribute-category:environment", "urn:oasis:names:tc:xacml:1.0:environment:environment-id", ProxyConstants.DEFAULT_DATA_TYPE, domainId);
+        attrs[attrs.length - 3] = new Attribute(ACTION, ACTION_ID, ProxyConstants
+                .DEFAULT_DATA_TYPE, actionId);
+        attrs[attrs.length - 2] = new Attribute(RESOURCE, RESOURCE_ID,
+                ProxyConstants.DEFAULT_DATA_TYPE, resourceId);
+        attrs[attrs.length - 1] = new Attribute(CATEGORY_ENVIRONMENT, ENVIRONMENT_ID, ProxyConstants.DEFAULT_DATA_TYPE, domainId);
         String xacmlRequest = XACMLRequetBuilder.buildXACML3Request(attrs);
         EntitlementServiceStub stub = getEntitlementStub(serverUrl);
         Authenticator authenticator = getAuthenticator(serverUrl, userName, password);

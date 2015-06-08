@@ -26,7 +26,12 @@ import org.wso2.carbon.identity.sso.agent.SSOAgentException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.*;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.X509Certificate;
 
 public class SSOAgentX509KeyStoreCredential implements SSOAgentX509Credential {

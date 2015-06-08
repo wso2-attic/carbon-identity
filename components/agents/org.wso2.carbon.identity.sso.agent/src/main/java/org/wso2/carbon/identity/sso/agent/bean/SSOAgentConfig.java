@@ -20,6 +20,7 @@
 
 package org.wso2.carbon.identity.sso.agent.bean;
 
+import org.apache.commons.lang.StringUtils;
 import org.opensaml.common.xml.SAMLConstants;
 import org.wso2.carbon.identity.sso.agent.SSOAgentConstants;
 import org.wso2.carbon.identity.sso.agent.SSOAgentException;
@@ -164,7 +165,7 @@ public class SSOAgentConfig {
                 SSOAgentConstants.SSOAgentConfig.OAUTH2_SAML2_GRANT_URL);
 
         String skipURIsString = properties.getProperty(SSOAgentConstants.SSOAgentConfig.SKIP_URIS);
-        if (skipURIsString != null && !skipURIsString.isEmpty()) {
+        if (!StringUtils.isBlank(skipURIsString)) {
             String[] skipURIArray = skipURIsString.split(",");
             for (String skipURI : skipURIArray) {
                 skipURIs.add(skipURI);
@@ -172,7 +173,7 @@ public class SSOAgentConfig {
         }
 
         String queryParamsString = properties.getProperty(SSOAgentConstants.SSOAgentConfig.QUERY_PARAMS);
-        if (queryParamsString != null && !queryParamsString.isEmpty()) {
+        if (!StringUtils.isBlank(queryParamsString)) {
             String[] queryParamsArray = queryParamsString.split("&");
             Map<String, List<String>> queryParamMap = new HashMap<String, List<String>>();
             if (queryParamsArray.length > 0) {

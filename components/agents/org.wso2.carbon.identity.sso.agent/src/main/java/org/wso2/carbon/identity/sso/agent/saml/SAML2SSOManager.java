@@ -20,6 +20,7 @@
 
 package org.wso2.carbon.identity.sso.agent.saml;
 
+import com.google.inject.internal.cglib.core.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xml.security.signature.XMLSignature;
@@ -355,7 +356,7 @@ public class SAML2SSOManager {
         if (ssoAgentConfig.getSAML2().isAssertionEncrypted()) {
             List<EncryptedAssertion> encryptedAssertions = saml2Response.getEncryptedAssertions();
             EncryptedAssertion encryptedAssertion = null;
-            if (encryptedAssertions != null && !encryptedAssertions.isEmpty()) {
+            if (!org.apache.commons.collections.CollectionUtils.isEmpty(encryptedAssertions)) {
                 encryptedAssertion = encryptedAssertions.get(0);
                 try {
                     assertion = getDecryptedAssertion(encryptedAssertion);

@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  *
- *
  */
+
 package org.wso2.carbon.identity.entitlement.proxy;
 
 import org.wso2.carbon.identity.entitlement.proxy.exception.EntitlementProxyException;
@@ -27,6 +27,16 @@ import java.util.Map;
 
 public class PEPProxy {
 
+    public static final String SIMPLE = "simple";
+    public static final String CARBON = "carbon";
+    public static final String URN_OASIS_NAMES_TC_XACML_1_0_SUBJECT_CATEGORY_ACCESS_SUBJECT = "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject";
+    public static final String URN_OASIS_NAMES_TC_XACML_1_0_SUBJECT_SUBJECT_ID = "urn:oasis:names:tc:xacml:1.0:subject:subject-id";
+    public static final String URN_OASIS_NAMES_TC_XACML_3_0_ATTRIBUTE_CATEGORY_ACTION = "urn:oasis:names:tc:xacml:3.0:attribute-category:action";
+    public static final String URN_OASIS_NAMES_TC_XACML_1_0_ACTION_ACTION_ID = "urn:oasis:names:tc:xacml:1.0:action:action-id";
+    public static final String URN_OASIS_NAMES_TC_XACML_3_0_ATTRIBUTE_CATEGORY_RESOURCE = "urn:oasis:names:tc:xacml:3.0:attribute-category:resource";
+    public static final String URN_OASIS_NAMES_TC_XACML_1_0_RESOURCE_RESOURCE_ID = "urn:oasis:names:tc:xacml:1.0:resource:resource-id";
+    public static final String URN_OASIS_NAMES_TC_XACML_3_0_ATTRIBUTE_CATEGORY_ENVIRONMENT = "urn:oasis:names:tc:xacml:3.0:attribute-category:environment";
+    public static final String URN_OASIS_NAMES_TC_XACML_1_0_ENVIRONMENT_ENVIRONMENT_ID = "urn:oasis:names:tc:xacml:1.0:environment:environment-id";
     private String defaultAppId;
     private Map<String, AbstractEntitlementServiceClient> appToPDPClientMap;
     private PEPProxyCache cache;
@@ -39,7 +49,7 @@ public class PEPProxy {
     public PEPProxy(PEPProxyConfig config) throws EntitlementProxyException {
         defaultAppId = config.getDefaultAppId();
 
-        if (config.getCacheType() != null && ("simple".equals(config.getCacheType()) || "carbon".equals(config.getCacheType()))) {
+        if (config.getCacheType() != null && (SIMPLE.equals(config.getCacheType()) || CARBON.equals(config.getCacheType()))) {
             cache = new PEPProxyCache(config.getCacheType(), config.getInvalidationInterval(), config.getMaxCacheEntries());
         }
         appToPDPClientMap = PEPProxyFactory.getAppToPDPClientMap(config.getAppToPDPClientConfigMap());
@@ -116,10 +126,10 @@ public class PEPProxy {
         if (!appToPDPClientMap.containsKey(appId)) {
             throw new EntitlementProxyException("Invalid App Id");
         }
-        Attribute subjectAttribute = new Attribute("urn:oasis:names:tc:xacml:1.0:subject-category:access-subject", "urn:oasis:names:tc:xacml:1.0:subject:subject-id", ProxyConstants.DEFAULT_DATA_TYPE, subject);
-        Attribute actionAttribute = new Attribute("urn:oasis:names:tc:xacml:3.0:attribute-category:action", "urn:oasis:names:tc:xacml:1.0:action:action-id", ProxyConstants.DEFAULT_DATA_TYPE, action);
-        Attribute resourceAttribute = new Attribute("urn:oasis:names:tc:xacml:3.0:attribute-category:resource", "urn:oasis:names:tc:xacml:1.0:resource:resource-id", ProxyConstants.DEFAULT_DATA_TYPE, resource);
-        Attribute environmentAttribute = new Attribute("urn:oasis:names:tc:xacml:3.0:attribute-category:environment", "urn:oasis:names:tc:xacml:1.0:environment:environment-id", ProxyConstants.DEFAULT_DATA_TYPE, environment);
+        Attribute subjectAttribute = new Attribute(URN_OASIS_NAMES_TC_XACML_1_0_SUBJECT_CATEGORY_ACCESS_SUBJECT, URN_OASIS_NAMES_TC_XACML_1_0_SUBJECT_SUBJECT_ID, ProxyConstants.DEFAULT_DATA_TYPE, subject);
+        Attribute actionAttribute = new Attribute(URN_OASIS_NAMES_TC_XACML_3_0_ATTRIBUTE_CATEGORY_ACTION, URN_OASIS_NAMES_TC_XACML_1_0_ACTION_ACTION_ID, ProxyConstants.DEFAULT_DATA_TYPE, action);
+        Attribute resourceAttribute = new Attribute(URN_OASIS_NAMES_TC_XACML_3_0_ATTRIBUTE_CATEGORY_RESOURCE, URN_OASIS_NAMES_TC_XACML_1_0_RESOURCE_RESOURCE_ID, ProxyConstants.DEFAULT_DATA_TYPE, resource);
+        Attribute environmentAttribute = new Attribute(URN_OASIS_NAMES_TC_XACML_3_0_ATTRIBUTE_CATEGORY_ENVIRONMENT, URN_OASIS_NAMES_TC_XACML_1_0_ENVIRONMENT_ENVIRONMENT_ID, ProxyConstants.DEFAULT_DATA_TYPE, environment);
         Attribute[] tempArr = {subjectAttribute, actionAttribute, resourceAttribute, environmentAttribute};
         return getDecision(tempArr, appId);
     }

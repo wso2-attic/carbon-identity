@@ -14,9 +14,8 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
- *
  */
+
 package org.wso2.carbon.identity.entitlement.filter.callback;
 
 import org.apache.commons.codec.binary.Base64;
@@ -28,11 +27,13 @@ import java.nio.charset.Charset;
 
 public class BasicAuthCallBackHandler extends EntitlementFilterCallBackHandler {
 
-    private static String authorization = "Authorization";
+    private static final String AUTHORIZATION = "Authorization";
+    private static final String NULL_STRING = "null";
+
     public BasicAuthCallBackHandler(HttpServletRequest request) throws EntitlementFilterException {
         String authHeaderEn = null;
-        if (!(request.getHeader(authorization) == null || "null".equals(request.getHeader(authorization)))) {
-            authHeaderEn = request.getHeader(authorization);
+        if (!(request.getHeader(AUTHORIZATION) == null || NULL_STRING.equals(request.getHeader(AUTHORIZATION)))) {
+            authHeaderEn = request.getHeader(AUTHORIZATION);
             String[] tempArr = authHeaderEn.split(" ");
             if (tempArr.length == 2) {
                 String authHeaderDc = null;
@@ -40,7 +41,7 @@ public class BasicAuthCallBackHandler extends EntitlementFilterCallBackHandler {
                     authHeaderDc = new String(Base64.decodeBase64(tempArr[1].getBytes(Charset.forName("UTF-8"))),
                             "UTF-8");
                 } catch (UnsupportedEncodingException e) {
-                    throw new EntitlementFilterException("authentication codec error",e);
+                    throw new EntitlementFilterException("authentication codec error", e);
                 }
                 tempArr = authHeaderDc.split(":");
                 if (tempArr.length == 2) {

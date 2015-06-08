@@ -17,6 +17,7 @@
  *
  *
  */
+
 package org.wso2.carbon.identity.entitlement.proxy.json;
 
 
@@ -36,7 +37,6 @@ public class JSONEntitlementServiceClient extends AbstractEntitlementServiceClie
     @Override
     public boolean subjectCanActOnResource(String subjectType, String alias, String actionId,
                                            String resourceId, String domainId, String appId) throws Exception {
-        // TODO Auto-generated method stub
         return false;
     }
 
@@ -44,34 +44,29 @@ public class JSONEntitlementServiceClient extends AbstractEntitlementServiceClie
     public boolean subjectCanActOnResource(String subjectType, String alias, String actionId,
                                            String resourceId, Attribute[] attributes, String domainId, String appId)
             throws Exception {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Override
     public List<String> getResourcesForAlias(String alias, String appId) throws Exception {
-        // TODO Auto-generated method stub
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     @Override
     public List<String> getActionableResourcesForAlias(String alias, String appId) throws Exception {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public List<String> getActionsForResource(String alias, String resources, String appId)
             throws Exception {
-        // TODO Auto-generated method stub
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     @Override
     public List<String> getActionableChildResourcesForAlias(String alias, String parentResource,
                                                             String action, String appId) throws Exception {
-        // TODO Auto-generated method stub
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
 }

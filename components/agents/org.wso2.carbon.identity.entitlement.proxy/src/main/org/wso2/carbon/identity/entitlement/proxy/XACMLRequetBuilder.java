@@ -17,6 +17,7 @@
  *
  *
  */
+
 package org.wso2.carbon.identity.entitlement.proxy;
 
 import org.apache.axiom.om.OMAbstractFactory;
@@ -32,6 +33,10 @@ import java.util.Set;
 public class XACMLRequetBuilder {
 
 
+    public static final String CORE_SCHEMA = "urn:oasis:names:tc:xacml:3.0:core:schema:wd-17";
+    public static final String ATTRIBUTE_ID = "AttributeId";
+    public static final String XMLSCHEMA = "http://www.w3.org/2001/XMLSchema#";
+
     private XACMLRequetBuilder(){
 
     }
@@ -40,26 +45,26 @@ public class XACMLRequetBuilder {
         OMFactory factory = OMAbstractFactory.getOMFactory();
 
         OMElement requestXML = factory.createOMElement("Request", null);
-        requestXML.addAttribute("xmlns", "urn:oasis:names:tc:xacml:3.0:core:schema:wd-17", null);
+        requestXML.addAttribute("xmlns", CORE_SCHEMA, null);
         requestXML.addAttribute("CombinedDecision", "false", null);
         requestXML.addAttribute("ReturnPolicyIdList", "false", null);
 
-        Set<String> catagorySet = new HashSet<String>();
+        Set<String> catagorySet = new HashSet<>();
         for (Attribute attribute : attributes) {
             if (!catagorySet.contains(attribute.getCategory())) {
                 catagorySet.add(attribute.getCategory());
                 OMElement attributesXML = factory.createOMElement("Attributes", null);
                 attributesXML.addAttribute("Category", attribute.getCategory(), null);
 
-                Set<String> attributeSet = new HashSet<String>();
+                Set<String> attributeSet = new HashSet<>();
                 if (!attributeSet.contains(attribute.getId())) {
                     attributeSet.add(attribute.getId());
                     OMElement attributeXML = factory.createOMElement("Attribute", null);
-                    attributeXML.addAttribute("AttributeId", attribute.getId(), null);
+                    attributeXML.addAttribute(ATTRIBUTE_ID, attribute.getId(), null);
                     attributeXML.addAttribute("IncludeInResult", "false", null);
 
                     OMElement attributeValueXML = factory.createOMElement("AttributeValue", null);
-                    attributeValueXML.addAttribute("DataType", "http://www.w3.org/2001/XMLSchema#" + attribute.getType(), null);
+                    attributeValueXML.addAttribute("DataType", XMLSCHEMA + attribute.getType(), null);
                     attributeValueXML.setText(attribute.getValue());
                     attributeXML.addChild(attributeValueXML);
                     attributesXML.addChild(attributeXML);
@@ -67,9 +72,9 @@ public class XACMLRequetBuilder {
                     Iterator itr = attributesXML.getChildElements();
                     while (itr.hasNext()) {
                         OMElement attributeXML = (OMElement) itr.next();
-                        if (attribute.getId().equals(attributeXML.getAttributeValue(new QName("AttributeId")))) {
+                        if (attribute.getId().equals(attributeXML.getAttributeValue(new QName(ATTRIBUTE_ID)))) {
                             OMElement attributeValueXML = factory.createOMElement("AttributeValue", null);
-                            attributeValueXML.addAttribute("DataType", "http://www.w3.org/2001/XMLSchema#" + attribute.getType(), null);
+                            attributeValueXML.addAttribute("DataType", XMLSCHEMA + attribute.getType(), null);
                             attributeValueXML.setText(attribute.getValue());
                             attributeXML.addChild(attributeValueXML);
                             break;
@@ -85,17 +90,17 @@ public class XACMLRequetBuilder {
                         Set<String> attributeSet = new HashSet<String>();
                         Iterator itr1 = attributesXML.getChildElements();
                         while (itr1.hasNext()) {
-                            attributeSet.add(((OMElement) itr1.next()).getAttributeValue(new QName("AttributeId")));
+                            attributeSet.add(((OMElement) itr1.next()).getAttributeValue(new QName(ATTRIBUTE_ID)));
                         }
 
                         if (!attributeSet.contains(attribute.getId())) {
                             attributeSet.add(attribute.getId());
                             OMElement attributeXML = factory.createOMElement("Attribute", null);
-                            attributeXML.addAttribute("AttributeId", attribute.getId(), null);
+                            attributeXML.addAttribute(ATTRIBUTE_ID, attribute.getId(), null);
                             attributeXML.addAttribute("IncludeInResult", "false", null);
 
                             OMElement attributeValueXML = factory.createOMElement("AttributeValue", null);
-                            attributeValueXML.addAttribute("DataType", "http://www.w3.org/2001/XMLSchema#" + attribute.getType(), null);
+                            attributeValueXML.addAttribute("DataType", XMLSCHEMA + attribute.getType(), null);
                             attributeValueXML.setText(attribute.getValue());
                             attributeXML.addChild(attributeValueXML);
                             attributesXML.addChild(attributeXML);
@@ -103,9 +108,9 @@ public class XACMLRequetBuilder {
                             Iterator itr2 = attributesXML.getChildElements();
                             while (itr2.hasNext()) {
                                 OMElement attributeXML = (OMElement) itr2.next();
-                                if (attribute.getId().equals(attributeXML.getAttributeValue(new QName("AttributeId")))) {
+                                if (attribute.getId().equals(attributeXML.getAttributeValue(new QName(ATTRIBUTE_ID)))) {
                                     OMElement attributeValueXML = factory.createOMElement("AttributeValue", null);
-                                    attributeValueXML.addAttribute("DataType", "http://www.w3.org/2001/XMLSchema#" + attribute.getType(), null);
+                                    attributeValueXML.addAttribute("DataType", XMLSCHEMA + attribute.getType(), null);
                                     attributeValueXML.setText(attribute.getValue());
                                     attributeXML.addChild(attributeValueXML);
                                     break;

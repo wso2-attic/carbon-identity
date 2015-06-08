@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  *
- *
  */
 
 package org.wso2.carbon.identity.entitlement.filter.exception;
@@ -29,105 +28,104 @@ public class EntitlementCacheUpdateServletDataHolder {
 
     private static EntitlementCacheUpdateServletDataHolder instance = new EntitlementCacheUpdateServletDataHolder();
 
-    private  String httpsPort;
-    private  ConfigurationContext configCtx;
-    private  String remoteServiceUserName;
-    private  String remoteServicePassword;
-    private  String remoteServiceUrl;
-    private  String authCookie;
-    private  ServletConfig servletConfig;
-    private  String authentication;
-    private  String authenticationPage;
-    private  String authenticationPageURL;
+    private String httpsPort;
+    private ConfigurationContext configCtx;
+    private String remoteServiceUserName;
+    private String remoteServicePassword;
+    private String remoteServiceUrl;
+    private String authCookie;
+    private ServletConfig servletConfig;
+    private String authentication;
+    private String authenticationPage;
+    private String authenticationPageURL;
 
 
-    public static EntitlementCacheUpdateServletDataHolder getInstance () {
+    public static EntitlementCacheUpdateServletDataHolder getInstance() {
         return instance;
     }
 
-    public  String getAuthenticationPageURL() {
+    public String getAuthenticationPageURL() {
         return authenticationPageURL;
     }
 
-    public  void setAuthenticationPageURL(String authPageURL) {
+    public void setAuthenticationPageURL(String authPageURL) {
         authenticationPageURL = authPageURL;
     }
 
 
-
-    public  String getAuthentication() {
+    public String getAuthentication() {
         return authentication;
     }
 
-    public  void setAuthentication(String auth) {
+    public void setAuthentication(String auth) {
         authentication = auth;
     }
 
-    public  ServletConfig getServletConfig() {
+    public ServletConfig getServletConfig() {
         return servletConfig;
     }
 
-    public  void setServletConfig(ServletConfig servletConfiguration) {
+    public void setServletConfig(ServletConfig servletConfiguration) {
         servletConfig = servletConfiguration;
     }
 
-    public  String getAuthCookie() {
+    public String getAuthCookie() {
         return authCookie;
     }
 
-    public  void setAuthCookie(String authenticationCookie) {
+    public void setAuthCookie(String authenticationCookie) {
         authCookie = authenticationCookie;
     }
 
 
-    public  String getRemoteServiceUrl() {
+    public String getRemoteServiceUrl() {
         return remoteServiceUrl;
     }
 
-    public  void setRemoteServiceUrl(String remoteServiceURL) {
+    public void setRemoteServiceUrl(String remoteServiceURL) {
         remoteServiceUrl = remoteServiceURL;
     }
 
 
-    public  String getRemoteServicePassword() {
+    public String getRemoteServicePassword() {
         return remoteServicePassword;
     }
 
-    public  void setRemoteServicePassword(String remoteServicePswd) {
+    public void setRemoteServicePassword(String remoteServicePswd) {
         remoteServicePassword = remoteServicePswd;
     }
 
-    public  String getRemoteServiceUserName() {
+    public String getRemoteServiceUserName() {
         return remoteServiceUserName;
     }
 
-    public  void setRemoteServiceUserName(String rmtServiceUserName) {
+    public void setRemoteServiceUserName(String rmtServiceUserName) {
         remoteServiceUserName = rmtServiceUserName;
     }
 
-    public  String getAuthenticationPage() {
+    public String getAuthenticationPage() {
         return authenticationPage;
     }
 
-    public  void setAuthenticationPage(String authPage) {
+    public void setAuthenticationPage(String authPage) {
         authenticationPage = authPage;
     }
 
 
-    public  String getHttpsPort() {
+    public String getHttpsPort() {
         return httpsPort;
     }
 
-    public  void setHttpsPort(String httpsPortStr) {
+    public void setHttpsPort(String httpsPortStr) {
         httpsPort = httpsPortStr;
     }
 
 
-    public  ConfigurationContext getConfigCtx() {
+    public ConfigurationContext getConfigCtx() {
         return configCtx;
     }
 
-    public  void setConfigCtx(ConfigurationContext configContext) {
+    public void setConfigCtx(ConfigurationContext configContext) {
         configCtx = configContext;
     }
 

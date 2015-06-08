@@ -93,9 +93,14 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
             Constants.SECURITY_MANAGER_PROPERTY;
     private static final int ENTITY_EXPANSION_LIMIT = 0;
+    public static final String ISSUER_URL = "https://identity.carbon.wso2.org";
+    public static final String DOCUMENT_BUILDER_FACTORY = "javax.xml.parsers.DocumentBuilderFactory";
+    public static final String DOCUMENT_BUILDER_FACTORY_IMPL = "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl";
     private static boolean isBootStrapped = false;
+    public static final String URN_OASIS_NAMES_TC_XACML_2_0_CONTEXT_SCHEMA_OS = "urn:oasis:names:tc:xacml:2.0:context:schema:os";
+
     private static OMNamespace xacmlContextNS = OMAbstractFactory.getOMFactory().createOMNamespace
-            ("urn:oasis:names:tc:xacml:2.0:context:schema:os", "xacml-context");
+            (URN_OASIS_NAMES_TC_XACML_2_0_CONTEXT_SCHEMA_OS, "xacml-context");
     HttpTransportProperties.Authenticator authenticator;
     private String serverUrl;
 
@@ -148,7 +153,7 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
         IssuerBuilder issuer = (IssuerBuilder) org.opensaml.xml.Configuration.getBuilderFactory().
                 getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
         Issuer issuerObject = issuer.buildObject();
-        issuerObject.setValue("https://identity.carbon.wso2.org");
+        issuerObject.setValue(ISSUER_URL);
         issuerObject.setSPProvidedID("SPPProvierId");
 
         return issuerObject;
@@ -206,13 +211,13 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
 
     @Override
     public List<String> getResourcesForAlias(String alias, String appId) throws Exception {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     @Override
     public List<String> getActionableResourcesForAlias(String alias, String appId)
             throws Exception {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     @Override
@@ -220,14 +225,14 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
                                                             String action, String appId)
             throws Exception {
 
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     @Override
     public List<String> getActionsForResource(String alias, String resources, String appId)
             throws Exception {
 
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     /**
@@ -292,7 +297,7 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
     private boolean validateIssuer(Issuer issuer) {
 
         boolean isValidated = false;
-        if ("https://identity.carbon.wso2.org".equals(issuer.getValue())
+        if (ISSUER_URL.equals(issuer.getValue())
                 && "SPPProvider".equals(issuer.getSPProvidedID())) {
             isValidated = true;
         }
@@ -464,8 +469,9 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
 
         try {
             doBootstrap();
-            System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-                    "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl");
+            System.setProperty(
+                    DOCUMENT_BUILDER_FACTORY,
+                    DOCUMENT_BUILDER_FACTORY_IMPL);
 
             MarshallerFactory marshallerFactory = org.opensaml.xml.Configuration.getMarshallerFactory();
             Marshaller marshaller = marshallerFactory.getMarshaller(xmlObject);
