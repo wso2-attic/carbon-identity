@@ -169,6 +169,9 @@ public class ProvisioningClient implements Runnable {
         } catch (IOException e) {
             logger.error("Error in invoking provisioning operation for the user with id: " + userId);
             logger.error(e.getMessage());
+<<<<<<< HEAD
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
+=======
 >>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
         }
     }
@@ -258,6 +261,9 @@ public class ProvisioningClient implements Runnable {
         } catch (BadRequestException e) {
             logger.error("Error in provisioning 'delete user' operation.");
             logger.error(e.getDescription());
+<<<<<<< HEAD
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
+=======
 >>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
         }
     }
@@ -357,6 +363,9 @@ public class ProvisioningClient implements Runnable {
         } catch (BadRequestException e) {
             logger.error("Error in provisioning 'update user' operation.");
             logger.error(e.getDescription());
+<<<<<<< HEAD
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
+=======
 >>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
         }
     }
@@ -379,7 +388,11 @@ public class ProvisioningClient implements Runnable {
 
             Group copiedGroup = null;
 <<<<<<< HEAD
+<<<<<<< HEAD
             if (CollectionUtils.isNotEmpty(users)) {
+=======
+            if (users != null && !CollectionUtils.isEmpty(users)) {
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
 =======
             if (users != null && !CollectionUtils.isEmpty(users)) {
 >>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
@@ -488,6 +501,9 @@ public class ProvisioningClient implements Runnable {
         } catch (CharonException e) {
             logger.error("Error in provisioning 'create group' operation.");
             logger.error(e.getDescription());
+<<<<<<< HEAD
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
+=======
 >>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
         }
     }
@@ -576,6 +592,9 @@ public class ProvisioningClient implements Runnable {
         } catch (BadRequestException e) {
             logger.error("Error in provisioning 'delete group' operation.");
             logger.error(e.getDescription());
+<<<<<<< HEAD
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
+=======
 >>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
         }
     }
@@ -641,7 +660,11 @@ public class ProvisioningClient implements Runnable {
 
                 Group copiedGroup = null;
 <<<<<<< HEAD
+<<<<<<< HEAD
                 if (CollectionUtils.isNotEmpty(users)) {
+=======
+                if (users != null && !CollectionUtils.isEmpty(users)) {
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
 =======
                 if (users != null && !CollectionUtils.isEmpty(users)) {
 >>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
@@ -736,6 +759,9 @@ public class ProvisioningClient implements Runnable {
         } catch (BadRequestException e) {
             logger.error("Error in provisioning 'delete group' operation.");
             logger.error(e.getDescription());
+<<<<<<< HEAD
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
+=======
 >>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
         }
     }

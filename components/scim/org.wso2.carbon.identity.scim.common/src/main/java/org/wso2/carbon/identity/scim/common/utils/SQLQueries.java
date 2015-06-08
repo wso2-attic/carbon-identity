@@ -22,6 +22,11 @@ package org.wso2.carbon.identity.scim.common.utils;
 public class SQLQueries {
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+    private SQLQueries(){}
+
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
 =======
     private SQLQueries(){}
 

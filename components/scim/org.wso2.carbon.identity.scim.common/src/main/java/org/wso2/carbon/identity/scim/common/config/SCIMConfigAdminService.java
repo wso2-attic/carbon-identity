@@ -1,6 +1,10 @@
 /*
 <<<<<<< HEAD
+<<<<<<< HEAD
  * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+=======
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
 =======
  * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 >>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
@@ -11,7 +15,11 @@
  * You may obtain a copy of the License at
  *
 <<<<<<< HEAD
+<<<<<<< HEAD
  * http://www.apache.org/licenses/LICENSE-2.0
+=======
+ *      http://www.apache.org/licenses/LICENSE-2.0
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
 =======
  *      http://www.apache.org/licenses/LICENSE-2.0
 >>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
@@ -56,7 +64,11 @@ public class SCIMConfigAdminService {
             List<SCIMProviderDTO> globalProviders =
                     providerDAO.getAllProviders(SCIMCommonUtils.getGlobalConsumerId());
 <<<<<<< HEAD
+<<<<<<< HEAD
             if (CollectionUtils.isNotEmpty(globalProviders)) {
+=======
+            if (globalProviders != null && !CollectionUtils.isEmpty(globalProviders)) {
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
 =======
             if (globalProviders != null && !CollectionUtils.isEmpty(globalProviders)) {
 >>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
@@ -168,7 +180,11 @@ public class SCIMConfigAdminService {
             List<SCIMProviderDTO> globalProviders =
                     providerDAO.getAllProviders(SCIMCommonUtils.getUserConsumerId());
 <<<<<<< HEAD
+<<<<<<< HEAD
             if (CollectionUtils.isNotEmpty(globalProviders)) {
+=======
+            if (globalProviders != null && !CollectionUtils.isEmpty(globalProviders)) {
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
 =======
             if (globalProviders != null && !CollectionUtils.isEmpty(globalProviders)) {
 >>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f

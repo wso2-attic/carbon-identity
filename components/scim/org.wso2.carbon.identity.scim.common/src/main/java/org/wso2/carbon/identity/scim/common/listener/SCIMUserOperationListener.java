@@ -146,7 +146,11 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                             userName, claimURIList.toArray(new String[claimURIList.size()]), null);
                     //if null, or if id attribute not present, add them
 <<<<<<< HEAD
+<<<<<<< HEAD
                     if (MapUtils.isNotEmpty(attributes)) {
+=======
+                    if (attributes != null && !MapUtils.isEmpty(attributes)) {
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
 =======
                     if (attributes != null && !MapUtils.isEmpty(attributes)) {
 >>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
@@ -179,7 +183,11 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                         isSCIMConsumerEnabled(consumerUserId)) {
                     //if user created through management console, claim values are not present.
 <<<<<<< HEAD
+<<<<<<< HEAD
                     if (MapUtils.isNotEmpty(attributes)) {
+=======
+                    if (attributes != null && !MapUtils.isEmpty(attributes)) {
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
 =======
                     if (attributes != null && !MapUtils.isEmpty(attributes)) {
 >>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
@@ -387,7 +395,11 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                                 isSCIMConsumerEnabled(consumerUserId)) {
                             //if no claim values are present, no need to do provisioning.
 <<<<<<< HEAD
+<<<<<<< HEAD
                             if (MapUtils.isNotEmpty(claims)) {
+=======
+                            if (claims != null && !MapUtils.isEmpty(claims)) {
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
 =======
                             if (claims != null && !MapUtils.isEmpty(claims)) {
 >>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
@@ -711,7 +723,11 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
     public Map<String, String> getSCIMAttributes(String userName, Map<String, String> claimsMap) {
         Map<String, String> attributes = null;
 <<<<<<< HEAD
+<<<<<<< HEAD
         if (MapUtils.isNotEmpty(claimsMap)) {
+=======
+        if (claimsMap != null && !MapUtils.isEmpty(claimsMap)) {
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
 =======
         if (claimsMap != null && !MapUtils.isEmpty(claimsMap)) {
 >>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f

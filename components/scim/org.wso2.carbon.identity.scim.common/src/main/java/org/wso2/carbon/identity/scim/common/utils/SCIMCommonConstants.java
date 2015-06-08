@@ -24,6 +24,11 @@ package org.wso2.carbon.identity.scim.common.utils;
 public class SCIMCommonConstants {
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+    private  SCIMCommonConstants(){}
+
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
 =======
     private  SCIMCommonConstants(){}
 

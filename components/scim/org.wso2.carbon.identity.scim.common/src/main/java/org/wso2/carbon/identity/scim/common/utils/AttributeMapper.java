@@ -19,7 +19,10 @@
 package org.wso2.carbon.identity.scim.common.utils;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import org.apache.commons.collections.CollectionUtils;
+=======
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
 =======
 >>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
 import org.apache.commons.collections.MapUtils;
@@ -122,15 +125,21 @@ public class AttributeMapper {
                 Map<String, Attribute> attributes = null;
                 if (complexAttribute.getSubAttributes() != null &&
 <<<<<<< HEAD
+<<<<<<< HEAD
                         MapUtils.isNotEmpty(complexAttribute.getSubAttributes())) {
                     attributes = complexAttribute.getSubAttributes();
                 } else if (complexAttribute.getAttributes() != null &&
                         MapUtils.isNotEmpty(complexAttribute.getAttributes())) {
 =======
+=======
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
                         !MapUtils.isEmpty(complexAttribute.getSubAttributes())) {
                     attributes = complexAttribute.getSubAttributes();
                 } else if (complexAttribute.getAttributes() != null &&
                         !MapUtils.isEmpty(complexAttribute.getAttributes())) {
+<<<<<<< HEAD
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
+=======
 >>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
                     attributes = complexAttribute.getAttributes();
                 }
@@ -191,10 +200,17 @@ public class AttributeMapper {
                         Map<String, Attribute> entryAttributes = null;
                         if (entryOfComplexAttribute.getSubAttributes() != null &&
 <<<<<<< HEAD
+<<<<<<< HEAD
                                 MapUtils.isNotEmpty(entryOfComplexAttribute.getSubAttributes())) {
                             entryAttributes = entryOfComplexAttribute.getSubAttributes();
                         } else if (entryOfComplexAttribute.getAttributes() != null &&
                                 MapUtils.isNotEmpty(entryOfComplexAttribute.getAttributes())) {
+=======
+                                !MapUtils.isEmpty(entryOfComplexAttribute.getSubAttributes())) {
+                            entryAttributes = entryOfComplexAttribute.getSubAttributes();
+                        } else if (entryOfComplexAttribute.getAttributes() != null &&
+                                !MapUtils.isEmpty(entryOfComplexAttribute.getAttributes())) {
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
 =======
                                 !MapUtils.isEmpty(entryOfComplexAttribute.getSubAttributes())) {
                             entryAttributes = entryOfComplexAttribute.getSubAttributes();
