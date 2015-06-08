@@ -1,20 +1,21 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.um.ws.api;
 
 import org.apache.axis2.AxisFault;
@@ -29,8 +30,11 @@ import org.wso2.carbon.user.core.UserStoreException;
 
 public class WSAuthorizationManager implements AuthorizationManager {
 
-    private static Log log = LogFactory.getLog(WSUserStoreManager.class);
+    private static final Log log = LogFactory.getLog(WSUserStoreManager.class);
     private RemoteAuthorizationManagerServiceStub stub = null;
+
+    private static final String SERVICE_NAME = "RemoteAuthorizationManagerService";
+    private static final String CONNECTION_ERROR_MESSAGE = "Error while establishing web service connection ";
 
     public WSAuthorizationManager(String serverUrl, String cookie,
                                   ConfigurationContext configCtxt) throws UserStoreException {
@@ -38,17 +42,22 @@ public class WSAuthorizationManager implements AuthorizationManager {
         try {
             stub =
                     new RemoteAuthorizationManagerServiceStub(configCtxt, serverUrl +
-                            "RemoteAuthorizationManagerService");
+                            SERVICE_NAME);
             ServiceClient client = stub._getServiceClient();
             Options option = client.getOptions();
             option.setManageSession(true);
             option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
         } catch (AxisFault e) {
+
+            if (log.isDebugEnabled()) {
+                log.debug(CONNECTION_ERROR_MESSAGE, e);
+            }
+
             throw new UserStoreException();
         }
     }
 
-
+    @Override
     public void authorizeRole(String roleName, String resourceId, String action)
             throws UserStoreException {
         try {
@@ -58,6 +67,8 @@ public class WSAuthorizationManager implements AuthorizationManager {
         }
     }
 
+
+    @Override
     public void authorizeUser(String userName, String resourceId, String action)
             throws UserStoreException {
         try {
@@ -68,6 +79,7 @@ public class WSAuthorizationManager implements AuthorizationManager {
 
     }
 
+    @Override
     public void clearResourceAuthorizations(String resourceId) throws UserStoreException {
         try {
             stub.clearResourceAuthorizations(resourceId);
@@ -77,6 +89,7 @@ public class WSAuthorizationManager implements AuthorizationManager {
 
     }
 
+    @Override
     public void clearRoleActionOnAllResources(String roleName, String action)
             throws UserStoreException {
         try {
@@ -87,6 +100,7 @@ public class WSAuthorizationManager implements AuthorizationManager {
 
     }
 
+    @Override
     public void clearRoleAuthorization(String roleName, String resourceId, String action)
             throws UserStoreException {
         try {
@@ -96,6 +110,7 @@ public class WSAuthorizationManager implements AuthorizationManager {
         }
     }
 
+    @Override
     public void clearRoleAuthorization(String roleName) throws UserStoreException {
         try {
             stub.clearAllRoleAuthorization(roleName);
@@ -105,6 +120,7 @@ public class WSAuthorizationManager implements AuthorizationManager {
 
     }
 
+    @Override
     public void clearUserAuthorization(String userName, String resourceId, String action)
             throws UserStoreException {
         try {
@@ -115,6 +131,7 @@ public class WSAuthorizationManager implements AuthorizationManager {
 
     }
 
+    @Override
     public void clearUserAuthorization(String userName) throws UserStoreException {
         try {
             stub.clearAllUserAuthorization(userName);
@@ -124,6 +141,7 @@ public class WSAuthorizationManager implements AuthorizationManager {
 
     }
 
+    @Override
     public void denyRole(String roleName, String resourceId, String action)
             throws UserStoreException {
         try {
@@ -134,6 +152,7 @@ public class WSAuthorizationManager implements AuthorizationManager {
 
     }
 
+    @Override
     public void denyUser(String userName, String resourceId, String action)
             throws UserStoreException {
         try {
@@ -143,6 +162,7 @@ public class WSAuthorizationManager implements AuthorizationManager {
         }
     }
 
+    @Override
     public String[] getAllowedRolesForResource(String resourceId, String action)
             throws UserStoreException {
         try {
@@ -150,9 +170,10 @@ public class WSAuthorizationManager implements AuthorizationManager {
         } catch (Exception e) {
             this.handleException(e.getMessage(), e);
         }
-        return null;
+        return new String[0];
     }
 
+    @Override
     public String[] getAllowedUIResourcesForUser(String userName, String permissionRootPath)
             throws UserStoreException {
         try {
@@ -160,9 +181,10 @@ public class WSAuthorizationManager implements AuthorizationManager {
         } catch (Exception e) {
             this.handleException(e.getMessage(), e);
         }
-        return null;
+        return new String[0];
     }
 
+    @Override
     public String[] getDeniedRolesForResource(String resourceId, String action)
             throws UserStoreException {
         try {
@@ -170,9 +192,10 @@ public class WSAuthorizationManager implements AuthorizationManager {
         } catch (Exception e) {
             this.handleException(e.getMessage(), e);
         }
-        return null;
+        return new String[0];
     }
 
+    @Override
     public String[] getExplicitlyAllowedUsersForResource(String resourceId, String action)
             throws UserStoreException {
         try {
@@ -180,9 +203,10 @@ public class WSAuthorizationManager implements AuthorizationManager {
         } catch (Exception e) {
             this.handleException(e.getMessage(), e);
         }
-        return null;
+        return new String[0];
     }
 
+    @Override
     public String[] getExplicitlyDeniedUsersForResource(String resourceId, String action)
             throws UserStoreException {
         try {
@@ -190,9 +214,10 @@ public class WSAuthorizationManager implements AuthorizationManager {
         } catch (Exception e) {
             this.handleException(e.getMessage(), e);
         }
-        return null;
+        return new String[0];
     }
 
+    @Override
     public boolean isRoleAuthorized(String roleName, String resourceId, String action)
             throws UserStoreException {
         try {
@@ -203,6 +228,7 @@ public class WSAuthorizationManager implements AuthorizationManager {
         return false;
     }
 
+    @Override
     public boolean isUserAuthorized(String userName, String resourceId, String action)
             throws UserStoreException {
         try {
@@ -213,6 +239,7 @@ public class WSAuthorizationManager implements AuthorizationManager {
         return false;
     }
 
+    @Override
     public void resetPermissionOnUpdateRole(String roleName, String newRoleName)
             throws UserStoreException {
         try {
@@ -222,12 +249,9 @@ public class WSAuthorizationManager implements AuthorizationManager {
         }
     }
 
+    @Override
     public int getTenantId() throws UserStoreException {
-        try {
-            //return stub.getTenantId();
-        } catch (Exception e) {
-            this.handleException(e.getMessage(), e);
-        }
+
         return 0;
     }
 
