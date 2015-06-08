@@ -44,10 +44,16 @@ import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class OAuthAdminService extends AbstractAdmin {
 
+    public static final String IMPLICIT = "implicit";
+    public static final String AUTHORIZATION_CODE = "authorization_code";
     private static List<String> allowedGrants = null;
     protected Log log = LogFactory.getLog(OAuthAdminService.class);
     private AppInfoCache appInfoCache = AppInfoCache.getInstance();
@@ -139,7 +145,7 @@ public class OAuthAdminService extends AbstractAdmin {
             }
             return dto;
         } catch (InvalidOAuthClientException | IdentityOAuth2Exception e) {
-            throw new IdentityOAuthAdminException(e.getMessage(), e);
+            throw new IdentityOAuthAdminException("Error while retrieving the app information using consumer key", e);
         }
 
     }
@@ -166,7 +172,7 @@ public class OAuthAdminService extends AbstractAdmin {
             }
             return dto;
         }catch (InvalidOAuthClientException | IdentityOAuth2Exception e){
-            throw new IdentityOAuthAdminException(e.getMessage(), e);
+            throw new IdentityOAuthAdminException("Error while retrieving the app information by app name", e);
         }
     }
 
@@ -186,8 +192,8 @@ public class OAuthAdminService extends AbstractAdmin {
             OAuthAppDO app = new OAuthAppDO();
             if (application != null) {
                 app.setApplicationName(application.getApplicationName());
-                if ((application.getGrantTypes().contains("authorization_code") || application.getGrantTypes()
-                        .contains("implicit")) && StringUtils.isEmpty(application.getCallbackUrl())) {
+                if ((application.getGrantTypes().contains(AUTHORIZATION_CODE) || application.getGrantTypes()
+                        .contains(IMPLICIT)) && StringUtils.isEmpty(application.getCallbackUrl())) {
                     throw new IdentityOAuthAdminException("Callback Url is required for Code or Implicit grant types");
                 }
                 app.setCallbackUrl(application.getCallbackUrl());
@@ -210,7 +216,7 @@ public class OAuthAdminService extends AbstractAdmin {
                                     " as registrant name");
                         }
                     } catch (UserStoreException e) {
-                        throw new IdentityOAuthAdminException(e.getMessage(), e);
+                        throw new IdentityOAuthAdminException("Error while retrieving the user store manager", e);
                     }
 
                 }
@@ -261,7 +267,7 @@ public class OAuthAdminService extends AbstractAdmin {
         oauthappdo.setCallbackUrl(consumerAppDTO.getCallbackUrl());
         oauthappdo.setApplicationName(consumerAppDTO.getApplicationName());
         if (OAuthConstants.OAuthVersions.VERSION_2.equals(consumerAppDTO.getOAuthVersion())) {
-            List<String> allowedGrants = new ArrayList<String>(Arrays.asList(getAllowedGrantTypes()));
+            List<String> allowedGrants = new ArrayList<>(Arrays.asList(getAllowedGrantTypes()));
             String[] requestGrants = consumerAppDTO.getGrantTypes().split("\\s");
             for (String requestedGrant : requestGrants) {
                 if ("".equals(requestedGrant.trim())) {
@@ -452,8 +458,8 @@ public class OAuthAdminService extends AbstractAdmin {
                                 try {
                                     tokenMgtDAO.revokeToken(scopedToken.getAccessToken());
                                 } catch (IdentityOAuth2Exception e) {
-                                    String errorMsg = "Error occurred while revoking " +
-                                            "Access Token : " + scopedToken.getAccessToken();
+                                    String errorMsg = "Error occurred while revoking " + "Access Token : " +
+                                            scopedToken.getAccessToken();
                                     log.error(errorMsg, e);
                                     throw new IdentityOAuthAdminException(errorMsg, e);
                                 }
@@ -477,7 +483,7 @@ public class OAuthAdminService extends AbstractAdmin {
             allowedGrants = new ArrayList();
             allowedGrants.addAll(OAuthServerConfiguration.getInstance().getSupportedGrantTypes().keySet());
             if (OAuthServerConfiguration.getInstance().getSupportedResponseTypes().containsKey("token")) {
-                allowedGrants.add("implicit");
+                allowedGrants.add(IMPLICIT);
             }
         }
         return allowedGrants.toArray(new String[allowedGrants.size()]);

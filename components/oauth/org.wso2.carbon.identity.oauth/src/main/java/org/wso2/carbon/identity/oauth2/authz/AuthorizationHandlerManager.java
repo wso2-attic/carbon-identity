@@ -41,6 +41,9 @@ import java.util.Map;
 
 public class AuthorizationHandlerManager {
 
+    public static final String CODE = "code";
+    public static final String TOKEN = "token";
+    public static final String IMPLICIT = "implicit";
     private static Log log = LogFactory.getLog(AuthorizationHandlerManager.class);
 
     private static AuthorizationHandlerManager instance;
@@ -93,7 +96,7 @@ public class AuthorizationHandlerManager {
         OAuthAppDO oAuthAppDO = getAppInformation(authzReqDTO);
         // If the application has defined a limited set of grant types, then check the grant
         if (oAuthAppDO.getGrantTypes() != null) {
-            if ("code".equals(responseType)) {
+            if (CODE.equals(responseType)) {
                 //Do not change this log format as these logs use by external applications
                 if (!oAuthAppDO.getGrantTypes().contains("authorization_code")) {
                     log.debug("Unsupported Response Type : " + responseType +
@@ -102,7 +105,7 @@ public class AuthorizationHandlerManager {
                             "Unsupported Response Type!");
                     return authorizeRespDTO;
                 }
-            } else if ("token".equals(responseType) && !oAuthAppDO.getGrantTypes().contains("implicit")) {
+            } else if (TOKEN.equals(responseType) && !oAuthAppDO.getGrantTypes().contains(IMPLICIT)) {
                 //Do not change this log format as these logs use by external applications
                 log.debug("Unsupported Response Type : " + responseType + " for client id : " + authzReqDTO
                         .getConsumerKey());

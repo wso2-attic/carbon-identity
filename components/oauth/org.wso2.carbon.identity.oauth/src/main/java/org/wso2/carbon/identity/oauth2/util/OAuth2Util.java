@@ -51,6 +51,7 @@ import java.util.TreeMap;
  */
 public class OAuth2Util {
 
+    public static final String IMPLICIT = "implicit";
     private static Log log = LogFactory.getLog(OAuth2Util.class);
     private static boolean cacheEnabled = OAuthServerConfiguration.getInstance().isCacheEnabled();
     private static OAuthCache cache = OAuthCache.getInstance();
@@ -170,7 +171,7 @@ public class OAuth2Util {
                 if (StringUtils.isNotEmpty(grantTypesString) && StringUtils.isNotEmpty(grantTypesString.trim())) {
                     String[] grantTypes = grantTypesString.split(",");
                     for (String grantType : grantTypes) {
-                        if (StringUtils.isNotBlank(grantType) && !"implicit".equals(grantType.trim())) {
+                        if (StringUtils.isNotBlank(grantType) && !IMPLICIT.equals(grantType.trim())) {
                             isOnlyImplicit = false;
                         }
                     }

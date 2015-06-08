@@ -94,7 +94,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
         try {
             DefaultBootstrap.bootstrap();
         } catch (ConfigurationException e) {
-            log.error(e);
+            log.error("Error in bootstrapping the OpenSAML2 library", e);
             throw new IdentityOAuth2Exception("Error in bootstrapping the OpenSAML2 library");
         } finally {
             thread.setContextClassLoader(loader);
@@ -147,7 +147,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             assertion = (Assertion) samlObject;
         } catch (IdentityOAuth2Exception e) {
             // fault in the saml token
-            log.error(e);
+            log.error("Error while unmashalling the assertion", e);
             return false;
         }
 
@@ -425,7 +425,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             profileValidator.validate(assertion.getSignature());
         } catch (ValidationException e) {
             // Indicates signature did not conform to SAML Signature profile
-            log.error(e);
+            log.error("Signature do not confirm to SAML signature profile.", e);
 
             return false;
         }
@@ -435,7 +435,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             x509Certificate = (X509Certificate) IdentityApplicationManagementUtil
                     .decodeCertificate(identityProvider.getCertificate());
         } catch (CertificateException e) {
-            log.error(e);
+            log.error("Error while decoding the certificate.");
             throw new IdentityOAuth2Exception("Error occurred while decoding public certificate of Identity Provider "
                     + identityProvider.getIdentityProviderName() + " for tenant domain " + tenantDomain);
         }
@@ -448,7 +448,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                 log.debug("Signature validation successful");
             }
         } catch (ValidationException e) {
-            log.error(e.getMessage(), e);
+            log.error("Error while validating the signature.", e);
             return false;
         }
 

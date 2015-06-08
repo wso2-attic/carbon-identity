@@ -53,6 +53,7 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public class OAuth2Service extends AbstractAdmin {
 
+    public static final String REFRESH_TOKEN = "refresh_token";
     private static Log log = LogFactory.getLog(OAuth2Service.class);
 
     /**
@@ -153,7 +154,7 @@ public class OAuth2Service extends AbstractAdmin {
             }
         } catch (InvalidOAuthClientException e) {
             // There is no such Client ID being registered. So it is a request from an invalid client.
-            log.error(e);
+            log.error("Error while retrieving the Application Information", e);
             validationResponseDTO.setValidClient(false);
             validationResponseDTO.setErrorCode(OAuth2ErrorCodes.INVALID_CLIENT);
             validationResponseDTO.setErrorMsg(e.getMessage());
@@ -228,7 +229,7 @@ public class OAuth2Service extends AbstractAdmin {
                     return revokeRespDTO;
                 }
                 boolean refreshTokenFirst = false;
-                if (revokeRequestDTO.getToken_type() != null && "refresh_token".equals(revokeRequestDTO.getToken_type())) {
+                if (revokeRequestDTO.getToken_type() != null && REFRESH_TOKEN.equals(revokeRequestDTO.getToken_type())) {
                     refreshTokenFirst = true;
                 }
                 if (refreshTokenFirst) {
@@ -305,14 +306,14 @@ public class OAuth2Service extends AbstractAdmin {
             }
 
         } catch (IdentityException e) {
-            log.error(e);
+            log.error("Error occurred while revoking authorization grant for applications", e);
             OAuthRevocationResponseDTO revokeRespDTO = new OAuthRevocationResponseDTO();
             revokeRespDTO.setError(true);
             revokeRespDTO.setErrorCode(OAuth2ErrorCodes.SERVER_ERROR);
             revokeRespDTO.setErrorMsg("Error occurred while revoking authorization grant for applications");
             return revokeRespDTO;
         } catch (InvalidOAuthClientException e) {
-            log.error(e);
+            log.error("Unauthorized Client", e);
             OAuthRevocationResponseDTO revokeRespDTO = new OAuthRevocationResponseDTO();
             revokeRespDTO.setError(true);
             revokeRespDTO.setErrorCode(OAuth2ErrorCodes.UNAUTHORIZED_CLIENT);
