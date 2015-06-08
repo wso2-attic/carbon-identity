@@ -1,0 +1,46 @@
+Manifest-Version: 1.0
+Service-Component: OSGI-INF/serviceComponents.xml
+Export-Package: org.wso2.carbon.identity.authenticator.iwa;uses:="org.
+ wso2.carbon.registry.core.service,org.wso2.carbon.core.common,org.apa
+ che.commons.logging,org.wso2.carbon.user.api,org.wso2.carbon.core.ser
+ vices.authentication,org.wso2.carbon.user.core,org.apache.axis2.conte
+ xt,org.wso2.carbon.user.core.tenant,org.wso2.carbon.user.core.service
+ ,org.wso2.carbon.utils.multitenancy,org.wso2.carbon.core.util,org.wso
+ 2.carbon.core.services.util,org.osgi.framework,javax.servlet.http";ve
+ rsion="4.5.1.SNAPSHOT",org.wso2.carbon.identity.authenticator.iwa.uti
+ l;uses:="org.apache.axis2.description,org.apache.axis2,org.apache.com
+ mons.logging,org.apache.axis2.engine,org.apache.neethi,org.wso2.carbo
+ n.identity.base,org.apache.axiom.om";version="4.5.1.SNAPSHOT"
+Built-By: hasanthi
+Tool: Bnd-1.43.0
+Bundle-Name: IWA Authenticator - BE bundle
+Created-By: Apache Maven Bundle Plugin
+Bundle-Vendor: WSO2
+Build-Jdk: 1.7.0_80
+Bundle-Version: 4.5.1.SNAPSHOT
+Bnd-LastModified: 1433496249951
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-Description: IWA Authenticator - BE bundle
+Import-Package: javax.servlet.http;version="[2.6,3)",org.apache.axiom.
+ om;version="[1.2.11.wso2v6,1.3.0)",org.apache.axis2;version="[1.6.1.w
+ so2v12,1.7.0)",org.apache.axis2.context;version="[1.6.1.wso2v12,1.7.0
+ )",org.apache.axis2.description;version="[1.6.1.wso2v12,1.7.0)",org.a
+ pache.axis2.engine;version="[1.6.1.wso2v12,1.7.0)",org.apache.commons
+ .logging;version="[1.2,1.3)",org.apache.neethi;version="[2.0.4.wso2v4
+ ,2.1.0)",org.osgi.framework;version="[1.7.0,1.8.0)",org.osgi.service.
+ component;version="[1.2.0,1.3.0)",org.wso2.carbon.core.common;version
+ ="[4.4.0,4.5.0)",org.wso2.carbon.core.services.authentication;version
+ ="[4.4.0,4.5.0)",org.wso2.carbon.core.services.callback;version="[4.4
+ .0,4.5.0)",org.wso2.carbon.core.services.util;version="[4.4.0,4.5.0)"
+ ,org.wso2.carbon.core.util;version="[4.4.0,4.5.0)",org.wso2.carbon.id
+ entity.base;version="[4.5.0,4.6.0)",org.wso2.carbon.registry.core.ser
+ vice;version="[1.0.1,1.1.0)",org.wso2.carbon.user.api;version="[1.0.1
+ ,1.1.0)",org.wso2.carbon.user.core;version="[4.4.0,4.5.0)",org.wso2.c
+ arbon.user.core.service;version="[4.4.0,4.5.0)",org.wso2.carbon.user.
+ core.tenant;version="[4.4.0,4.5.0)",org.wso2.carbon.utils;version="[4
+ .4.0,4.5.0)",org.wso2.carbon.utils.multitenancy;version="[4.4.0,4.5.0
+ )"
+Bundle-DocURL: http://www.wso2.org/
+Bundle-SymbolicName: org.wso2.carbon.identity.authenticator.iwa
+
