@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2007   , WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -31,6 +31,7 @@ import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.admin.SAMLSSOConfigAdmin;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOServiceProviderDTO;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOServiceProviderInfoDTO;
+import org.wso2.carbon.identity.sso.saml.exception.IdentitySAML2SSOException;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 import org.wso2.carbon.security.SecurityConfigException;
 import org.wso2.carbon.security.keystore.KeyStoreAdmin;
@@ -49,9 +50,14 @@ public class SAMLSSOConfigService extends AbstractAdmin {
      * @return
      * @throws IdentityException
      */
-    public boolean addRPServiceProvider(SAMLSSOServiceProviderDTO spDto) throws IdentityException {
+    public boolean addRPServiceProvider(SAMLSSOServiceProviderDTO spDto) throws IdentitySAML2SSOException {
         SAMLSSOConfigAdmin configAdmin = new SAMLSSOConfigAdmin(getConfigSystemRegistry());
-        return configAdmin.addRelyingPartyServiceProvider(spDto);
+        try {
+            return configAdmin.addRelyingPartyServiceProvider(spDto);
+        } catch (IdentityException e) {
+            log.error("Error while adding service provider", e);
+            throw new IdentitySAML2SSOException("Error while adding service provider");
+        }
     }
 
     /**
@@ -61,9 +67,14 @@ public class SAMLSSOConfigService extends AbstractAdmin {
      * @return
      * @throws IdentityException
      */
-    public boolean updateRPServiceProvider(SAMLSSOServiceProviderDTO spDto) throws IdentityException {
+    public boolean updateRPServiceProvider(SAMLSSOServiceProviderDTO spDto) throws IdentitySAML2SSOException {
         SAMLSSOConfigAdmin configAdmin = new SAMLSSOConfigAdmin(getConfigSystemRegistry());
-        return configAdmin.updateRelyingPartyServiceProvider(spDto);
+        try {
+            return configAdmin.updateRelyingPartyServiceProvider(spDto);
+        } catch (IdentityException e) {
+            log.error("Error while updating service provider", e);
+            throw new IdentitySAML2SSOException("Error while updating service provider");
+        }
     }
 
     /**
@@ -73,9 +84,14 @@ public class SAMLSSOConfigService extends AbstractAdmin {
      * @return
      * @throws IdentityException
      */
-    public SAMLSSOServiceProviderDTO uploadRPServiceProvider(String metadata) throws IdentityException {
+    public SAMLSSOServiceProviderDTO uploadRPServiceProvider(String metadata) throws IdentitySAML2SSOException {
         SAMLSSOConfigAdmin configAdmin = new SAMLSSOConfigAdmin(getConfigUserRegistry());
-        return configAdmin.uploadRelyingPartyServiceProvider(metadata);
+        try {
+            return configAdmin.uploadRelyingPartyServiceProvider(metadata);
+        } catch (IdentityException e) {
+            log.error("Error while uploading service provider", e);
+            throw new IdentitySAML2SSOException("Error while uploading service provider");
+        }
     }
 
     /**

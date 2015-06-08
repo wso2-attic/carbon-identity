@@ -1,32 +1,63 @@
-
-<!--
-  ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-  ~
-  ~ WSO2 Inc. licenses this file to you under the Apache License,
-  ~ Version 2.0 (the "License"); you may not use this file except
-  ~ in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~ http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing,
-  ~ software distributed under the License is distributed on an
-  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  ~ KIND, either express or implied.  See the License for the
-  ~ specific language governing permissions and limitations
-  ~ under the License.
-  -->
-
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:tns="http://saml.sso.identity.carbon.wso2.org" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ax2361="http://base.identity.carbon.wso2.org/xsd" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:ax2363="http://dto.saml.sso.identity.carbon.wso2.org/xsd" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://saml.sso.identity.carbon.wso2.org">
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:tns="http://saml.sso.identity.carbon.wso2.org" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ax2361="http://exception.saml.sso.identity.carbon.wso2.org/xsd" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:ax2363="http://dto.saml.sso.identity.carbon.wso2.org/xsd" xmlns:ax2365="http://base.identity.carbon.wso2.org/xsd" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://saml.sso.identity.carbon.wso2.org">
     <wsdl:documentation>IdentitySAMLSSOConfigService</wsdl:documentation>
     <wsdl:types>
-        <xs:schema xmlns:ns="http://org.apache.axis2/xsd" xmlns:ax2362="http://base.identity.carbon.wso2.org/xsd" xmlns:ax2364="http://dto.saml.sso.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://org.apache.axis2/xsd">
-            <xs:import namespace="http://base.identity.carbon.wso2.org/xsd"/>
+        <xs:schema xmlns:ax2366="http://base.identity.carbon.wso2.org/xsd" xmlns:ns="http://org.apache.axis2/xsd" xmlns:ax2362="http://exception.saml.sso.identity.carbon.wso2.org/xsd" xmlns:ax2364="http://dto.saml.sso.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://org.apache.axis2/xsd">
+            <xs:import namespace="http://exception.saml.sso.identity.carbon.wso2.org/xsd"/>
             <xs:import namespace="http://dto.saml.sso.identity.carbon.wso2.org/xsd"/>
+            <xs:import namespace="http://base.identity.carbon.wso2.org/xsd"/>
+            <xs:element name="IdentitySAMLSSOConfigServiceIdentitySAML2SSOException">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="IdentitySAML2SSOException" nillable="true" type="ax2361:IdentitySAML2SSOException"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="updateRPServiceProvider">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="spDto" nillable="true" type="ax2363:SAMLSSOServiceProviderDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="updateRPServiceProviderResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="uploadRPServiceProvider">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="metadata" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="uploadRPServiceProviderResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2363:SAMLSSOServiceProviderDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addRPServiceProvider">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="spDto" nillable="true" type="ax2363:SAMLSSOServiceProviderDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addRPServiceProviderResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
             <xs:element name="IdentitySAMLSSOConfigServiceIdentityException">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="IdentityException" nillable="true" type="ax2361:IdentityException"/>
+                        <xs:element minOccurs="0" name="IdentityException" nillable="true" type="ax2366:IdentityException"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -80,57 +111,8 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="addRPServiceProvider">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="spDto" nillable="true" type="ax2363:SAMLSSOServiceProviderDTO"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="addRPServiceProviderResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" type="xs:boolean"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="updateRPServiceProvider">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="spDto" nillable="true" type="ax2363:SAMLSSOServiceProviderDTO"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="updateRPServiceProviderResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" type="xs:boolean"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="uploadRPServiceProvider">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="metadata" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="uploadRPServiceProviderResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2363:SAMLSSOServiceProviderDTO"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
         </xs:schema>
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://dto.saml.sso.identity.carbon.wso2.org/xsd">
-            <xs:complexType name="SAMLSSOServiceProviderInfoDTO">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="pubCertFilePath" nillable="true" type="xs:string"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="serviceProviders" nillable="true" type="ax2363:SAMLSSOServiceProviderDTO"/>
-                    <xs:element minOccurs="0" name="tenantZero" type="xs:boolean"/>
-                </xs:sequence>
-            </xs:complexType>
             <xs:complexType name="SAMLSSOServiceProviderDTO">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="assertionConsumerUrl" nillable="true" type="xs:string"/>
@@ -155,9 +137,21 @@
                     <xs:element minOccurs="0" name="useFullyQualifiedUsername" type="xs:boolean"/>
                 </xs:sequence>
             </xs:complexType>
+            <xs:complexType name="SAMLSSOServiceProviderInfoDTO">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="pubCertFilePath" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="serviceProviders" nillable="true" type="ax2363:SAMLSSOServiceProviderDTO"/>
+                    <xs:element minOccurs="0" name="tenantZero" type="xs:boolean"/>
+                </xs:sequence>
+            </xs:complexType>
         </xs:schema>
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://base.identity.carbon.wso2.org/xsd">
             <xs:complexType name="IdentityException">
+                <xs:sequence/>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://exception.saml.sso.identity.carbon.wso2.org/xsd">
+            <xs:complexType name="IdentitySAML2SSOException">
                 <xs:sequence/>
             </xs:complexType>
         </xs:schema>
@@ -168,14 +162,17 @@
     <wsdl:message name="updateRPServiceProviderResponse">
         <wsdl:part name="parameters" element="ns1:updateRPServiceProviderResponse"/>
     </wsdl:message>
-    <wsdl:message name="IdentitySAMLSSOConfigServiceIdentityException">
-        <wsdl:part name="parameters" element="ns1:IdentitySAMLSSOConfigServiceIdentityException"/>
+    <wsdl:message name="IdentitySAMLSSOConfigServiceIdentitySAML2SSOException">
+        <wsdl:part name="parameters" element="ns1:IdentitySAMLSSOConfigServiceIdentitySAML2SSOException"/>
     </wsdl:message>
     <wsdl:message name="removeServiceProviderRequest">
         <wsdl:part name="parameters" element="ns1:removeServiceProvider"/>
     </wsdl:message>
     <wsdl:message name="removeServiceProviderResponse">
         <wsdl:part name="parameters" element="ns1:removeServiceProviderResponse"/>
+    </wsdl:message>
+    <wsdl:message name="IdentitySAMLSSOConfigServiceIdentityException">
+        <wsdl:part name="parameters" element="ns1:IdentitySAMLSSOConfigServiceIdentityException"/>
     </wsdl:message>
     <wsdl:message name="getCertAliasOfPrimaryKeyStoreRequest">
         <wsdl:part name="parameters" element="ns1:getCertAliasOfPrimaryKeyStore"/>
@@ -211,7 +208,7 @@
         <wsdl:operation name="updateRPServiceProvider">
             <wsdl:input message="tns:updateRPServiceProviderRequest" wsaw:Action="urn:updateRPServiceProvider"/>
             <wsdl:output message="tns:updateRPServiceProviderResponse" wsaw:Action="urn:updateRPServiceProviderResponse"/>
-            <wsdl:fault message="tns:IdentitySAMLSSOConfigServiceIdentityException" name="IdentitySAMLSSOConfigServiceIdentityException" wsaw:Action="urn:updateRPServiceProviderIdentitySAMLSSOConfigServiceIdentityException"/>
+            <wsdl:fault message="tns:IdentitySAMLSSOConfigServiceIdentitySAML2SSOException" name="IdentitySAMLSSOConfigServiceIdentitySAML2SSOException" wsaw:Action="urn:updateRPServiceProviderIdentitySAMLSSOConfigServiceIdentitySAML2SSOException"/>
         </wsdl:operation>
         <wsdl:operation name="removeServiceProvider">
             <wsdl:input message="tns:removeServiceProviderRequest" wsaw:Action="urn:removeServiceProvider"/>
@@ -231,7 +228,7 @@
         <wsdl:operation name="uploadRPServiceProvider">
             <wsdl:input message="tns:uploadRPServiceProviderRequest" wsaw:Action="urn:uploadRPServiceProvider"/>
             <wsdl:output message="tns:uploadRPServiceProviderResponse" wsaw:Action="urn:uploadRPServiceProviderResponse"/>
-            <wsdl:fault message="tns:IdentitySAMLSSOConfigServiceIdentityException" name="IdentitySAMLSSOConfigServiceIdentityException" wsaw:Action="urn:uploadRPServiceProviderIdentitySAMLSSOConfigServiceIdentityException"/>
+            <wsdl:fault message="tns:IdentitySAMLSSOConfigServiceIdentitySAML2SSOException" name="IdentitySAMLSSOConfigServiceIdentitySAML2SSOException" wsaw:Action="urn:uploadRPServiceProviderIdentitySAMLSSOConfigServiceIdentitySAML2SSOException"/>
         </wsdl:operation>
         <wsdl:operation name="getServiceProviders">
             <wsdl:input message="tns:getServiceProvidersRequest" wsaw:Action="urn:getServiceProviders"/>
@@ -241,7 +238,7 @@
         <wsdl:operation name="addRPServiceProvider">
             <wsdl:input message="tns:addRPServiceProviderRequest" wsaw:Action="urn:addRPServiceProvider"/>
             <wsdl:output message="tns:addRPServiceProviderResponse" wsaw:Action="urn:addRPServiceProviderResponse"/>
-            <wsdl:fault message="tns:IdentitySAMLSSOConfigServiceIdentityException" name="IdentitySAMLSSOConfigServiceIdentityException" wsaw:Action="urn:addRPServiceProviderIdentitySAMLSSOConfigServiceIdentityException"/>
+            <wsdl:fault message="tns:IdentitySAMLSSOConfigServiceIdentitySAML2SSOException" name="IdentitySAMLSSOConfigServiceIdentitySAML2SSOException" wsaw:Action="urn:addRPServiceProviderIdentitySAMLSSOConfigServiceIdentitySAML2SSOException"/>
         </wsdl:operation>
     </wsdl:portType>
     <wsdl:binding name="IdentitySAMLSSOConfigServiceSoap11Binding" type="tns:IdentitySAMLSSOConfigServicePortType">
@@ -254,8 +251,8 @@
             <wsdl:output>
                 <soap:body use="literal"/>
             </wsdl:output>
-            <wsdl:fault name="IdentitySAMLSSOConfigServiceIdentityException">
-                <soap:fault use="literal" name="IdentitySAMLSSOConfigServiceIdentityException"/>
+            <wsdl:fault name="IdentitySAMLSSOConfigServiceIdentitySAML2SSOException">
+                <soap:fault use="literal" name="IdentitySAMLSSOConfigServiceIdentitySAML2SSOException"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="removeServiceProvider">
@@ -302,8 +299,8 @@
             <wsdl:output>
                 <soap:body use="literal"/>
             </wsdl:output>
-            <wsdl:fault name="IdentitySAMLSSOConfigServiceIdentityException">
-                <soap:fault use="literal" name="IdentitySAMLSSOConfigServiceIdentityException"/>
+            <wsdl:fault name="IdentitySAMLSSOConfigServiceIdentitySAML2SSOException">
+                <soap:fault use="literal" name="IdentitySAMLSSOConfigServiceIdentitySAML2SSOException"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getServiceProviders">
@@ -326,8 +323,8 @@
             <wsdl:output>
                 <soap:body use="literal"/>
             </wsdl:output>
-            <wsdl:fault name="IdentitySAMLSSOConfigServiceIdentityException">
-                <soap:fault use="literal" name="IdentitySAMLSSOConfigServiceIdentityException"/>
+            <wsdl:fault name="IdentitySAMLSSOConfigServiceIdentitySAML2SSOException">
+                <soap:fault use="literal" name="IdentitySAMLSSOConfigServiceIdentitySAML2SSOException"/>
             </wsdl:fault>
         </wsdl:operation>
     </wsdl:binding>
@@ -341,8 +338,8 @@
             <wsdl:output>
                 <soap12:body use="literal"/>
             </wsdl:output>
-            <wsdl:fault name="IdentitySAMLSSOConfigServiceIdentityException">
-                <soap12:fault use="literal" name="IdentitySAMLSSOConfigServiceIdentityException"/>
+            <wsdl:fault name="IdentitySAMLSSOConfigServiceIdentitySAML2SSOException">
+                <soap12:fault use="literal" name="IdentitySAMLSSOConfigServiceIdentitySAML2SSOException"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="removeServiceProvider">
@@ -389,8 +386,8 @@
             <wsdl:output>
                 <soap12:body use="literal"/>
             </wsdl:output>
-            <wsdl:fault name="IdentitySAMLSSOConfigServiceIdentityException">
-                <soap12:fault use="literal" name="IdentitySAMLSSOConfigServiceIdentityException"/>
+            <wsdl:fault name="IdentitySAMLSSOConfigServiceIdentitySAML2SSOException">
+                <soap12:fault use="literal" name="IdentitySAMLSSOConfigServiceIdentitySAML2SSOException"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getServiceProviders">
@@ -413,8 +410,8 @@
             <wsdl:output>
                 <soap12:body use="literal"/>
             </wsdl:output>
-            <wsdl:fault name="IdentitySAMLSSOConfigServiceIdentityException">
-                <soap12:fault use="literal" name="IdentitySAMLSSOConfigServiceIdentityException"/>
+            <wsdl:fault name="IdentitySAMLSSOConfigServiceIdentitySAML2SSOException">
+                <soap12:fault use="literal" name="IdentitySAMLSSOConfigServiceIdentitySAML2SSOException"/>
             </wsdl:fault>
         </wsdl:operation>
     </wsdl:binding>

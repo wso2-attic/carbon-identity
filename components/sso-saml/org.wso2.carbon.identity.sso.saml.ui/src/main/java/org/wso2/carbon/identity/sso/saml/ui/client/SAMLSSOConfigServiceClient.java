@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -25,14 +25,13 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.sso.saml.stub.IdentitySAMLSSOConfigServiceIdentityException;
+import org.wso2.carbon.identity.sso.saml.stub.IdentitySAMLSSOConfigServiceIdentitySAML2SSOException;
 import org.wso2.carbon.identity.sso.saml.stub.IdentitySAMLSSOConfigServiceStub;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOServiceProviderDTO;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOServiceProviderInfoDTO;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -60,53 +59,55 @@ public class SAMLSSOConfigServiceClient {
     }
 
     // TODO : This method must return the added service provider data instead
-    public boolean addServiceProvider(SAMLSSOServiceProviderDTO serviceProviderDTO) throws AxisFault {
+    public boolean addServiceProvider(SAMLSSOServiceProviderDTO serviceProviderDTO) throws
+            SAMLSSOConfigServiceClientException {
+
         boolean status;
         try {
             status = stub.addRPServiceProvider(serviceProviderDTO);
-        } catch (Exception e) {
-            log.error("Error adding a new Service Provider", e);
-            throw new AxisFault(e.getMessage(), e);
+        } catch (RemoteException | IdentitySAMLSSOConfigServiceIdentitySAML2SSOException e) {
+            throw new SAMLSSOConfigServiceClientException("Error while uploading the service provider", e);
         }
         return status;
     }
 
-    public SAMLSSOServiceProviderDTO uploadServiceProvider(String metadata) throws AxisFault{
+    public SAMLSSOServiceProviderDTO uploadServiceProvider(String metadata) throws SAMLSSOConfigServiceClientException {
+
         SAMLSSOServiceProviderDTO serviceProviderDTO;
         try {
             serviceProviderDTO = stub.uploadRPServiceProvider(metadata);
-        } catch (RemoteException |IdentitySAMLSSOConfigServiceIdentityException e) {
-            log.error("Error uploading a new Service Provider", e);
-            throw new AxisFault(e.getMessage(), e);
+        } catch (RemoteException | IdentitySAMLSSOConfigServiceIdentitySAML2SSOException e) {
+            throw new SAMLSSOConfigServiceClientException("Error while uploading the service provider", e);
         }
         return serviceProviderDTO;
     }
-    public SAMLSSOServiceProviderDTO uploadServiceProviderFromUrl(String url) throws AxisFault{
+
+    public SAMLSSOServiceProviderDTO uploadServiceProviderFromUrl(String url) throws
+            SAMLSSOConfigServiceClientException {
 
         InputStream in = null;
         SAMLSSOServiceProviderDTO serviceProviderDTO;
         try {
             in = new URL(url).openStream();
             String metadata = IOUtils.toString(in);
-            System.out.println( metadata );
+            System.out.println(metadata);
             serviceProviderDTO = stub.uploadRPServiceProvider(metadata);
-        } catch (IdentitySAMLSSOConfigServiceIdentityException |IOException e) {
-            log.error("Error uploading a new Service Provider", e);
-            throw new AxisFault(e.getMessage(), e);
+        } catch (IOException | IdentitySAMLSSOConfigServiceIdentitySAML2SSOException e) {
+            throw new SAMLSSOConfigServiceClientException("Error while uploading the service provider", e);
         } finally {
             IOUtils.closeQuietly(in);
         }
         return serviceProviderDTO;
     }
 
-    // TODO : This method must return the added service provider data instead
-    public boolean updateServiceProvider(SAMLSSOServiceProviderDTO serviceProviderDTO) throws AxisFault {
+    public boolean updateServiceProvider(SAMLSSOServiceProviderDTO serviceProviderDTO) throws
+            SAMLSSOConfigServiceClientException {
+        
         boolean status;
         try {
             status = stub.updateRPServiceProvider(serviceProviderDTO);
-        } catch (Exception e) {
-            log.error("Error adding a new Service Provider", e);
-            throw new AxisFault(e.getMessage(), e);
+        } catch (RemoteException  | IdentitySAMLSSOConfigServiceIdentitySAML2SSOException e) {
+            throw new SAMLSSOConfigServiceClientException("Error while uploading the service provider", e);
         }
         return status;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2007, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -53,16 +53,15 @@ public class SAMLSSOConfigAdmin {
      * @return true if successful, false otherwise
      * @throws IdentityException if fails to load the identity persistence manager
      */
-    public boolean addRelyingPartyServiceProvider(SAMLSSOServiceProviderDTO serviceProviderDTO) throws IdentityException {
+    public boolean addRelyingPartyServiceProvider(SAMLSSOServiceProviderDTO serviceProviderDTO) throws
+            IdentityException {
 
         SAMLSSOServiceProviderDO serviceProviderDO = createSAMLSSOServiceProviderDO(serviceProviderDTO);
 
-        IdentityPersistenceManager persistenceManager = IdentityPersistenceManager
-                .getPersistanceManager();
+        IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
         try {
             return persistenceManager.addServiceProvider(registry, serviceProviderDO);
         } catch (IdentityException e) {
-            log.error("Error obtaining a registry for adding a new service provider", e);
             throw new IdentityException("Error obtaining a registry for adding a new service provider", e);
         }
     }
@@ -74,16 +73,15 @@ public class SAMLSSOConfigAdmin {
      * @return
      * @throws IdentityException
      */
-    public boolean updateRelyingPartyServiceProvider(SAMLSSOServiceProviderDTO serviceProviderDTO) throws IdentityException {
+    public boolean updateRelyingPartyServiceProvider(SAMLSSOServiceProviderDTO serviceProviderDTO) throws
+            IdentityException {
 
         SAMLSSOServiceProviderDO serviceProviderDO = createSAMLSSOServiceProviderDO(serviceProviderDTO);
 
-        IdentityPersistenceManager persistenceManager = IdentityPersistenceManager
-                .getPersistanceManager();
+        IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
         try {
             return persistenceManager.updateServiceProvider(registry, serviceProviderDO);
         } catch (IdentityException e) {
-            log.error("Error obtaining a registry for adding a new service provider", e);
             throw new IdentityException("Error obtaining a registry for adding a new service provider", e);
         }
     }
@@ -97,20 +95,19 @@ public class SAMLSSOConfigAdmin {
      */
     public SAMLSSOServiceProviderDTO uploadRelyingPartyServiceProvider(String metadata) throws IdentityException {
 
-        IdentityPersistenceManager persistenceManager = IdentityPersistenceManager
-                .getPersistanceManager();
+        IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
 
         try {
             SAMLSSOServiceProviderDO serviceProviderDO = persistenceManager.uploadServiceProvider(registry, metadata);
 
             return createSAMLSSOServiceProviderDTO(serviceProviderDO);
         } catch (IdentityException e) {
-            log.error("Error obtaining a registry for adding a new service provider", e);
             throw new IdentityException("Error obtaining a registry for adding a new service provider", e);
         }
     }
 
-    private SAMLSSOServiceProviderDTO createSAMLSSOServiceProviderDTO(SAMLSSOServiceProviderDO serviceProviderDO) throws IdentityException{
+    private SAMLSSOServiceProviderDTO createSAMLSSOServiceProviderDTO(SAMLSSOServiceProviderDO serviceProviderDO)
+            throws IdentityException {
         SAMLSSOServiceProviderDTO serviceProviderDTO = new SAMLSSOServiceProviderDTO();
 
         if (serviceProviderDO.getIssuer() == null || serviceProviderDO.getIssuer().equals("")) {
@@ -146,14 +143,17 @@ public class SAMLSSOConfigAdmin {
 
         serviceProviderDTO.setNameIDFormat(serviceProviderDO.getNameIDFormat());
 
-        if (serviceProviderDO.getAttributeConsumingServiceIndex() != null && !serviceProviderDO.getAttributeConsumingServiceIndex().equals("")){
+        if (serviceProviderDO.getAttributeConsumingServiceIndex() != null && !serviceProviderDO
+                .getAttributeConsumingServiceIndex().equals("")) {
             serviceProviderDTO.setAttributeConsumingServiceIndex(serviceProviderDO.getAttributeConsumingServiceIndex());
         }
 
-        if (serviceProviderDO.getRequestedAudiences() != null && serviceProviderDO.getRequestedAudiences().length != 0) {
+        if (serviceProviderDO.getRequestedAudiences() != null && serviceProviderDO.getRequestedAudiences().length !=
+                0) {
             serviceProviderDTO.setRequestedAudiences(serviceProviderDO.getRequestedAudiences());
         }
-        if (serviceProviderDO.getRequestedRecipients() != null && serviceProviderDO.getRequestedRecipients().length != 0) {
+        if (serviceProviderDO.getRequestedRecipients() != null && serviceProviderDO.getRequestedRecipients().length
+                != 0) {
             serviceProviderDTO.setRequestedRecipients(serviceProviderDO.getRequestedRecipients());
         }
         serviceProviderDTO.setIdPInitSSOEnabled(serviceProviderDO.isIdPInitSSOEnabled());
@@ -163,7 +163,8 @@ public class SAMLSSOConfigAdmin {
         return serviceProviderDTO;
     }
 
-    private SAMLSSOServiceProviderDO createSAMLSSOServiceProviderDO(SAMLSSOServiceProviderDTO serviceProviderDTO) throws IdentityException {
+    private SAMLSSOServiceProviderDO createSAMLSSOServiceProviderDO(SAMLSSOServiceProviderDTO serviceProviderDTO)
+            throws IdentityException {
 
         SAMLSSOServiceProviderDO serviceProviderDO = new SAMLSSOServiceProviderDO();
 
@@ -211,10 +212,12 @@ public class SAMLSSOConfigAdmin {
             serviceProviderDO.setAttributeConsumingServiceIndex("");
         }
 
-        if (serviceProviderDTO.getRequestedAudiences() != null && serviceProviderDTO.getRequestedAudiences().length != 0) {
+        if (serviceProviderDTO.getRequestedAudiences() != null && serviceProviderDTO.getRequestedAudiences().length
+                != 0) {
             serviceProviderDO.setRequestedAudiences(serviceProviderDTO.getRequestedAudiences());
         }
-        if (serviceProviderDTO.getRequestedRecipients() != null && serviceProviderDTO.getRequestedRecipients().length != 0) {
+        if (serviceProviderDTO.getRequestedRecipients() != null && serviceProviderDTO.getRequestedRecipients().length
+                != 0) {
             serviceProviderDO.setRequestedRecipients(serviceProviderDTO.getRequestedRecipients());
         }
         serviceProviderDO.setIdPInitSSOEnabled(serviceProviderDTO.isIdPInitSSOEnabled());

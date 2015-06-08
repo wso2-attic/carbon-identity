@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2007, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -27,7 +27,13 @@ import org.opensaml.common.impl.AbstractSAMLObjectMarshaller;
 import org.opensaml.common.impl.AbstractSAMLObjectUnmarshaller;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.common.Extensions;
-import org.opensaml.saml2.metadata.*;
+import org.opensaml.saml2.metadata.AssertionConsumerService;
+import org.opensaml.saml2.metadata.EntityDescriptor;
+import org.opensaml.saml2.metadata.KeyDescriptor;
+import org.opensaml.saml2.metadata.NameIDFormat;
+import org.opensaml.saml2.metadata.RoleDescriptor;
+import org.opensaml.saml2.metadata.SPSSODescriptor;
+import org.opensaml.saml2.metadata.SingleLogoutService;
 import org.opensaml.saml2.metadata.provider.DOMMetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProviderException;
 import org.opensaml.xml.Configuration;
@@ -94,7 +100,11 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.*;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayInputStream;
@@ -538,8 +548,9 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
      * @param entityDescriptor
      * @return
      */
-    private String getMetadataString(EntityDescriptor entityDescriptor) {
-        String metadataXML = "";
+    private String getMetadataString(EntityDescriptor entityDescriptor) throws IdentityException {
+
+        String metadataXML;
 
         DocumentBuilder builder;
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -561,30 +572,29 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
             stringWriter.close();
             metadataXML = stringWriter.toString();
         } catch (ParserConfigurationException | TransformerConfigurationException | MarshallingException e) {
-            log.error("Error while generating metadata", e);
+            throw new IdentityException("Error while generating metadata", e);
         } catch (IOException | TransformerException e) {
-            log.error("Error while building the metadata xml", e);
+            throw new IdentityException("Error while building the metadata xml", e);
         }
 
         return metadataXML;
     }
 
-    public boolean addServiceProvider(SAMLSSOServiceProviderDO serviceProviderDO)
-            throws IdentityException {
+    public boolean addServiceProvider(SAMLSSOServiceProviderDO serviceProviderDO) throws IdentityException {
+
         String path = null;
         Resource resource;
 
         if (serviceProviderDO.getIssuer() != null) {
-            path = IdentityRegistryResources.SAML_SSO_SERVICE_PROVIDERS
-                    + encodePath(serviceProviderDO.getIssuer());
+            path = IdentityRegistryResources.SAML_SSO_SERVICE_PROVIDERS + encodePath(serviceProviderDO.getIssuer());
         }
 
         boolean isTransactionStarted = Transaction.isStarted();
         try {
             if (registry.resourceExists(path)) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Service Provider already exists with the same issuer name"
-                            + serviceProviderDO.getIssuer());
+                    log.debug("Service Provider already exists with the same issuer name" + serviceProviderDO
+                            .getIssuer());
                 }
                 return false;
             }
@@ -694,13 +704,11 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
             }
 
         } catch (RegistryException e) {
-            log.error("Error While adding Service Provider", e);
             throw new IdentityException("Error while adding Service Provider", e);
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("Service Provider " + serviceProviderDO.getIssuer()
-                    + " is added successfully.");
+            log.debug("Service Provider " + serviceProviderDO.getIssuer() + " is added successfully.");
         }
         return true;
     }
@@ -723,16 +731,15 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
         Resource resource;
 
         if (serviceProviderDO.getIssuer() != null) {
-            path = IdentityRegistryResources.SAML_SSO_SERVICE_PROVIDERS
-                    + encodePath(serviceProviderDO.getIssuer());
+            path = IdentityRegistryResources.SAML_SSO_SERVICE_PROVIDERS + encodePath(serviceProviderDO.getIssuer());
         }
 
         boolean isTransactionStarted = Transaction.isStarted();
         try {
             if (registry.resourceExists(path)) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Service Provider already exists with the same issuer name"
-                            + serviceProviderDO.getIssuer());
+                    log.debug("Service Provider already exists with the same issuer name" + serviceProviderDO
+                            .getIssuer());
                 }
                 throw new IdentityException("Service provider already exists");
             }
@@ -763,13 +770,11 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
             }
 
         } catch (RegistryException e) {
-            log.error("Error While adding Service Provider", e);
             throw new IdentityException("Error while adding Service Provider", e);
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("Service Provider " + serviceProviderDO.getIssuer()
-                    + " is added successfully.");
+            log.debug("Service Provider " + serviceProviderDO.getIssuer() + " is added successfully.");
         }
         return serviceProviderDO;
 
@@ -903,7 +908,6 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
 
 
         } catch (RegistryException e) {
-            log.error("Error while updating the service provider", e);
             throw new IdentityException("Error while updating the service provider", e);
         }
 
@@ -911,6 +915,7 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
     }
 
     public SAMLSSOServiceProviderDO[] getServiceProviders() throws IdentityException {
+
         SAMLSSOServiceProviderDO[] serviceProvidersList = new SAMLSSOServiceProviderDO[0];
         try {
             if (registry.resourceExists(IdentityRegistryResources.SAML_SSO_SERVICE_PROVIDERS)) {
