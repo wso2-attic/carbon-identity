@@ -224,7 +224,7 @@ public class Util {
                 keyInfo.getX509Datas().add(data);
                 signature.setKeyInfo(keyInfo);
             } catch (CertificateEncodingException e) {
-                throw new SAML2SSOUIAuthenticatorException("errorGettingCert "+e);
+                throw new SAML2SSOUIAuthenticatorException("errorGettingCert ",e);
             }
 
             authnRequest.setSignature(signature);
@@ -272,7 +272,7 @@ public class Util {
                 keyInfo.getX509Datas().add(data);
                 signature.setKeyInfo(keyInfo);
             } catch (CertificateEncodingException e) {
-                throw new Exception("errorGettingCert "+e);
+                throw new Exception("errorGettingCert ",e);
             }
 
             logoutReq.setSignature(signature);

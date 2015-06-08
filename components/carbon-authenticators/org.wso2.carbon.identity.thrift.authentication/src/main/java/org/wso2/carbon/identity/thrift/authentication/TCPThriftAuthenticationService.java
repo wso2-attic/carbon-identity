@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.carbon.identity.thrift.authentication;
 
@@ -26,6 +28,7 @@ import org.wso2.carbon.identity.thrift.authentication.dao.InMemoryThriftSessionD
 import org.wso2.carbon.identity.thrift.authentication.internal.AuthenticatorServiceImpl;
 import org.wso2.carbon.identity.thrift.authentication.internal.ThriftAuthenticatorServiceImpl;
 import org.wso2.carbon.identity.thrift.authentication.internal.generatedCode.AuthenticatorService;
+import org.wso2.carbon.identity.thrift.authentication.internal.util.ThriftAuthenticationConstants;
 import org.wso2.carbon.utils.ThriftSession;
 
 import java.net.InetAddress;
@@ -56,13 +59,13 @@ public class TCPThriftAuthenticationService {
     public TCPThriftAuthenticationService(String hostName, int port, long thriftSessionTimeOut) throws Exception {
         this.hostName = hostName;
         this.port = port;
-        String SecurityKeyStore = System.getProperty("Security.KeyStore.Location");
+        String SecurityKeyStore = System.getProperty(ThriftAuthenticationConstants.SECURITY_KEY_STORE_LOCATION);
         if (SecurityKeyStore == null) {
             throw new Exception("Cannot start agent server, not valid Security.KeyStore.Location is null");
         }
 
         String SecurityKeyStorePassword
-                = System.getProperty("Security.KeyStore.Password");
+                = System.getProperty(ThriftAuthenticationConstants.SECURITY_KEY_STORE_PASSWORD);
         if (SecurityKeyStorePassword == null) {
             throw new Exception("Cannot start agent server, not valid Security.KeyStore.Password is null ");
         }
