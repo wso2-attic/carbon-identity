@@ -38,6 +38,7 @@ import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth.dao.OAuthAppDAO;
+import org.wso2.carbon.identity.oauth.internal.OAuthComponentServiceHolder;
 import org.wso2.carbon.identity.oauth.util.ClaimCache;
 import org.wso2.carbon.identity.oauth.util.ClaimCacheKey;
 import org.wso2.carbon.identity.oauth.util.UserClaims;
@@ -46,16 +47,26 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.identity.oauth2.validators.OAuth2TokenValidationMessageContext;
+import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.api.UserRealm;
+import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.MessageDigest;
 import java.security.cert.Certificate;
 import java.security.interfaces.RSAPrivateKey;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.SortedMap;
+import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -77,6 +88,8 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
 
     private static final Base64 base64Url = new Base64(0, null, true);
 
+    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
+
     private static volatile long ttl = -1L;
 
     private ClaimsRetriever claimsRetriever;
@@ -95,6 +108,8 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
     public JWTTokenGenerator() {
         claimsLocalCache = ClaimCache.getInstance();
     }
+
+    private String userAttributeSeparator = ",";
 
     //constructor for testing purposes
     public JWTTokenGenerator(boolean includeClaims, boolean enableSigning) {
@@ -148,6 +163,22 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
         String authzUser = messageContext.getResponseDTO().getAuthorizedUser();
         int tenantID = ((AccessTokenDO)messageContext.getProperty("AccessTokenDO")).getTenantID();
         String tenantDomain = OAuth2Util.getTenantDomain(tenantID);
+        boolean isExistingUser = false;
+
+        RealmService realmService = OAuthComponentServiceHolder.getRealmService();
+        // TODO : Need to handle situation where federated user name is similar to a one we have in our user store
+        if (realmService != null && tenantID != -1 && tenantID == OAuth2Util.getTenantIdFromUserName(authzUser)) {
+            try {
+                UserRealm userRealm = realmService.getTenantUserRealm(tenantID);
+                if (userRealm != null) {
+                    UserStoreManager userStoreManager = (UserStoreManager) userRealm.getUserStoreManager();
+                    isExistingUser = userStoreManager.isExistingUser(MultitenantUtils.getTenantAwareUsername
+                            (authzUser));
+                }
+            } catch (UserStoreException e) {
+                log.error("Error occurred while loading the realm service");
+            }
+        }
 
         OAuthAppDAO appDAO =  new OAuthAppDAO();
         OAuthAppDO appDO;
@@ -175,34 +206,63 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
         claimsSet.setSubject(authzUser);
         claimsSet.setIssueTime(new Date(issuedTime));
         claimsSet.setExpirationTime(new Date(expireIn));
-        claimsSet.setClaim("subscriber",subscriber);
-        claimsSet.setClaim("applicationname",applicationName);
-        claimsSet.setClaim("enduser",authzUser);
+        claimsSet.setClaim(API_GATEWAY_ID+"/subscriber",subscriber);
+        claimsSet.setClaim(API_GATEWAY_ID+"/applicationname",applicationName);
+        claimsSet.setClaim(API_GATEWAY_ID+"/enduser",authzUser);
 
         if(claimsRetriever != null){
 
             //check in local cache
             String[] requestedClaims = messageContext.getRequestDTO().getRequiredClaimURIs();
-            if(requestedClaims == null)  {
+            if(requestedClaims == null && isExistingUser)  {
                 // if no claims were requested, return all
                 requestedClaims = claimsRetriever.getDefaultClaims(authzUser);
             }
-            CacheKey cacheKey = new ClaimCacheKey(authzUser, requestedClaims);
-            Object result = claimsLocalCache.getValueFromCache(cacheKey);
+
+            CacheKey cacheKey = null;
+            Object result = null;
+
+            if(requestedClaims != null) {
+                cacheKey = new ClaimCacheKey(authzUser, requestedClaims);
+                result = claimsLocalCache.getValueFromCache(cacheKey);
+            }
 
             SortedMap<String,String> claimValues = null;
             if (result != null) {
                 claimValues = ((UserClaims) result).getClaimValues();
-            } else {
+            } else if (isExistingUser) {
                 claimValues = claimsRetriever.getClaims(authzUser, requestedClaims);
                 UserClaims userClaims = new UserClaims(claimValues);
                 claimsLocalCache.addToCache(cacheKey, userClaims);
             }
 
-            Iterator<String> it = new TreeSet(claimValues.keySet()).iterator();
-            while(it.hasNext()){
-                String claimURI = it.next();
-                claimsSet.setClaim(claimURI,claimValues.get(claimURI));
+            if(isExistingUser) {
+                String claimSeparator = getMultiAttributeSeparator(authzUser, tenantID);
+                if (claimSeparator != null) {
+                    userAttributeSeparator = claimSeparator;
+                }
+            }
+
+            if(claimValues != null) {
+                Iterator<String> it = new TreeSet(claimValues.keySet()).iterator();
+                while (it.hasNext()) {
+                    String claimURI = it.next();
+                    String claimVal = claimValues.get(claimURI);
+                    List<String> claimList = new ArrayList<String>();
+                    if (userAttributeSeparator != null && claimVal.contains(userAttributeSeparator)) {
+                        StringTokenizer st = new StringTokenizer(claimVal, userAttributeSeparator);
+                        while (st.hasMoreElements()) {
+                            String attValue = st.nextElement().toString();
+                            if (attValue != null && attValue.trim().length() > 0) {
+                                claimList.add(attValue);
+                            }
+                        }
+                    } else {
+                        claimList.add(claimVal);
+                    }
+                    String[] claimArray = claimList.toArray(new String[claimList.size()]);
+                    claimsSet.setClaim(claimURI, claimArray);
+                }
             }
         }
 
@@ -463,5 +523,35 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
         }
 
         return buf.toString();
+    }
+
+    private String getMultiAttributeSeparator(String authenticatedUser, int tenantId) {
+        String claimSeparator = null;
+        String userDomain = UserCoreUtil.extractDomainFromName(authenticatedUser);
+
+        try {
+            RealmConfiguration realmConfiguration = null;
+            RealmService realmService = OAuthComponentServiceHolder.getRealmService();
+
+            if (realmService != null) {
+                if (tenantId != -1) {
+                    UserStoreManager userStoreManager = (UserStoreManager) realmService.getTenantUserRealm(tenantId)
+                            .getUserStoreManager();
+                    realmConfiguration = userStoreManager.getSecondaryUserStoreManager(userDomain)
+                            .getRealmConfiguration();
+                }
+            }
+
+            if (realmConfiguration != null) {
+                claimSeparator = realmConfiguration.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+                if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
+                    return claimSeparator;
+                }
+            }
+        } catch (UserStoreException e) {
+            log.error("Error occurred while getting the realm configuration, User store properties might not be " +
+                      "returned");
+        }
+        return null;
     }
 }

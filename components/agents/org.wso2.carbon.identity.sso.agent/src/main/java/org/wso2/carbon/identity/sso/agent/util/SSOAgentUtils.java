@@ -20,24 +20,33 @@ package org.wso2.carbon.identity.sso.agent.util;
 
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.signature.XMLSignature;
+import org.opensaml.Configuration;
+import org.opensaml.DefaultBootstrap;
 import org.opensaml.saml2.core.AuthnRequest;
 import org.opensaml.saml2.core.LogoutRequest;
+import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.XMLObjectBuilder;
-import org.opensaml.xml.io.Marshaller;
-import org.opensaml.xml.io.MarshallerFactory;
+import org.opensaml.xml.io.*;
 import org.opensaml.xml.security.x509.X509Credential;
 import org.opensaml.xml.signature.KeyInfo;
 import org.opensaml.xml.signature.Signature;
 import org.opensaml.xml.signature.Signer;
 import org.opensaml.xml.signature.X509Data;
 import org.opensaml.xml.util.Base64;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.wso2.carbon.identity.sso.agent.SSOAgentConstants;
 import org.wso2.carbon.identity.sso.agent.SSOAgentException;
+import org.xml.sax.SAXException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URLEncoder;
@@ -51,6 +60,7 @@ import java.util.logging.Logger;
 public class SSOAgentUtils {
 
     private static Logger LOGGER = Logger.getLogger(SSOAgentConstants.LOGGER_NAME);
+    private static boolean isBootStrapped = false;
 
     /**
      * Generates a unique Id for Authentication Requests
@@ -78,6 +88,17 @@ public class SSOAgentUtils {
         return String.valueOf(chars);
     }
 
+    public static void doBootstrap() throws SSOAgentException {
+        if (!isBootStrapped) {
+            try {
+                DefaultBootstrap.bootstrap();
+                isBootStrapped = true;
+            } catch (ConfigurationException e) {
+                throw new SSOAgentException("Error in bootstrapping the OpenSAML2 library", e);
+            }
+        }
+    }
+
     /**
      * Sign the SAML AuthnRequest message
      *
@@ -88,7 +109,8 @@ public class SSOAgentUtils {
      * @throws org.wso2.carbon.identity.sso.agent.SSOAgentException
      */
     public static AuthnRequest setSignature(AuthnRequest authnRequest, String signatureAlgorithm,
-                                            X509Credential cred) throws SSOAgentException {
+                                        X509Credential cred) throws SSOAgentException {
+        doBootstrap();
         try {
             Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
             signature.setSigningCredential(cred);
@@ -186,6 +208,7 @@ public class SSOAgentUtils {
 
     public static void addDeflateSignatureToHTTPQueryString(StringBuilder httpQueryString,
                                                             X509Credential cred) throws SSOAgentException {
+        doBootstrap();
         try {
             httpQueryString.append("&SigAlg="
                     + URLEncoder.encode(XMLSignature.ALGO_ID_SIGNATURE_RSA, "UTF-8").trim());
@@ -212,6 +235,7 @@ public class SSOAgentUtils {
      * @throws SSOAgentException
      */
     private static XMLObject buildXMLObject(QName objectQName) throws SSOAgentException {
+        doBootstrap();
         XMLObjectBuilder builder =
                 org.opensaml.xml.Configuration.getBuilderFactory()
                         .getBuilder(objectQName);
@@ -243,5 +267,32 @@ public class SSOAgentUtils {
                 }
             }
         }
+    }
+
+    public static XMLObject unmarshall(String saml2SSOString) throws SSOAgentException {
+
+        doBootstrap();
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setExpandEntityReferences(false);
+        documentBuilderFactory.setNamespaceAware(true);
+        try {
+            DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
+            docBuilder.setEntityResolver(new CarbonEntityResolver());
+            ByteArrayInputStream is = new ByteArrayInputStream(saml2SSOString.getBytes());
+            Document document = docBuilder.parse(is);
+            Element element = document.getDocumentElement();
+            UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
+            Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(element);
+            return unmarshaller.unmarshall(element);
+        } catch (ParserConfigurationException e) {
+            throw new SSOAgentException("Error in unmarshalling SAML2SSO Request from the encoded String", e);
+        } catch (UnmarshallingException e) {
+            throw new SSOAgentException("Error in unmarshalling SAML2SSO Request from the encoded String", e);
+        } catch (SAXException e) {
+            throw new SSOAgentException("Error in unmarshalling SAML2SSO Request from the encoded String", e);
+        } catch (IOException e) {
+            throw new SSOAgentException("Error in unmarshalling SAML2SSO Request from the encoded String", e);
+        }
+
     }
 }

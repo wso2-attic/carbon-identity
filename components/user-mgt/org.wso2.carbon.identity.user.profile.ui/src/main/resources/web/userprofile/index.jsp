@@ -27,6 +27,7 @@
 <%@page import="java.lang.Exception"%>
 <%@page import="java.util.ResourceBundle"%>
 <%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
+<%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
@@ -58,7 +59,7 @@
     
     if (fromUserMgt==null) fromUserMgt = "false";
     
-    String addAction = "add.jsp?username="+username+"&fromUserMgt="+ fromUserMgt;
+    String addAction = "add.jsp?username="+URLEncoder.encode(username)+"&fromUserMgt="+ fromUserMgt;
 
     UserProfileDTO[] profiles = new UserProfileDTO[0];
     String BUNDLE = "org.wso2.carbon.identity.user.profile.ui.i18n.Resources";
@@ -75,11 +76,11 @@
         client = new UserProfileCient(cookie,
                 backendServerURL, configContext);
         readOnlyUserStore = client.isReadOnlyUserStore();
-     	profiles = client.getUserProfiles(username);
+     	profiles = client.getUserProfiles(Util.decodeHTMLCharacters(username));
 
 
         //read the domain of the user
-        String userDomain = UserProfileCient.extractDomainFromName(username);
+        String userDomain = UserProfileCient.extractDomainFromName(Util.decodeHTMLCharacters(username));
         if (userDomain != null) {
             //i.e primary
             multipleProfilesEnabled = client.isAddProfileEnabledForDomain(userDomain);
@@ -177,7 +178,7 @@
                  }
         	     CARBON.showConfirmationDialog("<fmt:message key='remove.message1'/>"+ profile +"<fmt:message key='remove.message2'/>",
                     function() {
-              	       location.href ="remove-profile.jsp?username="+username+"&profile="+profile+"&fromUserMgt=<%=fromUserMgt%>";
+              	       location.href ="remove-profile.jsp?username="+URLEncoder.encode(username)+"&profile="+profile+"&fromUserMgt=<%=fromUserMgt%>";
                      }, null);
                  }
             </script>

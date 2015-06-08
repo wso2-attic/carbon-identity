@@ -261,7 +261,7 @@ public class OAuthAppDAO {
             int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
             prepStmt = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.GET_APP_INFO_BY_APP_NAME);
-            prepStmt.setString(1, persistenceProcessor.getProcessedClientId(appName));
+            prepStmt.setString(1, appName);
             prepStmt.setInt(2, tenantID);
 
 
@@ -285,7 +285,7 @@ public class OAuthAppDAO {
                 if (rSet.getString(4) != null && rSet.getString(4).length() > 0) {
                     oauthApp.setOauthConsumerSecret(persistenceProcessor.getPreprocessedClientSecret(rSet.getString(1)));
                     oauthApp.setUserName(rSet.getString(2));
-                    oauthApp.setOauthConsumerKey(rSet.getString(3));
+                    oauthApp.setOauthConsumerKey(persistenceProcessor.getPreprocessedClientSecret(rSet.getString(3)));
                     oauthApp.setOauthVersion(rSet.getString(4));
                     oauthApp.setCallbackUrl(rSet.getString(5));
                     oauthApp.setGrantTypes(rSet.getString(6));

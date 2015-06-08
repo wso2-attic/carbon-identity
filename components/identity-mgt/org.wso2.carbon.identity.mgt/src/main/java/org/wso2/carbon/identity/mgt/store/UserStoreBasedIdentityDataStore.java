@@ -128,7 +128,7 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
                 return null;
             }
         } catch (UserStoreException e) {
-            log.error("Error while reading user claim values");
+            log.error("Error while reading user claim values", e);
             return null;
         } finally {
             // reset to initial value
@@ -141,10 +141,13 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
         userIdentityDTO = new UserIdentityClaimsDO(userName, userDataMap);
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         userIdentityDTO.setTenantId(tenantId);
+        org.wso2.carbon.user.core.UserStoreManager store = (org.wso2.carbon.user.core.UserStoreManager) userStoreManager;
+        String domainName= store.getRealmConfiguration().getUserStoreProperty(
+                UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
 
         Cache<String, UserIdentityClaimsDO> cache = getCache();
         if (cache != null) {
-            cache.put(tenantId + userName, userIdentityDTO);
+            cache.put(domainName+tenantId + userName, userIdentityDTO);
         }
         return userIdentityDTO;
     }

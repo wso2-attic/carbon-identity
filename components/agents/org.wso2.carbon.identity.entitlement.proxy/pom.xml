@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>agents</artifactId>
-        <version>4.4.2-SNAPSHOT</version>
+        <version>4.5.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -112,8 +112,8 @@
             <artifactId>libthrift</artifactId>
         </dependency>
         <dependency>
-            <groupId>slf4j.wso2</groupId>
-            <artifactId>slf4j</artifactId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -158,8 +158,8 @@
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Import-Package>
                             !javax.xml.namespace,
-                            javax.xml.parsers,
-                            javax.cache; version="${carbon.kernel.package.import.version.range}",
+                            javax.xml.parsers; resolution:=optional,
+                            javax.cache,
                             javax.crypto,
                             org.apache.axiom.om.*; version="${axiom.osgi.version.range}",
                             org.apache.axis2.*; version="${axis2.osgi.version.range}",
@@ -167,11 +167,11 @@
                             org.apache.commons.logging.*; version="${commons-logging.osgi.version.range}",
                             org.apache.commons.pool.*; version="${commons-pool.wso2.osgi.version.range}",
                             org.apache.thrift.*; version="${libthrift.wso2.osgi.version.range}",
-                            org.apache.xerces.util,
+                            org.apache.xerces.util; resolution:=optional,
                             org.apache.xml.security.*; version="${wss4j.xml.security.imp.pkg.version.range}",
                             org.joda.time; version="${opensaml2.wso2.osgi.version.range}",
                             org.opensaml.*; version="${opensaml2.wso2.osgi.version.range}",
-                            org.slf4j; version="${slf4j.wso2.version.range}",
+                            org.slf4j; version="${org.slf4j.imp.pkg.version.range}",
                             org.w3c.dom.*,
                             org.xml.sax,
                             org.wso2.carbon.authenticator.stub.*;

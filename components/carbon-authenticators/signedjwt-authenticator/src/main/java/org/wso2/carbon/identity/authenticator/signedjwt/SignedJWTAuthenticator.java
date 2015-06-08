@@ -131,7 +131,8 @@ public class SignedJWTAuthenticator implements CarbonServerAuthenticator {
                     handleAuthenticationCompleted(tenantId, true);
                     return true;
                 } else {
-                    log.error("Authentication Request is rejected. User does not exists in UserStore");
+                    log.error("Authentication Request is rejected. User : " + userName
+                              + " does not exists in tenant : " + tenantDomain + " 's UserStore");
                     CarbonAuthenticationUtil
                             .onFailedAdminLogin(request.getSession(), userName, tenantId,
                                     "Signed JWT Authentication",
@@ -153,7 +154,7 @@ public class SignedJWTAuthenticator implements CarbonServerAuthenticator {
         String authorizationHeader = request.getHeader(HTTPConstants.HEADER_AUTHORIZATION);
         if (log.isDebugEnabled()) {
             if (authorizationHeader != null) {
-                log.debug("Authorization header is not null");
+                log.debug("Authorization header found in the request");
             }
         }
         if (authorizationHeader != null) {
@@ -183,6 +184,9 @@ public class SignedJWTAuthenticator implements CarbonServerAuthenticator {
             splitValues = authorizationHeader.trim().split(" ");
         }
         if (splitValues == null || splitValues.length == 0) {
+	        if (log.isDebugEnabled()) {
+		        log.debug("Authorization Type is not defined. Hence returning null");
+	        }
             return null;
         }
         return splitValues[0].trim();
@@ -195,7 +199,7 @@ public class SignedJWTAuthenticator implements CarbonServerAuthenticator {
             return new String(decodedBytes);
         } else {
             if (log.isDebugEnabled()) {
-                log.debug("Error decoding authorization header. Could not retrieve user name and password.");
+                log.debug("Error decoding authorization header.");
             }
             return null;
         }
