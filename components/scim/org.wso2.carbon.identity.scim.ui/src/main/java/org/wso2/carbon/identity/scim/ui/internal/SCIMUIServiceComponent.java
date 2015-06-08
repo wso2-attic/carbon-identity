@@ -28,7 +28,7 @@ import org.osgi.service.component.ComponentContext;
 public class SCIMUIServiceComponent {
     private static Log logger = LogFactory.getLog(SCIMUIServiceComponent.class);
 
-    protected void activate() {
+    protected void activate(ComponentContext ctx) {
 
         if (logger.isDebugEnabled()) {
             logger.debug("SCIM Common component activated successfully.");

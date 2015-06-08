@@ -20,11 +20,11 @@ package org.wso2.carbon.identity.scim.ui;
 
 public class SCIMConstants {
 
-    private SCIMConstants(){}
-
     public static final int DEFAULT_ITEMS_PER_PAGE = 10;
     public static final String SCIM_CONFIG_ADMIN_CLIENT = "SCIMConfigAdminClient";
     public static final String SCIM_DATA_PAGE_COUNT = "SCIMDataPageCount";
     public static final String MY_SCIM_CONFIG_ADMIN_CLIENT = "MYSCIMConfigAdminClient";
     public static final String MY_SCIM_DATA_PAGE_COUNT = "MYSCIMDataPageCount";
+
+    private SCIMConstants(){}
 }

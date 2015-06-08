@@ -35,15 +35,6 @@ import java.util.Map;
  */
 public class SCIMCommonUtils {
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-    private SCIMCommonUtils(){}
-
-    public static final String SCIM_CLAIM_DIALECT = "urn:scim:schemas:core:1.0";
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
     //this is temporary - until persisted in DB
     private static Map<String, List<SCIMProviderDTO>> providers =
             new HashMap<String, List<SCIMProviderDTO>>();

@@ -100,25 +100,12 @@ public class SCIMCommonComponent {
             if (scimConfig != null) {
                 //get scim consumer processed
                 Map<String, SCIMConsumer> consumerMap = scimConfig.getConsumersMap();
-<<<<<<< HEAD
-<<<<<<< HEAD
+
                 if (MapUtils.isNotEmpty(consumerMap)) {
                     for (String consumerId : consumerMap.keySet()) {
                         SCIMConsumer consumer = scimConfig.getConsumerProcessed(consumerId);
                         Map<String, SCIMProvider> providersMap = consumer.getScimProviders();
                         if (MapUtils.isNotEmpty(providersMap)) {
-=======
-=======
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-                if (consumerMap != null && !MapUtils.isEmpty(consumerMap)) {
-                    for (String consumerId : consumerMap.keySet()) {
-                        SCIMConsumer consumer = scimConfig.getConsumerProcessed(consumerId);
-                        Map<String, SCIMProvider> providersMap = consumer.getScimProviders();
-                        if (providersMap != null && !MapUtils.isEmpty(providersMap)) {
-<<<<<<< HEAD
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-=======
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
                             for (SCIMProvider scimProvider : providersMap.values()) {
                                 SCIMProviderDTO scimDTO = new SCIMProviderDTO();
                                 scimDTO.setProviderId(scimProvider.getId());

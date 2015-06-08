@@ -148,31 +148,11 @@ public class ProvisioningClient implements Runnable {
             }
 
         } catch (CharonException e) {
-<<<<<<< HEAD
             logger.error("Error in encoding the object to be provisioned.", e);
         } catch (UnsupportedEncodingException e) {
             logger.error("Error in creating request for provisioning", e);
         } catch (IOException | BadRequestException e) {
             logger.error("Error in invoking provisioning operation for the user with id: " + userId, e);
-=======
-            logger.error("Error in encoding the object to be provisioned.");
-            logger.error(e.getDescription());
-        } catch (UnsupportedEncodingException e) {
-            logger.error("Error in creating request for provisioning");
-            logger.error(e.getMessage());
-        } catch (HttpException e) {
-            logger.error("Error in invoking provisioning operation for the user with id: " + userId);
-            logger.error(e.getMessage());
-        } catch (BadRequestException e) {
-            logger.error("Error in invoking provisioning operation for the user with id: " + userId);
-            logger.error(e.getDescription());
-        } catch (IOException e) {
-            logger.error("Error in invoking provisioning operation for the user with id: " + userId);
-            logger.error(e.getMessage());
-<<<<<<< HEAD
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-=======
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
         }
     }
 
@@ -245,26 +225,8 @@ public class ProvisioningClient implements Runnable {
                                 response, SCIMConstants.identifyFormat(contentType));
                 logger.error(exception.getDescription());
             }
-<<<<<<< HEAD
         } catch (CharonException | IOException | BadRequestException e) {
             logger.error("Error in provisioning 'delete user' operation.", e);
-=======
-        } catch (CharonException e) {
-            logger.error("Error in provisioning 'delete user' operation.");
-            logger.error(e.getDescription());
-        } catch (HttpException e) {
-            logger.error("Error in provisioning 'delete user' operation.");
-            logger.error(e.getMessage());
-        } catch (IOException e) {
-            logger.error("Error in provisioning 'delete user' operation.");
-            logger.error(e.getMessage());
-        } catch (BadRequestException e) {
-            logger.error("Error in provisioning 'delete user' operation.");
-            logger.error(e.getDescription());
-<<<<<<< HEAD
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-=======
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
         }
     }
 
@@ -347,26 +309,8 @@ public class ProvisioningClient implements Runnable {
                                 response, SCIMConstants.identifyFormat(contentType));
                 logger.error(exception.getDescription());
             }
-<<<<<<< HEAD
         } catch (CharonException | IOException | BadRequestException e) {
             logger.error("Error in provisioning 'update user' operation.", e);
-=======
-        } catch (CharonException e) {
-            logger.error("Error in provisioning 'update user' operation.");
-            logger.error(e.getDescription());
-        } catch (HttpException e) {
-            logger.error("Error in provisioning 'update user' operation.");
-            logger.error(e.getMessage());
-        } catch (IOException e) {
-            logger.error("Error in provisioning 'update user' operation.");
-            logger.error(e.getMessage());
-        } catch (BadRequestException e) {
-            logger.error("Error in provisioning 'update user' operation.");
-            logger.error(e.getDescription());
-<<<<<<< HEAD
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-=======
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
         }
     }
 
@@ -387,15 +331,8 @@ public class ProvisioningClient implements Runnable {
             List<String> users = ((Group) scimObject).getMembersWithDisplayName();
 
             Group copiedGroup = null;
-<<<<<<< HEAD
-<<<<<<< HEAD
+
             if (CollectionUtils.isNotEmpty(users)) {
-=======
-            if (users != null && !CollectionUtils.isEmpty(users)) {
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-=======
-            if (users != null && !CollectionUtils.isEmpty(users)) {
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
                 //create a deep copy of the group since we are going to update the member ids
                 copiedGroup = (Group) CopyUtil.deepCopy(scimObject);
                 //delete existing members in the group since we are going to update it with
@@ -482,29 +419,8 @@ public class ProvisioningClient implements Runnable {
                         scimClient.decodeSCIMException(postResponse, SCIMConstants.JSON);
                 logger.error(exception.getDescription());
             }
-<<<<<<< HEAD
         } catch (BadRequestException | IOException | CharonException e) {
             logger.error("Error in provisioning 'create group' operation.", e);
-=======
-        } catch (BadRequestException e) {
-            logger.error("Error in provisioning 'create group' operation.");
-            logger.error(e.getDescription());
-        } catch (HttpException e) {
-            logger.error("Error in provisioning 'create group' operation.");
-            logger.error(e.getMessage());
-        } catch (UnsupportedEncodingException e) {
-            logger.error("Error in provisioning 'create group' operation.");
-            logger.error(e.getMessage());
-        } catch (IOException e) {
-            logger.error("Error in provisioning 'create group' operation.");
-            logger.error(e.getMessage());
-        } catch (CharonException e) {
-            logger.error("Error in provisioning 'create group' operation.");
-            logger.error(e.getDescription());
-<<<<<<< HEAD
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-=======
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
         }
     }
 
@@ -576,26 +492,8 @@ public class ProvisioningClient implements Runnable {
                                 response, SCIMConstants.identifyFormat(contentType));
                 logger.error(exception.getDescription());
             }
-<<<<<<< HEAD
         } catch (CharonException | IOException | BadRequestException e) {
             logger.error("Error in provisioning 'delete group' operation.", e);
-=======
-        } catch (CharonException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getDescription());
-        } catch (HttpException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getMessage());
-        } catch (IOException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getMessage());
-        } catch (BadRequestException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getDescription());
-<<<<<<< HEAD
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-=======
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
         }
     }
 
@@ -659,15 +557,8 @@ public class ProvisioningClient implements Runnable {
                 List<String> users = ((Group) scimObject).getMembersWithDisplayName();
 
                 Group copiedGroup = null;
-<<<<<<< HEAD
-<<<<<<< HEAD
+
                 if (CollectionUtils.isNotEmpty(users)) {
-=======
-                if (users != null && !CollectionUtils.isEmpty(users)) {
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-=======
-                if (users != null && !CollectionUtils.isEmpty(users)) {
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
                     //create a deep copy of the group since we are going to update the member ids
                     copiedGroup = (Group) CopyUtil.deepCopy(scimObject);
                     //delete existing members in the group since we are going to update it with
@@ -743,26 +634,8 @@ public class ProvisioningClient implements Runnable {
                                 response, SCIMConstants.identifyFormat(contentType));
                 logger.error(exception.getDescription());
             }
-<<<<<<< HEAD
         } catch (CharonException | IOException | BadRequestException e) {
             logger.error("Error in provisioning 'delete group' operation.", e);
-=======
-        } catch (CharonException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getDescription());
-        } catch (HttpException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getMessage());
-        } catch (IOException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getMessage());
-        } catch (BadRequestException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getDescription());
-<<<<<<< HEAD
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-=======
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
         }
     }
 

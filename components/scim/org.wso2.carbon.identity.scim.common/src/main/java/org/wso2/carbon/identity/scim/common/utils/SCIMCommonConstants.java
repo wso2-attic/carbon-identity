@@ -23,16 +23,6 @@ package org.wso2.carbon.identity.scim.common.utils;
  */
 public class SCIMCommonConstants {
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    private  SCIMCommonConstants(){}
-
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-=======
-    private  SCIMCommonConstants(){}
-
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
     public static final String IS_ROLE_NAME_CHANGED_ON_UPDATE = "ISRoleNameChangedOnUpdate";
     public static final String OLD_GROUP_NAME = "OldGroupName";
     /*This permission is required to see the 'my scim providers ui' to configure providers per account

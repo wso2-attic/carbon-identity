@@ -1,28 +1,12 @@
 /*
-<<<<<<< HEAD
-<<<<<<< HEAD
- * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-=======
  * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-=======
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
-<<<<<<< HEAD
-<<<<<<< HEAD
- * http://www.apache.org/licenses/LICENSE-2.0
-=======
  *      http://www.apache.org/licenses/LICENSE-2.0
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-=======
- *      http://www.apache.org/licenses/LICENSE-2.0
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -63,15 +47,8 @@ public class SCIMConfigAdminService {
             SCIMProviderDAO providerDAO = new SCIMProviderDAO();
             List<SCIMProviderDTO> globalProviders =
                     providerDAO.getAllProviders(SCIMCommonUtils.getGlobalConsumerId());
-<<<<<<< HEAD
-<<<<<<< HEAD
+
             if (CollectionUtils.isNotEmpty(globalProviders)) {
-=======
-            if (globalProviders != null && !CollectionUtils.isEmpty(globalProviders)) {
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-=======
-            if (globalProviders != null && !CollectionUtils.isEmpty(globalProviders)) {
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
                 scimProviderDTOs = new SCIMProviderDTO[globalProviders.size()];
                 int i = 0;
                 for (SCIMProviderDTO globalProvider : globalProviders) {
@@ -179,15 +156,8 @@ public class SCIMConfigAdminService {
             SCIMProviderDAO providerDAO = new SCIMProviderDAO();
             List<SCIMProviderDTO> globalProviders =
                     providerDAO.getAllProviders(SCIMCommonUtils.getUserConsumerId());
-<<<<<<< HEAD
-<<<<<<< HEAD
+
             if (CollectionUtils.isNotEmpty(globalProviders)) {
-=======
-            if (globalProviders != null && !CollectionUtils.isEmpty(globalProviders)) {
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-=======
-            if (globalProviders != null && !CollectionUtils.isEmpty(globalProviders)) {
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
                 scimProviderDTOs = new SCIMProviderDTO[globalProviders.size()];
                 int i = 0;
                 for (SCIMProviderDTO globalProvider : globalProviders) {

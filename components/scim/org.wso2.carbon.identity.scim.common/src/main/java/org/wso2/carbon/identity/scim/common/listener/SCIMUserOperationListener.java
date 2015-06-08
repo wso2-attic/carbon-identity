@@ -145,15 +145,8 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                     attributes = userStoreManager.getUserClaimValues(
                             userName, claimURIList.toArray(new String[claimURIList.size()]), null);
                     //if null, or if id attribute not present, add them
-<<<<<<< HEAD
-<<<<<<< HEAD
+
                     if (MapUtils.isNotEmpty(attributes)) {
-=======
-                    if (attributes != null && !MapUtils.isEmpty(attributes)) {
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-=======
-                    if (attributes != null && !MapUtils.isEmpty(attributes)) {
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
                         if (!attributes.containsKey(SCIMConstants.ID_URI)) {
                             Map<String, String> updatesAttributes =
                                     this.getSCIMAttributes(userName,
@@ -182,15 +175,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                 if (consumerUserId != null && isProvisioningActionAuthorized(false, null) &&
                         isSCIMConsumerEnabled(consumerUserId)) {
                     //if user created through management console, claim values are not present.
-<<<<<<< HEAD
-<<<<<<< HEAD
                     if (MapUtils.isNotEmpty(attributes)) {
-=======
-                    if (attributes != null && !MapUtils.isEmpty(attributes)) {
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-=======
-                    if (attributes != null && !MapUtils.isEmpty(attributes)) {
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
                         user = (User) AttributeMapper.constructSCIMObjectFromAttributes(
                                 attributes, SCIMConstants.USER_INT);
                     } else {
@@ -394,15 +379,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                         if (isProvisioningActionAuthorized(true, userNameInClaims) &&
                                 isSCIMConsumerEnabled(consumerUserId)) {
                             //if no claim values are present, no need to do provisioning.
-<<<<<<< HEAD
-<<<<<<< HEAD
                             if (MapUtils.isNotEmpty(claims)) {
-=======
-                            if (claims != null && !MapUtils.isEmpty(claims)) {
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-=======
-                            if (claims != null && !MapUtils.isEmpty(claims)) {
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
                                 ClaimManager claimManager = userStoreManager.getClaimManager();
                                 if (claimManager != null) {
                                     //get existingClaims related to SCIM claim dialect
@@ -722,15 +699,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
 
     public Map<String, String> getSCIMAttributes(String userName, Map<String, String> claimsMap) {
         Map<String, String> attributes = null;
-<<<<<<< HEAD
-<<<<<<< HEAD
         if (MapUtils.isNotEmpty(claimsMap)) {
-=======
-        if (claimsMap != null && !MapUtils.isEmpty(claimsMap)) {
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-=======
-        if (claimsMap != null && !MapUtils.isEmpty(claimsMap)) {
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
             attributes = claimsMap;
         } else {
             attributes = new HashMap<>();

@@ -73,15 +73,7 @@ public class SCIMProvisioningConfigManager {
         //From SCIMProviderDAO and check if exists.
         boolean isConsumerExisting = false;
         try {
-<<<<<<< HEAD
-<<<<<<< HEAD
             if (MapUtils.isNotEmpty(scimCache) && scimCache.containsKey(consumerName)) {
-=======
-            if (scimCache != null && !MapUtils.isEmpty(scimCache) && scimCache.containsKey(consumerName)) {
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-=======
-            if (scimCache != null && !MapUtils.isEmpty(scimCache) && scimCache.containsKey(consumerName)) {
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
                 isConsumerExisting = scimCache.get(consumerName);
                 return isConsumerExisting;
             }
@@ -90,15 +82,7 @@ public class SCIMProvisioningConfigManager {
             scimCache.put(consumerName, isConsumerExisting);
             return isConsumerExisting;
         } catch (IdentitySCIMException e) {
-<<<<<<< HEAD
-<<<<<<< HEAD
             logger.error("Error when checking whether user exists or not.", e);
-=======
-            logger.error("Error when checking whether user exists or not.");
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-=======
-            logger.error("Error when checking whether user exists or not.");
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
             return false;
         }
 
@@ -113,15 +97,7 @@ public class SCIMProvisioningConfigManager {
         SCIMConsumer scimConsumer = new SCIMConsumer();
         Map<String, SCIMProvider> scimProviderMap = new HashMap<>();
 
-<<<<<<< HEAD
-<<<<<<< HEAD
         if (CollectionUtils.isNotEmpty(scimProviders)) {
-=======
-        if (scimProviders != null && !CollectionUtils.isEmpty(scimProviders)) {
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-=======
-        if (scimProviders != null && !CollectionUtils.isEmpty(scimProviders)) {
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
             for (SCIMProviderDTO scimProvider : scimProviders) {
                 SCIMProvider currentProvider = new SCIMProvider();
                 currentProvider.setId(scimProvider.getProviderId());
@@ -150,15 +126,7 @@ public class SCIMProvisioningConfigManager {
 
     public static void removeEnabledFromCache(String consumerId) throws IdentitySCIMException {
         //send cache invalidation messages.
-<<<<<<< HEAD
-<<<<<<< HEAD
         if (MapUtils.isNotEmpty(scimCache) && scimCache.containsKey(consumerId)) {
-=======
-        if (scimCache != null && !MapUtils.isEmpty(scimCache) && scimCache.containsKey(consumerId)) {
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
-=======
-        if (scimCache != null && !MapUtils.isEmpty(scimCache) && scimCache.containsKey(consumerId)) {
->>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
             scimCache.remove(consumerId);
         }
     }
