@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2010 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -56,7 +56,7 @@ public class GroupDAO {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet = null;
-        Set<String> groups = new HashSet<String>();
+        Set<String> groups = new HashSet<>();
 
         try {
             //retrieve groups from the DB
@@ -223,14 +223,6 @@ public class GroupDAO {
         }
     }
 
-    private void updateSCIMGroupAttribute(Connection dbConnection, String statement, int tenantId,
-                                          String roleName, String attributeName,
-                                          String attributeValue) throws IdentityException {
-        //just for testing
-        //dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
-
-    }
-
     public void removeSCIMGroup(int tenantId, String roleName) throws IdentitySCIMException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -260,7 +252,7 @@ public class GroupDAO {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rSet = null;
-        Map<String, String> attributes = new HashMap<String, String>();
+        Map<String, String> attributes = new HashMap<>();
 
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
@@ -270,7 +262,7 @@ public class GroupDAO {
 
             rSet = prepStmt.executeQuery();
             while (rSet.next()) {
-                if (rSet.getString(1) != null && rSet.getString(1).length() > 0) {
+                if (StringUtils.isNotEmpty(rSet.getString(1))) {
                     attributes.put(rSet.getString(1), rSet.getString(2));
                 }
             }
@@ -312,7 +304,7 @@ public class GroupDAO {
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }
-        if (roleName != null && roleName.length() > 0) {
+        if (StringUtils.isNotEmpty(roleName)) {
             return SCIMCommonUtils.getPrimaryFreeGroupName(roleName);
         }
         return null;

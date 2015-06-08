@@ -1,27 +1,37 @@
 /*
+<<<<<<< HEAD
  * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
+=======
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
+ *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
+<<<<<<< HEAD
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+=======
+ *      http://www.apache.org/licenses/LICENSE-2.0
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.identity.scim.common.config;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.scim.common.utils.IdentitySCIMException;
 import org.wso2.carbon.identity.scim.common.utils.SCIMCommonUtils;
-import org.wso2.carbon.utils.xml.StringUtils;
 
 import java.util.List;
 
@@ -41,11 +51,15 @@ public class SCIMConfigAdminService {
         SCIMProviderDTO[] scimProviderDTOs = new SCIMProviderDTO[0];
 
         if (StringUtils.isEmpty(consumerId) ||
-                consumerId.equals(SCIMCommonUtils.getGlobalConsumerId())) {
+                StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
             SCIMProviderDAO providerDAO = new SCIMProviderDAO();
             List<SCIMProviderDTO> globalProviders =
                     providerDAO.getAllProviders(SCIMCommonUtils.getGlobalConsumerId());
-            if (globalProviders != null && globalProviders.size() != 0) {
+<<<<<<< HEAD
+            if (CollectionUtils.isNotEmpty(globalProviders)) {
+=======
+            if (globalProviders != null && !CollectionUtils.isEmpty(globalProviders)) {
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
                 scimProviderDTOs = new SCIMProviderDTO[globalProviders.size()];
                 int i = 0;
                 for (SCIMProviderDTO globalProvider : globalProviders) {
@@ -71,7 +85,7 @@ public class SCIMConfigAdminService {
             throws IdentitySCIMException {
 
         if (StringUtils.isEmpty(consumerId) ||
-                consumerId.equals(SCIMCommonUtils.getGlobalConsumerId())) {
+                StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
             SCIMProviderDAO providerDAO = new SCIMProviderDAO();
             providerDAO.addProvider(SCIMCommonUtils.getGlobalConsumerId(), scimProviderDTO);
 
@@ -90,7 +104,7 @@ public class SCIMConfigAdminService {
 
         SCIMProviderDTO scimProviderDTO = null;
         if (StringUtils.isEmpty(consumerId) ||
-                consumerId.equals(SCIMCommonUtils.getGlobalConsumerId())) {
+                StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
             SCIMProviderDAO providerDAO = new SCIMProviderDAO();
             scimProviderDTO =
                     providerDAO.getProvider(SCIMCommonUtils.getGlobalConsumerId(),
@@ -112,7 +126,7 @@ public class SCIMConfigAdminService {
             throws IdentitySCIMException {
 
         if (StringUtils.isEmpty(consumerId) ||
-                consumerId.equals(SCIMCommonUtils.getGlobalConsumerId())) {
+                StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
             SCIMProviderDAO providerDAO = new SCIMProviderDAO();
             providerDAO.updateProvider(SCIMCommonUtils.getGlobalConsumerId(), scimProviderDTO);
 
@@ -130,7 +144,7 @@ public class SCIMConfigAdminService {
     public void deleteGlobalProvider(String consumerId, String providerId)
             throws IdentitySCIMException {
         if (StringUtils.isEmpty(consumerId) ||
-                consumerId.equals(SCIMCommonUtils.getGlobalConsumerId())) {
+                StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
             SCIMProviderDAO providerDAO = new SCIMProviderDAO();
             providerDAO.deleteProvider(SCIMCommonUtils.getGlobalConsumerId(), providerId);
 
@@ -149,11 +163,15 @@ public class SCIMConfigAdminService {
 
         SCIMProviderDTO[] scimProviderDTOs = new SCIMProviderDTO[0];
         if (StringUtils.isEmpty(consumerId) ||
-                consumerId.equals(SCIMCommonUtils.getUserConsumerId())) {
+                StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
             SCIMProviderDAO providerDAO = new SCIMProviderDAO();
             List<SCIMProviderDTO> globalProviders =
                     providerDAO.getAllProviders(SCIMCommonUtils.getUserConsumerId());
-            if (globalProviders != null && globalProviders.size() != 0) {
+<<<<<<< HEAD
+            if (CollectionUtils.isNotEmpty(globalProviders)) {
+=======
+            if (globalProviders != null && !CollectionUtils.isEmpty(globalProviders)) {
+>>>>>>> 9c014534b0589aff73f9b83eb9122ca5a111918f
                 scimProviderDTOs = new SCIMProviderDTO[globalProviders.size()];
                 int i = 0;
                 for (SCIMProviderDTO globalProvider : globalProviders) {
@@ -179,7 +197,7 @@ public class SCIMConfigAdminService {
             throws IdentitySCIMException {
 
         if (StringUtils.isEmpty(consumerId) ||
-                consumerId.equals(SCIMCommonUtils.getUserConsumerId())) {
+                StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
             SCIMProviderDAO providerDAO = new SCIMProviderDAO();
             providerDAO.addProvider(SCIMCommonUtils.getUserConsumerId(), scimProviderDTO);
 
@@ -198,7 +216,7 @@ public class SCIMConfigAdminService {
 
         SCIMProviderDTO scimProviderDTO = null;
         if (StringUtils.isEmpty(consumerId) ||
-                consumerId.equals(SCIMCommonUtils.getUserConsumerId())) {
+                StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
             SCIMProviderDAO providerDAO = new SCIMProviderDAO();
             scimProviderDTO =
                     providerDAO.getProvider(SCIMCommonUtils.getUserConsumerId(),
@@ -220,7 +238,7 @@ public class SCIMConfigAdminService {
             throws IdentitySCIMException {
 
         if (StringUtils.isEmpty(consumerId) ||
-                consumerId.equals(SCIMCommonUtils.getUserConsumerId())) {
+                StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
             SCIMProviderDAO providerDAO = new SCIMProviderDAO();
             providerDAO.updateProvider(SCIMCommonUtils.getUserConsumerId(), scimProviderDTO);
 
@@ -239,7 +257,7 @@ public class SCIMConfigAdminService {
             throws IdentitySCIMException {
 
         if (StringUtils.isEmpty(consumerId) ||
-                consumerId.equals(SCIMCommonUtils.getUserConsumerId())) {
+                StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
             SCIMProviderDAO providerDAO = new SCIMProviderDAO();
             providerDAO.deleteProvider(SCIMCommonUtils.getUserConsumerId(), providerId);
 

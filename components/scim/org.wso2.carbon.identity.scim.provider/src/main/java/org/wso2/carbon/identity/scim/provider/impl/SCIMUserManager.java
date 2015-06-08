@@ -1,22 +1,24 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.identity.scim.provider.impl;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -68,10 +70,12 @@ public class SCIMUserManager implements UserManager {
         carbonClaimManager = claimManager;
     }
 
+    @Override
     public User createUser(User user) throws CharonException, DuplicateResourceException {
         return createUser(user, false);
     }
 
+    @Override
     public User createUser(User user, boolean isBulkUserAdd) throws CharonException, DuplicateResourceException {
 
         try {
@@ -168,6 +172,7 @@ public class SCIMUserManager implements UserManager {
         }
     }
 
+    @Override
     public User getUser(String userId) throws CharonException {
         if (log.isDebugEnabled()) {
             log.debug("Retrieving user: " + userId);
@@ -202,6 +207,7 @@ public class SCIMUserManager implements UserManager {
         return scimUser;
     }
 
+    @Override
     public List<User> listUsers() throws CharonException {
         List<User> users = new ArrayList<User>();
         try {
@@ -224,10 +230,12 @@ public class SCIMUserManager implements UserManager {
         return users;
     }
 
+    @Override
     public List<User> listUsersByAttribute(Attribute attribute) {
-        return null;
+        return Collections.emptyList();
     }
 
+    @Override
     public List<User> listUsersByFilter(String attributeName, String filterOperation,
                                         String attributeValue) throws CharonException {
         //since we only support eq filter operation at the moment, no need to check for that.
@@ -255,17 +263,16 @@ public class SCIMUserManager implements UserManager {
                     log.debug("Users with filter: " + attributeName + filterOperation +
                             attributeValue + " does not exist in the system.");
                 }
-                return null;
+                return Collections.emptyList();
             } else {
                 for (String userName : userNames) {
-                    if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userName)) {
+
+                    if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userName) ||
+                            //if SCIM-ID is not present in the attributes, skip
+                            scimUser.getId() == null) {
                         continue;
                     }
                     scimUser = this.getSCIMUser(userName);
-                    //if SCIM-ID is not present in the attributes, skip
-                    if (scimUser.getId() == null) {
-                        continue;
-                    }
                     filteredUsers.add(scimUser);
 
                 }
@@ -282,14 +289,17 @@ public class SCIMUserManager implements UserManager {
         return filteredUsers;
     }
 
+    @Override
     public List<User> listUsersBySort(String s, String s1) {
-        return null;
+        return Collections.emptyList();
     }
 
+    @Override
     public List<User> listUsersWithPagination(int i, int i1) {
-        return null;
+        return Collections.emptyList();
     }
 
+    @Override
     public User updateUser(User user) throws CharonException {
         SCIMProvisioningConfigManager provisioningConfigManager =
                 SCIMProvisioningConfigManager.getInstance();
@@ -350,10 +360,12 @@ public class SCIMUserManager implements UserManager {
         }
     }
 
+    @Override
     public User updateUser(List<Attribute> attributes) {
         return null;
     }
 
+    @Override
     public void deleteUser(String userId) throws NotFoundException, CharonException {
         SCIMProvisioningConfigManager provisioningConfigManager =
                 SCIMProvisioningConfigManager.getInstance();
@@ -408,6 +420,7 @@ public class SCIMUserManager implements UserManager {
         }
     }
 
+    @Override
     public Group createGroup(Group group) throws CharonException, DuplicateResourceException {
         SCIMProvisioningConfigManager provisioningConfigManager =
                 SCIMProvisioningConfigManager.getInstance();
@@ -452,7 +465,7 @@ public class SCIMUserManager implements UserManager {
                 user store*/
                 List<String> userIds = group.getMembers();
                 List<String> userDisplayNames = group.getMembersWithDisplayName();
-                if (userIds != null && userIds.size() != 0) {
+                if (userIds != null && !CollectionUtils.isEmpty(userIds)) {
                     List<String> members = new ArrayList<String>();
                     for (String userId : userIds) {
                         String[] userNames = carbonUM.getUserList(SCIMConstants.ID_URI, userId,
@@ -467,7 +480,7 @@ public class SCIMUserManager implements UserManager {
                             throw new IdentitySCIMException(error);
                         } else {
                             members.add(userNames[0]);
-                            if (userDisplayNames != null && userDisplayNames.size() != 0) {
+                            if (userDisplayNames != null && !CollectionUtils.isEmpty(userDisplayNames)) {
                                 boolean userContains = false;
                                 for (String user : userDisplayNames) {
                                     user =
@@ -514,6 +527,7 @@ public class SCIMUserManager implements UserManager {
         }
     }
 
+    @Override
     public Group getGroup(String id) throws CharonException {
         if (log.isDebugEnabled()) {
             log.debug("Retrieving group with id: " + id);
@@ -540,6 +554,7 @@ public class SCIMUserManager implements UserManager {
         return group;
     }
 
+    @Override
     public List<Group> listGroups() throws CharonException {
         List<Group> groupList = new ArrayList<Group>();
         try {
@@ -561,10 +576,12 @@ public class SCIMUserManager implements UserManager {
         return groupList;
     }
 
+    @Override
     public List<Group> listGroupsByAttribute(Attribute attribute) throws CharonException {
-        return null;
+        return Collections.emptyList();
     }
 
+    @Override
     public List<Group> listGroupsByFilter(String filterAttribute, String filterOperation,
                                           String attributeValue) throws CharonException {
         //since we only support "eq" filter operation for group name currently, no need to check for that.
@@ -596,7 +613,7 @@ public class SCIMUserManager implements UserManager {
                 filteredGroups.add(group);
             } else {
                 //returning null will send a resource not found error to client by Charon.
-                return null;
+                return Collections.emptyList();
             }
         } catch (org.wso2.carbon.user.core.UserStoreException e) {
             String errMsg = "Error in filtering group with filter: "
@@ -612,14 +629,17 @@ public class SCIMUserManager implements UserManager {
         return filteredGroups;
     }
 
+    @Override
     public List<Group> listGroupsBySort(String s, String s1) throws CharonException {
-        return null;
+        return Collections.emptyList();
     }
 
+    @Override
     public List<Group> listGroupsWithPagination(int i, int i1) {
-        return null;
+        return Collections.emptyList();
     }
 
+    @Override
     public Group updateGroup(Group oldGroup, Group newGroup) throws CharonException {
         SCIMProvisioningConfigManager provisioningConfigManager =
                 SCIMProvisioningConfigManager.getInstance();
@@ -685,7 +705,7 @@ public class SCIMUserManager implements UserManager {
 
                 }
 
-                if (userIds != null && userIds.size() != 0) {
+                if (userIds != null && !CollectionUtils.isEmpty(userIds)) {
                     String[] userNames = null;
                     for (String userId : userIds) {
                         userNames = carbonUM.getUserList(SCIMConstants.ID_URI,
@@ -723,7 +743,7 @@ public class SCIMUserManager implements UserManager {
                     List<String> deletedMembers = new ArrayList<String>();
 
                     //check for deleted members
-                    if (oldMembers != null && oldMembers.size() != 0) {
+                    if (oldMembers != null && !CollectionUtils.isEmpty(oldMembers)) {
                         for (String oldMember : oldMembers) {
                             if (newMembers != null && newMembers.contains(oldMember)) {
                                 continue;
@@ -733,7 +753,7 @@ public class SCIMUserManager implements UserManager {
                     }
 
                     //check for added members
-                    if (newMembers != null && newMembers.size() != 0) {
+                    if (newMembers != null && !CollectionUtils.isEmpty(newMembers)) {
                         for (String newMember : newMembers) {
                             if (oldMembers != null && oldMembers.contains(newMember)) {
                                 continue;
@@ -742,7 +762,7 @@ public class SCIMUserManager implements UserManager {
                         }
                     }
 
-                    if (addedMembers.size() != 0 || deletedMembers.size() != 0) {
+                    if (addedMembers.size() != 0 || !CollectionUtils.isEmpty(deletedMembers)) {
                         carbonUM.updateUserListOfRole(newGroup.getDisplayName(),
                                 deletedMembers.toArray(new String[deletedMembers.size()]),
                                 addedMembers.toArray(new String[addedMembers.size()]));
@@ -765,6 +785,7 @@ public class SCIMUserManager implements UserManager {
         }
     }
 
+    @Override
     public Group updateGroup(List<Attribute> attributes) throws CharonException {
         return null;
     }
@@ -777,6 +798,7 @@ public class SCIMUserManager implements UserManager {
      * @return updated group information
      * @throws CharonException
      */
+    @Override
     public Group patchGroup(Group oldGroup, Group newGroup) throws CharonException {
         SCIMProvisioningConfigManager provisioningConfigManager = SCIMProvisioningConfigManager.getInstance();
 
@@ -889,13 +911,11 @@ public class SCIMUserManager implements UserManager {
                     }
                 }
 
-                if (newGroup.getDisplayName() != null) {
-                    if ((!addedMembers.isEmpty()) || (!deletedMembers.isEmpty())) {
-                        carbonUM.updateUserListOfRole(newGroup.getDisplayName(),
-                                deletedMembers.toArray(new String[deletedMembers.size()]),
-                                addedMembers.toArray(new String[addedMembers.size()]));
-                        updated = true;
-                    }
+                if (newGroup.getDisplayName() != null && ((!CollectionUtils.isEmpty(addedMembers)) || (!CollectionUtils.isEmpty(deletedMembers)))) {
+                    carbonUM.updateUserListOfRole(newGroup.getDisplayName(),
+                            deletedMembers.toArray(new String[deletedMembers.size()]),
+                            addedMembers.toArray(new String[addedMembers.size()]));
+                    updated = true;
                 }
 
                 if (updated) {
@@ -913,6 +933,7 @@ public class SCIMUserManager implements UserManager {
         }
     }
 
+    @Override
     public void deleteGroup(String groupId) throws NotFoundException, CharonException {
         SCIMProvisioningConfigManager provisioningConfigManager =
                 SCIMProvisioningConfigManager.getInstance();
@@ -963,7 +984,7 @@ public class SCIMUserManager implements UserManager {
         User scimUser = null;
         try {
             //get claims related to SCIM claim dialect
-            ClaimMapping[] claims = carbonClaimManager.getAllClaimMappings(SCIMCommonUtils.SCIM_CLAIM_DIALECT);
+            ClaimMapping[] claims = carbonClaimManager.getAllClaimMappings(SCIMCommonConstants.SCIM_CLAIM_DIALECT);
 
             List<String> claimURIList = new ArrayList<String>();
             for (ClaimMapping claim : claims) {
