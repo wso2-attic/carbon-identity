@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<BugCollection version="2.0.3" sequence="0" timestamp="1433493870000" analysisTimestamp="1433514118403" release="">
+  <Project>
+    <Jar>/home/hasanthi/Hackthon/carbon-identity/components/carbon-authenticators/mutual-ssl-authenticator/target/classes/org/wso2/carbon/identity/authenticator/mutualssl/MutualSSLAuthenticator.class</Jar>
+    <Jar>/home/hasanthi/Hackthon/carbon-identity/components/carbon-authenticators/mutual-ssl-authenticator/target/classes/org/wso2/carbon/identity/authenticator/mutualssl/internal/MutualSSLAuthenticatorServiceComponent.class</Jar>
+    <AuxClasspathEntry>/home/hasanthi/Hackthon/carbon-identity/components/carbon-authenticators/mutual-ssl-authenticator/target/classes</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/wso2/carbon/org.wso2.carbon.core/4.4.0/org.wso2.carbon.core-4.4.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/com/hazelcast/wso2/hazelcast/3.2.6.wso2v3/hazelcast-3.2.6.wso2v3.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/com/hazelcast/hazelcast-all/3.2.6/hazelcast-all-3.2.6.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/eclipse/osgi/org.eclipse.osgi/3.9.1.v20130814-1242/org.eclipse.osgi-3.9.1.v20130814-1242.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/eclipse/osgi/org.eclipse.osgi.services/3.3.100.v20130513-1956/org.eclipse.osgi.services-3.3.100.v20130513-1956.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/eclipse/equinox/org.eclipse.equinox.http.helper/1.1.0.wso2v1/org.eclipse.equinox.http.helper-1.1.0.wso2v1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/bouncycastle/wso2/bcprov-jdk15on/1.49.0.wso2v2/bcprov-jdk15on-1.49.0.wso2v2.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/bouncycastle/bcprov-jdk15on/1.49/bcprov-jdk15on-1.49.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/wso2/carbon/javax.cache.wso2/4.4.0/javax.cache.wso2-4.4.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/geronimo/specs/geronimo-jta_1.1_spec/1.1/geronimo-jta_1.1_spec-1.1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/wso2/carbon/org.wso2.carbon.registry.core/4.4.0/org.wso2.carbon.registry.core-4.4.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/commons-io/wso2/commons-io/2.4.0.wso2v1/commons-io-2.4.0.wso2v1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/net/sourceforge/findbugs/annotations/1.3.2/annotations-1.3.2.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/ws/commons/schema/wso2/XmlSchema/1.4.7.wso2v3/XmlSchema-1.4.7.wso2v3.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/wso2/carbon/org.wso2.carbon.registry.xboot/4.4.0/org.wso2.carbon.registry.xboot-4.4.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/wso2/securevault/org.wso2.securevault/1.0.0-wso2v2/org.wso2.securevault-1.0.0-wso2v2.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/ws/commons/axiom/axiom-api/1.2.11-wso2v6/axiom-api-1.2.11-wso2v6.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/geronimo/specs/geronimo-activation_1.1_spec/1.0.2/geronimo-activation_1.1_spec-1.0.2.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/geronimo/specs/geronimo-javamail_1.4_spec/1.6/geronimo-javamail_1.4_spec-1.6.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/ws/commons/axiom/axiom-impl/1.2.11-wso2v6/axiom-impl-1.2.11-wso2v6.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/codehaus/woodstox/wstx-asl/3.2.9/wstx-asl-3.2.9.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/jline/jline/0.9.94/jline-0.9.94.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/commons-cli/commons-cli/1.0/commons-cli-1.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/commons-io/commons-io/2.0/commons-io-2.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/commons-codec/commons-codec/1.2/commons-codec-1.2.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/compass-project/wso2/compass/2.0.1.wso2v2/compass-2.0.1.wso2v2.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/abdera/wso2/abdera/1.0.0.wso2v3/abdera-1.0.0.wso2v3.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/tomcat/wso2/jdbc-pool/7.0.34.wso2v2/jdbc-pool-7.0.34.wso2v2.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/tomcat/tomcat-jdbc/7.0.47/tomcat-jdbc-7.0.47.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/poi/wso2/poi-scratchpad/3.9.0.wso2v1/poi-scratchpad-3.9.0.wso2v1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/poi/poi-scratchpad/3.9/poi-scratchpad-3.9.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/poi/poi/3.9/poi-3.9.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/commons-pool/wso2/commons-pool/1.5.6.wso2v1/commons-pool-1.5.6.wso2v1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/commons-pool/commons-pool/1.5.6/commons-pool-1.5.6.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/wso2/carbon/org.wso2.carbon.user.core/4.4.0/org.wso2.carbon.user.core-4.4.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/commons-dbcp/wso2/commons-dbcp/1.4.0.wso2v1/commons-dbcp-1.4.0.wso2v1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/commons-collections/wso2/commons-collections/3.2.0.wso2v1/commons-collections-3.2.0.wso2v1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/axis2/wso2/axis2/1.6.1.wso2v12/axis2-1.6.1.wso2v12.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/neethi/wso2/neethi/2.0.4.wso2v4/neethi-2.0.4.wso2v4.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/httpcomponents/wso2/httpcore/4.3.3.wso2v1/httpcore-4.3.3.wso2v1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/tomcat/tomcat-catalina-ha/7.0.59/tomcat-catalina-ha-7.0.59.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/tomcat/tomcat-juli/7.0.59/tomcat-juli-7.0.59.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/tomcat/tomcat-tribes/7.0.59/tomcat-tribes-7.0.59.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/tomcat/tomcat-catalina/7.0.59/tomcat-catalina-7.0.59.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/tomcat/tomcat-annotations-api/7.0.59/tomcat-annotations-api-7.0.59.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/tomcat/tomcat-api/7.0.59/tomcat-api-7.0.59.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/tomcat/tomcat-util/7.0.59/tomcat-util-7.0.59.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/wsdl4j/wso2/wsdl4j/1.6.2.wso2v4/wsdl4j-1.6.2.wso2v4.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/wso2/carbon/org.wso2.carbon.core.common/4.4.0/org.wso2.carbon.core.common-4.4.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/wso2/carbon/org.wso2.carbon.logging/4.4.0/org.wso2.carbon.logging-4.4.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/log4j/wso2/log4j/1.2.17.wso2v1/log4j-1.2.17.wso2v1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/log4j/log4j/1.2.13/log4j-1.2.13.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/commons-logging/commons-logging/1.2/commons-logging-1.2.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/wso2/carbon/org.wso2.carbon.bootstrap/4.4.0/org.wso2.carbon.bootstrap-4.4.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/wrapper/wrapper/3.2.3/wrapper-3.2.3.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/wso2/carbon/org.wso2.carbon.core.services/4.4.0/org.wso2.carbon.core.services-4.4.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/wso2/carbon/org.wso2.carbon.authenticator.proxy/4.4.0/org.wso2.carbon.authenticator.proxy-4.4.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/ws/commons/axiom/wso2/axiom/1.2.11.wso2v6/axiom-1.2.11.wso2v6.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/geronimo/specs/wso2/geronimo-stax-api_1.0_spec/1.0.1.wso2v2/geronimo-stax-api_1.0_spec-1.0.1.wso2v2.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/geronimo/specs/geronimo-stax-api_1.0_spec/1.0.1/geronimo-stax-api_1.0_spec-1.0.1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/codehaus/woodstox/woodstox-core-asl/4.2.0/woodstox-core-asl-4.2.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/codehaus/woodstox/stax2-api/3.1.1/stax2-api-3.1.1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/javax/xml/stream/stax-api/1.0-2/stax-api-1.0-2.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/wso2/carbon/org.wso2.carbon.authenticator.stub/4.4.0/org.wso2.carbon.authenticator.stub-4.4.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/wso2/carbon/org.wso2.carbon.utils/4.4.0/org.wso2.carbon.utils-4.4.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/wso2/carbon/org.wso2.carbon.user.api/4.4.0/org.wso2.carbon.user.api-4.4.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/wso2/carbon/org.wso2.carbon.queuing/4.4.0/org.wso2.carbon.queuing-4.4.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/wso2/carbon/org.wso2.carbon.base/4.4.0/org.wso2.carbon.base-4.4.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/wso2/carbon/org.wso2.carbon.securevault/4.4.0/org.wso2.carbon.securevault-4.4.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/igniterealtime/smack/wso2/smack/3.0.4.wso2v1/smack-3.0.4.wso2v1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/igniterealtime/smack/wso2/smackx/3.0.4.wso2v1/smackx-3.0.4.wso2v1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/jaxen/jaxen/1.1.1/jaxen-1.1.1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/jdom/jdom/1.0/jdom-1.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/xml-apis/xml-apis/1.3.02/xml-apis-1.3.02.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/xerces/xercesImpl/2.6.2/xercesImpl-2.6.2.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/xom/xom/1.0/xom-1.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/xerces/xmlParserAPIs/2.6.2/xmlParserAPIs-2.6.2.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/xalan/xalan/2.6.0/xalan-2.6.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/com/ibm/icu/icu4j/2.6.1/icu4j-2.6.1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/commons-fileupload/wso2/commons-fileupload/1.2.2.wso2v1/commons-fileupload-1.2.2.wso2v1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/commons-fileupload/commons-fileupload/1.2.2/commons-fileupload-1.2.2.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/ant/wso2/ant/1.7.0.wso2v1/ant-1.7.0.wso2v1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/ant/ant/1.7.0/ant-1.7.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/ant/ant-launcher/1.7.0/ant-launcher-1.7.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/eclipse/equinox/javax.servlet/3.0.0.v201112011016/javax.servlet-3.0.0.v201112011016.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/commons-httpclient/wso2/commons-httpclient/3.1.0.wso2v2/commons-httpclient-3.1.0.wso2v2.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/commons-httpclient/commons-httpclient/3.1/commons-httpclient-3.1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/apache/commons/ssl/not-yet-commons-ssl/0.3.9/not-yet-commons-ssl-0.3.9.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/org/wso2/carbon/org.wso2.carbon.registry.api/4.4.0/org.wso2.carbon.registry.api-4.4.0.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/.m2/repository/commons-lang/wso2/commons-lang/2.6.0.wso2v1/commons-lang-2.6.0.wso2v1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/Hackthon/carbon-identity/components/carbon-authenticators/mutual-ssl-authenticator/target/sonar/findbugs/annotations.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>/home/hasanthi/Hackthon/carbon-identity/components/carbon-authenticators/mutual-ssl-authenticator/target/sonar/findbugs/jsr305.jar</AuxClasspathEntry>
+    <SrcDir>/home/hasanthi/Hackthon/carbon-identity/components/carbon-authenticators/mutual-ssl-authenticator/src/main/java</SrcDir>
+    <WrkDir>/home/hasanthi/Hackthon/carbon-identity/components/carbon-authenticators/mutual-ssl-authenticator/target</WrkDir>
+  </Project>
+  <BugInstance type="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD" priority="2" abbrev="ST" category="STYLE" instanceHash="b0ced9d0287d5e0526fc26ada4281e79" instanceOccurrenceNum="0" instanceOccurrenceMax="0" rank="17">
+    <ShortMessage>Write to static field from instance method</ShortMessage>
+    <LongMessage>Write to static field org.wso2.carbon.identity.authenticator.mutualssl.internal.MutualSSLAuthenticatorServiceComponent.realmService from instance method org.wso2.carbon.identity.authenticator.mutualssl.internal.MutualSSLAuthenticatorServiceComponent.unsetRealmService(RealmService)</LongMessage>
+    <Class classname="org.wso2.carbon.identity.authenticator.mutualssl.internal.MutualSSLAuthenticatorServiceComponent" primary="true">
+      <SourceLine classname="org.wso2.carbon.identity.authenticator.mutualssl.internal.MutualSSLAuthenticatorServiceComponent" start="25" end="75" sourcefile="MutualSSLAuthenticatorServiceComponent.java" sourcepath="org/wso2/carbon/identity/authenticator/mutualssl/internal/MutualSSLAuthenticatorServiceComponent.java" relSourcepath="org/wso2/carbon/identity/authenticator/mutualssl/internal/MutualSSLAuthenticatorServiceComponent.java">
+        <Message>At MutualSSLAuthenticatorServiceComponent.java:[lines 25-75]</Message>
+      </SourceLine>
+      <Message>In class org.wso2.carbon.identity.authenticator.mutualssl.internal.MutualSSLAuthenticatorServiceComponent</Message>
+    </Class>
+    <Method classname="org.wso2.carbon.identity.authenticator.mutualssl.internal.MutualSSLAuthenticatorServiceComponent" name="unsetRealmService" signature="(Lorg/wso2/carbon/user/core/service/RealmService;)V" isStatic="false" primary="true">
+      <SourceLine classname="org.wso2.carbon.identity.authenticator.mutualssl.internal.MutualSSLAuthenticatorServiceComponent" start="74" end="75" startBytecode="0" endBytecode="60" sourcefile="MutualSSLAuthenticatorServiceComponent.java" sourcepath="org/wso2/carbon/identity/authenticator/mutualssl/internal/MutualSSLAuthenticatorServiceComponent.java" relSourcepath="org/wso2/carbon/identity/authenticator/mutualssl/internal/MutualSSLAuthenticatorServiceComponent.java"/>
+      <Message>In method org.wso2.carbon.identity.authenticator.mutualssl.internal.MutualSSLAuthenticatorServiceComponent.unsetRealmService(RealmService)</Message>
+    </Method>
+    <Field classname="org.wso2.carbon.identity.authenticator.mutualssl.internal.MutualSSLAuthenticatorServiceComponent" name="realmService" signature="Lorg/wso2/carbon/user/core/service/RealmService;" isStatic="true" primary="true">
+      <SourceLine classname="org.wso2.carbon.identity.authenticator.mutualssl.internal.MutualSSLAuthenticatorServiceComponent" sourcefile="MutualSSLAuthenticatorServiceComponent.java" sourcepath="org/wso2/carbon/identity/authenticator/mutualssl/internal/MutualSSLAuthenticatorServiceComponent.java" relSourcepath="org/wso2/carbon/identity/authenticator/mutualssl/internal/MutualSSLAuthenticatorServiceComponent.java">
+        <Message>In MutualSSLAuthenticatorServiceComponent.java</Message>
+      </SourceLine>
+      <Message>Field org.wso2.carbon.identity.authenticator.mutualssl.internal.MutualSSLAuthenticatorServiceComponent.realmService</Message>
+    </Field>
+    <SourceLine classname="org.wso2.carbon.identity.authenticator.mutualssl.internal.MutualSSLAuthenticatorServiceComponent" primary="true" start="74" end="74" startBytecode="1" endBytecode="1" sourcefile="MutualSSLAuthenticatorServiceComponent.java" sourcepath="org/wso2/carbon/identity/authenticator/mutualssl/internal/MutualSSLAuthenticatorServiceComponent.java" relSourcepath="org/wso2/carbon/identity/authenticator/mutualssl/internal/MutualSSLAuthenticatorServiceComponent.java">
+      <Message>At MutualSSLAuthenticatorServiceComponent.java:[line 74]</Message>
+    </SourceLine>
+  </BugInstance>
+  <BugCategory category="STYLE">
+    <Description>Dodgy code</Description>
+  </BugCategory>
+  <BugPattern type="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD" abbrev="ST" category="STYLE">
+    <ShortDescription>Write to static field from instance method</ShortDescription>
+    <Details><![CDATA[
+
+  <p> This instance method writes to a static field. This is tricky to get
+correct if multiple instances are being manipulated,
+and generally bad practice.
+</p>
+
+    ]]></Details>
+  </BugPattern>
+  <BugCode abbrev="ST">
+    <Description>Misuse of static fields</Description>
+  </BugCode>
+  <Errors errors="0" missingClasses="0"></Errors>
+  <FindBugsSummary timestamp="Fri, 5 Jun 2015 14:14:30 +0530" total_classes="2" referenced_classes="53" total_bugs="1" total_size="251" num_packages="2" vm_version="24.80-b11" cpu_seconds="0.61" clock_seconds="0.54" peak_mbytes="1463.17" alloc_mbytes="1708.50" gc_seconds="0.04" priority_2="1">
+    <FileStats path="org/wso2/carbon/identity/authenticator/mutualssl/MutualSSLAuthenticator.java" bugCount="0" size="210"/>
+    <FileStats path="org/wso2/carbon/identity/authenticator/mutualssl/internal/MutualSSLAuthenticatorServiceComponent.java" bugCount="1" size="41" bugHash="fa2d1cb8016db9fdc37cfe1ebca15d4f"/>
+    <PackageStats package="org.wso2.carbon.identity.authenticator.mutualssl" total_bugs="0" total_types="1" total_size="210">
+      <ClassStats class="org.wso2.carbon.identity.authenticator.mutualssl.MutualSSLAuthenticator" sourceFile="MutualSSLAuthenticator.java" interface="false" size="210" bugs="0"/>
+    </PackageStats>
+    <PackageStats package="org.wso2.carbon.identity.authenticator.mutualssl.internal" total_bugs="1" total_types="1" total_size="41" priority_2="1">
+      <ClassStats class="org.wso2.carbon.identity.authenticator.mutualssl.internal.MutualSSLAuthenticatorServiceComponent" sourceFile="MutualSSLAuthenticatorServiceComponent.java" interface="false" size="41" bugs="1" priority_2="1"/>
+    </PackageStats>
+    <FindBugsProfile>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassInfoAnalysisEngine" totalMilliseconds="129" invocations="535" avgMicrosecondsPerInvocation="242" maxMicrosecondsPerInvocation="35891" standardDeviationMircosecondsPerInvocation="1578"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassDataAnalysisEngine" totalMilliseconds="94" invocations="538" avgMicrosecondsPerInvocation="175" maxMicrosecondsPerInvocation="21289" standardDeviationMircosecondsPerInvocation="1190"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FieldItemSummary" totalMilliseconds="27" invocations="53" avgMicrosecondsPerInvocation="515" maxMicrosecondsPerInvocation="11350" standardDeviationMircosecondsPerInvocation="1630"/>
+      <ClassProfile name="edu.umd.cs.findbugs.OpcodeStack$JumpInfoFactory" totalMilliseconds="22" invocations="176" avgMicrosecondsPerInvocation="127" maxMicrosecondsPerInvocation="2435" standardDeviationMircosecondsPerInvocation="252"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.TypeDataflowFactory" totalMilliseconds="11" invocations="23" avgMicrosecondsPerInvocation="488" maxMicrosecondsPerInvocation="3930" standardDeviationMircosecondsPerInvocation="1052"/>
+    </FindBugsProfile>
+  </FindBugsSummary>
+  <ClassFeatures></ClassFeatures>
+  <History></History>
+</BugCollection>

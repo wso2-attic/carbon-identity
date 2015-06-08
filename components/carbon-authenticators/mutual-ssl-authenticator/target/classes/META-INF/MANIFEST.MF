@@ -1,0 +1,41 @@
+Manifest-Version: 1.0
+Service-Component: OSGI-INF/serviceComponents.xml
+Export-Package: org.wso2.carbon.identity.authenticator.mutualssl;uses:
+ ="org.apache.axis2.transport.http,org.apache.commons.logging,org.wso2
+ .carbon.user.api,org.wso2.carbon.core.security,org.wso2.carbon.core.s
+ ervices.authentication,org.apache.axis2.context,org.apache.axiom.om.u
+ til,org.wso2.carbon.user.core.tenant,org.apache.commons.lang,org.apac
+ he.axiom.soap,org.wso2.carbon.user.core.service,org.wso2.carbon.utils
+ .multitenancy,org.osgi.util.tracker,org.wso2.carbon.core.services.uti
+ l,org.osgi.framework,org.wso2.carbon.utils,javax.servlet.http";versio
+ n="4.5.1.SNAPSHOT"
+Built-By: hasanthi
+Tool: Bnd-1.43.0
+Bundle-Name: org.wso2.carbon.identity.authenticator.mutualssl
+Created-By: Apache Maven Bundle Plugin
+Bundle-Vendor: WSO2
+Build-Jdk: 1.7.0_80
+Bundle-Version: 4.5.1.SNAPSHOT
+Bnd-LastModified: 1433496277769
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-Description: This is a Carbon bundle that represent authenticat
+ ors.
+Import-Package: javax.servlet.http;version="[2.6.0,3.0.0)",org.apache.
+ axiom.om.util;version="[1.2.11.wso2v6,1.3.0)",org.apache.axiom.soap;v
+ ersion="[1.2.11.wso2v6,1.3.0)",org.apache.axis2.context;version="[1.6
+ .1.wso2v12,1.7.0)",org.apache.axis2.transport.http;version="[1.6.1.ws
+ o2v12,1.7.0)",org.apache.commons.lang;version="[2.6.0,2.7.0)",org.apa
+ che.commons.logging;version="[1.2,1.3)",org.osgi.framework;version="[
+ 1.7.0,1.8.0)",org.osgi.service.component;version="[1.2.0,1.3.0)",org.
+ osgi.util.tracker;version="[1.5.1,1.6.0)",org.wso2.carbon.core.securi
+ ty;version="[4.4.0,4.5.0)",org.wso2.carbon.core.services.authenticati
+ on;version="[4.4.0,4.5.0)",org.wso2.carbon.core.services.util;version
+ ="[4.4.0,4.5.0)",org.wso2.carbon.user.api;version="[1.0.1,1.1.0)",org
+ .wso2.carbon.user.core.service;version="[4.4.0,4.5.0)",org.wso2.carbo
+ n.user.core.tenant;version="[4.4.0,4.5.0)",org.wso2.carbon.utils;vers
+ ion="[4.4.0,4.5.0)",org.wso2.carbon.utils.multitenancy;version="[4.4.
+ 0,4.5.0)"
+Bundle-DocURL: http://www.wso2.org/
+Bundle-SymbolicName: org.wso2.carbon.identity.authenticator.mutualssl
+
