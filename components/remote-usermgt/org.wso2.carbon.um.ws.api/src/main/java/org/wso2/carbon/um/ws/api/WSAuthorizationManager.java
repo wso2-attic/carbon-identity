@@ -49,11 +49,8 @@ public class WSAuthorizationManager implements AuthorizationManager {
             option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
         } catch (AxisFault e) {
 
-            if (log.isDebugEnabled()) {
-                log.debug(CONNECTION_ERROR_MESSAGE, e);
-            }
 
-            throw new UserStoreException();
+            throw new UserStoreException("Axis error occurred while creating service client stub", e);
         }
     }
 

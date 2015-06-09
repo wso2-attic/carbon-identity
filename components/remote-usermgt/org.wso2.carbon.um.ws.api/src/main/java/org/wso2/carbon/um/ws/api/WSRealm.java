@@ -132,10 +132,8 @@ public class WSRealm implements UserRealm {
                     this
                             .getSessionCookie());
         } catch (AxisFault e) {
-            if (log.isDebugEnabled()) {
-                log.debug(CONNECTION_ERROR_MESSAGE, e);
-            }
-            throw new UserStoreException();
+
+            throw new UserStoreException("Axis error occurred while creating service client stub");
         }
 
         userStoreMan = new WSUserStoreManager(url, cookie, configCtxt);

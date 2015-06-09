@@ -244,9 +244,9 @@ public class WSRealmTenantManager implements TenantManager {
                 option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING,
                         sessionCookie);
             } catch (AxisFault axisFault) {
-                if (log.isDebugEnabled()) {
-                    log.debug(AXIS_FAULT_MESSAGE, axisFault);
-                }
+
+
+                throw new UserStoreException("Axis error occurred while creating service client stub",axisFault);
             }
 
 
