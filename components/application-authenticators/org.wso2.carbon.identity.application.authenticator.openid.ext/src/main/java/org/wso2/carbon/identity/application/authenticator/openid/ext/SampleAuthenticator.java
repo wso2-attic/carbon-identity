@@ -63,7 +63,7 @@ public class SampleAuthenticator extends AbstractApplicationAuthenticator
     protected void processAuthenticationResponse(HttpServletRequest request,
                                                  HttpServletResponse response, AuthenticationContext context)
             throws AuthenticationFailedException {
-        throw new UnsupportedOperationException();
+        log.info("Method is not implemented");
 
     }
 
@@ -71,14 +71,14 @@ public class SampleAuthenticator extends AbstractApplicationAuthenticator
     protected void initiateLogoutRequest(HttpServletRequest request,
                                          HttpServletResponse response, AuthenticationContext context)
             throws LogoutFailedException {
-        throw new UnsupportedOperationException();
+        log.info("Method is not implemented");
     }
 
     @Override
     protected void processLogoutResponse(HttpServletRequest request,
                                          HttpServletResponse response, AuthenticationContext context)
             throws LogoutFailedException {
-        throw new UnsupportedOperationException();
+        log.info("Method is not implemented");
     }
 
     @Override

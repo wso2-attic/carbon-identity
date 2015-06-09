@@ -57,7 +57,7 @@ public class FIDOAuthenticatorServiceComponent {
             if (log.isDebugEnabled()) {
                 log.debug("U2FService service is registered");
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.fatal("Error registering U2FService service", e);
         }
     }

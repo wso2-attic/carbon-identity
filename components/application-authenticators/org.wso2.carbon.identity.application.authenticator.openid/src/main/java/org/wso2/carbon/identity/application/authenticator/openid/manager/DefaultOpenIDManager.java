@@ -229,7 +229,7 @@ public class DefaultOpenIDManager implements OpenIDManager {
         } else {
             attribRequestor = new SampleAttributesRequestor();
         }
-        if(attribRequestor!=null) {
+        if (attribRequestor != null) {
             attribRequestor.init();
         }
 
