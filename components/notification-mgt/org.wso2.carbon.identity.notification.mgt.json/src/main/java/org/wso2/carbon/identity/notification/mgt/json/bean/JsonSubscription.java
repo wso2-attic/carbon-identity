@@ -195,10 +195,10 @@ public class JsonSubscription extends Subscription {
         // If authentication required
         if (Boolean.parseBoolean(authenticationRequired)) {
             endpointInfo.setAuthenticationRequired(true);
-            String username = ((String) endpointProperties.remove(prefix + "." + JsonModuleConstants.Config.
-                    USERNAME_QNAME));
-            String password = ((String) endpointProperties.remove(prefix + "." + JsonModuleConstants.Config.
-                    PASSWORD_QNAME));
+            String username = (String) endpointProperties.remove(prefix + "." + JsonModuleConstants.Config.
+                    USERNAME_QNAME);
+            String password = (String) endpointProperties.remove(prefix + "." + JsonModuleConstants.Config.
+                    PASSWORD_QNAME);
 
             if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
                 throw new NotificationManagementException("No authentication information  found for authentication " +
